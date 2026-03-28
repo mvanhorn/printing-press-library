@@ -8,6 +8,7 @@ Every CLI in this library has been generated, verified (`printing-press verify`)
 
 | CLI | API | Status | Scorecard | Verify | Install |
 |-----|-----|--------|-----------|--------|---------|
+| **dub-pp-cli** | [Dub](https://dub.co) | Verified | 82/100 (A) | 96% | `go install github.com/mvanhorn/CLI-PP-Library/dub-pp-cli/cmd/dub-pp-cli@latest` |
 | **cal-cli** | [Cal.com](https://cal.com) | Planned | - | - | - |
 | **notion-cli** | [Notion](https://notion.so) | Planned | - | - | - |
 | **linear-cli** | [Linear](https://linear.app) | Planned | - | - | - |
@@ -59,6 +60,7 @@ We review every submission for:
 
 ```
 CLI-PP-Library/
+  dub-pp-cli/       # Dub link attribution CLI (82/100, Grade A)
   cal-cli/          # Cal.com CLI
   notion-cli/       # Notion CLI
   linear-cli/       # Linear CLI

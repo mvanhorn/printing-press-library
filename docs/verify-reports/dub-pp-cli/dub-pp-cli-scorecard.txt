@@ -1,0 +1,24 @@
+Quality Scorecard: dub-pp-cli
+
+  Output Modes   10/10
+  Auth           8/10
+  Error Handling 10/10
+  Terminal UX    9/10
+  README         5/10
+  Doctor         10/10
+  Agent Native   9/10
+  Local Cache    10/10
+  Breadth        8/10
+  Vision         9/10
+  Workflows      10/10
+  Insight        8/10
+
+  Domain Correctness
+  Path Validity          10/10
+  Auth Protocol          5/10
+  Data Pipeline Integrity 7/10
+  Sync Correctness       10/10
+  Type Fidelity          3/5
+  Dead Code              3/5
+
+  Total: 82/100 - Grade A

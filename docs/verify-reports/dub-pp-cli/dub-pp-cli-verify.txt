@@ -1,0 +1,34 @@
+Runtime Verification: library/dub-pp-cli/dub-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+analytics                      data-layer   PASS   PASS     PASS     3/3
+bounties                       read         PASS   PASS     PASS     3/3
+commissions                    read         PASS   PASS     PASS     3/3
+customers                      read         PASS   PASS     PASS     3/3
+domains                        read         PASS   PASS     PASS     3/3
+events                         read         PASS   PASS     PASS     3/3
+folders                        read         PASS   PASS     PASS     3/3
+links                          read         PASS   PASS     PASS     3/3
+partners                       read         PASS   PASS     PASS     3/3
+payouts                        read         PASS   PASS     PASS     3/3
+qr                             read         PASS   PASS     PASS     3/3
+tags                           read         PASS   PASS     PASS     3/3
+tokens                         read         PASS   PASS     PASS     3/3
+track                          read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tail                           read         PASS   PASS     FAIL     2/3
+compare                        read         PASS   PASS     FAIL     2/3
+workflow                       read         PASS   PASS     PASS     3/3
+stale                          read         PASS   FAIL     FAIL     1/3
+health                         data-layer   PASS   PASS     PASS     3/3
+snapshot                       read         PASS   PASS     PASS     3/3
+
+Data Pipeline: FAIL
+Pass Rate: 96% (25/26 passed, 0 critical)
+Verdict: WARN
