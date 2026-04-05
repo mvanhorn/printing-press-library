@@ -1,0 +1,9 @@
+{
+  "cli_name": "agent-capture-pp-cli",
+  "api_name": "agent-capture",
+  "printing_press_version": "0.4.0",
+  "generated_at": "2026-04-05T19:25:10Z",
+  "run_id": "20260405-115134",
+  "run_type": "plan-driven",
+  "spec_source": "/Users/mvanhorn/docs/plans/2026-04-05-004-feat-agent-capture-cli-plan.md"
+}

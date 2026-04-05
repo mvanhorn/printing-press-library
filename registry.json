@@ -2,6 +2,13 @@
   "schema_version": 1,
   "entries": [
     {
+      "name": "agent-capture-pp-cli",
+      "category": "developer-tools",
+      "api": "agent-capture",
+      "description": "Record, screenshot, and convert macOS windows and screens for AI agent evidence",
+      "path": "library/developer-tools/agent-capture-pp-cli"
+    },
+    {
       "name": "dub-pp-cli",
       "category": "marketing",
       "api": "Dub",
