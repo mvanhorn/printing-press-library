@@ -31,6 +31,7 @@ func newPlaysCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&league, "league", "nfl", "League key")
+	cmd.Flags().StringVar(&league, "league", "", "League key (e.g. mlb, nfl, nba, nhl)")
+	_ = cmd.MarkFlagRequired("league")
 	return cmd
 }

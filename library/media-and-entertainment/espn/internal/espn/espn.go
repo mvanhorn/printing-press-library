@@ -122,17 +122,14 @@ func (e *ESPN) Summary(sport, league, eventID string) (json.RawMessage, error) {
 }
 
 func (e *ESPN) Boxscore(sport, league, eventID string) (json.RawMessage, error) {
-	// CDN uses just the league slug (nfl, nba) as the sport path component
-	return e.get(withQuery("https://cdn.espn.com/core/"+league+"/boxscore", map[string]string{
-		"gameId": eventID,
-		"xhr":    "1",
+	return e.get(withQuery(siteAPIURL(sport, league, "summary"), map[string]string{
+		"event": eventID,
 	}), 5*time.Minute)
 }
 
 func (e *ESPN) PlayByPlay(sport, league, eventID string) (json.RawMessage, error) {
-	return e.get(withQuery("https://cdn.espn.com/core/"+league+"/playbyplay", map[string]string{
-		"gameId": eventID,
-		"xhr":    "1",
+	return e.get(withQuery(siteAPIURL(sport, league, "summary"), map[string]string{
+		"event": eventID,
 	}), 5*time.Minute)
 }
 
@@ -315,10 +312,6 @@ func webAPIURL(segments ...string) string {
 	return joinURL(parts...)
 }
 
-func cdnURL(sport, league string, segments ...string) string {
-	parts := append([]string{"https://cdn.espn.com/core", sport, league}, segments...)
-	return joinURL(parts...)
-}
 
 func joinURL(parts ...string) string {
 	clean := make([]string, 0, len(parts))
