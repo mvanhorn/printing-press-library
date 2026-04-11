@@ -46,7 +46,9 @@ The skill reads the registry, matches your query to the right CLI, handles insta
 
 | CLI | MCP | API | Tools | What it does |
 |-----|-----|-----|-------|-------------|
+| **[archive-is-pp-cli](library/media-and-entertainment/archive-is/)** | archive-is-pp-mcp | Archive.today | 6 | Bypass paywalls and look up web archives via archive.today. Lookup-before-submit, Wayback fallback, agent-hints on stderr. |
 | **[espn-pp-cli](library/media-and-entertainment/espn/)** | espn-pp-mcp | ESPN | 3 | Sports data — scores, stats, standings, schedules, news, odds across 17 sports and 139 leagues. |
+| **[flightgoat-pp-cli](library/other/flightgoat/)** | flightgoat-pp-mcp | flightgoat | 58 | Free Google Flights search, Kayak nonstop route explorer, and optional FlightAware live tracking (API key optional for tracking). |
 | **[postman-explore-pp-cli](library/developer-tools/postman-explore/)** | postman-explore-pp-mcp | Postman Explore | 9 | Search and browse the Postman API Network. |
 
 ### API key required
@@ -55,7 +57,9 @@ The skill reads the registry, matches your query to the right CLI, handles insta
 |-----|-----|-----|-------|-------------|
 | **[dub-pp-cli](library/marketing/dub/)** | dub-pp-mcp | Dub | 53 | Create short links, track analytics, manage domains, and run affiliate programs. |
 | **[hubspot-pp-cli](library/sales-and-crm/hubspot/)** | hubspot-pp-mcp | HubSpot | 50+ | CRM contacts, companies, deals, tickets, engagements, pipelines, and associations with offline search and pipeline analytics. |
+| **[kalshi-pp-cli](library/payments/kalshi/)** | kalshi-pp-mcp | Kalshi | 89 | Trade prediction markets, track portfolios, and analyze odds on Kalshi from the command line. |
 | **[linear-pp-cli](library/project-management/linear/)** | linear-pp-mcp | Linear | 63 | Issues, cycles, teams, projects via GraphQL. Local sync, stale detection, team health scoring. |
+| **[movie-goat-pp-cli](library/media-and-entertainment/movie-goat/)** | movie-goat-pp-mcp | TMDb + OMDb | 25 | Multi-source movie ratings (TMDb + OMDb), streaming availability, and cross-taste recommendations. |
 | **[slack-pp-cli](library/productivity/slack/)** | slack-pp-mcp | Slack | 50+ | Send messages, search conversations, monitor channels, manage workspace. 8 transcendence analytics commands. |
 | **[steam-web-pp-cli](library/media-and-entertainment/steam-web/)** | steam-web-pp-mcp | Steam Web | 164 (29 public) | Look up Steam players, games, achievements, friends, and stats. 29 tools work without an API key. |
 | **[trigger-dev-pp-cli](library/developer-tools/trigger-dev/)** | trigger-dev-pp-mcp | Trigger.dev | 40+ | Monitor runs, trigger tasks, manage schedules, and detect failures. Real-time failure watch with desktop notifications. |
@@ -78,6 +82,7 @@ The skill reads the registry, matches your query to the right CLI, handles insta
 | CLI | API | What it does |
 |-----|-----|-------------|
 | **[agent-capture-pp-cli](library/developer-tools/agent-capture/)** | agent-capture | Record, screenshot, and convert macOS windows and screens for AI agent evidence. |
+| **[instacart-pp-cli](library/commerce/instacart/)** | Instacart | Natural-language Instacart CLI via the web GraphQL API. Add items, search products, and manage carts across retailers without browser automation. |
 
 ## Install
 
@@ -118,6 +123,21 @@ go install github.com/mvanhorn/printing-press-library/library/commerce/dominos-p
 
 # Pagliacci Pizza — pizza ordering (browser login for full access)
 go install github.com/mvanhorn/printing-press-library/library/other/pagliacci-pizza/cmd/pagliacci-pizza-pp-cli@latest
+
+# Archive.today — paywall bypass and archive lookup (no auth)
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/archive-is/cmd/archive-is-pp-cli@latest
+
+# flightgoat — flights search and tracking (FLIGHTGOAT_API_KEY_AUTH optional for FlightAware tracking)
+go install github.com/mvanhorn/printing-press-library/library/other/flightgoat/cmd/flightgoat-pp-cli@latest
+
+# Instacart — grocery ordering via web GraphQL (browser cookie session)
+go install github.com/mvanhorn/printing-press-library/library/commerce/instacart/cmd/instacart-pp-cli@latest
+
+# Kalshi — prediction markets (set KALSHI_API_KEY env var)
+go install github.com/mvanhorn/printing-press-library/library/payments/kalshi/cmd/kalshi-pp-cli@latest
+
+# Movie Goat — movie ratings and streaming availability (set TMDB_API_KEY env var)
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/cmd/movie-goat-pp-cli@latest
 ```
 
 ### MCP Server (Claude Desktop / Cursor)
