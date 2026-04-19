@@ -24,15 +24,25 @@ Commands that only work because of local sync + cross-league tooling.
 
 - **`today`** — Today's scores across all major sports in one call. The fastest "what's on tonight" answer without picking a sport first.
 
+- **`trending`** — Most-followed athletes and teams across all leagues, ranked by current popularity. Good for "who is hot right now" without naming a sport.
+
+- **`dashboard`** — Reads `[favorites]` from `~/.config/espn-pp-cli/config.toml` and shows scores for each favorited team across leagues, in one call.
+
 - **`watch <sport> <league> --event <game_id>`** — Live score updates for a specific game (polls every 30s). Use `scores` or `today` to find the game, then `watch` to follow it live.
 
 ### Game-state intelligence
 
 - **`summary <sport> <league> --event <game_id>`** — Detailed game summary including box score, leaders, scoring plays, odds, and win probability. The single richest payload per game.
 
+- **`boxscore <event_id>`** — Just the per-player box score for an event id, with sport+league inferred from a recent scoreboard cache hit. Pass `--sport`/`--league` to skip inference.
+
+- **`plays <sport> <league> --event <id>`** — Play-by-play feed for a specific event. Optional `--limit` (default 200).
+
 - **`recap <sport> <league>`** — Post-game recap with box score and leaders for the most recent completed game in a league.
 
 - **`scoreboard <sport> <league>`** — Live scoreboard with date filtering, week/group selectors, and competition metadata.
+
+- **`odds <sport> <league>`** — Spread, over/under, and moneyline lines for tonight's slate, derived from the scoreboard payload (no per-game summary calls).
 
 ### Standings and rankings
 
@@ -43,6 +53,20 @@ Commands that only work because of local sync + cross-league tooling.
 - **`streak <sport> <league>`** — Current win/loss streaks across teams in a league, computed from synced data.
 
 - **`rivals <sport> <league>`** — Head-to-head records between teams in a league from synced data.
+
+- **`h2h <team1> <team2> --sport <s> --league <l>`** — Deeper head-to-head detail for one specific pair, including average score and recent meetings list.
+
+- **`sos <sport> <league>`** — Strength-of-schedule per team, derived from the standings payload, sorted descending.
+
+### People
+
+- **`leaders <sport> <league> [--category <name>]`** — Statistical leaders across categories with optional filter.
+
+- **`compare <athlete1> <athlete2> --sport <s> --league <l>`** — Side-by-side season stats for two athletes. Ambiguous names list candidates and exit 2.
+
+- **`injuries <sport> <league>`** — Active injury report across the league, grouped by team.
+
+- **`transactions <sport> <league>`** — Recent trades, signings, and waivers.
 
 ### Local store
 
@@ -61,6 +85,8 @@ Live action:
 - `espn-pp-cli scoreboard <sport> <league>` — Scoreboard with optional date filtering
 - `espn-pp-cli watch <sport> <league> --event <game_id>` — Live score polling for one game
 - `espn-pp-cli standings <sport> <league>` — League standings
+- `espn-pp-cli trending` — Most-followed athletes and teams across leagues
+- `espn-pp-cli dashboard` — Favorites snapshot from `~/.config/espn-pp-cli/config.toml`
 
 Team detail:
 
@@ -69,11 +95,23 @@ Team detail:
 - `espn-pp-cli teams list <sport> <league>` — All teams in a league
 - `espn-pp-cli streak <sport> <league>` — Current win/loss streaks from synced data
 - `espn-pp-cli rivals <sport> <league>` — Head-to-head records between teams from synced data
+- `espn-pp-cli h2h <team1> <team2> --sport <s> --league <l>` — Deeper detail for one team pair (avg score, meetings)
+- `espn-pp-cli sos <sport> <league>` — Strength-of-schedule, sorted descending
 
 Game detail:
 
 - `espn-pp-cli summary <sport> <league> --event <game_id>` — Full game summary (box score, leaders, scoring plays, odds, win probability)
+- `espn-pp-cli boxscore <event_id>` — Just the box score subtree (sport/league inferred from cache)
+- `espn-pp-cli plays <sport> <league> --event <id>` — Play-by-play feed (optional `--limit`, default 200)
 - `espn-pp-cli recap <sport> <league>` — Most recent completed game recap
+- `espn-pp-cli odds <sport> <league>` — Spread, over/under, moneyline for tonight's slate
+
+People:
+
+- `espn-pp-cli leaders <sport> <league> [--category <name>]` — Statistical leaders by category
+- `espn-pp-cli compare <athlete1> <athlete2> --sport <s> --league <l>` — Side-by-side athlete stats
+- `espn-pp-cli injuries <sport> <league>` — Active injury report
+- `espn-pp-cli transactions <sport> <league>` — Recent trades, signings, waivers
 
 Polls and rankings:
 
@@ -126,6 +164,36 @@ espn-pp-cli search "Mahomes"                    # finds in local store
 ```
 
 Useful for repeated lookups in poor-connectivity environments or when batch-analyzing historical data.
+
+### Favorites dashboard
+
+Add a `[favorites]` block to `~/.config/espn-pp-cli/config.toml`:
+
+```
+[favorites]
+nfl = ["KC", "BAL"]
+nba = ["LAL"]
+```
+
+Then:
+
+```bash
+espn-pp-cli dashboard --agent
+```
+
+One call surfaces tonight's matchup status for every favorited team, grouped by league. Per-league fetches run in parallel and partial failures are reported alongside successful results.
+
+### Pre-game odds and player digging
+
+```bash
+espn-pp-cli odds basketball nba --agent          # tonight's spreads / totals / moneylines
+espn-pp-cli leaders basketball nba --category points --agent
+espn-pp-cli compare "LeBron James" "Stephen Curry" --sport basketball --league nba --agent
+espn-pp-cli boxscore <event_id> --agent          # post-game player stats
+espn-pp-cli plays basketball nba --event <id> --limit 50 --agent
+```
+
+`odds` reads the scoreboard's per-event lines (no per-game summary calls). `leaders --category` filters to one stat category. `compare` resolves athlete ids by name, listing candidates and exiting 2 on ambiguity. `boxscore` infers sport+league from the most recent cache hit; pass `--sport`/`--league` to skip inference.
 
 ## Auth Setup
 
