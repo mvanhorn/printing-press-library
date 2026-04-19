@@ -177,7 +177,7 @@ Use --store to filter to one retailer. Default limit is 25.`,
 				return err
 			}
 			if len(rows) == 0 {
-				fmt.Fprintln(cmd.OutOrStderr(), "no purchase history yet -- run `instacart history sync` to populate")
+				fmt.Fprintln(cmd.OutOrStderr(), backfillHint())
 				if app.JSON {
 					return json.NewEncoder(cmd.OutOrStdout()).Encode([]any{})
 				}

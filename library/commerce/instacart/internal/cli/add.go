@@ -126,6 +126,9 @@ Instacart app or web UI.`,
 					"quantity": qty,
 					"status":   "dry-run (mutation not fired)",
 				}
+				if resolvedVia != "history" && historyIsEmpty(app) {
+					preview["hint"] = backfillHint()
+				}
 				if app.JSON {
 					return json.NewEncoder(cmd.OutOrStdout()).Encode(preview)
 				}
@@ -184,12 +187,16 @@ Instacart app or web UI.`,
 			}
 
 			if app.JSON {
-				return json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{
+				envelope := map[string]any{
 					"added":        pick,
 					"cart_id":      cartID,
 					"resolved_via": resolvedVia,
 					"result":       parsed.Data.UpdateCartItems,
-				})
+				}
+				if resolvedVia != "history" && historyIsEmpty(app) {
+					envelope["hint"] = backfillHint()
+				}
+				return json.NewEncoder(cmd.OutOrStdout()).Encode(envelope)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "added to %s cart:\n  %s (via %s)\n  item_id=%s\n", retailer, pick.Name, resolvedVia, pick.ItemID)
 			if parsed.Data.UpdateCartItems.Cart != nil {

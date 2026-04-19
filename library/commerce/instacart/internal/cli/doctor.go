@@ -63,27 +63,18 @@ Exit codes:
 				}
 			}
 
-			// 4. History sync state
+			// 4. History store state. Instacart has no clean GraphQL op for
+			// order history (see docs/solutions/best-practices/
+			// instacart-orders-no-clean-graphql-op.md), so the only working
+			// backfill path is the Chrome-MCP-driven `/pp-instacart backfill`
+			// skill flow which dumps + imports JSONL.
 			orderCount, _ := app.Store.CountOrders()
 			itemCount, _, _ := app.Store.CountPurchasedItems()
-			historyEnabled := true
-			for _, opName := range instacart.HistoryOpNames() {
-				if h, _ := app.Store.LookupOp(opName); h == "" {
-					historyEnabled = false
-					break
-				}
-			}
-			if !historyEnabled {
+			if orderCount == 0 && itemCount == 0 {
 				results = append(results, checkResult{
 					Name:   "history",
 					Status: "warn",
-					Detail: "hashes not yet captured -- see docs/history-ops-capture.md",
-				})
-			} else if orderCount == 0 && itemCount == 0 {
-				results = append(results, checkResult{
-					Name:   "history",
-					Status: "warn",
-					Detail: "not synced yet -- run `instacart history sync`",
+					Detail: backfillHint(),
 				})
 			} else {
 				results = append(results, checkResult{
