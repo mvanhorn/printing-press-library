@@ -1,8 +1,8 @@
 ---
 name: pp-instacart
-description: "Printing Press CLI for Instacart. Natural-language Instacart CLI that talks directly to the web GraphQL API. Add items to your cart, search products, and manage carts across retailers without browser automation. Also caches your purchase history locally so 'add' resolves items you have bought before instead of guessing from live search. Trigger phrases: 'install instacart', 'use instacart', 'run instacart', 'add X to my Safeway cart', 'what did I buy last time', 'order the usual', 'add my regulars to Costco'."
-argument-hint: "<command> [args] | install cli|mcp"
-allowed-tools: "Read Bash"
+description: "Printing Press CLI for Instacart. Natural-language Instacart CLI that talks directly to the web GraphQL API. Add items to your cart, search products, and manage carts across retailers without browser automation. Also caches your purchase history locally so 'add' resolves items you have bought before instead of guessing from live search. Trigger phrases: 'install instacart', 'use instacart', 'run instacart', 'add X to my Safeway cart', 'what did I buy last time', 'order the usual', 'add my regulars to Costco', 'backfill my instacart history', 'sync my instacart orders', 'download my order history', 'save my instacart history locally'."
+argument-hint: "<command> [args] | install cli|mcp | backfill"
+allowed-tools: "Read Bash WebFetch"
 ---
 
 # Instacart - Printing Press CLI
@@ -36,17 +36,20 @@ Falls through to today's live-search behavior when any condition fails. Pass `--
 
 Every successful `add` (history-resolved or live-resolved) writes back to `purchased_items` so the signal gets warmer without a full re-sync.
 
-### Purchase history import + inspection
+### One-command history backfill
 
-**Use `history import`, not `history sync`.** Instacart does not expose a clean order-history GraphQL op, so `sync` cannot work — it surfaces a clear error pointing at the working path. The working path is:
+Typing "backfill my instacart orders" (or similar, see Argument Parsing) kicks off a Chrome-MCP-driven flow that walks the user's logged-in Instacart tab, extracts their order history into JSONL, and imports it into the local DB. After backfill, `add` resolves from real purchase history instead of live-search guesses.
 
-1. Run the browser-side dumper (see `docs/dumper.js` + `docs/extract-one.js`) against a logged-in Chrome tab
-2. Download the resulting `instacart-orders.jsonl`
-3. `instacart history import <path>` — upserts orders + items into the local DB
+Primary path: Chrome MCP. Fallback: paste three JS files into DevTools by hand.
 
-See the full playbook at [`docs/patterns/authenticated-session-scraping.md`](https://github.com/mvanhorn/printing-press-library/blob/main/docs/patterns/authenticated-session-scraping.md) (repo root).
+Full walkthrough below under "Backfill Flow". Reference docs with more detail:
+
+- [`docs/backfill-walkthrough.md`](https://github.com/mvanhorn/printing-press-library/blob/main/library/commerce/instacart/docs/backfill-walkthrough.md) — Chrome MCP flow
+- [`docs/backfill-devtools-fallback.md`](https://github.com/mvanhorn/printing-press-library/blob/main/library/commerce/instacart/docs/backfill-devtools-fallback.md) — manual DevTools flow
 
 `history list` / `history search` / `history stats` inspect whatever has been loaded.
+
+Instacart does not expose a clean order-history GraphQL op, so the legacy `history sync` command cannot work. See [`docs/solutions/best-practices/instacart-orders-no-clean-graphql-op.md`](https://github.com/mvanhorn/printing-press-library/blob/main/docs/solutions/best-practices/instacart-orders-no-clean-graphql-op.md) for why.
 
 ### Natural-language `add`
 
@@ -107,12 +110,13 @@ Maintenance:
 instacart auth login                # extract cookies from Chrome
 instacart doctor                    # verify auth + live ping
 instacart capture                   # seed built-in op hashes
-# History backfill: browser-side dump, then import. See
-# docs/patterns/authenticated-session-scraping.md for the full walkthrough.
-# After you have instacart-orders.jsonl:
-instacart history import ~/Downloads/instacart-orders.jsonl
-instacart history stats             # confirm what landed
 ```
+
+Then backfill history (optional but recommended; unlocks history-first `add`):
+
+> Tell the agent: "backfill my instacart orders"
+
+The skill drives the rest. See the "Backfill Flow" section below.
 
 ### Add something you buy all the time
 
@@ -169,7 +173,37 @@ Given a free-form natural-language request:
 
 1. Empty, `help`, or `--help` -> run `instacart --help`
 2. Starts with `install` -> CLI install; ends with `mcp` -> MCP install
-3. Anything else -> map to the best subcommand and run with `--json` when invoked from an agent
+3. Matches a **backfill intent** -> run the Backfill Flow below. Trigger phrases include: "backfill my orders", "backfill my history", "sync my instacart history", "sync my instacart orders", "download my order history", "save my instacart history locally", "pull in my past orders", "import my recent orders".
+4. Anything else -> map to the best subcommand and run with `--json` when invoked from an agent
+
+## Backfill Flow
+
+Drive this when the user hits a backfill intent. Read [`docs/backfill-walkthrough.md`](https://github.com/mvanhorn/printing-press-library/blob/main/library/commerce/instacart/docs/backfill-walkthrough.md) via WebFetch for the full procedure; summary below.
+
+Setup check:
+
+1. Confirm `instacart-pp-cli` is on PATH. If not, install: `go install github.com/mvanhorn/printing-press-library/library/commerce/instacart/cmd/instacart-pp-cli@latest`.
+2. Probe `mcp__claude-in-chrome__tabs_context_mcp`. If the tool is unavailable, route to the DevTools fallback: fetch [`docs/backfill-devtools-fallback.md`](https://github.com/mvanhorn/printing-press-library/blob/main/library/commerce/instacart/docs/backfill-devtools-fallback.md) and walk the user through it. Stop.
+3. Run `instacart-pp-cli history stats --agent`. If orders > 0, this is a top-up run; the resume state will skip already-dumped orders automatically.
+
+Chrome MCP loop:
+
+1. WebFetch the three JS files (cache each in the current session):
+   - `https://raw.githubusercontent.com/mvanhorn/printing-press-library/main/library/commerce/instacart/docs/dumper.js`
+   - `https://raw.githubusercontent.com/mvanhorn/printing-press-library/main/library/commerce/instacart/docs/extract-one.js`
+   - `https://raw.githubusercontent.com/mvanhorn/printing-press-library/main/library/commerce/instacart/docs/export-jsonl.js`
+2. Open or reuse a tab at `https://www.instacart.com/store/account/orders`. If the dumper returns `profile_picker: true`, ask the user to pick a profile in the tab, then re-run.
+3. Inject `dumper.js` via `mcp__claude-in-chrome__javascript_tool`. Read back `total_ids` and `pending_extract`.
+4. For each order ID in the pending set, navigate to `/store/orders/<id>` then inject `extract-one.js`. Report progress to the user every 10 orders.
+5. When pending reaches 0, inject `export-jsonl.js`. It downloads `instacart-orders.jsonl` to the user's default Downloads folder.
+6. Run `instacart-pp-cli history import ~/Downloads/instacart-orders.jsonl --agent` in a Bash tool. Show the summary JSON to the user.
+7. Verify: `instacart-pp-cli history stats --agent`. Offer a follow-up sanity check: `instacart-pp-cli add <retailer> "<something they've bought>" --dry-run --json` and flag `resolved_via: "history"` when it appears.
+
+Error surfaces worth translating for the user:
+
+- Extractor `cache_key_missing` on every order -> Instacart rotated their web bundle. Report the observed cache keys and point at the rotation-recovery section of the walkthrough doc.
+- Dumper reports fewer IDs than the user expected -> probably on a multi-profile account; ensure the selected profile is the one with purchase history.
+- `history import` shows 0 orders imported -> the JSONL is empty (only skip records). Re-run the extractor loop with fresh tabs.
 
 ## CLI Installation
 
@@ -185,5 +219,5 @@ Ensure `$HOME/go/bin` is on `$PATH`.
 1. Check installed: `which instacart-pp-cli`
 2. Check auth: `instacart doctor`
 3. Capture GraphQL hashes: `instacart capture`
-4. (Optional but recommended) Sync history: follow `docs/history-ops-capture.md` then `instacart history sync`
+4. (Optional but recommended) Backfill history — run the Backfill Flow above. Unlocks history-first `add` resolution.
 5. Run your command with `--json` if invoked from an agent
