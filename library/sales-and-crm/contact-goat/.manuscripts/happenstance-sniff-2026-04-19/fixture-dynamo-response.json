@@ -1,0 +1,107 @@
+[
+  {
+    "request_id": "FIXTURE-REQUEST-UUID",
+    "request_text": "people at Weber Inc",
+    "request_content": [
+      {"type": "p", "children": [{"text": "people at Weber Inc"}]}
+    ],
+    "request_status": "Found 2 people",
+    "completed": true,
+    "include_my_connections": true,
+    "include_my_friends": true,
+    "search_everyone": false,
+    "request_groups": [],
+    "timestamp": "2026-04-19T23:45:00.000Z",
+    "version": 1.1,
+    "user_id": "user_FIXTURE_USER",
+    "user_display": {
+      "id": "FIXTURE-USER-UUID",
+      "name": "Fixture User"
+    },
+    "s3_results_uri": "s3://hpn-search-results-prod/results/FIXTURE-REQUEST-UUID.json",
+    "visibility": null,
+    "is_owner": true,
+    "followup": {"type": "results_limit"},
+    "system_search": false,
+    "logs": [
+      {
+        "type": "INFO",
+        "message": "Using direct SQL query for company-only search",
+        "timestamp": "2026-04-19T23:45:00.100000+00:00"
+      },
+      {
+        "type": "FIRST_RESPONSE",
+        "message": "On it. I'm searching through the connections you've included.",
+        "timestamp": "2026-04-19T23:45:00.500000+00:00"
+      },
+      {
+        "type": "FILTER",
+        "title": "Companies",
+        "message": ["Weber Inc.", "Weber-Stephen Products"],
+        "timestamp": "2026-04-19T23:45:01.000000+00:00"
+      }
+    ],
+    "results": [
+      {
+        "author_name": "Jennifer Bonuso",
+        "person_uuid": "FIXTURE-PERSON-UUID-1",
+        "score": 1,
+        "linkedin_url": "https://www.linkedin.com/in/jenniferbonuso",
+        "twitter_url": null,
+        "instagram_url": null,
+        "quotes": "Jennifer is currently <b>President, Americas</b> at Weber Inc.",
+        "quotes_cited": [
+          {"text": "Jennifer is currently President, Americas at Weber Inc.", "url": "https://www.linkedin.com/in/jenniferbonuso"}
+        ],
+        "current_title": "President, Americas",
+        "current_company": "Weber Inc.",
+        "summary": "Senior executive at Weber Inc. since 2022.",
+        "referrers": {
+          "is_yc": false,
+          "referrers": [
+            {
+              "id": "CURRENT-USER-UUID",
+              "name": "Fixture User",
+              "source": ["LinkedIn"],
+              "image_url": "https://img.clerk.com/FIXTURE",
+              "affinity_score": 50.0,
+              "affinity_level": "medium",
+              "is_directory_user": false
+            }
+          ]
+        },
+        "traits": {"0": "executive"}
+      },
+      {
+        "author_name": "Gabriel Risk",
+        "person_uuid": "FIXTURE-PERSON-UUID-2",
+        "score": 1,
+        "linkedin_url": "https://www.linkedin.com/in/gabriel-risk",
+        "twitter_url": null,
+        "instagram_url": null,
+        "quotes": "Gabriel is currently a <b>Director of Engineering</b> at Weber Inc.",
+        "quotes_cited": [
+          {"text": "Gabriel is currently a Director of Engineering at Weber Inc., a role he has held since January 2021.", "url": "https://www.linkedin.com/in/gabriel-risk"}
+        ],
+        "current_title": "Director of Engineering",
+        "current_company": "Weber Inc.",
+        "summary": "Leads embedded firmware and electrical engineering at Weber Inc.",
+        "referrers": {
+          "is_yc": false,
+          "referrers": [
+            {
+              "id": "FRIEND-OF-CURRENT-USER-UUID",
+              "name": "Some Friend",
+              "source": ["LinkedIn"],
+              "image_url": "https://img.clerk.com/FIXTURE2",
+              "affinity_score": 25.0,
+              "affinity_level": "low",
+              "is_directory_user": false
+            }
+          ]
+        },
+        "traits": {"0": "engineering"}
+      }
+    ]
+  }
+]

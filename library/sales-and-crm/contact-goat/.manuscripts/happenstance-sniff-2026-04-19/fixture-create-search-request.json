@@ -1,0 +1,11 @@
+{
+  "requestText": "people at Weber Inc",
+  "requestContent": [
+    {"type": "p", "children": [{"text": "people at Weber Inc"}]}
+  ],
+  "requestGroups": ["your-connections", "your-friends"],
+  "parentRequestId": null,
+  "excludePersonUUIDs": [],
+  "searchEveryone": false,
+  "creditId": null
+}
