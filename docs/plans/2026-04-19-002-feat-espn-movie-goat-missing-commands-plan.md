@@ -1,9 +1,10 @@
 ---
 title: "feat: Implement missing ESPN CLI commands and generator extra_commands support"
 type: feat
-status: active
+status: completed
 date: 2026-04-19
 deepened: 2026-04-19
+completed: 2026-04-19
 ---
 
 # feat: Implement missing ESPN CLI commands and generator extra_commands support
@@ -261,7 +262,7 @@ Verification:
 - A fixture spec with extra_commands generates a SKILL.md whose `## Command Reference` includes the new entries.
 - Round-trip: edit a real spec.yaml (use a copy, not ESPN), regenerate, observe the new commands in the rendered SKILL.md.
 
-- [ ] Unit 2: ESPN spec.yaml extensions for injuries, transactions, leaders, plays
+- [x] Unit 2: ESPN spec.yaml extensions for injuries, transactions, leaders, plays (shipped via #89, merged 2026-04-19)
 
 Goal: Add four spec-driven resources to ESPN. Each gets a generated promoted command and (where naturally row-shaped) a domain table.
 
@@ -305,7 +306,7 @@ Verification:
 - `dogfood-results.json` regenerated with new commands covered.
 - Full ESPN test suite passes.
 
-- [ ] Unit 3: ESPN hand-written commands - boxscore, odds, sos, h2h, compare, trending, dashboard
+- [x] Unit 3: ESPN hand-written commands - boxscore, odds, sos, h2h, compare, trending, dashboard (shipped via #89, merged 2026-04-19)
 
 Goal: Add seven hand-written commands that compose multiple endpoints or read local state.
 
@@ -365,7 +366,7 @@ Verification:
 - `espn-pp-cli doctor` continues to report OK.
 - Per-command `_test.go` covers the listed scenarios with table-driven tests against recorded fixtures.
 
-- [ ] Unit 4: ESPN spec.yaml extra_commands: + SKILL.md regeneration
+- [x] Unit 4: ESPN spec.yaml extra_commands: + SKILL.md regeneration (shipped via #89, merged 2026-04-19; plugin bumped to 1.1.15)
 
 Goal: Declare all seven hand-written commands in spec.yaml's new `extra_commands:` block, regenerate SKILL.md, regenerate plugin/skills mirror, bump plugin.json.
 
