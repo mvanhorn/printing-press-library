@@ -13,36 +13,48 @@ verification, agents following the SKILL will hit "unknown flag" errors
 in production.
 
 This verifier was built after hand-authoring SKILLs for the 11 launch
-CLIs and discovering **23 invented / wrong-command / wrong-arg-count
-errors** across 7 of them. Three tiers of checks catch different error
+CLIs and discovering 23 invented / wrong-command / wrong-arg-count
+errors across 7 of them. Four tiers of checks catch different error
 classes; the earlier tier is strictest and the later tiers cover what
 the earlier ones miss.
 
 ## What it checks
 
-**1. flag-names** — every `--flag` token in SKILL.md is declared as
-`.Flags().XVar(&var, "name", ...)` somewhere in `internal/cli/*.go`. Catches
-pure inventions.
+1. flag-names — every `--flag` token in SKILL.md is declared as
+   `.Flags().XVar(&var, "name", ...)` somewhere in `internal/cli/*.go`.
+   Catches pure inventions.
 
-**2. flag-commands** — every `--flag` used on a specific bash recipe is
-declared on that command's source file (or as a persistent root flag).
-Catches cases where a flag exists somewhere but I used it on the wrong
-command (e.g., `--interval` on `payouts` when it's actually on
-`commissions`).
+2. flag-commands — every `--flag` used on a specific bash recipe is
+   declared on that command's source file (or as a persistent root flag).
+   Catches cases where a flag exists somewhere but I used it on the
+   wrong command (e.g., `--interval` on `payouts` when it's actually on
+   `commissions`).
 
-**3. positional-args** — each bash recipe's positional-arg count is
-compatible with the command's `Use:` field (`<required>` + `[optional]` +
-`variadic`) and its `Args:` validator (`cobra.ExactArgs(N)`,
-`MinimumNArgs(N)`, etc.). Catches wrong-arity invocations.
+3. positional-args — each bash recipe's positional-arg count is
+   compatible with the command's `Use:` field (`<required>` +
+   `[optional]` + `variadic`) and its `Args:` validator
+   (`cobra.ExactArgs(N)`, `MinimumNArgs(N)`, etc.). Catches wrong-arity
+   invocations.
+
+4. unknown-command — every command path referenced in SKILL.md (in bash
+   recipes and in inline backticks under `## Command Reference`) maps
+   to a real cobra `Use:` declaration. Catches docs that promise
+   commands the binary does not implement (e.g. SKILL.md lists
+   `boxscore <game_id>` but the CLI only has `summary`). The previous
+   three checks silently skipped commands they could not find — this
+   check makes the gap visible.
 
 ## Usage
 
 ```bash
-# Run all three checks against a CLI directory
+# Run all four checks against a CLI directory
 python3 verify_skill.py --dir /path/to/my-pp-cli
 
 # Run only the flag-command check
 python3 verify_skill.py --dir /path/to/my-pp-cli --only flag-commands
+
+# Run only the unknown-command check
+python3 verify_skill.py --dir /path/to/my-pp-cli --only unknown-command
 
 # JSON output for CI
 python3 verify_skill.py --dir /path/to/my-pp-cli --json
