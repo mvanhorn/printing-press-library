@@ -67,7 +67,7 @@ Per-booking operations (all live under `bookings`):
 - `cal-com-pp-cli bookings get-bookinguid <bookingUid>` — Detail for one booking
 - `cal-com-pp-cli bookings attendees booking-add <bookingUid>` — Add attendee
 - `cal-com-pp-cli bookings location booking-update-booking <bookingUid>` — Update location
-- `cal-com-pp-cli bookings cancel-bookings-booking <bookingUid>` / `confirm-bookings-booking` / `decline-bookings-booking` / `reschedule-bookings-booking`
+- `cal-com-pp-cli bookings cancel bookings-booking <bookingUid>` / `bookings confirm bookings-booking` / `bookings decline bookings-booking` / `bookings reschedule bookings-booking`
 
 Unique insight commands:
 

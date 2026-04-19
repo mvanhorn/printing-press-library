@@ -44,7 +44,7 @@ The three-source architecture gives this CLI a unique niche: free broad search +
 
 ### Optional — FlightAware AeroAPI key
 
-- **`track <ident>`** — Live flight tracking by callsign or registration.
+- **`flights track get-flight <id>`** — Live flight tracking by callsign or registration.
 
 - **`alerts`** — Configure flight status alerts.
 
@@ -79,7 +79,7 @@ The three-source architecture gives this CLI a unique niche: free broad search +
 - `flightgoat-pp-cli airports` — Airport info
 - `flightgoat-pp-cli aircraft <type>` / `aircraft-bio <registration>` — Aircraft
 - `flightgoat-pp-cli alerts` — Alert configuration
-- `flightgoat-pp-cli track <ident>` — Live tracking (alias / via core FA endpoints)
+- `flightgoat-pp-cli flights track get-flight <id>` — Live tracking (via FA endpoints)
 
 ### Utility
 
@@ -120,7 +120,7 @@ The first call gets Google's priced nonstops; `compare` adds Kayak and (if confi
 
 ```bash
 export FLIGHTGOAT_API_KEY_AUTH="your-aeroapi-key"
-flightgoat-pp-cli track UA123 --agent
+flightgoat-pp-cli flights track get-flight UA123 --agent
 flightgoat-pp-cli aircraft-bio N12345 --agent     # specific tail number history
 ```
 

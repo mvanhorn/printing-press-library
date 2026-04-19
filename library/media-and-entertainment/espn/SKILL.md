@@ -1,6 +1,6 @@
 ---
 name: pp-espn
-description: "Use this skill whenever the user asks about live sports scores, standings, team stats, boxscores, NFL / NBA / MLB / NHL / NCAA / MLS / EPL / WNBA games, upcoming schedules, injuries, odds, or player leaderboards. ESPN sports CLI with live scores across 10 leagues, offline search, and head-to-head comparisons. No API key required. Triggers on natural phrasings like 'what's the score of the Lakers game', 'Patriots schedule this week', 'who's leading the NBA in scoring', 'NFL standings', 'compare Mahomes and Allen stats', 'any injuries for the Yankees'."
+description: "Use this skill whenever the user asks about live sports scores, standings, team stats, game summaries (with box score, leaders, scoring plays, odds, and win probability), NFL / NBA / MLB / NHL / NCAA / MLS / EPL / WNBA games, team schedules, polls, or rankings. ESPN sports CLI with live scores across 10 leagues, offline search, head-to-head comparisons, and rich per-game summary payloads. No API key required. Triggers on natural phrasings like 'what's the score of the Lakers game', 'Patriots schedule this week', 'NFL standings', 'box score for tonight's Mavs game', 'Chiefs vs Eagles head to head', 'who's on top of the AP poll'."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata: '{"openclaw":{"requires":{"bins":["espn-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/cmd/espn-pp-cli@latest","bins":["espn-pp-cli"],"label":"Install via go install"}]}}'
@@ -8,13 +8,13 @@ metadata: '{"openclaw":{"requires":{"bins":["espn-pp-cli"]},"install":[{"id":"go
 
 # ESPN — Printing Press CLI
 
-ESPN from your terminal. Live scores, standings, stats, boxscores, play-by-play, injuries, odds, and search across 10 major leagues (NFL, NBA, MLB, NHL, NCAAF, NCAAM, NCAAW, MLS, EPL, WNBA). No API key needed — the spec was sniffed from live ESPN endpoints that back their own apps and website.
+ESPN from your terminal. Live scores, standings, polls, rich per-game summaries (with box score, leaders, scoring plays, odds, and win probability), team schedules, and offline search across 10 major leagues (NFL, NBA, MLB, NHL, NCAAF, NCAAM, NCAAW, MLS, EPL, WNBA). No API key needed — the spec was sniffed from live ESPN endpoints that back their own apps and website.
 
 ## When to Use This CLI
 
-Reach for this when a user wants a quick sports lookup — current score, standings, upcoming schedule, team-vs-team comparison, or an injury check. Also good for aggregating stats across leagues (trending athletes, power rankings) without clicking through ESPN's site. Works offline once synced.
+Reach for this when a user wants a quick sports lookup - current score, standings, upcoming schedule, head-to-head record, or a rich per-game summary (box score, leaders, scoring plays, odds, win probability). Also good for cross-league discovery (`today`) and offline search across synced data.
 
-Don't reach for this if the user has a paid feed like Stats Perform or Sportradar that provides cleaner data, or if they need real-time websocket updates (ESPN's endpoints are polling-only).
+Don't reach for this if the user has a paid feed like Stats Perform or Sportradar that provides cleaner data, or if they need real-time websocket updates (ESPN's endpoints are polling-only). For betting odds in isolation, the per-game `summary` payload includes them but there is no league-wide odds command.
 
 ## Unique Capabilities
 
@@ -22,83 +22,75 @@ Commands that only work because of local sync + cross-league tooling.
 
 ### Cross-league discovery
 
-- **`trending`** — Most-followed athletes and teams across all leagues, ranked by current interest.
+- **`today`** — Today's scores across all major sports in one call. The fastest "what's on tonight" answer without picking a sport first.
 
-  _One scan of "what everyone is watching" without picking a sport first._
+- **`watch <sport> <league> --event <game_id>`** — Live score updates for a specific game (polls every 30s). Use `scores` or `today` to find the game, then `watch` to follow it live.
 
-- **`watch <sport> <league> --event <game_id>`** — Live score updates for a specific game (polls every 30s). Different from the cross-league discovery; use `scores` or `trending` to find the game, then `watch` to follow it live.
+### Game-state intelligence
 
-- **`dashboard`** — Your favorite teams' status at a glance (configured in `~/.config/espn-pp-cli/config.toml`).
+- **`summary <sport> <league> --event <game_id>`** — Detailed game summary including box score, leaders, scoring plays, odds, and win probability. The single richest payload per game.
 
-### Strength and scheduling intelligence
+- **`recap <sport> <league>`** — Post-game recap with box score and leaders for the most recent completed game in a league.
 
-- **`sos <sport> <league>`** — Strength-of-schedule analysis across the league.
+- **`scoreboard <sport> <league>`** — Live scoreboard with date filtering, week/group selectors, and competition metadata.
 
-- **`h2h <team1> <team2>`** — Head-to-head series history with matchup stats.
+### Standings and rankings
 
-- **`compare <athlete1> <athlete2>`** — Side-by-side athlete stat comparison.
+- **`standings <sport> <league>`** — Conference/division standings.
 
-- **`rankings <sport> <league>`** — Power rankings and coaches' polls (NCAAF/NCAAM especially).
+- **`rankings <sport> <league>`** — Current AP, Coaches, and CFP poll rankings (NCAAF/NCAAM).
 
-### Deep game detail
+- **`streak <sport> <league>`** — Current win/loss streaks across teams in a league, computed from synced data.
 
-- **`plays <game_id>`** — Play-by-play for a specific game.
+- **`rivals <sport> <league>`** — Head-to-head records between teams in a league from synced data.
 
-- **`boxscore <game_id>`** — Full boxscore with per-player stats.
+### Local store
 
-- **`preview <game_id>`** / **`recap <sport> <league>`** — Pre-game previews and post-game recaps.
+- **`sync`** — Pull a sport+league dataset into local SQLite for offline analysis.
 
-### Depth and context
+- **`search "<query>"`** — Full-text search across synced events and news.
 
-- **`leaders <sport> <league>`** — Statistical leaderboards (points, yards, WAR, etc.).
-
-- **`injuries <sport> <league>`** — Current injury reports across a league.
-
-- **`odds <sport> <league>`** — Betting odds feed.
-
-- **`transactions <sport> <league>`** — Recent trades, signings, waivers.
+- **`sql <query>`** — Run read-only SQL queries against the local database.
 
 ## Command Reference
 
 Live action:
 
 - `espn-pp-cli scores <sport> <league>` — Current scores
+- `espn-pp-cli today` — Today's scores across all major sports
+- `espn-pp-cli scoreboard <sport> <league>` — Scoreboard with optional date filtering
 - `espn-pp-cli watch <sport> <league> --event <game_id>` — Live score polling for one game
-- `espn-pp-cli schedule <sport> <league>` — Upcoming games
 - `espn-pp-cli standings <sport> <league>` — League standings
-- `espn-pp-cli calendar <sport> <league>` — Season calendar
 
-Team/athlete:
+Team detail:
 
-- `espn-pp-cli team get <sport> <league> <team_id>` — Team detail
-- `espn-pp-cli team list <sport> <league>` — All teams in a league
-- `espn-pp-cli athlete <sport> <league>` — Athletes
+- `espn-pp-cli teams <sport> <league> <team_id>` — Schedule for one team (past + upcoming)
+- `espn-pp-cli teams get <sport> <league> <team_id>` — Team record, links, and logos
+- `espn-pp-cli teams list <sport> <league>` — All teams in a league
+- `espn-pp-cli streak <sport> <league>` — Current win/loss streaks from synced data
+- `espn-pp-cli rivals <sport> <league>` — Head-to-head records between teams from synced data
 
-Stats:
+Game detail:
 
-- `espn-pp-cli leaders <sport> <league>` — Stat leaders
-- `espn-pp-cli rankings <sport> <league>` — Polls / power rankings
-- `espn-pp-cli sos <sport> <league>` — Strength of schedule
+- `espn-pp-cli summary <sport> <league> --event <game_id>` — Full game summary (box score, leaders, scoring plays, odds, win probability)
+- `espn-pp-cli recap <sport> <league>` — Most recent completed game recap
 
-Game:
+Polls and rankings:
 
-- `espn-pp-cli boxscore <game_id>` — Full boxscore
-- `espn-pp-cli plays <game_id>` — Play-by-play
-- `espn-pp-cli preview <game_id>` / `recap` — Pre/post
+- `espn-pp-cli rankings <sport> <league>` — AP, Coaches, and CFP polls
 
 Info:
 
 - `espn-pp-cli news <sport> <league>` — Latest news
-- `espn-pp-cli injuries <sport> <league>` — Injury reports
-- `espn-pp-cli odds <sport> <league>` — Betting odds
-- `espn-pp-cli transactions <sport> <league>` — Trades/signings
 
-Discovery & local:
+Discovery and local:
 
-- `espn-pp-cli search "<query>"` — Full-text search across synced data
-- `espn-pp-cli sync` — Pull full dataset for offline analysis
-- `espn-pp-cli trending` — Cross-league interest scan
-- `espn-pp-cli doctor` — Verify connectivity
+- `espn-pp-cli search "<query>"` — Full-text search across synced events and news
+- `espn-pp-cli sync` — Sync a sport+league into local SQLite
+- `espn-pp-cli sql "<query>"` — Run read-only SQL against the local store
+- `espn-pp-cli load` — Show workload distribution per assignee (synced data)
+- `espn-pp-cli orphans` / `stale` — Maintenance views over the local store
+- `espn-pp-cli doctor` — Verify connectivity and configuration
 
 Sport values: `football`, `basketball`, `baseball`, `hockey`, `soccer`.
 League values: `nfl`, `nba`, `mlb`, `nhl`, `ncaaf`, `ncaam`, `ncaaw`, `mls`, `eng.1` (EPL), `wnba`.
@@ -108,22 +100,23 @@ League values: `nfl`, `nba`, `mlb`, `nhl`, `ncaaf`, `ncaam`, `ncaaw`, `mls`, `en
 ### Morning sports scan
 
 ```bash
-espn-pp-cli trending --agent                    # who's everyone watching
-espn-pp-cli scores football nfl --agent         # specific-league drilldown
+espn-pp-cli today --agent                       # cross-league: what's on
+espn-pp-cli scores football nfl --agent         # one league drilldown
 espn-pp-cli standings football nfl --agent      # context for the scores
 ```
 
-One trending call to see cross-league interest, one scores call for the league you care about, one standings call for context — covers "what's happening in sports" for a morning briefing.
+One `today` call covers cross-league activity, one `scores` for the league you care about, one `standings` for context. Covers a morning briefing.
 
-### Team-vs-team deep research
+### Pre-game research from synced data
 
 ```bash
-espn-pp-cli h2h chiefs eagles --agent           # head-to-head history
-espn-pp-cli injuries football nfl --agent | jq 'select(.team=="Chiefs" or .team=="Eagles")'
-espn-pp-cli odds football nfl --agent           # current lines
+espn-pp-cli sync --sport football --league nfl
+espn-pp-cli rivals football nfl --agent         # historical records from synced data
+espn-pp-cli streak football nfl --agent         # current streaks
+espn-pp-cli summary football nfl --event <id> --agent   # full game payload incl. odds and box score
 ```
 
-Combine historical matchup data, current injuries, and betting lines to build a complete pre-game view.
+Run `sync` once, then `rivals` and `streak` answer instantly from the local store. `summary` is the richest single payload for a specific game (box score, leaders, scoring plays, odds, win probability).
 
 ### Offline search after sync
 
