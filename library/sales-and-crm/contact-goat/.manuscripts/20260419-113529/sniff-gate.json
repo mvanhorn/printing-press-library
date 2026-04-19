@@ -1,0 +1,23 @@
+{
+  "run_id": "20260419-113529",
+  "sources": [
+    {
+      "source_name": "linkedin",
+      "decision": "skip-silent",
+      "reason": "wrapper-library-mcp-subprocess: stickerdaniel/linkedin-mcp-server is the chosen implementation; endpoints are scraped by Patchright internally and not exposed as a spec",
+      "asked_at": "2026-04-19T18:55:23Z"
+    },
+    {
+      "source_name": "happenstance",
+      "decision": "approved",
+      "reason": "user chose browser-session cookie auth over Bearer API key; sniff happenstance.ai web app to discover cookie-authenticated endpoints (developer.happenstance.ai/openapi.json gives endpoint shape but not the cookie-auth surface)",
+      "asked_at": "2026-04-19T18:55:23Z"
+    },
+    {
+      "source_name": "deepline",
+      "decision": "skip-silent",
+      "reason": "docs-based generation chosen; code.deepline.com/docs is the canonical source and /api/v2/integrations/{toolId}/execute is a stable pattern",
+      "asked_at": "2026-04-19T18:55:23Z"
+    }
+  ]
+}

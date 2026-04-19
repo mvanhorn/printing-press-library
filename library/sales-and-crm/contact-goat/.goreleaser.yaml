@@ -1,0 +1,56 @@
+version: 2
+project_name: contact-goat-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: contact-goat-pp-cli
+    main: ./cmd/contact-goat-pp-cli
+    binary: contact-goat-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: contact-goat-pp-mcp
+    main: ./cmd/contact-goat-pp-mcp
+    binary: contact-goat-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: contact-goat-pp-cli
+    repository:
+      owner: matt-van-horn
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Sniffed endpoints from happenstance.ai web app (signed-in browser session).
+Uses Clerk session cookies for auth.
+
+This is DISTINCT from the public Happenstance REST API at api.happenstance.ai/v1 
+which uses Bearer token auth and burns credits. The web-app endpoints use your 
+free-tier web-app allocation (14 searches/mo on free plan)."
+    install: |
+      bin.install "contact-goat-pp-cli"
+      bin.install "contact-goat-pp-mcp"

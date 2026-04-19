@@ -1,0 +1,437 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Happenstance Web App (cookie-auth)",
+    "version": "0.1.0",
+    "description": "Sniffed endpoints from happenstance.ai web app (signed-in browser session).\nUses Clerk session cookies for auth.\n\nThis is DISTINCT from the public Happenstance REST API at api.happenstance.ai/v1 \nwhich uses Bearer token auth and burns credits. The web-app endpoints use your \nfree-tier web-app allocation (14 searches/mo on free plan).\n"
+  },
+  "servers": [
+    {
+      "url": "https://happenstance.ai"
+    }
+  ],
+  "security": [
+    {
+      "cookieAuth": [
+
+      ]
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__session",
+        "description": "Clerk session JWT. Short TTL (~60s). The CLI's auth login --chrome extracts \ncookies from Chrome's cookie jar. Refresh via clerk.happenstance.ai token endpoint \nif needed.\n"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "user_xxx"
+          },
+          "uuid": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "linkedinUrl": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "planId": {
+            "type": "string",
+            "example": "free"
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "settings": {
+            "type": "object"
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "UserLimits": {
+        "type": "object",
+        "properties": {
+          "searchesRemaining": {
+            "type": "integer"
+          },
+          "searchesRenewalDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dailyPostsRemaining": {
+            "type": "integer"
+          }
+        }
+      },
+      "RecentSearch": {
+        "type": "object",
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request_subject": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RecentResearch": {
+        "type": "object",
+        "properties": {
+          "research_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "research_subject": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "example": "COMPLETED"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "example": "research"
+          }
+        }
+      },
+      "Friend": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "connections": {
+            "type": "integer"
+          }
+        }
+      },
+      "FeedItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "item_type": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/user": {
+      "get": {
+        "operationId": "get_user",
+        "summary": "Get the current authenticated user",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/limits": {
+      "get": {
+        "operationId": "get_user_limits",
+        "summary": "Get the current user's usage limits (searches remaining, renewal date)",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserLimits"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dynamo/recent": {
+      "get": {
+        "operationId": "list_recent_searches",
+        "summary": "List recent searches (dynamo = Happenstance's async search engine)",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RecentSearch"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dynamo": {
+      "get": {
+        "operationId": "get_search",
+        "summary": "Get a search by request_id",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "requestId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/search/{searchId}/suggested-posts": {
+      "get": {
+        "operationId": "get_search_suggested_posts",
+        "summary": "Get posts related to a search's results",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "searchId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/research/recent": {
+      "get": {
+        "operationId": "list_recent_research",
+        "summary": "List recent research dossiers",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RecentResearch"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/research/history": {
+      "get": {
+        "operationId": "list_research_history",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/friends/list": {
+      "get": {
+        "operationId": "list_friends",
+        "summary": "List your Happenstance friends (your network's top connectors)",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Friend"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/feed": {
+      "get": {
+        "operationId": "get_feed",
+        "summary": "Get the Happenstance feed (posts from your network)",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "unseen",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 25
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/notifications": {
+      "get": {
+        "operationId": "list_notifications",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/clerk/referrer": {
+      "get": {
+        "operationId": "get_user_by_uuid",
+        "summary": "Get a user's profile by UUID (used for resolving friend/author references)",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "referrerId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/uploads/status/user": {
+      "get": {
+        "operationId": "get_uploads_status",
+        "summary": "Get the status of the user's uploaded data sources (LinkedIn, Gmail, etc)",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  }
+}

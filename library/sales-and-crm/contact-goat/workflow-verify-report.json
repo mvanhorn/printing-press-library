@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/mvanhorn/printing-press/.runstate/2-1-0-7fc31895/runs/20260419-113529/working/contact-goat",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

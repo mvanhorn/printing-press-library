@@ -45,6 +45,25 @@
       }
     },
     {
+      "name": "contact-goat",
+      "category": "sales-and-crm",
+      "api": "contact-goat",
+      "description": "Super LinkedIn for the terminal - search, enrich, and map warm-intro paths across LinkedIn (stickerdaniel/linkedin-mcp-server subprocess), Happenstance (Chrome cookie auth with Clerk JWT refresh), and Deepline (paid enrichment, hybrid subprocess+HTTP). Unified SQLite store powers warm-intro, coverage, and cross-source prospect commands no single tool has.",
+      "path": "library/sales-and-crm/contact-goat",
+      "mcp": {
+        "binary": "contact-goat-pp-mcp",
+        "transport": "stdio",
+        "tool_count": 12,
+        "public_tool_count": 0,
+        "auth_type": "composed",
+        "env_vars": [
+          "DEEPLINE_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "dominos-pp-cli",
       "category": "commerce",
       "api": "Dominos Pizza",

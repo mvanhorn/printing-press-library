@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-04-19T21:05:44.741872Z",
+  "printing_press_version": "1.3.2",
+  "api_name": "contact-goat",
+  "cli_name": "contact-goat-pp-cli",
+  "category": "sales-and-crm",
+  "description": "Super LinkedIn for the terminal - search, enrich, and map warm-intro paths across LinkedIn (stickerdaniel/linkedin-mcp-server subprocess), Happenstance (Chrome cookie auth with Clerk JWT refresh), and Deepline (paid enrichment, hybrid subprocess+HTTP). Unified SQLite store powers warm-intro, coverage, and cross-source prospect commands no single tool has.",
+  "mcp_binary": "contact-goat-pp-mcp",
+  "mcp_tool_count": 12,
+  "mcp_public_tool_count": 0,
+  "mcp_ready": "full",
+  "auth_type": "composed",
+  "auth_env_vars": [
+    "DEEPLINE_API_KEY"
+  ],
+  "spec_format": "openapi3",
+  "spec_url": "https://developer.happenstance.ai/openapi.json"
+}

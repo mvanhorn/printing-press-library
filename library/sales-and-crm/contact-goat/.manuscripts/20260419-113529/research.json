@@ -1,0 +1,165 @@
+{
+  "api_name": "contact-goat",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "stickerdaniel/linkedin-mcp-server",
+      "url": "https://github.com/stickerdaniel/linkedin-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1610,
+      "last_updated": "",
+      "command_count": 13,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "joeyism/linkedin_scraper",
+      "url": "https://github.com/joeyism/linkedin_scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 3969,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tomquirk/linkedin-api",
+      "url": "https://github.com/tomquirk/linkedin-api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Happenstance hpn",
+      "url": "https://developer.happenstance.ai/cli/install",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Deepline CLI",
+      "url": "https://code.deepline.com",
+      "language": "Shell",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-04-19T19:43:39Z",
+  "novel_features": [
+    {
+      "name": "Warm-intro path",
+      "command": "warm-intro",
+      "description": "Given a target person, find mutual connections across your LinkedIn 1st-degree AND your Happenstance network who can introduce you.",
+      "rationale": "No existing tool joins LinkedIn's 1st-degree graph with Happenstance's network graph - requires a unified local store."
+    },
+    {
+      "name": "Company network coverage",
+      "command": "coverage",
+      "description": "For any company, see who you already know there via LinkedIn 1st-degree or Happenstance friends, ranked by relationship strength.",
+      "rationale": "Requires the intersection of LinkedIn company-employee data with your Happenstance friend affiliations - impossible with either source alone."
+    },
+    {
+      "name": "Cross-source prospect search",
+      "command": "prospect",
+      "description": "Fan-out search across LinkedIn, Happenstance, and Deepline (budget-gated). Dedupes by LinkedIn URL, ranks by network strength plus relevance.",
+      "rationale": "No other tool searches all three sources in one pass with budget awareness."
+    },
+    {
+      "name": "Unified dossier",
+      "command": "dossier",
+      "description": "Compose a single view of a person from LinkedIn profile, Happenstance research, and optionally Deepline enrichment.",
+      "rationale": "Locally cached by LinkedIn URL so repeat lookups are free. No other tool produces a single-sheet dossier from all three."
+    },
+    {
+      "name": "Prospect budget",
+      "command": "budget",
+      "description": "Aggregate Deepline spend this month, recent high-cost calls, enforce limits.",
+      "rationale": "Deepline costs real money per call - a local SQLite ledger is the only way to bound spend pre-flight."
+    },
+    {
+      "name": "Network intersection",
+      "command": "intersect",
+      "description": "People who appear in BOTH your LinkedIn 1st-degree and your Happenstance network - your highest-signal warm intros.",
+      "rationale": "Intersection of two graphs requires both in one store."
+    },
+    {
+      "name": "Since-last-sync diff",
+      "command": "since",
+      "description": "Time-windowed diff across LinkedIn connections, Happenstance feed, and new research.",
+      "rationale": "Requires local snapshots across sources - no API gives you a cross-source changelog."
+    },
+    {
+      "name": "Network graph export",
+      "command": "graph export",
+      "description": "Export your full cross-source network as GEXF, DOT, or JSON for Gephi or Graphviz.",
+      "rationale": "Only possible with a unified entity table across sources."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Warm-intro path",
+      "command": "warm-intro",
+      "description": "Given a target person, find mutual connections across your LinkedIn 1st-degree AND your Happenstance network who can introduce you.",
+      "rationale": "No existing tool joins LinkedIn's 1st-degree graph with Happenstance's network graph - requires a unified local store."
+    },
+    {
+      "name": "Company network coverage",
+      "command": "coverage",
+      "description": "For any company, see who you already know there via LinkedIn 1st-degree or Happenstance friends, ranked by relationship strength.",
+      "rationale": "Requires the intersection of LinkedIn company-employee data with your Happenstance friend affiliations - impossible with either source alone."
+    },
+    {
+      "name": "Cross-source prospect search",
+      "command": "prospect",
+      "description": "Fan-out search across LinkedIn, Happenstance, and Deepline (budget-gated). Dedupes by LinkedIn URL, ranks by network strength plus relevance.",
+      "rationale": "No other tool searches all three sources in one pass with budget awareness."
+    },
+    {
+      "name": "Unified dossier",
+      "command": "dossier",
+      "description": "Compose a single view of a person from LinkedIn profile, Happenstance research, and optionally Deepline enrichment.",
+      "rationale": "Locally cached by LinkedIn URL so repeat lookups are free. No other tool produces a single-sheet dossier from all three."
+    },
+    {
+      "name": "Prospect budget",
+      "command": "budget",
+      "description": "Aggregate Deepline spend this month, recent high-cost calls, enforce limits.",
+      "rationale": "Deepline costs real money per call - a local SQLite ledger is the only way to bound spend pre-flight."
+    },
+    {
+      "name": "Network intersection",
+      "command": "intersect",
+      "description": "People who appear in BOTH your LinkedIn 1st-degree and your Happenstance network - your highest-signal warm intros.",
+      "rationale": "Intersection of two graphs requires both in one store."
+    },
+    {
+      "name": "Since-last-sync diff",
+      "command": "since",
+      "description": "Time-windowed diff across LinkedIn connections, Happenstance feed, and new research.",
+      "rationale": "Requires local snapshots across sources - no API gives you a cross-source changelog."
+    },
+    {
+      "name": "Network graph export",
+      "command": "graph export",
+      "description": "Export your full cross-source network as GEXF, DOT, or JSON for Gephi or Graphviz.",
+      "rationale": "Only possible with a unified entity table across sources."
+    }
+  ]
+}

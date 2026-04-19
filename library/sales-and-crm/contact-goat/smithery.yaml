@@ -1,0 +1,8 @@
+name: contact-goat-pp-mcp
+description: contact-goat-pp-cli API
+startCommand:
+    command: go run ./cmd/contact-goat-pp-mcp
+env:
+    HAPPENSTANCE_WEB_APP_COOKIE_AUTH:
+        description: contact-goat-pp-cli API credential
+        required: true

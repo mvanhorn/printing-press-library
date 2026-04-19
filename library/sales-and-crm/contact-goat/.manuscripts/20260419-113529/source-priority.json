@@ -1,0 +1,11 @@
+{
+  "sources": ["linkedin", "happenstance", "deepline"],
+  "confirmed_at": "2026-04-19T18:35:29Z",
+  "raw_user_phrasing": "LinkedIn search with your auth like the MCP, happenstance if you have it to go deeper with your social network outside linkedin limitations and deepline if you want to pay money for contacts",
+  "auth_scoping": {
+    "linkedin": "browser-session (Chrome via Patchright)",
+    "happenstance": "browser-session (Chrome)",
+    "deepline": "account/api-key (user has account)"
+  },
+  "economics": "Primary (LinkedIn) is free via browser session. Happenstance free via session. Deepline is paid; scope Deepline flag only to Deepline commands, do not require it for LinkedIn/Happenstance commands."
+}

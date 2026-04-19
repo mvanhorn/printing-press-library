@@ -1,0 +1,61 @@
+{
+  "dir": "/Users/mvanhorn/printing-press/library/contact-goat",
+  "spec_path": "/Users/mvanhorn/printing-press/manuscripts/contact-goat/20260419-113529/research/happenstance-sniff-spec.yaml",
+  "verdict": "PASS",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "spec not provided or no bot/bearer scheme detected"
+  },
+  "dead_flags": {
+    "total": 15,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 46,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 8,
+    "valid_examples": 8,
+    "missing": [
+      "promoted feed",
+      "promoted notifications"
+    ],
+    "detail": "8/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 75,
+      "registered": 75
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 0,
+    "found": 0,
+    "skipped": true
+  },
+  "issues": null
+}
