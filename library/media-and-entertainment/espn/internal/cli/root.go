@@ -154,6 +154,13 @@ func Execute() error {
 	rootCmd.AddCommand(newTransactionsPromotedCmd(&flags))
 	rootCmd.AddCommand(newLeadersPromotedCmd(&flags))
 	rootCmd.AddCommand(newPlaysPromotedCmd(&flags))
+	rootCmd.AddCommand(newBoxscoreCmd(&flags))
+	rootCmd.AddCommand(newOddsCmd(&flags))
+	rootCmd.AddCommand(newSosCmd(&flags))
+	rootCmd.AddCommand(newH2hCmd(&flags))
+	rootCmd.AddCommand(newCompareCmd(&flags))
+	rootCmd.AddCommand(newTrendingCmd(&flags))
+	rootCmd.AddCommand(newDashboardCmd(&flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
 	rootCmd.AddCommand(newProfileCmd(&flags))
