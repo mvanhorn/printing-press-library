@@ -194,6 +194,126 @@ resources:
           type: object
           item: Rankings
 
+  injuries:
+    description: "Active injury reports for a league"
+    endpoints:
+      get:
+        method: GET
+        path: "/{sport}/{league}/injuries"
+        description: "Get current injury list for a sport and league"
+        params:
+          - name: sport
+            type: string
+            required: true
+            positional: true
+            description: "Sport slug"
+          - name: league
+            type: string
+            required: true
+            positional: true
+            description: "League slug"
+        response:
+          type: object
+          item: Injuries
+
+  transactions:
+    description: "Recent trades, signings, releases, and waivers"
+    endpoints:
+      get:
+        method: GET
+        path: "/{sport}/{league}/transactions"
+        description: "Get recent league transactions (trades, signings, waivers)"
+        params:
+          - name: sport
+            type: string
+            required: true
+            positional: true
+            description: "Sport slug"
+          - name: league
+            type: string
+            required: true
+            positional: true
+            description: "League slug"
+        response:
+          type: object
+          item: Transactions
+
+  leaders:
+    description: "Statistical leaders across categories"
+    endpoints:
+      get:
+        method: GET
+        path: "/{sport}/{league}/leaders"
+        description: "Get statistical leaders for a sport and league with optional category filter"
+        params:
+          - name: sport
+            type: string
+            required: true
+            positional: true
+            description: "Sport slug"
+          - name: league
+            type: string
+            required: true
+            positional: true
+            description: "League slug"
+          - name: category
+            type: string
+            description: "Optional stat category (e.g. passing, rushing, points)"
+        response:
+          type: object
+          item: Leaders
+
+  plays:
+    description: "Play-by-play feed for a specific event"
+    endpoints:
+      get:
+        method: GET
+        path: "/{sport}/{league}/plays"
+        description: "Get plays for a specific event id"
+        params:
+          - name: sport
+            type: string
+            required: true
+            positional: true
+            description: "Sport slug"
+          - name: league
+            type: string
+            required: true
+            positional: true
+            description: "League slug"
+          - name: event
+            type: string
+            required: true
+            description: "ESPN event or game id"
+          - name: limit
+            type: int
+            default: 200
+            description: "Maximum number of plays to return"
+        response:
+          type: object
+          item: Plays
+
+extra_commands:
+  - name: trending
+    description: "Most-followed athletes and teams across all leagues"
+  - name: dashboard
+    description: "Your favorite teams' status at a glance (reads [favorites] in config.toml)"
+  - name: boxscore
+    description: "Full box score for a specific event id"
+    args: "<event_id>"
+  - name: h2h
+    description: "Head-to-head detail between two teams"
+    args: "<team1> <team2>"
+  - name: compare
+    description: "Side-by-side athlete stat comparison"
+    args: "<athlete1> <athlete2>"
+  - name: odds
+    description: "Spread, total, and moneyline lines for tonight's slate"
+    args: "<sport> <league>"
+  - name: sos
+    description: "Strength-of-schedule derived from league standings"
+    args: "<sport> <league>"
+
 types:
   Scoreboard:
     fields:
@@ -268,4 +388,28 @@ types:
       - name: rankings
         type: string
       - name: sports
+        type: string
+
+  Injuries:
+    fields:
+      - name: injuries
+        type: string
+
+  Transactions:
+    fields:
+      - name: transactions
+        type: string
+
+  Leaders:
+    fields:
+      - name: leaders
+        type: string
+      - name: categories
+        type: string
+
+  Plays:
+    fields:
+      - name: items
+        type: string
+      - name: count
         type: string

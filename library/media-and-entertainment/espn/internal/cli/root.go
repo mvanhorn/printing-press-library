@@ -150,6 +150,10 @@ func Execute() error {
 	rootCmd.AddCommand(newWatchCmd(&flags))
 	rootCmd.AddCommand(newStreakCmd(&flags))
 	rootCmd.AddCommand(newRivalsCmd(&flags))
+	rootCmd.AddCommand(newInjuriesPromotedCmd(&flags))
+	rootCmd.AddCommand(newTransactionsPromotedCmd(&flags))
+	rootCmd.AddCommand(newLeadersPromotedCmd(&flags))
+	rootCmd.AddCommand(newPlaysPromotedCmd(&flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
 	rootCmd.AddCommand(newProfileCmd(&flags))
