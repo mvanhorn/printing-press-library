@@ -127,18 +127,28 @@ If you see this pattern:
 
 ## The Instacart worked example
 
-The `pp-instacart` CLI uses the full tier-1 pattern. Sketch of the flow:
+The `pp-instacart` CLI uses the full tier-1 pattern, wrapped in a one-command skill flow so end users do not need to understand the plumbing.
 
-1. **User dumps.** Opens `/store/account/orders` in Chrome with claude-in-chrome MCP connected, runs the agent-provided JS snippets (`library/commerce/instacart/docs/dumper.js` + `extract-one.js`) to walk order pages and collect the Apollo cache's `OrderManagerOrderDelivery` entries into `localStorage`.
-2. **User exports.** Triggers a `Blob` + `<a download>` click. Browser saves `instacart-orders.jsonl` to `~/Downloads/`.
-3. **CLI imports.** User runs `instacart history import ~/Downloads/instacart-orders.jsonl`. The CLI upserts orders, items, and the aggregated `purchased_items` table.
-4. **`add` resolves via history.** `instacart add qfc "limoncello sorbet"` now returns `resolved_via: "history"` with the exact Alden's Organic Limoncello Sorbet Bars SKU the user previously bought, instead of the three-call live search picking Talenti.
+End-user invocation:
+
+> "backfill my instacart orders"
+
+The `/pp-instacart` skill's argument parser matches any of several backfill intents ("sync my history", "download my orders", etc.) and drives the Chrome MCP loop end to end:
+
+1. **Skill probes.** Reads the user's existing `instacart history stats` to decide full backfill vs top-up. Confirms `claude-in-chrome` MCP tools are loaded; falls through to the DevTools copy-paste path in `library/commerce/instacart/docs/backfill-devtools-fallback.md` if not.
+2. **Dumper walks the orders page.** Injects `library/commerce/instacart/docs/dumper.js` into the logged-in Chrome tab. The dumper scrolls, clicks "Load more" with bounded retries, and accumulates order IDs into `localStorage.__ic_backfill_state` so interrupted sessions resume.
+3. **Extractor pulls per-order detail.** For each pending order, the skill navigates to `/store/orders/<id>` and injects `extract-one.js`. That script polls the Apollo cache up to 10s for the `OrderManagerOrderDelivery` entry with `includeOrderItems:true`, then normalizes the record and appends to `localStorage.__ic_dumped`. Failures push structured skip records instead of silently losing orders.
+4. **Exporter downloads JSONL.** `export-jsonl.js` filters skip records, writes the rest as JSONL, and triggers a browser download of `instacart-orders.jsonl`.
+5. **CLI imports.** Skill shells out to `instacart history import ~/Downloads/instacart-orders.jsonl --agent`. Upsert is idempotent, so re-runs are safe.
+6. **`add` resolves via history.** `instacart add qfc "limoncello sorbet"` now returns `resolved_via: "history"` with the exact Alden's Organic Limoncello Sorbet Bars SKU the user previously bought, instead of the three-call live search picking Talenti.
 
 Observed calibration from the first real run (2026-04-18):
 
 - Dump phase: ~60 seconds to walk and extract 10 orders from the user's Instacart
 - Import phase: ~1 second for 10 orders × 87 items total
 - Resolver impact: history-first fires for queries the user has bought before at the retailer in question, falls through to live search otherwise (as designed)
+
+The end-user-facing entry points are documented in `library/commerce/instacart/docs/backfill-walkthrough.md` (skill-driven) and `library/commerce/instacart/docs/backfill-devtools-fallback.md` (manual). This playbook's tier model is unchanged; the skill is simply the packaged tier-1 outcome for this CLI.
 
 ## Checklist for adding this pattern to a new printed CLI
 
@@ -160,13 +170,16 @@ Then:
 
 ## Used in the wild
 
-- `pp-instacart` — order history + purchased-items backfill (this document's worked example)
+- `pp-instacart` — order history + purchased-items backfill, wrapped in a one-command skill flow end users can invoke with "backfill my instacart orders" (this document's worked example)
 
 Add your CLI here when you adopt the pattern.
 
 ## Further reading
 
-- `library/commerce/instacart/docs/dumper.js` — the working reference implementation
-- `library/commerce/instacart/docs/extract-one.js` — the per-order extractor + exporter
+- `library/commerce/instacart/docs/dumper.js` — the working reference implementation of the order-list walker
+- `library/commerce/instacart/docs/extract-one.js` — the per-order Apollo-cache extractor
+- `library/commerce/instacart/docs/export-jsonl.js` — the Blob-download exporter
+- `library/commerce/instacart/docs/backfill-walkthrough.md` — end-user walkthrough for the skill-driven flow
+- `library/commerce/instacart/docs/backfill-devtools-fallback.md` — manual DevTools flow for users without Chrome MCP
 - `library/commerce/instacart/internal/cli/history_import.go` — the Go-side importer
 - `docs/solutions/best-practices/instacart-orders-no-clean-graphql-op.md` — the architecture-gap finding that motivated this playbook

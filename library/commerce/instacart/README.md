@@ -42,6 +42,20 @@ go build -o instacart ./cmd/instacart
 ./instacart doctor
 ```
 
+## First-time history backfill
+
+Optional but recommended. Once backfilled, `add` resolves items from your real purchase history ("Alden's Organic Limoncello Sorbet Bars" instead of whatever live search ranks first for "limoncello sorbet") and runs about 5x faster on repeated items.
+
+The fastest path is the pp-instacart skill. In a Claude Code session with `claude-in-chrome` MCP tools loaded, tell the agent:
+
+> backfill my instacart orders
+
+The skill walks your logged-in Chrome tab through every order, extracts the data, and runs `instacart history import` for you. Typical full backfill: 5-10 minutes for a ~180-order history. Subsequent top-ups: under a minute.
+
+If you do not have `claude-in-chrome` MCP available, run the flow manually: see [`docs/backfill-devtools-fallback.md`](docs/backfill-devtools-fallback.md). Same three JS files, same import command, different driver.
+
+More detail: [`docs/backfill-walkthrough.md`](docs/backfill-walkthrough.md) (full procedure) and [`docs/patterns/authenticated-session-scraping.md`](../../../docs/patterns/authenticated-session-scraping.md) (why this pattern exists).
+
 ## Agent Usage
 
 Every command supports `--json` for structured output and typed exit codes

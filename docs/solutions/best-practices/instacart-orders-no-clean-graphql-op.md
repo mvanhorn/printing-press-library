@@ -21,6 +21,8 @@ Future contributors searching for "instacart order history graphql" or "instacar
 
 Navigate to each `/store/orders/<id>` page in a logged-in browser, wait for Apollo to populate, then read `window.__APOLLO_CLIENT__.cache.extract().OrderManagerOrderDelivery`. The reference implementation lives at `library/commerce/instacart/docs/extract-one.js` and is tier-1 (Chrome MCP driven) per the authenticated-session-scraping playbook.
 
+For end users, the flow is wrapped into the `/pp-instacart` skill: typing "backfill my instacart orders" into a Claude Code session drives the full loop. See `library/commerce/instacart/docs/backfill-walkthrough.md`.
+
 ## Multi-profile redirect catch
 
 Plain HTTP scraping of `/store/account/orders` with extracted cookies redirects to `/store/profiles?next=...` because the user has multi-profile on their Instacart account. A selected-profile cookie is required, and it's set via a browser-side flow that doesn't survive plain-cookie extraction. Only a browser tab that has interactively cleared the profile picker can access the orders page.

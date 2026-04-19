@@ -6,19 +6,14 @@ The original PR #78 assumed Instacart exposed dedicated GraphQL ops named `BuyIt
 
 ## Use this instead
 
-For the working path to backfill your Instacart purchase history, see:
+For the working end-user flow:
 
-- **Playbook:** [`docs/patterns/authenticated-session-scraping.md`](../../../docs/patterns/authenticated-session-scraping.md) — the canonical reference for this class of problem across any printed CLI.
-- **Dumper:** `docs/dumper.js` + `docs/extract-one.js` — the browser-side JS to walk orders and export JSONL.
-- **Importer:** `instacart history import <path>` — the CLI-side command that reads the JSONL and populates the history tables.
+- **One command:** Tell the `/pp-instacart` skill "backfill my instacart orders". It drives the full Chrome MCP + import loop for you.
+- **Walkthrough:** [`backfill-walkthrough.md`](backfill-walkthrough.md) covers the skill-driven path end to end.
+- **Manual fallback:** [`backfill-devtools-fallback.md`](backfill-devtools-fallback.md) for users without `claude-in-chrome` MCP.
 
-## Quick-start (10 minutes end-to-end)
+Technical reference:
 
-1. Open `https://www.instacart.com/store/account/orders` in Chrome, logged in.
-2. Run `dumper.js` to collect order IDs (via DevTools console or agent-driven Chrome MCP).
-3. For each order ID, navigate to `/store/orders/<id>` and run `extract-one.js`.
-4. Run the exporter snippet at the bottom of `extract-one.js` to download `instacart-orders.jsonl`.
-5. `instacart history import ~/Downloads/instacart-orders.jsonl`.
-6. `instacart add <retailer> "<something you've bought>" --dry-run --json` → look for `"resolved_via": "history"`.
-
-The full walkthrough with tooling rationale is in the playbook.
+- **Playbook:** [`docs/patterns/authenticated-session-scraping.md`](../../../docs/patterns/authenticated-session-scraping.md) — tiered decision tree for this class of problem across any printed CLI.
+- **Scripts:** `docs/dumper.js`, `docs/extract-one.js`, `docs/export-jsonl.js` — the browser-side JS.
+- **Importer:** `instacart history import <path>` — the CLI-side command.
