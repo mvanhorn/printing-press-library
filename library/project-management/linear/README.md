@@ -46,12 +46,42 @@ linear-pp-cli sync
 # See your issues for today across all teams
 linear-pp-cli today
 
+# Look up a specific issue
+linear-pp-cli issues ESP-1155
+
+# List issues assigned to you (excludes completed/canceled by default)
+linear-pp-cli issues list --assignee me
+
+# Narrow to a team and state, output JSON
+linear-pp-cli issues list --team ESP --state started --json
+
 # Find stale issues that need attention
 linear-pp-cli stale --days 14
 
 # Search for potential duplicate issues
 linear-pp-cli similar "login timeout"
 ```
+
+## Finding Issues
+
+`issues <ID>` fetches a single issue. Resolution order with the default `--data-source auto`:
+
+1. local sqlite store, matched by identifier
+2. live Linear GraphQL query (POST)
+3. on live failure with a stale store, return the store miss as not found
+
+`issues list` lists issues from the local store. Run `linear-pp-cli sync` first.
+
+Filters compose with AND:
+
+| Flag | Accepts | Notes |
+|------|---------|-------|
+| `--assignee` | `me`, UUID, display name, or email | `me` resolves the authenticated viewer via a live query |
+| `--state` | `active` (default), `started`, `backlog`, `unstarted`, `completed`, `canceled`, `triage`, `all` | Matches `state.type`, so custom state names still work |
+| `--team` | Team key (e.g. `ESP`) or UUID | Resolved against the local `teams` table |
+| `--project` | Project name or UUID | Resolved against the local `projects` table |
+| `--limit` | Integer | Defaults to 200 |
+| `--json` | Flag | JSON output for piping to `jq` |
 
 ## Unique Features
 

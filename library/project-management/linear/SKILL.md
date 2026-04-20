@@ -15,14 +15,18 @@ Manage Linear issues, projects, cycles, teams, and releases from the terminal. T
 Reach for this when the user wants:
 
 - a fast "what's on my plate today" view across teams (`today`, `me`)
+- find or look up a specific issue by identifier (`issues ESP-1155`)
+- list issues assigned to them or a teammate, filtered by team / state (`issues list --assignee me --state started`)
 - sprint velocity / team workload / bottleneck analysis (`velocity`, `workload`, `load`, `bottleneck`)
 - find stale issues, duplicates, or orphaned items (`stale`, `similar`, `orphans`)
-- search across issues, projects, and cycles offline (`sync` once, then `search` hits SQLite)
+- search across issues, projects, and cycles offline (`sync` once, then `similar` hits SQLite)
 - list or inspect projects, cycles, milestones, roadmaps, initiatives, releases
 - create / update issues, projects, or cycles (via the typed subcommands and `workflow`)
 - export Linear data to JSONL for backup or migration
 - stream live changes without polling the web UI (`tail`)
 - run read-only SQL against the synced store (`sql` for power users)
+
+Trigger phrases: "what's assigned to me", "look up issue ABC-123", "find my Linear tickets", "what's on my plate", "show me my Linear queue".
 
 Skip it when the user wants to configure team settings, integrations, or OAuth apps; those admin surfaces live in the Linear web admin.
 
@@ -84,7 +88,8 @@ Ask the user for the actual key value before running.
 |---------|--------------|
 | `today` | Your issues across all teams, triaged to today's queue |
 | `me` | Current authenticated user plus a snapshot of your open work |
-| `issues` | Get/list issues; filter by team, assignee, state, priority |
+| `issues <ID>` | Get a single issue by identifier (e.g. `issues ESP-1155`) |
+| `issues list` | List issues from the local store with filters (`--assignee`, `--state`, `--team`, `--project`, `--limit`) |
 | `projects` | Get/list projects with milestones and health status |
 | `cycles` | Get/list sprint cycles for any team |
 | `velocity` | Sprint velocity trends across recent cycles |
@@ -99,6 +104,27 @@ Ask the user for the actual key value before running.
 | `sql` | Read-only SQL against the local store (power users) |
 
 Run any command with `--help` for full flag documentation.
+
+## Finding Issues
+
+Three patterns cover the common cases:
+
+```bash
+# Look up a specific issue by identifier
+linear-pp-cli issues ESP-1155
+
+# List all issues assigned to the authenticated user, excluding completed/canceled
+linear-pp-cli issues list --assignee me
+
+# Narrow to a team and state (also accepts --project, --limit, --json)
+linear-pp-cli issues list --team ESP --state started --json
+```
+
+`issues list` reads from the local store, so run `linear-pp-cli sync` first. `issues <ID>` tries the local store, then falls back to a live GraphQL query, and works without sync.
+
+`--state` matches on state.type so it works across teams with customized state names: `started`, `backlog`, `unstarted`, `completed`, `canceled`, `triage`, or `all`. The default `active` excludes completed and canceled.
+
+`--assignee` accepts `me`, a user UUID, a display name, or an email. `--team` and `--project` accept either a key (e.g. `ESP`) or a UUID.
 
 ## Exit Codes
 
