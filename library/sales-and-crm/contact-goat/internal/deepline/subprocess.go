@@ -10,16 +10,29 @@ import (
 	"os/exec"
 )
 
-// executeSubprocess runs `deepline tools execute <toolID> --payload <json>`
+// executeSubprocess runs `deepline tools execute <toolID> --payload <json> --json`
 // and parses stdout as JSON. The DEEPLINE_API_KEY env var is inherited from
 // the parent process; we never pass the key on the command line.
+//
+// The `--json` flag and `--payload-output-format json` are both required
+// because without them the deepline CLI prints a human-friendly summary
+// ("Status: completed\nJob ID: ...\nTop-level result keys: ...") to stdout
+// and writes the full payload to `deepline/data/payload_<tool>_*.json`
+// in the current working directory. That summary is not valid JSON and
+// the file side-effect also pollutes the workspace.
 func (c *Client) executeSubprocess(ctx context.Context, toolID string, payload map[string]any) (json.RawMessage, error) {
 	payloadJSON, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("deepline subprocess: marshaling payload: %w", err)
 	}
 
-	cmd := exec.CommandContext(ctx, c.cliPath, "tools", "execute", toolID, "--payload", string(payloadJSON))
+	cmd := exec.CommandContext(ctx, c.cliPath,
+		"tools", "execute", toolID,
+		"--payload", string(payloadJSON),
+		"--json",
+		"--payload-output-format", "json",
+		"--no-preview",
+	)
 
 	// Inherit env so DEEPLINE_API_KEY reaches the subprocess. We never echo
 	// the key value in logs or error messages.

@@ -305,7 +305,9 @@ func deeplineProviderChain(targetKind, target, companyDomain string) []deeplineP
 			{
 				toolID:   deepline.ToolHunterPeopleFind,
 				provider: "hunter",
-				payload:  map[string]any{"linkedin_url": target},
+				// hunter_people_find requires linkedin_handle (the slug),
+				// not linkedin_url.
+				payload: map[string]any{"linkedin_handle": linkedinHandleFromURL(target)},
 			},
 			{
 				toolID:   deepline.ToolContactOutEnrichPerson,
@@ -428,6 +430,14 @@ func runDeeplineChain(ctx context.Context, flags *rootFlags, target string, fiel
 		}
 		r.Steps = append(r.Steps, step)
 	}
+}
+
+// linkedinHandleFromURL extracts the vanity slug from a LinkedIn profile
+// URL (e.g. "https://www.linkedin.com/in/mkscrg/" -> "mkscrg"). Falls back
+// to normalizePersonInput which already handles bare slugs, /in/ prefixes,
+// and trailing slashes.
+func linkedinHandleFromURL(url string) string {
+	return normalizePersonInput(url)
 }
 
 // splitName splits a "First Last" string into (first, last). A single-word
