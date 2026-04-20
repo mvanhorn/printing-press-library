@@ -111,6 +111,35 @@ The other 12 tools cover the cookie surface (search, friends, feed, notification
 
 Source routing (cookie vs bearer) is automatic. The auto router prefers the free cookie surface and falls back to the paid bearer surface only when cookie quota is exhausted, logging a "cost spent" notice on stderr. Pass `--source api` to opt into bearer explicitly (richer schema, group-scoped searches), or `--source hp` to force cookies.
 
+## Enrichment Preflight (read this before running any enrichment command)
+
+These commands spend Deepline credits and REQUIRE `DEEPLINE_API_KEY` or a BYOK setup:
+
+- `waterfall` (unless you pass `--byok` and have BYOK providers configured)
+- `dossier --enrich-email`
+- `deepline find-email` / `enrich-person` / `email-find` / `phone-find`
+- `deepline search-people` / `search-companies` / `enrich-company`
+
+Before invoking any of these, verify auth. If `DEEPLINE_API_KEY` is not set, ASK THE USER for it (or for a BYOK Hunter/Apollo key) before running the command. The CLI preflight now fails fast with a clear hint, but you can save the round-trip by checking first:
+
+```bash
+contact-goat-pp-cli doctor --agent | grep -i deepline
+```
+
+Provider chain by target kind (waterfall):
+
+| Target | Primary | Fallback 1 | Fallback 2 |
+|--------|---------|-----------|-----------|
+| LinkedIn URL | apollo_people_match | hunter_people_find | contactout_enrich_person |
+| Email | apollo_people_match | hunter_people_find | - |
+| Name + --company | dropleads_email_finder | hunter_email_finder | datagma_find_email |
+
+Notes:
+- Name targets MUST pass `--company <domain>` (or set `CONTACT_GOAT_COMPANY` env).
+- Apollo returns `personal_emails[]` when available; treat `email_status: "unavailable"` as "no verified work email on file" (the personal email is still usable).
+- Dropleads returns `status: "catch_all"` for domains on Google Workspace; the email is a pattern guess, not a verified mailbox.
+- Provider-level 403s are surfaced as "Provider not connected" rather than "Check DEEPLINE_API_KEY"; they do not abort the chain. The next provider is tried automatically.
+
 ## Notable Commands
 
 | Command | What it does |
@@ -119,6 +148,10 @@ Source routing (cookie vs bearer) is automatic. The auto router prefers the free
 | `hp people <query>` | Happenstance graph people-search (1st / 2nd / 3rd degree) |
 | `prospect <query>` | Fan-out search across LinkedIn + Happenstance (+ opt-in Deepline), deduped |
 | `warm-intro <target>` | Mutual connections across sources who could intro you to a target |
+| `waterfall <target> [--company X]` | Free-sources-first enrichment, falls through to Deepline provider chain. Requires DEEPLINE_API_KEY or --byok. Bare-name targets need --company |
+| `dossier <target> [--enrich-email]` | Unified LinkedIn + Happenstance + (optional) Deepline dossier. --enrich-email requires DEEPLINE_API_KEY |
+| `deepline find-email "<name>" --company <domain>` | Single-call work-email lookup via dropleads_email_finder |
+| `deepline enrich-person <linkedin-url>` | Full person record via apollo_people_match (includes personal_emails[]) |
 | `api hpn search <text>` | Bearer-API search (costs 2 credits, async with poll) |
 | `api hpn research <description>` | Bearer-API deep dossier (costs 1 credit on completion) |
 | `api hpn usage` | Live credit balance, purchases, recent usage events (free) |
