@@ -28,14 +28,15 @@ var emailPattern = regexp.MustCompile(`^[^\s@]+@[^\s@]+\.[^\s@]+$`)
 
 // WaterfallStep logs a single attempt in the waterfall.
 type WaterfallStep struct {
-	Source  string          `json:"source"`
-	Tool    string          `json:"tool,omitempty"`
-	BYOK    bool            `json:"byok,omitempty"`
-	Cost    int             `json:"cost_credits"`
-	Status  string          `json:"status"`
-	Error   string          `json:"error,omitempty"`
-	Fields  []string        `json:"fields_filled,omitempty"`
-	Snippet json.RawMessage `json:"snippet,omitempty"`
+	Source   string          `json:"source"`
+	Tool     string          `json:"tool,omitempty"`
+	Provider string          `json:"provider,omitempty"`
+	BYOK     bool            `json:"byok,omitempty"`
+	Cost     int             `json:"cost_credits"`
+	Status   string          `json:"status"`
+	Error    string          `json:"error,omitempty"`
+	Fields   []string        `json:"fields_filled,omitempty"`
+	Snippet  json.RawMessage `json:"snippet,omitempty"`
 }
 
 // WaterfallResult is the final output shape.
@@ -53,6 +54,7 @@ func newWaterfallCmd(flags *rootFlags) *cobra.Command {
 	var enrichCSV string
 	var maxCost int
 	var requireBYOK bool
+	var companyDomain string
 
 	cmd := &cobra.Command{
 		Use:   "waterfall <target>",
@@ -68,8 +70,12 @@ Targets:
 Step order:
   1. LinkedIn get_person_profile (free, scraper subprocess)
   2. Happenstance research (free if you have a cookie)
-  3. Deepline BYOK (uses your own Hunter/Apollo keys, no Deepline markup)
-  4. Deepline managed (burns Deepline credits, last resort)
+  3. Deepline provider chain (per target kind; burns Deepline credits)
+     linkedin_url -> apollo_people_match -> hunter_people_find -> contactout_enrich_person
+     email        -> apollo_people_match -> hunter_people_find
+     name+domain  -> dropleads_email_finder -> hunter_email_finder -> datagma_find_email
+
+Name targets require --company (or CONTACT_GOAT_COMPANY env var).
 
 Configure BYOK keys with:
   contact-goat-pp-cli config byok set <provider> <env-var-name>`,
@@ -92,9 +98,16 @@ Configure BYOK keys with:
 
 			byok := readBYOKConfig()
 			if requireBYOK && len(byok) == 0 {
-				return authErr(errors.New("no BYOK providers configured — run `contact-goat-pp-cli config byok set hunter HUNTER_API_KEY`"))
+				return authErr(errors.New("no BYOK providers configured: run `contact-goat-pp-cli config byok set hunter HUNTER_API_KEY`"))
 			}
 			result.BYOKKeys = redactedBYOK(byok)
+
+			if companyDomain == "" {
+				companyDomain = strings.TrimSpace(os.Getenv("CONTACT_GOAT_COMPANY"))
+			}
+			if result.TargetKind == "name" && companyDomain == "" {
+				return usageErr(errors.New("name targets require --company (e.g. --company stripe.com) or CONTACT_GOAT_COMPANY env"))
+			}
 
 			// Step 1: LinkedIn profile.
 			if !waterfallComplete(result, enrichFields) {
@@ -106,20 +119,9 @@ Configure BYOK keys with:
 				step := tryHappenstance(cmd, flags, target, result)
 				result.Steps = append(result.Steps, step)
 			}
-			// Step 3 & 4: Deepline (BYOK first when configured, then managed).
-			if !waterfallComplete(result, enrichFields) && !requireBYOK {
-				// BYOK path first when keys are present.
-				if len(byok) > 0 {
-					step := tryDeepline(cmd.Context(), flags, target, enrichFields, true, byok, maxCost, result)
-					result.Steps = append(result.Steps, step)
-				}
-				if !waterfallComplete(result, enrichFields) {
-					step := tryDeepline(cmd.Context(), flags, target, enrichFields, false, byok, maxCost, result)
-					result.Steps = append(result.Steps, step)
-				}
-			} else if !waterfallComplete(result, enrichFields) && requireBYOK {
-				step := tryDeepline(cmd.Context(), flags, target, enrichFields, true, byok, maxCost, result)
-				result.Steps = append(result.Steps, step)
+			// Step 3: Deepline provider chain.
+			if !waterfallComplete(result, enrichFields) {
+				runDeeplineChain(cmd.Context(), flags, target, enrichFields, companyDomain, requireBYOK, byok, maxCost, result)
 			}
 
 			for _, f := range enrichFields {
@@ -138,6 +140,7 @@ Configure BYOK keys with:
 	cmd.Flags().StringVar(&enrichCSV, "enrich", "email,phone", "Comma-separated fields to fill (email, phone, company, name, title)")
 	cmd.Flags().IntVar(&maxCost, "max-cost", 5, "Max Deepline credits to spend across the whole run")
 	cmd.Flags().BoolVar(&requireBYOK, "byok", false, "Require BYOK for Deepline steps; error if no BYOK keys configured")
+	cmd.Flags().StringVar(&companyDomain, "company", "", "Company domain (e.g. stripe.com); required for bare-name targets")
 	return cmd
 }
 
@@ -263,81 +266,321 @@ func tryHappenstance(cmd *cobra.Command, flags *rootFlags, target string, r *Wat
 	return step
 }
 
-// tryDeepline drives the Deepline waterfall, either BYOK or managed.
-func tryDeepline(ctx context.Context, flags *rootFlags, target string, fields []string, useBYOK bool, byok map[string]string, maxCost int, r *WaterfallResult) WaterfallStep {
-	step := WaterfallStep{Source: "deepline", Tool: deepline.ToolPersonEnrich, BYOK: useBYOK}
+// deeplineProviderAttempt is a single (tool, payload) pair in the Deepline
+// provider chain. Each attempt becomes its own WaterfallStep in the result.
+type deeplineProviderAttempt struct {
+	toolID   string
+	provider string // short label shown in step.Provider
+	payload  map[string]any
+}
 
-	if useBYOK && len(byok) == 0 {
-		step.Status = "skipped"
-		step.Error = "no BYOK providers configured"
-		return step
+// deeplineProviderChain returns the ordered list of provider attempts to
+// execute for the given target. Order is cheapest/highest-hit first. Each
+// attempt carries its own payload shape already matching the provider's
+// documented schema (verified against `deepline tools get` on 2026-04-20).
+func deeplineProviderChain(targetKind, target, companyDomain string) []deeplineProviderAttempt {
+	switch targetKind {
+	case "linkedin_url":
+		return []deeplineProviderAttempt{
+			{
+				toolID:   deepline.ToolApolloPeopleMatch,
+				provider: "apollo",
+				payload: map[string]any{
+					"linkedin_url":           target,
+					"reveal_personal_emails": true,
+				},
+			},
+			{
+				toolID:   deepline.ToolHunterPeopleFind,
+				provider: "hunter",
+				payload:  map[string]any{"linkedin_url": target},
+			},
+			{
+				toolID:   deepline.ToolContactOutEnrichPerson,
+				provider: "contactout",
+				payload:  map[string]any{"linkedin_url": target},
+			},
+		}
+	case "email":
+		return []deeplineProviderAttempt{
+			{
+				toolID:   deepline.ToolApolloPeopleMatch,
+				provider: "apollo",
+				payload: map[string]any{
+					"email":                  target,
+					"reveal_personal_emails": true,
+				},
+			},
+			{
+				toolID:   deepline.ToolHunterPeopleFind,
+				provider: "hunter",
+				payload:  map[string]any{"email": target},
+			},
+		}
+	case "name":
+		firstName, lastName := splitName(target)
+		return []deeplineProviderAttempt{
+			{
+				toolID:   deepline.ToolDropleadsEmailFinder,
+				provider: "dropleads",
+				payload: map[string]any{
+					"first_name":     firstName,
+					"last_name":      lastName,
+					"company_domain": companyDomain,
+				},
+			},
+			{
+				toolID:   deepline.ToolHunterEmailFinder,
+				provider: "hunter",
+				payload: map[string]any{
+					"first_name": firstName,
+					"last_name":  lastName,
+					"domain":     companyDomain,
+				},
+			},
+			{
+				toolID:   deepline.ToolDatagmaFindEmail,
+				provider: "datagma",
+				payload: map[string]any{
+					"first_name":     firstName,
+					"last_name":      lastName,
+					"company_domain": companyDomain,
+				},
+			},
+		}
+	}
+	return nil
+}
+
+// runDeeplineChain walks the provider chain, appending one WaterfallStep per
+// provider attempt. Stops early when the requested fields are filled or when
+// max-cost would be exceeded. Provider-level errors (including entitlement
+// 403s) do not abort the chain; the next provider is tried.
+func runDeeplineChain(ctx context.Context, flags *rootFlags, target string, fields []string, companyDomain string, requireBYOK bool, byok map[string]string, maxCost int, r *WaterfallResult) {
+	chain := deeplineProviderChain(r.TargetKind, target, companyDomain)
+	if len(chain) == 0 {
+		return
 	}
 
-	spent := r.TotalCredit
 	client := deepline.NewClient(os.Getenv("DEEPLINE_API_KEY"))
 	if err := client.ValidateKey(); err != nil {
-		step.Status = "skipped"
-		step.Error = err.Error()
-		return step
+		// One synthetic step surfaces the auth gate failure rather than
+		// emitting N copies (one per provider in the chain).
+		r.Steps = append(r.Steps, WaterfallStep{
+			Source: "deepline",
+			Status: "skipped",
+			Error:  err.Error(),
+		})
+		return
 	}
 
-	// Decide which tool to run based on target kind.
-	toolID := deepline.ToolPersonEnrich
-	payload := map[string]any{}
-	switch r.TargetKind {
-	case "linkedin_url":
-		payload["linkedin_url"] = target
-	case "email":
-		toolID = deepline.ToolEmailFind
-		payload["email"] = target
-	case "name":
-		toolID = deepline.ToolPersonSearchToEmailWaterfall
-		payload["name"] = target
-		if co := strings.TrimSpace(os.Getenv("CONTACT_GOAT_COMPANY")); co != "" {
-			payload["company"] = co
+	for _, attempt := range chain {
+		if waterfallComplete(r, fields) {
+			return
 		}
-	}
-	if useBYOK {
-		payload["byok"] = true
-		// Forward the env var name(s) — we never store the value.
-		if envVar, ok := byok["hunter"]; ok && os.Getenv(envVar) != "" {
-			payload["byok_hunter_key_env"] = envVar
+		step := WaterfallStep{
+			Source:   "deepline",
+			Tool:     attempt.toolID,
+			Provider: attempt.provider,
+			BYOK:     requireBYOK || len(byok) > 0,
 		}
-		if envVar, ok := byok["apollo"]; ok && os.Getenv(envVar) != "" {
-			payload["byok_apollo_key_env"] = envVar
-		}
-	}
 
-	est, _ := client.EstimateCost(toolID, payload)
-	if maxCost > 0 && spent+est > maxCost {
-		step.Status = "skipped"
-		step.Error = fmt.Sprintf("would exceed --max-cost %d (already spent %d, next step ~%d)", maxCost, spent, est)
-		step.Cost = 0
-		return step
-	}
-	step.Tool = toolID
+		est, _ := client.EstimateCost(attempt.toolID, attempt.payload)
+		spent := r.TotalCredit
+		for _, s := range r.Steps {
+			spent += s.Cost
+		}
+		if maxCost > 0 && spent+est > maxCost {
+			step.Status = "skipped"
+			step.Error = fmt.Sprintf("would exceed --max-cost %d (already spent %d, next step ~%d)", maxCost, spent, est)
+			r.Steps = append(r.Steps, step)
+			return
+		}
 
-	execCtx, cancel := context.WithTimeout(ctx, flags.timeout)
-	defer cancel()
-	raw, err := client.Execute(execCtx, toolID, payload)
-	if err != nil {
-		step.Status = "error"
-		step.Error = err.Error()
-		return step
-	}
-	// BYOK stills costs the upstream provider but we don't pay Deepline markup.
-	if useBYOK {
-		step.Cost = 0
-	} else {
+		execCtx, cancel := context.WithTimeout(ctx, flags.timeout)
+		raw, err := client.Execute(execCtx, attempt.toolID, attempt.payload)
+		cancel()
+		if err != nil {
+			step.Status = "error"
+			step.Error = err.Error()
+			r.Steps = append(r.Steps, step)
+			continue
+		}
 		step.Cost = est
+		step.Snippet = raw
+		extractDeeplineFields(r, raw, attempt.provider, &step)
+		if len(step.Fields) == 0 {
+			step.Status = "empty"
+		} else {
+			step.Status = "ok"
+		}
+		r.Steps = append(r.Steps, step)
 	}
+}
+
+// splitName splits a "First Last" string into (first, last). A single-word
+// name goes entirely into first_name; a name with three or more tokens
+// treats the final token as last_name and everything else as first_name
+// (handles "Jean-Paul Sartre" or "Mary Anne Smith" reasonably).
+func splitName(s string) (string, string) {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return "", ""
+	}
+	parts := strings.Fields(s)
+	if len(parts) == 1 {
+		return parts[0], ""
+	}
+	return strings.Join(parts[:len(parts)-1], " "), parts[len(parts)-1]
+}
+
+// extractDeeplineFields drills into a provider-specific response and copies
+// contact fields into the Waterfall result. The Deepline v2 HTTP response is
+// wrapped as {"job_id":..., "status":..., "result":{"data":{...}}}; different
+// providers nest their fields differently inside `data`, so we dispatch on
+// provider name.
+func extractDeeplineFields(r *WaterfallResult, raw json.RawMessage, provider string, step *WaterfallStep) {
+	var envelope struct {
+		Result struct {
+			Data json.RawMessage `json:"data"`
+		} `json:"result"`
+	}
+	if err := json.Unmarshal(raw, &envelope); err != nil || len(envelope.Result.Data) == 0 {
+		return
+	}
+	switch provider {
+	case "apollo":
+		extractApolloPerson(r, envelope.Result.Data, step)
+	case "hunter":
+		extractHunterResult(r, envelope.Result.Data, step)
+	case "contactout":
+		extractFlatContact(r, envelope.Result.Data, step,
+			[]string{"email", "work_email"}, []string{"phone", "mobile"})
+	case "dropleads":
+		extractDropleadsResult(r, envelope.Result.Data, step)
+	case "datagma":
+		extractFlatContact(r, envelope.Result.Data, step,
+			[]string{"email"}, []string{"phone"})
+	default:
+		var m map[string]any
+		if err := json.Unmarshal(envelope.Result.Data, &m); err == nil {
+			applyEnrichFields(r, m, step, []string{"email", "phone", "company", "name", "title", "linkedin_url"})
+		}
+	}
+}
+
+func extractApolloPerson(r *WaterfallResult, data json.RawMessage, step *WaterfallStep) {
+	var wrap struct {
+		Person struct {
+			Name           string   `json:"name"`
+			Title          string   `json:"title"`
+			LinkedinURL    string   `json:"linkedin_url"`
+			Email          string   `json:"email"`
+			EmailStatus    string   `json:"email_status"`
+			PersonalEmails []string `json:"personal_emails"`
+			Organization   struct {
+				Name string `json:"name"`
+			} `json:"organization"`
+		} `json:"person"`
+	}
+	if err := json.Unmarshal(data, &wrap); err != nil {
+		return
+	}
+	p := wrap.Person
+	setField(r, step, "name", p.Name)
+	setField(r, step, "title", p.Title)
+	setField(r, step, "linkedin_url", p.LinkedinURL)
+	setField(r, step, "company", p.Organization.Name)
+	// Work email: only accept if upstream marked it verified or catchall
+	// (not "unavailable"). Apollo returns email = "" when it has no hit.
+	if p.Email != "" && p.EmailStatus != "unavailable" {
+		setField(r, step, "email", p.Email)
+	}
+	if len(p.PersonalEmails) > 0 && p.PersonalEmails[0] != "" {
+		setField(r, step, "personal_email", p.PersonalEmails[0])
+	}
+	if p.EmailStatus != "" {
+		setField(r, step, "email_confidence", p.EmailStatus)
+	}
+}
+
+func extractHunterResult(r *WaterfallResult, data json.RawMessage, step *WaterfallStep) {
 	var m map[string]any
-	if err := json.Unmarshal(raw, &m); err == nil {
-		applyEnrichFields(r, m, &step, []string{"email", "phone", "company", "name", "title", "linkedin_url"})
+	if err := json.Unmarshal(data, &m); err != nil {
+		return
 	}
-	step.Snippet = raw
-	step.Status = "ok"
-	return step
+	if email, ok := stringField(m, "email"); ok {
+		setField(r, step, "email", email)
+	}
+	if phone, ok := stringField(m, "phone_number"); ok {
+		setField(r, step, "phone", phone)
+	} else if phone, ok := stringField(m, "phone"); ok {
+		setField(r, step, "phone", phone)
+	}
+	if co, ok := stringField(m, "company"); ok {
+		setField(r, step, "company", co)
+	}
+	if title, ok := stringField(m, "position"); ok {
+		setField(r, step, "title", title)
+	}
+	if score, ok := m["score"].(float64); ok && score > 0 {
+		setField(r, step, "email_confidence", fmt.Sprintf("hunter_score_%d", int(score)))
+	}
+}
+
+func extractDropleadsResult(r *WaterfallResult, data json.RawMessage, step *WaterfallStep) {
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return
+	}
+	if email, ok := stringField(m, "email"); ok {
+		setField(r, step, "email", email)
+	}
+	if status, ok := stringField(m, "status"); ok {
+		setField(r, step, "email_confidence", status)
+	}
+	if co, ok := stringField(m, "company_domain"); ok {
+		setField(r, step, "company_domain", co)
+	}
+}
+
+func extractFlatContact(r *WaterfallResult, data json.RawMessage, step *WaterfallStep, emailKeys, phoneKeys []string) {
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return
+	}
+	for _, k := range emailKeys {
+		if v, ok := stringField(m, k); ok {
+			setField(r, step, "email", v)
+			break
+		}
+	}
+	for _, k := range phoneKeys {
+		if v, ok := stringField(m, k); ok {
+			setField(r, step, "phone", v)
+			break
+		}
+	}
+}
+
+func stringField(m map[string]any, key string) (string, bool) {
+	if v, ok := m[key]; ok {
+		if s, ok := v.(string); ok && s != "" {
+			return s, true
+		}
+	}
+	return "", false
+}
+
+func setField(r *WaterfallResult, step *WaterfallStep, key, value string) {
+	if value == "" {
+		return
+	}
+	if _, already := r.Fields[key]; already {
+		return
+	}
+	r.Fields[key] = value
+	step.Fields = append(step.Fields, key)
 }
 
 // applyEnrichFields copies the listed fields from src into the running result.

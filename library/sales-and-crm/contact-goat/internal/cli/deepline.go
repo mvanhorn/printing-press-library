@@ -201,8 +201,18 @@ func newDeeplineFindEmailCmd(flags *rootFlags, dl *deeplineFlags) *cobra.Command
 	var company string
 	cmd := &cobra.Command{
 		Use:   "find-email <name>",
-		Short: "Find a person's email via the waterfall (Apollo + fallbacks)",
-		Long:  "Runs Deepline's person_search_to_email_waterfall tool: resolves name+company to an email using multiple providers in cost order.",
+		Short: "Find a person's work email from name+domain",
+		Long: `Finds a single high-confidence work email for a person at a company using
+Deepline's dropleads_email_finder tool.
+
+Input is the person's full name and a company domain. The name is split
+on whitespace into first_name / last_name; multi-word first names are
+preserved (e.g. "Jean-Paul Sartre" -> first="Jean-Paul", last="Sartre").
+
+The upstream tool returns {email, status, mx_record, mx_provider}. Status
+values include "valid", "catch_all", and "unknown"; a "catch_all" status
+means the domain accepts any address and the mailbox was not individually
+verified.`,
 		Example: `  contact-goat-pp-cli deepline find-email "Patrick Collison" --company stripe.com --yes
   contact-goat-pp-cli deepline find-email "Brian Chesky" --company airbnb.com --dry-run`,
 		Args: cobra.ExactArgs(1),
@@ -210,11 +220,16 @@ func newDeeplineFindEmailCmd(flags *rootFlags, dl *deeplineFlags) *cobra.Command
 			if strings.TrimSpace(company) == "" {
 				return usageErr(fmt.Errorf("--company is required (e.g. --company stripe.com)"))
 			}
-			payload := map[string]any{
-				"name":    args[0],
-				"company": company,
+			first, last := splitName(args[0])
+			if first == "" || last == "" {
+				return usageErr(fmt.Errorf("name %q must split into first and last (e.g. \"Patrick Collison\")", args[0]))
 			}
-			return deeplineExecute(cmd, flags, dl, deepline.ToolPersonSearchToEmailWaterfall, payload)
+			payload := map[string]any{
+				"first_name":     first,
+				"last_name":      last,
+				"company_domain": company,
+			}
+			return deeplineExecute(cmd, flags, dl, deepline.ToolEmailFind, payload)
 		},
 	}
 	cmd.Flags().StringVar(&company, "company", "", "Company domain (e.g. stripe.com)")
@@ -259,15 +274,19 @@ func newDeeplineSearchPeopleCmd(flags *rootFlags, dl *deeplineFlags) *cobra.Comm
 func newDeeplineEmailFindCmd(flags *rootFlags, dl *deeplineFlags) *cobra.Command {
 	var domain string
 	cmd := &cobra.Command{
-		Use:     "email-find",
-		Short:   "Find public emails for a company domain",
+		Use:   "email-find",
+		Short: "Find public emails for a company domain",
+		Long: `Lists public/role emails at a domain via Hunter domain search. Returns
+role-filtered company emails (e.g. contact@, press@, named-person@) with
+confidence scores and sources. For a single person's work email from
+name+domain, use the find-email subcommand instead.`,
 		Example: `  contact-goat-pp-cli deepline email-find --domain stripe.com --yes`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if strings.TrimSpace(domain) == "" {
 				return usageErr(fmt.Errorf("--domain is required (e.g. --domain stripe.com)"))
 			}
 			payload := map[string]any{"domain": domain}
-			return deeplineExecute(cmd, flags, dl, deepline.ToolEmailFind, payload)
+			return deeplineExecute(cmd, flags, dl, deepline.ToolHunterDomainSearch, payload)
 		},
 	}
 	cmd.Flags().StringVar(&domain, "domain", "", "Company domain (e.g. stripe.com)")
@@ -338,12 +357,20 @@ func newDeeplineEnrichCompanyCmd(flags *rootFlags, dl *deeplineFlags) *cobra.Com
 
 func newDeeplineEnrichPersonCmd(flags *rootFlags, dl *deeplineFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "enrich-person <linkedin-url>",
-		Short:   "Enrich a person by LinkedIn URL (title, company, location)",
+		Use:   "enrich-person <linkedin-url>",
+		Short: "Enrich a person by LinkedIn URL (title, company, location, personal emails)",
+		Long: `Enriches a person via Apollo people match. Accepts a LinkedIn URL and
+returns a full record: name, title, organization, employment history,
+and personal_emails when available. Pass --reveal-work-email=false to
+skip revealing the verified work email (and reduce cost on some
+accounts).`,
 		Example: `  contact-goat-pp-cli deepline enrich-person https://www.linkedin.com/in/patrickcollison --yes`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			payload := map[string]any{"linkedin_url": args[0]}
+			payload := map[string]any{
+				"linkedin_url":           args[0],
+				"reveal_personal_emails": true,
+			}
 			return deeplineExecute(cmd, flags, dl, deepline.ToolPersonEnrich, payload)
 		},
 	}
