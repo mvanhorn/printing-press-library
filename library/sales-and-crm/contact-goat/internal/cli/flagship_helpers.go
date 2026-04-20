@@ -372,7 +372,8 @@ func fetchLinkedInPerson(ctx context.Context, linkedinURL string, sections []str
 	if _, err := client.Initialize(ctx, linkedin.Implementation{Name: "contact-goat-pp-cli", Version: version}); err != nil {
 		return nil, nil, fmt.Errorf("linkedin mcp initialize: %w", err)
 	}
-	args := map[string]any{"linkedin_url": linkedinURL}
+	// Upstream tool requires linkedin_username; see normalizePersonInput.
+	args := map[string]any{"linkedin_username": normalizePersonInput(linkedinURL)}
 	if len(sections) > 0 {
 		args["sections"] = sections
 	}

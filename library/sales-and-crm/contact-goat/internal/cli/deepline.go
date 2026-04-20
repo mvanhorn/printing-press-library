@@ -61,6 +61,19 @@ estimated cost before spending and supports --dry-run to preview the request.`,
 
 	cmd.PersistentFlags().StringVar(&dl.apiKey, "deepline-key", "", "Deepline API key (default from $DEEPLINE_API_KEY)")
 
+	// Preflight: every deepline subcommand either spends credits or calls
+	// code.deepline.com for status, so require an API key shape-valid key
+	// here before wasting the user's time on dry-run, confirm-gate, or the
+	// credits stub. `credits` is allowed through because its whole point is
+	// to surface the "not yet wired" stub error without needing upstream
+	// auth.
+	cmd.PersistentPreRunE = func(c *cobra.Command, _ []string) error {
+		if c.Name() == "credits" {
+			return nil
+		}
+		return requireDeeplineKey(dl)
+	}
+
 	cmd.AddCommand(newDeeplineFindEmailCmd(flags, dl))
 	cmd.AddCommand(newDeeplineSearchPeopleCmd(flags, dl))
 	cmd.AddCommand(newDeeplineEmailFindCmd(flags, dl))

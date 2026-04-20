@@ -59,9 +59,19 @@ is passed. Pass --enrich-email to spend Deepline credits for email/phone.`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			target := args[0]
+			want := parseSections(sections)
+
+			// Preflight: if we're about to reach Deepline, fail fast when the
+			// key is missing rather than letting the dossier run through
+			// LinkedIn + Happenstance before surfacing the auth gap.
+			if shouldPreflightDossier(sections, enrichEmail) {
+				if key := firstNonEmpty(deeplineKey, os.Getenv("DEEPLINE_API_KEY")); key == "" {
+					return authErr(fmt.Errorf("dossier --enrich-email needs DEEPLINE_API_KEY (set env or pass --deepline-key)\nhint: keys at https://code.deepline.com/dashboard/api-keys"))
+				}
+			}
+
 			ctx, cancel := signalCtx(cmd.Context())
 			defer cancel()
-			want := parseSections(sections)
 
 			// Check cache.
 			if !noCache {

@@ -109,6 +109,15 @@ Configure BYOK keys with:
 				return usageErr(errors.New("name targets require --company (e.g. --company stripe.com) or CONTACT_GOAT_COMPANY env"))
 			}
 
+			// Preflight: fail fast on missing auth rather than running the
+			// LinkedIn + Happenstance chain first. The Deepline step is
+			// ultimately where the work gets done; without a path to it the
+			// whole waterfall can't satisfy the typical --enrich email,phone
+			// ask.
+			if err := preflightWaterfallDeepline(os.Getenv("DEEPLINE_API_KEY"), requireBYOK, byok); err != nil {
+				return err
+			}
+
 			// Step 1: LinkedIn profile.
 			if !waterfallComplete(result, enrichFields) {
 				step := tryLinkedIn(cmd.Context(), flags, target, result)
@@ -211,7 +220,10 @@ func tryLinkedIn(parentCtx context.Context, flags *rootFlags, target string, r *
 	}
 	callCtx, callCancel := context.WithTimeout(ctx, flags.timeout)
 	defer callCancel()
-	result, err := client.CallTool(callCtx, linkedin.ToolNames.GetPerson, map[string]any{"linkedin_url": target})
+	// Upstream linkedin-scraper-mcp requires linkedin_username (the slug
+	// after /in/), not the full URL. Passing linkedin_url yields a pydantic
+	// "Unexpected keyword argument" 422.
+	result, err := client.CallTool(callCtx, linkedin.ToolNames.GetPerson, map[string]any{"linkedin_username": normalizePersonInput(target)})
 	if err != nil {
 		step.Status = "error"
 		step.Error = err.Error()
