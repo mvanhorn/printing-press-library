@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -125,6 +126,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 
 			// Happenstance cookie-auth section
 			checkHappenstance(report)
+			checkHappenstanceGraphCoverage(flags, report)
 
 			// LinkedIn MCP section (Python / uvx / profile)
 			checkLinkedIn(report)
@@ -147,6 +149,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				{"credentials", "Credentials"},
 				{"happenstance_cookies", "Happenstance: cookies"},
 				{"happenstance_session", "Happenstance: session JWT"},
+				{"happenstance_graph", "Happenstance: graph coverage"},
 				{"linkedin_python", "LinkedIn: Python"},
 				{"linkedin_uvx", "LinkedIn: uvx"},
 				{"linkedin_binary", "LinkedIn: binary"},
@@ -228,6 +231,107 @@ func checkHappenstance(report map[string]any) {
 	} else {
 		report["happenstance_session"] = "valid"
 	}
+}
+
+// checkHappenstanceGraphCoverage hits /api/uploads/status/user to
+// report how the user's synced data sources look. Surfaces when the
+// LinkedIn CSV import last refreshed so users know the 1st-degree
+// graph freshness and can re-upload if it is stale. Best-effort: any
+// error here is non-fatal and produces a concise "status unknown" line.
+func checkHappenstanceGraphCoverage(flags *rootFlags, report map[string]any) {
+	if _, ok := report["happenstance_session"]; !ok {
+		return // no cookies, skip
+	}
+	c, err := flags.newClientRequireCookies("happenstance")
+	if err != nil {
+		report["happenstance_graph"] = "unavailable (cookies not loaded)"
+		return
+	}
+	// Refresh the session before making the authenticated call; doctor
+	// is specifically the place people run to diagnose auth, so making
+	// that refresh path exercised here is the point.
+	if refErr := c.MaybeRefreshSession(); refErr != nil {
+		report["happenstance_graph"] = fmt.Sprintf("session refresh failed: %s", trimErr(refErr.Error()))
+		report["happenstance_session"] = fmt.Sprintf("expired; refresh FAILED: %s", trimErr(refErr.Error()))
+		return
+	}
+	raw, err := c.Get("/api/uploads/status/user", nil)
+	if err != nil {
+		report["happenstance_graph"] = fmt.Sprintf("unavailable: %s", trimErr(err.Error()))
+		return
+	}
+	if len(raw) == 0 {
+		report["happenstance_graph"] = "authenticated but uploads endpoint returned empty body (retry after a fresh `auth login --chrome`)"
+		return
+	}
+	var resp struct {
+		Statuses struct {
+			LinkedInExt []struct {
+				Status         string `json:"status"`
+				IsActive       bool   `json:"isActive"`
+				IsError        bool   `json:"isError"`
+				LastRefreshed  string `json:"last_refreshed"`
+				Timestamp      string `json:"timestamp"`
+			} `json:"linkedin_ext"`
+		} `json:"statuses"`
+		HasAnyUploads       bool `json:"hasAnyUploads"`
+		ActiveAccountsCount int  `json:"activeAccountsCount"`
+	}
+	if err := jsonUnmarshal(raw, &resp); err != nil {
+		report["happenstance_graph"] = fmt.Sprintf("decode failed: %s", trimErr(err.Error()))
+		return
+	}
+	if len(resp.Statuses.LinkedInExt) == 0 {
+		report["happenstance_graph"] = "no LinkedIn contacts synced yet (upload at happenstance.ai/integrations)"
+		return
+	}
+	entry := resp.Statuses.LinkedInExt[0]
+	age := ""
+	if ts, err := time.Parse(time.RFC3339, entry.LastRefreshed); err == nil {
+		age = fmt.Sprintf(" (%s ago)", humanAge(time.Since(ts)))
+	}
+	status := entry.Status
+	if entry.IsError {
+		status = "ERROR"
+	}
+	report["happenstance_graph"] = fmt.Sprintf("linkedin_ext: %s, last refreshed %s%s",
+		status, fallbackStr(entry.LastRefreshed, "unknown"), age)
+}
+
+func trimErr(s string) string {
+	if len(s) > 120 {
+		return s[:120] + "..."
+	}
+	return s
+}
+
+func fallbackStr(s, def string) string {
+	if strings.TrimSpace(s) == "" {
+		return def
+	}
+	return s
+}
+
+func humanAge(d time.Duration) string {
+	days := int(d.Hours() / 24)
+	if days < 1 {
+		h := int(d.Hours())
+		if h < 1 {
+			return fmt.Sprintf("%dm", int(d.Minutes()))
+		}
+		return fmt.Sprintf("%dh", h)
+	}
+	if days < 60 {
+		return fmt.Sprintf("%dd", days)
+	}
+	months := days / 30
+	return fmt.Sprintf("%dmo", months)
+}
+
+// jsonUnmarshal is a thin wrapper to keep the local helper name
+// consistent with other check* helpers in this file.
+func jsonUnmarshal(data []byte, v any) error {
+	return json.Unmarshal(data, v)
 }
 
 // checkDeepline populates doctor's Deepline fields. We NEVER echo the API
