@@ -17,24 +17,65 @@ const KeyPrefix = "dlp_"
 // Known tool IDs referenced by the typed subcommands. The API is tool-based:
 // every call is POST /integrations/{toolId}/execute with a tool-specific
 // JSON payload.
-// Tool IDs verified against `deepline tools list` on 2026-04-19. These are
-// the ai_ark_* family served by Deepline's managed waterfall backend.
-// Multiple CLI subcommands may map to the same underlying tool with
-// different payload shapes (e.g. company search and enrich both use
-// ai_ark_company_search).
+//
+// Tool IDs verified against `deepline tools list` on 2026-04-20. The previous
+// revision of this file pointed ToolPersonEnrich at ai_ark_personality_analysis
+// and ToolEmailFind at ai_ark_find_emails; neither is a direct email
+// enrichment tool. Personality analysis returns personality traits (not
+// contact info) and requires a `url` payload field; ai_ark_find_emails is an
+// async follow-on to ai_ark_people_search that requires a trackId. Those
+// constants are preserved here under clearer names for callers that genuinely
+// want those behaviors, while ToolPersonEnrich and ToolEmailFind now point at
+// real email-enrichment providers.
 const (
+	// --- ai_ark family: preserved for explicit callers ---
+	// ToolPersonSearchToEmailWaterfall is the async follow-on to
+	// ToolApolloPeopleSearch. It requires a trackId from a prior
+	// ai_ark_people_search call and cannot be invoked directly with
+	// name+company. Do NOT route the `find-email` subcommand here.
 	ToolPersonSearchToEmailWaterfall = "ai_ark_find_emails"
 	ToolApolloPeopleSearch           = "ai_ark_people_search"
 	ToolPhoneFind                    = "ai_ark_mobile_phone_finder"
 	ToolCompanySearch                = "ai_ark_company_search"
-	ToolPersonEnrich                 = "ai_ark_personality_analysis"
 	ToolReverseLookup                = "ai_ark_reverse_lookup"
+	// ToolPersonalityAnalysis analyzes a LinkedIn profile for personality
+	// traits and outbound-messaging guidance. It returns personality data,
+	// NOT contact info. Use ToolApolloPeopleMatch or ToolHunterPeopleFind
+	// for person enrichment instead.
+	ToolPersonalityAnalysis = "ai_ark_personality_analysis"
+
+	// --- Email finders (name+domain -> work email) ---
+	ToolDropleadsEmailFinder = "dropleads_email_finder"
+	ToolHunterEmailFinder    = "hunter_email_finder"
+	ToolDatagmaFindEmail     = "datagma_find_email"
+	ToolIcypeasEmailSearch   = "icypeas_email_search"
+	ToolHunterDomainSearch   = "hunter_domain_search"
+
+	// --- Person enrichers (linkedin_url | email -> full record) ---
+	ToolApolloPeopleMatch      = "apollo_people_match"
+	ToolHunterPeopleFind       = "hunter_people_find"
+	ToolContactOutEnrichPerson = "contactout_enrich_person"
 )
 
-// Aliases: several CLI subcommands map to the same backend tool.
+// Primary aliases used by the CLI subcommands. The VALUE of each constant has
+// changed in the 2026-04-20 fix; the NAME is preserved so external callers
+// (MCP server, code that imports deepline.ToolEmailFind, etc.) keep compiling.
 const (
-	ToolEmailFind     = ToolPersonSearchToEmailWaterfall // find-email + email-find share one backend
-	ToolCompanyEnrich = ToolCompanySearch                // enrich-company uses company search with filters
+	// ToolPersonEnrich is the default person-enrichment tool: given a
+	// LinkedIn URL or an email, return name/title/company and any
+	// contact fields the provider has on file. Routed to apollo_people_match
+	// (broadest coverage, personal_emails[] + work email + employment
+	// history in one call).
+	ToolPersonEnrich = ToolApolloPeopleMatch
+
+	// ToolEmailFind is the default "find a work email from name+domain"
+	// tool. Routed to dropleads_email_finder (cheapest hit rate; returns
+	// a single high-confidence email with MX status).
+	ToolEmailFind = ToolDropleadsEmailFinder
+
+	// ToolCompanyEnrich reuses the ai_ark_company_search backend; it
+	// accepts a domain and returns firmographics.
+	ToolCompanyEnrich = ToolCompanySearch
 )
 
 // ToolInfo describes a known Deepline tool: its id, a short human-readable
@@ -55,8 +96,8 @@ type ToolInfo struct {
 var Catalog = map[string]ToolInfo{
 	ToolPersonSearchToEmailWaterfall: {
 		ID:             ToolPersonSearchToEmailWaterfall,
-		Label:          "Email finder (async via People Search trackId)",
-		PayloadHint:    `{"name":"Patrick Collison","company":"stripe.com"}`,
+		Label:          "Email finder (async; requires ai_ark_people_search trackId)",
+		PayloadHint:    `{"trackId":"<from ai_ark_people_search>"}`,
 		DefaultCredits: 4,
 	},
 	ToolApolloPeopleSearch: {
@@ -77,10 +118,10 @@ var Catalog = map[string]ToolInfo{
 		PayloadHint:    `{"industry":"fintech","size":"201-500","location":"United States"}`,
 		DefaultCredits: 2,
 	},
-	ToolPersonEnrich: {
-		ID:             ToolPersonEnrich,
-		Label:          "Personality analysis (LinkedIn URL)",
-		PayloadHint:    `{"linkedin_url":"https://www.linkedin.com/in/patrickcollison"}`,
+	ToolPersonalityAnalysis: {
+		ID:             ToolPersonalityAnalysis,
+		Label:          "Personality analysis (LinkedIn URL -> outbound guidance; NOT contact info)",
+		PayloadHint:    `{"url":"https://www.linkedin.com/in/patrickcollison"}`,
 		DefaultCredits: 2,
 	},
 	ToolReverseLookup: {
@@ -88,6 +129,55 @@ var Catalog = map[string]ToolInfo{
 		Label:          "Reverse lookup (email or phone -> profile)",
 		PayloadHint:    `{"email":"patrick@stripe.com"}`,
 		DefaultCredits: 2,
+	},
+
+	ToolDropleadsEmailFinder: {
+		ID:             ToolDropleadsEmailFinder,
+		Label:          "Dropleads email finder (name+domain -> verified work email)",
+		PayloadHint:    `{"first_name":"Mike","last_name":"Craig","company_domain":"stripe.com"}`,
+		DefaultCredits: 1,
+	},
+	ToolHunterEmailFinder: {
+		ID:             ToolHunterEmailFinder,
+		Label:          "Hunter email finder (name+domain -> work email with confidence score)",
+		PayloadHint:    `{"first_name":"Mike","last_name":"Craig","domain":"stripe.com"}`,
+		DefaultCredits: 1,
+	},
+	ToolDatagmaFindEmail: {
+		ID:             ToolDatagmaFindEmail,
+		Label:          "Datagma email finder (name+domain -> verified work email)",
+		PayloadHint:    `{"first_name":"Mike","last_name":"Craig","company_domain":"stripe.com"}`,
+		DefaultCredits: 1,
+	},
+	ToolIcypeasEmailSearch: {
+		ID:             ToolIcypeasEmailSearch,
+		Label:          "Icypeas email search (async; poll read_results)",
+		PayloadHint:    `{"firstname":"Mike","lastname":"Craig","domainOrCompany":"stripe.com"}`,
+		DefaultCredits: 1,
+	},
+	ToolHunterDomainSearch: {
+		ID:             ToolHunterDomainSearch,
+		Label:          "Hunter domain search (domain -> all public emails)",
+		PayloadHint:    `{"domain":"stripe.com"}`,
+		DefaultCredits: 2,
+	},
+	ToolApolloPeopleMatch: {
+		ID:             ToolApolloPeopleMatch,
+		Label:          "Apollo people match (linkedin_url | email | name+domain -> full record)",
+		PayloadHint:    `{"linkedin_url":"https://www.linkedin.com/in/patrickcollison","reveal_personal_emails":true}`,
+		DefaultCredits: 1,
+	},
+	ToolHunterPeopleFind: {
+		ID:             ToolHunterPeopleFind,
+		Label:          "Hunter people find (email | linkedin_url -> role, socials, company)",
+		PayloadHint:    `{"linkedin_url":"https://www.linkedin.com/in/patrickcollison"}`,
+		DefaultCredits: 1,
+	},
+	ToolContactOutEnrichPerson: {
+		ID:             ToolContactOutEnrichPerson,
+		Label:          "ContactOut enrich person (linkedin_url | email | name+company -> email + phone)",
+		PayloadHint:    `{"linkedin_url":"https://www.linkedin.com/in/patrickcollison"}`,
+		DefaultCredits: 1,
 	},
 }
 
