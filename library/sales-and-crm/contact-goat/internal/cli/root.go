@@ -105,7 +105,14 @@ func Execute() error {
 	rootCmd.AddCommand(newTailCmd(&flags))
 	rootCmd.AddCommand(newAnalyticsCmd(&flags))
 	rootCmd.AddCommand(newWorkflowCmd(&flags))
-	rootCmd.AddCommand(newAPICmd(&flags))
+	apiCmd := newAPICmd(&flags)
+	// Nest the Happenstance public REST API under `api hpn` so the full
+	// path is `contact-goat-pp-cli api hpn <subcommand>`. Registered here
+	// (rather than inside newAPICmd) because newAPICmd is generated and
+	// marked DO NOT EDIT — keeping the registration at the seam preserves
+	// the regenerator's idempotence.
+	apiCmd.AddCommand(newAPIHpnCmd(&flags))
+	rootCmd.AddCommand(apiCmd)
 	rootCmd.AddCommand(newFriendsPromotedCmd(&flags))
 	rootCmd.AddCommand(newHPCmd(&flags))
 	rootCmd.AddCommand(newUserPromotedCmd(&flags))
