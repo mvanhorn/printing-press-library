@@ -105,6 +105,7 @@ func Execute() error {
 	rootCmd.AddCommand(newWorkflowCmd(&flags))
 	rootCmd.AddCommand(newAPICmd(&flags))
 	rootCmd.AddCommand(newFriendsPromotedCmd(&flags))
+	rootCmd.AddCommand(newHPCmd(&flags))
 	rootCmd.AddCommand(newUserPromotedCmd(&flags))
 	rootCmd.AddCommand(newClerkPromotedCmd(&flags))
 	rootCmd.AddCommand(newDynamoPromotedCmd(&flags))

@@ -170,8 +170,12 @@ func (c *Client) clerkSessionID() string {
 			val = ck.Value
 		}
 		// Shape 1: bare session id, e.g. "sess_3Cac4..." (current Happenstance).
+		// Strip trailing ":" and whitespace; the cookie's URL-encoded form
+		// sometimes carries a trailing colon (observed on 2026-04-19).
+		// Leaving it in place produces "/v1/client/sessions/sess_XXX:/touch"
+		// which Clerk returns 404 for.
 		if strings.HasPrefix(val, "sess_") {
-			return val
+			return strings.TrimRight(val, ": \t\r\n")
 		}
 		// Shape 2: JSON envelope, e.g. {"session_id":"sess_..."}.
 		var ctx struct {
@@ -261,32 +265,49 @@ func (c *Client) refreshClerkSession() error {
 			resp.StatusCode, status, reason, msg)
 	}
 
-	// Drain the response body. The /touch endpoint sets the fresh
-	// __session cookie via Set-Cookie; the http.Client's jar absorbs it
-	// automatically, so there is no `jwt` field to parse out of the body.
+	// Drain the response body. /touch emits fresh __session via
+	// Set-Cookie; we parse those headers directly rather than relying on
+	// Go's cookiejar to scope them correctly. Without a PublicSuffixList
+	// the jar sometimes stores Set-Cookie Domain=.happenstance.ai as
+	// host-only for the request host (clerk.happenstance.ai), which
+	// means subsequent POSTs to happenstance.ai/api/search don't carry
+	// the fresh JWT and the server returns 204 "signed-out".
 	_, _ = io.Copy(io.Discard, resp.Body)
 
-	// Belt and braces: verify the jar actually holds a non-empty __session
-	// cookie for happenstance.ai after the refresh. If the Set-Cookie was
-	// scoped to a domain the jar does not surface for happenstance.ai
-	// (rare but possible with wildcard domains), mirror the cookie across
-	// the relevant hosts so subsequent requests pick it up.
-	if sess := c.sessionCookieValue(); sess != "" {
-		newCookie := &http.Cookie{
-			Name:     "__session",
-			Value:    sess,
-			Path:     "/",
-			Domain:   ".happenstance.ai",
-			HttpOnly: true,
-			Secure:   true,
+	var freshSession string
+	// resp.Cookies() parses Set-Cookie from the response headers.
+	for _, sc := range resp.Cookies() {
+		if sc.Name == "__session" && sc.Value != "" {
+			freshSession = sc.Value
+			break
 		}
-		for _, host := range []string{"happenstance.ai", "www.happenstance.ai", "clerk.happenstance.ai"} {
-			u := &url.URL{Scheme: "https", Host: host, Path: "/"}
-			c.cookieAuth.jar.SetCookies(u, []*http.Cookie{newCookie})
-		}
-	} else {
-		return errors.New("clerk refresh: 200 OK but no __session cookie landed in jar")
 	}
+	if freshSession == "" {
+		// Fall back to whatever the jar stored; some Clerk paths rely on
+		// the jar's own Set-Cookie handling even when the response-level
+		// parse returns nothing.
+		freshSession = c.sessionCookieValue()
+	}
+	if freshSession == "" {
+		return errors.New("clerk refresh: 200 OK but no __session cookie in response or jar")
+	}
+
+	// Mirror the fresh __session across every host that subsequent
+	// Happenstance requests will target. Path "/" so the jar matches
+	// every /api/* endpoint.
+	newCookie := &http.Cookie{
+		Name:     "__session",
+		Value:    freshSession,
+		Path:     "/",
+		Domain:   ".happenstance.ai",
+		HttpOnly: true,
+		Secure:   true,
+	}
+	for _, host := range []string{"happenstance.ai", "www.happenstance.ai", "clerk.happenstance.ai"} {
+		u := &url.URL{Scheme: "https", Host: host, Path: "/"}
+		c.cookieAuth.jar.SetCookies(u, []*http.Cookie{newCookie})
+	}
+
 	c.cookieAuth.lastRefresh = time.Now()
 	return nil
 }
