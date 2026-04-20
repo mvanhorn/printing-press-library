@@ -1,7 +1,7 @@
 ---
 title: "fix: Retry instacart add on notFoundBasketProduct and surface actionable guidance"
 type: fix
-status: active
+status: completed
 date: 2026-04-19
 ---
 
