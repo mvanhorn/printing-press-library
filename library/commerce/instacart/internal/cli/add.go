@@ -2,6 +2,7 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -76,28 +77,30 @@ Instacart app or web UI.`,
 				retailer, query = detectArgShape(app, args)
 			}
 
-			var pick SearchResult
+			// Build a ranked candidate slice. tryAddCandidates will walk it on
+			// retryable errors (notFoundBasketProduct), so the live path feeds
+			// the full ResolveProducts result rather than just results[0].
+			var candidates []SearchResult
 			resolvedVia := "live"
+			maxAttempts := retryMaxAttempts
 			if itemID != "" {
-				pick = SearchResult{
+				candidates = []SearchResult{{
 					Name:      "(item id supplied: " + itemID + ")",
 					ItemID:    itemID,
 					ProductID: itemID[strings.LastIndex(itemID, "-")+1:],
 					Retailer:  retailer,
-				}
+				}}
 				resolvedVia = "item-id"
+				maxAttempts = 1
 			} else {
-				// History-first resolver: when the user has bought something
-				// that FTS-matches the query at this retailer recently enough,
-				// skip the three-call live search entirely. Falls through on
-				// low confidence, stale last_purchased_at, or --no-history.
 				if !noHistory {
 					if hit := resolveFromHistory(app, retailer, query); hit != nil {
-						pick = *hit
+						candidates = []SearchResult{*hit}
 						resolvedVia = "history"
+						maxAttempts = 1
 					}
 				}
-				if pick.ItemID == "" {
+				if len(candidates) == 0 {
 					results, err := gql.ResolveProducts(app.Ctx, app.Session, app.Cfg, app.Store, retailer, query, 5)
 					if err != nil {
 						return coded(ExitNotFound, "could not resolve %q at %s: %v", query, retailer, err)
@@ -105,12 +108,13 @@ Instacart app or web UI.`,
 					if len(results) == 0 {
 						return coded(ExitNotFound, "no results for %q at %s", query, retailer)
 					}
-					pick = results[0]
+					candidates = results
 				}
 			}
-			if pick.ItemID == "" {
+			if len(candidates) == 0 || candidates[0].ItemID == "" {
 				return coded(ExitNotFound, "no item id resolved; pass --item-id explicitly")
 			}
+			pick := candidates[0]
 
 			if app.DryRun {
 				preview := map[string]any{
@@ -154,36 +158,55 @@ Instacart app or web UI.`,
 			}
 
 			client := gql.NewClient(app.Session, app.Cfg, app.Store)
-			vars := instacart.UpdateCartItemsVars{
-				CartItemUpdates: []instacart.CartItemUpdate{{
-					ItemID:         pick.ItemID,
-					Quantity:       qty,
-					QuantityType:   "each",
-					TrackingParams: json.RawMessage(`{}`),
-				}},
-				CartType:         "grocery",
-				CartID:           cartID,
-				RequestTimestamp: time.Now().UnixMilli(),
-			}
-			resp, err := client.Mutation(app.Ctx, "UpdateCartItemsMutation", vars, "")
-			if err != nil {
-				return err
-			}
-			var parsed struct {
-				Data instacart.UpdateCartItemsResponse `json:"data"`
-			}
-			_ = json.Unmarshal(resp.RawBody, &parsed)
-			if parsed.Data.UpdateCartItems.ErrorType != "" {
-				return coded(ExitConflict, "Instacart rejected the add: %s", parsed.Data.UpdateCartItems.ErrorType)
+			invoke := newGQLMutationInvoker(client)
+
+			result, err := tryAddCandidates(app.Ctx, invoke, retailer, cartID, candidates, qty, maxAttempts)
+
+			// History-first fallback: if the history hit got rejected as
+			// notFoundBasketProduct, fall back to live search and retry. The
+			// history write-back stays keyed to whichever candidate eventually
+			// succeeds, not the original history item.
+			if err != nil && resolvedVia == "history" && query != "" {
+				var ce *addCandidateError
+				if errors.As(err, &ce) && ce.LastErrorType == notFoundBasketProduct {
+					liveResults, lerr := gql.ResolveProducts(app.Ctx, app.Session, app.Cfg, app.Store, retailer, query, 5)
+					if lerr == nil && len(liveResults) > 0 {
+						historyAttempts := ce.Attempts
+						result, err = tryAddCandidates(app.Ctx, invoke, retailer, cartID, liveResults, qty, retryMaxAttempts)
+						if err == nil {
+							result.Attempts = append(historyAttempts, result.Attempts...)
+							resolvedVia = "history->live"
+						} else {
+							var ce2 *addCandidateError
+							if errors.As(err, &ce2) {
+								ce2.Attempts = append(historyAttempts, ce2.Attempts...)
+								err = ce2
+							}
+						}
+					}
+				}
 			}
 
+			if err != nil {
+				var ce *addCandidateError
+				if errors.As(err, &ce) {
+					return emitCandidateError(cmd, app, retailer, query, ce)
+				}
+				return err
+			}
+
+			pick = result.Picked
+
 			// Write-back to purchased_items so the history-first resolver gets
-			// stronger every time the user actually buys something. Increments
-			// purchase_count; refreshes last_purchased_at and last_price_cents.
-			if err := writeBackPurchasedItem(app, retailer, pick); err != nil {
-				// Non-fatal -- the user's add succeeded, history write-back is
-				// best-effort.
-				fmt.Fprintf(cmd.OutOrStderr(), "warning: history write-back failed: %v\n", err)
+			// stronger every time the user actually buys something.
+			if werr := writeBackPurchasedItem(app, retailer, pick); werr != nil {
+				fmt.Fprintf(cmd.OutOrStderr(), "warning: history write-back failed: %v\n", werr)
+			}
+
+			retryCount := len(result.Attempts)
+			if retryCount > 0 && !app.JSON {
+				fmt.Fprintf(cmd.OutOrStderr(), "note: retried past %d rejected candidate(s) before landing on %s\n",
+					retryCount, pick.Name)
 			}
 
 			if app.JSON {
@@ -191,16 +214,20 @@ Instacart app or web UI.`,
 					"added":        pick,
 					"cart_id":      cartID,
 					"resolved_via": resolvedVia,
-					"result":       parsed.Data.UpdateCartItems,
+					"result":       result.Response.UpdateCartItems,
+					"retry_count":  retryCount,
 				}
-				if resolvedVia != "history" && historyIsEmpty(app) {
+				if retryCount > 0 {
+					envelope["attempts"] = result.Attempts
+				}
+				if resolvedVia != "history" && resolvedVia != "history->live" && historyIsEmpty(app) {
 					envelope["hint"] = backfillHint()
 				}
 				return json.NewEncoder(cmd.OutOrStdout()).Encode(envelope)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "added to %s cart:\n  %s (via %s)\n  item_id=%s\n", retailer, pick.Name, resolvedVia, pick.ItemID)
-			if parsed.Data.UpdateCartItems.Cart != nil {
-				fmt.Fprintf(cmd.OutOrStdout(), "  cart now has %d item(s)\n", parsed.Data.UpdateCartItems.Cart.ItemCount)
+			if result.Response.UpdateCartItems.Cart != nil {
+				fmt.Fprintf(cmd.OutOrStdout(), "  cart now has %d item(s)\n", result.Response.UpdateCartItems.Cart.ItemCount)
 			}
 			return nil
 		},
@@ -368,4 +395,33 @@ func resolveActiveCartID(app *AppContext, retailer string) (string, error) {
 	}
 
 	return "", nil
+}
+
+// emitCandidateError surfaces the exhaustion guidance when tryAddCandidates
+// gave up. In JSON mode it prints a structured envelope to stdout with the
+// attempt log and a next-step hint; the returned coded error drives the exit
+// code. In text mode the hint rides on the error message itself.
+func emitCandidateError(cmd *cobra.Command, app *AppContext, retailer, query string, ce *addCandidateError) error {
+	var hint string
+	switch {
+	case query != "":
+		hint = fmt.Sprintf("try: instacart search %q --store %s, then instacart add --item-id <id> %s. Or retry with --no-history.",
+			query, retailer, retailer)
+	default:
+		hint = fmt.Sprintf("try a different item id or retailer; run instacart cart show %s to see the cart's active retailer.", retailer)
+	}
+
+	if app.JSON {
+		envelope := map[string]any{
+			"error":    ce.LastErrorType,
+			"retailer": retailer,
+			"attempts": ce.Attempts,
+			"hint":     hint,
+		}
+		if query != "" {
+			envelope["query"] = query
+		}
+		_ = json.NewEncoder(cmd.OutOrStdout()).Encode(envelope)
+	}
+	return coded(ExitConflict, "Instacart rejected the add: %s. %s", ce.LastErrorType, hint)
 }
