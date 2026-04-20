@@ -105,7 +105,7 @@ connected. The RELATIONSHIP column shows 1st_degree / 2nd_degree /
 	cmd.Flags().BoolVar(&tierConnections, "connections", true, "Include your 1st-degree (synced contacts)")
 	cmd.Flags().BoolVar(&tierFriends, "friends", true, "Include 2nd-degree via your friends' networks")
 	cmd.Flags().BoolVar(&tierEveryone, "everyone", false, "Also include the public / 3rd-degree graph")
-	cmd.Flags().IntVar(&timeoutSec, "timeout", 60, "Max seconds to wait for results")
+	cmd.Flags().IntVar(&timeoutSec, "timeout", int(client.DefaultPollTimeout.Seconds()), "Max seconds to wait for results")
 	cmd.Flags().IntVar(&intervalSec, "interval", 1, "Seconds between poll attempts")
 	cmd.Flags().IntVar(&limit, "limit", 0, "Client-side cap on results (0 = no cap)")
 

@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -19,6 +20,7 @@ import (
 func newCoverageCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	var sourceFlag string
+	var pollTimeoutSec int
 
 	cmd := &cobra.Command{
 		Use:   "coverage <company>",
@@ -43,7 +45,8 @@ distinguish "empty because nobody is there" from "empty because the call
 failed".`,
 		Example: `  contact-goat-pp-cli coverage stripe
   contact-goat-pp-cli coverage "OpenAI" --limit 10 --json
-  contact-goat-pp-cli coverage airbnb --source hp`,
+  contact-goat-pp-cli coverage airbnb --source hp
+  contact-goat-pp-cli coverage disney --poll-timeout 300`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			company := args[0]
@@ -80,7 +83,18 @@ failed".`,
 					// correctly labeled 1st vs 2nd degree.
 					currentUUID, _ := fetchCurrentUserUUID(c)
 
-					graphRes, gerr := c.SearchPeopleByCompany(company)
+					// Build per-call options only when the user bumped the
+					// timeout. Zero (the default) leaves SearchPeopleOptions
+					// alone and the client uses DefaultPollTimeout.
+					var hpOpts *client.SearchPeopleOptions
+					if pollTimeoutSec > 0 {
+						hpOpts = &client.SearchPeopleOptions{
+							IncludeMyConnections: true,
+							IncludeMyFriends:     true,
+							PollTimeout:          time.Duration(pollTimeoutSec) * time.Second,
+						}
+					}
+					graphRes, gerr := c.SearchPeopleByCompanyWithOptions(company, hpOpts)
 					if gerr != nil {
 						sourceErrors["hp_graph"] = gerr.Error()
 						fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance graph-search: %v\n", gerr)
@@ -172,6 +186,9 @@ failed".`,
 	}
 	cmd.Flags().IntVar(&limit, "limit", 25, "Max people to return")
 	cmd.Flags().StringVar(&sourceFlag, "source", "both", "Sources: li | hp | both")
+	cmd.Flags().IntVar(&pollTimeoutSec, "poll-timeout", 0,
+		fmt.Sprintf("Seconds to wait for Happenstance graph-search (0 = use default %ds)",
+			int(client.DefaultPollTimeout.Seconds())))
 	return cmd
 }
 

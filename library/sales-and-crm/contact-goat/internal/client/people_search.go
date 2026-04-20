@@ -54,14 +54,21 @@ type SearchPeopleOptions struct {
 	PollInterval time.Duration
 }
 
+// DefaultPollTimeout is the Happenstance graph-search poll ceiling
+// exported so CLI flag help text can reference the exact default.
+// Bumped from 60s to 180s on 2026-04-19 after real-session evidence
+// that Happenstance routinely takes 2-5 minutes. 60s was causing
+// frequent false failures on legitimate queries.
+const DefaultPollTimeout = 180 * time.Second
+
 // defaultSearchOptions returns the zero-config behavior: 1st + 2nd
-// degree, no public, 60-second timeout, 1-second poll.
+// degree, no public, 180-second timeout, 1-second poll.
 func defaultSearchOptions() SearchPeopleOptions {
 	return SearchPeopleOptions{
 		IncludeMyConnections: true,
 		IncludeMyFriends:     true,
 		SearchEveryone:       false,
-		PollTimeout:          60 * time.Second,
+		PollTimeout:          DefaultPollTimeout,
 		PollInterval:         1 * time.Second,
 	}
 }
@@ -230,7 +237,7 @@ func (c *Client) SearchPeopleByQuery(query string, opts *SearchPeopleOptions) (*
 		// bug because Happenstance needs at least one tier to search.
 		o = *opts
 		if o.PollTimeout == 0 {
-			o.PollTimeout = 60 * time.Second
+			o.PollTimeout = DefaultPollTimeout
 		}
 		if o.PollInterval == 0 {
 			o.PollInterval = 1 * time.Second
@@ -271,7 +278,15 @@ func (c *Client) SearchPeopleByQuery(query string, opts *SearchPeopleOptions) (*
 // degree). It is the direct replacement for contact-goat's coverage
 // command's narrow friends/list-only source.
 func (c *Client) SearchPeopleByCompany(company string) (*PeopleSearchResult, error) {
-	return c.SearchPeopleByQuery(fmt.Sprintf("people at %s", company), nil)
+	return c.SearchPeopleByCompanyWithOptions(company, nil)
+}
+
+// SearchPeopleByCompanyWithOptions lets callers override tier and
+// poll-timeout settings per-call. Passing nil is identical to
+// SearchPeopleByCompany. A zero PollTimeout on opts falls back to
+// DefaultPollTimeout.
+func (c *Client) SearchPeopleByCompanyWithOptions(company string, opts *SearchPeopleOptions) (*PeopleSearchResult, error) {
+	return c.SearchPeopleByQuery(fmt.Sprintf("people at %s", company), opts)
 }
 
 // createSearch posts the request body and returns the request uuid the
