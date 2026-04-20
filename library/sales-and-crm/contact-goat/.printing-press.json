@@ -12,7 +12,8 @@
   "mcp_ready": "full",
   "auth_type": "composed",
   "auth_env_vars": [
-    "DEEPLINE_API_KEY"
+    "DEEPLINE_API_KEY",
+    "HAPPENSTANCE_API_KEY"
   ],
   "spec_format": "openapi3",
   "spec_url": "https://developer.happenstance.ai/openapi.json"
