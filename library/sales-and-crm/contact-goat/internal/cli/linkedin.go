@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -120,10 +121,13 @@ func newLIGetPersonCmd(flags *rootFlags) *cobra.Command {
 			"      --sections experience,education,skills",
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runLITool(cmd, flags, linkedin.ToolNames.GetPerson, map[string]any{
-				"linkedin_url": normalizePersonInput(args[0]),
-				"sections":     sections,
-			})
+			payload := map[string]any{
+				"linkedin_username": normalizePersonInput(args[0]),
+			}
+			if joined := normalizeSections(sections); joined != "" {
+				payload["sections"] = joined
+			}
+			return runLITool(cmd, flags, linkedin.ToolNames.GetPerson, payload)
 		},
 	}
 	cmd.Flags().StringSliceVar(&sections, "sections", nil,
@@ -140,10 +144,13 @@ func newLIGetCompanyCmd(flags *rootFlags) *cobra.Command {
 			"  contact-goat-pp-cli linkedin get-company stripe --sections posts,jobs",
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runLITool(cmd, flags, linkedin.ToolNames.GetCompany, map[string]any{
-				"company_slug": args[0],
-				"sections":     sections,
-			})
+			payload := map[string]any{
+				"company_name": args[0],
+			}
+			if joined := normalizeSections(sections); joined != "" {
+				payload["sections"] = joined
+			}
+			return runLITool(cmd, flags, linkedin.ToolNames.GetCompany, payload)
 		},
 	}
 	cmd.Flags().StringSliceVar(&sections, "sections", nil, "Comma-separated sections: posts,jobs,employees,about")
@@ -533,9 +540,30 @@ func pruneEmpty(m map[string]any) map[string]any {
 }
 
 // normalizePersonInput accepts either a bare vanity slug ("williamhgates")
-// or a full URL and normalizes to the form the MCP expects.
+// or a full LinkedIn profile URL, and returns the bare username the
+// upstream linkedin-scraper-mcp tool requires. The MCP validates its
+// argument as `linkedin_username` and rejects full URLs. Known forms:
+//
+//	williamhgates
+//	https://www.linkedin.com/in/williamhgates
+//	https://www.linkedin.com/in/williamhgates/
+//	http://linkedin.com/in/alonsovelasco
+//	/in/alonsovelasco/
 func normalizePersonInput(s string) string {
+	s = strings.TrimSpace(s)
+	s = strings.TrimSuffix(s, "/")
+	if idx := strings.LastIndex(s, "/in/"); idx >= 0 {
+		return strings.TrimSuffix(s[idx+len("/in/"):], "/")
+	}
+	// Already a bare slug.
 	return s
+}
+
+// normalizeSections turns a []string list into the comma-joined string
+// the upstream MCP expects on `sections` fields. Empty slice returns
+// "" so the caller can drop the arg entirely.
+func normalizeSections(sections []string) string {
+	return strings.Join(sections, ",")
 }
 
 // signalCtx wraps a parent context so SIGINT / SIGTERM cancels it.
