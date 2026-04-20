@@ -97,6 +97,15 @@ func apiErr(err error) error       { return &cliError{code: 5, err: err} }
 func configErr(err error) error    { return &cliError{code: 10, err: err} }
 func rateLimitErr(err error) error { return &cliError{code: 7, err: err} }
 
+// looksLikeGraphQLGETError detects the CSRF 400 Linear returns when the CLI sends
+// GET to /graphql. The generator emits this pattern for promoted single-resource
+// commands that treat GraphQL like REST.
+func looksLikeGraphQLGETError(msg string) bool {
+	lower := strings.ToLower(msg)
+	return strings.Contains(lower, "cross-site request forgery") ||
+		strings.Contains(lower, "please either specify a 'content-type' header")
+}
+
 // looksLikeAuthError checks if an error message body contains auth-related keywords.
 func looksLikeAuthError(msg string) bool {
 	lower := strings.ToLower(msg)
@@ -138,6 +147,14 @@ func classifyAPIError(err error) error {
 		// 409 Conflict = resource already exists. For agents retrying creates, this is success.
 		fmt.Fprintln(os.Stderr, "already exists (no-op)")
 		return nil
+	case strings.Contains(msg, "HTTP 400") && looksLikeGraphQLGETError(msg):
+		return apiErr(fmt.Errorf("%w\nhint: Linear's GraphQL API rejects GET requests."+
+			" Some generated 'get single resource' commands hit this bug."+
+			"\n      Workarounds:"+
+			"\n        linear-pp-cli issues <ID>         (uses GraphQL POST)"+
+			"\n        linear-pp-cli issues list         (local, after sync)"+
+			"\n        linear-pp-cli today               (local, after sync)"+
+			"\n      Run 'linear-pp-cli sync' to refresh local data.", err))
 	case strings.Contains(msg, "HTTP 400") && looksLikeAuthError(msg):
 		return authErr(fmt.Errorf("%w\nhint: the API rejected the request — this usually means auth is missing or invalid."+
 			"\n      Set your API key: export LINEAR_API_KEY=<your-key>"+

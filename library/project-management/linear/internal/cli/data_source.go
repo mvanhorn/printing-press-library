@@ -232,6 +232,14 @@ func resolveLocal(resourceType string, isList bool, path string, params map[stri
 	parts := strings.Split(strings.TrimRight(path, "/"), "/")
 	id := parts[len(parts)-1]
 
+	// The generator emits path="/graphql" for promoted single-resource commands on
+	// GraphQL APIs — the request is broken (GraphQL rejects GET) and the fallback
+	// here treats "graphql" as the ID. Surface a useful error instead of the raw
+	// lookup miss.
+	if id == "graphql" {
+		return nil, DataProvenance{}, fmt.Errorf("%q fallback to local is not supported for this resource (the GraphQL GET path is a generator bug).\nTry 'linear-pp-cli sync' then a resource-specific local command (e.g. 'issues list', 'today')", resourceType)
+	}
+
 	item, err := db.Get(resourceType, id)
 	if err != nil {
 		return nil, DataProvenance{}, fmt.Errorf("querying local store: %w", err)
