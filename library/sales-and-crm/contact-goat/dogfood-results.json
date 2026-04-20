@@ -1,7 +1,6 @@
 {
-  "dir": "/Users/mvanhorn/printing-press/library/contact-goat",
-  "spec_path": "/Users/mvanhorn/printing-press/manuscripts/contact-goat/20260419-113529/research/happenstance-sniff-spec.yaml",
-  "verdict": "PASS",
+  "dir": "/Users/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat",
+  "verdict": "FAIL",
   "path_check": {
     "tested": 0,
     "valid": 0,
@@ -9,9 +8,9 @@
   },
   "auth_check": {
     "spec_scheme": "",
-    "generated_format": "unknown",
+    "generated_format": "",
     "match": true,
-    "detail": "spec not provided or no bot/bearer scheme detected"
+    "detail": "spec not provided; auth protocol check skipped"
   },
   "dead_flags": {
     "total": 15,
@@ -29,18 +28,20 @@
   },
   "example_check": {
     "tested": 10,
-    "with_examples": 8,
-    "valid_examples": 8,
+    "with_examples": 6,
+    "valid_examples": 6,
     "missing": [
-      "promoted feed",
-      "promoted notifications"
+      "channel workflow",
+      "graph",
+      "promoted friends",
+      "promoted uploads"
     ],
-    "detail": "8/10 commands have examples"
+    "detail": "6/10 commands have examples"
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 75,
-      "registered": 75
+      "defined": 88,
+      "registered": 88
     },
     "config_consistency": {
       "consistent": true
@@ -57,5 +58,18 @@
     "found": 0,
     "skipped": true
   },
-  "issues": null
+  "test_presence": {
+    "checked": 3,
+    "missing_tests": [
+      "chromecookies",
+      "deepline",
+      "linkedin"
+    ]
+  },
+  "naming_check": {
+    "checked": 52
+  },
+  "issues": [
+    "pure-logic packages with no tests: chromecookies, deepline, linkedin"
+  ]
 }

@@ -28,6 +28,24 @@ Download from [Releases](https://github.com/mvanhorn/printing-press-library/rele
 Contact Goat reaches three sources. Each has its own auth path; all three
 are optional — the CLI runs with whichever sources you've authenticated.
 
+### Two auth surfaces (Happenstance)
+
+Happenstance has two parallel auth paths and the CLI supports both. The
+auto router prefers the cookie surface (free monthly allocation) and
+falls back to the bearer surface (paid credits) only when the cookie
+quota is exhausted.
+
+| Surface | Auth | Cost | Default? |
+|---------|------|------|----------|
+| Cookie web app | Chrome session cookies | Free monthly allocation | YES (auto-prefer) |
+| Public REST API | HAPPENSTANCE_API_KEY (Bearer) | 2 credits/search, 1 credit/research | Fallback only |
+
+Pass `--source api` on `coverage`, `hp people`, `prospect`, or
+`warm-intro` to opt into the bearer surface explicitly (richer schema,
+group-scoped searches). The `api hpn *` subcommands always use the
+bearer surface. Provision and rotate keys at
+https://happenstance.ai/settings/api-keys.
+
 ### Happenstance (free web-app allocation, cookie auth)
 
 Happenstance uses your logged-in Chrome session — no API key, no credit
@@ -298,6 +316,7 @@ Environment variables:
 | Variable | Purpose |
 |----------|---------|
 | `HAPPENSTANCE_WEB_APP_COOKIE_AUTH` | Cookie auth blob for Happenstance (alternative to `auth login --chrome`) |
+| `HAPPENSTANCE_API_KEY` | Bearer key for the Happenstance public REST API (`hpn_live_personal_...`). Provision at https://happenstance.ai/settings/api-keys |
 | `DEEPLINE_API_KEY` | Deepline API key (`dlp_...`). Required for paid commands |
 | `CONTACT_GOAT_BASE_URL` | Override Happenstance base URL (self-hosted) |
 | `CONTACT_GOAT_CONFIG` | Config file path override |
