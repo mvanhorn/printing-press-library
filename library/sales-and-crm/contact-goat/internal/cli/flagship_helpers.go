@@ -501,6 +501,10 @@ func sourceStrength(tag string) float64 {
 	switch tag {
 	case "hp_friend":
 		return 5.0
+	case "hp_graph_1deg":
+		return 5.0 // you know them directly — equal to an HP top connector
+	case "hp_graph_2deg":
+		return 4.5 // concrete 2nd-degree path at the target company
 	case "li_1deg":
 		return 4.0
 	case "li_search", "li_profile":
@@ -509,6 +513,8 @@ func sourceStrength(tag string) float64 {
 		return 2.0
 	case "hp_network":
 		return 3.0
+	case "hp_graph_3deg":
+		return 1.5 // public hit, no concrete path
 	case "li_2deg":
 		return 1.5
 	case "dl_apollo":

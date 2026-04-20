@@ -26,6 +26,8 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/client"
 )
 
 func newWarmIntroCmd(flags *rootFlags) *cobra.Command {
@@ -77,20 +79,44 @@ connection_count + presence in multiple sources).`,
 
 			var candidates []flagshipPerson
 			var friends []flagshipPerson
+			sourceErrors := map[string]string{}
 
-			// Source 1: Happenstance friends list.
+			// Source 1: Happenstance graph-search at the target's current
+			// company. For each person who comes back:
+			//   - 1st-degree hit: the person IS the warm-intro candidate
+			//     (you already know them directly).
+			//   - 2nd-degree hit: the referrer (your friend who knows them)
+			//     is the candidate; they can vouch.
+			// We fall through to the old friends-list dump ONLY when the
+			// target's company is unknown, so the command degrades
+			// gracefully when profile enrichment failed.
 			if sources["hp"] {
 				c, ferr := flags.newClientRequireCookies("happenstance")
 				if ferr != nil {
-					fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance unavailable (%v). Skipping hp_friend source.\n", ferr)
+					sourceErrors["hp"] = ferr.Error()
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance unavailable (%v). Skipping hp source.\n", ferr)
 				} else {
-					friends, err = fetchHappenstanceFriends(c)
-					if err != nil {
-						fmt.Fprintf(cmd.ErrOrStderr(), "warning: fetch friends failed: %v. Skipping hp_friend source.\n", err)
+					if all, fErr := fetchHappenstanceFriends(c); fErr == nil {
+						friends = all
+					}
+					currentUUID, _ := fetchCurrentUserUUID(c)
+
+					if resolved.Company != "" {
+						graphRes, gerr := c.SearchPeopleByCompany(resolved.Company)
+						if gerr != nil {
+							sourceErrors["hp_graph"] = gerr.Error()
+							fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance graph-search for %q: %v\n", resolved.Company, gerr)
+						} else {
+							candidates = append(candidates, warmIntroCandidatesFromGraph(graphRes.People, currentUUID, resolved)...)
+						}
 					} else {
+						// Fallback: no company data means we can't run a
+						// targeted graph-search. Dump HP friends with a
+						// weaker, clearly-labeled rationale so the user
+						// knows this was the weak-fallback path.
 						for _, f := range friends {
 							f.Sources = []string{"hp_friend"}
-							f.Rationale = fmt.Sprintf("Happenstance friend (%d connections)", f.ConnectionCount)
+							f.Rationale = fmt.Sprintf("Happenstance friend (weak signal — no target company to match against) (%d connections)", f.ConnectionCount)
 							candidates = append(candidates, f)
 						}
 					}
@@ -166,12 +192,22 @@ connection_count + presence in multiple sources).`,
 						"timestamp":    nowISO(),
 					},
 				}
+				if len(sourceErrors) > 0 {
+					out["source_errors"] = sourceErrors
+				}
 				if !flags.compact && len(rawLI) > 0 {
 					out["target_linkedin_raw"] = json.RawMessage(rawLI)
 				}
 				enc := json.NewEncoder(cmd.OutOrStdout())
 				enc.SetIndent("", "  ")
 				return enc.Encode(out)
+			}
+			if len(sourceErrors) > 0 {
+				fmt.Fprintf(cmd.ErrOrStderr(), "\n%d source(s) errored — candidates may be incomplete:\n", len(sourceErrors))
+				for src, msg := range sourceErrors {
+					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: %s\n", src, msg)
+				}
+				fmt.Fprintln(cmd.ErrOrStderr())
 			}
 			return printWarmIntroTable(cmd, resolved, candidates)
 		},
@@ -238,6 +274,76 @@ func isSlugLike(s string) bool {
 	return true
 }
 
+// warmIntroCandidatesFromGraph turns Happenstance graph-search results
+// into concrete warm-intro candidates. The rule:
+//
+//	1st-degree match -> that person is a candidate (you already know them).
+//	2nd-degree match -> the referrer (the friend of yours who knows the
+//	                    match) is the candidate, since they can introduce you.
+//
+// 3rd-degree matches (no referrer chain back to the current user) are
+// filtered out — those are public hits with no path.
+//
+// Each candidate carries a rationale naming the concrete bridge
+// (shared employer + the person you share, or directly the target's
+// co-worker you already know).
+func warmIntroCandidatesFromGraph(people []client.Person, currentUserUUID string, target flagshipPerson) []flagshipPerson {
+	out := []flagshipPerson{}
+	seenReferrer := map[string]bool{}
+	for _, p := range people {
+		tier := p.Tier(currentUserUUID)
+		switch tier {
+		case client.TierFirstDegree:
+			// You know this person directly. They are the introducer.
+			row := flagshipPerson{
+				Name:             p.Name,
+				LinkedInURL:      p.LinkedInURL,
+				HappenstanceUUID: p.PersonUUID,
+				Title:            p.CurrentTitle,
+				Company:          p.CurrentCompany,
+				Sources:          []string{"hp_graph_1deg"},
+				Relationship:     string(tier),
+				Rationale:        fmt.Sprintf("Your 1st-degree contact at %s — ask them directly", p.CurrentCompany),
+			}
+			out = append(out, row)
+		case client.TierSecondDegree:
+			// The referrer is the warm-intro candidate. Deduplicate by
+			// referrer uuid so one friend who knows several target-company
+			// people only surfaces once.
+			for _, r := range p.Referrers.Referrers {
+				if r.ID == "" || r.ID == currentUserUUID {
+					continue
+				}
+				if seenReferrer[r.ID] {
+					continue
+				}
+				seenReferrer[r.ID] = true
+				row := flagshipPerson{
+					Name:             r.Name,
+					HappenstanceUUID: r.ID,
+					ImageURL:         r.ImageURL,
+					Sources:          []string{"hp_graph_2deg"},
+					Relationship:     "intro_via_friend",
+					Rationale: fmt.Sprintf(
+						"Your friend — knows %s at %s (affinity: %s)",
+						p.Name, p.CurrentCompany, fallback(r.AffinityLevel, "unknown"),
+					),
+				}
+				out = append(out, row)
+			}
+		}
+	}
+	_ = target // target name isn't used yet; reserved for future dedup pass
+	return out
+}
+
+func fallback(s, def string) string {
+	if strings.TrimSpace(s) == "" {
+		return def
+	}
+	return s
+}
+
 func filterOutTarget(list []flagshipPerson, target flagshipPerson) []flagshipPerson {
 	out := make([]flagshipPerson, 0, len(list))
 	tKey := target.dedupKey()
@@ -289,6 +395,8 @@ func describeSources(tags []string, connectionCount int) string {
 	li1 := false
 	liSidebar := false
 	liSearch := false
+	hpGraph1 := false
+	hpGraph2 := false
 	for _, t := range tags {
 		switch t {
 		case "hp_friend":
@@ -299,9 +407,19 @@ func describeSources(tags []string, connectionCount int) string {
 			liSidebar = true
 		case "li_search":
 			liSearch = true
+		case "hp_graph_1deg":
+			hpGraph1 = true
+		case "hp_graph_2deg":
+			hpGraph2 = true
 		}
 	}
 	parts := []string{}
+	if hpGraph1 {
+		parts = append(parts, "your direct contact at target company")
+	}
+	if hpGraph2 {
+		parts = append(parts, "knows someone at target company")
+	}
 	if hp {
 		if connectionCount > 0 {
 			parts = append(parts, fmt.Sprintf("Happenstance friend (%d connections)", connectionCount))
