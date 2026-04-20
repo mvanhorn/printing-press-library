@@ -92,6 +92,15 @@ connected. The RELATIONSHIP column shows 1st_degree / 2nd_degree /
 			}
 			LogDeferredHint(cmd.ErrOrStderr(), deferredErr)
 
+			// Resolve currentUserUUID up-front so the bearer adapter can
+			// retag the self-entry in its envelope mutuals. Without this
+			// the bearer path cannot distinguish "in your synced graph"
+			// from "via one of your friends".
+			currentUserUUID := ""
+			if cookieAvailable {
+				currentUserUUID, _ = fetchCurrentUserUUID(cookieClient)
+			}
+
 			cookieRun := CookieRunner(nil)
 			if cookieAvailable {
 				opts := &client.SearchPeopleOptions{
@@ -108,7 +117,7 @@ connected. The RELATIONSHIP column shows 1st_degree / 2nd_degree /
 			var bearerRun BearerRunner
 			if bc, berr := flags.newHappenstanceAPIClient(); berr == nil {
 				bearerRun = func() (*client.PeopleSearchResult, error) {
-					return BearerSearchAdapter(cmd.Context(), bc, query, &api.SearchOptions{
+					return BearerSearchAdapter(cmd.Context(), bc, query, currentUserUUID, &api.SearchOptions{
 						IncludeMyConnections:      tierConnections,
 						IncludeFriendsConnections: tierFriends,
 					})
@@ -120,11 +129,6 @@ connected. The RELATIONSHIP column shows 1st_degree / 2nd_degree /
 				return err
 			}
 			res := out.Result
-
-			currentUserUUID := ""
-			if cookieAvailable {
-				currentUserUUID, _ = fetchCurrentUserUUID(cookieClient)
-			}
 
 			if limit > 0 && len(res.People) > limit {
 				res.People = res.People[:limit]
@@ -177,6 +181,8 @@ type hpPeopleRow struct {
 	LinkedInURL    string                `json:"linkedin_url"`
 	Relationship   client.RelationshipTier `json:"relationship"`
 	Referrers      []hpReferrerRow       `json:"referrers,omitempty"`
+	Bridges        []bridgeRef           `json:"bridges,omitempty"`
+	Rationale      string                `json:"rationale,omitempty"`
 	Score          float64               `json:"score"`
 	Summary        string                `json:"summary,omitempty"`
 }
@@ -207,7 +213,7 @@ func buildHPPeopleJSON(res *client.PeopleSearchResult, currentUserUUID string) h
 				Name: r.Name, ID: r.ID, Source: r.Source, AffinityLevel: r.AffinityLevel,
 			})
 		}
-		rows = append(rows, hpPeopleRow{
+		row := hpPeopleRow{
 			Name:           p.Name,
 			PersonUUID:     p.PersonUUID,
 			CurrentTitle:   p.CurrentTitle,
@@ -217,7 +223,20 @@ func buildHPPeopleJSON(res *client.PeopleSearchResult, currentUserUUID string) h
 			Referrers:      refs,
 			Score:          p.Score,
 			Summary:        p.Summary,
-		})
+		}
+		// When bearer-surface bridges are present (cookie path leaves
+		// this nil), surface them alongside the referrer chain and
+		// build an affinity-aware rationale string. Bridges and
+		// Referrers are parallel: Referrers is the cookie-rich chain,
+		// Bridges is the bearer-thin chain. Renderers see both.
+		if len(p.Bridges) > 0 {
+			row.Bridges = bridgesToFlagship(p.Bridges)
+			row.Rationale = bearerRationale(p.Bridges)
+			if score := bearerScore(p.Bridges, p.Score); score > row.Score {
+				row.Score = score
+			}
+		}
+		rows = append(rows, row)
 	}
 	return hpPeopleEnvelope{
 		Query:       res.Query,

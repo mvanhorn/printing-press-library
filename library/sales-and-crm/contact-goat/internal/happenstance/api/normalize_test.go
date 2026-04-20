@@ -216,3 +216,138 @@ func TestToClientPerson_JSONSnapshotMatchesCookieShape(t *testing.T) {
 			cookieJSON, bearerJSON)
 	}
 }
+
+// TestToClientPerson_PopulatesSocials verifies that Socials.LinkedInURL
+// (and its siblings) hydrate onto client.Person so renderers have
+// something to link to on bearer-only rows.
+func TestToClientPerson_PopulatesSocials(t *testing.T) {
+	in := SearchResult{
+		Name: "Ira Ehrenpreis",
+		Socials: &SearchSocials{
+			LinkedInURL:  "https://www.linkedin.com/in/iraehrenpreis",
+			TwitterURL:   "https://twitter.com/iraehrenpreis",
+			InstagramURL: "",
+		},
+	}
+	got := ToClientPerson(in)
+	if got.LinkedInURL != "https://www.linkedin.com/in/iraehrenpreis" {
+		t.Errorf("LinkedInURL = %q", got.LinkedInURL)
+	}
+	if got.TwitterURL != "https://twitter.com/iraehrenpreis" {
+		t.Errorf("TwitterURL = %q", got.TwitterURL)
+	}
+	if got.InstagramURL != "" {
+		t.Errorf("InstagramURL = %q, want empty", got.InstagramURL)
+	}
+}
+
+// TestToClientPersonWithBridges_HappyPath covers the canonical case:
+// a result with two bridges (one friend, one self-graph) dereferences
+// against an envelope containing four top-level mutuals. The friend
+// bridge keeps its kind; the self-entry (matched by currentUUID) is
+// retagged as self_graph.
+func TestToClientPersonWithBridges_HappyPath(t *testing.T) {
+	envelope := []SearchMutual{
+		{Index: 0, Id: "friend-1", Name: "Jeff Clavier"},
+		{Index: 1, Id: "friend-2", Name: "Garry Tan"},
+		{Index: 2, Id: "friend-3", Name: "Alex Teichman"},
+		{Index: 3, Id: "user-self", Name: "Matt Van Horn"},
+	}
+	in := SearchResult{
+		Name: "Ira Ehrenpreis",
+		Mutuals: []ResultMutual{
+			{Index: 0, AffinityScore: 104.4},
+			{Index: 3, AffinityScore: 0},
+		},
+	}
+	got := ToClientPersonWithBridges(in, envelope, "user-self")
+	if len(got.Bridges) != 2 {
+		t.Fatalf("bridges = %d, want 2", len(got.Bridges))
+	}
+	if got.Bridges[0].Name != "Jeff Clavier" || got.Bridges[0].Kind != client.BridgeKindFriend {
+		t.Errorf("bridge[0] = %+v", got.Bridges[0])
+	}
+	if got.Bridges[0].AffinityScore != 104.4 {
+		t.Errorf("bridge[0] affinity = %v, want 104.4", got.Bridges[0].AffinityScore)
+	}
+	if got.Bridges[1].Name != "Matt Van Horn" || got.Bridges[1].Kind != client.BridgeKindSelfGraph {
+		t.Errorf("bridge[1] (self) = %+v", got.Bridges[1])
+	}
+}
+
+// TestToClientPersonWithBridges_EmptyInputs covers the two no-op paths:
+// a result with no mutuals, and an envelope with no mutuals. Both must
+// return a Person with Bridges nil (not an empty slice) so JSON output
+// omits the field.
+func TestToClientPersonWithBridges_EmptyInputs(t *testing.T) {
+	envelope := []SearchMutual{{Index: 0, Id: "friend-1", Name: "Jeff"}}
+	cases := []struct {
+		name     string
+		result   SearchResult
+		envelope []SearchMutual
+	}{
+		{"no result mutuals", SearchResult{Name: "X"}, envelope},
+		{"no envelope mutuals", SearchResult{Name: "X", Mutuals: []ResultMutual{{Index: 0}}}, nil},
+		{"both empty", SearchResult{Name: "X"}, nil},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := ToClientPersonWithBridges(tc.result, tc.envelope, "")
+			if got.Bridges != nil {
+				t.Errorf("Bridges = %+v, want nil", got.Bridges)
+			}
+		})
+	}
+}
+
+// TestToClientPersonWithBridges_OutOfRangeIndex covers malformed API
+// responses where a result's Mutual[].Index does not point at a real
+// envelope entry. The dereference must drop silently; no panic, no
+// placeholder bridge inserted.
+func TestToClientPersonWithBridges_OutOfRangeIndex(t *testing.T) {
+	envelope := []SearchMutual{
+		{Index: 0, Id: "friend-1", Name: "Jeff"},
+	}
+	in := SearchResult{
+		Name: "Broken",
+		Mutuals: []ResultMutual{
+			{Index: -1, AffinityScore: 10},
+			{Index: 5, AffinityScore: 20},
+			{Index: 0, AffinityScore: 50},
+		},
+	}
+	got := ToClientPersonWithBridges(in, envelope, "")
+	if len(got.Bridges) != 1 {
+		t.Fatalf("bridges = %d, want 1 (the two malformed indexes should be dropped)", len(got.Bridges))
+	}
+	if got.Bridges[0].Name != "Jeff" || got.Bridges[0].AffinityScore != 50 {
+		t.Errorf("surviving bridge = %+v", got.Bridges[0])
+	}
+}
+
+// TestToClientPersonWithBridges_EmptyCurrentUUID covers the fallback
+// where the caller cannot resolve the current user's UUID. Every bridge
+// must be tagged as friend (no retagging to self_graph), including any
+// bridge that is actually the user's own self-entry. This is the
+// less-precise-but-safe behavior documented on the function.
+func TestToClientPersonWithBridges_EmptyCurrentUUID(t *testing.T) {
+	envelope := []SearchMutual{
+		{Index: 0, Id: "friend-1", Name: "Jeff"},
+		{Index: 1, Id: "user-self", Name: "Matt"},
+	}
+	in := SearchResult{
+		Mutuals: []ResultMutual{
+			{Index: 0, AffinityScore: 10},
+			{Index: 1, AffinityScore: 0},
+		},
+	}
+	got := ToClientPersonWithBridges(in, envelope, "")
+	if len(got.Bridges) != 2 {
+		t.Fatalf("bridges = %d, want 2", len(got.Bridges))
+	}
+	for i, b := range got.Bridges {
+		if b.Kind != client.BridgeKindFriend {
+			t.Errorf("bridge[%d] kind = %q, want friend (no currentUUID, no retag)", i, b.Kind)
+		}
+	}
+}

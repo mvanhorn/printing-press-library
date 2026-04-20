@@ -441,6 +441,13 @@ func LogDeferredHint(errOut io.Writer, err error) {
 // project the results into a client.PeopleSearchResult so the
 // downstream rendering code does not branch on source.
 //
+// currentUUID is the current user's Happenstance UUID (fetched by the
+// caller from its cookie client). It is used to retag the self-entry
+// in the envelope's mutuals list so renderers can distinguish
+// 1st-degree-via-friend hits from self-graph hits. Pass "" when the
+// caller cannot resolve it (then every bridge is treated as a friend
+// bridge, which is harmless but less precise).
+//
 // The PollSearch loop honors ctx for cancellation; default poll
 // timeout / interval mirror the cookie surface (180s / 1s).
 //
@@ -450,7 +457,7 @@ func LogDeferredHint(errOut io.Writer, err error) {
 // surface". This matches the cookie surface's "Completed=false on
 // timeout" convention, where the call site is responsible for
 // interpreting partial state.
-func BearerSearchAdapter(ctx context.Context, c *api.Client, query string, opts *api.SearchOptions) (*client.PeopleSearchResult, error) {
+func BearerSearchAdapter(ctx context.Context, c *api.Client, query string, currentUUID string, opts *api.SearchOptions) (*client.PeopleSearchResult, error) {
 	if c == nil {
 		return nil, fmt.Errorf("bearer search: nil client")
 	}
@@ -479,7 +486,7 @@ func BearerSearchAdapter(ctx context.Context, c *api.Client, query string, opts 
 	}
 	people := make([]client.Person, 0, len(final.Results))
 	for _, r := range final.Results {
-		people = append(people, api.ToClientPerson(r))
+		people = append(people, api.ToClientPersonWithBridges(r, final.Mutuals, currentUUID))
 	}
 	return &client.PeopleSearchResult{
 		RequestID: final.Id,

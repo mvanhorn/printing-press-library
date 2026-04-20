@@ -13,6 +13,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"net/url"
 	"os"
 	"sort"
@@ -30,20 +31,145 @@ import (
 // struct with typed fields — downstream output is --json by default, and the
 // set of fields varies by feature.
 type flagshipPerson struct {
-	Name             string   `json:"name"`
-	LinkedInURL      string   `json:"linkedin_url,omitempty"`
-	HappenstanceUUID string   `json:"happenstance_uuid,omitempty"`
-	Title            string   `json:"title,omitempty"`
-	Company          string   `json:"company,omitempty"`
-	Location         string   `json:"location,omitempty"`
-	ImageURL         string   `json:"image_url,omitempty"`
-	ConnectionCount  int      `json:"connection_count,omitempty"`
-	Sources          []string `json:"sources,omitempty"`
-	Rationale        string   `json:"rationale,omitempty"`
-	Relationship     string   `json:"relationship,omitempty"`
-	MutualCount      int      `json:"mutual_count,omitempty"`
-	Score            float64  `json:"score,omitempty"`
-	Raw              any      `json:"raw,omitempty"`
+	Name             string         `json:"name"`
+	LinkedInURL      string         `json:"linkedin_url,omitempty"`
+	HappenstanceUUID string         `json:"happenstance_uuid,omitempty"`
+	Title            string         `json:"title,omitempty"`
+	Company          string         `json:"company,omitempty"`
+	Location         string         `json:"location,omitempty"`
+	ImageURL         string         `json:"image_url,omitempty"`
+	ConnectionCount  int            `json:"connection_count,omitempty"`
+	Sources          []string       `json:"sources,omitempty"`
+	Rationale        string         `json:"rationale,omitempty"`
+	Relationship     string         `json:"relationship,omitempty"`
+	MutualCount      int            `json:"mutual_count,omitempty"`
+	Bridges          []bridgeRef    `json:"bridges,omitempty"`
+	Score            float64        `json:"score,omitempty"`
+	Raw              any            `json:"raw,omitempty"`
+}
+
+// bridgeRef is flagshipPerson's render-time projection of a client.Bridge.
+// Kept separate from the client type so the JSON output schema is stable
+// even if the canonical Bridge struct gains internal fields. Zero
+// AffinityScore is a valid weak-signal marker; renderers must treat it as
+// "bridge exists but mention-only" rather than filtering it out.
+type bridgeRef struct {
+	Name             string  `json:"name,omitempty"`
+	HappenstanceUUID string  `json:"happenstance_uuid,omitempty"`
+	AffinityScore    float64 `json:"affinity_score"`
+	Kind             string  `json:"kind,omitempty"`
+}
+
+// bridgesToFlagship projects a slice of canonical client.Bridge entries
+// onto the flagshipPerson render shape. Returns nil when the input is
+// empty so JSON output omits the field.
+func bridgesToFlagship(in []client.Bridge) []bridgeRef {
+	if len(in) == 0 {
+		return nil
+	}
+	out := make([]bridgeRef, 0, len(in))
+	for _, b := range in {
+		out = append(out, bridgeRef{
+			Name:             b.Name,
+			HappenstanceUUID: b.HappenstanceUUID,
+			AffinityScore:    b.AffinityScore,
+			Kind:             b.Kind,
+		})
+	}
+	return out
+}
+
+// topFriendBridge returns the highest-affinity friend bridge from the
+// slice, or (zero, false) if none exist. Self-graph bridges are
+// ignored so "via <your own contacts>" never leaks into renderer prose.
+func topFriendBridge(bridges []client.Bridge) (client.Bridge, bool) {
+	var top client.Bridge
+	found := false
+	for _, b := range bridges {
+		if b.Kind == client.BridgeKindSelfGraph {
+			continue
+		}
+		if !found || b.AffinityScore > top.AffinityScore {
+			top = b
+			found = true
+		}
+	}
+	return top, found
+}
+
+// hasSelfGraphBridge reports whether the slice contains at least one
+// self-graph bridge (meaning the person sits in the user's own synced
+// LinkedIn/Gmail contacts bucket on the bearer surface).
+func hasSelfGraphBridge(bridges []client.Bridge) bool {
+	for _, b := range bridges {
+		if b.Kind == client.BridgeKindSelfGraph {
+			return true
+		}
+	}
+	return false
+}
+
+// bearerRationale formats a human-readable rationale string for a
+// bearer-surface person based on the graph signal the API returned.
+// The decision table:
+//
+//   - One+ friend bridge with affinity > 0 -> "via <top name> (affinity X.X)"
+//   - One+ friend bridge with all affinities 0 -> weak-signal string
+//   - Only self-graph bridges -> "in your synced graph"
+//   - No bridges at all -> "Happenstance bearer (no graph match)"
+//
+// Exported (lowercase, package-scoped) so every bearer-path command in
+// this package formats consistently. If two commands disagree, fix them
+// here, not inline at the call site.
+func bearerRationale(bridges []client.Bridge) string {
+	top, ok := topFriendBridge(bridges)
+	if ok {
+		if top.AffinityScore > 0 {
+			return fmt.Sprintf("via %s (affinity %.1f)", top.Name, top.AffinityScore)
+		}
+		return "Happenstance bearer (weak signal, no graph affinity)"
+	}
+	if hasSelfGraphBridge(bridges) {
+		return "in your synced graph"
+	}
+	return "Happenstance bearer (no graph match)"
+}
+
+// bridgeAffinityBonus converts a slice of bridges into an additive
+// ranking bonus, scaled so coarse tier ordering from scoreForRelationship
+// stays intact for typical affinities but strong graph signal (observed
+// up to ~300) can still push a 2nd-degree row past a 1st-degree row
+// with a weak source. Scale: log1p(max_friend_affinity). A typical
+// non-zero friend bridge sits in the 10-100 range, yielding a bonus of
+// 2.4-4.6 — enough to distinguish adjacent bearer rows, not enough to
+// leap tiers. Zero or self-graph-only inputs return 0.
+func bridgeAffinityBonus(bridges []bridgeRef) float64 {
+	var top float64
+	for _, b := range bridges {
+		if b.Kind == client.BridgeKindSelfGraph {
+			continue
+		}
+		if b.AffinityScore > top {
+			top = b.AffinityScore
+		}
+	}
+	if top <= 0 {
+		return 0
+	}
+	return math.Log1p(top)
+}
+
+// bearerScore picks the score a bearer-surface row should sort by.
+// Priority: max friend-bridge affinity (if > 0) > traits score > 0. The
+// traits fallback keeps bearer rows with no graph signal comparable to
+// each other via the API's WeightedTraitsScore, which is what the old
+// bearer projection relied on exclusively.
+func bearerScore(bridges []client.Bridge, traitsScore float64) float64 {
+	top, ok := topFriendBridge(bridges)
+	if ok && top.AffinityScore > 0 {
+		return top.AffinityScore
+	}
+	return traitsScore
 }
 
 // personLookupKey returns the best available unique key (linkedin URL, else
@@ -106,6 +232,15 @@ func mergePeople(in []flagshipPerson) []flagshipPerson {
 			}
 			if p.ConnectionCount > existing.ConnectionCount {
 				existing.ConnectionCount = p.ConnectionCount
+			}
+			// Bridges are a bearer-surface signal. When a cookie-path row
+			// and a bearer-path row dedupe to the same person, the cookie
+			// row wins on most fields but the bearer bridges are still
+			// useful context — no overlap with the cookie Referrers
+			// chain, which lives in the untyped Raw field today. Merge
+			// them on so downstream renderers see both.
+			if len(p.Bridges) > 0 && len(existing.Bridges) == 0 {
+				existing.Bridges = p.Bridges
 			}
 			continue
 		}

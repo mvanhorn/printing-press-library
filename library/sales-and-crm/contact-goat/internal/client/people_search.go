@@ -106,6 +106,16 @@ type SearchLog struct {
 
 // Person is one result from a people-search. Field names mirror the
 // dynamo response verbatim so the struct can be decoded directly.
+//
+// Bridges is an optional, source-agnostic list of named 1st-degree
+// connections that link the current user to this Person, with a raw
+// affinity score per bridge. The cookie surface populates equivalent
+// data into Referrers (a richer, ordered chain with image URLs and
+// affinity levels). The bearer surface populates Bridges from the
+// SearchEnvelope's top-level mutuals list, dereferenced at normalize
+// time. Renderers should treat the two as parallel signals: Referrers
+// is primary on cookie results, Bridges is primary on bearer-only
+// results. Empty on sources that cannot produce bridge data.
 type Person struct {
 	Name           string     `json:"author_name"`
 	PersonUUID     string     `json:"person_uuid"`
@@ -119,7 +129,29 @@ type Person struct {
 	CurrentCompany string     `json:"current_company"`
 	Summary        string     `json:"summary"`
 	Referrers      Referrers  `json:"referrers"`
+	Bridges        []Bridge   `json:"bridges,omitempty"`
 }
+
+// Bridge names a 1st-degree connection that the bearer API surfaced as
+// linking the current user to a Person, with the raw affinity score the
+// API returned. Kind distinguishes a real 1st-degree friend from the
+// self-graph entry (the user's own synced contacts bucket, which appears
+// in the bearer API's top-level mutuals list alongside friends). A
+// zero AffinityScore is valid and means "bridge exists but carries no
+// graph weight" — treat as weak-signal, not absent.
+type Bridge struct {
+	Name             string  `json:"name,omitempty"`
+	HappenstanceUUID string  `json:"happenstance_uuid,omitempty"`
+	AffinityScore    float64 `json:"affinity_score"`
+	Kind             string  `json:"kind,omitempty"`
+}
+
+// Bridge kind constants. Kept alongside Bridge because they belong to
+// its contract, not the normalizer.
+const (
+	BridgeKindFriend    = "friend"
+	BridgeKindSelfGraph = "self_graph"
+)
 
 // Citation is one (text, url) pair under quotes_cited.
 type Citation struct {

@@ -56,10 +56,13 @@ type hpnSearchEnvelope struct {
 // .results[].name keep working whether the result came from a /v1/search
 // row or from a normalizer shim.
 type hpnSearchResult struct {
-	Name           string  `json:"name"`
-	CurrentTitle   string  `json:"current_title,omitempty"`
-	CurrentCompany string  `json:"current_company,omitempty"`
-	Score          float64 `json:"score,omitempty"`
+	Name           string      `json:"name"`
+	CurrentTitle   string      `json:"current_title,omitempty"`
+	CurrentCompany string      `json:"current_company,omitempty"`
+	LinkedInURL    string      `json:"linkedin_url,omitempty"`
+	Score          float64     `json:"score,omitempty"`
+	Bridges        []bridgeRef `json:"bridges,omitempty"`
+	Rationale      string      `json:"rationale,omitempty"`
 }
 
 // newAPIHpnSearchCmd builds `api hpn search`. The parent command takes a
@@ -290,13 +293,26 @@ func runHpnSearch(ctx context.Context, c *api.Client, text string, opts *api.Sea
 func emitHpnSearchEnvelope(cmd *cobra.Command, flags *rootFlags, env api.SearchEnvelope, query string) error {
 	results := make([]hpnSearchResult, 0, len(env.Results))
 	for _, r := range env.Results {
-		p := api.ToClientPerson(r)
-		results = append(results, hpnSearchResult{
+		// `api hpn search` is a raw developer surface — the caller did
+		// not pass a currentUUID so we cannot retag the self-entry.
+		// Pass "" so every bridge shows up as a friend bridge (harmless;
+		// the raw endpoint JSON is meant to be grepped by humans).
+		p := api.ToClientPersonWithBridges(r, env.Mutuals, "")
+		row := hpnSearchResult{
 			Name:           p.Name,
 			CurrentTitle:   p.CurrentTitle,
 			CurrentCompany: p.CurrentCompany,
+			LinkedInURL:    p.LinkedInURL,
 			Score:          p.Score,
-		})
+		}
+		if len(p.Bridges) > 0 {
+			row.Bridges = bridgesToFlagship(p.Bridges)
+			row.Rationale = bearerRationale(p.Bridges)
+			if score := bearerScore(p.Bridges, p.Score); score > row.Score {
+				row.Score = score
+			}
+		}
+		results = append(results, row)
 	}
 	out := hpnSearchEnvelope{
 		SearchID:  env.Id,

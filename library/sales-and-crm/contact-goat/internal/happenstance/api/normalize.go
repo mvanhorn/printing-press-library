@@ -35,25 +35,82 @@ package api
 import "github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/client"
 
 // ToClientPerson projects a /v1/search SearchResult row into the canonical
-// client.Person. Only the four fields the public-API search endpoint
-// returns are populated:
+// client.Person. Only the fields the public-API search endpoint returns
+// are populated:
 //
 //   - Name          <- SearchResult.Name
 //   - CurrentTitle  <- SearchResult.CurrentTitle
 //   - CurrentCompany<- SearchResult.CurrentCompany
 //   - Score         <- SearchResult.WeightedTraitsScore
+//   - LinkedInURL   <- SearchResult.Socials.LinkedInURL (when present)
+//   - TwitterURL    <- SearchResult.Socials.TwitterURL  (when present)
+//   - InstagramURL  <- SearchResult.Socials.InstagramURL (when present)
+//   - Summary       <- SearchResult.Summary
 //
-// Every other client.Person field stays at its Go zero value (empty
-// string for strings, nil for slices). Downstream renderers must tolerate
-// those zero values; see the package-doc comment above for the
-// invariant.
+// Bridges are not populated here — call ToClientPersonWithBridges when
+// the envelope-level mutuals list is available and the caller knows the
+// current user's UUID. Keeping ToClientPerson bridge-free preserves the
+// simpler back-compat signature for call sites that never surface
+// bridges (e.g. /v1/research or test code that hand-builds SearchResult
+// values).
+//
+// Every other client.Person field stays at its Go zero value. Downstream
+// renderers must tolerate those zero values; see the package-doc comment
+// above for the invariant.
 func ToClientPerson(api SearchResult) client.Person {
-	return client.Person{
+	p := client.Person{
 		Name:           api.Name,
 		CurrentTitle:   api.CurrentTitle,
 		CurrentCompany: api.CurrentCompany,
+		Summary:        api.Summary,
 		Score:          api.WeightedTraitsScore,
 	}
+	if api.Socials != nil {
+		p.LinkedInURL = api.Socials.LinkedInURL
+		p.TwitterURL = api.Socials.TwitterURL
+		p.InstagramURL = api.Socials.InstagramURL
+	}
+	return p
+}
+
+// ToClientPersonWithBridges projects a SearchResult into client.Person
+// and additionally hydrates client.Person.Bridges by dereferencing the
+// result's Mutuals[].Index against the envelope-level bridge list. The
+// current user's own self-entry in the envelope's mutuals (identified
+// by matching Id against currentUUID) is retagged as BridgeKindSelfGraph
+// so renderers can distinguish "you know them through a friend" from
+// "they are in your own synced contacts". Pass an empty currentUUID to
+// disable self-retagging — every bridge will then be BridgeKindFriend.
+//
+// Malformed indexes (out of range) are dropped silently. A result with
+// no mutuals returns a Person with Bridges nil, not an empty slice, so
+// JSON consumers see the field omitted entirely.
+func ToClientPersonWithBridges(r SearchResult, envelopeMutuals []SearchMutual, currentUUID string) client.Person {
+	p := ToClientPerson(r)
+	if len(r.Mutuals) == 0 || len(envelopeMutuals) == 0 {
+		return p
+	}
+	bridges := make([]client.Bridge, 0, len(r.Mutuals))
+	for _, m := range r.Mutuals {
+		if m.Index < 0 || m.Index >= len(envelopeMutuals) {
+			continue
+		}
+		src := envelopeMutuals[m.Index]
+		kind := client.BridgeKindFriend
+		if currentUUID != "" && src.Id == currentUUID {
+			kind = client.BridgeKindSelfGraph
+		}
+		bridges = append(bridges, client.Bridge{
+			Name:             src.Name,
+			HappenstanceUUID: src.Id,
+			AffinityScore:    m.AffinityScore,
+			Kind:             kind,
+		})
+	}
+	if len(bridges) > 0 {
+		p.Bridges = bridges
+	}
+	return p
 }
 
 // ToClientPersonFromResearch projects a /v1/research ResearchProfile into

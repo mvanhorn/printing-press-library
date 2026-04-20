@@ -95,10 +95,11 @@ connection_count + presence in multiple sources).`,
 			// Routed via SelectSource: cookie-first (free quota), bearer
 			// fallback when cookie is unavailable, exhausted, or 429s
 			// mid-flight. --source api forces bearer; --source hp forces
-			// cookie. The bearer surface has no friends/list and no
-			// referrer chain, so the warm-intro 2nd-degree synthesis is
-			// degraded when bearer is selected (we tag rows as hp_api and
-			// fall back to "Happenstance bearer match" rationale).
+			// cookie. The bearer surface has no friends/list, but its
+			// envelope-level mutuals (dereferenced by the normalizer into
+			// p.Bridges) let warm-intro rationalize via named 1st-degree
+			// connections with real affinity scores. See bearerRationale
+			// in flagship_helpers.go for the output format.
 			if sources["hp"] || sources[SourceFlagAPI] {
 				cfg, cfgErr := config.Load(flags.configPath)
 				if cfgErr != nil {
@@ -147,7 +148,7 @@ connection_count + presence in multiple sources).`,
 						var bearerRun BearerRunner
 						if bc, berr := flags.newHappenstanceAPIClient(); berr == nil {
 							bearerRun = func() (*client.PeopleSearchResult, error) {
-								return BearerSearchAdapter(cmd.Context(), bc, "people at "+resolved.Company, nil)
+								return BearerSearchAdapter(cmd.Context(), bc, "people at "+resolved.Company, currentUUID, nil)
 							}
 						}
 						out, runErr := ExecuteWithSourceFallback(cmd.Context(), chosen, cookieRun, bearerRun, cmd.ErrOrStderr())
@@ -158,17 +159,22 @@ connection_count + presence in multiple sources).`,
 							if out.UsedSource == SourceCookie {
 								candidates = append(candidates, warmIntroCandidatesFromGraph(out.Result.People, currentUUID, resolved)...)
 							} else {
-								// Bearer surface: thin schema, no referrer
-								// chain. Project each row as a candidate with
-								// the bearer source tag so renderers show it
-								// as a paid-surface match.
+								// Bearer surface: envelope-level mutuals have
+								// already been dereferenced into p.Bridges by
+								// the normalizer. Project each row with the
+								// shared bearer rationale + affinity-aware
+								// score so warm-intro ranking (composite score
+								// later in this function) can see real graph
+								// signal instead of flat WeightedTraitsScore.
 								for _, p := range out.Result.People {
 									candidates = append(candidates, flagshipPerson{
-										Name:    p.Name,
-										Title:   p.CurrentTitle,
-										Company: p.CurrentCompany,
-										Sources: []string{"hp_api"},
-										Rationale: fmt.Sprintf("Happenstance bearer match at %s", p.CurrentCompany),
+										Name:      p.Name,
+										Title:     p.CurrentTitle,
+										Company:   p.CurrentCompany,
+										Sources:   []string{"hp_api"},
+										Rationale: bearerRationale(p.Bridges),
+										Score:     bearerScore(p.Bridges, p.Score),
+										Bridges:   bridgesToFlagship(p.Bridges),
 									})
 								}
 							}

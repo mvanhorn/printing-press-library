@@ -127,17 +127,23 @@ Results are deduped across sources and ranked by one of:
 					}
 				} else if chosen == SourceAPI {
 					if bc, berr := flags.newHappenstanceAPIClient(); berr == nil {
-						bres, brerr := BearerSearchAdapter(cmd.Context(), bc, keywords, &api.SearchOptions{IncludeMyConnections: true, IncludeFriendsConnections: true})
+						currentUUID := ""
+						if cookieAvailable {
+							currentUUID, _ = fetchCurrentUserUUID(cookieClient)
+						}
+						bres, brerr := BearerSearchAdapter(cmd.Context(), bc, keywords, currentUUID, &api.SearchOptions{IncludeMyConnections: true, IncludeFriendsConnections: true})
 						if brerr != nil {
 							fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance bearer search: %v\n", brerr)
 						} else if bres != nil {
 							for _, p := range bres.People {
 								row := flagshipPerson{
-									Name:    p.Name,
-									Title:   p.CurrentTitle,
-									Company: p.CurrentCompany,
-									Sources: []string{"hp_api"},
-									Rationale: "Happenstance bearer surface match",
+									Name:      p.Name,
+									Title:     p.CurrentTitle,
+									Company:   p.CurrentCompany,
+									Sources:   []string{"hp_api"},
+									Rationale: bearerRationale(p.Bridges),
+									Score:     bearerScore(p.Bridges, p.Score),
+									Bridges:   bridgesToFlagship(p.Bridges),
 								}
 								results = append(results, row)
 							}

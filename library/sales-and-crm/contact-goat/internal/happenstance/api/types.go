@@ -62,24 +62,83 @@ func (e *RateLimitError) Error() string {
 // SearchEnvelope is the response from POST /v1/search. The asynchronous
 // search is identified by Id; callers poll GET /v1/search/{id} for the
 // full result list. URL is the human-facing happenstance.ai page.
+//
+// Mutuals is the top-level bridge list — the named 1st-degree connections
+// (your Happenstance friends plus your own synced-graph self-entry) that
+// every per-result bridge indexes into. Populated on bearer-surface
+// responses when the request sets include_friends_connections or
+// include_my_connections. Empty for cookie-surface responses.
 type SearchEnvelope struct {
-	Id      string         `json:"id"`
-	URL     string         `json:"url,omitempty"`
-	Status  string         `json:"status,omitempty"`
-	Text    string         `json:"text,omitempty"`
-	Results []SearchResult `json:"results,omitempty"`
-	HasMore bool           `json:"has_more,omitempty"`
-	NextPage string        `json:"next_page,omitempty"`
+	Id       string          `json:"id"`
+	URL      string          `json:"url,omitempty"`
+	Status   string          `json:"status,omitempty"`
+	Text     string          `json:"text,omitempty"`
+	Mutuals  []SearchMutual  `json:"mutuals,omitempty"`
+	Results  []SearchResult  `json:"results,omitempty"`
+	HasMore  bool            `json:"has_more,omitempty"`
+	NextPage string          `json:"next_page,omitempty"`
+}
+
+// SearchMutual is one row of SearchEnvelope.Mutuals. Each entry names a
+// bridge person (a 1st-degree connection of the caller, or the caller
+// themselves) with a stable Index that ResultMutual rows dereference. The
+// caller identifies its own self-entry by matching Id against the current
+// user's Happenstance UUID.
+type SearchMutual struct {
+	Index           int    `json:"index"`
+	Id              string `json:"id,omitempty"`
+	Name            string `json:"name,omitempty"`
+	HappenstanceURL string `json:"happenstance_url,omitempty"`
 }
 
 // SearchResult is one row of GET /v1/search/{id}.results. Field names match
-// the OpenAPI shape verbatim. The normalizer in normalize.go (unit 3) maps
-// these into the canonical client.Person consumed by every renderer.
+// the OpenAPI shape verbatim. The normalizer in normalize.go maps these
+// into the canonical client.Person consumed by every renderer.
+//
+// Mutuals carries the per-result bridge list: each entry's Index points
+// into the envelope's top-level Mutuals slice, and AffinityScore signals
+// how strong the graph connection is (observed range 0 to ~300+, with 0
+// meaning "mentioned but weak" and higher meaning stronger). The
+// normalizer dereferences these into client.Bridge entries.
 type SearchResult struct {
-	Name                 string  `json:"name"`
-	CurrentTitle         string  `json:"current_title,omitempty"`
-	CurrentCompany       string  `json:"current_company,omitempty"`
-	WeightedTraitsScore  float64 `json:"weighted_traits_score,omitempty"`
+	Id                  string         `json:"id,omitempty"`
+	Name                string         `json:"name"`
+	CurrentTitle        string         `json:"current_title,omitempty"`
+	CurrentCompany      string         `json:"current_company,omitempty"`
+	Summary             string         `json:"summary,omitempty"`
+	WeightedTraitsScore float64        `json:"weighted_traits_score,omitempty"`
+	Mutuals             []ResultMutual `json:"mutuals,omitempty"`
+	Socials             *SearchSocials `json:"socials,omitempty"`
+	Traits              []SearchTrait  `json:"traits,omitempty"`
+}
+
+// ResultMutual is one row of SearchResult.Mutuals. Index points into the
+// envelope-level Mutuals slice; AffinityScore is the bearer API's raw
+// signal strength (higher = stronger). Zero is a valid value meaning the
+// bridge exists but carries no graph weight — treat as "mention only".
+type ResultMutual struct {
+	Index         int     `json:"index"`
+	AffinityScore float64 `json:"affinity_score"`
+}
+
+// SearchSocials is the socials subobject on a SearchResult. Every field is
+// optional and omitempty because the API omits fields it cannot populate.
+type SearchSocials struct {
+	LinkedInURL     string `json:"linkedin_url,omitempty"`
+	TwitterURL      string `json:"twitter_url,omitempty"`
+	InstagramURL    string `json:"instagram_url,omitempty"`
+	HappenstanceURL string `json:"happenstance_url,omitempty"`
+}
+
+// SearchTrait is one row of SearchResult.Traits. Index points into a
+// request-level traits list (not modeled here; requests are currently
+// built without explicit traits on the client side). Score ranges 0-1
+// per the bearer API; Evidence is free-form prose. Captured so future
+// renderers can surface why a result matched without a round-trip.
+type SearchTrait struct {
+	Index    int     `json:"index"`
+	Score    float64 `json:"score,omitempty"`
+	Evidence string  `json:"evidence,omitempty"`
 }
 
 // FindMoreEnvelope is the response from POST /v1/search/{id}/find-more.

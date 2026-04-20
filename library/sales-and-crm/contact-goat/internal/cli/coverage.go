@@ -9,6 +9,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -16,7 +17,6 @@ import (
 
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/happenstance/api"
 )
 
 func newCoverageCmd(flags *rootFlags) *cobra.Command {
@@ -128,7 +128,15 @@ failed".`,
 				} else if containsSource(p.Sources, "li_1deg") {
 					p.Relationship = "linkedin_1deg"
 				}
-				p.Score = scoreForRelationship(p.Relationship) + sourceStrength(firstSource(p.Sources)) + connectionBonus(p.ConnectionCount)
+				// Bridge affinity from the bearer API is additive on top of
+				// the tier+source composite so a 2nd-degree-via-strong-bridge
+				// row can outrank a 2nd-degree-via-weak-bridge row without
+				// disturbing the coarse tier ordering. See bridgeAffinityBonus
+				// in flagship_helpers.go for the scaling rationale.
+				p.Score = scoreForRelationship(p.Relationship) +
+					sourceStrength(firstSource(p.Sources)) +
+					connectionBonus(p.ConnectionCount) +
+					bridgeAffinityBonus(p.Bridges)
 			}
 			results = mergePeople(results)
 			rankPeople(results)
@@ -252,7 +260,7 @@ func runCoverageHappenstance(cmd *cobra.Command, flags *rootFlags, company strin
 	var bearerRun BearerRunner
 	if bc, berr := flags.newHappenstanceAPIClient(); berr == nil {
 		bearerRun = func() (*client.PeopleSearchResult, error) {
-			return BearerSearchAdapter(cmd.Context(), bc, "people at "+company, nil)
+			return BearerSearchAdapter(cmd.Context(), bc, "people at "+company, currentUUID, nil)
 		}
 	}
 
@@ -268,25 +276,44 @@ func runCoverageHappenstance(cmd *cobra.Command, flags *rootFlags, company strin
 
 	// Project /api/dynamo Person rows (cookie) or normalized bearer rows
 	// into flagshipPerson. The graphPersonToFlagship path uses the
-	// referrer chain to label tier; the bearer surface has no referrer
-	// data so labels collapse to "happenstance" with rationale that
-	// names the source.
+	// referrer chain to label tier; the bearer path uses envelope-level
+	// mutuals (dereferenced into p.Bridges by the normalizer) to pick a
+	// rationale string, score, and bridge list that callers can act on.
 	graph := make([]flagshipPerson, 0, len(out.Result.People))
 	for _, p := range out.Result.People {
 		row := graphPersonToFlagship(p, currentUUID)
 		if out.UsedSource == SourceAPI {
-			// Bearer rows have no referrer chain; keep the score from
-			// WeightedTraitsScore (already mapped by the normalizer)
-			// and tag them so the renderer can show "source: api".
 			row.Sources = []string{"hp_api"}
-			if out.FellBackFromCookie {
-				row.Rationale = fmt.Sprintf("Happenstance bearer (%s)", api.DefaultBaseURL)
+			row.Rationale = bearerRationale(p.Bridges)
+			row.Score = bearerScore(p.Bridges, p.Score)
+			row.Bridges = bridgesToFlagship(p.Bridges)
+			// Relationship is a coarse tier label used by downstream
+			// ranking. Promote self-graph to "hp_graph_1deg" parity (the
+			// person is literally in the user's own synced contacts);
+			// friend-bridged rows fall under the API tag so the renderer
+			// still shows "source: api" and so mixed cookie+API result
+			// sets sort by actual affinity rather than by tag strength.
+			if hasSelfGraphBridge(p.Bridges) {
+				row.Relationship = string(client.TierFirstDegree)
 			} else {
-				row.Rationale = "Happenstance bearer surface"
+				row.Relationship = "happenstance_api"
 			}
-			row.Relationship = "happenstance_api"
 		}
 		graph = append(graph, row)
+	}
+
+	// Sort the bearer slice by affinity-aware score so zero-affinity
+	// hits sink below any row with real graph signal. Cookie-only rows
+	// keep the default relative order chosen upstream.
+	if out.UsedSource == SourceAPI {
+		sort.SliceStable(graph, func(i, j int) bool {
+			si := graph[i].Score
+			sj := graph[j].Score
+			if si != sj {
+				return si > sj
+			}
+			return strings.ToLower(graph[i].Name) < strings.ToLower(graph[j].Name)
+		})
 	}
 	return graph, errs
 }
