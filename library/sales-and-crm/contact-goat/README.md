@@ -8,7 +8,15 @@ across LinkedIn, Happenstance, and Deepline from one SQLite-backed CLI.
 ### Go
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/contact-goat/cmd/contact-goat-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/cmd/contact-goat-pp-cli@latest
+```
+
+If `@latest` installs a stale build (the Go module proxy cache can lag
+the repo by hours after a fresh merge), install from main directly:
+
+```bash
+GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
+  go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/cmd/contact-goat-pp-cli@main
 ```
 
 ### Binary
