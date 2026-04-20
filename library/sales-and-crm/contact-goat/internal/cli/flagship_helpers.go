@@ -445,6 +445,13 @@ func persistPeople(people []flagshipPerson) {
 		if p.Name == "" {
 			continue
 		}
+		// The bearer surface returns name + title + company but no
+		// LinkedIn URL or Happenstance UUID. The local store keys on
+		// one of those, so bearer-only rows can't be persisted. Skip
+		// silently rather than spamming a warning per row.
+		if p.LinkedInURL == "" && p.HappenstanceUUID == "" {
+			continue
+		}
 		data := map[string]any{
 			"full_name":         p.Name,
 			"linkedin_url":      p.LinkedInURL,

@@ -454,6 +454,21 @@ func BearerSearchAdapter(ctx context.Context, c *api.Client, query string, opts 
 	if c == nil {
 		return nil, fmt.Errorf("bearer search: nil client")
 	}
+	// The bearer surface returns HTTP 400 (no-search-source) when no
+	// search source is set. The cookie surface's defaultSearchOptions
+	// turns on both 1st-degree and 2nd-degree search; mirror that here
+	// so auto-routed callers (coverage / hp people / prospect / warm-
+	// intro) get parity with the cookie default. Explicit opts from
+	// `api hpn search` flags pass through unchanged.
+	if opts == nil {
+		opts = &api.SearchOptions{
+			IncludeMyConnections:      true,
+			IncludeFriendsConnections: true,
+		}
+	} else if !opts.IncludeMyConnections && !opts.IncludeFriendsConnections && len(opts.GroupIDs) == 0 {
+		opts.IncludeMyConnections = true
+		opts.IncludeFriendsConnections = true
+	}
 	env, err := c.Search(ctx, query, opts)
 	if err != nil {
 		return nil, err
