@@ -261,7 +261,12 @@ func checkHappenstanceGraphCoverage(flags *rootFlags, report map[string]any) {
 		return
 	}
 	if len(raw) == 0 {
-		report["happenstance_graph"] = "authenticated but uploads endpoint returned empty body (retry after a fresh `auth login --chrome`)"
+		// Empty body on an authenticated endpoint is Clerk's
+		// signed-out signal. It means the refresh above returned 200
+		// but didn't actually hand us a fresh JWT — usually because
+		// the source cookies are stale. Say so plainly; the previous
+		// phrasing ("authenticated but …") was misleading.
+		report["happenstance_graph"] = "signed-out (empty body on authenticated endpoint — session is dead, re-run `auth login --chrome` against a signed-in browser)"
 		return
 	}
 	var resp struct {

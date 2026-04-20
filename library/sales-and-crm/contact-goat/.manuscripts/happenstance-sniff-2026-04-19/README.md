@@ -36,7 +36,28 @@ cookies automatically via the jar. Body is empty.
 Headers of interest on response:
 - `X-Clerk-Auth-Status: signed-in`  (when the refresh succeeded)
 - `X-Clerk-Auth-Status: signed-out` with `X-Clerk-Auth-Reason: ...` (when the token is dead)
-- Sets a fresh `__session` cookie on the `.happenstance.ai` domain.
+- `Set-Cookie: __client_uat=...; Domain=happenstance.ai` (NOT `__session`)
+
+**The fresh JWT is in the JSON response body, not in Set-Cookie.** A live
+2026-04-20 capture on a signed-in session returned:
+
+```json
+{
+  "response": {
+    "object": "session",
+    "status": "active",
+    "last_active_token": { "object": "token", "jwt": "eyJ..." },
+    ...
+  },
+  "client": { "sessions": [{ "last_active_token": { "jwt": "eyJ..." }, ... }] }
+}
+```
+
+Consumers must parse the body and extract `response.last_active_token.jwt`,
+then write it into the cookie jar as `__session`. Relying on `resp.Cookies()`
+to pick up a Set-Cookie that Clerk never emits silently keeps the expired
+JWT in the jar and every subsequent Happenstance request returns 204
+"signed-out". (This was the original post-#91 regression; fixed in #92.)
 
 ### contact-goat bug
 
