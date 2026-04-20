@@ -1,7 +1,7 @@
 ---
 title: "feat(contact-goat): unlock full Happenstance network graph (1st, 2nd, 3rd degree)"
 type: feat
-status: active
+status: completed
 date: 2026-04-19
 ---
 
