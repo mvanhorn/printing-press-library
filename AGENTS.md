@@ -22,9 +22,11 @@ plugin/
   .claude-plugin/plugin.json        — plugin manifest; `version` bumps patch on changes
   skills/pp-<slug>/SKILL.md         — generated mirror of library/<…>/SKILL.md (see "Keeping plugin/skills in sync")
   skills/ppl/                       — the mega-skill across all CLIs
+  commands/pp-<slug>.md             — slash-command shim for each skill (generated); /pp-<slug> in Claude Code
+  commands/ppl.md                   — slash-command shim for the ppl router (hand-authored)
 
 registry.json                       — top-level catalog: every CLI's name, category, description, path, MCP metadata
-tools/generate-skills/              — regenerates plugin/skills/pp-* from library/ + registry.json
+tools/generate-skills/              — regenerates plugin/skills/pp-* and plugin/commands/pp-* from library/ + registry.json
 .github/scripts/verify-skill/       — Python verifier that checks SKILL.md matches shipped Go source
 .github/workflows/                  — CI: verify-skills.yml, generate-skills.yml
 ```
@@ -70,9 +72,11 @@ func Execute() error {
 
 A few older CLIs (e.g. `agent-capture`, `instacart`) use a package-global `var rootCmd` with no `rootFlags` struct. Tools that AST-patch root.go (like the printing-press patch subcommand) should detect this shape and refuse rather than silently no-op.
 
-## SKILL.md coverage is not universal
+## SKILL.md coverage
 
-Only some CLIs ship a `SKILL.md`. CLIs without one (today: `dominos-pp-cli`, `postman-explore`, `trigger-dev`, `pagliacci-pizza`, `steam-web`, `slack`, `linear`) still work via `--help`, but agent workflows that read SKILL.md miss them. The verifier (`verify-skills.yml`) only runs against CLIs that have both `SKILL.md` and `internal/cli/`.
+As of 2026-04-20, every CLI in `library/` ships a `library/<category>/<slug>/SKILL.md`. The generator (`tools/generate-skills/main.go`) copies each library SKILL.md verbatim to `plugin/skills/pp-<slug>/SKILL.md` and emits a matching slash-command shim at `plugin/commands/pp-<slug>.md`. The verifier (`verify-skills.yml`) runs flag / command / positional-arg checks against every CLI.
+
+When adding a new CLI, ship a library SKILL.md alongside the generated code. Registry-only synthesis still works as a fallback but is strictly worse: agents get no "when to use" guidance, no curated command list, and the trigger-phrase list is generic ("install X, use X, run X") so natural-language matches miss.
 
 ## Keeping `plugin/skills/` in sync
 
@@ -85,7 +89,7 @@ Only some CLIs ship a `SKILL.md`. CLIs without one (today: `dominos-pp-cli`, `po
    go run ./tools/generate-skills/main.go
    ```
 2. Bump `plugin/.claude-plugin/plugin.json` `version` (semver patch, e.g. `1.1.9` → `1.1.10`). The generator's `maybeUpdatePluginVersion` only auto-bumps on directory-set changes (CLI added or removed); **SKILL content changes do not trigger an auto-bump and need a manual edit**.
-3. Commit both the regenerated `plugin/skills/pp-*/SKILL.md` files and the version bump alongside your library change — ideally in one `chore(plugin): regenerate pp-* skills + bump to X.Y.Z` commit.
+3. Commit both the regenerated `plugin/skills/pp-*/SKILL.md` files AND any regenerated `plugin/commands/pp-*.md` shims AND the version bump alongside your library change — ideally in one `chore(plugin): regenerate pp-* skills + bump to X.Y.Z` commit.
 
 **Why the manual step exists:** `.github/workflows/generate-skills.yml` only triggers on changes to `registry.json`, `library/**/.printing-press.json`, or `tools/generate-skills/**`. It does not fire on SKILL.md or `internal/cli/**` changes. Expanding those triggers, plus teaching `maybeUpdatePluginVersion` to bump on content changes, is worth a follow-up; until then, the manual run is the workaround.
 

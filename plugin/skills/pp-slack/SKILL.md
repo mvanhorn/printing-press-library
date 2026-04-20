@@ -1,102 +1,115 @@
 ---
 name: pp-slack
-description: "Printing Press CLI for Slack. Send messages, search conversations, monitor channels, and manage your Slack workspace from the terminal Capabilities include: activity, analytics, bots, conversations, digest, dnd, emoji, feedback, files, funny, health, messages, pins, profile, quiet, reactions, reminders, response-times, search, stars, tail, team, threads-stale, trends, usergroups, users. Trigger phrases: 'install slack', 'use slack', 'run slack', 'Slack commands', 'setup slack'."
+description: "Slack workspace CLI for the terminal. Send messages, search channels and DMs, list conversations, get user/bot/emoji info, analyze channel health, find stale threads, and sync the workspace locally for fast offline queries. Two auth surfaces coexist: SLACK_BOT_TOKEN (xoxb-, for workspace-wide read + post) and SLACK_USER_TOKEN (xoxp-, for user-scoped actions like DM history or search). Use when the user asks to send a Slack message, search Slack, check channel activity, summarize a digest, find who's on a team, find stale threads, analyze channel health, list users / emoji / reminders / pinned items, or wants offline-capable Slack queries."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata: '{"openclaw":{"requires":{"bins":["slack-pp-cli"],"env":["SLACK_BOT_TOKEN"]},"primaryEnv":"SLACK_BOT_TOKEN","install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/productivity/slack/cmd/slack-pp-cli@latest","bins":["slack-pp-cli"],"label":"Install via go install"}]}}'
 ---
 
-# Slack — Printing Press CLI
+# Slack - Printing Press CLI
 
-Send messages, search conversations, monitor channels, and manage your Slack workspace from the terminal
+Send messages, search conversations, monitor channels, and manage your Slack workspace from the terminal. Pairs live-API calls with a local SQLite sync so read-heavy analytics (activity trends, stale threads, channel health) run offline without burning your rate limit.
+
+## When to Use This CLI
+
+Reach for this when the user wants:
+
+- send a Slack message to a channel or DM
+- search Slack across channels, DMs, and threads (live or synced)
+- list users, channels, usergroups, custom emoji, pinned items, or reminders
+- understand channel health (quiet channels, activity trends, response times, digest)
+- find stale or unanswered threads across the workspace
+- pull an activity summary for a user or channel
+- export channel history to JSONL for archival or migration
+- discover the funniest messages in public channels (local-sync-powered novelty query)
+
+Skip it when the user wants to create Slack apps, workflows, or manage admin-only team settings beyond `team` access logs. Those surfaces are better served by the Slack web admin.
+
+## Two Auth Surfaces
+
+Slack has two parallel token types and this CLI supports both:
+
+| Token | Scopes | When to use |
+|-------|--------|-------------|
+| `SLACK_BOT_TOKEN` (xoxb-) | workspace-scoped bot permissions | Default for post-message, read-channel, list-users, etc. |
+| `SLACK_USER_TOKEN` (xoxp-) | user-scoped | DM history, search on behalf of a user, stars, reminders |
+
+Set whichever the workspace permits. If both are set, user-token wins for user-scoped endpoints and bot-token otherwise. Get a token at `https://api.slack.com/apps` -> your app -> OAuth & Permissions.
 
 ## Argument Parsing
 
 Parse `$ARGUMENTS`:
 
-1. **Empty, `help`, or `--help`** → show `slack-pp-cli --help` output
-2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → CLI installation
-3. **Anything else** → Direct Use (execute as CLI command)
+1. **Empty, `help`, or `--help`** -> show `slack-pp-cli --help`
+2. **Starts with `install`** -> ends with `mcp` -> MCP installation; otherwise -> CLI installation
+3. **Anything else** -> Direct Use (map to the best command and run it)
 
 ## CLI Installation
 
-1. Check Go is installed: `go version` (requires Go 1.23+)
+1. Check Go is installed: `go version` (requires Go 1.23+).
 2. Install:
    ```bash
    go install github.com/mvanhorn/printing-press-library/library/productivity/slack/cmd/slack-pp-cli@latest
    ```
 
-   If `@latest` installs a stale build (the Go module proxy cache can lag the repo by hours after a fresh merge), install from main directly:
+   If `@latest` installs a stale build (Go module proxy cache lag):
    ```bash
    GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
      go install github.com/mvanhorn/printing-press-library/library/productivity/slack/cmd/slack-pp-cli@main
    ```
-3. Verify: `slack-pp-cli --version`
+3. Verify: `slack-pp-cli --version`.
 4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
-5. Auth setup — set the API key and register it with the CLI:
+5. Auth setup:
    ```bash
-   export SLACK_BOT_TOKEN="your-key-here"
-   slack-pp-cli auth set-token
+   export SLACK_BOT_TOKEN="xoxb-..."
+   # optional, enables user-scoped endpoints (DM history, search-as-user):
+   export SLACK_USER_TOKEN="xoxp-..."
    ```
-   Run `slack-pp-cli doctor` to verify credentials.
+6. Verify: `slack-pp-cli doctor` reports token status and workspace identity.
 
 ## MCP Server Installation
 
-1. Install the MCP server:
-   ```bash
-   go install github.com/mvanhorn/printing-press-library/library/productivity/slack/cmd/slack-pp-mcp@latest
-   ```
+The CLI also ships an MCP server at `slack-pp-mcp`. Install and register:
 
-   If `@latest` installs a stale build, install from main directly:
-   ```bash
-   GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
-     go install github.com/mvanhorn/printing-press-library/library/productivity/slack/cmd/slack-pp-mcp@main
-   ```
-2. Register with Claude Code:
-   ```bash
-   claude mcp add -e SLACK_BOT_TOKEN=value slack-pp-mcp -- slack-pp-mcp
-   ```
-   Ask the user for actual values of required API keys before running.
-3. Verify: `claude mcp list`
+```bash
+go install github.com/mvanhorn/printing-press-library/library/productivity/slack/cmd/slack-pp-mcp@latest
+claude mcp add -e SLACK_BOT_TOKEN=xoxb-... slack-pp-mcp -- slack-pp-mcp
+```
+
+Ask the user for the actual token value before running.
 
 ## Direct Use
 
-1. Check if installed: `which slack-pp-cli`
-   If not found, offer to install (see CLI Installation above).
-2. Discover commands: `slack-pp-cli --help`
-   Key commands:
-   - `activity` — User activity summary across channels from local sync data
-   - `analytics` — Run analytics queries on locally synced data
-   - `bots` — Get information about a bot user
-   - `conversations` — List all channels in the workspace
-   - `digest` — Daily or weekly digest from locally synced activity
-   - `dnd` — Get DND status for the authenticated user
-   - `emoji` — List all custom emoji for the workspace
-   - `feedback` — Record feedback about this CLI (local by default; upstream opt-in)
-   - `files` — Get information about a file
-   - `funny` — Find the funniest locally synced messages from public channels
-   - `health` — Channel health report from locally synced activity
-   - `messages` — Get a permalink URL for a message
-   - `pins` — List pinned items in a channel
-   - `profile` — Named sets of flags saved for reuse
-   - `quiet` — Find quiet or dead channels from locally synced data
-   - `reactions` — Get reactions for a message
-   - `reminders` — List all reminders for the authenticated user
-   - `response-times` — Average first-response time in threads from local sync data
-   - `search` — Full-text search across synced data or live API
-   - `stars` — List starred items
-   - `tail` — Stream live changes by polling the API at regular intervals
-   - `team` — Get workspace access logs (requires admin)
-   - `threads-stale` — Find unanswered or stale threads from local sync data
-   - `trends` — Channel activity trends by week from local sync data
-   - `usergroups` — List all user groups in the workspace
-   - `users` — List all users in the workspace
-3. Match the user query to the best command. Drill into subcommand help if needed: `slack-pp-cli <command> --help`
-4. Execute with the `--agent` flag:
+1. Check installed: `which slack-pp-cli`. If missing, offer CLI installation.
+2. Discover commands: `slack-pp-cli --help`; drill into `slack-pp-cli <cmd> --help`.
+3. Match the user query to the best command (see Notable Commands below).
+4. Execute with `--agent` for structured output:
    ```bash
-   slack-pp-cli <command> [subcommand] [args] --agent
+   slack-pp-cli <command> [args] --agent
    ```
-5. The `--agent` flag sets `--json --compact --no-input --no-color --yes` for structured, token-efficient output.
+5. The `--agent` flag sets `--json --compact --no-input --no-color --yes`.
+
+Source routing (local vs live) is controlled by `--data-source`: `auto` (default) prefers local-synced data with live fallback; `live` always hits the API; `local` runs fully offline against the SQLite snapshot. Run `slack-pp-cli sync` first to populate the local store for analytics queries.
+
+## Notable Commands
+
+| Command | What it does |
+|---------|--------------|
+| `conversations` | List channels and DMs in the workspace |
+| `users` | List all users in the workspace |
+| `search <query>` | Full-text search across synced messages (or live API with `--data-source live`) |
+| `digest` | Daily/weekly activity digest from locally synced data |
+| `health` | Channel health report (activity, engagement, stagnation) |
+| `quiet` | Find dead or low-activity channels |
+| `response-times` | Average first-response time in threads |
+| `threads-stale` | Unanswered or stale threads |
+| `activity <user-or-channel>` | Activity summary across channels from local sync |
+| `trends` | Week-over-week channel activity trends |
+| `sync` | Populate the local SQLite store for offline analytics |
+| `emoji` / `reminders` / `pins` / `stars` | Workspace directory queries |
+| `team` | Access logs (requires admin token) |
+
+Run any command with `--help` for full flag documentation.
 
 ## Exit Codes
 
@@ -104,7 +117,7 @@ Parse `$ARGUMENTS`:
 |------|---------|
 | 0 | Success |
 | 2 | Usage error (wrong arguments) |
-| 3 | Resource not found |
-| 4 | Authentication required |
-| 5 | API error (upstream issue) |
-| 7 | Rate limited (wait and retry) |
+| 3 | Resource not found (channel, user, message) |
+| 4 | Authentication required (token missing or invalid) |
+| 5 | API error (Slack upstream, including `not_in_channel`, `channel_not_found`) |
+| 7 | Rate limited (Slack 429; CLI honors `Retry-After`) |
