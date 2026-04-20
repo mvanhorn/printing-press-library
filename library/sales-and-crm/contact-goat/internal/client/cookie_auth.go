@@ -265,31 +265,55 @@ func (c *Client) refreshClerkSession() error {
 			resp.StatusCode, status, reason, msg)
 	}
 
-	// Drain the response body. /touch emits fresh __session via
-	// Set-Cookie; we parse those headers directly rather than relying on
-	// Go's cookiejar to scope them correctly. Without a PublicSuffixList
-	// the jar sometimes stores Set-Cookie Domain=.happenstance.ai as
-	// host-only for the request host (clerk.happenstance.ai), which
-	// means subsequent POSTs to happenstance.ai/api/search don't carry
-	// the fresh JWT and the server returns 204 "signed-out".
-	_, _ = io.Copy(io.Discard, resp.Body)
+	// /touch returns the fresh JWT in the JSON body at
+	// response.last_active_token.jwt. It does NOT set a Set-Cookie:
+	// __session header — only __client_uat. The response.body shape
+	// captured on 2026-04-19:
+	//   { "response": { "last_active_token": { "jwt": "eyJ..." }, ... } }
+	// Also present under response.client.sessions[0].last_active_token
+	// for clients with multiple sessions; the outer one is the active
+	// session and is what we want.
+	bodyBytes, readErr := io.ReadAll(resp.Body)
+	if readErr != nil {
+		return fmt.Errorf("clerk refresh: read body: %w", readErr)
+	}
 
 	var freshSession string
-	// resp.Cookies() parses Set-Cookie from the response headers.
-	for _, sc := range resp.Cookies() {
-		if sc.Name == "__session" && sc.Value != "" {
-			freshSession = sc.Value
-			break
+	if len(bodyBytes) > 0 {
+		var parsed struct {
+			Response struct {
+				LastActiveToken struct {
+					JWT string `json:"jwt"`
+				} `json:"last_active_token"`
+			} `json:"response"`
+		}
+		if err := json.Unmarshal(bodyBytes, &parsed); err == nil {
+			freshSession = parsed.Response.LastActiveToken.JWT
 		}
 	}
+
+	// Fallback 1: Set-Cookie header (kept for forward compatibility in
+	// case Clerk starts emitting __session via cookie again).
 	if freshSession == "" {
-		// Fall back to whatever the jar stored; some Clerk paths rely on
-		// the jar's own Set-Cookie handling even when the response-level
-		// parse returns nothing.
+		for _, sc := range resp.Cookies() {
+			if sc.Name == "__session" && sc.Value != "" {
+				freshSession = sc.Value
+				break
+			}
+		}
+	}
+	// Fallback 2: the jar (in case Clerk's cookie scoping lands on
+	// happenstance.ai directly without the PublicSuffixList quirk).
+	if freshSession == "" {
 		freshSession = c.sessionCookieValue()
 	}
 	if freshSession == "" {
-		return errors.New("clerk refresh: 200 OK but no __session cookie in response or jar")
+		return errors.New("clerk refresh: 200 OK but no fresh JWT in response body or cookies")
+	}
+	// Guard: if we fell through to the jar, the value may be the same
+	// expired JWT we started with. Detect and surface that clearly.
+	if IsJWTExpired(freshSession) {
+		return errors.New("clerk refresh: 200 OK but returned JWT is already expired (session likely revoked — re-run `auth login --chrome`)")
 	}
 
 	// Mirror the fresh __session across every host that subsequent

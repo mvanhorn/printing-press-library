@@ -115,6 +115,65 @@ func TestRefreshClerkSession_SurfaceClerkHeadersOn401(t *testing.T) {
 	}
 }
 
+// TestRefreshClerkSession_ReadsJWTFromResponseBody guards against the
+// regression we hit on 2026-04-20: Clerk's /touch returns the fresh
+// JWT in response.last_active_token.jwt, NOT via Set-Cookie: __session.
+// Only __client_uat comes back as a Set-Cookie. If the refresher only
+// looks at Set-Cookie it keeps the expired __session in the jar and
+// every subsequent Happenstance request gets a 204 signed-out.
+func TestRefreshClerkSession_ReadsJWTFromResponseBody(t *testing.T) {
+	freshJWT := "eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjI1MjQ2MDgwMDB9.sig" // exp=2050
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Mirror the real Clerk shape: only __client_uat via Set-Cookie.
+		http.SetCookie(w, &http.Cookie{Name: "__client_uat", Value: "1776619443", Path: "/"})
+		fmt.Fprintf(w, `{"response":{"object":"session","status":"active","last_active_token":{"object":"token","jwt":"%s"}},"client":{}}`, freshJWT)
+	}))
+	defer srv.Close()
+
+	oldBase := clerkBaseURL
+	clerkBaseURL = srv.URL
+	defer func() { clerkBaseURL = oldBase }()
+
+	c := seedClient(t, srv.Client())
+
+	if err := c.refreshClerkSession(); err != nil {
+		t.Fatalf("refreshClerkSession: %v", err)
+	}
+
+	// The fresh JWT must be written into the jar under .happenstance.ai
+	// so subsequent POSTs to /api/search carry it.
+	got := c.sessionCookieValue()
+	if got != freshJWT {
+		t.Errorf("jar's __session not updated from response body:\n  got  %q\n  want %q", got, freshJWT)
+	}
+}
+
+// TestRefreshClerkSession_ErrorsWhenBodyJWTExpired guards the guard:
+// a /touch response that (somehow) returns an already-expired JWT must
+// surface a clear error rather than silently keeping it, since every
+// subsequent request would fail with a cryptic 204.
+func TestRefreshClerkSession_ErrorsWhenBodyJWTExpired(t *testing.T) {
+	expiredJWT := "eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjF9.sig" // exp=1970
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, `{"response":{"last_active_token":{"jwt":"%s"}},"client":{}}`, expiredJWT)
+	}))
+	defer srv.Close()
+
+	oldBase := clerkBaseURL
+	clerkBaseURL = srv.URL
+	defer func() { clerkBaseURL = oldBase }()
+
+	c := seedClient(t, srv.Client())
+
+	err := c.refreshClerkSession()
+	if err == nil {
+		t.Fatal("expected error when refresh returns an expired JWT, got nil")
+	}
+	if !strings.Contains(err.Error(), "expired") {
+		t.Errorf("error does not mention expiry: %v", err)
+	}
+}
+
 func TestRefreshClerkSession_MissingSessionID(t *testing.T) {
 	c := &Client{BaseURL: "https://happenstance.ai", HTTPClient: &http.Client{}}
 	jar, _ := cookiejar.New(nil)
