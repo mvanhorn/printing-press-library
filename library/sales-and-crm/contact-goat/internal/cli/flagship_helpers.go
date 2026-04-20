@@ -182,9 +182,23 @@ func fetchHappenstanceFriends(c *client.Client) ([]flagshipPerson, error) {
 	return out, nil
 }
 
+// searchPeopleArgs builds the MCP args map for the LinkedIn
+// `search_people` tool. Exposed as a pure function so tests can assert
+// the shape (notably: the absence of a `limit` key — the MCP tool has
+// no `limit` parameter and rejects requests that include it with a
+// pydantic `Unexpected keyword argument` error).
+func searchPeopleArgs(keywords, location string) map[string]any {
+	args := map[string]any{"keywords": keywords}
+	if location != "" {
+		args["location"] = location
+	}
+	return args
+}
+
 // fetchLinkedInSearchPeople spawns the LinkedIn MCP, runs search_people with
 // the given keywords, and parses the JSON text payload into flagshipPerson
-// records tagged "li_search".
+// records tagged "li_search". `limit` is applied client-side after parsing
+// (the MCP's search_people tool does not accept a server-side limit).
 func fetchLinkedInSearchPeople(ctx context.Context, keywords, location string, limit int) ([]flagshipPerson, error) {
 	if keywords == "" {
 		return nil, errors.New("fetchLinkedInSearchPeople: keywords required")
@@ -198,18 +212,15 @@ func fetchLinkedInSearchPeople(ctx context.Context, keywords, location string, l
 		return nil, fmt.Errorf("linkedin mcp initialize: %w", err)
 	}
 
-	args := map[string]any{"keywords": keywords}
-	if location != "" {
-		args["location"] = location
-	}
-	if limit > 0 {
-		args["limit"] = limit
-	}
-	res, err := client.CallTool(ctx, linkedin.ToolNames.SearchPeople, args)
+	res, err := client.CallTool(ctx, linkedin.ToolNames.SearchPeople, searchPeopleArgs(keywords, location))
 	if err != nil {
 		return nil, err
 	}
-	return parseLIPeoplePayload(linkedin.TextPayload(res), "li_search"), nil
+	people := parseLIPeoplePayload(linkedin.TextPayload(res), "li_search")
+	if limit > 0 && len(people) > limit {
+		people = people[:limit]
+	}
+	return people, nil
 }
 
 // fetchLinkedInPerson fetches a single LinkedIn profile by URL or slug.
