@@ -178,6 +178,10 @@ Add `--agent` to any command. Expands to `--json --compact --no-input --no-color
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/payments/kalshi/cmd/kalshi-pp-mcp@latest
+
+# If `@latest` installs a stale build (Go module proxy cache lag), install from main:
+GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
+  go install github.com/mvanhorn/printing-press-library/library/payments/kalshi/cmd/kalshi-pp-mcp@main
 claude mcp add -e KALSHI_API_KEY=<key> -e KALSHI_PRIVATE_KEY_PATH=<path> kalshi-pp-mcp -- kalshi-pp-mcp
 claude mcp list
 ```

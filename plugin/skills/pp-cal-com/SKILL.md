@@ -207,6 +207,10 @@ Paginated commands also emit NDJSON progress events on stderr by default, so `--
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/productivity/cal-com/cmd/cal-com-pp-cli@latest
+
+# If `@latest` installs a stale build (Go module proxy cache lag), install from main:
+GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
+  go install github.com/mvanhorn/printing-press-library/library/productivity/cal-com/cmd/cal-com-pp-cli@main
 cal-com-pp-cli auth set-token YOUR_CAL_COM_TOKEN
 cal-com-pp-cli doctor
 ```
@@ -215,6 +219,10 @@ cal-com-pp-cli doctor
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/productivity/cal-com/cmd/cal-com-pp-mcp@latest
+
+# If `@latest` installs a stale build (Go module proxy cache lag), install from main:
+GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
+  go install github.com/mvanhorn/printing-press-library/library/productivity/cal-com/cmd/cal-com-pp-mcp@main
 claude mcp add -e CAL_COM_TOKEN=<token> cal-com-pp-mcp -- cal-com-pp-mcp
 ```
 

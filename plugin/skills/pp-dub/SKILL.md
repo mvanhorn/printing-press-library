@@ -199,6 +199,10 @@ Flag glossary:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/marketing/dub/cmd/dub-pp-cli@latest
+
+# If `@latest` installs a stale build (Go module proxy cache lag), install from main:
+GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
+  go install github.com/mvanhorn/printing-press-library/library/marketing/dub/cmd/dub-pp-cli@main
 dub-pp-cli auth set-token YOUR_DUB_API_KEY
 dub-pp-cli doctor
 ```
@@ -207,6 +211,10 @@ dub-pp-cli doctor
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/marketing/dub/cmd/dub-pp-mcp@latest
+
+# If `@latest` installs a stale build (Go module proxy cache lag), install from main:
+GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
+  go install github.com/mvanhorn/printing-press-library/library/marketing/dub/cmd/dub-pp-mcp@main
 claude mcp add -e DUB_API_KEY=<key> dub-pp-mcp -- dub-pp-mcp
 ```
 

@@ -158,6 +158,10 @@ Notable flags:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/archive-is/cmd/archive-is-pp-cli@latest
+
+# If `@latest` installs a stale build (Go module proxy cache lag), install from main:
+GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
+  go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/archive-is/cmd/archive-is-pp-cli@main
 archive-is-pp-cli doctor
 ```
 
@@ -165,6 +169,10 @@ archive-is-pp-cli doctor
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/archive-is/cmd/archive-is-pp-mcp@latest
+
+# If `@latest` installs a stale build (Go module proxy cache lag), install from main:
+GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
+  go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/archive-is/cmd/archive-is-pp-mcp@main
 claude mcp add archive-is-pp-mcp -- archive-is-pp-mcp
 ```
 

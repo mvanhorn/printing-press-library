@@ -244,6 +244,10 @@ Given `$ARGUMENTS`:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/cmd/yahoo-finance-pp-cli@latest
+
+# If `@latest` installs a stale build (Go module proxy cache lag), install from main:
+GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
+  go install github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/cmd/yahoo-finance-pp-cli@main
 yahoo-finance-pp-cli --version
 ```
 
@@ -251,6 +255,10 @@ yahoo-finance-pp-cli --version
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/cmd/yahoo-finance-pp-mcp@latest
+
+# If `@latest` installs a stale build (Go module proxy cache lag), install from main:
+GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
+  go install github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/cmd/yahoo-finance-pp-mcp@main
 claude mcp add yahoo-finance yahoo-finance-pp-mcp
 ```
 

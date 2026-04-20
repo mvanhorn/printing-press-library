@@ -25,6 +25,12 @@ Parse `$ARGUMENTS`:
    ```bash
    go install github.com/mvanhorn/printing-press-library/library/developer-tools/postman-explore/cmd/postman-explore-pp-cli@latest
    ```
+
+   If `@latest` installs a stale build (the Go module proxy cache can lag the repo by hours after a fresh merge), install from main directly:
+   ```bash
+   GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
+     go install github.com/mvanhorn/printing-press-library/library/developer-tools/postman-explore/cmd/postman-explore-pp-cli@main
+   ```
 3. Verify: `postman-explore-pp-cli --version`
 4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
@@ -33,6 +39,12 @@ Parse `$ARGUMENTS`:
 1. Install the MCP server:
    ```bash
    go install github.com/mvanhorn/printing-press-library/library/developer-tools/postman-explore/cmd/postman-explore-pp-mcp@latest
+   ```
+
+   If `@latest` installs a stale build, install from main directly:
+   ```bash
+   GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
+     go install github.com/mvanhorn/printing-press-library/library/developer-tools/postman-explore/cmd/postman-explore-pp-mcp@main
    ```
 2. Register with Claude Code:
    ```bash

@@ -162,6 +162,10 @@ Add `--agent` to any command. Expands to `--json --compact --no-input --no-color
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot/cmd/hubspot-pp-cli@latest
+
+# If `@latest` installs a stale build (Go module proxy cache lag), install from main:
+GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
+  go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot/cmd/hubspot-pp-cli@main
 hubspot-pp-cli auth set-token YOUR_HUBSPOT_ACCESS_TOKEN
 hubspot-pp-cli doctor
 ```
@@ -170,6 +174,10 @@ hubspot-pp-cli doctor
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot/cmd/hubspot-pp-mcp@latest
+
+# If `@latest` installs a stale build (Go module proxy cache lag), install from main:
+GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
+  go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot/cmd/hubspot-pp-mcp@main
 claude mcp add -e HUBSPOT_ACCESS_TOKEN=<token> hubspot-pp-mcp -- hubspot-pp-mcp
 ```
 

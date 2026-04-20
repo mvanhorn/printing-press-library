@@ -160,6 +160,10 @@ Add `--agent` to any command. Expands to `--json --compact --no-input --no-color
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/cmd/hackernews-pp-cli@latest
+
+# If `@latest` installs a stale build (Go module proxy cache lag), install from main:
+GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
+  go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/cmd/hackernews-pp-cli@main
 hackernews-pp-cli doctor  # verifies API reachability
 ```
 
@@ -169,6 +173,10 @@ hackernews-pp-cli doctor  # verifies API reachability
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/cmd/hackernews-pp-mcp@latest
+
+# If `@latest` installs a stale build (Go module proxy cache lag), install from main:
+GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
+  go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/cmd/hackernews-pp-mcp@main
 claude mcp add hackernews-pp-mcp -- hackernews-pp-mcp
 ```
 

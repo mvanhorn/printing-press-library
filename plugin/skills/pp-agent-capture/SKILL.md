@@ -25,6 +25,12 @@ Parse `$ARGUMENTS`:
    ```bash
    go install github.com/mvanhorn/printing-press-library/library/developer-tools/agent-capture/cmd/agent-capture@latest
    ```
+
+   If `@latest` installs a stale build (the Go module proxy cache can lag the repo by hours after a fresh merge), install from main directly:
+   ```bash
+   GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
+     go install github.com/mvanhorn/printing-press-library/library/developer-tools/agent-capture/cmd/agent-capture@main
+   ```
 3. Verify: `agent-capture --version`
 4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 

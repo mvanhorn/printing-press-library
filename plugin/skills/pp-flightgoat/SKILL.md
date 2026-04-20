@@ -169,6 +169,10 @@ Add `--agent` to any command. Expands to `--json --compact --no-input --no-color
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/travel/flightgoat/cmd/flightgoat-pp-cli@latest
+
+# If `@latest` installs a stale build (Go module proxy cache lag), install from main:
+GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
+  go install github.com/mvanhorn/printing-press-library/library/travel/flightgoat/cmd/flightgoat-pp-cli@main
 flightgoat-pp-cli doctor
 ```
 

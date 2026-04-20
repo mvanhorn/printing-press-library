@@ -151,6 +151,10 @@ Add `--agent` to any command. Expands to `--json --compact --no-input --no-color
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/other/weather-goat/cmd/weather-goat-pp-cli@latest
+
+# If `@latest` installs a stale build (Go module proxy cache lag), install from main:
+GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
+  go install github.com/mvanhorn/printing-press-library/library/other/weather-goat/cmd/weather-goat-pp-cli@main
 weather-goat-pp-cli config set-location "Your City, ST"
 weather-goat-pp-cli doctor
 ```
@@ -159,6 +163,10 @@ weather-goat-pp-cli doctor
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/other/weather-goat/cmd/weather-goat-pp-mcp@latest
+
+# If `@latest` installs a stale build (Go module proxy cache lag), install from main:
+GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
+  go install github.com/mvanhorn/printing-press-library/library/other/weather-goat/cmd/weather-goat-pp-mcp@main
 claude mcp add weather-goat-pp-mcp -- weather-goat-pp-mcp
 ```
 
