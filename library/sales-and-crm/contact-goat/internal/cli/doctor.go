@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -16,6 +17,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/chromecookies"
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/config"
+	hpapi "github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/happenstance/api"
 	"github.com/spf13/cobra"
 )
 
@@ -134,6 +136,12 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			// Deepline section (env var presence, dlp_ prefix, CLI on PATH)
 			checkDeepline(report)
 
+			// Happenstance public REST API (bearer surface). Adds three rows:
+			// happenstance_api_key, happenstance_api_validity, happenstance_api_balance.
+			// Probes are best-effort with a tight 5s context and never print
+			// the full key value — only the recognized prefix + last 4 chars.
+			checkHappenstanceAPI(cfg, report)
+
 			report["version"] = version
 
 			if flags.asJSON {
@@ -157,6 +165,9 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				{"deepline_env", "Deepline: DEEPLINE_API_KEY"},
 				{"deepline_prefix", "Deepline: key prefix"},
 				{"deepline_cli", "Deepline: CLI on PATH"},
+				{"happenstance_api_key", "Happenstance API: key"},
+				{"happenstance_api_validity", "Happenstance API: validity"},
+				{"happenstance_api_balance", "Happenstance API: balance"},
 			}
 			for _, ck := range checkKeys {
 				v, ok := report[ck.key]
@@ -164,11 +175,30 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					continue
 				}
 				s := fmt.Sprintf("%v", v)
-				indicator := green("OK")
-				if strings.Contains(s, "error") || strings.Contains(s, "not configured") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") {
-					indicator = red("FAIL")
-				} else if strings.Contains(s, "not ") || strings.Contains(s, "skipped") || strings.Contains(s, "inferred") {
+				// Explicit-prefix path: new-style checks (Happenstance API,
+				// future additions) emit values prefixed with "OK ", "WARN ",
+				// or "FAIL " so the renderer never has to guess from
+				// substrings. Strip the prefix before printing.
+				var indicator string
+				switch {
+				case strings.HasPrefix(s, "OK "):
+					indicator = green("OK")
+					s = strings.TrimPrefix(s, "OK ")
+				case strings.HasPrefix(s, "WARN "):
 					indicator = yellow("WARN")
+					s = strings.TrimPrefix(s, "WARN ")
+				case strings.HasPrefix(s, "FAIL "):
+					indicator = red("FAIL")
+					s = strings.TrimPrefix(s, "FAIL ")
+				default:
+					// Legacy substring detection for older checks that have
+					// not yet migrated to explicit prefixes.
+					indicator = green("OK")
+					if strings.Contains(s, "error") || strings.Contains(s, "not configured") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") {
+						indicator = red("FAIL")
+					} else if strings.Contains(s, "not ") || strings.Contains(s, "skipped") || strings.Contains(s, "inferred") {
+						indicator = yellow("WARN")
+					}
 				}
 				fmt.Fprintf(w, "  %s %s: %s\n", indicator, ck.label, s)
 			}
@@ -337,6 +367,144 @@ func humanAge(d time.Duration) string {
 // consistent with other check* helpers in this file.
 func jsonUnmarshal(data []byte, v any) error {
 	return json.Unmarshal(data, v)
+}
+
+// happenstanceAPIBaseURLOverride is an optional override for the bearer
+// API base URL used by checkHappenstanceAPI. Tests set this to an
+// httptest server URL so doctor never touches api.happenstance.ai.
+// In production it stays empty and the client uses hpapi.DefaultBaseURL.
+var happenstanceAPIBaseURLOverride string
+
+// happenstanceAPIRecognizedPrefixes mirrors the loose prefix check in
+// internal/config/happenstance_api.go. Doctor uses the same list so the
+// "recognized prefix" verdict here matches the warning the config layer
+// would emit if the key has a surprising shape.
+var happenstanceAPIRecognizedPrefixes = []string{
+	"hpn_live_personal_",
+	"hpn_live_",
+}
+
+// checkHappenstanceAPI populates the three doctor rows for the
+// Happenstance public REST API (bearer surface):
+//
+//   - happenstance_api_key       : presence + recognized-prefix check
+//   - happenstance_api_validity  : GET /v1/users/me probe (only if key set)
+//   - happenstance_api_balance   : GET /v1/usage probe (only if validity OK)
+//
+// Values are prefixed with "OK ", "WARN ", or "FAIL " so the display loop
+// classifies them deterministically without substring matching.
+//
+// REDACTION: the full bearer key never reaches the report. The "key" row
+// includes only the recognized prefix plus the last 4 characters of the
+// key (e.g. "hpn_live_personal_...XXXX"). Validity probes go through the
+// hpapi client whose error messages are already redacted.
+//
+// NETWORK: probes use a 5s context deadline so doctor never hangs on a
+// slow upstream. Network errors degrade to WARN, not FAIL — the user may
+// be offline and we should not block doctor on that.
+//
+// TODO: a fourth row, `happenstance_api_rotation`, was scoped in the plan
+// but only if the key carries an embedded creation timestamp the OpenAPI
+// docs describe. They do not, as of 2026-04-19, so the row is omitted.
+// Slot it in here once a real key with a derivable date is in hand.
+func checkHappenstanceAPI(cfg *config.Config, report map[string]any) {
+	key := config.LoadAPIKey(cfg)
+	if key == "" {
+		report["happenstance_api_key"] = "WARN not set (cookie path may suffice; export HAPPENSTANCE_API_KEY=hpn_live_personal_... to enable the bearer surface)"
+		// No key — skip validity and balance probes entirely. The two
+		// rows are not added to the report so the display loop simply
+		// does not render them.
+		return
+	}
+
+	// Identify the prefix so we can render confirmation without leaking
+	// the full literal. Unknown prefix is WARN, not FAIL: the call may
+	// still succeed and future Happenstance surfaces (workspace keys,
+	// etc.) should not break this check.
+	prefix := ""
+	for _, p := range happenstanceAPIRecognizedPrefixes {
+		if strings.HasPrefix(key, p) {
+			prefix = p
+			break
+		}
+	}
+	tail := keyTail(key)
+	if prefix == "" {
+		report["happenstance_api_key"] = fmt.Sprintf(
+			"WARN configured but unknown prefix (...%s); recognized prefixes are %s",
+			tail, strings.Join(happenstanceAPIRecognizedPrefixes, ", "),
+		)
+	} else {
+		report["happenstance_api_key"] = fmt.Sprintf(
+			"OK configured (%s...%s)", prefix, tail,
+		)
+	}
+
+	// Validity probe. Tight 5s deadline so doctor stays snappy; network
+	// errors degrade to WARN so we don't block the user offline.
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	opts := []hpapi.Option{}
+	if happenstanceAPIBaseURLOverride != "" {
+		opts = append(opts, hpapi.WithBaseURL(happenstanceAPIBaseURLOverride))
+	}
+	c := hpapi.NewClient(key, opts...)
+
+	user, err := c.Me(ctx)
+	if err != nil {
+		// Tease apart the failure modes the http layer reports. 401 is the
+		// canonical "rotated/invalid key" path and gets a FAIL with the
+		// rotation URL. Everything else (network, 5xx, malformed JSON)
+		// degrades to WARN so a transient blip does not red-light doctor.
+		emsg := err.Error()
+		if strings.Contains(emsg, "401") {
+			report["happenstance_api_validity"] = fmt.Sprintf(
+				"FAIL 401 — key invalid or rotated. Rotate at %s",
+				hpapi.RotationURL,
+			)
+			return
+		}
+		report["happenstance_api_validity"] = fmt.Sprintf(
+			"WARN unreachable (%s)", trimErr(emsg),
+		)
+		return
+	}
+	if user.Email != "" {
+		report["happenstance_api_validity"] = fmt.Sprintf("OK ok (user: %s)", user.Email)
+	} else {
+		report["happenstance_api_validity"] = "OK ok"
+	}
+
+	// Balance probe — only run when validity is OK. If has_credits is
+	// false OR balance is 0, WARN with a top-up link. Network errors here
+	// are WARN, not FAIL, for the same reason as validity above.
+	usage, err := c.Usage(ctx)
+	if err != nil {
+		report["happenstance_api_balance"] = fmt.Sprintf(
+			"WARN unreachable (%s)", trimErr(err.Error()),
+		)
+		return
+	}
+	if !usage.HasCredits || usage.BalanceCredits == 0 {
+		report["happenstance_api_balance"] = fmt.Sprintf(
+			"WARN %d credits — top up at https://happenstance.ai/settings/billing",
+			usage.BalanceCredits,
+		)
+		return
+	}
+	report["happenstance_api_balance"] = fmt.Sprintf("OK %d credits", usage.BalanceCredits)
+}
+
+// keyTail returns the last 4 characters of a bearer key for confirmation
+// rendering. Short keys (under 4 chars; should never happen in practice
+// but tests sometimes pass odd inputs) are echoed verbatim without
+// pretending to redact what is already short.
+func keyTail(key string) string {
+	if len(key) <= 4 {
+		return key
+	}
+	return key[len(key)-4:]
 }
 
 // checkDeepline populates doctor's Deepline fields. We NEVER echo the API
