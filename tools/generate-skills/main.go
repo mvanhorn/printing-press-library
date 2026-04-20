@@ -105,11 +105,16 @@ func main() {
 		log.Fatalf("Error parsing %s: %v", registryPath, err)
 	}
 
-	// Load template
+	// Load templates
 	templatePath := "tools/generate-skills/skill-template.md"
 	tmpl, err := template.ParseFiles(templatePath)
 	if err != nil {
 		log.Fatalf("Error loading template %s: %v", templatePath, err)
+	}
+	commandTemplatePath := "tools/generate-skills/command-template.md"
+	cmdTmpl, err := template.ParseFiles(commandTemplatePath)
+	if err != nil {
+		log.Fatalf("Error loading template %s: %v", commandTemplatePath, err)
 	}
 
 	// Snapshot existing pp-* skill dirs before generation
@@ -187,6 +192,9 @@ func main() {
 			continue
 		}
 		if copied {
+			if err := writeCommandShim(cmdTmpl, ctx); err != nil {
+				log.Printf("Warning: could not write command shim for %s: %v", entry.Name, err)
+			}
 			totalGenerated++
 			upstreamCount++
 			fmt.Printf("  %s -> %s (upstream)\n", entry.Name, skillFile)
@@ -224,6 +232,10 @@ func main() {
 		}
 		f.Close()
 
+		if err := writeCommandShim(cmdTmpl, ctx); err != nil {
+			log.Printf("Warning: could not write command shim for %s: %v", entry.Name, err)
+		}
+
 		totalGenerated++
 		status := "registry-only"
 		if isEnriched {
@@ -245,6 +257,28 @@ func main() {
 	// Bump plugin.json version if skill set changed
 	afterDirs := existingSkillDirs()
 	maybeUpdatePluginVersion(beforeDirs, afterDirs)
+}
+
+// writeCommandShim writes plugin/commands/<skillName>.md as a thin shim that
+// invokes the corresponding skill. Claude Code discovers slash commands from
+// this directory, so every skill we generate also gets a slash command. The
+// shim reuses the skill's description + argument hint so /<skillName> ? shows
+// the same help text as the skill.
+func writeCommandShim(cmdTmpl *template.Template, ctx SkillContext) error {
+	cmdDir := filepath.Join("plugin", "commands")
+	if err := os.MkdirAll(cmdDir, 0755); err != nil {
+		return fmt.Errorf("mkdir %s: %w", cmdDir, err)
+	}
+	cmdFile := filepath.Join(cmdDir, ctx.SkillName+".md")
+	f, err := os.Create(cmdFile)
+	if err != nil {
+		return fmt.Errorf("create %s: %w", cmdFile, err)
+	}
+	defer f.Close()
+	if err := cmdTmpl.Execute(f, ctx); err != nil {
+		return fmt.Errorf("render template for %s: %w", ctx.SkillName, err)
+	}
+	return nil
 }
 
 // copyUpstreamSkill copies <entryPath>/SKILL.md to skillFile if it exists and

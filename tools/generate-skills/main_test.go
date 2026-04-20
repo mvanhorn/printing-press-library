@@ -235,6 +235,15 @@ func setupFixture(t *testing.T, root string, entries []RegistryEntry) {
 		t.Fatal(err)
 	}
 
+	// Also copy the command-template.md so the command-shim emitter works.
+	cmdTmplSrc, err := os.ReadFile(filepath.Join(srcDir, "command-template.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(tmplDir, "command-template.md"), cmdTmplSrc, 0644); err != nil {
+		t.Fatal(err)
+	}
+
 	// Minimal plugin.json so the version-bump path doesn't warn.
 	pluginDir := filepath.Join(root, "plugin", ".claude-plugin")
 	if err := os.MkdirAll(pluginDir, 0755); err != nil {
@@ -367,5 +376,96 @@ func TestIntegration_UpstreamOverwritesStaleSynthesis(t *testing.T) {
 	}
 	if string(got) != upstreamContent {
 		t.Errorf("upstream should overwrite stale synthesis\nwant: %q\ngot:  %q", upstreamContent, got)
+	}
+}
+
+func TestIntegration_CommandShimsWrittenForEverySkill(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in -short mode")
+	}
+	bin := buildTool(t)
+	root := t.TempDir()
+
+	entries := []RegistryEntry{
+		{Name: "with-upstream-pp-cli", Category: "commerce", API: "With Upstream",
+			Description: "Has upstream skill", Path: "library/commerce/with-upstream"},
+		{Name: "no-upstream-pp-cli", Category: "commerce", API: "No Upstream",
+			Description: "No upstream skill", Path: "library/commerce/no-upstream"},
+	}
+	setupFixture(t, root, entries)
+
+	upstreamDir := filepath.Join(root, "library", "commerce", "with-upstream")
+	if err := os.MkdirAll(upstreamDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(upstreamDir, "SKILL.md"),
+		[]byte("---\nname: pp-with-upstream\ndescription: \"u\"\n---\nbody\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(root, "library", "commerce", "no-upstream"), 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	cmd := exec.Command(bin)
+	cmd.Dir = root
+	if out, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("tool exited with error: %v\n%s", err, out)
+	}
+
+	// Both upstream and registry-only paths should emit a command shim.
+	wantCommands := []string{"pp-with-upstream.md", "pp-no-upstream.md"}
+	for _, name := range wantCommands {
+		cmdFile := filepath.Join(root, "plugin", "commands", name)
+		data, err := os.ReadFile(cmdFile)
+		if err != nil {
+			t.Errorf("command shim missing for %s: %v", name, err)
+			continue
+		}
+		body := string(data)
+		if !strings.Contains(body, "description:") {
+			t.Errorf("command %s missing description frontmatter:\n%s", name, body)
+		}
+		skillName := strings.TrimSuffix(name, ".md")
+		if !strings.Contains(body, "`"+skillName+"`") {
+			t.Errorf("command %s should reference its skill %q in body:\n%s", name, skillName, body)
+		}
+		if !strings.Contains(body, "$ARGUMENTS") {
+			t.Errorf("command %s should forward $ARGUMENTS:\n%s", name, body)
+		}
+	}
+}
+
+func TestIntegration_CommandShimIdempotent(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test in -short mode")
+	}
+	bin := buildTool(t)
+	root := t.TempDir()
+
+	entries := []RegistryEntry{
+		{Name: "foo-pp-cli", Category: "commerce", API: "Foo",
+			Description: "foo", Path: "library/commerce/foo"},
+	}
+	setupFixture(t, root, entries)
+	if err := os.MkdirAll(filepath.Join(root, "library", "commerce", "foo"), 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	run := func() []byte {
+		cmd := exec.Command(bin)
+		cmd.Dir = root
+		if out, err := cmd.CombinedOutput(); err != nil {
+			t.Fatalf("tool exited with error: %v\n%s", err, out)
+		}
+		data, err := os.ReadFile(filepath.Join(root, "plugin", "commands", "pp-foo.md"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		return data
+	}
+	first := run()
+	second := run()
+	if string(first) != string(second) {
+		t.Errorf("command shim should be idempotent across runs\nfirst:\n%s\nsecond:\n%s", first, second)
 	}
 }
