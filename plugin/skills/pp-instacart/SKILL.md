@@ -55,6 +55,8 @@ Instacart does not expose a clean order-history GraphQL op, so the legacy `histo
 
 Resolves a product from free-text via Instacart's own three-call GraphQL chain (ShopCollectionScoped -> Autosuggestions -> Items) and fires `UpdateCartItemsMutation`. No browser automation.
 
+When Instacart rejects a candidate with `notFoundBasketProduct` (autosuggest occasionally surfaces a product that is not addable at your active cart's shop), `add` automatically retries up to 3 ranked candidates before giving up. In `--json` output a successful retry sets `retry_count > 0` and includes an `attempts` array listing the rejected item ids. When history-first resolution hits the same error, `add` falls through to live search and reports `resolved_via: "history->live"`.
+
 ### Multi-retailer `carts`
 
 `carts list` shows every active cart across retailers at once. Useful for agents that need to know where items live before adding to the right one.
@@ -155,6 +157,13 @@ Session lives at `~/.config/instacart/session.json` (0600).
 ## Agent Mode
 
 The CLI is agent-native by default. Pass `--json` on any command for machine-readable output. `--dry-run` previews `add` without firing the mutation and surfaces which resolver (`history`, `live`, or `item-id`) would have fired.
+
+`add` JSON envelope fields worth knowing:
+
+- `resolved_via`: one of `history`, `live`, `history->live` (history pick was rejected, live retry succeeded), or `item-id`.
+- `retry_count`: how many candidates were rejected before the winner. `0` when the first pick landed.
+- `attempts`: present only when `retry_count > 0`, array of `{item_id, name, error_type}` for each rejected candidate.
+- On exhaustion (exit 5): JSON envelope with `error`, `retailer`, `query`, `attempts`, and a `hint` naming the concrete next step (`search` then `add --item-id`, or retry with `--no-history`).
 
 ## Exit Codes
 

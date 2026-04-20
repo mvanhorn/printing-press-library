@@ -1,6 +1,6 @@
 {
   "name": "printing-press-library",
-  "version": "1.1.18",
+  "version": "1.1.19",
   "description": "Discover, install, and use CLI tools and MCP servers for hundreds of APIs",
   "author": {
     "name": "mvanhorn"
