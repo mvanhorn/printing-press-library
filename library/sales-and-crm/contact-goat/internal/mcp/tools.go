@@ -6,6 +6,7 @@ package mcp
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -15,6 +16,7 @@ import (
 
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/config"
+	hpapi "github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/happenstance/api"
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/store"
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
@@ -170,6 +172,44 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDescription("Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first."),
 		),
 		handleContext,
+	)
+
+	// Happenstance public REST API tools (bearer auth via HAPPENSTANCE_API_KEY).
+	// Mirror the `api hpn` CLI command tree so agents can spend credits
+	// without dropping into a shell. Each tool surfaces 401/402/429 errors
+	// verbatim so the calling agent can react to credit exhaustion or auth
+	// failures rather than the server swallowing them.
+	s.AddTool(
+		mcplib.NewTool("api_search",
+			mcplib.WithDescription("api_search: Costs 2 credits per call. Run a Happenstance public-API search (POST /v1/search + poll). Returns the canonical normalized people shape (name, current_title, current_company, score) — same envelope as `api hpn search --json`."),
+			mcplib.WithString("text", mcplib.Required(), mcplib.Description("Natural-language search query, e.g. \"VPs at NBA\".")),
+			mcplib.WithArray("group_ids",
+				mcplib.Description("Optional Happenstance group ids to scope the search to. Discover via api_groups_list."),
+				mcplib.Items(map[string]any{"type": "string"}),
+			),
+			mcplib.WithBoolean("include_friends_connections", mcplib.Description("Widen search to your Happenstance friends' connections (2nd-degree).")),
+			mcplib.WithBoolean("include_my_connections", mcplib.Description("Include your own LinkedIn-synced connections (1st-degree).")),
+		),
+		handleAPISearch,
+	)
+	s.AddTool(
+		mcplib.NewTool("api_research",
+			mcplib.WithDescription("api_research: Costs 1 credit on completion. Run a Happenstance deep-research dossier (POST /v1/research + poll). Returns the raw research profile (employment, education, projects, writings, hobbies, summary)."),
+			mcplib.WithString("description", mcplib.Required(), mcplib.Description("Natural-language prose describing the research subject, e.g. \"Brian Chesky, CEO at Airbnb\".")),
+		),
+		handleAPIResearch,
+	)
+	s.AddTool(
+		mcplib.NewTool("api_groups_list",
+			mcplib.WithDescription("api_groups_list: Free probe. List all Happenstance groups the caller can access (GET /v1/groups). Returns {count, groups[{id, name, member_count}]}."),
+		),
+		handleAPIGroupsList,
+	)
+	s.AddTool(
+		mcplib.NewTool("api_usage",
+			mcplib.WithDescription("api_usage: Free probe — returns credit balance and usage history. Calls GET /v1/usage. Returns {balance_credits, has_credits, purchases, usage, auto_reload}."),
+		),
+		handleAPIUsage,
 	)
 }
 
@@ -373,7 +413,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"api":         "contact-goat",
 		"description": "Sniffed endpoints from happenstance.ai web app (signed-in browser session). Uses Clerk session cookies for auth....",
 		"archetype":   "content",
-		"tool_count":  12,
+		"tool_count":  16,
 		"auth": map[string]any{
 			"type":     "api_key",
 			"env_vars": []string{"HAPPENSTANCE_WEB_APP_COOKIE_AUTH"},
@@ -461,5 +501,226 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		},
 	}
 	data, _ := json.MarshalIndent(ctx, "", "  ")
+	return mcplib.NewToolResultText(string(data)), nil
+}
+
+// newHappenstanceAPIClient constructs a bearer-auth client for the
+// Happenstance public REST API. Uses config.LoadAPIKey (env wins over
+// config TOML), so the same provisioning UX from `api hpn` CLI commands
+// applies to the MCP surface. Returns a structured "not configured"
+// error when the key is empty so the calling agent can surface the
+// actionable hint directly to its user.
+func newHappenstanceAPIClient() (*hpapi.Client, error) {
+	home, _ := os.UserHomeDir()
+	cfgPath := filepath.Join(home, ".config", "contact-goat-pp-cli", "config.toml")
+	cfg, err := config.Load(cfgPath)
+	if err != nil {
+		return nil, fmt.Errorf("loading config: %w", err)
+	}
+	key := config.LoadAPIKey(cfg)
+	if key == "" {
+		return nil, fmt.Errorf(
+			"%s not configured. Set it in your env or in ~/.config/contact-goat-pp-cli/config.toml as happenstance_api_key. Provision a key at %s.",
+			hpapi.KeyEnvVar, hpapi.RotationURL,
+		)
+	}
+	return hpapi.NewClient(key), nil
+}
+
+// hpnError surfaces a Happenstance public-API error to the MCP caller as
+// a structured tool error. 401 / 402 / 429 are surfaced verbatim (with a
+// stable prefix the caller can grep on) so the calling agent can react
+// to credit exhaustion, auth failures, or rate-limit conditions instead
+// of having the server swallow them.
+func hpnError(err error) *mcplib.CallToolResult {
+	if err == nil {
+		return nil
+	}
+	var rl *hpapi.RateLimitError
+	if errors.As(err, &rl) {
+		return mcplib.NewToolResultError("rate_limited: " + err.Error())
+	}
+	msg := err.Error()
+	switch {
+	case strings.Contains(msg, "401 unauthorized"):
+		return mcplib.NewToolResultError("unauthorized: " + msg)
+	case strings.Contains(msg, "402 payment required"):
+		return mcplib.NewToolResultError("payment_required: " + msg)
+	default:
+		return mcplib.NewToolResultError(msg)
+	}
+}
+
+// handleAPISearch wraps POST /v1/search + poll. Returns the canonical
+// normalized people shape (api.ToClientPerson) so the JSON envelope is
+// identical to `api hpn search --json`.
+func handleAPISearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	text, _ := req.Params.Arguments["text"].(string)
+	text = strings.TrimSpace(text)
+	if text == "" {
+		return mcplib.NewToolResultError("text is required (non-empty natural-language query)"), nil
+	}
+
+	c, err := newHappenstanceAPIClient()
+	if err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
+
+	opts := &hpapi.SearchOptions{}
+	if raw, ok := req.Params.Arguments["group_ids"]; ok && raw != nil {
+		if arr, ok := raw.([]any); ok {
+			for _, v := range arr {
+				if s, ok := v.(string); ok && s != "" {
+					opts.GroupIDs = append(opts.GroupIDs, s)
+				}
+			}
+		}
+	}
+	if v, ok := req.Params.Arguments["include_friends_connections"].(bool); ok {
+		opts.IncludeFriendsConnections = v
+	}
+	if v, ok := req.Params.Arguments["include_my_connections"].(bool); ok {
+		opts.IncludeMyConnections = v
+	}
+
+	created, err := c.Search(ctx, text, opts)
+	if err != nil {
+		return hpnError(err), nil
+	}
+	final := created
+	if created.Id != "" {
+		polled, perr := c.PollSearch(ctx, created.Id, nil)
+		if perr != nil {
+			return hpnError(perr), nil
+		}
+		if polled.URL == "" {
+			polled.URL = created.URL
+		}
+		if polled.Id == "" {
+			polled.Id = created.Id
+		}
+		final = polled
+	}
+
+	type resultRow struct {
+		Name           string  `json:"name"`
+		CurrentTitle   string  `json:"current_title,omitempty"`
+		CurrentCompany string  `json:"current_company,omitempty"`
+		Score          float64 `json:"score,omitempty"`
+	}
+	results := make([]resultRow, 0, len(final.Results))
+	for _, r := range final.Results {
+		p := hpapi.ToClientPerson(r)
+		results = append(results, resultRow{
+			Name:           p.Name,
+			CurrentTitle:   p.CurrentTitle,
+			CurrentCompany: p.CurrentCompany,
+			Score:          p.Score,
+		})
+	}
+	envelope := map[string]any{
+		"search_id": final.Id,
+		"url":       final.URL,
+		"query":     text,
+		"status":    final.Status,
+		"source":    "api",
+		"completed": final.Status == hpapi.StatusCompleted,
+		"count":     len(results),
+		"results":   results,
+		"has_more":  final.HasMore,
+		"next_page": final.NextPage,
+	}
+	data, _ := json.Marshal(envelope)
+	return mcplib.NewToolResultText(string(data)), nil
+}
+
+// handleAPIResearch wraps POST /v1/research + poll. Returns the raw
+// research profile so jq pipelines can introspect employment / education /
+// projects arrays.
+func handleAPIResearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	description, _ := req.Params.Arguments["description"].(string)
+	description = strings.TrimSpace(description)
+	if description == "" {
+		return mcplib.NewToolResultError("description is required (natural-language prose subject)"), nil
+	}
+
+	c, err := newHappenstanceAPIClient()
+	if err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
+
+	created, err := c.Research(ctx, description)
+	if err != nil {
+		return hpnError(err), nil
+	}
+	final := created
+	if created.Id != "" {
+		polled, perr := c.PollResearch(ctx, created.Id, nil)
+		if perr != nil {
+			return hpnError(perr), nil
+		}
+		if polled.URL == "" {
+			polled.URL = created.URL
+		}
+		if polled.Id == "" {
+			polled.Id = created.Id
+		}
+		final = polled
+	}
+
+	envelope := map[string]any{
+		"research_id": final.Id,
+		"url":         final.URL,
+		"subject":     description,
+		"status":      final.Status,
+		"source":      "api",
+		"completed":   final.Status == hpapi.StatusCompleted,
+		"profile":     final.Profile,
+	}
+	data, _ := json.Marshal(envelope)
+	return mcplib.NewToolResultText(string(data)), nil
+}
+
+// handleAPIGroupsList wraps GET /v1/groups. Returns the raw group list
+// (id, name, member_count) so callers can pick group_ids to scope a
+// follow-up api_search call.
+func handleAPIGroupsList(ctx context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	c, err := newHappenstanceAPIClient()
+	if err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
+	groups, err := c.Groups(ctx)
+	if err != nil {
+		return hpnError(err), nil
+	}
+	envelope := map[string]any{
+		"source": "api",
+		"count":  len(groups),
+		"groups": groups,
+	}
+	data, _ := json.Marshal(envelope)
+	return mcplib.NewToolResultText(string(data)), nil
+}
+
+// handleAPIUsage wraps GET /v1/usage. Returns the live credit balance
+// plus purchase / usage history. Free probe.
+func handleAPIUsage(ctx context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	c, err := newHappenstanceAPIClient()
+	if err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
+	u, err := c.Usage(ctx)
+	if err != nil {
+		return hpnError(err), nil
+	}
+	envelope := map[string]any{
+		"source":          "api",
+		"balance_credits": u.BalanceCredits,
+		"has_credits":     u.HasCredits,
+		"purchases":       u.Purchases,
+		"usage":           u.Usage,
+		"auto_reload":     u.AutoReload,
+	}
+	data, _ := json.Marshal(envelope)
 	return mcplib.NewToolResultText(string(data)), nil
 }

@@ -7,7 +7,7 @@
   "category": "sales-and-crm",
   "description": "Super LinkedIn for the terminal - search, enrich, and map warm-intro paths across LinkedIn (stickerdaniel/linkedin-mcp-server subprocess), Happenstance (Chrome cookie auth with Clerk JWT refresh), and Deepline (paid enrichment, hybrid subprocess+HTTP). Unified SQLite store powers warm-intro, coverage, and cross-source prospect commands no single tool has.",
   "mcp_binary": "contact-goat-pp-mcp",
-  "mcp_tool_count": 12,
+  "mcp_tool_count": 16,
   "mcp_public_tool_count": 0,
   "mcp_ready": "full",
   "auth_type": "composed",
