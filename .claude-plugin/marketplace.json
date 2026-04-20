@@ -24,7 +24,8 @@
       "source": {
         "source": "git-subdir",
         "url": "https://github.com/mvanhorn/printing-press-library.git",
-        "path": "plugin"
+        "path": "plugin",
+        "ref": "main"
       }
     }
   ]

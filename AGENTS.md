@@ -93,6 +93,12 @@ When adding a new CLI, ship a library SKILL.md alongside the generated code. Reg
 
 **Why the manual step exists:** `.github/workflows/generate-skills.yml` only triggers on changes to `registry.json`, `library/**/.printing-press.json`, or `tools/generate-skills/**`. It does not fire on SKILL.md or `internal/cli/**` changes. Expanding those triggers, plus teaching `maybeUpdatePluginVersion` to bump on content changes, is worth a follow-up; until then, the manual run is the workaround.
 
+## Marketplace manifest
+
+`.claude-plugin/marketplace.json` declares the plugin as a `git-subdir` source with `path: plugin`. The `source` object MUST include `"ref": "main"` (or another valid branch/tag). On 2026-04-20, an upgrade session left the Claude Code plugin cache empty after a rapid series of `/plugin` updates; the cache path recorded in `installed_plugins.json` pointed at a directory that was never populated, and `/pp` slash autocomplete returned nothing because the plugin files weren't where Claude Code looked. Surveying the official marketplace, 20 of 22 `git-subdir` plugins include `"ref"`. Keeping `ref` in our manifest aligns us with the majority pattern and avoids a class of install-flow failures.
+
+Do not drop `ref` in future marketplace edits. Adding a `sha` pin is optional; plugins that ship frequent releases typically skip it to avoid per-release bumps.
+
 ## Commit style
 
 Follow conventional commits. Observed scopes in this repo: `feat(cli)`, `fix(cli)`, `docs(cli)`, `chore(plugin)`, `chore(skills)`, `fix(skills)`, `fix(verify-skill)`. Match existing patterns rather than inventing new ones.
