@@ -155,7 +155,7 @@ func Execute() error {
 	rootCmd.AddCommand(newProjectStatusesPromotedCmd(&flags))
 	rootCmd.AddCommand(newReleasePipelinesPromotedCmd(&flags))
 	rootCmd.AddCommand(newAuthResolverResponsesPromotedCmd(&flags))
-	rootCmd.AddCommand(newIssuesPromotedCmd(&flags))
+	rootCmd.AddCommand(newIssuesCmd(&flags))
 	rootCmd.AddCommand(newIssueToReleasesPromotedCmd(&flags))
 	rootCmd.AddCommand(newTemplatesPromotedCmd(&flags))
 	rootCmd.AddCommand(newWorkflowStatesPromotedCmd(&flags))

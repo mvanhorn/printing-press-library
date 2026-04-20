@@ -540,6 +540,7 @@ func (s *Store) ListIssues(filter map[string]string, limit int) ([]json.RawMessa
 	where, args := buildFilters(filter, map[string]string{
 		"state_name": "state_name", "assignee_id": "assignee_id", "team_id": "team_id",
 		"project_id": "project_id", "cycle_id": "cycle_id", "priority": "priority",
+		"identifier": "identifier",
 	})
 	query := `SELECT data FROM issues`
 	if where != "" {
