@@ -17,6 +17,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/happenstance/api"
 )
 
 func newHPCmd(flags *rootFlags) *cobra.Command {
@@ -40,6 +42,7 @@ func newHPPeopleCmd(flags *rootFlags) *cobra.Command {
 		timeoutSec      int
 		intervalSec     int
 		limit           int
+		sourceFlag      string
 	)
 
 	cmd := &cobra.Command{
@@ -69,24 +72,59 @@ connected. The RELATIONSHIP column shows 1st_degree / 2nd_degree /
 		Args: cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			query := strings.Join(args, " ")
-			c, err := flags.newClientRequireCookies("happenstance")
+
+			cfg, cfgErr := config.Load(flags.configPath)
+			if cfgErr != nil {
+				return configErr(cfgErr)
+			}
+
+			// Probe cookie quota cache (no-op when not authenticated).
+			cookieClient, _ := flags.newClient()
+			cookieAvailable := cookieClient != nil && cookieClient.HasCookieAuth()
+			remaining := UnknownSearchesRemaining
+			if cookieAvailable {
+				remaining = FetchSearchesRemaining(cookieClient, cfg, flags.noCache)
+			}
+
+			chosen, deferredErr, hardErr := SelectSource(cmd.Context(), sourceFlag, cfg, cookieAvailable, remaining)
+			if hardErr != nil {
+				return hardErr
+			}
+			LogDeferredHint(cmd.ErrOrStderr(), deferredErr)
+
+			cookieRun := CookieRunner(nil)
+			if cookieAvailable {
+				opts := &client.SearchPeopleOptions{
+					IncludeMyConnections: tierConnections,
+					IncludeMyFriends:     tierFriends,
+					SearchEveryone:       tierEveryone,
+					PollTimeout:          time.Duration(timeoutSec) * time.Second,
+					PollInterval:         time.Duration(intervalSec) * time.Second,
+				}
+				cookieRun = func() (*client.PeopleSearchResult, error) {
+					return cookieClient.SearchPeopleByQuery(query, opts)
+				}
+			}
+			var bearerRun BearerRunner
+			if bc, berr := flags.newHappenstanceAPIClient(); berr == nil {
+				bearerRun = func() (*client.PeopleSearchResult, error) {
+					return BearerSearchAdapter(cmd.Context(), bc, query, &api.SearchOptions{
+						IncludeMyConnections:      tierConnections,
+						IncludeFriendsConnections: tierFriends,
+					})
+				}
+			}
+
+			out, err := ExecuteWithSourceFallback(cmd.Context(), chosen, cookieRun, bearerRun, cmd.ErrOrStderr())
 			if err != nil {
 				return err
 			}
+			res := out.Result
 
-			opts := &client.SearchPeopleOptions{
-				IncludeMyConnections: tierConnections,
-				IncludeMyFriends:     tierFriends,
-				SearchEveryone:       tierEveryone,
-				PollTimeout:          time.Duration(timeoutSec) * time.Second,
-				PollInterval:         time.Duration(intervalSec) * time.Second,
+			currentUserUUID := ""
+			if cookieAvailable {
+				currentUserUUID, _ = fetchCurrentUserUUID(cookieClient)
 			}
-			res, err := c.SearchPeopleByQuery(query, opts)
-			if err != nil {
-				return err
-			}
-
-			currentUserUUID, _ := fetchCurrentUserUUID(c)
 
 			if limit > 0 && len(res.People) > limit {
 				res.People = res.People[:limit]
@@ -108,6 +146,7 @@ connected. The RELATIONSHIP column shows 1st_degree / 2nd_degree /
 	cmd.Flags().IntVar(&timeoutSec, "timeout", int(client.DefaultPollTimeout.Seconds()), "Max seconds to wait for results")
 	cmd.Flags().IntVar(&intervalSec, "interval", 1, "Seconds between poll attempts")
 	cmd.Flags().IntVar(&limit, "limit", 0, "Client-side cap on results (0 = no cap)")
+	cmd.Flags().StringVar(&sourceFlag, "source", SourceFlagAuto, "Auth surface: auto | hp | api. auto routes cookie-first then bearer-fallback")
 
 	// Ergonomic negations: --no-connections / --no-friends land via
 	// cobra's `--<name>=false` for bool flags, but also surface a

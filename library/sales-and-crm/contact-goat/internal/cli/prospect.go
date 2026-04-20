@@ -12,6 +12,9 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/happenstance/api"
 )
 
 func newProspectCmd(flags *rootFlags) *cobra.Command {
@@ -21,6 +24,7 @@ func newProspectCmd(flags *rootFlags) *cobra.Command {
 		limit       int
 		sortMode    string
 		deeplineKey string
+		sourceFlag  string
 	)
 
 	cmd := &cobra.Command{
@@ -84,21 +88,62 @@ Results are deduped across sources and ranked by one of:
 				}
 			}
 
-			// Step B: Happenstance friends (free — reuse the friends list locally).
-			c, herr := flags.newClientRequireCookies("happenstance")
-			if herr != nil {
-				fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance unavailable: %v\n", herr)
+			// Step B: Happenstance. Routed via SelectSource:
+			//   - SourceCookie (explicit --source hp, or auto with quota): walk
+			//     the cached friends list (free, local).
+			//   - SourceAPI (explicit --source api, or auto when cookie is
+			//     unavailable / quota exhausted): run a bearer people-search
+			//     against the parsed keywords (paid: 2 credits per search).
+			cfg, cfgErr := config.Load(flags.configPath)
+			if cfgErr != nil {
+				return configErr(cfgErr)
+			}
+			cookieClient, _ := flags.newClient()
+			cookieAvailable := cookieClient != nil && cookieClient.HasCookieAuth()
+			remaining := UnknownSearchesRemaining
+			if cookieAvailable {
+				remaining = FetchSearchesRemaining(cookieClient, cfg, flags.noCache)
+			}
+			chosen, deferredErr, hardErr := SelectSource(cmd.Context(), sourceFlag, cfg, cookieAvailable, remaining)
+			if hardErr != nil {
+				// Non-fatal here: prospect still has LinkedIn results to show.
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance unavailable: %v\n", hardErr)
 			} else {
-				friends, err = fetchHappenstanceFriends(c)
-				if err != nil {
-					fmt.Fprintf(cmd.ErrOrStderr(), "warning: fetch friends: %v\n", err)
-				} else {
-					for _, f := range friends {
-						if prospectMatches(f, parsed) {
-							f.Sources = []string{"hp_friend"}
-							f.Rationale = fmt.Sprintf("Happenstance friend match (%d connections)", f.ConnectionCount)
-							results = append(results, f)
+				LogDeferredHint(cmd.ErrOrStderr(), deferredErr)
+				if chosen == SourceCookie {
+					if cookieAvailable {
+						friends, err = fetchHappenstanceFriends(cookieClient)
+						if err != nil {
+							fmt.Fprintf(cmd.ErrOrStderr(), "warning: fetch friends: %v\n", err)
+						} else {
+							for _, f := range friends {
+								if prospectMatches(f, parsed) {
+									f.Sources = []string{"hp_friend"}
+									f.Rationale = fmt.Sprintf("Happenstance friend match (%d connections)", f.ConnectionCount)
+									results = append(results, f)
+								}
+							}
 						}
+					}
+				} else if chosen == SourceAPI {
+					if bc, berr := flags.newHappenstanceAPIClient(); berr == nil {
+						bres, brerr := BearerSearchAdapter(cmd.Context(), bc, keywords, &api.SearchOptions{IncludeMyConnections: true, IncludeFriendsConnections: true})
+						if brerr != nil {
+							fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance bearer search: %v\n", brerr)
+						} else if bres != nil {
+							for _, p := range bres.People {
+								row := flagshipPerson{
+									Name:    p.Name,
+									Title:   p.CurrentTitle,
+									Company: p.CurrentCompany,
+									Sources: []string{"hp_api"},
+									Rationale: "Happenstance bearer surface match",
+								}
+								results = append(results, row)
+							}
+						}
+					} else {
+						fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance bearer client: %v\n", berr)
 					}
 				}
 			}
@@ -205,6 +250,7 @@ Results are deduped across sources and ranked by one of:
 	cmd.Flags().IntVar(&limit, "limit", 25, "Max results to return")
 	cmd.Flags().StringVar(&sortMode, "sort", "relevance", "Sort mode: relevance | network")
 	cmd.Flags().StringVar(&deeplineKey, "deepline-key", "", "Deepline API key (default from $DEEPLINE_API_KEY)")
+	cmd.Flags().StringVar(&sourceFlag, "source", SourceFlagAuto, "Happenstance auth surface: auto | hp | api. auto = cookie/free quota first, bearer fallback")
 	return cmd
 }
 

@@ -28,6 +28,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/config"
 )
 
 func newWarmIntroCmd(flags *rootFlags) *cobra.Command {
@@ -90,24 +91,87 @@ connection_count + presence in multiple sources).`,
 			// We fall through to the old friends-list dump ONLY when the
 			// target's company is unknown, so the command degrades
 			// gracefully when profile enrichment failed.
-			if sources["hp"] {
-				c, ferr := flags.newClientRequireCookies("happenstance")
-				if ferr != nil {
-					sourceErrors["hp"] = ferr.Error()
-					fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance unavailable (%v). Skipping hp source.\n", ferr)
-				} else {
-					if all, fErr := fetchHappenstanceFriends(c); fErr == nil {
-						friends = all
+			//
+			// Routed via SelectSource: cookie-first (free quota), bearer
+			// fallback when cookie is unavailable, exhausted, or 429s
+			// mid-flight. --source api forces bearer; --source hp forces
+			// cookie. The bearer surface has no friends/list and no
+			// referrer chain, so the warm-intro 2nd-degree synthesis is
+			// degraded when bearer is selected (we tag rows as hp_api and
+			// fall back to "Happenstance bearer match" rationale).
+			if sources["hp"] || sources[SourceFlagAPI] {
+				cfg, cfgErr := config.Load(flags.configPath)
+				if cfgErr != nil {
+					return configErr(cfgErr)
+				}
+
+				explicit := ""
+				if sources[SourceFlagAPI] && !sources["hp"] {
+					explicit = SourceFlagAPI
+				} else if sources["hp"] && !sources[SourceFlagAPI] {
+					// Use auto routing when "hp" is just one of several CSV
+					// tokens (the default `li,hp`); reserve explicit-cookie
+					// for users who passed `--sources hp` alone.
+					if len(sources) == 1 {
+						explicit = SourceFlagCookie
 					}
-					currentUUID, _ := fetchCurrentUserUUID(c)
+				}
+
+				cookieClient, _ := flags.newClient()
+				cookieAvailable := cookieClient != nil && cookieClient.HasCookieAuth()
+				remaining := UnknownSearchesRemaining
+				if cookieAvailable {
+					remaining = FetchSearchesRemaining(cookieClient, cfg, flags.noCache)
+				}
+				chosen, deferredErr, hardErr := SelectSource(cmd.Context(), explicit, cfg, cookieAvailable, remaining)
+				if hardErr != nil {
+					sourceErrors["hp"] = hardErr.Error()
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance unavailable (%v). Skipping hp source.\n", hardErr)
+				} else {
+					LogDeferredHint(cmd.ErrOrStderr(), deferredErr)
+					currentUUID := ""
+					if cookieAvailable {
+						if all, fErr := fetchHappenstanceFriends(cookieClient); fErr == nil {
+							friends = all
+						}
+						currentUUID, _ = fetchCurrentUserUUID(cookieClient)
+					}
 
 					if resolved.Company != "" {
-						graphRes, gerr := c.SearchPeopleByCompany(resolved.Company)
-						if gerr != nil {
-							sourceErrors["hp_graph"] = gerr.Error()
-							fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance graph-search for %q: %v\n", resolved.Company, gerr)
-						} else {
-							candidates = append(candidates, warmIntroCandidatesFromGraph(graphRes.People, currentUUID, resolved)...)
+						cookieRun := CookieRunner(nil)
+						if cookieAvailable {
+							cookieRun = func() (*client.PeopleSearchResult, error) {
+								return cookieClient.SearchPeopleByCompany(resolved.Company)
+							}
+						}
+						var bearerRun BearerRunner
+						if bc, berr := flags.newHappenstanceAPIClient(); berr == nil {
+							bearerRun = func() (*client.PeopleSearchResult, error) {
+								return BearerSearchAdapter(cmd.Context(), bc, "people at "+resolved.Company, nil)
+							}
+						}
+						out, runErr := ExecuteWithSourceFallback(cmd.Context(), chosen, cookieRun, bearerRun, cmd.ErrOrStderr())
+						if runErr != nil {
+							sourceErrors["hp_graph"] = runErr.Error()
+							fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance graph-search for %q: %v\n", resolved.Company, runErr)
+						} else if out.Result != nil {
+							if out.UsedSource == SourceCookie {
+								candidates = append(candidates, warmIntroCandidatesFromGraph(out.Result.People, currentUUID, resolved)...)
+							} else {
+								// Bearer surface: thin schema, no referrer
+								// chain. Project each row as a candidate with
+								// the bearer source tag so renderers show it
+								// as a paid-surface match.
+								for _, p := range out.Result.People {
+									candidates = append(candidates, flagshipPerson{
+										Name:    p.Name,
+										Title:   p.CurrentTitle,
+										Company: p.CurrentCompany,
+										Sources: []string{"hp_api"},
+										Rationale: fmt.Sprintf("Happenstance bearer match at %s", p.CurrentCompany),
+									})
+								}
+							}
 						}
 					} else {
 						// Fallback: no company data means we can't run a
@@ -215,7 +279,7 @@ connection_count + presence in multiple sources).`,
 	cmd.Flags().StringVar(&targetType, "target-type", "auto", "Target parse mode: auto | url | name")
 	cmd.Flags().IntVar(&limit, "limit", 10, "Max candidates to return")
 	cmd.Flags().BoolVar(&useCached, "use-cached", true, "Persist resolved people into the local store for re-use")
-	cmd.Flags().StringVar(&sourcesFlag, "sources", "li,hp", "Comma-separated sources to query: li,hp")
+	cmd.Flags().StringVar(&sourcesFlag, "sources", "li,hp", "Comma-separated sources to query: li,hp,api. Use 'api' to opt into the paid Happenstance bearer surface.")
 	return cmd
 }
 
@@ -357,11 +421,21 @@ func filterOutTarget(list []flagshipPerson, target flagshipPerson) []flagshipPer
 }
 
 // parseSourceFlag takes a CSV like "li,hp" and returns a lookup map.
+// The token "both" is expanded to {li:true, hp:true} so coverage's
+// default --source=both keeps cross-source semantics. The new "api"
+// token (Happenstance bearer surface, Unit 5 / 2026-04-19) is accepted
+// verbatim; SelectSource (in source_selection.go) handles the cookie-
+// vs-bearer routing inside the hp/api branch of each call site.
 func parseSourceFlag(csv string) map[string]bool {
 	out := map[string]bool{}
 	for _, tok := range strings.Split(csv, ",") {
 		tok = strings.ToLower(strings.TrimSpace(tok))
 		if tok == "" {
+			continue
+		}
+		if tok == "both" {
+			out["li"] = true
+			out["hp"] = true
 			continue
 		}
 		out[tok] = true

@@ -15,6 +15,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/internal/happenstance/api"
 )
 
 func newCoverageCmd(flags *rootFlags) *cobra.Command {
@@ -58,64 +60,41 @@ failed".`,
 			var friends []flagshipPerson
 			sourceErrors := map[string]string{}
 
-			// Source 1: Happenstance graph-search (the real endpoint that
-			// sees your synced LinkedIn connections, not the top-connectors
-			// widget). Falls back to the friends/list match so top
-			// connectors keep their dedicated label even when they also
-			// show up in the graph result.
-			if sources["hp"] {
-				c, err := flags.newClientRequireCookies("happenstance")
-				if err != nil {
-					sourceErrors["hp"] = err.Error()
-					fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance unavailable: %v\n", err)
-				} else {
-					// Fetch the friends/list in parallel for the top-connector
-					// tag. Best-effort: errors here are logged but don't
-					// block the graph-search result set.
-					if all, ferr := fetchHappenstanceFriends(c); ferr == nil {
-						friends = all
-					} else {
-						sourceErrors["hp_friends"] = ferr.Error()
-						fmt.Fprintf(cmd.ErrOrStderr(), "warning: fetch friends (non-fatal): %v\n", ferr)
-					}
-
-					// Resolve the current user uuid so graph results can be
-					// correctly labeled 1st vs 2nd degree.
-					currentUUID, _ := fetchCurrentUserUUID(c)
-
-					// Build per-call options only when the user bumped the
-					// timeout. Zero (the default) leaves SearchPeopleOptions
-					// alone and the client uses DefaultPollTimeout.
-					var hpOpts *client.SearchPeopleOptions
-					if pollTimeoutSec > 0 {
-						hpOpts = &client.SearchPeopleOptions{
-							IncludeMyConnections: true,
-							IncludeMyFriends:     true,
-							PollTimeout:          time.Duration(pollTimeoutSec) * time.Second,
+			// Source 1: Happenstance graph-search. Routed through SelectSource
+			// (auto-prefers cookie / free quota; falls back to bearer / paid
+			// credits when cookie is unavailable, exhausted, or 429s
+			// mid-flight). Explicit --source hp / --source api force the
+			// respective surface; --source both fans out cookie+LinkedIn
+			// with bearer used only on cookie 429.
+			if sources[SourceFlagCookie] || sources[SourceFlagAPI] {
+				graphPeople, hpErrs := runCoverageHappenstance(cmd, flags, company, pollTimeoutSec, sources)
+				for k, v := range hpErrs {
+					sourceErrors[k] = v
+				}
+				if graphPeople != nil {
+					// Fetch friends/list for the top-connector tag — only
+					// when the cookie surface is actually live, since the
+					// bearer surface has no equivalent endpoint.
+					if cookieClient, ferr := flags.newClient(); ferr == nil && cookieClient.HasCookieAuth() {
+						if all, fErr := fetchHappenstanceFriends(cookieClient); fErr == nil {
+							friends = all
+						} else {
+							sourceErrors["hp_friends"] = fErr.Error()
+							fmt.Fprintf(cmd.ErrOrStderr(), "warning: fetch friends (non-fatal): %v\n", fErr)
 						}
 					}
-					graphRes, gerr := c.SearchPeopleByCompanyWithOptions(company, hpOpts)
-					if gerr != nil {
-						sourceErrors["hp_graph"] = gerr.Error()
-						fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance graph-search: %v\n", gerr)
-					} else {
-						friendsByUUID := map[string]flagshipPerson{}
-						for _, f := range friends {
-							if f.HappenstanceUUID != "" {
-								friendsByUUID[f.HappenstanceUUID] = f
-							}
+					friendsByUUID := map[string]flagshipPerson{}
+					for _, f := range friends {
+						if f.HappenstanceUUID != "" {
+							friendsByUUID[f.HappenstanceUUID] = f
 						}
-						for _, p := range graphRes.People {
-							row := graphPersonToFlagship(p, currentUUID)
-							// Upgrade the row if this person is also in the
-							// narrow friends/list: they are a direct
-							// connector AND a graph hit.
-							if _, ok := friendsByUUID[row.HappenstanceUUID]; ok {
-								row.Sources = append(row.Sources, "hp_friend")
-								row.Relationship = "happenstance_friend"
-							}
-							results = append(results, row)
+					}
+					for _, row := range graphPeople {
+						if _, ok := friendsByUUID[row.HappenstanceUUID]; ok {
+							row.Sources = append(row.Sources, "hp_friend")
+							row.Relationship = "happenstance_friend"
 						}
+						results = append(results, row)
 					}
 				}
 			}
@@ -185,11 +164,131 @@ failed".`,
 		},
 	}
 	cmd.Flags().IntVar(&limit, "limit", 25, "Max people to return")
-	cmd.Flags().StringVar(&sourceFlag, "source", "both", "Sources: li | hp | both")
+	cmd.Flags().StringVar(&sourceFlag, "source", "both", "Sources: li | hp | api | both. hp = cookie/free quota; api = bearer/paid credits; both = LinkedIn + auto-routed Happenstance")
 	cmd.Flags().IntVar(&pollTimeoutSec, "poll-timeout", 0,
 		fmt.Sprintf("Seconds to wait for Happenstance graph-search (0 = use default %ds)",
 			int(client.DefaultPollTimeout.Seconds())))
 	return cmd
+}
+
+// runCoverageHappenstance is the source-aware Happenstance graph-search
+// branch of `coverage`. It selects between the cookie surface (free
+// quota) and the bearer surface (paid credits) per the SelectSource
+// decision tree, runs the chosen surface, and on cookie 429 falls back
+// to bearer transparently. Returns:
+//
+//   - graphPeople: normalized flagshipPerson rows from the chosen surface.
+//     Nil when no surface succeeded; the caller treats nil as "skip the
+//     friend-overlay step entirely" rather than as an empty result.
+//   - errs: per-source error map merged into coverage's source_errors block.
+//
+// The function takes a *cobra.Command for stderr-routed warnings (so
+// output stays consistent with the rest of coverage) and the parsed
+// sources map to honor the explicit --source api / --source hp overrides.
+func runCoverageHappenstance(cmd *cobra.Command, flags *rootFlags, company string, pollTimeoutSec int, sources map[string]bool) ([]flagshipPerson, map[string]string) {
+	errs := map[string]string{}
+
+	// Translate the parsed source flag into the explicit-source string
+	// SelectSource expects. Precedence: explicit api > explicit hp >
+	// auto-route (when both is set, or only neither is set).
+	explicit := ""
+	switch {
+	case sources[SourceFlagAPI] && !sources[SourceFlagCookie]:
+		explicit = SourceFlagAPI
+	case sources[SourceFlagCookie] && !sources[SourceFlagAPI]:
+		explicit = SourceFlagCookie
+	}
+
+	cfg, cfgErr := config.Load(flags.configPath)
+	if cfgErr != nil {
+		errs["hp"] = cfgErr.Error()
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: load config: %v\n", cfgErr)
+		return nil, errs
+	}
+
+	// Probe the cookie quota cache best-effort; SelectSource handles
+	// UnknownSearchesRemaining gracefully (proceeds cookie-first; the
+	// retry wrapper handles 429 fallback).
+	cookieClient, _ := flags.newClient()
+	cookieAvailable := cookieClient != nil && cookieClient.HasCookieAuth()
+	remaining := UnknownSearchesRemaining
+	if cookieAvailable {
+		remaining = FetchSearchesRemaining(cookieClient, cfg, flags.noCache)
+	}
+
+	chosen, deferredErr, hardErr := SelectSource(cmd.Context(), explicit, cfg, cookieAvailable, remaining)
+	if hardErr != nil {
+		errs["hp"] = hardErr.Error()
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance unavailable: %v\n", hardErr)
+		return nil, errs
+	}
+	LogDeferredHint(cmd.ErrOrStderr(), deferredErr)
+
+	// Cookie runner reuses the existing SearchPeopleByCompanyWithOptions
+	// path so the rich /api/dynamo schema (referrers, current user uuid)
+	// keeps flowing through downstream renderers unchanged.
+	currentUUID := ""
+	cookieRun := CookieRunner(nil)
+	if cookieAvailable {
+		currentUUID, _ = fetchCurrentUserUUID(cookieClient)
+		var hpOpts *client.SearchPeopleOptions
+		if pollTimeoutSec > 0 {
+			hpOpts = &client.SearchPeopleOptions{
+				IncludeMyConnections: true,
+				IncludeMyFriends:     true,
+				PollTimeout:          time.Duration(pollTimeoutSec) * time.Second,
+			}
+		}
+		cookieRun = func() (*client.PeopleSearchResult, error) {
+			return cookieClient.SearchPeopleByCompanyWithOptions(company, hpOpts)
+		}
+	}
+
+	// Bearer runner is constructed only when a key is configured.
+	// SelectSource may have already chosen SourceCookie even when an
+	// API key is present (free quota first), so we still try to build
+	// the bearer client so the cookie-then-bearer fallback wrapper has
+	// somewhere to land on a 429.
+	var bearerRun BearerRunner
+	if bc, berr := flags.newHappenstanceAPIClient(); berr == nil {
+		bearerRun = func() (*client.PeopleSearchResult, error) {
+			return BearerSearchAdapter(cmd.Context(), bc, "people at "+company, nil)
+		}
+	}
+
+	out, runErr := ExecuteWithSourceFallback(cmd.Context(), chosen, cookieRun, bearerRun, cmd.ErrOrStderr())
+	if runErr != nil {
+		errs["hp_graph"] = runErr.Error()
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: Happenstance graph-search: %v\n", runErr)
+		return nil, errs
+	}
+	if out.Result == nil {
+		return nil, errs
+	}
+
+	// Project /api/dynamo Person rows (cookie) or normalized bearer rows
+	// into flagshipPerson. The graphPersonToFlagship path uses the
+	// referrer chain to label tier; the bearer surface has no referrer
+	// data so labels collapse to "happenstance" with rationale that
+	// names the source.
+	graph := make([]flagshipPerson, 0, len(out.Result.People))
+	for _, p := range out.Result.People {
+		row := graphPersonToFlagship(p, currentUUID)
+		if out.UsedSource == SourceAPI {
+			// Bearer rows have no referrer chain; keep the score from
+			// WeightedTraitsScore (already mapped by the normalizer)
+			// and tag them so the renderer can show "source: api".
+			row.Sources = []string{"hp_api"}
+			if out.FellBackFromCookie {
+				row.Rationale = fmt.Sprintf("Happenstance bearer (%s)", api.DefaultBaseURL)
+			} else {
+				row.Rationale = "Happenstance bearer surface"
+			}
+			row.Relationship = "happenstance_api"
+		}
+		graph = append(graph, row)
+	}
+	return graph, errs
 }
 
 // graphPersonToFlagship converts a Happenstance graph-search result
