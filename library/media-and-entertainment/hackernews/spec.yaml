@@ -263,3 +263,17 @@ types:
         type: string
       - name: story_text
         type: string
+
+# Opt in to auto-refresh (discrawl-inspired, cli-printing-press #232/#233).
+# HN item data is immutable once posted so a 24h global staleness window is
+# generous. Story pointers — top/new/best/ask/show/job — move continuously, so
+# those refresh every 30 minutes so agents see today's front page rather than
+# yesterday's snapshot. Activation requires regenerating (or `printing-press
+# patch`-ing) this CLI with a PP binary at >= 0.55.0 that understands the
+# cache block.
+cache:
+  enabled: true
+  stale_after: 24h
+  refresh_timeout: 20s
+  resources:
+    stories: 30m
