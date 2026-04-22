@@ -359,3 +359,74 @@ func TestIntegration_UpstreamOverwritesStaleSynthesis(t *testing.T) {
 		t.Errorf("upstream should overwrite stale synthesis\nwant: %q\ngot:  %q", upstreamContent, got)
 	}
 }
+
+func TestMaybeUpdatePluginVersion_BumpsOnSkillContentChange(t *testing.T) {
+	root := t.TempDir()
+	t.Chdir(root)
+	if err := os.MkdirAll(".claude-plugin", 0755); err != nil {
+		t.Fatal(err)
+	}
+	pluginPath := filepath.Join(".claude-plugin", "plugin.json")
+	if err := os.WriteFile(pluginPath, []byte(`{"version": "1.0.0"}`), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	before := skillSnapshot{
+		Dirs:        []string{"pp-api"},
+		SkillHashes: map[string]string{"pp-api": "old-hash"},
+	}
+	after := skillSnapshot{
+		Dirs:        []string{"pp-api"},
+		SkillHashes: map[string]string{"pp-api": "new-hash"},
+	}
+
+	maybeUpdatePluginVersion(before, after)
+
+	got, err := os.ReadFile(pluginPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(got), `"version": "1.0.1"`) {
+		t.Fatalf("expected content-only skill changes to bump plugin patch version, got:\n%s", got)
+	}
+}
+
+func TestExistingSkillSnapshot_TracksSkillFileContents(t *testing.T) {
+	root := t.TempDir()
+	t.Chdir(root)
+	skillDir := filepath.Join(skillOutputDir, "pp-api")
+	if err := os.MkdirAll(skillDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	skillPath := filepath.Join(skillDir, "SKILL.md")
+	if err := os.WriteFile(skillPath, []byte("first version"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	before := existingSkillSnapshot()
+	if err := os.WriteFile(skillPath, []byte("second version"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	after := existingSkillSnapshot()
+
+	if skillSnapshotsEqual(before, after) {
+		t.Fatal("expected snapshot comparison to notice changed SKILL.md content")
+	}
+}
+
+func TestGenerateSkillsWorkflowWatchesContentOnlyInputs(t *testing.T) {
+	workflowPath := filepath.Join("..", "..", ".github", "workflows", "generate-skills.yml")
+	data, err := os.ReadFile(workflowPath)
+	if err != nil {
+		t.Fatalf("reading workflow: %v", err)
+	}
+	workflow := string(data)
+	for _, path := range []string{
+		"library/**/SKILL.md",
+		"library/**/internal/cli/**",
+	} {
+		if !strings.Contains(workflow, path) {
+			t.Fatalf("expected generate-skills workflow to watch %q", path)
+		}
+	}
+}

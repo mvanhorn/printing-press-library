@@ -6,6 +6,8 @@ on:
     paths:
       - 'registry.json'
       - 'library/**/.printing-press.json'
+      - 'library/**/SKILL.md'
+      - 'library/**/internal/cli/**'
       - 'tools/generate-skills/**'
 
 jobs:

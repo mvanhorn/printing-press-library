@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -9,6 +10,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"sort"
+	"strconv"
 	"strings"
 	"text/template"
 )
@@ -111,6 +114,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error loading template %s: %v", templatePath, err)
 	}
+
+	// Snapshot existing pp-* skill output before generation so content-only
+	// changes can bump the plugin version too.
+	beforeSnapshot := existingSkillSnapshot()
 
 	var totalGenerated, enrichedCount, registryOnlyCount, skippedCount, upstreamCount int
 
@@ -239,6 +246,9 @@ func main() {
 	summary += ")\n"
 	fmt.Print(summary)
 
+	// Bump plugin.json version if generated skill output changed
+	afterSnapshot := existingSkillSnapshot()
+	maybeUpdatePluginVersion(beforeSnapshot, afterSnapshot)
 }
 
 // copyUpstreamSkill copies <entryPath>/SKILL.md to skillFile if it exists and
@@ -462,6 +472,100 @@ func buildEnrichedDescription(entry RegistryEntry, domainCommands []DomainComman
 	return desc
 }
 
+// existingSkillDirs returns the sorted set of pp-* directory names under the
+// generated skill output directory.
+func existingSkillDirs() []string {
+	entries, err := os.ReadDir(skillOutputDir)
+	if err != nil {
+		return nil
+	}
+	var dirs []string
+	for _, e := range entries {
+		if e.IsDir() && strings.HasPrefix(e.Name(), "pp-") {
+			dirs = append(dirs, e.Name())
+		}
+	}
+	sort.Strings(dirs)
+	return dirs
+}
+
+type skillSnapshot struct {
+	Dirs        []string
+	SkillHashes map[string]string
+}
+
+func existingSkillSnapshot() skillSnapshot {
+	dirs := existingSkillDirs()
+	hashes := make(map[string]string, len(dirs))
+	for _, dir := range dirs {
+		data, err := os.ReadFile(filepath.Join(skillOutputDir, dir, "SKILL.md"))
+		if err != nil {
+			continue
+		}
+		sum := sha256.Sum256(data)
+		hashes[dir] = fmt.Sprintf("%x", sum)
+	}
+	return skillSnapshot{Dirs: dirs, SkillHashes: hashes}
+}
+
+// bumpPatchVersion increments the patch component of a semver string.
+// "1.1.0" -> "1.1.1", "1.2.3" -> "1.2.4"
+func bumpPatchVersion(version string) (string, error) {
+	parts := strings.Split(version, ".")
+	if len(parts) != 3 {
+		return "", fmt.Errorf("invalid semver: %s", version)
+	}
+	patch, err := strconv.Atoi(parts[2])
+	if err != nil {
+		return "", fmt.Errorf("invalid patch version: %s", parts[2])
+	}
+	parts[2] = strconv.Itoa(patch + 1)
+	return strings.Join(parts, "."), nil
+}
+
+// maybeUpdatePluginVersion bumps the plugin.json patch version if generated
+// pp-* skill output changed. Uses string replacement to preserve field order.
+func maybeUpdatePluginVersion(before, after skillSnapshot) {
+	if skillSnapshotsEqual(before, after) {
+		return
+	}
+
+	pluginPath := filepath.Join(".claude-plugin", "plugin.json")
+	data, err := os.ReadFile(pluginPath)
+	if err != nil {
+		log.Printf("Warning: could not read %s for version bump: %v", pluginPath, err)
+		return
+	}
+
+	// Extract current version from JSON
+	var parsed struct {
+		Version string `json:"version"`
+	}
+	if err := json.Unmarshal(data, &parsed); err != nil {
+		log.Printf("Warning: could not parse %s: %v", pluginPath, err)
+		return
+	}
+
+	newVersion, err := bumpPatchVersion(parsed.Version)
+	if err != nil {
+		log.Printf("Warning: could not bump version %q: %v", parsed.Version, err)
+		return
+	}
+
+	// Replace version in-place to preserve field order and formatting
+	content := string(data)
+	old := fmt.Sprintf(`"version": "%s"`, parsed.Version)
+	updated := fmt.Sprintf(`"version": "%s"`, newVersion)
+	content = strings.Replace(content, old, updated, 1)
+
+	if err := os.WriteFile(pluginPath, []byte(content), 0644); err != nil {
+		log.Printf("Warning: could not write %s: %v", pluginPath, err)
+		return
+	}
+
+	fmt.Printf("Bumped plugin version: %s -> %s\n", parsed.Version, newVersion)
+}
+
 // buildOpenClawMetadata constructs the single-line JSON for the metadata frontmatter field.
 // This gives OpenClaw dependency gating, auto-install, and API key prompting.
 func buildOpenClawMetadata(ctx SkillContext) string {
@@ -521,4 +625,31 @@ func buildOpenClawMetadata(ctx SkillContext) string {
 		return ""
 	}
 	return string(data)
+}
+
+func slicesEqual(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func skillSnapshotsEqual(a, b skillSnapshot) bool {
+	if !slicesEqual(a.Dirs, b.Dirs) {
+		return false
+	}
+	if len(a.SkillHashes) != len(b.SkillHashes) {
+		return false
+	}
+	for key, value := range a.SkillHashes {
+		if b.SkillHashes[key] != value {
+			return false
+		}
+	}
+	return true
 }
