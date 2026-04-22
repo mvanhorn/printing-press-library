@@ -170,6 +170,22 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
 - **Cacheable** — GET responses cached for 5 minutes, bypass with `--no-cache`
 - **Non-interactive** — never prompts, every input is a flag
 
+### Filtering output
+
+`--select` accepts dotted paths to descend into nested responses; arrays traverse element-wise:
+
+```bash
+recipe-goat-pp-cli <command> --agent --select id,name
+recipe-goat-pp-cli <command> --agent --select items.id,items.owner.name
+```
+
+Use this to narrow huge payloads to the fields you actually need — critical for deeply nested API responses.
+
+
+### Response envelope
+
+Data-layer commands wrap output in `{"meta": {...}, "results": <data>}`. Parse `.results` for data and `.meta.source` to know whether it's `live` or local. The `N results (live)` summary is printed to stderr only when stdout is a TTY; piped/agent consumers see pure JSON on stdout.
+
 ## Exit Codes
 
 | Code | Meaning |

@@ -137,6 +137,17 @@ Optional config:
 
 Add `--agent` to any command. Expands to `--json --compact --no-input --no-color --yes`. Use `--days N` for forecast range on relevant commands, `--no-cache` to bypass the 15-minute GET cache.
 
+### Filtering output
+
+`--select` accepts dotted paths to descend into nested responses; arrays traverse element-wise:
+
+```bash
+weather-goat-pp-cli <command> --agent --select id,name
+weather-goat-pp-cli <command> --agent --select items.id,items.owner.name
+```
+
+Use this to narrow huge payloads to the fields you actually need — critical for deeply nested API responses.
+
 ## Exit Codes
 
 | Code | Meaning |

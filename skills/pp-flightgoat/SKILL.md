@@ -152,6 +152,22 @@ Add `--agent` to any command. Expands to `--json --compact --no-input --no-color
 - `--min-hours N` — minimum duration (for `longhaul`)
 - `--country <CC>` — country filter (for `explore`)
 
+### Filtering output
+
+`--select` accepts dotted paths to descend into nested responses; arrays traverse element-wise:
+
+```bash
+flightgoat-pp-cli <command> --agent --select id,name
+flightgoat-pp-cli <command> --agent --select items.id,items.owner.name
+```
+
+Use this to narrow huge payloads to the fields you actually need — critical for deeply nested API responses.
+
+
+### Response envelope
+
+Data-layer commands wrap output in `{"meta": {...}, "results": <data>}`. Parse `.results` for data and `.meta.source` to know whether it's `live` or local. The `N results (live)` summary is printed to stderr only when stdout is a TTY; piped/agent consumers see pure JSON on stdout.
+
 ## Exit Codes
 
 | Code | Meaning |

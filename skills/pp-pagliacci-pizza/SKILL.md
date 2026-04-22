@@ -88,6 +88,29 @@ Parse `$ARGUMENTS`:
 
 Run any command with `--help` for full flag documentation.
 
+## Agent Mode
+
+Add `--agent` to any command. Expands to: `--json --compact --no-input --no-color --yes`.
+
+- **Pipeable** — JSON on stdout, errors on stderr
+- **Filterable** — `--select` keeps a subset of fields, with dotted-path support (see below)
+- **Previewable** — `--dry-run` shows the request without sending
+- **Cacheable** — GET responses cached for 5 minutes, bypass with `--no-cache`
+- **Non-interactive** — never prompts, every input is a flag
+
+
+### Filtering output
+
+`--select` accepts dotted paths to descend into nested responses; arrays traverse element-wise:
+
+```bash
+pagliacci-pizza-pp-cli <command> --agent --select id,name
+pagliacci-pizza-pp-cli <command> --agent --select items.id,items.owner.name
+```
+
+Use this to narrow huge payloads to the fields you actually need — critical for deeply nested API responses.
+
+
 ## Exit Codes
 
 | Code | Meaning |

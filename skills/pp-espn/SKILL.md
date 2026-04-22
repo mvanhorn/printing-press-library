@@ -138,12 +138,12 @@ League values: `nfl`, `nba`, `mlb`, `nhl`, `ncaaf`, `ncaam`, `ncaaw`, `mls`, `en
 ### Morning sports scan
 
 ```bash
-espn-pp-cli today --agent                       # cross-league: what's on
-espn-pp-cli scores football nfl --agent         # one league drilldown
-espn-pp-cli standings football nfl --agent      # context for the scores
+espn-pp-cli today --agent --select events.shortName,events.status
+espn-pp-cli scores football nfl --agent --select events.shortName,events.competitions.competitors.team.displayName,events.status.type.detail
+espn-pp-cli standings football nfl --agent
 ```
 
-One `today` call covers cross-league activity, one `scores` for the league you care about, one `standings` for context. Covers a morning briefing.
+One `today` call covers cross-league activity, one `scores` for the league you care about, one `standings` for context. The nested `--select` paths cut a scoreboard payload from tens of KB down to the fields that actually matter — essential for keeping agent context small.
 
 ### Pre-game research from synced data
 
@@ -207,6 +207,22 @@ Optional config:
 ## Agent Mode
 
 Add `--agent` to any command. Expands to `--json --compact --no-input --no-color --yes`. Use `--select` for field cherry-picking, `--dry-run` to preview requests, `--no-cache` to bypass GET cache.
+
+### Filtering output
+
+`--select` accepts dotted paths to descend into nested responses; arrays traverse element-wise:
+
+```bash
+espn-pp-cli <command> --agent --select id,name
+espn-pp-cli <command> --agent --select items.id,items.owner.name
+```
+
+Use this to narrow huge payloads to the fields you actually need — critical for deeply nested API responses.
+
+
+### Response envelope
+
+Data-layer commands wrap output in `{"meta": {...}, "results": <data>}`. Parse `.results` for data and `.meta.source` to know whether it's `live` or local. The `N results (live)` summary is printed to stderr only when stdout is a TTY; piped/agent consumers see pure JSON on stdout.
 
 ## Exit Codes
 

@@ -154,6 +154,22 @@ Alternatives: `KALSHI_PRIVATE_KEY` (inline PEM), `KALSHI_BASE_URL` (override), `
 
 Add `--agent` to any command. Expands to `--json --compact --no-input --no-color --yes` — structured output, no prompts. Also supports `--select <fields>` for cherry-picking, `--dry-run` to preview requests, and `--no-cache` to bypass the 5-minute GET cache.
 
+### Filtering output
+
+`--select` accepts dotted paths to descend into nested responses; arrays traverse element-wise:
+
+```bash
+kalshi-pp-cli <command> --agent --select id,name
+kalshi-pp-cli <command> --agent --select items.id,items.owner.name
+```
+
+Use this to narrow huge payloads to the fields you actually need — critical for deeply nested API responses.
+
+
+### Response envelope
+
+Data-layer commands wrap output in `{"meta": {...}, "results": <data>}`. Parse `.results` for data and `.meta.source` to know whether it's `live` or local. The `N results (live)` summary is printed to stderr only when stdout is a TTY; piped/agent consumers see pure JSON on stdout.
+
 ## Exit Codes
 
 | Code | Meaning |
