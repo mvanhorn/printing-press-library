@@ -1,0 +1,63 @@
+{
+  "dir": "/Users/adrianhorning/printing-press/.runstate/adrianhorning-a2d78f66/runs/20260422-161939/working/scrape-creators",
+  "spec_path": "/tmp/scrapecreators-openapi.json",
+  "verdict": "PASS",
+  "path_check": {
+    "tested": 6,
+    "valid": 5,
+    "invalid": [
+      "/"
+    ],
+    "valid_pct": 83
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "spec not provided or no bot/bearer scheme detected"
+  },
+  "dead_flags": {
+    "total": 15,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 44,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 8,
+    "valid_examples": 8,
+    "missing": [
+      "promoted instagram",
+      "promoted truthsocial"
+    ],
+    "detail": "8/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 139,
+      "registered": 139
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 8,
+    "found": 8
+  },
+  "issues": null
+}

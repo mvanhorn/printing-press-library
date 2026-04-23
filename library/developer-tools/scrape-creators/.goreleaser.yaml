@@ -1,0 +1,51 @@
+version: 2
+project_name: scrape-creators-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: scrape-creators-pp-cli
+    main: ./cmd/scrape-creators-pp-cli
+    binary: scrape-creators-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: scrape-creators-pp-mcp
+    main: ./cmd/scrape-creators-pp-mcp
+    binary: scrape-creators-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: scrape-creators-pp-cli
+    repository:
+      owner: adrian-horning
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The easiest way to scrape public social media data at scale. Extract profiles, posts, videos, comments, and more from TikTok, Instagram, YouTube, Twitter, LinkedIn, Facebook, Reddit, and 27+ platforms."
+    install: |
+      bin.install "scrape-creators-pp-cli"
+      bin.install "scrape-creators-pp-mcp"

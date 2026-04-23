@@ -365,6 +365,23 @@
       }
     },
     {
+      "name": "scrape-creators",
+      "category": "developer-tools",
+      "api": "Scrape Creators",
+      "description": "The easiest way to scrape public social media data at scale. Extract profiles, posts, videos, comments, and more from TikTok, Instagram, YouTube, Twitter, LinkedIn, Facebook, Reddit, and 27+ platforms.",
+      "path": "library/developer-tools/scrape-creators",
+      "mcp": {
+        "binary": "scrape-creators-pp-mcp",
+        "transport": "stdio",
+        "tool_count": 115,
+        "auth_type": "api_key",
+        "env_vars": [
+          "SCRAPE_CREATORS_API_KEY_AUTH"
+        ],
+        "mcp_ready": "full"
+      }
+    },
+    {
       "name": "slack",
       "category": "productivity",
       "api": "Slack",

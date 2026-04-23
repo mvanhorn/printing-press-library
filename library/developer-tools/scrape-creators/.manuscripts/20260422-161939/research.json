@@ -1,0 +1,132 @@
+{
+  "api_name": "scrapecreators",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "n8n-nodes-scrape-creators",
+      "url": "https://github.com/adrianhorning08/n8n-nodes-scrape-creators",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "scrape-creators-examples",
+      "url": "https://github.com/adrianhorning08/scrape-creators-examples",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-04-22T21:28:24Z",
+  "novel_features": [
+    {
+      "name": "Engagement Spike Detector",
+      "command": "videos spikes",
+      "description": "Find videos that performed significantly above a creator's average — the ones that actually went viral.",
+      "rationale": "Requires historical video stats in SQLite to compute each creator's baseline and flag outliers; no single API call provides this."
+    },
+    {
+      "name": "Transcript Full-Text Search",
+      "command": "transcripts search",
+      "description": "Search across all a creator's video transcripts for any keyword or phrase — like grep for TikTok.",
+      "rationale": "Batch-fetches and FTS5-indexes transcripts from all synced videos; no single API call can search across a creator's entire transcript catalog."
+    },
+    {
+      "name": "Multi-Creator Comparison",
+      "command": "profile compare",
+      "description": "Compare two or more creators side-by-side on follower count, engagement rate, posting cadence, and content volume.",
+      "rationale": "Normalizes metrics across synced profiles using local SQLite data; the API has no multi-creator comparison endpoint."
+    },
+    {
+      "name": "Content Cadence Analysis",
+      "command": "videos cadence",
+      "description": "See when a creator posts — by day of week and hour — so you can benchmark their publishing strategy.",
+      "rationale": "Computed from create_time timestamps across all synced videos; requires the local store to aggregate across paginated results."
+    },
+    {
+      "name": "Follower Growth Tracker",
+      "command": "profile track",
+      "description": "Record daily follower snapshots for any creator and chart their growth trajectory over time.",
+      "rationale": "Requires timestamped snapshots persisted in SQLite; growth curves are impossible from any single API call."
+    },
+    {
+      "name": "Credit Burn Rate Monitor",
+      "command": "account budget",
+      "description": "Track how quickly you're spending API credits and project how many days until you hit your limit.",
+      "rationale": "Logs credit usage per command in SQLite; extrapolates based on your actual usage pattern rather than a static estimate."
+    },
+    {
+      "name": "Hashtag Trend Delta",
+      "command": "search trends",
+      "description": "Track whether a hashtag is growing or shrinking by comparing video counts across snapshot intervals.",
+      "rationale": "Stores hashtag search result counts over time in SQLite; trend direction requires at least two data points that span multiple API calls."
+    },
+    {
+      "name": "Video Engagement Ranker",
+      "command": "videos analyze",
+      "description": "Rank all of a creator's synced videos by engagement rate (not raw likes) to surface their true best performers.",
+      "rationale": "Computes (likes+comments+shares)/views for each video from synced data; the API returns raw counts but no normalized rate."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Engagement Spike Detector",
+      "command": "videos spikes",
+      "description": "Find videos that performed significantly above a creator's average — the ones that actually went viral.",
+      "rationale": "Requires historical video stats in SQLite to compute each creator's baseline and flag outliers; no single API call provides this."
+    },
+    {
+      "name": "Transcript Full-Text Search",
+      "command": "transcripts search",
+      "description": "Search across all a creator's video transcripts for any keyword or phrase — like grep for TikTok.",
+      "rationale": "Batch-fetches and FTS5-indexes transcripts from all synced videos; no single API call can search across a creator's entire transcript catalog."
+    },
+    {
+      "name": "Multi-Creator Comparison",
+      "command": "profile compare",
+      "description": "Compare two or more creators side-by-side on follower count, engagement rate, posting cadence, and content volume.",
+      "rationale": "Normalizes metrics across synced profiles using local SQLite data; the API has no multi-creator comparison endpoint."
+    },
+    {
+      "name": "Content Cadence Analysis",
+      "command": "videos cadence",
+      "description": "See when a creator posts — by day of week and hour — so you can benchmark their publishing strategy.",
+      "rationale": "Computed from create_time timestamps across all synced videos; requires the local store to aggregate across paginated results."
+    },
+    {
+      "name": "Follower Growth Tracker",
+      "command": "profile track",
+      "description": "Record daily follower snapshots for any creator and chart their growth trajectory over time.",
+      "rationale": "Requires timestamped snapshots persisted in SQLite; growth curves are impossible from any single API call."
+    },
+    {
+      "name": "Credit Burn Rate Monitor",
+      "command": "account budget",
+      "description": "Track how quickly you're spending API credits and project how many days until you hit your limit.",
+      "rationale": "Logs credit usage per command in SQLite; extrapolates based on your actual usage pattern rather than a static estimate."
+    },
+    {
+      "name": "Hashtag Trend Delta",
+      "command": "search trends",
+      "description": "Track whether a hashtag is growing or shrinking by comparing video counts across snapshot intervals.",
+      "rationale": "Stores hashtag search result counts over time in SQLite; trend direction requires at least two data points that span multiple API calls."
+    },
+    {
+      "name": "Video Engagement Ranker",
+      "command": "videos analyze",
+      "description": "Rank all of a creator's synced videos by engagement rate (not raw likes) to surface their true best performers.",
+      "rationale": "Computes (likes+comments+shares)/views for each video from synced data; the API returns raw counts but no normalized rate."
+    }
+  ]
+}
