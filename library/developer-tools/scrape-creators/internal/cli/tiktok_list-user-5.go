@@ -18,7 +18,8 @@ func newTiktokListUser5Cmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-user-5",
+		Use:   "user-showcase",
+		Aliases: []string{"list-user-5"},
 		Short: "User Showcase",
 		Example: "  scrape-creators-pp-cli tiktok list-user-5",
 		RunE: func(cmd *cobra.Command, args []string) error {

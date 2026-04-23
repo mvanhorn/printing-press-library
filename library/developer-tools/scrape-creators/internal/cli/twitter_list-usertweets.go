@@ -16,7 +16,8 @@ func newTwitterListUsertweetsCmd(flags *rootFlags) *cobra.Command {
 	var flagTrim bool
 
 	cmd := &cobra.Command{
-		Use:   "list-usertweets",
+		Use:   "user-tweets",
+		Aliases: []string{"list-usertweets"},
 		Short: "User Tweets",
 		Example: "  scrape-creators-pp-cli twitter list-usertweets",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -31,7 +32,7 @@ func newTwitterListUsertweetsCmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/twitter/user-tweets"
 			params := map[string]string{}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = NormalizeHandle(fmt.Sprintf("%v", flagHandle))
 			}
 			if flagTrim != false {
 				params["trim"] = fmt.Sprintf("%v", flagTrim)

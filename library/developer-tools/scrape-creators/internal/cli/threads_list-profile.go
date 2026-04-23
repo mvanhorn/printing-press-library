@@ -15,7 +15,8 @@ func newThreadsListProfileCmd(flags *rootFlags) *cobra.Command {
 	var flagHandle string
 
 	cmd := &cobra.Command{
-		Use:   "list-profile",
+		Use:   "profile",
+		Aliases: []string{"list-profile"},
 		Short: "Retrieves a Threads user's public profile including username, full_name, biography, profile_pic_url, follower_count,...",
 		Example: "  scrape-creators-pp-cli threads list-profile",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -30,7 +31,7 @@ func newThreadsListProfileCmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/threads/profile"
 			params := map[string]string{}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = NormalizeHandle(fmt.Sprintf("%v", flagHandle))
 			}
 			data, prov, err := resolveRead(c, flags, "threads", false, path, params)
 			if err != nil {

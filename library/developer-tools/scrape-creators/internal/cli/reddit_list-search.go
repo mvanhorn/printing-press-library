@@ -20,7 +20,8 @@ func newRedditListSearchCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-search",
+		Use:   "search",
+		Aliases: []string{"list-search"},
 		Short: "Searches across all of Reddit for posts matching a query. Each post includes title, author, selftext, subreddit,...",
 		Example: "  scrape-creators-pp-cli reddit list-search",
 		RunE: func(cmd *cobra.Command, args []string) error {

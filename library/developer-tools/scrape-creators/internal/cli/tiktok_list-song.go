@@ -15,7 +15,8 @@ func newTiktokListSongCmd(flags *rootFlags) *cobra.Command {
 	var flagClipId string
 
 	cmd := &cobra.Command{
-		Use:   "list-song",
+		Use:   "song",
+		Aliases: []string{"list-song"},
 		Short: "Get Song Details",
 		Example: "  scrape-creators-pp-cli tiktok list-song",
 		RunE: func(cmd *cobra.Command, args []string) error {

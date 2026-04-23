@@ -15,7 +15,8 @@ func newInstagramListMediaCmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
 
 	cmd := &cobra.Command{
-		Use:   "list-media",
+		Use:   "media-transcript",
+		Aliases: []string{"list-media"},
 		Short: "Generates an AI-powered speech-to-text transcription for an Instagram video post or reel. The video must be under 2...",
 		Example: "  scrape-creators-pp-cli instagram list-media",
 		RunE: func(cmd *cobra.Command, args []string) error {

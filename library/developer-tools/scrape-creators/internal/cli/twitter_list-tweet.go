@@ -16,7 +16,8 @@ func newTwitterListTweetCmd(flags *rootFlags) *cobra.Command {
 	var flagTrim bool
 
 	cmd := &cobra.Command{
-		Use:   "list-tweet",
+		Use:   "tweet",
+		Aliases: []string{"list-tweet"},
 		Short: "Tweet Details",
 		Example: "  scrape-creators-pp-cli twitter list-tweet",
 		RunE: func(cmd *cobra.Command, args []string) error {

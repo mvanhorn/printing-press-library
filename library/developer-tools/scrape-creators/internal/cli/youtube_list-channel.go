@@ -18,7 +18,8 @@ func newYoutubeListChannelCmd(flags *rootFlags) *cobra.Command {
 	var flagContinuationToken string
 
 	cmd := &cobra.Command{
-		Use:   "list-channel",
+		Use:   "channel-shorts",
+		Aliases: []string{"list-channel"},
 		Short: "Channel Shorts",
 		Example: "  scrape-creators-pp-cli youtube list-channel",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -30,7 +31,7 @@ func newYoutubeListChannelCmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/youtube/channel/shorts"
 			params := map[string]string{}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = NormalizeHandle(fmt.Sprintf("%v", flagHandle))
 			}
 			if flagChannelId != "" {
 				params["channelId"] = fmt.Sprintf("%v", flagChannelId)

@@ -16,7 +16,8 @@ func newPinterestListUserCmd(flags *rootFlags) *cobra.Command {
 	var flagTrim bool
 
 	cmd := &cobra.Command{
-		Use:   "list-user",
+		Use:   "user-boards",
+		Aliases: []string{"list-user"},
 		Short: "User Boards",
 		Example: "  scrape-creators-pp-cli pinterest list-user",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -31,7 +32,7 @@ func newPinterestListUserCmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/pinterest/user/boards"
 			params := map[string]string{}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = NormalizeHandle(fmt.Sprintf("%v", flagHandle))
 			}
 			if flagTrim != false {
 				params["trim"] = fmt.Sprintf("%v", flagTrim)

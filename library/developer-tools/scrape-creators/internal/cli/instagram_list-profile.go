@@ -16,7 +16,8 @@ func newInstagramListProfileCmd(flags *rootFlags) *cobra.Command {
 	var flagTrim bool
 
 	cmd := &cobra.Command{
-		Use:   "list-profile",
+		Use:   "profile",
+		Aliases: []string{"list-profile"},
 		Short: "Retrieves comprehensive public Instagram profile information including biography, bio links, follower and following...",
 		Example: "  scrape-creators-pp-cli instagram list-profile",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -31,7 +32,7 @@ func newInstagramListProfileCmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/instagram/profile"
 			params := map[string]string{}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = NormalizeHandle(fmt.Sprintf("%v", flagHandle))
 			}
 			if flagTrim != false {
 				params["trim"] = fmt.Sprintf("%v", flagTrim)

@@ -18,7 +18,8 @@ func newGoogleListSearchCmd(flags *rootFlags) *cobra.Command {
 	var flagPage float64
 
 	cmd := &cobra.Command{
-		Use:   "list-search",
+		Use:   "search",
+		Aliases: []string{"list-search"},
 		Short: "Performs a Google search and returns organic results with url, title, and description for each result. Supports an...",
 		Example: "  scrape-creators-pp-cli google list-search",
 		RunE: func(cmd *cobra.Command, args []string) error {

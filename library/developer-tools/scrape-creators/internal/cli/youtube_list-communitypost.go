@@ -15,7 +15,8 @@ func newYoutubeListCommunitypostCmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
 
 	cmd := &cobra.Command{
-		Use:   "list-communitypost",
+		Use:   "community-post",
+		Aliases: []string{"list-communitypost"},
 		Short: "Community Post Details",
 		Example: "  scrape-creators-pp-cli youtube list-communitypost",
 		RunE: func(cmd *cobra.Command, args []string) error {

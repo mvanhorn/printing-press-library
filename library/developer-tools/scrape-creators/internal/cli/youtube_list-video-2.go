@@ -15,7 +15,8 @@ func newYoutubeListVideo2Cmd(flags *rootFlags) *cobra.Command {
 	var flagContinuationToken string
 
 	cmd := &cobra.Command{
-		Use:   "list-video-2",
+		Use:   "video-comment-replies",
+		Aliases: []string{"list-video-2"},
 		Short: "Comment Replies",
 		Example: "  scrape-creators-pp-cli youtube list-video-2",
 		RunE: func(cmd *cobra.Command, args []string) error {

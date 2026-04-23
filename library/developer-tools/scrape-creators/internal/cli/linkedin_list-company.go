@@ -15,7 +15,8 @@ func newLinkedinListCompanyCmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
 
 	cmd := &cobra.Command{
-		Use:   "list-company",
+		Use:   "company",
+		Aliases: []string{"list-company"},
 		Short: "Company Page",
 		Example: "  scrape-creators-pp-cli linkedin list-company",
 		RunE: func(cmd *cobra.Command, args []string) error {

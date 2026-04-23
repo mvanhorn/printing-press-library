@@ -15,7 +15,8 @@ func newLinkedinListPostCmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
 
 	cmd := &cobra.Command{
-		Use:   "list-post",
+		Use:   "post",
+		Aliases: []string{"list-post"},
 		Short: "Fetches a single LinkedIn post or article, returning the title, headline, full description text, author info with...",
 		Example: "  scrape-creators-pp-cli linkedin list-post",
 		RunE: func(cmd *cobra.Command, args []string) error {

@@ -17,7 +17,8 @@ func newInstagramListPost2Cmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-post-2",
+		Use:   "post-comments",
+		Aliases: []string{"list-post-2"},
 		Short: "Retrieves comments on a public Instagram post or reel. Each comment includes the comment text, creation timestamp,...",
 		Example: "  scrape-creators-pp-cli instagram list-post-2",
 		RunE: func(cmd *cobra.Command, args []string) error {

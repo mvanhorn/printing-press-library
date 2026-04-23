@@ -18,7 +18,8 @@ func newTiktokListVideoCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-video",
+		Use:   "video-comment-replies",
+		Aliases: []string{"list-video"},
 		Short: "Comment Replies",
 		Example: "  scrape-creators-pp-cli tiktok list-video",
 		RunE: func(cmd *cobra.Command, args []string) error {

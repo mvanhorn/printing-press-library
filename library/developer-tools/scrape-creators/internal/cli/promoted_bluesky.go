@@ -31,7 +31,7 @@ func newBlueskyPromotedCmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/bluesky/profile"
 			params := map[string]string{}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = NormalizeHandle(fmt.Sprintf("%v", flagHandle))
 			}
 			data, prov, err := resolveRead(c, flags, "bluesky", false, path, params)
 			if err != nil {

@@ -15,7 +15,8 @@ func newTruthsocialListProfileCmd(flags *rootFlags) *cobra.Command {
 	var flagHandle string
 
 	cmd := &cobra.Command{
-		Use:   "list-profile",
+		Use:   "profile",
+		Aliases: []string{"list-profile"},
 		Short: "Retrieves a Truth Social user's public profile including display_name, username, avatar, header, followers_count,...",
 		Example: "  scrape-creators-pp-cli truthsocial list-profile",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -30,7 +31,7 @@ func newTruthsocialListProfileCmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/truthsocial/profile"
 			params := map[string]string{}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = NormalizeHandle(fmt.Sprintf("%v", flagHandle))
 			}
 			data, prov, err := resolveRead(c, flags, "truthsocial", false, path, params)
 			if err != nil {

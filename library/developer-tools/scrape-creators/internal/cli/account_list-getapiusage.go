@@ -17,7 +17,8 @@ func newAccountListGetapiusageCmd(flags *rootFlags) *cobra.Command {
 	var flagStatusCode string
 
 	cmd := &cobra.Command{
-		Use:   "list-getapiusage",
+		Use:   "api-usage",
+		Aliases: []string{"list-getapiusage"},
 		Short: "Get request history",
 		Example: "  scrape-creators-pp-cli account list-getapiusage",
 		RunE: func(cmd *cobra.Command, args []string) error {

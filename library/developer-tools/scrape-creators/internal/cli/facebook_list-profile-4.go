@@ -18,7 +18,8 @@ func newFacebookListProfile4Cmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-profile-4",
+		Use:   "profile-reels",
+		Aliases: []string{"list-profile-4"},
 		Short: "Profile Reels",
 		Example: "  scrape-creators-pp-cli facebook list-profile-4",
 		RunE: func(cmd *cobra.Command, args []string) error {

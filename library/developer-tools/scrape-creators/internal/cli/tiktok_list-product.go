@@ -16,7 +16,8 @@ func newTiktokListProductCmd(flags *rootFlags) *cobra.Command {
 	var flagRegion string
 
 	cmd := &cobra.Command{
-		Use:   "list-product",
+		Use:   "product",
+		Aliases: []string{"list-product"},
 		Short: "Product Details",
 		Example: "  scrape-creators-pp-cli tiktok list-product",
 		RunE: func(cmd *cobra.Command, args []string) error {

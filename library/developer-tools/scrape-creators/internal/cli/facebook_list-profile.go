@@ -16,7 +16,8 @@ func newFacebookListProfileCmd(flags *rootFlags) *cobra.Command {
 	var flagGetBusinessHours string
 
 	cmd := &cobra.Command{
-		Use:   "list-profile",
+		Use:   "profile",
+		Aliases: []string{"list-profile"},
 		Short: "Retrieves public Facebook page details including category, address, email, phone, website, services, priceRange,...",
 		Example: "  scrape-creators-pp-cli facebook list-profile",
 		RunE: func(cmd *cobra.Command, args []string) error {

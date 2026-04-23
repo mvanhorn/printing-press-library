@@ -15,7 +15,8 @@ func newFacebookListPost3Cmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
 
 	cmd := &cobra.Command{
-		Use:   "list-post-3",
+		Use:   "post-transcript",
+		Aliases: []string{"list-post-3"},
 		Short: "Extracts the transcript text from a Facebook video post or reel. Returns the transcript as a single text string with...",
 		Example: "  scrape-creators-pp-cli facebook list-post-3",
 		RunE: func(cmd *cobra.Command, args []string) error {

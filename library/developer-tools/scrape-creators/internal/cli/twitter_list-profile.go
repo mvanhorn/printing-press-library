@@ -15,7 +15,8 @@ func newTwitterListProfileCmd(flags *rootFlags) *cobra.Command {
 	var flagHandle string
 
 	cmd := &cobra.Command{
-		Use:   "list-profile",
+		Use:   "profile",
+		Aliases: []string{"list-profile"},
 		Short: "Retrieves a Twitter user's profile by handle, including account metadata and statistics. Returns name, screen_name,...",
 		Example: "  scrape-creators-pp-cli twitter list-profile",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -30,7 +31,7 @@ func newTwitterListProfileCmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/twitter/profile"
 			params := map[string]string{}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = NormalizeHandle(fmt.Sprintf("%v", flagHandle))
 			}
 			data, prov, err := resolveRead(c, flags, "twitter", false, path, params)
 			if err != nil {

@@ -18,7 +18,8 @@ func newTiktokListVideosCmd(flags *rootFlags) *cobra.Command {
 	var flagCountryCode string
 
 	cmd := &cobra.Command{
-		Use:   "list-videos",
+		Use:   "videos-popular",
+		Aliases: []string{"list-videos"},
 		Short: "Get popular videos",
 		Example: "  scrape-creators-pp-cli tiktok list-videos",
 		RunE: func(cmd *cobra.Command, args []string) error {

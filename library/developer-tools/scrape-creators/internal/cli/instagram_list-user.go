@@ -15,7 +15,8 @@ func newInstagramListUserCmd(flags *rootFlags) *cobra.Command {
 	var flagHandle string
 
 	cmd := &cobra.Command{
-		Use:   "list-user",
+		Use:   "user-embed",
+		Aliases: []string{"list-user"},
 		Short: "Embed HTML",
 		Example: "  scrape-creators-pp-cli instagram list-user",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -30,7 +31,7 @@ func newInstagramListUserCmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/instagram/user/embed"
 			params := map[string]string{}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = NormalizeHandle(fmt.Sprintf("%v", flagHandle))
 			}
 			data, prov, err := resolveRead(c, flags, "instagram", false, path, params)
 			if err != nil {

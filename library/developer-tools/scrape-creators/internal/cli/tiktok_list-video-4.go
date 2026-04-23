@@ -19,7 +19,8 @@ func newTiktokListVideo4Cmd(flags *rootFlags) *cobra.Command {
 	var flagDownloadMedia bool
 
 	cmd := &cobra.Command{
-		Use:   "list-video-4",
+		Use:   "video",
+		Aliases: []string{"list-video-4"},
 		Short: "Video Info",
 		Example: "  scrape-creators-pp-cli tiktok list-video-4",
 		RunE: func(cmd *cobra.Command, args []string) error {

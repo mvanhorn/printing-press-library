@@ -16,7 +16,8 @@ func newInstagramListSongCmd(flags *rootFlags) *cobra.Command {
 	var flagMaxId string
 
 	cmd := &cobra.Command{
-		Use:   "list-song",
+		Use:   "song-reels",
+		Aliases: []string{"list-song"},
 		Short: "Reels using Song (Deprecated)",
 		Example: "  scrape-creators-pp-cli instagram list-song",
 		RunE: func(cmd *cobra.Command, args []string) error {

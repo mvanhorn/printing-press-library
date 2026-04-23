@@ -35,7 +35,7 @@ func newInstagramPromotedCmd(flags *rootFlags) *cobra.Command {
 				params["user_id"] = fmt.Sprintf("%v", flagUserId)
 			}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = NormalizeHandle(fmt.Sprintf("%v", flagHandle))
 			}
 			if flagMaxId != "" {
 				params["max_id"] = fmt.Sprintf("%v", flagMaxId)

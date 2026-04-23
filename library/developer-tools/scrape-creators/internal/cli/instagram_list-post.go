@@ -18,7 +18,8 @@ func newInstagramListPostCmd(flags *rootFlags) *cobra.Command {
 	var flagDownloadMedia bool
 
 	cmd := &cobra.Command{
-		Use:   "list-post",
+		Use:   "post",
+		Aliases: []string{"list-post"},
 		Short: "Post/Reel Info",
 		Example: "  scrape-creators-pp-cli instagram list-post",
 		RunE: func(cmd *cobra.Command, args []string) error {

@@ -32,7 +32,7 @@ func newThreadsPromotedCmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/threads/user/posts"
 			params := map[string]string{}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = NormalizeHandle(fmt.Sprintf("%v", flagHandle))
 			}
 			if flagTrim != false {
 				params["trim"] = fmt.Sprintf("%v", flagTrim)

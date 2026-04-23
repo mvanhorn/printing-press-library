@@ -19,7 +19,8 @@ func newTiktokListCmd(flags *rootFlags) *cobra.Command {
 	var flagAudienceCountry string
 
 	cmd := &cobra.Command{
-		Use:   "list",
+		Use:   "creators-popular",
+		Aliases: []string{"list"},
 		Short: "Get popular creators",
 		Example: "  scrape-creators-pp-cli tiktok list",
 		RunE: func(cmd *cobra.Command, args []string) error {

@@ -17,7 +17,8 @@ func newTiktokListUser3Cmd(flags *rootFlags) *cobra.Command {
 	var flagTrim bool
 
 	cmd := &cobra.Command{
-		Use:   "list-user-3",
+		Use:   "user-following",
+		Aliases: []string{"list-user-3"},
 		Short: "Retrieves the following list — accounts that a TikTok user follows — by their handle. Returns `followings`, an...",
 		Example: "  scrape-creators-pp-cli tiktok list-user-3",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -32,7 +33,7 @@ func newTiktokListUser3Cmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/tiktok/user/following"
 			params := map[string]string{}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = NormalizeHandle(fmt.Sprintf("%v", flagHandle))
 			}
 			if flagMinTime != 0.0 {
 				params["min_time"] = fmt.Sprintf("%v", flagMinTime)

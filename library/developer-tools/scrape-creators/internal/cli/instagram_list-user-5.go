@@ -17,7 +17,8 @@ func newInstagramListUser5Cmd(flags *rootFlags) *cobra.Command {
 	var flagTrim bool
 
 	cmd := &cobra.Command{
-		Use:   "list-user-5",
+		Use:   "user-posts",
+		Aliases: []string{"list-user-5"},
 		Short: "Returns a paginated feed of a user's public Instagram posts, including photos, videos, and carousels. Each item...",
 		Example: "  scrape-creators-pp-cli instagram list-user-5",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -32,7 +33,7 @@ func newInstagramListUser5Cmd(flags *rootFlags) *cobra.Command {
 			path := "/v2/instagram/user/posts"
 			params := map[string]string{}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = NormalizeHandle(fmt.Sprintf("%v", flagHandle))
 			}
 			if flagNextMaxId != "" {
 				params["next_max_id"] = fmt.Sprintf("%v", flagNextMaxId)

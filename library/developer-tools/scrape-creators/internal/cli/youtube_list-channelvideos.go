@@ -19,7 +19,8 @@ func newYoutubeListChannelvideosCmd(flags *rootFlags) *cobra.Command {
 	var flagIncludeExtras string
 
 	cmd := &cobra.Command{
-		Use:   "list-channelvideos",
+		Use:   "channel-videos",
+		Aliases: []string{"list-channelvideos"},
 		Short: "Channel Videos",
 		Example: "  scrape-creators-pp-cli youtube list-channelvideos",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -34,7 +35,7 @@ func newYoutubeListChannelvideosCmd(flags *rootFlags) *cobra.Command {
 				params["channelId"] = fmt.Sprintf("%v", flagChannelId)
 			}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = NormalizeHandle(fmt.Sprintf("%v", flagHandle))
 			}
 			if flagSort != "" {
 				params["sort"] = fmt.Sprintf("%v", flagSort)

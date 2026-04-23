@@ -6,6 +6,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 	"text/tabwriter"
 	"time"
@@ -14,6 +15,31 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/config"
 	"github.com/spf13/cobra"
 )
+
+// stripFlagArgs returns argv with flag-looking tokens removed so the wizard's
+// "bare invocation" check is not fooled by --json or --yes on the command line.
+func stripFlagArgs(argv []string) []string {
+	var out []string
+	skipNext := false
+	for _, a := range argv {
+		if skipNext {
+			skipNext = false
+			continue
+		}
+		if strings.HasPrefix(a, "--") || strings.HasPrefix(a, "-") {
+			// Accept --key=value and --key with a value in the next token. The
+			// wizard only needs a best-effort check; collapsing both forms is
+			// correct because any positional arg (first non-flag) counts as
+			// "user already issued a command."
+			if strings.HasPrefix(a, "--") && !strings.Contains(a, "=") {
+				skipNext = true
+			}
+			continue
+		}
+		out = append(out, a)
+	}
+	return out
+}
 
 var version = "1.0.0"
 
@@ -101,6 +127,7 @@ func Execute() error {
 	rootCmd.AddCommand(newAnalyticsCmd(&flags))
 	rootCmd.AddCommand(newWorkflowCmd(&flags))
 	rootCmd.AddCommand(newAPICmd(&flags))
+	rootCmd.AddCommand(newAgentCmd(&flags))
 	rootCmd.AddCommand(newTwitchPromotedCmd(&flags))
 	rootCmd.AddCommand(newBlueskyPromotedCmd(&flags))
 	rootCmd.AddCommand(newGooglePromotedCmd(&flags))
@@ -125,6 +152,11 @@ func Execute() error {
 	rootCmd.AddCommand(newLinktreePromotedCmd(&flags))
 	rootCmd.AddCommand(newThreadsPromotedCmd(&flags))
 	rootCmd.AddCommand(newVersionCliCmd())
+
+	// Wizard entry point: bare TTY invocation with no agent flag.
+	if handled, werr := runWizardIfEligible(rootCmd, &flags, stripFlagArgs(os.Args[1:])); handled {
+		return werr
+	}
 
 	err := rootCmd.Execute()
 	if err != nil && strings.Contains(err.Error(), "unknown flag") {

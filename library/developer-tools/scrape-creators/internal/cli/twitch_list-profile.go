@@ -15,7 +15,8 @@ func newTwitchListProfileCmd(flags *rootFlags) *cobra.Command {
 	var flagHandle string
 
 	cmd := &cobra.Command{
-		Use:   "list-profile",
+		Use:   "profile",
+		Aliases: []string{"list-profile"},
 		Short: "Retrieves a Twitch user's public profile by handle, including identity, social links, and content. Returns id,...",
 		Example: "  scrape-creators-pp-cli twitch list-profile",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -30,7 +31,7 @@ func newTwitchListProfileCmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/twitch/profile"
 			params := map[string]string{}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = NormalizeHandle(fmt.Sprintf("%v", flagHandle))
 			}
 			data, prov, err := resolveRead(c, flags, "twitch", false, path, params)
 			if err != nil {

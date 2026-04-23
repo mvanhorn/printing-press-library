@@ -19,7 +19,8 @@ func newFacebookListGroupCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "list-group",
+		Use:   "group-posts",
+		Aliases: []string{"list-group"},
 		Short: "Facebook Group Posts",
 		Example: "  scrape-creators-pp-cli facebook list-group",
 		RunE: func(cmd *cobra.Command, args []string) error {

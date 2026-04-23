@@ -15,7 +15,8 @@ func newTiktokListUserCmd(flags *rootFlags) *cobra.Command {
 	var flagHandle string
 
 	cmd := &cobra.Command{
-		Use:   "list-user",
+		Use:   "user-audience",
+		Aliases: []string{"list-user"},
 		Short: "User's Audience Demographics",
 		Example: "  scrape-creators-pp-cli tiktok list-user",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -30,7 +31,7 @@ func newTiktokListUserCmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/tiktok/user/audience"
 			params := map[string]string{}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = NormalizeHandle(fmt.Sprintf("%v", flagHandle))
 			}
 			data, prov, err := resolveRead(c, flags, "tiktok", false, path, params)
 			if err != nil {

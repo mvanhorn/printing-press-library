@@ -19,7 +19,8 @@ func newTiktokListHashtagsCmd(flags *rootFlags) *cobra.Command {
 	var flagIndustry string
 
 	cmd := &cobra.Command{
-		Use:   "list-hashtags",
+		Use:   "hashtags-popular",
+		Aliases: []string{"list-hashtags"},
 		Short: "Get popular hashtags",
 		Example: "  scrape-creators-pp-cli tiktok list-hashtags",
 		RunE: func(cmd *cobra.Command, args []string) error {

@@ -15,7 +15,8 @@ func newFacebookListPostCmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
 
 	cmd := &cobra.Command{
-		Use:   "list-post",
+		Use:   "post",
+		Aliases: []string{"list-post"},
 		Short: "Retrieves a single public Facebook post or reel by URL. Returns post_id, like_count, comment_count, share_count,...",
 		Example: "  scrape-creators-pp-cli facebook list-post",
 		RunE: func(cmd *cobra.Command, args []string) error {

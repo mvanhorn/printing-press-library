@@ -31,7 +31,7 @@ func newSnapchatPromotedCmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/snapchat/profile"
 			params := map[string]string{}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = NormalizeHandle(fmt.Sprintf("%v", flagHandle))
 			}
 			data, prov, err := resolveRead(c, flags, "snapchat", false, path, params)
 			if err != nil {

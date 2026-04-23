@@ -18,7 +18,8 @@ func newFacebookListCmd(flags *rootFlags) *cobra.Command {
 	var flagTrim bool
 
 	cmd := &cobra.Command{
-		Use:   "list",
+		Use:   "adlibrary-ad",
+		Aliases: []string{"list"},
 		Short: "Ad Details",
 		Example: "  scrape-creators-pp-cli facebook list",
 		RunE: func(cmd *cobra.Command, args []string) error {

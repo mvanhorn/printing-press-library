@@ -17,7 +17,8 @@ func newYoutubeListSearch2Cmd(flags *rootFlags) *cobra.Command {
 	var flagType string
 
 	cmd := &cobra.Command{
-		Use:   "list-search-2",
+		Use:   "search-hashtag",
+		Aliases: []string{"list-search-2"},
 		Short: "Search by Hashtag",
 		Example: "  scrape-creators-pp-cli youtube list-search-2",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -32,7 +33,7 @@ func newYoutubeListSearch2Cmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/youtube/search/hashtag"
 			params := map[string]string{}
 			if flagHashtag != "" {
-				params["hashtag"] = fmt.Sprintf("%v", flagHashtag)
+				params["hashtag"] = NormalizeHashtag(fmt.Sprintf("%v", flagHashtag))
 			}
 			if flagContinuationToken != "" {
 				params["continuationToken"] = fmt.Sprintf("%v", flagContinuationToken)

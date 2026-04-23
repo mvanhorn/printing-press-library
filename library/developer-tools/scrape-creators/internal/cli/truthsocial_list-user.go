@@ -18,7 +18,8 @@ func newTruthsocialListUserCmd(flags *rootFlags) *cobra.Command {
 	var flagTrim bool
 
 	cmd := &cobra.Command{
-		Use:   "list-user",
+		Use:   "user-posts",
+		Aliases: []string{"list-user"},
 		Short: "User Posts",
 		Example: "  scrape-creators-pp-cli truthsocial list-user",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -30,7 +31,7 @@ func newTruthsocialListUserCmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/truthsocial/user/posts"
 			params := map[string]string{}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = NormalizeHandle(fmt.Sprintf("%v", flagHandle))
 			}
 			if flagUserId != "" {
 				params["user_id"] = fmt.Sprintf("%v", flagUserId)

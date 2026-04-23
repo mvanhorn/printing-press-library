@@ -16,7 +16,8 @@ func newTiktokListGettrendingfeedCmd(flags *rootFlags) *cobra.Command {
 	var flagTrim bool
 
 	cmd := &cobra.Command{
-		Use:   "list-gettrendingfeed",
+		Use:   "trending-feed",
+		Aliases: []string{"list-gettrendingfeed"},
 		Short: "Trending Feed",
 		Example: "  scrape-creators-pp-cli tiktok list-gettrendingfeed",
 		RunE: func(cmd *cobra.Command, args []string) error {

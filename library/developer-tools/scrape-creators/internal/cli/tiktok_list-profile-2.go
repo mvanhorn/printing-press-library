@@ -20,7 +20,8 @@ func newTiktokListProfile2Cmd(flags *rootFlags) *cobra.Command {
 	var flagTrim bool
 
 	cmd := &cobra.Command{
-		Use:   "list-profile-2",
+		Use:   "profile-videos",
+		Aliases: []string{"list-profile-2"},
 		Short: "Profile Videos",
 		Example: "  scrape-creators-pp-cli tiktok list-profile-2",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -35,7 +36,7 @@ func newTiktokListProfile2Cmd(flags *rootFlags) *cobra.Command {
 			path := "/v3/tiktok/profile/videos"
 			params := map[string]string{}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = NormalizeHandle(fmt.Sprintf("%v", flagHandle))
 			}
 			if flagUserId != "" {
 				params["user_id"] = fmt.Sprintf("%v", flagUserId)

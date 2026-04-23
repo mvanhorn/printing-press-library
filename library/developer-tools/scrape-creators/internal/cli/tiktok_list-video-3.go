@@ -17,7 +17,8 @@ func newTiktokListVideo3Cmd(flags *rootFlags) *cobra.Command {
 	var flagUseAiAsFallback string
 
 	cmd := &cobra.Command{
-		Use:   "list-video-3",
+		Use:   "video-transcript",
+		Aliases: []string{"list-video-3"},
 		Short: "Extracts the transcript, captions, or subtitles from a TikTok video by URL. Returns `id`, `url`, and `transcript` as...",
 		Example: "  scrape-creators-pp-cli tiktok list-video-3",
 		RunE: func(cmd *cobra.Command, args []string) error {
