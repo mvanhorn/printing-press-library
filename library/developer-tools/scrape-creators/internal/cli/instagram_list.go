@@ -15,9 +15,9 @@ func newInstagramListCmd(flags *rootFlags) *cobra.Command {
 	var flagUserId string
 
 	cmd := &cobra.Command{
-		Use:   "basic-profile",
+		Use:     "basic-profile",
 		Aliases: []string{"list"},
-		Short: "Basic Profile",
+		Short:   "Basic Profile",
 		Example: "  scrape-creators-pp-cli instagram list",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

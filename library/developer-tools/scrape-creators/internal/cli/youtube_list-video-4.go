@@ -16,9 +16,9 @@ func newYoutubeListVideo4Cmd(flags *rootFlags) *cobra.Command {
 	var flagLanguage string
 
 	cmd := &cobra.Command{
-		Use:   "video-transcript",
+		Use:     "video-transcript",
 		Aliases: []string{"list-video-4"},
-		Short: "Retrieves the captions, subtitles, or transcript of a YouTube video or short. Returns both a timestamped transcript...",
+		Short:   "Retrieves the captions, subtitles, or transcript of a YouTube video or short. Returns both a timestamped transcript...",
 		Example: "  scrape-creators-pp-cli youtube list-video-4",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {

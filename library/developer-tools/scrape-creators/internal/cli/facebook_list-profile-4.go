@@ -18,9 +18,9 @@ func newFacebookListProfile4Cmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "profile-reels",
+		Use:     "profile-reels",
 		Aliases: []string{"list-profile-4"},
-		Short: "Profile Reels",
+		Short:   "Profile Reels",
 		Example: "  scrape-creators-pp-cli facebook list-profile-4",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
@@ -33,9 +33,9 @@ func newFacebookListProfile4Cmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/facebook/profile/reels"
 			data, prov, err := resolvePaginatedRead(c, flags, "facebook", path, map[string]string{
-				"url": fmt.Sprintf("%v", flagUrl),
+				"url":          fmt.Sprintf("%v", flagUrl),
 				"next_page_id": fmt.Sprintf("%v", flagNextPageId),
-				"cursor": fmt.Sprintf("%v", flagCursor),
+				"cursor":       fmt.Sprintf("%v", flagCursor),
 			}, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)

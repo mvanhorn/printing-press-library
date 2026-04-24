@@ -17,9 +17,9 @@ func newInstagramListUser5Cmd(flags *rootFlags) *cobra.Command {
 	var flagTrim bool
 
 	cmd := &cobra.Command{
-		Use:   "user-posts",
+		Use:     "user-posts",
 		Aliases: []string{"list-user-5"},
-		Short: "Returns a paginated feed of a user's public Instagram posts, including photos, videos, and carousels. Each item...",
+		Short:   "Returns a paginated feed of a user's public Instagram posts, including photos, videos, and carousels. Each item...",
 		Example: "  scrape-creators-pp-cli instagram list-user-5",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("handle") && !flags.dryRun {

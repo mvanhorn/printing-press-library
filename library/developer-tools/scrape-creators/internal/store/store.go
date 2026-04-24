@@ -505,6 +505,7 @@ func lookupFieldValue(obj map[string]any, snakeKey string) any {
 	}
 	return nil
 }
+
 // UpsertFacebook inserts or updates a facebook record with domain-specific columns.
 func (s *Store) UpsertFacebook(data json.RawMessage) error {
 	var obj map[string]any
@@ -561,6 +562,7 @@ func (s *Store) UpsertFacebook(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // UpsertThreads inserts or updates a threads record with domain-specific columns.
 func (s *Store) UpsertThreads(data json.RawMessage) error {
 	var obj map[string]any
@@ -603,6 +605,7 @@ func (s *Store) UpsertThreads(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // UpsertBluesky inserts or updates a bluesky record with domain-specific columns.
 func (s *Store) UpsertBluesky(data json.RawMessage) error {
 	var obj map[string]any
@@ -642,6 +645,7 @@ func (s *Store) UpsertBluesky(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // UpsertGoogle inserts or updates a google record with domain-specific columns.
 func (s *Store) UpsertGoogle(data json.RawMessage) error {
 	var obj map[string]any
@@ -690,6 +694,7 @@ func (s *Store) UpsertGoogle(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // UpsertReddit inserts or updates a reddit record with domain-specific columns.
 func (s *Store) UpsertReddit(data json.RawMessage) error {
 	var obj map[string]any
@@ -739,6 +744,7 @@ func (s *Store) UpsertReddit(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // UpsertTiktok inserts or updates a tiktok record with domain-specific columns.
 func (s *Store) UpsertTiktok(data json.RawMessage) error {
 	var obj map[string]any
@@ -807,6 +813,7 @@ func (s *Store) UpsertTiktok(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // UpsertTruthsocial inserts or updates a truthsocial record with domain-specific columns.
 func (s *Store) UpsertTruthsocial(data json.RawMessage) error {
 	var obj map[string]any
@@ -848,6 +855,7 @@ func (s *Store) UpsertTruthsocial(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // UpsertAccount inserts or updates a account record with domain-specific columns.
 func (s *Store) UpsertAccount(data json.RawMessage) error {
 	var obj map[string]any
@@ -889,6 +897,7 @@ func (s *Store) UpsertAccount(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // UpsertInstagram inserts or updates a instagram record with domain-specific columns.
 func (s *Store) UpsertInstagram(data json.RawMessage) error {
 	var obj map[string]any
@@ -938,6 +947,7 @@ func (s *Store) UpsertInstagram(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // UpsertLinkedin inserts or updates a linkedin record with domain-specific columns.
 func (s *Store) UpsertLinkedin(data json.RawMessage) error {
 	var obj map[string]any
@@ -983,6 +993,7 @@ func (s *Store) UpsertLinkedin(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // UpsertPinterest inserts or updates a pinterest record with domain-specific columns.
 func (s *Store) UpsertPinterest(data json.RawMessage) error {
 	var obj map[string]any
@@ -1024,6 +1035,7 @@ func (s *Store) UpsertPinterest(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // UpsertYoutube inserts or updates a youtube record with domain-specific columns.
 func (s *Store) UpsertYoutube(data json.RawMessage) error {
 	var obj map[string]any
@@ -1076,6 +1088,7 @@ func (s *Store) UpsertYoutube(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // UpsertTwitter inserts or updates a twitter record with domain-specific columns.
 func (s *Store) UpsertTwitter(data json.RawMessage) error {
 	var obj map[string]any
@@ -1239,7 +1252,7 @@ func (s *Store) ClearSyncCursors() error {
 }
 
 // Query executes a raw SQL query and returns the rows.
-// Used by workflow commands that need custom queries against the local store.
+// Used by archive commands that need custom queries against the local store.
 func (s *Store) Query(query string, args ...any) (*sql.Rows, error) {
 	return s.db.Query(query, args...)
 }

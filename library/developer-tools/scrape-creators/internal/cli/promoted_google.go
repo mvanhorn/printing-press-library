@@ -15,9 +15,9 @@ func newGooglePromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagQuery string
 
 	cmd := &cobra.Command{
-		Use:   "google",
-		Short: "Advertiser Search",
-		Long:  "Shortcut for 'google list-adlibrary'. Advertiser Search",
+		Use:     "google",
+		Short:   "Advertiser Search",
+		Long:    "Shortcut for 'google list-adlibrary'. Advertiser Search",
 		Example: "  scrape-creators-pp-cli google",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {

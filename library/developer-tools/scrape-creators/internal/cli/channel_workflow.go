@@ -12,146 +12,105 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newWorkflowCmd(flags *rootFlags) *cobra.Command {
+func newArchiveCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "workflow",
-		Short: "Compound workflows that combine multiple API operations",
-	}
-
-	cmd.AddCommand(newWorkflowArchiveCmd(flags))
-	cmd.AddCommand(newWorkflowStatusCmd(flags))
-
-	return cmd
-}
-
-func newWorkflowArchiveCmd(flags *rootFlags) *cobra.Command {
-	var dbPath string
-	var full bool
-
-	cmd := &cobra.Command{
-		Use:   "archive",
-		Short: "Sync all resources to local store for offline access and search",
-		Long: `Archive fetches all syncable resources from the API and stores them in a
+		Use:     "archive",
+		Aliases: []string{"workflow"},
+		Short:   "Sync the built-in archiveable resources to the local store",
+		Long: `Archive fetches the built-in archiveable resource set from the API and stores it in a
 local SQLite database. Supports incremental sync (only new data since last run)
 and full resync. After archiving, use 'search' for instant full-text search.`,
-		Example: `  # Archive all resources
-  scrape-creators-pp-cli workflow archive
+		Example: `  # Archive the built-in archiveable set
+  scrape-creators-pp-cli archive
 
   # Full re-archive (ignore previous sync state)
-  scrape-creators-pp-cli workflow archive --full`,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := flags.newClient()
-			if err != nil {
-				return err
-			}
-			c.NoCache = true
+  scrape-creators-pp-cli archive --full
 
-			if dbPath == "" {
-				dbPath = defaultDBPath("scrape-creators-pp-cli")
-			}
-			s, err := store.Open(dbPath)
-			if err != nil {
-				return fmt.Errorf("opening store: %w", err)
-			}
-			defer s.Close()
-
-			resources := []string{"account", "bluesky", "facebook", "google", "instagram", "linkedin", "pinterest", "reddit", "tiktok", "truthsocial", "youtube",  }
-			totalSynced := 0
-
-			for _, resource := range resources {
-				cursor := ""
-				if !full {
-					existing, _, _, err := s.GetSyncState(resource)
-					if err == nil && existing != "" {
-						cursor = existing
-					}
-				}
-
-				fmt.Fprintf(cmd.ErrOrStderr(), "Syncing %s...\n", resource)
-
-				params := map[string]string{"limit": "100"}
-				if cursor != "" {
-					params["after"] = cursor
-				}
-
-				count := 0
-				for {
-					data, fetchErr := c.Get("/"+resource, params)
-					if fetchErr != nil {
-						fmt.Fprintf(cmd.ErrOrStderr(), "  warning: %s: %v\n", resource, fetchErr)
-						break
-					}
-					var items []json.RawMessage
-					if err := json.Unmarshal(data, &items); err != nil {
-						// Might be a single object, not array
-						if err := s.Upsert(resource, resource+"-singleton", data); err != nil {
-							fmt.Fprintf(cmd.ErrOrStderr(), "  warning: store %s: %v\n", resource, err)
-						}
-						count++
-						break
-					}
-					if len(items) == 0 {
-						break
-					}
-					for _, item := range items {
-						var obj struct{ ID string `json:"id"` }
-						json.Unmarshal(item, &obj)
-						id := obj.ID
-						if id == "" {
-							id = fmt.Sprintf("%s-%d", resource, count)
-						}
-						if err := s.Upsert(resource, id, item); err != nil {
-							fmt.Fprintf(cmd.ErrOrStderr(), "  warning: store %s/%s: %v\n", resource, id, err)
-						}
-						cursor = id
-						count++
-					}
-					if len(items) < 100 {
-						break
-					}
-					params["after"] = cursor
-				}
-
-				if count > 0 {
-					s.SaveSyncState(resource, cursor, count)
-				}
-				totalSynced += count
-				fmt.Fprintf(cmd.ErrOrStderr(), "  %s: %d items\n", resource, count)
-			}
-
-			if flags.asJSON {
-				enc := json.NewEncoder(cmd.OutOrStdout())
-				enc.SetIndent("", "  ")
-				return enc.Encode(map[string]any{
-					"resources_synced": len(resources),
-					"total_items":      totalSynced,
-					"store_path":       dbPath,
-					"timestamp":        time.Now().UTC().Format(time.RFC3339),
-				})
-			}
-
-			fmt.Fprintf(cmd.OutOrStdout(), "Archived %d items across %d resources to %s\n", totalSynced, len(resources), dbPath)
-			return nil
-		},
+  # Show local archive status
+  scrape-creators-pp-cli archive status`,
 	}
 
+	var dbPath string
+	var full bool
+	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		return runArchive(flags, dbPath, full, cmd)
+	}
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/scrape-creators-pp-cli/data.db)")
 	cmd.Flags().BoolVar(&full, "full", false, "Full re-archive (ignore previous sync state)")
 
+	cmd.AddCommand(newArchiveStatusCmd(flags))
+
 	return cmd
 }
 
-func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
+func runArchive(flags *rootFlags, dbPath string, full bool, cmd *cobra.Command) error {
+	c, err := flags.newClient()
+	if err != nil {
+		return err
+	}
+	c.NoCache = true
+
+	if dbPath == "" {
+		dbPath = defaultDBPath("scrape-creators-pp-cli")
+	}
+	s, err := store.Open(dbPath)
+	if err != nil {
+		return fmt.Errorf("opening store: %w", err)
+	}
+	defer s.Close()
+
+	resources := defaultSyncResources()
+	totalSynced := 0
+	errCount := 0
+
+	for _, resource := range resources {
+		fmt.Fprintf(cmd.ErrOrStderr(), "Syncing %s...\n", resource)
+		res := syncResource(c, s, resource, "", full)
+		if res.Err != nil {
+			fmt.Fprintf(cmd.ErrOrStderr(), "  warning: %s: %v\n", resource, res.Err)
+			errCount++
+			continue
+		}
+		totalSynced += res.Count
+		fmt.Fprintf(cmd.ErrOrStderr(), "  %s: %d items\n", resource, res.Count)
+	}
+
+	if flags.asJSON {
+		enc := json.NewEncoder(cmd.OutOrStdout())
+		enc.SetIndent("", "  ")
+		if err := enc.Encode(map[string]any{
+			"resources_synced": len(resources),
+			"total_items":      totalSynced,
+			"store_path":       dbPath,
+			"timestamp":        time.Now().UTC().Format(time.RFC3339),
+			"failed_resources": errCount,
+		}); err != nil {
+			return err
+		}
+		if errCount > 0 {
+			return apiErr(fmt.Errorf("%d resource(s) failed to archive", errCount))
+		}
+		return nil
+	}
+
+	fmt.Fprintf(cmd.OutOrStdout(), "Archived %d items across %d resources to %s\n", totalSynced, len(resources), dbPath)
+	if errCount > 0 {
+		return apiErr(fmt.Errorf("%d resource(s) failed to archive", errCount))
+	}
+	return nil
+}
+
+func newArchiveStatusCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 
 	cmd := &cobra.Command{
 		Use:   "status",
 		Short: "Show local archive status and sync state for all resources",
 		Example: `  # Show archive status
-  scrape-creators-pp-cli workflow status
+  scrape-creators-pp-cli archive status
 
   # Show status as JSON
-  scrape-creators-pp-cli workflow status --json`,
+  scrape-creators-pp-cli archive status --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dbPath == "" {
 				dbPath = defaultDBPath("scrape-creators-pp-cli")
@@ -174,7 +133,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if len(status) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "No archived data. Run 'workflow archive' to sync.")
+				fmt.Fprintln(cmd.OutOrStdout(), "No archived data. Run 'archive' to sync.")
 				return nil
 			}
 

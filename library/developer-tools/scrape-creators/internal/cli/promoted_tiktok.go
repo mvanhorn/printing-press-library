@@ -18,9 +18,9 @@ func newTiktokPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagPage float64
 
 	cmd := &cobra.Command{
-		Use:   "tiktok",
-		Short: "Product Reviews",
-		Long:  "Shortcut for 'tiktok list-shop'. Product Reviews",
+		Use:     "tiktok",
+		Short:   "Product Reviews",
+		Long:    "Shortcut for 'tiktok list-shop'. Product Reviews",
 		Example: "  scrape-creators-pp-cli tiktok",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

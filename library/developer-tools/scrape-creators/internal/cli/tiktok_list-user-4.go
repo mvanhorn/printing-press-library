@@ -15,9 +15,9 @@ func newTiktokListUser4Cmd(flags *rootFlags) *cobra.Command {
 	var flagHandle string
 
 	cmd := &cobra.Command{
-		Use:   "user-live",
+		Use:     "user-live",
 		Aliases: []string{"list-user-4"},
-		Short: "TikTok Live",
+		Short:   "TikTok Live",
 		Example: "  scrape-creators-pp-cli tiktok list-user-4",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("handle") && !flags.dryRun {

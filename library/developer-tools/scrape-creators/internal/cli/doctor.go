@@ -20,11 +20,13 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 		Short: "Check CLI health",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			report := map[string]any{}
+			var resultErr error
 
 			// Check config
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				report["config"] = fmt.Sprintf("error: %s", err)
+				resultErr = configErr(err)
 			} else {
 				report["config"] = "ok"
 				report["config_path"] = cfg.Path
@@ -36,7 +38,10 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				header := cfg.AuthHeader()
 				if header == "" {
 					report["auth"] = "not configured"
-					report["auth_hint"] = "export SCRAPE_CREATORS_API_KEY_AUTH=<your-key>"
+					report["auth_hint"] = "export SCRAPE_CREATORS_API_KEY=<your-key>"
+					if resultErr == nil {
+						resultErr = authErr(fmt.Errorf("auth not configured"))
+					}
 				} else {
 					report["auth"] = "configured"
 					report["auth_source"] = cfg.AuthSource
@@ -47,7 +52,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			authEnvChecked := 0
 			authEnvSet := 0
 			authEnvChecked++
-			if os.Getenv("SCRAPE_CREATORS_API_KEY_AUTH") != "" {
+			if os.Getenv("SCRAPE_CREATORS_API_KEY") != "" {
 				authEnvSet++
 			}
 			if authEnvSet == 0 {
@@ -85,6 +90,9 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 
 				if !apiReachable {
 					report["api"] = fmt.Sprintf("unreachable: %s", headErr)
+					if resultErr == nil {
+						resultErr = apiErr(fmt.Errorf("api unreachable"))
+					}
 				} else {
 					report["api"] = "reachable"
 				}
@@ -96,27 +104,35 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				} else if !apiReachable {
 					report["credentials"] = "skipped (API unreachable)"
 				} else {
-					authReq, _ := http.NewRequest("GET", baseURL, nil)
+					authReq, _ := http.NewRequest("GET", baseURL+"/v1/account/get-api-usage", nil)
 					authReq.Header.Set("x-api-key", authHeader)
 					authReq.Header.Set("User-Agent", "scrape-creators-pp-cli")
-					authResp, authErr := httpClient.Do(authReq)
-					if authErr != nil {
+					authResp, authCheckErr := httpClient.Do(authReq)
+					if authCheckErr != nil {
 						report["credentials"] = "error: could not reach API"
+						if resultErr == nil {
+							resultErr = apiErr(fmt.Errorf("credential validation failed: could not reach API"))
+						}
 					} else {
 						authResp.Body.Close()
 						switch {
 						case authResp.StatusCode >= 200 && authResp.StatusCode < 300:
-							report["credentials"] = "valid"
+							report["credentials"] = fmt.Sprintf("inconclusive (HTTP %d from validation endpoint)", authResp.StatusCode)
 						case authResp.StatusCode == 401 || authResp.StatusCode == 403:
 							report["credentials"] = fmt.Sprintf("invalid (HTTP %d) — check your credentials", authResp.StatusCode)
+							if resultErr == nil {
+								resultErr = authErr(fmt.Errorf("invalid credentials"))
+							}
 						default:
-							// Non-auth HTTP error (404, 500, etc.) — don't blame credentials
-							report["credentials"] = fmt.Sprintf("ok (HTTP %d from base URL, but auth was accepted)", authResp.StatusCode)
+							report["credentials"] = fmt.Sprintf("inconclusive (HTTP %d from validation endpoint)", authResp.StatusCode)
 						}
 					}
 				}
 			} else if cfg != nil && cfg.BaseURL == "" {
 				report["api"] = "not configured (set base_url in config file)"
+				if resultErr == nil {
+					resultErr = configErr(fmt.Errorf("base_url not configured"))
+				}
 			}
 
 			report["version"] = version
@@ -142,7 +158,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				indicator := green("OK")
 				if strings.Contains(s, "error") || strings.Contains(s, "not configured") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") {
 					indicator = red("FAIL")
-				} else if strings.Contains(s, "not ") || strings.Contains(s, "skipped") || strings.Contains(s, "inferred") {
+				} else if strings.Contains(s, "not ") || strings.Contains(s, "skipped") || strings.Contains(s, "inferred") || strings.Contains(s, "inconclusive") {
 					indicator = yellow("WARN")
 				}
 				fmt.Fprintf(w, "  %s %s: %s\n", indicator, ck.label, s)
@@ -157,7 +173,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			if hint, ok := report["auth_hint"]; ok {
 				fmt.Fprintf(w, "  hint: %v\n", hint)
 			}
-			return nil
+			return resultErr
 		},
 	}
 }

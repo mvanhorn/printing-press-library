@@ -19,6 +19,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/store"
 )
+
 // looksLikeAuthError checks if an error message body contains auth-related keywords.
 func looksLikeAuthError(msg string) bool {
 	lower := strings.ToLower(msg)
@@ -57,7 +58,7 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("account_list",
 			mcplib.WithDescription("Get credit balance"),
 		),
-		makeAPIHandler("GET", "/v1/account/credit-balance", []string{ }),
+		makeAPIHandler("GET", "/v1/account/credit-balance", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("account_list-getapiusage",
@@ -66,13 +67,13 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("endpoint", mcplib.Description("Filter by endpoint name (partial match)")),
 			mcplib.WithString("statusCode", mcplib.Description("Filter by HTTP status code")),
 		),
-		makeAPIHandler("GET", "/v1/account/get-api-usage", []string{ }),
+		makeAPIHandler("GET", "/v1/account/get-api-usage", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("account_list-getdailyusagecount",
 			mcplib.WithDescription("Get daily usage"),
 		),
-		makeAPIHandler("GET", "/v1/account/get-daily-usage-count", []string{ }),
+		makeAPIHandler("GET", "/v1/account/get-daily-usage-count", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("account_list-getmostusedroutes",
@@ -80,28 +81,28 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("start_time", mcplib.Description("Start of time range (ISO 8601 format)")),
 			mcplib.WithString("end_time", mcplib.Description("End of time range (ISO 8601 format)")),
 		),
-		makeAPIHandler("GET", "/v1/account/get-most-used-routes", []string{ }),
+		makeAPIHandler("GET", "/v1/account/get-most-used-routes", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("amazon_list",
 			mcplib.WithDescription("Amazon Shop page"),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("URL to Amazon Shop page")),
 		),
-		makeAPIHandler("GET", "/v1/amazon/shop", []string{ }),
+		makeAPIHandler("GET", "/v1/amazon/shop", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bluesky_list",
 			mcplib.WithDescription("Fetches a single Bluesky post by URL, returning the post's record text, author info, embed content, replyCount,..."),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Bluesky post URL")),
 		),
-		makeAPIHandler("GET", "/v1/bluesky/post", []string{ }),
+		makeAPIHandler("GET", "/v1/bluesky/post", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bluesky_list-profile",
 			mcplib.WithDescription("Retrieves a Bluesky user's public profile including handle, displayName, avatar, description, followersCount,..."),
 			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Bluesky handle")),
 		),
-		makeAPIHandler("GET", "/v1/bluesky/profile", []string{ }),
+		makeAPIHandler("GET", "/v1/bluesky/profile", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bluesky_list-user",
@@ -109,14 +110,14 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("handle", mcplib.Description("Bluesky handle")),
 			mcplib.WithString("user_id", mcplib.Description("Bluesky 'did'. (For some reason Bluesky calls their user ids, 'did' for whatever reason)")),
 		),
-		makeAPIHandler("GET", "/v1/bluesky/user/posts", []string{ }),
+		makeAPIHandler("GET", "/v1/bluesky/user/posts", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("detect-age-gender_list",
 			mcplib.WithDescription("Get Age and Gender"),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("URL to users social profile")),
 		),
-		makeAPIHandler("GET", "/v1/detect-age-gender", []string{ }),
+		makeAPIHandler("GET", "/v1/detect-age-gender", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list",
@@ -126,7 +127,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("get_transcript", mcplib.Description("Get the transcript of the ad. Only works if the video is under 2 minutes.")),
 			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
 		),
-		makeAPIHandler("GET", "/v1/facebook/adLibrary/ad", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/adLibrary/ad", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list-adlibrary",
@@ -143,7 +144,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("cursor", mcplib.Description("Cursor to paginate through results")),
 			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
 		),
-		makeAPIHandler("GET", "/v1/facebook/adLibrary/company/ads", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/adLibrary/company/ads", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list-adlibrary-2",
@@ -160,14 +161,14 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("cursor", mcplib.Description("Cursor to paginate through results")),
 			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
 		),
-		makeAPIHandler("GET", "/v1/facebook/adLibrary/search/ads", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/adLibrary/search/ads", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list-adlibrary-3",
 			mcplib.WithDescription("Search for Companies"),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Keyword to search for")),
 		),
-		makeAPIHandler("GET", "/v1/facebook/adLibrary/search/companies", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/adLibrary/search/companies", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list-group",
@@ -177,14 +178,14 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("sort_by", mcplib.Description("How to sort the posts")),
 			mcplib.WithString("cursor", mcplib.Description("The cursor to paginate to the next page")),
 		),
-		makeAPIHandler("GET", "/v1/facebook/group/posts", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/group/posts", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list-post",
 			mcplib.WithDescription("Retrieves a single public Facebook post or reel by URL. Returns post_id, like_count, comment_count, share_count,..."),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The URL of the post to get")),
 		),
-		makeAPIHandler("GET", "/v1/facebook/post", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/post", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list-post-2",
@@ -193,14 +194,14 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("feedback_id", mcplib.Description("Using feedback_id (instead of url) will *really* speed up the request. You can get the feedback_id when you make a...")),
 			mcplib.WithString("cursor", mcplib.Description("Cursor to get more comments. Get 'cursor' from previous response.")),
 		),
-		makeAPIHandler("GET", "/v1/facebook/post/comments", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/post/comments", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list-post-3",
 			mcplib.WithDescription("Extracts the transcript text from a Facebook video post or reel. Returns the transcript as a single text string with..."),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Facebook post URL")),
 		),
-		makeAPIHandler("GET", "/v1/facebook/post/transcript", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/post/transcript", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list-profile",
@@ -208,7 +209,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Facebook profile URL")),
 			mcplib.WithString("get_business_hours", mcplib.Description("Get the business's hours")),
 		),
-		makeAPIHandler("GET", "/v1/facebook/profile", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/profile", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list-profile-2",
@@ -217,7 +218,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("next_page_id", mcplib.Description("To paginate through to the next page")),
 			mcplib.WithString("cursor", mcplib.Description("To paginate through to the next page")),
 		),
-		makeAPIHandler("GET", "/v1/facebook/profile/photos", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/profile/photos", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list-profile-3",
@@ -226,7 +227,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("pageId", mcplib.Description("Facebook profile page id")),
 			mcplib.WithString("cursor", mcplib.Description("To paginate through the posts")),
 		),
-		makeAPIHandler("GET", "/v1/facebook/profile/posts", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/profile/posts", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list-profile-4",
@@ -235,21 +236,21 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("next_page_id", mcplib.Description("To paginate through to the next page")),
 			mcplib.WithString("cursor", mcplib.Description("To paginate through to the next page")),
 		),
-		makeAPIHandler("GET", "/v1/facebook/profile/reels", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/profile/reels", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("google_list",
 			mcplib.WithDescription("Ad Details"),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The url of the ad")),
 		),
-		makeAPIHandler("GET", "/v1/google/ad", []string{ }),
+		makeAPIHandler("GET", "/v1/google/ad", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("google_list-adlibrary",
 			mcplib.WithDescription("Advertiser Search"),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("The query to search for")),
 		),
-		makeAPIHandler("GET", "/v1/google/adLibrary/advertisers/search", []string{ }),
+		makeAPIHandler("GET", "/v1/google/adLibrary/advertisers/search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("google_list-company",
@@ -263,7 +264,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("get_ad_details", mcplib.Description("Set to true to get the ad details. Will cost 25 credits.")),
 			mcplib.WithString("cursor", mcplib.Description("Cursor to paginate through results")),
 		),
-		makeAPIHandler("GET", "/v1/google/company/ads", []string{ }),
+		makeAPIHandler("GET", "/v1/google/company/ads", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("google_list-search",
@@ -273,21 +274,21 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("date_posted", mcplib.Description("Date posted")),
 			mcplib.WithString("page", mcplib.Description("Page number to retrieve")),
 		),
-		makeAPIHandler("GET", "/v1/google/search", []string{ }),
+		makeAPIHandler("GET", "/v1/google/search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list",
 			mcplib.WithDescription("Basic Profile"),
 			mcplib.WithString("userId", mcplib.Description("Instagram user id")),
 		),
-		makeAPIHandler("GET", "/v1/instagram/basic-profile", []string{ }),
+		makeAPIHandler("GET", "/v1/instagram/basic-profile", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list-media",
 			mcplib.WithDescription("Generates an AI-powered speech-to-text transcription for an Instagram video post or reel. The video must be under 2..."),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Instagram post or reel URL")),
 		),
-		makeAPIHandler("GET", "/v2/instagram/media/transcript", []string{ }),
+		makeAPIHandler("GET", "/v2/instagram/media/transcript", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list-post",
@@ -297,7 +298,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("trim", mcplib.Description("Set to true to get a trimmed response")),
 			mcplib.WithString("download_media", mcplib.Description("Set to true to download the video/images and get back permanent Supabase URLs. Costs 10 credits if media is found, 1...")),
 		),
-		makeAPIHandler("GET", "/v1/instagram/post", []string{ }),
+		makeAPIHandler("GET", "/v1/instagram/post", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list-post-2",
@@ -305,7 +306,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The URL of the post or reel to get comments from")),
 			mcplib.WithString("cursor", mcplib.Description("The cursor to get more comments. Get 'cursor' from previous response.")),
 		),
-		makeAPIHandler("GET", "/v2/instagram/post/comments", []string{ }),
+		makeAPIHandler("GET", "/v2/instagram/post/comments", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list-profile",
@@ -313,7 +314,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Instagram handle")),
 			mcplib.WithString("trim", mcplib.Description("Set to true to get a trimmed response")),
 		),
-		makeAPIHandler("GET", "/v1/instagram/profile", []string{ }),
+		makeAPIHandler("GET", "/v1/instagram/profile", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list-reels",
@@ -322,7 +323,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("date_posted", mcplib.Description("Date posted")),
 			mcplib.WithString("page", mcplib.Description("The page number to return.")),
 		),
-		makeAPIHandler("GET", "/v2/instagram/reels/search", []string{ }),
+		makeAPIHandler("GET", "/v2/instagram/reels/search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list-song",
@@ -330,21 +331,21 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("audio_id", mcplib.Required(), mcplib.Description("If you're looking for this, it is sometimes called 'audio_cluster_id', or it can be just 'audio_id'.")),
 			mcplib.WithString("max_id", mcplib.Description("How you paginate the results. Pass the max_id from the previous response to get the next set of reels.")),
 		),
-		makeAPIHandler("GET", "/v1/instagram/song/reels", []string{ }),
+		makeAPIHandler("GET", "/v1/instagram/song/reels", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list-user",
 			mcplib.WithDescription("Embed HTML"),
 			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Instagram handle")),
 		),
-		makeAPIHandler("GET", "/v1/instagram/user/embed", []string{ }),
+		makeAPIHandler("GET", "/v1/instagram/user/embed", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list-user-2",
 			mcplib.WithDescription("Highlights Details"),
 			mcplib.WithString("id", mcplib.Description("The ID of the highlight to get details for")),
 		),
-		makeAPIHandler("GET", "/v1/instagram/user/highlight/detail", []string{ }),
+		makeAPIHandler("GET", "/v1/instagram/user/highlight/detail", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list-user-3",
@@ -352,7 +353,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("user_id", mcplib.Description("Instagram user id. Use for faster response times.")),
 			mcplib.WithString("handle", mcplib.Description("Instagram handle. Use user_id for faster response times.")),
 		),
-		makeAPIHandler("GET", "/v1/instagram/user/highlights", []string{ }),
+		makeAPIHandler("GET", "/v1/instagram/user/highlights", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list-user-4",
@@ -362,7 +363,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("max_id", mcplib.Description("Max id to get more reels. Get 'max_id' from previous response.")),
 			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
 		),
-		makeAPIHandler("GET", "/v1/instagram/user/reels", []string{ }),
+		makeAPIHandler("GET", "/v1/instagram/user/reels", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list-user-5",
@@ -371,35 +372,35 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("next_max_id", mcplib.Description("Cursor to get next page of results.")),
 			mcplib.WithString("trim", mcplib.Description("Set to true to get a trimmed response")),
 		),
-		makeAPIHandler("GET", "/v2/instagram/user/posts", []string{ }),
+		makeAPIHandler("GET", "/v2/instagram/user/posts", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("kick_list",
 			mcplib.WithDescription("Fetches detailed data for a Kick clip by URL, including video, metadata, and channel info. Returns clip id, title,..."),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Kick clip URL")),
 		),
-		makeAPIHandler("GET", "/v1/kick/clip", []string{ }),
+		makeAPIHandler("GET", "/v1/kick/clip", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("komi_list",
 			mcplib.WithDescription("Komi page"),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("URL to Komi page")),
 		),
-		makeAPIHandler("GET", "/v1/komi", []string{ }),
+		makeAPIHandler("GET", "/v1/komi", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("linkbio_list",
 			mcplib.WithDescription("Linkbio page"),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("URL to Linkbio (lnk.bio) page")),
 		),
-		makeAPIHandler("GET", "/v1/linkbio", []string{ }),
+		makeAPIHandler("GET", "/v1/linkbio", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("linkedin_list",
 			mcplib.WithDescription("Ad Details"),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The url of the ad")),
 		),
-		makeAPIHandler("GET", "/v1/linkedin/ad", []string{ }),
+		makeAPIHandler("GET", "/v1/linkedin/ad", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("linkedin_list-ads",
@@ -412,14 +413,14 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("endDate", mcplib.Description("End date to search for. Format: YYYY-MM-DD")),
 			mcplib.WithString("paginationToken", mcplib.Description("Pagination token to paginate through results")),
 		),
-		makeAPIHandler("GET", "/v1/linkedin/ads/search", []string{ }),
+		makeAPIHandler("GET", "/v1/linkedin/ads/search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("linkedin_list-company",
 			mcplib.WithDescription("Company Page"),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The URL of the LinkedIn company page to get")),
 		),
-		makeAPIHandler("GET", "/v1/linkedin/company", []string{ }),
+		makeAPIHandler("GET", "/v1/linkedin/company", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("linkedin_list-company-2",
@@ -427,42 +428,42 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The URL of the LinkedIn company page to get")),
 			mcplib.WithString("page", mcplib.Description("The page number to get")),
 		),
-		makeAPIHandler("GET", "/v1/linkedin/company/posts", []string{ }),
+		makeAPIHandler("GET", "/v1/linkedin/company/posts", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("linkedin_list-post",
 			mcplib.WithDescription("Fetches a single LinkedIn post or article, returning the title, headline, full description text, author info with..."),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The URL of the LinkedIn post to get")),
 		),
-		makeAPIHandler("GET", "/v1/linkedin/post", []string{ }),
+		makeAPIHandler("GET", "/v1/linkedin/post", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("linkedin_list-profile",
 			mcplib.WithDescription("Person's Profile"),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The URL of the LinkedIn profile to get")),
 		),
-		makeAPIHandler("GET", "/v1/linkedin/profile", []string{ }),
+		makeAPIHandler("GET", "/v1/linkedin/profile", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("linkme_list",
 			mcplib.WithDescription("Retrieves a Linkme profile by URL, including identity, social links, and contact details. Returns profile with id,..."),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Linkme profile URL")),
 		),
-		makeAPIHandler("GET", "/v1/linkme", []string{ }),
+		makeAPIHandler("GET", "/v1/linkme", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("linktree_list",
 			mcplib.WithDescription("Linktree page"),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("URL to Linktree page")),
 		),
-		makeAPIHandler("GET", "/v1/linktree", []string{ }),
+		makeAPIHandler("GET", "/v1/linktree", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("pillar_list",
 			mcplib.WithDescription("Pillar page"),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("URL to Pillar page")),
 		),
-		makeAPIHandler("GET", "/v1/pillar", []string{ }),
+		makeAPIHandler("GET", "/v1/pillar", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("pinterest_list",
@@ -471,7 +472,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("cursor", mcplib.Description("The cursor to get the next page of results")),
 			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
 		),
-		makeAPIHandler("GET", "/v1/pinterest/board", []string{ }),
+		makeAPIHandler("GET", "/v1/pinterest/board", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("pinterest_list-pin",
@@ -479,7 +480,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Pinterest pin URL")),
 			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
 		),
-		makeAPIHandler("GET", "/v1/pinterest/pin", []string{ }),
+		makeAPIHandler("GET", "/v1/pinterest/pin", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("pinterest_list-search",
@@ -488,7 +489,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("cursor", mcplib.Description("Cursor")),
 			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
 		),
-		makeAPIHandler("GET", "/v1/pinterest/search", []string{ }),
+		makeAPIHandler("GET", "/v1/pinterest/search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("pinterest_list-user",
@@ -496,14 +497,14 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("The username of the user to get boards for. (e.g. broadstbullycom from https://www.pinterest.com/broadstbullycom/)")),
 			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
 		),
-		makeAPIHandler("GET", "/v1/pinterest/user/boards", []string{ }),
+		makeAPIHandler("GET", "/v1/pinterest/user/boards", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("reddit_list",
 			mcplib.WithDescription("Get Ad"),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Ad id")),
 		),
-		makeAPIHandler("GET", "/v1/reddit/ad", []string{ }),
+		makeAPIHandler("GET", "/v1/reddit/ad", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("reddit_list-ads",
@@ -515,7 +516,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("placements", mcplib.Description("Placements to filter by")),
 			mcplib.WithString("objectives", mcplib.Description("Objectives to filter by")),
 		),
-		makeAPIHandler("GET", "/v1/reddit/ads/search", []string{ }),
+		makeAPIHandler("GET", "/v1/reddit/ads/search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("reddit_list-post",
@@ -524,7 +525,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("cursor", mcplib.Description("Cursor to get more comments, or replies.")),
 			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
 		),
-		makeAPIHandler("GET", "/v1/reddit/post/comments", []string{ }),
+		makeAPIHandler("GET", "/v1/reddit/post/comments", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("reddit_list-search",
@@ -535,7 +536,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("after", mcplib.Description("Used to paginate to next page")),
 			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
 		),
-		makeAPIHandler("GET", "/v1/reddit/search", []string{ }),
+		makeAPIHandler("GET", "/v1/reddit/search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("reddit_list-subreddit",
@@ -546,7 +547,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("after", mcplib.Description("After to get more posts. Get 'after' from previous response.")),
 			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
 		),
-		makeAPIHandler("GET", "/v1/reddit/subreddit", []string{ }),
+		makeAPIHandler("GET", "/v1/reddit/subreddit", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("reddit_list-subreddit-2",
@@ -554,7 +555,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("subreddit", mcplib.Description("Subreddit name. MUST be case sensitive. So 'AskReddit' not 'askreddit'.")),
 			mcplib.WithString("url", mcplib.Description("Subreddit URL")),
 		),
-		makeAPIHandler("GET", "/v1/reddit/subreddit/details", []string{ }),
+		makeAPIHandler("GET", "/v1/reddit/subreddit/details", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("reddit_list-subreddit-3",
@@ -565,14 +566,14 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("timeframe", mcplib.Description("Timeframe to filter results")),
 			mcplib.WithString("cursor", mcplib.Description("Cursor to get more results. Get 'cursor' from previous response.")),
 		),
-		makeAPIHandler("GET", "/v1/reddit/subreddit/search", []string{ }),
+		makeAPIHandler("GET", "/v1/reddit/subreddit/search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("snapchat_list",
 			mcplib.WithDescription("User Profile"),
 			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Snapchat username")),
 		),
-		makeAPIHandler("GET", "/v1/snapchat/profile", []string{ }),
+		makeAPIHandler("GET", "/v1/snapchat/profile", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("threads_list",
@@ -580,14 +581,14 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The URL of the post to get")),
 			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
 		),
-		makeAPIHandler("GET", "/v1/threads/post", []string{ }),
+		makeAPIHandler("GET", "/v1/threads/post", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("threads_list-profile",
 			mcplib.WithDescription("Retrieves a Threads user's public profile including username, full_name, biography, profile_pic_url, follower_count,..."),
 			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Threads username")),
 		),
-		makeAPIHandler("GET", "/v1/threads/profile", []string{ }),
+		makeAPIHandler("GET", "/v1/threads/profile", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("threads_list-search",
@@ -597,14 +598,14 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("end_date", mcplib.Description("End date to search for")),
 			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
 		),
-		makeAPIHandler("GET", "/v1/threads/search", []string{ }),
+		makeAPIHandler("GET", "/v1/threads/search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("threads_list-search-2",
 			mcplib.WithDescription("Search Users"),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Username to search for")),
 		),
-		makeAPIHandler("GET", "/v1/threads/search/users", []string{ }),
+		makeAPIHandler("GET", "/v1/threads/search/users", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("threads_list-user",
@@ -612,7 +613,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Threads username")),
 			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
 		),
-		makeAPIHandler("GET", "/v1/threads/user/posts", []string{ }),
+		makeAPIHandler("GET", "/v1/threads/user/posts", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list",
@@ -623,7 +624,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("creatorCountry", mcplib.Description("Country code of the creator")),
 			mcplib.WithString("audienceCountry", mcplib.Description("Country code of the audience/follower")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/creators/popular", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/creators/popular", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-gettrendingfeed",
@@ -631,7 +632,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("region", mcplib.Required(), mcplib.Description("Where you want the proxy to be. This doesn't mean that you will only see TikToks from this region, you will just see...")),
 			mcplib.WithString("trim", mcplib.Description("Set to true to get a trimmed response.")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/get-trending-feed", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/get-trending-feed", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-hashtags",
@@ -642,7 +643,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("newOnBoard", mcplib.Description("Show only newly trending hashtags")),
 			mcplib.WithString("industry", mcplib.Description("Industry to get popular hashtags from.")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/hashtags/popular", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/hashtags/popular", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-product",
@@ -650,14 +651,14 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The URL of the product to get details for.")),
 			mcplib.WithString("region", mcplib.Description("Region the proxy will be set to so you can access products from that country. Use 2 letter country codes like US,...")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/product", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/product", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-profile",
 			mcplib.WithDescription("Fetches public profile data for a TikTok user by their handle — useful for looking up a creator's identity, bio,..."),
 			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("TikTok handle")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/profile", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/profile", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-profile-2",
@@ -669,7 +670,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("region", mcplib.Description("Region (Country) you want the proxy in. Defaults to US.")),
 			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
 		),
-		makeAPIHandler("GET", "/v3/tiktok/profile/videos", []string{ }),
+		makeAPIHandler("GET", "/v3/tiktok/profile/videos", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-search",
@@ -679,7 +680,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("cursor", mcplib.Description("Cursor to get more videos. Get 'cursor' from previous response.")),
 			mcplib.WithString("trim", mcplib.Description("Set to true to get a trimmed response")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/search/hashtag", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/search/hashtag", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-search-2",
@@ -691,7 +692,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("cursor", mcplib.Description("Cursor to get more videos. Get 'cursor' from previous response.")),
 			mcplib.WithString("trim", mcplib.Description("Set to true to get a trimmed response")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/search/keyword", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/search/keyword", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-search-3",
@@ -702,7 +703,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("region", mcplib.Description("Note, this doesn't filter the tiktoks only in a specfic region, it puts the proxy there. Use it in case you want to...")),
 			mcplib.WithString("cursor", mcplib.Description("Cursor to get more videos. Get 'cursor' from previous response.")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/search/top", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/search/top", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-search-4",
@@ -711,7 +712,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("cursor", mcplib.Description("Cursor to get more users. Get 'cursor' from previous response.")),
 			mcplib.WithString("trim", mcplib.Description("Set to true to get a trimmed response")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/search/users", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/search/users", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-shop",
@@ -721,7 +722,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("region", mcplib.Description("The region of the product. This is *very* important.")),
 			mcplib.WithString("page", mcplib.Description("The page number of the reviews")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/shop/product/reviews", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/shop/product/reviews", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-shop-2",
@@ -730,7 +731,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("cursor", mcplib.Description("Cursor parameter from the previous response to retrieve the next page of products. Omit for the first page.")),
 			mcplib.WithString("region", mcplib.Description("Region to get shop products from. Defaults to US if not provided.")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/shop/products", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/shop/products", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-shop-3",
@@ -739,14 +740,14 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("page", mcplib.Description("Page number to retrieve")),
 			mcplib.WithString("region", mcplib.Description("Region to search shop products in.")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/shop/search", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/shop/search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-song",
 			mcplib.WithDescription("Get Song Details"),
 			mcplib.WithString("clipId", mcplib.Required(), mcplib.Description("This is a little confusing because this isn't songId like you'd think. It is the clipId. I guess because you can...")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/song", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/song", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-song-2",
@@ -754,7 +755,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("clipId", mcplib.Description("This is clipId. Can be found on a url like so: https://www.tiktok.com/music/That%27s-Who-I-Praise-7370375686554782506...")),
 			mcplib.WithString("cursor", mcplib.Description("The cursor to get the next page of results.")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/song/videos", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/song/videos", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-songs",
@@ -766,14 +767,14 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("commercialMusic", mcplib.Description("Approved for business use?")),
 			mcplib.WithString("countryCode", mcplib.Description("Country code to get popular songs from")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/songs/popular", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/songs/popular", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-user",
 			mcplib.WithDescription("User's Audience Demographics"),
 			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("TikTok handle")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/user/audience", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/user/audience", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-user-2",
@@ -783,7 +784,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("min_time", mcplib.Description("Used to paginate. Get 'min_time' from previous response.")),
 			mcplib.WithString("trim", mcplib.Description("Set to true to get a trimmed response")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/user/followers", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/user/followers", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-user-3",
@@ -792,14 +793,14 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("min_time", mcplib.Description("Used to paginate. Get 'min_time' from previous response.")),
 			mcplib.WithString("trim", mcplib.Description("Set to true to get a trimmed response")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/user/following", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/user/following", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-user-4",
 			mcplib.WithDescription("TikTok Live"),
 			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("TikTok handle")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/user/live", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/user/live", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-user-5",
@@ -808,7 +809,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("region", mcplib.Description("Region to put the proxy in")),
 			mcplib.WithString("cursor", mcplib.Description("The cursor to the next page of products")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/user/showcase", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/user/showcase", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-video",
@@ -817,7 +818,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("TikTok video URL. This is the url from the comments endpoint.")),
 			mcplib.WithString("cursor", mcplib.Description("Cursor to get more replies. Get 'cursor' from previous response.")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/video/comment/replies", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/video/comment/replies", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-video-2",
@@ -826,7 +827,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("cursor", mcplib.Description("Cursor to get more comments. Get 'cursor' from previous response.")),
 			mcplib.WithString("trim", mcplib.Description("Set to true to get a trimmed response")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/video/comments", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/video/comments", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-video-3",
@@ -835,7 +836,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("language", mcplib.Description("Language of the transcript. 2 letter language code, ie 'en', 'es', 'fr', 'de', 'it', 'ja', 'ko', 'zh'")),
 			mcplib.WithString("use_ai_as_fallback", mcplib.Description("Set to 'true' to use AI as a fallback to get the transcript if the transcript is not found. Costs 10 credits to use...")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/video/transcript", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/video/transcript", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-video-4",
@@ -846,7 +847,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("trim", mcplib.Description("Set to true to get a trimmed response")),
 			mcplib.WithString("download_media", mcplib.Description("Set to true to download the video/images and get back permanent Supabase URLs. Costs 10 credits if media is found, 1...")),
 		),
-		makeAPIHandler("GET", "/v2/tiktok/video", []string{ }),
+		makeAPIHandler("GET", "/v2/tiktok/video", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-videos",
@@ -856,21 +857,21 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("orderBy", mcplib.Description("Sort videos by likes, views (hot), comments, or reposts")),
 			mcplib.WithString("countryCode", mcplib.Description("Country code to get popular videos from")),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/videos/popular", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/videos/popular", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("truthsocial_list",
 			mcplib.WithDescription("Fetches a single Truth Social post by URL, returning text, id, created_at, url, content, account details,..."),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Truth Social post URL")),
 		),
-		makeAPIHandler("GET", "/v1/truthsocial/post", []string{ }),
+		makeAPIHandler("GET", "/v1/truthsocial/post", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("truthsocial_list-profile",
 			mcplib.WithDescription("Retrieves a Truth Social user's public profile including display_name, username, avatar, header, followers_count,..."),
 			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Truth Social username")),
 		),
-		makeAPIHandler("GET", "/v1/truthsocial/profile", []string{ }),
+		makeAPIHandler("GET", "/v1/truthsocial/profile", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("truthsocial_list-user",
@@ -880,42 +881,42 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("next_max_id", mcplib.Description("Used to paginate to next page")),
 			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
 		),
-		makeAPIHandler("GET", "/v1/truthsocial/user/posts", []string{ }),
+		makeAPIHandler("GET", "/v1/truthsocial/user/posts", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("twitch_list",
 			mcplib.WithDescription("Fetches detailed data for a Twitch clip by URL, including metadata and direct video URLs. Returns clip id, slug,..."),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Twitch clip URL")),
 		),
-		makeAPIHandler("GET", "/v1/twitch/clip", []string{ }),
+		makeAPIHandler("GET", "/v1/twitch/clip", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("twitch_list-profile",
 			mcplib.WithDescription("Retrieves a Twitch user's public profile by handle, including identity, social links, and content. Returns id,..."),
 			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Twitch handle")),
 		),
-		makeAPIHandler("GET", "/v1/twitch/profile", []string{ }),
+		makeAPIHandler("GET", "/v1/twitch/profile", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("twitter_list",
 			mcplib.WithDescription("Retrieves details about a Twitter/X Community by URL. Returns the community name, description, rest_id, join_policy,..."),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Community URL")),
 		),
-		makeAPIHandler("GET", "/v1/twitter/community", []string{ }),
+		makeAPIHandler("GET", "/v1/twitter/community", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("twitter_list-community",
 			mcplib.WithDescription("Community Tweets"),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Community URL")),
 		),
-		makeAPIHandler("GET", "/v1/twitter/community/tweets", []string{ }),
+		makeAPIHandler("GET", "/v1/twitter/community/tweets", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("twitter_list-profile",
 			mcplib.WithDescription("Retrieves a Twitter user's profile by handle, including account metadata and statistics. Returns name, screen_name,..."),
 			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Twitter handle")),
 		),
-		makeAPIHandler("GET", "/v1/twitter/profile", []string{ }),
+		makeAPIHandler("GET", "/v1/twitter/profile", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("twitter_list-tweet",
@@ -923,14 +924,14 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Tweet URL")),
 			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
 		),
-		makeAPIHandler("GET", "/v1/twitter/tweet", []string{ }),
+		makeAPIHandler("GET", "/v1/twitter/tweet", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("twitter_list-tweet-2",
 			mcplib.WithDescription("Extracts the transcript from a Twitter video tweet using AI-powered transcription. The video must be under 2 minutes..."),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Tweet URL")),
 		),
-		makeAPIHandler("GET", "/v1/twitter/tweet/transcript", []string{ }),
+		makeAPIHandler("GET", "/v1/twitter/tweet/transcript", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("twitter_list-usertweets",
@@ -938,7 +939,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Twitter handle")),
 			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
 		),
-		makeAPIHandler("GET", "/v1/twitter/user-tweets", []string{ }),
+		makeAPIHandler("GET", "/v1/twitter/user-tweets", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list",
@@ -947,7 +948,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("handle", mcplib.Description("YouTube channel handle. Can pass a channelId, handle or url")),
 			mcplib.WithString("url", mcplib.Description("YouTube channel URL. Can pass a channelId, handle or url")),
 		),
-		makeAPIHandler("GET", "/v1/youtube/channel", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/channel", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list-channel",
@@ -957,7 +958,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("sort", mcplib.Description("Sort by newest or popular")),
 			mcplib.WithString("continuationToken", mcplib.Description("Continuation token to get more videos. Get 'continuationToken' from previous response.")),
 		),
-		makeAPIHandler("GET", "/v1/youtube/channel/shorts", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/channel/shorts", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list-channelvideos",
@@ -968,21 +969,21 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("continuationToken", mcplib.Description("Continuation token to get more videos. Get 'continuationToken' from previous response.")),
 			mcplib.WithString("includeExtras", mcplib.Description("This will get you the like + comment count and the description. To get the full details of the video, use the...")),
 		),
-		makeAPIHandler("GET", "/v1/youtube/channel-videos", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/channel-videos", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list-communitypost",
 			mcplib.WithDescription("Community Post Details"),
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The URL of the YouTube community post to get")),
 		),
-		makeAPIHandler("GET", "/v1/youtube/community-post", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/community-post", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list-playlist",
 			mcplib.WithDescription("Retrieves all videos in a YouTube playlist, including the playlist title, owner info, total video count, and each..."),
 			mcplib.WithString("playlist_id", mcplib.Required(), mcplib.Description("The ID of the YouTube playlist. In the YouTube URL it will be the 'list' parameter.")),
 		),
-		makeAPIHandler("GET", "/v1/youtube/playlist", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/playlist", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list-search",
@@ -996,7 +997,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("continuationToken", mcplib.Description("Continuation token to get more videos. Get 'continuationToken' from previous response.")),
 			mcplib.WithString("includeExtras", mcplib.Description("This will get you the like + comment count and the description. To get the full details of the video, use the...")),
 		),
-		makeAPIHandler("GET", "/v1/youtube/search", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list-search-2",
@@ -1005,13 +1006,13 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("continuationToken", mcplib.Description("Continuation token to get more videos. Get 'continuationToken' from previous response.")),
 			mcplib.WithString("type", mcplib.Description("Search for all types of content or only shorts")),
 		),
-		makeAPIHandler("GET", "/v1/youtube/search/hashtag", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/search/hashtag", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list-shorts",
 			mcplib.WithDescription("Trending Shorts"),
 		),
-		makeAPIHandler("GET", "/v1/youtube/shorts/trending", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/shorts/trending", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list-video",
@@ -1019,14 +1020,14 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("YouTube video or short URL")),
 			mcplib.WithString("language", mcplib.Description("Preferred response language (mapped to Accept-Language header; not guaranteed due to YouTube localization behavior)....")),
 		),
-		makeAPIHandler("GET", "/v1/youtube/video", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/video", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list-video-2",
 			mcplib.WithDescription("Comment Replies"),
 			mcplib.WithString("continuationToken", mcplib.Required(), mcplib.Description("Continuation token for the comment replies. Use 'repliesContinuationToken' from the Comments endpoint, or...")),
 		),
-		makeAPIHandler("GET", "/v1/youtube/video/comment/replies", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/video/comment/replies", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list-video-3",
@@ -1035,7 +1036,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("continuationToken", mcplib.Description("Continuation token to get more comments. Get 'continuationToken' from previous response.")),
 			mcplib.WithString("order", mcplib.Description("Order of comments")),
 		),
-		makeAPIHandler("GET", "/v1/youtube/video/comments", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/video/comments", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list-video-4",
@@ -1043,7 +1044,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("url", mcplib.Required(), mcplib.Description("YouTube video or short URL")),
 			mcplib.WithString("language", mcplib.Description("2 letter language code, ie 'en', 'es', 'fr' etc. If the transcript is not available in the language you specify, the...")),
 		),
-		makeAPIHandler("GET", "/v1/youtube/video/transcript", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/video/transcript", []string{}),
 	)
 	// Sync tool — populates local database for offline search and sql queries
 	s.AddTool(
@@ -1141,17 +1142,17 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 			case strings.Contains(msg, "HTTP 400") && looksLikeAuthError(msg):
 				return mcplib.NewToolResultError("authentication error: " + sanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
-					"\n      Set your API key: export SCRAPE_CREATORS_API_KEY_AUTH=<your-key>" +
+					"\n      Set your API key: export SCRAPE_CREATORS_API_KEY=<your-key>" +
 					"\n      Run 'scrape-creators-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
 				return mcplib.NewToolResultError("authentication failed: " + sanitizeErrorBody(msg) +
 					"\nhint: check your API key." +
-					"\n      Set it with: export SCRAPE_CREATORS_API_KEY_AUTH=<your-key>" +
+					"\n      Set it with: export SCRAPE_CREATORS_API_KEY=<your-key>" +
 					"\n      Run 'scrape-creators-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcplib.NewToolResultError("permission denied: " + sanitizeErrorBody(msg) +
 					"\nhint: your credentials are valid but lack access to this resource." +
-					"\n      Set it with: export SCRAPE_CREATORS_API_KEY_AUTH=<your-key>" +
+					"\n      Set it with: export SCRAPE_CREATORS_API_KEY=<your-key>" +
 					"\n      Run 'scrape-creators-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
@@ -1198,6 +1199,7 @@ func dbPath() string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", "scrape-creators-pp-cli", "data.db")
 }
+
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
 
@@ -1284,158 +1286,158 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"archetype":   "communication",
 		"tool_count":  115,
 		"auth": map[string]any{
-			"type": "api_key",
-			"env_vars": []string{"SCRAPE_CREATORS_API_KEY_AUTH",  },
+			"type":     "api_key",
+			"env_vars": []string{"SCRAPE_CREATORS_API_KEY"},
 		},
 		"resources": []map[string]any{
 			{
-				"name": "account",
+				"name":        "account",
 				"description": "Manage account",
-				"endpoints": []string{"list", "list-getapiusage", "list-getdailyusagecount", "list-getmostusedroutes",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list", "list-getapiusage", "list-getdailyusagecount", "list-getmostusedroutes"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "amazon",
+				"name":        "amazon",
 				"description": "Manage amazon",
-				"endpoints": []string{"list",  },
-				"searchable": true,
+				"endpoints":   []string{"list"},
+				"searchable":  true,
 			},
 			{
-				"name": "bluesky",
+				"name":        "bluesky",
 				"description": "Get Bluesky posts and profile info",
-				"endpoints": []string{"list", "list-profile", "list-user",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list", "list-profile", "list-user"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "detect-age-gender",
+				"name":        "detect-age-gender",
 				"description": "Manage detect age gender",
-				"endpoints": []string{"list",  },
-				"searchable": true,
+				"endpoints":   []string{"list"},
+				"searchable":  true,
 			},
 			{
-				"name": "facebook",
+				"name":        "facebook",
 				"description": "Get public Facebook profiles and posts",
-				"endpoints": []string{"list", "list-adlibrary", "list-adlibrary-2", "list-adlibrary-3", "list-group", "list-post", "list-post-2", "list-post-3", "list-profile", "list-profile-2", "list-profile-3", "list-profile-4",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list", "list-adlibrary", "list-adlibrary-2", "list-adlibrary-3", "list-group", "list-post", "list-post-2", "list-post-3", "list-profile", "list-profile-2", "list-profile-3", "list-profile-4"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "google",
+				"name":        "google",
 				"description": "Scrape Google search results",
-				"endpoints": []string{"list", "list-adlibrary", "list-company", "list-search",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list", "list-adlibrary", "list-company", "list-search"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "instagram",
+				"name":        "instagram",
 				"description": "Gets Instagram profiles, posts, and reels",
-				"endpoints": []string{"list", "list-media", "list-post", "list-post-2", "list-profile", "list-reels", "list-song", "list-user", "list-user-2", "list-user-3", "list-user-4", "list-user-5",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list", "list-media", "list-post", "list-post-2", "list-profile", "list-reels", "list-song", "list-user", "list-user-2", "list-user-3", "list-user-4", "list-user-5"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "kick",
+				"name":        "kick",
 				"description": "Scrape Kick clips",
-				"endpoints": []string{"list",  },
-				"searchable": true,
+				"endpoints":   []string{"list"},
+				"searchable":  true,
 			},
 			{
-				"name": "komi",
+				"name":        "komi",
 				"description": "Scrape Komi pages",
-				"endpoints": []string{"list",  },
-				"searchable": true,
+				"endpoints":   []string{"list"},
+				"searchable":  true,
 			},
 			{
-				"name": "linkbio",
+				"name":        "linkbio",
 				"description": "Scrape Linkbio (lnk.bio) pages",
-				"endpoints": []string{"list",  },
-				"searchable": true,
+				"endpoints":   []string{"list"},
+				"searchable":  true,
 			},
 			{
-				"name": "linkedin",
+				"name":        "linkedin",
 				"description": "Scrape LinkedIn",
-				"endpoints": []string{"list", "list-ads", "list-company", "list-company-2", "list-post", "list-profile",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list", "list-ads", "list-company", "list-company-2", "list-post", "list-profile"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "linkme",
+				"name":        "linkme",
 				"description": "Get Linkme profile info",
-				"endpoints": []string{"list",  },
-				"searchable": true,
+				"endpoints":   []string{"list"},
+				"searchable":  true,
 			},
 			{
-				"name": "linktree",
+				"name":        "linktree",
 				"description": "Scrape Linktree pages",
-				"endpoints": []string{"list",  },
-				"searchable": true,
+				"endpoints":   []string{"list"},
+				"searchable":  true,
 			},
 			{
-				"name": "pillar",
+				"name":        "pillar",
 				"description": "Scrape Pillar pages",
-				"endpoints": []string{"list",  },
-				"searchable": true,
+				"endpoints":   []string{"list"},
+				"searchable":  true,
 			},
 			{
-				"name": "pinterest",
+				"name":        "pinterest",
 				"description": "Scrape Pinterest pins",
-				"endpoints": []string{"list", "list-pin", "list-search", "list-user",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list", "list-pin", "list-search", "list-user"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "reddit",
+				"name":        "reddit",
 				"description": "Scrape Reddit posts and comments",
-				"endpoints": []string{"list", "list-ads", "list-post", "list-search", "list-subreddit", "list-subreddit-2", "list-subreddit-3",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list", "list-ads", "list-post", "list-search", "list-subreddit", "list-subreddit-2", "list-subreddit-3"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "snapchat",
+				"name":        "snapchat",
 				"description": "Scrape Snapchat user profiles and thier stories",
-				"endpoints": []string{"list",  },
-				"searchable": true,
+				"endpoints":   []string{"list"},
+				"searchable":  true,
 			},
 			{
-				"name": "threads",
+				"name":        "threads",
 				"description": "Get Threads posts",
-				"endpoints": []string{"list", "list-profile", "list-search", "list-search-2", "list-user",  },
-				"searchable": true,
+				"endpoints":   []string{"list", "list-profile", "list-search", "list-search-2", "list-user"},
+				"searchable":  true,
 			},
 			{
-				"name": "tiktok",
+				"name":        "tiktok",
 				"description": "Scrape TikTok profiles, videos, and more",
-				"endpoints": []string{"list", "list-gettrendingfeed", "list-hashtags", "list-product", "list-profile", "list-profile-2", "list-search", "list-search-2", "list-search-3", "list-search-4", "list-shop", "list-shop-2", "list-shop-3", "list-song", "list-song-2", "list-songs", "list-user", "list-user-2", "list-user-3", "list-user-4", "list-user-5", "list-video", "list-video-2", "list-video-3", "list-video-4", "list-videos",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list", "list-gettrendingfeed", "list-hashtags", "list-product", "list-profile", "list-profile-2", "list-search", "list-search-2", "list-search-3", "list-search-4", "list-shop", "list-shop-2", "list-shop-3", "list-song", "list-song-2", "list-songs", "list-user", "list-user-2", "list-user-3", "list-user-4", "list-user-5", "list-video", "list-video-2", "list-video-3", "list-video-4", "list-videos"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "truthsocial",
+				"name":        "truthsocial",
 				"description": "Manage truthsocial",
-				"endpoints": []string{"list", "list-profile", "list-user",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list", "list-profile", "list-user"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "twitch",
+				"name":        "twitch",
 				"description": "Scrape Twitch clips",
-				"endpoints": []string{"list", "list-profile",  },
-				"searchable": true,
+				"endpoints":   []string{"list", "list-profile"},
+				"searchable":  true,
 			},
 			{
-				"name": "twitter",
+				"name":        "twitter",
 				"description": "Get Twitter profiles, tweets, followers and more",
-				"endpoints": []string{"list", "list-community", "list-profile", "list-tweet", "list-tweet-2", "list-usertweets",  },
-				"searchable": true,
+				"endpoints":   []string{"list", "list-community", "list-profile", "list-tweet", "list-tweet-2", "list-usertweets"},
+				"searchable":  true,
 			},
 			{
-				"name": "youtube",
+				"name":        "youtube",
 				"description": "Scrape YouTube channels, videos, and more",
-				"endpoints": []string{"list", "list-channel", "list-channelvideos", "list-communitypost", "list-playlist", "list-search", "list-search-2", "list-shorts", "list-video", "list-video-2", "list-video-3", "list-video-4",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list", "list-channel", "list-channelvideos", "list-communitypost", "list-playlist", "list-search", "list-search-2", "list-shorts", "list-video", "list-video-2", "list-video-3", "list-video-4"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 		},
 		"query_tips": []string{

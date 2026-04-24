@@ -22,9 +22,9 @@ func newYoutubeListSearchCmd(flags *rootFlags) *cobra.Command {
 	var flagIncludeExtras string
 
 	cmd := &cobra.Command{
-		Use:   "search",
+		Use:     "search",
 		Aliases: []string{"list-search"},
-		Short: "Searches YouTube by keyword query and returns matching videos, channels, playlists, shorts, shelves, and live...",
+		Short:   "Searches YouTube by keyword query and returns matching videos, channels, playlists, shorts, shelves, and live...",
 		Example: "  scrape-creators-pp-cli youtube list-search",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {

@@ -15,9 +15,9 @@ func newGoogleListCmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
 
 	cmd := &cobra.Command{
-		Use:   "ad",
+		Use:     "ad",
 		Aliases: []string{"list"},
-		Short: "Ad Details",
+		Short:   "Ad Details",
 		Example: "  scrape-creators-pp-cli google list",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {

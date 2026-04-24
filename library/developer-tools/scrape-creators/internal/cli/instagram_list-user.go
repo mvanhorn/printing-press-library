@@ -15,9 +15,9 @@ func newInstagramListUserCmd(flags *rootFlags) *cobra.Command {
 	var flagHandle string
 
 	cmd := &cobra.Command{
-		Use:   "user-embed",
+		Use:     "user-embed",
 		Aliases: []string{"list-user"},
-		Short: "Embed HTML",
+		Short:   "Embed HTML",
 		Example: "  scrape-creators-pp-cli instagram list-user",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("handle") && !flags.dryRun {

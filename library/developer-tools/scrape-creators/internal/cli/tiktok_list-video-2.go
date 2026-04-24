@@ -18,9 +18,9 @@ func newTiktokListVideo2Cmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "video-comments",
+		Use:     "video-comments",
 		Aliases: []string{"list-video-2"},
-		Short: "Fetches comments on a TikTok video by URL — useful for reading audience reactions, replies, and engagement....",
+		Short:   "Fetches comments on a TikTok video by URL — useful for reading audience reactions, replies, and engagement....",
 		Example: "  scrape-creators-pp-cli tiktok list-video-2",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
@@ -33,9 +33,9 @@ func newTiktokListVideo2Cmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/tiktok/video/comments"
 			data, prov, err := resolvePaginatedRead(c, flags, "tiktok", path, map[string]string{
-				"url": fmt.Sprintf("%v", flagUrl),
+				"url":    fmt.Sprintf("%v", flagUrl),
 				"cursor": fmt.Sprintf("%v", flagCursor),
-				"trim": fmt.Sprintf("%v", flagTrim),
+				"trim":   fmt.Sprintf("%v", flagTrim),
 			}, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)

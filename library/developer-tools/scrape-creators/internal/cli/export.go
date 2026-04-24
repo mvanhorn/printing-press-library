@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -43,7 +44,11 @@ large datasets as it has no memory pressure.`,
 			}
 
 			resource := args[0]
-			path := "/" + resource
+			spec, ok := resolveResourceSpec(resource)
+			if !ok {
+				return usageErr(fmt.Errorf("unknown export resource %q (supported: %s)", resource, strings.Join(knownResourceNames(), ", ")))
+			}
+			path := spec.Path
 			if len(args) > 1 {
 				path += "/" + args[1]
 			}

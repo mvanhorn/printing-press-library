@@ -15,9 +15,9 @@ func newTwitchPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
 
 	cmd := &cobra.Command{
-		Use:   "twitch",
-		Short: "Fetches detailed data for a Twitch clip by URL, including metadata and direct video URLs. Returns clip id, slug,...",
-		Long:  "Shortcut for 'twitch list'. Fetches detailed data for a Twitch clip by URL, including metadata and direct video URLs. Returns clip id, slug,...",
+		Use:     "twitch",
+		Short:   "Fetches detailed data for a Twitch clip by URL, including metadata and direct video URLs. Returns clip id, slug,...",
+		Long:    "Shortcut for 'twitch list'. Fetches detailed data for a Twitch clip by URL, including metadata and direct video URLs. Returns clip id, slug,...",
 		Example: "  scrape-creators-pp-cli twitch",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {

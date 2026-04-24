@@ -16,9 +16,9 @@ func newPinterestListUserCmd(flags *rootFlags) *cobra.Command {
 	var flagTrim bool
 
 	cmd := &cobra.Command{
-		Use:   "user-boards",
+		Use:     "user-boards",
 		Aliases: []string{"list-user"},
-		Short: "User Boards",
+		Short:   "User Boards",
 		Example: "  scrape-creators-pp-cli pinterest list-user",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("handle") && !flags.dryRun {

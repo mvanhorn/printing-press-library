@@ -15,9 +15,9 @@ func newBlueskyListCmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
 
 	cmd := &cobra.Command{
-		Use:   "post",
+		Use:     "post",
 		Aliases: []string{"list"},
-		Short: "Fetches a single Bluesky post by URL, returning the post's record text, author info, embed content, replyCount,...",
+		Short:   "Fetches a single Bluesky post by URL, returning the post's record text, author info, embed content, replyCount,...",
 		Example: "  scrape-creators-pp-cli bluesky list",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {

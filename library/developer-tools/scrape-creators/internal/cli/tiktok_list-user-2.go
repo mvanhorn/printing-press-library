@@ -18,9 +18,9 @@ func newTiktokListUser2Cmd(flags *rootFlags) *cobra.Command {
 	var flagTrim bool
 
 	cmd := &cobra.Command{
-		Use:   "user-followers",
+		Use:     "user-followers",
 		Aliases: []string{"list-user-2"},
-		Short: "Retrieves the follower list of a TikTok account by handle or user_id — useful for seeing who follows a creator or...",
+		Short:   "Retrieves the follower list of a TikTok account by handle or user_id — useful for seeing who follows a creator or...",
 		Example: "  scrape-creators-pp-cli tiktok list-user-2",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

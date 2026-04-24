@@ -17,9 +17,9 @@ func newInstagramListPost2Cmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "post-comments",
+		Use:     "post-comments",
 		Aliases: []string{"list-post-2"},
-		Short: "Retrieves comments on a public Instagram post or reel. Each comment includes the comment text, creation timestamp,...",
+		Short:   "Retrieves comments on a public Instagram post or reel. Each comment includes the comment text, creation timestamp,...",
 		Example: "  scrape-creators-pp-cli instagram list-post-2",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
@@ -32,7 +32,7 @@ func newInstagramListPost2Cmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v2/instagram/post/comments"
 			data, prov, err := resolvePaginatedRead(c, flags, "instagram", path, map[string]string{
-				"url": fmt.Sprintf("%v", flagUrl),
+				"url":    fmt.Sprintf("%v", flagUrl),
 				"cursor": fmt.Sprintf("%v", flagCursor),
 			}, flagAll, "cursor", "", "")
 			if err != nil {

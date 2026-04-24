@@ -20,9 +20,9 @@ func newRedditPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "reddit",
-		Short: "Subreddit Posts",
-		Long:  "Shortcut for 'reddit list-subreddit'. Subreddit Posts",
+		Use:     "reddit",
+		Short:   "Subreddit Posts",
+		Long:    "Shortcut for 'reddit list-subreddit'. Subreddit Posts",
 		Example: "  scrape-creators-pp-cli reddit",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("subreddit") && !flags.dryRun {
@@ -37,9 +37,9 @@ func newRedditPromotedCmd(flags *rootFlags) *cobra.Command {
 			data, prov, err := resolvePaginatedRead(c, flags, "reddit", path, map[string]string{
 				"subreddit": fmt.Sprintf("%v", flagSubreddit),
 				"timeframe": fmt.Sprintf("%v", flagTimeframe),
-				"sort": fmt.Sprintf("%v", flagSort),
-				"after": fmt.Sprintf("%v", flagAfter),
-				"trim": fmt.Sprintf("%v", flagTrim),
+				"sort":      fmt.Sprintf("%v", flagSort),
+				"after":     fmt.Sprintf("%v", flagAfter),
+				"trim":      fmt.Sprintf("%v", flagTrim),
 			}, flagAll, "after", "", "")
 			if err != nil {
 				return classifyAPIError(err)

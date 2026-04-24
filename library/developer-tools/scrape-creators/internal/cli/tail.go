@@ -29,13 +29,13 @@ Gracefully shuts down on SIGTERM/SIGINT.
 Note: For APIs with WebSocket or SSE support, a future version will use
 native streaming instead of polling.`,
 		Example: `  # Tail all changes every 10 seconds
-  scrape-creators-pp-cli tail --interval 10s
+  scrape-creators-pp-cli tail tiktok --interval 10s
 
   # Tail a specific resource
-  scrape-creators-pp-cli tail messages --interval 5s
+  scrape-creators-pp-cli tail reddit --interval 5s
 
   # Pipe to jq for filtering
-  scrape-creators-pp-cli tail events --interval 30s | jq 'select(.type == "error")'`,
+  scrape-creators-pp-cli tail tiktok --follow=false | jq '.data'`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -47,10 +47,10 @@ native streaming instead of polling.`,
 				resource = args[0]
 			}
 			if resource == "" {
-				return fmt.Errorf("resource name required (e.g., 'tail messages')")
+				return fmt.Errorf("resource name required (e.g., 'tail tiktok')")
 			}
 
-			path := "/" + resource
+			path := resourceAPIPath(resource)
 
 			sig := make(chan os.Signal, 1)
 			signal.Notify(sig, syscall.SIGTERM, syscall.SIGINT)
@@ -64,7 +64,13 @@ native streaming instead of polling.`,
 
 			// Initial fetch
 			if err := fetchAndEmit(c, path, enc); err != nil {
+				if flags.dryRun || !follow {
+					return err
+				}
 				fmt.Fprintf(os.Stderr, "warning: initial fetch failed: %v\n", err)
+			}
+			if flags.dryRun || !follow {
+				return nil
 			}
 
 			for {
@@ -88,7 +94,9 @@ native streaming instead of polling.`,
 	return cmd
 }
 
-func fetchAndEmit(c interface{ Get(string, map[string]string) (json.RawMessage, error) }, path string, enc *json.Encoder) error {
+func fetchAndEmit(c interface {
+	Get(string, map[string]string) (json.RawMessage, error)
+}, path string, enc *json.Encoder) error {
 	data, err := c.Get(path, nil)
 	if err != nil {
 		return err

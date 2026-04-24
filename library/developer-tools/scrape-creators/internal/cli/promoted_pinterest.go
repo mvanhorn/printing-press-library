@@ -18,9 +18,9 @@ func newPinterestPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "pinterest",
-		Short: "Fetches a paginated list of pins from a Pinterest board by URL, returning each pin's id, description, title, images,...",
-		Long:  "Shortcut for 'pinterest list'. Fetches a paginated list of pins from a Pinterest board by URL, returning each pin's id, description, title, images,...",
+		Use:     "pinterest",
+		Short:   "Fetches a paginated list of pins from a Pinterest board by URL, returning each pin's id, description, title, images,...",
+		Long:    "Shortcut for 'pinterest list'. Fetches a paginated list of pins from a Pinterest board by URL, returning each pin's id, description, title, images,...",
 		Example: "  scrape-creators-pp-cli pinterest",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
@@ -33,9 +33,9 @@ func newPinterestPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/pinterest/board"
 			data, prov, err := resolvePaginatedRead(c, flags, "pinterest", path, map[string]string{
-				"url": fmt.Sprintf("%v", flagUrl),
+				"url":    fmt.Sprintf("%v", flagUrl),
 				"cursor": fmt.Sprintf("%v", flagCursor),
-				"trim": fmt.Sprintf("%v", flagTrim),
+				"trim":   fmt.Sprintf("%v", flagTrim),
 			}, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)

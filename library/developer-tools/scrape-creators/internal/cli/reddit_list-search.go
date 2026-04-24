@@ -20,9 +20,9 @@ func newRedditListSearchCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "search",
+		Use:     "search",
 		Aliases: []string{"list-search"},
-		Short: "Searches across all of Reddit for posts matching a query. Each post includes title, author, selftext, subreddit,...",
+		Short:   "Searches across all of Reddit for posts matching a query. Each post includes title, author, selftext, subreddit,...",
 		Example: "  scrape-creators-pp-cli reddit list-search",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
@@ -35,11 +35,11 @@ func newRedditListSearchCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/reddit/search"
 			data, prov, err := resolvePaginatedRead(c, flags, "reddit", path, map[string]string{
-				"query": fmt.Sprintf("%v", flagQuery),
-				"sort": fmt.Sprintf("%v", flagSort),
+				"query":     fmt.Sprintf("%v", flagQuery),
+				"sort":      fmt.Sprintf("%v", flagSort),
 				"timeframe": fmt.Sprintf("%v", flagTimeframe),
-				"after": fmt.Sprintf("%v", flagAfter),
-				"trim": fmt.Sprintf("%v", flagTrim),
+				"after":     fmt.Sprintf("%v", flagAfter),
+				"trim":      fmt.Sprintf("%v", flagTrim),
 			}, flagAll, "after", "", "")
 			if err != nil {
 				return classifyAPIError(err)

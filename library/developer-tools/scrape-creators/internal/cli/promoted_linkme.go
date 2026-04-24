@@ -15,9 +15,9 @@ func newLinkmePromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
 
 	cmd := &cobra.Command{
-		Use:   "linkme",
-		Short: "Retrieves a Linkme profile by URL, including identity, social links, and contact details. Returns profile with id,...",
-		Long:  "Shortcut for 'linkme list'. Retrieves a Linkme profile by URL, including identity, social links, and contact details. Returns profile with id,...",
+		Use:     "linkme",
+		Short:   "Retrieves a Linkme profile by URL, including identity, social links, and contact details. Returns profile with id,...",
+		Long:    "Shortcut for 'linkme list'. Retrieves a Linkme profile by URL, including identity, social links, and contact details. Returns profile with id,...",
 		Example: "  scrape-creators-pp-cli linkme",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {

@@ -16,9 +16,9 @@ func newThreadsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagTrim bool
 
 	cmd := &cobra.Command{
-		Use:   "threads",
-		Short: "Fetches the most recent posts from a Threads user, returning id, caption text, code, like_count, reshare_count,...",
-		Long:  "Shortcut for 'threads list-user'. Fetches the most recent posts from a Threads user, returning id, caption text, code, like_count, reshare_count,...",
+		Use:     "threads",
+		Short:   "Fetches the most recent posts from a Threads user, returning id, caption text, code, like_count, reshare_count,...",
+		Long:    "Shortcut for 'threads list-user'. Fetches the most recent posts from a Threads user, returning id, caption text, code, like_count, reshare_count,...",
 		Example: "  scrape-creators-pp-cli threads",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("handle") && !flags.dryRun {

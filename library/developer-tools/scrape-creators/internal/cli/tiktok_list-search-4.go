@@ -18,9 +18,9 @@ func newTiktokListSearch4Cmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "search-users",
+		Use:     "search-users",
 		Aliases: []string{"list-search-4"},
-		Short: "Search Users",
+		Short:   "Search Users",
 		Example: "  scrape-creators-pp-cli tiktok list-search-4",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
@@ -33,9 +33,9 @@ func newTiktokListSearch4Cmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/tiktok/search/users"
 			data, prov, err := resolvePaginatedRead(c, flags, "tiktok", path, map[string]string{
-				"query": fmt.Sprintf("%v", flagQuery),
+				"query":  fmt.Sprintf("%v", flagQuery),
 				"cursor": fmt.Sprintf("%v", flagCursor),
-				"trim": fmt.Sprintf("%v", flagTrim),
+				"trim":   fmt.Sprintf("%v", flagTrim),
 			}, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)

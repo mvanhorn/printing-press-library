@@ -15,9 +15,9 @@ func newSnapchatPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagHandle string
 
 	cmd := &cobra.Command{
-		Use:   "snapchat",
-		Short: "User Profile",
-		Long:  "Shortcut for 'snapchat list'. User Profile",
+		Use:     "snapchat",
+		Short:   "User Profile",
+		Long:    "Shortcut for 'snapchat list'. User Profile",
 		Example: "  scrape-creators-pp-cli snapchat",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("handle") && !flags.dryRun {

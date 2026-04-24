@@ -17,9 +17,9 @@ func newInstagramListReelsCmd(flags *rootFlags) *cobra.Command {
 	var flagPage float64
 
 	cmd := &cobra.Command{
-		Use:   "reels-search",
+		Use:     "reels-search",
 		Aliases: []string{"list-reels"},
-		Short: "Search Reels",
+		Short:   "Search Reels",
 		Example: "  scrape-creators-pp-cli instagram list-reels",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {

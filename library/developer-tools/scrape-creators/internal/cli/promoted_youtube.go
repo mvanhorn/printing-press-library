@@ -17,9 +17,9 @@ func newYoutubePromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagOrder string
 
 	cmd := &cobra.Command{
-		Use:   "youtube",
-		Short: "Fetches comments and replies from a YouTube video, including each comment's text content, author details, like...",
-		Long:  "Shortcut for 'youtube list-video-3'. Fetches comments and replies from a YouTube video, including each comment's text content, author details, like...",
+		Use:     "youtube",
+		Short:   "Fetches comments and replies from a YouTube video, including each comment's text content, author details, like...",
+		Long:    "Shortcut for 'youtube list-video-3'. Fetches comments and replies from a YouTube video, including each comment's text content, author details, like...",
 		Example: "  scrape-creators-pp-cli youtube",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {

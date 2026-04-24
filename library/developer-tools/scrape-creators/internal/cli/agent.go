@@ -17,11 +17,11 @@ import (
 )
 
 const (
-	mcpServerName    = "scrape-creators-pp-cli"
-	mcpLocalCommand  = "scrape-creators-pp-mcp"
-	mcpHostedURL     = "https://api.scrapecreators.com/mcp"
-	mcpEnvVarName    = "SCRAPE_CREATORS_API_KEY_AUTH"
-	mcpHostedHeader  = "x-api-key"
+	mcpServerName   = "scrape-creators"
+	mcpLocalCommand = "scrape-creators-pp-mcp"
+	mcpHostedURL    = "https://api.scrapecreators.com/mcp"
+	mcpEnvVarName   = "SCRAPE_CREATORS_API_KEY"
+	mcpHostedHeader = "x-api-key"
 )
 
 // supportedTargets lists every MCP host the CLI can wire. Order matters for
@@ -64,7 +64,7 @@ the name %q are refused without --force and a diff is printed.`,
 				return &cliError{code: 2, err: fmt.Errorf("unknown target %q: supported targets are %s", target, strings.Join(supportedTargets, ", "))}
 			}
 
-			apiKey, err := loadAPIKey(flags)
+			apiKey, err := optionalAPIKey(flags)
 			if err != nil {
 				return err
 			}
@@ -82,6 +82,14 @@ the name %q are refused without --force and a diff is printed.`,
 			}
 
 			fmt.Fprintf(cmd.OutOrStdout(), "%s %s at %s (mode 0600)\n", action, target, path)
+			if apiKey == "" {
+				if hosted {
+					fmt.Fprintf(cmd.OutOrStdout(), "no API key was found, so the hosted MCP entry was written without an %s header.\n", mcpHostedHeader)
+				} else {
+					fmt.Fprintf(cmd.OutOrStdout(), "no API key was found, so the MCP entry was written without %s in its env block.\n", mcpEnvVarName)
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "set %s before first use, or re-run once credentials are available.\n", mcpEnvVarName)
+			}
 			fmt.Fprintf(cmd.OutOrStdout(), "restart %s for the change to take effect.\n", target)
 			return nil
 		},
@@ -95,19 +103,21 @@ the name %q are refused without --force and a diff is printed.`,
 // local or hosted mode. The JSON and TOML writers both consume this map.
 func mcpEntry(hosted bool, apiKey string) map[string]any {
 	if hosted {
-		return map[string]any{
-			"url": mcpHostedURL,
-			"headers": map[string]any{
+		entry := map[string]any{"url": mcpHostedURL}
+		if apiKey != "" {
+			entry["headers"] = map[string]any{
 				mcpHostedHeader: apiKey,
-			},
+			}
+		}
+		return entry
+	}
+	entry := map[string]any{"command": mcpLocalCommand}
+	if apiKey != "" {
+		entry["env"] = map[string]any{
+			mcpEnvVarName: apiKey,
 		}
 	}
-	return map[string]any{
-		"command": mcpLocalCommand,
-		"env": map[string]any{
-			mcpEnvVarName: apiKey,
-		},
-	}
+	return entry
 }
 
 // configPathFor returns the target's config-file path for the current OS.
@@ -266,19 +276,14 @@ func overwriteRefused(path, diff string) error {
 	)}
 }
 
-// loadAPIKey pulls the API key from the user's config (or env). Used for both
-// the env block (local) and the x-api-key header (hosted). Config.Load already
-// honors SCRAPE_CREATORS_API_KEY_AUTH (primary) and SCRAPECREATORS_API_KEY
-// (fallback for v1 compat).
-func loadAPIKey(flags *rootFlags) (string, error) {
+// optionalAPIKey pulls the API key from config or env when one exists, but does
+// not force the user to have credentials before wiring the MCP server config.
+func optionalAPIKey(flags *rootFlags) (string, error) {
 	cfg, err := config.Load(flags.configPath)
 	if err != nil {
 		return "", configErr(err)
 	}
-	if cfg.ScrapeCreatorsApiKeyAuth == "" {
-		return "", authErr(fmt.Errorf("no API key found. Set %s or run 'scrape-creators-pp-cli auth login' first", mcpEnvVarName))
-	}
-	return cfg.ScrapeCreatorsApiKeyAuth, nil
+	return cfg.APIKey, nil
 }
 
 func contains(haystack []string, needle string) bool {

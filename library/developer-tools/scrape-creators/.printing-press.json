@@ -10,6 +10,6 @@
   "mcp_ready": "full",
   "auth_type": "api_key",
   "auth_env_vars": [
-    "SCRAPE_CREATORS_API_KEY_AUTH"
+    "SCRAPE_CREATORS_API_KEY"
   ]
 }

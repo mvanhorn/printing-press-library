@@ -19,9 +19,9 @@ func newFacebookListGroupCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "group-posts",
+		Use:     "group-posts",
 		Aliases: []string{"list-group"},
-		Short: "Facebook Group Posts",
+		Short:   "Facebook Group Posts",
 		Example: "  scrape-creators-pp-cli facebook list-group",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -31,10 +31,10 @@ func newFacebookListGroupCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/facebook/group/posts"
 			data, prov, err := resolvePaginatedRead(c, flags, "facebook", path, map[string]string{
-				"url": fmt.Sprintf("%v", flagUrl),
+				"url":      fmt.Sprintf("%v", flagUrl),
 				"group_id": fmt.Sprintf("%v", flagGroupId),
-				"sort_by": fmt.Sprintf("%v", flagSortBy),
-				"cursor": fmt.Sprintf("%v", flagCursor),
+				"sort_by":  fmt.Sprintf("%v", flagSortBy),
+				"cursor":   fmt.Sprintf("%v", flagCursor),
 			}, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)

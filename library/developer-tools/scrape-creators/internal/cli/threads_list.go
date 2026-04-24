@@ -16,9 +16,9 @@ func newThreadsListCmd(flags *rootFlags) *cobra.Command {
 	var flagTrim bool
 
 	cmd := &cobra.Command{
-		Use:   "post",
+		Use:     "post",
 		Aliases: []string{"list"},
-		Short: "Fetches a single Threads post by URL, returning the post's caption, like_count, view_counts, reshare_count,...",
+		Short:   "Fetches a single Threads post by URL, returning the post's caption, like_count, view_counts, reshare_count,...",
 		Example: "  scrape-creators-pp-cli threads list",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {

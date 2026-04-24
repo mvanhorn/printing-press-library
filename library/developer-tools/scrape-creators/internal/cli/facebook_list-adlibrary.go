@@ -26,9 +26,9 @@ func newFacebookListAdlibraryCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "adlibrary-company-ads",
+		Use:     "adlibrary-company-ads",
 		Aliases: []string{"list-adlibrary"},
-		Short: "Company Ads",
+		Short:   "Company Ads",
 		Example: "  scrape-creators-pp-cli facebook list-adlibrary",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -38,17 +38,17 @@ func newFacebookListAdlibraryCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/facebook/adLibrary/company/ads"
 			data, prov, err := resolvePaginatedRead(c, flags, "facebook", path, map[string]string{
-				"pageId": fmt.Sprintf("%v", flagPageId),
+				"pageId":      fmt.Sprintf("%v", flagPageId),
 				"companyName": fmt.Sprintf("%v", flagCompanyName),
-				"country": fmt.Sprintf("%v", flagCountry),
-				"status": fmt.Sprintf("%v", flagStatus),
-				"media_type": fmt.Sprintf("%v", flagMediaType),
-				"language": fmt.Sprintf("%v", flagLanguage),
-				"sort_by": fmt.Sprintf("%v", flagSortBy),
-				"start_date": fmt.Sprintf("%v", flagStartDate),
-				"end_date": fmt.Sprintf("%v", flagEndDate),
-				"cursor": fmt.Sprintf("%v", flagCursor),
-				"trim": fmt.Sprintf("%v", flagTrim),
+				"country":     fmt.Sprintf("%v", flagCountry),
+				"status":      fmt.Sprintf("%v", flagStatus),
+				"media_type":  fmt.Sprintf("%v", flagMediaType),
+				"language":    fmt.Sprintf("%v", flagLanguage),
+				"sort_by":     fmt.Sprintf("%v", flagSortBy),
+				"start_date":  fmt.Sprintf("%v", flagStartDate),
+				"end_date":    fmt.Sprintf("%v", flagEndDate),
+				"cursor":      fmt.Sprintf("%v", flagCursor),
+				"trim":        fmt.Sprintf("%v", flagTrim),
 			}, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)

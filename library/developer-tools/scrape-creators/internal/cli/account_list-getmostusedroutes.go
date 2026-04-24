@@ -16,9 +16,9 @@ func newAccountListGetmostusedroutesCmd(flags *rootFlags) *cobra.Command {
 	var flagEndTime string
 
 	cmd := &cobra.Command{
-		Use:   "most-used-routes",
+		Use:     "most-used-routes",
 		Aliases: []string{"list-getmostusedroutes"},
-		Short: "Get most used routes",
+		Short:   "Get most used routes",
 		Example: "  scrape-creators-pp-cli account list-getmostusedroutes",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

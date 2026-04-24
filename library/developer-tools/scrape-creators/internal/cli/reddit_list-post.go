@@ -18,9 +18,9 @@ func newRedditListPostCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "post-comments",
+		Use:     "post-comments",
 		Aliases: []string{"list-post"},
-		Short: "Post Comments",
+		Short:   "Post Comments",
 		Example: "  scrape-creators-pp-cli reddit list-post",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
@@ -33,9 +33,9 @@ func newRedditListPostCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/reddit/post/comments"
 			data, prov, err := resolvePaginatedRead(c, flags, "reddit", path, map[string]string{
-				"url": fmt.Sprintf("%v", flagUrl),
+				"url":    fmt.Sprintf("%v", flagUrl),
 				"cursor": fmt.Sprintf("%v", flagCursor),
-				"trim": fmt.Sprintf("%v", flagTrim),
+				"trim":   fmt.Sprintf("%v", flagTrim),
 			}, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)

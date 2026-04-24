@@ -68,10 +68,14 @@ func Execute() error {
 	rootCmd := &cobra.Command{
 		Use:           "scrape-creators-pp-cli",
 		Short:         "Scrape TikTok, Instagram, YouTube, LinkedIn, and 27+ social platforms from the terminal",
-		SilenceUsage: true,
-		Version:      version,
+		SilenceUsage:  true,
+		SilenceErrors: true,
+		Version:       version,
 	}
 	rootCmd.SetVersionTemplate("scrape-creators-pp-cli {{ .Version }}\n")
+	rootCmd.SetFlagErrorFunc(func(cmd *cobra.Command, err error) error {
+		return usageErr(err)
+	})
 
 	rootCmd.PersistentFlags().BoolVar(&flags.asJSON, "json", false, "Output as JSON")
 	rootCmd.PersistentFlags().BoolVar(&flags.compact, "compact", false, "Return only key fields (id, name, status, timestamps) for minimal token usage")
@@ -113,19 +117,18 @@ func Execute() error {
 		case "auto", "live", "local":
 			// valid
 		default:
-			return fmt.Errorf("invalid --data-source value %q: must be auto, live, or local", flags.dataSource)
+			return usageErr(fmt.Errorf("invalid --data-source value %q: must be auto, live, or local", flags.dataSource))
 		}
 		return nil
 	}
 	rootCmd.AddCommand(newDoctorCmd(&flags))
 	rootCmd.AddCommand(newAuthCmd(&flags))
 	rootCmd.AddCommand(newExportCmd(&flags))
-	rootCmd.AddCommand(newImportCmd(&flags))
 	rootCmd.AddCommand(newSearchCmd(&flags))
 	rootCmd.AddCommand(newSyncCmd(&flags))
 	rootCmd.AddCommand(newTailCmd(&flags))
 	rootCmd.AddCommand(newAnalyticsCmd(&flags))
-	rootCmd.AddCommand(newWorkflowCmd(&flags))
+	rootCmd.AddCommand(newArchiveCmd(&flags))
 	rootCmd.AddCommand(newAPICmd(&flags))
 	rootCmd.AddCommand(newAgentCmd(&flags))
 	rootCmd.AddCommand(newTwitchPromotedCmd(&flags))
@@ -152,6 +155,7 @@ func Execute() error {
 	rootCmd.AddCommand(newLinktreePromotedCmd(&flags))
 	rootCmd.AddCommand(newThreadsPromotedCmd(&flags))
 	rootCmd.AddCommand(newVersionCliCmd())
+	applyPlatformRootMetadata(rootCmd)
 
 	// Wizard entry point: bare TTY invocation with no agent flag.
 	if handled, werr := runWizardIfEligible(rootCmd, &flags, stripFlagArgs(os.Args[1:])); handled {
@@ -169,7 +173,7 @@ func Execute() error {
 			}
 		}
 	}
-	return err
+	return normalizeCommandError(err)
 }
 
 func ExitCode(err error) int {

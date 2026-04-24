@@ -130,9 +130,9 @@ func pickOne(in *bufio.Reader, out io.Writer, label string, options []string) (s
 // top-level utilities that are not "scrape an API" surfaces.
 func collectPlatforms(rootCmd *cobra.Command) []string {
 	skip := map[string]bool{
-		"doctor": true, "auth": true, "export": true, "import": true,
+		"doctor": true, "auth": true, "export": true,
 		"search": true, "sync": true, "tail": true, "analytics": true,
-		"workflow": true, "api": true, "version": true, "help": true,
+		"archive": true, "api": true, "version": true, "help": true,
 		"completion": true, "agent": true,
 	}
 	var names []string

@@ -14,16 +14,16 @@ import (
 )
 
 type Config struct {
-	BaseURL        string `toml:"base_url"`
-	AuthHeaderVal  string `toml:"auth_header"`
-	AuthSource     string `toml:"-"`
-	AccessToken    string `toml:"access_token"`
-	RefreshToken   string `toml:"refresh_token"`
-	TokenExpiry    time.Time `toml:"token_expiry"`
-	ClientID       string `toml:"client_id"`
-	ClientSecret   string `toml:"client_secret"`
-	Path           string `toml:"-"`
-	ScrapeCreatorsApiKeyAuth string `toml:"creators_api_key_auth"`
+	BaseURL       string    `toml:"base_url"`
+	AuthHeaderVal string    `toml:"auth_header"`
+	AuthSource    string    `toml:"-"`
+	AccessToken   string    `toml:"access_token"`
+	RefreshToken  string    `toml:"refresh_token"`
+	TokenExpiry   time.Time `toml:"token_expiry"`
+	ClientID      string    `toml:"client_id"`
+	ClientSecret  string    `toml:"client_secret"`
+	Path          string    `toml:"-"`
+	APIKey        string    `toml:"api_key"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -50,34 +50,29 @@ func Load(configPath string) (*Config, error) {
 		}
 	}
 
-	// Env var overrides — accept both the canonical name and the shorthand
-	if v := os.Getenv("SCRAPE_CREATORS_API_KEY_AUTH"); v != "" {
-		cfg.ScrapeCreatorsApiKeyAuth = v
-		cfg.AuthSource = "env:SCRAPE_CREATORS_API_KEY_AUTH"
-	}
-	if v := os.Getenv("SCRAPECREATORS_API_KEY"); v != "" && cfg.ScrapeCreatorsApiKeyAuth == "" {
-		cfg.ScrapeCreatorsApiKeyAuth = v
-		cfg.AuthSource = "env:SCRAPECREATORS_API_KEY"
+	// Env var override
+	if v := os.Getenv("SCRAPE_CREATORS_API_KEY"); v != "" {
+		cfg.APIKey = v
+		cfg.AuthSource = "env:SCRAPE_CREATORS_API_KEY"
 	}
 
 	// Base URL override (used by printing-press verify to point at mock/test servers)
 	if v := os.Getenv("SCRAPE_CREATORS_BASE_URL"); v != "" {
 		cfg.BaseURL = v
 	}
+	if cfg.AuthSource == "" && cfg.APIKey != "" {
+		cfg.AuthSource = "config:api_key"
+	} else if cfg.AuthSource == "" && cfg.AuthHeaderVal != "" {
+		cfg.AuthSource = "config:auth_header"
+	}
 
 	return cfg, nil
 }
 
 func (c *Config) AuthHeader() string {
-	if c.AuthHeaderVal != "" {
-		return c.AuthHeaderVal
-	}
-	token := c.ScrapeCreatorsApiKeyAuth
+	token := c.APIKey
 	if token == "" {
-		return ""
-	}
-	if c.ScrapeCreatorsApiKeyAuth == "" {
-		return ""
+		return c.AuthHeaderVal
 	}
 	return token
 }
@@ -104,7 +99,14 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 	return c.save()
 }
 
+func (c *Config) SaveAPIKey(apiKey string) error {
+	c.APIKey = apiKey
+	return c.save()
+}
+
 func (c *Config) ClearTokens() error {
+	c.APIKey = ""
+	c.AuthHeaderVal = ""
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}

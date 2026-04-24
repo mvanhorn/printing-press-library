@@ -18,9 +18,9 @@ func newPinterestListSearchCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "search",
+		Use:     "search",
 		Aliases: []string{"list-search"},
-		Short: "Searches Pinterest for pins matching a query, returning results with id, url, title, description, images, link,...",
+		Short:   "Searches Pinterest for pins matching a query, returning results with id, url, title, description, images, link,...",
 		Example: "  scrape-creators-pp-cli pinterest list-search",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
@@ -33,9 +33,9 @@ func newPinterestListSearchCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/pinterest/search"
 			data, prov, err := resolvePaginatedRead(c, flags, "pinterest", path, map[string]string{
-				"query": fmt.Sprintf("%v", flagQuery),
+				"query":  fmt.Sprintf("%v", flagQuery),
 				"cursor": fmt.Sprintf("%v", flagCursor),
-				"trim": fmt.Sprintf("%v", flagTrim),
+				"trim":   fmt.Sprintf("%v", flagTrim),
 			}, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)

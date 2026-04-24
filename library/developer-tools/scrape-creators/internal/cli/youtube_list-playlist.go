@@ -15,9 +15,9 @@ func newYoutubeListPlaylistCmd(flags *rootFlags) *cobra.Command {
 	var flagPlaylistId string
 
 	cmd := &cobra.Command{
-		Use:   "playlist",
+		Use:     "playlist",
 		Aliases: []string{"list-playlist"},
-		Short: "Retrieves all videos in a YouTube playlist, including the playlist title, owner info, total video count, and each...",
+		Short:   "Retrieves all videos in a YouTube playlist, including the playlist title, owner info, total video count, and each...",
 		Example: "  scrape-creators-pp-cli youtube list-playlist",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("playlist-id") && !flags.dryRun {

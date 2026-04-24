@@ -3,12 +3,12 @@ name: pp-scrape-creators
 description: "Scrape Creators CLI — scrape public social-media data across TikTok, Instagram, YouTube, Twitter/X, LinkedIn, Facebook, Reddit, Threads, Bluesky, Pinterest, Snapchat, Twitch, Kick, Truth Social, and 15+ link-in-bio platforms. Use when the user wants to fetch a profile, posts, comments, videos, ads, or transcripts from a social platform; compare creators; find spike/viral videos; track follower growth; analyze posting cadence; snapshot hashtag trends; inspect API credit budget; or sync a platform's data locally for offline search and analytics."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["scrape-creators-pp-cli"],"env":["SCRAPE_CREATORS_API_KEY_AUTH"]},"primaryEnv":"SCRAPE_CREATORS_API_KEY_AUTH","install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/cmd/scrape-creators-pp-cli@latest","bins":["scrape-creators-pp-cli"],"label":"Install via go install"}]}}'
+metadata: '{"openclaw":{"requires":{"bins":["scrape-creators-pp-cli"],"env":["SCRAPE_CREATORS_API_KEY"]},"primaryEnv":"SCRAPE_CREATORS_API_KEY","install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/cmd/scrape-creators-pp-cli@latest","bins":["scrape-creators-pp-cli"],"label":"Install via go install"}]}}'
 ---
 
-# Scrape Creators - Printing Press CLI
+# Scrape Creators CLI
 
-Scrape public social-media data from the terminal — profiles, posts, comments, videos, ads, and transcripts across 30+ platforms. Read-only wrapper around the [Scrape Creators](https://scrapecreators.com) API. Ships a local SQLite sync and analytics commands (`spikes`, `compare`, `cadence`, `track`, `analyze`, `transcripts`, `search trends`, `account budget`) that compound over time.
+Scrape public social-media data from the terminal — profiles, posts, comments, videos, ads, and transcripts across 30+ platforms. Read-only wrapper around the [Scrape Creators](https://scrapecreators.com) API. Ships a local SQLite sync and analytics commands (`spikes`, `compare`, `cadence`, `track`, `analyze`, `transcripts`, `search trends`, `account budget`) that compound over time. Live API calls consume credits; use `--dry-run`, `account budget`, and the local sync when iterating.
 
 ## When to Use This CLI
 
@@ -22,7 +22,7 @@ Reach for this when the user wants to:
 - Search across all of a creator's video transcripts (`tiktok transcripts`)
 - Snapshot a hashtag's momentum (`search trends`)
 - Audit API credit spend and forecast days remaining (`account budget`)
-- Pull a platform's data into local SQLite for offline work (`sync`, `workflow archive`)
+- Pull the built-in archiveable resource set into local SQLite for offline work (`sync`, `archive`; today this is `account` request history)
 - Full-text-search synced data (`search`)
 
 Skip this CLI when the user wants to *post* content (it's read-only) or authenticate as a specific social-media user (it only sees public data).
@@ -52,7 +52,7 @@ Parse `$ARGUMENTS`:
 4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 5. Auth setup:
    ```bash
-   export SCRAPE_CREATORS_API_KEY_AUTH="<your-key>"
+   export SCRAPE_CREATORS_API_KEY="<your-key>"
    ```
    Get a key at <https://app.scrapecreators.com>.
 6. Verify: `scrape-creators-pp-cli doctor` reports config, auth, and connectivity status.
@@ -75,23 +75,25 @@ scrape-creators-pp-cli agent add claude-code --hosted
 scrape-creators-pp-cli agent add cursor --force
 ```
 
+`agent add` does not require credentials up front. If `SCRAPE_CREATORS_API_KEY` is missing, the CLI still writes the MCP entry and leaves auth for you to add later.
+
 All writes land at mode `0600`. Alternatively, install the MCP binary manually:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/cmd/scrape-creators-pp-mcp@latest
-claude mcp add scrape-creators scrape-creators-pp-mcp -e SCRAPE_CREATORS_API_KEY_AUTH=<your-key>
+claude mcp add scrape-creators scrape-creators-pp-mcp -e SCRAPE_CREATORS_API_KEY=<your-key>
 ```
 
 ## Direct Use
 
 1. Check installed: `which scrape-creators-pp-cli`. If missing, offer CLI installation.
-2. Ensure `SCRAPE_CREATORS_API_KEY_AUTH` is exported (or saved to the config file) before any call that hits the API.
+2. Ensure `SCRAPE_CREATORS_API_KEY` is exported (or saved to the config file) before any call that hits the API.
 3. Discover commands: `scrape-creators-pp-cli --help`; drill in with `scrape-creators-pp-cli <platform> --help`.
 4. Execute with `--agent` for structured output:
    ```bash
    scrape-creators-pp-cli <platform> <action> [args] --agent
    ```
-5. For repeat analytics, run `scrape-creators-pp-cli sync --resources <type>` first so later commands read from local SQLite.
+5. For repeat offline search over the built-in archiveable set, run `scrape-creators-pp-cli sync` first so later commands can read from local SQLite.
 
 Handle / hashtag normalization: the CLI strips leading `@` from handles and `#` from hashtags automatically. Both `@charlidamelio` and `charlidamelio` work.
 
@@ -138,13 +140,12 @@ Handle / hashtag normalization: the CLI strips leading `@` from handles and `#` 
 | `search trends` | Snapshot a hashtag's result count + top videos (`--hashtag <tag>`) |
 | `account budget` | Credit balance + projected days remaining at current burn rate |
 | `account api-usage` / `daily-usage` / `most-used-routes` | Usage history views |
-| `sync` | Pull API data into local SQLite (`--resources <list>`, `--since <dur>`, `--full`) |
-| `tail` | Stream live changes by polling the API (NDJSON to stdout) |
+| `sync` | Pull archiveable API data into local SQLite (`--resources <list>`, `--since <dur>`, `--full`; no args = built-in archiveable set) |
+| `tail <resource>` | Stream live changes by polling one resource (NDJSON to stdout) |
 | `analytics` | Count / group-by / top-N over synced data |
-| `export` | Export synced data to JSONL or JSON (`--format`, `--output`) |
-| `import` | Push a JSONL file into the API via upsert |
-| `workflow archive` | One-shot sync of every supported resource; `--full` forces re-archive |
-| `workflow status` | Local archive sync state |
+| `export` | Export a supported canonical API resource to JSONL or JSON via live API read (`--format`, `--output`) |
+| `archive` | One-shot sync of the built-in archiveable resource set (currently `account`); `--full` forces re-archive |
+| `archive status` | Local archive sync state |
 | `api` | Browse every raw API endpoint by interface name (power-user escape hatch) |
 | `agent add` | Wire the MCP server into `claude-code`, `claude-desktop`, `cursor`, or `codex` |
 | `doctor` | Config / auth / connectivity health check |
@@ -176,7 +177,7 @@ Use this to narrow huge payloads to the fields you actually need.
 
 ### Response envelope
 
-Data-layer commands wrap output in `{"meta": {...}, "results": <data>}`. Parse `.results` for data and `.meta.source` to know whether it's `live` or local. The `N results (live)` summary is printed to stderr only when stdout is a TTY; piped/agent consumers see pure JSON on stdout.
+Data-layer commands wrap successful output in `{"meta": {...}, "results": <data>}`. Parse `.results` for data and `.meta.source` to know whether it's `live` or local. Errors stay on stderr and do not use the envelope. The `N results (live)` summary is printed to stderr only when stdout is a TTY; piped/agent consumers see pure JSON on stdout.
 
 ## Exit Codes
 
@@ -185,7 +186,7 @@ Data-layer commands wrap output in `{"meta": {...}, "results": <data>}`. Parse `
 | 0 | Success |
 | 2 | Usage error (wrong arguments) |
 | 3 | Resource not found (profile, post, video, …) |
-| 4 | Authentication required (`SCRAPE_CREATORS_API_KEY_AUTH` missing or invalid) |
+| 4 | Authentication required (`SCRAPE_CREATORS_API_KEY` missing or invalid) |
 | 5 | API error (Scrape Creators upstream) |
 | 7 | Rate limited |
 | 10 | Config error |

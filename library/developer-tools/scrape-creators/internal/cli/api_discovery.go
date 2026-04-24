@@ -29,12 +29,12 @@ Run 'api <interface>' to see that interface's methods.`,
   # Show methods for a specific interface
   scrape-creators-pp-cli api <interface-name>`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			root := cmd.Root()
+			interfaces := apiInterfaces(cmd.Root())
 
 			if len(args) > 0 {
 				target := strings.ToLower(args[0])
-				for _, child := range root.Commands() {
-					if child.Hidden && strings.ToLower(child.Name()) == target {
+				for _, child := range interfaces {
+					if strings.EqualFold(child.Name(), target) {
 						methods := child.Commands()
 						if len(methods) == 0 {
 							return child.Help()
@@ -43,28 +43,26 @@ Run 'api <interface>' to see that interface's methods.`,
 						for _, method := range methods {
 							fmt.Fprintf(cmd.OutOrStdout(), "  %-50s %s\n", child.Name()+" "+method.Name(), method.Short)
 						}
-						fmt.Fprintf(cmd.OutOrStdout(), "\nUse '%s-pp-cli %s <method> --help' for details.\n", "scrape-creators", child.Name())
+						fmt.Fprintf(cmd.OutOrStdout(), "\nUse 'scrape-creators-pp-cli %s <method> --help' for details.\n", child.Name())
 						return nil
 					}
 				}
-				return fmt.Errorf("interface %q not found. Run '%s-pp-cli api' to list all interfaces", args[0], "scrape-creators")
+				return usageErr(fmt.Errorf("interface %q not found. Run 'scrape-creators-pp-cli api' to list all interfaces", args[0]))
 			}
 
-			var interfaces []string
-			for _, child := range root.Commands() {
-				if child.Hidden {
-					interfaces = append(interfaces, fmt.Sprintf("  %-45s %s", child.Name(), child.Short))
-				}
+			var lines []string
+			for _, child := range apiInterfaces(cmd.Root()) {
+				lines = append(lines, fmt.Sprintf("  %-45s %s", child.Name(), child.Short))
 			}
-			sort.Strings(interfaces)
+			sort.Strings(lines)
 
-			if len(interfaces) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "No hidden API interfaces found.")
+			if len(lines) == 0 {
+				fmt.Fprintln(cmd.OutOrStdout(), "No API interfaces found.")
 				return nil
 			}
 
-			fmt.Fprintf(cmd.OutOrStdout(), "Available API interfaces (%d):\n\n", len(interfaces))
-			for _, line := range interfaces {
+			fmt.Fprintf(cmd.OutOrStdout(), "Available API interfaces (%d):\n\n", len(lines))
+			for _, line := range lines {
 				fmt.Fprintln(cmd.OutOrStdout(), line)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "\nUse '%s-pp-cli api <interface>' to see methods.\n", "scrape-creators")

@@ -17,9 +17,9 @@ func newYoutubeListCmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
 
 	cmd := &cobra.Command{
-		Use:   "channel",
+		Use:     "channel",
 		Aliases: []string{"list"},
-		Short: "Channel Details",
+		Short:   "Channel Details",
 		Example: "  scrape-creators-pp-cli youtube list",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

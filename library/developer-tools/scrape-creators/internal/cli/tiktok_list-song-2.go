@@ -17,9 +17,9 @@ func newTiktokListSong2Cmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "song-videos",
+		Use:     "song-videos",
 		Aliases: []string{"list-song-2"},
-		Short: "TikToks using Song",
+		Short:   "TikToks using Song",
 		Example: "  scrape-creators-pp-cli tiktok list-song-2",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

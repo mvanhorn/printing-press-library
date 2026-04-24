@@ -16,9 +16,9 @@ func newBlueskyListUserCmd(flags *rootFlags) *cobra.Command {
 	var flagUserId string
 
 	cmd := &cobra.Command{
-		Use:   "user-posts",
+		Use:     "user-posts",
 		Aliases: []string{"list-user"},
-		Short: "Fetches a paginated feed of posts from a Bluesky user, returning each post's uri, record text, author info, embed...",
+		Short:   "Fetches a paginated feed of posts from a Bluesky user, returning each post's uri, record text, author info, embed...",
 		Example: "  scrape-creators-pp-cli bluesky list-user",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -118,8 +118,6 @@ func (l *adaptiveLimiter) Rate() float64 {
 	return l.rate
 }
 
-
-
 // APIError carries HTTP status information for structured exit codes.
 type APIError struct {
 	Method     string
@@ -366,7 +364,15 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 		fmt.Fprintf(os.Stderr, "  Authorization: %s\n", maskToken(authHeader))
 	}
 	fmt.Fprintf(os.Stderr, "\n(dry run - no request sent)\n")
-	return json.RawMessage(`{"dry_run": true}`), 0, nil
+	return json.RawMessage(`{
+  "dry_run": true,
+  "aweme_list": [],
+  "user": {},
+  "stats": {},
+  "usage": [],
+  "transcript": "",
+  "credits_remaining": 0
+}`), 0, nil
 }
 
 func (c *Client) authHeader() (string, error) {
@@ -493,7 +499,6 @@ func sanitizeJSONResponse(body []byte) []byte {
 	}
 	return body
 }
-
 
 // maskToken redacts all but the last 4 characters of a token for safe display.
 func maskToken(token string) string {

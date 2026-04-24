@@ -15,9 +15,9 @@ func newThreadsListProfileCmd(flags *rootFlags) *cobra.Command {
 	var flagHandle string
 
 	cmd := &cobra.Command{
-		Use:   "profile",
+		Use:     "profile",
 		Aliases: []string{"list-profile"},
-		Short: "Retrieves a Threads user's public profile including username, full_name, biography, profile_pic_url, follower_count,...",
+		Short:   "Retrieves a Threads user's public profile including username, full_name, biography, profile_pic_url, follower_count,...",
 		Example: "  scrape-creators-pp-cli threads list-profile",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("handle") && !flags.dryRun {

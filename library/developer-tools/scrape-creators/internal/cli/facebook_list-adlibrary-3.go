@@ -15,9 +15,9 @@ func newFacebookListAdlibrary3Cmd(flags *rootFlags) *cobra.Command {
 	var flagQuery string
 
 	cmd := &cobra.Command{
-		Use:   "adlibrary-search-companies",
+		Use:     "adlibrary-search-companies",
 		Aliases: []string{"list-adlibrary-3"},
-		Short: "Search for Companies",
+		Short:   "Search for Companies",
 		Example: "  scrape-creators-pp-cli facebook list-adlibrary-3",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {

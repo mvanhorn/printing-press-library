@@ -15,9 +15,9 @@ func newTiktokListProfileCmd(flags *rootFlags) *cobra.Command {
 	var flagHandle string
 
 	cmd := &cobra.Command{
-		Use:   "profile",
+		Use:     "profile",
 		Aliases: []string{"list-profile"},
-		Short: "Fetches public profile data for a TikTok user by their handle — useful for looking up a creator's identity, bio,...",
+		Short:   "Fetches public profile data for a TikTok user by their handle — useful for looking up a creator's identity, bio,...",
 		Example: "  scrape-creators-pp-cli tiktok list-profile",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("handle") && !flags.dryRun {

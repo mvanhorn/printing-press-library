@@ -20,9 +20,9 @@ func newRedditListSubreddit3Cmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "subreddit-search",
+		Use:     "subreddit-search",
 		Aliases: []string{"list-subreddit-3"},
-		Short: "Subreddit Search",
+		Short:   "Subreddit Search",
 		Example: "  scrape-creators-pp-cli reddit list-subreddit-3",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("subreddit") && !flags.dryRun {
@@ -36,10 +36,10 @@ func newRedditListSubreddit3Cmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/reddit/subreddit/search"
 			data, prov, err := resolvePaginatedRead(c, flags, "reddit", path, map[string]string{
 				"subreddit": fmt.Sprintf("%v", flagSubreddit),
-				"query": fmt.Sprintf("%v", flagQuery),
-				"sort": fmt.Sprintf("%v", flagSort),
+				"query":     fmt.Sprintf("%v", flagQuery),
+				"sort":      fmt.Sprintf("%v", flagSort),
 				"timeframe": fmt.Sprintf("%v", flagTimeframe),
-				"cursor": fmt.Sprintf("%v", flagCursor),
+				"cursor":    fmt.Sprintf("%v", flagCursor),
 			}, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)

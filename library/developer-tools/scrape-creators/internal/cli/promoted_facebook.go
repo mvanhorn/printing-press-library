@@ -26,9 +26,9 @@ func newFacebookPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "facebook",
-		Short: "Searches the Meta Ad Library by keyword and returns matching ads. Each result includes ad_archive_id, page_name,...",
-		Long:  "Shortcut for 'facebook list-adlibrary-2'. Searches the Meta Ad Library by keyword and returns matching ads. Each result includes ad_archive_id, page_name,...",
+		Use:     "facebook",
+		Short:   "Searches the Meta Ad Library by keyword and returns matching ads. Each result includes ad_archive_id, page_name,...",
+		Long:    "Shortcut for 'facebook list-adlibrary-2'. Searches the Meta Ad Library by keyword and returns matching ads. Each result includes ad_archive_id, page_name,...",
 		Example: "  scrape-creators-pp-cli facebook",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
@@ -41,17 +41,17 @@ func newFacebookPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/facebook/adLibrary/search/ads"
 			data, prov, err := resolvePaginatedRead(c, flags, "facebook", path, map[string]string{
-				"query": fmt.Sprintf("%v", flagQuery),
-				"sort_by": fmt.Sprintf("%v", flagSortBy),
+				"query":       fmt.Sprintf("%v", flagQuery),
+				"sort_by":     fmt.Sprintf("%v", flagSortBy),
 				"search_type": fmt.Sprintf("%v", flagSearchType),
-				"ad_type": fmt.Sprintf("%v", flagAdType),
-				"country": fmt.Sprintf("%v", flagCountry),
-				"status": fmt.Sprintf("%v", flagStatus),
-				"media_type": fmt.Sprintf("%v", flagMediaType),
-				"start_date": fmt.Sprintf("%v", flagStartDate),
-				"end_date": fmt.Sprintf("%v", flagEndDate),
-				"cursor": fmt.Sprintf("%v", flagCursor),
-				"trim": fmt.Sprintf("%v", flagTrim),
+				"ad_type":     fmt.Sprintf("%v", flagAdType),
+				"country":     fmt.Sprintf("%v", flagCountry),
+				"status":      fmt.Sprintf("%v", flagStatus),
+				"media_type":  fmt.Sprintf("%v", flagMediaType),
+				"start_date":  fmt.Sprintf("%v", flagStartDate),
+				"end_date":    fmt.Sprintf("%v", flagEndDate),
+				"cursor":      fmt.Sprintf("%v", flagCursor),
+				"trim":        fmt.Sprintf("%v", flagTrim),
 			}, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)

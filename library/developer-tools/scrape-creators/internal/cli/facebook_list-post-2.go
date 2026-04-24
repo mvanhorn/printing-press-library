@@ -18,9 +18,9 @@ func newFacebookListPost2Cmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "post-comments",
+		Use:     "post-comments",
 		Aliases: []string{"list-post-2"},
-		Short: "Fetches comments from a Facebook post or reel with cursor-based pagination. Each comment includes id, text,...",
+		Short:   "Fetches comments from a Facebook post or reel with cursor-based pagination. Each comment includes id, text,...",
 		Example: "  scrape-creators-pp-cli facebook list-post-2",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,9 +30,9 @@ func newFacebookListPost2Cmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/facebook/post/comments"
 			data, prov, err := resolvePaginatedRead(c, flags, "facebook", path, map[string]string{
-				"url": fmt.Sprintf("%v", flagUrl),
+				"url":         fmt.Sprintf("%v", flagUrl),
 				"feedback_id": fmt.Sprintf("%v", flagFeedbackId),
-				"cursor": fmt.Sprintf("%v", flagCursor),
+				"cursor":      fmt.Sprintf("%v", flagCursor),
 			}, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)

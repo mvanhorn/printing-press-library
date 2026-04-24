@@ -92,11 +92,50 @@ type cliError struct {
 func (e *cliError) Error() string { return e.err.Error() }
 func (e *cliError) Unwrap() error { return e.err }
 
-func notFoundErr(err error) error { return &cliError{code: 3, err: err} }
-func authErr(err error) error     { return &cliError{code: 4, err: err} }
-func apiErr(err error) error      { return &cliError{code: 5, err: err} }
-func configErr(err error) error   { return &cliError{code: 10, err: err} }
+func usageErr(err error) error     { return &cliError{code: 2, err: err} }
+func notFoundErr(err error) error  { return &cliError{code: 3, err: err} }
+func authErr(err error) error      { return &cliError{code: 4, err: err} }
+func apiErr(err error) error       { return &cliError{code: 5, err: err} }
+func configErr(err error) error    { return &cliError{code: 10, err: err} }
 func rateLimitErr(err error) error { return &cliError{code: 7, err: err} }
+
+func normalizeCommandError(err error) error {
+	if err == nil {
+		return nil
+	}
+	var codeErr *cliError
+	if As(err, &codeErr) {
+		return err
+	}
+	if looksLikeUsageError(err.Error()) {
+		return usageErr(err)
+	}
+	return err
+}
+
+func looksLikeUsageError(msg string) bool {
+	patterns := []string{
+		"unknown command",
+		"unknown flag",
+		"required flag",
+		"accepts ",
+		"requires at least ",
+		"requires at most ",
+		"requires exactly ",
+		"argument",
+		"resource name required",
+		"at least two --handle flags required",
+		"invalid --data-source value",
+		"supported targets are ",
+	}
+	for _, pattern := range patterns {
+		if strings.Contains(msg, pattern) {
+			return true
+		}
+	}
+	return false
+}
+
 // looksLikeAuthError checks if an error message body contains auth-related keywords.
 func looksLikeAuthError(msg string) bool {
 	lower := strings.ToLower(msg)
@@ -140,17 +179,17 @@ func classifyAPIError(err error) error {
 		return nil
 	case strings.Contains(msg, "HTTP 400") && looksLikeAuthError(msg):
 		return authErr(fmt.Errorf("%w\nhint: the API rejected the request — this usually means auth is missing or invalid."+
-			"\n      Set your API key: export SCRAPE_CREATORS_API_KEY_AUTH=<your-key>"+
+			"\n      Set your API key: export SCRAPE_CREATORS_API_KEY=<your-key>"+
 			"\n      Run 'scrape-creators-pp-cli doctor' to check auth status."+
 			"\n      Response: "+sanitizeErrorBody(msg), err))
 	case strings.Contains(msg, "HTTP 401"):
 		return authErr(fmt.Errorf("%w\nhint: check your API key."+
-			" Set it with: export SCRAPE_CREATORS_API_KEY_AUTH=<your-key>"+
+			" Set it with: export SCRAPE_CREATORS_API_KEY=<your-key>"+
 			"\n      Run 'scrape-creators-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 403"):
 		return authErr(fmt.Errorf("%w\nhint: permission denied. Your credentials are valid but lack access to this resource."+
 			"\n      Check that your API key has the required permissions."+
-			"\n      Set it with: export SCRAPE_CREATORS_API_KEY_AUTH=<your-key>"+
+			"\n      Set it with: export SCRAPE_CREATORS_API_KEY=<your-key>"+
 			"\n      Run 'scrape-creators-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 404"):
 		return notFoundErr(fmt.Errorf("%w\nhint: resource not found. Run the 'list' command to see available items", err))
@@ -990,12 +1029,13 @@ func findField(obj map[string]any, names ...string) string {
 	}
 	return ""
 }
+
 // DataProvenance describes where data came from and when it was last synced.
 type DataProvenance struct {
 	Source       string     `json:"source"`                  // "live" or "local"
-	SyncedAt    *time.Time `json:"synced_at,omitempty"`     // when local data was last synced
-	Reason      string     `json:"reason,omitempty"`        // why local was used: "user_requested", "api_unreachable", "no_search_endpoint"
-	ResourceType string    `json:"resource_type,omitempty"` // which resource type was queried
+	SyncedAt     *time.Time `json:"synced_at,omitempty"`     // when local data was last synced
+	Reason       string     `json:"reason,omitempty"`        // why local was used: "user_requested", "api_unreachable", "no_search_endpoint"
+	ResourceType string     `json:"resource_type,omitempty"` // which resource type was queried
 }
 
 // printProvenance writes a one-line provenance message to stderr.

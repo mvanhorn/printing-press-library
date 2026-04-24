@@ -15,9 +15,9 @@ func newKomiPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
 
 	cmd := &cobra.Command{
-		Use:   "komi",
-		Short: "Komi page",
-		Long:  "Shortcut for 'komi list'. Komi page",
+		Use:     "komi",
+		Short:   "Komi page",
+		Long:    "Shortcut for 'komi list'. Komi page",
 		Example: "  scrape-creators-pp-cli komi",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {

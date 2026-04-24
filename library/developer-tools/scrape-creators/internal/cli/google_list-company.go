@@ -23,9 +23,9 @@ func newGoogleListCompanyCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "company-ads",
+		Use:     "company-ads",
 		Aliases: []string{"list-company"},
-		Short: "Company Ads",
+		Short:   "Company Ads",
 		Example: "  scrape-creators-pp-cli google list-company",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -35,14 +35,14 @@ func newGoogleListCompanyCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/google/company/ads"
 			data, prov, err := resolvePaginatedRead(c, flags, "google", path, map[string]string{
-				"domain": fmt.Sprintf("%v", flagDomain),
-				"advertiser_id": fmt.Sprintf("%v", flagAdvertiserId),
-				"topic": fmt.Sprintf("%v", flagTopic),
-				"region": fmt.Sprintf("%v", flagRegion),
-				"start_date": fmt.Sprintf("%v", flagStartDate),
-				"end_date": fmt.Sprintf("%v", flagEndDate),
+				"domain":         fmt.Sprintf("%v", flagDomain),
+				"advertiser_id":  fmt.Sprintf("%v", flagAdvertiserId),
+				"topic":          fmt.Sprintf("%v", flagTopic),
+				"region":         fmt.Sprintf("%v", flagRegion),
+				"start_date":     fmt.Sprintf("%v", flagStartDate),
+				"end_date":       fmt.Sprintf("%v", flagEndDate),
 				"get_ad_details": fmt.Sprintf("%v", flagGetAdDetails),
-				"cursor": fmt.Sprintf("%v", flagCursor),
+				"cursor":         fmt.Sprintf("%v", flagCursor),
 			}, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)

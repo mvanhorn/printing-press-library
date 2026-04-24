@@ -21,9 +21,9 @@ func newTiktokListSearch2Cmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "search-keyword",
+		Use:     "search-keyword",
 		Aliases: []string{"list-search-2"},
-		Short: "Search by Keyword",
+		Short:   "Search by Keyword",
 		Example: "  scrape-creators-pp-cli tiktok list-search-2",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
@@ -36,12 +36,12 @@ func newTiktokListSearch2Cmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/tiktok/search/keyword"
 			data, prov, err := resolvePaginatedRead(c, flags, "tiktok", path, map[string]string{
-				"query": fmt.Sprintf("%v", flagQuery),
+				"query":       fmt.Sprintf("%v", flagQuery),
 				"date_posted": fmt.Sprintf("%v", flagDatePosted),
-				"sort_by": fmt.Sprintf("%v", flagSortBy),
-				"region": fmt.Sprintf("%v", flagRegion),
-				"cursor": fmt.Sprintf("%v", flagCursor),
-				"trim": fmt.Sprintf("%v", flagTrim),
+				"sort_by":     fmt.Sprintf("%v", flagSortBy),
+				"region":      fmt.Sprintf("%v", flagRegion),
+				"cursor":      fmt.Sprintf("%v", flagCursor),
+				"trim":        fmt.Sprintf("%v", flagTrim),
 			}, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)

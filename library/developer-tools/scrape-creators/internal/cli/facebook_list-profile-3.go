@@ -18,9 +18,9 @@ func newFacebookListProfile3Cmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "profile-posts",
+		Use:     "profile-posts",
 		Aliases: []string{"list-profile-3"},
-		Short: "Profile Posts",
+		Short:   "Profile Posts",
 		Example: "  scrape-creators-pp-cli facebook list-profile-3",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -30,7 +30,7 @@ func newFacebookListProfile3Cmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/facebook/profile/posts"
 			data, prov, err := resolvePaginatedRead(c, flags, "facebook", path, map[string]string{
-				"url": fmt.Sprintf("%v", flagUrl),
+				"url":    fmt.Sprintf("%v", flagUrl),
 				"pageId": fmt.Sprintf("%v", flagPageId),
 				"cursor": fmt.Sprintf("%v", flagCursor),
 			}, flagAll, "cursor", "", "")

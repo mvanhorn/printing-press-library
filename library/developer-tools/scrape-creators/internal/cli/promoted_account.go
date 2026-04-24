@@ -14,9 +14,9 @@ import (
 func newAccountPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "account",
-		Short: "Get credit balance",
-		Long:  "Shortcut for 'account list'. Get credit balance",
+		Use:     "account",
+		Short:   "Get credit balance",
+		Long:    "Shortcut for 'account list'. Get credit balance",
 		Example: "  scrape-creators-pp-cli account",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

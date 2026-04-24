@@ -15,9 +15,9 @@ func newBlueskyPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagHandle string
 
 	cmd := &cobra.Command{
-		Use:   "bluesky",
-		Short: "Retrieves a Bluesky user's public profile including handle, displayName, avatar, description, followersCount,...",
-		Long:  "Shortcut for 'bluesky list-profile'. Retrieves a Bluesky user's public profile including handle, displayName, avatar, description, followersCount,...",
+		Use:     "bluesky",
+		Short:   "Retrieves a Bluesky user's public profile including handle, displayName, avatar, description, followersCount,...",
+		Long:    "Shortcut for 'bluesky list-profile'. Retrieves a Bluesky user's public profile including handle, displayName, avatar, description, followersCount,...",
 		Example: "  scrape-creators-pp-cli bluesky",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("handle") && !flags.dryRun {

@@ -14,7 +14,7 @@ import (
 func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "auth",
-		Short: "Manage authentication tokens",
+		Short: "Manage API-key authentication",
 	}
 
 	cmd.AddCommand(newAuthStatusCmd(flags))
@@ -26,8 +26,8 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 
 func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "status",
-		Short: "Show authentication status",
+		Use:     "status",
+		Short:   "Show authentication status",
 		Example: "  scrape-creators-pp-cli auth status",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(flags.configPath)
@@ -40,9 +40,9 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			if header == "" {
 				fmt.Fprintln(w, red("Not authenticated"))
 				fmt.Fprintln(w, "")
-				fmt.Fprintln(w, "Set your token:")
-				fmt.Fprintln(w, "  export SCRAPE_CREATORS_API_KEY_AUTH=\"your-token-here\"")
-				fmt.Fprintf(w, "  scrape-creators-pp-cli auth set-token <token>\n")
+				fmt.Fprintln(w, "Set your API key:")
+				fmt.Fprintln(w, "  export SCRAPE_CREATORS_API_KEY=\"your-api-key-here\"")
+				fmt.Fprintf(w, "  scrape-creators-pp-cli auth set-token <api-key>\n")
 				return authErr(fmt.Errorf("no credentials configured"))
 			}
 
@@ -56,22 +56,21 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "set-token <token>",
-		Short: "Save an API token to the config file",
+		Use:     "set-token <api-key>",
+		Short:   "Save an API key to the config file",
 		Example: "  scrape-creators-pp-cli auth set-token sk_live_abc123",
-		Args:  cobra.ExactArgs(1),
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
 			}
 
-			// Save the token directly via the config's save mechanism
-			if err := cfg.SaveTokens("", "", args[0], "", cfg.TokenExpiry); err != nil {
-				return configErr(fmt.Errorf("saving token: %w", err))
+			if err := cfg.SaveAPIKey(args[0]); err != nil {
+				return configErr(fmt.Errorf("saving API key: %w", err))
 			}
 
-			fmt.Fprintf(cmd.OutOrStdout(), "Token saved to %s\n", cfg.Path)
+			fmt.Fprintf(cmd.OutOrStdout(), "API key saved to %s\n", cfg.Path)
 			return nil
 		},
 	}
@@ -79,8 +78,8 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 
 func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "logout",
-		Short: "Clear stored credentials",
+		Use:     "logout",
+		Short:   "Clear stored credentials",
 		Example: "  scrape-creators-pp-cli auth logout",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(flags.configPath)
@@ -93,8 +92,8 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			// Warn if env vars still set
-			if os.Getenv("SCRAPE_CREATORS_API_KEY_AUTH") != "" {
-				fmt.Fprintf(cmd.OutOrStdout(), "Config cleared. Note: SCRAPE_CREATORS_API_KEY_AUTH env var is still set.\n")
+			if os.Getenv("SCRAPE_CREATORS_API_KEY") != "" {
+				fmt.Fprintf(cmd.OutOrStdout(), "Config cleared. Note: SCRAPE_CREATORS_API_KEY env var is still set.\n")
 				return nil
 			}
 			fmt.Fprintln(cmd.OutOrStdout(), "Logged out. Credentials cleared.")
