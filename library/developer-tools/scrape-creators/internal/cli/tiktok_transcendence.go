@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -739,24 +740,367 @@ func newAccountBudgetCmd(flags *rootFlags) *cobra.Command {
 
 // ── hashtag trends ────────────────────────────────────────────────────────────
 
+type storedTrendVideo struct {
+	ID        string  `json:"id"`
+	PlayCount float64 `json:"play_count,omitempty"`
+	Rank      int     `json:"rank,omitempty"`
+}
+
+type searchTrendTopVideo struct {
+	ID          string  `json:"id"`
+	Description string  `json:"description"`
+	PlayCount   float64 `json:"play_count"`
+	LikeCount   float64 `json:"like_count"`
+}
+
+type hashtagTrendSnapshot struct {
+	Date       string             `json:"date"`
+	SnapshotAt string             `json:"snapshot_at"`
+	Hashtag    string             `json:"hashtag"`
+	VideoCount int                `json:"video_count"`
+	TopVideos  []storedTrendVideo `json:"top_videos,omitempty"`
+}
+
+type hashtagTrendHistoryRow struct {
+	Date                string   `json:"date"`
+	SnapshotAt          string   `json:"snapshot_at"`
+	VideoCount          int      `json:"video_count"`
+	Delta               int      `json:"delta"`
+	Direction           string   `json:"direction"`
+	PersistentTopVideos int      `json:"persistent_top_videos"`
+	NewTopVideos        int      `json:"new_top_videos"`
+	TopVideoIDs         []string `json:"top_video_ids,omitempty"`
+}
+
+type stickyTrendVideo struct {
+	ID            string `json:"id"`
+	Appearances   int    `json:"appearances"`
+	LongestStreak int    `json:"longest_streak"`
+	BestRank      int    `json:"best_rank"`
+	FirstSeen     string `json:"first_seen"`
+	LastSeen      string `json:"last_seen"`
+}
+
+type hashtagTrendHistoryResponse struct {
+	Hashtag         string                   `json:"hashtag"`
+	Snapshots       []hashtagTrendHistoryRow `json:"snapshots"`
+	SnapshotsCount  int                      `json:"snapshots_count"`
+	StickyTopVideos []stickyTrendVideo       `json:"sticky_top_videos,omitempty"`
+}
+
+var fetchSearchTrendData = func(flags *rootFlags, tag string) (json.RawMessage, error) {
+	c, err := flags.newClient()
+	if err != nil {
+		return nil, err
+	}
+	return c.Get("/v1/tiktok/search/hashtag", map[string]string{"hashtag": tag})
+}
+
+func searchTrendTrackingDir() string {
+	dbPath := defaultDBPath("scrape-creators-pp-cli")
+	return strings.TrimSuffix(dbPath, "/data.db") + "/tracking"
+}
+
+func searchTrendSnapshotFile(hashtag string) string {
+	return filepath.Join(searchTrendTrackingDir(), "hashtag-"+normalizeHashtagKey(hashtag)+".json")
+}
+
+func persistHashtagTrendSnapshots(snapshotFile string, snapshots []hashtagTrendSnapshot) error {
+	if err := os.MkdirAll(filepath.Dir(snapshotFile), 0o755); err != nil {
+		return fmt.Errorf("creating tracking dir: %w", err)
+	}
+	out, marshalErr := json.MarshalIndent(snapshots, "", "  ")
+	if marshalErr != nil {
+		return fmt.Errorf("serializing trend history: %w", marshalErr)
+	}
+	if writeErr := os.WriteFile(snapshotFile, out, 0o644); writeErr != nil {
+		return fmt.Errorf("saving trend snapshot: %w", writeErr)
+	}
+	return nil
+}
+
+func normalizeHashtagKey(hashtag string) string {
+	trimmed := strings.ToLower(NormalizeHashtag(hashtag))
+	var b strings.Builder
+	prevDash := false
+	for _, r := range trimmed {
+		isAlphaNum := (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9')
+		if isAlphaNum {
+			b.WriteRune(r)
+			prevDash = false
+			continue
+		}
+		if b.Len() == 0 || prevDash {
+			continue
+		}
+		b.WriteByte('-')
+		prevDash = true
+	}
+	key := strings.Trim(b.String(), "-")
+	if key == "" {
+		return "hashtag"
+	}
+	return key
+}
+
+func displayHashtag(hashtag string) string {
+	tag := NormalizeHashtag(hashtag)
+	if tag == "" {
+		tag = normalizeHashtagKey(hashtag)
+	}
+	return "#" + tag
+}
+
+func storedTopVideos(top []searchTrendTopVideo) []storedTrendVideo {
+	stored := make([]storedTrendVideo, 0, len(top))
+	for i, v := range top {
+		if v.ID == "" {
+			continue
+		}
+		stored = append(stored, storedTrendVideo{
+			ID:        v.ID,
+			PlayCount: v.PlayCount,
+			Rank:      i + 1,
+		})
+	}
+	return stored
+}
+
+func uniqueTrendVideoIDs(videos []storedTrendVideo) []string {
+	ids := make([]string, 0, len(videos))
+	seen := make(map[string]struct{}, len(videos))
+	for _, video := range videos {
+		if video.ID == "" {
+			continue
+		}
+		if _, ok := seen[video.ID]; ok {
+			continue
+		}
+		seen[video.ID] = struct{}{}
+		ids = append(ids, video.ID)
+	}
+	return ids
+}
+
+func trendVideoIDSet(videos []storedTrendVideo) map[string]struct{} {
+	set := make(map[string]struct{}, len(videos))
+	for _, id := range uniqueTrendVideoIDs(videos) {
+		set[id] = struct{}{}
+	}
+	return set
+}
+
+func intersectTrendVideoSets(a, b map[string]struct{}) int {
+	if len(a) > len(b) {
+		a, b = b, a
+	}
+	count := 0
+	for id := range a {
+		if _, ok := b[id]; ok {
+			count++
+		}
+	}
+	return count
+}
+
+func trendDirection(delta int) string {
+	switch {
+	case delta > 0:
+		return "up"
+	case delta < 0:
+		return "down"
+	default:
+		return "flat"
+	}
+}
+
+func buildTrendHistory(display string, snapshots []hashtagTrendSnapshot) hashtagTrendHistoryResponse {
+	sort.Slice(snapshots, func(i, j int) bool {
+		return snapshots[i].Date < snapshots[j].Date
+	})
+
+	resp := hashtagTrendHistoryResponse{
+		Hashtag:   display,
+		Snapshots: make([]hashtagTrendHistoryRow, 0, len(snapshots)),
+	}
+
+	appearances := map[string]int{}
+	currentStreak := map[string]int{}
+	longestStreak := map[string]int{}
+	bestRank := map[string]int{}
+	firstSeen := map[string]string{}
+	lastSeen := map[string]string{}
+	prevSet := map[string]struct{}{}
+
+	for i, snapshot := range snapshots {
+		if snapshot.Hashtag != "" {
+			resp.Hashtag = snapshot.Hashtag
+		}
+
+		currSet := trendVideoIDSet(snapshot.TopVideos)
+		topIDs := uniqueTrendVideoIDs(snapshot.TopVideos)
+		delta := 0
+		direction := "baseline"
+		persistent := 0
+		newVideos := len(currSet)
+		if i > 0 {
+			delta = snapshot.VideoCount - snapshots[i-1].VideoCount
+			direction = trendDirection(delta)
+			persistent = intersectTrendVideoSets(prevSet, currSet)
+			newVideos = len(currSet) - persistent
+		}
+
+		resp.Snapshots = append(resp.Snapshots, hashtagTrendHistoryRow{
+			Date:                snapshot.Date,
+			SnapshotAt:          snapshot.SnapshotAt,
+			VideoCount:          snapshot.VideoCount,
+			Delta:               delta,
+			Direction:           direction,
+			PersistentTopVideos: persistent,
+			NewTopVideos:        newVideos,
+			TopVideoIDs:         topIDs,
+		})
+
+		seenThisSnapshot := map[string]struct{}{}
+		for _, video := range snapshot.TopVideos {
+			if video.ID == "" {
+				continue
+			}
+			if _, ok := seenThisSnapshot[video.ID]; ok {
+				continue
+			}
+			seenThisSnapshot[video.ID] = struct{}{}
+			appearances[video.ID]++
+			if firstSeen[video.ID] == "" {
+				firstSeen[video.ID] = snapshot.Date
+			}
+			lastSeen[video.ID] = snapshot.Date
+			if rank, ok := bestRank[video.ID]; !ok || (video.Rank > 0 && video.Rank < rank) {
+				bestRank[video.ID] = video.Rank
+			}
+			if _, ok := prevSet[video.ID]; ok {
+				currentStreak[video.ID]++
+			} else {
+				currentStreak[video.ID] = 1
+			}
+			if currentStreak[video.ID] > longestStreak[video.ID] {
+				longestStreak[video.ID] = currentStreak[video.ID]
+			}
+		}
+		for id := range prevSet {
+			if _, ok := currSet[id]; !ok {
+				currentStreak[id] = 0
+			}
+		}
+		prevSet = currSet
+	}
+
+	for id, appearanceCount := range appearances {
+		if appearanceCount < 2 {
+			continue
+		}
+		resp.StickyTopVideos = append(resp.StickyTopVideos, stickyTrendVideo{
+			ID:            id,
+			Appearances:   appearanceCount,
+			LongestStreak: longestStreak[id],
+			BestRank:      bestRank[id],
+			FirstSeen:     firstSeen[id],
+			LastSeen:      lastSeen[id],
+		})
+	}
+	sort.Slice(resp.StickyTopVideos, func(i, j int) bool {
+		if resp.StickyTopVideos[i].LongestStreak != resp.StickyTopVideos[j].LongestStreak {
+			return resp.StickyTopVideos[i].LongestStreak > resp.StickyTopVideos[j].LongestStreak
+		}
+		if resp.StickyTopVideos[i].Appearances != resp.StickyTopVideos[j].Appearances {
+			return resp.StickyTopVideos[i].Appearances > resp.StickyTopVideos[j].Appearances
+		}
+		return resp.StickyTopVideos[i].ID < resp.StickyTopVideos[j].ID
+	})
+	resp.SnapshotsCount = len(resp.Snapshots)
+	return resp
+}
+
 func newSearchTrendsCmd(flags *rootFlags) *cobra.Command {
 	var hashtag string
+	var history bool
 
 	cmd := &cobra.Command{
 		Use:   "trends",
-		Short: "Search a hashtag and show result count and top videos as a trend snapshot",
+		Short: "Search a hashtag, record trend snapshots, and inspect stored history",
 		Example: `  scrape-creators-pp-cli search trends --hashtag BookTok
-  scrape-creators-pp-cli search trends --hashtag BookTok --json`,
+  scrape-creators-pp-cli search trends --hashtag BookTok --json
+  scrape-creators-pp-cli search trends --hashtag BookTok --history`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if hashtag == "" {
+			tag := NormalizeHashtag(hashtag)
+			if tag == "" {
 				return fmt.Errorf("required flag \"hashtag\" not set")
 			}
-			c, err := flags.newClient()
-			if err != nil {
-				return err
+
+			snapshotFile := searchTrendSnapshotFile(hashtag)
+			var snapshots []hashtagTrendSnapshot
+			if raw, readErr := os.ReadFile(snapshotFile); readErr == nil {
+				json.Unmarshal(raw, &snapshots)
 			}
-			tag := strings.TrimPrefix(hashtag, "#")
-			data, err := c.Get("/v1/tiktok/search/hashtag", map[string]string{"hashtag": tag})
+
+			if history {
+				resp := buildTrendHistory(displayHashtag(hashtag), snapshots)
+				if len(resp.Snapshots) == 0 {
+					if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+						out, _ := json.MarshalIndent(resp, "", "  ")
+						fmt.Fprintln(cmd.OutOrStdout(), string(out))
+						return nil
+					}
+					fmt.Fprintf(cmd.OutOrStdout(), "No snapshots yet for %s. Run without --history to record one.\n", resp.Hashtag)
+					return nil
+				}
+				if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+					out, _ := json.MarshalIndent(resp, "", "  ")
+					fmt.Fprintln(cmd.OutOrStdout(), string(out))
+					return nil
+				}
+
+				fmt.Fprintf(cmd.OutOrStdout(), "Trend history for %s (%d snapshots)\n\n", resp.Hashtag, len(resp.Snapshots))
+				tw := newTabWriter(cmd.OutOrStdout())
+				fmt.Fprintln(tw, "DATE\tVIDEOS\tCHANGE\tTREND\tTOP-10 REUSE")
+				for _, row := range resp.Snapshots {
+					change := "n/a"
+					switch {
+					case row.Direction == "baseline":
+						change = "n/a"
+					case row.Delta > 0:
+						change = fmt.Sprintf("+%s", formatCount(float64(row.Delta)))
+					case row.Delta < 0:
+						change = fmt.Sprintf("-%s", formatCount(float64(-row.Delta)))
+					default:
+						change = "="
+					}
+
+					reuse := "n/a"
+					if row.Direction != "baseline" {
+						reuse = fmt.Sprintf("%d/%d", row.PersistentTopVideos, row.PersistentTopVideos+row.NewTopVideos)
+					}
+					fmt.Fprintf(tw, "%s\t%s\t%s\t%s\t%s\n",
+						row.Date,
+						formatCount(float64(row.VideoCount)),
+						change,
+						row.Direction,
+						reuse,
+					)
+				}
+				if err := tw.Flush(); err != nil {
+					return err
+				}
+				if len(resp.StickyTopVideos) > 0 {
+					leaders := make([]string, 0, min(3, len(resp.StickyTopVideos)))
+					for _, video := range resp.StickyTopVideos[:min(3, len(resp.StickyTopVideos))] {
+						leaders = append(leaders, fmt.Sprintf("%s (%dx, streak %d)", video.ID, video.Appearances, video.LongestStreak))
+					}
+					fmt.Fprintf(cmd.OutOrStdout(), "\nSticky leaders: %s\n", strings.Join(leaders, ", "))
+				}
+				return nil
+			}
+			data, err := fetchSearchTrendData(flags, tag)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -768,28 +1112,48 @@ func newSearchTrendsCmd(flags *rootFlags) *cobra.Command {
 				json.Unmarshal(raw, &videos)
 			}
 
-			type topVideo struct {
-				ID          string  `json:"id"`
-				Description string  `json:"description"`
-				PlayCount   float64 `json:"play_count"`
-				LikeCount   float64 `json:"like_count"`
-			}
-			var top []topVideo
+			var top []searchTrendTopVideo
 			for _, v := range videos {
 				play, like, _, _ := videoStats(v)
 				id, _ := v["aweme_id"].(string)
 				desc, _ := v["desc"].(string)
-				top = append(top, topVideo{ID: id, Description: desc, PlayCount: play, LikeCount: like})
+				top = append(top, searchTrendTopVideo{ID: id, Description: desc, PlayCount: play, LikeCount: like})
 			}
 			sort.Slice(top, func(i, j int) bool { return top[i].PlayCount > top[j].PlayCount })
 			if len(top) > 10 {
 				top = top[:10]
 			}
 
+			snapshotAt := time.Now().UTC()
+			record := hashtagTrendSnapshot{
+				Date:       snapshotAt.Format("2006-01-02"),
+				SnapshotAt: snapshotAt.Format(time.RFC3339),
+				Hashtag:    "#" + tag,
+				VideoCount: len(videos),
+				TopVideos:  storedTopVideos(top),
+			}
+			updated := false
+			for i := range snapshots {
+				if snapshots[i].Date == record.Date {
+					snapshots[i] = record
+					updated = true
+					break
+				}
+			}
+			if !updated {
+				snapshots = append(snapshots, record)
+			}
+			sort.Slice(snapshots, func(i, j int) bool {
+				return snapshots[i].Date < snapshots[j].Date
+			})
+			if persistErr := persistHashtagTrendSnapshots(snapshotFile, snapshots); persistErr != nil && isTerminal(cmd.OutOrStdout()) {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: could not save trend snapshot: %v\n", persistErr)
+			}
+
 			result := map[string]any{
 				"hashtag":     "#" + tag,
 				"video_count": len(videos),
-				"snapshot_at": time.Now().UTC().Format(time.RFC3339),
+				"snapshot_at": record.SnapshotAt,
 				"top_videos":  top,
 			}
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
@@ -806,6 +1170,7 @@ func newSearchTrendsCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&hashtag, "hashtag", "", "Hashtag to search (with or without #) (required)")
+	cmd.Flags().BoolVar(&history, "history", false, "Show recorded hashtag snapshots without making an API call")
 	return cmd
 }
 

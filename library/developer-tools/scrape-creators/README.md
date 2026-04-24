@@ -62,7 +62,7 @@ The CLI normalizes handles (strips leading `@`) and hashtags (strips `#`) automa
 Commands that go beyond what the raw API returns, plus a local SQLite layer for repeat analysis:
 
 - **`account budget`** — Show credit balance and project days remaining at your current burn rate.
-- **`search trends`** — Search a hashtag and snapshot result count + top videos for growth tracking.
+- **`search trends`** — Record hashtag result-count snapshots plus top-video churn, then inspect the stored history with `--history`.
 - **`tiktok spikes`** — Find videos that outperformed a creator's average engagement rate.
 - **`tiktok transcripts`** — Fetch and search across all of a creator's video transcripts.
 - **`tiktok compare`** — Compare multiple TikTok creators on followers, engagement, and posting cadence.
@@ -313,7 +313,7 @@ The CLI ships a local SQLite layer. Bare `sync` and `archive` target the built-i
 | `sync` | Pull archiveable API data into local SQLite with resumable pagination; omit `--resources` to use the built-in archiveable set |
 | `tail <resource>` | Stream live changes by polling one resource (NDJSON to stdout) |
 | `search <query>` | FTS5 full-text search over synced data (falls back to API when available) |
-| `search trends <hashtag>` | Snapshot hashtag result count + top videos for trend tracking |
+| `search trends <hashtag>` | Record hashtag result-count snapshots + top videos; pass `--history` to review growth and churn |
 | `analytics` | Count / group-by / top-N over synced data |
 | `export` | Export a supported canonical API resource to JSONL or JSON (live API read, not a local-store export) |
 | `api` | Browse every raw API endpoint by interface name (power-user escape hatch) |
@@ -433,8 +433,10 @@ scrape-creators-pp-cli account budget --agent
 scrape-creators-pp-cli tiktok compare \
   --handle charlidamelio --handle khaby.lame --handle addisonre --json
 
-# Hashtag trend snapshot (re-run over time to detect growth)
-scrape-creators-pp-cli search trends --hashtag fyp --json
+# Hashtag trend snapshots (record daily, then inspect stored history without the network)
+scrape-creators-pp-cli search trends --hashtag fyp
+scrape-creators-pp-cli search trends --hashtag fyp --history
+scrape-creators-pp-cli search trends --hashtag fyp --history --json
 
 # Search across all of a creator's transcripts
 scrape-creators-pp-cli tiktok transcripts --handle charlidamelio --search "morning routine"

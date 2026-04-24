@@ -20,7 +20,7 @@ Reach for this when the user wants to:
 - Compare creators side-by-side or track one over time (`tiktok compare`, `tiktok track`)
 - Understand *when* a creator posts (`tiktok cadence`)
 - Search across all of a creator's video transcripts (`tiktok transcripts`)
-- Snapshot a hashtag's momentum (`search trends`)
+- Record a hashtag's momentum over time and inspect stored history (`search trends`, `search trends --history`)
 - Audit API credit spend and forecast days remaining (`account budget`)
 - Pull the built-in archiveable resource set into local SQLite for offline work (`sync`, `archive`; today this is `account` request history)
 - Full-text-search synced data (`search`)
@@ -137,7 +137,7 @@ Handle / hashtag normalization: the CLI strips leading `@` from handles and `#` 
 | Command | What it does |
 |---------|--------------|
 | `search <query>` | FTS5 full-text search over synced data (falls back to API when available) |
-| `search trends` | Snapshot a hashtag's result count + top videos (`--hashtag <tag>`) |
+| `search trends` | Record a hashtag snapshot and top-video churn; pass `--history` to inspect the stored series (`--hashtag <tag>`) |
 | `account budget` | Credit balance + projected days remaining at current burn rate |
 | `account api-usage` / `daily-usage` / `most-used-routes` | Usage history views |
 | `sync` | Pull archiveable API data into local SQLite (`--resources <list>`, `--since <dur>`, `--full`; no args = built-in archiveable set) |
