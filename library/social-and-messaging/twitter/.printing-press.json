@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-04-27T23:12:11.252046Z",
+  "printing_press_version": "2.4.0+dirty",
+  "api_name": "twitter",
+  "cli_name": "twitter-pp-cli",
+  "spec_url": "https://raw.githubusercontent.com/fa0311/twitter-openapi/main/dist/docs/openapi-3.0.yaml",
+  "mcp_binary": "twitter-pp-mcp",
+  "mcp_tool_count": 39,
+  "mcp_ready": "full",
+  "api_version": "0.0.1",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "TWITTER_ACCEPT"
+  ]
+}
