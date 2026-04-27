@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-04-27T06:33:25.480424Z",
+  "printing_press_version": "2.3.9+dirty",
+  "api_name": "jsonplaceholder",
+  "cli_name": "jsonplaceholder-pp-cli",
+  "spec_path": "./jsonplaceholder-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:ed4176d64fc01c3c19ffcbbb5f56a0776cba89e90b44bcb9b5b727651fd5ffd9",
+  "mcp_binary": "jsonplaceholder-pp-mcp",
+  "mcp_tool_count": 6,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none"
+}

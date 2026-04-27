@@ -1,0 +1,51 @@
+version: 2
+project_name: jsonplaceholder-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: jsonplaceholder-pp-cli
+    main: ./cmd/jsonplaceholder-pp-cli
+    binary: jsonplaceholder-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X jsonplaceholder-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: jsonplaceholder-pp-mcp
+    main: ./cmd/jsonplaceholder-pp-mcp
+    binary: jsonplaceholder-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: jsonplaceholder-pp-cli
+    repository:
+      owner: dinakar-sarbada
+      name: homebrew-tap
+    homepage: "https://github.com/dinakar-sarbada/jsonplaceholder-pp-cli"
+    description: "Discovered API spec for jsonplaceholder-typicode"
+    install: |
+      bin.install "jsonplaceholder-pp-cli"
+      bin.install "jsonplaceholder-pp-mcp"

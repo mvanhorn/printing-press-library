@@ -1,0 +1,215 @@
+name: jsonplaceholder
+description: Discovered API spec for jsonplaceholder-typicode
+version: 0.1.0
+base_url: https://jsonplaceholder.typicode.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/jsonplaceholder-pp-cli/config.toml
+resources:
+    albums:
+        description: Operations on albums
+        endpoints:
+            list_albums:
+                method: GET
+                path: /albums
+                description: GET /albums
+                params:
+                    - name: id
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: title
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: userId
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: albums
+                pagination: null
+    comments:
+        description: Operations on comments
+        endpoints:
+            list_comments:
+                method: GET
+                path: /comments
+                description: GET /comments
+                params:
+                    - name: body
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: email
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: email
+                    - name: id
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: name
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: postId
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: comments
+                pagination: null
+    posts:
+        description: Operations on posts
+        endpoints:
+            get_posts:
+                method: GET
+                path: /posts/{id}
+                description: GET /posts/{id}
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: posts
+                pagination: null
+            list_posts:
+                method: GET
+                path: /posts
+                description: GET /posts
+                params:
+                    - name: body
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: id
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: title
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: userId
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: posts
+                pagination: null
+    users:
+        description: Operations on users
+        endpoints:
+            get_users:
+                method: GET
+                path: /users/{id}
+                description: GET /users/{id}
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: users
+                pagination: null
+            list_users:
+                method: GET
+                path: /users
+                description: GET /users
+                params:
+                    - name: email
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: email
+                    - name: id
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: name
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: username
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: users
+                pagination: null
+types: {}
