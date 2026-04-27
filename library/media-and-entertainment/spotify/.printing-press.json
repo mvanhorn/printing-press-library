@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-04-27T06:22:47.942786Z",
+  "printing_press_version": "2.3.9+dirty",
+  "api_name": "spotify-web",
+  "cli_name": "spotify-web-pp-cli",
+  "spec_url": "https://api.apis.guru/v2/specs/spotify.com/1.0.0/openapi.yaml",
+  "mcp_binary": "spotify-web-pp-mcp",
+  "mcp_tool_count": 88,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "SPOTIFY_WEB_TOKEN"
+  ]
+}
