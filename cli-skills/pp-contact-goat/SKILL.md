@@ -120,11 +120,20 @@ These commands spend Deepline credits and REQUIRE `DEEPLINE_API_KEY` or a BYOK s
 - `deepline find-email` / `enrich-person` / `email-find` / `phone-find`
 - `deepline search-people` / `search-companies` / `enrich-company`
 
-Before invoking any of these, verify auth. If `DEEPLINE_API_KEY` is not set, ASK THE USER for it (or for a BYOK Hunter/Apollo key) before running the command. The CLI preflight now fails fast with a clear hint, but you can save the round-trip by checking first:
+Before invoking any of these, verify auth by running doctor first:
 
 ```bash
 contact-goat-pp-cli doctor --agent | grep -i deepline
 ```
+
+`deepline_env` shows the resolution source:
+
+- `set (env)` — `DEEPLINE_API_KEY` exported in the current shell
+- `set (flag)` — `--deepline-key` passed on the command line
+- `set (file:~/.local/deepline/<host>/.env)` — auto-discovered from the official Deepline CLI's persisted key (the user authenticated with `deepline auth register` or `deepline auth status`; no shell export needed)
+- `not set` — none of the above. Ask the user for a key, or for a BYOK Hunter/Apollo key
+
+The auto-discovery path means a user who has the Deepline CLI installed and authenticated does NOT need to re-export the key into their shell — contact-goat reads `~/.local/deepline/code-deepline-com/.env` directly (mode 0600, owned by the user). Don't ask the user to re-export when `set (file:...)` is reported. If `deepline_discovery_skipped` is also reported, those are candidate files the resolver rejected for a security reason (wrong mode, missing prefix); surface them so the user can fix the underlying issue.
 
 Provider chain by target kind (waterfall):
 

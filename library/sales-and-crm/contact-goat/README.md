@@ -83,6 +83,16 @@ and `budget`. Get a key from [code.deepline.com](https://code.deepline.com):
 export DEEPLINE_API_KEY="dlp_..."
 ```
 
+If you have the official [Deepline CLI](https://code.deepline.com) installed
+and authenticated (`deepline auth register` or `deepline auth status`),
+contact-goat auto-discovers the saved key from
+`~/.local/deepline/<host>/.env` — you do **not** need to re-export it into
+your shell. The resolver checks `--deepline-key` first, then
+`DEEPLINE_API_KEY` env, then the sibling-CLI file (mode 0600 or 0400
+required, value must start with `dlp_`, no symlinks outside `$HOME`).
+`contact-goat-pp-cli doctor` reports the resolution source as
+`set (env)` / `set (flag)` / `set (file:~/.local/...)` / `not set`.
+
 Every Deepline-touching command surfaces estimated credit cost before
 execution and requires `--yes` to spend.
 
@@ -298,7 +308,8 @@ Sample output:
   OK LinkedIn: uvx: ok
   OK LinkedIn: binary: will launch via `uvx linkedin-scraper-mcp@latest`
   WARN LinkedIn: profile: not logged in — run `uvx linkedin-scraper-mcp@latest --login`
-  WARN Deepline: DEEPLINE_API_KEY: not set
+  OK Deepline: DEEPLINE_API_KEY: set (file:~/.local/deepline/code-deepline-com/.env)
+  OK Deepline: prefix: ok (dlp_)
   OK Deepline: CLI on PATH: /Users/you/.local/bin/deepline
   config_path: ~/.config/contact-goat-pp-cli/config.toml
   base_url: https://happenstance.ai
