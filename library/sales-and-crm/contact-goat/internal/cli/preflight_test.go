@@ -10,7 +10,11 @@ import (
 )
 
 func TestRequireDeeplineKeyMissing(t *testing.T) {
-	t.Setenv("DEEPLINE_API_KEY", "")
+	// Sandbox $HOME so the resolver's file-discovery step can't find the
+	// real ~/.local/deepline/<host>/.env on the dev machine. Without this,
+	// "no env/flag" doesn't actually mean "no key" — auto-discovery would
+	// pick up the user's real key and the assertion would flip.
+	withFakeHome(t, t.TempDir())
 	err := requireDeeplineKey(&deeplineFlags{})
 	if err == nil {
 		t.Fatal("requireDeeplineKey with no env/flag should error")
@@ -21,6 +25,7 @@ func TestRequireDeeplineKeyMissing(t *testing.T) {
 }
 
 func TestRequireDeeplineKeyMalformed(t *testing.T) {
+	withFakeHome(t, t.TempDir())
 	t.Setenv("DEEPLINE_API_KEY", "foo_not_dlp")
 	err := requireDeeplineKey(&deeplineFlags{})
 	if err == nil {
@@ -32,7 +37,7 @@ func TestRequireDeeplineKeyMalformed(t *testing.T) {
 }
 
 func TestRequireDeeplineKeyFromFlag(t *testing.T) {
-	t.Setenv("DEEPLINE_API_KEY", "")
+	withFakeHome(t, t.TempDir())
 	if err := requireDeeplineKey(&deeplineFlags{apiKey: "dlp_abc"}); err != nil {
 		t.Errorf("flag key should satisfy preflight: %v", err)
 	}

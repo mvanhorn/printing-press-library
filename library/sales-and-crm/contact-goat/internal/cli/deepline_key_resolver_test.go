@@ -22,9 +22,10 @@ func withFakeHome(t *testing.T, dir string) {
 }
 
 // writeKeyFile writes a sibling-CLI .env file under fakeHome at the given
-// host slug with mode 0600. The intermediate directories are created with
-// permissive-but-test-only perms (0700) since the resolver only checks the
-// .env file's mode, not its parents.
+// host slug with mode `mode`. We chmod after WriteFile because the OS umask
+// would otherwise strip group/world bits from the requested perms — without
+// this, asking for 0664 silently yields 0644 on a default-umask macOS box,
+// which would mask the very test cases that exist to catch loose modes.
 func writeKeyFile(t *testing.T, fakeHome, slug, body string, mode os.FileMode) string {
 	t.Helper()
 	dir := filepath.Join(fakeHome, ".local", "deepline", slug)
@@ -34,6 +35,9 @@ func writeKeyFile(t *testing.T, fakeHome, slug, body string, mode os.FileMode) s
 	envPath := filepath.Join(dir, ".env")
 	if err := os.WriteFile(envPath, []byte(body), mode); err != nil {
 		t.Fatalf("write: %v", err)
+	}
+	if err := os.Chmod(envPath, mode); err != nil {
+		t.Fatalf("chmod: %v", err)
 	}
 	return envPath
 }
@@ -156,16 +160,46 @@ func TestResolveDeeplineKey_ExportPrefixHandled(t *testing.T) {
 	}
 }
 
-func TestResolveDeeplineKey_GroupReadableFileSkipped(t *testing.T) {
+func TestResolveDeeplineKey_Mode0644Accepted(t *testing.T) {
+	// The official Deepline CLI writes the .env file at mode 0644. Auto-
+	// discovery must accept that mode — rejecting it would defeat the
+	// feature. The security boundary is group/world WRITE, not READ. (See
+	// TestResolveDeeplineKey_GroupWritableRejected for the negative case.)
 	fakeHome := t.TempDir()
 	withFakeHome(t, fakeHome)
-	writeKeyFile(t, fakeHome, "code-deepline-com", "DEEPLINE_API_KEY=dlp_LOOSE\n", 0o644)
+	writeKeyFile(t, fakeHome, "code-deepline-com", "DEEPLINE_API_KEY=dlp_UPSTREAM_DEFAULT\n", 0o644)
+	key, _ := resolveDeeplineKey("")
+	if key != "dlp_UPSTREAM_DEFAULT" {
+		t.Fatalf("key=%q; want dlp_UPSTREAM_DEFAULT (mode 0644 must be accepted — Deepline CLI writes this mode)", key)
+	}
+}
+
+func TestResolveDeeplineKey_GroupWritableRejected(t *testing.T) {
+	// Group-writable means a non-owner principal could substitute the key
+	// before we read it. Refuse.
+	fakeHome := t.TempDir()
+	withFakeHome(t, fakeHome)
+	writeKeyFile(t, fakeHome, "code-deepline-com", "DEEPLINE_API_KEY=dlp_TAMPERABLE\n", 0o664)
 	key, source, skips := resolveDeeplineKeyWithSkips("")
 	if key != "" || source != "" {
-		t.Fatalf("got (%q,%q); want empty (mode 0644 should skip)", key, source)
+		t.Fatalf("got (%q,%q); want empty (group-writable mode 0664 must skip)", key, source)
 	}
-	if len(skips) == 0 || !strings.Contains(skips[0], "mode 0644") {
-		t.Fatalf("expected 'mode 0644' skip reason; got %v", skips)
+	if len(skips) == 0 || !strings.Contains(skips[0], "0664") {
+		t.Fatalf("expected mode 0664 in skip reason; got %v", skips)
+	}
+}
+
+func TestResolveDeeplineKey_WorldWritableRejected(t *testing.T) {
+	// World-writable is the canonical credential-substitution risk.
+	fakeHome := t.TempDir()
+	withFakeHome(t, fakeHome)
+	writeKeyFile(t, fakeHome, "code-deepline-com", "DEEPLINE_API_KEY=dlp_TAMPERABLE\n", 0o666)
+	key, source, skips := resolveDeeplineKeyWithSkips("")
+	if key != "" || source != "" {
+		t.Fatalf("got (%q,%q); want empty (world-writable mode 0666 must skip)", key, source)
+	}
+	if len(skips) == 0 || !strings.Contains(skips[0], "0666") {
+		t.Fatalf("expected mode 0666 in skip reason; got %v", skips)
 	}
 }
 

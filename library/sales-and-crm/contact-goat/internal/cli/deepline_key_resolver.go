@@ -19,7 +19,13 @@
 //
 //   - File must be under $HOME (no path traversal escape, no symlinks pointing
 //     outside $HOME).
-//   - File must have mode 0600 or 0400 — group/world readability disqualifies.
+//   - File must NOT be group- or world-writable. The threat model is: a
+//     non-owner process substituting a malicious key while we read it. Any
+//     write bit outside the owner triple disqualifies the file. Read-only
+//     looseness (e.g., mode 0644 — what the official Deepline CLI actually
+//     writes) is accepted; "anyone can read but only owner can write" is the
+//     upstream sibling tool's choice and refusing it would defeat the whole
+//     auto-discovery feature.
 //   - Value must start with "dlp_" (the Deepline key prefix) — otherwise we
 //     skip the file rather than emit a malformed key.
 //   - Empty values are skipped, not returned with an empty source.
@@ -166,7 +172,8 @@ func discoverDeeplineKeyFromSiblingCLIWithSkips() (key, path string, skips []str
 // Guards (in order):
 //
 //   - Lstat — symlink whose target leaves $HOME is rejected.
-//   - Mode  — group or world readability is rejected.
+//   - Mode  — group or world WRITE access is rejected. Read access is
+//             accepted because the upstream sibling CLI writes mode 0644.
 //   - Parse — non-quoted KEY=VALUE per line, comments and blanks ignored.
 //   - Prefix — value must start with "dlp_".
 //   - Empty — DEEPLINE_API_KEY="" falls through (no error, no key).
@@ -204,8 +211,14 @@ func readDeeplineEnvFile(envPath, home string) (key, skipReason string) {
 	}
 
 	mode := info.Mode().Perm()
-	if mode&0o077 != 0 {
-		return "", "skipped: mode " + modeOctal(mode) + " (must be 0600 or 0400)"
+	// Reject only group/world WRITE bits. World/group READ is acceptable —
+	// the official Deepline CLI writes the .env file at mode 0644, and
+	// rejecting that would defeat auto-discovery. The trust property is
+	// "no other principal can substitute the key"; read access by other
+	// users on a single-user workstation isn't a credential-substitution
+	// vector.
+	if mode&0o022 != 0 {
+		return "", "skipped: mode " + modeOctal(mode) + " is group- or world-writable (chmod g-w,o-w to fix)"
 	}
 
 	data, err := os.ReadFile(envPath)
