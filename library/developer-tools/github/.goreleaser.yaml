@@ -1,0 +1,51 @@
+version: 2
+project_name: github-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: github-pp-cli
+    main: ./cmd/github-pp-cli
+    binary: github-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: github-pp-mcp
+    main: ./cmd/github-pp-mcp
+    binary: github-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: github-pp-cli
+    repository:
+      owner: dinakar-sarbada
+      name: homebrew-tap
+    homepage: "https://github.com/dinakar-sarbada/github-pp-cli"
+    description: "GitHub's v3 REST API."
+    install: |
+      bin.install "github-pp-cli"
+      bin.install "github-pp-mcp"

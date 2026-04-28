@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-04-28T06:08:27.990401Z",
+  "printing_press_version": "2.4.0+dirty",
+  "api_name": "github",
+  "cli_name": "github-pp-cli",
+  "spec_url": "https://raw.githubusercontent.com/github/rest-api-description/main/descriptions/api.github.com/api.github.com.2022-11-28.yaml",
+  "catalog_entry": "github",
+  "category": "developer-tools",
+  "description": "Software development platform API",
+  "mcp_binary": "github-pp-mcp",
+  "mcp_tool_count": 1116,
+  "mcp_public_tool_count": 1116,
+  "mcp_ready": "full",
+  "api_version": "1.1.4",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Comprehensive Repository Management",
+      "command": "repos",
+      "description": "Complete repository lifecycle management",
+      "rationale": "Official GitHub REST API provides full repository management"
+    },
+    {
+      "name": "Advanced Pull Request Workflows",
+      "command": "pulls",
+      "description": "Full PR lifecycle with reviews and automation",
+      "rationale": "Direct API access to GitHub's PR system"
+    },
+    {
+      "name": "Actions and CI/CD Integration",
+      "command": "actions",
+      "description": "Manage GitHub Actions workflows and runs",
+      "rationale": "Complete CI/CD orchestration through GitHub Actions API"
+    },
+    {
+      "name": "Organization and Team Management",
+      "command": "orgs",
+      "description": "Enterprise-grade organization management",
+      "rationale": "Full organizational control with RBAC and security"
+    },
+    {
+      "name": "Issue and Project Tracking",
+      "command": "issues",
+      "description": "Comprehensive issue tracking with GitHub Projects",
+      "rationale": "Native GitHub project management with automation"
+    }
+  ]
+}

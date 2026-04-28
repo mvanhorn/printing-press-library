@@ -191,6 +191,23 @@
       }
     },
     {
+      "name": "github",
+      "category": "developer-tools",
+      "api": "GitHub",
+      "description": "Comprehensive GitHub REST API CLI with repository management, PR workflows, Actions integration, organization management, and issue tracking",
+      "path": "library/developer-tools/github",
+      "mcp": {
+        "binary": "github-pp-mcp",
+        "transport": "stdio",
+        "tool_count": 1116,
+        "public_tool_count": 1116,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "hackernews",
       "category": "media-and-entertainment",
       "api": "Hacker News",
