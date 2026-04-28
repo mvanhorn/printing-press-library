@@ -1,0 +1,44 @@
+{
+  "api_name": "twitter",
+  "novelty_score": 7,
+  "novel_features": [
+    {
+      "name": "GraphQL API Coverage",
+      "command": "graphql",
+      "description": "Complete GraphQL API coverage with 39 endpoints",
+      "rationale": "Community OpenAPI spec provides comprehensive coverage"
+    },
+    {
+      "name": "Friendship Management",
+      "command": "1-1 post-create-friendships",
+      "description": "Follow and unfollow users with batch operations",
+      "rationale": "Direct API access to friendship operations"
+    },
+    {
+      "name": "Timeline Operations",
+      "command": "graphql home-timeline",
+      "description": "Access home, user, and search timelines",
+      "rationale": "Comprehensive timeline access with JSON output"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "GraphQL API Coverage",
+      "command": "graphql",
+      "description": "Complete GraphQL API coverage with 39 endpoints",
+      "rationale": "Community OpenAPI spec provides comprehensive coverage"
+    },
+    {
+      "name": "Friendship Management",
+      "command": "1-1 post-create-friendships",
+      "description": "Follow and unfollow users with batch operations",
+      "rationale": "Direct API access to friendship operations"
+    },
+    {
+      "name": "Timeline Operations",
+      "command": "graphql home-timeline",
+      "description": "Access home, user, and search timelines",
+      "rationale": "Comprehensive timeline access with JSON output"
+    }
+  ]
+}
