@@ -402,6 +402,24 @@
       }
     },
     {
+      "name": "spotify-web",
+      "category": "media-and-entertainment",
+      "api": "Spotify Web",
+      "description": "Comprehensive Spotify Web API CLI with playback control, playlist management, music discovery, and library management",
+      "path": "library/media-and-entertainment/spotify-web",
+      "mcp": {
+        "binary": "spotify-web-pp-mcp",
+        "transport": "stdio",
+        "tool_count": 88,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "SPOTIFY_WEB_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "steam-web",
       "category": "media-and-entertainment",
       "api": "Steam Web",
