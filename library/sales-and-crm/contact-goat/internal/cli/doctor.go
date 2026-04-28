@@ -508,15 +508,17 @@ func keyTail(key string) string {
 }
 
 // checkDeepline populates doctor's Deepline fields. We NEVER echo the API
-// key value: only "set"/"not set", the prefix validity, and whether the
-// official CLI is on PATH (informational, not required).
+// key value: only the source it came from ("flag" / "env" / "file:<path>" /
+// "not found"), the prefix validity, and whether the official CLI is on
+// PATH. The source attribution is what makes auto-discovery visible without
+// trading off any secret-handling guarantees.
 func checkDeepline(report map[string]any) {
-	key := os.Getenv("DEEPLINE_API_KEY")
+	key, source, skips := resolveDeeplineKeyWithSkips("")
 	if key == "" {
 		report["deepline_env"] = "not set"
-		report["deepline_hint"] = "export DEEPLINE_API_KEY=dlp_... (Deepline CLI falls back to HTTP when the `deepline` binary isn't on PATH)"
+		report["deepline_hint"] = "export DEEPLINE_API_KEY=dlp_..., pass --deepline-key dlp_..., or run 'deepline auth status --reveal' if you've already authenticated with the Deepline CLI"
 	} else {
-		report["deepline_env"] = "set"
+		report["deepline_env"] = "set (" + source + ")"
 		if strings.HasPrefix(key, "dlp_") {
 			report["deepline_prefix"] = "ok (dlp_)"
 		} else if strings.HasPrefix(key, "dpl_") {
@@ -526,8 +528,18 @@ func checkDeepline(report map[string]any) {
 		}
 	}
 
+	// Surface any sibling-CLI candidate files that were rejected during
+	// discovery. This lets the user fix a mode-too-loose or wrong-prefix
+	// problem without re-deriving the resolver's logic. Skips are paths +
+	// reasons; never key values.
+	if len(skips) > 0 {
+		report["deepline_discovery_skipped"] = skips
+	}
+
 	// Informational: is the official CLI on PATH? Not required — we have
-	// an HTTP fallback.
+	// an HTTP fallback. When auto-discovery is in play (source starts with
+	// "file:"), this also explains where the key came from at the file
+	// system level for users tracing the trust chain.
 	if path, err := exec.LookPath("deepline"); err == nil {
 		report["deepline_cli"] = fmt.Sprintf("found: %s", path)
 	} else {

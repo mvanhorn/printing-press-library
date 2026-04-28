@@ -8,7 +8,6 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -160,10 +159,7 @@ Results are deduped across sources and ranked by one of:
 				if budget <= 0 {
 					fmt.Fprintf(cmd.ErrOrStderr(), "warning: --deepline set but --budget=%d; Deepline skipped\n", budget)
 				} else {
-					key := deeplineKey
-					if key == "" {
-						key = os.Getenv("DEEPLINE_API_KEY")
-					}
+					key, _ := resolveDeeplineKey(deeplineKey)
 					if key == "" {
 						fmt.Fprintln(cmd.ErrOrStderr(), "warning: no Deepline API key (set DEEPLINE_API_KEY or pass --deepline-key); Deepline skipped")
 					} else if !flags.yes {

@@ -90,10 +90,8 @@ estimated cost before spending and supports --dry-run to preview the request.`,
 // resolveDeeplineKey returns the API key to use (flag wins, env fallback).
 // The value is never logged anywhere.
 func (dl *deeplineFlags) resolveKey() string {
-	if dl.apiKey != "" {
-		return dl.apiKey
-	}
-	return os.Getenv("DEEPLINE_API_KEY")
+	key, _ := resolveDeeplineKey(dl.apiKey)
+	return key
 }
 
 // deeplineExecute is the shared "estimate cost, maybe dry-run, confirm,
@@ -120,7 +118,7 @@ func deeplineExecute(cmd *cobra.Command, flags *rootFlags, dl *deeplineFlags, to
 	if err := client.ValidateKey(); err != nil {
 		logDeeplineSafely(toolID, payloadHash, cost, "auth-error")
 		if errors.Is(err, deepline.ErrMissingKey) {
-			return authErr(fmt.Errorf("%w\nhint: export DEEPLINE_API_KEY=dlp_...\n      or pass --deepline-key dlp_...", err))
+			return authErr(fmt.Errorf("%w\nhint: export DEEPLINE_API_KEY=dlp_...\n      or pass --deepline-key dlp_...\n      or run 'deepline auth status --reveal' if you've already authenticated with the Deepline CLI", err))
 		}
 		return authErr(err)
 	}

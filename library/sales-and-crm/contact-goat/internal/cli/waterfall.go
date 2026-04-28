@@ -114,7 +114,8 @@ Configure BYOK keys with:
 			// ultimately where the work gets done; without a path to it the
 			// whole waterfall can't satisfy the typical --enrich email,phone
 			// ask.
-			if err := preflightWaterfallDeepline(os.Getenv("DEEPLINE_API_KEY"), requireBYOK, byok); err != nil {
+			dlKey, _ := resolveDeeplineKey("")
+			if err := preflightWaterfallDeepline(dlKey, requireBYOK, byok); err != nil {
 				return err
 			}
 
@@ -376,7 +377,8 @@ func runDeeplineChain(ctx context.Context, flags *rootFlags, target string, fiel
 		return
 	}
 
-	client := deepline.NewClient(os.Getenv("DEEPLINE_API_KEY"))
+	dlKey, _ := resolveDeeplineKey("")
+	client := deepline.NewClient(dlKey)
 	if err := client.ValidateKey(); err != nil {
 		// One synthetic step surfaces the auth gate failure rather than
 		// emitting N copies (one per provider in the chain).

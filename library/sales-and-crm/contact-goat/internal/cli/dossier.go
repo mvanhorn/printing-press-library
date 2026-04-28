@@ -65,8 +65,8 @@ is passed. Pass --enrich-email to spend Deepline credits for email/phone.`,
 			// key is missing rather than letting the dossier run through
 			// LinkedIn + Happenstance before surfacing the auth gap.
 			if shouldPreflightDossier(sections, enrichEmail) {
-				if key := firstNonEmpty(deeplineKey, os.Getenv("DEEPLINE_API_KEY")); key == "" {
-					return authErr(fmt.Errorf("dossier --enrich-email needs DEEPLINE_API_KEY (set env or pass --deepline-key)\nhint: keys at https://code.deepline.com/dashboard/api-keys"))
+				if key, _ := resolveDeeplineKey(deeplineKey); key == "" {
+					return authErr(fmt.Errorf("dossier --enrich-email needs DEEPLINE_API_KEY (set env or pass --deepline-key)\nhint: keys at https://code.deepline.com/dashboard/api-keys\n      or run 'deepline auth status --reveal' if you've already authenticated with the Deepline CLI"))
 				}
 			}
 
@@ -126,10 +126,7 @@ is passed. Pass --enrich-email to spend Deepline credits for email/phone.`,
 				wg.Add(1)
 				go func() {
 					defer wg.Done()
-					key := deeplineKey
-					if key == "" {
-						key = os.Getenv("DEEPLINE_API_KEY")
-					}
+					key, _ := resolveDeeplineKey(deeplineKey)
 					if key == "" {
 						dlErr = errors.New("no Deepline API key")
 						return

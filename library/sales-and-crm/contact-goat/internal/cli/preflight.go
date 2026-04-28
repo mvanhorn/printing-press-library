@@ -27,14 +27,13 @@ import (
 //
 // dlFlags may be nil; when nil, only DEEPLINE_API_KEY env is checked.
 func requireDeeplineKey(dlFlags *deeplineFlags) error {
-	key := ""
+	flagValue := ""
 	if dlFlags != nil {
-		key = dlFlags.resolveKey()
-	} else {
-		key = os.Getenv("DEEPLINE_API_KEY")
+		flagValue = dlFlags.apiKey
 	}
+	key, _ := resolveDeeplineKey(flagValue)
 	if strings.TrimSpace(key) == "" {
-		return authErr(fmt.Errorf("%w\nhint: export DEEPLINE_API_KEY=dlp_... (keys at https://code.deepline.com/dashboard/api-keys)\n      or pass --deepline-key dlp_... where the flag is available",
+		return authErr(fmt.Errorf("%w\nhint: export DEEPLINE_API_KEY=dlp_... (keys at https://code.deepline.com/dashboard/api-keys)\n      or pass --deepline-key dlp_... where the flag is available\n      or run 'deepline auth status --reveal' if you've already authenticated with the Deepline CLI",
 			deepline.ErrMissingKey))
 	}
 	if !strings.HasPrefix(key, deepline.KeyPrefix) {
@@ -70,7 +69,7 @@ func preflightWaterfallDeepline(dlKey string, requireBYOK bool, byok map[string]
 		return nil
 	}
 	if strings.TrimSpace(dlKey) == "" {
-		return authErr(fmt.Errorf("%w\nhint: waterfall needs either DEEPLINE_API_KEY (see https://code.deepline.com/dashboard/api-keys)\n      or --byok with configured BYOK providers (`config byok set hunter HUNTER_API_KEY`)",
+		return authErr(fmt.Errorf("%w\nhint: waterfall needs either DEEPLINE_API_KEY (see https://code.deepline.com/dashboard/api-keys)\n      or --byok with configured BYOK providers (`config byok set hunter HUNTER_API_KEY`)\n      or run 'deepline auth status --reveal' if you've already authenticated with the Deepline CLI",
 			deepline.ErrMissingKey))
 	}
 	if !strings.HasPrefix(dlKey, deepline.KeyPrefix) {
