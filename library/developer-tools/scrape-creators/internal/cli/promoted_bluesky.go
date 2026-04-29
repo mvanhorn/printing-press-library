@@ -15,10 +15,11 @@ func newBlueskyPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagHandle string
 
 	cmd := &cobra.Command{
-		Use:     "bluesky",
-		Short:   "Retrieves a Bluesky user's public profile including handle, displayName, avatar, description, followersCount,...",
-		Long:    "Shortcut for 'bluesky list-profile'. Retrieves a Bluesky user's public profile including handle, displayName, avatar, description, followersCount,...",
-		Example: "  scrape-creators-pp-cli bluesky",
+		Use:         "bluesky",
+		Short:       "Retrieves a Bluesky user's public profile including handle, displayName, avatar, description, followersCount,...",
+		Long:        "Shortcut for 'bluesky list-profile'. Retrieves a Bluesky user's public profile including handle, displayName, avatar, description, followersCount,...",
+		Example:     "  scrape-creators-pp-cli bluesky",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("handle") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "handle")

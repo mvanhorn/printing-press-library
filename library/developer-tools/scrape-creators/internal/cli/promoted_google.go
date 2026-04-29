@@ -15,10 +15,11 @@ func newGooglePromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagQuery string
 
 	cmd := &cobra.Command{
-		Use:     "google",
-		Short:   "Advertiser Search",
-		Long:    "Shortcut for 'google list-adlibrary'. Advertiser Search",
-		Example: "  scrape-creators-pp-cli google",
+		Use:         "google",
+		Short:       "Search the Google Ads Transparency Center for advertisers by name or domain",
+		Long:        "Shortcut for 'google list-adlibrary'. Searches the Google Ads Transparency Center, returning advertiser records that match the query.",
+		Example:     "  scrape-creators-pp-cli google",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "query")

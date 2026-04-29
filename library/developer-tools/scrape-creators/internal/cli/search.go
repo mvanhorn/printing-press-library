@@ -85,8 +85,9 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 
 	cmd := &cobra.Command{
-		Use:   "search <query>",
-		Short: "Full-text search across synced data or live API",
+		Use:         "search <query>",
+		Short:       "Full-text search across synced data or live API",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Long: `Search data using FTS5 full-text search on locally synced data,
 or hit the API's search endpoint when available.
 

@@ -18,10 +18,11 @@ func newTiktokPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagPage float64
 
 	cmd := &cobra.Command{
-		Use:     "tiktok",
-		Short:   "Product Reviews",
-		Long:    "Shortcut for 'tiktok list-shop'. Product Reviews",
-		Example: "  scrape-creators-pp-cli tiktok",
+		Use:         "tiktok",
+		Short:       "Fetch product reviews from a TikTok Shop product page (by URL or product ID)",
+		Long:        "Shortcut for 'tiktok list-shop'. Returns paginated TikTok Shop product reviews with rating, body text, author, and timestamp.",
+		Example:     "  scrape-creators-pp-cli tiktok",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

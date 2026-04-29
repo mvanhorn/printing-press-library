@@ -18,10 +18,11 @@ func newPinterestPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "pinterest",
-		Short:   "Fetches a paginated list of pins from a Pinterest board by URL, returning each pin's id, description, title, images,...",
-		Long:    "Shortcut for 'pinterest list'. Fetches a paginated list of pins from a Pinterest board by URL, returning each pin's id, description, title, images,...",
-		Example: "  scrape-creators-pp-cli pinterest",
+		Use:         "pinterest",
+		Short:       "Fetches a paginated list of pins from a Pinterest board by URL, returning each pin's id, description, title, images,...",
+		Long:        "Shortcut for 'pinterest list'. Fetches a paginated list of pins from a Pinterest board by URL, returning each pin's id, description, title, images,...",
+		Example:     "  scrape-creators-pp-cli pinterest",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")

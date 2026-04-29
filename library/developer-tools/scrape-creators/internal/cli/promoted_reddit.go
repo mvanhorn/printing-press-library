@@ -20,10 +20,11 @@ func newRedditPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "reddit",
-		Short:   "Subreddit Posts",
-		Long:    "Shortcut for 'reddit list-subreddit'. Subreddit Posts",
-		Example: "  scrape-creators-pp-cli reddit",
+		Use:         "reddit",
+		Short:       "Fetch posts from a subreddit, with sort (hot/new/top) and timeframe filters",
+		Long:        "Shortcut for 'reddit list-subreddit'. Returns posts from the named subreddit with metadata (id, title, author, score, comment_count, created_utc).",
+		Example:     "  scrape-creators-pp-cli reddit",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("subreddit") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "subreddit")

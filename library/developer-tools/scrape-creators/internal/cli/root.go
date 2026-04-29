@@ -268,8 +268,9 @@ func (f *rootFlags) printTable(w *cobra.Command, headers []string, rows [][]stri
 
 func newVersionCliCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "version",
-		Short: "Print version",
+		Use:         "version",
+		Short:       "Print the scrape-creators CLI version",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Printf("scrape-creators-pp-cli %s\n", version)
 		},

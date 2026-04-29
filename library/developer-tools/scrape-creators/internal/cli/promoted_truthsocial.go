@@ -20,6 +20,7 @@ func newTruthsocialPromotedCmd(flags *rootFlags) *cobra.Command {
 		Long:  "Shortcut for 'truthsocial list'. Fetches a single Truth Social post by URL, returning text, id, created_at, url, content, account details,...",
 		Example: `  scrape-creators-pp-cli truthsocial --url https://truthsocial.com/@realDonaldTrump/posts/114359
   scrape-creators-pp-cli truthsocial --url https://truthsocial.com/@realDonaldTrump/posts/114359 --json`,
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")

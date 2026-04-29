@@ -16,8 +16,9 @@ import (
 
 func newDoctorCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "doctor",
-		Short: "Check CLI health",
+		Use:         "doctor",
+		Short:       "Check CLI health: config, auth, and connectivity to the Scrape Creators API",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			report := map[string]any{}
 			var resultErr error

@@ -17,10 +17,11 @@ func newYoutubePromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagOrder string
 
 	cmd := &cobra.Command{
-		Use:     "youtube",
-		Short:   "Fetches comments and replies from a YouTube video, including each comment's text content, author details, like...",
-		Long:    "Shortcut for 'youtube list-video-3'. Fetches comments and replies from a YouTube video, including each comment's text content, author details, like...",
-		Example: "  scrape-creators-pp-cli youtube",
+		Use:         "youtube",
+		Short:       "Fetches comments and replies from a YouTube video, including each comment's text content, author details, like...",
+		Long:        "Shortcut for 'youtube list-video-3'. Fetches comments and replies from a YouTube video, including each comment's text content, author details, like...",
+		Example:     "  scrape-creators-pp-cli youtube",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")

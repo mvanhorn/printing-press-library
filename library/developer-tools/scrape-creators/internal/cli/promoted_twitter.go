@@ -15,10 +15,11 @@ func newTwitterPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
 
 	cmd := &cobra.Command{
-		Use:     "twitter",
-		Short:   "Extracts the transcript from a Twitter video tweet using AI-powered transcription. The video must be under 2 minutes...",
-		Long:    "Shortcut for 'twitter list-tweet-2'. Extracts the transcript from a Twitter video tweet using AI-powered transcription. The video must be under 2 minutes...",
-		Example: "  scrape-creators-pp-cli twitter",
+		Use:         "twitter",
+		Short:       "Extracts the transcript from a Twitter video tweet using AI-powered transcription. The video must be under 2 minutes...",
+		Long:        "Shortcut for 'twitter list-tweet-2'. Extracts the transcript from a Twitter video tweet using AI-powered transcription. The video must be under 2 minutes...",
+		Example:     "  scrape-creators-pp-cli twitter",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")

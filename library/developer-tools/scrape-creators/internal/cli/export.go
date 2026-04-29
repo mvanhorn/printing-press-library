@@ -20,8 +20,9 @@ func newExportCmd(flags *rootFlags) *cobra.Command {
 	var noCache bool
 
 	cmd := &cobra.Command{
-		Use:   "export <resource> [id]",
-		Short: "Export data to JSONL or JSON for backup, migration, or analysis",
+		Use:         "export <resource> [id]",
+		Short:       "Export data to JSONL or JSON for backup, migration, or analysis",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Long: `Export paginated API data to a local file. Supports JSONL (one JSON object
 per line, streaming-friendly) and JSON (array). JSONL is recommended for
 large datasets as it has no memory pressure.`,

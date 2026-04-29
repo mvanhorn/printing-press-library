@@ -21,10 +21,11 @@ func newLinkedinPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagPaginationToken string
 
 	cmd := &cobra.Command{
-		Use:     "linkedin",
-		Short:   "Search Ads",
-		Long:    "Shortcut for 'linkedin list-ads'. Search Ads",
-		Example: "  scrape-creators-pp-cli linkedin",
+		Use:         "linkedin",
+		Short:       "Search the LinkedIn Ad Library by company, keyword, country, and date range",
+		Long:        "Shortcut for 'linkedin list-ads'. Searches the LinkedIn Ad Library and returns matching ads with metadata, advertiser, and run dates.",
+		Example:     "  scrape-creators-pp-cli linkedin",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

@@ -23,6 +23,7 @@ func newInstagramPromotedCmd(flags *rootFlags) *cobra.Command {
 		Long:  "Shortcut for 'instagram list-user-4'. Returns a paginated list of a user's public Instagram reels (short-form videos). Each reel includes its shortcode,...",
 		Example: `  scrape-creators-pp-cli instagram --handle natgeo
   scrape-creators-pp-cli instagram --handle natgeo --json`,
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

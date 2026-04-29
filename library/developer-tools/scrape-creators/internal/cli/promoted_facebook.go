@@ -26,10 +26,11 @@ func newFacebookPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "facebook",
-		Short:   "Searches the Meta Ad Library by keyword and returns matching ads. Each result includes ad_archive_id, page_name,...",
-		Long:    "Shortcut for 'facebook list-adlibrary-2'. Searches the Meta Ad Library by keyword and returns matching ads. Each result includes ad_archive_id, page_name,...",
-		Example: "  scrape-creators-pp-cli facebook",
+		Use:         "facebook",
+		Short:       "Searches the Meta Ad Library by keyword and returns matching ads. Each result includes ad_archive_id, page_name,...",
+		Long:        "Shortcut for 'facebook list-adlibrary-2'. Searches the Meta Ad Library by keyword and returns matching ads. Each result includes ad_archive_id, page_name,...",
+		Example:     "  scrape-creators-pp-cli facebook",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "query")
