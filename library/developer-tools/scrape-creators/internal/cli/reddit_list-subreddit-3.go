@@ -24,6 +24,7 @@ func newRedditListSubreddit3Cmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-subreddit-3"},
 		Short:   "Subreddit Search",
 		Example: "  scrape-creators-pp-cli reddit list-subreddit-3",
+		Annotations: map[string]string{"pp:endpoint": "reddit.list-subreddit-3"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("subreddit") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "subreddit")

@@ -20,6 +20,7 @@ func newTwitterListTweetCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-tweet"},
 		Short:   "Tweet Details",
 		Example: "  scrape-creators-pp-cli twitter list-tweet",
+		Annotations: map[string]string{"pp:endpoint": "twitter.list-tweet"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")

@@ -22,6 +22,7 @@ func newFacebookListPost2Cmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-post-2"},
 		Short:   "Fetches comments from a Facebook post or reel with cursor-based pagination. Each comment includes id, text,...",
 		Example: "  scrape-creators-pp-cli facebook list-post-2",
+		Annotations: map[string]string{"pp:endpoint": "facebook.list-post-2"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

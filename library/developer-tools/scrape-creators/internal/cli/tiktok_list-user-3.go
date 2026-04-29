@@ -21,6 +21,7 @@ func newTiktokListUser3Cmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-user-3"},
 		Short:   "Retrieves the following list — accounts that a TikTok user follows — by their handle. Returns `followings`, an...",
 		Example: "  scrape-creators-pp-cli tiktok list-user-3",
+		Annotations: map[string]string{"pp:endpoint": "tiktok.list-user-3"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("handle") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "handle")

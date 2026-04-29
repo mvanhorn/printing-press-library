@@ -19,6 +19,7 @@ func newFacebookListAdlibrary3Cmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-adlibrary-3"},
 		Short:   "Search for Companies",
 		Example: "  scrape-creators-pp-cli facebook list-adlibrary-3",
+		Annotations: map[string]string{"pp:endpoint": "facebook.list-adlibrary-3"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "query")

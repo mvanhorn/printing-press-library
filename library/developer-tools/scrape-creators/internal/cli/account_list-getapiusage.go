@@ -21,6 +21,7 @@ func newAccountListGetapiusageCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-getapiusage"},
 		Short:   "Get request history",
 		Example: "  scrape-creators-pp-cli account list-getapiusage",
+		Annotations: map[string]string{"pp:endpoint": "account.list-getapiusage"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "scrape-creators-pp-mcp",
+  "display_name": "Scrape Creators",
+  "version": "1.3.2",
+  "description": "Scrape Creators API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/scrape-creators-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/scrape-creators-pp-mcp",
+      "args": [],
+      "env": {
+        "SCRAPE_CREATORS_API_KEY_AUTH": "${user_config.scrape_creators_api_key_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "scrape_creators_api_key_auth": {
+      "type": "string",
+      "title": "SCRAPE_CREATORS_API_KEY_AUTH",
+      "description": "Sets SCRAPE_CREATORS_API_KEY_AUTH for the Scrape Creators MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -22,6 +22,7 @@ func newTruthsocialListUserCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-user"},
 		Short:   "User Posts",
 		Example: "  scrape-creators-pp-cli truthsocial list-user",
+		Annotations: map[string]string{"pp:endpoint": "truthsocial.list-user"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

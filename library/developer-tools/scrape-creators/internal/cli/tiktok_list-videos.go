@@ -22,6 +22,7 @@ func newTiktokListVideosCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-videos"},
 		Short:   "Get popular videos",
 		Example: "  scrape-creators-pp-cli tiktok list-videos",
+		Annotations: map[string]string{"pp:endpoint": "tiktok.list-videos"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

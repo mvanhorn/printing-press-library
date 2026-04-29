@@ -24,6 +24,7 @@ func newRedditListSearchCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-search"},
 		Short:   "Searches across all of Reddit for posts matching a query. Each post includes title, author, selftext, subreddit,...",
 		Example: "  scrape-creators-pp-cli reddit list-search",
+		Annotations: map[string]string{"pp:endpoint": "reddit.list-search"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "query")

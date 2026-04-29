@@ -19,6 +19,7 @@ func newSnapchatPromotedCmd(flags *rootFlags) *cobra.Command {
 		Short:   "User Profile",
 		Long:    "Shortcut for 'snapchat list'. User Profile",
 		Example: "  scrape-creators-pp-cli snapchat",
+		Annotations: map[string]string{"pp:endpoint": "snapchat.list"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("handle") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "handle")

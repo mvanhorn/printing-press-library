@@ -19,6 +19,7 @@ func newRedditListCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list"},
 		Short:   "Get Ad",
 		Example: "  scrape-creators-pp-cli reddit list",
+		Annotations: map[string]string{"pp:endpoint": "reddit.list"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("id") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "id")

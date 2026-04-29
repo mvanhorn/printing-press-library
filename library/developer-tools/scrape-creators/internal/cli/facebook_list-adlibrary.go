@@ -30,6 +30,7 @@ func newFacebookListAdlibraryCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-adlibrary"},
 		Short:   "Company Ads",
 		Example: "  scrape-creators-pp-cli facebook list-adlibrary",
+		Annotations: map[string]string{"pp:endpoint": "facebook.list-adlibrary"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

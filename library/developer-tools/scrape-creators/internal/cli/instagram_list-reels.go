@@ -21,6 +21,7 @@ func newInstagramListReelsCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-reels"},
 		Short:   "Search Reels",
 		Example: "  scrape-creators-pp-cli instagram list-reels",
+		Annotations: map[string]string{"pp:endpoint": "instagram.list-reels"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "query")

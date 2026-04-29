@@ -21,6 +21,7 @@ func newInstagramListPost2Cmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-post-2"},
 		Short:   "Retrieves comments on a public Instagram post or reel. Each comment includes the comment text, creation timestamp,...",
 		Example: "  scrape-creators-pp-cli instagram list-post-2",
+		Annotations: map[string]string{"pp:endpoint": "instagram.list-post-2"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")

@@ -4,8 +4,10 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"text/tabwriter"
@@ -59,12 +61,53 @@ type rootFlags struct {
 	timeout      time.Duration
 	rateLimit    float64
 	dataSource   string
+	deliverSpec  string
+	// deliverBuf captures command output when --deliver is set to a
+	// non-stdout sink. Flushed to the sink after Execute returns.
+	deliverBuf  *bytes.Buffer
+	deliverSink DeliverSink
+}
+
+// RootCmd returns the Cobra command tree without executing it. The MCP server
+// uses this to mirror every user-facing command as an agent tool.
+func RootCmd() *cobra.Command {
+	var flags rootFlags
+	return newRootCmd(&flags)
 }
 
 // Execute runs the CLI in non-interactive mode: never prompts, all values via flags or stdin.
 func Execute() error {
 	var flags rootFlags
+	rootCmd := newRootCmd(&flags)
 
+	// Wizard entry point: bare TTY invocation with no agent flag. Lives in
+	// Execute (not newRootCmd) because the wizard short-circuits with an
+	// error return — newRootCmd is a factory, must return *cobra.Command.
+	if handled, werr := runWizardIfEligible(rootCmd, &flags, stripFlagArgs(os.Args[1:])); handled {
+		return werr
+	}
+
+	err := rootCmd.Execute()
+	if err != nil && strings.Contains(err.Error(), "unknown flag") {
+		msg := err.Error()
+		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
+		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
+			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
+			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
+				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
+			}
+		}
+	}
+	if err == nil && flags.deliverBuf != nil {
+		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
+			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
+			return derr
+		}
+	}
+	return err
+}
+
+func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:           "scrape-creators-pp-cli",
 		Short:         "Scrape TikTok, Instagram, YouTube, LinkedIn, and 27+ social platforms from the terminal",
@@ -94,8 +137,20 @@ func Execute() error {
 	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
+	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		if flags.deliverSpec != "" {
+			sink, err := ParseDeliverSink(flags.deliverSpec)
+			if err != nil {
+				return err
+			}
+			flags.deliverSink = sink
+			if sink.Scheme != "stdout" && sink.Scheme != "" {
+				flags.deliverBuf = &bytes.Buffer{}
+				cmd.SetOut(io.MultiWriter(os.Stdout, flags.deliverBuf))
+			}
+		}
 		if flags.agent {
 			if !cmd.Flags().Changed("json") {
 				flags.asJSON = true
@@ -121,59 +176,43 @@ func Execute() error {
 		}
 		return nil
 	}
-	rootCmd.AddCommand(newDoctorCmd(&flags))
-	rootCmd.AddCommand(newAuthCmd(&flags))
-	rootCmd.AddCommand(newExportCmd(&flags))
-	rootCmd.AddCommand(newSearchCmd(&flags))
-	rootCmd.AddCommand(newSyncCmd(&flags))
-	rootCmd.AddCommand(newTailCmd(&flags))
-	rootCmd.AddCommand(newAnalyticsCmd(&flags))
-	rootCmd.AddCommand(newArchiveCmd(&flags))
-	rootCmd.AddCommand(newAPICmd(&flags))
-	rootCmd.AddCommand(newAgentCmd(&flags))
-	rootCmd.AddCommand(newTwitchPromotedCmd(&flags))
-	rootCmd.AddCommand(newBlueskyPromotedCmd(&flags))
-	rootCmd.AddCommand(newGooglePromotedCmd(&flags))
-	rootCmd.AddCommand(newKickPromotedCmd(&flags))
-	rootCmd.AddCommand(newKomiPromotedCmd(&flags))
-	rootCmd.AddCommand(newRedditPromotedCmd(&flags))
-	rootCmd.AddCommand(newSnapchatPromotedCmd(&flags))
-	rootCmd.AddCommand(newTiktokPromotedCmd(&flags))
-	rootCmd.AddCommand(newTruthsocialPromotedCmd(&flags))
-	rootCmd.AddCommand(newAccountPromotedCmd(&flags))
-	rootCmd.AddCommand(newAmazonPromotedCmd(&flags))
-	rootCmd.AddCommand(newInstagramPromotedCmd(&flags))
-	rootCmd.AddCommand(newLinkbioPromotedCmd(&flags))
-	rootCmd.AddCommand(newLinkedinPromotedCmd(&flags))
-	rootCmd.AddCommand(newPillarPromotedCmd(&flags))
-	rootCmd.AddCommand(newPinterestPromotedCmd(&flags))
-	rootCmd.AddCommand(newYoutubePromotedCmd(&flags))
-	rootCmd.AddCommand(newLinkmePromotedCmd(&flags))
-	rootCmd.AddCommand(newTwitterPromotedCmd(&flags))
-	rootCmd.AddCommand(newDetectAgeGenderPromotedCmd(&flags))
-	rootCmd.AddCommand(newFacebookPromotedCmd(&flags))
-	rootCmd.AddCommand(newLinktreePromotedCmd(&flags))
-	rootCmd.AddCommand(newThreadsPromotedCmd(&flags))
+	rootCmd.AddCommand(newDoctorCmd(flags))
+	rootCmd.AddCommand(newAuthCmd(flags))
+	rootCmd.AddCommand(newExportCmd(flags))
+	rootCmd.AddCommand(newSearchCmd(flags))
+	rootCmd.AddCommand(newSyncCmd(flags))
+	rootCmd.AddCommand(newTailCmd(flags))
+	rootCmd.AddCommand(newAnalyticsCmd(flags))
+	rootCmd.AddCommand(newArchiveCmd(flags))
+	rootCmd.AddCommand(newAPICmd(flags))
+	rootCmd.AddCommand(newAgentCmd(flags))
+	rootCmd.AddCommand(newTwitchPromotedCmd(flags))
+	rootCmd.AddCommand(newBlueskyPromotedCmd(flags))
+	rootCmd.AddCommand(newGooglePromotedCmd(flags))
+	rootCmd.AddCommand(newKickPromotedCmd(flags))
+	rootCmd.AddCommand(newKomiPromotedCmd(flags))
+	rootCmd.AddCommand(newRedditPromotedCmd(flags))
+	rootCmd.AddCommand(newSnapchatPromotedCmd(flags))
+	rootCmd.AddCommand(newTiktokPromotedCmd(flags))
+	rootCmd.AddCommand(newTruthsocialPromotedCmd(flags))
+	rootCmd.AddCommand(newAccountPromotedCmd(flags))
+	rootCmd.AddCommand(newAmazonPromotedCmd(flags))
+	rootCmd.AddCommand(newInstagramPromotedCmd(flags))
+	rootCmd.AddCommand(newLinkbioPromotedCmd(flags))
+	rootCmd.AddCommand(newLinkedinPromotedCmd(flags))
+	rootCmd.AddCommand(newPillarPromotedCmd(flags))
+	rootCmd.AddCommand(newPinterestPromotedCmd(flags))
+	rootCmd.AddCommand(newYoutubePromotedCmd(flags))
+	rootCmd.AddCommand(newLinkmePromotedCmd(flags))
+	rootCmd.AddCommand(newTwitterPromotedCmd(flags))
+	rootCmd.AddCommand(newDetectAgeGenderPromotedCmd(flags))
+	rootCmd.AddCommand(newFacebookPromotedCmd(flags))
+	rootCmd.AddCommand(newLinktreePromotedCmd(flags))
+	rootCmd.AddCommand(newThreadsPromotedCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 	applyPlatformRootMetadata(rootCmd)
 
-	// Wizard entry point: bare TTY invocation with no agent flag.
-	if handled, werr := runWizardIfEligible(rootCmd, &flags, stripFlagArgs(os.Args[1:])); handled {
-		return werr
-	}
-
-	err := rootCmd.Execute()
-	if err != nil && strings.Contains(err.Error(), "unknown flag") {
-		msg := err.Error()
-		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
-		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
-			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
-			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
-				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
-			}
-		}
-	}
-	return normalizeCommandError(err)
+	return rootCmd
 }
 
 func ExitCode(err error) int {

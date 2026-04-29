@@ -20,6 +20,7 @@ func newTwitterListUsertweetsCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-usertweets"},
 		Short:   "User Tweets",
 		Example: "  scrape-creators-pp-cli twitter list-usertweets",
+		Annotations: map[string]string{"pp:endpoint": "twitter.list-usertweets"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("handle") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "handle")

@@ -19,6 +19,7 @@ func newLinkmePromotedCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Retrieves a Linkme profile by URL, including identity, social links, and contact details. Returns profile with id,...",
 		Long:    "Shortcut for 'linkme list'. Retrieves a Linkme profile by URL, including identity, social links, and contact details. Returns profile with id,...",
 		Example: "  scrape-creators-pp-cli linkme",
+		Annotations: map[string]string{"pp:endpoint": "linkme.list"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")

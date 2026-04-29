@@ -19,6 +19,7 @@ func newPillarPromotedCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Pillar page",
 		Long:    "Shortcut for 'pillar list'. Pillar page",
 		Example: "  scrape-creators-pp-cli pillar",
+		Annotations: map[string]string{"pp:endpoint": "pillar.list"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")

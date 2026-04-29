@@ -20,6 +20,7 @@ func newInstagramListProfileCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-profile"},
 		Short:   "Retrieves comprehensive public Instagram profile information including biography, bio links, follower and following...",
 		Example: "  scrape-creators-pp-cli instagram list-profile",
+		Annotations: map[string]string{"pp:endpoint": "instagram.list-profile"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("handle") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "handle")

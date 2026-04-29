@@ -22,6 +22,7 @@ func newFacebookListProfile3Cmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-profile-3"},
 		Short:   "Profile Posts",
 		Example: "  scrape-creators-pp-cli facebook list-profile-3",
+		Annotations: map[string]string{"pp:endpoint": "facebook.list-profile-3"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

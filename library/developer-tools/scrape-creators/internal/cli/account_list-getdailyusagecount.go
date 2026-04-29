@@ -18,6 +18,7 @@ func newAccountListGetdailyusagecountCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-getdailyusagecount"},
 		Short:   "Get daily usage",
 		Example: "  scrape-creators-pp-cli account list-getdailyusagecount",
+		Annotations: map[string]string{"pp:endpoint": "account.list-getdailyusagecount"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

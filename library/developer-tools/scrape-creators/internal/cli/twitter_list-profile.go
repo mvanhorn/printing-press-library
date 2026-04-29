@@ -19,6 +19,7 @@ func newTwitterListProfileCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-profile"},
 		Short:   "Retrieves a Twitter user's profile by handle, including account metadata and statistics. Returns name, screen_name,...",
 		Example: "  scrape-creators-pp-cli twitter list-profile",
+		Annotations: map[string]string{"pp:endpoint": "twitter.list-profile"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("handle") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "handle")

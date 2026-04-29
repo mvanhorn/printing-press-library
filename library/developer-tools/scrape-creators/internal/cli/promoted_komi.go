@@ -19,6 +19,7 @@ func newKomiPromotedCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Komi page",
 		Long:    "Shortcut for 'komi list'. Komi page",
 		Example: "  scrape-creators-pp-cli komi",
+		Annotations: map[string]string{"pp:endpoint": "komi.list"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")

@@ -19,6 +19,7 @@ func newLinkbioPromotedCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Linkbio page",
 		Long:    "Shortcut for 'linkbio list'. Linkbio page",
 		Example: "  scrape-creators-pp-cli linkbio",
+		Annotations: map[string]string{"pp:endpoint": "linkbio.list"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")

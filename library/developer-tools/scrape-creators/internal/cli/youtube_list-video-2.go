@@ -19,6 +19,7 @@ func newYoutubeListVideo2Cmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-video-2"},
 		Short:   "Comment Replies",
 		Example: "  scrape-creators-pp-cli youtube list-video-2",
+		Annotations: map[string]string{"pp:endpoint": "youtube.list-video-2"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("continuation-token") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "continuation-token")

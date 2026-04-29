@@ -23,6 +23,7 @@ func newFacebookListGroupCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-group"},
 		Short:   "Facebook Group Posts",
 		Example: "  scrape-creators-pp-cli facebook list-group",
+		Annotations: map[string]string{"pp:endpoint": "facebook.list-group"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

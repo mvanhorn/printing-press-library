@@ -19,6 +19,7 @@ func newTiktokListSongCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-song"},
 		Short:   "Get Song Details",
 		Example: "  scrape-creators-pp-cli tiktok list-song",
+		Annotations: map[string]string{"pp:endpoint": "tiktok.list-song"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("clip-id") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "clip-id")

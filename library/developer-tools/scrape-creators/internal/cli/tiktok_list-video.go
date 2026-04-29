@@ -22,6 +22,7 @@ func newTiktokListVideoCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-video"},
 		Short:   "Comment Replies",
 		Example: "  scrape-creators-pp-cli tiktok list-video",
+		Annotations: map[string]string{"pp:endpoint": "tiktok.list-video"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("comment-id") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "comment-id")

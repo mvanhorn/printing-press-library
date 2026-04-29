@@ -19,6 +19,7 @@ func newLinkedinListCompanyCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-company"},
 		Short:   "Company Page",
 		Example: "  scrape-creators-pp-cli linkedin list-company",
+		Annotations: map[string]string{"pp:endpoint": "linkedin.list-company"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")

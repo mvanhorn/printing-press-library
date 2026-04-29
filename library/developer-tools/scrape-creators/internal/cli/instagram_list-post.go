@@ -22,6 +22,7 @@ func newInstagramListPostCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-post"},
 		Short:   "Post/Reel Info",
 		Example: "  scrape-creators-pp-cli instagram list-post",
+		Annotations: map[string]string{"pp:endpoint": "instagram.list-post"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")

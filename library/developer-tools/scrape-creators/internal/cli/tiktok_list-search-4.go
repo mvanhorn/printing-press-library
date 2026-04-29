@@ -22,6 +22,7 @@ func newTiktokListSearch4Cmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-search-4"},
 		Short:   "Search Users",
 		Example: "  scrape-creators-pp-cli tiktok list-search-4",
+		Annotations: map[string]string{"pp:endpoint": "tiktok.list-search-4"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "query")

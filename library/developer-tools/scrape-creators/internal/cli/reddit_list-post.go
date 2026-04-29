@@ -22,6 +22,7 @@ func newRedditListPostCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-post"},
 		Short:   "Post Comments",
 		Example: "  scrape-creators-pp-cli reddit list-post",
+		Annotations: map[string]string{"pp:endpoint": "reddit.list-post"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")

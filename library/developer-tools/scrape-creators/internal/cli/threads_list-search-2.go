@@ -19,6 +19,7 @@ func newThreadsListSearch2Cmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-search-2"},
 		Short:   "Search Users",
 		Example: "  scrape-creators-pp-cli threads list-search-2",
+		Annotations: map[string]string{"pp:endpoint": "threads.list-search-2"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "query")

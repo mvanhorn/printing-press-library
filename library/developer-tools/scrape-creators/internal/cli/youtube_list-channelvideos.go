@@ -23,6 +23,7 @@ func newYoutubeListChannelvideosCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-channelvideos"},
 		Short:   "Channel Videos",
 		Example: "  scrape-creators-pp-cli youtube list-channelvideos",
+		Annotations: map[string]string{"pp:endpoint": "youtube.list-channelvideos"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

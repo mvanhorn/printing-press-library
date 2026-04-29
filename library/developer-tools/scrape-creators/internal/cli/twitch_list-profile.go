@@ -19,6 +19,7 @@ func newTwitchListProfileCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-profile"},
 		Short:   "Retrieves a Twitch user's public profile by handle, including identity, social links, and content. Returns id,...",
 		Example: "  scrape-creators-pp-cli twitch list-profile",
+		Annotations: map[string]string{"pp:endpoint": "twitch.list-profile"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("handle") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "handle")

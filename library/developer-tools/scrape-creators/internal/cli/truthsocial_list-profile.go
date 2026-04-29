@@ -19,6 +19,7 @@ func newTruthsocialListProfileCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-profile"},
 		Short:   "Retrieves a Truth Social user's public profile including display_name, username, avatar, header, followers_count,...",
 		Example: "  scrape-creators-pp-cli truthsocial list-profile",
+		Annotations: map[string]string{"pp:endpoint": "truthsocial.list-profile"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("handle") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "handle")

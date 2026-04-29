@@ -22,6 +22,7 @@ func newFacebookListProfile2Cmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-profile-2"},
 		Short:   "Profile Photos",
 		Example: "  scrape-creators-pp-cli facebook list-profile-2",
+		Annotations: map[string]string{"pp:endpoint": "facebook.list-profile-2"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")

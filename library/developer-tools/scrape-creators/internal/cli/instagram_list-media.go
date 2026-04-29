@@ -19,6 +19,7 @@ func newInstagramListMediaCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-media"},
 		Short:   "Generates an AI-powered speech-to-text transcription for an Instagram video post or reel. The video must be under 2...",
 		Example: "  scrape-creators-pp-cli instagram list-media",
+		Annotations: map[string]string{"pp:endpoint": "instagram.list-media"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")

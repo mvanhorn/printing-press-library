@@ -1,28 +1,33 @@
 {
-  "dir": "/Users/adrianhorning/printing-press/.runstate/adrianhorning-a2d78f66/runs/20260422-161939/working/scrape-creators",
-  "spec_path": "/tmp/scrapecreators-openapi.json",
-  "verdict": "PASS",
+  "dir": ".",
+  "verdict": "WARN",
   "path_check": {
-    "tested": 6,
-    "valid": 5,
-    "invalid": [
-      "/"
-    ],
-    "valid_pct": 83
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0
   },
   "auth_check": {
     "spec_scheme": "",
-    "generated_format": "unknown",
+    "generated_format": "",
     "match": true,
-    "detail": "spec not provided or no bot/bearer scheme detected"
+    "detail": "spec not provided; auth protocol check skipped"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "spec not provided; browser-session auth check skipped"
   },
   "dead_flags": {
-    "total": 15,
+    "total": 16,
     "dead": 0
   },
   "dead_functions": {
-    "total": 44,
-    "dead": 0
+    "total": 47,
+    "dead": 2,
+    "items": [
+      "looksLikeUsageError",
+      "normalizeCommandError"
+    ]
   },
   "pipeline_check": {
     "sync_calls_domain": true,
@@ -31,14 +36,11 @@
     "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 1 domain tables found"
   },
   "example_check": {
-    "tested": 10,
-    "with_examples": 8,
-    "valid_examples": 8,
-    "missing": [
-      "promoted instagram",
-      "promoted truthsocial"
-    ],
-    "detail": "8/10 commands have examples"
+    "tested": 0,
+    "with_examples": 0,
+    "valid_examples": 0,
+    "skipped": true,
+    "detail": "could not discover command tree from agent-context: invalid character 'u' looking for beginning of value"
   },
   "wiring_check": {
     "command_tree": {
@@ -56,8 +58,32 @@
     }
   },
   "novel_features_check": {
-    "planned": 8,
-    "found": 8
+    "planned": 0,
+    "found": 0,
+    "skipped": true
   },
-  "issues": null
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 0,
+    "exempted_via_store": 0,
+    "skipped": true
+  },
+  "source_client_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "test_presence": {
+    "checked": 0
+  },
+  "naming_check": {
+    "checked": 133
+  },
+  "issues": [
+    "2 dead helper functions found",
+    "example check skipped: could not discover command tree from agent-context: invalid character 'u' looking for beginning of value"
+  ]
 }

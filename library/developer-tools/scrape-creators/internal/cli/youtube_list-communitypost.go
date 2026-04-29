@@ -19,6 +19,7 @@ func newYoutubeListCommunitypostCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-communitypost"},
 		Short:   "Community Post Details",
 		Example: "  scrape-creators-pp-cli youtube list-communitypost",
+		Annotations: map[string]string{"pp:endpoint": "youtube.list-communitypost"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")

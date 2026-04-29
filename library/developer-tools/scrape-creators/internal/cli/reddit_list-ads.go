@@ -24,6 +24,7 @@ func newRedditListAdsCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-ads"},
 		Short:   "Search Ads",
 		Example: "  scrape-creators-pp-cli reddit list-ads",
+		Annotations: map[string]string{"pp:endpoint": "reddit.list-ads"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "query")

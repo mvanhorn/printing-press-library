@@ -19,6 +19,7 @@ func newDetectAgeGenderPromotedCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Get Age and Gender",
 		Long:    "Shortcut for 'detect-age-gender list'. Get Age and Gender",
 		Example: "  scrape-creators-pp-cli detect-age-gender",
+		Annotations: map[string]string{"pp:endpoint": "detect-age-gender.list"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")

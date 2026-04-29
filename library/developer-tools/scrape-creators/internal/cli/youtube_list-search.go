@@ -26,6 +26,7 @@ func newYoutubeListSearchCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-search"},
 		Short:   "Searches YouTube by keyword query and returns matching videos, channels, playlists, shorts, shelves, and live...",
 		Example: "  scrape-creators-pp-cli youtube list-search",
+		Annotations: map[string]string{"pp:endpoint": "youtube.list-search"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "query")

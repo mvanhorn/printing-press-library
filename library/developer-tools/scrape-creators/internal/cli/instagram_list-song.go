@@ -20,6 +20,7 @@ func newInstagramListSongCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-song"},
 		Short:   "Reels using Song (Deprecated)",
 		Example: "  scrape-creators-pp-cli instagram list-song",
+		Annotations: map[string]string{"pp:endpoint": "instagram.list-song"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("audio-id") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "audio-id")

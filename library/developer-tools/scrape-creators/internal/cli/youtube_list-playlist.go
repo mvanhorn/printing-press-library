@@ -19,6 +19,7 @@ func newYoutubeListPlaylistCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-playlist"},
 		Short:   "Retrieves all videos in a YouTube playlist, including the playlist title, owner info, total video count, and each...",
 		Example: "  scrape-creators-pp-cli youtube list-playlist",
+		Annotations: map[string]string{"pp:endpoint": "youtube.list-playlist"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("playlist-id") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "playlist-id")

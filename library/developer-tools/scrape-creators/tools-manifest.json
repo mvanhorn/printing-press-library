@@ -1,0 +1,2834 @@
+{
+  "api_name": "scrape-creators",
+  "base_url": "https://api.scrapecreators.com",
+  "description": "The easiest way to scrape public social media data at scale. Extract profiles, posts, videos, comments, and more from TikTok, Instagram, YouTube, Twitter, LinkedIn, Facebook, Reddit, and 27+ platforms.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "x-api-key",
+    "in": "header",
+    "env_vars": [
+      "SCRAPE_CREATORS_API_KEY_AUTH"
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "account_list",
+      "description": "Get credit balance",
+      "method": "GET",
+      "path": "/v1/account/credit-balance",
+      "params": []
+    },
+    {
+      "name": "account_list-getapiusage",
+      "description": "Get request history",
+      "method": "GET",
+      "path": "/v1/account/get-api-usage",
+      "params": [
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Page number for pagination (max 100)"
+        },
+        {
+          "name": "endpoint",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by endpoint name (partial match)"
+        },
+        {
+          "name": "statusCode",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by HTTP status code"
+        }
+      ]
+    },
+    {
+      "name": "account_list-getdailyusagecount",
+      "description": "Get daily usage",
+      "method": "GET",
+      "path": "/v1/account/get-daily-usage-count",
+      "params": []
+    },
+    {
+      "name": "account_list-getmostusedroutes",
+      "description": "Get most used routes",
+      "method": "GET",
+      "path": "/v1/account/get-most-used-routes",
+      "params": [
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query",
+          "description": "Start of time range (ISO 8601 format)"
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "End of time range (ISO 8601 format)"
+        }
+      ]
+    },
+    {
+      "name": "amazon_list",
+      "description": "Amazon Shop page",
+      "method": "GET",
+      "path": "/v1/amazon/shop",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "URL to Amazon Shop page",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bluesky_list",
+      "description": "Fetches a single Bluesky post by URL, returning the post's record text, author info, embed content, replyCount,...",
+      "method": "GET",
+      "path": "/v1/bluesky/post",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Bluesky post URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bluesky_list-profile",
+      "description": "Retrieves a Bluesky user's public profile including handle, displayName, avatar, description, followersCount,...",
+      "method": "GET",
+      "path": "/v1/bluesky/profile",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Bluesky handle",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bluesky_list-user",
+      "description": "Fetches a paginated feed of posts from a Bluesky user, returning each post's uri, record text, author info, embed...",
+      "method": "GET",
+      "path": "/v1/bluesky/user/posts",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Bluesky handle"
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "query",
+          "description": "Bluesky 'did'. (For some reason Bluesky calls their user ids, 'did' for whatever reason)"
+        }
+      ]
+    },
+    {
+      "name": "detect-age-gender_list",
+      "description": "Get Age and Gender",
+      "method": "GET",
+      "path": "/v1/detect-age-gender",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "URL to users social profile",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "facebook_list",
+      "description": "Retrieves a single public Facebook post or reel by URL. Returns post_id, like_count, comment_count, share_count,...",
+      "method": "GET",
+      "path": "/v1/facebook/post",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The URL of the post to get",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "facebook_list-adlibrary",
+      "description": "Ad Details",
+      "method": "GET",
+      "path": "/v1/facebook/adLibrary/ad",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Facebook Ad Id"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Facebook Ad URL"
+        },
+        {
+          "name": "get_transcript",
+          "type": "bool",
+          "location": "query",
+          "description": "Get the transcript of the ad. Only works if the video is under 2 minutes."
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true for a trimmed down version of the response"
+        }
+      ]
+    },
+    {
+      "name": "facebook_list-adlibrary-2",
+      "description": "Company Ads",
+      "method": "GET",
+      "path": "/v1/facebook/adLibrary/company/ads",
+      "params": [
+        {
+          "name": "pageId",
+          "type": "string",
+          "location": "query",
+          "description": "The companies ad library page id. You can get this with my Search For Companies Endpoint. Can either use this or companyName"
+        },
+        {
+          "name": "companyName",
+          "type": "string",
+          "location": "query",
+          "description": "The name of the company. Can either use this or pageId"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "This can only be one country. It has to be the 2 letter code for the country. It defaults to ALL."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status of the ad. Defaults to ACTIVE."
+        },
+        {
+          "name": "media_type",
+          "type": "string",
+          "location": "query",
+          "description": "Media type of the ad. Defaults to ALL. Meme refers to ads with image and text. Not sure why they call it meme."
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language to filter ads on. Needs to be 2 letter language code, ie EN, ES, FR, etc"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by impressions (high to low), or Most Recent (relevancy_monthly_grouped). Defaults to impressions."
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date to search for. Format: YYYY-MM-DD"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date to search for. Format: YYYY-MM-DD"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor to paginate through results"
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true for a trimmed down version of the response"
+        }
+      ]
+    },
+    {
+      "name": "facebook_list-adlibrary-3",
+      "description": "Searches the Meta Ad Library by keyword and returns matching ads. Each result includes ad_archive_id, page_name,...",
+      "method": "GET",
+      "path": "/v1/facebook/adLibrary/search/ads",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword to search for",
+          "required": true
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by impressions (high to low), or Most Recent (relevancy_monthly_grouped). Defaults to impressions."
+        },
+        {
+          "name": "search_type",
+          "type": "string",
+          "location": "query",
+          "description": "If you want to search by exact phrase or not"
+        },
+        {
+          "name": "ad_type",
+          "type": "string",
+          "location": "query",
+          "description": "Search for all ads or only political and issue ads"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "This can only be one country. It has to be the 2 letter code for the country. It defaults to ALL."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status of the ad. Defaults to ACTIVE."
+        },
+        {
+          "name": "media_type",
+          "type": "string",
+          "location": "query",
+          "description": "Media type of the ad. Defaults to ALL. Meme just means the ad has text and an image. No clue why they call it meme."
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Impressions start date. Needs to be in YYYY-MM-DD format."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "Impressions end date. Needs to be in YYYY-MM-DD format."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor to paginate through results"
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true for a trimmed down version of the response"
+        }
+      ]
+    },
+    {
+      "name": "facebook_list-adlibrary-4",
+      "description": "Search for Companies",
+      "method": "GET",
+      "path": "/v1/facebook/adLibrary/search/companies",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword to search for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "facebook_list-group",
+      "description": "Facebook Group Posts",
+      "method": "GET",
+      "path": "/v1/facebook/group/posts",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The URL of the group"
+        },
+        {
+          "name": "group_id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the group"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "How to sort the posts"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The cursor to paginate to the next page"
+        }
+      ]
+    },
+    {
+      "name": "facebook_list-post",
+      "description": "Fetches comments from a Facebook post or reel with cursor-based pagination. Each comment includes id, text,...",
+      "method": "GET",
+      "path": "/v1/facebook/post/comments",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Facebook post URL (or reel URL)"
+        },
+        {
+          "name": "feedback_id",
+          "type": "string",
+          "location": "query",
+          "description": "Using feedback_id (instead of url) will *really* speed up the request. You can get the feedback_id when you make a request to /v1/facebook/post."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor to get more comments. Get 'cursor' from previous response."
+        }
+      ]
+    },
+    {
+      "name": "facebook_list-post-2",
+      "description": "Extracts the transcript text from a Facebook video post or reel. Returns the transcript as a single text string with...",
+      "method": "GET",
+      "path": "/v1/facebook/post/transcript",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Facebook post URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "facebook_list-profile",
+      "description": "Retrieves public Facebook page details including category, address, email, phone, website, services, priceRange,...",
+      "method": "GET",
+      "path": "/v1/facebook/profile",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Facebook profile URL",
+          "required": true
+        },
+        {
+          "name": "get_business_hours",
+          "type": "string",
+          "location": "query",
+          "description": "Get the business's hours"
+        }
+      ]
+    },
+    {
+      "name": "facebook_list-profile-2",
+      "description": "Profile Photos",
+      "method": "GET",
+      "path": "/v1/facebook/profile/photos",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Facebook page URL",
+          "required": true
+        },
+        {
+          "name": "next_page_id",
+          "type": "string",
+          "location": "query",
+          "description": "To paginate through to the next page"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "To paginate through to the next page"
+        }
+      ]
+    },
+    {
+      "name": "facebook_list-profile-3",
+      "description": "Profile Posts",
+      "method": "GET",
+      "path": "/v1/facebook/profile/posts",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Facebook profile URL"
+        },
+        {
+          "name": "pageId",
+          "type": "string",
+          "location": "query",
+          "description": "Facebook profile page id"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "To paginate through the posts"
+        }
+      ]
+    },
+    {
+      "name": "facebook_list-profile-4",
+      "description": "Profile Reels",
+      "method": "GET",
+      "path": "/v1/facebook/profile/reels",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Facebook page URL",
+          "required": true
+        },
+        {
+          "name": "next_page_id",
+          "type": "string",
+          "location": "query",
+          "description": "To paginate through to the next page"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "To paginate through to the next page"
+        }
+      ]
+    },
+    {
+      "name": "google_list",
+      "description": "Ad Details",
+      "method": "GET",
+      "path": "/v1/google/ad",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The url of the ad",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "google_list-adlibrary",
+      "description": "Advertiser Search",
+      "method": "GET",
+      "path": "/v1/google/adLibrary/advertisers/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "The query to search for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "google_list-company",
+      "description": "Company Ads",
+      "method": "GET",
+      "path": "/v1/google/company/ads",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "The domain of the company"
+        },
+        {
+          "name": "advertiser_id",
+          "type": "string",
+          "location": "query",
+          "description": "The advertiser id of the company"
+        },
+        {
+          "name": "topic",
+          "type": "string",
+          "location": "query",
+          "description": "The topic to search for. If you search for 'political', you will also need to pass a 'region', like 'US' or 'AU'"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "The region to search for. Defaults to anywhere"
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date to search for. Format: YYYY-MM-DD"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date to search for. Format: YYYY-MM-DD"
+        },
+        {
+          "name": "get_ad_details",
+          "type": "string",
+          "location": "query",
+          "description": "Set to true to get the ad details. Will cost 25 credits."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor to paginate through results"
+        }
+      ]
+    },
+    {
+      "name": "google_list-search",
+      "description": "Performs a Google search and returns organic results with url, title, and description for each result. Supports an...",
+      "method": "GET",
+      "path": "/v1/google/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "2 letter country code, ie US, UK, CA, etc This will show results from that country"
+        },
+        {
+          "name": "date_posted",
+          "type": "string",
+          "location": "query",
+          "description": "Date posted"
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number to retrieve"
+        }
+      ]
+    },
+    {
+      "name": "instagram_list",
+      "description": "Basic Profile",
+      "method": "GET",
+      "path": "/v1/instagram/basic-profile",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "query",
+          "description": "Instagram user id"
+        }
+      ]
+    },
+    {
+      "name": "instagram_list-media",
+      "description": "Generates an AI-powered speech-to-text transcription for an Instagram video post or reel. The video must be under 2...",
+      "method": "GET",
+      "path": "/v2/instagram/media/transcript",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Instagram post or reel URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "instagram_list-post",
+      "description": "Post/Reel Info",
+      "method": "GET",
+      "path": "/v1/instagram/post",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Instagram post or reel URL",
+          "required": true
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "2 letter country code to set the proxy in"
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true to get a trimmed response"
+        },
+        {
+          "name": "download_media",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true to download the video/images and get back permanent Supabase URLs. Costs 10 credits if media is found, 1 credit otherwise."
+        }
+      ]
+    },
+    {
+      "name": "instagram_list-post-2",
+      "description": "Retrieves comments on a public Instagram post or reel. Each comment includes the comment text, creation timestamp,...",
+      "method": "GET",
+      "path": "/v2/instagram/post/comments",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The URL of the post or reel to get comments from",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The cursor to get more comments. Get 'cursor' from previous response."
+        }
+      ]
+    },
+    {
+      "name": "instagram_list-profile",
+      "description": "Retrieves comprehensive public Instagram profile information including biography, bio links, follower and following...",
+      "method": "GET",
+      "path": "/v1/instagram/profile",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Instagram handle",
+          "required": true
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true to get a trimmed response"
+        }
+      ]
+    },
+    {
+      "name": "instagram_list-reels",
+      "description": "Search Reels",
+      "method": "GET",
+      "path": "/v2/instagram/reels/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "The keyword to search for",
+          "required": true
+        },
+        {
+          "name": "date_posted",
+          "type": "string",
+          "location": "query",
+          "description": "Date posted"
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "The page number to return."
+        }
+      ]
+    },
+    {
+      "name": "instagram_list-song",
+      "description": "Reels using Song (Deprecated)",
+      "method": "GET",
+      "path": "/v1/instagram/song/reels",
+      "params": [
+        {
+          "name": "audio_id",
+          "type": "string",
+          "location": "query",
+          "description": "If you're looking for this, it is sometimes called 'audio_cluster_id', or it can be just 'audio_id'.",
+          "required": true
+        },
+        {
+          "name": "max_id",
+          "type": "string",
+          "location": "query",
+          "description": "How you paginate the results. Pass the max_id from the previous response to get the next set of reels."
+        }
+      ]
+    },
+    {
+      "name": "instagram_list-user",
+      "description": "Embed HTML",
+      "method": "GET",
+      "path": "/v1/instagram/user/embed",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Instagram handle",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "instagram_list-user-2",
+      "description": "Story Highlights",
+      "method": "GET",
+      "path": "/v1/instagram/user/highlights",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "query",
+          "description": "Instagram user id. Use for faster response times."
+        },
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Instagram handle. Use user_id for faster response times."
+        }
+      ]
+    },
+    {
+      "name": "instagram_list-user-3",
+      "description": "Returns a paginated list of a user's public Instagram reels (short-form videos). Each reel includes its shortcode,...",
+      "method": "GET",
+      "path": "/v1/instagram/user/reels",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "query",
+          "description": "Instagram user id. Use this for faster response times."
+        },
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Instagram handle. Use user_id for faster response times."
+        },
+        {
+          "name": "max_id",
+          "type": "string",
+          "location": "query",
+          "description": "Max id to get more reels. Get 'max_id' from previous response."
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true for a trimmed down version of the response"
+        }
+      ]
+    },
+    {
+      "name": "instagram_list-user-4",
+      "description": "Returns a paginated feed of a user's public Instagram posts, including photos, videos, and carousels. Each item...",
+      "method": "GET",
+      "path": "/v2/instagram/user/posts",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Instagram handle",
+          "required": true
+        },
+        {
+          "name": "next_max_id",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor to get next page of results."
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true to get a trimmed response"
+        }
+      ]
+    },
+    {
+      "name": "instagram_list-user-5",
+      "description": "Highlights Details",
+      "method": "GET",
+      "path": "/v1/instagram/user/highlight/detail",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the highlight to get details for"
+        }
+      ]
+    },
+    {
+      "name": "kick_list",
+      "description": "Fetches detailed data for a Kick clip by URL, including video, metadata, and channel info. Returns clip id, title,...",
+      "method": "GET",
+      "path": "/v1/kick/clip",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Kick clip URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "komi_list",
+      "description": "Komi page",
+      "method": "GET",
+      "path": "/v1/komi",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "URL to Komi page",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkbio_list",
+      "description": "Linkbio page",
+      "method": "GET",
+      "path": "/v1/linkbio",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "URL to Linkbio (lnk.bio) page",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_list",
+      "description": "Ad Details",
+      "method": "GET",
+      "path": "/v1/linkedin/ad",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The url of the ad",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_list-ads",
+      "description": "Search Ads",
+      "method": "GET",
+      "path": "/v1/linkedin/ads/search",
+      "params": [
+        {
+          "name": "company",
+          "type": "string",
+          "location": "query",
+          "description": "The company name to search for. 'Microsoft' for example"
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "The keyword to search for"
+        },
+        {
+          "name": "companyId",
+          "type": "string",
+          "location": "query",
+          "description": "The company id to search for"
+        },
+        {
+          "name": "countries",
+          "type": "string",
+          "location": "query",
+          "description": "Comma separated list of countries. Example: US,CA,MX"
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "Start date to search for. Format: YYYY-MM-DD"
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "End date to search for. Format: YYYY-MM-DD"
+        },
+        {
+          "name": "paginationToken",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination token to paginate through results"
+        }
+      ]
+    },
+    {
+      "name": "linkedin_list-company",
+      "description": "Company Page",
+      "method": "GET",
+      "path": "/v1/linkedin/company",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The URL of the LinkedIn company page to get",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_list-company-2",
+      "description": "Company Posts",
+      "method": "GET",
+      "path": "/v1/linkedin/company/posts",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The URL of the LinkedIn company page to get",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "The page number to get"
+        }
+      ]
+    },
+    {
+      "name": "linkedin_list-post",
+      "description": "Fetches a single LinkedIn post or article, returning the title, headline, full description text, author info with...",
+      "method": "GET",
+      "path": "/v1/linkedin/post",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The URL of the LinkedIn post to get",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_list-profile",
+      "description": "Person's Profile",
+      "method": "GET",
+      "path": "/v1/linkedin/profile",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The URL of the LinkedIn profile to get",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkme_list",
+      "description": "Retrieves a Linkme profile by URL, including identity, social links, and contact details. Returns profile with id,...",
+      "method": "GET",
+      "path": "/v1/linkme",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Linkme profile URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "linktree_list",
+      "description": "Linktree page",
+      "method": "GET",
+      "path": "/v1/linktree",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "URL to Linktree page",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pillar_list",
+      "description": "Pillar page",
+      "method": "GET",
+      "path": "/v1/pillar",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "URL to Pillar page",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pinterest_list",
+      "description": "Fetches a paginated list of pins from a Pinterest board by URL, returning each pin's id, description, title, images,...",
+      "method": "GET",
+      "path": "/v1/pinterest/board",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The URL of the board to get",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The cursor to get the next page of results"
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true for a trimmed down version of the response"
+        }
+      ]
+    },
+    {
+      "name": "pinterest_list-pin",
+      "description": "Fetches detailed information about a single Pinterest pin by URL, returning title, description, link, dominantColor,...",
+      "method": "GET",
+      "path": "/v1/pinterest/pin",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Pinterest pin URL",
+          "required": true
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true for a trimmed down version of the response"
+        }
+      ]
+    },
+    {
+      "name": "pinterest_list-search",
+      "description": "Searches Pinterest for pins matching a query, returning results with id, url, title, description, images, link,...",
+      "method": "GET",
+      "path": "/v1/pinterest/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true for a trimmed down version of the response"
+        }
+      ]
+    },
+    {
+      "name": "pinterest_list-user",
+      "description": "User Boards",
+      "method": "GET",
+      "path": "/v1/pinterest/user/boards",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "The username of the user to get boards for. (e.g. broadstbullycom from https://www.pinterest.com/broadstbullycom/)",
+          "required": true
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true for a trimmed down version of the response"
+        }
+      ]
+    },
+    {
+      "name": "reddit_list",
+      "description": "Get Ad",
+      "method": "GET",
+      "path": "/v1/reddit/ad",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Ad id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reddit_list-ads",
+      "description": "Search Ads",
+      "method": "GET",
+      "path": "/v1/reddit/ads/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        },
+        {
+          "name": "industries",
+          "type": "string",
+          "location": "query",
+          "description": "Industries to filter by"
+        },
+        {
+          "name": "budgets",
+          "type": "string",
+          "location": "query",
+          "description": "Budgets to filter by"
+        },
+        {
+          "name": "formats",
+          "type": "string",
+          "location": "query",
+          "description": "Formats to filter by"
+        },
+        {
+          "name": "placements",
+          "type": "string",
+          "location": "query",
+          "description": "Placements to filter by"
+        },
+        {
+          "name": "objectives",
+          "type": "string",
+          "location": "query",
+          "description": "Objectives to filter by"
+        }
+      ]
+    },
+    {
+      "name": "reddit_list-post",
+      "description": "Post Comments",
+      "method": "GET",
+      "path": "/v1/reddit/post/comments",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Reddit post URL",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor to get more comments, or replies."
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true for a trimmed down version of the response"
+        }
+      ]
+    },
+    {
+      "name": "reddit_list-search",
+      "description": "Searches across all of Reddit for posts matching a query. Each post includes title, author, selftext, subreddit,...",
+      "method": "GET",
+      "path": "/v1/reddit/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by"
+        },
+        {
+          "name": "timeframe",
+          "type": "string",
+          "location": "query",
+          "description": "Timeframe"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Used to paginate to next page"
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true for a trimmed down version of the response"
+        }
+      ]
+    },
+    {
+      "name": "reddit_list-subreddit",
+      "description": "Subreddit Posts",
+      "method": "GET",
+      "path": "/v1/reddit/subreddit",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "query",
+          "description": "Subreddit name",
+          "required": true
+        },
+        {
+          "name": "timeframe",
+          "type": "string",
+          "location": "query",
+          "description": "Timeframe to get posts from"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After to get more posts. Get 'after' from previous response."
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true for a trimmed down version of the response"
+        }
+      ]
+    },
+    {
+      "name": "reddit_list-subreddit-2",
+      "description": "Subreddit Details",
+      "method": "GET",
+      "path": "/v1/reddit/subreddit/details",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "query",
+          "description": "Subreddit name. MUST be case sensitive. So 'AskReddit' not 'askreddit'."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Subreddit URL"
+        }
+      ]
+    },
+    {
+      "name": "reddit_list-subreddit-3",
+      "description": "Subreddit Search",
+      "method": "GET",
+      "path": "/v1/reddit/subreddit/search",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "query",
+          "description": "Subreddit name (e.g. 'Fitness', not 'r/Fitness' or a full URL)",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query to find matching content"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order. For posts/media: relevance, hot, top, new, comments. For comments: relevance, top, new"
+        },
+        {
+          "name": "timeframe",
+          "type": "string",
+          "location": "query",
+          "description": "Timeframe to filter results"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor to get more results. Get 'cursor' from previous response."
+        }
+      ]
+    },
+    {
+      "name": "snapchat_list",
+      "description": "User Profile",
+      "method": "GET",
+      "path": "/v1/snapchat/profile",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Snapchat username",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "threads_list",
+      "description": "Fetches a single Threads post by URL, returning the post's caption, like_count, view_counts, reshare_count,...",
+      "method": "GET",
+      "path": "/v1/threads/post",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The URL of the post to get",
+          "required": true
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true for a trimmed down version of the response"
+        }
+      ]
+    },
+    {
+      "name": "threads_list-profile",
+      "description": "Retrieves a Threads user's public profile including username, full_name, biography, profile_pic_url, follower_count,...",
+      "method": "GET",
+      "path": "/v1/threads/profile",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Threads username",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "threads_list-search",
+      "description": "Search by Keyword",
+      "method": "GET",
+      "path": "/v1/threads/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword to search for",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date to search for"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date to search for"
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true for a trimmed down version of the response"
+        }
+      ]
+    },
+    {
+      "name": "threads_list-search-2",
+      "description": "Search Users",
+      "method": "GET",
+      "path": "/v1/threads/search/users",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Username to search for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "threads_list-user",
+      "description": "Fetches the most recent posts from a Threads user, returning id, caption text, code, like_count, reshare_count,...",
+      "method": "GET",
+      "path": "/v1/threads/user/posts",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Threads username",
+          "required": true
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true for a trimmed down version of the response"
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list",
+      "description": "Trending Feed",
+      "method": "GET",
+      "path": "/v1/tiktok/get-trending-feed",
+      "params": [
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "Where you want the proxy to be. This doesn't mean that you will only see TikToks from this region, you will just see the content that isn't banned in that region.",
+          "required": true
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true to get a trimmed response."
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-creators",
+      "description": "Get popular creators",
+      "method": "GET",
+      "path": "/v1/tiktok/creators/popular",
+      "params": [
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "sortBy",
+          "type": "string",
+          "location": "query",
+          "description": "Sort creators by engagement, follower count, or average views"
+        },
+        {
+          "name": "followerCount",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by follower count range"
+        },
+        {
+          "name": "creatorCountry",
+          "type": "string",
+          "location": "query",
+          "description": "Country code of the creator"
+        },
+        {
+          "name": "audienceCountry",
+          "type": "string",
+          "location": "query",
+          "description": "Country code of the audience/follower"
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-hashtags",
+      "description": "Get popular hashtags",
+      "method": "GET",
+      "path": "/v1/tiktok/hashtags/popular",
+      "params": [
+        {
+          "name": "period",
+          "type": "string",
+          "location": "query",
+          "description": "Time period in days (7, 30, or 120)"
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "countryCode",
+          "type": "string",
+          "location": "query",
+          "description": "Country code to get popular hashtags from"
+        },
+        {
+          "name": "newOnBoard",
+          "type": "bool",
+          "location": "query",
+          "description": "Show only newly trending hashtags"
+        },
+        {
+          "name": "industry",
+          "type": "string",
+          "location": "query",
+          "description": "Industry to get popular hashtags from."
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-product",
+      "description": "Product Details",
+      "method": "GET",
+      "path": "/v1/tiktok/product",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The URL of the product to get details for.",
+          "required": true
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "Region the proxy will be set to so you can access products from that country. Use 2 letter country codes like US, GB, FR, etc. For England, don't use UK, use GB."
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-profile",
+      "description": "Fetches public profile data for a TikTok user by their handle — useful for looking up a creator's identity, bio,...",
+      "method": "GET",
+      "path": "/v1/tiktok/profile",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "TikTok handle",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-profile-2",
+      "description": "Profile Videos",
+      "method": "GET",
+      "path": "/v3/tiktok/profile/videos",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "TikTok handle",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "query",
+          "description": "TikTok user id. Use this for faster responses."
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "What to sort by"
+        },
+        {
+          "name": "max_cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor to get more videos. Get 'max_cursor' from previous response."
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "Region (Country) you want the proxy in. Defaults to US."
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true for a trimmed down version of the response"
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-search",
+      "description": "Search by Hashtag",
+      "method": "GET",
+      "path": "/v1/tiktok/search/hashtag",
+      "params": [
+        {
+          "name": "hashtag",
+          "type": "string",
+          "location": "query",
+          "description": "Hashtag to search for (without #)",
+          "required": true
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "Region the proxy will be set to. Note: this isn't going to grab you all tiktoks from this region, you're just setting the proxy there."
+        },
+        {
+          "name": "cursor",
+          "type": "float",
+          "location": "query",
+          "description": "Cursor to get more videos. Get 'cursor' from previous response."
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true to get a trimmed response"
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-search-2",
+      "description": "Search by Keyword",
+      "method": "GET",
+      "path": "/v1/tiktok/search/keyword",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword to search for",
+          "required": true
+        },
+        {
+          "name": "date_posted",
+          "type": "string",
+          "location": "query",
+          "description": "Time Frame"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "Note, this doesn't filter the tiktoks only in a specfic region, it puts the proxy there. Use it in case you want to scrape posts only available for some country. Use 2 letter country codes like US, GB, FR, etc"
+        },
+        {
+          "name": "cursor",
+          "type": "float",
+          "location": "query",
+          "description": "Cursor to get more videos. Get 'cursor' from previous response."
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true to get a trimmed response"
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-search-3",
+      "description": "Top Search",
+      "method": "GET",
+      "path": "/v1/tiktok/search/top",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword to search for",
+          "required": true
+        },
+        {
+          "name": "publish_time",
+          "type": "string",
+          "location": "query",
+          "description": "Time Frame TikTok was posted"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "Note, this doesn't filter the tiktoks only in a specfic region, it puts the proxy there. Use it in case you want to scrape posts only available for some country. Use 2 letter country codes like US, GB, FR, etc"
+        },
+        {
+          "name": "cursor",
+          "type": "float",
+          "location": "query",
+          "description": "Cursor to get more videos. Get 'cursor' from previous response."
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-search-4",
+      "description": "Search Users",
+      "method": "GET",
+      "path": "/v1/tiktok/search/users",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query for users",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "float",
+          "location": "query",
+          "description": "Cursor to get more users. Get 'cursor' from previous response."
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true to get a trimmed response"
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-shop",
+      "description": "Shop Products",
+      "method": "GET",
+      "path": "/v1/tiktok/shop/products",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The TikTok Shop store URL.",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor parameter from the previous response to retrieve the next page of products. Omit for the first page."
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "Region to get shop products from. Defaults to US if not provided."
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-shop-2",
+      "description": "Shop Search",
+      "method": "GET",
+      "path": "/v1/tiktok/shop/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Term you want to search for",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number to retrieve"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "Region to search shop products in."
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-shop-3",
+      "description": "Product Reviews",
+      "method": "GET",
+      "path": "/v1/tiktok/shop/product/reviews",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The URL of the product (required if product_id is not provided)"
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the product (required if url is not provided)"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "The region of the product. This is *very* important."
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "The page number of the reviews"
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-song",
+      "description": "Get Song Details",
+      "method": "GET",
+      "path": "/v1/tiktok/song",
+      "params": [
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "query",
+          "description": "This is a little confusing because this isn't songId like you'd think. It is the clipId. I guess because you can clip different portions of a song 🤷‍♂️",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-song-2",
+      "description": "TikToks using Song",
+      "method": "GET",
+      "path": "/v1/tiktok/song/videos",
+      "params": [
+        {
+          "name": "clipId",
+          "type": "string",
+          "location": "query",
+          "description": "This is clipId. Can be found on a url like so: https://www.tiktok.com/music/That%27s-Who-I-Praise-7370375686554782506, where 7370375686554782506 is the clipId"
+        },
+        {
+          "name": "cursor",
+          "type": "float",
+          "location": "query",
+          "description": "The cursor to get the next page of results."
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-songs",
+      "description": "Get popular songs",
+      "method": "GET",
+      "path": "/v1/tiktok/songs/popular",
+      "params": [
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "timePeriod",
+          "type": "string",
+          "location": "query",
+          "description": "Time period to get popular songs from"
+        },
+        {
+          "name": "rankType",
+          "type": "string",
+          "location": "query",
+          "description": "Get popular or surging songs"
+        },
+        {
+          "name": "newOnBoard",
+          "type": "bool",
+          "location": "query",
+          "description": "New to top 100"
+        },
+        {
+          "name": "commercialMusic",
+          "type": "bool",
+          "location": "query",
+          "description": "Approved for business use?"
+        },
+        {
+          "name": "countryCode",
+          "type": "string",
+          "location": "query",
+          "description": "Country code to get popular songs from"
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-user",
+      "description": "User's Audience Demographics",
+      "method": "GET",
+      "path": "/v1/tiktok/user/audience",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "TikTok handle",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-user-2",
+      "description": "Retrieves the follower list of a TikTok account by handle or user_id — useful for seeing who follows a creator or...",
+      "method": "GET",
+      "path": "/v1/tiktok/user/followers",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "TikTok handle"
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "query",
+          "description": "User id. Use this for faster response times."
+        },
+        {
+          "name": "min_time",
+          "type": "float",
+          "location": "query",
+          "description": "Used to paginate. Get 'min_time' from previous response."
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true to get a trimmed response"
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-user-3",
+      "description": "Retrieves the following list — accounts that a TikTok user follows — by their handle. Returns `followings`, an...",
+      "method": "GET",
+      "path": "/v1/tiktok/user/following",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "TikTok handle",
+          "required": true
+        },
+        {
+          "name": "min_time",
+          "type": "float",
+          "location": "query",
+          "description": "Used to paginate. Get 'min_time' from previous response."
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true to get a trimmed response"
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-user-4",
+      "description": "TikTok Live",
+      "method": "GET",
+      "path": "/v1/tiktok/user/live",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "TikTok handle",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-user-5",
+      "description": "User Showcase",
+      "method": "GET",
+      "path": "/v1/tiktok/user/showcase",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "The handle of the user",
+          "required": true
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "Region to put the proxy in"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The cursor to the next page of products"
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-video",
+      "description": "Video Info",
+      "method": "GET",
+      "path": "/v2/tiktok/video",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "TikTok video URL",
+          "required": true
+        },
+        {
+          "name": "get_transcript",
+          "type": "bool",
+          "location": "query",
+          "description": "Get transcript of the video"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "Region of the proxy. Sometimes you'll need to specify the region if you're not getting a response. Commonly for videos from the Phillipines, in which case you'd use 'PH'. Use 2 letter country codes like US, GB, FR, etc"
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true to get a trimmed response"
+        },
+        {
+          "name": "download_media",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true to download the video/images and get back permanent Supabase URLs. Costs 10 credits if media is found, 1 credit otherwise."
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-video-2",
+      "description": "Fetches comments on a TikTok video by URL — useful for reading audience reactions, replies, and engagement....",
+      "method": "GET",
+      "path": "/v1/tiktok/video/comments",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "TikTok video URL",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "float",
+          "location": "query",
+          "description": "Cursor to get more comments. Get 'cursor' from previous response."
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true to get a trimmed response"
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-video-3",
+      "description": "Extracts the transcript, captions, or subtitles from a TikTok video by URL. Returns `id`, `url`, and `transcript` as...",
+      "method": "GET",
+      "path": "/v1/tiktok/video/transcript",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "TikTok video URL",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language of the transcript. 2 letter language code, ie 'en', 'es', 'fr', 'de', 'it', 'ja', 'ko', 'zh'"
+        },
+        {
+          "name": "use_ai_as_fallback",
+          "type": "string",
+          "location": "query",
+          "description": "Set to 'true' to use AI as a fallback to get the transcript if the transcript is not found. Costs 10 credits to use this feature. And only if the video is under 2 minutes."
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-video-4",
+      "description": "Comment Replies",
+      "method": "GET",
+      "path": "/v1/tiktok/video/comment/replies",
+      "params": [
+        {
+          "name": "comment_id",
+          "type": "string",
+          "location": "query",
+          "description": "TikTok comment ID. This is the cid from the comments endpoint.",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "TikTok video URL. This is the url from the comments endpoint.",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "float",
+          "location": "query",
+          "description": "Cursor to get more replies. Get 'cursor' from previous response."
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-videos",
+      "description": "Get popular videos",
+      "method": "GET",
+      "path": "/v1/tiktok/videos/popular",
+      "params": [
+        {
+          "name": "period",
+          "type": "string",
+          "location": "query",
+          "description": "Time period in days (7 or 30)"
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "orderBy",
+          "type": "string",
+          "location": "query",
+          "description": "Sort videos by likes, views (hot), comments, or reposts"
+        },
+        {
+          "name": "countryCode",
+          "type": "string",
+          "location": "query",
+          "description": "Country code to get popular videos from"
+        }
+      ]
+    },
+    {
+      "name": "truthsocial_list",
+      "description": "Fetches a single Truth Social post by URL, returning text, id, created_at, url, content, account details,...",
+      "method": "GET",
+      "path": "/v1/truthsocial/post",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Truth Social post URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "truthsocial_list-profile",
+      "description": "Retrieves a Truth Social user's public profile including display_name, username, avatar, header, followers_count,...",
+      "method": "GET",
+      "path": "/v1/truthsocial/profile",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Truth Social username",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "truthsocial_list-user",
+      "description": "User Posts",
+      "method": "GET",
+      "path": "/v1/truthsocial/user/posts",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Truth Social username"
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "query",
+          "description": "Truth Social user id. Use this for faster response times. Trumps is 107780257626128497. It is the 'id' field in the profile endpoint."
+        },
+        {
+          "name": "next_max_id",
+          "type": "string",
+          "location": "query",
+          "description": "Used to paginate to next page"
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true for a trimmed down version of the response"
+        }
+      ]
+    },
+    {
+      "name": "twitch_list",
+      "description": "Fetches detailed data for a Twitch clip by URL, including metadata and direct video URLs. Returns clip id, slug,...",
+      "method": "GET",
+      "path": "/v1/twitch/clip",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Twitch clip URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "twitch_list-profile",
+      "description": "Retrieves a Twitch user's public profile by handle, including identity, social links, and content. Returns id,...",
+      "method": "GET",
+      "path": "/v1/twitch/profile",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Twitch handle",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "twitter_list",
+      "description": "Retrieves details about a Twitter/X Community by URL. Returns the community name, description, rest_id, join_policy,...",
+      "method": "GET",
+      "path": "/v1/twitter/community",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Community URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "twitter_list-community",
+      "description": "Community Tweets",
+      "method": "GET",
+      "path": "/v1/twitter/community/tweets",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Community URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "twitter_list-profile",
+      "description": "Retrieves a Twitter user's profile by handle, including account metadata and statistics. Returns name, screen_name,...",
+      "method": "GET",
+      "path": "/v1/twitter/profile",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Twitter handle",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "twitter_list-tweet",
+      "description": "Tweet Details",
+      "method": "GET",
+      "path": "/v1/twitter/tweet",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Tweet URL",
+          "required": true
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true for a trimmed down version of the response"
+        }
+      ]
+    },
+    {
+      "name": "twitter_list-tweet-2",
+      "description": "Extracts the transcript from a Twitter video tweet using AI-powered transcription. The video must be under 2 minutes...",
+      "method": "GET",
+      "path": "/v1/twitter/tweet/transcript",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Tweet URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "twitter_list-usertweets",
+      "description": "User Tweets",
+      "method": "GET",
+      "path": "/v1/twitter/user-tweets",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Twitter handle",
+          "required": true
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true for a trimmed down version of the response"
+        }
+      ]
+    },
+    {
+      "name": "youtube_list",
+      "description": "Channel Details",
+      "method": "GET",
+      "path": "/v1/youtube/channel",
+      "params": [
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "query",
+          "description": "YouTube channel ID. Can pass a channelId, handle or url"
+        },
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "YouTube channel handle. Can pass a channelId, handle or url"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "YouTube channel URL. Can pass a channelId, handle or url"
+        }
+      ]
+    },
+    {
+      "name": "youtube_list-channel",
+      "description": "Channel Shorts",
+      "method": "GET",
+      "path": "/v1/youtube/channel/shorts",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Can pass channelId or handle"
+        },
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "query",
+          "description": "Can pass channelId or handle"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by newest or popular"
+        },
+        {
+          "name": "continuationToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token to get more videos. Get 'continuationToken' from previous response."
+        }
+      ]
+    },
+    {
+      "name": "youtube_list-channelvideos",
+      "description": "Channel Videos",
+      "method": "GET",
+      "path": "/v1/youtube/channel-videos",
+      "params": [
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "query",
+          "description": "YouTube channel ID"
+        },
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "YouTube channel handle"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by latest or popular"
+        },
+        {
+          "name": "continuationToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token to get more videos. Get 'continuationToken' from previous response."
+        },
+        {
+          "name": "includeExtras",
+          "type": "string",
+          "location": "query",
+          "description": "This will get you the like + comment count and the description. To get the full details of the video, use the /v1/youtube/video endpoint. This will slow down the response slightly."
+        }
+      ]
+    },
+    {
+      "name": "youtube_list-communitypost",
+      "description": "Community Post Details",
+      "method": "GET",
+      "path": "/v1/youtube/community-post",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The URL of the YouTube community post to get",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "youtube_list-playlist",
+      "description": "Retrieves all videos in a YouTube playlist, including the playlist title, owner info, total video count, and each...",
+      "method": "GET",
+      "path": "/v1/youtube/playlist",
+      "params": [
+        {
+          "name": "playlist_id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the YouTube playlist. In the YouTube URL it will be the 'list' parameter.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "youtube_list-search",
+      "description": "Searches YouTube by keyword query and returns matching videos, channels, playlists, shorts, shelves, and live...",
+      "method": "GET",
+      "path": "/v1/youtube/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        },
+        {
+          "name": "uploadDate",
+          "type": "string",
+          "location": "query",
+          "description": "Upload date"
+        },
+        {
+          "name": "sortBy",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type of content to search for"
+        },
+        {
+          "name": "duration",
+          "type": "string",
+          "location": "query",
+          "description": "Duration of the video. Only applies to videos (not shorts)."
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "2 letter country code of the country to put the proxy in."
+        },
+        {
+          "name": "continuationToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token to get more videos. Get 'continuationToken' from previous response."
+        },
+        {
+          "name": "includeExtras",
+          "type": "string",
+          "location": "query",
+          "description": "This will get you the like + comment count and the description. To get the full details of the video, use the /v1/youtube/video endpoint. *This will slow down the response slightly.*"
+        }
+      ]
+    },
+    {
+      "name": "youtube_list-search-2",
+      "description": "Search by Hashtag",
+      "method": "GET",
+      "path": "/v1/youtube/search/hashtag",
+      "params": [
+        {
+          "name": "hashtag",
+          "type": "string",
+          "location": "query",
+          "description": "Hashtag to search for",
+          "required": true
+        },
+        {
+          "name": "continuationToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token to get more videos. Get 'continuationToken' from previous response."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Search for all types of content or only shorts"
+        }
+      ]
+    },
+    {
+      "name": "youtube_list-shorts",
+      "description": "Trending Shorts",
+      "method": "GET",
+      "path": "/v1/youtube/shorts/trending",
+      "params": []
+    },
+    {
+      "name": "youtube_list-video",
+      "description": "Video/Short Details",
+      "method": "GET",
+      "path": "/v1/youtube/video",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "YouTube video or short URL",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Preferred response language (mapped to Accept-Language header; not guaranteed due to YouTube localization behavior). 2 letter language code, ie 'en', 'es', 'fr' etc."
+        }
+      ]
+    },
+    {
+      "name": "youtube_list-video-2",
+      "description": "Fetches comments and replies from a YouTube video, including each comment's text content, author details, like...",
+      "method": "GET",
+      "path": "/v1/youtube/video/comments",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "YouTube video URL",
+          "required": true
+        },
+        {
+          "name": "continuationToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token to get more comments. Get 'continuationToken' from previous response."
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order of comments"
+        }
+      ]
+    },
+    {
+      "name": "youtube_list-video-3",
+      "description": "Retrieves the captions, subtitles, or transcript of a YouTube video or short. Returns both a timestamped transcript...",
+      "method": "GET",
+      "path": "/v1/youtube/video/transcript",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "YouTube video or short URL",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "2 letter language code, ie 'en', 'es', 'fr' etc. If the transcript is not available in the language you specify, the transcript will be null."
+        }
+      ]
+    },
+    {
+      "name": "youtube_list-video-4",
+      "description": "Comment Replies",
+      "method": "GET",
+      "path": "/v1/youtube/video/comment/replies",
+      "params": [
+        {
+          "name": "continuationToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token for the comment replies. Use 'repliesContinuationToken' from the Comments endpoint, or 'continuationToken' from a previous replies response to paginate.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -20,6 +20,7 @@ func newPinterestListUserCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-user"},
 		Short:   "User Boards",
 		Example: "  scrape-creators-pp-cli pinterest list-user",
+		Annotations: map[string]string{"pp:endpoint": "pinterest.list-user"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("handle") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "handle")

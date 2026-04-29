@@ -22,6 +22,7 @@ func newGoogleListSearchCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-search"},
 		Short:   "Performs a Google search and returns organic results with url, title, and description for each result. Supports an...",
 		Example: "  scrape-creators-pp-cli google list-search",
+		Annotations: map[string]string{"pp:endpoint": "google.list-search"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "query")

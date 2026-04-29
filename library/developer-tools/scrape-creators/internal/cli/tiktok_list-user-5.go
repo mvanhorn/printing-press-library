@@ -22,6 +22,7 @@ func newTiktokListUser5Cmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-user-5"},
 		Short:   "User Showcase",
 		Example: "  scrape-creators-pp-cli tiktok list-user-5",
+		Annotations: map[string]string{"pp:endpoint": "tiktok.list-user-5"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("handle") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "handle")

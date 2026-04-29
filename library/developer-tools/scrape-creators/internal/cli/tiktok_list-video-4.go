@@ -23,6 +23,7 @@ func newTiktokListVideo4Cmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list-video-4"},
 		Short:   "Video Info",
 		Example: "  scrape-creators-pp-cli tiktok list-video-4",
+		Annotations: map[string]string{"pp:endpoint": "tiktok.list-video-4"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")
