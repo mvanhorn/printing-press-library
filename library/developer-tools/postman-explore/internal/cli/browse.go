@@ -108,7 +108,7 @@ output contains only entities published by verified teams.`,
 				if len(out) == 0 {
 					envelope["data"] = []any{}
 				}
-				return flags.printJSON(cmd, envelope)
+				return printJSONFiltered(cmd, envelope, flags)
 			}
 			if len(out) == 0 {
 				fmt.Fprintln(cmd.OutOrStdout(), emptyMessage("no matching entities (try without --verified-only or widen --category)"))

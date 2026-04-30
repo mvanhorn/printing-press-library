@@ -110,13 +110,13 @@ Run 'sync' first; this command reads the local store.`,
 			}
 			if len(out) == 0 {
 				if flags.asJSON {
-					return flags.printJSON(cmd, []any{})
+					return printJSONFiltered(cmd, []any{}, flags)
 				}
 				fmt.Fprintln(cmd.OutOrStdout(), emptyMessage("no candidates after filtering — lower --min-monthly or run 'sync' first"))
 				return nil
 			}
 			if flags.asJSON {
-				return flags.printJSON(cmd, out)
+				return printJSONFiltered(cmd, out, flags)
 			}
 			tbl := make([][]string, 0, len(out))
 			for i, e := range out {

@@ -72,7 +72,7 @@ Run 'sync' first; this command reads from the local store.`,
 			}
 			if len(items) == 0 {
 				if flags.asJSON {
-					return flags.printJSON(cmd, []any{})
+					return printJSONFiltered(cmd, []any{}, flags)
 				}
 				fmt.Fprintln(cmd.OutOrStdout(), emptyMessage("no synced entities of this type — run 'sync' first"))
 				return nil
@@ -119,7 +119,7 @@ Run 'sync' first; this command reads from the local store.`,
 			}
 
 			if flags.asJSON {
-				return flags.printJSON(cmd, out)
+				return printJSONFiltered(cmd, out, flags)
 			}
 			rows2 := make([][]string, 0, len(out))
 			for i, r := range out {

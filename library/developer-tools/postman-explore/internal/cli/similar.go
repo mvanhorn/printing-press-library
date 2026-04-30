@@ -91,7 +91,7 @@ Run 'sync' first; this command reads the local store.`,
 			}
 			if len(matchedIDs) == 0 {
 				if flags.asJSON {
-					return flags.printJSON(cmd, []any{})
+					return printJSONFiltered(cmd, []any{}, flags)
 				}
 				fmt.Fprintln(cmd.OutOrStdout(), emptyMessage("no similar entities found in the local store"))
 				return nil
@@ -137,7 +137,7 @@ Run 'sync' first; this command reads the local store.`,
 			}
 
 			if flags.asJSON {
-				return flags.printJSON(cmd, out)
+				return printJSONFiltered(cmd, out, flags)
 			}
 			tbl := make([][]string, 0, len(out))
 			for _, e := range out {

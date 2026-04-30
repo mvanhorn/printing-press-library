@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/postman-explore/internal/store"
@@ -177,4 +178,28 @@ func entityPublisherID(data json.RawMessage) string {
 // run a command in non-JSON mode.
 func emptyMessage(reason string) string {
 	return fmt.Sprintf("(no results: %s)", strings.TrimSpace(reason))
+}
+
+// printJSONFiltered marshals v to JSON, applies --select / --compact filters
+// from the rootFlags, and prints the result. Use this from novel commands
+// that build Go-typed slices/structs rather than passing through raw API
+// payloads — it keeps --select honoring on parity with the endpoint-mirror
+// commands. The cobra command interface is reduced to the OutOrStdout
+// method we actually need so the helper stays testable.
+func printJSONFiltered(cmd interface {
+	OutOrStdout() io.Writer
+}, v any, flags *rootFlags) error {
+	raw, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	filtered := json.RawMessage(raw)
+	if flags.selectFields != "" {
+		filtered = filterFields(filtered, flags.selectFields)
+	} else if flags.compact {
+		filtered = compactFields(filtered)
+	}
+	enc := json.NewEncoder(cmd.OutOrStdout())
+	enc.SetIndent("", "  ")
+	return enc.Encode(filtered)
 }

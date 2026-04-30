@@ -79,7 +79,7 @@ Notion) and want one good collection rather than a deduplicated search list.`,
 			candidates := extractSearchHits(data, entityType)
 			if len(candidates) == 0 {
 				if flags.asJSON {
-					return flags.printJSON(cmd, []any{})
+					return printJSONFiltered(cmd, []any{}, flags)
 				}
 				fmt.Fprintln(cmd.OutOrStdout(), emptyMessage("no matching entity in the public network"))
 				return nil
@@ -90,7 +90,7 @@ Notion) and want one good collection rather than a deduplicated search list.`,
 			}
 
 			if flags.asJSON {
-				return flags.printJSON(cmd, candidates)
+				return printJSONFiltered(cmd, candidates, flags)
 			}
 			rows := make([][]string, 0, len(candidates))
 			for i, c := range candidates {

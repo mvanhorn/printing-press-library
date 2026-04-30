@@ -167,7 +167,7 @@ Run 'sync' first; the publisher and entity rankings come from the local store.`,
 				"topEntities":    topViews,
 			}
 			if flags.asJSON {
-				return flags.printJSON(cmd, report)
+				return printJSONFiltered(cmd, report, flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Category %s (id=%d) — %s\n", catResp.Data.Name, catResp.Data.ID, catResp.Data.Summary)
 			fmt.Fprintln(cmd.OutOrStdout(), "")

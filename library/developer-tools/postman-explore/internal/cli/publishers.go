@@ -133,13 +133,13 @@ Run 'sync' first; this command reads the local store.`,
 			}
 			if len(res) == 0 {
 				if flags.asJSON {
-					return flags.printJSON(cmd, []any{})
+					return printJSONFiltered(cmd, []any{}, flags)
 				}
 				fmt.Fprintln(cmd.OutOrStdout(), emptyMessage("no publishers in synced data — run 'sync' first"))
 				return nil
 			}
 			if flags.asJSON {
-				return flags.printJSON(cmd, res)
+				return printJSONFiltered(cmd, res, flags)
 			}
 			tbl := make([][]string, 0, len(res))
 			for i, r := range res {
