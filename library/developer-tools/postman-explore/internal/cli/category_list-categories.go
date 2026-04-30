@@ -17,9 +17,23 @@ func newCategoryListCategoriesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list-categories",
 		Aliases: []string{"list"},
-		Short: "List all API categories",
+		Short: "Returns all categories used to organize the API network (e.g., AI, E-commerce, Communication, DevOps). Categories...",
 		Example: "  postman-explore-pp-cli category list-categories",
+		Annotations: map[string]string{"pp:endpoint": "category.list-categories"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if cmd.Flags().Changed("sort") {
+				allowedSort := []string{ "spotlighted" }
+				validSort := false
+				for _, v := range allowedSort {
+					if flagSort == v {
+						validSort = true
+						break
+					}
+				}
+				if !validSort {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "sort", flagSort, allowedSort)
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -30,7 +44,7 @@ func newCategoryListCategoriesCmd(flags *rootFlags) *cobra.Command {
 			if flagSort != "" {
 				params["sort"] = fmt.Sprintf("%v", flagSort)
 			}
-			data, prov, err := resolveRead(c, flags, "category", false, path, params)
+			data, prov, err := resolveRead(c, flags, "category", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -40,14 +54,15 @@ func newCategoryListCategoriesCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -71,7 +86,7 @@ func newCategoryListCategoriesCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagSort, "sort", "spotlighted", "Sort order")
+	cmd.Flags().StringVar(&flagSort, "sort", "spotlighted", "Sort order (only `spotlighted` is supported) (one of: spotlighted)")
 
 	return cmd
 }

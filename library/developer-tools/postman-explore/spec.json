@@ -1,0 +1,965 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Postman Explore API",
+    "description": "Undocumented internal API powering the public API discovery surface at\npostman.com/explore. All requests funnel through a single proxy endpoint\nas POST with body `{service, method, path, body?}`. This spec models the\nlogical endpoints; the proxy envelope is implemented by the generated\nclient (client_pattern: proxy-envelope).\n\nNo authentication required. Unauthenticated browsing only \u2014 this CLI does\nnot model the authenticated Postman product surface (workspace management,\nprivate API networks, account features). Scope is strictly community\ncollection / workspace / API / flow discovery on the public network.\n",
+    "version": "2.0.0",
+    "contact": {
+      "name": "Postman Explore (Community, reverse-engineered)"
+    },
+    "x-proxy-routes": {
+      "/v1/api/networkentity": "publishing",
+      "/v1/api/networkentity/count": "publishing",
+      "/v1/api/team": "publishing",
+      "/v2/api/category": "publishing",
+      "/search-all": "search"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://www.postman.com/_api/ws/proxy",
+      "description": "Postman web proxy. All client requests POST to this URL with a JSON envelope."
+    }
+  ],
+  "tags": [
+    {
+      "name": "browse",
+      "description": "Browse public collections, workspaces, APIs, and flows"
+    },
+    {
+      "name": "detail",
+      "description": "Get full detail for a specific entity"
+    },
+    {
+      "name": "search",
+      "description": "Full-text search across the public API network"
+    },
+    {
+      "name": "categories",
+      "description": "API category index used to organize the network"
+    },
+    {
+      "name": "teams",
+      "description": "Publisher teams on the API network"
+    },
+    {
+      "name": "stats",
+      "description": "Network-wide entity counts"
+    }
+  ],
+  "paths": {
+    "/v1/api/networkentity": {
+      "get": {
+        "operationId": "listNetworkEntities",
+        "summary": "Browse public entities on the API network",
+        "description": "List public collections, workspaces, APIs, or flows. Supports category\nfiltering, pagination, and minimum-fork filtering. This is the primary\nbrowse endpoint powering postman.com/explore/{collections,workspaces,apis,flows}.\n\nNote on sort: only `popular` is reliably supported. Other values like\n`recent`, `new`, `week`, `alltime` return HTTP 400 \"Invalid sort type\".\n",
+        "tags": [
+          "browse"
+        ],
+        "parameters": [
+          {
+            "name": "entityType",
+            "in": "query",
+            "required": true,
+            "description": "Type of entity to browse",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "collection",
+                "workspace",
+                "api",
+                "flow"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of results per page",
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Pagination offset",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort order (only `popular` is reliably supported by the proxy)",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "popular"
+              ],
+              "default": "popular"
+            }
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "description": "Filter by category numeric id (from `/v2/api/category`)",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "minMonthlyForkCount",
+            "in": "query",
+            "description": "Filter to entities with at least N monthly forks (trending discovery)",
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of entities",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NetworkEntityListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/api/networkentity/{id}": {
+      "get": {
+        "operationId": "getNetworkEntity",
+        "summary": "Get full detail for a single entity",
+        "description": "Returns full entity record by internal numeric id (the `id` field from\n`listNetworkEntities`, NOT the `entityId` UUID).\n",
+        "tags": [
+          "detail"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Internal numeric entity id (from listNetworkEntities `data[].id`)",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Entity detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/NetworkEntity"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/api/networkentity/count": {
+      "get": {
+        "operationId": "getNetworkEntityCounts",
+        "summary": "Get total counts of entities on the public network",
+        "description": "Returns aggregate counts across the entire public API network:\ncollections, workspaces, APIs, flows, notebooks, teams. This is the\nonly stats endpoint exposed by the proxy.\n",
+        "tags": [
+          "stats"
+        ],
+        "parameters": [
+          {
+            "name": "flattenAPIVersions",
+            "in": "query",
+            "description": "When true, flattens API versions into the apiCount total",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Network-wide entity counts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityCountResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/api/category": {
+      "get": {
+        "operationId": "listCategories",
+        "summary": "List all API categories",
+        "description": "Returns all categories used to organize the API network (e.g., AI,\nE-commerce, Communication, DevOps). Categories are spotlighted \u2014\nthe response order matches the category strip on postman.com/explore.\n",
+        "tags": [
+          "categories"
+        ],
+        "parameters": [
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort order (only `spotlighted` is supported)",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "spotlighted"
+              ],
+              "default": "spotlighted"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/api/category/{slug}": {
+      "get": {
+        "operationId": "getCategory",
+        "summary": "Get details for a specific category",
+        "description": "Returns full details for a category by its URL slug (e.g.,\n`artificial-intelligence`, `developer-productivity`, `payments`).\nIncludes hero image, icon, and category-specific featured entities.\n",
+        "tags": [
+          "categories"
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "description": "Category URL slug",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryDetailResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/api/team": {
+      "get": {
+        "operationId": "getTeamWorkspaces",
+        "summary": "Get all public workspaces published by a team",
+        "description": "Returns the array of public workspaces owned by a team identified by\nits `publicHandle` (e.g., `stripedev`, `salesforce-developers`,\n`meta`). Use `/v1/api/networkentity/{id}` for individual entity detail.\n",
+        "tags": [
+          "teams"
+        ],
+        "parameters": [
+          {
+            "name": "publicHandle",
+            "in": "query",
+            "required": true,
+            "description": "Team's public handle (URL-stable identifier)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Team workspaces",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamWorkspacesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/api/team/{id}": {
+      "get": {
+        "operationId": "getTeam",
+        "summary": "Get team profile by numeric id",
+        "description": "Returns small profile object (id, name, description, publicHandle,\nprofileURL, createdAt, updatedAt) for a team by its numeric id.\nFor full workspace listing use `/v1/api/team?publicHandle=`.\n",
+        "tags": [
+          "teams"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Team numeric id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Team profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamProfileResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/search-all": {
+      "post": {
+        "operationId": "searchAll",
+        "summary": "Full-text search across the public API network",
+        "description": "Search collections, workspaces, requests, flows, and teams by free-text\nquery. With no `queryIndices` set, the response groups results by\nentity type (object-keyed `data.{collection,workspace,api,flow,team,request}`).\nWith one or more dotted indices set (`runtime.collection`,\n`collaboration.workspace`, `apinetwork.team`, `flow.flow`,\n`runtime.request`), the response narrows to those types.\n\nThis is the engine behind the search bar on postman.com.\n",
+        "tags": [
+          "search"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Search results grouped by entity type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "NetworkEntity": {
+        "type": "object",
+        "description": "A public entity (collection, workspace, API, or flow) on the Postman API Network",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Internal numeric entity id (use this for /v1/api/networkentity/{id})"
+          },
+          "entityId": {
+            "type": "string",
+            "description": "Unique entity identifier UUID (display-only \u2014 proxy detail uses numeric id)"
+          },
+          "entityType": {
+            "type": "string",
+            "enum": [
+              "collection",
+              "workspace",
+              "api",
+              "flow"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "description": "Full description (may contain HTML/Markdown)"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "public"
+            ]
+          },
+          "metrics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Metric"
+            }
+          },
+          "publisherType": {
+            "type": "string",
+            "enum": [
+              "team",
+              "user"
+            ]
+          },
+          "publisherId": {
+            "type": "integer"
+          },
+          "createdBy": {
+            "type": "integer"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategorySummary"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "publisherId": {
+                "type": "string"
+              },
+              "workspaceId": {
+                "type": "string"
+              },
+              "publisherType": {
+                "type": "string"
+              },
+              "workspaceSlug": {
+                "type": "string"
+              }
+            }
+          },
+          "redirectURL": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to view this entity on postman.com"
+          },
+          "redirectURLV2": {
+            "type": "string",
+            "format": "uri",
+            "description": "V2 URL with slug-based path"
+          }
+        }
+      },
+      "Metric": {
+        "type": "object",
+        "properties": {
+          "metricName": {
+            "type": "string",
+            "enum": [
+              "forkCount",
+              "monthForkCount",
+              "monthViewCount",
+              "monthWatchCount",
+              "publicViewCount",
+              "viewCount",
+              "watchCount",
+              "weekForkCount",
+              "weekViewCount",
+              "weekWatchCount"
+            ]
+          },
+          "metricValue": {
+            "type": "integer"
+          }
+        }
+      },
+      "CategorySummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "heroImageURL": {
+            "type": "string",
+            "format": "uri"
+          },
+          "iconURL": {
+            "type": "string",
+            "format": "uri"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "publicURL": {
+            "type": "string",
+            "format": "uri"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "TeamProfile": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "publicHandle": {
+            "type": "string"
+          },
+          "profileURL": {
+            "type": "string",
+            "format": "uri"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "TeamWorkspaceEntry": {
+        "type": "object",
+        "description": "Workspace entry as returned by /v1/api/team?publicHandle=",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "publicURL": {
+            "type": "string",
+            "format": "uri"
+          },
+          "profileURL": {
+            "type": "string",
+            "format": "uri"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategorySummary"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "SearchRequest": {
+        "type": "object",
+        "required": [
+          "queryText"
+        ],
+        "properties": {
+          "queryText": {
+            "type": "string",
+            "description": "Free-text search query"
+          },
+          "size": {
+            "type": "integer",
+            "description": "Number of results per type",
+            "default": 10
+          },
+          "from": {
+            "type": "integer",
+            "description": "Pagination offset (per type)",
+            "default": 0
+          },
+          "domain": {
+            "type": "string",
+            "description": "Search scope (all observed values return public-network results)",
+            "enum": [
+              "public",
+              "all",
+              "private",
+              "team",
+              "org"
+            ],
+            "default": "public"
+          },
+          "queryIndices": {
+            "type": "array",
+            "description": "Dotted index names to narrow the search. Omit to search across all\nentity types. Valid values: `runtime.collection`, `collaboration.workspace`,\n`apinetwork.team`, `flow.flow`, `runtime.request`.\n",
+            "items": {
+              "type": "string",
+              "enum": [
+                "runtime.collection",
+                "collaboration.workspace",
+                "apinetwork.team",
+                "flow.flow",
+                "runtime.request"
+              ]
+            }
+          },
+          "mergeEntities": {
+            "type": "boolean",
+            "default": true
+          },
+          "nonNestedRequests": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "SearchResultDocument": {
+        "type": "object",
+        "description": "The body of one search hit's document",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "documentType": {
+            "type": "string"
+          },
+          "entityType": {
+            "type": "string",
+            "enum": [
+              "collection",
+              "workspace",
+              "request",
+              "flow",
+              "team",
+              "api"
+            ]
+          },
+          "isPublic": {
+            "type": "boolean"
+          },
+          "isPublisherVerified": {
+            "type": "boolean"
+          },
+          "publisherName": {
+            "type": "string"
+          },
+          "publisherHandle": {
+            "type": "string"
+          },
+          "publisherType": {
+            "type": "string",
+            "enum": [
+              "team",
+              "user"
+            ]
+          },
+          "publisherLogo": {
+            "type": "string"
+          },
+          "forkCount": {
+            "type": "integer"
+          },
+          "watcherCount": {
+            "type": "integer"
+          },
+          "viewCount": {
+            "type": "integer"
+          },
+          "requestCount": {
+            "type": "integer"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        }
+      },
+      "SearchHit": {
+        "type": "object",
+        "properties": {
+          "score": {
+            "type": "number"
+          },
+          "normalizedScore": {
+            "type": "number"
+          },
+          "document": {
+            "$ref": "#/components/schemas/SearchResultDocument"
+          }
+        }
+      },
+      "SearchTypeBucket": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/SearchHit"
+        }
+      },
+      "NetworkEntityListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NetworkEntity"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "limit": {
+                "type": "integer"
+              },
+              "offset": {
+                "type": "integer"
+              },
+              "count": {
+                "type": "integer"
+              },
+              "totalCount": {
+                "type": "integer"
+              },
+              "publisherInfo": {
+                "type": "object",
+                "description": "Lookup map keyed by publisher type, e.g. `team`, `user`"
+              },
+              "model": {
+                "type": "string"
+              },
+              "action": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "EntityCountResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "apiCount": {
+                "type": "integer"
+              },
+              "collectionCount": {
+                "type": "integer"
+              },
+              "flowCount": {
+                "type": "integer"
+              },
+              "notebookCount": {
+                "type": "integer"
+              },
+              "workspaceCount": {
+                "type": "integer"
+              },
+              "teamCount": {
+                "type": "integer"
+              }
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "model": {
+                "type": "string"
+              },
+              "action": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "CategoryListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Category"
+            }
+          }
+        }
+      },
+      "CategoryDetailResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Category"
+          }
+        }
+      },
+      "TeamWorkspacesResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TeamWorkspaceEntry"
+            }
+          }
+        }
+      },
+      "TeamProfileResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/TeamProfile"
+          }
+        }
+      },
+      "SearchResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "description": "Object keyed by entity type (collection, workspace, api, flow, team, request).\nEach value is an array of SearchHit. When a single queryIndices is set,\nthe response narrows to that type but the shape is preserved.\n",
+            "properties": {
+              "collection": {
+                "$ref": "#/components/schemas/SearchTypeBucket"
+              },
+              "workspace": {
+                "$ref": "#/components/schemas/SearchTypeBucket"
+              },
+              "api": {
+                "$ref": "#/components/schemas/SearchTypeBucket"
+              },
+              "flow": {
+                "$ref": "#/components/schemas/SearchTypeBucket"
+              },
+              "team": {
+                "$ref": "#/components/schemas/SearchTypeBucket"
+              },
+              "request": {
+                "$ref": "#/components/schemas/SearchTypeBucket"
+              }
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "queryText": {
+                "type": "string"
+              },
+              "total": {
+                "type": "object",
+                "description": "Per-entity-type total match counts",
+                "properties": {
+                  "collection": {
+                    "type": "integer"
+                  },
+                  "workspace": {
+                    "type": "integer"
+                  },
+                  "api": {
+                    "type": "integer"
+                  },
+                  "flow": {
+                    "type": "integer"
+                  },
+                  "team": {
+                    "type": "integer"
+                  },
+                  "request": {
+                    "type": "integer"
+                  }
+                }
+              },
+              "count": {
+                "type": "object",
+                "description": "Per-entity-type counts of results returned"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

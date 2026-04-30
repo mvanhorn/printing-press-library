@@ -105,6 +105,7 @@ In local mode: searches locally synced data only.`,
 
   # JSON output for piping
   postman-explore-pp-cli search "critical" --json --limit 20`,
+		Annotations: map[string]string{"mcp:hidden": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -121,9 +122,8 @@ In local mode: searches locally synced data only.`,
 					"domain": "public",
 					"from": 0,
 					"mergeEntities": true,
-					"nested": false,
 					"nonNestedRequests": true,
-					"queryIndices": []any{"runtime.collection", "collaboration.workspace", "runtime.request", "flow.flow", "apinetwork.team"},
+					"queryIndices": []any{"runtime.collection", "collaboration.workspace", "apinetwork.team", "flow.flow", "runtime.request"},
 					"size": 10,
 				})
 				if getErr == nil {

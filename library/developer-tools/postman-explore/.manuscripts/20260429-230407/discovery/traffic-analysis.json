@@ -1,0 +1,143 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://postman.com/explore",
+    "captured_at": "2026-04-29T23:08:00Z",
+    "entry_count": 24,
+    "api_entry_count": 17,
+    "noise_entry_count": 7,
+    "host_distribution": {
+      "www.postman.com": 17
+    }
+  },
+  "reachability": {
+    "mode": "browser_http",
+    "confidence": 0.95,
+    "reasons": [
+      "stdlib HTTP returns 403 with Cloudflare challenge marker",
+      "Surf with Chrome TLS fingerprint clears the challenge and returns 200",
+      "Direct POST to /_api/ws/proxy with Chrome User-Agent succeeds with no clearance cookie"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "rest_json",
+      "confidence": 0.6,
+      "details": {
+        "note": "All requests funnel through a single proxy POST endpoint with a service/method/path envelope; not classic REST"
+      }
+    },
+    {
+      "label": "rpc_envelope",
+      "confidence": 0.95,
+      "details": {
+        "envelope": "POST /_api/ws/proxy with body {service, method, path, body?}",
+        "services": "publishing, search"
+      }
+    }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "type": "none",
+        "confidence": 1.0,
+        "domain_hints": ["www.postman.com"]
+      }
+    ]
+  },
+  "protections": [
+    {
+      "label": "cloudflare_html_challenge",
+      "confidence": 0.95,
+      "notes": [
+        "HTML page paths (/explore) gate behind Cloudflare Turnstile",
+        "Proxy API endpoint (/_api/ws/proxy) is NOT challenged when called with Chrome UA",
+        "browser-use Playwright fingerprint triggers challenge; agent-browser also triggers",
+        "Direct curl with Chrome User-Agent and Origin header passes",
+        "Surf with Chrome TLS fingerprint passes (probe-reachability mode: browser_http)"
+      ]
+    }
+  ],
+  "endpoint_clusters": [
+    {
+      "host": "www.postman.com",
+      "method": "GET",
+      "path": "/v1/api/networkentity",
+      "count": 6,
+      "statuses": [200],
+      "content_types": ["application/json"]
+    },
+    {
+      "host": "www.postman.com",
+      "method": "GET",
+      "path": "/v1/api/networkentity/{id}",
+      "count": 4,
+      "statuses": [200],
+      "content_types": ["application/json"]
+    },
+    {
+      "host": "www.postman.com",
+      "method": "GET",
+      "path": "/v1/api/networkentity/count",
+      "count": 2,
+      "statuses": [200],
+      "content_types": ["application/json"]
+    },
+    {
+      "host": "www.postman.com",
+      "method": "GET",
+      "path": "/v2/api/category",
+      "count": 1,
+      "statuses": [200],
+      "content_types": ["application/json"]
+    },
+    {
+      "host": "www.postman.com",
+      "method": "GET",
+      "path": "/v2/api/category/{slug}",
+      "count": 1,
+      "statuses": [200],
+      "content_types": ["application/json"]
+    },
+    {
+      "host": "www.postman.com",
+      "method": "GET",
+      "path": "/v1/api/team",
+      "count": 1,
+      "statuses": [200],
+      "content_types": ["application/json"]
+    },
+    {
+      "host": "www.postman.com",
+      "method": "GET",
+      "path": "/v1/api/team/{id}",
+      "count": 1,
+      "statuses": [200],
+      "content_types": ["application/json"]
+    },
+    {
+      "host": "www.postman.com",
+      "method": "POST",
+      "path": "/search-all",
+      "count": 6,
+      "statuses": [200, 400],
+      "content_types": ["application/json"]
+    }
+  ],
+  "candidate_commands": [
+    {"name": "browse", "endpoint_method": "GET", "endpoint_path": "/v1/api/networkentity"},
+    {"name": "get", "endpoint_method": "GET", "endpoint_path": "/v1/api/networkentity/{id}"},
+    {"name": "stats", "endpoint_method": "GET", "endpoint_path": "/v1/api/networkentity/count"},
+    {"name": "categories list", "endpoint_method": "GET", "endpoint_path": "/v2/api/category"},
+    {"name": "category get", "endpoint_method": "GET", "endpoint_path": "/v2/api/category/{slug}"},
+    {"name": "teams workspaces", "endpoint_method": "GET", "endpoint_path": "/v1/api/team"},
+    {"name": "teams get", "endpoint_method": "GET", "endpoint_path": "/v1/api/team/{id}"},
+    {"name": "search", "endpoint_method": "POST", "endpoint_path": "/search-all"}
+  ],
+  "generation_hints": [
+    "client_pattern:proxy-envelope",
+    "uses_browser_http_transport",
+    "no_auth_required",
+    "skip_clearance_cookie"
+  ]
+}

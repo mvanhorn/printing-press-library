@@ -14,8 +14,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/postman-explore/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // syncResult holds the outcome of syncing a single resource.
@@ -23,6 +23,7 @@ type syncResult struct {
 	Resource string
 	Count    int
 	Err      error
+	Warn     error
 	Duration time.Duration
 }
 
@@ -33,13 +34,23 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var concurrency int
 	var dbPath string
 	var maxPages int
+	var latestOnly bool
 
 	cmd := &cobra.Command{
 		Use:   "sync",
 		Short: "Sync API data to local SQLite for offline search and analysis",
 		Long: `Sync data from the API into a local SQLite database. Supports resumable
 incremental sync (only fetches new data since last sync) and full resync.
-Once synced, use the 'search' command for instant full-text search.`,
+Once synced, use the 'search' command for instant full-text search.
+
+Exit codes & warnings:
+  Resources the API denies access to (HTTP 403, or HTTP 400 with an
+  access-policy body) are reported as warnings rather than failing the
+  run. In --json mode each is emitted as a {"event":"sync_warning",...}
+  line carrying status, reason, and message fields, and a final
+  {"event":"sync_summary",...} aggregates the run. The command exits
+  non-zero only when every selected resource was access-denied or any
+  resource hit a hard error.`,
 		Example: `  # Sync all resources
   postman-explore-pp-cli sync
 
@@ -53,7 +64,10 @@ Once synced, use the 'search' command for instant full-text search.`,
   postman-explore-pp-cli sync --since 7d
 
   # Parallel sync with 8 workers
-  postman-explore-pp-cli sync --concurrency 8`,
+  postman-explore-pp-cli sync --concurrency 8
+
+  # Latest-only: refresh head of each resource, no historical backfill
+  postman-explore-pp-cli sync --latest-only`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -80,6 +94,29 @@ Once synced, use the 'search' command for instant full-text search.`,
 			if full {
 				for _, resource := range resources {
 					_ = db.SaveSyncState(resource, "", 0)
+				}
+			}
+
+			// --latest-only narrows to the first page of each resource
+			// ignoring the historical resume cursor. We cap maxPages at 1
+			// here rather than re-interpreting it downstream so the rest
+			// of the sync loop stays oblivious. Mutually-useful with
+			// --since: if the user set --since, that threshold still wins
+			// and we don't short-circuit historical context they asked for.
+			if latestOnly {
+				if since == "" {
+					maxPages = 1
+					// Clear the cursor so we start from the head each time;
+					// the goal of --latest-only is "refresh the top" not
+					// "resume from wherever I left off".
+					for _, resource := range resources {
+						existing, _, _, _ := db.GetSyncState(resource)
+						if existing != "" {
+							_ = db.SaveSyncState(resource, "", 0)
+						}
+					}
+				} else if humanFriendly {
+					fmt.Fprintln(os.Stderr, "warning: --latest-only ignored because --since is set; --since takes precedence")
 				}
 			}
 
@@ -128,26 +165,47 @@ Once synced, use the 'search' command for instant full-text search.`,
 
 			var totalSynced int
 			var errCount int
+			var warnCount int
+			var successCount int
 			for res := range results {
 				if res.Err != nil {
 					if humanFriendly {
 						fmt.Fprintf(os.Stderr, "  %s: error: %v\n", res.Resource, res.Err)
 					}
 					errCount++
+				} else if res.Warn != nil {
+					if humanFriendly {
+						fmt.Fprintf(os.Stderr, "  %s: warning: %v\n", res.Resource, res.Warn)
+					}
+					warnCount++
 				} else {
 					if humanFriendly {
 						fmt.Fprintf(os.Stderr, "  %s: %d synced (done)\n", res.Resource, res.Count)
 					}
 					totalSynced += res.Count
+					successCount++
 				}
 			}
 
 			elapsed := time.Since(started)
-			fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%.1fs)\n",
-				totalSynced, len(resources), elapsed.Seconds())
+			totalResources := successCount + warnCount + errCount
+			if !humanFriendly {
+				fmt.Fprintf(os.Stderr, `{"event":"sync_summary","total_records":%d,"resources":%d,"success":%d,"warned":%d,"errored":%d,"duration_ms":%d}`+"\n",
+					totalSynced, totalResources, successCount, warnCount, errCount, elapsed.Milliseconds())
+			}
+			if warnCount > 0 {
+				fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%d warned, %.1fs)\n",
+					totalSynced, totalResources, warnCount, elapsed.Seconds())
+			} else {
+				fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%.1fs)\n",
+					totalSynced, totalResources, elapsed.Seconds())
+			}
 
 			if errCount > 0 {
 				return fmt.Errorf("%d resource(s) failed to sync", errCount)
+			}
+			if warnCount > 0 && successCount == 0 {
+				return fmt.Errorf("%d resource(s) skipped due to insufficient access", warnCount)
 			}
 			return nil
 		},
@@ -159,6 +217,7 @@ Once synced, use the 'search' command for instant full-text search.`,
 	cmd.Flags().IntVar(&concurrency, "concurrency", 4, "Number of parallel sync workers")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/postman-explore-pp-cli/data.db)")
 	cmd.Flags().IntVar(&maxPages, "max-pages", 10, "Maximum pages to fetch per resource (0 = unlimited)")
+	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).")
 
 	return cmd
 }
@@ -214,6 +273,13 @@ func syncResource(c interface {
 
 		data, err := c.Get(path, params)
 		if err != nil {
+			if w, ok := isSyncAccessWarning(err); ok {
+				if !humanFriendly {
+					fmt.Fprintf(os.Stderr, `{"event":"sync_warning","resource":"%s","status":%d,"reason":"%s","message":"%s"}`+"\n",
+						resource, w.Status, w.Reason, strings.ReplaceAll(w.Message, `"`, `\"`))
+				}
+				return syncResult{Resource: resource, Count: totalCount, Warn: fmt.Errorf("skipped %s: %s", resource, w.Reason), Duration: time.Since(started)}
+			}
 			if !humanFriendly {
 				fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
 			}
@@ -236,16 +302,35 @@ func syncResource(c interface {
 			break
 		}
 
-		// Batch upsert all items from this page
-		if err := db.UpsertBatch(resource, items); err != nil {
+		// Batch upsert all items from this page. UpsertBatch returns the
+		// count of rows actually stored — items whose primary-key field
+		// can't be extracted (e.g. APIs that return scalar IDs rather
+		// than objects) are silently skipped. Tracking stored separately
+		// from consumed lets us emit a clear sync_anomaly event when an
+		// API silently drops everything.
+		stored, err := db.UpsertBatch(resource, items)
+		if err != nil {
 			if !humanFriendly {
 				fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
 			}
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("upserting batch for %s: %w", resource, err), Duration: time.Since(started)}
 		}
 
-		totalCount += len(items)
-		atomic.AddInt64(&progressCount, int64(len(items)))
+		// When a non-empty page yielded zero stored rows, the API
+		// returned items in a shape we couldn't extract IDs from —
+		// likely scalar IDs (Firebase /topstories.json, GitHub user-
+		// repo lists) where the spec author should declare a hydration
+		// pattern, or an unrecognized primary-key field name.
+		if len(items) > 0 && stored == 0 {
+			if humanFriendly {
+				fmt.Fprintf(os.Stderr, "warning: %s returned %d items but stored 0 — the local store will be empty for this resource. Likely cause: scalar item shape rather than objects with extractable IDs.\n", resource, len(items))
+			} else {
+				fmt.Fprintf(os.Stderr, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"reason":"all_items_failed_id_extraction"}`+"\n", resource, len(items))
+			}
+		}
+
+		totalCount += stored
+		atomic.AddInt64(&progressCount, int64(stored))
 
 		// Progress reporting (include rate limit info when active)
 		currentRate := c.RateLimit()
@@ -270,6 +355,8 @@ func syncResource(c interface {
 		}
 
 		pagesFetched++
+
+		// Enforce page ceiling to prevent runaway syncs on large-catalog APIs
 		if maxPages > 0 && pagesFetched >= maxPages {
 			if humanFriendly {
 				fmt.Fprintf(os.Stderr, "\n  %s: reached --max-pages limit (%d pages, %d items)\n", resource, maxPages, totalCount)
@@ -335,7 +422,7 @@ func extractPageItems(data json.RawMessage, cursorParam string) ([]json.RawMessa
 		return nil, "", false
 	}
 
-	// Try common item keys
+	// Try common item keys first (fast path)
 	itemKeys := []string{"data", "results", "items", "records", "nodes", "entries"}
 	for _, key := range itemKeys {
 		if raw, ok := envelope[key]; ok {
@@ -344,6 +431,26 @@ func extractPageItems(data json.RawMessage, cursorParam string) ([]json.RawMessa
 				return items, nextCursor, hasMore
 			}
 		}
+	}
+
+	// Fallback: try every key in the envelope. If exactly one maps to a JSON
+	// array with items, use it. This handles APIs that wrap responses with the
+	// resource name (e.g., {"markets": [...], "cursor": "..."}).
+	var arrayKey string
+	var arrayItems []json.RawMessage
+	arrayCount := 0
+	for key, raw := range envelope {
+		var candidate []json.RawMessage
+		if err := json.Unmarshal(raw, &candidate); err == nil && len(candidate) > 0 {
+			arrayKey = key
+			arrayItems = candidate
+			arrayCount++
+		}
+	}
+	if arrayCount == 1 {
+		nextCursor, hasMore := extractPaginationFromEnvelope(envelope, cursorParam)
+		_ = arrayKey // used for detection, items extracted above
+		return arrayItems, nextCursor, hasMore
 	}
 
 	return nil, "", false
@@ -401,6 +508,14 @@ func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) 
 	}
 
 	switch resource {
+	case "search_all":
+		return db.UpsertSearchAll(data)
+	case "networkentity":
+		return db.UpsertNetworkentity(data)
+	case "team":
+		return db.UpsertTeam(data)
+	case "category":
+		return db.UpsertCategory(data)
 	default:
 		return db.Upsert(resource, id, data)
 	}
@@ -438,9 +553,10 @@ func parseSinceDuration(s string) (time.Time, error) {
 func defaultSyncResources() []string {
 	return []string{
 		"api",
+		"category",
 		"collection",
 		"flow",
-		"team",
+		"networkentity",
 		"workspace",
 	}
 }
@@ -450,11 +566,12 @@ func defaultSyncResources() []string {
 // this preserves the actual endpoint path like "/ISteamApps/GetAppList/v2".
 func syncResourcePath(resource string) string {
 	paths := map[string]string{
-		"api":        "/v1/api/networkentity?entityType=api",
+		"api": "/v1/api/networkentity?entityType=api",
+		"category": "/v2/api/category",
 		"collection": "/v1/api/networkentity?entityType=collection",
-		"flow":       "/v1/api/networkentity?entityType=flow",
-		"team":       "/v1/api/team",
-		"workspace":  "/v1/api/networkentity?entityType=workspace",
+		"flow": "/v1/api/networkentity?entityType=flow",
+		"networkentity": "/v1/api/networkentity",
+		"workspace": "/v1/api/networkentity?entityType=workspace",
 	}
 	if p, ok := paths[resource]; ok {
 		return p
@@ -463,9 +580,12 @@ func syncResourcePath(resource string) string {
 }
 
 func extractID(obj map[string]any) string {
-	for _, key := range []string{"id", "ID", "uuid", "slug", "name"} {
+	for _, key := range []string{"id", "ID", "ticker", "event_ticker", "series_ticker", "key", "code", "uid", "uuid", "slug", "name"} {
 		if v, ok := obj[key]; ok {
-			return fmt.Sprintf("%v", v)
+			s := fmt.Sprintf("%v", v)
+			if s != "" && s != "<nil>" {
+				return s
+			}
 		}
 	}
 	return ""

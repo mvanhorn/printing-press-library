@@ -17,9 +17,9 @@ builds:
       - linux_arm64
       - windows_amd64
       - windows_arm64
-  - id: postman-explore-mcp
-    main: ./cmd/postman-explore-mcp
-    binary: postman-explore-mcp
+  - id: postman-explore-pp-mcp
+    main: ./cmd/postman-explore-pp-mcp
+    binary: postman-explore-pp-mcp
     env:
       - CGO_ENABLED=0
     ldflags:
@@ -45,11 +45,16 @@ brews:
       owner: trevin-chow
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Undocumented internal API powering the Postman API Network explore site (postman.com/explore).
-All requests go through a proxy endpoint as POST requests with a JSON body containing
-{service, method, path, body?}. This spec models the logical endpoints directly.
+    description: "Undocumented internal API powering the public API discovery surface at
+postman.com/explore. All requests funnel through a single proxy endpoint
+as POST with body `{service, method, path, body?}`. This spec models the
+logical endpoints; the proxy envelope is implemented by the generated
+client (client_pattern: proxy-envelope).
 
-No authentication required for public browsing and search."
+No authentication required. Unauthenticated browsing only — this CLI does
+not model the authenticated Postman product surface (workspace management,
+private API networks, account features). Scope is strictly community
+collection / workspace / API / flow discovery on the public network."
     install: |
       bin.install "postman-explore-pp-cli"
-      bin.install "postman-explore-mcp"
+      bin.install "postman-explore-pp-mcp"

@@ -1,0 +1,205 @@
+{
+  "api_name": "postman-explore",
+  "base_url": "https://www.postman.com/_api/ws/proxy",
+  "description": "Undocumented internal API powering the public API discovery surface at\npostman.com/explore. All requests funnel through a single proxy endpoint\nas POST with body `{service, method, path, body?}`. This spec models the\nlogical endpoints; the proxy envelope is implemented by the generated\nclient (client_pattern: proxy-envelope).\n\nNo authentication required. Unauthenticated browsing only — this CLI does\nnot model the authenticated Postman product surface (workspace management,\nprivate API networks, account features). Scope is strictly community\ncollection / workspace / API / flow discovery on the public network.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "category_get",
+      "description": "Returns full details for a category by its URL slug (e.g., `artificial-intelligence`, `developer-productivity`, `payments`). Includes hero image, icon, and category-specific featured entities. Required: slug.",
+      "method": "GET",
+      "path": "/v2/api/category/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Category URL slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "category_list-categories",
+      "description": "Returns all categories used to organize the API network (e.g., AI, E-commerce, Communication, DevOps). Categories are spotlighted — the response order matches the category strip on postman.com/explore. Optional: sort (default: spotlighted).",
+      "method": "GET",
+      "path": "/v2/api/category",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order (only `spotlighted` is supported)"
+        }
+      ]
+    },
+    {
+      "name": "networkentity_get-network-entity",
+      "description": "Returns full entity record by internal numeric id (the `id` field from `listNetworkEntities`, NOT the `entityId` UUID). Required: id.",
+      "method": "GET",
+      "path": "/v1/api/networkentity/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Internal numeric entity id (from listNetworkEntities `data[].id`)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "networkentity_get-network-entity-counts",
+      "description": "Returns aggregate counts across the entire public API network: collections, workspaces, APIs, flows, notebooks, teams. This is the only stats endpoint exposed by the proxy. Optional: flattenAPIVersions (default: true).",
+      "method": "GET",
+      "path": "/v1/api/networkentity/count",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "flattenAPIVersions",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, flattens API versions into the apiCount total"
+        }
+      ]
+    },
+    {
+      "name": "networkentity_list-network-entities",
+      "description": "List public collections, workspaces, APIs, or flows. Supports category filtering, pagination, and minimum-fork filtering. This is the primary browse endpoint powering postman.com/explore/{collections,workspaces,apis,flows}. Note on sort: only `popular` is reliably supported. Other values like `recent`, `new`, `week`, `alltime` return HTTP 400 'Invalid sort type'. Required: entityType. Optional: limit (default: 20), offset (default: 0), sort (default: popular) (plus 2 more). Returns array of NetworkEntity.",
+      "method": "GET",
+      "path": "/v1/api/networkentity",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "entityType",
+          "type": "string",
+          "location": "query",
+          "description": "Type of entity to browse",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order (only `popular` is reliably supported by the proxy)"
+        },
+        {
+          "name": "categoryId",
+          "type": "int",
+          "location": "query",
+          "description": "Filter by category numeric id (from `/v2/api/category`)"
+        },
+        {
+          "name": "minMonthlyForkCount",
+          "type": "int",
+          "location": "query",
+          "description": "Filter to entities with at least N monthly forks (trending discovery)"
+        }
+      ]
+    },
+    {
+      "name": "search-all_search_all",
+      "description": "Search collections, workspaces, requests, flows, and teams by free-text query. With no `queryIndices` set, the response groups results by entity type (object-keyed `data.{collection,workspace,api,flow,team,request}`). With one or more dotted indices set (`runtime.collection`, `collaboration.workspace`, `apinetwork.team`, `flow.flow`, `runtime.request`), the response narrows to those types. This is the engine behind the search bar on postman.com. Required: queryText. Optional: domain (default: public), from (default: 0), mergeEntities (default: true) (plus 3 more). Returns the new SearchResponse.",
+      "method": "POST",
+      "path": "/search-all",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "Search scope (all observed values return public-network results)"
+        },
+        {
+          "name": "from",
+          "type": "int",
+          "location": "body",
+          "description": "Pagination offset (per type)"
+        },
+        {
+          "name": "mergeEntities",
+          "type": "bool",
+          "location": "body",
+          "description": "Merge entities"
+        },
+        {
+          "name": "nonNestedRequests",
+          "type": "bool",
+          "location": "body",
+          "description": "Non nested requests"
+        },
+        {
+          "name": "queryIndices",
+          "type": "array",
+          "location": "body",
+          "description": "Dotted index names to narrow the search. Omit to search across all\nentity types. Valid values: `runtime.collection`, `collaboration.workspace`,\n`apinetwork.team`, `flow.flow`, `runtime.request`."
+        },
+        {
+          "name": "queryText",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text search query",
+          "required": true
+        },
+        {
+          "name": "size",
+          "type": "int",
+          "location": "body",
+          "description": "Number of results per type"
+        }
+      ]
+    },
+    {
+      "name": "team_get",
+      "description": "Returns small profile object (id, name, description, publicHandle, profileURL, createdAt, updatedAt) for a team by its numeric id. For full workspace listing use `/v1/api/team?publicHandle=`. Required: id.",
+      "method": "GET",
+      "path": "/v1/api/team/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Team numeric id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "team_get-workspaces",
+      "description": "Returns the array of public workspaces owned by a team identified by its `publicHandle` (e.g., `stripedev`, `salesforce-developers`, `meta`). Use `/v1/api/networkentity/{id}` for individual entity detail. Required: publicHandle.",
+      "method": "GET",
+      "path": "/v1/api/team",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "publicHandle",
+          "type": "string",
+          "location": "query",
+          "description": "Team's public handle (URL-stable identifier)",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "postman-explore-pp-mcp",
+  "display_name": "Postman Explore",
+  "version": "3.0.1",
+  "description": "Public API network directory for discovering community collections, workspaces, and APIs",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/postman-explore-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/postman-explore-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

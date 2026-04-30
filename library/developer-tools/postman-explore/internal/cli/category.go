@@ -15,5 +15,6 @@ func newCategoryCmd(flags *rootFlags) *cobra.Command {
 
 	cmd.AddCommand(newCategoryGetCmd(flags))
 	cmd.AddCommand(newCategoryListCategoriesCmd(flags))
+	cmd.AddCommand(newCategoryLandscapeCmd(flags))
 	return cmd
 }

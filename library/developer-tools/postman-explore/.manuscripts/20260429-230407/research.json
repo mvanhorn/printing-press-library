@@ -1,0 +1,261 @@
+{
+  "api_name": "postman-explore",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [
+    "proxy-envelope client (POST /_api/ws/proxy with {service, method, path, body?})",
+    "browser_http transport (Surf with Chrome TLS clears Cloudflare)",
+    "no auth required",
+    "metric-rich entity payloads (10 metric dimensions per entity)",
+    "publisher verification flag in browse responses but not exposed as a filter"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-04-29T23:30:00Z",
+  "novel_features": [
+    {
+      "name": "Canonical collection lookup",
+      "command": "canonical",
+      "description": "One command finds the best community Postman Collection for a vendor, ranked by publisher verification, fork count, and recency.",
+      "rationale": "Web search at postman.com returns unranked, often-duplicated forks; the AI-agent and integrator personas need a single canonical pick. Requires correlating publisher verification with metric peaks across the synced network — only the local store has this composed.",
+      "example": "postman-explore-pp-cli canonical stripe --json",
+      "why_it_matters": "When the user asks an agent for a vendor's Postman Collection, this returns the best canonical choice in one call instead of forcing the agent to dedupe a search result list.",
+      "group": "Discovery that compounds locally"
+    },
+    {
+      "name": "Trend ranking by custom metric",
+      "command": "top",
+      "description": "Rank entities by any metric (weekForks, monthViewCount, etc.) with category and entity-type narrowing.",
+      "rationale": "The proxy's only working sort is `popular`. The metric array in entity responses carries 10 dimensions — week/month view, fork, and watch counts — but the web UI never exposes them as sort keys. Local computation across the synced index unlocks them.",
+      "example": "postman-explore-pp-cli top --metric weekForkCount --type collection --category payments --limit 10",
+      "why_it_matters": "When agents need to recommend the most-forked collections THIS week, not the all-time leaders, this is the only path that works.",
+      "group": "Discovery that compounds locally"
+    },
+    {
+      "name": "Publisher gravitas (cross-team comparison)",
+      "command": "publishers top",
+      "description": "Aggregate fork counts across every entity per publisher within a category; rank teams by total community gravity.",
+      "rationale": "The web UI shows team pages individually, with no comparison view across publishers. Aggregation across entities + category membership is a SQL JOIN that no single API call serves.",
+      "example": "postman-explore-pp-cli publishers top --category developer-productivity --limit 5 --json",
+      "why_it_matters": "API curators picking between vendors need cross-publisher comparison. Agents recommending an integration partner need this to break ties.",
+      "group": "Comparative analysis"
+    },
+    {
+      "name": "Drift / changelog since last sync",
+      "command": "drift",
+      "description": "Compare two synced snapshots and report new entities, removed entities, and entities whose updatedAt advanced.",
+      "rationale": "The website has no \"what changed on the network\" view. With two snapshots in the local store, computing the diff is a JOIN on id; without snapshots, the question is unanswerable.",
+      "example": "postman-explore-pp-cli drift --since 7d --type collection --json",
+      "why_it_matters": "Agents tracking when a vendor publishes a new collection or updates an existing one rely on this; there is no other way to know.",
+      "group": "Time-windowed signals"
+    },
+    {
+      "name": "Verified publishers only",
+      "command": "browse",
+      "description": "When passed --verified-only, the browse command filters to entities owned by publishers with the verified-team flag set.",
+      "rationale": "The publisher verification flag exists in API responses but is not exposed as a web-UI filter. Quality filtering is a recurring agent need.",
+      "example": "postman-explore-pp-cli browse collection --verified-only --category payments --json --limit 5",
+      "why_it_matters": "When you want only the official-vendor collections (not community forks), this is the cleanest filter.",
+      "group": "Quality signals"
+    },
+    {
+      "name": "Fork velocity (accelerating collections)",
+      "command": "velocity",
+      "description": "Rank collections by acceleration ratio: (weekForkCount × 4) / monthForkCount. Surfaces collections breaking out before they top the popular list.",
+      "rationale": "The proxy returns both weekly and monthly fork counts. The ratio across them is a velocity signal nothing on the web exposes. Computed entirely from synced metrics in SQLite.",
+      "example": "postman-explore-pp-cli velocity --type collection --top 10",
+      "why_it_matters": "Catching a breakout collection before it tops the popular sort is high-value for API curators tracking emerging vendors.",
+      "group": "Time-windowed signals"
+    },
+    {
+      "name": "Similar collection finder (more-like-this)",
+      "command": "similar",
+      "description": "Given an entity numeric id, return collections with overlapping name, summary, and category — ranked by FTS relevance score against the seed entity's text.",
+      "rationale": "FTS5 'more like this' over the local store's combined name+summary+description+tags index, restricted to the same entityType. Web UI offers no way to ask 'what else looks like this collection?'.",
+      "example": "postman-explore-pp-cli similar 10289 --limit 5 --json",
+      "why_it_matters": "When an integrator finds one collection but wants to compare against alternatives, this returns the rivals in one call rather than forcing a fresh search.",
+      "group": "Discovery that compounds locally"
+    },
+    {
+      "name": "Category landscape report",
+      "command": "category landscape",
+      "description": "For a category slug, return: total entity counts per type, top 5 publishers by aggregate fork count, and top 5 entities by viewCount. One command, one structured payload.",
+      "rationale": "Combines aggregate counts, publisher gravitas, and top entities into a single category-level report. The web UI shows category pages but no aggregate stats; computing this requires SQL JOINs across cached tables.",
+      "example": "postman-explore-pp-cli category landscape payments --json",
+      "why_it_matters": "API curators evaluating a vertical (payments, AI, devops) want one snapshot of who dominates and what's popular; this is exactly that snapshot.",
+      "group": "Comparative analysis"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Canonical collection lookup",
+      "command": "canonical",
+      "description": "One command finds the best community Postman Collection for a vendor, ranked by publisher verification, fork count, and recency.",
+      "rationale": "Web search at postman.com returns unranked, often-duplicated forks; the AI-agent and integrator personas need a single canonical pick. Requires correlating publisher verification with metric peaks across the synced network — only the local store has this composed.",
+      "example": "postman-explore-pp-cli canonical stripe --json",
+      "why_it_matters": "When the user asks an agent for a vendor's Postman Collection, this returns the best canonical choice in one call instead of forcing the agent to dedupe a search result list.",
+      "group": "Discovery that compounds locally"
+    },
+    {
+      "name": "Trend ranking by custom metric",
+      "command": "top",
+      "description": "Rank entities by any metric (weekForks, monthViewCount, etc.) with category and entity-type narrowing.",
+      "rationale": "The proxy's only working sort is `popular`. The metric array in entity responses carries 10 dimensions — week/month view, fork, and watch counts — but the web UI never exposes them as sort keys. Local computation across the synced index unlocks them.",
+      "example": "postman-explore-pp-cli top --metric weekForkCount --type collection --category payments --limit 10",
+      "why_it_matters": "When agents need to recommend the most-forked collections THIS week, not the all-time leaders, this is the only path that works.",
+      "group": "Discovery that compounds locally"
+    },
+    {
+      "name": "Publisher gravitas (cross-team comparison)",
+      "command": "publishers top",
+      "description": "Aggregate fork counts across every entity per publisher within a category; rank teams by total community gravity.",
+      "rationale": "The web UI shows team pages individually, with no comparison view across publishers. Aggregation across entities + category membership is a SQL JOIN that no single API call serves.",
+      "example": "postman-explore-pp-cli publishers top --category developer-productivity --limit 5 --json",
+      "why_it_matters": "API curators picking between vendors need cross-publisher comparison. Agents recommending an integration partner need this to break ties.",
+      "group": "Comparative analysis"
+    },
+    {
+      "name": "Drift / changelog since last sync",
+      "command": "drift",
+      "description": "Compare two synced snapshots and report new entities, removed entities, and entities whose updatedAt advanced.",
+      "rationale": "The website has no \"what changed on the network\" view. With two snapshots in the local store, computing the diff is a JOIN on id; without snapshots, the question is unanswerable.",
+      "example": "postman-explore-pp-cli drift --since 7d --type collection --json",
+      "why_it_matters": "Agents tracking when a vendor publishes a new collection or updates an existing one rely on this; there is no other way to know.",
+      "group": "Time-windowed signals"
+    },
+    {
+      "name": "Verified publishers only",
+      "command": "browse",
+      "description": "When passed --verified-only, the browse command filters to entities owned by publishers with the verified-team flag set.",
+      "rationale": "The publisher verification flag exists in API responses but is not exposed as a web-UI filter. Quality filtering is a recurring agent need.",
+      "example": "postman-explore-pp-cli browse collection --verified-only --category payments --json --limit 5",
+      "why_it_matters": "When you want only the official-vendor collections (not community forks), this is the cleanest filter.",
+      "group": "Quality signals"
+    },
+    {
+      "name": "Fork velocity (accelerating collections)",
+      "command": "velocity",
+      "description": "Rank collections by acceleration ratio: (weekForkCount × 4) / monthForkCount. Surfaces collections breaking out before they top the popular list.",
+      "rationale": "The proxy returns both weekly and monthly fork counts. The ratio across them is a velocity signal nothing on the web exposes. Computed entirely from synced metrics in SQLite.",
+      "example": "postman-explore-pp-cli velocity --type collection --top 10",
+      "why_it_matters": "Catching a breakout collection before it tops the popular sort is high-value for API curators tracking emerging vendors.",
+      "group": "Time-windowed signals"
+    },
+    {
+      "name": "Similar collection finder (more-like-this)",
+      "command": "similar",
+      "description": "Given an entity numeric id, return collections with overlapping name, summary, and category — ranked by FTS relevance score against the seed entity's text.",
+      "rationale": "FTS5 'more like this' over the local store's combined name+summary+description+tags index, restricted to the same entityType. Web UI offers no way to ask 'what else looks like this collection?'.",
+      "example": "postman-explore-pp-cli similar 10289 --limit 5 --json",
+      "why_it_matters": "When an integrator finds one collection but wants to compare against alternatives, this returns the rivals in one call rather than forcing a fresh search.",
+      "group": "Discovery that compounds locally"
+    },
+    {
+      "name": "Category landscape report",
+      "command": "category landscape",
+      "description": "For a category slug, return: total entity counts per type, top 5 publishers by aggregate fork count, and top 5 entities by viewCount. One command, one structured payload.",
+      "rationale": "Combines aggregate counts, publisher gravitas, and top entities into a single category-level report. The web UI shows category pages but no aggregate stats; computing this requires SQL JOINs across cached tables.",
+      "example": "postman-explore-pp-cli category landscape payments --json",
+      "why_it_matters": "API curators evaluating a vertical (payments, AI, devops) want one snapshot of who dominates and what's popular; this is exactly that snapshot.",
+      "group": "Comparative analysis"
+    }
+  ],
+  "narrative": {
+    "display_name": "Postman Explore",
+    "headline": "The CLI for the public API directory at postman.com/explore — search, rank, and watch community-contributed Postman Collections, agent-native and offline.",
+    "value_prop": "Postman's API Network is the world's largest public API directory, but discovery is web-only and unscriptable. This CLI mirrors the public surface into a local SQLite store with FTS, then layers commands the website cannot offer: canonical-collection lookup, cross-publisher comparison, trend ranking by custom metrics, and drift detection across snapshots. No authentication required; designed for AI agents and power users who need the network as data, not as a webpage.",
+    "auth_narrative": "No authentication required. The CLI uses a Surf HTTP transport with Chrome TLS fingerprinting to clear Cloudflare's HTML challenge gate; the proxy API itself is open.",
+    "quickstart": [
+      {
+        "command": "postman-explore-pp-cli networkentity get-network-entity-counts",
+        "comment": "Confirm reachability and see network-wide entity counts in one call."
+      },
+      {
+        "command": "postman-explore-pp-cli sync --all-types --limit 200",
+        "comment": "Populate the local store so search, top, drift, canonical, and publishers all work offline."
+      },
+      {
+        "command": "postman-explore-pp-cli canonical stripe",
+        "comment": "The headline command — the best community Postman Collection for a known vendor."
+      },
+      {
+        "command": "postman-explore-pp-cli top --metric weekForkCount --type collection --category payments --limit 5 --json",
+        "comment": "Trend ranking by metric, narrowed to a category."
+      },
+      {
+        "command": "postman-explore-pp-cli publishers top --category developer-productivity --limit 5",
+        "comment": "Compare publishers across a category by aggregate fork count."
+      },
+      {
+        "command": "postman-explore-pp-cli drift --since 7d --type collection",
+        "comment": "What changed on the network this week?"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 403 with Cloudflare challenge HTML",
+        "fix": "Confirm the binary is using Surf transport (the default in v3). Run `postman-explore-pp-cli doctor --json` to verify; reinstall via `go install github.com/mvanhorn/postman-explore-pp-cli@latest` if Surf is missing."
+      },
+      {
+        "symptom": "search or canonical returns empty results after install",
+        "fix": "Run `postman-explore-pp-cli sync --all-types` first — those commands query the local store, which is empty until sync populates it."
+      },
+      {
+        "symptom": "top returns 0 results despite sync",
+        "fix": "Confirm `--metric` matches one of: forkCount, monthForkCount, monthViewCount, monthWatchCount, publicViewCount, viewCount, watchCount, weekForkCount, weekViewCount, weekWatchCount. Other names produce empty result sets."
+      },
+      {
+        "symptom": "browse returns 'Invalid sort type provided'",
+        "fix": "Only `--sort popular` is accepted by the proxy. The web UI's other sort options (recent, week, alltime) return HTTP 400 against the API."
+      }
+    ],
+    "when_to_use": "Pick this CLI when you need to programmatically discover, compare, or watch community-contributed Postman Collections / workspaces / APIs / flows. Ideal for AI agents asked to find a canonical Postman Collection for a vendor, for API curators comparing publishers in a category, and for monitoring scripts that watch network changes. Skip this CLI for managing your own private Postman workspace — that's the authenticated Postman product API, which is a different surface entirely.",
+    "recipes": [
+      {
+        "title": "Find Stripe's official collection",
+        "command": "postman-explore-pp-cli canonical stripe --json --select id,name,publisher.publicHandle,metrics.forkCount",
+        "explanation": "The canonical command picks the verified-publisher, highest-fork-count match and narrows the JSON to the four fields agents actually need."
+      },
+      {
+        "title": "Compare top payments publishers",
+        "command": "postman-explore-pp-cli publishers top --category payments --limit 5 --json",
+        "explanation": "Aggregate fork counts across each publisher's full portfolio in the payments category."
+      },
+      {
+        "title": "What changed on the network this week",
+        "command": "postman-explore-pp-cli sync \u0026\u0026 postman-explore-pp-cli drift --since 7d --type collection --json",
+        "explanation": "Sync, then diff against the previous snapshot to find newly added or recently updated collections."
+      },
+      {
+        "title": "Browse top developer-productivity collections, narrow to verified publishers",
+        "command": "postman-explore-pp-cli browse collection --category 4 --verified-only --limit 10 --json --select name,publisher.publicHandle,metrics.viewCount,redirectURL",
+        "explanation": "Use --select with dotted paths to avoid pulling the full ~5 KB metric array per record — keeps output small for agent context."
+      },
+      {
+        "title": "Find accelerating collections in payments",
+        "command": "postman-explore-pp-cli velocity --type collection --category payments --top 10",
+        "explanation": "Velocity ranks by week-vs-month fork rate, surfacing collections that are breaking out before they top the all-time popular list."
+      },
+      {
+        "title": "Find collections similar to a seed",
+        "command": "postman-explore-pp-cli similar 10289 --limit 5 --json",
+        "explanation": "More-like-this query against the local FTS index — useful for discovering rival or complementary community collections."
+      },
+      {
+        "title": "Get a category-wide snapshot",
+        "command": "postman-explore-pp-cli category landscape payments --json",
+        "explanation": "Combines per-type counts, top publishers, and top entities for a category in one structured payload."
+      }
+    ],
+    "trigger_phrases": [
+      "find a postman collection for",
+      "what postman collection should i fork for",
+      "is there a postman collection for",
+      "browse postman api network",
+      "compare postman publishers",
+      "what changed on the postman network",
+      "use postman-explore",
+      "run postman-explore"
+    ]
+  }
+}

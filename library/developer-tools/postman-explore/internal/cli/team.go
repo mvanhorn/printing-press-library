@@ -13,6 +13,7 @@ func newTeamCmd(flags *rootFlags) *cobra.Command {
 		Short: "Publisher teams on the API network",
 	}
 
-	cmd.AddCommand(newTeamListCmd(flags))
+	cmd.AddCommand(newTeamGetCmd(flags))
+	cmd.AddCommand(newTeamGetWorkspacesCmd(flags))
 	return cmd
 }

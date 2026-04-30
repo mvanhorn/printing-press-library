@@ -55,7 +55,6 @@ func Load(configPath string) (*Config, error) {
 	if v := os.Getenv("POSTMAN_EXPLORE_BASE_URL"); v != "" {
 		cfg.BaseURL = v
 	}
-
 	return cfg, nil
 }
 

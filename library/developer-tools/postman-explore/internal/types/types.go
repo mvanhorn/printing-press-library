@@ -3,6 +3,9 @@
 
 package types
 
+import "encoding/json"
+
+
 type Category struct {
 	CreatedAt string `json:"createdAt"`
 	Description string `json:"description"`
@@ -21,7 +24,7 @@ type CategoryDetailResponse struct {
 }
 
 type CategoryListResponse struct {
-	Data string `json:"data"`
+	Data json.RawMessage `json:"data"`
 }
 
 type CategorySummary struct {
@@ -36,18 +39,14 @@ type EntityCountResponse struct {
 	Meta string `json:"meta"`
 }
 
-type ErrorResponse struct {
-	Message string `json:"message"`
-	Name string `json:"name"`
-}
-
 type Metric struct {
 	MetricName string `json:"metricName"`
 	MetricValue int `json:"metricValue"`
 }
 
 type NetworkEntity struct {
-	Categories string `json:"categories"`
+	Ttype string `json:"Ttype"`
+	Categories json.RawMessage `json:"categories"`
 	CreatedAt string `json:"createdAt"`
 	CreatedBy int `json:"createdBy"`
 	Description string `json:"description"`
@@ -55,36 +54,34 @@ type NetworkEntity struct {
 	EntityType string `json:"entityType"`
 	Id int `json:"id"`
 	Meta string `json:"meta"`
-	Metrics string `json:"metrics"`
+	Metrics json.RawMessage `json:"metrics"`
 	Name string `json:"name"`
 	PublisherId int `json:"publisherId"`
 	PublisherType string `json:"publisherType"`
 	RedirectURL string `json:"redirectURL"`
 	RedirectURLV2 string `json:"redirectURLV2"`
 	Summary string `json:"summary"`
-	Tags string `json:"tags"`
-	Type string `json:"type"`
+	Tags json.RawMessage `json:"tags"`
 	UpdatedAt string `json:"updatedAt"`
 }
 
 type NetworkEntityListResponse struct {
-	Data string `json:"data"`
+	Data json.RawMessage `json:"data"`
 	Meta string `json:"meta"`
 }
 
-type RateLimitError struct {
-	Error string `json:"error"`
-	Message string `json:"message"`
+type SearchHit struct {
+	Document string `json:"document"`
+	NormalizedScore float64 `json:"normalizedScore"`
+	Score float64 `json:"score"`
 }
 
 type SearchRequest struct {
 	Domain string `json:"domain"`
-	Filter string `json:"filter"`
 	From int `json:"from"`
 	MergeEntities bool `json:"mergeEntities"`
-	Nested bool `json:"nested"`
 	NonNestedRequests bool `json:"nonNestedRequests"`
-	QueryIndices string `json:"queryIndices"`
+	QueryIndices json.RawMessage `json:"queryIndices"`
 	QueryText string `json:"queryText"`
 	Size int `json:"size"`
 }
@@ -94,26 +91,53 @@ type SearchResponse struct {
 	Meta string `json:"meta"`
 }
 
-type SearchResult struct {
-	Document string `json:"document"`
-	NormalizedScore float64 `json:"normalizedScore"`
-	Score float64 `json:"score"`
+type SearchResultDocument struct {
+	CreatedAt string `json:"createdAt"`
+	DocumentType string `json:"documentType"`
+	EntityType string `json:"entityType"`
+	ForkCount int `json:"forkCount"`
+	Id string `json:"id"`
+	IsPublic bool `json:"isPublic"`
+	IsPublisherVerified bool `json:"isPublisherVerified"`
+	Name string `json:"name"`
+	PublisherHandle string `json:"publisherHandle"`
+	PublisherLogo string `json:"publisherLogo"`
+	PublisherName string `json:"publisherName"`
+	PublisherType string `json:"publisherType"`
+	RequestCount int `json:"requestCount"`
+	Slug string `json:"slug"`
+	Summary string `json:"summary"`
+	ViewCount int `json:"viewCount"`
+	WatcherCount int `json:"watcherCount"`
 }
 
-type Team struct {
-	Categories string `json:"categories"`
+type TeamProfile struct {
 	CreatedAt string `json:"createdAt"`
 	Description string `json:"description"`
 	Id string `json:"id"`
-	Metrics string `json:"metrics"`
 	Name string `json:"name"`
 	ProfileURL string `json:"profileURL"`
-	PublicURL string `json:"publicURL"`
-	Tags string `json:"tags"`
+	PublicHandle string `json:"publicHandle"`
 	UpdatedAt string `json:"updatedAt"`
 }
 
-type TeamListResponse struct {
+type TeamProfileResponse struct {
 	Data string `json:"data"`
+}
+
+type TeamWorkspaceEntry struct {
+	Categories json.RawMessage `json:"categories"`
+	CreatedAt string `json:"createdAt"`
+	Description string `json:"description"`
+	Id string `json:"id"`
+	Name string `json:"name"`
+	ProfileURL string `json:"profileURL"`
+	PublicURL string `json:"publicURL"`
+	Tags json.RawMessage `json:"tags"`
+	UpdatedAt string `json:"updatedAt"`
+}
+
+type TeamWorkspacesResponse struct {
+	Data json.RawMessage `json:"data"`
 }
 

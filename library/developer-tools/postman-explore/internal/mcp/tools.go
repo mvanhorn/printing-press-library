@@ -14,8 +14,10 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/postman-explore/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/postman-explore/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/postman-explore/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/postman-explore/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/postman-explore/internal/store"
 )
 
@@ -23,77 +25,123 @@ import (
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("category_get",
-			mcplib.WithDescription("Get details for a specific category"),
-			mcplib.WithString("slug", mcplib.Required(), mcplib.Description("Category URL slug (e.g., artificial-intelligence, devops)")),
+			mcplib.WithDescription("Returns full details for a category by its URL slug (e.g., `artificial-intelligence`, `developer-productivity`, `payments`). Includes hero image, icon, and category-specific featured entities. Required: slug."),
+			mcplib.WithString("slug", mcplib.Required(), mcplib.Description("Category URL slug")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/v2/api/category/{slug}", []string{"slug", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("category_list-categories",
-			mcplib.WithDescription("List all API categories"),
-			mcplib.WithString("sort", mcplib.Description("Sort order")),
+			mcplib.WithDescription("Returns all categories used to organize the API network (e.g., AI, E-commerce, Communication, DevOps). Categories are spotlighted — the response order matches the category strip on postman.com/explore. Optional: sort (default: spotlighted)."),
+			mcplib.WithString("sort", mcplib.Description("Sort order (only `spotlighted` is supported)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/v2/api/category", []string{ }),
 	)
 	s.AddTool(
+		mcplib.NewTool("networkentity_get-network-entity",
+			mcplib.WithDescription("Returns full entity record by internal numeric id (the `id` field from `listNetworkEntities`, NOT the `entityId` UUID). Required: id."),
+			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Internal numeric entity id (from listNetworkEntities `data[].id`)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/v1/api/networkentity/{id}", []string{"id", }),
+	)
+	s.AddTool(
 		mcplib.NewTool("networkentity_get-network-entity-counts",
-			mcplib.WithDescription("Get total counts of entities on the network"),
-			mcplib.WithString("flattenAPIVersions", mcplib.Description("Flatten apiversions")),
+			mcplib.WithDescription("Returns aggregate counts across the entire public API network: collections, workspaces, APIs, flows, notebooks, teams. This is the only stats endpoint exposed by the proxy. Optional: flattenAPIVersions (default: true)."),
+			mcplib.WithString("flattenAPIVersions", mcplib.Description("When true, flattens API versions into the apiCount total")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/v1/api/networkentity/count", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("networkentity_list-network-entities",
-			mcplib.WithDescription("Browse public entities on the API network"),
+			mcplib.WithDescription("List public collections, workspaces, APIs, or flows. Supports category filtering, pagination, and minimum-fork filtering. This is the primary browse endpoint powering postman.com/explore/{collections,workspaces,apis,flows}. Note on sort: only `popular` is reliably supported. Other values like `recent`, `new`, `week`, `alltime` return HTTP 400 'Invalid sort type'. Required: entityType. Optional: limit (default: 20), offset (default: 0), sort (default: popular) (plus 2 more). Returns array of NetworkEntity."),
 			mcplib.WithString("entityType", mcplib.Required(), mcplib.Description("Type of entity to browse")),
 			mcplib.WithString("limit", mcplib.Description("Number of results per page")),
 			mcplib.WithString("offset", mcplib.Description("Pagination offset")),
-			mcplib.WithString("sort", mcplib.Description("Sort order for results")),
-			mcplib.WithString("categoryId", mcplib.Description("Filter by category ID (numeric, from categories endpoint)")),
+			mcplib.WithString("sort", mcplib.Description("Sort order (only `popular` is reliably supported by the proxy)")),
+			mcplib.WithString("categoryId", mcplib.Description("Filter by category numeric id (from `/v2/api/category`)")),
+			mcplib.WithString("minMonthlyForkCount", mcplib.Description("Filter to entities with at least N monthly forks (trending discovery)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/v1/api/networkentity", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("search-all_search_all",
-			mcplib.WithDescription("Full-text search across the public API network"),
+			mcplib.WithDescription("Search collections, workspaces, requests, flows, and teams by free-text query. With no `queryIndices` set, the response groups results by entity type (object-keyed `data.{collection,workspace,api,flow,team,request}`). With one or more dotted indices set (`runtime.collection`, `collaboration.workspace`, `apinetwork.team`, `flow.flow`, `runtime.request`), the response narrows to those types. This is the engine behind the search bar on postman.com. Required: queryText. Optional: domain (default: public), from (default: 0), mergeEntities (default: true) (plus 3 more). Returns the new SearchResponse."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/search-all", []string{ }),
 	)
 	s.AddTool(
-		mcplib.NewTool("team_list",
-			mcplib.WithDescription("List publisher teams on the API network"),
-			mcplib.WithString("limit", mcplib.Description("Limit")),
-			mcplib.WithString("sort", mcplib.Description("Sort")),
+		mcplib.NewTool("team_get",
+			mcplib.WithDescription("Returns small profile object (id, name, description, publicHandle, profileURL, createdAt, updatedAt) for a team by its numeric id. For full workspace listing use `/v1/api/team?publicHandle=`. Required: id."),
+			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Team numeric id")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/v1/api/team/{id}", []string{"id", }),
+	)
+	s.AddTool(
+		mcplib.NewTool("team_get-workspaces",
+			mcplib.WithDescription("Returns the array of public workspaces owned by a team identified by its `publicHandle` (e.g., `stripedev`, `salesforce-developers`, `meta`). Use `/v1/api/networkentity/{id}` for individual entity detail. Required: publicHandle."),
+			mcplib.WithString("publicHandle", mcplib.Required(), mcplib.Description("Team's public handle (URL-stable identifier)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/v1/api/team", []string{ }),
 	)
-	// Sync tool
-	s.AddTool(
-		mcplib.NewTool("sync",
-			mcplib.WithDescription("Sync API data to local SQLite for offline search and analysis"),
-			mcplib.WithString("resources", mcplib.Description("Comma-separated resource types to sync")),
-			mcplib.WithString("since", mcplib.Description("Incremental sync since duration (7d, 24h, 1w)")),
-			mcplib.WithBoolean("full", mcplib.Description("Full resync ignoring checkpoints")),
-		),
-		handleSync,
-	)
-	// Search tool
+	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
 		mcplib.NewTool("search",
-			mcplib.WithDescription("Full-text search across synced data"),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query")),
+			mcplib.WithDescription("Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)")),
 			mcplib.WithNumber("limit", mcplib.Description("Max results (default 25)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleSearch,
 	)
-	// SQL tool
+	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
-			mcplib.WithDescription("Run read-only SQL query against local database"),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT only)")),
+			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT only). Tables match resource names.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleSQL,
 	)
+
+	// Context tool — front-loaded domain knowledge for agents.
+	// Call this first to understand the API taxonomy, query patterns, and capabilities.
+	s.AddTool(
+		mcplib.NewTool("context",
+			mcplib.WithDescription("Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+		),
+		handleContext,
+	)
+
+	// Runtime Cobra-tree mirror — exposes every user-facing command that is
+	// not already covered by a typed endpoint or framework MCP tool.
+	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
@@ -104,17 +152,22 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 			return mcplib.NewToolResultError(err.Error()), nil
 		}
 
+		// mcp-go v0.47+ made CallToolParams.Arguments an `any` to support
+		// non-map payloads; GetArguments() returns the map[string]any shape
+		// we rely on here (or an empty map when the payload is something else).
+		args := req.GetArguments()
+
 		// Build path by substituting positional params
 		path := pathTemplate
 		for _, p := range positionalParams {
-			if v, ok := req.Params.Arguments[p]; ok {
+			if v, ok := args[p]; ok {
 				path = strings.Replace(path, "{"+p+"}", fmt.Sprintf("%v", v), 1)
 			}
 		}
 
 		// Collect non-positional params as query params
 		params := make(map[string]string)
-		for k, v := range req.Params.Arguments {
+		for k, v := range args {
 			isPositional := false
 			for _, p := range positionalParams {
 				if k == p {
@@ -132,13 +185,13 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 		case "GET":
 			data, err = c.Get(path, params)
 		case "POST":
-			body, _ := json.Marshal(req.Params.Arguments)
+			body, _ := json.Marshal(args)
 			data, _, err = c.Post(path, body)
 		case "PUT":
-			body, _ := json.Marshal(req.Params.Arguments)
+			body, _ := json.Marshal(args)
 			data, _, err = c.Put(path, body)
 		case "PATCH":
-			body, _ := json.Marshal(req.Params.Arguments)
+			body, _ := json.Marshal(args)
 			data, _, err = c.Patch(path, body)
 		case "DELETE":
 			data, _, err = c.Delete(path)
@@ -207,18 +260,15 @@ func dbPath() string {
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
 
-func handleSync(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	return mcplib.NewToolResultText("sync not yet implemented via MCP - use the CLI: postman-explore-pp-cli sync"), nil
-}
-
 func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	query, ok := req.Params.Arguments["query"].(string)
+	args := req.GetArguments()
+	query, ok := args["query"].(string)
 	if !ok || query == "" {
 		return mcplib.NewToolResultError("query is required"), nil
 	}
 
 	limit := 25
-	if v, ok := req.Params.Arguments["limit"].(float64); ok && v > 0 {
+	if v, ok := args["limit"].(float64); ok && v > 0 {
 		limit = int(v)
 	}
 
@@ -238,7 +288,8 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 }
 
 func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	query, ok := req.Params.Arguments["query"].(string)
+	args := req.GetArguments()
+	query, ok := args["query"].(string)
 	if !ok || query == "" {
 		return mcplib.NewToolResultError("query is required"), nil
 	}
@@ -281,4 +332,81 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 
 	data, _ := json.MarshalIndent(results, "", "  ")
 	return mcplib.NewToolResultText(string(data)), nil
+}
+
+func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	ctx := map[string]any{
+		"api":         "postman-explore",
+		"description": "Undocumented internal API powering the public API discovery surface at postman.com/explore. All requests funnel...",
+		"archetype":   "infrastructure",
+		"tool_count":  8,
+		// tool_surface tells agents which surface a capability lives on.
+		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion postman-explore-pp-cli binary.",
+		"resources": []map[string]any{
+			{
+				"name": "category",
+				"description": "Manage category",
+				"endpoints": []string{"get", "list-categories",  },
+				"syncable": true,
+				"searchable": true,
+			},
+			{
+				"name": "networkentity",
+				"description": "Manage networkentity",
+				"endpoints": []string{"get-network-entity", "get-network-entity-counts", "list-network-entities",  },
+				"syncable": true,
+				"searchable": true,
+			},
+			{
+				"name": "search-all",
+				"description": "Manage search all",
+				"endpoints": []string{"search_all",  },
+				"searchable": true,
+			},
+			{
+				"name": "team",
+				"description": "Publisher teams on the API network",
+				"endpoints": []string{"get", "get-workspaces",  },
+				"searchable": true,
+			},
+		},
+		"query_tips": []string{
+			"Pagination uses cursor-based paging. Pass offset parameter for subsequent pages.",
+			"Control page size with the limit parameter (default 100).",
+			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
+			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
+			"Prefer sql/search over repeated API calls when the data is already synced.",
+		},
+		// Command-mirror capabilities are exposed through MCP by shelling out
+		// to the companion CLI binary.
+		"command_mirror_capabilities": []map[string]string{
+			{"name": "Canonical collection lookup", "command": "canonical", "description": "One command finds the best community Postman Collection for a vendor, ranked by publisher verification, fork count,...", "rationale": "Web search at postman.com returns unranked, often-duplicated forks; the AI-agent and integrator personas need a...", "via": "mcp-command-mirror"},
+			{"name": "Trend ranking by custom metric", "command": "top", "description": "Rank entities by any metric (weekForks, monthViewCount, etc.) with category and entity-type narrowing.", "rationale": "The proxy's only working sort is `popular`. The metric array in entity responses carries 10 dimensions —...", "via": "mcp-command-mirror"},
+			{"name": "Publisher gravitas (cross-team comparison)", "command": "publishers top", "description": "Aggregate fork counts across every entity per publisher within a category; rank teams by total community gravity.", "rationale": "The web UI shows team pages individually, with no comparison view across publishers. Aggregation across entities +...", "via": "mcp-command-mirror"},
+			{"name": "Drift / changelog since last sync", "command": "drift", "description": "Compare two synced snapshots and report new entities, removed entities, and entities whose updatedAt advanced.", "rationale": "The website has no 'what changed on the network' view. With two snapshots in the local store, computing the diff is...", "via": "mcp-command-mirror"},
+			{"name": "Verified publishers only", "command": "browse", "description": "When passed --verified-only, the browse command filters to entities owned by publishers with the verified-team flag set.", "rationale": "The publisher verification flag exists in API responses but is not exposed as a web-UI filter. Quality filtering is...", "via": "mcp-command-mirror"},
+			{"name": "Fork velocity (accelerating collections)", "command": "velocity", "description": "Rank collections by acceleration ratio: (weekForkCount × 4) / monthForkCount. Surfaces collections breaking out...", "rationale": "The proxy returns both weekly and monthly fork counts. The ratio across them is a velocity signal nothing on the web...", "via": "mcp-command-mirror"},
+			{"name": "Similar collection finder (more-like-this)", "command": "similar", "description": "Given an entity numeric id, return collections with overlapping name, summary, and category — ranked by FTS...", "rationale": "FTS5 'more like this' over the local store's combined name+summary+description+tags index, restricted to the same...", "via": "mcp-command-mirror"},
+			{"name": "Category landscape report", "command": "category landscape", "description": "For a category slug, return: total entity counts per type, top 5 publishers by aggregate fork count, and top 5...", "rationale": "Combines aggregate counts, publisher gravitas, and top entities into a single category-level report. The web UI...", "via": "mcp-command-mirror"},
+		},
+		"playbook": []map[string]string{
+			{"topic": "Canonical collection lookup", "insight": "Web search at postman.com returns unranked, often-duplicated forks; the AI-agent and integrator personas need a single canonical pick. Requires correlating publisher verification with metric peaks across the synced network — only the local store has this composed."},
+			{"topic": "Trend ranking by custom metric", "insight": "The proxy's only working sort is `popular`. The metric array in entity responses carries 10 dimensions — week/month view, fork, and watch counts — but the web UI never exposes them as sort keys. Local computation across the synced index unlocks them."},
+			{"topic": "Publisher gravitas (cross-team comparison)", "insight": "The web UI shows team pages individually, with no comparison view across publishers. Aggregation across entities + category membership is a SQL JOIN that no single API call serves."},
+			{"topic": "Drift / changelog since last sync", "insight": "The website has no \"what changed on the network\" view. With two snapshots in the local store, computing the diff is a JOIN on id; without snapshots, the question is unanswerable."},
+			{"topic": "Verified publishers only", "insight": "The publisher verification flag exists in API responses but is not exposed as a web-UI filter. Quality filtering is a recurring agent need."},
+			{"topic": "Fork velocity (accelerating collections)", "insight": "The proxy returns both weekly and monthly fork counts. The ratio across them is a velocity signal nothing on the web exposes. Computed entirely from synced metrics in SQLite."},
+			{"topic": "Similar collection finder (more-like-this)", "insight": "FTS5 'more like this' over the local store's combined name+summary+description+tags index, restricted to the same entityType. Web UI offers no way to ask 'what else looks like this collection?'."},
+			{"topic": "Category landscape report", "insight": "Combines aggregate counts, publisher gravitas, and top entities into a single category-level report. The web UI shows category pages but no aggregate stats; computing this requires SQL JOINs across cached tables."},
+		},
+	}
+	data, _ := json.MarshalIndent(ctx, "", "  ")
+	return mcplib.NewToolResultText(string(data)), nil
+}
+
+// RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP
+// mains. New generated mains call RegisterTools only; RegisterTools now
+// includes the runtime Cobra-tree mirror.
+func RegisterNovelFeatureTools(s *server.MCPServer) {
+	_ = s
 }

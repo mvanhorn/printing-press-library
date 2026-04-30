@@ -1,12 +1,62 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-04-04T05:01:21.88475Z",
-  "printing_press_version": "0.4.0",
+  "generated_at": "2026-04-30T07:22:43.078912Z",
+  "printing_press_version": "3.0.1",
   "api_name": "postman-explore",
+  "display_name": "Postman Explore",
   "cli_name": "postman-explore-pp-cli",
-  "spec_path": "/Users/tmchow/printing-press/manuscripts/postman-explore-pp-cli/20260403-151803/research/postman-explore-spec.yaml",
-  "run_id": "20260403-220048",
+  "spec_path": "/Users/tmchow/printing-press/.runstate/parsed-exploring-penguin-5c956a6b/runs/20260429-230407/working/postman-explore-pp-cli/spec.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:2b27b48db619ed0b9a6789d1c054e2567e0fa74f60a445327234308667b499b8",
+  "run_id": "20260429-230407",
   "catalog_entry": "postman-explore",
   "category": "developer-tools",
-  "description": "Public API network directory for discovering community collections, workspaces, and APIs"
+  "description": "Public API network directory for discovering community collections, workspaces, and APIs",
+  "mcp_binary": "postman-explore-pp-mcp",
+  "mcp_tool_count": 8,
+  "mcp_public_tool_count": 8,
+  "mcp_ready": "full",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Canonical collection lookup",
+      "command": "canonical",
+      "description": "One command finds the best community Postman Collection for a vendor, ranked by publisher verification, fork count, and recency."
+    },
+    {
+      "name": "Trend ranking by custom metric",
+      "command": "top",
+      "description": "Rank entities by any metric (weekForks, monthViewCount, etc.) with category and entity-type narrowing."
+    },
+    {
+      "name": "Publisher gravitas (cross-team comparison)",
+      "command": "publishers top",
+      "description": "Aggregate fork counts across every entity per publisher within a category; rank teams by total community gravity."
+    },
+    {
+      "name": "Drift / changelog since last sync",
+      "command": "drift",
+      "description": "Compare two synced snapshots and report new entities, removed entities, and entities whose updatedAt advanced."
+    },
+    {
+      "name": "Verified publishers only",
+      "command": "browse",
+      "description": "When passed --verified-only, the browse command filters to entities owned by publishers with the verified-team flag set."
+    },
+    {
+      "name": "Fork velocity (accelerating collections)",
+      "command": "velocity",
+      "description": "Rank collections by acceleration ratio: (weekForkCount × 4) / monthForkCount. Surfaces collections breaking out before they top the popular list."
+    },
+    {
+      "name": "Similar collection finder (more-like-this)",
+      "command": "similar",
+      "description": "Given an entity numeric id, return collections with overlapping name, summary, and category — ranked by FTS relevance score against the seed entity's text."
+    },
+    {
+      "name": "Category landscape report",
+      "command": "category landscape",
+      "description": "For a category slug, return: total entity counts per type, top 5 publishers by aggregate fork count, and top 5 entities by viewCount. One command, one structured payload."
+    }
+  ]
 }

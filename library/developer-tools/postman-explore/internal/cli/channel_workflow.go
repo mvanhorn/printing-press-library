@@ -55,7 +55,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 			defer s.Close()
 
-			resources := []string{"api", "collection", "flow", "team", "workspace",  }
+			resources := []string{"api", "category", "collection", "flow", "networkentity", "workspace",  }
 			totalSynced := 0
 
 			for _, resource := range resources {
@@ -145,8 +145,9 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 
 	cmd := &cobra.Command{
-		Use:   "status",
-		Short: "Show local archive status and sync state for all resources",
+		Use:         "status",
+		Short:       "Show local archive status and sync state for all resources",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Example: `  # Show archive status
   postman-explore-pp-cli workflow status
 

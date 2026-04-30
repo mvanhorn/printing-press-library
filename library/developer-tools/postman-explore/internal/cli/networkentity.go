@@ -13,6 +13,7 @@ func newNetworkentityCmd(flags *rootFlags) *cobra.Command {
 		Short: "Manage networkentity",
 	}
 
+	cmd.AddCommand(newNetworkentityGetNetworkEntityCmd(flags))
 	cmd.AddCommand(newNetworkentityGetNetworkEntityCountsCmd(flags))
 	cmd.AddCommand(newNetworkentityListNetworkEntitiesCmd(flags))
 	return cmd

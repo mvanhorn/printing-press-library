@@ -15,8 +15,9 @@ func newCategoryGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "get <slug>",
-		Short: "Get details for a specific category",
+		Short: "Returns full details for a category by its URL slug (e.g., `artificial-intelligence`, `developer-productivity`,...",
 		Example: "  postman-explore-pp-cli category get example-value",
+		Annotations: map[string]string{"pp:endpoint": "category.get"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -29,7 +30,7 @@ func newCategoryGetCmd(flags *rootFlags) *cobra.Command {
 			path := "/v2/api/category/{slug}"
 			path = replacePathParam(path, "slug", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "category", false, path, params)
+			data, prov, err := resolveRead(c, flags, "category", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -39,14 +40,15 @@ func newCategoryGetCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

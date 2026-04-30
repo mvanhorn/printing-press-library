@@ -16,9 +16,9 @@ clean:
 	rm -rf bin/
 
 build-mcp:
-	go build -o bin/postman-explore-mcp ./cmd/postman-explore-mcp
+	go build -o bin/postman-explore-pp-mcp ./cmd/postman-explore-pp-mcp
 
 install-mcp:
-	go install ./cmd/postman-explore-mcp
+	go install ./cmd/postman-explore-pp-mcp
 
 build-all: build build-mcp

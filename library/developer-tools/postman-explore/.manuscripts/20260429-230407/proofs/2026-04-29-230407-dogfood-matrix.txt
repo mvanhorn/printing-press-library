@@ -1,0 +1,32 @@
+agent-context
+api
+browse
+canonical
+category get
+category landscape
+category list-categories
+doctor
+drift
+export
+feedback list
+import
+networkentity get-network-entity
+networkentity get-network-entity-counts
+networkentity list-network-entities
+profile delete
+profile list
+profile save
+profile show
+profile use
+publishers top
+search
+similar
+sync
+team get
+team get-workspaces
+top
+velocity
+version
+which
+workflow archive
+workflow status

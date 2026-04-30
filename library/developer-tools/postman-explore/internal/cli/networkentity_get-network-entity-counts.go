@@ -17,8 +17,9 @@ func newNetworkentityGetNetworkEntityCountsCmd(flags *rootFlags) *cobra.Command 
 	cmd := &cobra.Command{
 		Use:   "get-network-entity-counts",
 		Aliases: []string{"list"},
-		Short: "Get total counts of entities on the network",
+		Short: "Returns aggregate counts across the entire public API network: collections, workspaces, APIs, flows, notebooks,...",
 		Example: "  postman-explore-pp-cli networkentity get-network-entity-counts",
+		Annotations: map[string]string{"pp:endpoint": "networkentity.get-network-entity-counts"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -30,7 +31,7 @@ func newNetworkentityGetNetworkEntityCountsCmd(flags *rootFlags) *cobra.Command 
 			if flagFlattenAPIVersions != false {
 				params["flattenAPIVersions"] = fmt.Sprintf("%v", flagFlattenAPIVersions)
 			}
-			data, prov, err := resolveRead(c, flags, "networkentity", false, path, params)
+			data, prov, err := resolveRead(c, flags, "networkentity", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -40,14 +41,15 @@ func newNetworkentityGetNetworkEntityCountsCmd(flags *rootFlags) *cobra.Command 
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -71,7 +73,7 @@ func newNetworkentityGetNetworkEntityCountsCmd(flags *rootFlags) *cobra.Command 
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().BoolVar(&flagFlattenAPIVersions, "flatten-api-versions", true, "Flatten apiversions")
+	cmd.Flags().BoolVar(&flagFlattenAPIVersions, "flatten-api-versions", true, "When true, flattens API versions into the apiCount total")
 
 	return cmd
 }

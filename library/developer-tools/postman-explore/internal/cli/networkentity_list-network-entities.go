@@ -17,13 +17,44 @@ func newNetworkentityListNetworkEntitiesCmd(flags *rootFlags) *cobra.Command {
 	var flagOffset int
 	var flagSort string
 	var flagCategoryId string
+	var flagMinMonthlyForkCount int
 	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:   "list-network-entities",
-		Short: "Browse public entities on the API network",
+		Short: "List public collections, workspaces, APIs, or flows. Supports category filtering, pagination, and minimum-fork...",
 		Example: "  postman-explore-pp-cli networkentity list-network-entities",
+		Annotations: map[string]string{"pp:endpoint": "networkentity.list-network-entities"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("entity-type") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "entity-type")
+			}
+			if cmd.Flags().Changed("entity-type") {
+				allowedEntityType := []string{ "collection", "workspace", "api", "flow" }
+				validEntityType := false
+				for _, v := range allowedEntityType {
+					if flagEntityType == v {
+						validEntityType = true
+						break
+					}
+				}
+				if !validEntityType {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "entity-type", flagEntityType, allowedEntityType)
+				}
+			}
+			if cmd.Flags().Changed("sort") {
+				allowedSort := []string{ "popular" }
+				validSort := false
+				for _, v := range allowedSort {
+					if flagSort == v {
+						validSort = true
+						break
+					}
+				}
+				if !validSort {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "sort", flagSort, allowedSort)
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -36,7 +67,8 @@ func newNetworkentityListNetworkEntitiesCmd(flags *rootFlags) *cobra.Command {
 				"offset": fmt.Sprintf("%v", flagOffset),
 				"sort": fmt.Sprintf("%v", flagSort),
 				"categoryId": fmt.Sprintf("%v", flagCategoryId),
-			}, flagAll, "offset", "", "")
+				"minMonthlyForkCount": fmt.Sprintf("%v", flagMinMonthlyForkCount),
+			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -46,14 +78,15 @@ func newNetworkentityListNetworkEntitiesCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -77,12 +110,12 @@ func newNetworkentityListNetworkEntitiesCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagEntityType, "entity-type", "", "Type of entity to browse")
-	_ = cmd.MarkFlagRequired("entity-type")
+	cmd.Flags().StringVar(&flagEntityType, "entity-type", "", "Type of entity to browse (one of: collection, workspace, api, flow)")
 	cmd.Flags().IntVar(&flagLimit, "limit", 20, "Number of results per page")
 	cmd.Flags().IntVar(&flagOffset, "offset", 0, "Pagination offset")
-	cmd.Flags().StringVar(&flagSort, "sort", "popular", "Sort order for results")
-	cmd.Flags().StringVar(&flagCategoryId, "category-id", "", "Filter by category ID (numeric, from categories endpoint)")
+	cmd.Flags().StringVar(&flagSort, "sort", "popular", "Sort order (only `popular` is reliably supported by the proxy) (one of: popular)")
+	cmd.Flags().StringVar(&flagCategoryId, "category-id", "", "Filter by category numeric id (from `/v2/api/category`)")
+	cmd.Flags().IntVar(&flagMinMonthlyForkCount, "min-monthly-fork-count", 0, "Filter to entities with at least N monthly forks (trending discovery)")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd
