@@ -13,7 +13,7 @@ import (
 
 func newTiktokListUser3Cmd(flags *rootFlags) *cobra.Command {
 	var flagHandle string
-	var flagMinTime float64
+	var flagMinTime string
 	var flagTrim bool
 
 	cmd := &cobra.Command{
@@ -36,7 +36,7 @@ func newTiktokListUser3Cmd(flags *rootFlags) *cobra.Command {
 			if flagHandle != "" {
 				params["handle"] = NormalizeHandle(fmt.Sprintf("%v", flagHandle))
 			}
-			if flagMinTime != 0.0 {
+			if flagMinTime != "" {
 				params["min_time"] = fmt.Sprintf("%v", flagMinTime)
 			}
 			if flagTrim != false {
@@ -84,7 +84,7 @@ func newTiktokListUser3Cmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagHandle, "handle", "", "TikTok handle")
-	cmd.Flags().Float64Var(&flagMinTime, "min-time", 0.0, "Used to paginate. Get 'min_time' from previous response.")
+	cmd.Flags().StringVar(&flagMinTime, "min-time", "", "Used to paginate. Get 'min_time' from previous response.")
 	cmd.Flags().BoolVar(&flagTrim, "trim", false, "Set to true to get a trimmed response")
 
 	return cmd

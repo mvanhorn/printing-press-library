@@ -15,7 +15,7 @@ func newTiktokPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
 	var flagProductId string
 	var flagRegion string
-	var flagPage float64
+	var flagPage string
 
 	cmd := &cobra.Command{
 		Use:         "tiktok",
@@ -40,7 +40,7 @@ func newTiktokPromotedCmd(flags *rootFlags) *cobra.Command {
 			if flagRegion != "" {
 				params["region"] = fmt.Sprintf("%v", flagRegion)
 			}
-			if flagPage != 0.0 {
+			if flagPage != "" {
 				params["page"] = fmt.Sprintf("%v", flagPage)
 			}
 			data, prov, err := resolveRead(c, flags, "tiktok", false, path, params)
@@ -97,7 +97,7 @@ func newTiktokPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagUrl, "url", "", "The URL of the product (required if product_id is not provided)")
 	cmd.Flags().StringVar(&flagProductId, "product-id", "", "The ID of the product (required if url is not provided)")
 	cmd.Flags().StringVar(&flagRegion, "region", "", "The region of the product. This is *very* important.")
-	cmd.Flags().Float64Var(&flagPage, "page", 0.0, "The page number of the reviews")
+	cmd.Flags().StringVar(&flagPage, "page", "", "The page number of the reviews")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 	cmd.AddCommand(newTiktokListCmd(flags))

@@ -13,7 +13,7 @@ import (
 
 func newLinkedinListCompany2Cmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
-	var flagPage float64
+	var flagPage string
 
 	cmd := &cobra.Command{
 		Use:         "company-posts",
@@ -35,7 +35,7 @@ func newLinkedinListCompany2Cmd(flags *rootFlags) *cobra.Command {
 			if flagUrl != "" {
 				params["url"] = fmt.Sprintf("%v", flagUrl)
 			}
-			if flagPage != 0.0 {
+			if flagPage != "" {
 				params["page"] = fmt.Sprintf("%v", flagPage)
 			}
 			data, prov, err := resolveRead(c, flags, "linkedin", false, path, params)
@@ -80,7 +80,7 @@ func newLinkedinListCompany2Cmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagUrl, "url", "", "The URL of the LinkedIn company page to get")
-	cmd.Flags().Float64Var(&flagPage, "page", 0.0, "The page number to get")
+	cmd.Flags().StringVar(&flagPage, "page", "", "The page number to get")
 
 	return cmd
 }

@@ -15,6 +15,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -341,10 +342,21 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 func (c *Client) dryRun(method, targetURL, path string, params map[string]string, body []byte, headerOverrides map[string]string) (json.RawMessage, int, error) {
 	fmt.Fprintf(os.Stderr, "%s %s\n", method, targetURL)
 	if params != nil {
-		for k, v := range params {
-			if v != "" {
-				fmt.Fprintf(os.Stderr, "  ?%s=%s\n", k, v)
+		keys := make([]string, 0, len(params))
+		for k := range params {
+			if params[k] != "" {
+				keys = append(keys, k)
 			}
+		}
+		sort.Strings(keys)
+		queryPrinted := false
+		for _, k := range keys {
+			sep := "?"
+			if queryPrinted {
+				sep = "&"
+			}
+			fmt.Fprintf(os.Stderr, "  %s%s=%s\n", sep, k, params[k])
+			queryPrinted = true
 		}
 	}
 	if body != nil {

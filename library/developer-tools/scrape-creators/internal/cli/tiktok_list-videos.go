@@ -13,7 +13,7 @@ import (
 
 func newTiktokListVideosCmd(flags *rootFlags) *cobra.Command {
 	var flagPeriod string
-	var flagPage float64
+	var flagPage string
 	var flagOrderBy string
 	var flagCountryCode string
 
@@ -34,7 +34,7 @@ func newTiktokListVideosCmd(flags *rootFlags) *cobra.Command {
 			if flagPeriod != "" {
 				params["period"] = fmt.Sprintf("%v", flagPeriod)
 			}
-			if flagPage != 0.0 {
+			if flagPage != "" {
 				params["page"] = fmt.Sprintf("%v", flagPage)
 			}
 			if flagOrderBy != "" {
@@ -85,7 +85,7 @@ func newTiktokListVideosCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagPeriod, "period", "", "Time period in days (7 or 30)")
-	cmd.Flags().Float64Var(&flagPage, "page", 0.0, "Page number")
+	cmd.Flags().StringVar(&flagPage, "page", "", "Page number")
 	cmd.Flags().StringVar(&flagOrderBy, "order-by", "", "Sort videos by likes, views (hot), comments, or reposts")
 	cmd.Flags().StringVar(&flagCountryCode, "country-code", "", "Country code to get popular videos from")
 

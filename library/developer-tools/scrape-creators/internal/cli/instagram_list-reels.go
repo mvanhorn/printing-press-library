@@ -14,7 +14,7 @@ import (
 func newInstagramListReelsCmd(flags *rootFlags) *cobra.Command {
 	var flagQuery string
 	var flagDatePosted string
-	var flagPage float64
+	var flagPage string
 
 	cmd := &cobra.Command{
 		Use:         "reels-search",
@@ -39,7 +39,7 @@ func newInstagramListReelsCmd(flags *rootFlags) *cobra.Command {
 			if flagDatePosted != "" {
 				params["date_posted"] = fmt.Sprintf("%v", flagDatePosted)
 			}
-			if flagPage != 0.0 {
+			if flagPage != "" {
 				params["page"] = fmt.Sprintf("%v", flagPage)
 			}
 			data, prov, err := resolveRead(c, flags, "instagram", false, path, params)
@@ -85,7 +85,7 @@ func newInstagramListReelsCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagQuery, "query", "", "The keyword to search for")
 	cmd.Flags().StringVar(&flagDatePosted, "date-posted", "", "Date posted")
-	cmd.Flags().Float64Var(&flagPage, "page", 0.0, "The page number to return.")
+	cmd.Flags().StringVar(&flagPage, "page", "", "The page number to return.")
 
 	return cmd
 }

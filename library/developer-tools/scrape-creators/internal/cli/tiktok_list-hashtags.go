@@ -13,7 +13,7 @@ import (
 
 func newTiktokListHashtagsCmd(flags *rootFlags) *cobra.Command {
 	var flagPeriod string
-	var flagPage float64
+	var flagPage string
 	var flagCountryCode string
 	var flagNewOnBoard bool
 	var flagIndustry string
@@ -35,7 +35,7 @@ func newTiktokListHashtagsCmd(flags *rootFlags) *cobra.Command {
 			if flagPeriod != "" {
 				params["period"] = fmt.Sprintf("%v", flagPeriod)
 			}
-			if flagPage != 0.0 {
+			if flagPage != "" {
 				params["page"] = fmt.Sprintf("%v", flagPage)
 			}
 			if flagCountryCode != "" {
@@ -89,7 +89,7 @@ func newTiktokListHashtagsCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagPeriod, "period", "", "Time period in days (7, 30, or 120)")
-	cmd.Flags().Float64Var(&flagPage, "page", 0.0, "Page number")
+	cmd.Flags().StringVar(&flagPage, "page", "", "Page number")
 	cmd.Flags().StringVar(&flagCountryCode, "country-code", "", "Country code to get popular hashtags from")
 	cmd.Flags().BoolVar(&flagNewOnBoard, "new-on-board", false, "Show only newly trending hashtags")
 	cmd.Flags().StringVar(&flagIndustry, "industry", "", "Industry to get popular hashtags from.")

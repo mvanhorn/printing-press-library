@@ -13,7 +13,7 @@ import (
 
 func newTiktokListVideo2Cmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
-	var flagCursor float64
+	var flagCursor string
 	var flagTrim bool
 	var flagAll bool
 
@@ -79,7 +79,7 @@ func newTiktokListVideo2Cmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagUrl, "url", "", "TikTok video URL")
-	cmd.Flags().Float64Var(&flagCursor, "cursor", 0.0, "Cursor to get more comments. Get 'cursor' from previous response.")
+	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Cursor to get more comments. Get 'cursor' from previous response.")
 	cmd.Flags().BoolVar(&flagTrim, "trim", false, "Set to true to get a trimmed response")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 

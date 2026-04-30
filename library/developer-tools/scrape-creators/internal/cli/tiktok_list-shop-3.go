@@ -13,7 +13,7 @@ import (
 
 func newTiktokListShop3Cmd(flags *rootFlags) *cobra.Command {
 	var flagQuery string
-	var flagPage float64
+	var flagPage string
 	var flagRegion string
 
 	cmd := &cobra.Command{
@@ -36,7 +36,7 @@ func newTiktokListShop3Cmd(flags *rootFlags) *cobra.Command {
 			if flagQuery != "" {
 				params["query"] = fmt.Sprintf("%v", flagQuery)
 			}
-			if flagPage != 0.0 {
+			if flagPage != "" {
 				params["page"] = fmt.Sprintf("%v", flagPage)
 			}
 			if flagRegion != "" {
@@ -84,7 +84,7 @@ func newTiktokListShop3Cmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagQuery, "query", "", "Term you want to search for")
-	cmd.Flags().Float64Var(&flagPage, "page", 0.0, "Page number to retrieve")
+	cmd.Flags().StringVar(&flagPage, "page", "", "Page number to retrieve")
 	cmd.Flags().StringVar(&flagRegion, "region", "", "Region to search shop products in.")
 
 	return cmd

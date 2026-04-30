@@ -16,7 +16,7 @@ func newTiktokListSearch2Cmd(flags *rootFlags) *cobra.Command {
 	var flagDatePosted string
 	var flagSortBy string
 	var flagRegion string
-	var flagCursor float64
+	var flagCursor string
 	var flagTrim bool
 	var flagAll bool
 
@@ -88,7 +88,7 @@ func newTiktokListSearch2Cmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagDatePosted, "date-posted", "", "Time Frame")
 	cmd.Flags().StringVar(&flagSortBy, "sort-by", "", "Sort by")
 	cmd.Flags().StringVar(&flagRegion, "region", "", "Note, this doesn't filter the tiktoks only in a specfic region, it puts the proxy there. Use it in case you want to...")
-	cmd.Flags().Float64Var(&flagCursor, "cursor", 0.0, "Cursor to get more videos. Get 'cursor' from previous response.")
+	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Cursor to get more videos. Get 'cursor' from previous response.")
 	cmd.Flags().BoolVar(&flagTrim, "trim", false, "Set to true to get a trimmed response")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 

@@ -13,7 +13,7 @@ import (
 
 func newTiktokListSong2Cmd(flags *rootFlags) *cobra.Command {
 	var flagClipId string
-	var flagCursor float64
+	var flagCursor string
 	var flagAll bool
 
 	cmd := &cobra.Command{
@@ -74,7 +74,7 @@ func newTiktokListSong2Cmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagClipId, "clip-id", "", "This is clipId. Can be found on a url like so: https://www.tiktok.com/music/That%27s-Who-I-Praise-7370375686554782506...")
-	cmd.Flags().Float64Var(&flagCursor, "cursor", 0.0, "The cursor to get the next page of results.")
+	cmd.Flags().StringVar(&flagCursor, "cursor", "", "The cursor to get the next page of results.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

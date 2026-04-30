@@ -12,7 +12,7 @@ import (
 )
 
 func newTiktokListCmd(flags *rootFlags) *cobra.Command {
-	var flagPage float64
+	var flagPage string
 	var flagSortBy string
 	var flagFollowerCount string
 	var flagCreatorCountry string
@@ -32,7 +32,7 @@ func newTiktokListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/tiktok/creators/popular"
 			params := map[string]string{}
-			if flagPage != 0.0 {
+			if flagPage != "" {
 				params["page"] = fmt.Sprintf("%v", flagPage)
 			}
 			if flagSortBy != "" {
@@ -88,7 +88,7 @@ func newTiktokListCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().Float64Var(&flagPage, "page", 0.0, "Page number")
+	cmd.Flags().StringVar(&flagPage, "page", "", "Page number")
 	cmd.Flags().StringVar(&flagSortBy, "sort-by", "", "Sort creators by engagement, follower count, or average views")
 	cmd.Flags().StringVar(&flagFollowerCount, "follower-count", "", "Filter by follower count range")
 	cmd.Flags().StringVar(&flagCreatorCountry, "creator-country", "", "Country code of the creator")

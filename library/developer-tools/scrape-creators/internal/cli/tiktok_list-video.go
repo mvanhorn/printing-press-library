@@ -14,7 +14,7 @@ import (
 func newTiktokListVideoCmd(flags *rootFlags) *cobra.Command {
 	var flagCommentId string
 	var flagUrl string
-	var flagCursor float64
+	var flagCursor string
 	var flagAll bool
 
 	cmd := &cobra.Command{
@@ -83,7 +83,7 @@ func newTiktokListVideoCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagCommentId, "comment-id", "", "TikTok comment ID. This is the cid from the comments endpoint.")
 	cmd.Flags().StringVar(&flagUrl, "url", "", "TikTok video URL. This is the url from the comments endpoint.")
-	cmd.Flags().Float64Var(&flagCursor, "cursor", 0.0, "Cursor to get more replies. Get 'cursor' from previous response.")
+	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Cursor to get more replies. Get 'cursor' from previous response.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

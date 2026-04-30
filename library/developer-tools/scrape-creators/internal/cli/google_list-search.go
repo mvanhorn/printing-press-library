@@ -15,7 +15,7 @@ func newGoogleListSearchCmd(flags *rootFlags) *cobra.Command {
 	var flagQuery string
 	var flagRegion string
 	var flagDatePosted string
-	var flagPage float64
+	var flagPage string
 
 	cmd := &cobra.Command{
 		Use:         "search",
@@ -43,7 +43,7 @@ func newGoogleListSearchCmd(flags *rootFlags) *cobra.Command {
 			if flagDatePosted != "" {
 				params["date_posted"] = fmt.Sprintf("%v", flagDatePosted)
 			}
-			if flagPage != 0.0 {
+			if flagPage != "" {
 				params["page"] = fmt.Sprintf("%v", flagPage)
 			}
 			data, prov, err := resolveRead(c, flags, "google", false, path, params)
@@ -90,7 +90,7 @@ func newGoogleListSearchCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagQuery, "query", "", "Search query")
 	cmd.Flags().StringVar(&flagRegion, "region", "", "2 letter country code, ie US, UK, CA, etc This will show results from that country")
 	cmd.Flags().StringVar(&flagDatePosted, "date-posted", "", "Date posted")
-	cmd.Flags().Float64Var(&flagPage, "page", 0.0, "Page number to retrieve")
+	cmd.Flags().StringVar(&flagPage, "page", "", "Page number to retrieve")
 
 	return cmd
 }

@@ -12,7 +12,7 @@ import (
 )
 
 func newTiktokListSongsCmd(flags *rootFlags) *cobra.Command {
-	var flagPage float64
+	var flagPage string
 	var flagTimePeriod string
 	var flagRankType string
 	var flagNewOnBoard bool
@@ -33,7 +33,7 @@ func newTiktokListSongsCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/tiktok/songs/popular"
 			params := map[string]string{}
-			if flagPage != 0.0 {
+			if flagPage != "" {
 				params["page"] = fmt.Sprintf("%v", flagPage)
 			}
 			if flagTimePeriod != "" {
@@ -92,7 +92,7 @@ func newTiktokListSongsCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().Float64Var(&flagPage, "page", 0.0, "Page number")
+	cmd.Flags().StringVar(&flagPage, "page", "", "Page number")
 	cmd.Flags().StringVar(&flagTimePeriod, "time-period", "", "Time period to get popular songs from")
 	cmd.Flags().StringVar(&flagRankType, "rank-type", "", "Get popular or surging songs")
 	cmd.Flags().BoolVar(&flagNewOnBoard, "new-on-board", false, "New to top 100")

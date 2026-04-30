@@ -13,7 +13,7 @@ import (
 
 func newTiktokListSearch4Cmd(flags *rootFlags) *cobra.Command {
 	var flagQuery string
-	var flagCursor float64
+	var flagCursor string
 	var flagTrim bool
 	var flagAll bool
 
@@ -79,7 +79,7 @@ func newTiktokListSearch4Cmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagQuery, "query", "", "Search query for users")
-	cmd.Flags().Float64Var(&flagCursor, "cursor", 0.0, "Cursor to get more users. Get 'cursor' from previous response.")
+	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Cursor to get more users. Get 'cursor' from previous response.")
 	cmd.Flags().BoolVar(&flagTrim, "trim", false, "Set to true to get a trimmed response")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 

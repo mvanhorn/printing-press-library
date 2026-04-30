@@ -14,7 +14,7 @@ import (
 func newTiktokListSearchCmd(flags *rootFlags) *cobra.Command {
 	var flagHashtag string
 	var flagRegion string
-	var flagCursor float64
+	var flagCursor string
 	var flagTrim bool
 	var flagAll bool
 
@@ -82,7 +82,7 @@ func newTiktokListSearchCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagHashtag, "hashtag", "", "Hashtag to search for (without #)")
 	cmd.Flags().StringVar(&flagRegion, "region", "", "Region the proxy will be set to. Note: this isn't going to grab you all tiktoks from this region, you're just...")
-	cmd.Flags().Float64Var(&flagCursor, "cursor", 0.0, "Cursor to get more videos. Get 'cursor' from previous response.")
+	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Cursor to get more videos. Get 'cursor' from previous response.")
 	cmd.Flags().BoolVar(&flagTrim, "trim", false, "Set to true to get a trimmed response")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
