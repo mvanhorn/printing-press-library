@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-04-30T15:53:54.784232Z",
+  "printing_press_version": "3.0.1",
+  "api_name": "ebay",
+  "display_name": "eBay",
+  "cli_name": "ebay-pp-cli",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:007a051ab0034a82890f11831ab713349e0335fb31526abcf82dcb6df5805fce",
+  "mcp_binary": "ebay-pp-mcp",
+  "mcp_tool_count": 8,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "partial",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Sold-comp intelligence",
+      "command": "comp",
+      "description": "Average sale price for any item over the last 90 days with smart matching, condition normalization, outlier trim, and percentile distribution."
+    },
+    {
+      "name": "True sniper bidding",
+      "command": "snipe",
+      "description": "Hold a max bid client-side, fire through the user's authenticated session at lead-seconds before close. Other bidders never see the max until it's too late to react."
+    },
+    {
+      "name": "Has-bids + ending-window auction discovery",
+      "command": "auctions",
+      "description": "Search active auctions filtered by bid count and ending window (e.g. \"Steph Curry cards with at least 3 bids ending in next hour\")."
+    },
+    {
+      "name": "Outlier-trimmed comp distribution",
+      "command": "comp",
+      "description": "1.5x IQR outlier trim on sold-comp results. Surfaces the realistic price band buyers should anchor on, with stddev and quartiles."
+    },
+    {
+      "name": "Variant deduplication",
+      "command": "comp --dedupe-variants",
+      "description": "Collapse near-duplicate sold listings to one exemplar per fingerprint (token-bag, order-insensitive)."
+    }
+  ]
+}

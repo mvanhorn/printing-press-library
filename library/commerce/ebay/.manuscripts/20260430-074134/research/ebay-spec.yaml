@@ -1,0 +1,293 @@
+name: ebay
+display_name: eBay
+description: Buyer-power-user CLI for eBay. Sold-comp intelligence, true sniper bidding, watchlist intelligence, saved-search feeds, and a local SQLite store for cross-listing analytics.
+version: "0.1.0"
+kind: synthetic
+spec_source: sniffed
+http_transport: browser-chrome
+website_url: "https://www.ebay.com"
+category: commerce
+base_url: "https://www.ebay.com"
+
+cli_description: "Search, comp, watch, and snipe eBay auctions and listings from the terminal."
+
+auth:
+  type: cookie
+  cookie_domain: ".ebay.com"
+  cookies:
+    - cid
+    - s
+    - nonsession
+    - dp1
+    - ebaysid
+    - ds1
+    - ds2
+    - shs
+    - npii
+    - ebay
+    - bm_s
+    - bm_ss
+    - ak_bmsc
+
+config:
+  format: toml
+  path: "~/.config/ebay-pp-cli/config.toml"
+
+resources:
+  listings:
+    description: "Active listing search (HTML scrape of /sch/i.html)"
+    endpoints:
+      list:
+        method: GET
+        path: "/sch/i.html"
+        description: "Search active eBay listings by keyword"
+        params:
+          - name: _nkw
+            type: string
+            required: true
+            description: "Keyword query"
+          - name: LH_Auction
+            type: string
+            description: "1 to filter to auctions only"
+          - name: LH_BIN
+            type: string
+            description: "1 to filter to Buy It Now only"
+          - name: _sacat
+            type: string
+            description: "Category id filter"
+          - name: _udlo
+            type: string
+            description: "Minimum price"
+          - name: _udhi
+            type: string
+            description: "Maximum price"
+          - name: _sop
+            type: string
+            description: "Sort: 1 ending-soonest, 10 newly-listed, 12 newest, 13 ending-latest"
+          - name: _ipg
+            type: string
+            description: "Items per page (max 240)"
+          - name: LH_ItemCondition
+            type: string
+            description: "Condition filter codes (1000=new, 3000=used, 2000=refurb, 5000=for-parts)"
+        response:
+          type: text
+          item: string
+  sold:
+    description: "Sold/completed listings (last 90 days, HTML scrape)"
+    endpoints:
+      list:
+        method: GET
+        path: "/sch/i.html"
+        description: "Search sold completed listings by keyword (90 day window)"
+        params:
+          - name: _nkw
+            type: string
+            required: true
+            description: "Keyword query"
+          - name: LH_Sold
+            type: string
+            default: "1"
+            description: "Always 1 to filter to sold-only"
+          - name: LH_Complete
+            type: string
+            default: "1"
+            description: "Always 1 to filter to completed listings"
+          - name: _sacat
+            type: string
+            description: "Category id filter"
+          - name: _udlo
+            type: string
+            description: "Minimum sold price"
+          - name: _udhi
+            type: string
+            description: "Maximum sold price"
+          - name: _ipg
+            type: string
+            default: "240"
+            description: "Items per page (max 240)"
+        response:
+          type: text
+          item: string
+  item:
+    description: "Item details"
+    endpoints:
+      get:
+        method: GET
+        path: "/itm/{itemId}"
+        description: "Get item detail by listing id"
+        params:
+          - name: itemId
+            type: string
+            required: true
+            positional: true
+            description: "Numeric listing id"
+        response:
+          type: text
+          item: string
+  bid:
+    description: "Place bids on auction listings (authenticated)"
+    endpoints:
+      module:
+        method: GET
+        path: "/bfl/placebid/{itemId}"
+        description: "Load the bid form module to extract srt + forterToken (internal step)"
+        params:
+          - name: itemId
+            type: string
+            required: true
+            positional: true
+            description: "Numeric listing id"
+          - name: currencyId
+            type: string
+            default: "USD"
+            description: "Currency code"
+          - name: module
+            type: string
+            default: "1"
+            description: "eBay module version"
+          - name: _trksid
+            type: string
+            description: "Tracking session id (extracted from item page)"
+        no_auth: false
+        response:
+          type: text
+          item: string
+      trisk:
+        method: POST
+        path: "/bfl/placebid"
+        description: "Trust/risk pre-check before bid placement (action=trisk)"
+        params:
+          - name: action
+            type: string
+            default: "trisk"
+            description: "Always trisk for this endpoint"
+          - name: _trksid
+            type: string
+            description: "Tracking session id"
+        body:
+          - name: itemId
+            type: string
+            required: true
+          - name: attemptId
+            type: string
+            required: true
+            description: "Client-generated UUID for this bid attempt"
+          - name: forterToken
+            type: string
+            required: true
+            description: "Forter fraud-detection fingerprint"
+          - name: srt
+            type: string
+            required: true
+            description: "Signed-request-token from the bid module"
+          - name: ut
+            type: string
+            default: "1"
+          - name: triskXt
+            type: integer
+            default: 0
+        no_auth: false
+        response:
+          type: object
+          item: string
+      confirm:
+        method: POST
+        path: "/bfl/placebid"
+        description: "Place the actual bid (action=confirmbid). The endpoint that wins or loses an auction."
+        params:
+          - name: action
+            type: string
+            default: "confirmbid"
+            description: "Always confirmbid for this endpoint"
+          - name: modules
+            type: string
+            default: "POWER_BID_LAYER"
+          - name: ocv
+            type: string
+            default: "1"
+        body:
+          - name: itemId
+            type: string
+            required: true
+          - name: price
+            type: object
+            required: true
+            description: "Object with currency and value (e.g. {currency:USD, value:3.25})"
+            fields:
+              - name: currency
+                type: string
+                default: "USD"
+              - name: value
+                type: string
+                required: true
+                description: "Bid amount as decimal string"
+          - name: srt
+            type: string
+            required: true
+          - name: autoPayContext
+            type: object
+            required: true
+            description: "Object with attemptId from the trisk step"
+            fields:
+              - name: attemptId
+                type: string
+                required: true
+          - name: decimalPrecision
+            type: integer
+            default: 2
+          - name: elvisWarningShown
+            type: boolean
+            default: false
+          - name: adultVerified
+            type: boolean
+            default: false
+        no_auth: false
+        response:
+          type: object
+          item: string
+  watch:
+    description: "Watchlist (authenticated)"
+    endpoints:
+      list:
+        method: GET
+        path: "/mye/myebay/Watchlist"
+        description: "List items in the user's watchlist"
+        no_auth: false
+        response:
+          type: text
+          item: string
+  deal:
+    description: "eBay Deals feed"
+    endpoints:
+      list:
+        method: GET
+        path: "/deals"
+        description: "Browse the eBay Deals feed"
+        no_auth: true
+        response:
+          type: text
+          item: string
+
+extra_commands:
+  - name: comp
+    args: "<query>"
+    description: "Sold-comp intelligence: average sale price, distribution, trendline for items matching the query over the last 90 days."
+  - name: snipe
+    args: "<itemId> --max <amount>"
+    description: "True sniper bid: hold a max client-side, fire at T-N seconds with the user's session. Max stays hidden from other bidders until placed."
+  - name: bid-group
+    description: "Coordinated multi-item snipe groups (single-win, multi-win=N, contingency)."
+  - name: auctions
+    args: "<query>"
+    description: "Search active auctions filtered by bid count, ending window, condition. The 'has bids ending in next hour' query."
+  - name: feed
+    args: "<saved-search>"
+    description: "Stream new listings matching a saved search, with sold-comp context appended to each item."
+  - name: offer-hunter
+    args: "<saved-search>"
+    description: "Auto-submit best offers across a saved search at a percentage of asking price."
+  - name: history
+    description: "Buying history (won, lost, paid) over a configurable window."
+  - name: saved-search
+    description: "Local saved-search CRUD."

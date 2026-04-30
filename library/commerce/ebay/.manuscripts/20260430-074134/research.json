@@ -1,0 +1,270 @@
+{
+  "api_name": "ebay",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "ebay-node-api",
+      "url": "https://github.com/pajaydev/ebay-node-api",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 1000,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ebaysdk-python",
+      "url": "https://github.com/timotheus/ebaysdk-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 700,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hendt/ebay-api",
+      "url": "https://github.com/hendt/ebay-api",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 201,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ruippeixotog/ebay-snipe-server",
+      "url": "https://github.com/ruippeixotog/ebay-snipe-server",
+      "language": "Scala",
+      "install_method": "",
+      "stars": 139,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "driscoll42/ebayMarketAnalyzer",
+      "url": "https://github.com/driscoll42/ebayMarketAnalyzer",
+      "language": "Python",
+      "install_method": "",
+      "stars": 254,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "asherAgs/ebSear",
+      "url": "https://github.com/asherAgs/ebSear",
+      "language": "Python",
+      "install_method": "",
+      "stars": 11,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "YosefHayim/ebay-mcp",
+      "url": "https://github.com/YosefHayim/ebay-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Apophenic/FindItFirst",
+      "url": "https://github.com/Apophenic/FindItFirst",
+      "language": "Java",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-04-30T15:00:00Z",
+  "novel_features": [
+    {
+      "name": "Sold-comp intelligence",
+      "command": "comp",
+      "description": "Average sale price for any item over the last 90 days with smart matching, condition normalization, outlier trim, and percentile distribution.",
+      "rationale": "Marketplace Insights API is partners-only; non-partner developers have no programmatic path to 90-day sold history without HTML scraping. This combines the scrape with statistics nobody else surfaces.",
+      "example": "ebay-pp-cli comp \"Cooper Flagg /50 Topps Chrome\" --trim --json --select mean,median,sample_size",
+      "why_it_matters": "When pricing a bid, you need the realistic distribution of recent sales, not a single anchor. Trim handles outliers; dedupe handles title variants.",
+      "group": "Buyer intelligence"
+    },
+    {
+      "name": "True sniper bidding",
+      "command": "snipe",
+      "description": "Hold a max bid client-side, fire through the user's authenticated session at lead-seconds before close. Other bidders never see the max until it's too late to react.",
+      "rationale": "eBay's Offer API (programmatic bidding) is partners-only. Web-based snipers like Gixen replay the same /bfl/placebid flow we captured during browser-sniff; this is the OSS CLI version.",
+      "example": "ebay-pp-cli snipe 123456789012 --max 50.00 --lead 8s",
+      "why_it_matters": "Reveals max only at fire time, not on bid-form open. Other bidders cannot react inside 8 seconds.",
+      "group": "Buyer intelligence"
+    },
+    {
+      "name": "Has-bids + ending-window auction discovery",
+      "command": "auctions",
+      "description": "Search active auctions filtered by bid count and ending window (e.g. \"Steph Curry cards with at least 3 bids ending in next hour\").",
+      "rationale": "Browse API lost the bidCount filter when Finding API was retired in February 2025. HTML scrape of /sch/i.html with local post-filter is the replacement.",
+      "example": "ebay-pp-cli auctions \"Steph Curry rookie\" --has-bids --ending-within 1h --json --select item_id,price,bids,time_left",
+      "why_it_matters": "Finds price-discoverable competition windows where last-second bidding actually moves the price.",
+      "group": "Buyer intelligence"
+    },
+    {
+      "name": "Outlier-trimmed comp distribution",
+      "command": "comp",
+      "description": "1.5x IQR outlier trim on sold-comp results. Surfaces the realistic price band buyers should anchor on, with stddev and quartiles.",
+      "rationale": "Single-listing 'last sold price' is a noisy anchor; mean alone hides distribution. Stats-grade trimming is the same approach driscoll42's ebayMarketAnalyzer uses, applied as a CLI flag.",
+      "example": "ebay-pp-cli comp \"Rolex Submariner 116610LN\" --trim --json --select p25,median,p75,std_dev",
+      "why_it_matters": "Tells you what a normal buyer actually paid versus a record sale or a fire-sale outlier.",
+      "group": "Buyer intelligence"
+    },
+    {
+      "name": "Variant deduplication",
+      "command": "comp --dedupe-variants",
+      "description": "Collapse near-duplicate sold listings to one exemplar per fingerprint (token-bag, order-insensitive).",
+      "rationale": "Sold listings repeat the same item with shuffled title order, prefixed years, and condition tags. Order-insensitive fingerprinting handles \"Cooper Flagg /50 Topps Chrome\" matching \"2025-26 Topps Chrome Cooper Flagg #251 Gold /50\".",
+      "example": "ebay-pp-cli comp \"Cooper Flagg /50\" --dedupe-variants",
+      "why_it_matters": "Without dedupe, the comp distribution is biased toward whichever seller listed the same card 5 times.",
+      "group": "Buyer intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Sold-comp intelligence",
+      "command": "comp",
+      "description": "Average sale price for any item over the last 90 days with smart matching, condition normalization, outlier trim, and percentile distribution.",
+      "rationale": "Marketplace Insights API is partners-only; non-partner developers have no programmatic path to 90-day sold history without HTML scraping. This combines the scrape with statistics nobody else surfaces.",
+      "example": "ebay-pp-cli comp \"Cooper Flagg /50 Topps Chrome\" --trim --json --select mean,median,sample_size",
+      "why_it_matters": "When pricing a bid, you need the realistic distribution of recent sales, not a single anchor. Trim handles outliers; dedupe handles title variants.",
+      "group": "Buyer intelligence"
+    },
+    {
+      "name": "True sniper bidding",
+      "command": "snipe",
+      "description": "Hold a max bid client-side, fire through the user's authenticated session at lead-seconds before close. Other bidders never see the max until it's too late to react.",
+      "rationale": "eBay's Offer API (programmatic bidding) is partners-only. Web-based snipers like Gixen replay the same /bfl/placebid flow we captured during browser-sniff; this is the OSS CLI version.",
+      "example": "ebay-pp-cli snipe 123456789012 --max 50.00 --lead 8s",
+      "why_it_matters": "Reveals max only at fire time, not on bid-form open. Other bidders cannot react inside 8 seconds.",
+      "group": "Buyer intelligence"
+    },
+    {
+      "name": "Has-bids + ending-window auction discovery",
+      "command": "auctions",
+      "description": "Search active auctions filtered by bid count and ending window (e.g. \"Steph Curry cards with at least 3 bids ending in next hour\").",
+      "rationale": "Browse API lost the bidCount filter when Finding API was retired in February 2025. HTML scrape of /sch/i.html with local post-filter is the replacement.",
+      "example": "ebay-pp-cli auctions \"Steph Curry rookie\" --has-bids --ending-within 1h --json --select item_id,price,bids,time_left",
+      "why_it_matters": "Finds price-discoverable competition windows where last-second bidding actually moves the price.",
+      "group": "Buyer intelligence"
+    },
+    {
+      "name": "Outlier-trimmed comp distribution",
+      "command": "comp",
+      "description": "1.5x IQR outlier trim on sold-comp results. Surfaces the realistic price band buyers should anchor on, with stddev and quartiles.",
+      "rationale": "Single-listing 'last sold price' is a noisy anchor; mean alone hides distribution. Stats-grade trimming is the same approach driscoll42's ebayMarketAnalyzer uses, applied as a CLI flag.",
+      "example": "ebay-pp-cli comp \"Rolex Submariner 116610LN\" --trim --json --select p25,median,p75,std_dev",
+      "why_it_matters": "Tells you what a normal buyer actually paid versus a record sale or a fire-sale outlier.",
+      "group": "Buyer intelligence"
+    },
+    {
+      "name": "Variant deduplication",
+      "command": "comp --dedupe-variants",
+      "description": "Collapse near-duplicate sold listings to one exemplar per fingerprint (token-bag, order-insensitive).",
+      "rationale": "Sold listings repeat the same item with shuffled title order, prefixed years, and condition tags. Order-insensitive fingerprinting handles \"Cooper Flagg /50 Topps Chrome\" matching \"2025-26 Topps Chrome Cooper Flagg #251 Gold /50\".",
+      "example": "ebay-pp-cli comp \"Cooper Flagg /50\" --dedupe-variants",
+      "why_it_matters": "Without dedupe, the comp distribution is biased toward whichever seller listed the same card 5 times.",
+      "group": "Buyer intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "eBay",
+    "headline": "Every eBay buyer feature a power user wants, plus a local sold-comp brain and a sniper that doesn't tell eBay your max.",
+    "value_prop": "Buyer-power-user CLI for eBay. Sold-comp intelligence over 90 days, true sniper bidding (max held client-side), and has-bids+ending-window auction discovery in a single Go binary. No Marketplace Insights or Offer API access required.",
+    "auth_narrative": "eBay's website uses cookie-based session auth with per-action signed-request-tokens (srt) and a per-bid Forter fraud fingerprint. `ebay-pp-cli auth login --chrome` imports your logged-in cookies; the CLI extracts srt and forterToken from each bid module page at fire time. No App ID required for the buyer surface.",
+    "quickstart": [
+      {
+        "command": "ebay-pp-cli auth login --chrome",
+        "comment": "Import cookies from your logged-in Chrome session"
+      },
+      {
+        "command": "ebay-pp-cli doctor",
+        "comment": "Verify the cookies and base reachability"
+      },
+      {
+        "command": "ebay-pp-cli comp \"Cooper Flagg gold /50 Topps Chrome\" --trim",
+        "comment": "Look up the 90-day sold distribution for a specific item"
+      },
+      {
+        "command": "ebay-pp-cli auctions \"Steph Curry rookie\" --has-bids --ending-within 1h",
+        "comment": "Discover competitive auctions ending soon"
+      },
+      {
+        "command": "ebay-pp-cli snipe 123456789012 --max 50.00 --simulate",
+        "comment": "Dry-run a sniper plan before placing"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 403 Access Denied / Akamai challenge on every command",
+        "fix": "Run `ebay-pp-cli auth login --chrome` to import a fresh cookie set; Akamai relaxes throttling for sessions tied to a logged-in user."
+      },
+      {
+        "symptom": "snipe returns 'could not extract srt token from bid module'",
+        "fix": "Cookies have expired. Re-run `auth login --chrome` and retry within a few minutes."
+      },
+      {
+        "symptom": "comp returns 0 sample_size for a query that obviously has sold listings",
+        "fix": "You're being throttled. Wait 60s and retry; or run `ebay-pp-cli auth login --chrome` first to clear the challenge."
+      }
+    ],
+    "when_to_use": "When you need to know what something has actually sold for on eBay over the last 90 days, you want to bid on an auction without revealing your max to the proxy bidder, or you need to discover competitive auctions filtered by bid count and ending time. Domain-agnostic: works for cards, watches, electronics, vintage, anything sold on eBay. Not for sellers — this is the buyer-power-user CLI.",
+    "recipes": [
+      {
+        "title": "Comp before bidding",
+        "command": "ebay-pp-cli comp \"PSA 10 Pikachu illustrator\" --trim --json --select mean,median,p25,p75,sample_size",
+        "explanation": "Fetches and analyzes 90 days of sold listings; outputs only the distribution stats."
+      },
+      {
+        "title": "Find under-priced auctions ending soon",
+        "command": "ebay-pp-cli auctions \"vintage Rolex Submariner\" --has-bids --ending-within 2h --max-price 5000 --json --select item_id,price,bids,time_left,url",
+        "explanation": "Active auctions with at least one bid, ending within two hours, under $5K. Pipe to jq for further filtering."
+      },
+      {
+        "title": "Cross-condition sold-comp comparison",
+        "command": "ebay-pp-cli comp \"Zion Williamson rookie\" --condition graded --trim --json --select mean,median",
+        "explanation": "Filter sold comps to graded copies only; compare against `--condition raw` to see the grading premium."
+      },
+      {
+        "title": "Simulate a snipe before placing",
+        "command": "ebay-pp-cli snipe 123456789012 --max 75.00 --simulate",
+        "explanation": "Returns the planned bid amount, the bid URL, and a sanity-check note without firing the trisk + confirmbid flow."
+      },
+      {
+        "title": "Bulk comp lookup from CSV",
+        "command": "cat queries.txt | xargs -I{} ebay-pp-cli comp {} --trim --json --agent --select query,mean,median",
+        "explanation": "Pipe a list of search strings; emits one JSON line per item for spreadsheet import."
+      }
+    ],
+    "trigger_phrases": [
+      "comp this card",
+      "what did this sell for on eBay",
+      "snipe this auction",
+      "show me cards with bids ending soon",
+      "use ebay",
+      "run ebay"
+    ]
+  }
+}

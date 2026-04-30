@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "ebay-pp-mcp",
+  "display_name": "eBay",
+  "version": "3.0.1",
+  "description": "eBay API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ebay-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ebay-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

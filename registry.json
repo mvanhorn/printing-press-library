@@ -132,6 +132,23 @@
       }
     },
     {
+      "name": "ebay",
+      "category": "commerce",
+      "api": "eBay",
+      "description": "Buyer-power-user CLI for eBay. Sold-comp intelligence, true sniper bidding, watchlist intelligence, saved-search feeds, and a local SQLite store for cross-listing analytics.",
+      "path": "library/commerce/ebay",
+      "mcp": {
+        "binary": "ebay-pp-mcp",
+        "transport": "stdio",
+        "tool_count": 8,
+        "public_tool_count": 1,
+        "auth_type": "cookie",
+        "env_vars": [],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "espn",
       "category": "media-and-entertainment",
       "api": "ESPN",

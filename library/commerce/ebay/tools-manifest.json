@@ -1,0 +1,22 @@
+{
+  "api_name": "ebay",
+  "base_url": "https://www.ebay.com",
+  "description": "Buyer-power-user CLI for eBay. Sold-comp intelligence, true sniper bidding, watchlist intelligence, saved-search feeds, and a local SQLite store for cross-listing analytics.",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "cookie",
+    "cookie_domain": ".ebay.com"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "deal_list",
+      "description": "Browse the public eBay Deals feed (curated discount listings refreshed continuously). Returns the rendered HTML index page. No authentication required, suitable for category-level deal discovery and price-trend snapshots. For active-listing search use listings_list; for sold-comp analytics use the comp shell-out command. (public)",
+      "method": "GET",
+      "path": "/deals",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

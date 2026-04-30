@@ -1,0 +1,53 @@
+# Verification manifest for the eBay CLI's primary buyer workflow:
+# (1) discover ending-soon auctions with bids,
+# (2) comp the candidate against 90 days of sold listings,
+# (3) simulate a sniper bid before placing it.
+#
+# All three steps are read-only (the snipe step uses --simulate). Run via:
+#   printing-press workflow-verify --dir <cli-dir>
+name: ebay-buyer-comp-and-snipe
+description: Buyer power-user discovery + comp + simulate-snipe flow
+goal: |
+  Pick a candidate auction, look up sold-comp distribution for the same
+  query, then simulate a snipe bid against the candidate.
+
+steps:
+  - name: doctor
+    command: ebay-pp-cli doctor
+    expect:
+      exit_code: 0
+
+  - name: discover-ending-auctions
+    command: ebay-pp-cli auctions "trading card" --has-bids --ending-within 4h --max-price 10 --json
+    expect:
+      exit_code: 0
+      output_contains:
+        - "item_id"
+
+  - name: comp-the-query
+    command: ebay-pp-cli comp "trading card" --trim --json --select query,sample_size,mean,median
+    expect:
+      exit_code: 0
+      output_contains:
+        - "sample_size"
+        - "mean"
+
+  - name: simulate-snipe
+    command: ebay-pp-cli snipe 999999999999 --max 50 --simulate --json
+    expect:
+      exit_code: 0
+      output_contains:
+        - "simulate"
+        - "max_amount"
+
+success_criteria:
+  - All four steps exit 0.
+  - The auctions step returns at least one listing structure.
+  - The comp step returns mean and median fields.
+  - The snipe simulation acknowledges the planned bid.
+
+notes: |
+  This workflow does NOT place a real bid. The simulate flag short-circuits
+  the three-step bid placement (module → trisk → confirmbid) and returns a
+  plan instead. Live bid placement is verified separately by the bid place
+  command's own integration tests.

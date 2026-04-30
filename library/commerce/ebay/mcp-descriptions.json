@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "deal_list": "Browse the public eBay Deals feed (curated discount listings refreshed continuously). Returns the rendered HTML index page. No authentication required, suitable for category-level deal discovery and price-trend snapshots. For active-listing search use listings_list; for sold-comp analytics use the comp shell-out command."
+  }
+}

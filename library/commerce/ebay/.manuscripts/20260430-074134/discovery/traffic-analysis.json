@@ -1,0 +1,178 @@
+{
+  "version": "1",
+  "summary": {
+    "entry_count": 25,
+    "api_entry_count": 15,
+    "noise_entry_count": 10,
+    "host_distribution": {
+      "www.ebay.com": 22,
+      "svcs.ebay.com": 1,
+      "i.ebayimg.com": 2
+    }
+  },
+  "reachability": {
+    "mode": "browser_clearance_http",
+    "confidence": 0.95,
+    "reasons": [
+      "Plain stdlib HTTP returns 403 with Akamai bot manager challenge",
+      "Surf with Chrome TLS clears reads; writes need cookies + per-request Forter token",
+      "Bid placement requires srt + forterToken pair extracted from /bfl/placebid module HTML"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "html_scraping",
+      "confidence": 0.95
+    },
+    {
+      "label": "rest_json",
+      "confidence": 0.9
+    }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "kind": "cookie",
+        "names": [
+          "cid",
+          "s",
+          "nonsession",
+          "dp1",
+          "ebaysid",
+          "ds1",
+          "ds2",
+          "shs",
+          "npii"
+        ],
+        "header_names": [],
+        "query_names": [],
+        "cookie_names": [
+          "cid",
+          "s",
+          "nonsession",
+          "dp1",
+          "ebaysid",
+          "ds1",
+          "ds2",
+          "shs",
+          "npii"
+        ],
+        "domain_hints": [
+          ".ebay.com"
+        ],
+        "confidence": 0.95
+      }
+    ]
+  },
+  "protections": [
+    {
+      "label": "akamai_bot_manager",
+      "confidence": 0.9,
+      "notes": [
+        "Cookies ak_bmsc, bm_s, bm_ss observed",
+        "Beacon at /XCFeZj/k4cD/ obfuscated path"
+      ]
+    },
+    {
+      "label": "forter_fraud",
+      "confidence": 0.9,
+      "notes": [
+        "forterToken in bid placement request body",
+        "Format: <32-hex>_<unix-ms>__UDF43_15ck_tt"
+      ]
+    },
+    {
+      "label": "csrf_signed_request_token",
+      "confidence": 0.95,
+      "notes": [
+        "srt hidden inputs per-action embedded in page HTML"
+      ]
+    }
+  ],
+  "endpoint_clusters": [
+    {
+      "host": "www.ebay.com",
+      "method": "GET",
+      "path": "/sch/i.html",
+      "count": 4,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "text/html"
+      ]
+    },
+    {
+      "host": "www.ebay.com",
+      "method": "GET",
+      "path": "/itm/{itemId}",
+      "count": 3,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "text/html"
+      ]
+    },
+    {
+      "host": "www.ebay.com",
+      "method": "GET",
+      "path": "/bfl/placebid/{itemId}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "text/html"
+      ]
+    },
+    {
+      "host": "www.ebay.com",
+      "method": "POST",
+      "path": "/bfl/placebid",
+      "count": 4,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ]
+    },
+    {
+      "host": "www.ebay.com",
+      "method": "GET",
+      "path": "/mye/myebay/Watchlist",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "text/html"
+      ]
+    }
+  ],
+  "generation_hints": [
+    "requires_browser_auth",
+    "requires_protected_client",
+    "uses_chrome_cookie_import",
+    "has_per_request_csrf",
+    "has_per_request_fraud_token"
+  ],
+  "warnings": [
+    {
+      "type": "fraud_token_ttl",
+      "message": "Forter token TTL is unknown; long-running snipes may need to refresh forterToken at fire time by re-fetching the bid module",
+      "confidence": 0.7
+    },
+    {
+      "type": "referrer_check",
+      "message": "Direct nav to /bfl/placebid/<id> returns Oops error; bid module must be fetched via in-page click context",
+      "confidence": 0.95
+    },
+    {
+      "type": "akamai_active",
+      "message": "Akamai bot manager active \u2014 Surf must use Chrome TLS fingerprint or stdlib HTTP will be blocked",
+      "confidence": 0.9
+    }
+  ]
+}
