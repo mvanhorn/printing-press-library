@@ -12,7 +12,7 @@
       "name": "allrecipes",
       "category": "food-and-dining",
       "api": "Allrecipes",
-      "description": "Allrecipes Pocket — every Allrecipes recipe in your terminal: cached as data, with pantry-aware search, Bayesian-smoothed ranking, multi-recipe grocery lists, and clean markdown export.",
+      "description": "Allrecipes Pocket \u2014 every Allrecipes recipe in your terminal: cached as data, with pantry-aware search, Bayesian-smoothed ranking, multi-recipe grocery lists, and clean markdown export.",
       "path": "library/food-and-dining/allrecipes",
       "mcp": {
         "binary": "allrecipes-pp-mcp",
@@ -169,7 +169,7 @@
       "name": "food52",
       "category": "food-and-dining",
       "api": "Food52",
-      "description": "Search, browse, and read Food52 from your terminal — with offline FTS, pantry matching, recipe scaling, and the editorial signals other tools throw away.",
+      "description": "Search, browse, and read Food52 from your terminal \u2014 with offline FTS, pantry matching, recipe scaling, and the editorial signals other tools throw away.",
       "path": "library/food-and-dining/food52",
       "mcp": {
         "binary": "food52-pp-mcp",
@@ -186,7 +186,7 @@
       "name": "hackernews",
       "category": "media-and-entertainment",
       "api": "Hacker News",
-      "description": "Hacker News from your terminal — with a local store, full-text search, and agent-native output no other HN tool has",
+      "description": "Hacker News from your terminal \u2014 with a local store, full-text search, and agent-native output no other HN tool has",
       "path": "library/media-and-entertainment/hackernews",
       "mcp": {
         "binary": "hackernews-pp-mcp",
@@ -283,7 +283,7 @@
       "name": "pagliacci-pizza",
       "category": "food-and-dining",
       "api": "Pagliacci Pizza",
-      "description": "Order Seattle's favorite pizza from the terminal — every endpoint, plus discount stacking, slice rotation across stores, and a local order history nobody else has.",
+      "description": "Order Seattle's favorite pizza from the terminal \u2014 every endpoint, plus discount stacking, slice rotation across stores, and a local order history nobody else has.",
       "path": "library/food-and-dining/pagliacci-pizza",
       "mcp": {
         "binary": "pagliacci-pp-mcp",
@@ -299,17 +299,18 @@
     {
       "name": "pokeapi",
       "category": "media-and-entertainment",
-      "api": "pokeapi",
-      "description": "PokeAPI as an agent-ready Pokemon knowledge graph with endpoint coverage plus profile, evolution, matchup, moves, and team coverage workflows.",
+      "api": "Pok\u00e9API",
+      "description": "Fully offline Pok\u00e9dex with SQL, full-text search, type math, and a damage calculator no other Pok\u00e9mon tool ships as a CLI.",
       "path": "library/media-and-entertainment/pokeapi",
       "mcp": {
         "binary": "pokeapi-pp-mcp",
         "transport": "stdio",
-        "tool_count": 97,
-        "public_tool_count": 97,
+        "tool_count": 98,
+        "public_tool_count": 98,
         "auth_type": "none",
         "env_vars": [],
-        "mcp_ready": "full"
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
       }
     },
     {
@@ -333,7 +334,7 @@
       "name": "producthunt",
       "category": "marketing",
       "api": "Product Hunt",
-      "description": "Token-free Product Hunt CLI — browse today's featured launches, sync locally, and compose views the website itself doesn't expose.",
+      "description": "Token-free Product Hunt CLI \u2014 browse today's featured launches, sync locally, and compose views the website itself doesn't expose.",
       "path": "library/marketing/producthunt",
       "mcp": {
         "binary": "producthunt-pp-mcp",
@@ -350,7 +351,7 @@
       "name": "recipe-goat",
       "category": "food-and-dining",
       "api": "Cross-site recipe aggregator (37 trusted sites: King Arthur, Serious Eats, Smitten Kitchen, AllRecipes, Food52, BBC Food, EatingWell, Food Network, and 29 more) + USDA FoodData Central",
-      "description": "Find the best version of any recipe across 37 trusted sites — trust-aware ranking weights real reader signal at 80% and editorial trust at 15% (curated chef/baker sites win tie-break over crowdsourced aggregators). Builds a local SQLite cookbook with pantry match, meal plans, cook log, substitutions, and USDA-backed nutrition backfill. Powered by Surf-Chrome HTTP transport — bypasses TLS-fingerprint bot detection that previously blocked Dotdash properties.",
+      "description": "Find the best version of any recipe across 37 trusted sites \u2014 trust-aware ranking weights real reader signal at 80% and editorial trust at 15% (curated chef/baker sites win tie-break over crowdsourced aggregators). Builds a local SQLite cookbook with pantry match, meal plans, cook log, substitutions, and USDA-backed nutrition backfill. Powered by Surf-Chrome HTTP transport \u2014 bypasses TLS-fingerprint bot detection that previously blocked Dotdash properties.",
       "path": "library/food-and-dining/recipe-goat",
       "mcp": {
         "binary": "recipe-goat-pp-mcp",
@@ -454,7 +455,7 @@
       "name": "yahoo-finance",
       "category": "commerce",
       "api": "Yahoo Finance",
-      "description": "Quotes, charts, fundamentals, options chains, and a local portfolio/watchlist tracker against Yahoo Finance — no API key, with Chrome-session fallback for rate-limited IPs",
+      "description": "Quotes, charts, fundamentals, options chains, and a local portfolio/watchlist tracker against Yahoo Finance \u2014 no API key, with Chrome-session fallback for rate-limited IPs",
       "path": "library/commerce/yahoo-finance",
       "mcp": {
         "binary": "yahoo-finance-pp-mcp",

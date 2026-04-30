@@ -1,44 +1,86 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-04-26T01:19:55.847471Z",
-  "printing_press_version": "2.3.6",
+  "generated_at": "2026-04-30T07:02:23.018645Z",
+  "printing_press_version": "3.0.1",
   "api_name": "pokeapi",
+  "display_name": "Pokeapi",
   "cli_name": "pokeapi-pp-cli",
   "spec_url": "https://raw.githubusercontent.com/PokeAPI/pokeapi/master/openapi.yml",
-  "spec_path": "/Users/bobshah/printing-press/manuscripts/pokeapi/20260425-233733/research/pokeapi-spec.yaml",
+  "spec_path": "/Users/tmchow/printing-press/.runstate/lazy-hugging-lighthouse-2520149b/runs/20260429-230641/research/pokeapi-spec.yaml",
   "spec_format": "openapi3",
-  "spec_checksum": "sha256:a5451fda70cf97567930212792af620d3e71edc276ed326c5fbe5b49080f49cc",
+  "spec_checksum": "sha256:f2ccd5c026d8586b06c903a57b4a67ee9edf6056f2e071e373b1600f07a614d1",
+  "run_id": "20260429-230641",
   "mcp_binary": "pokeapi-pp-mcp",
-  "mcp_tool_count": 97,
-  "mcp_public_tool_count": 97,
+  "mcp_tool_count": 98,
+  "mcp_public_tool_count": 98,
   "mcp_ready": "full",
-  "api_version": "2.7.0",
   "auth_type": "none",
   "novel_features": [
     {
-      "name": "Pokemon profile",
-      "command": "pokemon profile",
-      "description": "Build an agent-ready Pokemon profile by combining core pokemon data, species metadata, type names, abilities, stats, and move counts."
+      "name": "Reverse ability search",
+      "command": "pokemon by-ability",
+      "description": "Find every Pok\u00e9mon with a given ability. Live API has no reverse index \u2014 this is a single SQL query against the local store."
     },
     {
-      "name": "Pokemon evolution path",
-      "command": "pokemon evolution",
-      "description": "Resolve a Pokemon's species and evolution chain into a readable evolution path."
+      "name": "Reverse move-effect search",
+      "command": "move find",
+      "description": "Find moves by status effect, damage class, type, or target \u2014 e.g. all moves that paralyze a Steel-type."
     },
     {
-      "name": "Pokemon matchups",
-      "command": "pokemon matchups",
-      "description": "Summarize type weaknesses, resistances, immunities, and offensive coverage for a Pokemon."
+      "name": "Team partner suggester",
+      "command": "team suggest",
+      "description": "Given an in-progress team, score every remaining Pok\u00e9mon by how well it covers the team's typing gaps. Returns top candidates."
     },
     {
-      "name": "Pokemon moves",
-      "command": "pokemon moves",
-      "description": "List and filter a Pokemon's moves by learn method, version group, and level learned."
+      "name": "Move-learnset diff between forms",
+      "command": "pokemon diff-learnset",
+      "description": "Compare the move learnsets of two Pok\u00e9mon (often regional forms or megas) and surface what each can learn that the other cannot."
     },
     {
-      "name": "Team coverage",
-      "command": "team coverage",
-      "description": "Analyze a comma-separated Pokemon team for shared weaknesses, resistances, immunities, and offensive type coverage."
+      "name": "Cross-generation Pok\u00e9mon timeline",
+      "command": "pokemon history",
+      "description": "Show how a Pok\u00e9mon has changed over generations: type changes, stat changes, ability changes, and which generation it was introduced in."
+    },
+    {
+      "name": "Regional-form comparator",
+      "command": "pokemon forms",
+      "description": "List every form for a species (e.g. Vulpix vs Alolan Vulpix) with type, stat, and ability deltas inline."
+    },
+    {
+      "name": "Evolution-requirement reverse lookup",
+      "command": "evolve into",
+      "description": "Given a target Pok\u00e9mon, surface the species you would need to evolve and the conditions (item, level, friendship, time of day) to get there."
+    },
+    {
+      "name": "Coverage-gap finder",
+      "command": "team gaps",
+      "description": "List which of the 18 types your in-progress team has neither defensive resistance nor offensive super-effectiveness against."
+    },
+    {
+      "name": "Local FTS search",
+      "command": "search",
+      "description": "Full-text search across Pok\u00e9mon, moves, abilities, items, and locations \u2014 names plus flavor text \u2014 with relevance ranking."
+    },
+    {
+      "name": "SQL passthrough",
+      "command": "sql",
+      "description": "Read-only SQL access to the local store. Power users and agents can compose joins the CLI doesn't expose directly."
+    },
+    {
+      "name": "Region encounter map",
+      "command": "encounters by-region",
+      "description": "Render a region-level encounter table joining locations, areas, encounters, and species \u2014 every Pok\u00e9mon you can find in (e.g.) Kanto."
+    },
+    {
+      "name": "Damage calculator",
+      "command": "damage",
+      "description": "Compute expected damage range for a move from one Pok\u00e9mon to another, factoring in STAB, type effectiveness, level, and base stats."
+    },
+    {
+      "name": "Stat ranker",
+      "command": "pokemon top",
+      "description": "Rank Pok\u00e9mon by a base stat (attack, special-attack, speed, hp, etc.), optionally filtered by type. Returns the top N."
     }
-  ]
+  ],
+  "category": "media-and-entertainment"
 }

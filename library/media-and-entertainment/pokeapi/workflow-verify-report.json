@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/tmchow/printing-press/.runstate/lazy-hugging-lighthouse-2520149b/runs/20260429-230641/working/pokeapi-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

@@ -1,9 +1,9 @@
 {
   "manifest_version": "0.3",
   "name": "pokeapi-pp-mcp",
-  "display_name": "pokeapi",
-  "version": "2.3.6",
-  "description": "PokeAPI as an agent-ready Pokemon knowledge graph with endpoint coverage plus profile, evolution, matchup, moves, and team coverage workflows.",
+  "display_name": "Pokeapi",
+  "version": "3.0.1",
+  "description": "Pokeapi API surface as MCP tools.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -23,6 +23,5 @@
       "linux",
       "win32"
     ]
-  },
-  "cli_binary": "pokeapi-pp-cli"
+  }
 }

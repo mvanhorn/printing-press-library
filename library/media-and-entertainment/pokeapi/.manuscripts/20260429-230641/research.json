@@ -1,0 +1,423 @@
+{
+  "api_name": "pokeapi",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "JoshGuarino/PokeGo",
+      "url": "https://github.com/JoshGuarino/PokeGo",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "beastmatser/aiopokeapi",
+      "url": "https://github.com/beastmatser/aiopokeapi",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 49,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "GregHilmes/pokebase",
+      "url": "https://github.com/GregHilmes/pokebase",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 49,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Jalajil/Poke-MCP",
+      "url": "https://github.com/Jalajil/Poke-MCP",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hollanddd/pokedex-mcp",
+      "url": "https://github.com/hollanddd/pokedex-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Sachin-crypto/Pokemon-MCP-Server",
+      "url": "https://github.com/Sachin-crypto/Pokemon-MCP-Server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "AmalieBjorgen/pokecli",
+      "url": "https://github.com/AmalieBjorgen/pokecli",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hcourt/pokecli",
+      "url": "https://github.com/hcourt/pokecli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-04-30T06:08:00Z",
+  "novel_features": [
+    {
+      "name": "Reverse ability search",
+      "command": "pokemon by-ability",
+      "description": "Find every Pokémon with a given ability. Live API has no reverse index — this is a single SQL query against the local store.",
+      "rationale": "Needs a pokemon ↔ abilities join across the full Pokédex; the live API only exposes ability → named-list, not ability → full pokemon rows.",
+      "example": "pokeapi-pp-cli pokemon by-ability levitate --json --select name,types",
+      "why_it_matters": "Reach for this when an agent needs to enumerate Pokémon by trait without making thousands of API calls.",
+      "group": "Local store that compounds"
+    },
+    {
+      "name": "Reverse move-effect search",
+      "command": "move find",
+      "description": "Find moves by status effect, damage class, type, or target — e.g. all moves that paralyze a Steel-type.",
+      "rationale": "Joins moves.meta.ailment + damage_class + type with damage relations to a target type. No live endpoint composes these filters.",
+      "example": "pokeapi-pp-cli move find --effect paralyze --type-target steel --json",
+      "why_it_matters": "Use this for battle planning questions framed by effect rather than by move name.",
+      "group": "Local store that compounds"
+    },
+    {
+      "name": "Team partner suggester",
+      "command": "team suggest",
+      "description": "Given an in-progress team, score every remaining Pokémon by how well it covers the team's typing gaps. Returns top candidates.",
+      "rationale": "Computes coverage gaps locally, then ranks ~1200 candidate Pokémon in a single pass. Impossible to run live without thousands of API requests.",
+      "example": "pokeapi-pp-cli team suggest pikachu,charizard --slots 6 --json --select name,types,score",
+      "why_it_matters": "Best for team-building agents that need objective gap-coverage scoring rather than vibes-based recommendations.",
+      "group": "Local store that compounds"
+    },
+    {
+      "name": "Move-learnset diff between forms",
+      "command": "pokemon diff-learnset",
+      "description": "Compare the move learnsets of two Pokémon (often regional forms or megas) and surface what each can learn that the other cannot.",
+      "rationale": "Two pokemon rows joined to pokemon_moves locally; live API forces a full fetch of each form plus manual diff.",
+      "example": "pokeapi-pp-cli pokemon diff-learnset charizard charizard-mega-x --json",
+      "why_it_matters": "Useful when an agent needs to argue 'why pick form X over form Y' with concrete move evidence.",
+      "group": "Local store that compounds"
+    },
+    {
+      "name": "Cross-generation Pokémon timeline",
+      "command": "pokemon history",
+      "description": "Show how a Pokémon has changed over generations: type changes, stat changes, ability changes, and which generation it was introduced in.",
+      "rationale": "Stitches pokemon-species → generation, past-types, past-stats, past-abilities. The live API ships these as separate fields; the CLI presents a real timeline.",
+      "example": "pokeapi-pp-cli pokemon history clefairy --json",
+      "why_it_matters": "Reach for this when answering historical Pokémon questions ('was Clefairy always a Fairy type?').",
+      "group": "Local store that compounds"
+    },
+    {
+      "name": "Regional-form comparator",
+      "command": "pokemon forms",
+      "description": "List every form for a species (e.g. Vulpix vs Alolan Vulpix) with type, stat, and ability deltas inline.",
+      "rationale": "Joins pokemon-species ↔ pokemon-form ↔ pokemon and renders side-by-side; live API requires per-form fetches.",
+      "example": "pokeapi-pp-cli pokemon forms vulpix --json",
+      "why_it_matters": "Use when an agent needs a species-wide answer rather than a single-form payload.",
+      "group": "Local store that compounds"
+    },
+    {
+      "name": "Evolution-requirement reverse lookup",
+      "command": "evolve into",
+      "description": "Given a target Pokémon, surface the species you would need to evolve and the conditions (item, level, friendship, time of day) to get there.",
+      "rationale": "Searches every evolution_chain locally for chains whose target species matches the input — no live endpoint exposes this direction.",
+      "example": "pokeapi-pp-cli evolve into umbreon --json",
+      "why_it_matters": "Pick this when the user knows the Pokémon they want and needs the path to it, not the inverse.",
+      "group": "Local store that compounds"
+    },
+    {
+      "name": "Coverage-gap finder",
+      "command": "team gaps",
+      "description": "List which of the 18 types your in-progress team has neither defensive resistance nor offensive super-effectiveness against.",
+      "rationale": "Computes a gap matrix locally from the team's types and damage_relations table; no live endpoint composes this.",
+      "example": "pokeapi-pp-cli team gaps pikachu,charizard,blastoise --json",
+      "why_it_matters": "Use when answering 'what would a hostile team most likely exploit on this lineup?'",
+      "group": "Local store that compounds"
+    },
+    {
+      "name": "Local FTS search",
+      "command": "search",
+      "description": "Full-text search across Pokémon, moves, abilities, items, and locations — names plus flavor text — with relevance ranking.",
+      "rationale": "SQLite FTS5 over the local store. Works offline. Live API offers only exact named-resource lookups, not ranked text search.",
+      "example": "pokeapi-pp-cli search \"flame\" --type move --limit 10 --json",
+      "why_it_matters": "Agent fallback when names are partial or fuzzy; replaces multiple list calls + grep.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "SQL passthrough",
+      "command": "sql",
+      "description": "Read-only SQL access to the local store. Power users and agents can compose joins the CLI doesn't expose directly.",
+      "rationale": "The whole local store is a SQLite database. A composable SQL surface is strictly more capable than any pre-baked command.",
+      "example": "pokeapi-pp-cli sql \"SELECT id FROM resources WHERE resource_type='pokemon' ORDER BY id LIMIT 10\" --json",
+      "why_it_matters": "Reach for this when a one-off question doesn't have a dedicated subcommand.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Region encounter map",
+      "command": "encounters by-region",
+      "description": "Render a region-level encounter table joining locations, areas, encounters, and species — every Pokémon you can find in (e.g.) Kanto.",
+      "rationale": "Multi-resource join across location ↔ location-area ↔ encounters ↔ pokemon-species. Doing this live requires ~40 calls per region.",
+      "example": "pokeapi-pp-cli encounters by-region kanto --version red --json",
+      "why_it_matters": "When the question is regional ('what catches in Kanto?') rather than per-Pokémon.",
+      "group": "Local store that compounds"
+    },
+    {
+      "name": "Damage calculator",
+      "command": "damage",
+      "description": "Compute expected damage range for a move from one Pokémon to another, factoring in STAB, type effectiveness, level, and base stats.",
+      "rationale": "Smogon-calc-equivalent. The damage calculator is the most-used competitive Pokémon tool — it answers the only battle-decision question that matters: how hard does this hit? Reads moves + types + stats locally.",
+      "example": "pokeapi-pp-cli damage charizard blastoise hydro-pump --level1 50 --level2 50 --json",
+      "why_it_matters": "Reach for this on every battle-planning question framed as 'will it KO?' or 'how hard does X hit Y?'",
+      "group": "Battle math"
+    },
+    {
+      "name": "Stat ranker",
+      "command": "pokemon top",
+      "description": "Rank Pokémon by a base stat (attack, special-attack, speed, hp, etc.), optionally filtered by type. Returns the top N.",
+      "rationale": "Real teambuilding meta question (top special attackers among Ghost-types) that the live API cannot answer in fewer than ~1200 calls. One SQL query locally.",
+      "example": "pokeapi-pp-cli pokemon top --by special-attack --type ghost --limit 10 --json",
+      "why_it_matters": "Use when learning the meta or filling a role on a team where the question is 'who's the best X-type at Y?'",
+      "group": "Battle math"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Reverse ability search",
+      "command": "pokemon by-ability",
+      "description": "Find every Pokémon with a given ability. Live API has no reverse index — this is a single SQL query against the local store.",
+      "rationale": "Needs a pokemon ↔ abilities join across the full Pokédex; the live API only exposes ability → named-list, not ability → full pokemon rows.",
+      "example": "pokeapi-pp-cli pokemon by-ability levitate --json --select name,types",
+      "why_it_matters": "Reach for this when an agent needs to enumerate Pokémon by trait without making thousands of API calls.",
+      "group": "Local store that compounds"
+    },
+    {
+      "name": "Reverse move-effect search",
+      "command": "move find",
+      "description": "Find moves by status effect, damage class, type, or target — e.g. all moves that paralyze a Steel-type.",
+      "rationale": "Joins moves.meta.ailment + damage_class + type with damage relations to a target type. No live endpoint composes these filters.",
+      "example": "pokeapi-pp-cli move find --effect paralyze --type-target steel --json",
+      "why_it_matters": "Use this for battle planning questions framed by effect rather than by move name.",
+      "group": "Local store that compounds"
+    },
+    {
+      "name": "Team partner suggester",
+      "command": "team suggest",
+      "description": "Given an in-progress team, score every remaining Pokémon by how well it covers the team's typing gaps. Returns top candidates.",
+      "rationale": "Computes coverage gaps locally, then ranks ~1200 candidate Pokémon in a single pass. Impossible to run live without thousands of API requests.",
+      "example": "pokeapi-pp-cli team suggest pikachu,charizard --slots 6 --json --select name,types,score",
+      "why_it_matters": "Best for team-building agents that need objective gap-coverage scoring rather than vibes-based recommendations.",
+      "group": "Local store that compounds"
+    },
+    {
+      "name": "Move-learnset diff between forms",
+      "command": "pokemon diff-learnset",
+      "description": "Compare the move learnsets of two Pokémon (often regional forms or megas) and surface what each can learn that the other cannot.",
+      "rationale": "Two pokemon rows joined to pokemon_moves locally; live API forces a full fetch of each form plus manual diff.",
+      "example": "pokeapi-pp-cli pokemon diff-learnset charizard charizard-mega-x --json",
+      "why_it_matters": "Useful when an agent needs to argue 'why pick form X over form Y' with concrete move evidence.",
+      "group": "Local store that compounds"
+    },
+    {
+      "name": "Cross-generation Pokémon timeline",
+      "command": "pokemon history",
+      "description": "Show how a Pokémon has changed over generations: type changes, stat changes, ability changes, and which generation it was introduced in.",
+      "rationale": "Stitches pokemon-species → generation, past-types, past-stats, past-abilities. The live API ships these as separate fields; the CLI presents a real timeline.",
+      "example": "pokeapi-pp-cli pokemon history clefairy --json",
+      "why_it_matters": "Reach for this when answering historical Pokémon questions ('was Clefairy always a Fairy type?').",
+      "group": "Local store that compounds"
+    },
+    {
+      "name": "Regional-form comparator",
+      "command": "pokemon forms",
+      "description": "List every form for a species (e.g. Vulpix vs Alolan Vulpix) with type, stat, and ability deltas inline.",
+      "rationale": "Joins pokemon-species ↔ pokemon-form ↔ pokemon and renders side-by-side; live API requires per-form fetches.",
+      "example": "pokeapi-pp-cli pokemon forms vulpix --json",
+      "why_it_matters": "Use when an agent needs a species-wide answer rather than a single-form payload.",
+      "group": "Local store that compounds"
+    },
+    {
+      "name": "Evolution-requirement reverse lookup",
+      "command": "evolve into",
+      "description": "Given a target Pokémon, surface the species you would need to evolve and the conditions (item, level, friendship, time of day) to get there.",
+      "rationale": "Searches every evolution_chain locally for chains whose target species matches the input — no live endpoint exposes this direction.",
+      "example": "pokeapi-pp-cli evolve into umbreon --json",
+      "why_it_matters": "Pick this when the user knows the Pokémon they want and needs the path to it, not the inverse.",
+      "group": "Local store that compounds"
+    },
+    {
+      "name": "Coverage-gap finder",
+      "command": "team gaps",
+      "description": "List which of the 18 types your in-progress team has neither defensive resistance nor offensive super-effectiveness against.",
+      "rationale": "Computes a gap matrix locally from the team's types and damage_relations table; no live endpoint composes this.",
+      "example": "pokeapi-pp-cli team gaps pikachu,charizard,blastoise --json",
+      "why_it_matters": "Use when answering 'what would a hostile team most likely exploit on this lineup?'",
+      "group": "Local store that compounds"
+    },
+    {
+      "name": "Local FTS search",
+      "command": "search",
+      "description": "Full-text search across Pokémon, moves, abilities, items, and locations — names plus flavor text — with relevance ranking.",
+      "rationale": "SQLite FTS5 over the local store. Works offline. Live API offers only exact named-resource lookups, not ranked text search.",
+      "example": "pokeapi-pp-cli search \"flame\" --type move --limit 10 --json",
+      "why_it_matters": "Agent fallback when names are partial or fuzzy; replaces multiple list calls + grep.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "SQL passthrough",
+      "command": "sql",
+      "description": "Read-only SQL access to the local store. Power users and agents can compose joins the CLI doesn't expose directly.",
+      "rationale": "The whole local store is a SQLite database. A composable SQL surface is strictly more capable than any pre-baked command.",
+      "example": "pokeapi-pp-cli sql \"SELECT id FROM resources WHERE resource_type='pokemon' ORDER BY id LIMIT 10\" --json",
+      "why_it_matters": "Reach for this when a one-off question doesn't have a dedicated subcommand.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Region encounter map",
+      "command": "encounters by-region",
+      "description": "Render a region-level encounter table joining locations, areas, encounters, and species — every Pokémon you can find in (e.g.) Kanto.",
+      "rationale": "Multi-resource join across location ↔ location-area ↔ encounters ↔ pokemon-species. Doing this live requires ~40 calls per region.",
+      "example": "pokeapi-pp-cli encounters by-region kanto --version red --json",
+      "why_it_matters": "When the question is regional ('what catches in Kanto?') rather than per-Pokémon.",
+      "group": "Local store that compounds"
+    },
+    {
+      "name": "Damage calculator",
+      "command": "damage",
+      "description": "Compute expected damage range for a move from one Pokémon to another, factoring in STAB, type effectiveness, level, and base stats.",
+      "rationale": "Smogon-calc-equivalent. The damage calculator is the most-used competitive Pokémon tool — it answers the only battle-decision question that matters: how hard does this hit? Reads moves + types + stats locally.",
+      "example": "pokeapi-pp-cli damage charizard blastoise hydro-pump --level1 50 --level2 50 --json",
+      "why_it_matters": "Reach for this on every battle-planning question framed as 'will it KO?' or 'how hard does X hit Y?'",
+      "group": "Battle math"
+    },
+    {
+      "name": "Stat ranker",
+      "command": "pokemon top",
+      "description": "Rank Pokémon by a base stat (attack, special-attack, speed, hp, etc.), optionally filtered by type. Returns the top N.",
+      "rationale": "Real teambuilding meta question (top special attackers among Ghost-types) that the live API cannot answer in fewer than ~1200 calls. One SQL query locally.",
+      "example": "pokeapi-pp-cli pokemon top --by special-attack --type ghost --limit 10 --json",
+      "why_it_matters": "Use when learning the meta or filling a role on a team where the question is 'who's the best X-type at Y?'",
+      "group": "Battle math"
+    }
+  ],
+  "narrative": {
+    "display_name": "PokéAPI",
+    "headline": "PokéAPI as a fully offline Pokédex with SQL, full-text search, type math, and a damage calculator no other Pokémon tool ships as a CLI.",
+    "value_prop": "Most PokéAPI clients cache one request at a time. This CLI syncs the entire dataset to a local SQLite store and turns it into compound commands the live API can't answer: reverse ability search, move-effect filters, team partner suggestions, evolution-requirement reverse lookups, regional-form comparisons, and a Smogon-calc-style damage calculator. Plus all 98 endpoints, full-text search, and a SQL passthrough for whatever the typed commands don't cover.",
+    "auth_narrative": "PokéAPI is a public, read-only API. No keys, no tokens, no login. Run `pokeapi-pp-cli sync` once and you have the whole Pokédex on disk.",
+    "quickstart": [
+      {
+        "command": "pokeapi-pp-cli sync",
+        "comment": "First — fetch every resource into the local SQLite store. Takes a few minutes; you only do this once per release of the API."
+      },
+      {
+        "command": "pokeapi-pp-cli pokemon profile pikachu --json",
+        "comment": "Core agent-friendly profile: types, abilities, stats, key moves — one local query."
+      },
+      {
+        "command": "pokeapi-pp-cli team suggest pikachu,charizard --slots 6 --json --select name,types,score",
+        "comment": "Build a balanced team starting from a partial roster. Selects only the high-gravity fields."
+      },
+      {
+        "command": "pokeapi-pp-cli move find --effect paralyze --type-target steel --json",
+        "comment": "Reverse search by effect — moves that paralyze a Steel-type. The live API can't do this in any single call."
+      },
+      {
+        "command": "pokeapi-pp-cli damage charizard blastoise hydro-pump --json",
+        "comment": "Damage calculator — expected damage range factoring in STAB, type effectiveness, level, and stats."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Commands like `search` or `sql` return empty results.",
+        "fix": "Run `pokeapi-pp-cli sync` first — these commands read from the local store."
+      },
+      {
+        "symptom": "Sync seems stuck on a single resource.",
+        "fix": "PokéAPI is static-hosted and rarely fails, but a flaky network can stall. Re-run `pokeapi-pp-cli sync --resume` to pick up where you left off."
+      },
+      {
+        "symptom": "Sprite preview shows raw bytes.",
+        "fix": "Pipe through `--ascii` for terminal-rendered art, or use `--out path.png` to save the binary."
+      },
+      {
+        "symptom": "A Pokémon name returns 'not found' but you spelled it right.",
+        "fix": "PokéAPI uses dashed slugs — try `mr-mime`, `farfetchd`, or run `pokeapi-pp-cli search \"\u003cname\u003e\"` for a fuzzy match."
+      },
+      {
+        "symptom": "The damage calculator's numbers feel low compared to a real battle.",
+        "fix": "The calc covers STAB + type + level + base stats. It does not model abilities, items, weather, terrain, or status — those need a full simulator like Pokémon Showdown."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when you want a fully-local, fully-queryable Pokédex. It is ideal for agents answering Pokémon questions without spending live API calls, for battle-planning workflows that combine type math and learnset filtering, and for any reverse-search question (find the move, the ability, the form, the requirement) that the live REST surface doesn't natively answer. Skip it for purely image-driven workflows where another tool already handles sprite rendering.",
+    "recipes": [
+      {
+        "title": "What does my team leave exposed?",
+        "command": "pokeapi-pp-cli team gaps pikachu,charizard,blastoise --json",
+        "explanation": "Returns every type your team has neither resistance nor super-effective answer for. One local join."
+      },
+      {
+        "title": "Reverse-search by effect",
+        "command": "pokeapi-pp-cli move find --effect paralyze --type-target steel --json --select name,type,power,accuracy",
+        "explanation": "Find paralyzing moves that hit Steel — using --select to keep the response narrow for agent context."
+      },
+      {
+        "title": "Trim a profile to just what an agent needs",
+        "command": "pokeapi-pp-cli pokemon profile pikachu --json --select name,types,stats.hp,stats.attack,abilities",
+        "explanation": "Use --select with dotted paths to pluck only high-gravity fields out of a deeply nested response — keeps the agent's context light."
+      },
+      {
+        "title": "Compare two regional forms",
+        "command": "pokeapi-pp-cli pokemon diff-learnset vulpix vulpix-alola --json",
+        "explanation": "Side-by-side learnset diff between Vulpix and Alolan Vulpix. One local query instead of two full API fetches."
+      },
+      {
+        "title": "Custom join via SQL",
+        "command": "pokeapi-pp-cli sql \"SELECT id FROM resources WHERE resource_type='pokemon-species' ORDER BY id LIMIT 10\" --json",
+        "explanation": "Drop down to raw SQL when there's no first-class command — read-only, direct local-store access. The local store schema is (id, resource_type, data) with `data` holding the raw JSON payload."
+      }
+    ],
+    "trigger_phrases": [
+      "look up a pokemon",
+      "what beats charizard",
+      "build a pokemon team",
+      "type matchup",
+      "evolution chain",
+      "use pokeapi",
+      "run pokeapi-pp-cli"
+    ]
+  }
+}
