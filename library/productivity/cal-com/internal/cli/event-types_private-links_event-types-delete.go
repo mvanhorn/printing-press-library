@@ -14,10 +14,11 @@ import (
 func newEventTypesPrivateLinksEventTypesDeleteCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "event-types-delete <eventTypeId> <linkId>",
+		Use:   "event-types-delete <eventTypeId> <linkId>",
 		Aliases: []string{"delete"},
-		Short:   "Delete a private link for an event type",
+		Short: "Delete a private link for an event type",
 		Example: "  cal-com-pp-cli event-types private-links event-types-delete 42 https://example.com/resource",
+		Annotations: map[string]string{"pp:endpoint": "private-links.event-types-delete"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -47,9 +48,7 @@ func newEventTypesPrivateLinksEventTypesDeleteCmd(flags *rootFlags) *cobra.Comma
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

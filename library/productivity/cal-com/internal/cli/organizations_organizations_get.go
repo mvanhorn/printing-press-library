@@ -19,9 +19,10 @@ func newOrganizationsOrganizationsGetCmd(flags *rootFlags) *cobra.Command {
 	var flagMetadataValue string
 
 	cmd := &cobra.Command{
-		Use:     "get <orgId>",
-		Short:   "Get all organizations within an organization",
+		Use:   "get <orgId>",
+		Short: "Requires the user to have at least the 'ORG_ADMIN' role within the organization. Additionally, for platform, the...",
 		Example: "  cal-com-pp-cli organizations organizations get 42",
+		Annotations: map[string]string{"pp:endpoint": "organizations.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -49,7 +50,7 @@ func newOrganizationsOrganizationsGetCmd(flags *rootFlags) *cobra.Command {
 			if flagMetadataValue != "" {
 				params["metadataValue"] = fmt.Sprintf("%v", flagMetadataValue)
 			}
-			data, prov, err := resolveRead(c, flags, "organizations", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "organizations", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

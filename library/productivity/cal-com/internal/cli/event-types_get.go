@@ -20,13 +20,14 @@ func newEventTypesGetCmd(flags *rootFlags) *cobra.Command {
 	var flagSortCreatedAt string
 
 	cmd := &cobra.Command{
-		Use:     "get",
+		Use:   "get",
 		Aliases: []string{"list"},
-		Short:   "Get all event types",
+		Short: "Hidden event types are returned only if authentication is provided and it belongs to the event type owner. Use the...",
 		Example: "  cal-com-pp-cli event-types get",
+		Annotations: map[string]string{"pp:endpoint": "event-types.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("sort-created-at") {
-				allowedSortCreatedAt := []string{"asc", "desc"}
+				allowedSortCreatedAt := []string{ "asc", "desc" }
 				validSortCreatedAt := false
 				for _, v := range allowedSortCreatedAt {
 					if flagSortCreatedAt == v {
@@ -63,7 +64,7 @@ func newEventTypesGetCmd(flags *rootFlags) *cobra.Command {
 			if flagSortCreatedAt != "" {
 				params["sortCreatedAt"] = fmt.Sprintf("%v", flagSortCreatedAt)
 			}
-			data, prov, err := resolveRead(c, flags, "event-types", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "event-types", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

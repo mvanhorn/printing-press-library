@@ -16,10 +16,11 @@ func newOauthClientsWebhooksOauthClientGetOauthClientCmd(flags *rootFlags) *cobr
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:     "oauth-client-get-oauth-client <clientId>",
+		Use:   "oauth-client-get-oauth-client <clientId>",
 		Aliases: []string{"get"},
-		Short:   "Get all webhooks",
+		Short: "<Warning>These endpoints are deprecated and will be removed in the future.</Warning>",
 		Example: "  cal-com-pp-cli oauth-clients webhooks oauth-client-get-oauth-client example-value",
+		Annotations: map[string]string{"pp:endpoint": "webhooks.oauth-client-get-oauth-client", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -38,7 +39,7 @@ func newOauthClientsWebhooksOauthClientGetOauthClientCmd(flags *rootFlags) *cobr
 			if flagSkip != 0.0 {
 				params["skip"] = fmt.Sprintf("%v", flagSkip)
 			}
-			data, prov, err := resolveRead(c, flags, "webhooks", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "webhooks", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

@@ -17,10 +17,11 @@ func newBookingsLocationBookingUpdateBookingCmd(flags *rootFlags) *cobra.Command
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "booking-update-booking <bookingUid>",
+		Use:   "booking-update-booking <bookingUid>",
 		Aliases: []string{"update"},
-		Short:   "Update booking location for an existing booking",
+		Short: "**Current Limitation:** Updating a booking location will update the location in Cal.com, but the corresponding...",
 		Example: "  cal-com-pp-cli bookings location booking-update-booking example-value",
+		Annotations: map[string]string{"pp:endpoint": "location.booking-update-booking"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -65,9 +66,7 @@ func newBookingsLocationBookingUpdateBookingCmd(flags *rootFlags) *cobra.Command
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

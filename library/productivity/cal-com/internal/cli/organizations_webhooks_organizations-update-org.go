@@ -22,10 +22,11 @@ func newOrganizationsWebhooksOrganizationsUpdateOrgCmd(flags *rootFlags) *cobra.
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "organizations-update-org <webhookId> <orgId>",
+		Use:   "organizations-update-org <webhookId> <orgId>",
 		Aliases: []string{"update"},
-		Short:   "Update a webhook",
+		Short: "Update a webhook",
 		Example: "  cal-com-pp-cli organizations webhooks organizations-update-org example-value 42",
+		Annotations: map[string]string{"pp:endpoint": "webhooks.organizations-update-org"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -93,9 +94,7 @@ func newOrganizationsWebhooksOrganizationsUpdateOrgCmd(flags *rootFlags) *cobra.
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

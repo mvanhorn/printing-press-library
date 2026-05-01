@@ -16,10 +16,11 @@ func newOrganizationsRoutingFormsOrganizationsResponsesUpdateResponseCmd(flags *
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "organizations-responses-update-response <orgId> <routingFormId> <responseId>",
+		Use:   "organizations-responses-update-response <orgId> <routingFormId> <responseId>",
 		Aliases: []string{"update"},
-		Short:   "Update routing form response",
+		Short: "Update routing form response",
 		Example: "  cal-com-pp-cli organizations routing-forms organizations-responses-update-response 42 example-value 42",
+		Annotations: map[string]string{"pp:endpoint": "routing-forms.organizations-responses-update-response"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -69,9 +70,7 @@ func newOrganizationsRoutingFormsOrganizationsResponsesUpdateResponseCmd(flags *
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

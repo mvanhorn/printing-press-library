@@ -17,16 +17,17 @@ func newTeamsEventTypesTeamsGetTeamCmd(flags *rootFlags) *cobra.Command {
 	var flagSortCreatedAt string
 
 	cmd := &cobra.Command{
-		Use:     "teams-get-team <teamId>",
+		Use:   "teams-get-team <teamId>",
 		Aliases: []string{"get"},
-		Short:   "Get team event types",
+		Short: "Use the optional `sortCreatedAt` query parameter to order results by creation date (by ID). Accepts 'asc' (oldest...",
 		Example: "  cal-com-pp-cli teams event-types teams-get-team 42",
+		Annotations: map[string]string{"pp:endpoint": "event-types.teams-get-team", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("sort-created-at") {
-				allowedSortCreatedAt := []string{"asc", "desc"}
+				allowedSortCreatedAt := []string{ "asc", "desc" }
 				validSortCreatedAt := false
 				for _, v := range allowedSortCreatedAt {
 					if flagSortCreatedAt == v {
@@ -55,7 +56,7 @@ func newTeamsEventTypesTeamsGetTeamCmd(flags *rootFlags) *cobra.Command {
 			if flagSortCreatedAt != "" {
 				params["sortCreatedAt"] = fmt.Sprintf("%v", flagSortCreatedAt)
 			}
-			data, prov, err := resolveRead(c, flags, "event-types", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "event-types", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

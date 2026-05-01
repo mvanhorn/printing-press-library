@@ -14,9 +14,10 @@ import (
 func newOrganizationsAttributesOrganizationsOptionsGetOrganizationOptionsForUserCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "organizations-options-get-organization-options-for-user <orgId> <userId>",
-		Short:   "Get all attribute options for a user",
+		Use:   "organizations-options-get-organization-options-for-user <orgId> <userId>",
+		Short: "Get all attribute options for a user",
 		Example: "  cal-com-pp-cli organizations attributes organizations-options-get-organization-options-for-user 42 42",
+		Annotations: map[string]string{"pp:endpoint": "attributes.organizations-options-get-organization-options-for-user", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -33,7 +34,7 @@ func newOrganizationsAttributesOrganizationsOptionsGetOrganizationOptionsForUser
 			}
 			path = replacePathParam(path, "userId", args[1])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "attributes", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "attributes", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

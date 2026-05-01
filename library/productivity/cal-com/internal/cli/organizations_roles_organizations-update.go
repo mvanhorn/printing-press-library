@@ -20,9 +20,10 @@ func newOrganizationsRolesOrganizationsUpdateCmd(flags *rootFlags) *cobra.Comman
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "organizations-update <orgId> <roleId>",
-		Short:   "Update an organization role",
+		Use:   "organizations-update <orgId> <roleId>",
+		Short: "Update an organization role",
 		Example: "  cal-com-pp-cli organizations roles organizations-update 42 example-value",
+		Annotations: map[string]string{"pp:endpoint": "roles.organizations-update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -84,9 +85,7 @@ func newOrganizationsRolesOrganizationsUpdateCmd(flags *rootFlags) *cobra.Comman
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

@@ -18,10 +18,11 @@ func newOrganizationsTeamsOrganizationWorkflowsUpdateRoutingFormWorkflowCmd(flag
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "organization-workflows-update-routing-form-workflow <teamId> <workflowId> <orgId>",
+		Use:   "organization-workflows-update-routing-form-workflow <teamId> <workflowId> <orgId>",
 		Aliases: []string{"update"},
-		Short:   "Update organization routing form team workflow",
+		Short: "Update organization routing form team workflow",
 		Example: "  cal-com-pp-cli organizations teams organization-workflows-update-routing-form-workflow 42 42 42",
+		Annotations: map[string]string{"pp:endpoint": "teams.organization-workflows-update-routing-form-workflow"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -77,9 +78,7 @@ func newOrganizationsTeamsOrganizationWorkflowsUpdateRoutingFormWorkflowCmd(flag
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

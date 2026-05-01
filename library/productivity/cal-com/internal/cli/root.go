@@ -46,32 +46,46 @@ type rootFlags struct {
 	deliverSink DeliverSink
 }
 
+// RootCmd returns the Cobra command tree without executing it. The MCP server
+// uses this to mirror every user-facing command as an agent tool.
+func RootCmd() *cobra.Command {
+	var flags rootFlags
+	return newRootCmd(&flags)
+}
+
 // Execute runs the CLI in non-interactive mode: never prompts, all values via flags or stdin.
 func Execute() error {
 	var flags rootFlags
+	rootCmd := newRootCmd(&flags)
 
+	err := rootCmd.Execute()
+	if err != nil && strings.Contains(err.Error(), "unknown flag") {
+		msg := err.Error()
+		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
+		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
+			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
+			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
+				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
+			}
+		}
+	}
+	if err == nil && flags.deliverBuf != nil {
+		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
+			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
+			return derr
+		}
+	}
+	return err
+}
+
+func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "cal-com-pp-cli",
-		Short: `Cal Com CLI — Every Cal.com feature, plus offline agendas, composed booking flows, and analytics no other Cal.com tool ships.`,
-		Long: `Cal Com CLI — Every Cal.com feature, plus offline agendas, composed booking flows, and analytics no other Cal.com tool ships.
+		Short: "Manage cal-com resources via the cal-com API",
+		Long: `Manage cal-com resources via the cal-com API.
 
-Highlights (not in the official API docs):
-  • book   Find a slot and book it in a single command — no slot/reserve/create/confirm ch…
-  • today   Today's bookings with status, attendees, and meeting links — read from the loca…
-  • week   7-day calendar view of upcoming bookings, with conflict highlighting and per-da…
-  • slots find   Find first available slot across multiple event types in one call, ranked by st…
-  • analytics   Booking volume, density, no-show rate, and cancellation rate across a window, g…
-  • conflicts   Detects overlaps between active Cal.com bookings and external calendar busy-tim…
-  • gaps   Finds open windows in your schedule that are available but unbooked, filtered b…
-  • workload   Booking distribution across team members over a window — surfaces overloaded vs…
-  • webhooks coverage   Audits registered webhook triggers against the canonical set and reports lifecy…
-  • event-types stale   Event types with zero bookings in the last N days — candidates for removal.
-  • bookings pending   Pending-confirmation bookings sorted by age, with default 24h max-age cutoff.
-  • webhooks triggers   Static reference of every valid Cal.com webhook trigger constant, grouped by li…
-
-Agent mode: add --agent to any command for JSON output + non-interactive mode.
-Health check: run 'cal-com-pp-cli doctor' to verify auth and connectivity.
-See README.md or the bundled SKILL.md for recipes.`,
+Add --agent to any command for JSON output + non-interactive mode.
+Run 'cal-com-pp-cli doctor' to verify auth and connectivity.`,
 		SilenceUsage: true,
 		Version:      version,
 	}
@@ -150,65 +164,50 @@ See README.md or the bundled SKILL.md for recipes.`,
 		}
 		return nil
 	}
-	rootCmd.AddCommand(newBookingsCmd(&flags))
-	rootCmd.AddCommand(newCalendarsCmd(&flags))
-	rootCmd.AddCommand(newConferencingCmd(&flags))
-	rootCmd.AddCommand(newEventTypesCmd(&flags))
-	rootCmd.AddCommand(newMeCmd(&flags))
-	rootCmd.AddCommand(newOauthCmd(&flags))
-	rootCmd.AddCommand(newOauthClientsCmd(&flags))
-	rootCmd.AddCommand(newOrganizationsCmd(&flags))
-	rootCmd.AddCommand(newRoutingFormsCmd(&flags))
-	rootCmd.AddCommand(newSchedulesCmd(&flags))
-	rootCmd.AddCommand(newSelectedCalendarsCmd(&flags))
-	rootCmd.AddCommand(newSlotsCmd(&flags))
-	rootCmd.AddCommand(newStripeCmd(&flags))
-	rootCmd.AddCommand(newTeamsCmd(&flags))
-	rootCmd.AddCommand(newVerifiedResourcesCmd(&flags))
-	rootCmd.AddCommand(newWebhooksCmd(&flags))
-	rootCmd.AddCommand(newDoctorCmd(&flags))
-	rootCmd.AddCommand(newAuthCmd(&flags))
+	rootCmd.AddCommand(newBookingsCmd(flags))
+	rootCmd.AddCommand(newCalendarsCmd(flags))
+	rootCmd.AddCommand(newConferencingCmd(flags))
+	rootCmd.AddCommand(newEventTypesCmd(flags))
+	rootCmd.AddCommand(newMeCmd(flags))
+	rootCmd.AddCommand(newOauthCmd(flags))
+	rootCmd.AddCommand(newOauthClientsCmd(flags))
+	rootCmd.AddCommand(newOrganizationsCmd(flags))
+	rootCmd.AddCommand(newRoutingFormsCmd(flags))
+	rootCmd.AddCommand(newSchedulesCmd(flags))
+	rootCmd.AddCommand(newSelectedCalendarsCmd(flags))
+	rootCmd.AddCommand(newSlotsCmd(flags))
+	rootCmd.AddCommand(newStripeCmd(flags))
+	rootCmd.AddCommand(newTeamsCmd(flags))
+	rootCmd.AddCommand(newVerifiedResourcesCmd(flags))
+	rootCmd.AddCommand(newWebhooksCmd(flags))
+	rootCmd.AddCommand(newDoctorCmd(flags))
+	rootCmd.AddCommand(newAuthCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
-	rootCmd.AddCommand(newProfileCmd(&flags))
-	rootCmd.AddCommand(newFeedbackCmd(&flags))
-	rootCmd.AddCommand(newWhichCmd(&flags))
-	rootCmd.AddCommand(newExportCmd(&flags))
-	rootCmd.AddCommand(newImportCmd(&flags))
-	rootCmd.AddCommand(newSearchCmd(&flags))
-	rootCmd.AddCommand(newSyncCmd(&flags))
-	rootCmd.AddCommand(newTailCmd(&flags))
-	rootCmd.AddCommand(newAnalyticsCmd(&flags))
-	rootCmd.AddCommand(newWorkflowCmd(&flags))
-	rootCmd.AddCommand(newAPICmd(&flags))
-	// Cal.com novel transcendence commands (hand-built, not generator-emitted)
-	rootCmd.AddCommand(newBookCmd(&flags))
-	rootCmd.AddCommand(newTodayCmd(&flags))
-	rootCmd.AddCommand(newWeekCmd(&flags))
-	rootCmd.AddCommand(newConflictsCmd(&flags))
-	rootCmd.AddCommand(newGapsCmd(&flags))
-	rootCmd.AddCommand(newWorkloadCmd(&flags))
-	rootCmd.AddCommand(newApiKeysPromotedCmd(&flags))
-	rootCmd.AddCommand(newDestinationCalendarsPromotedCmd(&flags))
+	rootCmd.AddCommand(newProfileCmd(flags))
+	rootCmd.AddCommand(newFeedbackCmd(flags))
+	rootCmd.AddCommand(newWhichCmd(flags))
+	rootCmd.AddCommand(newExportCmd(flags))
+	rootCmd.AddCommand(newImportCmd(flags))
+	rootCmd.AddCommand(newSearchCmd(flags))
+	rootCmd.AddCommand(newSyncCmd(flags))
+	rootCmd.AddCommand(newTailCmd(flags))
+	rootCmd.AddCommand(newAnalyticsCmd(flags))
+	rootCmd.AddCommand(newWorkflowCmd(flags))
+	rootCmd.AddCommand(newAPICmd(flags))
+	rootCmd.AddCommand(newApiKeysPromotedCmd(flags))
+	rootCmd.AddCommand(newCalComAuthPromotedCmd(flags))
+	rootCmd.AddCommand(newCalComAuth2PromotedCmd(flags))
+	rootCmd.AddCommand(newDestinationCalendarsPromotedCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
-	err := rootCmd.Execute()
-	if err != nil && strings.Contains(err.Error(), "unknown flag") {
-		msg := err.Error()
-		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
-		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
-			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
-			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
-				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
-			}
-		}
-	}
-	if err == nil && flags.deliverBuf != nil {
-		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
-			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
-			return derr
-		}
-	}
-	return err
+	rootCmd.AddCommand(newBookCmd(flags))
+	rootCmd.AddCommand(newTodayCmd(flags))
+	rootCmd.AddCommand(newWeekCmd(flags))
+	rootCmd.AddCommand(newConflictsCmd(flags))
+	rootCmd.AddCommand(newGapsCmd(flags))
+	rootCmd.AddCommand(newWorkloadCmd(flags))
+
+	return rootCmd
 }
 
 func ExitCode(err error) int {

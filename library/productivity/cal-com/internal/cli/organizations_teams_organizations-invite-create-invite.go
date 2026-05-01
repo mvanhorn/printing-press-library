@@ -16,9 +16,10 @@ func newOrganizationsTeamsOrganizationsInviteCreateInviteCmd(flags *rootFlags) *
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "organizations-invite-create-invite <orgId> <teamId>",
-		Short:   "Create team invite link",
+		Use:   "organizations-invite-create-invite <orgId> <teamId>",
+		Short: "Create team invite link",
 		Example: "  cal-com-pp-cli organizations teams organizations-invite-create-invite 42 42",
+		Annotations: map[string]string{"pp:endpoint": "teams.organizations-invite-create-invite"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -64,9 +65,7 @@ func newOrganizationsTeamsOrganizationsInviteCreateInviteCmd(flags *rootFlags) *
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

@@ -16,10 +16,11 @@ func newWebhooksGetCmd(flags *rootFlags) *cobra.Command {
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:     "get",
+		Use:   "get",
 		Aliases: []string{"list"},
-		Short:   "Get all webhooks",
+		Short: "Gets a paginated list of webhooks for the authenticated user.",
 		Example: "  cal-com-pp-cli webhooks get",
+		Annotations: map[string]string{"pp:endpoint": "webhooks.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -34,7 +35,7 @@ func newWebhooksGetCmd(flags *rootFlags) *cobra.Command {
 			if flagSkip != 0.0 {
 				params["skip"] = fmt.Sprintf("%v", flagSkip)
 			}
-			data, prov, err := resolveRead(c, flags, "webhooks", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "webhooks", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

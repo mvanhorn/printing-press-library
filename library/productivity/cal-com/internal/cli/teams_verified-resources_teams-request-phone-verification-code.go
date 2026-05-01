@@ -17,9 +17,10 @@ func newTeamsVerifiedResourcesTeamsRequestPhoneVerificationCodeCmd(flags *rootFl
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "teams-request-phone-verification-code <teamId>",
-		Short:   "Request phone number verification code",
+		Use:   "teams-request-phone-verification-code <teamId>",
+		Short: "Sends a verification code to the phone number",
 		Example: "  cal-com-pp-cli teams verified-resources teams-request-phone-verification-code 42 --phone example-value",
+		Annotations: map[string]string{"pp:endpoint": "verified-resources.teams-request-phone-verification-code"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -67,9 +68,7 @@ func newTeamsVerifiedResourcesTeamsRequestPhoneVerificationCodeCmd(flags *rootFl
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

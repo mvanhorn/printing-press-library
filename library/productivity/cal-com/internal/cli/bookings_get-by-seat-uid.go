@@ -14,9 +14,10 @@ import (
 func newBookingsGetBySeatUidCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "get-by-seat-uid <seatUid>",
-		Short:   "Get a booking by seat UID",
+		Use:   "get-by-seat-uid <seatUid>",
+		Short: "Get a seated booking by its seat reference UID. This is useful when you have a seatUid from a seated booking and...",
 		Example: "  cal-com-pp-cli bookings get-by-seat-uid example-value",
+		Annotations: map[string]string{"pp:endpoint": "bookings.get-by-seat-uid", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -29,7 +30,7 @@ func newBookingsGetBySeatUidCmd(flags *rootFlags) *cobra.Command {
 			path := "/v2/bookings/by-seat/{seatUid}"
 			path = replacePathParam(path, "seatUid", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "bookings", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "bookings", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

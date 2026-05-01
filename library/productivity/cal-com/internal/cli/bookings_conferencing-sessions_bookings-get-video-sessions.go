@@ -14,10 +14,11 @@ import (
 func newBookingsConferencingSessionsBookingsGetVideoSessionsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "bookings-get-video-sessions <bookingUid>",
+		Use:   "bookings-get-video-sessions <bookingUid>",
 		Aliases: []string{"get"},
-		Short:   "Get Video Meeting Sessions. Only supported for Cal Video",
+		Short: "Requires authentication and proper authorization. Access is granted if you are the booking organizer, team admin or...",
 		Example: "  cal-com-pp-cli bookings conferencing-sessions bookings-get-video-sessions example-value",
+		Annotations: map[string]string{"pp:endpoint": "conferencing-sessions.bookings-get-video-sessions", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -30,7 +31,7 @@ func newBookingsConferencingSessionsBookingsGetVideoSessionsCmd(flags *rootFlags
 			path := "/v2/bookings/{bookingUid}/conferencing-sessions"
 			path = replacePathParam(path, "bookingUid", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "conferencing-sessions", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "conferencing-sessions", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

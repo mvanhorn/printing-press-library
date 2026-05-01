@@ -16,9 +16,10 @@ func newTeamsEventTypesTeamsWebhooksGetTeamWebhooksCmd(flags *rootFlags) *cobra.
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:     "teams-webhooks-get-team-webhooks <eventTypeId> <teamId>",
-		Short:   "Get all webhooks for a team event type",
+		Use:   "teams-webhooks-get-team-webhooks <eventTypeId> <teamId>",
+		Short: "Get all webhooks for a team event type",
 		Example: "  cal-com-pp-cli teams event-types teams-webhooks-get-team-webhooks 42 42",
+		Annotations: map[string]string{"pp:endpoint": "event-types.teams-webhooks-get-team-webhooks", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -41,7 +42,7 @@ func newTeamsEventTypesTeamsWebhooksGetTeamWebhooksCmd(flags *rootFlags) *cobra.
 			if flagSkip != 0.0 {
 				params["skip"] = fmt.Sprintf("%v", flagSkip)
 			}
-			data, prov, err := resolveRead(c, flags, "event-types", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "event-types", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

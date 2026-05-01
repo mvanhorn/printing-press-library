@@ -27,15 +27,16 @@ func newOrganizationsTeamsOrganizationsBookingsGetAllOrgBookingsCmd(flags *rootF
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:     "organizations-bookings-get-all-org-bookings <teamId> <orgId>",
-		Short:   "Get organization team bookings",
+		Use:   "organizations-bookings-get-all-org-bookings <teamId> <orgId>",
+		Short: "Get organization team bookings",
 		Example: "  cal-com-pp-cli organizations teams organizations-bookings-get-all-org-bookings 42 42",
+		Annotations: map[string]string{"pp:endpoint": "teams.organizations-bookings-get-all-org-bookings", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("sort-start") {
-				allowedSortStart := []string{"asc", "desc"}
+				allowedSortStart := []string{ "asc", "desc" }
 				validSortStart := false
 				for _, v := range allowedSortStart {
 					if flagSortStart == v {
@@ -48,7 +49,7 @@ func newOrganizationsTeamsOrganizationsBookingsGetAllOrgBookingsCmd(flags *rootF
 				}
 			}
 			if cmd.Flags().Changed("sort-end") {
-				allowedSortEnd := []string{"asc", "desc"}
+				allowedSortEnd := []string{ "asc", "desc" }
 				validSortEnd := false
 				for _, v := range allowedSortEnd {
 					if flagSortEnd == v {
@@ -61,7 +62,7 @@ func newOrganizationsTeamsOrganizationsBookingsGetAllOrgBookingsCmd(flags *rootF
 				}
 			}
 			if cmd.Flags().Changed("sort-created") {
-				allowedSortCreated := []string{"asc", "desc"}
+				allowedSortCreated := []string{ "asc", "desc" }
 				validSortCreated := false
 				for _, v := range allowedSortCreated {
 					if flagSortCreated == v {
@@ -127,7 +128,7 @@ func newOrganizationsTeamsOrganizationsBookingsGetAllOrgBookingsCmd(flags *rootF
 			if flagSkip != 0.0 {
 				params["skip"] = fmt.Sprintf("%v", flagSkip)
 			}
-			data, prov, err := resolveRead(c, flags, "teams", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "teams", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

@@ -14,9 +14,10 @@ import (
 func newTeamsEventTypesTeamsWebhooksGetTeamWebhookCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "teams-webhooks-get-team-webhook <webhookId> <eventTypeId> <teamId>",
-		Short:   "Get a webhook for a team event type",
+		Use:   "teams-webhooks-get-team-webhook <webhookId> <eventTypeId> <teamId>",
+		Short: "Get a webhook for a team event type",
 		Example: "  cal-com-pp-cli teams event-types teams-webhooks-get-team-webhook example-value 42 42",
+		Annotations: map[string]string{"pp:endpoint": "event-types.teams-webhooks-get-team-webhook", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -37,7 +38,7 @@ func newTeamsEventTypesTeamsWebhooksGetTeamWebhookCmd(flags *rootFlags) *cobra.C
 			}
 			path = replacePathParam(path, "teamId", args[2])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "event-types", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "event-types", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

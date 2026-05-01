@@ -16,9 +16,10 @@ func newOrganizationsTeamsOrganizationsGetMyCmd(flags *rootFlags) *cobra.Command
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:     "organizations-get-my <orgId>",
-		Short:   "Get teams membership for user",
+		Use:   "organizations-get-my <orgId>",
+		Short: "Get teams membership for user",
 		Example: "  cal-com-pp-cli organizations teams organizations-get-my 42",
+		Annotations: map[string]string{"pp:endpoint": "teams.organizations-get-my", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -37,7 +38,7 @@ func newOrganizationsTeamsOrganizationsGetMyCmd(flags *rootFlags) *cobra.Command
 			if flagSkip != 0.0 {
 				params["skip"] = fmt.Sprintf("%v", flagSkip)
 			}
-			data, prov, err := resolveRead(c, flags, "teams", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "teams", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

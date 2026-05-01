@@ -14,9 +14,10 @@ import (
 func newOrganizationsTeamsOrganizationsRolesPermissionsListPermissionsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "organizations-roles-permissions-list-permissions <orgId> <teamId> <roleId>",
-		Short:   "List permissions for an organization team role",
+		Use:   "organizations-roles-permissions-list-permissions <orgId> <teamId> <roleId>",
+		Short: "List permissions for an organization team role",
 		Example: "  cal-com-pp-cli organizations teams organizations-roles-permissions-list-permissions 42 42 example-value",
+		Annotations: map[string]string{"pp:endpoint": "teams.organizations-roles-permissions-list-permissions", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -37,7 +38,7 @@ func newOrganizationsTeamsOrganizationsRolesPermissionsListPermissionsCmd(flags 
 			}
 			path = replacePathParam(path, "roleId", args[2])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "teams", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "teams", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

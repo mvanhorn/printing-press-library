@@ -14,10 +14,11 @@ import (
 func newStripeCheckCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "check",
+		Use:   "check",
 		Aliases: []string{"list"},
-		Short:   "Check Stripe connection",
+		Short: "Check Stripe connection",
 		Example: "  cal-com-pp-cli stripe check",
+		Annotations: map[string]string{"pp:endpoint": "stripe.check", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -26,7 +27,7 @@ func newStripeCheckCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v2/stripe/check"
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "stripe", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "stripe", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

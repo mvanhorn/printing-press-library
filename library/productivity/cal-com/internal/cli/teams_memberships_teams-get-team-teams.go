@@ -14,9 +14,10 @@ import (
 func newTeamsMembershipsTeamsGetTeamTeamsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "teams-get-team-teams <teamId> <membershipId>",
-		Short:   "Get a membership",
+		Use:   "teams-get-team-teams <teamId> <membershipId>",
+		Short: "Get a membership",
 		Example: "  cal-com-pp-cli teams memberships teams-get-team-teams 42 42",
+		Annotations: map[string]string{"pp:endpoint": "memberships.teams-get-team-teams", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -33,7 +34,7 @@ func newTeamsMembershipsTeamsGetTeamTeamsCmd(flags *rootFlags) *cobra.Command {
 			}
 			path = replacePathParam(path, "membershipId", args[1])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "memberships", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "memberships", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

@@ -21,10 +21,11 @@ func newOrganizationsUsersOrganizationsOoocontrollerUpdateOrganizationOooCmd(fla
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "organizations-ooocontroller-update-organization-ooo <userId> <oooId> <orgId>",
+		Use:   "organizations-ooocontroller-update-organization-ooo <userId> <oooId> <orgId>",
 		Aliases: []string{"update"},
-		Short:   "Update an out-of-office entry for a user",
+		Short: "Update an out-of-office entry for a user",
 		Example: "  cal-com-pp-cli organizations users organizations-ooocontroller-update-organization-ooo 42 42 42",
+		Annotations: map[string]string{"pp:endpoint": "users.organizations-ooocontroller-update-organization-ooo"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -89,9 +90,7 @@ func newOrganizationsUsersOrganizationsOoocontrollerUpdateOrganizationOooCmd(fla
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

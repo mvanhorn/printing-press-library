@@ -17,16 +17,17 @@ func newCalendarsConnectCalendarsRedirectCmd(flags *rootFlags) *cobra.Command {
 	var flagRedir string
 
 	cmd := &cobra.Command{
-		Use:     "calendars-redirect",
+		Use:   "calendars-redirect",
 		Aliases: []string{"get"},
-		Short:   "Get OAuth connect URL",
+		Short: "Get OAuth connect URL",
 		Example: "  cal-com-pp-cli calendars connect calendars-redirect",
+		Annotations: map[string]string{"pp:endpoint": "connect.calendars-redirect", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("is-dry-run") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "is-dry-run")
 			}
 			if cmd.Flags().Changed("calendar") {
-				allowedCalendar := []string{"office365", "google"}
+				allowedCalendar := []string{ "office365", "google" }
 				validCalendar := false
 				for _, v := range allowedCalendar {
 					if flagCalendar == v {
@@ -52,7 +53,7 @@ func newCalendarsConnectCalendarsRedirectCmd(flags *rootFlags) *cobra.Command {
 			if flagRedir != "" {
 				params["redir"] = fmt.Sprintf("%v", flagRedir)
 			}
-			data, prov, err := resolveRead(c, flags, "connect", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "connect", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

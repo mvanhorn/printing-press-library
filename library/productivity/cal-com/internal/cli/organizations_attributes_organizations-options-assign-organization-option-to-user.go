@@ -19,9 +19,10 @@ func newOrganizationsAttributesOrganizationsOptionsAssignOrganizationOptionToUse
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "organizations-options-assign-organization-option-to-user <orgId> <userId>",
-		Short:   "Assign an attribute to a user",
+		Use:   "organizations-options-assign-organization-option-to-user <orgId> <userId>",
+		Short: "Assign an attribute to a user",
 		Example: "  cal-com-pp-cli organizations attributes organizations-options-assign-organization-option-to-user 42 42 --attributeId example-value",
+		Annotations: map[string]string{"pp:endpoint": "attributes.organizations-options-assign-organization-option-to-user"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -79,9 +80,7 @@ func newOrganizationsAttributesOrganizationsOptionsAssignOrganizationOptionToUse
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

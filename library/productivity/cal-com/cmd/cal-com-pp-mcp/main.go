@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"os"
 
-	mcptools "github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	mcptools "github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/mcp"
 )
 
 func main() {
@@ -19,7 +19,6 @@ func main() {
 	)
 
 	mcptools.RegisterTools(s)
-	mcptools.RegisterNovelFeatureTools(s)
 
 	if err := server.ServeStdio(s); err != nil {
 		fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)

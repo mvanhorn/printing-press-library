@@ -14,9 +14,10 @@ import (
 func newStripeRedirectCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "redirect",
-		Short:   "Get Stripe connect URL",
+		Use:   "redirect",
+		Short: "Get Stripe connect URL",
 		Example: "  cal-com-pp-cli stripe redirect",
+		Annotations: map[string]string{"pp:endpoint": "stripe.redirect", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -25,7 +26,7 @@ func newStripeRedirectCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v2/stripe/connect"
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "stripe", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "stripe", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

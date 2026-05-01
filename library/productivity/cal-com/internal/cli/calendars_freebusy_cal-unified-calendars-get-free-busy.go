@@ -18,10 +18,11 @@ func newCalendarsFreebusyCalUnifiedCalendarsGetFreeBusyCmd(flags *rootFlags) *co
 	var flagTimeZone string
 
 	cmd := &cobra.Command{
-		Use:     "cal-unified-calendars-get-free-busy",
+		Use:   "cal-unified-calendars-get-free-busy",
 		Aliases: []string{"get"},
-		Short:   "Get free/busy times",
+		Short: "Get busy time slots for the authenticated user's selected calendars in the given date range. Currently only Google...",
 		Example: "  cal-com-pp-cli calendars freebusy cal-unified-calendars-get-free-busy",
+		Annotations: map[string]string{"pp:endpoint": "freebusy.cal-unified-calendars-get-free-busy", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("from") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "from")
@@ -30,7 +31,7 @@ func newCalendarsFreebusyCalUnifiedCalendarsGetFreeBusyCmd(flags *rootFlags) *co
 				return fmt.Errorf("required flag \"%s\" not set", "to")
 			}
 			if cmd.Flags().Changed("calendar") {
-				allowedCalendar := []string{"google", "office365", "apple"}
+				allowedCalendar := []string{ "google", "office365", "apple" }
 				validCalendar := false
 				for _, v := range allowedCalendar {
 					if flagCalendar == v {
@@ -59,7 +60,7 @@ func newCalendarsFreebusyCalUnifiedCalendarsGetFreeBusyCmd(flags *rootFlags) *co
 			if flagTimeZone != "" {
 				params["timeZone"] = fmt.Sprintf("%v", flagTimeZone)
 			}
-			data, prov, err := resolveRead(c, flags, "freebusy", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "freebusy", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

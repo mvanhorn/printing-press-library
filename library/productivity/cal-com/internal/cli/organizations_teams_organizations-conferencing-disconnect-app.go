@@ -15,15 +15,16 @@ func newOrganizationsTeamsOrganizationsConferencingDisconnectAppCmd(flags *rootF
 	var flagApp string
 
 	cmd := &cobra.Command{
-		Use:     "organizations-conferencing-disconnect-app <teamId> <orgId>",
-		Short:   "Disconnect team conferencing application",
+		Use:   "organizations-conferencing-disconnect-app <teamId> <orgId>",
+		Short: "Disconnect team conferencing application",
 		Example: "  cal-com-pp-cli organizations teams organizations-conferencing-disconnect-app 42 42",
+		Annotations: map[string]string{"pp:endpoint": "teams.organizations-conferencing-disconnect-app"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("app") {
-				allowedApp := []string{"google-meet", "zoom", "msteams"}
+				allowedApp := []string{ "google-meet", "zoom", "msteams" }
 				validApp := false
 				for _, v := range allowedApp {
 					if flagApp == v {
@@ -61,9 +62,7 @@ func newOrganizationsTeamsOrganizationsConferencingDisconnectAppCmd(flags *rootF
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

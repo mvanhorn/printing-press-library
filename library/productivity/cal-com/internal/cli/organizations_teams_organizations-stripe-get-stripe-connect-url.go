@@ -16,9 +16,10 @@ func newOrganizationsTeamsOrganizationsStripeGetStripeConnectUrlCmd(flags *rootF
 	var flagOnErrorReturnTo string
 
 	cmd := &cobra.Command{
-		Use:     "organizations-stripe-get-stripe-connect-url <teamId> <orgId>",
-		Short:   "Get Stripe connect URL for a team",
+		Use:   "organizations-stripe-get-stripe-connect-url <teamId> <orgId>",
+		Short: "Get Stripe connect URL for a team",
 		Example: "  cal-com-pp-cli organizations teams organizations-stripe-get-stripe-connect-url example-value 42",
+		Annotations: map[string]string{"pp:endpoint": "teams.organizations-stripe-get-stripe-connect-url", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -47,7 +48,7 @@ func newOrganizationsTeamsOrganizationsStripeGetStripeConnectUrlCmd(flags *rootF
 			if flagOnErrorReturnTo != "" {
 				params["onErrorReturnTo"] = fmt.Sprintf("%v", flagOnErrorReturnTo)
 			}
-			data, prov, err := resolveRead(c, flags, "teams", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "teams", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

@@ -18,9 +18,10 @@ func newCalendarsCalUnifiedListConnectionEventsCmd(flags *rootFlags) *cobra.Comm
 	var flagCalendarId string
 
 	cmd := &cobra.Command{
-		Use:     "cal-unified-list-connection-events <connectionId>",
-		Short:   "List events for a connection",
+		Use:   "cal-unified-list-connection-events <connectionId>",
+		Short: "List events in a date range for a specific calendar connection. Only supported for Google Calendar connections;...",
 		Example: "  cal-com-pp-cli calendars cal-unified-list-connection-events example-value",
+		Annotations: map[string]string{"pp:endpoint": "calendars.cal-unified-list-connection-events", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -51,7 +52,7 @@ func newCalendarsCalUnifiedListConnectionEventsCmd(flags *rootFlags) *cobra.Comm
 			if flagCalendarId != "" {
 				params["calendarId"] = fmt.Sprintf("%v", flagCalendarId)
 			}
-			data, prov, err := resolveRead(c, flags, "calendars", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "calendars", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

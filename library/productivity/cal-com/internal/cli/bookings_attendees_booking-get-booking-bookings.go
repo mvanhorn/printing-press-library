@@ -14,9 +14,10 @@ import (
 func newBookingsAttendeesBookingGetBookingBookingsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "booking-get-booking-bookings <bookingUid> <attendeeId>",
-		Short:   "Get a specific attendee for a booking",
+		Use:   "booking-get-booking-bookings <bookingUid> <attendeeId>",
+		Short: "Retrieve a specific attendee by their ID for a booking identified by its UID. <Note>The cal-api-version header is...",
 		Example: "  cal-com-pp-cli bookings attendees booking-get-booking-bookings example-value 42",
+		Annotations: map[string]string{"pp:endpoint": "attendees.booking-get-booking-bookings", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -33,7 +34,7 @@ func newBookingsAttendeesBookingGetBookingBookingsCmd(flags *rootFlags) *cobra.C
 			}
 			path = replacePathParam(path, "attendeeId", args[1])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "attendees", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "attendees", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

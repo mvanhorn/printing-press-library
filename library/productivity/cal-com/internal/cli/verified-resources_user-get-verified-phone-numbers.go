@@ -16,9 +16,10 @@ func newVerifiedResourcesUserGetVerifiedPhoneNumbersCmd(flags *rootFlags) *cobra
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:     "user-get-verified-phone-numbers",
-		Short:   "Get list of verified phone numbers",
+		Use:   "user-get-verified-phone-numbers",
+		Short: "Get list of verified phone numbers",
 		Example: "  cal-com-pp-cli verified-resources user-get-verified-phone-numbers",
+		Annotations: map[string]string{"pp:endpoint": "verified-resources.user-get-verified-phone-numbers", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -33,7 +34,7 @@ func newVerifiedResourcesUserGetVerifiedPhoneNumbersCmd(flags *rootFlags) *cobra
 			if flagSkip != 0.0 {
 				params["skip"] = fmt.Sprintf("%v", flagSkip)
 			}
-			data, prov, err := resolveRead(c, flags, "verified-resources", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "verified-resources", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

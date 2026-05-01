@@ -12,21 +12,45 @@ import (
 )
 
 func newDestinationCalendarsPromotedCmd(flags *rootFlags) *cobra.Command {
+	var bodyDelegationCredentialId string
+	var bodyExternalId string
+	var bodyIntegration string
 
 	cmd := &cobra.Command{
-		Use:     "destination-calendars",
-		Short:   "Update destination calendars",
-		Long:    "Shortcut for 'destination-calendars update'. Update destination calendars",
+		Use:   "destination-calendars",
+		Short: "Update destination calendars",
+		Long:  "Shortcut for 'destination-calendars update'. Update destination calendars",
 		Example: "  cal-com-pp-cli destination-calendars",
+		Annotations: map[string]string{"pp:endpoint": "destination-calendars.update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("external-id") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "external-id")
+			}
+			if !cmd.Flags().Changed("integration") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "integration")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
 			path := "/v2/destination-calendars"
-			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "destination-calendars", false, path, params)
+			// HasStore + non-GET falls through to a live API call here
+			// rather than through resolveRead (GET-only internally); a
+			// body-aware cached read helper is filed as #425 for when a
+			// second store-backed POST-search consumer ships.
+			body := map[string]any{}
+			if bodyDelegationCredentialId != "" {
+				body["delegationCredentialId"] = bodyDelegationCredentialId
+			}
+			if bodyExternalId != "" {
+				body["externalId"] = bodyExternalId
+			}
+			if bodyIntegration != "" {
+				body["integration"] = bodyIntegration
+			}
+			data, _, err := c.Put(path, body)
+			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -78,6 +102,9 @@ func newDestinationCalendarsPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
+	cmd.Flags().StringVar(&bodyDelegationCredentialId, "delegation-credential-id", "", "Delegation credential id")
+	cmd.Flags().StringVar(&bodyExternalId, "external-id", "", "Unique identifier used to represent the specific calendar, as returned by the /calendars endpoint")
+	cmd.Flags().StringVar(&bodyIntegration, "integration", "", "The calendar service you want to integrate, as returned by the /calendars endpoint")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

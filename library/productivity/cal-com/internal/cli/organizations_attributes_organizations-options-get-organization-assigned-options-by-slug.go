@@ -18,9 +18,10 @@ func newOrganizationsAttributesOrganizationsOptionsGetOrganizationAssignedOption
 	var flagTeamIds string
 
 	cmd := &cobra.Command{
-		Use:     "organizations-options-get-organization-assigned-options-by-slug <orgId> <attributeSlug>",
-		Short:   "Get all assigned attribute options by attribute slug",
+		Use:   "organizations-options-get-organization-assigned-options-by-slug <orgId> <attributeSlug>",
+		Short: "Get all assigned attribute options by attribute slug",
 		Example: "  cal-com-pp-cli organizations attributes organizations-options-get-organization-assigned-options-by-slug 42 example-value",
+		Annotations: map[string]string{"pp:endpoint": "attributes.organizations-options-get-organization-assigned-options-by-slug", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -49,7 +50,7 @@ func newOrganizationsAttributesOrganizationsOptionsGetOrganizationAssignedOption
 			if flagTeamIds != "" {
 				params["teamIds"] = fmt.Sprintf("%v", flagTeamIds)
 			}
-			data, prov, err := resolveRead(c, flags, "attributes", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "attributes", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

@@ -16,9 +16,10 @@ func newOrganizationsTeamsOrganizationsConferencingSaveOauthCredentialsCmd(flags
 	var flagCode string
 
 	cmd := &cobra.Command{
-		Use:     "organizations-conferencing-save-oauth-credentials <teamId> <orgId> <app>",
-		Short:   "Save conferencing app OAuth credentials",
+		Use:   "organizations-conferencing-save-oauth-credentials <teamId> <orgId> <app>",
+		Short: "Save conferencing app OAuth credentials",
 		Example: "  cal-com-pp-cli organizations teams organizations-conferencing-save-oauth-credentials 42 42 example-value",
+		Annotations: map[string]string{"pp:endpoint": "teams.organizations-conferencing-save-oauth-credentials", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -54,7 +55,7 @@ func newOrganizationsTeamsOrganizationsConferencingSaveOauthCredentialsCmd(flags
 			if flagCode != "" {
 				params["code"] = fmt.Sprintf("%v", flagCode)
 			}
-			data, prov, err := resolveRead(c, flags, "teams", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "teams", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

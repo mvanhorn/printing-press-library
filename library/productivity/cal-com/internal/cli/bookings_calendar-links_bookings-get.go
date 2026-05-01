@@ -14,10 +14,11 @@ import (
 func newBookingsCalendarLinksBookingsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "bookings-get <bookingUid>",
+		Use:   "bookings-get <bookingUid>",
 		Aliases: []string{"get"},
-		Short:   "Get 'Add to Calendar' links for a booking",
+		Short: "Retrieve calendar links for a booking that can be used to add the event to various calendar services. Returns links...",
 		Example: "  cal-com-pp-cli bookings calendar-links bookings-get example-value",
+		Annotations: map[string]string{"pp:endpoint": "calendar-links.bookings-get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -30,7 +31,7 @@ func newBookingsCalendarLinksBookingsGetCmd(flags *rootFlags) *cobra.Command {
 			path := "/v2/bookings/{bookingUid}/calendar-links"
 			path = replacePathParam(path, "bookingUid", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "calendar-links", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "calendar-links", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

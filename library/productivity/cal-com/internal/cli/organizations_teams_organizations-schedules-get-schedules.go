@@ -17,9 +17,10 @@ func newOrganizationsTeamsOrganizationsSchedulesGetSchedulesCmd(flags *rootFlags
 	var flagEventTypeId float64
 
 	cmd := &cobra.Command{
-		Use:     "organizations-schedules-get-schedules <orgId> <teamId>",
-		Short:   "Get all team member schedules",
+		Use:   "organizations-schedules-get-schedules <orgId> <teamId>",
+		Short: "Get all team member schedules",
 		Example: "  cal-com-pp-cli organizations teams organizations-schedules-get-schedules 42 42",
+		Annotations: map[string]string{"pp:endpoint": "teams.organizations-schedules-get-schedules", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -45,7 +46,7 @@ func newOrganizationsTeamsOrganizationsSchedulesGetSchedulesCmd(flags *rootFlags
 			if flagEventTypeId != 0.0 {
 				params["eventTypeId"] = fmt.Sprintf("%v", flagEventTypeId)
 			}
-			data, prov, err := resolveRead(c, flags, "teams", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "teams", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

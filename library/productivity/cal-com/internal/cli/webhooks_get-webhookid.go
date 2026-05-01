@@ -14,9 +14,10 @@ import (
 func newWebhooksGetWebhookidCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "get-webhookid <webhookId>",
-		Short:   "Get a webhook",
+		Use:   "get-webhookid <webhookId>",
+		Short: "Get a webhook",
 		Example: "  cal-com-pp-cli webhooks get-webhookid example-value",
+		Annotations: map[string]string{"pp:endpoint": "webhooks.get-webhookid", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -29,7 +30,7 @@ func newWebhooksGetWebhookidCmd(flags *rootFlags) *cobra.Command {
 			path := "/v2/webhooks/{webhookId}"
 			path = replacePathParam(path, "webhookId", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "webhooks", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "webhooks", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

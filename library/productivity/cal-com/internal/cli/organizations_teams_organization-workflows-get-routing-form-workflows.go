@@ -16,9 +16,10 @@ func newOrganizationsTeamsOrganizationWorkflowsGetRoutingFormWorkflowsCmd(flags 
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:     "organization-workflows-get-routing-form-workflows <orgId> <teamId>",
-		Short:   "Get organization team workflows",
+		Use:   "organization-workflows-get-routing-form-workflows <orgId> <teamId>",
+		Short: "Get organization team workflows",
 		Example: "  cal-com-pp-cli organizations teams organization-workflows-get-routing-form-workflows 42 42",
+		Annotations: map[string]string{"pp:endpoint": "teams.organization-workflows-get-routing-form-workflows", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -41,7 +42,7 @@ func newOrganizationsTeamsOrganizationWorkflowsGetRoutingFormWorkflowsCmd(flags 
 			if flagSkip != 0.0 {
 				params["skip"] = fmt.Sprintf("%v", flagSkip)
 			}
-			data, prov, err := resolveRead(c, flags, "teams", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "teams", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

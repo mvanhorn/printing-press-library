@@ -16,9 +16,10 @@ func newTeamsVerifiedResourcesTeamsGetVerifiedPhoneNumbersCmd(flags *rootFlags) 
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:     "teams-get-verified-phone-numbers <teamId>",
-		Short:   "Get list of verified phone numbers of a team",
+		Use:   "teams-get-verified-phone-numbers <teamId>",
+		Short: "Get list of verified phone numbers of a team",
 		Example: "  cal-com-pp-cli teams verified-resources teams-get-verified-phone-numbers 42",
+		Annotations: map[string]string{"pp:endpoint": "verified-resources.teams-get-verified-phone-numbers", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -37,7 +38,7 @@ func newTeamsVerifiedResourcesTeamsGetVerifiedPhoneNumbersCmd(flags *rootFlags) 
 			if flagSkip != 0.0 {
 				params["skip"] = fmt.Sprintf("%v", flagSkip)
 			}
-			data, prov, err := resolveRead(c, flags, "verified-resources", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "verified-resources", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

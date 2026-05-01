@@ -14,9 +14,10 @@ import (
 func newCalendarsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "get",
-		Short:   "Get all calendars",
+		Use:   "get",
+		Short: "Get all calendars",
 		Example: "  cal-com-pp-cli calendars get",
+		Annotations: map[string]string{"pp:endpoint": "calendars.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -25,7 +26,7 @@ func newCalendarsGetCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v2/calendars"
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "calendars", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "calendars", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

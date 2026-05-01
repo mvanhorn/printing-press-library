@@ -15,10 +15,11 @@ func newCalendarsCalUnifiedDeleteConnectionEventCmd(flags *rootFlags) *cobra.Com
 	var flagCalendarId string
 
 	cmd := &cobra.Command{
-		Use:     "cal-unified-delete-connection-event <connectionId> <eventId>",
+		Use:   "cal-unified-delete-connection-event <connectionId> <eventId>",
 		Aliases: []string{"delete"},
-		Short:   "Delete event for a connection",
+		Short: "Delete/cancel an event on the specified calendar connection. Only supported for Google Calendar connections; other...",
 		Example: "  cal-com-pp-cli calendars cal-unified-delete-connection-event example-value example-value",
+		Annotations: map[string]string{"pp:endpoint": "calendars.cal-unified-delete-connection-event"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -48,9 +49,7 @@ func newCalendarsCalUnifiedDeleteConnectionEventCmd(flags *rootFlags) *cobra.Com
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

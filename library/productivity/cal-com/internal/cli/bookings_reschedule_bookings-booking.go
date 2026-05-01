@@ -16,10 +16,11 @@ func newBookingsRescheduleBookingsBookingCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "bookings-booking <bookingUid>",
+		Use:   "bookings-booking <bookingUid>",
 		Aliases: []string{"create"},
-		Short:   "Reschedule a booking",
+		Short: "Reschedule a booking or seated booking <Note>Please make sure to pass in the cal-api-version header value as...",
 		Example: "  cal-com-pp-cli bookings reschedule bookings-booking example-value",
+		Annotations: map[string]string{"pp:endpoint": "reschedule.bookings-booking"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -61,9 +62,7 @@ func newBookingsRescheduleBookingsBookingCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

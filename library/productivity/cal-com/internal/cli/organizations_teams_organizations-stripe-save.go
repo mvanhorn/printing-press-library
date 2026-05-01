@@ -16,9 +16,10 @@ func newOrganizationsTeamsOrganizationsStripeSaveCmd(flags *rootFlags) *cobra.Co
 	var flagCode string
 
 	cmd := &cobra.Command{
-		Use:     "organizations-stripe-save <teamId> <orgId>",
-		Short:   "Save Stripe credentials",
+		Use:   "organizations-stripe-save <teamId> <orgId>",
+		Short: "Save Stripe credentials",
 		Example: "  cal-com-pp-cli organizations teams organizations-stripe-save 42 42",
+		Annotations: map[string]string{"pp:endpoint": "teams.organizations-stripe-save", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -50,7 +51,7 @@ func newOrganizationsTeamsOrganizationsStripeSaveCmd(flags *rootFlags) *cobra.Co
 			if flagCode != "" {
 				params["code"] = fmt.Sprintf("%v", flagCode)
 			}
-			data, prov, err := resolveRead(c, flags, "teams", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "teams", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

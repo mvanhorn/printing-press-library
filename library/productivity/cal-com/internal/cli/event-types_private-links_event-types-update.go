@@ -18,10 +18,11 @@ func newEventTypesPrivateLinksEventTypesUpdateCmd(flags *rootFlags) *cobra.Comma
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "event-types-update <eventTypeId> <linkId>",
+		Use:   "event-types-update <eventTypeId> <linkId>",
 		Aliases: []string{"update"},
-		Short:   "Update a private link for an event type",
+		Short: "Update a private link for an event type",
 		Example: "  cal-com-pp-cli event-types private-links event-types-update 42 https://example.com/resource",
+		Annotations: map[string]string{"pp:endpoint": "private-links.event-types-update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -73,9 +74,7 @@ func newEventTypesPrivateLinksEventTypesUpdateCmd(flags *rootFlags) *cobra.Comma
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

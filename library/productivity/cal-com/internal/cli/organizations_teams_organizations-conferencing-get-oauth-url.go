@@ -17,9 +17,10 @@ func newOrganizationsTeamsOrganizationsConferencingGetOauthUrlCmd(flags *rootFla
 	var flagOnErrorReturnTo string
 
 	cmd := &cobra.Command{
-		Use:     "organizations-conferencing-get-oauth-url <teamId> <orgId>",
-		Short:   "Get OAuth conferencing app's auth URL for a team",
+		Use:   "organizations-conferencing-get-oauth-url <teamId> <orgId>",
+		Short: "Get OAuth conferencing app's auth URL for a team",
 		Example: "  cal-com-pp-cli organizations teams organizations-conferencing-get-oauth-url example-value 42",
+		Annotations: map[string]string{"pp:endpoint": "teams.organizations-conferencing-get-oauth-url", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -31,7 +32,7 @@ func newOrganizationsTeamsOrganizationsConferencingGetOauthUrlCmd(flags *rootFla
 				return fmt.Errorf("required flag \"%s\" not set", "on-error-return-to")
 			}
 			if cmd.Flags().Changed("app") {
-				allowedApp := []string{"zoom", "msteams"}
+				allowedApp := []string{ "zoom", "msteams" }
 				validApp := false
 				for _, v := range allowedApp {
 					if flagApp == v {
@@ -62,7 +63,7 @@ func newOrganizationsTeamsOrganizationsConferencingGetOauthUrlCmd(flags *rootFla
 			if flagOnErrorReturnTo != "" {
 				params["onErrorReturnTo"] = fmt.Sprintf("%v", flagOnErrorReturnTo)
 			}
-			data, prov, err := resolveRead(c, flags, "teams", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "teams", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

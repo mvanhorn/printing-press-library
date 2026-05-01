@@ -14,9 +14,10 @@ import (
 func newTeamsGetTeamidCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "get-teamid <teamId>",
-		Short:   "Get a team",
+		Use:   "get-teamid <teamId>",
+		Short: "Get a team",
 		Example: "  cal-com-pp-cli teams get-teamid 42",
+		Annotations: map[string]string{"pp:endpoint": "teams.get-teamid", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -29,7 +30,7 @@ func newTeamsGetTeamidCmd(flags *rootFlags) *cobra.Command {
 			path := "/v2/teams/{teamId}"
 			path = replacePathParam(path, "teamId", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "teams", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "teams", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

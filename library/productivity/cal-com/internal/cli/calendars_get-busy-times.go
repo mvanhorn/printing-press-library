@@ -20,9 +20,10 @@ func newCalendarsGetBusyTimesCmd(flags *rootFlags) *cobra.Command {
 	var flagExternalId string
 
 	cmd := &cobra.Command{
-		Use:     "get-busy-times",
-		Short:   "Get busy times",
+		Use:   "get-busy-times",
+		Short: "Get busy times from a calendar. Example request URL is `https://api.cal.com/v2/calendars/busy-times?timeZone=Europe%2...",
 		Example: "  cal-com-pp-cli calendars get-busy-times",
+		Annotations: map[string]string{"pp:endpoint": "calendars.get-busy-times", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("credential-id") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "credential-id")
@@ -55,7 +56,7 @@ func newCalendarsGetBusyTimesCmd(flags *rootFlags) *cobra.Command {
 			if flagExternalId != "" {
 				params["externalId"] = fmt.Sprintf("%v", flagExternalId)
 			}
-			data, prov, err := resolveRead(c, flags, "calendars", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "calendars", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

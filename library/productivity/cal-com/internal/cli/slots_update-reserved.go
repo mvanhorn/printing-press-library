@@ -20,10 +20,11 @@ func newSlotsUpdateReservedCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "update-reserved <uid>",
+		Use:   "update-reserved <uid>",
 		Aliases: []string{"update"},
-		Short:   "Update a reserved slot",
+		Short: "<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing...",
 		Example: "  cal-com-pp-cli slots update-reserved example-value --slotStart example-value",
+		Annotations: map[string]string{"pp:endpoint": "slots.update-reserved"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -83,9 +84,7 @@ func newSlotsUpdateReservedCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

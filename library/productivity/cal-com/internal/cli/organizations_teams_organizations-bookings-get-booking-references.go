@@ -15,15 +15,16 @@ func newOrganizationsTeamsOrganizationsBookingsGetBookingReferencesCmd(flags *ro
 	var flagType string
 
 	cmd := &cobra.Command{
-		Use:     "organizations-bookings-get-booking-references <bookingUid> <teamId> <orgId>",
-		Short:   "Get booking references",
+		Use:   "organizations-bookings-get-booking-references <bookingUid> <teamId> <orgId>",
+		Short: "Get booking references",
 		Example: "  cal-com-pp-cli organizations teams organizations-bookings-get-booking-references example-value 42 42",
+		Annotations: map[string]string{"pp:endpoint": "teams.organizations-bookings-get-booking-references", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("type") {
-				allowedType := []string{"google_calendar", "office365_calendar", "daily_video", "google_video", "office365_video", "zoom_video"}
+				allowedType := []string{ "google_calendar", "office365_calendar", "daily_video", "google_video", "office365_video", "zoom_video" }
 				validType := false
 				for _, v := range allowedType {
 					if flagType == v {
@@ -54,7 +55,7 @@ func newOrganizationsTeamsOrganizationsBookingsGetBookingReferencesCmd(flags *ro
 			if flagType != "" {
 				params["type"] = fmt.Sprintf("%v", flagType)
 			}
-			data, prov, err := resolveRead(c, flags, "teams", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "teams", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

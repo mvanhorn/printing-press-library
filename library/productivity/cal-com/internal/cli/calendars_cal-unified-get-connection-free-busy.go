@@ -17,9 +17,10 @@ func newCalendarsCalUnifiedGetConnectionFreeBusyCmd(flags *rootFlags) *cobra.Com
 	var flagTimeZone string
 
 	cmd := &cobra.Command{
-		Use:     "cal-unified-get-connection-free-busy <connectionId>",
-		Short:   "Get free/busy for a connection",
+		Use:   "cal-unified-get-connection-free-busy <connectionId>",
+		Short: "Get busy time slots for the specified calendar connection.",
 		Example: "  cal-com-pp-cli calendars cal-unified-get-connection-free-busy example-value",
+		Annotations: map[string]string{"pp:endpoint": "calendars.cal-unified-get-connection-free-busy", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -47,7 +48,7 @@ func newCalendarsCalUnifiedGetConnectionFreeBusyCmd(flags *rootFlags) *cobra.Com
 			if flagTimeZone != "" {
 				params["timeZone"] = fmt.Sprintf("%v", flagTimeZone)
 			}
-			data, prov, err := resolveRead(c, flags, "calendars", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "calendars", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

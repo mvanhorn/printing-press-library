@@ -4,13 +4,9 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/cliutil"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 	"io"
 	"os"
 	"path/filepath"
@@ -20,6 +16,10 @@ import (
 	"text/tabwriter"
 	"time"
 	"unicode"
+	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/client"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 var As = errors.As
@@ -93,12 +93,34 @@ type cliError struct {
 func (e *cliError) Error() string { return e.err.Error() }
 func (e *cliError) Unwrap() error { return e.err }
 
-func usageErr(err error) error     { return &cliError{code: 2, err: err} }
-func notFoundErr(err error) error  { return &cliError{code: 3, err: err} }
-func authErr(err error) error      { return &cliError{code: 4, err: err} }
-func apiErr(err error) error       { return &cliError{code: 5, err: err} }
-func configErr(err error) error    { return &cliError{code: 10, err: err} }
+func usageErr(err error) error    { return &cliError{code: 2, err: err} }
+func notFoundErr(err error) error { return &cliError{code: 3, err: err} }
+func authErr(err error) error     { return &cliError{code: 4, err: err} }
+func apiErr(err error) error      { return &cliError{code: 5, err: err} }
+func configErr(err error) error   { return &cliError{code: 10, err: err} }
 func rateLimitErr(err error) error { return &cliError{code: 7, err: err} }
+
+// dryRunOK reports whether the command should short-circuit without doing any
+// real work because --dry-run was set. The verify pipeline probes hand-written
+// commands with --dry-run; commands that put validation in cobra's `Args:` or
+// `MarkFlagRequired` cannot reach a dry-run guard inside RunE because cobra
+// runs those checks before RunE. The verify-friendly pattern for hand-written
+// commands is:
+//
+//	RunE: func(cmd *cobra.Command, args []string) error {
+//	    if len(args) == 0 {
+//	        return cmd.Help()
+//	    }
+//	    if dryRunOK(flags) {
+//	        return nil
+//	    }
+//	    // ... real work ...
+//	}
+//
+// See SKILL.md "Phase 3: Build The GOAT" for the full pattern.
+func dryRunOK(flags *rootFlags) bool {
+	return flags != nil && flags.dryRun
+}
 
 // accessWarning describes an API access-denial that sync converts into a
 // non-fatal warning. It carries enough structured data for the sync_warning
@@ -202,7 +224,6 @@ func classifyAPIError(err error) error {
 		return apiErr(err)
 	}
 }
-
 // classifyDeleteError treats 404 as success for DELETE (already deleted = idempotent no-op).
 func classifyDeleteError(err error) error {
 	msg := err.Error()
@@ -230,10 +251,13 @@ func replacePathParam(path, name, value string) string {
 	return strings.ReplaceAll(path, "{"+name+"}", value)
 }
 
-// paginatedGet fetches pages and concatenates array results.
+// paginatedGet fetches pages and concatenates array results. The headers
+// argument carries per-endpoint required headers (e.g. cal-api-version) that
+// must be sent on every page request, including the first; pass nil when the
+// endpoint has no per-endpoint header overrides.
 func paginatedGet(c interface {
-	Get(path string, params map[string]string) (json.RawMessage, error)
-}, path string, params map[string]string, fetchAll bool, cursorParam, nextCursorPath, hasMoreField string) (json.RawMessage, error) {
+	GetWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, error)
+}, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, nextCursorPath, hasMoreField string) (json.RawMessage, error) {
 	// Clean zero-value params
 	clean := map[string]string{}
 	for k, v := range params {
@@ -243,7 +267,7 @@ func paginatedGet(c interface {
 	}
 
 	if !fetchAll {
-		return c.Get(path, clean)
+		return c.GetWithHeaders(path, clean, headers)
 	}
 
 	// Fetch all pages
@@ -257,7 +281,7 @@ func paginatedGet(c interface {
 			fmt.Fprintf(os.Stderr, `{"event":"page_fetch","page":%d}`+"\n", page)
 		}
 
-		data, err := c.Get(path, clean)
+		data, err := c.GetWithHeaders(path, clean, headers)
 		if err != nil {
 			return nil, err
 		}
@@ -317,6 +341,18 @@ func paginatedGet(c interface {
 	}
 	result, _ := json.Marshal(allItems)
 	return json.RawMessage(result), nil
+}
+
+// printJSONFiltered marshals a Go-typed value through the same output
+// pipeline endpoint-mirror commands use. Hand-written novel commands that
+// build a typed slice/struct call this so --select, --compact, --csv, and
+// --quiet all behave the same way as on generator-emitted commands.
+func printJSONFiltered(w io.Writer, v any, flags *rootFlags) error {
+	raw, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	return printOutputWithFlags(w, json.RawMessage(raw), flags)
 }
 
 // filterFields keeps only the specified fields (comma-separated) from JSON objects/arrays.
@@ -1068,13 +1104,12 @@ func findField(obj map[string]any, names ...string) string {
 	}
 	return ""
 }
-
 // DataProvenance describes where data came from and when it was last synced.
 type DataProvenance struct {
 	Source       string     `json:"source"`                  // "live" or "local"
-	SyncedAt     *time.Time `json:"synced_at,omitempty"`     // when local data was last synced
-	Reason       string     `json:"reason,omitempty"`        // why local was used: "user_requested", "api_unreachable", "no_search_endpoint"
-	ResourceType string     `json:"resource_type,omitempty"` // which resource type was queried
+	SyncedAt    *time.Time `json:"synced_at,omitempty"`     // when local data was last synced
+	Reason      string     `json:"reason,omitempty"`        // why local was used: "user_requested", "api_unreachable", "no_search_endpoint"
+	ResourceType string    `json:"resource_type,omitempty"` // which resource type was queried
 	Freshness    any        `json:"freshness,omitempty"`     // optional machine-owned freshness metadata for covered command paths
 }
 
@@ -1111,7 +1146,12 @@ func printProvenance(cmd *cobra.Command, count int, prov DataProvenance) {
 	fmt.Fprintf(cmd.ErrOrStderr(), "%s%d results (cached, synced %s)\n", prefix, count, age)
 }
 
-// wrapWithProvenance wraps JSON data in a provenance envelope: {"results": ..., "meta": {...}}.
+// wrapWithProvenance wraps response data in a provenance envelope:
+// {"results": ..., "meta": {...}}. When data is valid JSON, it embeds as
+// the parsed shape; when data is non-JSON (e.g., XML/RSS responses, plain
+// text), it embeds as a JSON string so json.Marshal doesn't choke on
+// "invalid character '<'" while still passing the raw payload through to
+// the consumer.
 func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMessage, error) {
 	meta := map[string]any{"source": prov.Source}
 	if prov.SyncedAt != nil {
@@ -1126,8 +1166,12 @@ func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMess
 	if prov.Freshness != nil {
 		meta["freshness"] = prov.Freshness
 	}
+	var results any = json.RawMessage(data)
+	if !json.Valid(data) {
+		results = string(data)
+	}
 	envelope := map[string]any{
-		"results": json.RawMessage(data),
+		"results": results,
 		"meta":    meta,
 	}
 	return json.Marshal(envelope)

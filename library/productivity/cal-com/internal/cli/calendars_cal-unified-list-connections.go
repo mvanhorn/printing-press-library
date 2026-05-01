@@ -14,10 +14,11 @@ import (
 func newCalendarsCalUnifiedListConnectionsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "cal-unified-list-connections",
+		Use:   "cal-unified-list-connections",
 		Aliases: []string{"list"},
-		Short:   "List calendar connections",
+		Short: "Returns all calendar connections for the authenticated user (Google, Office 365, Apple). Use connectionId in...",
 		Example: "  cal-com-pp-cli calendars cal-unified-list-connections",
+		Annotations: map[string]string{"pp:endpoint": "calendars.cal-unified-list-connections", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -26,7 +27,7 @@ func newCalendarsCalUnifiedListConnectionsCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v2/calendars/connections"
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "calendars", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "calendars", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

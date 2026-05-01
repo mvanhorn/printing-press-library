@@ -105,6 +105,7 @@ In local mode: searches locally synced data only.`,
 
   # JSON output for piping
   cal-com-pp-cli search "critical" --json --limit 20`,
+		Annotations: map[string]string{"mcp:hidden": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -123,7 +124,7 @@ In local mode: searches locally synced data only.`,
 				dbPath = defaultDBPath("cal-com-pp-cli")
 			}
 
-			db, err := store.Open(dbPath)
+			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'cal-com-pp-cli sync' first to populate the local database.", err)
 			}
@@ -133,6 +134,8 @@ In local mode: searches locally synced data only.`,
 			switch resourceType {
 			case "calendars":
 				results, err = db.SearchCalendars(query, limit)
+			case "event_types":
+				results, err = db.SearchEventTypes(query, limit)
 			case "":
 				// Search all FTS-enabled tables individually to avoid duplicates.
 				seen := make(map[string]bool)
@@ -141,6 +144,19 @@ In local mode: searches locally synced data only.`,
 					partial, searchErr := db.SearchCalendars(query, limit)
 					if searchErr != nil {
 						return fmt.Errorf("search calendars failed: %w", searchErr)
+					}
+					for _, r := range partial {
+						key := string(r)
+						if !seen[key] {
+							seen[key] = true
+							results = append(results, r)
+						}
+					}
+				}
+				{
+					partial, searchErr := db.SearchEventTypes(query, limit)
+					if searchErr != nil {
+						return fmt.Errorf("search event_types failed: %w", searchErr)
 					}
 					for _, r := range partial {
 						key := string(r)
@@ -191,26 +207,31 @@ func outputSearchResults(cmd *cobra.Command, flags *rootFlags, results []json.Ra
 		results = results[:limit]
 	}
 
-	if len(results) == 0 {
-		fmt.Fprintf(cmd.ErrOrStderr(), "No results (source: %s)\n", prov.Source)
-		return nil
-	}
+	jsonMode := flags.asJSON || !isTerminal(cmd.OutOrStdout())
 
-	// Print provenance to stderr for human output
-	printProvenance(cmd, len(results), prov)
-
-	if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+	// JSON mode always emits a valid envelope, including on no matches —
+	// agents pipe stdout through json.loads / jq and need parseable output
+	// regardless of result count. The filtered slice is built via make
+	// above, so it's non-nil even when empty; json.Marshal renders that
+	// as `[]` rather than `null`.
+	if jsonMode {
 		data, err := json.Marshal(results)
 		if err != nil {
 			return err
 		}
-		wrapped, err := wrapWithProvenance(json.RawMessage(data), prov)
+		wrapped, err := wrapWithProvenance(data, prov)
 		if err != nil {
 			return err
 		}
 		return printOutput(cmd.OutOrStdout(), wrapped, true)
 	}
 
+	if len(results) == 0 {
+		fmt.Fprintf(cmd.ErrOrStderr(), "No results (source: %s)\n", prov.Source)
+		return nil
+	}
+
+	printProvenance(cmd, len(results), prov)
 	for _, r := range results {
 		fmt.Fprintln(cmd.OutOrStdout(), string(r))
 	}

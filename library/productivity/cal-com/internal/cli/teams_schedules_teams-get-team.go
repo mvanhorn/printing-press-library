@@ -16,10 +16,11 @@ func newTeamsSchedulesTeamsGetTeamCmd(flags *rootFlags) *cobra.Command {
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:     "teams-get-team <teamId>",
+		Use:   "teams-get-team <teamId>",
 		Aliases: []string{"get"},
-		Short:   "Get all team member schedules",
+		Short: "Get all team member schedules",
 		Example: "  cal-com-pp-cli teams schedules teams-get-team 42",
+		Annotations: map[string]string{"pp:endpoint": "schedules.teams-get-team", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -38,7 +39,7 @@ func newTeamsSchedulesTeamsGetTeamCmd(flags *rootFlags) *cobra.Command {
 			if flagSkip != 0.0 {
 				params["skip"] = fmt.Sprintf("%v", flagSkip)
 			}
-			data, prov, err := resolveRead(c, flags, "schedules", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "schedules", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

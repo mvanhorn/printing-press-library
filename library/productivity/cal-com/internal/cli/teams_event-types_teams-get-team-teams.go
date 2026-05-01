@@ -14,9 +14,10 @@ import (
 func newTeamsEventTypesTeamsGetTeamTeamsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "teams-get-team-teams <teamId> <eventTypeId>",
-		Short:   "Get an event type",
+		Use:   "teams-get-team-teams <teamId> <eventTypeId>",
+		Short: "Get an event type",
 		Example: "  cal-com-pp-cli teams event-types teams-get-team-teams 42 42",
+		Annotations: map[string]string{"pp:endpoint": "event-types.teams-get-team-teams", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -33,7 +34,7 @@ func newTeamsEventTypesTeamsGetTeamTeamsCmd(flags *rootFlags) *cobra.Command {
 			}
 			path = replacePathParam(path, "eventTypeId", args[1])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "event-types", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "event-types", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

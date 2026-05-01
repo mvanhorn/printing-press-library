@@ -20,8 +20,9 @@ func newTailCmd(flags *rootFlags) *cobra.Command {
 	var follow bool
 
 	cmd := &cobra.Command{
-		Use:   "tail [resource]",
-		Short: "Stream live changes by polling the API at regular intervals",
+		Use:         "tail [resource]",
+		Short:       "Stream live changes by polling the API at regular intervals",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Long: `Tail streams live data changes by polling the API at configurable intervals.
 Events are emitted as NDJSON to stdout for piping to other tools.
 Gracefully shuts down on SIGTERM/SIGINT.
@@ -88,9 +89,7 @@ native streaming instead of polling.`,
 	return cmd
 }
 
-func fetchAndEmit(c interface {
-	Get(string, map[string]string) (json.RawMessage, error)
-}, path string, enc *json.Encoder) error {
+func fetchAndEmit(c interface{ Get(string, map[string]string) (json.RawMessage, error) }, path string, enc *json.Encoder) error {
 	data, err := c.Get(path, nil)
 	if err != nil {
 		return err

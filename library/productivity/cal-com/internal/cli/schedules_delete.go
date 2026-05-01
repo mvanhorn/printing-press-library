@@ -14,9 +14,10 @@ import (
 func newSchedulesDeleteCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "delete <scheduleId>",
-		Short:   "Delete a schedule",
+		Use:   "delete <scheduleId>",
+		Short: "<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing...",
 		Example: "  cal-com-pp-cli schedules delete 42",
+		Annotations: map[string]string{"pp:endpoint": "schedules.delete"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -42,9 +43,7 @@ func newSchedulesDeleteCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

@@ -14,10 +14,11 @@ import (
 func newVerifiedResourcesUserGetVerifiedEmailByIdCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "user-get-verified-email-by-id <id>",
+		Use:   "user-get-verified-email-by-id <id>",
 		Aliases: []string{"get"},
-		Short:   "Get verified email by id",
+		Short: "Get verified email by id",
 		Example: "  cal-com-pp-cli verified-resources user-get-verified-email-by-id 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "verified-resources.user-get-verified-email-by-id", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -30,7 +31,7 @@ func newVerifiedResourcesUserGetVerifiedEmailByIdCmd(flags *rootFlags) *cobra.Co
 			path := "/v2/verified-resources/emails/{id}"
 			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "verified-resources", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "verified-resources", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

@@ -49,13 +49,13 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			if dbPath == "" {
 				dbPath = defaultDBPath("cal-com-pp-cli")
 			}
-			s, err := store.Open(dbPath)
+			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
 			}
 			defer s.Close()
 
-			resources := []string{"bookings", "calendars", "conferencing", "event-types", "me", "oauth-clients", "schedules", "stripe", "teams", "verified-resources", "webhooks"}
+			resources := []string{"bookings", "calendars", "conferencing", "event-types", "me", "oauth-clients", "schedules", "stripe", "teams", "verified-resources", "webhooks",  }
 			totalSynced := 0
 
 			for _, resource := range resources {
@@ -94,9 +94,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 						break
 					}
 					for _, item := range items {
-						var obj struct {
-							ID string `json:"id"`
-						}
+						var obj struct{ ID string `json:"id"` }
 						json.Unmarshal(item, &obj)
 						id := obj.ID
 						if id == "" {
@@ -147,8 +145,9 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 
 	cmd := &cobra.Command{
-		Use:   "status",
-		Short: "Show local archive status and sync state for all resources",
+		Use:         "status",
+		Short:       "Show local archive status and sync state for all resources",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Example: `  # Show archive status
   cal-com-pp-cli workflow status
 
@@ -158,7 +157,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 			if dbPath == "" {
 				dbPath = defaultDBPath("cal-com-pp-cli")
 			}
-			s, err := store.Open(dbPath)
+			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
 			}

@@ -26,8 +26,8 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 
 func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:     "status",
-		Short:   "Show authentication status",
+		Use:   "status",
+		Short: "Show authentication status",
 		Example: "  cal-com-pp-cli auth status",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(flags.configPath)
@@ -56,15 +56,23 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:     "set-token <token>",
-		Short:   "Save an API token to the config file",
+		Use:   "set-token <token>",
+		Short: "Save an API token to the config file",
 		Example: "  cal-com-pp-cli auth set-token sk_live_abc123",
-		Args:    cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
 			}
+
+			// Clear any legacy auth_header so AuthHeader() falls through to
+			// "Bearer " + AccessToken with the new token. Without this, a
+			// pre-existing auth_header value (common after regenerate) shadows
+			// the newly-saved access_token and set-token silently has no effect.
+			// Silent clear (no log line): a masked-tail variant could leak
+			// token bytes through scripted dogfood that captures stderr.
+			cfg.AuthHeaderVal = ""
 
 			// Save the token directly via the config's save mechanism
 			if err := cfg.SaveTokens("", "", args[0], "", cfg.TokenExpiry); err != nil {
@@ -79,8 +87,8 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 
 func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:     "logout",
-		Short:   "Clear stored credentials",
+		Use:   "logout",
+		Short: "Clear stored credentials",
 		Example: "  cal-com-pp-cli auth logout",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(flags.configPath)

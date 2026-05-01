@@ -5,16 +5,17 @@ package types
 
 import "encoding/json"
 
+
 type AddAttendeeInput_2024_08_13 struct {
-	Email       string `json:"email"`
-	Language    string `json:"language"`
-	Name        string `json:"name"`
+	Email string `json:"email"`
+	Language string `json:"language"`
+	Name string `json:"name"`
 	PhoneNumber string `json:"phoneNumber"`
-	TimeZone    string `json:"timeZone"`
+	TimeZone string `json:"timeZone"`
 }
 
 type AddAttendeeOutput_2024_08_13 struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
@@ -23,29 +24,29 @@ type AddGuestsInput_2024_08_13 struct {
 }
 
 type AddGuestsOutput_2024_08_13 struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type AddressFieldInput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type AddressFieldOutput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	IsDefault        string `json:"isDefault"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	IsDefault string `json:"isDefault"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type ApiKeyOutput struct {
@@ -53,121 +54,121 @@ type ApiKeyOutput struct {
 }
 
 type AssignOptionUserOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type AssignOptionUserOutputData struct {
-	AttributeOptionId string  `json:"attributeOptionId"`
-	Id                string  `json:"id"`
-	MemberId          float64 `json:"memberId"`
+	AttributeOptionId string `json:"attributeOptionId"`
+	Id string `json:"id"`
+	MemberId float64 `json:"memberId"`
 }
 
 type AssignOrganizationAttributeOptionToUserInput struct {
-	AttributeId       string `json:"attributeId"`
+	AttributeId string `json:"attributeId"`
 	AttributeOptionId string `json:"attributeOptionId"`
-	Value             string `json:"value"`
+	Value string `json:"value"`
 }
 
 type AssignedOptionOutput struct {
 	AssignedUserIds json.RawMessage `json:"assignedUserIds"`
-	AttributeId     string          `json:"attributeId"`
-	Id              string          `json:"id"`
-	Slug            string          `json:"slug"`
-	Value           string          `json:"value"`
+	AttributeId string `json:"attributeId"`
+	Id string `json:"id"`
+	Slug string `json:"slug"`
+	Value string `json:"value"`
 }
 
 type Attribute struct {
-	Ttype                string  `json:"Ttype"`
-	Enabled              bool    `json:"enabled"`
-	Id                   string  `json:"id"`
-	Name                 string  `json:"name"`
-	Slug                 string  `json:"slug"`
-	TeamId               float64 `json:"teamId"`
-	UsersCanEditRelation bool    `json:"usersCanEditRelation"`
+	Ttype string `json:"Ttype"`
+	Enabled bool `json:"enabled"`
+	Id string `json:"id"`
+	Name string `json:"name"`
+	Slug string `json:"slug"`
+	TeamId float64 `json:"teamId"`
+	UsersCanEditRelation bool `json:"usersCanEditRelation"`
 }
 
 type BaseAttribute struct {
-	Id   string `json:"id"`
+	Id string `json:"id"`
 	Name string `json:"name"`
 }
 
 type BaseBookingLimitsCount_2024_06_14 struct {
-	Day      float64 `json:"day"`
-	Disabled bool    `json:"disabled"`
-	Month    float64 `json:"month"`
-	Week     float64 `json:"week"`
-	Year     float64 `json:"year"`
+	Day float64 `json:"day"`
+	Disabled bool `json:"disabled"`
+	Month float64 `json:"month"`
+	Week float64 `json:"week"`
+	Year float64 `json:"year"`
 }
 
 type BaseBookingLimitsDuration_2024_06_14 struct {
-	Day   float64 `json:"day"`
+	Day float64 `json:"day"`
 	Month float64 `json:"month"`
-	Week  float64 `json:"week"`
-	Year  float64 `json:"year"`
+	Week float64 `json:"week"`
+	Year float64 `json:"year"`
 }
 
 type BaseConfirmationPolicy_2024_06_14 struct {
-	Ttype                            string `json:"Ttype"`
-	BlockUnconfirmedBookingsInBooker bool   `json:"blockUnconfirmedBookingsInBooker"`
-	NoticeThreshold                  string `json:"noticeThreshold"`
+	Ttype string `json:"Ttype"`
+	BlockUnconfirmedBookingsInBooker bool `json:"blockUnconfirmedBookingsInBooker"`
+	NoticeThreshold string `json:"noticeThreshold"`
 }
 
 type BookerActiveBookingsLimitOutput_2024_06_14 struct {
 	MaximumActiveBookings float64 `json:"maximumActiveBookings"`
-	OfferReschedule       bool    `json:"offerReschedule"`
+	OfferReschedule bool `json:"offerReschedule"`
 }
 
 type BookerActiveBookingsLimit_2024_06_14 struct {
 	MaximumActiveBookings float64 `json:"maximumActiveBookings"`
-	OfferReschedule       bool    `json:"offerReschedule"`
+	OfferReschedule bool `json:"offerReschedule"`
 }
 
 type BookerLayouts_2024_06_14 struct {
-	DefaultLayout  string          `json:"defaultLayout"`
+	DefaultLayout string `json:"defaultLayout"`
 	EnabledLayouts json.RawMessage `json:"enabledLayouts"`
 }
 
 type BookingAttendee struct {
-	Absent       bool   `json:"absent"`
+	Absent bool `json:"absent"`
 	DisplayEmail string `json:"displayEmail"`
-	Email        string `json:"email"`
-	Language     string `json:"language"`
-	Name         string `json:"name"`
-	PhoneNumber  string `json:"phoneNumber"`
-	TimeZone     string `json:"timeZone"`
+	Email string `json:"email"`
+	Language string `json:"language"`
+	Name string `json:"name"`
+	PhoneNumber string `json:"phoneNumber"`
+	TimeZone string `json:"timeZone"`
 }
 
 type BookingAttendeeOutput_2024_08_13 struct {
-	Absent       bool    `json:"absent"`
-	BookingId    float64 `json:"bookingId"`
-	DisplayEmail string  `json:"displayEmail"`
-	Email        string  `json:"email"`
-	Id           float64 `json:"id"`
-	Language     string  `json:"language"`
-	Name         string  `json:"name"`
-	PhoneNumber  string  `json:"phoneNumber"`
-	TimeZone     string  `json:"timeZone"`
+	Absent bool `json:"absent"`
+	BookingId float64 `json:"bookingId"`
+	DisplayEmail string `json:"displayEmail"`
+	Email string `json:"email"`
+	Id float64 `json:"id"`
+	Language string `json:"language"`
+	Name string `json:"name"`
+	PhoneNumber string `json:"phoneNumber"`
+	TimeZone string `json:"timeZone"`
 }
 
 type BookingAttendeeWithId_2024_08_13 struct {
-	Absent       bool    `json:"absent"`
-	DisplayEmail string  `json:"displayEmail"`
-	Email        string  `json:"email"`
-	Id           float64 `json:"id"`
-	Language     string  `json:"language"`
-	Name         string  `json:"name"`
-	PhoneNumber  string  `json:"phoneNumber"`
-	TimeZone     string  `json:"timeZone"`
+	Absent bool `json:"absent"`
+	DisplayEmail string `json:"displayEmail"`
+	Email string `json:"email"`
+	Id float64 `json:"id"`
+	Language string `json:"language"`
+	Name string `json:"name"`
+	PhoneNumber string `json:"phoneNumber"`
+	TimeZone string `json:"timeZone"`
 }
 
 type BookingHost struct {
-	DisplayEmail string  `json:"displayEmail"`
-	Email        string  `json:"email"`
-	Id           float64 `json:"id"`
-	Name         string  `json:"name"`
-	TimeZone     string  `json:"timeZone"`
-	Username     string  `json:"username"`
+	DisplayEmail string `json:"displayEmail"`
+	Email string `json:"email"`
+	Id float64 `json:"id"`
+	Name string `json:"name"`
+	TimeZone string `json:"timeZone"`
+	Username string `json:"username"`
 }
 
 type BookingInputAddressLocation_2024_08_13 struct {
@@ -175,12 +176,12 @@ type BookingInputAddressLocation_2024_08_13 struct {
 }
 
 type BookingInputAttendeeAddressLocation_2024_08_13 struct {
-	Ttype   string `json:"Ttype"`
+	Ttype string `json:"Ttype"`
 	Address string `json:"address"`
 }
 
 type BookingInputAttendeeDefinedLocation_2024_08_13 struct {
-	Ttype    string `json:"Ttype"`
+	Ttype string `json:"Ttype"`
 	Location string `json:"location"`
 }
 
@@ -190,7 +191,7 @@ type BookingInputAttendeePhoneLocation_2024_08_13 struct {
 }
 
 type BookingInputIntegrationLocation_2024_08_13 struct {
-	Ttype       string `json:"Ttype"`
+	Ttype string `json:"Ttype"`
 	Integration string `json:"integration"`
 }
 
@@ -207,293 +208,293 @@ type BookingInputPhoneLocation_2024_08_13 struct {
 }
 
 type BookingOutput_2024_08_13 struct {
-	AbsentHost             bool            `json:"absentHost"`
-	Attendees              json.RawMessage `json:"attendees"`
-	BookingFieldsResponses string          `json:"bookingFieldsResponses"`
-	CancellationReason     string          `json:"cancellationReason"`
-	CancelledByEmail       string          `json:"cancelledByEmail"`
-	CreatedAt              string          `json:"createdAt"`
-	Description            string          `json:"description"`
-	Duration               float64         `json:"duration"`
-	End                    string          `json:"end"`
-	EventType              string          `json:"eventType"`
-	EventTypeId            float64         `json:"eventTypeId"`
-	Guests                 json.RawMessage `json:"guests"`
-	Hosts                  json.RawMessage `json:"hosts"`
-	IcsUid                 string          `json:"icsUid"`
-	Id                     float64         `json:"id"`
-	Location               string          `json:"location"`
-	MeetingUrl             string          `json:"meetingUrl"`
-	Metadata               string          `json:"metadata"`
-	Rating                 float64         `json:"rating"`
-	RescheduledByEmail     string          `json:"rescheduledByEmail"`
-	RescheduledFromUid     string          `json:"rescheduledFromUid"`
-	RescheduledToUid       string          `json:"rescheduledToUid"`
-	ReschedulingReason     string          `json:"reschedulingReason"`
-	Start                  string          `json:"start"`
-	Status                 string          `json:"status"`
-	Title                  string          `json:"title"`
-	Uid                    string          `json:"uid"`
-	UpdatedAt              string          `json:"updatedAt"`
+	AbsentHost bool `json:"absentHost"`
+	Attendees json.RawMessage `json:"attendees"`
+	BookingFieldsResponses string `json:"bookingFieldsResponses"`
+	CancellationReason string `json:"cancellationReason"`
+	CancelledByEmail string `json:"cancelledByEmail"`
+	CreatedAt string `json:"createdAt"`
+	Description string `json:"description"`
+	Duration float64 `json:"duration"`
+	End string `json:"end"`
+	EventType string `json:"eventType"`
+	EventTypeId float64 `json:"eventTypeId"`
+	Guests json.RawMessage `json:"guests"`
+	Hosts json.RawMessage `json:"hosts"`
+	IcsUid string `json:"icsUid"`
+	Id float64 `json:"id"`
+	Location string `json:"location"`
+	MeetingUrl string `json:"meetingUrl"`
+	Metadata string `json:"metadata"`
+	Rating float64 `json:"rating"`
+	RescheduledByEmail string `json:"rescheduledByEmail"`
+	RescheduledFromUid string `json:"rescheduledFromUid"`
+	RescheduledToUid string `json:"rescheduledToUid"`
+	ReschedulingReason string `json:"reschedulingReason"`
+	Start string `json:"start"`
+	Status string `json:"status"`
+	Title string `json:"title"`
+	Uid string `json:"uid"`
+	UpdatedAt string `json:"updatedAt"`
 }
 
 type BookingReference struct {
-	Ttype                 string  `json:"Ttype"`
-	DestinationCalendarId string  `json:"destinationCalendarId"`
-	EventUid              string  `json:"eventUid"`
-	Id                    float64 `json:"id"`
+	Ttype string `json:"Ttype"`
+	DestinationCalendarId string `json:"destinationCalendarId"`
+	EventUid string `json:"eventUid"`
+	Id float64 `json:"id"`
 }
 
 type BookingReferencesOutput_2024_08_13 struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type BooleanFieldInput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	Label            string `json:"label"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	Label string `json:"label"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type BooleanFieldOutput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	IsDefault        string `json:"isDefault"`
-	Label            string `json:"label"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	IsDefault string `json:"isDefault"`
+	Label string `json:"label"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type BusinessDaysWindow_2024_06_14 struct {
-	Ttype   string  `json:"Ttype"`
-	Rolling bool    `json:"rolling"`
-	Value   float64 `json:"value"`
+	Ttype string `json:"Ttype"`
+	Rolling bool `json:"rolling"`
+	Value float64 `json:"value"`
 }
 
 type BusyTimesOutput struct {
-	End    string `json:"end"`
+	End string `json:"end"`
 	Source string `json:"source"`
-	Start  string `json:"start"`
+	Start string `json:"start"`
 }
 
 type CalMeetingParticipant struct {
 	Duration float64 `json:"duration"`
 	JoinTime float64 `json:"joinTime"`
-	UserId   string  `json:"userId"`
-	UserName string  `json:"userName"`
+	UserId string `json:"userId"`
+	UserName string `json:"userName"`
 }
 
 type CalMeetingSession struct {
-	Duration        float64         `json:"duration"`
-	Id              string          `json:"id"`
-	MaxParticipants float64         `json:"maxParticipants"`
-	Ongoing         bool            `json:"ongoing"`
-	Participants    json.RawMessage `json:"participants"`
-	Room            string          `json:"room"`
-	StartTime       float64         `json:"startTime"`
+	Duration float64 `json:"duration"`
+	Id string `json:"id"`
+	MaxParticipants float64 `json:"maxParticipants"`
+	Ongoing bool `json:"ongoing"`
+	Participants json.RawMessage `json:"participants"`
+	Room string `json:"room"`
+	StartTime float64 `json:"startTime"`
 }
 
 type CalVideoSettings struct {
-	DisableRecordingForGuests            bool   `json:"disableRecordingForGuests"`
-	DisableRecordingForOrganizer         bool   `json:"disableRecordingForOrganizer"`
-	DisableTranscriptionForGuests        bool   `json:"disableTranscriptionForGuests"`
-	DisableTranscriptionForOrganizer     bool   `json:"disableTranscriptionForOrganizer"`
-	EnableAutomaticRecordingForOrganizer bool   `json:"enableAutomaticRecordingForOrganizer"`
-	EnableAutomaticTranscription         bool   `json:"enableAutomaticTranscription"`
-	RedirectUrlOnExit                    string `json:"redirectUrlOnExit"`
-	SendTranscriptionEmails              bool   `json:"sendTranscriptionEmails"`
+	DisableRecordingForGuests bool `json:"disableRecordingForGuests"`
+	DisableRecordingForOrganizer bool `json:"disableRecordingForOrganizer"`
+	DisableTranscriptionForGuests bool `json:"disableTranscriptionForGuests"`
+	DisableTranscriptionForOrganizer bool `json:"disableTranscriptionForOrganizer"`
+	EnableAutomaticRecordingForOrganizer bool `json:"enableAutomaticRecordingForOrganizer"`
+	EnableAutomaticTranscription bool `json:"enableAutomaticTranscription"`
+	RedirectUrlOnExit string `json:"redirectUrlOnExit"`
+	SendTranscriptionEmails bool `json:"sendTranscriptionEmails"`
 }
 
 type Calendar struct {
-	CredentialId           float64 `json:"credentialId"`
-	DelegationCredentialId string  `json:"delegationCredentialId"`
-	Email                  string  `json:"email"`
-	ExternalId             string  `json:"externalId"`
-	Integration            string  `json:"integration"`
-	IsSelected             bool    `json:"isSelected"`
-	Name                   string  `json:"name"`
-	Primary                bool    `json:"primary"`
-	ReadOnly               bool    `json:"readOnly"`
+	CredentialId float64 `json:"credentialId"`
+	DelegationCredentialId string `json:"delegationCredentialId"`
+	Email string `json:"email"`
+	ExternalId string `json:"externalId"`
+	Integration string `json:"integration"`
+	IsSelected bool `json:"isSelected"`
+	Name string `json:"name"`
+	Primary bool `json:"primary"`
+	ReadOnly bool `json:"readOnly"`
 }
 
 type CalendarConnectionItem struct {
-	Ttype        string `json:"Ttype"`
+	Ttype string `json:"Ttype"`
 	ConnectionId string `json:"connectionId"`
-	Email        string `json:"email"`
+	Email string `json:"email"`
 }
 
 type CalendarDaysWindow_2024_06_14 struct {
-	Ttype   string  `json:"Ttype"`
-	Rolling bool    `json:"rolling"`
-	Value   float64 `json:"value"`
+	Ttype string `json:"Ttype"`
+	Rolling bool `json:"rolling"`
+	Value float64 `json:"value"`
 }
 
 type CalendarEventAttendee struct {
-	Email          string `json:"email"`
-	Host           bool   `json:"host"`
-	Name           string `json:"name"`
-	Optional       bool   `json:"optional"`
+	Email string `json:"email"`
+	Host bool `json:"host"`
+	Name string `json:"name"`
+	Optional bool `json:"optional"`
 	ResponseStatus string `json:"responseStatus"`
-	Self           bool   `json:"self"`
+	Self bool `json:"self"`
 }
 
 type CalendarEventHost struct {
-	Email          string `json:"email"`
-	Name           string `json:"name"`
+	Email string `json:"email"`
+	Name string `json:"name"`
 	ResponseStatus string `json:"responseStatus"`
 }
 
 type CalendarEventMoreLocation struct {
 	Ttype string `json:"Ttype"`
 	Label string `json:"label"`
-	Url   string `json:"url"`
+	Url string `json:"url"`
 }
 
 type CalendarEventPhoneLocation struct {
-	Ttype      string `json:"Ttype"`
+	Ttype string `json:"Ttype"`
 	AccessCode string `json:"accessCode"`
-	Label      string `json:"label"`
-	Password   string `json:"password"`
-	Pin        string `json:"pin"`
+	Label string `json:"label"`
+	Password string `json:"password"`
+	Pin string `json:"pin"`
 	RegionCode string `json:"regionCode"`
-	Url        string `json:"url"`
+	Url string `json:"url"`
 }
 
 type CalendarEventSipLocation struct {
-	Ttype    string `json:"Ttype"`
-	Label    string `json:"label"`
+	Ttype string `json:"Ttype"`
+	Label string `json:"label"`
 	Password string `json:"password"`
-	Pin      string `json:"pin"`
-	Url      string `json:"url"`
+	Pin string `json:"pin"`
+	Url string `json:"url"`
 }
 
 type CalendarEventVideoLocation struct {
-	Ttype       string `json:"Ttype"`
-	AccessCode  string `json:"accessCode"`
-	Label       string `json:"label"`
+	Ttype string `json:"Ttype"`
+	AccessCode string `json:"accessCode"`
+	Label string `json:"label"`
 	MeetingCode string `json:"meetingCode"`
-	Password    string `json:"password"`
-	Url         string `json:"url"`
+	Password string `json:"password"`
+	Url string `json:"url"`
 }
 
 type CalendarLink struct {
 	Label string `json:"label"`
-	Link  string `json:"link"`
+	Link string `json:"link"`
 }
 
 type CalendarLinksOutput_2024_08_13 struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type CancelBookingInput_2024_08_13 struct {
-	CancelSubsequentBookings bool   `json:"cancelSubsequentBookings"`
-	CancellationReason       string `json:"cancellationReason"`
+	CancelSubsequentBookings bool `json:"cancelSubsequentBookings"`
+	CancellationReason string `json:"cancellationReason"`
 }
 
 type CancelBookingOutput_2024_08_13 struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type CancelSeatedBookingInput_2024_08_13 struct {
 	CancellationReason string `json:"cancellationReason"`
-	SeatUid            string `json:"seatUid"`
+	SeatUid string `json:"seatUid"`
 }
 
 type CheckboxGroupFieldInput_2024_06_14 struct {
-	Ttype            string          `json:"Ttype"`
-	DisableOnPrefill bool            `json:"disableOnPrefill"`
-	Hidden           bool            `json:"hidden"`
-	Label            string          `json:"label"`
-	Options          json.RawMessage `json:"options"`
-	Required         bool            `json:"required"`
-	Slug             string          `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	Label string `json:"label"`
+	Options json.RawMessage `json:"options"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type CheckboxGroupFieldOutput_2024_06_14 struct {
-	Ttype            string          `json:"Ttype"`
-	DisableOnPrefill bool            `json:"disableOnPrefill"`
-	Hidden           bool            `json:"hidden"`
-	IsDefault        string          `json:"isDefault"`
-	Label            string          `json:"label"`
-	Options          json.RawMessage `json:"options"`
-	Required         bool            `json:"required"`
-	Slug             string          `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	IsDefault string `json:"isDefault"`
+	Label string `json:"label"`
+	Options json.RawMessage `json:"options"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type ConferencingAppOutputResponseDto struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type ConferencingAppsOutputDto struct {
-	Ttype   string  `json:"Ttype"`
-	Id      float64 `json:"id"`
-	Invalid bool    `json:"invalid"`
-	UserId  float64 `json:"userId"`
+	Ttype string `json:"Ttype"`
+	Id float64 `json:"id"`
+	Invalid bool `json:"invalid"`
+	UserId float64 `json:"userId"`
 }
 
 type ConferencingAppsOutputResponseDto struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type ConnectedCalendar struct {
-	Calendars              json.RawMessage `json:"calendars"`
-	CredentialId           float64         `json:"credentialId"`
-	DelegationCredentialId string          `json:"delegationCredentialId"`
-	Integration            string          `json:"integration"`
-	Primary                string          `json:"primary"`
+	Calendars json.RawMessage `json:"calendars"`
+	CredentialId float64 `json:"credentialId"`
+	DelegationCredentialId string `json:"delegationCredentialId"`
+	Integration string `json:"integration"`
+	Primary string `json:"primary"`
 }
 
 type ConnectedCalendarsData struct {
-	ConnectedCalendars  json.RawMessage `json:"connectedCalendars"`
-	DestinationCalendar string          `json:"destinationCalendar"`
+	ConnectedCalendars json.RawMessage `json:"connectedCalendars"`
+	DestinationCalendar string `json:"destinationCalendar"`
 }
 
 type ConnectedCalendarsOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type CreateAttributeOptionOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type CreateBookingAttendee struct {
-	Email       string `json:"email"`
-	Language    string `json:"language"`
-	Name        string `json:"name"`
+	Email string `json:"email"`
+	Language string `json:"language"`
+	Name string `json:"name"`
 	PhoneNumber string `json:"phoneNumber"`
-	TimeZone    string `json:"timeZone"`
+	TimeZone string `json:"timeZone"`
 }
 
 type CreateBookingInput_2024_08_13 struct {
-	Attendee               string          `json:"attendee"`
-	BookingFieldsResponses string          `json:"bookingFieldsResponses"`
-	EmailVerificationCode  string          `json:"emailVerificationCode"`
-	EventTypeId            float64         `json:"eventTypeId"`
-	EventTypeSlug          string          `json:"eventTypeSlug"`
-	Guests                 json.RawMessage `json:"guests"`
-	LengthInMinutes        float64         `json:"lengthInMinutes"`
-	Location               string          `json:"location"`
-	MeetingUrl             string          `json:"meetingUrl"`
-	Metadata               string          `json:"metadata"`
-	OrganizationSlug       string          `json:"organizationSlug"`
-	Routing                string          `json:"routing"`
-	Start                  string          `json:"start"`
-	TeamSlug               string          `json:"teamSlug"`
-	Username               string          `json:"username"`
+	Attendee string `json:"attendee"`
+	BookingFieldsResponses string `json:"bookingFieldsResponses"`
+	EmailVerificationCode string `json:"emailVerificationCode"`
+	EventTypeId float64 `json:"eventTypeId"`
+	EventTypeSlug string `json:"eventTypeSlug"`
+	Guests json.RawMessage `json:"guests"`
+	LengthInMinutes float64 `json:"lengthInMinutes"`
+	Location string `json:"location"`
+	MeetingUrl string `json:"meetingUrl"`
+	Metadata string `json:"metadata"`
+	OrganizationSlug string `json:"organizationSlug"`
+	Routing string `json:"routing"`
+	Start string `json:"start"`
+	TeamSlug string `json:"teamSlug"`
+	Username string `json:"username"`
 }
 
 type CreateBookingOutput_2024_08_13 struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
@@ -503,208 +504,208 @@ type CreateCalendarCredentialsInput struct {
 }
 
 type CreateDelegationCredentialInput struct {
-	Domain                string          `json:"domain"`
-	ServiceAccountKey     json.RawMessage `json:"serviceAccountKey"`
-	WorkspacePlatformSlug string          `json:"workspacePlatformSlug"`
+	Domain string `json:"domain"`
+	ServiceAccountKey json.RawMessage `json:"serviceAccountKey"`
+	WorkspacePlatformSlug string `json:"workspacePlatformSlug"`
 }
 
 type CreateDelegationCredentialOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type CreateEventAttendee struct {
 	Email string `json:"email"`
-	Name  string `json:"name"`
+	Name string `json:"name"`
 }
 
 type CreateEventDateTimeWithZone struct {
-	Time     string `json:"time"`
+	Time string `json:"time"`
 	TimeZone string `json:"timeZone"`
 }
 
 type CreateEventTypeInput_2024_06_14 struct {
-	AfterEventBuffer                   float64         `json:"afterEventBuffer"`
-	AllowReschedulingCancelledBookings bool            `json:"allowReschedulingCancelledBookings"`
-	AllowReschedulingPastBookings      bool            `json:"allowReschedulingPastBookings"`
-	BeforeEventBuffer                  float64         `json:"beforeEventBuffer"`
-	BookerActiveBookingsLimit          string          `json:"bookerActiveBookingsLimit"`
-	BookerLayouts                      string          `json:"bookerLayouts"`
-	BookingFields                      json.RawMessage `json:"bookingFields"`
-	BookingLimitsCount                 string          `json:"bookingLimitsCount"`
-	BookingLimitsDuration              string          `json:"bookingLimitsDuration"`
-	BookingRequiresAuthentication      bool            `json:"bookingRequiresAuthentication"`
-	BookingWindow                      string          `json:"bookingWindow"`
-	CalVideoSettings                   string          `json:"calVideoSettings"`
-	Color                              string          `json:"color"`
-	ConfirmationPolicy                 string          `json:"confirmationPolicy"`
-	CustomName                         string          `json:"customName"`
-	Description                        string          `json:"description"`
-	DestinationCalendar                string          `json:"destinationCalendar"`
-	DisableCancelling                  string          `json:"disableCancelling"`
-	DisableGuests                      bool            `json:"disableGuests"`
-	DisableRescheduling                string          `json:"disableRescheduling"`
-	Hidden                             bool            `json:"hidden"`
-	HideCalendarEventDetails           bool            `json:"hideCalendarEventDetails"`
-	HideCalendarNotes                  bool            `json:"hideCalendarNotes"`
-	HideOrganizerEmail                 bool            `json:"hideOrganizerEmail"`
-	InterfaceLanguage                  string          `json:"interfaceLanguage"`
-	LengthInMinutes                    float64         `json:"lengthInMinutes"`
-	LengthInMinutesOptions             json.RawMessage `json:"lengthInMinutesOptions"`
-	Locations                          json.RawMessage `json:"locations"`
-	LockTimeZoneToggleOnBookingPage    bool            `json:"lockTimeZoneToggleOnBookingPage"`
-	MinimumBookingNotice               float64         `json:"minimumBookingNotice"`
-	OffsetStart                        float64         `json:"offsetStart"`
-	OnlyShowFirstAvailableSlot         bool            `json:"onlyShowFirstAvailableSlot"`
-	Recurrence                         string          `json:"recurrence"`
-	RequiresBookerEmailVerification    bool            `json:"requiresBookerEmailVerification"`
-	ScheduleId                         float64         `json:"scheduleId"`
-	Seats                              string          `json:"seats"`
-	ShowOptimizedSlots                 bool            `json:"showOptimizedSlots"`
-	SlotInterval                       float64         `json:"slotInterval"`
-	Slug                               string          `json:"slug"`
-	SuccessRedirectUrl                 string          `json:"successRedirectUrl"`
-	Title                              string          `json:"title"`
-	UseDestinationCalendarEmail        bool            `json:"useDestinationCalendarEmail"`
+	AfterEventBuffer float64 `json:"afterEventBuffer"`
+	AllowReschedulingCancelledBookings bool `json:"allowReschedulingCancelledBookings"`
+	AllowReschedulingPastBookings bool `json:"allowReschedulingPastBookings"`
+	BeforeEventBuffer float64 `json:"beforeEventBuffer"`
+	BookerActiveBookingsLimit string `json:"bookerActiveBookingsLimit"`
+	BookerLayouts string `json:"bookerLayouts"`
+	BookingFields json.RawMessage `json:"bookingFields"`
+	BookingLimitsCount string `json:"bookingLimitsCount"`
+	BookingLimitsDuration string `json:"bookingLimitsDuration"`
+	BookingRequiresAuthentication bool `json:"bookingRequiresAuthentication"`
+	BookingWindow string `json:"bookingWindow"`
+	CalVideoSettings string `json:"calVideoSettings"`
+	Color string `json:"color"`
+	ConfirmationPolicy string `json:"confirmationPolicy"`
+	CustomName string `json:"customName"`
+	Description string `json:"description"`
+	DestinationCalendar string `json:"destinationCalendar"`
+	DisableCancelling string `json:"disableCancelling"`
+	DisableGuests bool `json:"disableGuests"`
+	DisableRescheduling string `json:"disableRescheduling"`
+	Hidden bool `json:"hidden"`
+	HideCalendarEventDetails bool `json:"hideCalendarEventDetails"`
+	HideCalendarNotes bool `json:"hideCalendarNotes"`
+	HideOrganizerEmail bool `json:"hideOrganizerEmail"`
+	InterfaceLanguage string `json:"interfaceLanguage"`
+	LengthInMinutes float64 `json:"lengthInMinutes"`
+	LengthInMinutesOptions json.RawMessage `json:"lengthInMinutesOptions"`
+	Locations json.RawMessage `json:"locations"`
+	LockTimeZoneToggleOnBookingPage bool `json:"lockTimeZoneToggleOnBookingPage"`
+	MinimumBookingNotice float64 `json:"minimumBookingNotice"`
+	OffsetStart float64 `json:"offsetStart"`
+	OnlyShowFirstAvailableSlot bool `json:"onlyShowFirstAvailableSlot"`
+	Recurrence string `json:"recurrence"`
+	RequiresBookerEmailVerification bool `json:"requiresBookerEmailVerification"`
+	ScheduleId float64 `json:"scheduleId"`
+	Seats string `json:"seats"`
+	ShowOptimizedSlots bool `json:"showOptimizedSlots"`
+	SlotInterval float64 `json:"slotInterval"`
+	Slug string `json:"slug"`
+	SuccessRedirectUrl string `json:"successRedirectUrl"`
+	Title string `json:"title"`
+	UseDestinationCalendarEmail bool `json:"useDestinationCalendarEmail"`
 }
 
 type CreateEventTypeOutput_2024_06_14 struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type CreateEventTypeWorkflowDto struct {
-	Activation string          `json:"activation"`
-	Name       string          `json:"name"`
-	Steps      json.RawMessage `json:"steps"`
-	Trigger    string          `json:"trigger"`
+	Activation string `json:"activation"`
+	Name string `json:"name"`
+	Steps json.RawMessage `json:"steps"`
+	Trigger string `json:"trigger"`
 }
 
 type CreateFormWorkflowDto struct {
-	Activation string          `json:"activation"`
-	Name       string          `json:"name"`
-	Steps      json.RawMessage `json:"steps"`
-	Trigger    string          `json:"trigger"`
+	Activation string `json:"activation"`
+	Name string `json:"name"`
+	Steps json.RawMessage `json:"steps"`
+	Trigger string `json:"trigger"`
 }
 
 type CreateIcsFeedInputDto struct {
-	ReadOnly bool            `json:"readOnly"`
-	Urls     json.RawMessage `json:"urls"`
+	ReadOnly bool `json:"readOnly"`
+	Urls json.RawMessage `json:"urls"`
 }
 
 type CreateIcsFeedOutput struct {
-	Ttype   string  `json:"Ttype"`
-	AppId   string  `json:"appId"`
-	Id      float64 `json:"id"`
-	Invalid bool    `json:"invalid"`
-	TeamId  int     `json:"teamId"`
-	UserId  int     `json:"userId"`
+	Ttype string `json:"Ttype"`
+	AppId string `json:"appId"`
+	Id float64 `json:"id"`
+	Invalid bool `json:"invalid"`
+	TeamId int `json:"teamId"`
+	UserId int `json:"userId"`
 }
 
 type CreateIcsFeedOutputResponseDto struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type CreateInstantBookingInput_2024_08_13 struct {
-	Attendee               string          `json:"attendee"`
-	BookingFieldsResponses string          `json:"bookingFieldsResponses"`
-	EmailVerificationCode  string          `json:"emailVerificationCode"`
-	EventTypeId            float64         `json:"eventTypeId"`
-	EventTypeSlug          string          `json:"eventTypeSlug"`
-	Guests                 json.RawMessage `json:"guests"`
-	Instant                bool            `json:"instant"`
-	LengthInMinutes        float64         `json:"lengthInMinutes"`
-	Location               string          `json:"location"`
-	MeetingUrl             string          `json:"meetingUrl"`
-	Metadata               string          `json:"metadata"`
-	OrganizationSlug       string          `json:"organizationSlug"`
-	Routing                string          `json:"routing"`
-	Start                  string          `json:"start"`
-	TeamSlug               string          `json:"teamSlug"`
-	Username               string          `json:"username"`
+	Attendee string `json:"attendee"`
+	BookingFieldsResponses string `json:"bookingFieldsResponses"`
+	EmailVerificationCode string `json:"emailVerificationCode"`
+	EventTypeId float64 `json:"eventTypeId"`
+	EventTypeSlug string `json:"eventTypeSlug"`
+	Guests json.RawMessage `json:"guests"`
+	Instant bool `json:"instant"`
+	LengthInMinutes float64 `json:"lengthInMinutes"`
+	Location string `json:"location"`
+	MeetingUrl string `json:"meetingUrl"`
+	Metadata string `json:"metadata"`
+	OrganizationSlug string `json:"organizationSlug"`
+	Routing string `json:"routing"`
+	Start string `json:"start"`
+	TeamSlug string `json:"teamSlug"`
+	Username string `json:"username"`
 }
 
 type CreateInviteOutputDto struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type CreateManagedOrganizationOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type CreateManagedUserData struct {
-	AccessToken           string  `json:"accessToken"`
-	AccessTokenExpiresAt  float64 `json:"accessTokenExpiresAt"`
-	RefreshToken          string  `json:"refreshToken"`
+	AccessToken string `json:"accessToken"`
+	AccessTokenExpiresAt float64 `json:"accessTokenExpiresAt"`
+	RefreshToken string `json:"refreshToken"`
 	RefreshTokenExpiresAt float64 `json:"refreshTokenExpiresAt"`
-	User                  string  `json:"user"`
+	User string `json:"user"`
 }
 
 type CreateManagedUserInput struct {
-	AvatarUrl  string  `json:"avatarUrl"`
-	Bio        string  `json:"bio"`
-	Email      string  `json:"email"`
-	Locale     string  `json:"locale"`
-	Metadata   string  `json:"metadata"`
-	Name       string  `json:"name"`
+	AvatarUrl string `json:"avatarUrl"`
+	Bio string `json:"bio"`
+	Email string `json:"email"`
+	Locale string `json:"locale"`
+	Metadata string `json:"metadata"`
+	Name string `json:"name"`
 	TimeFormat float64 `json:"timeFormat"`
-	TimeZone   string  `json:"timeZone"`
-	WeekStart  string  `json:"weekStart"`
+	TimeZone string `json:"timeZone"`
+	WeekStart string `json:"weekStart"`
 }
 
 type CreateManagedUserOutput struct {
-	Data   string `json:"data"`
-	Error  string `json:"error"`
+	Data string `json:"data"`
+	Error string `json:"error"`
 	Status string `json:"status"`
 }
 
 type CreateOAuthClientInput struct {
-	AreCalendarEventsEnabled     bool            `json:"areCalendarEventsEnabled"`
-	AreDefaultEventTypesEnabled  bool            `json:"areDefaultEventTypesEnabled"`
-	AreEmailsEnabled             bool            `json:"areEmailsEnabled"`
-	BookingCancelRedirectUri     string          `json:"bookingCancelRedirectUri"`
-	BookingRedirectUri           string          `json:"bookingRedirectUri"`
-	BookingRescheduleRedirectUri string          `json:"bookingRescheduleRedirectUri"`
-	Logo                         string          `json:"logo"`
-	Name                         string          `json:"name"`
-	Permissions                  json.RawMessage `json:"permissions"`
-	RedirectUris                 json.RawMessage `json:"redirectUris"`
+	AreCalendarEventsEnabled bool `json:"areCalendarEventsEnabled"`
+	AreDefaultEventTypesEnabled bool `json:"areDefaultEventTypesEnabled"`
+	AreEmailsEnabled bool `json:"areEmailsEnabled"`
+	BookingCancelRedirectUri string `json:"bookingCancelRedirectUri"`
+	BookingRedirectUri string `json:"bookingRedirectUri"`
+	BookingRescheduleRedirectUri string `json:"bookingRescheduleRedirectUri"`
+	Logo string `json:"logo"`
+	Name string `json:"name"`
+	Permissions json.RawMessage `json:"permissions"`
+	RedirectUris json.RawMessage `json:"redirectUris"`
 }
 
 type CreateOAuthClientOutput struct {
-	ClientId     string `json:"clientId"`
+	ClientId string `json:"clientId"`
 	ClientSecret string `json:"clientSecret"`
 }
 
 type CreateOAuthClientResponseDto struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type CreateOrgMembershipDto struct {
-	Accepted             bool    `json:"accepted"`
-	DisableImpersonation bool    `json:"disableImpersonation"`
-	Role                 string  `json:"role"`
-	UserId               float64 `json:"userId"`
+	Accepted bool `json:"accepted"`
+	DisableImpersonation bool `json:"disableImpersonation"`
+	Role string `json:"role"`
+	UserId float64 `json:"userId"`
 }
 
 type CreateOrgMembershipOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type CreateOrgRoleInput struct {
-	Color       string          `json:"color"`
-	Description string          `json:"description"`
-	Name        string          `json:"name"`
+	Color string `json:"color"`
+	Description string `json:"description"`
+	Name string `json:"name"`
 	Permissions json.RawMessage `json:"permissions"`
 }
 
 type CreateOrgRoleOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
@@ -713,332 +714,332 @@ type CreateOrgRolePermissionsInput struct {
 }
 
 type CreateOrgTeamDto struct {
-	AppIconLogo         string  `json:"appIconLogo"`
-	AppLogo             string  `json:"appLogo"`
-	AutoAcceptCreator   bool    `json:"autoAcceptCreator"`
-	BannerUrl           string  `json:"bannerUrl"`
-	Bio                 string  `json:"bio"`
-	BrandColor          string  `json:"brandColor"`
-	CalVideoLogo        string  `json:"calVideoLogo"`
-	DarkBrandColor      string  `json:"darkBrandColor"`
-	HideBookATeamMember bool    `json:"hideBookATeamMember"`
-	HideBranding        bool    `json:"hideBranding"`
-	IsPrivate           bool    `json:"isPrivate"`
-	LogoUrl             string  `json:"logoUrl"`
-	Metadata            string  `json:"metadata"`
-	Name                string  `json:"name"`
-	Slug                string  `json:"slug"`
-	Theme               string  `json:"theme"`
-	TimeFormat          float64 `json:"timeFormat"`
-	TimeZone            string  `json:"timeZone"`
-	WeekStart           string  `json:"weekStart"`
+	AppIconLogo string `json:"appIconLogo"`
+	AppLogo string `json:"appLogo"`
+	AutoAcceptCreator bool `json:"autoAcceptCreator"`
+	BannerUrl string `json:"bannerUrl"`
+	Bio string `json:"bio"`
+	BrandColor string `json:"brandColor"`
+	CalVideoLogo string `json:"calVideoLogo"`
+	DarkBrandColor string `json:"darkBrandColor"`
+	HideBookATeamMember bool `json:"hideBookATeamMember"`
+	HideBranding bool `json:"hideBranding"`
+	IsPrivate bool `json:"isPrivate"`
+	LogoUrl string `json:"logoUrl"`
+	Metadata string `json:"metadata"`
+	Name string `json:"name"`
+	Slug string `json:"slug"`
+	Theme string `json:"theme"`
+	TimeFormat float64 `json:"timeFormat"`
+	TimeZone string `json:"timeZone"`
+	WeekStart string `json:"weekStart"`
 }
 
 type CreateOrgTeamMembershipDto struct {
-	Accepted             bool    `json:"accepted"`
-	DisableImpersonation bool    `json:"disableImpersonation"`
-	Role                 string  `json:"role"`
-	UserId               float64 `json:"userId"`
+	Accepted bool `json:"accepted"`
+	DisableImpersonation bool `json:"disableImpersonation"`
+	Role string `json:"role"`
+	UserId float64 `json:"userId"`
 }
 
 type CreateOrganizationAttributeInput struct {
-	Ttype   string          `json:"Ttype"`
-	Enabled bool            `json:"enabled"`
-	Name    string          `json:"name"`
+	Ttype string `json:"Ttype"`
+	Enabled bool `json:"enabled"`
+	Name string `json:"name"`
 	Options json.RawMessage `json:"options"`
-	Slug    string          `json:"slug"`
+	Slug string `json:"slug"`
 }
 
 type CreateOrganizationAttributeOptionInput struct {
-	Slug  string `json:"slug"`
+	Slug string `json:"slug"`
 	Value string `json:"value"`
 }
 
 type CreateOrganizationAttributesOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type CreateOrganizationInput struct {
-	ApiKeyDaysValid    float64 `json:"apiKeyDaysValid"`
-	ApiKeyNeverExpires bool    `json:"apiKeyNeverExpires"`
-	Metadata           string  `json:"metadata"`
-	Name               string  `json:"name"`
-	Slug               string  `json:"slug"`
+	ApiKeyDaysValid float64 `json:"apiKeyDaysValid"`
+	ApiKeyNeverExpires bool `json:"apiKeyNeverExpires"`
+	Metadata string `json:"metadata"`
+	Name string `json:"name"`
+	Slug string `json:"slug"`
 }
 
 type CreateOrganizationUserInput struct {
-	AppTheme          string  `json:"appTheme"`
-	AutoAccept        bool    `json:"autoAccept"`
-	AvatarUrl         string  `json:"avatarUrl"`
-	Bio               string  `json:"bio"`
-	BrandColor        string  `json:"brandColor"`
-	DarkBrandColor    string  `json:"darkBrandColor"`
+	AppTheme string `json:"appTheme"`
+	AutoAccept bool `json:"autoAccept"`
+	AvatarUrl string `json:"avatarUrl"`
+	Bio string `json:"bio"`
+	BrandColor string `json:"brandColor"`
+	DarkBrandColor string `json:"darkBrandColor"`
 	DefaultScheduleId float64 `json:"defaultScheduleId"`
-	Email             string  `json:"email"`
-	HideBranding      bool    `json:"hideBranding"`
-	Locale            string  `json:"locale"`
-	Metadata          string  `json:"metadata"`
-	OrganizationRole  string  `json:"organizationRole"`
-	Theme             string  `json:"theme"`
-	TimeFormat        float64 `json:"timeFormat"`
-	TimeZone          string  `json:"timeZone"`
-	Username          string  `json:"username"`
-	Weekday           string  `json:"weekday"`
+	Email string `json:"email"`
+	HideBranding bool `json:"hideBranding"`
+	Locale string `json:"locale"`
+	Metadata string `json:"metadata"`
+	OrganizationRole string `json:"organizationRole"`
+	Theme string `json:"theme"`
+	TimeFormat float64 `json:"timeFormat"`
+	TimeZone string `json:"timeZone"`
+	Username string `json:"username"`
+	Weekday string `json:"weekday"`
 }
 
 type CreateOutOfOfficeEntryDto struct {
-	End      string  `json:"end"`
-	Notes    string  `json:"notes"`
-	Reason   string  `json:"reason"`
-	Start    string  `json:"start"`
+	End string `json:"end"`
+	Notes string `json:"notes"`
+	Reason string `json:"reason"`
+	Start string `json:"start"`
 	ToUserId float64 `json:"toUserId"`
 }
 
 type CreatePhoneCallInput struct {
-	BeginMessage    string `json:"beginMessage"`
-	CalApiKey       string `json:"calApiKey"`
-	Enabled         string `json:"enabled"`
-	GeneralPrompt   string `json:"generalPrompt"`
-	GuestCompany    string `json:"guestCompany"`
-	GuestEmail      string `json:"guestEmail"`
-	GuestName       string `json:"guestName"`
-	NumberToCall    string `json:"numberToCall"`
-	SchedulerName   string `json:"schedulerName"`
-	TemplateType    string `json:"templateType"`
+	BeginMessage string `json:"beginMessage"`
+	CalApiKey string `json:"calApiKey"`
+	Enabled string `json:"enabled"`
+	GeneralPrompt string `json:"generalPrompt"`
+	GuestCompany string `json:"guestCompany"`
+	GuestEmail string `json:"guestEmail"`
+	GuestName string `json:"guestName"`
+	NumberToCall string `json:"numberToCall"`
+	SchedulerName string `json:"schedulerName"`
+	TemplateType string `json:"templateType"`
 	YourPhoneNumber string `json:"yourPhoneNumber"`
 }
 
 type CreatePhoneCallOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type CreatePrivateLinkInput struct {
-	ExpiresAt     string  `json:"expiresAt"`
+	ExpiresAt string `json:"expiresAt"`
 	MaxUsageCount float64 `json:"maxUsageCount"`
 }
 
 type CreatePrivateLinkOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type CreateRecurringBookingInput_2024_08_13 struct {
-	Attendee               string          `json:"attendee"`
-	BookingFieldsResponses string          `json:"bookingFieldsResponses"`
-	EmailVerificationCode  string          `json:"emailVerificationCode"`
-	EventTypeId            float64         `json:"eventTypeId"`
-	EventTypeSlug          string          `json:"eventTypeSlug"`
-	Guests                 json.RawMessage `json:"guests"`
-	LengthInMinutes        float64         `json:"lengthInMinutes"`
-	Location               string          `json:"location"`
-	MeetingUrl             string          `json:"meetingUrl"`
-	Metadata               string          `json:"metadata"`
-	OrganizationSlug       string          `json:"organizationSlug"`
-	RecurrenceCount        float64         `json:"recurrenceCount"`
-	Routing                string          `json:"routing"`
-	Start                  string          `json:"start"`
-	TeamSlug               string          `json:"teamSlug"`
-	Username               string          `json:"username"`
+	Attendee string `json:"attendee"`
+	BookingFieldsResponses string `json:"bookingFieldsResponses"`
+	EmailVerificationCode string `json:"emailVerificationCode"`
+	EventTypeId float64 `json:"eventTypeId"`
+	EventTypeSlug string `json:"eventTypeSlug"`
+	Guests json.RawMessage `json:"guests"`
+	LengthInMinutes float64 `json:"lengthInMinutes"`
+	Location string `json:"location"`
+	MeetingUrl string `json:"meetingUrl"`
+	Metadata string `json:"metadata"`
+	OrganizationSlug string `json:"organizationSlug"`
+	RecurrenceCount float64 `json:"recurrenceCount"`
+	Routing string `json:"routing"`
+	Start string `json:"start"`
+	TeamSlug string `json:"teamSlug"`
+	Username string `json:"username"`
 }
 
 type CreateRecurringSeatedBookingOutput_2024_08_13 struct {
-	AbsentHost          bool            `json:"absentHost"`
-	Attendees           json.RawMessage `json:"attendees"`
-	CancellationReason  string          `json:"cancellationReason"`
-	CancelledByEmail    string          `json:"cancelledByEmail"`
-	CreatedAt           string          `json:"createdAt"`
-	Description         string          `json:"description"`
-	Duration            float64         `json:"duration"`
-	End                 string          `json:"end"`
-	EventType           string          `json:"eventType"`
-	EventTypeId         float64         `json:"eventTypeId"`
-	Hosts               json.RawMessage `json:"hosts"`
-	IcsUid              string          `json:"icsUid"`
-	Id                  float64         `json:"id"`
-	Location            string          `json:"location"`
-	MeetingUrl          string          `json:"meetingUrl"`
-	Metadata            string          `json:"metadata"`
-	Rating              float64         `json:"rating"`
-	RecurringBookingUid string          `json:"recurringBookingUid"`
-	RescheduledByEmail  string          `json:"rescheduledByEmail"`
-	RescheduledFromUid  string          `json:"rescheduledFromUid"`
-	RescheduledToUid    string          `json:"rescheduledToUid"`
-	ReschedulingReason  string          `json:"reschedulingReason"`
-	SeatUid             string          `json:"seatUid"`
-	Start               string          `json:"start"`
-	Status              string          `json:"status"`
-	Title               string          `json:"title"`
-	Uid                 string          `json:"uid"`
-	UpdatedAt           string          `json:"updatedAt"`
+	AbsentHost bool `json:"absentHost"`
+	Attendees json.RawMessage `json:"attendees"`
+	CancellationReason string `json:"cancellationReason"`
+	CancelledByEmail string `json:"cancelledByEmail"`
+	CreatedAt string `json:"createdAt"`
+	Description string `json:"description"`
+	Duration float64 `json:"duration"`
+	End string `json:"end"`
+	EventType string `json:"eventType"`
+	EventTypeId float64 `json:"eventTypeId"`
+	Hosts json.RawMessage `json:"hosts"`
+	IcsUid string `json:"icsUid"`
+	Id float64 `json:"id"`
+	Location string `json:"location"`
+	MeetingUrl string `json:"meetingUrl"`
+	Metadata string `json:"metadata"`
+	Rating float64 `json:"rating"`
+	RecurringBookingUid string `json:"recurringBookingUid"`
+	RescheduledByEmail string `json:"rescheduledByEmail"`
+	RescheduledFromUid string `json:"rescheduledFromUid"`
+	RescheduledToUid string `json:"rescheduledToUid"`
+	ReschedulingReason string `json:"reschedulingReason"`
+	SeatUid string `json:"seatUid"`
+	Start string `json:"start"`
+	Status string `json:"status"`
+	Title string `json:"title"`
+	Uid string `json:"uid"`
+	UpdatedAt string `json:"updatedAt"`
 }
 
 type CreateRoutingFormResponseOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type CreateRoutingFormResponseOutputData struct {
-	EventTypeId                float64 `json:"eventTypeId"`
-	Routing                    string  `json:"routing"`
-	RoutingCustomMessage       string  `json:"routingCustomMessage"`
-	RoutingExternalRedirectUrl string  `json:"routingExternalRedirectUrl"`
-	Slots                      string  `json:"slots"`
+	EventTypeId float64 `json:"eventTypeId"`
+	Routing string `json:"routing"`
+	RoutingCustomMessage string `json:"routingCustomMessage"`
+	RoutingExternalRedirectUrl string `json:"routingExternalRedirectUrl"`
+	Slots string `json:"slots"`
 }
 
 type CreateScheduleInput_2024_06_11 struct {
 	Availability json.RawMessage `json:"availability"`
-	IsDefault    bool            `json:"isDefault"`
-	Name         string          `json:"name"`
-	Overrides    json.RawMessage `json:"overrides"`
-	TimeZone     string          `json:"timeZone"`
+	IsDefault bool `json:"isDefault"`
+	Name string `json:"name"`
+	Overrides json.RawMessage `json:"overrides"`
+	TimeZone string `json:"timeZone"`
 }
 
 type CreateScheduleOutput_2024_06_11 struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type CreateSeatedBookingOutput_2024_08_13 struct {
-	AbsentHost         bool            `json:"absentHost"`
-	Attendees          json.RawMessage `json:"attendees"`
-	CancellationReason string          `json:"cancellationReason"`
-	CancelledByEmail   string          `json:"cancelledByEmail"`
-	CreatedAt          string          `json:"createdAt"`
-	Description        string          `json:"description"`
-	Duration           float64         `json:"duration"`
-	End                string          `json:"end"`
-	EventType          string          `json:"eventType"`
-	EventTypeId        float64         `json:"eventTypeId"`
-	Hosts              json.RawMessage `json:"hosts"`
-	IcsUid             string          `json:"icsUid"`
-	Id                 float64         `json:"id"`
-	Location           string          `json:"location"`
-	MeetingUrl         string          `json:"meetingUrl"`
-	Metadata           string          `json:"metadata"`
-	Rating             float64         `json:"rating"`
-	RescheduledByEmail string          `json:"rescheduledByEmail"`
-	RescheduledFromUid string          `json:"rescheduledFromUid"`
-	RescheduledToUid   string          `json:"rescheduledToUid"`
-	ReschedulingReason string          `json:"reschedulingReason"`
-	SeatUid            string          `json:"seatUid"`
-	Start              string          `json:"start"`
-	Status             string          `json:"status"`
-	Title              string          `json:"title"`
-	Uid                string          `json:"uid"`
-	UpdatedAt          string          `json:"updatedAt"`
+	AbsentHost bool `json:"absentHost"`
+	Attendees json.RawMessage `json:"attendees"`
+	CancellationReason string `json:"cancellationReason"`
+	CancelledByEmail string `json:"cancelledByEmail"`
+	CreatedAt string `json:"createdAt"`
+	Description string `json:"description"`
+	Duration float64 `json:"duration"`
+	End string `json:"end"`
+	EventType string `json:"eventType"`
+	EventTypeId float64 `json:"eventTypeId"`
+	Hosts json.RawMessage `json:"hosts"`
+	IcsUid string `json:"icsUid"`
+	Id float64 `json:"id"`
+	Location string `json:"location"`
+	MeetingUrl string `json:"meetingUrl"`
+	Metadata string `json:"metadata"`
+	Rating float64 `json:"rating"`
+	RescheduledByEmail string `json:"rescheduledByEmail"`
+	RescheduledFromUid string `json:"rescheduledFromUid"`
+	RescheduledToUid string `json:"rescheduledToUid"`
+	ReschedulingReason string `json:"reschedulingReason"`
+	SeatUid string `json:"seatUid"`
+	Start string `json:"start"`
+	Status string `json:"status"`
+	Title string `json:"title"`
+	Uid string `json:"uid"`
+	UpdatedAt string `json:"updatedAt"`
 }
 
 type CreateTeamEventTypeInput_2024_06_14 struct {
-	AfterEventBuffer                   float64         `json:"afterEventBuffer"`
-	AllowReschedulingCancelledBookings bool            `json:"allowReschedulingCancelledBookings"`
-	AllowReschedulingPastBookings      bool            `json:"allowReschedulingPastBookings"`
-	AssignAllTeamMembers               bool            `json:"assignAllTeamMembers"`
-	BeforeEventBuffer                  float64         `json:"beforeEventBuffer"`
-	BookerActiveBookingsLimit          string          `json:"bookerActiveBookingsLimit"`
-	BookerLayouts                      string          `json:"bookerLayouts"`
-	BookingFields                      json.RawMessage `json:"bookingFields"`
-	BookingLimitsCount                 string          `json:"bookingLimitsCount"`
-	BookingLimitsDuration              string          `json:"bookingLimitsDuration"`
-	BookingRequiresAuthentication      bool            `json:"bookingRequiresAuthentication"`
-	BookingWindow                      string          `json:"bookingWindow"`
-	CalVideoSettings                   string          `json:"calVideoSettings"`
-	Color                              string          `json:"color"`
-	ConfirmationPolicy                 string          `json:"confirmationPolicy"`
-	CustomName                         string          `json:"customName"`
-	Description                        string          `json:"description"`
-	DestinationCalendar                string          `json:"destinationCalendar"`
-	DisableCancelling                  string          `json:"disableCancelling"`
-	DisableGuests                      bool            `json:"disableGuests"`
-	DisableRescheduling                string          `json:"disableRescheduling"`
-	EmailSettings                      string          `json:"emailSettings"`
-	Hidden                             bool            `json:"hidden"`
-	HideCalendarEventDetails           bool            `json:"hideCalendarEventDetails"`
-	HideCalendarNotes                  bool            `json:"hideCalendarNotes"`
-	HideOrganizerEmail                 bool            `json:"hideOrganizerEmail"`
-	Hosts                              json.RawMessage `json:"hosts"`
-	InterfaceLanguage                  string          `json:"interfaceLanguage"`
-	LengthInMinutes                    float64         `json:"lengthInMinutes"`
-	LengthInMinutesOptions             json.RawMessage `json:"lengthInMinutesOptions"`
-	Locations                          json.RawMessage `json:"locations"`
-	LockTimeZoneToggleOnBookingPage    bool            `json:"lockTimeZoneToggleOnBookingPage"`
-	MinimumBookingNotice               float64         `json:"minimumBookingNotice"`
-	OffsetStart                        float64         `json:"offsetStart"`
-	OnlyShowFirstAvailableSlot         bool            `json:"onlyShowFirstAvailableSlot"`
-	Recurrence                         string          `json:"recurrence"`
-	RequiresBookerEmailVerification    bool            `json:"requiresBookerEmailVerification"`
-	RescheduleWithSameRoundRobinHost   bool            `json:"rescheduleWithSameRoundRobinHost"`
-	ScheduleId                         float64         `json:"scheduleId"`
-	SchedulingType                     string          `json:"schedulingType"`
-	Seats                              string          `json:"seats"`
-	ShowOptimizedSlots                 bool            `json:"showOptimizedSlots"`
-	SlotInterval                       float64         `json:"slotInterval"`
-	Slug                               string          `json:"slug"`
-	SuccessRedirectUrl                 string          `json:"successRedirectUrl"`
-	Title                              string          `json:"title"`
-	UseDestinationCalendarEmail        bool            `json:"useDestinationCalendarEmail"`
+	AfterEventBuffer float64 `json:"afterEventBuffer"`
+	AllowReschedulingCancelledBookings bool `json:"allowReschedulingCancelledBookings"`
+	AllowReschedulingPastBookings bool `json:"allowReschedulingPastBookings"`
+	AssignAllTeamMembers bool `json:"assignAllTeamMembers"`
+	BeforeEventBuffer float64 `json:"beforeEventBuffer"`
+	BookerActiveBookingsLimit string `json:"bookerActiveBookingsLimit"`
+	BookerLayouts string `json:"bookerLayouts"`
+	BookingFields json.RawMessage `json:"bookingFields"`
+	BookingLimitsCount string `json:"bookingLimitsCount"`
+	BookingLimitsDuration string `json:"bookingLimitsDuration"`
+	BookingRequiresAuthentication bool `json:"bookingRequiresAuthentication"`
+	BookingWindow string `json:"bookingWindow"`
+	CalVideoSettings string `json:"calVideoSettings"`
+	Color string `json:"color"`
+	ConfirmationPolicy string `json:"confirmationPolicy"`
+	CustomName string `json:"customName"`
+	Description string `json:"description"`
+	DestinationCalendar string `json:"destinationCalendar"`
+	DisableCancelling string `json:"disableCancelling"`
+	DisableGuests bool `json:"disableGuests"`
+	DisableRescheduling string `json:"disableRescheduling"`
+	EmailSettings string `json:"emailSettings"`
+	Hidden bool `json:"hidden"`
+	HideCalendarEventDetails bool `json:"hideCalendarEventDetails"`
+	HideCalendarNotes bool `json:"hideCalendarNotes"`
+	HideOrganizerEmail bool `json:"hideOrganizerEmail"`
+	Hosts json.RawMessage `json:"hosts"`
+	InterfaceLanguage string `json:"interfaceLanguage"`
+	LengthInMinutes float64 `json:"lengthInMinutes"`
+	LengthInMinutesOptions json.RawMessage `json:"lengthInMinutesOptions"`
+	Locations json.RawMessage `json:"locations"`
+	LockTimeZoneToggleOnBookingPage bool `json:"lockTimeZoneToggleOnBookingPage"`
+	MinimumBookingNotice float64 `json:"minimumBookingNotice"`
+	OffsetStart float64 `json:"offsetStart"`
+	OnlyShowFirstAvailableSlot bool `json:"onlyShowFirstAvailableSlot"`
+	Recurrence string `json:"recurrence"`
+	RequiresBookerEmailVerification bool `json:"requiresBookerEmailVerification"`
+	RescheduleWithSameRoundRobinHost bool `json:"rescheduleWithSameRoundRobinHost"`
+	ScheduleId float64 `json:"scheduleId"`
+	SchedulingType string `json:"schedulingType"`
+	Seats string `json:"seats"`
+	ShowOptimizedSlots bool `json:"showOptimizedSlots"`
+	SlotInterval float64 `json:"slotInterval"`
+	Slug string `json:"slug"`
+	SuccessRedirectUrl string `json:"successRedirectUrl"`
+	Title string `json:"title"`
+	UseDestinationCalendarEmail bool `json:"useDestinationCalendarEmail"`
 }
 
 type CreateTeamEventTypeOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type CreateTeamInput struct {
-	AppIconLogo         string  `json:"appIconLogo"`
-	AppLogo             string  `json:"appLogo"`
-	AutoAcceptCreator   bool    `json:"autoAcceptCreator"`
-	BannerUrl           string  `json:"bannerUrl"`
-	Bio                 string  `json:"bio"`
-	BrandColor          string  `json:"brandColor"`
-	CalVideoLogo        string  `json:"calVideoLogo"`
-	DarkBrandColor      string  `json:"darkBrandColor"`
-	HideBookATeamMember bool    `json:"hideBookATeamMember"`
-	HideBranding        bool    `json:"hideBranding"`
-	IsPrivate           bool    `json:"isPrivate"`
-	LogoUrl             string  `json:"logoUrl"`
-	Metadata            string  `json:"metadata"`
-	Name                string  `json:"name"`
-	Slug                string  `json:"slug"`
-	Theme               string  `json:"theme"`
-	TimeFormat          float64 `json:"timeFormat"`
-	TimeZone            string  `json:"timeZone"`
-	WeekStart           string  `json:"weekStart"`
+	AppIconLogo string `json:"appIconLogo"`
+	AppLogo string `json:"appLogo"`
+	AutoAcceptCreator bool `json:"autoAcceptCreator"`
+	BannerUrl string `json:"bannerUrl"`
+	Bio string `json:"bio"`
+	BrandColor string `json:"brandColor"`
+	CalVideoLogo string `json:"calVideoLogo"`
+	DarkBrandColor string `json:"darkBrandColor"`
+	HideBookATeamMember bool `json:"hideBookATeamMember"`
+	HideBranding bool `json:"hideBranding"`
+	IsPrivate bool `json:"isPrivate"`
+	LogoUrl string `json:"logoUrl"`
+	Metadata string `json:"metadata"`
+	Name string `json:"name"`
+	Slug string `json:"slug"`
+	Theme string `json:"theme"`
+	TimeFormat float64 `json:"timeFormat"`
+	TimeZone string `json:"timeZone"`
+	WeekStart string `json:"weekStart"`
 }
 
 type CreateTeamMembershipInput struct {
-	Accepted             bool    `json:"accepted"`
-	DisableImpersonation bool    `json:"disableImpersonation"`
-	Role                 string  `json:"role"`
-	UserId               float64 `json:"userId"`
+	Accepted bool `json:"accepted"`
+	DisableImpersonation bool `json:"disableImpersonation"`
+	Role string `json:"role"`
+	UserId float64 `json:"userId"`
 }
 
 type CreateTeamMembershipOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type CreateTeamOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type CreateTeamOutputData struct {
-	Message     string `json:"message"`
+	Message string `json:"message"`
 	PaymentLink string `json:"paymentLink"`
 	PendingTeam string `json:"pendingTeam"`
 }
 
 type CreateTeamRoleInput struct {
-	Color       string          `json:"color"`
-	Description string          `json:"description"`
-	Name        string          `json:"name"`
+	Color string `json:"color"`
+	Description string `json:"description"`
+	Name string `json:"name"`
 	Permissions json.RawMessage `json:"permissions"`
 }
 
 type CreateTeamRoleOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
@@ -1047,25 +1048,25 @@ type CreateTeamRolePermissionsInput struct {
 }
 
 type CreateUnifiedCalendarEventInput struct {
-	Attendees   json.RawMessage `json:"attendees"`
-	Description string          `json:"description"`
-	End         string          `json:"end"`
-	Start       string          `json:"start"`
-	Title       string          `json:"title"`
+	Attendees json.RawMessage `json:"attendees"`
+	Description string `json:"description"`
+	End string `json:"end"`
+	Start string `json:"start"`
+	Title string `json:"title"`
 }
 
 type CreateWebhookInputDto struct {
-	Active          bool            `json:"active"`
-	PayloadTemplate string          `json:"payloadTemplate"`
-	Secret          string          `json:"secret"`
-	SubscriberUrl   string          `json:"subscriberUrl"`
-	Triggers        json.RawMessage `json:"triggers"`
-	Version         string          `json:"version"`
+	Active bool `json:"active"`
+	PayloadTemplate string `json:"payloadTemplate"`
+	Secret string `json:"secret"`
+	SubscriberUrl string `json:"subscriberUrl"`
+	Triggers json.RawMessage `json:"triggers"`
+	Version string `json:"version"`
 }
 
 type Data struct {
 	AgentId string `json:"agentId"`
-	CallId  string `json:"callId"`
+	CallId string `json:"callId"`
 }
 
 type DeclineBookingInput_2024_08_13 struct {
@@ -1078,17 +1079,17 @@ type DefaultConferencingAppsOutputDto struct {
 }
 
 type DelegationCredentialOutput struct {
-	CreatedAt         string  `json:"createdAt"`
-	Domain            string  `json:"domain"`
-	Enabled           bool    `json:"enabled"`
-	Id                string  `json:"id"`
-	OrganizationId    float64 `json:"organizationId"`
-	UpdatedAt         string  `json:"updatedAt"`
-	WorkspacePlatform string  `json:"workspacePlatform"`
+	CreatedAt string `json:"createdAt"`
+	Domain string `json:"domain"`
+	Enabled bool `json:"enabled"`
+	Id string `json:"id"`
+	OrganizationId float64 `json:"organizationId"`
+	UpdatedAt string `json:"updatedAt"`
+	WorkspacePlatform string `json:"workspacePlatform"`
 }
 
 type DeleteAttributeOptionOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
@@ -1097,39 +1098,39 @@ type DeleteCalendarCredentialsInputBodyDto struct {
 }
 
 type DeleteData_2024_06_14 struct {
-	Id              float64 `json:"id"`
+	Id float64 `json:"id"`
 	LengthInMinutes float64 `json:"lengthInMinutes"`
-	Slug            string  `json:"slug"`
-	Title           string  `json:"title"`
+	Slug string `json:"slug"`
+	Title string `json:"title"`
 }
 
 type DeleteEventTypeOutput_2024_06_14 struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type DeleteManyWebhooksOutputResponseDto struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type DeleteOrgMembership struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type DeleteOrgRoleOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type DeleteOrganizationAttributesOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type DeletePrivateLinkOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
@@ -1138,70 +1139,70 @@ type DeleteScheduleOutput_2024_06_11 struct {
 }
 
 type DeleteTeamEventTypeOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type DeleteTeamMembershipOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type DeleteTeamRoleOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type DeletedCalendarCredentialsOutputDto struct {
-	Ttype   string  `json:"Ttype"`
-	AppId   string  `json:"appId"`
-	Id      float64 `json:"id"`
-	Invalid bool    `json:"invalid"`
-	TeamId  float64 `json:"teamId"`
-	UserId  float64 `json:"userId"`
+	Ttype string `json:"Ttype"`
+	AppId string `json:"appId"`
+	Id float64 `json:"id"`
+	Invalid bool `json:"invalid"`
+	TeamId float64 `json:"teamId"`
+	UserId float64 `json:"userId"`
 }
 
 type DeletedCalendarCredentialsOutputResponseDto struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type DestinationCalendar struct {
-	CredentialId           float64 `json:"credentialId"`
-	DelegationCredentialId string  `json:"delegationCredentialId"`
-	Email                  string  `json:"email"`
-	EventTypeId            float64 `json:"eventTypeId"`
-	ExternalId             string  `json:"externalId"`
-	Id                     string  `json:"id"`
-	Integration            string  `json:"integration"`
-	IntegrationTitle       string  `json:"integrationTitle"`
-	Name                   string  `json:"name"`
-	Primary                bool    `json:"primary"`
-	PrimaryEmail           string  `json:"primaryEmail"`
-	ReadOnly               bool    `json:"readOnly"`
-	UserId                 float64 `json:"userId"`
+	CredentialId float64 `json:"credentialId"`
+	DelegationCredentialId string `json:"delegationCredentialId"`
+	Email string `json:"email"`
+	EventTypeId float64 `json:"eventTypeId"`
+	ExternalId string `json:"externalId"`
+	Id string `json:"id"`
+	Integration string `json:"integration"`
+	IntegrationTitle string `json:"integrationTitle"`
+	Name string `json:"name"`
+	Primary bool `json:"primary"`
+	PrimaryEmail string `json:"primaryEmail"`
+	ReadOnly bool `json:"readOnly"`
+	UserId float64 `json:"userId"`
 }
 
 type DestinationCalendar_2024_06_14 struct {
-	ExternalId  string `json:"externalId"`
+	ExternalId string `json:"externalId"`
 	Integration string `json:"integration"`
 }
 
 type DestinationCalendarsInputBodyDto struct {
 	DelegationCredentialId string `json:"delegationCredentialId"`
-	ExternalId             string `json:"externalId"`
-	Integration            string `json:"integration"`
+	ExternalId string `json:"externalId"`
+	Integration string `json:"integration"`
 }
 
 type DestinationCalendarsOutputDto struct {
 	CredentialId float64 `json:"credentialId"`
-	ExternalId   string  `json:"externalId"`
-	Integration  string  `json:"integration"`
-	UserId       float64 `json:"userId"`
+	ExternalId string `json:"externalId"`
+	Integration string `json:"integration"`
+	UserId float64 `json:"userId"`
 }
 
 type DestinationCalendarsOutputResponseDto struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
@@ -1214,12 +1215,12 @@ type DisableCancelling_2024_06_14 struct {
 }
 
 type DisableReschedulingOutput_2024_06_14 struct {
-	Disabled      bool    `json:"disabled"`
+	Disabled bool `json:"disabled"`
 	MinutesBefore float64 `json:"minutesBefore"`
 }
 
 type DisableRescheduling_2024_06_14 struct {
-	Disabled      bool    `json:"disabled"`
+	Disabled bool `json:"disabled"`
 	MinutesBefore float64 `json:"minutesBefore"`
 }
 
@@ -1232,158 +1233,158 @@ type DisconnectConferencingAppOutputResponseDto struct {
 }
 
 type EmailDefaultFieldInput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         string `json:"required"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required string `json:"required"`
 }
 
 type EmailDefaultFieldOutput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	IsDefault        string `json:"isDefault"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         string `json:"required"`
-	Slug             string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	IsDefault string `json:"isDefault"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required string `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type EmailSettings_2024_06_14 struct {
 	DisableEmailsToAttendees bool `json:"disableEmailsToAttendees"`
-	DisableEmailsToHosts     bool `json:"disableEmailsToHosts"`
+	DisableEmailsToHosts bool `json:"disableEmailsToHosts"`
 }
 
 type EventType struct {
-	Id   float64 `json:"id"`
-	Slug string  `json:"slug"`
+	Id float64 `json:"id"`
+	Slug string `json:"slug"`
 }
 
 type EventTypeColor_2024_06_14 struct {
-	DarkThemeHex  string `json:"darkThemeHex"`
+	DarkThemeHex string `json:"darkThemeHex"`
 	LightThemeHex string `json:"lightThemeHex"`
 }
 
 type EventTypeOutput_2024_06_14 struct {
-	AfterEventBuffer                   float64         `json:"afterEventBuffer"`
-	AllowReschedulingCancelledBookings bool            `json:"allowReschedulingCancelledBookings"`
-	AllowReschedulingPastBookings      bool            `json:"allowReschedulingPastBookings"`
-	BeforeEventBuffer                  float64         `json:"beforeEventBuffer"`
-	BookerActiveBookingsLimit          string          `json:"bookerActiveBookingsLimit"`
-	BookerLayouts                      string          `json:"bookerLayouts"`
-	BookingFields                      json.RawMessage `json:"bookingFields"`
-	BookingLimitsCount                 string          `json:"bookingLimitsCount"`
-	BookingLimitsDuration              string          `json:"bookingLimitsDuration"`
-	BookingRequiresAuthentication      bool            `json:"bookingRequiresAuthentication"`
-	BookingUrl                         string          `json:"bookingUrl"`
-	BookingWindow                      json.RawMessage `json:"bookingWindow"`
-	CalVideoSettings                   string          `json:"calVideoSettings"`
-	Color                              string          `json:"color"`
-	ConfirmationPolicy                 string          `json:"confirmationPolicy"`
-	Currency                           string          `json:"currency"`
-	CustomName                         string          `json:"customName"`
-	Description                        string          `json:"description"`
-	DestinationCalendar                string          `json:"destinationCalendar"`
-	DisableCancelling                  string          `json:"disableCancelling"`
-	DisableGuests                      bool            `json:"disableGuests"`
-	DisableRescheduling                string          `json:"disableRescheduling"`
-	ForwardParamsSuccessRedirect       string          `json:"forwardParamsSuccessRedirect"`
-	Hidden                             bool            `json:"hidden"`
-	HideCalendarEventDetails           bool            `json:"hideCalendarEventDetails"`
-	HideCalendarNotes                  bool            `json:"hideCalendarNotes"`
-	HideOrganizerEmail                 bool            `json:"hideOrganizerEmail"`
-	Id                                 float64         `json:"id"`
-	InterfaceLanguage                  string          `json:"interfaceLanguage"`
-	IsInstantEvent                     bool            `json:"isInstantEvent"`
-	LengthInMinutes                    float64         `json:"lengthInMinutes"`
-	LengthInMinutesOptions             json.RawMessage `json:"lengthInMinutesOptions"`
-	Locations                          json.RawMessage `json:"locations"`
-	LockTimeZoneToggleOnBookingPage    bool            `json:"lockTimeZoneToggleOnBookingPage"`
-	Metadata                           string          `json:"metadata"`
-	MinimumBookingNotice               float64         `json:"minimumBookingNotice"`
-	OffsetStart                        float64         `json:"offsetStart"`
-	OnlyShowFirstAvailableSlot         bool            `json:"onlyShowFirstAvailableSlot"`
-	OwnerId                            float64         `json:"ownerId"`
-	Price                              float64         `json:"price"`
-	Recurrence                         string          `json:"recurrence"`
-	RequiresBookerEmailVerification    bool            `json:"requiresBookerEmailVerification"`
-	ScheduleId                         float64         `json:"scheduleId"`
-	Seats                              string          `json:"seats"`
-	SeatsPerTimeSlot                   string          `json:"seatsPerTimeSlot"`
-	SeatsShowAvailabilityCount         bool            `json:"seatsShowAvailabilityCount"`
-	ShowOptimizedSlots                 bool            `json:"showOptimizedSlots"`
-	SlotInterval                       string          `json:"slotInterval"`
-	Slug                               string          `json:"slug"`
-	SuccessRedirectUrl                 string          `json:"successRedirectUrl"`
-	Title                              string          `json:"title"`
-	UseDestinationCalendarEmail        bool            `json:"useDestinationCalendarEmail"`
-	Users                              json.RawMessage `json:"users"`
+	AfterEventBuffer float64 `json:"afterEventBuffer"`
+	AllowReschedulingCancelledBookings bool `json:"allowReschedulingCancelledBookings"`
+	AllowReschedulingPastBookings bool `json:"allowReschedulingPastBookings"`
+	BeforeEventBuffer float64 `json:"beforeEventBuffer"`
+	BookerActiveBookingsLimit string `json:"bookerActiveBookingsLimit"`
+	BookerLayouts string `json:"bookerLayouts"`
+	BookingFields json.RawMessage `json:"bookingFields"`
+	BookingLimitsCount string `json:"bookingLimitsCount"`
+	BookingLimitsDuration string `json:"bookingLimitsDuration"`
+	BookingRequiresAuthentication bool `json:"bookingRequiresAuthentication"`
+	BookingUrl string `json:"bookingUrl"`
+	BookingWindow json.RawMessage `json:"bookingWindow"`
+	CalVideoSettings string `json:"calVideoSettings"`
+	Color string `json:"color"`
+	ConfirmationPolicy string `json:"confirmationPolicy"`
+	Currency string `json:"currency"`
+	CustomName string `json:"customName"`
+	Description string `json:"description"`
+	DestinationCalendar string `json:"destinationCalendar"`
+	DisableCancelling string `json:"disableCancelling"`
+	DisableGuests bool `json:"disableGuests"`
+	DisableRescheduling string `json:"disableRescheduling"`
+	ForwardParamsSuccessRedirect string `json:"forwardParamsSuccessRedirect"`
+	Hidden bool `json:"hidden"`
+	HideCalendarEventDetails bool `json:"hideCalendarEventDetails"`
+	HideCalendarNotes bool `json:"hideCalendarNotes"`
+	HideOrganizerEmail bool `json:"hideOrganizerEmail"`
+	Id float64 `json:"id"`
+	InterfaceLanguage string `json:"interfaceLanguage"`
+	IsInstantEvent bool `json:"isInstantEvent"`
+	LengthInMinutes float64 `json:"lengthInMinutes"`
+	LengthInMinutesOptions json.RawMessage `json:"lengthInMinutesOptions"`
+	Locations json.RawMessage `json:"locations"`
+	LockTimeZoneToggleOnBookingPage bool `json:"lockTimeZoneToggleOnBookingPage"`
+	Metadata string `json:"metadata"`
+	MinimumBookingNotice float64 `json:"minimumBookingNotice"`
+	OffsetStart float64 `json:"offsetStart"`
+	OnlyShowFirstAvailableSlot bool `json:"onlyShowFirstAvailableSlot"`
+	OwnerId float64 `json:"ownerId"`
+	Price float64 `json:"price"`
+	Recurrence string `json:"recurrence"`
+	RequiresBookerEmailVerification bool `json:"requiresBookerEmailVerification"`
+	ScheduleId float64 `json:"scheduleId"`
+	Seats string `json:"seats"`
+	SeatsPerTimeSlot string `json:"seatsPerTimeSlot"`
+	SeatsShowAvailabilityCount bool `json:"seatsShowAvailabilityCount"`
+	ShowOptimizedSlots bool `json:"showOptimizedSlots"`
+	SlotInterval string `json:"slotInterval"`
+	Slug string `json:"slug"`
+	SuccessRedirectUrl string `json:"successRedirectUrl"`
+	Title string `json:"title"`
+	UseDestinationCalendarEmail bool `json:"useDestinationCalendarEmail"`
+	Users json.RawMessage `json:"users"`
 }
 
 type EventTypeTeam struct {
-	BannerUrl      string  `json:"bannerUrl"`
-	BrandColor     string  `json:"brandColor"`
-	DarkBrandColor string  `json:"darkBrandColor"`
-	Id             float64 `json:"id"`
-	LogoUrl        string  `json:"logoUrl"`
-	Name           string  `json:"name"`
-	Slug           string  `json:"slug"`
-	Theme          string  `json:"theme"`
-	WeekStart      string  `json:"weekStart"`
+	BannerUrl string `json:"bannerUrl"`
+	BrandColor string `json:"brandColor"`
+	DarkBrandColor string `json:"darkBrandColor"`
+	Id float64 `json:"id"`
+	LogoUrl string `json:"logoUrl"`
+	Name string `json:"name"`
+	Slug string `json:"slug"`
+	Theme string `json:"theme"`
+	WeekStart string `json:"weekStart"`
 }
 
 type EventTypeWebhookOutputDto struct {
-	Active          bool            `json:"active"`
-	EventTypeId     float64         `json:"eventTypeId"`
-	Id              float64         `json:"id"`
-	PayloadTemplate string          `json:"payloadTemplate"`
-	Secret          string          `json:"secret"`
-	SubscriberUrl   string          `json:"subscriberUrl"`
-	Triggers        json.RawMessage `json:"triggers"`
+	Active bool `json:"active"`
+	EventTypeId float64 `json:"eventTypeId"`
+	Id float64 `json:"id"`
+	PayloadTemplate string `json:"payloadTemplate"`
+	Secret string `json:"secret"`
+	SubscriberUrl string `json:"subscriberUrl"`
+	Triggers json.RawMessage `json:"triggers"`
 }
 
 type EventTypeWebhookOutputResponseDto struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type EventTypeWebhooksOutputResponseDto struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type EventTypeWorkflowActivationOutputDto struct {
-	ActiveOnEventTypeIds    json.RawMessage `json:"activeOnEventTypeIds"`
-	IsActiveOnAllEventTypes bool            `json:"isActiveOnAllEventTypes"`
+	ActiveOnEventTypeIds json.RawMessage `json:"activeOnEventTypeIds"`
+	IsActiveOnAllEventTypes bool `json:"isActiveOnAllEventTypes"`
 }
 
 type EventTypeWorkflowOutput struct {
-	Ttype      string          `json:"Ttype"`
-	Activation string          `json:"activation"`
-	CreatedAt  string          `json:"createdAt"`
-	Id         float64         `json:"id"`
-	Name       string          `json:"name"`
-	Steps      json.RawMessage `json:"steps"`
-	TeamId     float64         `json:"teamId"`
-	Trigger    string          `json:"trigger"`
-	UpdatedAt  string          `json:"updatedAt"`
-	UserId     float64         `json:"userId"`
+	Ttype string `json:"Ttype"`
+	Activation string `json:"activation"`
+	CreatedAt string `json:"createdAt"`
+	Id float64 `json:"id"`
+	Name string `json:"name"`
+	Steps json.RawMessage `json:"steps"`
+	TeamId float64 `json:"teamId"`
+	Trigger string `json:"trigger"`
+	UpdatedAt string `json:"updatedAt"`
+	UserId float64 `json:"userId"`
 }
 
 type EventTypeWorkflowStepOutputDto struct {
-	Action               string  `json:"action"`
-	Email                string  `json:"email"`
-	Id                   float64 `json:"id"`
-	IncludeCalendarEvent string  `json:"includeCalendarEvent"`
-	Message              string  `json:"message"`
-	Phone                string  `json:"phone"`
-	PhoneRequired        bool    `json:"phoneRequired"`
-	Recipient            string  `json:"recipient"`
-	Sender               string  `json:"sender"`
-	StepNumber           float64 `json:"stepNumber"`
-	Template             string  `json:"template"`
+	Action string `json:"action"`
+	Email string `json:"email"`
+	Id float64 `json:"id"`
+	IncludeCalendarEvent string `json:"includeCalendarEvent"`
+	Message string `json:"message"`
+	Phone string `json:"phone"`
+	PhoneRequired bool `json:"phoneRequired"`
+	Recipient string `json:"recipient"`
+	Sender string `json:"sender"`
+	StepNumber float64 `json:"stepNumber"`
+	Template string `json:"template"`
 }
 
 type EventTypeWorkflowTriggerDto struct {
@@ -1391,79 +1392,79 @@ type EventTypeWorkflowTriggerDto struct {
 }
 
 type EventTypeWorkflowTriggerOutputDto struct {
-	Ttype  string `json:"Ttype"`
+	Ttype string `json:"Ttype"`
 	Offset string `json:"offset"`
 }
 
 type GetAllAttributeAssignedOptionOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetAllAttributeOptionOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetAllOrgMemberships struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type GetAllOrgRolesOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetAllTeamRolesOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetBookingAttendeeOutput_2024_08_13 struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type GetBookingAttendeesOutput_2024_08_13 struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetBookingOutput_2024_08_13 struct {
-	Data   string `json:"data"`
-	Error  string `json:"error"`
+	Data string `json:"data"`
+	Error string `json:"error"`
 	Status string `json:"status"`
 }
 
 type GetBookingRecordingsOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Error  string          `json:"error"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Error string `json:"error"`
+	Status string `json:"status"`
 }
 
 type GetBookingTranscriptsOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Error  string          `json:"error"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Error string `json:"error"`
+	Status string `json:"status"`
 }
 
 type GetBookingVideoSessionsOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Error  string          `json:"error"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Error string `json:"error"`
+	Status string `json:"status"`
 }
 
 type GetBookingsOutput_2024_08_13 struct {
-	Data       json.RawMessage `json:"data"`
-	Error      string          `json:"error"`
-	Pagination string          `json:"pagination"`
-	Status     string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Error string `json:"error"`
+	Pagination string `json:"pagination"`
+	Status string `json:"status"`
 }
 
 type GetBusyTimesOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetConferencingAppsOauthUrlResponseDto struct {
@@ -1471,339 +1472,339 @@ type GetConferencingAppsOauthUrlResponseDto struct {
 }
 
 type GetDefaultConferencingAppOutputResponseDto struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type GetDefaultScheduleOutput_2024_06_11 struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type GetEventTypeOutput_2024_06_14 struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type GetEventTypeWorkflowOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetEventTypeWorkflowsOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetEventTypesOutput_2024_06_14 struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetManagedOrganizationOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type GetManagedOrganizationsOutput struct {
-	Data       json.RawMessage `json:"data"`
-	Pagination string          `json:"pagination"`
-	Status     string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Pagination string `json:"pagination"`
+	Status string `json:"status"`
 }
 
 type GetManagedUserOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type GetManagedUsersOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetMeOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type GetOAuthClientResponseDto struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type GetOAuthClientsResponseDto struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetOptionUserOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetOptionUserOutputData struct {
 	AttributeId string `json:"attributeId"`
-	Id          string `json:"id"`
-	Slug        string `json:"slug"`
-	Value       string `json:"value"`
+	Id string `json:"id"`
+	Slug string `json:"slug"`
+	Value string `json:"value"`
 }
 
 type GetOrgMembership struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type GetOrgRoleOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type GetOrgRolePermissionsOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetOrgUsersWithProfileOutput struct {
-	AllowDynamicBooking bool    `json:"allowDynamicBooking"`
-	AppTheme            string  `json:"appTheme"`
-	AvatarUrl           string  `json:"avatarUrl"`
-	Bio                 string  `json:"bio"`
-	BrandColor          string  `json:"brandColor"`
-	CreatedDate         string  `json:"createdDate"`
-	DarkBrandColor      string  `json:"darkBrandColor"`
-	DefaultScheduleId   float64 `json:"defaultScheduleId"`
-	Email               string  `json:"email"`
-	EmailVerified       string  `json:"emailVerified"`
-	HideBranding        bool    `json:"hideBranding"`
-	Id                  float64 `json:"id"`
-	InvitedTo           float64 `json:"invitedTo"`
-	Locale              string  `json:"locale"`
-	Metadata            string  `json:"metadata"`
-	Name                string  `json:"name"`
-	Profile             string  `json:"profile"`
-	Theme               string  `json:"theme"`
-	TimeFormat          float64 `json:"timeFormat"`
-	TimeZone            string  `json:"timeZone"`
-	Username            string  `json:"username"`
-	Verified            bool    `json:"verified"`
-	WeekStart           string  `json:"weekStart"`
+	AllowDynamicBooking bool `json:"allowDynamicBooking"`
+	AppTheme string `json:"appTheme"`
+	AvatarUrl string `json:"avatarUrl"`
+	Bio string `json:"bio"`
+	BrandColor string `json:"brandColor"`
+	CreatedDate string `json:"createdDate"`
+	DarkBrandColor string `json:"darkBrandColor"`
+	DefaultScheduleId float64 `json:"defaultScheduleId"`
+	Email string `json:"email"`
+	EmailVerified string `json:"emailVerified"`
+	HideBranding bool `json:"hideBranding"`
+	Id float64 `json:"id"`
+	InvitedTo float64 `json:"invitedTo"`
+	Locale string `json:"locale"`
+	Metadata string `json:"metadata"`
+	Name string `json:"name"`
+	Profile string `json:"profile"`
+	Theme string `json:"theme"`
+	TimeFormat float64 `json:"timeFormat"`
+	TimeZone string `json:"timeZone"`
+	Username string `json:"username"`
+	Verified bool `json:"verified"`
+	WeekStart string `json:"weekStart"`
 }
 
 type GetOrganizationAttributesOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetOrganizationUserOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type GetOrganizationUsersResponseDTO struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetPrivateLinksOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetRecurringSeatedBookingOutput_2024_08_13 struct {
-	AbsentHost          bool            `json:"absentHost"`
-	Attendees           json.RawMessage `json:"attendees"`
-	CancellationReason  string          `json:"cancellationReason"`
-	CancelledByEmail    string          `json:"cancelledByEmail"`
-	CreatedAt           string          `json:"createdAt"`
-	Description         string          `json:"description"`
-	Duration            float64         `json:"duration"`
-	End                 string          `json:"end"`
-	EventType           string          `json:"eventType"`
-	EventTypeId         float64         `json:"eventTypeId"`
-	Hosts               json.RawMessage `json:"hosts"`
-	IcsUid              string          `json:"icsUid"`
-	Id                  float64         `json:"id"`
-	Location            string          `json:"location"`
-	MeetingUrl          string          `json:"meetingUrl"`
-	Metadata            string          `json:"metadata"`
-	Rating              float64         `json:"rating"`
-	RecurringBookingUid string          `json:"recurringBookingUid"`
-	RescheduledByEmail  string          `json:"rescheduledByEmail"`
-	RescheduledFromUid  string          `json:"rescheduledFromUid"`
-	RescheduledToUid    string          `json:"rescheduledToUid"`
-	ReschedulingReason  string          `json:"reschedulingReason"`
-	Start               string          `json:"start"`
-	Status              string          `json:"status"`
-	Title               string          `json:"title"`
-	Uid                 string          `json:"uid"`
-	UpdatedAt           string          `json:"updatedAt"`
+	AbsentHost bool `json:"absentHost"`
+	Attendees json.RawMessage `json:"attendees"`
+	CancellationReason string `json:"cancellationReason"`
+	CancelledByEmail string `json:"cancelledByEmail"`
+	CreatedAt string `json:"createdAt"`
+	Description string `json:"description"`
+	Duration float64 `json:"duration"`
+	End string `json:"end"`
+	EventType string `json:"eventType"`
+	EventTypeId float64 `json:"eventTypeId"`
+	Hosts json.RawMessage `json:"hosts"`
+	IcsUid string `json:"icsUid"`
+	Id float64 `json:"id"`
+	Location string `json:"location"`
+	MeetingUrl string `json:"meetingUrl"`
+	Metadata string `json:"metadata"`
+	Rating float64 `json:"rating"`
+	RecurringBookingUid string `json:"recurringBookingUid"`
+	RescheduledByEmail string `json:"rescheduledByEmail"`
+	RescheduledFromUid string `json:"rescheduledFromUid"`
+	RescheduledToUid string `json:"rescheduledToUid"`
+	ReschedulingReason string `json:"reschedulingReason"`
+	Start string `json:"start"`
+	Status string `json:"status"`
+	Title string `json:"title"`
+	Uid string `json:"uid"`
+	UpdatedAt string `json:"updatedAt"`
 }
 
 type GetReservedSlotOutput_2024_09_04 struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type GetRoutingFormResponsesOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetRoutingFormWorkflowOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetRoutingFormWorkflowsOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetRoutingFormsOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetScheduleOutput_2024_06_11 struct {
-	Data   string `json:"data"`
-	Error  string `json:"error"`
+	Data string `json:"data"`
+	Error string `json:"error"`
 	Status string `json:"status"`
 }
 
 type GetSchedulesOutput_2024_06_11 struct {
-	Data   json.RawMessage `json:"data"`
-	Error  string          `json:"error"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Error string `json:"error"`
+	Status string `json:"status"`
 }
 
 type GetSeatedBookingOutput_2024_08_13 struct {
-	AbsentHost         bool            `json:"absentHost"`
-	Attendees          json.RawMessage `json:"attendees"`
-	CancellationReason string          `json:"cancellationReason"`
-	CancelledByEmail   string          `json:"cancelledByEmail"`
-	CreatedAt          string          `json:"createdAt"`
-	Description        string          `json:"description"`
-	Duration           float64         `json:"duration"`
-	End                string          `json:"end"`
-	EventType          string          `json:"eventType"`
-	EventTypeId        float64         `json:"eventTypeId"`
-	Hosts              json.RawMessage `json:"hosts"`
-	IcsUid             string          `json:"icsUid"`
-	Id                 float64         `json:"id"`
-	Location           string          `json:"location"`
-	MeetingUrl         string          `json:"meetingUrl"`
-	Metadata           string          `json:"metadata"`
-	Rating             float64         `json:"rating"`
-	RescheduledByEmail string          `json:"rescheduledByEmail"`
-	RescheduledFromUid string          `json:"rescheduledFromUid"`
-	RescheduledToUid   string          `json:"rescheduledToUid"`
-	ReschedulingReason string          `json:"reschedulingReason"`
-	Start              string          `json:"start"`
-	Status             string          `json:"status"`
-	Title              string          `json:"title"`
-	Uid                string          `json:"uid"`
-	UpdatedAt          string          `json:"updatedAt"`
+	AbsentHost bool `json:"absentHost"`
+	Attendees json.RawMessage `json:"attendees"`
+	CancellationReason string `json:"cancellationReason"`
+	CancelledByEmail string `json:"cancelledByEmail"`
+	CreatedAt string `json:"createdAt"`
+	Description string `json:"description"`
+	Duration float64 `json:"duration"`
+	End string `json:"end"`
+	EventType string `json:"eventType"`
+	EventTypeId float64 `json:"eventTypeId"`
+	Hosts json.RawMessage `json:"hosts"`
+	IcsUid string `json:"icsUid"`
+	Id float64 `json:"id"`
+	Location string `json:"location"`
+	MeetingUrl string `json:"meetingUrl"`
+	Metadata string `json:"metadata"`
+	Rating float64 `json:"rating"`
+	RescheduledByEmail string `json:"rescheduledByEmail"`
+	RescheduledFromUid string `json:"rescheduledFromUid"`
+	RescheduledToUid string `json:"rescheduledToUid"`
+	ReschedulingReason string `json:"reschedulingReason"`
+	Start string `json:"start"`
+	Status string `json:"status"`
+	Title string `json:"title"`
+	Uid string `json:"uid"`
+	UpdatedAt string `json:"updatedAt"`
 }
 
 type GetSingleAttributeOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type GetTeamEventTypeOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type GetTeamEventTypesOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetTeamMembershipOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type GetTeamMembershipsOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type GetTeamOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type GetTeamRoleOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type GetTeamRolePermissionsOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetTeamsOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type GetUnifiedCalendarEventOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type GoogleServiceAccountKeyInput struct {
 	ClientEmail string `json:"client_email"`
-	ClientId    string `json:"client_id"`
-	PrivateKey  string `json:"private_key"`
+	ClientId string `json:"client_id"`
+	PrivateKey string `json:"private_key"`
 }
 
 type Guest struct {
-	Email       string `json:"email"`
-	Language    string `json:"language"`
-	Name        string `json:"name"`
+	Email string `json:"email"`
+	Language string `json:"language"`
+	Name string `json:"name"`
 	PhoneNumber string `json:"phoneNumber"`
-	TimeZone    string `json:"timeZone"`
+	TimeZone string `json:"timeZone"`
 }
 
 type GuestsDefaultFieldInput_2024_06_14 struct {
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type GuestsDefaultFieldOutput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	IsDefault        string `json:"isDefault"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	IsDefault string `json:"isDefault"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type Host struct {
-	Mandatory bool    `json:"mandatory"`
-	Priority  string  `json:"priority"`
-	UserId    float64 `json:"userId"`
+	Mandatory bool `json:"mandatory"`
+	Priority string `json:"priority"`
+	UserId float64 `json:"userId"`
 }
 
 type HtmlWorkflowMessageDto struct {
-	Html    string `json:"html"`
+	Html string `json:"html"`
 	Subject string `json:"subject"`
 }
 
 type InputAddressLocation_2024_06_14 struct {
-	Ttype   string `json:"Ttype"`
+	Ttype string `json:"Ttype"`
 	Address string `json:"address"`
-	Public  bool   `json:"public"`
+	Public bool `json:"public"`
 }
 
 type InputAttendeeAddressLocation_2024_06_14 struct {
@@ -1819,14 +1820,14 @@ type InputAttendeePhoneLocation_2024_06_14 struct {
 }
 
 type InputIntegrationLocation_2024_06_14 struct {
-	Ttype       string `json:"Ttype"`
+	Ttype string `json:"Ttype"`
 	Integration string `json:"integration"`
 }
 
 type InputLinkLocation_2024_06_14 struct {
-	Ttype  string `json:"Ttype"`
-	Link   string `json:"link"`
-	Public bool   `json:"public"`
+	Ttype string `json:"Ttype"`
+	Link string `json:"link"`
+	Public bool `json:"public"`
 }
 
 type InputOrganizersDefaultApp_2024_06_14 struct {
@@ -1834,44 +1835,44 @@ type InputOrganizersDefaultApp_2024_06_14 struct {
 }
 
 type InputPhoneLocation_2024_06_14 struct {
-	Ttype  string `json:"Ttype"`
-	Phone  string `json:"phone"`
-	Public bool   `json:"public"`
+	Ttype string `json:"Ttype"`
+	Phone string `json:"phone"`
+	Public bool `json:"public"`
 }
 
 type Integration struct {
-	Ttype          string          `json:"Ttype"`
-	AppData        string          `json:"appData"`
-	Categories     json.RawMessage `json:"categories"`
-	Category       string          `json:"category"`
-	Description    string          `json:"description"`
-	DirName        string          `json:"dirName"`
-	Email          string          `json:"email"`
-	Installed      bool            `json:"installed"`
-	LocationOption string          `json:"locationOption"`
-	Logo           string          `json:"logo"`
-	Name           string          `json:"name"`
-	Publisher      string          `json:"publisher"`
-	Slug           string          `json:"slug"`
-	Title          string          `json:"title"`
-	Url            string          `json:"url"`
-	Variant        string          `json:"variant"`
+	Ttype string `json:"Ttype"`
+	AppData string `json:"appData"`
+	Categories json.RawMessage `json:"categories"`
+	Category string `json:"category"`
+	Description string `json:"description"`
+	DirName string `json:"dirName"`
+	Email string `json:"email"`
+	Installed bool `json:"installed"`
+	LocationOption string `json:"locationOption"`
+	Logo string `json:"logo"`
+	Name string `json:"name"`
+	Publisher string `json:"publisher"`
+	Slug string `json:"slug"`
+	Title string `json:"title"`
+	Url string `json:"url"`
+	Variant string `json:"variant"`
 }
 
 type InviteDataDto struct {
 	InviteLink string `json:"inviteLink"`
-	Token      string `json:"token"`
+	Token string `json:"token"`
 }
 
 type KeysDto struct {
-	AccessToken           string  `json:"accessToken"`
-	AccessTokenExpiresAt  float64 `json:"accessTokenExpiresAt"`
-	RefreshToken          string  `json:"refreshToken"`
+	AccessToken string `json:"accessToken"`
+	AccessTokenExpiresAt float64 `json:"accessTokenExpiresAt"`
+	RefreshToken string `json:"refreshToken"`
 	RefreshTokenExpiresAt float64 `json:"refreshTokenExpiresAt"`
 }
 
 type KeysResponseDto struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
@@ -1880,322 +1881,322 @@ type ListConnectionsData struct {
 }
 
 type ListConnectionsOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type ListUnifiedCalendarEventsOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type LocationDefaultFieldInput_2024_06_14 struct {
 	Label string `json:"label"`
-	Slug  string `json:"slug"`
+	Slug string `json:"slug"`
 }
 
 type LocationDefaultFieldOutput_2024_06_14 struct {
-	Ttype     string `json:"Ttype"`
-	Hidden    bool   `json:"hidden"`
+	Ttype string `json:"Ttype"`
+	Hidden bool `json:"hidden"`
 	IsDefault string `json:"isDefault"`
-	Label     string `json:"label"`
-	Required  bool   `json:"required"`
-	Slug      string `json:"slug"`
+	Label string `json:"label"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type ManagedOrganizationOutput struct {
-	Id       float64 `json:"id"`
-	Metadata string  `json:"metadata"`
-	Name     string  `json:"name"`
-	Slug     string  `json:"slug"`
+	Id float64 `json:"id"`
+	Metadata string `json:"metadata"`
+	Name string `json:"name"`
+	Slug string `json:"slug"`
 }
 
 type ManagedOrganizationWithApiKeyOutput struct {
-	ApiKey   string  `json:"apiKey"`
-	Id       float64 `json:"id"`
-	Metadata string  `json:"metadata"`
-	Name     string  `json:"name"`
-	Slug     string  `json:"slug"`
+	ApiKey string `json:"apiKey"`
+	Id float64 `json:"id"`
+	Metadata string `json:"metadata"`
+	Name string `json:"name"`
+	Slug string `json:"slug"`
 }
 
 type ManagedUserOutput struct {
-	AvatarUrl         string  `json:"avatarUrl"`
-	Bio               string  `json:"bio"`
-	CreatedDate       string  `json:"createdDate"`
+	AvatarUrl string `json:"avatarUrl"`
+	Bio string `json:"bio"`
+	CreatedDate string `json:"createdDate"`
 	DefaultScheduleId float64 `json:"defaultScheduleId"`
-	Email             string  `json:"email"`
-	Id                float64 `json:"id"`
-	Locale            string  `json:"locale"`
-	Metadata          string  `json:"metadata"`
-	Name              string  `json:"name"`
-	TimeFormat        float64 `json:"timeFormat"`
-	TimeZone          string  `json:"timeZone"`
-	Username          string  `json:"username"`
-	WeekStart         string  `json:"weekStart"`
+	Email string `json:"email"`
+	Id float64 `json:"id"`
+	Locale string `json:"locale"`
+	Metadata string `json:"metadata"`
+	Name string `json:"name"`
+	TimeFormat float64 `json:"timeFormat"`
+	TimeZone string `json:"timeZone"`
+	Username string `json:"username"`
+	WeekStart string `json:"weekStart"`
 }
 
 type MarkAbsentAttendee struct {
-	Absent bool   `json:"absent"`
-	Email  string `json:"email"`
+	Absent bool `json:"absent"`
+	Email string `json:"email"`
 }
 
 type MarkAbsentBookingInput_2024_08_13 struct {
 	Attendees json.RawMessage `json:"attendees"`
-	Host      bool            `json:"host"`
+	Host bool `json:"host"`
 }
 
 type MarkAbsentBookingOutput_2024_08_13 struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type MeOrgOutput struct {
-	Id         float64 `json:"id"`
-	IsPlatform bool    `json:"isPlatform"`
+	Id float64 `json:"id"`
+	IsPlatform bool `json:"isPlatform"`
 }
 
 type MeOutput struct {
-	AvatarUrl         string  `json:"avatarUrl"`
-	Bio               string  `json:"bio"`
+	AvatarUrl string `json:"avatarUrl"`
+	Bio string `json:"bio"`
 	DefaultScheduleId float64 `json:"defaultScheduleId"`
-	Email             string  `json:"email"`
-	Id                float64 `json:"id"`
-	Name              string  `json:"name"`
-	Organization      string  `json:"organization"`
-	OrganizationId    float64 `json:"organizationId"`
-	TimeFormat        float64 `json:"timeFormat"`
-	TimeZone          string  `json:"timeZone"`
-	Username          string  `json:"username"`
-	WeekStart         string  `json:"weekStart"`
+	Email string `json:"email"`
+	Id float64 `json:"id"`
+	Name string `json:"name"`
+	Organization string `json:"organization"`
+	OrganizationId float64 `json:"organizationId"`
+	TimeFormat float64 `json:"timeFormat"`
+	TimeZone string `json:"timeZone"`
+	Username string `json:"username"`
+	WeekStart string `json:"weekStart"`
 }
 
 type MembershipUserOutputDto struct {
 	AvatarUrl string `json:"avatarUrl"`
-	Bio       string `json:"bio"`
-	Email     string `json:"email"`
-	Metadata  string `json:"metadata"`
-	Name      string `json:"name"`
-	Username  string `json:"username"`
+	Bio string `json:"bio"`
+	Email string `json:"email"`
+	Metadata string `json:"metadata"`
+	Name string `json:"name"`
+	Username string `json:"username"`
 }
 
 type MicrosoftServiceAccountKeyInput struct {
-	ClientId   string `json:"client_id"`
+	ClientId string `json:"client_id"`
 	PrivateKey string `json:"private_key"`
-	TenantId   string `json:"tenant_id"`
+	TenantId string `json:"tenant_id"`
 }
 
 type MultiEmailFieldInput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type MultiEmailFieldOutput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	IsDefault        string `json:"isDefault"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	IsDefault string `json:"isDefault"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type MultiSelectAttribute struct {
-	Ttype   string          `json:"Ttype"`
-	Id      string          `json:"id"`
-	Name    string          `json:"name"`
+	Ttype string `json:"Ttype"`
+	Id string `json:"id"`
+	Name string `json:"name"`
 	Options json.RawMessage `json:"options"`
 }
 
 type MultiSelectAttributeOption struct {
-	Option   string `json:"option"`
+	Option string `json:"option"`
 	OptionId string `json:"optionId"`
 }
 
 type MultiSelectFieldInput_2024_06_14 struct {
-	Ttype            string          `json:"Ttype"`
-	DisableOnPrefill bool            `json:"disableOnPrefill"`
-	Hidden           bool            `json:"hidden"`
-	Label            string          `json:"label"`
-	Options          json.RawMessage `json:"options"`
-	Required         bool            `json:"required"`
-	Slug             string          `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	Label string `json:"label"`
+	Options json.RawMessage `json:"options"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type MultiSelectFieldOutput_2024_06_14 struct {
-	Ttype            string          `json:"Ttype"`
-	DisableOnPrefill bool            `json:"disableOnPrefill"`
-	Hidden           bool            `json:"hidden"`
-	IsDefault        string          `json:"isDefault"`
-	Label            string          `json:"label"`
-	Options          json.RawMessage `json:"options"`
-	Required         bool            `json:"required"`
-	Slug             string          `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	IsDefault string `json:"isDefault"`
+	Label string `json:"label"`
+	Options json.RawMessage `json:"options"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type NameDefaultFieldInput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
 }
 
 type NameDefaultFieldOutput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	IsDefault        string `json:"isDefault"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	IsDefault string `json:"isDefault"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type NotesDefaultFieldInput_2024_06_14 struct {
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type NotesDefaultFieldOutput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	IsDefault        string `json:"isDefault"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	IsDefault string `json:"isDefault"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type NoticeThreshold_2024_06_14 struct {
 	Count float64 `json:"count"`
-	Unit  string  `json:"unit"`
+	Unit string `json:"unit"`
 }
 
 type NumberAttribute struct {
-	Ttype    string  `json:"Ttype"`
-	Id       string  `json:"id"`
-	Name     string  `json:"name"`
-	Option   float64 `json:"option"`
-	OptionId string  `json:"optionId"`
+	Ttype string `json:"Ttype"`
+	Id string `json:"id"`
+	Name string `json:"name"`
+	Option float64 `json:"option"`
+	OptionId string `json:"optionId"`
 }
 
 type NumberFieldInput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type NumberFieldOutput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	IsDefault        string `json:"isDefault"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	IsDefault string `json:"isDefault"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type OAuth2ClientDto struct {
-	ClientId    string `json:"client_id"`
-	ClientType  string `json:"client_type"`
-	IsTrusted   bool   `json:"is_trusted"`
-	Logo        string `json:"logo"`
-	Name        string `json:"name"`
+	ClientId string `json:"client_id"`
+	ClientType string `json:"client_type"`
+	IsTrusted bool `json:"is_trusted"`
+	Logo string `json:"logo"`
+	Name string `json:"name"`
 	RedirectUri string `json:"redirect_uri"`
 }
 
 type OAuth2ClientResponseDto struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type OAuth2ExchangeConfidentialInput struct {
-	ClientId     string `json:"client_id"`
+	ClientId string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
-	Code         string `json:"code"`
-	GrantType    string `json:"grant_type"`
-	RedirectUri  string `json:"redirect_uri"`
+	Code string `json:"code"`
+	GrantType string `json:"grant_type"`
+	RedirectUri string `json:"redirect_uri"`
 }
 
 type OAuth2ExchangePublicInput struct {
-	ClientId     string `json:"client_id"`
-	Code         string `json:"code"`
+	ClientId string `json:"client_id"`
+	Code string `json:"code"`
 	CodeVerifier string `json:"code_verifier"`
-	GrantType    string `json:"grant_type"`
-	RedirectUri  string `json:"redirect_uri"`
+	GrantType string `json:"grant_type"`
+	RedirectUri string `json:"redirect_uri"`
 }
 
 type OAuth2RefreshConfidentialInput struct {
-	ClientId     string `json:"client_id"`
+	ClientId string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
-	GrantType    string `json:"grant_type"`
+	GrantType string `json:"grant_type"`
 	RefreshToken string `json:"refresh_token"`
 }
 
 type OAuth2RefreshPublicInput struct {
-	ClientId     string `json:"client_id"`
-	GrantType    string `json:"grant_type"`
+	ClientId string `json:"client_id"`
+	GrantType string `json:"grant_type"`
 	RefreshToken string `json:"refresh_token"`
 }
 
 type OAuth2TokensDto struct {
-	AccessToken  string  `json:"access_token"`
-	ExpiresIn    float64 `json:"expires_in"`
-	RefreshToken string  `json:"refresh_token"`
-	TokenType    string  `json:"token_type"`
+	AccessToken string `json:"access_token"`
+	ExpiresIn float64 `json:"expires_in"`
+	RefreshToken string `json:"refresh_token"`
+	TokenType string `json:"token_type"`
 }
 
 type OAuthClientWebhookOutputDto struct {
-	Active          bool            `json:"active"`
-	Id              float64         `json:"id"`
-	OAuthClientId   string          `json:"oAuthClientId"`
-	PayloadTemplate string          `json:"payloadTemplate"`
-	Secret          string          `json:"secret"`
-	SubscriberUrl   string          `json:"subscriberUrl"`
-	Triggers        json.RawMessage `json:"triggers"`
+	Active bool `json:"active"`
+	Id float64 `json:"id"`
+	OAuthClientId string `json:"oAuthClientId"`
+	PayloadTemplate string `json:"payloadTemplate"`
+	Secret string `json:"secret"`
+	SubscriberUrl string `json:"subscriberUrl"`
+	Triggers json.RawMessage `json:"triggers"`
 }
 
 type OAuthClientWebhookOutputResponseDto struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type OAuthClientWebhooksOutputResponseDto struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type OnAfterCalVideoGuestsNoShowTriggerDto struct {
-	Ttype  string `json:"Ttype"`
+	Ttype string `json:"Ttype"`
 	Offset string `json:"offset"`
 }
 
 type OnAfterCalVideoHostsNoShowTriggerDto struct {
-	Ttype  string `json:"Ttype"`
+	Ttype string `json:"Ttype"`
 	Offset string `json:"offset"`
 }
 
 type OnAfterEventTriggerDto struct {
-	Ttype  string `json:"Ttype"`
+	Ttype string `json:"Ttype"`
 	Offset string `json:"offset"`
 }
 
 type OnBeforeEventTriggerDto struct {
-	Ttype  string `json:"Ttype"`
+	Ttype string `json:"Ttype"`
 	Offset string `json:"offset"`
 }
 
@@ -2208,7 +2209,7 @@ type OnCreationTriggerDto struct {
 }
 
 type OnFormSubmittedNoEventTriggerDto struct {
-	Ttype  string `json:"Ttype"`
+	Ttype string `json:"Ttype"`
 	Offset string `json:"offset"`
 }
 
@@ -2242,100 +2243,100 @@ type OnRescheduleTriggerDto struct {
 
 type OptionOutput struct {
 	AttributeId string `json:"attributeId"`
-	Id          string `json:"id"`
-	Slug        string `json:"slug"`
-	Value       string `json:"value"`
+	Id string `json:"id"`
+	Slug string `json:"slug"`
+	Value string `json:"value"`
 }
 
 type OrgMeTeamsOutputResponseDto struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type OrgRoleOutput struct {
-	Ttype          string          `json:"Ttype"`
-	Color          string          `json:"color"`
-	CreatedAt      string          `json:"createdAt"`
-	Description    string          `json:"description"`
-	Id             string          `json:"id"`
-	Name           string          `json:"name"`
-	OrganizationId float64         `json:"organizationId"`
-	Permissions    json.RawMessage `json:"permissions"`
-	UpdatedAt      string          `json:"updatedAt"`
+	Ttype string `json:"Ttype"`
+	Color string `json:"color"`
+	CreatedAt string `json:"createdAt"`
+	Description string `json:"description"`
+	Id string `json:"id"`
+	Name string `json:"name"`
+	OrganizationId float64 `json:"organizationId"`
+	Permissions json.RawMessage `json:"permissions"`
+	UpdatedAt string `json:"updatedAt"`
 }
 
 type OrgTeamMembershipOutputResponseDto struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type OrgTeamMembershipsOutputResponseDto struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type OrgTeamOutputDto struct {
-	AppIconLogo         string  `json:"appIconLogo"`
-	AppLogo             string  `json:"appLogo"`
-	BannerUrl           string  `json:"bannerUrl"`
-	Bio                 string  `json:"bio"`
-	BrandColor          string  `json:"brandColor"`
-	CalVideoLogo        string  `json:"calVideoLogo"`
-	DarkBrandColor      string  `json:"darkBrandColor"`
-	HideBookATeamMember bool    `json:"hideBookATeamMember"`
-	HideBranding        bool    `json:"hideBranding"`
-	Id                  float64 `json:"id"`
-	IsOrganization      bool    `json:"isOrganization"`
-	IsPrivate           bool    `json:"isPrivate"`
-	LogoUrl             string  `json:"logoUrl"`
-	Metadata            string  `json:"metadata"`
-	Name                string  `json:"name"`
-	ParentId            float64 `json:"parentId"`
-	Slug                string  `json:"slug"`
-	Theme               string  `json:"theme"`
-	TimeFormat          float64 `json:"timeFormat"`
-	TimeZone            string  `json:"timeZone"`
-	WeekStart           string  `json:"weekStart"`
+	AppIconLogo string `json:"appIconLogo"`
+	AppLogo string `json:"appLogo"`
+	BannerUrl string `json:"bannerUrl"`
+	Bio string `json:"bio"`
+	BrandColor string `json:"brandColor"`
+	CalVideoLogo string `json:"calVideoLogo"`
+	DarkBrandColor string `json:"darkBrandColor"`
+	HideBookATeamMember bool `json:"hideBookATeamMember"`
+	HideBranding bool `json:"hideBranding"`
+	Id float64 `json:"id"`
+	IsOrganization bool `json:"isOrganization"`
+	IsPrivate bool `json:"isPrivate"`
+	LogoUrl string `json:"logoUrl"`
+	Metadata string `json:"metadata"`
+	Name string `json:"name"`
+	ParentId float64 `json:"parentId"`
+	Slug string `json:"slug"`
+	Theme string `json:"theme"`
+	TimeFormat float64 `json:"timeFormat"`
+	TimeZone string `json:"timeZone"`
+	WeekStart string `json:"weekStart"`
 }
 
 type OrgTeamOutputResponseDto struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type OrgTeamsOutputResponseDto struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type OrganizationMembershipOutput struct {
-	Accepted             bool            `json:"accepted"`
-	Attributes           json.RawMessage `json:"attributes"`
-	DisableImpersonation bool            `json:"disableImpersonation"`
-	Id                   float64         `json:"id"`
-	Role                 string          `json:"role"`
-	TeamId               float64         `json:"teamId"`
-	User                 string          `json:"user"`
-	UserId               float64         `json:"userId"`
+	Accepted bool `json:"accepted"`
+	Attributes json.RawMessage `json:"attributes"`
+	DisableImpersonation bool `json:"disableImpersonation"`
+	Id float64 `json:"id"`
+	Role string `json:"role"`
+	TeamId float64 `json:"teamId"`
+	User string `json:"user"`
+	UserId float64 `json:"userId"`
 }
 
 type OutputAddressLocation_2024_06_14 struct {
-	Ttype   string `json:"Ttype"`
+	Ttype string `json:"Ttype"`
 	Address string `json:"address"`
-	Public  bool   `json:"public"`
+	Public bool `json:"public"`
 }
 
 type OutputIntegrationLocation_2024_06_14 struct {
-	Ttype        string  `json:"Ttype"`
+	Ttype string `json:"Ttype"`
 	CredentialId float64 `json:"credentialId"`
-	Integration  string  `json:"integration"`
-	Link         string  `json:"link"`
+	Integration string `json:"integration"`
+	Link string `json:"link"`
 }
 
 type OutputLinkLocation_2024_06_14 struct {
-	Ttype  string `json:"Ttype"`
-	Link   string `json:"link"`
-	Public bool   `json:"public"`
+	Ttype string `json:"Ttype"`
+	Link string `json:"link"`
+	Public bool `json:"public"`
 }
 
 type OutputOrganizersDefaultAppLocation_2024_06_14 struct {
@@ -2343,115 +2344,115 @@ type OutputOrganizersDefaultAppLocation_2024_06_14 struct {
 }
 
 type OutputPhoneLocation_2024_06_14 struct {
-	Ttype  string `json:"Ttype"`
-	Phone  string `json:"phone"`
-	Public bool   `json:"public"`
+	Ttype string `json:"Ttype"`
+	Phone string `json:"phone"`
+	Public bool `json:"public"`
 }
 
 type OutputUnknownLocation_2024_06_14 struct {
-	Ttype    string `json:"Ttype"`
+	Ttype string `json:"Ttype"`
 	Location string `json:"location"`
 }
 
 type PaginationMetaDto struct {
-	CurrentPage     float64 `json:"currentPage"`
-	HasNextPage     bool    `json:"hasNextPage"`
-	HasPreviousPage bool    `json:"hasPreviousPage"`
-	ItemsPerPage    float64 `json:"itemsPerPage"`
-	RemainingItems  float64 `json:"remainingItems"`
-	ReturnedItems   float64 `json:"returnedItems"`
-	TotalItems      float64 `json:"totalItems"`
-	TotalPages      float64 `json:"totalPages"`
+	CurrentPage float64 `json:"currentPage"`
+	HasNextPage bool `json:"hasNextPage"`
+	HasPreviousPage bool `json:"hasPreviousPage"`
+	ItemsPerPage float64 `json:"itemsPerPage"`
+	RemainingItems float64 `json:"remainingItems"`
+	ReturnedItems float64 `json:"returnedItems"`
+	TotalItems float64 `json:"totalItems"`
+	TotalPages float64 `json:"totalPages"`
 }
 
 type PhoneFieldInput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type PhoneFieldOutput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	IsDefault        string `json:"isDefault"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	IsDefault string `json:"isDefault"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type PlatformOAuthClientDto struct {
-	AreCalendarEventsEnabled     bool            `json:"areCalendarEventsEnabled"`
-	AreDefaultEventTypesEnabled  bool            `json:"areDefaultEventTypesEnabled"`
-	AreEmailsEnabled             bool            `json:"areEmailsEnabled"`
-	BookingCancelRedirectUri     string          `json:"bookingCancelRedirectUri"`
-	BookingRedirectUri           string          `json:"bookingRedirectUri"`
-	BookingRescheduleRedirectUri string          `json:"bookingRescheduleRedirectUri"`
-	CreatedAt                    string          `json:"createdAt"`
-	Id                           string          `json:"id"`
-	Logo                         string          `json:"logo"`
-	Name                         string          `json:"name"`
-	OrganizationId               float64         `json:"organizationId"`
-	Permissions                  json.RawMessage `json:"permissions"`
-	RedirectUris                 json.RawMessage `json:"redirectUris"`
-	Secret                       string          `json:"secret"`
+	AreCalendarEventsEnabled bool `json:"areCalendarEventsEnabled"`
+	AreDefaultEventTypesEnabled bool `json:"areDefaultEventTypesEnabled"`
+	AreEmailsEnabled bool `json:"areEmailsEnabled"`
+	BookingCancelRedirectUri string `json:"bookingCancelRedirectUri"`
+	BookingRedirectUri string `json:"bookingRedirectUri"`
+	BookingRescheduleRedirectUri string `json:"bookingRescheduleRedirectUri"`
+	CreatedAt string `json:"createdAt"`
+	Id string `json:"id"`
+	Logo string `json:"logo"`
+	Name string `json:"name"`
+	OrganizationId float64 `json:"organizationId"`
+	Permissions json.RawMessage `json:"permissions"`
+	RedirectUris json.RawMessage `json:"redirectUris"`
+	Secret string `json:"secret"`
 }
 
 type Primary struct {
-	CredentialId           float64 `json:"credentialId"`
-	DelegationCredentialId string  `json:"delegationCredentialId"`
-	Email                  string  `json:"email"`
-	ExternalId             string  `json:"externalId"`
-	Integration            string  `json:"integration"`
-	IsSelected             bool    `json:"isSelected"`
-	Name                   string  `json:"name"`
-	Primary                bool    `json:"primary"`
-	ReadOnly               bool    `json:"readOnly"`
+	CredentialId float64 `json:"credentialId"`
+	DelegationCredentialId string `json:"delegationCredentialId"`
+	Email string `json:"email"`
+	ExternalId string `json:"externalId"`
+	Integration string `json:"integration"`
+	IsSelected bool `json:"isSelected"`
+	Name string `json:"name"`
+	Primary bool `json:"primary"`
+	ReadOnly bool `json:"readOnly"`
 }
 
 type ProfileOutput struct {
-	Id             float64 `json:"id"`
+	Id float64 `json:"id"`
 	OrganizationId float64 `json:"organizationId"`
-	UserId         float64 `json:"userId"`
-	Username       string  `json:"username"`
+	UserId float64 `json:"userId"`
+	Username string `json:"username"`
 }
 
 type RadioGroupFieldInput_2024_06_14 struct {
-	Ttype            string          `json:"Ttype"`
-	DisableOnPrefill bool            `json:"disableOnPrefill"`
-	Hidden           bool            `json:"hidden"`
-	Label            string          `json:"label"`
-	Options          json.RawMessage `json:"options"`
-	Required         bool            `json:"required"`
-	Slug             string          `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	Label string `json:"label"`
+	Options json.RawMessage `json:"options"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type RadioGroupFieldOutput_2024_06_14 struct {
-	Ttype            string          `json:"Ttype"`
-	DisableOnPrefill bool            `json:"disableOnPrefill"`
-	Hidden           bool            `json:"hidden"`
-	IsDefault        string          `json:"isDefault"`
-	Label            string          `json:"label"`
-	Options          json.RawMessage `json:"options"`
-	Required         bool            `json:"required"`
-	Slug             string          `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	IsDefault string `json:"isDefault"`
+	Label string `json:"label"`
+	Options json.RawMessage `json:"options"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type RangeSlotsOutput_2024_09_04 struct {
 }
 
 type RangeWindow_2024_06_14 struct {
-	Ttype string          `json:"Ttype"`
+	Ttype string `json:"Ttype"`
 	Value json.RawMessage `json:"value"`
 }
 
 type ReassignBookingOutput_2024_08_13 struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
@@ -2460,69 +2461,69 @@ type ReassignToUserBookingInput_2024_08_13 struct {
 }
 
 type ReassignedToDto struct {
-	DisplayEmail string  `json:"displayEmail"`
-	Email        string  `json:"email"`
-	Id           float64 `json:"id"`
-	Name         string  `json:"name"`
+	DisplayEmail string `json:"displayEmail"`
+	Email string `json:"email"`
+	Id float64 `json:"id"`
+	Name string `json:"name"`
 }
 
 type RecordingItem struct {
-	DownloadLink    string  `json:"downloadLink"`
-	Duration        float64 `json:"duration"`
-	Error           string  `json:"error"`
-	Id              string  `json:"id"`
+	DownloadLink string `json:"downloadLink"`
+	Duration float64 `json:"duration"`
+	Error string `json:"error"`
+	Id string `json:"id"`
 	MaxParticipants float64 `json:"maxParticipants"`
-	RoomName        string  `json:"roomName"`
-	ShareToken      string  `json:"shareToken"`
-	StartTs         float64 `json:"startTs"`
-	Status          string  `json:"status"`
+	RoomName string `json:"roomName"`
+	ShareToken string `json:"shareToken"`
+	StartTs float64 `json:"startTs"`
+	Status string `json:"status"`
 }
 
 type Recurrence_2024_06_14 struct {
-	Frequency   string  `json:"frequency"`
-	Interval    float64 `json:"interval"`
+	Frequency string `json:"frequency"`
+	Interval float64 `json:"interval"`
 	Occurrences float64 `json:"occurrences"`
 }
 
 type RecurringBookingOutput_2024_08_13 struct {
-	AbsentHost             bool            `json:"absentHost"`
-	Attendees              json.RawMessage `json:"attendees"`
-	BookingFieldsResponses string          `json:"bookingFieldsResponses"`
-	CancellationReason     string          `json:"cancellationReason"`
-	CancelledByEmail       string          `json:"cancelledByEmail"`
-	CreatedAt              string          `json:"createdAt"`
-	Description            string          `json:"description"`
-	Duration               float64         `json:"duration"`
-	End                    string          `json:"end"`
-	EventType              string          `json:"eventType"`
-	EventTypeId            float64         `json:"eventTypeId"`
-	Guests                 json.RawMessage `json:"guests"`
-	Hosts                  json.RawMessage `json:"hosts"`
-	IcsUid                 string          `json:"icsUid"`
-	Id                     float64         `json:"id"`
-	Location               string          `json:"location"`
-	MeetingUrl             string          `json:"meetingUrl"`
-	Metadata               string          `json:"metadata"`
-	Rating                 float64         `json:"rating"`
-	RecurringBookingUid    string          `json:"recurringBookingUid"`
-	RescheduledByEmail     string          `json:"rescheduledByEmail"`
-	RescheduledFromUid     string          `json:"rescheduledFromUid"`
-	RescheduledToUid       string          `json:"rescheduledToUid"`
-	ReschedulingReason     string          `json:"reschedulingReason"`
-	Start                  string          `json:"start"`
-	Status                 string          `json:"status"`
-	Title                  string          `json:"title"`
-	Uid                    string          `json:"uid"`
-	UpdatedAt              string          `json:"updatedAt"`
+	AbsentHost bool `json:"absentHost"`
+	Attendees json.RawMessage `json:"attendees"`
+	BookingFieldsResponses string `json:"bookingFieldsResponses"`
+	CancellationReason string `json:"cancellationReason"`
+	CancelledByEmail string `json:"cancelledByEmail"`
+	CreatedAt string `json:"createdAt"`
+	Description string `json:"description"`
+	Duration float64 `json:"duration"`
+	End string `json:"end"`
+	EventType string `json:"eventType"`
+	EventTypeId float64 `json:"eventTypeId"`
+	Guests json.RawMessage `json:"guests"`
+	Hosts json.RawMessage `json:"hosts"`
+	IcsUid string `json:"icsUid"`
+	Id float64 `json:"id"`
+	Location string `json:"location"`
+	MeetingUrl string `json:"meetingUrl"`
+	Metadata string `json:"metadata"`
+	Rating float64 `json:"rating"`
+	RecurringBookingUid string `json:"recurringBookingUid"`
+	RescheduledByEmail string `json:"rescheduledByEmail"`
+	RescheduledFromUid string `json:"rescheduledFromUid"`
+	RescheduledToUid string `json:"rescheduledToUid"`
+	ReschedulingReason string `json:"reschedulingReason"`
+	Start string `json:"start"`
+	Status string `json:"status"`
+	Title string `json:"title"`
+	Uid string `json:"uid"`
+	UpdatedAt string `json:"updatedAt"`
 }
 
 type RefreshApiKeyInput struct {
-	ApiKeyDaysValid    float64 `json:"apiKeyDaysValid"`
-	ApiKeyNeverExpires bool    `json:"apiKeyNeverExpires"`
+	ApiKeyDaysValid float64 `json:"apiKeyDaysValid"`
+	ApiKeyNeverExpires bool `json:"apiKeyNeverExpires"`
 }
 
 type RefreshApiKeyOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
@@ -2548,139 +2549,139 @@ type RequestPhoneVerificationOutput struct {
 
 type RescheduleBookingInput_2024_08_13 struct {
 	EmailVerificationCode string `json:"emailVerificationCode"`
-	RescheduledBy         string `json:"rescheduledBy"`
-	ReschedulingReason    string `json:"reschedulingReason"`
-	Start                 string `json:"start"`
+	RescheduledBy string `json:"rescheduledBy"`
+	ReschedulingReason string `json:"reschedulingReason"`
+	Start string `json:"start"`
 }
 
 type RescheduleBookingOutput_2024_08_13 struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type RescheduleReasonDefaultFieldInput_2024_06_14 struct {
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type RescheduleReasonDefaultFieldOutput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	IsDefault        string `json:"isDefault"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	IsDefault string `json:"isDefault"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type RescheduleSeatedBookingInput_2024_08_13 struct {
 	EmailVerificationCode string `json:"emailVerificationCode"`
-	RescheduledBy         string `json:"rescheduledBy"`
-	SeatUid               string `json:"seatUid"`
-	Start                 string `json:"start"`
+	RescheduledBy string `json:"rescheduledBy"`
+	SeatUid string `json:"seatUid"`
+	Start string `json:"start"`
 }
 
 type ReserveSlotInput_2024_09_04 struct {
-	EventTypeId         float64 `json:"eventTypeId"`
+	EventTypeId float64 `json:"eventTypeId"`
 	ReservationDuration float64 `json:"reservationDuration"`
-	SlotDuration        float64 `json:"slotDuration"`
-	SlotStart           string  `json:"slotStart"`
+	SlotDuration float64 `json:"slotDuration"`
+	SlotStart string `json:"slotStart"`
 }
 
 type ReserveSlotOutputResponse_2024_09_04 struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type ReserveSlotOutput_2024_09_04 struct {
-	EventTypeId         float64 `json:"eventTypeId"`
+	EventTypeId float64 `json:"eventTypeId"`
 	ReservationDuration float64 `json:"reservationDuration"`
-	ReservationUid      string  `json:"reservationUid"`
-	ReservationUntil    string  `json:"reservationUntil"`
-	SlotDuration        float64 `json:"slotDuration"`
-	SlotEnd             string  `json:"slotEnd"`
-	SlotStart           string  `json:"slotStart"`
+	ReservationUid string `json:"reservationUid"`
+	ReservationUntil string `json:"reservationUntil"`
+	SlotDuration float64 `json:"slotDuration"`
+	SlotEnd string `json:"slotEnd"`
+	SlotStart string `json:"slotStart"`
 }
 
 type ResponseSlotsOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type ResponseSlotsOutputData struct {
 	EventTypeId float64 `json:"eventTypeId"`
-	Slots       string  `json:"slots"`
+	Slots string `json:"slots"`
 }
 
 type Routing struct {
-	CrmAppSlug         string          `json:"crmAppSlug"`
-	CrmOwnerRecordType string          `json:"crmOwnerRecordType"`
-	QueuedResponseId   string          `json:"queuedResponseId"`
-	ResponseId         float64         `json:"responseId"`
-	SkipContactOwner   bool            `json:"skipContactOwner"`
-	TeamMemberEmail    string          `json:"teamMemberEmail"`
-	TeamMemberIds      json.RawMessage `json:"teamMemberIds"`
+	CrmAppSlug string `json:"crmAppSlug"`
+	CrmOwnerRecordType string `json:"crmOwnerRecordType"`
+	QueuedResponseId string `json:"queuedResponseId"`
+	ResponseId float64 `json:"responseId"`
+	SkipContactOwner bool `json:"skipContactOwner"`
+	TeamMemberEmail string `json:"teamMemberEmail"`
+	TeamMemberIds json.RawMessage `json:"teamMemberIds"`
 }
 
 type RoutingFormOutput struct {
-	CreatedAt   string  `json:"createdAt"`
-	Description string  `json:"description"`
-	Disabled    bool    `json:"disabled"`
-	Fields      string  `json:"fields"`
-	Id          string  `json:"id"`
-	Name        string  `json:"name"`
-	Position    float64 `json:"position"`
-	Routes      string  `json:"routes"`
-	Settings    string  `json:"settings"`
-	TeamId      float64 `json:"teamId"`
-	UpdatedAt   string  `json:"updatedAt"`
-	UserId      float64 `json:"userId"`
+	CreatedAt string `json:"createdAt"`
+	Description string `json:"description"`
+	Disabled bool `json:"disabled"`
+	Fields string `json:"fields"`
+	Id string `json:"id"`
+	Name string `json:"name"`
+	Position float64 `json:"position"`
+	Routes string `json:"routes"`
+	Settings string `json:"settings"`
+	TeamId float64 `json:"teamId"`
+	UpdatedAt string `json:"updatedAt"`
+	UserId float64 `json:"userId"`
 }
 
 type RoutingFormResponseOutput struct {
-	CreatedAt          string  `json:"createdAt"`
-	FormFillerId       string  `json:"formFillerId"`
-	FormId             string  `json:"formId"`
-	Id                 float64 `json:"id"`
-	Response           string  `json:"response"`
-	RoutedToBookingUid string  `json:"routedToBookingUid"`
+	CreatedAt string `json:"createdAt"`
+	FormFillerId string `json:"formFillerId"`
+	FormId string `json:"formId"`
+	Id float64 `json:"id"`
+	Response string `json:"response"`
+	RoutedToBookingUid string `json:"routedToBookingUid"`
 }
 
 type RoutingFormWorkflowActivationOutputDto struct {
-	ActiveOnRoutingFormIds    json.RawMessage `json:"activeOnRoutingFormIds"`
-	IsActiveOnAllRoutingForms bool            `json:"isActiveOnAllRoutingForms"`
+	ActiveOnRoutingFormIds json.RawMessage `json:"activeOnRoutingFormIds"`
+	IsActiveOnAllRoutingForms bool `json:"isActiveOnAllRoutingForms"`
 }
 
 type RoutingFormWorkflowOutput struct {
-	Ttype      string          `json:"Ttype"`
-	Activation string          `json:"activation"`
-	CreatedAt  string          `json:"createdAt"`
-	Id         float64         `json:"id"`
-	Name       string          `json:"name"`
-	Steps      json.RawMessage `json:"steps"`
-	TeamId     float64         `json:"teamId"`
-	Trigger    string          `json:"trigger"`
-	UpdatedAt  string          `json:"updatedAt"`
-	UserId     float64         `json:"userId"`
+	Ttype string `json:"Ttype"`
+	Activation string `json:"activation"`
+	CreatedAt string `json:"createdAt"`
+	Id float64 `json:"id"`
+	Name string `json:"name"`
+	Steps json.RawMessage `json:"steps"`
+	TeamId float64 `json:"teamId"`
+	Trigger string `json:"trigger"`
+	UpdatedAt string `json:"updatedAt"`
+	UserId float64 `json:"userId"`
 }
 
 type RoutingFormWorkflowStepOutputDto struct {
-	Action               string  `json:"action"`
-	Email                string  `json:"email"`
-	Id                   float64 `json:"id"`
-	IncludeCalendarEvent string  `json:"includeCalendarEvent"`
-	Message              string  `json:"message"`
-	Phone                string  `json:"phone"`
-	PhoneRequired        bool    `json:"phoneRequired"`
-	Recipient            string  `json:"recipient"`
-	Sender               string  `json:"sender"`
-	StepNumber           float64 `json:"stepNumber"`
-	Template             string  `json:"template"`
+	Action string `json:"action"`
+	Email string `json:"email"`
+	Id float64 `json:"id"`
+	IncludeCalendarEvent string `json:"includeCalendarEvent"`
+	Message string `json:"message"`
+	Phone string `json:"phone"`
+	PhoneRequired bool `json:"phoneRequired"`
+	Recipient string `json:"recipient"`
+	Sender string `json:"sender"`
+	StepNumber float64 `json:"stepNumber"`
+	Template string `json:"template"`
 }
 
 type RoutingFormWorkflowTriggerDto struct {
@@ -2688,91 +2689,91 @@ type RoutingFormWorkflowTriggerDto struct {
 }
 
 type RoutingFormWorkflowTriggerOutputDto struct {
-	Ttype  string `json:"Ttype"`
+	Ttype string `json:"Ttype"`
 	Offset string `json:"offset"`
 }
 
 type ScheduleAvailabilityInput_2024_06_11 struct {
-	Days      json.RawMessage `json:"days"`
-	EndTime   string          `json:"endTime"`
-	StartTime string          `json:"startTime"`
+	Days json.RawMessage `json:"days"`
+	EndTime string `json:"endTime"`
+	StartTime string `json:"startTime"`
 }
 
 type ScheduleOutput_2024_06_11 struct {
 	Availability json.RawMessage `json:"availability"`
-	Id           float64         `json:"id"`
-	IsDefault    bool            `json:"isDefault"`
-	Name         string          `json:"name"`
-	Overrides    json.RawMessage `json:"overrides"`
-	OwnerId      float64         `json:"ownerId"`
-	TimeZone     string          `json:"timeZone"`
+	Id float64 `json:"id"`
+	IsDefault bool `json:"isDefault"`
+	Name string `json:"name"`
+	Overrides json.RawMessage `json:"overrides"`
+	OwnerId float64 `json:"ownerId"`
+	TimeZone string `json:"timeZone"`
 }
 
 type ScheduleOverrideInput_2024_06_11 struct {
-	Date      string `json:"date"`
-	EndTime   string `json:"endTime"`
+	Date string `json:"date"`
+	EndTime string `json:"endTime"`
 	StartTime string `json:"startTime"`
 }
 
 type SeatedAttendee struct {
-	Absent                 bool   `json:"absent"`
+	Absent bool `json:"absent"`
 	BookingFieldsResponses string `json:"bookingFieldsResponses"`
-	DisplayEmail           string `json:"displayEmail"`
-	Email                  string `json:"email"`
-	Language               string `json:"language"`
-	Metadata               string `json:"metadata"`
-	Name                   string `json:"name"`
-	PhoneNumber            string `json:"phoneNumber"`
-	SeatUid                string `json:"seatUid"`
-	TimeZone               string `json:"timeZone"`
+	DisplayEmail string `json:"displayEmail"`
+	Email string `json:"email"`
+	Language string `json:"language"`
+	Metadata string `json:"metadata"`
+	Name string `json:"name"`
+	PhoneNumber string `json:"phoneNumber"`
+	SeatUid string `json:"seatUid"`
+	TimeZone string `json:"timeZone"`
 }
 
 type Seats_2024_06_14 struct {
-	SeatsPerTimeSlot      float64 `json:"seatsPerTimeSlot"`
-	ShowAttendeeInfo      bool    `json:"showAttendeeInfo"`
-	ShowAvailabilityCount bool    `json:"showAvailabilityCount"`
+	SeatsPerTimeSlot float64 `json:"seatsPerTimeSlot"`
+	ShowAttendeeInfo bool `json:"showAttendeeInfo"`
+	ShowAvailabilityCount bool `json:"showAvailabilityCount"`
 }
 
 type SelectFieldInput_2024_06_14 struct {
-	Ttype            string          `json:"Ttype"`
-	DisableOnPrefill bool            `json:"disableOnPrefill"`
-	Hidden           bool            `json:"hidden"`
-	Label            string          `json:"label"`
-	Options          json.RawMessage `json:"options"`
-	Placeholder      string          `json:"placeholder"`
-	Required         bool            `json:"required"`
-	Slug             string          `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	Label string `json:"label"`
+	Options json.RawMessage `json:"options"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type SelectFieldOutput_2024_06_14 struct {
-	Ttype            string          `json:"Ttype"`
-	DisableOnPrefill bool            `json:"disableOnPrefill"`
-	Hidden           bool            `json:"hidden"`
-	IsDefault        string          `json:"isDefault"`
-	Label            string          `json:"label"`
-	Options          json.RawMessage `json:"options"`
-	Placeholder      string          `json:"placeholder"`
-	Required         bool            `json:"required"`
-	Slug             string          `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	IsDefault string `json:"isDefault"`
+	Label string `json:"label"`
+	Options json.RawMessage `json:"options"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type SelectedCalendarOutputDto struct {
 	CredentialId float64 `json:"credentialId"`
-	ExternalId   string  `json:"externalId"`
-	Integration  string  `json:"integration"`
-	UserId       float64 `json:"userId"`
+	ExternalId string `json:"externalId"`
+	Integration string `json:"integration"`
+	UserId float64 `json:"userId"`
 }
 
 type SelectedCalendarOutputResponseDto struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type SelectedCalendarsInputDto struct {
-	CredentialId           float64 `json:"credentialId"`
-	DelegationCredentialId string  `json:"delegationCredentialId"`
-	ExternalId             string  `json:"externalId"`
-	Integration            string  `json:"integration"`
+	CredentialId float64 `json:"credentialId"`
+	DelegationCredentialId string `json:"delegationCredentialId"`
+	ExternalId string `json:"externalId"`
+	Integration string `json:"integration"`
 }
 
 type SetDefaultConferencingAppOutputResponseDto struct {
@@ -2780,10 +2781,10 @@ type SetDefaultConferencingAppOutputResponseDto struct {
 }
 
 type SingleSelectAttribute struct {
-	Ttype    string `json:"Ttype"`
-	Id       string `json:"id"`
-	Name     string `json:"name"`
-	Option   string `json:"option"`
+	Ttype string `json:"Ttype"`
+	Id string `json:"id"`
+	Name string `json:"name"`
+	Option string `json:"option"`
 	OptionId string `json:"optionId"`
 }
 
@@ -2795,7 +2796,7 @@ type StripConnectOutputDto struct {
 }
 
 type StripConnectOutputResponseDto struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
@@ -2808,281 +2809,281 @@ type StripCredentialsSaveOutputResponseDto struct {
 }
 
 type TeamEventTypeOutput_2024_06_14 struct {
-	AfterEventBuffer                   float64         `json:"afterEventBuffer"`
-	AllowReschedulingCancelledBookings bool            `json:"allowReschedulingCancelledBookings"`
-	AllowReschedulingPastBookings      bool            `json:"allowReschedulingPastBookings"`
-	AssignAllTeamMembers               bool            `json:"assignAllTeamMembers"`
-	BeforeEventBuffer                  float64         `json:"beforeEventBuffer"`
-	BookerActiveBookingsLimit          string          `json:"bookerActiveBookingsLimit"`
-	BookerLayouts                      string          `json:"bookerLayouts"`
-	BookingFields                      json.RawMessage `json:"bookingFields"`
-	BookingLimitsCount                 string          `json:"bookingLimitsCount"`
-	BookingLimitsDuration              string          `json:"bookingLimitsDuration"`
-	BookingRequiresAuthentication      bool            `json:"bookingRequiresAuthentication"`
-	BookingWindow                      json.RawMessage `json:"bookingWindow"`
-	CalVideoSettings                   string          `json:"calVideoSettings"`
-	Color                              string          `json:"color"`
-	ConfirmationPolicy                 string          `json:"confirmationPolicy"`
-	Currency                           string          `json:"currency"`
-	CustomName                         string          `json:"customName"`
-	Description                        string          `json:"description"`
-	DestinationCalendar                string          `json:"destinationCalendar"`
-	DisableCancelling                  string          `json:"disableCancelling"`
-	DisableGuests                      bool            `json:"disableGuests"`
-	DisableRescheduling                string          `json:"disableRescheduling"`
-	EmailSettings                      string          `json:"emailSettings"`
-	ForwardParamsSuccessRedirect       string          `json:"forwardParamsSuccessRedirect"`
-	Hidden                             bool            `json:"hidden"`
-	HideCalendarEventDetails           bool            `json:"hideCalendarEventDetails"`
-	HideCalendarNotes                  bool            `json:"hideCalendarNotes"`
-	HideOrganizerEmail                 bool            `json:"hideOrganizerEmail"`
-	Hosts                              json.RawMessage `json:"hosts"`
-	Id                                 float64         `json:"id"`
-	InterfaceLanguage                  string          `json:"interfaceLanguage"`
-	IsInstantEvent                     bool            `json:"isInstantEvent"`
-	LengthInMinutes                    float64         `json:"lengthInMinutes"`
-	LengthInMinutesOptions             json.RawMessage `json:"lengthInMinutesOptions"`
-	Locations                          json.RawMessage `json:"locations"`
-	LockTimeZoneToggleOnBookingPage    bool            `json:"lockTimeZoneToggleOnBookingPage"`
-	Metadata                           string          `json:"metadata"`
-	MinimumBookingNotice               float64         `json:"minimumBookingNotice"`
-	OffsetStart                        float64         `json:"offsetStart"`
-	OnlyShowFirstAvailableSlot         bool            `json:"onlyShowFirstAvailableSlot"`
-	OwnerId                            string          `json:"ownerId"`
-	ParentEventTypeId                  string          `json:"parentEventTypeId"`
-	Price                              float64         `json:"price"`
-	Recurrence                         string          `json:"recurrence"`
-	RequiresBookerEmailVerification    bool            `json:"requiresBookerEmailVerification"`
-	RescheduleWithSameRoundRobinHost   bool            `json:"rescheduleWithSameRoundRobinHost"`
-	ScheduleId                         float64         `json:"scheduleId"`
-	SchedulingType                     string          `json:"schedulingType"`
-	Seats                              string          `json:"seats"`
-	SeatsPerTimeSlot                   string          `json:"seatsPerTimeSlot"`
-	SeatsShowAvailabilityCount         bool            `json:"seatsShowAvailabilityCount"`
-	ShowOptimizedSlots                 bool            `json:"showOptimizedSlots"`
-	SlotInterval                       string          `json:"slotInterval"`
-	Slug                               string          `json:"slug"`
-	SuccessRedirectUrl                 string          `json:"successRedirectUrl"`
-	Team                               string          `json:"team"`
-	TeamId                             float64         `json:"teamId"`
-	Title                              string          `json:"title"`
-	UseDestinationCalendarEmail        bool            `json:"useDestinationCalendarEmail"`
+	AfterEventBuffer float64 `json:"afterEventBuffer"`
+	AllowReschedulingCancelledBookings bool `json:"allowReschedulingCancelledBookings"`
+	AllowReschedulingPastBookings bool `json:"allowReschedulingPastBookings"`
+	AssignAllTeamMembers bool `json:"assignAllTeamMembers"`
+	BeforeEventBuffer float64 `json:"beforeEventBuffer"`
+	BookerActiveBookingsLimit string `json:"bookerActiveBookingsLimit"`
+	BookerLayouts string `json:"bookerLayouts"`
+	BookingFields json.RawMessage `json:"bookingFields"`
+	BookingLimitsCount string `json:"bookingLimitsCount"`
+	BookingLimitsDuration string `json:"bookingLimitsDuration"`
+	BookingRequiresAuthentication bool `json:"bookingRequiresAuthentication"`
+	BookingWindow json.RawMessage `json:"bookingWindow"`
+	CalVideoSettings string `json:"calVideoSettings"`
+	Color string `json:"color"`
+	ConfirmationPolicy string `json:"confirmationPolicy"`
+	Currency string `json:"currency"`
+	CustomName string `json:"customName"`
+	Description string `json:"description"`
+	DestinationCalendar string `json:"destinationCalendar"`
+	DisableCancelling string `json:"disableCancelling"`
+	DisableGuests bool `json:"disableGuests"`
+	DisableRescheduling string `json:"disableRescheduling"`
+	EmailSettings string `json:"emailSettings"`
+	ForwardParamsSuccessRedirect string `json:"forwardParamsSuccessRedirect"`
+	Hidden bool `json:"hidden"`
+	HideCalendarEventDetails bool `json:"hideCalendarEventDetails"`
+	HideCalendarNotes bool `json:"hideCalendarNotes"`
+	HideOrganizerEmail bool `json:"hideOrganizerEmail"`
+	Hosts json.RawMessage `json:"hosts"`
+	Id float64 `json:"id"`
+	InterfaceLanguage string `json:"interfaceLanguage"`
+	IsInstantEvent bool `json:"isInstantEvent"`
+	LengthInMinutes float64 `json:"lengthInMinutes"`
+	LengthInMinutesOptions json.RawMessage `json:"lengthInMinutesOptions"`
+	Locations json.RawMessage `json:"locations"`
+	LockTimeZoneToggleOnBookingPage bool `json:"lockTimeZoneToggleOnBookingPage"`
+	Metadata string `json:"metadata"`
+	MinimumBookingNotice float64 `json:"minimumBookingNotice"`
+	OffsetStart float64 `json:"offsetStart"`
+	OnlyShowFirstAvailableSlot bool `json:"onlyShowFirstAvailableSlot"`
+	OwnerId string `json:"ownerId"`
+	ParentEventTypeId string `json:"parentEventTypeId"`
+	Price float64 `json:"price"`
+	Recurrence string `json:"recurrence"`
+	RequiresBookerEmailVerification bool `json:"requiresBookerEmailVerification"`
+	RescheduleWithSameRoundRobinHost bool `json:"rescheduleWithSameRoundRobinHost"`
+	ScheduleId float64 `json:"scheduleId"`
+	SchedulingType string `json:"schedulingType"`
+	Seats string `json:"seats"`
+	SeatsPerTimeSlot string `json:"seatsPerTimeSlot"`
+	SeatsShowAvailabilityCount bool `json:"seatsShowAvailabilityCount"`
+	ShowOptimizedSlots bool `json:"showOptimizedSlots"`
+	SlotInterval string `json:"slotInterval"`
+	Slug string `json:"slug"`
+	SuccessRedirectUrl string `json:"successRedirectUrl"`
+	Team string `json:"team"`
+	TeamId float64 `json:"teamId"`
+	Title string `json:"title"`
+	UseDestinationCalendarEmail bool `json:"useDestinationCalendarEmail"`
 }
 
 type TeamMembershipOutput struct {
-	Accepted             bool    `json:"accepted"`
-	DisableImpersonation bool    `json:"disableImpersonation"`
-	Id                   float64 `json:"id"`
-	Role                 string  `json:"role"`
-	TeamId               float64 `json:"teamId"`
-	User                 string  `json:"user"`
-	UserId               float64 `json:"userId"`
+	Accepted bool `json:"accepted"`
+	DisableImpersonation bool `json:"disableImpersonation"`
+	Id float64 `json:"id"`
+	Role string `json:"role"`
+	TeamId float64 `json:"teamId"`
+	User string `json:"user"`
+	UserId float64 `json:"userId"`
 }
 
 type TeamOutputDto struct {
-	AppIconLogo         string  `json:"appIconLogo"`
-	AppLogo             string  `json:"appLogo"`
-	BannerUrl           string  `json:"bannerUrl"`
-	Bio                 string  `json:"bio"`
-	BrandColor          string  `json:"brandColor"`
-	CalVideoLogo        string  `json:"calVideoLogo"`
-	DarkBrandColor      string  `json:"darkBrandColor"`
-	HideBookATeamMember bool    `json:"hideBookATeamMember"`
-	HideBranding        bool    `json:"hideBranding"`
-	Id                  float64 `json:"id"`
-	IsOrganization      bool    `json:"isOrganization"`
-	IsPrivate           bool    `json:"isPrivate"`
-	LogoUrl             string  `json:"logoUrl"`
-	Metadata            string  `json:"metadata"`
-	Name                string  `json:"name"`
-	ParentId            float64 `json:"parentId"`
-	Slug                string  `json:"slug"`
-	Theme               string  `json:"theme"`
-	TimeFormat          float64 `json:"timeFormat"`
-	TimeZone            string  `json:"timeZone"`
-	WeekStart           string  `json:"weekStart"`
+	AppIconLogo string `json:"appIconLogo"`
+	AppLogo string `json:"appLogo"`
+	BannerUrl string `json:"bannerUrl"`
+	Bio string `json:"bio"`
+	BrandColor string `json:"brandColor"`
+	CalVideoLogo string `json:"calVideoLogo"`
+	DarkBrandColor string `json:"darkBrandColor"`
+	HideBookATeamMember bool `json:"hideBookATeamMember"`
+	HideBranding bool `json:"hideBranding"`
+	Id float64 `json:"id"`
+	IsOrganization bool `json:"isOrganization"`
+	IsPrivate bool `json:"isPrivate"`
+	LogoUrl string `json:"logoUrl"`
+	Metadata string `json:"metadata"`
+	Name string `json:"name"`
+	ParentId float64 `json:"parentId"`
+	Slug string `json:"slug"`
+	Theme string `json:"theme"`
+	TimeFormat float64 `json:"timeFormat"`
+	TimeZone string `json:"timeZone"`
+	WeekStart string `json:"weekStart"`
 }
 
 type TeamRoleOutput struct {
-	Ttype       string          `json:"Ttype"`
-	Color       string          `json:"color"`
-	CreatedAt   string          `json:"createdAt"`
-	Description string          `json:"description"`
-	Id          string          `json:"id"`
-	Name        string          `json:"name"`
+	Ttype string `json:"Ttype"`
+	Color string `json:"color"`
+	CreatedAt string `json:"createdAt"`
+	Description string `json:"description"`
+	Id string `json:"id"`
+	Name string `json:"name"`
 	Permissions json.RawMessage `json:"permissions"`
-	TeamId      float64         `json:"teamId"`
-	UpdatedAt   string          `json:"updatedAt"`
+	TeamId float64 `json:"teamId"`
+	UpdatedAt string `json:"updatedAt"`
 }
 
 type TeamVerifiedEmailOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type TeamVerifiedEmailOutputData struct {
-	Email  string  `json:"email"`
-	Id     float64 `json:"id"`
+	Email string `json:"email"`
+	Id float64 `json:"id"`
 	TeamId float64 `json:"teamId"`
 	UserId float64 `json:"userId"`
 }
 
 type TeamVerifiedEmailsOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type TeamVerifiedPhoneOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type TeamVerifiedPhoneOutputData struct {
-	Id          float64 `json:"id"`
-	PhoneNumber string  `json:"phoneNumber"`
-	TeamId      float64 `json:"teamId"`
-	UserId      float64 `json:"userId"`
+	Id float64 `json:"id"`
+	PhoneNumber string `json:"phoneNumber"`
+	TeamId float64 `json:"teamId"`
+	UserId float64 `json:"userId"`
 }
 
 type TeamVerifiedPhonesOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type TeamWebhookOutputDto struct {
-	Active          bool            `json:"active"`
-	Id              float64         `json:"id"`
-	PayloadTemplate string          `json:"payloadTemplate"`
-	Secret          string          `json:"secret"`
-	SubscriberUrl   string          `json:"subscriberUrl"`
-	TeamId          float64         `json:"teamId"`
-	Triggers        json.RawMessage `json:"triggers"`
+	Active bool `json:"active"`
+	Id float64 `json:"id"`
+	PayloadTemplate string `json:"payloadTemplate"`
+	Secret string `json:"secret"`
+	SubscriberUrl string `json:"subscriberUrl"`
+	TeamId float64 `json:"teamId"`
+	Triggers json.RawMessage `json:"triggers"`
 }
 
 type TeamWebhookOutputResponseDto struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type TeamWebhooksOutputResponseDto struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type TextAreaFieldInput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type TextAreaFieldOutput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	IsDefault        string `json:"isDefault"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	IsDefault string `json:"isDefault"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type TextAttribute struct {
-	Ttype    string `json:"Ttype"`
-	Id       string `json:"id"`
-	Name     string `json:"name"`
-	Option   string `json:"option"`
+	Ttype string `json:"Ttype"`
+	Id string `json:"id"`
+	Name string `json:"name"`
+	Option string `json:"option"`
 	OptionId string `json:"optionId"`
 }
 
 type TextFieldInput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type TextFieldOutput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	IsDefault        string `json:"isDefault"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	IsDefault string `json:"isDefault"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type TextWorkflowMessageDto struct {
 	Subject string `json:"subject"`
-	Text    string `json:"text"`
+	Text string `json:"text"`
 }
 
 type TimeBasedPrivateLinkOutput struct {
-	BookingUrl  string  `json:"bookingUrl"`
+	BookingUrl string `json:"bookingUrl"`
 	EventTypeId float64 `json:"eventTypeId"`
-	ExpiresAt   string  `json:"expiresAt"`
-	IsExpired   bool    `json:"isExpired"`
-	LinkId      string  `json:"linkId"`
+	ExpiresAt string `json:"expiresAt"`
+	IsExpired bool `json:"isExpired"`
+	LinkId string `json:"linkId"`
 }
 
 type TitleDefaultFieldInput_2024_06_14 struct {
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type TitleDefaultFieldOutput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	IsDefault        string `json:"isDefault"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	IsDefault string `json:"isDefault"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type UnassignOptionUserOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type UnifiedCalendarEventOutput struct {
-	Attendees          json.RawMessage `json:"attendees"`
-	CalendarEventOwner string          `json:"calendarEventOwner"`
-	Description        string          `json:"description"`
-	End                string          `json:"end"`
-	Hosts              json.RawMessage `json:"hosts"`
-	Id                 string          `json:"id"`
-	Locations          json.RawMessage `json:"locations"`
-	Source             string          `json:"source"`
-	Start              string          `json:"start"`
-	Status             string          `json:"status"`
-	Title              string          `json:"title"`
+	Attendees json.RawMessage `json:"attendees"`
+	CalendarEventOwner string `json:"calendarEventOwner"`
+	Description string `json:"description"`
+	End string `json:"end"`
+	Hosts json.RawMessage `json:"hosts"`
+	Id string `json:"id"`
+	Locations json.RawMessage `json:"locations"`
+	Source string `json:"source"`
+	Start string `json:"start"`
+	Status string `json:"status"`
+	Title string `json:"title"`
 }
 
 type UpdateAttributeOptionOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type UpdateBookingInputAttendeeAddressLocation_2024_08_13 struct {
-	Ttype   string `json:"Ttype"`
+	Ttype string `json:"Ttype"`
 	Address string `json:"address"`
 }
 
 type UpdateBookingInputAttendeeDefinedLocation_2024_08_13 struct {
-	Ttype    string `json:"Ttype"`
+	Ttype string `json:"Ttype"`
 	Location string `json:"location"`
 }
 
@@ -3092,13 +3093,13 @@ type UpdateBookingInputAttendeePhoneLocation_2024_08_13 struct {
 }
 
 type UpdateBookingInputIntegrationLocation_2024_08_13 struct {
-	Ttype       string `json:"Ttype"`
+	Ttype string `json:"Ttype"`
 	Integration string `json:"integration"`
 }
 
 type UpdateBookingInputLinkLocation_2024_08_13 struct {
 	Ttype string `json:"Ttype"`
-	Link  string `json:"link"`
+	Link string `json:"link"`
 }
 
 type UpdateBookingInputPhoneLocation_2024_08_13 struct {
@@ -3111,287 +3112,287 @@ type UpdateBookingLocationInput_2024_08_13 struct {
 }
 
 type UpdateBookingLocationOutput_2024_08_13 struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type UpdateCalendarEventAttendee struct {
-	Email          string `json:"email"`
-	Host           bool   `json:"host"`
-	Name           string `json:"name"`
-	Optional       bool   `json:"optional"`
+	Email string `json:"email"`
+	Host bool `json:"host"`
+	Name string `json:"name"`
+	Optional bool `json:"optional"`
 	ResponseStatus string `json:"responseStatus"`
-	Self           bool   `json:"self"`
+	Self bool `json:"self"`
 }
 
 type UpdateDelegationCredentialInput struct {
-	Enabled           bool            `json:"enabled"`
+	Enabled bool `json:"enabled"`
 	ServiceAccountKey json.RawMessage `json:"serviceAccountKey"`
 }
 
 type UpdateDelegationCredentialOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type UpdateEmailAddressWorkflowStepDto struct {
-	Action               string  `json:"action"`
-	Id                   float64 `json:"id"`
-	IncludeCalendarEvent string  `json:"includeCalendarEvent"`
-	Message              string  `json:"message"`
-	Recipient            string  `json:"recipient"`
-	Sender               string  `json:"sender"`
-	StepNumber           float64 `json:"stepNumber"`
-	Template             string  `json:"template"`
-	VerifiedEmailId      float64 `json:"verifiedEmailId"`
+	Action string `json:"action"`
+	Id float64 `json:"id"`
+	IncludeCalendarEvent string `json:"includeCalendarEvent"`
+	Message string `json:"message"`
+	Recipient string `json:"recipient"`
+	Sender string `json:"sender"`
+	StepNumber float64 `json:"stepNumber"`
+	Template string `json:"template"`
+	VerifiedEmailId float64 `json:"verifiedEmailId"`
 }
 
 type UpdateEmailAttendeeWorkflowStepDto struct {
-	Action               string  `json:"action"`
-	Id                   float64 `json:"id"`
-	IncludeCalendarEvent string  `json:"includeCalendarEvent"`
-	Message              string  `json:"message"`
-	Recipient            string  `json:"recipient"`
-	Sender               string  `json:"sender"`
-	StepNumber           float64 `json:"stepNumber"`
-	Template             string  `json:"template"`
+	Action string `json:"action"`
+	Id float64 `json:"id"`
+	IncludeCalendarEvent string `json:"includeCalendarEvent"`
+	Message string `json:"message"`
+	Recipient string `json:"recipient"`
+	Sender string `json:"sender"`
+	StepNumber float64 `json:"stepNumber"`
+	Template string `json:"template"`
 }
 
 type UpdateEmailHostWorkflowStepDto struct {
-	Action               string  `json:"action"`
-	Id                   float64 `json:"id"`
-	IncludeCalendarEvent string  `json:"includeCalendarEvent"`
-	Message              string  `json:"message"`
-	Recipient            string  `json:"recipient"`
-	Sender               string  `json:"sender"`
-	StepNumber           float64 `json:"stepNumber"`
-	Template             string  `json:"template"`
+	Action string `json:"action"`
+	Id float64 `json:"id"`
+	IncludeCalendarEvent string `json:"includeCalendarEvent"`
+	Message string `json:"message"`
+	Recipient string `json:"recipient"`
+	Sender string `json:"sender"`
+	StepNumber float64 `json:"stepNumber"`
+	Template string `json:"template"`
 }
 
 type UpdateEventTypeInput_2024_06_14 struct {
-	AfterEventBuffer                   float64         `json:"afterEventBuffer"`
-	AllowReschedulingCancelledBookings bool            `json:"allowReschedulingCancelledBookings"`
-	AllowReschedulingPastBookings      bool            `json:"allowReschedulingPastBookings"`
-	BeforeEventBuffer                  float64         `json:"beforeEventBuffer"`
-	BookerActiveBookingsLimit          string          `json:"bookerActiveBookingsLimit"`
-	BookerLayouts                      string          `json:"bookerLayouts"`
-	BookingFields                      json.RawMessage `json:"bookingFields"`
-	BookingLimitsCount                 string          `json:"bookingLimitsCount"`
-	BookingLimitsDuration              string          `json:"bookingLimitsDuration"`
-	BookingRequiresAuthentication      bool            `json:"bookingRequiresAuthentication"`
-	BookingWindow                      string          `json:"bookingWindow"`
-	CalVideoSettings                   string          `json:"calVideoSettings"`
-	Color                              string          `json:"color"`
-	ConfirmationPolicy                 string          `json:"confirmationPolicy"`
-	CustomName                         string          `json:"customName"`
-	Description                        string          `json:"description"`
-	DestinationCalendar                string          `json:"destinationCalendar"`
-	DisableCancelling                  string          `json:"disableCancelling"`
-	DisableGuests                      bool            `json:"disableGuests"`
-	DisableRescheduling                string          `json:"disableRescheduling"`
-	Hidden                             bool            `json:"hidden"`
-	HideCalendarEventDetails           bool            `json:"hideCalendarEventDetails"`
-	HideCalendarNotes                  bool            `json:"hideCalendarNotes"`
-	HideOrganizerEmail                 bool            `json:"hideOrganizerEmail"`
-	InterfaceLanguage                  string          `json:"interfaceLanguage"`
-	LengthInMinutes                    float64         `json:"lengthInMinutes"`
-	LengthInMinutesOptions             json.RawMessage `json:"lengthInMinutesOptions"`
-	Locations                          json.RawMessage `json:"locations"`
-	LockTimeZoneToggleOnBookingPage    bool            `json:"lockTimeZoneToggleOnBookingPage"`
-	MinimumBookingNotice               float64         `json:"minimumBookingNotice"`
-	OffsetStart                        float64         `json:"offsetStart"`
-	OnlyShowFirstAvailableSlot         bool            `json:"onlyShowFirstAvailableSlot"`
-	Recurrence                         string          `json:"recurrence"`
-	RequiresBookerEmailVerification    bool            `json:"requiresBookerEmailVerification"`
-	ScheduleId                         float64         `json:"scheduleId"`
-	Seats                              string          `json:"seats"`
-	ShowOptimizedSlots                 bool            `json:"showOptimizedSlots"`
-	SlotInterval                       float64         `json:"slotInterval"`
-	Slug                               string          `json:"slug"`
-	SuccessRedirectUrl                 string          `json:"successRedirectUrl"`
-	Title                              string          `json:"title"`
-	UseDestinationCalendarEmail        bool            `json:"useDestinationCalendarEmail"`
+	AfterEventBuffer float64 `json:"afterEventBuffer"`
+	AllowReschedulingCancelledBookings bool `json:"allowReschedulingCancelledBookings"`
+	AllowReschedulingPastBookings bool `json:"allowReschedulingPastBookings"`
+	BeforeEventBuffer float64 `json:"beforeEventBuffer"`
+	BookerActiveBookingsLimit string `json:"bookerActiveBookingsLimit"`
+	BookerLayouts string `json:"bookerLayouts"`
+	BookingFields json.RawMessage `json:"bookingFields"`
+	BookingLimitsCount string `json:"bookingLimitsCount"`
+	BookingLimitsDuration string `json:"bookingLimitsDuration"`
+	BookingRequiresAuthentication bool `json:"bookingRequiresAuthentication"`
+	BookingWindow string `json:"bookingWindow"`
+	CalVideoSettings string `json:"calVideoSettings"`
+	Color string `json:"color"`
+	ConfirmationPolicy string `json:"confirmationPolicy"`
+	CustomName string `json:"customName"`
+	Description string `json:"description"`
+	DestinationCalendar string `json:"destinationCalendar"`
+	DisableCancelling string `json:"disableCancelling"`
+	DisableGuests bool `json:"disableGuests"`
+	DisableRescheduling string `json:"disableRescheduling"`
+	Hidden bool `json:"hidden"`
+	HideCalendarEventDetails bool `json:"hideCalendarEventDetails"`
+	HideCalendarNotes bool `json:"hideCalendarNotes"`
+	HideOrganizerEmail bool `json:"hideOrganizerEmail"`
+	InterfaceLanguage string `json:"interfaceLanguage"`
+	LengthInMinutes float64 `json:"lengthInMinutes"`
+	LengthInMinutesOptions json.RawMessage `json:"lengthInMinutesOptions"`
+	Locations json.RawMessage `json:"locations"`
+	LockTimeZoneToggleOnBookingPage bool `json:"lockTimeZoneToggleOnBookingPage"`
+	MinimumBookingNotice float64 `json:"minimumBookingNotice"`
+	OffsetStart float64 `json:"offsetStart"`
+	OnlyShowFirstAvailableSlot bool `json:"onlyShowFirstAvailableSlot"`
+	Recurrence string `json:"recurrence"`
+	RequiresBookerEmailVerification bool `json:"requiresBookerEmailVerification"`
+	ScheduleId float64 `json:"scheduleId"`
+	Seats string `json:"seats"`
+	ShowOptimizedSlots bool `json:"showOptimizedSlots"`
+	SlotInterval float64 `json:"slotInterval"`
+	Slug string `json:"slug"`
+	SuccessRedirectUrl string `json:"successRedirectUrl"`
+	Title string `json:"title"`
+	UseDestinationCalendarEmail bool `json:"useDestinationCalendarEmail"`
 }
 
 type UpdateEventTypeOutput_2024_06_14 struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type UpdateEventTypeWorkflowDto struct {
-	Activation string          `json:"activation"`
-	Name       string          `json:"name"`
-	Steps      json.RawMessage `json:"steps"`
-	Trigger    string          `json:"trigger"`
+	Activation string `json:"activation"`
+	Name string `json:"name"`
+	Steps json.RawMessage `json:"steps"`
+	Trigger string `json:"trigger"`
 }
 
 type UpdateFormWorkflowDto struct {
-	Activation string          `json:"activation"`
-	Name       string          `json:"name"`
-	Steps      json.RawMessage `json:"steps"`
-	Trigger    string          `json:"trigger"`
+	Activation string `json:"activation"`
+	Name string `json:"name"`
+	Steps json.RawMessage `json:"steps"`
+	Trigger string `json:"trigger"`
 }
 
 type UpdateInputAddressLocation_2024_08_13 struct {
-	Ttype   string `json:"Ttype"`
+	Ttype string `json:"Ttype"`
 	Address string `json:"address"`
 }
 
 type UpdateManagedUserInput struct {
-	AvatarUrl         string  `json:"avatarUrl"`
-	Bio               string  `json:"bio"`
+	AvatarUrl string `json:"avatarUrl"`
+	Bio string `json:"bio"`
 	DefaultScheduleId float64 `json:"defaultScheduleId"`
-	Email             string  `json:"email"`
-	Locale            string  `json:"locale"`
-	Metadata          string  `json:"metadata"`
-	Name              string  `json:"name"`
-	TimeFormat        float64 `json:"timeFormat"`
-	TimeZone          string  `json:"timeZone"`
-	WeekStart         string  `json:"weekStart"`
+	Email string `json:"email"`
+	Locale string `json:"locale"`
+	Metadata string `json:"metadata"`
+	Name string `json:"name"`
+	TimeFormat float64 `json:"timeFormat"`
+	TimeZone string `json:"timeZone"`
+	WeekStart string `json:"weekStart"`
 }
 
 type UpdateMeOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type UpdateOAuthClientInput struct {
-	AreCalendarEventsEnabled     bool            `json:"areCalendarEventsEnabled"`
-	AreDefaultEventTypesEnabled  bool            `json:"areDefaultEventTypesEnabled"`
-	AreEmailsEnabled             bool            `json:"areEmailsEnabled"`
-	BookingCancelRedirectUri     string          `json:"bookingCancelRedirectUri"`
-	BookingRedirectUri           string          `json:"bookingRedirectUri"`
-	BookingRescheduleRedirectUri string          `json:"bookingRescheduleRedirectUri"`
-	Logo                         string          `json:"logo"`
-	Name                         string          `json:"name"`
-	RedirectUris                 json.RawMessage `json:"redirectUris"`
+	AreCalendarEventsEnabled bool `json:"areCalendarEventsEnabled"`
+	AreDefaultEventTypesEnabled bool `json:"areDefaultEventTypesEnabled"`
+	AreEmailsEnabled bool `json:"areEmailsEnabled"`
+	BookingCancelRedirectUri string `json:"bookingCancelRedirectUri"`
+	BookingRedirectUri string `json:"bookingRedirectUri"`
+	BookingRescheduleRedirectUri string `json:"bookingRescheduleRedirectUri"`
+	Logo string `json:"logo"`
+	Name string `json:"name"`
+	RedirectUris json.RawMessage `json:"redirectUris"`
 }
 
 type UpdateOrgMembership struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type UpdateOrgMembershipDto struct {
-	Accepted             bool   `json:"accepted"`
-	DisableImpersonation bool   `json:"disableImpersonation"`
-	Role                 string `json:"role"`
+	Accepted bool `json:"accepted"`
+	DisableImpersonation bool `json:"disableImpersonation"`
+	Role string `json:"role"`
 }
 
 type UpdateOrgRoleInput struct {
-	Color       string          `json:"color"`
-	Description string          `json:"description"`
-	Name        string          `json:"name"`
+	Color string `json:"color"`
+	Description string `json:"description"`
+	Name string `json:"name"`
 	Permissions json.RawMessage `json:"permissions"`
 }
 
 type UpdateOrgRoleOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type UpdateOrgTeamDto struct {
-	AppIconLogo                  string  `json:"appIconLogo"`
-	AppLogo                      string  `json:"appLogo"`
-	BannerUrl                    string  `json:"bannerUrl"`
-	Bio                          string  `json:"bio"`
-	BookingLimits                string  `json:"bookingLimits"`
-	BrandColor                   string  `json:"brandColor"`
-	CalVideoLogo                 string  `json:"calVideoLogo"`
-	DarkBrandColor               string  `json:"darkBrandColor"`
-	HideBookATeamMember          bool    `json:"hideBookATeamMember"`
-	HideBranding                 bool    `json:"hideBranding"`
-	IncludeManagedEventsInLimits bool    `json:"includeManagedEventsInLimits"`
-	IsPrivate                    bool    `json:"isPrivate"`
-	LogoUrl                      string  `json:"logoUrl"`
-	Metadata                     string  `json:"metadata"`
-	Name                         string  `json:"name"`
-	Slug                         string  `json:"slug"`
-	Theme                        string  `json:"theme"`
-	TimeFormat                   float64 `json:"timeFormat"`
-	TimeZone                     string  `json:"timeZone"`
-	WeekStart                    string  `json:"weekStart"`
+	AppIconLogo string `json:"appIconLogo"`
+	AppLogo string `json:"appLogo"`
+	BannerUrl string `json:"bannerUrl"`
+	Bio string `json:"bio"`
+	BookingLimits string `json:"bookingLimits"`
+	BrandColor string `json:"brandColor"`
+	CalVideoLogo string `json:"calVideoLogo"`
+	DarkBrandColor string `json:"darkBrandColor"`
+	HideBookATeamMember bool `json:"hideBookATeamMember"`
+	HideBranding bool `json:"hideBranding"`
+	IncludeManagedEventsInLimits bool `json:"includeManagedEventsInLimits"`
+	IsPrivate bool `json:"isPrivate"`
+	LogoUrl string `json:"logoUrl"`
+	Metadata string `json:"metadata"`
+	Name string `json:"name"`
+	Slug string `json:"slug"`
+	Theme string `json:"theme"`
+	TimeFormat float64 `json:"timeFormat"`
+	TimeZone string `json:"timeZone"`
+	WeekStart string `json:"weekStart"`
 }
 
 type UpdateOrgTeamMembershipDto struct {
-	Accepted             bool   `json:"accepted"`
-	DisableImpersonation bool   `json:"disableImpersonation"`
-	Role                 string `json:"role"`
+	Accepted bool `json:"accepted"`
+	DisableImpersonation bool `json:"disableImpersonation"`
+	Role string `json:"role"`
 }
 
 type UpdateOrganizationAttributeInput struct {
-	Ttype   string `json:"Ttype"`
-	Enabled bool   `json:"enabled"`
-	Name    string `json:"name"`
-	Slug    string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	Enabled bool `json:"enabled"`
+	Name string `json:"name"`
+	Slug string `json:"slug"`
 }
 
 type UpdateOrganizationAttributeOptionInput struct {
-	Slug  string `json:"slug"`
+	Slug string `json:"slug"`
 	Value string `json:"value"`
 }
 
 type UpdateOrganizationAttributesOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type UpdateOrganizationInput struct {
 	Metadata string `json:"metadata"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type UpdateOrganizationUserInput struct {
 }
 
 type UpdateOutOfOfficeEntryDto struct {
-	End      string  `json:"end"`
-	Notes    string  `json:"notes"`
-	Reason   string  `json:"reason"`
-	Start    string  `json:"start"`
+	End string `json:"end"`
+	Notes string `json:"notes"`
+	Reason string `json:"reason"`
+	Start string `json:"start"`
 	ToUserId float64 `json:"toUserId"`
 }
 
 type UpdatePhoneAttendeeWorkflowStepDto struct {
-	Action        string  `json:"action"`
-	Id            float64 `json:"id"`
-	Message       string  `json:"message"`
-	PhoneRequired bool    `json:"phoneRequired"`
-	Recipient     string  `json:"recipient"`
-	Sender        string  `json:"sender"`
-	StepNumber    float64 `json:"stepNumber"`
-	Template      string  `json:"template"`
+	Action string `json:"action"`
+	Id float64 `json:"id"`
+	Message string `json:"message"`
+	PhoneRequired bool `json:"phoneRequired"`
+	Recipient string `json:"recipient"`
+	Sender string `json:"sender"`
+	StepNumber float64 `json:"stepNumber"`
+	Template string `json:"template"`
 }
 
 type UpdatePhoneNumberWorkflowStepDto struct {
-	Action          string  `json:"action"`
-	Id              float64 `json:"id"`
-	Message         string  `json:"message"`
-	Recipient       string  `json:"recipient"`
-	Sender          string  `json:"sender"`
-	StepNumber      float64 `json:"stepNumber"`
-	Template        string  `json:"template"`
+	Action string `json:"action"`
+	Id float64 `json:"id"`
+	Message string `json:"message"`
+	Recipient string `json:"recipient"`
+	Sender string `json:"sender"`
+	StepNumber float64 `json:"stepNumber"`
+	Template string `json:"template"`
 	VerifiedPhoneId float64 `json:"verifiedPhoneId"`
 }
 
 type UpdatePhoneWhatsAppNumberWorkflowStepDto struct {
-	Action          string  `json:"action"`
-	Id              float64 `json:"id"`
-	Message         string  `json:"message"`
-	Recipient       string  `json:"recipient"`
-	Sender          string  `json:"sender"`
-	StepNumber      float64 `json:"stepNumber"`
-	Template        string  `json:"template"`
+	Action string `json:"action"`
+	Id float64 `json:"id"`
+	Message string `json:"message"`
+	Recipient string `json:"recipient"`
+	Sender string `json:"sender"`
+	StepNumber float64 `json:"stepNumber"`
+	Template string `json:"template"`
 	VerifiedPhoneId float64 `json:"verifiedPhoneId"`
 }
 
 type UpdatePrivateLinkBody struct {
-	ExpiresAt     string  `json:"expiresAt"`
+	ExpiresAt string `json:"expiresAt"`
 	MaxUsageCount float64 `json:"maxUsageCount"`
 }
 
 type UpdatePrivateLinkOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
@@ -3400,346 +3401,346 @@ type UpdateRoutingFormResponseInput struct {
 }
 
 type UpdateRoutingFormResponseOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type UpdateScheduleInput_2024_06_11 struct {
 	Availability json.RawMessage `json:"availability"`
-	IsDefault    bool            `json:"isDefault"`
-	Name         string          `json:"name"`
-	Overrides    json.RawMessage `json:"overrides"`
-	TimeZone     string          `json:"timeZone"`
+	IsDefault bool `json:"isDefault"`
+	Name string `json:"name"`
+	Overrides json.RawMessage `json:"overrides"`
+	TimeZone string `json:"timeZone"`
 }
 
 type UpdateScheduleOutput_2024_06_11 struct {
-	Data   string `json:"data"`
-	Error  string `json:"error"`
+	Data string `json:"data"`
+	Error string `json:"error"`
 	Status string `json:"status"`
 }
 
 type UpdateTeamEventTypeInput_2024_06_14 struct {
-	AfterEventBuffer                   float64         `json:"afterEventBuffer"`
-	AllowReschedulingCancelledBookings bool            `json:"allowReschedulingCancelledBookings"`
-	AllowReschedulingPastBookings      bool            `json:"allowReschedulingPastBookings"`
-	AssignAllTeamMembers               bool            `json:"assignAllTeamMembers"`
-	BeforeEventBuffer                  float64         `json:"beforeEventBuffer"`
-	BookerActiveBookingsLimit          string          `json:"bookerActiveBookingsLimit"`
-	BookerLayouts                      string          `json:"bookerLayouts"`
-	BookingFields                      json.RawMessage `json:"bookingFields"`
-	BookingLimitsCount                 string          `json:"bookingLimitsCount"`
-	BookingLimitsDuration              string          `json:"bookingLimitsDuration"`
-	BookingRequiresAuthentication      bool            `json:"bookingRequiresAuthentication"`
-	BookingWindow                      string          `json:"bookingWindow"`
-	CalVideoSettings                   string          `json:"calVideoSettings"`
-	Color                              string          `json:"color"`
-	ConfirmationPolicy                 string          `json:"confirmationPolicy"`
-	CustomName                         string          `json:"customName"`
-	Description                        string          `json:"description"`
-	DestinationCalendar                string          `json:"destinationCalendar"`
-	DisableCancelling                  string          `json:"disableCancelling"`
-	DisableGuests                      bool            `json:"disableGuests"`
-	DisableRescheduling                string          `json:"disableRescheduling"`
-	EmailSettings                      string          `json:"emailSettings"`
-	Hidden                             bool            `json:"hidden"`
-	HideCalendarEventDetails           bool            `json:"hideCalendarEventDetails"`
-	HideCalendarNotes                  bool            `json:"hideCalendarNotes"`
-	HideOrganizerEmail                 bool            `json:"hideOrganizerEmail"`
-	Hosts                              json.RawMessage `json:"hosts"`
-	InterfaceLanguage                  string          `json:"interfaceLanguage"`
-	LengthInMinutes                    float64         `json:"lengthInMinutes"`
-	LengthInMinutesOptions             json.RawMessage `json:"lengthInMinutesOptions"`
-	Locations                          json.RawMessage `json:"locations"`
-	LockTimeZoneToggleOnBookingPage    bool            `json:"lockTimeZoneToggleOnBookingPage"`
-	MinimumBookingNotice               float64         `json:"minimumBookingNotice"`
-	OffsetStart                        float64         `json:"offsetStart"`
-	OnlyShowFirstAvailableSlot         bool            `json:"onlyShowFirstAvailableSlot"`
-	Recurrence                         string          `json:"recurrence"`
-	RequiresBookerEmailVerification    bool            `json:"requiresBookerEmailVerification"`
-	RescheduleWithSameRoundRobinHost   bool            `json:"rescheduleWithSameRoundRobinHost"`
-	ScheduleId                         float64         `json:"scheduleId"`
-	SchedulingType                     string          `json:"schedulingType"`
-	Seats                              string          `json:"seats"`
-	ShowOptimizedSlots                 bool            `json:"showOptimizedSlots"`
-	SlotInterval                       float64         `json:"slotInterval"`
-	Slug                               string          `json:"slug"`
-	SuccessRedirectUrl                 string          `json:"successRedirectUrl"`
-	Title                              string          `json:"title"`
-	UseDestinationCalendarEmail        bool            `json:"useDestinationCalendarEmail"`
+	AfterEventBuffer float64 `json:"afterEventBuffer"`
+	AllowReschedulingCancelledBookings bool `json:"allowReschedulingCancelledBookings"`
+	AllowReschedulingPastBookings bool `json:"allowReschedulingPastBookings"`
+	AssignAllTeamMembers bool `json:"assignAllTeamMembers"`
+	BeforeEventBuffer float64 `json:"beforeEventBuffer"`
+	BookerActiveBookingsLimit string `json:"bookerActiveBookingsLimit"`
+	BookerLayouts string `json:"bookerLayouts"`
+	BookingFields json.RawMessage `json:"bookingFields"`
+	BookingLimitsCount string `json:"bookingLimitsCount"`
+	BookingLimitsDuration string `json:"bookingLimitsDuration"`
+	BookingRequiresAuthentication bool `json:"bookingRequiresAuthentication"`
+	BookingWindow string `json:"bookingWindow"`
+	CalVideoSettings string `json:"calVideoSettings"`
+	Color string `json:"color"`
+	ConfirmationPolicy string `json:"confirmationPolicy"`
+	CustomName string `json:"customName"`
+	Description string `json:"description"`
+	DestinationCalendar string `json:"destinationCalendar"`
+	DisableCancelling string `json:"disableCancelling"`
+	DisableGuests bool `json:"disableGuests"`
+	DisableRescheduling string `json:"disableRescheduling"`
+	EmailSettings string `json:"emailSettings"`
+	Hidden bool `json:"hidden"`
+	HideCalendarEventDetails bool `json:"hideCalendarEventDetails"`
+	HideCalendarNotes bool `json:"hideCalendarNotes"`
+	HideOrganizerEmail bool `json:"hideOrganizerEmail"`
+	Hosts json.RawMessage `json:"hosts"`
+	InterfaceLanguage string `json:"interfaceLanguage"`
+	LengthInMinutes float64 `json:"lengthInMinutes"`
+	LengthInMinutesOptions json.RawMessage `json:"lengthInMinutesOptions"`
+	Locations json.RawMessage `json:"locations"`
+	LockTimeZoneToggleOnBookingPage bool `json:"lockTimeZoneToggleOnBookingPage"`
+	MinimumBookingNotice float64 `json:"minimumBookingNotice"`
+	OffsetStart float64 `json:"offsetStart"`
+	OnlyShowFirstAvailableSlot bool `json:"onlyShowFirstAvailableSlot"`
+	Recurrence string `json:"recurrence"`
+	RequiresBookerEmailVerification bool `json:"requiresBookerEmailVerification"`
+	RescheduleWithSameRoundRobinHost bool `json:"rescheduleWithSameRoundRobinHost"`
+	ScheduleId float64 `json:"scheduleId"`
+	SchedulingType string `json:"schedulingType"`
+	Seats string `json:"seats"`
+	ShowOptimizedSlots bool `json:"showOptimizedSlots"`
+	SlotInterval float64 `json:"slotInterval"`
+	Slug string `json:"slug"`
+	SuccessRedirectUrl string `json:"successRedirectUrl"`
+	Title string `json:"title"`
+	UseDestinationCalendarEmail bool `json:"useDestinationCalendarEmail"`
 }
 
 type UpdateTeamEventTypeOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type UpdateTeamMembershipInput struct {
-	Accepted             bool   `json:"accepted"`
-	DisableImpersonation bool   `json:"disableImpersonation"`
-	Role                 string `json:"role"`
+	Accepted bool `json:"accepted"`
+	DisableImpersonation bool `json:"disableImpersonation"`
+	Role string `json:"role"`
 }
 
 type UpdateTeamMembershipOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type UpdateTeamOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type UpdateTeamRoleInput struct {
-	Color       string          `json:"color"`
-	Description string          `json:"description"`
-	Name        string          `json:"name"`
+	Color string `json:"color"`
+	Description string `json:"description"`
+	Name string `json:"name"`
 	Permissions json.RawMessage `json:"permissions"`
 }
 
 type UpdateTeamRoleOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type UpdateUnifiedCalendarEventInput struct {
-	Attendees   json.RawMessage `json:"attendees"`
-	Description string          `json:"description"`
-	End         string          `json:"end"`
-	Start       string          `json:"start"`
-	Status      string          `json:"status"`
-	Title       string          `json:"title"`
+	Attendees json.RawMessage `json:"attendees"`
+	Description string `json:"description"`
+	End string `json:"end"`
+	Start string `json:"start"`
+	Status string `json:"status"`
+	Title string `json:"title"`
 }
 
 type UpdateWebhookInputDto struct {
-	Active          bool            `json:"active"`
-	PayloadTemplate string          `json:"payloadTemplate"`
-	Secret          string          `json:"secret"`
-	SubscriberUrl   string          `json:"subscriberUrl"`
-	Triggers        json.RawMessage `json:"triggers"`
-	Version         string          `json:"version"`
+	Active bool `json:"active"`
+	PayloadTemplate string `json:"payloadTemplate"`
+	Secret string `json:"secret"`
+	SubscriberUrl string `json:"subscriberUrl"`
+	Triggers json.RawMessage `json:"triggers"`
+	Version string `json:"version"`
 }
 
 type UpdateWhatsAppAttendeePhoneWorkflowStepDto struct {
-	Action        string  `json:"action"`
-	Id            float64 `json:"id"`
-	Message       string  `json:"message"`
-	PhoneRequired bool    `json:"phoneRequired"`
-	Recipient     string  `json:"recipient"`
-	Sender        string  `json:"sender"`
-	StepNumber    float64 `json:"stepNumber"`
-	Template      string  `json:"template"`
+	Action string `json:"action"`
+	Id float64 `json:"id"`
+	Message string `json:"message"`
+	PhoneRequired bool `json:"phoneRequired"`
+	Recipient string `json:"recipient"`
+	Sender string `json:"sender"`
+	StepNumber float64 `json:"stepNumber"`
+	Template string `json:"template"`
 }
 
 type UrlFieldInput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type UrlFieldOutput_2024_06_14 struct {
-	Ttype            string `json:"Ttype"`
-	DisableOnPrefill bool   `json:"disableOnPrefill"`
-	Hidden           bool   `json:"hidden"`
-	IsDefault        string `json:"isDefault"`
-	Label            string `json:"label"`
-	Placeholder      string `json:"placeholder"`
-	Required         bool   `json:"required"`
-	Slug             string `json:"slug"`
+	Ttype string `json:"Ttype"`
+	DisableOnPrefill bool `json:"disableOnPrefill"`
+	Hidden bool `json:"hidden"`
+	IsDefault string `json:"isDefault"`
+	Label string `json:"label"`
+	Placeholder string `json:"placeholder"`
+	Required bool `json:"required"`
+	Slug string `json:"slug"`
 }
 
 type UsageBasedPrivateLinkOutput struct {
-	BookingUrl    string  `json:"bookingUrl"`
-	EventTypeId   float64 `json:"eventTypeId"`
-	IsExpired     bool    `json:"isExpired"`
-	LinkId        string  `json:"linkId"`
+	BookingUrl string `json:"bookingUrl"`
+	EventTypeId float64 `json:"eventTypeId"`
+	IsExpired bool `json:"isExpired"`
+	LinkId string `json:"linkId"`
 	MaxUsageCount float64 `json:"maxUsageCount"`
-	UsageCount    float64 `json:"usageCount"`
+	UsageCount float64 `json:"usageCount"`
 }
 
 type UserOooOutputDto struct {
-	End      string  `json:"end"`
-	Id       float64 `json:"id"`
-	Notes    string  `json:"notes"`
-	Reason   string  `json:"reason"`
-	Start    string  `json:"start"`
+	End string `json:"end"`
+	Id float64 `json:"id"`
+	Notes string `json:"notes"`
+	Reason string `json:"reason"`
+	Start string `json:"start"`
 	ToUserId float64 `json:"toUserId"`
-	UserId   float64 `json:"userId"`
-	Uuid     string  `json:"uuid"`
+	UserId float64 `json:"userId"`
+	Uuid string `json:"uuid"`
 }
 
 type UserOooOutputResponseDto struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type UserOoosOutputResponseDto struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type UserVerifiedEmailOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type UserVerifiedEmailOutputData struct {
-	Email  string  `json:"email"`
-	Id     float64 `json:"id"`
+	Email string `json:"email"`
+	Id float64 `json:"id"`
 	UserId float64 `json:"userId"`
 }
 
 type UserVerifiedEmailsOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type UserVerifiedPhoneOutput struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type UserVerifiedPhoneOutputData struct {
-	Id          float64 `json:"id"`
-	PhoneNumber string  `json:"phoneNumber"`
-	UserId      float64 `json:"userId"`
+	Id float64 `json:"id"`
+	PhoneNumber string `json:"phoneNumber"`
+	UserId float64 `json:"userId"`
 }
 
 type UserVerifiedPhonesOutput struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type UserWebhookOutputDto struct {
-	Active          bool            `json:"active"`
-	Id              float64         `json:"id"`
-	PayloadTemplate string          `json:"payloadTemplate"`
-	Secret          string          `json:"secret"`
-	SubscriberUrl   string          `json:"subscriberUrl"`
-	Triggers        json.RawMessage `json:"triggers"`
-	UserId          float64         `json:"userId"`
+	Active bool `json:"active"`
+	Id float64 `json:"id"`
+	PayloadTemplate string `json:"payloadTemplate"`
+	Secret string `json:"secret"`
+	SubscriberUrl string `json:"subscriberUrl"`
+	Triggers json.RawMessage `json:"triggers"`
+	UserId float64 `json:"userId"`
 }
 
 type UserWebhookOutputResponseDto struct {
-	Data   string `json:"data"`
+	Data string `json:"data"`
 	Status string `json:"status"`
 }
 
 type UserWebhooksOutputResponseDto struct {
-	Data   json.RawMessage `json:"data"`
-	Status string          `json:"status"`
+	Data json.RawMessage `json:"data"`
+	Status string `json:"status"`
 }
 
 type ValidateBookingLocation_2024_08_13 struct {
 }
 
 type VerifyEmailInput struct {
-	Code  string `json:"code"`
+	Code string `json:"code"`
 	Email string `json:"email"`
 }
 
 type VerifyPhoneInput struct {
-	Code  string `json:"code"`
+	Code string `json:"code"`
 	Phone string `json:"phone"`
 }
 
 type WorkflowActivationDto struct {
-	ActiveOnEventTypeIds    json.RawMessage `json:"activeOnEventTypeIds"`
-	IsActiveOnAllEventTypes bool            `json:"isActiveOnAllEventTypes"`
+	ActiveOnEventTypeIds json.RawMessage `json:"activeOnEventTypeIds"`
+	IsActiveOnAllEventTypes bool `json:"isActiveOnAllEventTypes"`
 }
 
 type WorkflowEmailAddressStepDto struct {
-	Action               string  `json:"action"`
-	IncludeCalendarEvent string  `json:"includeCalendarEvent"`
-	Message              string  `json:"message"`
-	Recipient            string  `json:"recipient"`
-	Sender               string  `json:"sender"`
-	StepNumber           float64 `json:"stepNumber"`
-	Template             string  `json:"template"`
-	VerifiedEmailId      float64 `json:"verifiedEmailId"`
+	Action string `json:"action"`
+	IncludeCalendarEvent string `json:"includeCalendarEvent"`
+	Message string `json:"message"`
+	Recipient string `json:"recipient"`
+	Sender string `json:"sender"`
+	StepNumber float64 `json:"stepNumber"`
+	Template string `json:"template"`
+	VerifiedEmailId float64 `json:"verifiedEmailId"`
 }
 
 type WorkflowEmailAttendeeStepDto struct {
-	Action               string  `json:"action"`
-	IncludeCalendarEvent string  `json:"includeCalendarEvent"`
-	Message              string  `json:"message"`
-	Recipient            string  `json:"recipient"`
-	Sender               string  `json:"sender"`
-	StepNumber           float64 `json:"stepNumber"`
-	Template             string  `json:"template"`
+	Action string `json:"action"`
+	IncludeCalendarEvent string `json:"includeCalendarEvent"`
+	Message string `json:"message"`
+	Recipient string `json:"recipient"`
+	Sender string `json:"sender"`
+	StepNumber float64 `json:"stepNumber"`
+	Template string `json:"template"`
 }
 
 type WorkflowEmailHostStepDto struct {
-	Action               string  `json:"action"`
-	IncludeCalendarEvent string  `json:"includeCalendarEvent"`
-	Message              string  `json:"message"`
-	Recipient            string  `json:"recipient"`
-	Sender               string  `json:"sender"`
-	StepNumber           float64 `json:"stepNumber"`
-	Template             string  `json:"template"`
+	Action string `json:"action"`
+	IncludeCalendarEvent string `json:"includeCalendarEvent"`
+	Message string `json:"message"`
+	Recipient string `json:"recipient"`
+	Sender string `json:"sender"`
+	StepNumber float64 `json:"stepNumber"`
+	Template string `json:"template"`
 }
 
 type WorkflowFormActivationDto struct {
-	ActiveOnRoutingFormIds    json.RawMessage `json:"activeOnRoutingFormIds"`
-	IsActiveOnAllRoutingForms bool            `json:"isActiveOnAllRoutingForms"`
+	ActiveOnRoutingFormIds json.RawMessage `json:"activeOnRoutingFormIds"`
+	IsActiveOnAllRoutingForms bool `json:"isActiveOnAllRoutingForms"`
 }
 
 type WorkflowMessageOutputDto struct {
-	Html    string `json:"html"`
+	Html string `json:"html"`
 	Subject string `json:"subject"`
-	Text    string `json:"text"`
+	Text string `json:"text"`
 }
 
 type WorkflowPhoneAttendeeStepDto struct {
-	Action        string  `json:"action"`
-	Message       string  `json:"message"`
-	PhoneRequired bool    `json:"phoneRequired"`
-	Recipient     string  `json:"recipient"`
-	Sender        string  `json:"sender"`
-	StepNumber    float64 `json:"stepNumber"`
-	Template      string  `json:"template"`
+	Action string `json:"action"`
+	Message string `json:"message"`
+	PhoneRequired bool `json:"phoneRequired"`
+	Recipient string `json:"recipient"`
+	Sender string `json:"sender"`
+	StepNumber float64 `json:"stepNumber"`
+	Template string `json:"template"`
 }
 
 type WorkflowPhoneNumberStepDto struct {
-	Action          string  `json:"action"`
-	Message         string  `json:"message"`
-	Recipient       string  `json:"recipient"`
-	Sender          string  `json:"sender"`
-	StepNumber      float64 `json:"stepNumber"`
-	Template        string  `json:"template"`
+	Action string `json:"action"`
+	Message string `json:"message"`
+	Recipient string `json:"recipient"`
+	Sender string `json:"sender"`
+	StepNumber float64 `json:"stepNumber"`
+	Template string `json:"template"`
 	VerifiedPhoneId float64 `json:"verifiedPhoneId"`
 }
 
 type WorkflowPhoneWhatsAppAttendeeStepDto struct {
-	Action        string  `json:"action"`
-	Message       string  `json:"message"`
-	PhoneRequired bool    `json:"phoneRequired"`
-	Recipient     string  `json:"recipient"`
-	Sender        string  `json:"sender"`
-	StepNumber    float64 `json:"stepNumber"`
-	Template      string  `json:"template"`
+	Action string `json:"action"`
+	Message string `json:"message"`
+	PhoneRequired bool `json:"phoneRequired"`
+	Recipient string `json:"recipient"`
+	Sender string `json:"sender"`
+	StepNumber float64 `json:"stepNumber"`
+	Template string `json:"template"`
 }
 
 type WorkflowPhoneWhatsAppNumberStepDto struct {
-	Action          string  `json:"action"`
-	Message         string  `json:"message"`
-	Recipient       string  `json:"recipient"`
-	Sender          string  `json:"sender"`
-	StepNumber      float64 `json:"stepNumber"`
-	Template        string  `json:"template"`
+	Action string `json:"action"`
+	Message string `json:"message"`
+	Recipient string `json:"recipient"`
+	Sender string `json:"sender"`
+	StepNumber float64 `json:"stepNumber"`
+	Template string `json:"template"`
 	VerifiedPhoneId float64 `json:"verifiedPhoneId"`
 }
 
 type WorkflowTriggerOffsetDto struct {
-	Unit  string  `json:"unit"`
+	Unit string `json:"unit"`
 	Value float64 `json:"value"`
 }
 
 type WorkflowTriggerOffsetOutputDto struct {
-	Unit  string  `json:"unit"`
+	Unit string `json:"unit"`
 	Value float64 `json:"value"`
 }
 
@@ -3750,5 +3751,6 @@ type WorkspacePlatformDto struct {
 
 type calendarEventOwner struct {
 	Email string `json:"email"`
-	Name  string `json:"name"`
+	Name string `json:"name"`
 }
+

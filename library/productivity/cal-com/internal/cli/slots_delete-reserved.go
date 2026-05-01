@@ -14,10 +14,11 @@ import (
 func newSlotsDeleteReservedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "delete-reserved <uid>",
+		Use:   "delete-reserved <uid>",
 		Aliases: []string{"delete"},
-		Short:   "Delete a reserved slot",
+		Short: "<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing...",
 		Example: "  cal-com-pp-cli slots delete-reserved example-value",
+		Annotations: map[string]string{"pp:endpoint": "slots.delete-reserved"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -43,9 +44,7 @@ func newSlotsDeleteReservedCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

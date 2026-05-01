@@ -19,9 +19,10 @@ func newCalendarsEventsCalUnifiedCalendarsListCalendarCmd(flags *rootFlags) *cob
 	var flagCalendarId string
 
 	cmd := &cobra.Command{
-		Use:     "cal-unified-calendars-list-calendar",
-		Short:   "List calendar events",
+		Use:   "cal-unified-calendars-list-calendar",
+		Short: "List events in a date range for the authenticated user's calendar. Currently only Google Calendar is supported.",
 		Example: "  cal-com-pp-cli calendars events cal-unified-calendars-list-calendar",
+		Annotations: map[string]string{"pp:endpoint": "events.cal-unified-calendars-list-calendar", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("from") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "from")
@@ -30,7 +31,7 @@ func newCalendarsEventsCalUnifiedCalendarsListCalendarCmd(flags *rootFlags) *cob
 				return fmt.Errorf("required flag \"%s\" not set", "to")
 			}
 			if cmd.Flags().Changed("calendar") {
-				allowedCalendar := []string{"google", "office365", "apple"}
+				allowedCalendar := []string{ "google", "office365", "apple" }
 				validCalendar := false
 				for _, v := range allowedCalendar {
 					if flagCalendar == v {
@@ -62,7 +63,7 @@ func newCalendarsEventsCalUnifiedCalendarsListCalendarCmd(flags *rootFlags) *cob
 			if flagCalendarId != "" {
 				params["calendarId"] = fmt.Sprintf("%v", flagCalendarId)
 			}
-			data, prov, err := resolveRead(c, flags, "events", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "events", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

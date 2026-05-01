@@ -27,16 +27,17 @@ func newTeamsBookingsTeamsGetAllTeamCmd(flags *rootFlags) *cobra.Command {
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:     "teams-get-all-team <teamId>",
+		Use:   "teams-get-all-team <teamId>",
 		Aliases: []string{"get"},
-		Short:   "Get team bookings",
+		Short: "Get team bookings",
 		Example: "  cal-com-pp-cli teams bookings teams-get-all-team 42",
+		Annotations: map[string]string{"pp:endpoint": "bookings.teams-get-all-team", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("sort-start") {
-				allowedSortStart := []string{"asc", "desc"}
+				allowedSortStart := []string{ "asc", "desc" }
 				validSortStart := false
 				for _, v := range allowedSortStart {
 					if flagSortStart == v {
@@ -49,7 +50,7 @@ func newTeamsBookingsTeamsGetAllTeamCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if cmd.Flags().Changed("sort-end") {
-				allowedSortEnd := []string{"asc", "desc"}
+				allowedSortEnd := []string{ "asc", "desc" }
 				validSortEnd := false
 				for _, v := range allowedSortEnd {
 					if flagSortEnd == v {
@@ -62,7 +63,7 @@ func newTeamsBookingsTeamsGetAllTeamCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if cmd.Flags().Changed("sort-created") {
-				allowedSortCreated := []string{"asc", "desc"}
+				allowedSortCreated := []string{ "asc", "desc" }
 				validSortCreated := false
 				for _, v := range allowedSortCreated {
 					if flagSortCreated == v {
@@ -124,7 +125,7 @@ func newTeamsBookingsTeamsGetAllTeamCmd(flags *rootFlags) *cobra.Command {
 			if flagSkip != 0.0 {
 				params["skip"] = fmt.Sprintf("%v", flagSkip)
 			}
-			data, prov, err := resolveRead(c, flags, "bookings", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "bookings", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

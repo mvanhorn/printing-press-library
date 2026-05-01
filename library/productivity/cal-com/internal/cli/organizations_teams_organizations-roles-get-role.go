@@ -14,9 +14,10 @@ import (
 func newOrganizationsTeamsOrganizationsRolesGetRoleCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "organizations-roles-get-role <orgId> <teamId> <roleId>",
-		Short:   "Get a specific organization team role",
+		Use:   "organizations-roles-get-role <orgId> <teamId> <roleId>",
+		Short: "Get a specific organization team role",
 		Example: "  cal-com-pp-cli organizations teams organizations-roles-get-role 42 42 example-value",
+		Annotations: map[string]string{"pp:endpoint": "teams.organizations-roles-get-role", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -37,7 +38,7 @@ func newOrganizationsTeamsOrganizationsRolesGetRoleCmd(flags *rootFlags) *cobra.
 			}
 			path = replacePathParam(path, "roleId", args[2])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "teams", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "teams", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

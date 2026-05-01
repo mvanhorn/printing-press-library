@@ -14,10 +14,11 @@ import (
 func newOrganizationsTeamsOrganizationWorkflowsDeleteRoutingFormWorkflowCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "organization-workflows-delete-routing-form-workflow <teamId> <workflowId> <orgId>",
+		Use:   "organization-workflows-delete-routing-form-workflow <teamId> <workflowId> <orgId>",
 		Aliases: []string{"delete"},
-		Short:   "Delete organization team routing-form workflow",
+		Short: "Delete organization team routing-form workflow",
 		Example: "  cal-com-pp-cli organizations teams organization-workflows-delete-routing-form-workflow 42 42 42",
+		Annotations: map[string]string{"pp:endpoint": "teams.organization-workflows-delete-routing-form-workflow"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -51,9 +52,7 @@ func newOrganizationsTeamsOrganizationWorkflowsDeleteRoutingFormWorkflowCmd(flag
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

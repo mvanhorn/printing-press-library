@@ -14,9 +14,10 @@ import (
 func newOrganizationsOrganizationsGetOrganizationsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "get-organizations <managedOrganizationId> <orgId>",
-		Short:   "Get an organization within an organization",
+		Use:   "get-organizations <managedOrganizationId> <orgId>",
+		Short: "Requires the user to have at least the 'ORG_ADMIN' role within the organization. Additionally, for platform, the...",
 		Example: "  cal-com-pp-cli organizations organizations get-organizations 42 42",
+		Annotations: map[string]string{"pp:endpoint": "organizations.get-organizations", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -33,7 +34,7 @@ func newOrganizationsOrganizationsGetOrganizationsCmd(flags *rootFlags) *cobra.C
 			}
 			path = replacePathParam(path, "orgId", args[1])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "organizations", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "organizations", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

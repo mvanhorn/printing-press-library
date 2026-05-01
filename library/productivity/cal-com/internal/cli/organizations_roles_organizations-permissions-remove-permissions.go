@@ -15,9 +15,10 @@ func newOrganizationsRolesOrganizationsPermissionsRemovePermissionsCmd(flags *ro
 	var flagPermissions string
 
 	cmd := &cobra.Command{
-		Use:     "organizations-permissions-remove-permissions <orgId> <roleId>",
-		Short:   "Remove multiple permissions from an organization role",
+		Use:   "organizations-permissions-remove-permissions <orgId> <roleId>",
+		Short: "Remove multiple permissions from an organization role",
 		Example: "  cal-com-pp-cli organizations roles organizations-permissions-remove-permissions 42 example-value",
+		Annotations: map[string]string{"pp:endpoint": "roles.organizations-permissions-remove-permissions"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -47,9 +48,7 @@ func newOrganizationsRolesOrganizationsPermissionsRemovePermissionsCmd(flags *ro
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

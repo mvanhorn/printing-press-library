@@ -14,9 +14,10 @@ import (
 func newOrganizationsTeamsOrganizationsStripeCheckStripeConnectionCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "organizations-stripe-check-stripe-connection <teamId> <orgId>",
-		Short:   "Check team Stripe connection",
+		Use:   "organizations-stripe-check-stripe-connection <teamId> <orgId>",
+		Short: "Check team Stripe connection",
 		Example: "  cal-com-pp-cli organizations teams organizations-stripe-check-stripe-connection 42 42",
+		Annotations: map[string]string{"pp:endpoint": "teams.organizations-stripe-check-stripe-connection", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -33,7 +34,7 @@ func newOrganizationsTeamsOrganizationsStripeCheckStripeConnectionCmd(flags *roo
 			}
 			path = replacePathParam(path, "orgId", args[1])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "teams", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "teams", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

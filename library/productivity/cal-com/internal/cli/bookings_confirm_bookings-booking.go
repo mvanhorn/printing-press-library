@@ -16,10 +16,11 @@ func newBookingsConfirmBookingsBookingCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "bookings-booking <bookingUid>",
+		Use:   "bookings-booking <bookingUid>",
 		Aliases: []string{"create"},
-		Short:   "Confirm a booking",
+		Short: "The provided authorization header refers to the owner of the booking. <Note>Please make sure to pass in the...",
 		Example: "  cal-com-pp-cli bookings confirm bookings-booking example-value",
+		Annotations: map[string]string{"pp:endpoint": "confirm.bookings-booking"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -61,9 +62,7 @@ func newBookingsConfirmBookingsBookingCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

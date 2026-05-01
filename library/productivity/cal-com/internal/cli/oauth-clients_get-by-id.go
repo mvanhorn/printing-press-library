@@ -14,9 +14,10 @@ import (
 func newOauthClientsGetByIdCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "get-by-id <clientId>",
-		Short:   "Get an OAuth client",
+		Use:   "get-by-id <clientId>",
+		Short: "<Warning>These endpoints are deprecated and will be removed in the future.</Warning>",
 		Example: "  cal-com-pp-cli oauth-clients get-by-id example-value",
+		Annotations: map[string]string{"pp:endpoint": "oauth-clients.get-by-id", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -29,7 +30,7 @@ func newOauthClientsGetByIdCmd(flags *rootFlags) *cobra.Command {
 			path := "/v2/oauth-clients/{clientId}"
 			path = replacePathParam(path, "clientId", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "oauth-clients", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "oauth-clients", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

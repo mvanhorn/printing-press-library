@@ -19,10 +19,11 @@ func newCalendarsCalUnifiedCreateConnectionEventCmd(flags *rootFlags) *cobra.Com
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "cal-unified-create-connection-event <connectionId>",
+		Use:   "cal-unified-create-connection-event <connectionId>",
 		Aliases: []string{"create"},
-		Short:   "Create event on a connection",
+		Short: "Create a new event on the specified calendar connection. Only supported for Google Calendar connections; other...",
 		Example: "  cal-com-pp-cli calendars cal-unified-create-connection-event example-value --title example-resource",
+		Annotations: map[string]string{"pp:endpoint": "calendars.cal-unified-create-connection-event"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -73,9 +74,7 @@ func newCalendarsCalUnifiedCreateConnectionEventCmd(flags *rootFlags) *cobra.Com
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

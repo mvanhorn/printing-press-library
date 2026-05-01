@@ -53,10 +53,11 @@ func newTeamsEventTypesTeamsUpdateTeamCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "teams-update-team <teamId> <eventTypeId>",
+		Use:   "teams-update-team <teamId> <eventTypeId>",
 		Aliases: []string{"update"},
-		Short:   "Update a team event type",
+		Short: "Update a team event type",
 		Example: "  cal-com-pp-cli teams event-types teams-update-team 42 42",
+		Annotations: map[string]string{"pp:endpoint": "event-types.teams-update-team"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -217,9 +218,7 @@ func newTeamsEventTypesTeamsUpdateTeamCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

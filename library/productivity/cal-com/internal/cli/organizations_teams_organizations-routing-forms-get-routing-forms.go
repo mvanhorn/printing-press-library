@@ -23,15 +23,16 @@ func newOrganizationsTeamsOrganizationsRoutingFormsGetRoutingFormsCmd(flags *roo
 	var flagRoutedToBookingUid string
 
 	cmd := &cobra.Command{
-		Use:     "organizations-routing-forms-get-routing-forms <orgId> <teamId>",
-		Short:   "Get team routing forms",
+		Use:   "organizations-routing-forms-get-routing-forms <orgId> <teamId>",
+		Short: "Get team routing forms",
 		Example: "  cal-com-pp-cli organizations teams organizations-routing-forms-get-routing-forms 42 42",
+		Annotations: map[string]string{"pp:endpoint": "teams.organizations-routing-forms-get-routing-forms", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("sort-created-at") {
-				allowedSortCreatedAt := []string{"asc", "desc"}
+				allowedSortCreatedAt := []string{ "asc", "desc" }
 				validSortCreatedAt := false
 				for _, v := range allowedSortCreatedAt {
 					if flagSortCreatedAt == v {
@@ -44,7 +45,7 @@ func newOrganizationsTeamsOrganizationsRoutingFormsGetRoutingFormsCmd(flags *roo
 				}
 			}
 			if cmd.Flags().Changed("sort-updated-at") {
-				allowedSortUpdatedAt := []string{"asc", "desc"}
+				allowedSortUpdatedAt := []string{ "asc", "desc" }
 				validSortUpdatedAt := false
 				for _, v := range allowedSortUpdatedAt {
 					if flagSortUpdatedAt == v {
@@ -95,7 +96,7 @@ func newOrganizationsTeamsOrganizationsRoutingFormsGetRoutingFormsCmd(flags *roo
 			if flagRoutedToBookingUid != "" {
 				params["routedToBookingUid"] = fmt.Sprintf("%v", flagRoutedToBookingUid)
 			}
-			data, prov, err := resolveRead(c, flags, "teams", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "teams", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

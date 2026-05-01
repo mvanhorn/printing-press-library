@@ -26,10 +26,11 @@ func newSlotsGetAvailableCmd(flags *rootFlags) *cobra.Command {
 	var flagTimeZone string
 
 	cmd := &cobra.Command{
-		Use:     "get-available",
+		Use:   "get-available",
 		Aliases: []string{"list"},
-		Short:   "Get available time slots for an event type",
+		Short: "There are 4 ways to get available slots for event type of an individual user: 1. By event type id. Example...",
 		Example: "  cal-com-pp-cli slots get-available",
+		Annotations: map[string]string{"pp:endpoint": "slots.get-available", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("start") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "start")
@@ -80,7 +81,7 @@ func newSlotsGetAvailableCmd(flags *rootFlags) *cobra.Command {
 			if flagTimeZone != "" {
 				params["timeZone"] = fmt.Sprintf("%v", flagTimeZone)
 			}
-			data, prov, err := resolveRead(c, flags, "slots", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "slots", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

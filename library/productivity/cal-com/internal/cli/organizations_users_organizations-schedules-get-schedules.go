@@ -14,9 +14,10 @@ import (
 func newOrganizationsUsersOrganizationsSchedulesGetSchedulesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "organizations-schedules-get-schedules <userId> <orgId>",
-		Short:   "Get all schedules",
+		Use:   "organizations-schedules-get-schedules <userId> <orgId>",
+		Short: "Get all schedules",
 		Example: "  cal-com-pp-cli organizations users organizations-schedules-get-schedules 42 42",
+		Annotations: map[string]string{"pp:endpoint": "users.organizations-schedules-get-schedules", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -33,7 +34,7 @@ func newOrganizationsUsersOrganizationsSchedulesGetSchedulesCmd(flags *rootFlags
 			}
 			path = replacePathParam(path, "orgId", args[1])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "users", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "users", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

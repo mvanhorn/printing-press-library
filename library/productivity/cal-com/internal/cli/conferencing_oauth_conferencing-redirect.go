@@ -17,10 +17,11 @@ func newConferencingOauthConferencingRedirectCmd(flags *rootFlags) *cobra.Comman
 	var flagOnErrorReturnTo string
 
 	cmd := &cobra.Command{
-		Use:     "conferencing-redirect",
+		Use:   "conferencing-redirect",
 		Aliases: []string{"get"},
-		Short:   "Get OAuth conferencing app auth URL",
+		Short: "Get OAuth conferencing app auth URL",
 		Example: "  cal-com-pp-cli conferencing oauth conferencing-redirect",
+		Annotations: map[string]string{"pp:endpoint": "oauth.conferencing-redirect", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("return-to") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "return-to")
@@ -29,7 +30,7 @@ func newConferencingOauthConferencingRedirectCmd(flags *rootFlags) *cobra.Comman
 				return fmt.Errorf("required flag \"%s\" not set", "on-error-return-to")
 			}
 			if cmd.Flags().Changed("app") {
-				allowedApp := []string{"zoom", "msteams"}
+				allowedApp := []string{ "zoom", "msteams" }
 				validApp := false
 				for _, v := range allowedApp {
 					if flagApp == v {
@@ -55,7 +56,7 @@ func newConferencingOauthConferencingRedirectCmd(flags *rootFlags) *cobra.Comman
 			if flagOnErrorReturnTo != "" {
 				params["onErrorReturnTo"] = fmt.Sprintf("%v", flagOnErrorReturnTo)
 			}
-			data, prov, err := resolveRead(c, flags, "oauth", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "oauth", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

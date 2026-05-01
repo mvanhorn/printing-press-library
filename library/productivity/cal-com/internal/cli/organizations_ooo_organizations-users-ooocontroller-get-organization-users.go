@@ -19,16 +19,17 @@ func newOrganizationsOooOrganizationsUsersOoocontrollerGetOrganizationUsersCmd(f
 	var flagEmail string
 
 	cmd := &cobra.Command{
-		Use:     "organizations-users-ooocontroller-get-organization-users <orgId>",
+		Use:   "organizations-users-ooocontroller-get-organization-users <orgId>",
 		Aliases: []string{"get"},
-		Short:   "Get all out-of-office entries for organization users",
+		Short: "Get all out-of-office entries for organization users",
 		Example: "  cal-com-pp-cli organizations ooo organizations-users-ooocontroller-get-organization-users 42",
+		Annotations: map[string]string{"pp:endpoint": "ooo.organizations-users-ooocontroller-get-organization-users", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("sort-start") {
-				allowedSortStart := []string{"asc", "desc"}
+				allowedSortStart := []string{ "asc", "desc" }
 				validSortStart := false
 				for _, v := range allowedSortStart {
 					if flagSortStart == v {
@@ -41,7 +42,7 @@ func newOrganizationsOooOrganizationsUsersOoocontrollerGetOrganizationUsersCmd(f
 				}
 			}
 			if cmd.Flags().Changed("sort-end") {
-				allowedSortEnd := []string{"asc", "desc"}
+				allowedSortEnd := []string{ "asc", "desc" }
 				validSortEnd := false
 				for _, v := range allowedSortEnd {
 					if flagSortEnd == v {
@@ -76,7 +77,7 @@ func newOrganizationsOooOrganizationsUsersOoocontrollerGetOrganizationUsersCmd(f
 			if flagEmail != "" {
 				params["email"] = fmt.Sprintf("%v", flagEmail)
 			}
-			data, prov, err := resolveRead(c, flags, "ooo", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "ooo", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

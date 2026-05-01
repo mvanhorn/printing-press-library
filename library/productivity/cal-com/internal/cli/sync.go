@@ -35,6 +35,7 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	var maxPages int
 	var latestOnly bool
+	var strict bool
 
 	cmd := &cobra.Command{
 		Use:   "sync",
@@ -48,9 +49,14 @@ Exit codes & warnings:
   access-policy body) are reported as warnings rather than failing the
   run. In --json mode each is emitted as a {"event":"sync_warning",...}
   line carrying status, reason, and message fields, and a final
-  {"event":"sync_summary",...} aggregates the run. The command exits
-  non-zero only when every selected resource was access-denied or any
-  resource hit a hard error.`,
+  {"event":"sync_summary",...} aggregates the run.
+
+  Exit 0 when at least one resource synced and no resource flagged in
+  the spec as critical (x-critical: true) failed; non-critical failures
+  emit {"event":"sync_warning","reason":"exit_policy_default_changed",
+  ...} so callers can detect that a partial failure was tolerated. Pass
+  --strict to exit non-zero on any per-resource failure. Exit is always
+  non-zero when every selected resource failed, regardless of --strict.`,
 		Example: `  # Sync all resources
   cal-com-pp-cli sync
 
@@ -79,7 +85,7 @@ Exit codes & warnings:
 				dbPath = defaultDBPath("cal-com-pp-cli")
 			}
 
-			db, err := store.Open(dbPath)
+			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w", err)
 			}
@@ -165,6 +171,7 @@ Exit codes & warnings:
 
 			var totalSynced int
 			var errCount int
+			var criticalErrCount int
 			var warnCount int
 			var successCount int
 			for res := range results {
@@ -173,6 +180,9 @@ Exit codes & warnings:
 						fmt.Fprintf(os.Stderr, "  %s: error: %v\n", res.Resource, res.Err)
 					}
 					errCount++
+					if criticalResources[res.Resource] {
+						criticalErrCount++
+					}
 				} else if res.Warn != nil {
 					if humanFriendly {
 						fmt.Fprintf(os.Stderr, "  %s: warning: %v\n", res.Resource, res.Warn)
@@ -201,11 +211,37 @@ Exit codes & warnings:
 					totalSynced, totalResources, elapsed.Seconds())
 			}
 
-			if errCount > 0 {
+			// Exit-code policy:
+			//   1. --strict + any error  -> non-zero (legacy contract)
+			//   2. any critical failure  -> non-zero regardless of --strict
+			//   3. nothing synced        -> non-zero (preserves "all-warned" / "all-errored" exit)
+			//   4. otherwise             -> exit 0 (any data synced + no critical failed)
+			// When branch 4 suppresses what branch 1 would have rejected, emit a
+			// one-shot sync_warning with reason "exit_policy_default_changed" so
+			// CI scripts that depend on $? != 0 can discover the contract change
+			// without reading the CHANGELOG.
+			if strict && errCount > 0 {
 				return fmt.Errorf("%d resource(s) failed to sync", errCount)
 			}
-			if warnCount > 0 && successCount == 0 {
-				return fmt.Errorf("%d resource(s) skipped due to insufficient access", warnCount)
+			if criticalErrCount > 0 {
+				return fmt.Errorf("%d critical resource(s) failed to sync", criticalErrCount)
+			}
+			if successCount == 0 {
+				if warnCount > 0 && errCount == 0 {
+					return fmt.Errorf("%d resource(s) skipped due to insufficient access", warnCount)
+				}
+				if errCount > 0 {
+					return fmt.Errorf("%d resource(s) failed to sync", errCount)
+				}
+			}
+			if errCount > 0 && !strict && criticalErrCount == 0 && successCount > 0 {
+				if !humanFriendly {
+					msg := fmt.Sprintf("%d resource(s) failed but exit code is 0 because the new default treats non-critical failures as warnings. Pass --strict to restore the old behavior, or annotate critical resources with x-critical: true. See CHANGELOG.", errCount)
+					fmt.Fprintf(os.Stderr, `{"event":"sync_warning","reason":"exit_policy_default_changed","errored":%d,"message":"%s"}`+"\n",
+						errCount, strings.ReplaceAll(msg, `"`, `\"`))
+				} else {
+					fmt.Fprintf(os.Stderr, "warning: %d resource(s) failed but exit code is 0 because the new default treats non-critical failures as warnings. Pass --strict to restore the old behavior, or annotate critical resources with x-critical: true.\n", errCount)
+				}
 			}
 			return nil
 		},
@@ -216,8 +252,9 @@ Exit codes & warnings:
 	cmd.Flags().StringVar(&since, "since", "", "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)")
 	cmd.Flags().IntVar(&concurrency, "concurrency", 4, "Number of parallel sync workers")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/cal-com-pp-cli/data.db)")
-	cmd.Flags().IntVar(&maxPages, "max-pages", 10, "Maximum pages to fetch per resource (0 = unlimited)")
+	cmd.Flags().IntVar(&maxPages, "max-pages", 100, "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)")
 	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).")
+	cmd.Flags().BoolVar(&strict, "strict", false, "Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).")
 
 	return cmd
 }
@@ -254,6 +291,18 @@ func syncResource(c interface {
 
 	var progressCount int64
 	pagesFetched := 0
+	lastNextCursor := ""
+	// extractFailureTotal accumulates per-item primary-key extraction
+	// misses across pages within this resource sync. Resource-level
+	// concurrency is 1 (one goroutine per resource via the work channel)
+	// so this counter cannot race. We emit one primary_key_unresolved
+	// sync_anomaly per resource per run when there's at least one miss
+	// (rate-limited via the anomalyEmitted flag) and a roll-up
+	// all_items_failed_id_extraction event when 100% of a single page
+	// failed extraction.
+	var extractFailureTotal int
+	var consumedTotal int
+	anomalyEmitted := false
 
 	for {
 		params := map[string]string{}
@@ -302,16 +351,55 @@ func syncResource(c interface {
 			break
 		}
 
-		// Batch upsert all items from this page
-		if err := db.UpsertBatch(resource, items); err != nil {
+		// Batch upsert all items from this page. UpsertBatch returns
+		// (stored, extractFailures, err): stored counts rows actually
+		// landed; extractFailures counts items that survived JSON
+		// unmarshal but had no extractable primary key (templated
+		// IDField AND generic fallback both missed). Tracking these
+		// separately lets us emit precise sync_anomaly events: a
+		// roll-up "all_items_failed_id_extraction" when an entire
+		// page yields zero stored, a per-resource
+		// "primary_key_unresolved" the first time any single item
+		// fails, and the F4b "stored_count_zero_after_extraction"
+		// probe when extraction succeeded but rows still didn't land.
+		stored, extractFailures, err := db.UpsertBatch(resource, items)
+		if err != nil {
 			if !humanFriendly {
 				fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
 			}
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("upserting batch for %s: %w", resource, err), Duration: time.Since(started)}
 		}
 
-		totalCount += len(items)
-		atomic.AddInt64(&progressCount, int64(len(items)))
+		consumedTotal += len(items)
+		extractFailureTotal += extractFailures
+
+		// When a non-empty page yielded zero stored rows, the API
+		// returned items in a shape we couldn't extract IDs from —
+		// likely scalar IDs (Firebase /topstories.json, GitHub user-
+		// repo lists) where the spec author should declare a hydration
+		// pattern, or an unrecognized primary-key field name.
+		if len(items) > 0 && stored == 0 {
+			if humanFriendly {
+				fmt.Fprintf(os.Stderr, "warning: %s returned %d items but stored 0 — the local store will be empty for this resource. Likely cause: scalar item shape rather than objects with extractable IDs.\n", resource, len(items))
+			} else {
+				fmt.Fprintf(os.Stderr, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"reason":"all_items_failed_id_extraction"}`+"\n", resource, len(items))
+			}
+			anomalyEmitted = true
+		} else if extractFailures > 0 && !anomalyEmitted {
+			// Per-item primary-key resolution failure but at least one
+			// item landed — emit one structured warning per resource per
+			// sync run so users see the first occurrence of silent drops
+			// instead of waiting for total failure.
+			if humanFriendly {
+				fmt.Fprintf(os.Stderr, "\nwarning: %s had %d item(s) on this page with no extractable primary key — those rows were dropped silently. Annotate the spec with x-resource-id to fix.\n", resource, extractFailures)
+			} else {
+				fmt.Fprintf(os.Stderr, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":%d,"count":%d,"reason":"primary_key_unresolved"}`+"\n", resource, len(items), stored, extractFailures)
+			}
+			anomalyEmitted = true
+		}
+
+		totalCount += stored
+		atomic.AddInt64(&progressCount, int64(stored))
 
 		// Progress reporting (include rate limit info when active)
 		currentRate := c.RateLimit()
@@ -341,9 +429,27 @@ func syncResource(c interface {
 		if maxPages > 0 && pagesFetched >= maxPages {
 			if humanFriendly {
 				fmt.Fprintf(os.Stderr, "\n  %s: reached --max-pages limit (%d pages, %d items)\n", resource, maxPages, totalCount)
+			} else {
+				fmt.Fprintf(os.Stderr, `{"event":"sync_warning","resource":"%s","reason":"max_pages_cap_hit","message":"reached --max-pages cap of %d; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify."}`+"\n", resource, maxPages)
 			}
 			break
 		}
+
+		// Sticky-cursor detector: if the API echoes the same next cursor across
+		// consecutive pages without advancing, abort to prevent burning the
+		// --max-pages budget on a non-terminating loop. Checked AFTER the cap
+		// guard so cap-hit takes precedence; checked BEFORE the natural-end
+		// check below because the natural-end check would not catch a sticky
+		// non-empty cursor on its own.
+		if nextCursor != "" && nextCursor == lastNextCursor {
+			if humanFriendly {
+				fmt.Fprintf(os.Stderr, "\n  %s: API returned the same next cursor across two pages; aborting to prevent budget waste.\n", resource)
+			} else {
+				fmt.Fprintf(os.Stderr, `{"event":"sync_warning","resource":"%s","reason":"stuck_pagination","message":"API returned the same next cursor across two pages for resource %s; aborting to prevent budget waste."}`+"\n", resource, resource)
+			}
+			break
+		}
+		lastNextCursor = nextCursor
 
 		// Determine if there are more pages
 		if !hasMore || len(items) < pageSize.limit || nextCursor == "" {
@@ -355,6 +461,21 @@ func syncResource(c interface {
 
 	// Final sync state: clear cursor (sync is complete), update count
 	_ = db.SaveSyncState(resource, "", totalCount)
+
+	// F4b symptom probe: if items were consumed and successfully
+	// extracted (extractFailures < consumed) but nothing landed in
+	// the store, something downstream of extraction silently dropped
+	// rows — FTS5 trigger error, transaction rollback, character
+	// encoding. Emit a sync_anomaly so the symptom is visible the
+	// next time it recurs; the underlying root cause is held out for
+	// controlled repro.
+	if consumedTotal > 0 && totalCount == 0 && extractFailureTotal < consumedTotal {
+		if humanFriendly {
+			fmt.Fprintf(os.Stderr, "\nwarning: %s consumed %d items, extracted %d primary keys, but stored 0 rows — extraction succeeded yet nothing landed. Investigate FTS triggers / transaction rollback / encoding.\n", resource, consumedTotal, consumedTotal-extractFailureTotal)
+		} else {
+			fmt.Fprintf(os.Stderr, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"extract_failures":%d,"reason":"stored_count_zero_after_extraction"}`+"\n", resource, consumedTotal, extractFailureTotal)
+		}
+	}
 
 	if !humanFriendly {
 		fmt.Fprintf(os.Stderr, `{"event":"sync_complete","resource":"%s","total":%d,"duration_ms":%d}`+"\n", resource, totalCount, time.Since(started).Milliseconds())
@@ -439,7 +560,6 @@ func extractPageItems(data json.RawMessage, cursorParam string) ([]json.RawMessa
 
 // extractPaginationFromEnvelope extracts cursor and has_more from a response envelope.
 func extractPaginationFromEnvelope(envelope map[string]json.RawMessage, cursorParam string) (string, bool) {
-	var nextCursor string
 	var hasMore bool
 
 	// Try common cursor field names
@@ -447,11 +567,27 @@ func extractPaginationFromEnvelope(envelope map[string]json.RawMessage, cursorPa
 		"next_cursor", "nextCursor", "cursor", "next_page_token",
 		"nextPageToken", "page_token", "after", "end_cursor", "endCursor",
 	}
-	for _, key := range cursorKeys {
-		if raw, ok := envelope[key]; ok {
-			var s string
-			if err := json.Unmarshal(raw, &s); err == nil && s != "" {
-				nextCursor = s
+	nextCursor := findCursorInMap(envelope, cursorKeys)
+
+	// If no top-level cursor was found, look one level deeper into well-known
+	// pagination wrapper objects. Slack returns {"messages":[...],
+	// "response_metadata":{"next_cursor":"..."}}; MongoDB Atlas uses
+	// "pagination"; many APIs use "meta" or "paging". Purely additive — only
+	// runs when the top-level scan returned empty — and uses the same
+	// cursorKeys set so wrapper contents go through the same name match.
+	if nextCursor == "" {
+		paginationWrapperKeys := []string{"response_metadata", "pagination", "meta", "paging"}
+		for _, wrapperKey := range paginationWrapperKeys {
+			rawWrapper, ok := envelope[wrapperKey]
+			if !ok {
+				continue
+			}
+			var inner map[string]json.RawMessage
+			if json.Unmarshal(rawWrapper, &inner) != nil {
+				continue
+			}
+			if c := findCursorInMap(inner, cursorKeys); c != "" {
+				nextCursor = c
 				break
 			}
 		}
@@ -475,6 +611,24 @@ func extractPaginationFromEnvelope(envelope map[string]json.RawMessage, cursorPa
 	return nextCursor, hasMore
 }
 
+// findCursorInMap returns the first non-empty string-typed value in m
+// whose key matches one of cursorKeys. Used by extractPaginationFromEnvelope
+// to scan both the top-level envelope and well-known wrapper objects with
+// the same name-match rules — extracted so the two scans can't drift.
+func findCursorInMap(m map[string]json.RawMessage, cursorKeys []string) string {
+	for _, key := range cursorKeys {
+		raw, ok := m[key]
+		if !ok {
+			continue
+		}
+		var s string
+		if err := json.Unmarshal(raw, &s); err == nil && s != "" {
+			return s
+		}
+	}
+	return ""
+}
+
 // upsertSingleObject stores a non-array API response as a single record.
 func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) error {
 	var obj map[string]any
@@ -483,96 +637,46 @@ func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) 
 		return db.Upsert(resource, resource, data)
 	}
 
-	id := extractID(obj)
+	id := extractID(resource, obj)
 	if id == "" {
 		id = resource
 	}
 
 	switch resource {
-	case "me":
-		return db.UpsertMe(data)
-	case "schedules":
-		return db.UpsertSchedules(data)
-	case "selected_calendars":
-		return db.UpsertSelectedCalendars(data)
-	case "teams":
-		return db.UpsertTeams(data)
 	case "bookings":
 		return db.UpsertBookings(data)
-	case "event_types":
-		return db.UpsertEventTypes(data)
-	case "invite":
-		return db.UpsertInvite(data)
-	case "memberships":
-		return db.UpsertMemberships(data)
-	case "verified_resources":
-		return db.UpsertVerifiedResources(data)
-	case "calculate_slots":
-		return db.UpsertCalculateSlots(data)
-	case "connect":
-		return db.UpsertConnect(data)
-	case "default":
-		return db.UpsertDefault(data)
-	case "disconnect":
-		return db.UpsertDisconnect(data)
-	case "oauth":
-		return db.UpsertOauth(data)
-	case "oauth_clients":
-		return db.UpsertOauthClients(data)
-	case "users":
-		return db.UpsertUsers(data)
-	case "webhooks":
-		return db.UpsertWebhooks(data)
-	case "slots":
-		return db.UpsertSlots(data)
-	case "attributes":
-		return db.UpsertAttributes(data)
-	case "roles":
-		return db.UpsertRoles(data)
-	case "delegation_credentials":
-		return db.UpsertDelegationCredentials(data)
-	case "ooo":
-		return db.UpsertOoo(data)
-	case "private_links":
-		return db.UpsertPrivateLinks(data)
-	case "auth":
-		return db.UpsertAuth(data)
-	case "calendar_links":
-		return db.UpsertCalendarLinks(data)
-	case "conferencing_sessions":
-		return db.UpsertConferencingSessions(data)
-	case "confirm":
-		return db.UpsertConfirm(data)
-	case "decline":
-		return db.UpsertDecline(data)
-	case "location":
-		return db.UpsertLocation(data)
-	case "reassign":
-		return db.UpsertReassign(data)
-	case "reschedule":
-		return db.UpsertReschedule(data)
-	case "cancel":
-		return db.UpsertCancel(data)
-	case "guests":
-		return db.UpsertGuests(data)
-	case "mark_absent":
-		return db.UpsertMarkAbsent(data)
-	case "recordings":
-		return db.UpsertRecordings(data)
 	case "references":
 		return db.UpsertReferences(data)
-	case "transcripts":
-		return db.UpsertTranscripts(data)
 	case "attendees":
 		return db.UpsertAttendees(data)
-	case "refresh":
-		return db.UpsertRefresh(data)
-	case "stripe":
-		return db.UpsertStripe(data)
+	case "confirm":
+		return db.UpsertConfirm(data)
+	case "guests":
+		return db.UpsertGuests(data)
+	case "location":
+		return db.UpsertLocation(data)
+	case "reschedule":
+		return db.UpsertReschedule(data)
+	case "transcripts":
+		return db.UpsertTranscripts(data)
+	case "calendar_links":
+		return db.UpsertCalendarLinks(data)
+	case "cancel":
+		return db.UpsertCancel(data)
+	case "conferencing_sessions":
+		return db.UpsertConferencingSessions(data)
+	case "decline":
+		return db.UpsertDecline(data)
+	case "mark_absent":
+		return db.UpsertMarkAbsent(data)
+	case "reassign":
+		return db.UpsertReassign(data)
+	case "recordings":
+		return db.UpsertRecordings(data)
 	case "calendars":
 		return db.UpsertCalendars(data)
-	case "credentials":
-		return db.UpsertCredentials(data)
+	case "disconnect":
+		return db.UpsertDisconnect(data)
 	case "freebusy":
 		return db.UpsertFreebusy(data)
 	case "save":
@@ -583,6 +687,56 @@ func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) 
 		return db.UpsertEvents(data)
 	case "event":
 		return db.UpsertEvent(data)
+	case "connect":
+		return db.UpsertConnect(data)
+	case "credentials":
+		return db.UpsertCredentials(data)
+	case "webhooks":
+		return db.UpsertWebhooks(data)
+	case "attributes":
+		return db.UpsertAttributes(data)
+	case "delegation_credentials":
+		return db.UpsertDelegationCredentials(data)
+	case "memberships":
+		return db.UpsertMemberships(data)
+	case "routing_forms":
+		return db.UpsertRoutingForms(data)
+	case "users":
+		return db.UpsertUsers(data)
+	case "ooo":
+		return db.UpsertOoo(data)
+	case "roles":
+		return db.UpsertRoles(data)
+	case "schedules":
+		return db.UpsertSchedules(data)
+	case "teams":
+		return db.UpsertTeams(data)
+	case "calculate_slots":
+		return db.UpsertCalculateSlots(data)
+	case "default":
+		return db.UpsertDefault(data)
+	case "oauth":
+		return db.UpsertOauth(data)
+	case "event_types":
+		return db.UpsertEventTypes(data)
+	case "private_links":
+		return db.UpsertPrivateLinks(data)
+	case "selected_calendars":
+		return db.UpsertSelectedCalendars(data)
+	case "invite":
+		return db.UpsertInvite(data)
+	case "verified_resources":
+		return db.UpsertVerifiedResources(data)
+	case "me":
+		return db.UpsertMe(data)
+	case "oauth_clients":
+		return db.UpsertOauthClients(data)
+	case "slots":
+		return db.UpsertSlots(data)
+	case "stripe":
+		return db.UpsertStripe(data)
+	case "refresh":
+		return db.UpsertRefresh(data)
 	default:
 		return db.Upsert(resource, id, data)
 	}
@@ -638,17 +792,17 @@ func defaultSyncResources() []string {
 // this preserves the actual endpoint path like "/ISteamApps/GetAppList/v2".
 func syncResourcePath(resource string) string {
 	paths := map[string]string{
-		"bookings":           "/v2/bookings",
-		"calendars":          "/v2/calendars",
-		"conferencing":       "/v2/conferencing",
-		"event-types":        "/v2/event-types",
-		"me":                 "/v2/me",
-		"oauth-clients":      "/v2/oauth-clients",
-		"schedules":          "/v2/schedules",
-		"stripe":             "/v2/stripe/check",
-		"teams":              "/v2/teams",
+		"bookings": "/v2/bookings",
+		"calendars": "/v2/calendars",
+		"conferencing": "/v2/conferencing",
+		"event-types": "/v2/event-types",
+		"me": "/v2/me",
+		"oauth-clients": "/v2/oauth-clients",
+		"schedules": "/v2/schedules",
+		"stripe": "/v2/stripe/check",
+		"teams": "/v2/teams",
 		"verified-resources": "/v2/verified-resources/emails",
-		"webhooks":           "/v2/webhooks",
+		"webhooks": "/v2/webhooks",
 	}
 	if p, ok := paths[resource]; ok {
 		return p
@@ -656,9 +810,63 @@ func syncResourcePath(resource string) string {
 	return "/" + resource
 }
 
-func extractID(obj map[string]any) string {
-	for _, key := range []string{"id", "ID", "ticker", "event_ticker", "series_ticker", "key", "code", "uid", "uuid", "slug", "name"} {
-		if v, ok := obj[key]; ok {
+// resourceIDFieldOverrides projects per-resource IDField (set by the profiler
+// from x-resource-id or the response-schema fallback chain) into a runtime
+// lookup map. extractID consults this first so the templated path wins over
+// the generic fallback list; the generic list applies only when the override
+// is empty or the override field is absent on a given item.
+//
+// Includes both flat resources and dependent (parent-child) resources so
+// annotations on a child path-item are honored at runtime, not just on
+// flat paths.
+var resourceIDFieldOverrides = map[string]string{
+	"calendars": "status",
+	"conferencing": "id",
+	"event-types": "id",
+	"me": "status",
+	"oauth-clients": "id",
+	"schedules": "id",
+	"teams": "id",
+	"verified-resources": "id",
+	"webhooks": "id",
+}
+
+// genericIDFieldFallbacks is the runtime safety net for resources that did
+// NOT receive a templated IDField. API-specific names belong in spec
+// annotations (x-resource-id), not this list.
+var genericIDFieldFallbacks = []string{"id", "ID", "name", "uuid", "slug", "key", "code", "uid"}
+
+// criticalResources is the template-time projection of per-resource Critical
+// (set by the profiler from the spec's path-item x-critical extension). It
+// is consulted at error-aggregation time so a non-critical failure can be
+// downgraded to a sync_warning + exit 0 unless --strict was passed.
+//
+// Includes both flat resources and dependent (parent-child) resources so a
+// failed child sync flagged x-critical: true exits non-zero just like a
+// flat-resource critical failure.
+var criticalResources = map[string]bool{
+}
+
+// extractID resolves an item's primary-key field. It consults the
+// per-resource templated override first; on miss, it falls through to the
+// generic fallback list. resource may be empty for callers that don't have
+// a resource context (only the generic list applies in that case).
+//
+// Field lookups go through store.LookupFieldValue so snake_case overrides
+// match camelCase JSON renderings. UpsertBatch resolves fields the same
+// way — divergence between the two paths produces silent drops on
+// heterogeneous payloads.
+func extractID(resource string, obj map[string]any) string {
+	if override, ok := resourceIDFieldOverrides[resource]; ok && override != "" {
+		if v := store.LookupFieldValue(obj, override); v != nil {
+			s := fmt.Sprintf("%v", v)
+			if s != "" && s != "<nil>" {
+				return s
+			}
+		}
+	}
+	for _, key := range genericIDFieldFallbacks {
+		if v := store.LookupFieldValue(obj, key); v != nil {
 			s := fmt.Sprintf("%v", v)
 			if s != "" && s != "<nil>" {
 				return s

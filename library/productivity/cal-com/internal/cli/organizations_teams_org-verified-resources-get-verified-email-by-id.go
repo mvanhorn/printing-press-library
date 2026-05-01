@@ -14,10 +14,11 @@ import (
 func newOrganizationsTeamsOrgVerifiedResourcesGetVerifiedEmailByIdCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "org-verified-resources-get-verified-email-by-id <id> <teamId> <orgId>",
+		Use:   "org-verified-resources-get-verified-email-by-id <id> <teamId> <orgId>",
 		Aliases: []string{"get"},
-		Short:   "Get verified email of an org team by id",
+		Short: "Get verified email of an org team by id",
 		Example: "  cal-com-pp-cli organizations teams org-verified-resources-get-verified-email-by-id 550e8400-e29b-41d4-a716-446655440000 42 42",
+		Annotations: map[string]string{"pp:endpoint": "teams.org-verified-resources-get-verified-email-by-id", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -38,7 +39,7 @@ func newOrganizationsTeamsOrgVerifiedResourcesGetVerifiedEmailByIdCmd(flags *roo
 			}
 			path = replacePathParam(path, "orgId", args[2])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "teams", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "teams", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

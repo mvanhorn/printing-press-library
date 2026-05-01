@@ -16,10 +16,11 @@ func newOrganizationsWebhooksOrganizationsGetAllOrganizationCmd(flags *rootFlags
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:     "organizations-get-all-organization <orgId>",
+		Use:   "organizations-get-all-organization <orgId>",
 		Aliases: []string{"get"},
-		Short:   "Get all webhooks",
+		Short: "Get all webhooks",
 		Example: "  cal-com-pp-cli organizations webhooks organizations-get-all-organization 42",
+		Annotations: map[string]string{"pp:endpoint": "webhooks.organizations-get-all-organization", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -38,7 +39,7 @@ func newOrganizationsWebhooksOrganizationsGetAllOrganizationCmd(flags *rootFlags
 			if flagSkip != 0.0 {
 				params["skip"] = fmt.Sprintf("%v", flagSkip)
 			}
-			data, prov, err := resolveRead(c, flags, "webhooks", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "webhooks", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

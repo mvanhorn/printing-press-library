@@ -14,9 +14,10 @@ import (
 func newOrganizationsAttributesOrganizationsOptionsDeleteOrganizationOptionCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "organizations-options-delete-organization-option <orgId> <attributeId> <optionId>",
-		Short:   "Delete an attribute option",
+		Use:   "organizations-options-delete-organization-option <orgId> <attributeId> <optionId>",
+		Short: "Delete an attribute option",
 		Example: "  cal-com-pp-cli organizations attributes organizations-options-delete-organization-option 42 example-value example-value",
+		Annotations: map[string]string{"pp:endpoint": "attributes.organizations-options-delete-organization-option"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -50,9 +51,7 @@ func newOrganizationsAttributesOrganizationsOptionsDeleteOrganizationOptionCmd(f
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

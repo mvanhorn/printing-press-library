@@ -14,10 +14,11 @@ import (
 func newBookingsTranscriptsBookingsGetBookingCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "bookings-get-booking <bookingUid>",
+		Use:   "bookings-get-booking <bookingUid>",
 		Aliases: []string{"get"},
-		Short:   "Get Cal Video real time transcript download links for the booking",
+		Short: "Fetches all the transcript download links for the booking `:bookingUid` <Note> Transcripts are generated when...",
 		Example: "  cal-com-pp-cli bookings transcripts bookings-get-booking example-value",
+		Annotations: map[string]string{"pp:endpoint": "transcripts.bookings-get-booking", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -30,7 +31,7 @@ func newBookingsTranscriptsBookingsGetBookingCmd(flags *rootFlags) *cobra.Comman
 			path := "/v2/bookings/{bookingUid}/transcripts"
 			path = replacePathParam(path, "bookingUid", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "transcripts", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "transcripts", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

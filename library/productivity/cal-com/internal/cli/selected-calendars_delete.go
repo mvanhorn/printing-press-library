@@ -18,9 +18,10 @@ func newSelectedCalendarsDeleteCmd(flags *rootFlags) *cobra.Command {
 	var flagDelegationCredentialId string
 
 	cmd := &cobra.Command{
-		Use:     "delete",
-		Short:   "Delete a selected calendar",
+		Use:   "delete",
+		Short: "Delete a selected calendar",
 		Example: "  cal-com-pp-cli selected-calendars delete",
+		Annotations: map[string]string{"pp:endpoint": "selected-calendars.delete"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("integration") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "integration")
@@ -51,9 +52,7 @@ func newSelectedCalendarsDeleteCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

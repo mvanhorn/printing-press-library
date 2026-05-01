@@ -16,10 +16,11 @@ func newOrganizationsMembershipsOrganizationsGetAllCmd(flags *rootFlags) *cobra.
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:     "organizations-get-all <orgId>",
+		Use:   "organizations-get-all <orgId>",
 		Aliases: []string{"get"},
-		Short:   "Get all memberships",
+		Short: "Get all memberships",
 		Example: "  cal-com-pp-cli organizations memberships organizations-get-all 42",
+		Annotations: map[string]string{"pp:endpoint": "memberships.organizations-get-all", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -38,7 +39,7 @@ func newOrganizationsMembershipsOrganizationsGetAllCmd(flags *rootFlags) *cobra.
 			if flagSkip != 0.0 {
 				params["skip"] = fmt.Sprintf("%v", flagSkip)
 			}
-			data, prov, err := resolveRead(c, flags, "memberships", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "memberships", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

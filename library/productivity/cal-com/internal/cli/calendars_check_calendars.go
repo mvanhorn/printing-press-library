@@ -15,13 +15,14 @@ func newCalendarsCheckCalendarsCmd(flags *rootFlags) *cobra.Command {
 	var flagCalendar string
 
 	cmd := &cobra.Command{
-		Use:     "calendars",
+		Use:   "calendars",
 		Aliases: []string{"get"},
-		Short:   "Check a calendar connection",
+		Short: "Check a calendar connection",
 		Example: "  cal-com-pp-cli calendars check calendars",
+		Annotations: map[string]string{"pp:endpoint": "check.calendars", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("calendar") {
-				allowedCalendar := []string{"apple", "google", "office365"}
+				allowedCalendar := []string{ "apple", "google", "office365" }
 				validCalendar := false
 				for _, v := range allowedCalendar {
 					if flagCalendar == v {
@@ -41,7 +42,7 @@ func newCalendarsCheckCalendarsCmd(flags *rootFlags) *cobra.Command {
 			path := "/v2/calendars/{calendar}/check"
 			path = replacePathParam(path, "calendar", fmt.Sprintf("%v", flagCalendar))
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "check", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "check", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

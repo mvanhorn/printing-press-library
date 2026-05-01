@@ -14,9 +14,10 @@ import (
 func newOrganizationsMembershipsOrganizationsGetOrgCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "organizations-get-org <orgId> <membershipId>",
-		Short:   "Get a membership",
+		Use:   "organizations-get-org <orgId> <membershipId>",
+		Short: "Get a membership",
 		Example: "  cal-com-pp-cli organizations memberships organizations-get-org 42 42",
+		Annotations: map[string]string{"pp:endpoint": "memberships.organizations-get-org", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -33,7 +34,7 @@ func newOrganizationsMembershipsOrganizationsGetOrgCmd(flags *rootFlags) *cobra.
 			}
 			path = replacePathParam(path, "membershipId", args[1])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "memberships", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "memberships", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

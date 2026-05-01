@@ -16,9 +16,10 @@ func newStripeSaveCmd(flags *rootFlags) *cobra.Command {
 	var flagCode string
 
 	cmd := &cobra.Command{
-		Use:     "save",
-		Short:   "Save Stripe credentials",
+		Use:   "save",
+		Short: "Save Stripe credentials",
 		Example: "  cal-com-pp-cli stripe save",
+		Annotations: map[string]string{"pp:endpoint": "stripe.save", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("state") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "state")
@@ -39,7 +40,7 @@ func newStripeSaveCmd(flags *rootFlags) *cobra.Command {
 			if flagCode != "" {
 				params["code"] = fmt.Sprintf("%v", flagCode)
 			}
-			data, prov, err := resolveRead(c, flags, "stripe", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "stripe", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

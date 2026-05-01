@@ -14,9 +14,10 @@ import (
 func newOrganizationsTeamsOrganizationsConferencingGetDefaultAppCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "organizations-conferencing-get-default-app <teamId> <orgId>",
-		Short:   "Get team default conferencing application",
+		Use:   "organizations-conferencing-get-default-app <teamId> <orgId>",
+		Short: "Get team default conferencing application",
 		Example: "  cal-com-pp-cli organizations teams organizations-conferencing-get-default-app 42 42",
+		Annotations: map[string]string{"pp:endpoint": "teams.organizations-conferencing-get-default-app", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -33,7 +34,7 @@ func newOrganizationsTeamsOrganizationsConferencingGetDefaultAppCmd(flags *rootF
 			}
 			path = replacePathParam(path, "orgId", args[1])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "teams", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "teams", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

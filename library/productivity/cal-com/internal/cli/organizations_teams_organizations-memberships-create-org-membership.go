@@ -20,9 +20,10 @@ func newOrganizationsTeamsOrganizationsMembershipsCreateOrgMembershipCmd(flags *
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "organizations-memberships-create-org-membership <orgId> <teamId>",
-		Short:   "Create a membership",
+		Use:   "organizations-memberships-create-org-membership <orgId> <teamId>",
+		Short: "Create a membership",
 		Example: "  cal-com-pp-cli organizations teams organizations-memberships-create-org-membership 42 42 --role example-value",
+		Annotations: map[string]string{"pp:endpoint": "teams.organizations-memberships-create-org-membership"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -83,9 +84,7 @@ func newOrganizationsTeamsOrganizationsMembershipsCreateOrgMembershipCmd(flags *
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

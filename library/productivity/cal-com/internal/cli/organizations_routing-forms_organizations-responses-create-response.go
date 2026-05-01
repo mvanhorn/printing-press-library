@@ -23,10 +23,11 @@ func newOrganizationsRoutingFormsOrganizationsResponsesCreateResponseCmd(flags *
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "organizations-responses-create-response <orgId> <routingFormId>",
+		Use:   "organizations-responses-create-response <orgId> <routingFormId>",
 		Aliases: []string{"create"},
-		Short:   "Create routing form response and get available slots",
+		Short: "Create routing form response and get available slots",
 		Example: "  cal-com-pp-cli organizations routing-forms organizations-responses-create-response 42 example-value",
+		Annotations: map[string]string{"pp:endpoint": "routing-forms.organizations-responses-create-response"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -38,7 +39,7 @@ func newOrganizationsRoutingFormsOrganizationsResponsesCreateResponseCmd(flags *
 				return fmt.Errorf("required flag \"%s\" not set", "end")
 			}
 			if cmd.Flags().Changed("format") {
-				allowedFormat := []string{"range", "time"}
+				allowedFormat := []string{ "range", "time" }
 				validFormat := false
 				for _, v := range allowedFormat {
 					if flagFormat == v {
@@ -91,9 +92,7 @@ func newOrganizationsRoutingFormsOrganizationsResponsesCreateResponseCmd(flags *
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

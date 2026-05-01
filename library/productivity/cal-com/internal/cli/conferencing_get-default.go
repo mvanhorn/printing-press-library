@@ -14,10 +14,11 @@ import (
 func newConferencingGetDefaultCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "get-default",
+		Use:   "get-default",
 		Aliases: []string{"list"},
-		Short:   "Get your default conferencing application",
+		Short: "Get your default conferencing application",
 		Example: "  cal-com-pp-cli conferencing get-default",
+		Annotations: map[string]string{"pp:endpoint": "conferencing.get-default", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -26,7 +27,7 @@ func newConferencingGetDefaultCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v2/conferencing/default"
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "conferencing", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "conferencing", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

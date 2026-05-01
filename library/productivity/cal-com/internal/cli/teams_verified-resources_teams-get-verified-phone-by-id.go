@@ -14,9 +14,10 @@ import (
 func newTeamsVerifiedResourcesTeamsGetVerifiedPhoneByIdCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "teams-get-verified-phone-by-id <teamId> <id>",
-		Short:   "Get verified phone number of a team by id",
+		Use:   "teams-get-verified-phone-by-id <teamId> <id>",
+		Short: "Get verified phone number of a team by id",
 		Example: "  cal-com-pp-cli teams verified-resources teams-get-verified-phone-by-id 42 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "verified-resources.teams-get-verified-phone-by-id", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -33,7 +34,7 @@ func newTeamsVerifiedResourcesTeamsGetVerifiedPhoneByIdCmd(flags *rootFlags) *co
 			}
 			path = replacePathParam(path, "id", args[1])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "verified-resources", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "verified-resources", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

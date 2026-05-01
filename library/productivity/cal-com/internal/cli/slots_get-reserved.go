@@ -14,10 +14,11 @@ import (
 func newSlotsGetReservedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "get-reserved <uid>",
+		Use:   "get-reserved <uid>",
 		Aliases: []string{"get"},
-		Short:   "Get reserved slot",
+		Short: "<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing...",
 		Example: "  cal-com-pp-cli slots get-reserved example-value",
+		Annotations: map[string]string{"pp:endpoint": "slots.get-reserved", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -30,7 +31,7 @@ func newSlotsGetReservedCmd(flags *rootFlags) *cobra.Command {
 			path := "/v2/slots/reservations/{uid}"
 			path = replacePathParam(path, "uid", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "slots", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "slots", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

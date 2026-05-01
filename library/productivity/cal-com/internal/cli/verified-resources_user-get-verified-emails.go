@@ -16,10 +16,11 @@ func newVerifiedResourcesUserGetVerifiedEmailsCmd(flags *rootFlags) *cobra.Comma
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:     "user-get-verified-emails",
+		Use:   "user-get-verified-emails",
 		Aliases: []string{"list"},
-		Short:   "Get list of verified emails",
+		Short: "Get list of verified emails",
 		Example: "  cal-com-pp-cli verified-resources user-get-verified-emails",
+		Annotations: map[string]string{"pp:endpoint": "verified-resources.user-get-verified-emails", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -34,7 +35,7 @@ func newVerifiedResourcesUserGetVerifiedEmailsCmd(flags *rootFlags) *cobra.Comma
 			if flagSkip != 0.0 {
 				params["skip"] = fmt.Sprintf("%v", flagSkip)
 			}
-			data, prov, err := resolveRead(c, flags, "verified-resources", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "verified-resources", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

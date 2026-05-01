@@ -12,12 +12,15 @@ import (
 )
 
 func newApiKeysPromotedCmd(flags *rootFlags) *cobra.Command {
+	var bodyApiKeyDaysValid float64
+	var bodyApiKeyNeverExpires bool
 
 	cmd := &cobra.Command{
-		Use:     "api-keys",
-		Short:   "Refresh API Key",
-		Long:    "Shortcut for 'api-keys keys-refresh'. Refresh API Key",
+		Use:   "api-keys",
+		Short: "Generate a new API key and delete the current one. Provide API key to refresh as a Bearer token in the Authorization...",
+		Long:  "Shortcut for 'api-keys keys-refresh'. Generate a new API key and delete the current one. Provide API key to refresh as a Bearer token in the Authorization...",
 		Example: "  cal-com-pp-cli api-keys",
+		Annotations: map[string]string{"pp:endpoint": "api-keys.keys-refresh"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -25,8 +28,19 @@ func newApiKeysPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v2/api-keys/refresh"
-			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "api-keys", false, path, params)
+			// HasStore + non-GET falls through to a live API call here
+			// rather than through resolveRead (GET-only internally); a
+			// body-aware cached read helper is filed as #425 for when a
+			// second store-backed POST-search consumer ships.
+			body := map[string]any{}
+			if bodyApiKeyDaysValid != 0.0 {
+				body["apiKeyDaysValid"] = bodyApiKeyDaysValid
+			}
+			if bodyApiKeyNeverExpires != false {
+				body["apiKeyNeverExpires"] = bodyApiKeyNeverExpires
+			}
+			data, _, err := c.Post(path, body)
+			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -78,6 +92,8 @@ func newApiKeysPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
+	cmd.Flags().Float64Var(&bodyApiKeyDaysValid, "api-key-days-valid", 30.000000, "For how many days is managed organization api key valid. Defaults to 30 days.")
+	cmd.Flags().BoolVar(&bodyApiKeyNeverExpires, "api-key-never-expires", false, "If true, organization api key never expires.")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

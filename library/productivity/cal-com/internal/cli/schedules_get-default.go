@@ -14,9 +14,10 @@ import (
 func newSchedulesGetDefaultCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "get-default",
-		Short:   "Get default schedule",
+		Use:   "get-default",
+		Short: "Get the default schedule of the authenticated user. <Note>Please make sure to pass in the cal-api-version header...",
 		Example: "  cal-com-pp-cli schedules get-default",
+		Annotations: map[string]string{"pp:endpoint": "schedules.get-default", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -25,7 +26,7 @@ func newSchedulesGetDefaultCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v2/schedules/default"
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "schedules", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "schedules", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

@@ -14,9 +14,10 @@ import (
 func newConferencingListInstalledAppsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "list-installed-apps",
-		Short:   "List your conferencing applications",
+		Use:   "list-installed-apps",
+		Short: "List your conferencing applications",
 		Example: "  cal-com-pp-cli conferencing list-installed-apps",
+		Annotations: map[string]string{"pp:endpoint": "conferencing.list-installed-apps", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -25,7 +26,7 @@ func newConferencingListInstalledAppsCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v2/conferencing"
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "conferencing", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "conferencing", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

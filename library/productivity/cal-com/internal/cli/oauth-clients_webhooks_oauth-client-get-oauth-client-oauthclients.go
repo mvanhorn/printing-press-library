@@ -14,9 +14,10 @@ import (
 func newOauthClientsWebhooksOauthClientGetOauthClientOauthclientsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "oauth-client-get-oauth-client-oauthclients <webhookId> <clientId>",
-		Short:   "Get a webhook",
+		Use:   "oauth-client-get-oauth-client-oauthclients <webhookId> <clientId>",
+		Short: "<Warning>These endpoints are deprecated and will be removed in the future.</Warning>",
 		Example: "  cal-com-pp-cli oauth-clients webhooks oauth-client-get-oauth-client-oauthclients example-value example-value",
+		Annotations: map[string]string{"pp:endpoint": "webhooks.oauth-client-get-oauth-client-oauthclients", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -33,7 +34,7 @@ func newOauthClientsWebhooksOauthClientGetOauthClientOauthclientsCmd(flags *root
 			}
 			path = replacePathParam(path, "clientId", args[1])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "webhooks", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "webhooks", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

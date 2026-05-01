@@ -14,10 +14,11 @@ import (
 func newTeamsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "get",
+		Use:   "get",
 		Aliases: []string{"list"},
-		Short:   "Get teams",
+		Short: "Get teams",
 		Example: "  cal-com-pp-cli teams get",
+		Annotations: map[string]string{"pp:endpoint": "teams.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -26,7 +27,7 @@ func newTeamsGetCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v2/teams"
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "teams", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "teams", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

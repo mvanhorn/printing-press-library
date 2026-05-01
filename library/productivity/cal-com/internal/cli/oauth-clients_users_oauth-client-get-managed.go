@@ -13,14 +13,15 @@ import (
 
 func newOauthClientsUsersOauthClientGetManagedCmd(flags *rootFlags) *cobra.Command {
 	var flagLimit float64
-	var flagOffset float64
+	var flagOffset string
 	var flagEmails string
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "oauth-client-get-managed <clientId>",
-		Short:   "Get all managed users",
+		Use:   "oauth-client-get-managed <clientId>",
+		Short: "<Warning>These endpoints are deprecated and will be removed in the future.</Warning>",
 		Example: "  cal-com-pp-cli oauth-clients users oauth-client-get-managed example-value",
+		Annotations: map[string]string{"pp:endpoint": "users.oauth-client-get-managed", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -32,11 +33,11 @@ func newOauthClientsUsersOauthClientGetManagedCmd(flags *rootFlags) *cobra.Comma
 
 			path := "/v2/oauth-clients/{clientId}/users"
 			path = replacePathParam(path, "clientId", args[0])
-			data, prov, err := resolvePaginatedRead(c, flags, "users", path, map[string]string{
-				"limit":  fmt.Sprintf("%v", flagLimit),
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "users", path, map[string]string{
+				"limit": fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
 				"emails": fmt.Sprintf("%v", flagEmails),
-			}, flagAll, "offset", "", "")
+			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -79,7 +80,7 @@ func newOauthClientsUsersOauthClientGetManagedCmd(flags *rootFlags) *cobra.Comma
 		},
 	}
 	cmd.Flags().Float64Var(&flagLimit, "limit", 0.0, "The number of items to return")
-	cmd.Flags().Float64Var(&flagOffset, "offset", 0.0, "The number of items to skip")
+	cmd.Flags().StringVar(&flagOffset, "offset", "", "The number of items to skip")
 	cmd.Flags().StringVar(&flagEmails, "emails", "", "Filter managed users by email. If you want to filter by multiple emails, separate them with a comma.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 

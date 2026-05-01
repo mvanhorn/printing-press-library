@@ -17,10 +17,11 @@ func newBookingsMarkAbsentBookingsMarkNoShowCmd(flags *rootFlags) *cobra.Command
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "bookings-mark-no-show <bookingUid>",
+		Use:   "bookings-mark-no-show <bookingUid>",
 		Aliases: []string{"create"},
-		Short:   "Mark a booking absence",
+		Short: "The provided authorization header refers to the owner of the booking. <Note>Please make sure to pass in the...",
 		Example: "  cal-com-pp-cli bookings mark-absent bookings-mark-no-show example-value",
+		Annotations: map[string]string{"pp:endpoint": "mark-absent.bookings-mark-no-show"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -65,9 +66,7 @@ func newBookingsMarkAbsentBookingsMarkNoShowCmd(flags *rootFlags) *cobra.Command
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

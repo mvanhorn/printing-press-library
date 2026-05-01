@@ -16,9 +16,10 @@ func newOauthClientsUsersOauthClientForceRefreshCmd(flags *rootFlags) *cobra.Com
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "oauth-client-force-refresh <userId> <clientId>",
-		Short:   "Force refresh tokens",
+		Use:   "oauth-client-force-refresh <userId> <clientId>",
+		Short: "<Warning>These endpoints are deprecated and will be removed in the future.</Warning> If you have lost managed user...",
 		Example: "  cal-com-pp-cli oauth-clients users oauth-client-force-refresh 42 example-value",
+		Annotations: map[string]string{"pp:endpoint": "users.oauth-client-force-refresh"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -64,9 +65,7 @@ func newOauthClientsUsersOauthClientForceRefreshCmd(flags *rootFlags) *cobra.Com
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

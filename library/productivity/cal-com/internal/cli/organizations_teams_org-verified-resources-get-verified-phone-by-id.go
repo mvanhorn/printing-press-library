@@ -14,9 +14,10 @@ import (
 func newOrganizationsTeamsOrgVerifiedResourcesGetVerifiedPhoneByIdCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "org-verified-resources-get-verified-phone-by-id <teamId> <id> <orgId>",
-		Short:   "Get verified phone number of an org team by id",
+		Use:   "org-verified-resources-get-verified-phone-by-id <teamId> <id> <orgId>",
+		Short: "Get verified phone number of an org team by id",
 		Example: "  cal-com-pp-cli organizations teams org-verified-resources-get-verified-phone-by-id 42 550e8400-e29b-41d4-a716-446655440000 42",
+		Annotations: map[string]string{"pp:endpoint": "teams.org-verified-resources-get-verified-phone-by-id", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -37,7 +38,7 @@ func newOrganizationsTeamsOrgVerifiedResourcesGetVerifiedPhoneByIdCmd(flags *roo
 			}
 			path = replacePathParam(path, "orgId", args[2])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "teams", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "teams", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

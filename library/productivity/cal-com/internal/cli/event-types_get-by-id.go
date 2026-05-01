@@ -14,9 +14,10 @@ import (
 func newEventTypesGetByIdCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "get-by-id <eventTypeId>",
-		Short:   "Get an event type",
+		Use:   "get-by-id <eventTypeId>",
+		Short: "<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing...",
 		Example: "  cal-com-pp-cli event-types get-by-id example-value",
+		Annotations: map[string]string{"pp:endpoint": "event-types.get-by-id", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -29,7 +30,7 @@ func newEventTypesGetByIdCmd(flags *rootFlags) *cobra.Command {
 			path := "/v2/event-types/{eventTypeId}"
 			path = replacePathParam(path, "eventTypeId", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "event-types", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "event-types", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

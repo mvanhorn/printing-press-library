@@ -14,9 +14,10 @@ import (
 func newBookingsGetBookinguidCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "get-bookinguid <bookingUid>",
-		Short:   "Get a booking",
+		Use:   "get-bookinguid <bookingUid>",
+		Short: "`:bookingUid` can be 1. uid of a normal booking 2. uid of one of the recurring booking recurrences 3. uid of...",
 		Example: "  cal-com-pp-cli bookings get-bookinguid example-value",
+		Annotations: map[string]string{"pp:endpoint": "bookings.get-bookinguid", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -29,7 +30,7 @@ func newBookingsGetBookinguidCmd(flags *rootFlags) *cobra.Command {
 			path := "/v2/bookings/{bookingUid}"
 			path = replacePathParam(path, "bookingUid", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "bookings", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "bookings", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

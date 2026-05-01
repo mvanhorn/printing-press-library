@@ -17,9 +17,10 @@ func newVerifiedResourcesUserRequestPhoneVerificationCodeCmd(flags *rootFlags) *
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "user-request-phone-verification-code",
-		Short:   "Request phone number verification code",
+		Use:   "user-request-phone-verification-code",
+		Short: "Sends a verification code to the phone number",
 		Example: "  cal-com-pp-cli verified-resources user-request-phone-verification-code --phone example-value",
+		Annotations: map[string]string{"pp:endpoint": "verified-resources.user-request-phone-verification-code"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("phone") && !flags.dryRun {
@@ -63,9 +64,7 @@ func newVerifiedResourcesUserRequestPhoneVerificationCodeCmd(flags *rootFlags) *
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

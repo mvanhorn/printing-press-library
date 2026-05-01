@@ -15,16 +15,17 @@ func newCalendarsEventsCalUnifiedCalendarsGetCalendarDetailsCmd(flags *rootFlags
 	var flagCalendar string
 
 	cmd := &cobra.Command{
-		Use:     "cal-unified-calendars-get-calendar-details <eventUid>",
+		Use:   "cal-unified-calendars-get-calendar-details <eventUid>",
 		Aliases: []string{"get"},
-		Short:   "Get meeting details from calendar",
+		Short: "Returns detailed information about a meeting including attendance metrics. The singular /event/ path is deprecated...",
 		Example: "  cal-com-pp-cli calendars events cal-unified-calendars-get-calendar-details example-value",
+		Annotations: map[string]string{"pp:endpoint": "events.cal-unified-calendars-get-calendar-details", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("calendar") {
-				allowedCalendar := []string{"google"}
+				allowedCalendar := []string{ "google" }
 				validCalendar := false
 				for _, v := range allowedCalendar {
 					if flagCalendar == v {
@@ -48,7 +49,7 @@ func newCalendarsEventsCalUnifiedCalendarsGetCalendarDetailsCmd(flags *rootFlags
 			path = replacePathParam(path, "eventUid", args[1])
 			path = replacePathParam(path, "calendar", fmt.Sprintf("%v", flagCalendar))
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "events", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "events", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

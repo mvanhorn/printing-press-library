@@ -15,16 +15,17 @@ func newCalendarsEventsCalUnifiedCalendarsDeleteCalendarCmd(flags *rootFlags) *c
 	var flagCalendar string
 
 	cmd := &cobra.Command{
-		Use:     "cal-unified-calendars-delete-calendar <eventUid>",
+		Use:   "cal-unified-calendars-delete-calendar <eventUid>",
 		Aliases: []string{"delete"},
-		Short:   "Delete a calendar event",
+		Short: "Delete/cancel an event on the authenticated user's calendar. Currently only Google Calendar is supported.",
 		Example: "  cal-com-pp-cli calendars events cal-unified-calendars-delete-calendar example-value",
+		Annotations: map[string]string{"pp:endpoint": "events.cal-unified-calendars-delete-calendar"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("calendar") {
-				allowedCalendar := []string{"google", "office365", "apple"}
+				allowedCalendar := []string{ "google", "office365", "apple" }
 				validCalendar := false
 				for _, v := range allowedCalendar {
 					if flagCalendar == v {
@@ -61,9 +62,7 @@ func newCalendarsEventsCalUnifiedCalendarsDeleteCalendarCmd(flags *rootFlags) *c
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

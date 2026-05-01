@@ -14,10 +14,11 @@ import (
 func newEventTypesPrivateLinksEventTypesGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "event-types-get <eventTypeId>",
+		Use:   "event-types-get <eventTypeId>",
 		Aliases: []string{"get"},
-		Short:   "Get all private links for an event type",
+		Short: "Get all private links for an event type",
 		Example: "  cal-com-pp-cli event-types private-links event-types-get 42",
+		Annotations: map[string]string{"pp:endpoint": "private-links.event-types-get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -30,7 +31,7 @@ func newEventTypesPrivateLinksEventTypesGetCmd(flags *rootFlags) *cobra.Command 
 			path := "/v2/event-types/{eventTypeId}/private-links"
 			path = replacePathParam(path, "eventTypeId", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "private-links", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "private-links", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

@@ -18,10 +18,11 @@ func newOrganizationsAttributesOrganizationsOptionsUpdateOrganizationOptionCmd(f
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "organizations-options-update-organization-option <orgId> <attributeId> <optionId>",
+		Use:   "organizations-options-update-organization-option <orgId> <attributeId> <optionId>",
 		Aliases: []string{"update"},
-		Short:   "Update an attribute option",
+		Short: "Update an attribute option",
 		Example: "  cal-com-pp-cli organizations attributes organizations-options-update-organization-option 42 example-value example-value",
+		Annotations: map[string]string{"pp:endpoint": "attributes.organizations-options-update-organization-option"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -77,9 +78,7 @@ func newOrganizationsAttributesOrganizationsOptionsUpdateOrganizationOptionCmd(f
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

@@ -20,10 +20,11 @@ func newCalendarsCalUnifiedUpdateConnectionEventCmd(flags *rootFlags) *cobra.Com
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "cal-unified-update-connection-event <connectionId> <eventId>",
+		Use:   "cal-unified-update-connection-event <connectionId> <eventId>",
 		Aliases: []string{"update"},
-		Short:   "Update event for a connection",
+		Short: "Update an event on the specified calendar connection. Only supported for Google Calendar connections; other...",
 		Example: "  cal-com-pp-cli calendars cal-unified-update-connection-event example-value example-value",
+		Annotations: map[string]string{"pp:endpoint": "calendars.cal-unified-update-connection-event"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -78,9 +79,7 @@ func newCalendarsCalUnifiedUpdateConnectionEventCmd(flags *rootFlags) *cobra.Com
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

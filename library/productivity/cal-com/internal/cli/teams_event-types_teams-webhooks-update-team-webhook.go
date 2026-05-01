@@ -22,9 +22,10 @@ func newTeamsEventTypesTeamsWebhooksUpdateTeamWebhookCmd(flags *rootFlags) *cobr
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "teams-webhooks-update-team-webhook <webhookId> <eventTypeId> <teamId>",
-		Short:   "Update a webhook for a team event type",
+		Use:   "teams-webhooks-update-team-webhook <webhookId> <eventTypeId> <teamId>",
+		Short: "Update a webhook for a team event type",
 		Example: "  cal-com-pp-cli teams event-types teams-webhooks-update-team-webhook example-value 42 42",
+		Annotations: map[string]string{"pp:endpoint": "event-types.teams-webhooks-update-team-webhook"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -96,9 +97,7 @@ func newTeamsEventTypesTeamsWebhooksUpdateTeamWebhookCmd(flags *rootFlags) *cobr
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

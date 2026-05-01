@@ -19,13 +19,14 @@ func newCalendarsEventsCalUnifiedCalendarsCreateCalendarCmd(flags *rootFlags) *c
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "cal-unified-calendars-create-calendar",
+		Use:   "cal-unified-calendars-create-calendar",
 		Aliases: []string{"create"},
-		Short:   "Create a calendar event",
+		Short: "Create a new event on the authenticated user's calendar. Currently only Google Calendar is supported.",
 		Example: "  cal-com-pp-cli calendars events cal-unified-calendars-create-calendar --title example-resource",
+		Annotations: map[string]string{"pp:endpoint": "events.cal-unified-calendars-create-calendar"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("calendar") {
-				allowedCalendar := []string{"google", "office365", "apple"}
+				allowedCalendar := []string{ "google", "office365", "apple" }
 				validCalendar := false
 				for _, v := range allowedCalendar {
 					if flagCalendar == v {
@@ -83,9 +84,7 @@ func newCalendarsEventsCalUnifiedCalendarsCreateCalendarCmd(flags *rootFlags) *c
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
