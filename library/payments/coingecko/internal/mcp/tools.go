@@ -8,23 +8,43 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/payments/coingecko/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/payments/coingecko/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/payments/coingecko/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/payments/coingecko/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/payments/coingecko/internal/store"
 )
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
+		mcplib.NewTool("coingecko-search_search",
+			mcplib.WithDescription("Search coins, categories, exchanges. Required: query. Returns the SearchResponse."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Query")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/search", []string{ }),
+	)
+	s.AddTool(
+		mcplib.NewTool("coingecko-search-2_trending",
+			mcplib.WithDescription("Get trending coins. Returns the TrendingResponse."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/search/trending", []string{ }),
+	)
+	s.AddTool(
 		mcplib.NewTool("coins_detail",
-			mcplib.WithDescription("Get current data for a coin Returns DetailResponse."),
+			mcplib.WithDescription("Get current data for a coin. Required: id. Optional: localization, tickers, market_data (plus 3 more). Returns the DetailResponse."),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Coin id (e.g. bitcoin)")),
 			mcplib.WithString("localization", mcplib.Description("Include localized languages")),
 			mcplib.WithString("tickers", mcplib.Description("Tickers")),
@@ -32,19 +52,25 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("community_data", mcplib.Description("Community data")),
 			mcplib.WithString("developer_data", mcplib.Description("Developer data")),
 			mcplib.WithString("sparkline", mcplib.Description("Sparkline")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/coins/{id}", []string{"id"}),
+		makeAPIHandler("GET", "/coins/{id}", []string{"id", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("coins_list",
-			mcplib.WithDescription("List all coins with id, symbol, and name Returns array of ListItem."),
+			mcplib.WithDescription("List all coins with id, symbol, and name. Optional: include_platform. Returns array of ListItem."),
 			mcplib.WithString("include_platform", mcplib.Description("Include platform")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/coins/list", []string{}),
+		makeAPIHandler("GET", "/coins/list", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("coins_markets",
-			mcplib.WithDescription("List coins with market data Returns array of MarketsItem."),
+			mcplib.WithDescription("List coins with market data. Required: vs_currency. Optional: ids, category, order (plus 4 more). Returns array of MarketsItem."),
 			mcplib.WithString("vs_currency", mcplib.Required(), mcplib.Description("Target currency (e.g. usd)")),
 			mcplib.WithString("ids", mcplib.Description("Comma-separated coin ids")),
 			mcplib.WithString("category", mcplib.Description("Category")),
@@ -53,79 +79,77 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("page", mcplib.Description("Page")),
 			mcplib.WithString("sparkline", mcplib.Description("Sparkline")),
 			mcplib.WithString("price_change_percentage", mcplib.Description("Comma-separated (e.g. 1h,24h,7d)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/coins/markets", []string{}),
+		makeAPIHandler("GET", "/coins/markets", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("coins_market-chart_coin",
-			mcplib.WithDescription("Get market chart data Returns CoinResponse."),
+			mcplib.WithDescription("Get market chart data. Required: id, vs_currency, days. Returns the CoinResponse."),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Id")),
 			mcplib.WithString("vs_currency", mcplib.Required(), mcplib.Description("Vs currency")),
 			mcplib.WithString("days", mcplib.Required(), mcplib.Description("Number of days (1,7,14,30,90,365,max)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/coins/{id}/market_chart", []string{"id"}),
+		makeAPIHandler("GET", "/coins/{id}/market_chart", []string{"id", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("coins_ohlc_coin",
-			mcplib.WithDescription("Get OHLC candle data Returns array of CoinItem."),
+			mcplib.WithDescription("Get OHLC candle data. Required: id, vs_currency, days. Returns array of CoinItem."),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Id")),
 			mcplib.WithString("vs_currency", mcplib.Required(), mcplib.Description("Vs currency")),
 			mcplib.WithString("days", mcplib.Required(), mcplib.Description("Days")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/coins/{id}/ohlc", []string{"id"}),
+		makeAPIHandler("GET", "/coins/{id}/ohlc", []string{"id", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("global_global",
-			mcplib.WithDescription("Get global crypto market data Returns GlobalResponse."),
+			mcplib.WithDescription("Get global crypto market data. Returns the GlobalResponse."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/global", []string{}),
+		makeAPIHandler("GET", "/global", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("ping_ping",
-			mcplib.WithDescription("Check API server status Returns PingResponse."),
+			mcplib.WithDescription("Check API server status. Returns the PingResponse."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/ping", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("search_search",
-			mcplib.WithDescription("Search coins, categories, exchanges Returns SearchResponse."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Query")),
-		),
-		makeAPIHandler("GET", "/search", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("search_trending",
-			mcplib.WithDescription("Get trending coins Returns TrendingResponse."),
-		),
-		makeAPIHandler("GET", "/search/trending", []string{}),
+		makeAPIHandler("GET", "/ping", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("simple_price",
-			mcplib.WithDescription("Get price of coins Returns PriceResponse."),
+			mcplib.WithDescription("Get price of coins. Required: ids, vs_currencies. Optional: include_market_cap, include_24hr_vol, include_24hr_change (plus 1 more). Returns the PriceResponse."),
 			mcplib.WithString("ids", mcplib.Required(), mcplib.Description("Comma-separated coin ids (e.g. bitcoin,ethereum)")),
 			mcplib.WithString("vs_currencies", mcplib.Required(), mcplib.Description("Comma-separated target currencies (e.g. usd,eur)")),
 			mcplib.WithString("include_market_cap", mcplib.Description("Include market cap")),
 			mcplib.WithString("include_24hr_vol", mcplib.Description("Include 24hr vol")),
 			mcplib.WithString("include_24hr_change", mcplib.Description("Include 24hr change")),
 			mcplib.WithString("include_last_updated_at", mcplib.Description("Include last updated at")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/simple/price", []string{}),
+		makeAPIHandler("GET", "/simple/price", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("simple_supported-vs-currencies",
-			mcplib.WithDescription("List supported vs currencies Returns array of string."),
+			mcplib.WithDescription("List supported vs currencies. Returns array of string."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/simple/supported_vs_currencies", []string{}),
-	)
-	// Sync tool — populates local database for offline search and sql queries
-	s.AddTool(
-		mcplib.NewTool("sync",
-			mcplib.WithDescription("Sync API data to local SQLite database. Run this before using search or sql tools. Supports incremental sync."),
-			mcplib.WithString("resources", mcplib.Description("Comma-separated resource types to sync (omit for all)")),
-			mcplib.WithString("since", mcplib.Description("Incremental sync since duration (e.g. 7d, 24h, 1w)")),
-			mcplib.WithBoolean("full", mcplib.Description("Full resync ignoring checkpoints")),
-		),
-		handleSync,
+		makeAPIHandler("GET", "/simple/supported_vs_currencies", []string{ }),
 	)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
@@ -133,6 +157,8 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDescription("Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)")),
 			mcplib.WithNumber("limit", mcplib.Description("Max results (default 25)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleSearch,
 	)
@@ -141,6 +167,8 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("sql",
 			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT only). Tables match resource names.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleSQL,
 	)
@@ -150,9 +178,15 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("context",
 			mcplib.WithDescription("Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleContext,
 	)
+
+	// Runtime Cobra-tree mirror — exposes every user-facing command that is
+	// not already covered by a typed endpoint or framework MCP tool.
+	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
@@ -268,13 +302,8 @@ func dbPath() string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", "coingecko-pp-cli", "data.db")
 }
-
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
-
-func handleSync(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	return mcplib.NewToolResultText("sync not yet implemented via MCP - use the CLI: coingecko-pp-cli sync"), nil
-}
 
 func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
@@ -288,7 +317,7 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 		limit = int(v)
 	}
 
-	db, err := store.Open(dbPath())
+	db, err := store.OpenWithContext(ctx, dbPath())
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
@@ -318,7 +347,7 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		}
 	}
 
-	db, err := store.Open(dbPath())
+	db, err := store.OpenWithContext(ctx, dbPath())
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
@@ -352,44 +381,50 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
-		"api":          "coingecko",
-		"description":  "CoinGecko public API for cryptocurrency data. Free tier, no API key required for basic endpoints.",
-		"archetype":    "generic",
-		"tool_count":   11,
-		"tool_surface": "MCP exposes the endpoints listed under `resources` (plus sync/search/sql/context utilities when present). Items under `cli_only_capabilities` require running the companion coingecko-pp-cli binary; the MCP cannot invoke them.",
+		"api":         "coingecko",
+		"description": "CoinGecko public API for cryptocurrency data. Free tier, no API key required for basic endpoints.",
+		"archetype":   "generic",
+		"tool_count":  11,
+		// tool_surface tells agents which surface a capability lives on.
+		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion coingecko-pp-cli binary.",
 		"resources": []map[string]any{
 			{
-				"name":        "coins",
+				"name": "coingecko-search",
+				"description": "Manage coingecko search",
+				"endpoints": []string{"search",  },
+				"searchable": true,
+			},
+			{
+				"name": "coingecko-search-2",
+				"description": "Manage coingecko search 2",
+				"endpoints": []string{"trending",  },
+				"syncable": true,
+			},
+			{
+				"name": "coins",
 				"description": "Manage coins",
-				"endpoints":   []string{"detail", "list", "markets"},
-				"syncable":    true,
-				"searchable":  true,
+				"endpoints": []string{"detail", "list", "markets",  },
+				"syncable": true,
+				"searchable": true,
 			},
 			{
-				"name":        "global",
+				"name": "global",
 				"description": "Manage global",
-				"endpoints":   []string{"global"},
-				"syncable":    true,
+				"endpoints": []string{"global",  },
+				"syncable": true,
 			},
 			{
-				"name":        "ping",
+				"name": "ping",
 				"description": "Manage ping",
-				"endpoints":   []string{"ping"},
-				"syncable":    true,
+				"endpoints": []string{"ping",  },
+				"syncable": true,
 			},
 			{
-				"name":        "search",
-				"description": "Manage search",
-				"endpoints":   []string{"search", "trending"},
-				"syncable":    true,
-				"searchable":  true,
-			},
-			{
-				"name":        "simple",
+				"name": "simple",
 				"description": "Manage simple",
-				"endpoints":   []string{"price", "supported-vs-currencies"},
-				"syncable":    true,
-				"searchable":  true,
+				"endpoints": []string{"price", "supported-vs-currencies",  },
+				"syncable": true,
+				"searchable": true,
 			},
 		},
 		"query_tips": []string{
@@ -405,89 +440,9 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 	return mcplib.NewToolResultText(string(data)), nil
 }
 
-// RegisterNovelFeatureTools registers MCP tools that shell out to the
-// companion CLI binary. Empty body when the spec has no novel features.
+// RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP
+// mains. New generated mains call RegisterTools only; RegisterTools now
+// includes the runtime Cobra-tree mirror.
 func RegisterNovelFeatureTools(s *server.MCPServer) {
-	s.AddTool(
-		mcplib.NewTool("coins_markets",
-			mcplib.WithDescription("List market data for coins with currency and filtering controls."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("coins markets"),
-	)
-	s.AddTool(
-		mcplib.NewTool("search_trending",
-			mcplib.WithDescription("Find trending crypto assets from CoinGecko for discovery workflows."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("search trending"),
-	)
-	s.AddTool(
-		mcplib.NewTool("global",
-			mcplib.WithDescription("Summarize global crypto market state through a dedicated promoted command."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("global"),
-	)
-}
-
-// siblingCLIPath resolves the companion CLI via sibling-of-executable,
-// COINGECKO_CLI_PATH env var, then PATH.
-func siblingCLIPath() (string, error) {
-	const cliName = "coingecko-pp-cli"
-	if exe, err := os.Executable(); err == nil {
-		candidate := filepath.Join(filepath.Dir(exe), cliName)
-		if _, err := os.Stat(candidate); err == nil {
-			return candidate, nil
-		}
-	}
-	if v := os.Getenv("COINGECKO_CLI_PATH"); v != "" {
-		return v, nil
-	}
-	return exec.LookPath(cliName)
-}
-
-// shellOutToCLI returns an MCP tool handler that runs commandSpec against
-// the companion CLI. Resolves the binary path and pre-splits commandSpec
-// at registration so the per-call work is just user-arg split + exec.
-func shellOutToCLI(commandSpec string) server.ToolHandlerFunc {
-	cliPath, lookupErr := siblingCLIPath()
-	prefixArgs := splitShellArgs(commandSpec)
-	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		if lookupErr != nil {
-			return mcplib.NewToolResultError(fmt.Sprintf("companion CLI binary not found: %v\nTried sibling lookup, COINGECKO_CLI_PATH env var, and PATH.", lookupErr)), nil
-		}
-		userArgs, _ := req.GetArguments()["args"].(string)
-		finalArgs := append(append([]string{}, prefixArgs...), splitShellArgs(userArgs)...)
-		cmd := exec.CommandContext(ctx, cliPath, finalArgs...)
-		out, err := cmd.CombinedOutput()
-		if err != nil {
-			return mcplib.NewToolResultError(string(out)), nil
-		}
-		return mcplib.NewToolResultText(string(out)), nil
-	}
-}
-
-// splitShellArgs whitespace-splits with double-quoted-token preservation.
-func splitShellArgs(s string) []string {
-	var tokens []string
-	var cur []rune
-	inQuote := false
-	for _, r := range s {
-		switch {
-		case r == '"':
-			inQuote = !inQuote
-		case (r == ' ' || r == '\t') && !inQuote:
-			if len(cur) > 0 {
-				tokens = append(tokens, string(cur))
-				cur = cur[:0]
-			}
-		default:
-			cur = append(cur, r)
-		}
-	}
-	if len(cur) > 0 {
-		tokens = append(tokens, string(cur))
-	}
-	return tokens
+	_ = s
 }

@@ -11,14 +11,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newSearchSearchCmd(flags *rootFlags) *cobra.Command {
+func newCoingeckoSearchPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagQuery string
 
 	cmd := &cobra.Command{
-		Use:   "search",
-		Aliases: []string{"list"},
+		Use:   "coingecko-search",
 		Short: "Search coins, categories, exchanges",
-		Example: "  coingecko-pp-cli search search",
+		Long:  "Shortcut for 'coingecko-search search'. Search coins, categories, exchanges",
+		Example: "  coingecko-pp-cli coingecko-search",
+		Annotations: map[string]string{"pp:endpoint": "coingecko-search.search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "query")
@@ -33,24 +34,36 @@ func newSearchSearchCmd(flags *rootFlags) *cobra.Command {
 			if flagQuery != "" {
 				params["query"] = fmt.Sprintf("%v", flagQuery)
 			}
-			data, prov, err := resolveRead(c, flags, "search", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "coingecko-search", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
-			// Print provenance to stderr for human-facing output
+			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
+			// so output helpers see the inner data, not the wrapper.
+			data = extractResponseData(data)
+
+			// Print provenance to stderr
 			{
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				if json.Unmarshal(data, &countItems) != nil {
+					// Single object, not an array
+					countItems = []json.RawMessage{data}
+				}
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// CSV bypasses JSON pipe path so --csv works when piped
+			if flags.csv {
+				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			}
+			// For JSON output, wrap with provenance envelope. --select wins over
+			// --compact when both are set; --compact only runs when no explicit
+			// fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -58,7 +71,6 @@ func newSearchSearchCmd(flags *rootFlags) *cobra.Command {
 				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
-			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
 				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
@@ -75,6 +87,8 @@ func newSearchSearchCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagQuery, "query", "", "Query")
+
+	// Wire sibling endpoints and sub-resources as subcommands
 
 	return cmd
 }

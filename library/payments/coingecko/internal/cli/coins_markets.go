@@ -17,7 +17,7 @@ func newCoinsMarketsCmd(flags *rootFlags) *cobra.Command {
 	var flagCategory string
 	var flagOrder string
 	var flagPerPage int
-	var flagPage int
+	var flagPage string
 	var flagSparkline string
 	var flagPriceChangePercentage string
 	var flagAll bool
@@ -26,6 +26,7 @@ func newCoinsMarketsCmd(flags *rootFlags) *cobra.Command {
 		Use:   "markets",
 		Short: "List coins with market data",
 		Example: "  coingecko-pp-cli coins markets",
+		Annotations: map[string]string{"pp:endpoint": "coins.markets", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("vs-currency") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "vs-currency")
@@ -62,7 +63,7 @@ func newCoinsMarketsCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/coins/markets"
-			data, prov, err := resolvePaginatedRead(c, flags, "coins", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "coins", path, map[string]string{
 				"vs_currency": fmt.Sprintf("%v", flagVsCurrency),
 				"ids": fmt.Sprintf("%v", flagIds),
 				"category": fmt.Sprintf("%v", flagCategory),
@@ -71,7 +72,7 @@ func newCoinsMarketsCmd(flags *rootFlags) *cobra.Command {
 				"page": fmt.Sprintf("%v", flagPage),
 				"sparkline": fmt.Sprintf("%v", flagSparkline),
 				"price_change_percentage": fmt.Sprintf("%v", flagPriceChangePercentage),
-			}, flagAll, "", "", "")
+			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -81,14 +82,15 @@ func newCoinsMarketsCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -117,7 +119,7 @@ func newCoinsMarketsCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagCategory, "category", "", "Category")
 	cmd.Flags().StringVar(&flagOrder, "order", "", "Order (one of: market_cap_desc, market_cap_asc, gecko_desc, gecko_asc, volume_desc, volume_asc, id_desc, id_asc)")
 	cmd.Flags().IntVar(&flagPerPage, "per-page", 100, "Per page")
-	cmd.Flags().IntVar(&flagPage, "page", 1, "Page")
+	cmd.Flags().StringVar(&flagPage, "page", "1", "Page")
 	cmd.Flags().StringVar(&flagSparkline, "sparkline", "", "Sparkline (one of: true, false)")
 	cmd.Flags().StringVar(&flagPriceChangePercentage, "price-change-percentage", "", "Comma-separated (e.g. 1h,24h,7d)")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")

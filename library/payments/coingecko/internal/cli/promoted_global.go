@@ -18,6 +18,7 @@ func newGlobalPromotedCmd(flags *rootFlags) *cobra.Command {
 		Short: "Get global crypto market data",
 		Long:  "Shortcut for 'global global'. Get global crypto market data",
 		Example: "  coingecko-pp-cli global",
+		Annotations: map[string]string{"pp:endpoint": "global.global", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -26,7 +27,7 @@ func newGlobalPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/global"
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "global", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "global", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -47,14 +48,15 @@ func newGlobalPromotedCmd(flags *rootFlags) *cobra.Command {
 			if flags.csv {
 				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 			}
-			// For JSON output, wrap with provenance envelope
+			// For JSON output, wrap with provenance envelope. --select wins over
+			// --compact when both are set; --compact only runs when no explicit
+			// fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

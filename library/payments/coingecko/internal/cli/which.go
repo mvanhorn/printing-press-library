@@ -28,6 +28,8 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
+	{Command: "coingecko-search search", Description: "Search coins, categories, exchanges", Group: "coingecko-search"},
+	{Command: "coingecko-search-2 trending", Description: "Get trending coins", Group: "coingecko-search-2"},
 	{Command: "coins detail", Description: "Get current data for a coin", Group: "coins"},
 	{Command: "coins list", Description: "List all coins with id, symbol, and name", Group: "coins"},
 	{Command: "coins markets", Description: "List coins with market data", Group: "coins"},
@@ -35,8 +37,6 @@ var whichIndex = []whichEntry{
 	{Command: "coins ohlc coin", Description: "Get OHLC candle data", Group: "coins"},
 	{Command: "global global", Description: "Get global crypto market data", Group: "global"},
 	{Command: "ping ping", Description: "Check API server status", Group: "ping"},
-	{Command: "search search", Description: "Search coins, categories, exchanges", Group: "search"},
-	{Command: "search trending", Description: "Get trending coins", Group: "search"},
 	{Command: "simple price", Description: "Get price of coins", Group: "simple"},
 	{Command: "simple supported-vs-currencies", Description: "List supported vs currencies", Group: "simple"},
 }

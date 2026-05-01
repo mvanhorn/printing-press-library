@@ -24,6 +24,7 @@ func newSimplePriceCmd(flags *rootFlags) *cobra.Command {
 		Aliases: []string{"list"},
 		Short: "Get price of coins",
 		Example: "  coingecko-pp-cli simple price",
+		Annotations: map[string]string{"pp:endpoint": "simple.price", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("ids") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "ids")
@@ -108,7 +109,7 @@ func newSimplePriceCmd(flags *rootFlags) *cobra.Command {
 			if flagIncludeLastUpdatedAt != "" {
 				params["include_last_updated_at"] = fmt.Sprintf("%v", flagIncludeLastUpdatedAt)
 			}
-			data, prov, err := resolveRead(c, flags, "simple", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "simple", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -118,14 +119,15 @@ func newSimplePriceCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

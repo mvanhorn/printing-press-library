@@ -67,7 +67,7 @@ Manage ping
 Manage search
 
 - **`coingecko-pp-cli search search`** - Search coins, categories, exchanges
-- **`coingecko-pp-cli search trending`** - Get trending coins
+- **`coingecko-pp-cli coingecko-search-2`** - Get trending coins
 
 ### simple
 
