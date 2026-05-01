@@ -13,6 +13,7 @@ import (
 func newOddsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "odds <sport> <league>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Spread, total, and moneyline lines for tonight's slate",
 		Example: `  espn-pp-cli odds basketball nba
   espn-pp-cli odds football nfl --agent

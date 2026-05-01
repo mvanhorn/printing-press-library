@@ -17,6 +17,7 @@ func newSimilarCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	cmd := &cobra.Command{
 		Use:   "similar <query>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find potentially duplicate issues using fuzzy text search",
 		Long:  "Search locally synced issues using FTS5 full-text search to find potential duplicates. Works offline.",
 		Example: `  linear-pp-cli similar "login bug"

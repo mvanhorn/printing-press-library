@@ -14,6 +14,7 @@ func newGamesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "games <steamid>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "List a player's owned games with playtime",
 		Long:  `Show all games owned by a Steam user, including playtime in minutes.`,
 		Example: `  # List owned games

@@ -110,6 +110,7 @@ type bookmarkRow struct {
 func newBookmarkListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "List local bookmarks",
 		Example: strings.Trim(`
   hackernews-pp-cli bookmark list

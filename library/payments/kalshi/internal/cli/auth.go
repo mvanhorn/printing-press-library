@@ -26,6 +26,7 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:     "status",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "Show authentication status",
 		Example: "  kalshi-pp-cli auth status",
 		RunE: func(cmd *cobra.Command, args []string) error {

@@ -25,6 +25,7 @@ func newCustomersJourneyCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "journey",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "See every link a customer clicked, when they became a lead, and when they purchased",
 		Long: `Stitch together a single customer's full attribution timeline across links,
 events, leads, and sales. Live API call: pulls /events filtered by customerId

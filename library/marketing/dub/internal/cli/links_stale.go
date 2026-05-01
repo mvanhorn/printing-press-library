@@ -38,6 +38,7 @@ func newLinksStaleCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "stale",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find links nobody clicks — dead-link detection",
 		Long: `Find links with zero or near-zero clicks. Combines several signals:
   - clicks below threshold over the last --days

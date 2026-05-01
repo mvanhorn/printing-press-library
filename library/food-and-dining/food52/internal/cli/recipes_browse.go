@@ -17,6 +17,7 @@ func newRecipesBrowseCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	cmd := &cobra.Command{
 		Use:   "browse <tag>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Browse Food52 recipes filtered by a tag (e.g. chicken, breakfast, vegetarian)",
 		Example: strings.Trim(`
   food52-pp-cli recipes browse chicken

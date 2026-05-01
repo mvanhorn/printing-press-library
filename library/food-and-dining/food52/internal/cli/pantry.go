@@ -17,6 +17,7 @@ import (
 func newPantryCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "pantry",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Manage a local pantry inventory and match it against synced Food52 recipes",
 		Long: strings.TrimSpace(`
 Track what's in your kitchen. Then run 'pantry match' to find synced Food52
@@ -79,6 +80,7 @@ func newPantryAddCmd(flags *rootFlags) *cobra.Command {
 func newPantryListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show all ingredients currently in your local pantry",
 		Example: strings.Trim(`
   food52-pp-cli pantry list
@@ -170,6 +172,7 @@ func newPantryMatchCmd(flags *rootFlags) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:   "match",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find synced Food52 recipes you can mostly make with what's in your pantry",
 		Long: strings.TrimSpace(`
 Joins your local pantry against every synced recipe and ranks recipes by

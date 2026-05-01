@@ -73,6 +73,7 @@ in a browser, use 'open <slug>'.`,
 func newCommentsCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:     "comments <slug>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "(stub) Comments on a post — CF-gated, requires browser clearance",
 		Example: `  producthunt-pp-cli comments seeknal --json`,
 		Args:    cobra.ExactArgs(1),
@@ -88,6 +89,7 @@ func newCommentsCmd(flags *rootFlags) *cobra.Command {
 func newLeaderboardCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "leaderboard",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "(stub) Daily/weekly/monthly leaderboards — CF-gated, use local snapshots instead",
 		Long: `Historical leaderboard pages at producthunt.com/leaderboard/... are
 Cloudflare-gated. This build does not fetch them.
@@ -108,6 +110,7 @@ snapshot of the live /feed. Then query 'list --since <window>' or 'trend
 		p := period
 		cmd.AddCommand(&cobra.Command{
 			Use:     p,
+		Annotations: map[string]string{"mcp:read-only": "true"},
 			Short:   fmt.Sprintf("(stub) %s leaderboard — CF-gated", p),
 			Example: fmt.Sprintf("  producthunt-pp-cli leaderboard %s --json", p),
 			RunE: func(c *cobra.Command, args []string) error {
@@ -124,6 +127,7 @@ snapshot of the live /feed. Then query 'list --since <window>' or 'trend
 func newTopicCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:     "topic <slug>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "(stub) Topic feed — CF-gated, no Atom alternative",
 		Example: `  producthunt-pp-cli topic artificial-intelligence --json`,
 		Long: `Topic pages at /topics/<slug> are Cloudflare-gated, and the /feed?category=
@@ -144,6 +148,7 @@ No Atom fallback exists. This stub documents the gap explicitly.`,
 func newUserCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:     "user <handle>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "(stub) User/maker profile — CF-gated",
 		Example: `  producthunt-pp-cli user rrhoover --json`,
 		Long: `Profile pages at /@<handle> are Cloudflare-gated.
@@ -178,6 +183,7 @@ func newCollectionCmd(flags *rootFlags) *cobra.Command {
 func newNewsletterCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "newsletter",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "(stub) Newsletter archive — CF-gated, no Atom alternative",
 		Example: `  producthunt-pp-cli newsletter --json`,
 		Long: `Newsletter archive pages at /newsletters/archive/... are Cloudflare-gated.

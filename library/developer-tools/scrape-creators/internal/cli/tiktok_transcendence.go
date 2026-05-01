@@ -139,6 +139,7 @@ func newTiktokSpikesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "spikes",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find videos that outperformed a creator's average engagement rate",
 		Long: `Fetches all available videos for a creator, computes the average engagement
 rate (likes+comments+shares / views), then returns videos that exceeded the
@@ -262,6 +263,7 @@ func newTiktokAnalyzeCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "analyze",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Rank a creator's videos by engagement rate (likes+comments+shares / views)",
 		Example: `  scrape-creators-pp-cli tiktok analyze --handle charlidamelio --limit 10
   scrape-creators-pp-cli tiktok analyze --handle charlidamelio --json --select id,engagement_rate,play_count`,
@@ -348,6 +350,7 @@ func newTiktokCadenceCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "cadence",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show a creator's posting frequency by day of week and hour of day",
 		Example: `  scrape-creators-pp-cli tiktok cadence --handle charlidamelio
   scrape-creators-pp-cli tiktok cadence --handle charlidamelio --json`,
@@ -450,6 +453,7 @@ func newTiktokCompareCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "compare",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Compare multiple TikTok creators side-by-side on followers, engagement, and posting cadence",
 		Example: `  scrape-creators-pp-cli tiktok compare --handle charlidamelio --handle addisonre
   scrape-creators-pp-cli tiktok compare --handle charlidamelio --handle addisonre --json`,
@@ -562,6 +566,7 @@ func newTiktokTranscriptsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "transcripts",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Fetch and search across a creator's video transcripts",
 		Example: `  # Search transcripts for a keyword
   scrape-creators-pp-cli tiktok transcripts --handle charlidamelio --search "morning routine"
@@ -686,6 +691,7 @@ func newTiktokTranscriptsCmd(flags *rootFlags) *cobra.Command {
 func newAccountBudgetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "budget",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show API credit balance and projected days remaining at current burn rate",
 		Example: `  scrape-creators-pp-cli account budget
   scrape-creators-pp-cli account budget --agent --select credits_remaining,days_remaining`,
@@ -1027,6 +1033,7 @@ func newSearchTrendsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "trends",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Search a hashtag, record trend snapshots, and inspect stored history",
 		Example: `  scrape-creators-pp-cli search trends --hashtag BookTok
   scrape-creators-pp-cli search trends --hashtag BookTok --json

@@ -36,6 +36,7 @@ func newComparePricesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:     "compare-prices",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "Compare nearby store pricing for a list of menu item codes",
 		Long:    "Find the cheapest nearby Domino's store for a given list of menu item codes by syncing menus from nearby stores and joining on item codes locally.",
 		Example: "  dominos-pp-cli compare-prices --address \"421 N 63rd St\" --city \"Seattle WA\" --items 14SCREEN,W08PHOTW\n  dominos-pp-cli compare-prices --address \"421 N 63rd St\" --city \"Seattle, WA 98103\" --items 14SCREEN,W08PHOTW,P_SAUCEEZE --service Carryout --max-stores 3 --json",

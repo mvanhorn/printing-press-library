@@ -21,6 +21,7 @@ func newSyncArticlesCmd(flags *rootFlags) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:   "articles <vertical> [<subvertical>]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Pull Food52 articles for a vertical (and optional subvertical) into the local store",
 		Long: strings.TrimSpace(`
 Walks /<vertical> (or /<vertical>/<subvertical>), then fetches each article's

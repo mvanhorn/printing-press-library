@@ -17,6 +17,7 @@ func newTodayCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "today",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "List the current featured launches on Product Hunt",
 		Long: `Show the top entries from the public Product Hunt Atom feed.
 
@@ -121,6 +122,7 @@ func newRecentCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	cmd := &cobra.Command{
 		Use:   "recent",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Live-fetch /feed (bypass store) and return the newest entries",
 		Long: `Shortcut for 'today --live'. Always fetches /feed from the network and does
 not read from the local store. Useful when you want a fresh view without

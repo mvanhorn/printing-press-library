@@ -17,6 +17,7 @@ func newArticlesBrowseCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	cmd := &cobra.Command{
 		Use:   "browse <vertical>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Browse the latest Food52 articles in a vertical (food, life)",
 		Example: strings.Trim(`
   food52-pp-cli articles browse food

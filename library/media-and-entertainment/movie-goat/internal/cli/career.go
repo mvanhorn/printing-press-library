@@ -16,6 +16,7 @@ func newCareerCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "career <person-name-or-id>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Explore a person's complete filmography with stats and highlights",
 		Long: `Look up an actor, director, or crew member's full career across movies and TV.
 Shows a filmography table sorted by year, rating, or popularity, plus career summary stats.`,

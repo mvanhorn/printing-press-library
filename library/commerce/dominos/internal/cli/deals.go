@@ -41,6 +41,7 @@ func newDealsBestCmd(flags *rootFlags) *cobra.Command {
 	var topN int
 	cmd := &cobra.Command{
 		Use:   "best",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find the best deal for a cart",
 		Example: "  dominos-pp-cli deals best --cart cart.json\n" +
 			"  dominos-pp-cli deals best --store 7094 --include-loyalty=false",

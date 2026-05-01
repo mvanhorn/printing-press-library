@@ -31,6 +31,7 @@ var supportedTargets = []string{"claude-code", "claude-desktop", "codex", "curso
 func newAgentCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "agent",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Manage AI agent integrations (MCP server wiring)",
 	}
 	cmd.AddCommand(newAgentAddCmd(flags))

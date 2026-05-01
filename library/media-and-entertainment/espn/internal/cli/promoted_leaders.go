@@ -17,6 +17,7 @@ func newLeadersPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "leaders <sport> <league>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Statistical leaders across categories",
 		Example: `  espn-pp-cli leaders football nfl
   espn-pp-cli leaders basketball nba --category points

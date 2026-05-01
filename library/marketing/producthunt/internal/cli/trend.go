@@ -40,6 +40,7 @@ func newTrendCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "trend <slug>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show a post's rank trajectory across all synced snapshots",
 		Long: `Return the complete appearance history for a slug: every snapshot that
 captured it, the rank it held, best/worst rank, number of appearances,

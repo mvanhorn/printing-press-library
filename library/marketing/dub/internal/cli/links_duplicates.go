@@ -27,6 +27,7 @@ func newLinksDuplicatesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:     "duplicates",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Aliases: []string{"dups"},
 		Short:   "Find links pointing to the same destination URL",
 		Long: `Group every link in the local store by its destination URL and surface every

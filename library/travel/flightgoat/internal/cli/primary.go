@@ -42,6 +42,7 @@ func newGfFlightsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "flights <origin> <destination> <date>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Search Google Flights for a specific date (free, no API key required)",
 		Long: `flights is flightgoat's headline command. It queries Google Flights through
 the fli Python library (reverse-engineered, not scraped) and returns real prices,
@@ -157,6 +158,7 @@ func newGfDatesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "dates <origin> <destination>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find the cheapest dates to fly between two airports (free, no API key required)",
 		Long: `dates scans Google Flights for the cheapest days to travel a route over
 a range of dates. No API key required. Wraps the fli Python library.
@@ -264,6 +266,7 @@ func newKayakExploreCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "explore <airport>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Every nonstop destination from an airport (free, via Kayak /direct)",
 		Long: `explore fetches Kayak's /direct/<airport> page and parses the nonstop
 destinations table that Kayak server-renders into the HTML. Same data you see
@@ -365,6 +368,7 @@ func newKayakLonghaulCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "longhaul <airport>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Nonstop destinations from an airport filtered by minimum flight duration (free, via Kayak)",
 		Long: `longhaul is the headline flightgoat command. It answers the classic
 travel-hacker question: "show me every nonstop flight from my airport that's

@@ -36,6 +36,7 @@ func newCompanySearchCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "search <query>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Full-text search across companies in the YC directory by name, description, industry, location.",
 		Long: `search finds companies in the YC directory snapshot (~5000+ companies) by query terms across name, one-liner description, industry, and location. Useful for "find the fintech with the strong London presence" or "companies in the AI batch with 'agent' in their description."
 

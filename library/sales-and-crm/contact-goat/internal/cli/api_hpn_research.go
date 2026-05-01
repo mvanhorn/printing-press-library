@@ -55,6 +55,7 @@ func newAPIHpnResearchCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "research <description>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Run a Happenstance deep-research dossier (costs 1 credit on completion)",
 		Long: `Run a deep-research dossier against the Happenstance public API.
 
@@ -124,6 +125,7 @@ gather them later via ` + "`api hpn research get <id>`" + `.`,
 func newAPIHpnResearchGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get <research_id>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Re-fetch an existing research dossier by id (free)",
 		Long: `Calls GET /v1/research/{id} and renders the dossier in the same shape
 as ` + "`api hpn research`" + `. Free probe — no credits spent.`,

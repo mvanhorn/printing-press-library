@@ -157,6 +157,7 @@ func newAddressBestTimeCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "best-time",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Resolve a saved address label to the next available delivery (or pickup) slot",
 		Example: `  pagliacci-pizza-pp-cli address best-time --label home
   pagliacci-pizza-pp-cli address best-time --label work --limit 3 --json`,

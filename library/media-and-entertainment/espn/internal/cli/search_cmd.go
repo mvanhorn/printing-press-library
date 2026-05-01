@@ -14,6 +14,7 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "search <query>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Full-text search across synced events and news",
 		Example: `  espn-pp-cli search "Lakers"
   espn-pp-cli search "touchdown" --sport football --limit 10

@@ -14,6 +14,7 @@ func newSchedulesStaleCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "stale",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find schedules that stopped producing runs or have high failure rates",
 		Long: `Detect stale schedules by cross-referencing schedule data with recent run history.
 Finds schedules with no recent runs, high failure rates, or that are disabled

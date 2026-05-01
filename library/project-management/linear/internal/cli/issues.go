@@ -48,6 +48,7 @@ func newIssuesCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	cmd := &cobra.Command{
 		Use:   "issues <ID>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Get or list Linear issues",
 		Long: `Get a single issue by identifier (e.g. ESP-1155), or list issues with filters.
 
@@ -103,6 +104,7 @@ func newIssuesListCmd(flags *rootFlags, dbPath *string) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:   "list",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "List issues from the local sqlite store with filters",
 		Long: `List issues from the local sqlite store. Requires a prior 'linear-pp-cli sync'.
 

@@ -162,6 +162,7 @@ func newRewardsStackCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "stack",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Pick the best coupon + stored credit combination for a given order total",
 		Example: `  pagliacci-pizza-pp-cli rewards stack --order-total 45.00
   pagliacci-pizza-pp-cli rewards stack --order-total 45.00 --experimental --json`,

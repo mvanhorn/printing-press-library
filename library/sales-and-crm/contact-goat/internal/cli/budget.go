@@ -25,6 +25,7 @@ func newBudgetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "budget",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Deepline credit spend: totals, top tools, and history",
 		Long: `Aggregate Deepline credit spend from the local log (no network calls).
 
@@ -148,6 +149,7 @@ The limit is stored at ~/.local/share/contact-goat-pp-cli/budget.toml.`,
 func newBudgetHistoryCmd(flags *rootFlags, limit *int) *cobra.Command {
 	return &cobra.Command{
 		Use:   "history",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Last N Deepline calls (tool, credits, status, timestamp)",
 		Example: `  contact-goat-pp-cli budget history
   contact-goat-pp-cli budget history --limit 100 --json`,

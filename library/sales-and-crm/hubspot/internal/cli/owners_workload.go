@@ -26,6 +26,7 @@ func newOwnersWorkloadCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "workload",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show team member workload across deals, tickets, and tasks",
 		Long:  "Cross-entity analysis showing which owners are overloaded with open deals, tickets, and overdue tasks.",
 		Example: "  hubspot-pp-cli owners workload\n" +

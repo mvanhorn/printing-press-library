@@ -21,6 +21,7 @@ import (
 func newHistoryCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "history",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Inspect, search, and sync your local Instacart purchase history",
 		Long: `Your Instacart order history mirrored to a local SQLite DB so the CLI
 can weight what you have actually bought before over live-catalog
@@ -159,6 +160,7 @@ func newHistoryListCmd() *cobra.Command {
 	var retailerOverride string
 	cmd := &cobra.Command{
 		Use:   "list",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show your most-purchased items from the local history",
 		Long: `Lists purchased_items sorted by purchase_count DESC then last_purchased_at DESC.
 Use --store to filter to one retailer. Default limit is 25.`,
@@ -210,6 +212,7 @@ func newHistorySearchCmd() *cobra.Command {
 	var retailerOverride string
 	cmd := &cobra.Command{
 		Use:   "search <query>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Full-text search your local purchase history",
 		Long: `Searches purchased_items_fts and returns the top N results ranked by
 FTS relevance then by recency. Filter to one retailer with --store.
@@ -281,6 +284,7 @@ Useful for diagnosing why 'add' did or did not resolve via history.`,
 func newHistoryStatsCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "stats",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show history sync state and row counts",
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			app, err := newAppContext(cmd)

@@ -18,6 +18,7 @@ func newTaglineGrepCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "tagline-grep <pattern>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Search every tagline the CLI has ever synced",
 		Long: `Grep the tagline field across your full local post store. Two modes:
 

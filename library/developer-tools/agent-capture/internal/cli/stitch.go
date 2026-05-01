@@ -12,6 +12,7 @@ import (
 
 var stitchCmd = &cobra.Command{
 	Use:   "stitch <frame1.png> <frame2.png> ... -o <output.gif>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 	Short: "Stitch multiple screenshots into an animated GIF",
 	Long: `Combine multiple PNG/JPG screenshots into a single animated GIF.
 Frames are automatically normalized to the same dimensions with configurable padding.

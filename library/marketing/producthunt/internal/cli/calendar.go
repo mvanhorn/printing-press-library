@@ -32,6 +32,7 @@ func newCalendarCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "calendar",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Week-at-a-glance: which products were featured each day",
 		Long: `Group the posts you've synced by their first-seen day and render a
 calendar-shaped payload. Requires first_seen data, which accumulates as

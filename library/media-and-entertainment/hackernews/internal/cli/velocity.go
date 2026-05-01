@@ -23,6 +23,7 @@ type velocityRow struct {
 func newVelocityCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "velocity <id>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show a story's rank trajectory across local snapshots",
 		Long: `Read every front-page snapshot that contains the given item and
 emit (taken_at, list, rank) rows.

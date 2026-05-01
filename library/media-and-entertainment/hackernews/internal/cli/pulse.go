@@ -45,6 +45,7 @@ func newPulseCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "pulse <topic>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show what HN is saying about a topic this week — score, comment, frequency by day",
 		Long: `Run an Algolia query for a topic, scoped to the last N days, and bucket
 hits by UTC date.

@@ -81,6 +81,7 @@ func newAPIHpnSearchCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "search <text>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Run a Happenstance search via the public API (costs 2 credits)",
 		Long: `Run a search against the Happenstance public API.
 
@@ -169,6 +170,7 @@ func newAPIHpnSearchFindMoreCmd(flags *rootFlags) *cobra.Command {
 	var budget int
 	cmd := &cobra.Command{
 		Use:   "find-more <search_id>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Fetch the next page of an existing search (costs 2 credits)",
 		Long: `Calls POST /v1/search/{id}/find-more on a parent search. Returns the
 new page id; use it on a follow-up ` + "`api hpn search get <id> --page-id <page_id>`" + `
@@ -233,6 +235,7 @@ func newAPIHpnSearchGetCmd(flags *rootFlags) *cobra.Command {
 	var pageID string
 	cmd := &cobra.Command{
 		Use:   "get <search_id>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Re-fetch an existing search by id (free)",
 		Long: `Calls GET /v1/search/{id} and renders the envelope in the same shape
 as ` + "`api hpn search`" + `. Free probe — no credits spent. Pass --page-id when

@@ -14,6 +14,7 @@ var (
 
 var rootCmd = &cobra.Command{
 	Use:   "agent-capture",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 	Short: "Record, screenshot, and convert macOS windows and screens for AI agent evidence",
 	Long: `agent-capture consolidates macOS screen capture, window recording, GIF conversion,
 frame stitching, and styled code screenshots into one agent-native CLI.

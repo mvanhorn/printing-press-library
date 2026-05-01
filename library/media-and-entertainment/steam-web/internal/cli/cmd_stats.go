@@ -13,6 +13,7 @@ func newStatsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "stats <steamid>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show a player's stats for a game",
 		Long:  `Display detailed player statistics for a specific game (kills, deaths, playtime, etc.).`,
 		Example: `  # Show stats for CS2 (appid 730)

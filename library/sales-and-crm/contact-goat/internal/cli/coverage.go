@@ -26,6 +26,7 @@ func newCoverageCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "coverage <company>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show who you know at a company (LinkedIn + Happenstance)",
 		Long: `Cross-source "who do I know at X" query.
 

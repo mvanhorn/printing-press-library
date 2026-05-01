@@ -14,6 +14,7 @@ import (
 
 var remotionCmd = &cobra.Command{
 	Use:   "remotion",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 	Short: "Render Remotion compositions as video or still frames",
 	Long: `Wrap Remotion as a capture source for simulated demo videos.
 Remotion and its dependencies must be installed in the project directory.`,
@@ -55,6 +56,7 @@ var (
 
 var remotionStillCmd = &cobra.Command{
 	Use:   "still [output]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 	Short: "Render a single frame from a Remotion composition",
 	Example: `  # Render frame 0 (default)
   agent-capture remotion still --entry src/index.ts --comp MyDemo hero.png

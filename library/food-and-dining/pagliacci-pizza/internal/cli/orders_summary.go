@@ -214,6 +214,7 @@ func newOrdersSummaryCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "summary",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Aggregate order spend, order count, top items, and per-store breakdown from local sync data",
 		Example: `  pagliacci-pizza-pp-cli orders summary
   pagliacci-pizza-pp-cli orders summary --since 90d --json`,

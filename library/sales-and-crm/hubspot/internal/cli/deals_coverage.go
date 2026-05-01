@@ -27,6 +27,7 @@ func newDealsCoverageCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "coverage",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find open deals with low engagement coverage",
 		Long:  "Identify open deals where associated contacts have little or no recent engagement activity.",
 		Example: "  hubspot-pp-cli deals coverage\n" +

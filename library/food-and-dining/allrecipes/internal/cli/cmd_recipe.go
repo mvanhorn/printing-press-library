@@ -20,6 +20,7 @@ func newRecipeTopCmd(flags *rootFlags) *cobra.Command {
 	var flagMarkdown bool
 	cmd := &cobra.Command{
 		Use:   "recipe <url-or-id>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Fetch a single recipe by URL, ID, or id/slug shorthand",
 		Example: "  allrecipes-pp-cli recipe https://www.allrecipes.com/recipe/9599/quick-and-easy-brownies/\n" +
 			"  allrecipes-pp-cli recipe 9599/quick-and-easy-brownies --agent\n" +
@@ -50,6 +51,7 @@ func newIngredientsCmd(flags *rootFlags) *cobra.Command {
 	var flagParsed bool
 	cmd := &cobra.Command{
 		Use:   "ingredients <url-or-id>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show parsed ingredients for a recipe",
 		Example: "  allrecipes-pp-cli ingredients 9599/quick-and-easy-brownies\n" +
 			"  allrecipes-pp-cli ingredients 9599/quick-and-easy-brownies --parsed --agent",
@@ -83,6 +85,7 @@ func newIngredientsCmd(flags *rootFlags) *cobra.Command {
 func newInstructionsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "instructions <url-or-id>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show numbered instructions for a recipe",
 		Example: "  allrecipes-pp-cli instructions 9599/quick-and-easy-brownies\n" +
 			"  allrecipes-pp-cli instructions 9599/quick-and-easy-brownies --agent",
@@ -113,6 +116,7 @@ func newNutritionCmd(flags *rootFlags) *cobra.Command {
 	var flagServings int
 	cmd := &cobra.Command{
 		Use:   "nutrition <url-or-id>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show nutrition for a recipe (per serving by default)",
 		Example: "  allrecipes-pp-cli nutrition 9599/quick-and-easy-brownies\n" +
 			"  allrecipes-pp-cli nutrition 9599/quick-and-easy-brownies --servings 8 --agent",
@@ -151,6 +155,7 @@ func newNutritionCmd(flags *rootFlags) *cobra.Command {
 func newReviewsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "reviews <url-or-id>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show review summary for a recipe",
 		Example: "  allrecipes-pp-cli reviews 9599/quick-and-easy-brownies\n" +
 			"  allrecipes-pp-cli reviews 9599/quick-and-easy-brownies --agent",
@@ -187,6 +192,7 @@ func newScaleCmd(flags *rootFlags) *cobra.Command {
 	var flagServings int
 	cmd := &cobra.Command{
 		Use:   "scale <url-or-id>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Rescale a recipe's ingredients to a target serving count",
 		Example: "  allrecipes-pp-cli scale 9599/quick-and-easy-brownies --servings 8\n" +
 			"  allrecipes-pp-cli scale 9599/quick-and-easy-brownies --servings 16 --agent",

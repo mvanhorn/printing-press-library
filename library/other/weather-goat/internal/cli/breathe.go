@@ -15,6 +15,7 @@ func newBreatheCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "breathe [location]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Check air quality, pollen levels, and outdoor exercise safety",
 		Long:  "Fetch air quality data including AQI, PM2.5, PM10, UV index, and pollen levels. Provides a recommendation for outdoor activity safety.",
 		Example: `  weather-goat-pp-cli breathe

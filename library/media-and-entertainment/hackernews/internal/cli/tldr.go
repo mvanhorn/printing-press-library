@@ -44,6 +44,7 @@ type tldrResult struct {
 func newTldrCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "tldr <id>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Print a deterministic thread digest (top authors, reply ratio, heat metric)",
 		Long: `Walk a thread's full comment tree and emit measurable signals.
 

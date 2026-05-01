@@ -15,6 +15,7 @@ import (
 
 var vhsCmd = &cobra.Command{
 	Use:   "vhs <tape-file> [output]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 	Short: "Run a VHS tape file and produce a terminal recording GIF",
 	Long: `Wrap VHS (charmbracelet/vhs) as a capture source with --json output
 and optional GIF auto-reduce. VHS must be installed separately.`,

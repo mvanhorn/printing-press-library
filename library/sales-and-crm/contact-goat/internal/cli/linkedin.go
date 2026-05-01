@@ -29,6 +29,7 @@ import (
 func newLinkedInCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "linkedin",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "LinkedIn scraper powered by stickerdaniel/linkedin-mcp-server",
 		Long: "LinkedIn subcommands wrap the upstream linkedin-scraper-mcp Python MCP server.\n" +
 			"First-time setup: run `uvx linkedin-scraper-mcp@latest --login` to cache your\n" +
@@ -65,6 +66,7 @@ func newLISearchPeopleCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	cmd := &cobra.Command{
 		Use:   "search-people <keywords>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Search LinkedIn people by keyword",
 		Example: "  contact-goat-pp-cli linkedin search-people \"VP engineering fintech\"\n" +
 			"  contact-goat-pp-cli linkedin search-people \"Staff eng\" --location \"New York\" --limit 50 --json",
@@ -89,6 +91,7 @@ func newLISearchJobsCmd(flags *rootFlags) *cobra.Command {
 	var maxPages int
 	cmd := &cobra.Command{
 		Use:   "search-jobs <keywords>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Search LinkedIn job postings by keyword",
 		Example: "  contact-goat-pp-cli linkedin search-jobs \"senior backend engineer\"\n" +
 			"  contact-goat-pp-cli linkedin search-jobs \"product designer\" --location Remote --max-pages 5",
@@ -115,6 +118,7 @@ func newLIGetPersonCmd(flags *rootFlags) *cobra.Command {
 	var sections []string
 	cmd := &cobra.Command{
 		Use:   "get-person <url-or-slug>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Fetch a LinkedIn profile",
 		Example: "  contact-goat-pp-cli linkedin get-person williamhgates\n" +
 			"  contact-goat-pp-cli linkedin get-person https://www.linkedin.com/in/satyanadella/ \\\n" +
@@ -139,6 +143,7 @@ func newLIGetCompanyCmd(flags *rootFlags) *cobra.Command {
 	var sections []string
 	cmd := &cobra.Command{
 		Use:   "get-company <slug>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Fetch a LinkedIn company profile",
 		Example: "  contact-goat-pp-cli linkedin get-company openai\n" +
 			"  contact-goat-pp-cli linkedin get-company stripe --sections posts,jobs",
@@ -161,6 +166,7 @@ func newLIInboxCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	cmd := &cobra.Command{
 		Use:   "inbox",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "List recent LinkedIn conversations",
 		Example: "  contact-goat-pp-cli linkedin inbox\n" +
 			"  contact-goat-pp-cli linkedin inbox --limit 25 --json",
@@ -177,6 +183,7 @@ func newLIInboxCmd(flags *rootFlags) *cobra.Command {
 func newLIConversationCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "conversation <user-or-thread-id>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Read a single LinkedIn conversation",
 		Long: "Read a single LinkedIn conversation.\n\n" +
 			"WARNING: upstream issue stickerdaniel/linkedin-mcp-server#307 reports\n" +
@@ -199,6 +206,7 @@ func newLIConversationCmd(flags *rootFlags) *cobra.Command {
 func newLISearchMessagesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "search-messages <query>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Full-text search your LinkedIn messages",
 		Example: "  contact-goat-pp-cli linkedin search-messages \"series A\"\n" +
 			"  contact-goat-pp-cli linkedin search-messages \"coffee chat\" --json",
@@ -216,6 +224,7 @@ func newLICompanyPostsCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	cmd := &cobra.Command{
 		Use:   "company-posts <slug>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "List recent posts from a company page",
 		Example: "  contact-goat-pp-cli linkedin company-posts anthropic\n" +
 			"  contact-goat-pp-cli linkedin company-posts openai --limit 20",
@@ -234,6 +243,7 @@ func newLICompanyPostsCmd(flags *rootFlags) *cobra.Command {
 func newLIJobCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "job <job-id>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Fetch full detail for a single LinkedIn job posting",
 		Example: "  contact-goat-pp-cli linkedin job 3712345678\n" +
 			"  contact-goat-pp-cli linkedin job 3712345678 --json",
@@ -250,6 +260,7 @@ func newLIJobCmd(flags *rootFlags) *cobra.Command {
 func newLISidebarCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "sidebar <person-url>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Fetch the \"People also viewed\" sidebar for a profile",
 		Example: "  contact-goat-pp-cli linkedin sidebar https://www.linkedin.com/in/satyanadella/\n" +
 			"  contact-goat-pp-cli linkedin sidebar williamhgates",
@@ -266,6 +277,7 @@ func newLISidebarCmd(flags *rootFlags) *cobra.Command {
 func newLIListToolsCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "list-tools",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "List tools exposed by the underlying linkedin-scraper-mcp server",
 		Example: "  contact-goat-pp-cli linkedin list-tools\n" +
 			"  contact-goat-pp-cli linkedin list-tools --json",

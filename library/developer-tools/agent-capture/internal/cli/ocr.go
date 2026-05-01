@@ -13,6 +13,7 @@ import (
 
 var ocrCmd = &cobra.Command{
 	Use:   "ocr",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 	Short: "Extract text from a window or image using macOS Vision framework",
 	Long: `Capture a screenshot and run OCR to extract visible text.
 Uses macOS Vision framework (VNRecognizeTextRequest) for accurate text recognition.`,

@@ -15,6 +15,7 @@ import (
 func newArticlesGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get <slug-or-url>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Get a Food52 article (story) by slug or URL",
 		Example: strings.Trim(`
   food52-pp-cli articles get best-mothers-day-gift-ideas

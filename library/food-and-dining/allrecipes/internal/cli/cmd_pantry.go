@@ -22,6 +22,7 @@ func newPantryCmd(flags *rootFlags) *cobra.Command {
 	var flagMaxMissing, flagLimit int
 	cmd := &cobra.Command{
 		Use:   "pantry",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Score cached recipes by overlap with a pantry of ingredients",
 		Long: `Reads --pantry-file (or --pantry as a comma-separated list of ingredients)
 and ranks cached recipes by how many of their ingredients you already have.
@@ -118,6 +119,7 @@ func newWithIngredientCmd(flags *rootFlags) *cobra.Command {
 	var flagMinRating float64
 	cmd := &cobra.Command{
 		Use:   "with-ingredient <name>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Reverse index: cached recipes that use a given ingredient",
 		Long: `Searches the local recipe_ingredients_fts index for recipes containing the
 given ingredient name. Recipes only appear if their JSON-LD has been
@@ -178,6 +180,7 @@ func newDietaryCmd(flags *rootFlags) *cobra.Command {
 	var flagMaxMinutes int
 	cmd := &cobra.Command{
 		Use:   "dietary",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Filter cached recipes by gluten-free / vegan / low-carb / vegetarian / dairy-free",
 		Long: `Filters the local recipe cache by dietary heuristics:
   - gluten-free: excludes wheat, flour, bread, pasta, soy sauce, beer

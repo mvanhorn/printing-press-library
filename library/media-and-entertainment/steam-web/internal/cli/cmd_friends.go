@@ -11,6 +11,7 @@ import (
 func newFriendsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "friends <steamid>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "List a player's friends",
 		Long:  `Show all friends for a Steam user including relationship type and friend-since date.`,
 		Example: `  # List friends

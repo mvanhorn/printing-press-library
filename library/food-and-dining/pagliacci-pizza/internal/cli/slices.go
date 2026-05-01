@@ -13,6 +13,7 @@ import (
 func newSlicesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "slices",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Slice availability across stores (today's perishable rotation)",
 	}
 	cmd.AddCommand(newSlicesTodayCmd(flags))
@@ -114,6 +115,7 @@ func newSlicesTodayCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "today",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show slices available right now at every Pagliacci store, joined with store name and address",
 		Example: `  pagliacci-pizza-pp-cli slices today
   pagliacci-pizza-pp-cli slices today --store 492

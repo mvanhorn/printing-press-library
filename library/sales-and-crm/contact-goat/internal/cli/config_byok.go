@@ -44,6 +44,7 @@ type byokFile struct {
 func newConfigCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "config",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Configure contact-goat-pp-cli (BYOK providers, defaults, etc.)",
 	}
 	cmd.AddCommand(newConfigBYOKCmd(flags))
@@ -143,6 +144,7 @@ func newConfigBYOKUnsetCmd(flags *rootFlags) *cobra.Command {
 func newConfigBYOKListCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:     "list",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "Show configured BYOK providers (env var names only, never values)",
 		Example: "  contact-goat-pp-cli config byok list",
 		RunE: func(cmd *cobra.Command, args []string) error {

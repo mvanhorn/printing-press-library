@@ -26,6 +26,7 @@ func newTodayCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "today",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Today's scores across all major sports",
 		Example: `  espn-pp-cli today
   espn-pp-cli today --sport nba

@@ -21,6 +21,7 @@ func newFunnelCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "funnel",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Click → lead → sale conversion rates for a link or workspace",
 		Long: `Show clicks, leads, and sales counts plus the conversion percentage at each
 stage. Useful for finding where prospects drop off in the funnel.

@@ -88,6 +88,7 @@ func newBrowseCmd(flags *rootFlags, spec browseSpec) *cobra.Command {
 	var flagLimit int
 	cmd := &cobra.Command{
 		Use:     spec.use,
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   spec.short,
 		Example: fmt.Sprintf("  allrecipes-pp-cli %s %s --limit 20 --agent", strings.Fields(spec.use)[0], spec.exampleSlug),
 		Args:    cobra.MinimumNArgs(1),

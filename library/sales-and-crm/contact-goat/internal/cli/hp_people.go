@@ -24,6 +24,7 @@ import (
 func newHPCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "hp",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Happenstance graph commands (1st / 2nd / 3rd degree people-search)",
 		Long: `hp groups the Happenstance graph-search commands that wrap the web app's
 natural-language search. Unlike the narrow friends/list-backed coverage
@@ -47,6 +48,7 @@ func newHPPeopleCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "people <query>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Natural-language people-search across your Happenstance graph",
 		Long: `Runs a Happenstance people-search with the same endpoint the web app
 uses. Supports 1st-degree (your synced connections), 2nd-degree (your

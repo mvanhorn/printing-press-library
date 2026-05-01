@@ -18,6 +18,7 @@ func newBottleneckCmd(flags *rootFlags) *cobra.Command {
 	var teamFilter string
 	cmd := &cobra.Command{
 		Use:   "bottleneck",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find overloaded team members and blocked issues",
 		Long:  "Analyze issue distribution per assignee to find bottlenecks. Shows who has too many active issues and which issues are blocking others.",
 		Example: `  linear-pp-cli bottleneck

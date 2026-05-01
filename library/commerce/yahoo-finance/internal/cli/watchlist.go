@@ -80,6 +80,7 @@ func openDB(flags *rootFlags) (*sql.DB, error) {
 func newWatchlistCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "watchlist",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Create, manage, and query local watchlists of ticker symbols",
 		Long:  "Watchlists live in your local SQLite database. They power multi-symbol commands like `digest`, `compare`, and `watchlist show`.",
 		Example: `  # Create a watchlist and add symbols
@@ -180,6 +181,7 @@ func newWatchlistRemoveCmd(flags *rootFlags) *cobra.Command {
 func newWatchlistListCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "list",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "List all watchlists with member counts",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			db, err := openDB(flags)
@@ -239,6 +241,7 @@ func watchlistSymbols(db *sql.DB, name string) ([]string, error) {
 func newWatchlistShowCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:     "show <name>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "Show symbols in a watchlist with live quotes",
 		Args:    cobra.ExactArgs(1),
 		Example: "  yahoo-finance-pp-cli watchlist show tech",
@@ -419,6 +422,7 @@ func renderQuotes(cmd *cobra.Command, flags *rootFlags, label string, quotes []q
 func newPortfolioCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "portfolio",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Track holdings, cost basis, returns, and dividend income locally",
 		Long:  "Portfolios are a local SQLite concept. Each 'lot' records shares, cost basis, and purchase date. Commands compute P&L, YTD return, and dividend income against live quotes.",
 	}
@@ -473,6 +477,7 @@ func newPortfolioAddCmd(flags *rootFlags) *cobra.Command {
 func newPortfolioListCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "list",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "List all portfolio lots",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			db, err := openDB(flags)
@@ -545,6 +550,7 @@ func newPortfolioRemoveCmd(flags *rootFlags) *cobra.Command {
 func newPortfolioPerfCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:     "perf",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "Show current market value, cost basis, and unrealized P&L across all lots",
 		Example: "  yahoo-finance-pp-cli portfolio perf",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -660,6 +666,7 @@ func newPortfolioGainsCmd(flags *rootFlags) *cobra.Command {
 	var unrealized bool
 	cmd := &cobra.Command{
 		Use:   "gains",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Per-lot unrealized gain/loss sorted by magnitude",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			_ = unrealized
@@ -765,6 +772,7 @@ func newDigestCmd(flags *rootFlags) *cobra.Command {
 	var symbolsFlag string
 	cmd := &cobra.Command{
 		Use:   "digest",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Morning briefing: biggest movers and headline quotes across a watchlist",
 		Example: `  yahoo-finance-pp-cli digest --watchlist tech
   yahoo-finance-pp-cli digest --symbols AAPL,MSFT,NVDA`,
@@ -874,6 +882,7 @@ func quoteRowsCompact(qs []quoteRow) [][]string {
 func newCompareCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:     "compare <symbol> <symbol> [symbol...]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "Side-by-side quote comparison for 2+ symbols",
 		Args:    cobra.MinimumNArgs(2),
 		Example: "  yahoo-finance-pp-cli compare AAPL MSFT GOOG NVDA",
@@ -933,6 +942,7 @@ func newSparklineCmd(flags *rootFlags) *cobra.Command {
 	var interval string
 	cmd := &cobra.Command{
 		Use:     "sparkline <symbol>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "Unicode sparkline of a symbol's recent price action",
 		Args:    cobra.ExactArgs(1),
 		Example: "  yahoo-finance-pp-cli sparkline AAPL --range 3mo",
@@ -1041,6 +1051,7 @@ func renderSparkline(data []float64) string {
 func newSQLCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:     "sql <query>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "Run a raw SQL query against the local database",
 		Args:    cobra.ExactArgs(1),
 		Example: `  yahoo-finance-pp-cli sql "SELECT symbol, COUNT(*) FROM watchlist_members GROUP BY symbol"`,
@@ -1107,6 +1118,7 @@ func newFXCmd(flags *rootFlags) *cobra.Command {
 	var amount float64
 	cmd := &cobra.Command{
 		Use:     "fx <from> <to>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "Quick currency conversion using Yahoo Finance FX pairs",
 		Args:    cobra.ExactArgs(2),
 		Example: "  yahoo-finance-pp-cli fx USD EUR --amount 100",
@@ -1156,6 +1168,7 @@ func newOptionsChainCmd(flags *rootFlags) *cobra.Command {
 	var minStrike, maxStrike float64
 	cmd := &cobra.Command{
 		Use:     "options-chain <symbol>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "Options chain with moneyness, DTE, and strike filters",
 		Args:    cobra.ExactArgs(1),
 		Example: `  yahoo-finance-pp-cli options-chain AAPL --moneyness otm --max-dte 45 --type calls`,

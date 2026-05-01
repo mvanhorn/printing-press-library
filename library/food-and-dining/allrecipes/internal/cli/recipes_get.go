@@ -16,6 +16,7 @@ import (
 func newRecipesGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get <recipe_id> <slug>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Fetch a recipe by ID + slug; returns parsed JSON-LD Recipe",
 		Example: "  allrecipes-pp-cli recipes get 9599 quick-and-easy-brownies\n" +
 			"  allrecipes-pp-cli recipes get 9599 quick-and-easy-brownies --agent --select recipeIngredient,totalTime,aggregateRating",

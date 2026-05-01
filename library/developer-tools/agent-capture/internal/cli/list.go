@@ -11,6 +11,7 @@ import (
 
 var listCmd = &cobra.Command{
 	Use:   "list [windows|displays]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 	Short: "List available capture targets (windows, displays)",
 	Long: `Enumerate macOS windows and displays available for capture.
 

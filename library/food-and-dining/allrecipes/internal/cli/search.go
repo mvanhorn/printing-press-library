@@ -21,6 +21,7 @@ func newSearchTopCmd(flags *rootFlags) *cobra.Command {
 	var flagCacheOnly bool
 	cmd := &cobra.Command{
 		Use:   "search <query>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Search Allrecipes for recipes (live + cache)",
 		Example: "  allrecipes-pp-cli search brownies\n" +
 			"  allrecipes-pp-cli search \"chicken thighs\" --limit 10 --agent\n" +
@@ -129,6 +130,7 @@ func newTopRatedCmd(flags *rootFlags) *cobra.Command {
 	var flagEnrich bool
 	cmd := &cobra.Command{
 		Use:   "top-rated <query>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Search and rank by Bayesian-smoothed rating",
 		Long: "Ranks search results by a Bayesian-smoothed estimate of the true rating:\n\n" +
 			"\tsmoothed = (C * priorMean + reviewCount * rating) / (C + reviewCount)\n\n" +
@@ -242,6 +244,7 @@ func newQuickCmd(flags *rootFlags) *cobra.Command {
 	var flagMinRating float64
 	cmd := &cobra.Command{
 		Use:   "quick",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Top-rated recipes from cache that fit a strict time cap",
 		Long: "Reads the local recipe cache and returns recipes whose total cook+prep time\n" +
 			"is at or below --max-minutes, ranked by Bayesian-smoothed rating. Allrecipes'\n" +

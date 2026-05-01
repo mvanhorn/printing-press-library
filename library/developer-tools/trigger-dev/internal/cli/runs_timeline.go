@@ -16,6 +16,7 @@ func newRunsTimelineCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "timeline",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Visual ASCII timeline of run starts, completions, and failures",
 		Long: `Display an ASCII timeline of runs over a time period. Each character represents
 a time bucket. Shows patterns in run timing and failure clusters at a glance.

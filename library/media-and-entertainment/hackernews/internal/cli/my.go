@@ -37,6 +37,7 @@ func newMyCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	cmd := &cobra.Command{
 		Use:   "my <username>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Track a user's submission history with score buckets, traction rate, and best posting time",
 		Long: `Pull a user's recent submissions from Algolia and compute structured stats.
 

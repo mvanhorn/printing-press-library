@@ -41,6 +41,7 @@ func newEngineeringCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "engineering [co]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "GitHub org metadata: repo count, contributor count, commit cadence, top languages.",
 		Long: `engineering surfaces a GitHub org's public footprint: number of public repos, top repos by recent activity, language mix, and how many repos have seen commits in the last 90 days.
 

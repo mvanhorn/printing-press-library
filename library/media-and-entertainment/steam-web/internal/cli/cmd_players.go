@@ -10,6 +10,7 @@ import (
 func newPlayersCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "players <appid>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show the current number of players for a game",
 		Long:  `Get the current number of players online for a game by its App ID.`,
 		Example: `  # Show current players for CS2

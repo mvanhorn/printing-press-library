@@ -17,6 +17,7 @@ type coOccurrencePayload struct {
 func newAuthorsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "authors",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Query author-derived signals from your local snapshot store",
 		Long:  `Parent command for author-oriented queries. See subcommands.`,
 		Example: `  producthunt-pp-cli authors related --to 'Ryan Hoover' --since 90d
@@ -34,6 +35,7 @@ func newAuthorsRelatedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "related",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Authors who repeatedly appeared in the same /feed snapshots as a given author",
 		Long: `A rough social signal from pure /feed data: for a target author, return
 the authors whose posts co-occurred in feed snapshots most often. Computed

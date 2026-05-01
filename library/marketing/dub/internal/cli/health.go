@@ -37,6 +37,7 @@ func newHealthCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "health",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Workspace health doctor — rate limit, expired-but-active links, dead destinations",
 		Long: `Cross-resource Monday-morning health report:
   - API reachability and current rate-limit headroom

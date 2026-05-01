@@ -29,6 +29,7 @@ func newSinceCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "since [duration]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Time-windowed change feed — what was created/updated in the last N",
 		Long: `Show every link, partner, customer, or commission that was created or updated
 within the given duration. Reads from the local store using each row's createdAt

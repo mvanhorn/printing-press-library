@@ -21,6 +21,7 @@ func newCommentsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "comments <id>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Print a thread's comment tree using Algolia's one-shot fetch",
 		Long: `Print a Hacker News thread's full comment tree in a single Algolia call.
 

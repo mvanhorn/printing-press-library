@@ -33,6 +33,7 @@ func newNutritionCmd(flags *rootFlags) *cobra.Command {
 	var cartPath, storeID string
 	cmd := &cobra.Command{
 		Use:   "nutrition",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Sum calories, fat, carbs, and protein for a cart",
 		Example: "  dominos-pp-cli nutrition --cart cart.json --store 7094\n" +
 			"  dominos-pp-cli nutrition --cart cart.json --json\n" +

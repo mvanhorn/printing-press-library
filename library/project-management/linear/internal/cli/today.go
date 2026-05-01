@@ -17,6 +17,7 @@ func newTodayCmd(flags *rootFlags) *cobra.Command {
 	var jsonOut bool
 	cmd := &cobra.Command{
 		Use:   "today",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show your issues for today across all teams",
 		Long:  "Display all issues assigned to you in active cycles, sorted by priority. Requires a prior sync.",
 		Example: `  linear-pp-cli today

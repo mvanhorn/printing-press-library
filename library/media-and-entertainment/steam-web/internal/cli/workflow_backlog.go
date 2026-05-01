@@ -14,6 +14,7 @@ func newWorkflowBacklogCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "backlog <steamid>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find owned games with zero playtime (your backlog)",
 		Long: `Reads owned games from the local store and lists those with 0 playtime.
 Run 'steam-web-pp-cli sync' first to populate the local store, or use

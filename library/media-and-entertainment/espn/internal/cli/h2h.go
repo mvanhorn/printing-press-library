@@ -17,6 +17,7 @@ func newH2hCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "h2h <team1> <team2>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Head-to-head detail between two teams",
 		Example: `  espn-pp-cli h2h KC BUF --sport football --league nfl
   espn-pp-cli h2h LAL BOS --sport basketball --league nba --agent

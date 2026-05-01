@@ -36,6 +36,7 @@ func newLinksDriftCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "drift",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Detect links whose click rate dropped beyond threshold week-over-week",
 		Long: `Compare per-link click counts across two adjacent windows and flag links whose
 click rate changed beyond --threshold percent. Surfaces silent campaign collapse

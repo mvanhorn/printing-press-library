@@ -23,6 +23,7 @@ func newRecipesSearchCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "search",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Search Allrecipes for recipes matching a query",
 		Example: "  allrecipes-pp-cli recipes search --q brownies\n" +
 			"  allrecipes-pp-cli recipes search --q \"chicken thighs\" --limit 10 --agent",

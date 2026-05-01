@@ -15,6 +15,7 @@ import (
 func newRecipesGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get <slug-or-url>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Get full structured details for a single Food52 recipe by slug or URL",
 		Example: strings.Trim(`
   food52-pp-cli recipes get sarah-fennel-s-best-lunch-lady-brownie-recipe

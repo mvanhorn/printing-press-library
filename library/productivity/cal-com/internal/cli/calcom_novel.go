@@ -498,6 +498,7 @@ func newTodayCmd(flags *rootFlags) *cobra.Command {
 	var tzName string
 	cmd := &cobra.Command{
 		Use:   "today",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show today's bookings (offline from local store, live fallback)",
 		Long:  `Read today's bookings from the local SQLite store. Falls back to a live /v2/bookings query when the store is empty. Use sync first to populate the store and avoid live calls.`,
 		Example: `  # Today's agenda
@@ -569,6 +570,7 @@ func newWeekCmd(flags *rootFlags) *cobra.Command {
 	var tzName string
 	cmd := &cobra.Command{
 		Use:   "week",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show 7 days of bookings starting from --start (default: this Monday)",
 		Long:  `Aggregate 7 days of bookings into per-day rollups, grouped by date. Useful as a one-look weekly view. Reads the local store; falls back to live API when empty.`,
 		Example: `  # Current week
@@ -665,6 +667,7 @@ func newSlotsFindCmd(flags *rootFlags) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:   "find",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find available slots across multiple event types (live fanout)",
 		Long: `The /v2/slots endpoint takes a single event-type ID. This command fans out one
 call per ID, merges results, deduplicates, and returns slots sorted by start time.
@@ -902,6 +905,7 @@ func newCalcomAnalyticsNoShowCmd(flags *rootFlags) *cobra.Command {
 	var groupBy string
 	cmd := &cobra.Command{
 		Use:     "no-show",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "No-show rate over a time window",
 		Long:    `Counts bookings explicitly marked no-show (status fields containing 'no-show' or noShowHost/noShowAttendee). Falls through to attendees[].noShow when present.`,
 		Example: `  cal-com-pp-cli analytics no-show --window 30d --by event-type --json`,
@@ -970,6 +974,7 @@ func newCalcomAnalyticsDensityCmd(flags *rootFlags) *cobra.Command {
 	var unit string
 	cmd := &cobra.Command{
 		Use:   "density",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Booking density per weekday/hour to find your busiest slots",
 		Long:  `Counts bookings per unit (weekday or hour-of-day) to surface peak times. Useful for capacity planning and identifying low-utilization windows.`,
 		Example: `  cal-com-pp-cli analytics density --unit weekday --json
@@ -1096,6 +1101,7 @@ func newGapsCmd(flags *rootFlags) *cobra.Command {
 	var tzName string
 	cmd := &cobra.Command{
 		Use:   "gaps",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find open windows in your schedule that are unbooked",
 		Long: `Scans booked bookings within --window and reports the gaps between them
 during business hours. Use --min-minutes to filter out short slivers.
@@ -1211,6 +1217,7 @@ func newWorkloadCmd(flags *rootFlags) *cobra.Command {
 	var window string
 	cmd := &cobra.Command{
 		Use:   "workload",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Booking distribution across team members (live API)",
 		Long: `Fetches the team's bookings via /v2/teams/{id}/bookings and groups by host
 or attendee email. Surfaces overloaded vs underutilized members for round-robin
@@ -1329,6 +1336,7 @@ var calComWebhookTriggers = []struct {
 func newWebhooksTriggersCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "triggers",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "List the canonical set of Cal.com webhook trigger constants",
 		Long:    `Static reference of every valid webhook trigger string accepted by Cal.com, grouped by lifecycle stage. Useful before scripting webhooks so trigger strings are exact.`,
 		Example: `  cal-com-pp-cli webhooks triggers --json`,
@@ -1350,6 +1358,7 @@ func newWebhooksTriggersCmd(flags *rootFlags) *cobra.Command {
 func newWebhooksCoverageCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "coverage",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "Audit registered webhooks vs the canonical trigger set; flag missing subscribers",
 		Long:    `Lists Cal.com webhook triggers registered for this account against the canonical set and reports lifecycle events with no subscriber. Live API call (GET /v2/webhooks). Run before relying on webhooks in production.`,
 		Example: `  cal-com-pp-cli webhooks coverage --json`,
@@ -1420,6 +1429,7 @@ func newEventTypesStaleCmd(flags *rootFlags) *cobra.Command {
 	var days int
 	cmd := &cobra.Command{
 		Use:     "stale",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "List event types with no bookings in the last N days",
 		Long:    `Cross-references local bookings against live event types and reports types with zero recent bookings — candidates for cleanup. Live call to /v2/event-types; reads bookings from the local store (fall back to live).`,
 		Example: `  cal-com-pp-cli event-types stale --days 30 --json`,

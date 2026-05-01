@@ -25,6 +25,7 @@ type checkResult struct {
 func newDoctorCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "doctor",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Diagnose config, session, and API reachability",
 		Long: `Run a full health check: config file, local database, Chrome cookie auth,
 and a live CurrentUserFields ping against Instacart. Useful as a first-run

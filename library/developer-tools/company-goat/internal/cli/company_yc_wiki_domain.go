@@ -19,6 +19,7 @@ func newYCCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "yc [co]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Y Combinator directory entry if backed: batch, status, location, description.",
 		Long: `yc looks up the resolved company in the Y Combinator directory snapshot. Returns batch, status (Active/Acquired/Public/Inactive), location, team size, and the YC one-liner description.
 
@@ -97,6 +98,7 @@ func newWikiCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "wiki [co]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Wikidata company facts: founded date, founders, HQ, industry, key people.",
 		Long: `wiki looks up the resolved company on Wikidata via its official-website (P856) property. Returns structured facts: founded date, headquarters location, country, industry, founders.
 
@@ -172,6 +174,7 @@ func newDomainCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "domain [co]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Domain age via RDAP/WHOIS, DNS records, and CNAME-based hosting hint.",
 		Long: `domain returns RDAP registration data (age, registrar, status) plus DNS records (CNAME, A, NS) and a hosting hint derived from the CNAME (Vercel/Netlify/Heroku/Cloudflare Pages/AWS/GCP/etc.).
 

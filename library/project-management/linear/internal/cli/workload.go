@@ -18,6 +18,7 @@ func newWorkloadCmd(flags *rootFlags) *cobra.Command {
 	var teamFilter string
 	cmd := &cobra.Command{
 		Use:   "workload",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show issue and estimate distribution per team member",
 		Long:  "Analyze workload balance across team members, including issue counts and total estimates.",
 		Example: `  linear-pp-cli workload

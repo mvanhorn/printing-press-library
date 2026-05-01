@@ -20,6 +20,7 @@ func newRecipesTopCmd(flags *rootFlags) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:   "top <tag>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show Food52 Test-Kitchen-approved + rating-floored recipes for a tag",
 		Long: strings.TrimSpace(`
 Filter recipes for a tag down to the editorially trusted set. By default

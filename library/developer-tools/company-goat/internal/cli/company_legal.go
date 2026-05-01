@@ -47,6 +47,7 @@ func newLegalCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "legal [co]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Legal entity lookup. UK via Companies House (optional COMPANIES_HOUSE_API_KEY); US via SEC EDGAR Form D issuer fields.",
 		Long: `legal returns the structured legal-entity record for a company.
 

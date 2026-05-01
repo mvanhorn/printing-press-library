@@ -109,6 +109,7 @@ func displayStampUnix(ts int64) string {
 func newHiringCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "hiring [regex]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Filter the latest 'Ask HN: Who is hiring' thread by regex",
 		Long: `Find the latest 'Ask HN: Who is hiring?' thread on HN and filter the
 top-level posts with a case-insensitive regex.
@@ -134,6 +135,7 @@ Each post is emitted with author, created date, body, and HN URL.`,
 func newFreelanceCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "freelance [regex]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Filter the latest 'Freelancer? Seeking freelancer?' thread by regex",
 		Example: strings.Trim(`
   hackernews-pp-cli freelance

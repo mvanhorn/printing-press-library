@@ -21,6 +21,7 @@ func newBlindCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "blind",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Get a random high-quality movie pick — the surprise me experience",
 		Long: `Can't decide what to watch? Let fate decide. Picks a random well-rated movie
 using TMDb's discover API with filters for genre, decade, minimum rating,

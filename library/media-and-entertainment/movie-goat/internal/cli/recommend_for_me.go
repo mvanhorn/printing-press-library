@@ -14,6 +14,7 @@ func newRecommendForMeCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "recommend-for-me <title1> [title2] [title3...]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Get movie recommendations based on movies you love",
 		Long: `Provide 2 or more movies you enjoy. The algorithm fetches recommendations
 and similar movies for each, then scores candidates by how well they bridge

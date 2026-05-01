@@ -11,6 +11,7 @@ import (
 
 var healthCmd = &cobra.Command{
 	Use:   "health",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 	Short: "Machine-readable health check for CI and agent preflight",
 	Long:  `Verify that agent-capture can run: platform, permissions, dependencies, disk space.`,
 	Example: `  agent-capture health

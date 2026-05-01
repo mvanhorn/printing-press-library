@@ -24,6 +24,7 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "search <query>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Full-text search the local post store",
 		Long: `Run an FTS5 match against every post ever synced. The index covers
 slug, title, tagline, and author. Works offline — empty store returns [].

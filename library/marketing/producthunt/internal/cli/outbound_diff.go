@@ -26,6 +26,7 @@ func newOutboundDiffCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "outbound-diff",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "List posts whose external URL has changed across snapshots",
 		Long: `Find posts whose external landing URL (/r/p/{id} PH redirect) has been
 updated across syncs. Signals domain moves, beta-to-launch transitions,

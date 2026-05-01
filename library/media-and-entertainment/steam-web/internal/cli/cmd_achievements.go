@@ -13,6 +13,7 @@ func newAchievementsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "achievements <steamid>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show a player's achievements for a game",
 		Long:  `List all achievements a player has earned (or not) for a specific game.`,
 		Example: `  # Show achievements for CS2 (appid 730)

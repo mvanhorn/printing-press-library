@@ -39,6 +39,7 @@ func newStaleCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "stale",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find warm intros going cold - researched or looked up but not followed up on",
 		Long: `Find people you've recently shown interest in (via LinkedIn lookup or
 Happenstance research) but haven't touched in at least --days.

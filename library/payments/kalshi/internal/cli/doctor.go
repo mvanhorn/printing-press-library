@@ -16,6 +16,7 @@ import (
 func newDoctorCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "doctor",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Check CLI health",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			report := map[string]any{}

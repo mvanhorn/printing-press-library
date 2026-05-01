@@ -11,6 +11,7 @@ import (
 func newBansCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "bans <steamid>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Check a player's VAC and game ban status",
 		Long:  `Show whether a player has any VAC bans, game bans, or trade bans.`,
 		Example: `  # Check ban status

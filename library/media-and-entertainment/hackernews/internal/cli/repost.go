@@ -31,6 +31,7 @@ func newRepostCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "repost <url>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Has this URL been posted on HN before? Lists prior submissions with scores and dates",
 		Long: `Search Algolia for prior submissions of a URL.
 

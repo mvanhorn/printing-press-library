@@ -17,6 +17,7 @@ func newScaleCmd(flags *rootFlags) *cobra.Command {
 	var servings int
 	cmd := &cobra.Command{
 		Use:   "scale <slug-or-url>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Scale a Food52 recipe's ingredients to a different number of servings",
 		Long: strings.TrimSpace(`
 Fetches a recipe, parses its yield from the JSON-LD recipeYield field, and

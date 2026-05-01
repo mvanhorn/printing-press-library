@@ -15,6 +15,7 @@ import (
 
 var pipelineCmd = &cobra.Command{
 	Use:   "pipeline [output]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 	Short: "Record, convert, and optimize in one command (no intermediate files)",
 	Long: `The pipeline command combines record + convert + optimize into a single invocation.
 Specify the output format via extension: .gif records then converts, .mp4/.mov records directly.`,

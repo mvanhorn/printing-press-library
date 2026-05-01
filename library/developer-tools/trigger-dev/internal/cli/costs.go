@@ -16,6 +16,7 @@ func newCostsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "costs",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Analyze run costs by task, time period, and machine type",
 		Long: `Track spending by task and time period. Find cost spikes and anomalies before
 they hit your bill. Aggregates costInCents across runs.`,

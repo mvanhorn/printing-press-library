@@ -48,6 +48,7 @@ func newHiringStatsCmd(flags *rootFlags) *cobra.Command {
 	var months int
 	cmd := &cobra.Command{
 		Use:   "hiring-stats",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Aggregate Who's Hiring threads across N months — top languages, remote ratio, top companies",
 		Long: `Walk the most recent N 'Who is hiring?' threads on HN and compute aggregate stats.
 

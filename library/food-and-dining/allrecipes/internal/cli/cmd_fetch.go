@@ -19,6 +19,7 @@ import (
 func newArticleCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "article <url>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Extract metadata from an Allrecipes article page",
 		Long: "Returns the article title, description, canonical URL, and any recipe\n" +
 			"links the article references. Article body text extraction is best-effort\n" +
@@ -59,6 +60,7 @@ func newArticleCmd(flags *rootFlags) *cobra.Command {
 func newGalleryCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "gallery <url>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "Extract recipe links from an Allrecipes round-up gallery",
 		Example: "  allrecipes-pp-cli gallery https://www.allrecipes.com/gallery/best-summer-salads/ --agent",
 		Args:    cobra.MinimumNArgs(1),

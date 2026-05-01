@@ -709,6 +709,7 @@ func newReadCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "read <url>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find or create an archive of a paywalled URL (the hero command)",
 		Long: "Find an existing archive.today snapshot for the URL, or create one if none exists.\n\n" +
 			"Tries timegate lookup first (fast — usually under 500ms). Only submits a fresh capture\n" +
@@ -821,6 +822,7 @@ func newGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "get <url>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Fetch the full archived article text as clean markdown",
 		Long: "Find or create an archive for the URL, then fetch the memento HTML and extract\n" +
 			"clean readable text. Perfect for piping into LLMs, notes, or terminal reading.\n\n" +
@@ -916,6 +918,7 @@ func newGetCmd(flags *rootFlags) *cobra.Command {
 func newHistoryCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "history <url>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "List all known archive snapshots for a URL, oldest to newest",
 		Long:    "Queries the Memento timemap endpoint and returns every snapshot ever taken of the URL, with timestamps.",
 		Example: "  archive-is-pp-cli history https://www.nytimes.com/\n  archive-is-pp-cli history https://example.com --json",
@@ -1027,6 +1030,7 @@ func newBulkCmd(flags *rootFlags) *cobra.Command {
 	var backend string
 	cmd := &cobra.Command{
 		Use:   "bulk [file]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Archive a list of URLs with built-in rate limiting",
 		Long: "Reads one URL per line from a file (or stdin if no file given) and runs\n" +
 			"'read' on each with a delay between requests to avoid rate limits.\n" +

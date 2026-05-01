@@ -16,6 +16,7 @@ func newStandingsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "standings <sport> <league>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Conference/division standings for a sport and league",
 		Example: `  espn-pp-cli standings football nfl
   espn-pp-cli standings basketball nba --season 2024

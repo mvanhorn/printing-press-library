@@ -14,6 +14,7 @@ func newEnvvarsDiffCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "diff [env1] [env2]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Compare environment variables between two environments",
 		Long: `Side-by-side comparison of environment variables between two environments.
 Highlights missing, different, and matching values. Helps catch drift between

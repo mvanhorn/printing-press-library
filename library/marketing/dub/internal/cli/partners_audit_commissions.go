@@ -25,6 +25,7 @@ type auditFinding struct {
 func newPartnersAuditCommissionsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "audit-commissions",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Reconcile partners × commissions × payouts; flag stale rates and missing payouts",
 		Long: `Cross-resource audit:
   - commissions in 'pending' status older than 14 days (stuck payout)

@@ -20,6 +20,7 @@ func newLocalSearchCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "local-search <query>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Full-text search across the local SQLite store of synced stories and comments",
 		Long: `Search locally synced HN data with SQLite FTS5.
 

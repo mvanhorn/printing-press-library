@@ -29,6 +29,7 @@ func newLiveSearchCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "live-search <query>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Search Hacker News stories and comments live via the Algolia API",
 		Long: `Run a live search against the Hacker News Algolia index.
 

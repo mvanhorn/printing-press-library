@@ -20,6 +20,7 @@ func newGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:     "get <slug>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Aliases: []string{"info"},
 		Short:   "Show the post for a given slug",
 		Long: `Return the stored post for a Product Hunt slug. By default reads from

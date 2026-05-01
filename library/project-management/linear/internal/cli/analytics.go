@@ -19,6 +19,7 @@ func newAnalyticsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "analytics",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Run analytics queries on locally synced data",
 		Long: `Analyze locally synced data with count, group-by, and summary operations.
 Data must be synced first with the sync command.`,

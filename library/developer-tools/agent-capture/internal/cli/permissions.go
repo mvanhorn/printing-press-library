@@ -12,6 +12,7 @@ import (
 
 var permissionsCmd = &cobra.Command{
 	Use:   "permissions",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 	Short: "Check and guide Screen Recording permission setup",
 	Long: `Check if Screen Recording permission is granted and provide step-by-step
 instructions to fix it if not. Includes deep links to System Settings.`,

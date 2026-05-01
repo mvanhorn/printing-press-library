@@ -10,6 +10,7 @@ import (
 func newLevelCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "level <steamid>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show a player's Steam level",
 		Long:  `Get the Steam level for a player by their Steam ID.`,
 		Example: `  # Show Steam level

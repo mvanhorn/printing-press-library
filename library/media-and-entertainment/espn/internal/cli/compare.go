@@ -17,6 +17,7 @@ func newCompareCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "compare <athlete1> <athlete2>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Side-by-side athlete stat comparison",
 		Example: `  espn-pp-cli compare Mahomes Allen --sport football --league nfl
   espn-pp-cli compare LeBron Curry --sport basketball --league nba --agent`,

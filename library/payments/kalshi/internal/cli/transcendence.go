@@ -24,6 +24,7 @@ func newPortfolioAttributionCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "attribution",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Break down P&L by category, series, or event over time",
 		Long:  "Analyze your portfolio performance by grouping settlements and fills by market category, series, or event. Requires synced portfolio and market data.",
 		Example: `  # P&L by category over the last 30 days
@@ -158,6 +159,7 @@ func newPortfolioWinrateCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "winrate",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Calculate win/loss ratio and ROI across settled positions",
 		Example: `  # Overall win rate
   kalshi-pp-cli portfolio winrate
@@ -278,6 +280,7 @@ func newMarketsMoversCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "movers",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show markets with the biggest price changes since last sync",
 		Example: `  # Top 10 movers
   kalshi-pp-cli markets movers
@@ -393,6 +396,7 @@ func newPortfolioCalendarCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "calendar",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show upcoming market settlements with your positions",
 		Example: `  # Next 7 days of settlements
   kalshi-pp-cli portfolio calendar
@@ -505,6 +509,7 @@ func newPortfolioExposureCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "exposure",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Analyze portfolio risk by category and concentration",
 		Example: `  # Show exposure breakdown
   kalshi-pp-cli portfolio exposure
@@ -628,6 +633,7 @@ func newPortfolioStalePositionsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "stale",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find positions in markets approaching expiry",
 		Example: `  # Positions expiring in the next 3 days
   kalshi-pp-cli portfolio stale --days 3
@@ -741,6 +747,7 @@ func newMarketsHeatmapCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "heatmap",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show market activity by category (volume, open interest, avg price)",
 		Example: `  # Category heatmap
   kalshi-pp-cli markets heatmap
@@ -841,6 +848,7 @@ func newEventsLifecycleCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "lifecycle <event_ticker>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Track an event from creation through settlement",
 		Example: `  # View event lifecycle
   kalshi-pp-cli events lifecycle FED-24DEC
@@ -997,6 +1005,7 @@ func newMarketsCorrelateCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "correlate <ticker1> <ticker2>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Compare price histories of two markets",
 		Example: `  # Compare two markets
   kalshi-pp-cli markets correlate PRES-2028-R ECON-2026-GDP`,

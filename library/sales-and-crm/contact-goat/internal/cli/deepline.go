@@ -38,6 +38,7 @@ func newDeeplineCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "deepline",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Deepline contact-data API: email, phone, and company enrichment (credit-priced)",
 		Long: `Call Deepline (https://code.deepline.com/) contact-data tools from the terminal.
 
@@ -212,6 +213,7 @@ func newDeeplineFindEmailCmd(flags *rootFlags, dl *deeplineFlags) *cobra.Command
 	var company string
 	cmd := &cobra.Command{
 		Use:   "find-email <name>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find a person's work email from name+domain",
 		Long: `Finds a single high-confidence work email for a person at a company using
 Deepline's dropleads_email_finder tool.
@@ -252,6 +254,7 @@ func newDeeplineSearchPeopleCmd(flags *rootFlags, dl *deeplineFlags) *cobra.Comm
 	var limit int
 	cmd := &cobra.Command{
 		Use:   "search-people",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Search Apollo for people matching title/location/industry",
 		Example: `  contact-goat-pp-cli deepline search-people --title "VP Engineering" --location "San Francisco" --limit 25 --yes
   contact-goat-pp-cli deepline search-people --industry fintech --limit 50 --dry-run`,
@@ -286,6 +289,7 @@ func newDeeplineEmailFindCmd(flags *rootFlags, dl *deeplineFlags) *cobra.Command
 	var domain string
 	cmd := &cobra.Command{
 		Use:   "email-find",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find public emails for a company domain",
 		Long: `Lists public/role emails at a domain via Hunter domain search. Returns
 role-filtered company emails (e.g. contact@, press@, named-person@) with
@@ -308,6 +312,7 @@ func newDeeplinePhoneFindCmd(flags *rootFlags, dl *deeplineFlags) *cobra.Command
 	var linkedinURL string
 	cmd := &cobra.Command{
 		Use:     "phone-find",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "Find a phone number by LinkedIn URL",
 		Example: `  contact-goat-pp-cli deepline phone-find --linkedin-url https://www.linkedin.com/in/patrickcollison --yes`,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -326,6 +331,7 @@ func newDeeplineSearchCompaniesCmd(flags *rootFlags, dl *deeplineFlags) *cobra.C
 	var industry, size, location string
 	cmd := &cobra.Command{
 		Use:     "search-companies",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "Search for companies by industry/size/location",
 		Example: `  contact-goat-pp-cli deepline search-companies --industry fintech --size 201-500 --location "United States" --yes`,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -428,6 +434,7 @@ Pass the payload inline as JSON, or read it from a file with @path.`,
 func newDeeplineCreditsCmd(flags *rootFlags, dl *deeplineFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "credits",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show credit balance (stub: upstream endpoint not confirmed)",
 		Long: `STUB. Deepline has no confirmed credit-balance endpoint at time of writing,
 so this command always exits with an error. See https://code.deepline.com/docs/quickstart

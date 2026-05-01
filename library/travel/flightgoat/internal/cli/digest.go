@@ -19,6 +19,7 @@ import (
 func newDigestCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "digest <airport>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "One-command daily brief: departures, delays, weather, disruptions",
 		Example: `  flightgoat-pp-cli digest SEA`,
 		Args:    cobra.ExactArgs(1),

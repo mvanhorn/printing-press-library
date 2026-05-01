@@ -50,6 +50,7 @@ func newIntersectCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "intersect",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find people in BOTH your LinkedIn 1st-degree AND Happenstance friends",
 		Long: `Find the highest-signal warm intros: people who appear in BOTH your
 LinkedIn 1st-degree network AND your Happenstance friends list.

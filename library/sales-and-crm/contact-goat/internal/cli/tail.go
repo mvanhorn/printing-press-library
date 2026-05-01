@@ -38,6 +38,7 @@ func newTailCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "tail [resource]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Stream NEW items across LinkedIn + Happenstance (and optionally Deepline)",
 		Long: `Tail polls each configured source at --interval and emits only items that
 weren't in the previous snapshot, as NDJSON on stdout. Gracefully shuts down

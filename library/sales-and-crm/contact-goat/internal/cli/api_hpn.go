@@ -28,6 +28,7 @@ import (
 func newAPIHpnCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "hpn",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Happenstance public REST API (bearer-auth, credit-priced)",
 		Long: `Call the Happenstance public REST API (https://api.happenstance.ai/v1)
 from the terminal. Bearer-auth via HAPPENSTANCE_API_KEY; provision and

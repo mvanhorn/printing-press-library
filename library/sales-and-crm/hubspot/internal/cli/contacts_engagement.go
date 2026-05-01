@@ -31,6 +31,7 @@ func newContactsEngagementCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "engagement",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Score contact engagement across all activity types",
 		Long:  "Analyze engagement frequency and gaps for contacts by correlating calls, emails, meetings, notes, and tasks from the local store.",
 		Example: "  hubspot-pp-cli contacts engagement --days 30\n" +

@@ -96,6 +96,7 @@ If the command fails with "database is locked", quit Chrome completely
 func newAuthStatusCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "status",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show the current session (if any)",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			asJSON, _ := cmd.Flags().GetBool("json")

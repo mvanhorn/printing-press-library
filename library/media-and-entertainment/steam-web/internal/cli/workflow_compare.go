@@ -13,6 +13,7 @@ func newWorkflowCompareCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "compare <steamid1> <steamid2>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Compare two players' game libraries",
 		Long: `Reads owned games from the local store for two players and shows
 shared games, games unique to each player, and playtime differences.

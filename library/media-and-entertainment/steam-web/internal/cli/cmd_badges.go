@@ -11,6 +11,7 @@ import (
 func newBadgesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "badges <steamid>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show a player's badges",
 		Long:  `List all badges a player has earned, with XP and level info.`,
 		Example: `  # Show badges

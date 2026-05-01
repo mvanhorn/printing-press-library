@@ -11,6 +11,7 @@ import (
 func newAPICmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "api [interface]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Access all 170 Steam Web API endpoints by interface name",
 		Long: `Browse and call any Steam Web API endpoint using the raw interface names.
 

@@ -136,6 +136,7 @@ func newStoreTonightCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "tonight",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "List stores still open and able to deliver right now to your saved address",
 		Example: `  pagliacci-pizza-pp-cli store tonight --address-label home
   pagliacci-pizza-pp-cli store tonight --address "350 5th Ave, Seattle, WA"

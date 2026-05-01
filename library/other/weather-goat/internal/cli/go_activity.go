@@ -16,6 +16,7 @@ func newGoCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "go <activity> [location]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Get activity-specific weather verdicts: walk, bike, hike, commute, drive",
 		Long: `Check whether conditions are safe for an activity. Each mode applies
 domain-specific thresholds and returns a verdict: GO, CAUTION, or STOP.

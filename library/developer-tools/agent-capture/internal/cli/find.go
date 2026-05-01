@@ -10,6 +10,7 @@ import (
 
 var findCmd = &cobra.Command{
 	Use:   "find <query>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 	Short: "Fuzzy search window titles to find the right capture target",
 	Long: `Search across all window titles and app names for a match.
 Returns the best match with window ID, app name, and bounds.

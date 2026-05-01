@@ -38,6 +38,7 @@ func newControversialCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "controversial",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find stories with the highest comment-to-point ratio (polarizing discussions)",
 		Long: `Rank locally synced stories by descendants/score.
 

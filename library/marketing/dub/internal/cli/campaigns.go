@@ -32,6 +32,7 @@ func newCampaignsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "campaigns",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Tag-grouped performance dashboard — clicks, leads, sales rolled up per tag",
 		Long: `Aggregate clicks, leads, and sales for every tag in your workspace. Joins the
 local link cache with each link's analytics fields. Surfaces the top campaign tag

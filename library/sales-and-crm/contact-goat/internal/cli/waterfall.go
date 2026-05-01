@@ -58,6 +58,7 @@ func newWaterfallCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "waterfall <target>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Clay-style waterfall enrichment: free sources first, Deepline with BYOK or managed",
 		Long: `Enrich a person starting from the cheapest source and waterfalling into
 progressively more expensive ones.

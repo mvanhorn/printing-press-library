@@ -16,6 +16,7 @@ func newNormalCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "normal [location]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Compare today's temperature to the historical average for this date",
 		Long:  "Fetches today's conditions and compares them to the average temperature for the same date across recent years (proxy for 30-year climate normals).",
 		Example: `  weather-goat-pp-cli normal

@@ -34,6 +34,7 @@ func newPartnersLeaderboardCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:     "leaderboard",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Aliases: []string{"top"},
 		Short:   "Rank partners by commission earned, conversion rate, and clicks",
 		Long: `Rank every partner in your workspace by performance metrics. Surfaces top

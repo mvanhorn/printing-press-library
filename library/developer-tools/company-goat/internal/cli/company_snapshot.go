@@ -46,6 +46,7 @@ func newSnapshotCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "snapshot [co]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Fan out across all 7 sources in parallel and render a unified summary. The headline command.",
 		Long: `snapshot is the headline command. It runs every source query in parallel via cliutil.FanoutRun and renders a unified per-section summary.
 
@@ -454,6 +455,7 @@ type fmt_w = interface{ Write([]byte) (int, error) }
 func newCompareCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "compare <a> <b>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Two snapshots aligned column-by-column for direct comparison.",
 		Long:  `compare runs snapshot for two companies and renders the results in side-by-side columns. Useful for evaluating which of two startups looks healthier — funding, engineering, launch story, etc.`,
 		Example: strings.Trim(`

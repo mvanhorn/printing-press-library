@@ -12,6 +12,7 @@ import (
 func newQueuesBottleneckCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "bottleneck",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Identify queues with growing backlogs and concurrency bottlenecks",
 		Long: `Analyze queue state to find bottlenecks: queues with high queued-to-running ratios,
 queues near or at their concurrency limits, and paused queues with pending work.`,

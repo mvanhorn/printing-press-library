@@ -26,6 +26,7 @@ func newSyncRecipesCmd(flags *rootFlags) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:   "recipes <tag> [<tag>...]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Pull Food52 recipes for one or more tags into the local store (FTS-indexed)",
 		Long: strings.TrimSpace(`
 Walks one or more tag pages, fetches each recipe's full structured detail

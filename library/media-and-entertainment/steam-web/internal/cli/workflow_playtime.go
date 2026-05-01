@@ -15,6 +15,7 @@ func newWorkflowPlaytimeCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "playtime <steamid>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show top games by playtime, leaderboard style",
 		Long: `Reads owned games from the local store and ranks them by total playtime.
 Run 'steam-web-pp-cli sync' first to populate the local store.`,

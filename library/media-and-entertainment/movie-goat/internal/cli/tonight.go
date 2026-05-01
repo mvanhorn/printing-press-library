@@ -15,6 +15,7 @@ func newTonightCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "tonight",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Smart \"what should I watch tonight?\" recommendation",
 		Long: `Combines trending and popular movies to surface the best picks for tonight.
 Fetches today's trending movies and currently popular top-rated movies,

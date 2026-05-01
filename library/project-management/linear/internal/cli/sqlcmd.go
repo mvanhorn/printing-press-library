@@ -14,6 +14,7 @@ func newSQLCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	cmd := &cobra.Command{
 		Use:   "sql <query>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Run read-only SQL against the local store",
 		Long:  "Execute arbitrary SELECT queries against the local SQLite database. Useful for ad-hoc analysis and debugging.",
 		Example: `  linear-pp-cli sql "SELECT count(*) as cnt FROM issues"

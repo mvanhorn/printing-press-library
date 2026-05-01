@@ -19,6 +19,7 @@ func newCookbookCmd(flags *rootFlags) *cobra.Command {
 	var flagTop int
 	cmd := &cobra.Command{
 		Use:   "cookbook",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Compile top-rated cached recipes into a markdown cookbook",
 		Long: "Reads the local cache, picks the top-N recipes (by Bayesian-smoothed rating)\n" +
 			"in a category or cuisine, and writes a single markdown file with TOC,\n" +
@@ -121,6 +122,7 @@ func newGroceryListCmd(flags *rootFlags) *cobra.Command {
 	var flagOutput string
 	cmd := &cobra.Command{
 		Use:   "grocery-list <url> [<url>...]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Aggregate ingredients from many recipes into a deduped shopping list",
 		Long: "Fetches each recipe URL (from cache when available, live otherwise),\n" +
 			"parses ingredient lines into qty+unit+name, sums quantities for matching\n" +

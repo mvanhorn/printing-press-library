@@ -145,6 +145,7 @@ func newLonghaulCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "longhaul <airport>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "List nonstop departures from an airport that are at least N hours long",
 		Long: `longhaul answers the classic travel-hacker question: "show me every nonstop
 flight from my airport that's at least N hours long over a given period."
@@ -255,6 +256,7 @@ func newExploreCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "explore <airport>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Every nonstop destination from an airport with duration, airlines, frequency",
 		Long: `explore is the Kayak /direct nonstop matrix in your terminal.
 
@@ -366,6 +368,7 @@ func newCheapestLonghaulCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "cheapest-longhaul <airport>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Cheapest dates to fly long nonstop routes from an airport",
 		Long: `cheapest-longhaul joins two data sources nobody else joins:
   1. FlightAware route catalog (which nonstop routes are at least N hours)
@@ -472,6 +475,7 @@ command lists the long routes and exits with a helpful message.`,
 func newOntimeNowCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "ontime-now <airport>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Every departure from an airport today with live on-time status",
 		Example: `  flightgoat-pp-cli ontime-now SEA
   flightgoat-pp-cli ontime-now JFK --json`,
@@ -553,6 +557,7 @@ func newReliabilityCmd(flags *rootFlags) *cobra.Command {
 	var days int
 	cmd := &cobra.Command{
 		Use:   "reliability <origin> <destination>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Historical on-time percentage for a route over the last N days",
 		Long: `reliability queries FlightAware history for all flights on a route and
 computes an on-time percentage. On-time is defined as departure delay <= 15 minutes.`,
@@ -656,6 +661,7 @@ computes an on-time percentage. On-time is defined as departure delay <= 15 minu
 func newCompareCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "compare <origin> <destination> <date>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Join Google Flights prices with AeroAPI reliability for the same route",
 		Long: `compare runs two queries in parallel: fli flights for Google Flights prices and
 reliability for AeroAPI historical on-time percentages. Output sorts by reliability
@@ -768,6 +774,7 @@ func newMonitorCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "monitor <ident>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Watch a flight through its lifecycle until landed",
 		Long: `monitor polls FlightAware at regular intervals and prints status changes.
 When --until-arrival is set (default), it exits when the flight lands.`,
@@ -834,6 +841,7 @@ func newHeatmapCmd(flags *rootFlags) *cobra.Command {
 	var region string
 	cmd := &cobra.Command{
 		Use:   "heatmap",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Where are delays happening right now across major airports",
 		Long: `heatmap calls /airports/delays and returns a single sorted table showing
 every airport with active delays. Useful for operators, travel hackers, and
@@ -911,6 +919,7 @@ func newResolveCmd(flags *rootFlags) *cobra.Command {
 func newAircraftBioCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "aircraft-bio <registration>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "Full history of a tail number: recent flights + owner + last known flight",
 		Example: `  flightgoat-pp-cli aircraft-bio N12345`,
 		Args:    cobra.ExactArgs(1),
@@ -949,6 +958,7 @@ func newAircraftBioCmd(flags *rootFlags) *cobra.Command {
 func newEtaCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "eta <ident>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "Weather-adjusted ETA: foresight prediction plus destination weather",
 		Example: `  flightgoat-pp-cli eta AA100`,
 		Args:    cobra.ExactArgs(1),
@@ -1005,6 +1015,7 @@ func newGfSearchCmd(flags *rootFlags) *cobra.Command {
 	var alertIfUnder float64
 	cmd := &cobra.Command{
 		Use:   "gf-search <origin> <destination> <date>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Google Flights search via fli (price + duration + airlines)",
 		Long: `gf-search delegates to the 'fli' Python CLI for Google Flights search.
 Install fli first: pipx install flights

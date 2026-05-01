@@ -91,6 +91,7 @@ func newFundingCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "funding [co]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "SEC EDGAR Form D filings + YC batch lookup. The killer feature for US private fundraising.",
 		Long: `funding fetches every Form D filing the SEC has for a company name, parses the structured XML, and reports offering amount, filing date, exemption claimed, and related persons.
 
@@ -718,6 +719,7 @@ func newFundingTrendCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "funding-trend [co]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Time series of Form D filings showing fundraising cadence over years.",
 		Long: `funding-trend renders a year-by-year count of Form D filings for a company. Useful for spotting fundraising gaps or a startup that quietly stopped raising.
 

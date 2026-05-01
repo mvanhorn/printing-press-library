@@ -22,6 +22,7 @@ func newMakersCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "makers",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Top authors (makers and hunters) across all synced snapshots",
 		Long: `Aggregate the author field across every snapshot in the window. Returns
 each author with total_count (how many snapshot appearances they logged)

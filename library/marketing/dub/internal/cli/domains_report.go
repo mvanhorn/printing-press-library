@@ -27,6 +27,7 @@ type domainStat struct {
 func newDomainsReportCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "report",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Per-domain usage report — link counts and click distribution across custom domains",
 		Long: `Aggregate every link in the local store grouped by short domain. Surfaces
 over- and under-used custom domains so you know which ones are pulling weight

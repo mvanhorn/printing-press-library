@@ -14,6 +14,7 @@ func newMeCmd(flags *rootFlags) *cobra.Command {
 	var jsonOut bool
 	cmd := &cobra.Command{
 		Use:   "me",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show current authenticated user",
 		Example: `  linear-pp-cli me
   linear-pp-cli me --json`,

@@ -10,6 +10,7 @@ import (
 func newCompareCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "compare <location1> <location2>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Compare weather between two locations side-by-side",
 		Long:  "Fetch current conditions for two locations and display a side-by-side comparison of temperature, wind, precipitation, and UV.",
 		Example: `  weather-goat-pp-cli compare "San Francisco" "Los Angeles"

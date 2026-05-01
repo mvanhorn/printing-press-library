@@ -18,6 +18,7 @@ func newVelocityCmd(flags *rootFlags) *cobra.Command {
 	var weeks int
 	cmd := &cobra.Command{
 		Use:   "velocity",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show sprint velocity trends over recent cycles",
 		Long:  "Display completed vs planned scope for recent cycles to track team velocity trends.",
 		Example: `  linear-pp-cli velocity

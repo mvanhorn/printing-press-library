@@ -15,6 +15,7 @@ import (
 func newRetailersCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "retailers",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "List and inspect retailers available at your address",
 	}
 	cmd.AddCommand(newRetailersListCmd(), newRetailersShowCmd())
@@ -24,6 +25,7 @@ func newRetailersCmd() *cobra.Command {
 func newRetailersListCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "list",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "List retailers that deliver to your saved address",
 		Long: `Shows retailers cached locally. If the cache is empty or stale, hits
 Instacart's ShopCollectionUnscoped query to refresh. Use --refresh to force.`,
@@ -60,6 +62,7 @@ Instacart's ShopCollectionUnscoped query to refresh. Use --refresh to force.`,
 func newRetailersShowCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "show <slug>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Look up a retailer by slug and cache it locally",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

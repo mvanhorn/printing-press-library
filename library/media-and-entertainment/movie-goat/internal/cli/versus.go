@@ -13,6 +13,7 @@ import (
 func newVersusCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "versus <title1> <title2>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Compare two movies side-by-side: ratings, box office, cast, streaming",
 		Long: `Compare two movies head-to-head across all dimensions: ratings (TMDb, IMDb,
 Rotten Tomatoes, Metacritic), runtime, budget, revenue, genres, streaming

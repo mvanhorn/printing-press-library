@@ -45,6 +45,7 @@ func newSinceCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "since <duration>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Time-windowed diff of new items across LinkedIn + Happenstance",
 		Long: `Show what's changed for you in the given time window (e.g. "24h", "7d", "2w").
 

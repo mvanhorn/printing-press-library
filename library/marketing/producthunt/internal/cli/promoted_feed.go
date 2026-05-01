@@ -17,6 +17,7 @@ import (
 func newFeedPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "feed",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Fetch or inspect the public Product Hunt Atom feed",
 		Long: `The 'feed' group covers direct access to producthunt.com/feed (Atom 1.0,
 50 entries, no auth). See the subcommands below. For the default
@@ -36,6 +37,7 @@ func newFeedRawCmd(flags *rootFlags) *cobra.Command {
 
 	c := &cobra.Command{
 		Use:   "raw",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Print the raw Atom XML body of /feed",
 		Long: `Fetch /feed and write the raw XML to stdout without parsing. Useful for
 piping into other XML tools or preserving exact-wire content.

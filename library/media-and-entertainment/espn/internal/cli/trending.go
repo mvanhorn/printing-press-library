@@ -17,6 +17,7 @@ func newTrendingCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "trending",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Cross-league trending headlines (top stories across leagues)",
 		Example: `  espn-pp-cli trending
   espn-pp-cli trending --limit 20 --agent

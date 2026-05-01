@@ -12,6 +12,7 @@ import (
 func newMarathonCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "marathon <collection-name>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Plan a franchise marathon with watch order and total runtime",
 		Long: `Search for a TMDb collection (e.g. "Star Wars", "The Dark Knight") and display
 the full franchise lineup in release order. Shows runtime for each entry,

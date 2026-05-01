@@ -13,6 +13,7 @@ func newNewsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "news <appid>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show news articles for a game",
 		Long:  `Fetch recent news and patch notes for a game by its App ID.`,
 		Example: `  # Show news for CS2

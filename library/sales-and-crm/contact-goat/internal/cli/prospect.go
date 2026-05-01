@@ -28,6 +28,7 @@ func newProspectCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "prospect <query>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Fan-out search across LinkedIn, Happenstance, and (opt-in) Deepline",
 		Long: `Run a single prospect query across every source simultaneously. Budget-gated:
 Deepline credits are only spent when --deepline is set AND --budget allows.

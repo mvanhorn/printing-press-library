@@ -19,6 +19,7 @@ import (
 func newGroupsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "groups",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "List your Happenstance groups (hpn-CLI parity, not in sniffed spec)",
 		Long: `List your Happenstance groups.
 
@@ -44,6 +45,7 @@ command will report that the endpoint is still a stub.`,
 func newGroupsGetCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "get <id>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Get details for a single Happenstance group by id",
 		Example: `  contact-goat-pp-cli groups get grp_abc123
   contact-goat-pp-cli groups get grp_abc123 --json`,

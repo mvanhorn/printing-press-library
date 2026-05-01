@@ -23,6 +23,7 @@ func newListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "list",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "List posts from the local store with filters",
 		Long: `Query the local store of posts the CLI has ever synced. Filter by author
 name, date range, or custom sort. Returns the stable post payload so --json

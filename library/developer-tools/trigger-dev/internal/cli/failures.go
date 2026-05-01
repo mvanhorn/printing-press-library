@@ -17,6 +17,7 @@ func newFailuresCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "failures",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Analyze failure patterns across tasks and time periods",
 		Long: `Identify recurring failure patterns by analyzing failed runs across tasks,
 error types, and time-of-day. Helps you find systemic issues that one-off

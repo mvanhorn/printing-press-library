@@ -11,6 +11,7 @@ import (
 func newRecentCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "recent <steamid>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show a player's recently played games",
 		Long:  `List games the player has played in the last two weeks with playtime.`,
 		Example: `  # Show recently played games

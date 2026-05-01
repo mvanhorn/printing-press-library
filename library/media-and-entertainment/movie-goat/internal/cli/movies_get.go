@@ -17,6 +17,7 @@ func newMoviesGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "get <movieId>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Get detailed info about a movie including cast, ratings, and streaming availability",
 		Example: `  movie-goat-pp-cli movies get 550
   movie-goat-pp-cli movies get 155 --json

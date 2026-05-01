@@ -16,6 +16,7 @@ func newHealthCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "health",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Task health dashboard with success rates, durations, and cost trends",
 		Long: `Show per-task health metrics: success rate, failure rate, average duration,
 p95 duration, total cost, and run count. One command, full picture.

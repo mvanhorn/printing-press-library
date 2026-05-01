@@ -11,6 +11,7 @@ import (
 func newProfileCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "profile <steamid>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show a Steam player's profile summary",
 		Long:  `Display player name, profile URL, avatar, online status, and other profile details.`,
 		Example: `  # Show a player's profile
