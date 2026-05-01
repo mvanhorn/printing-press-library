@@ -26,7 +26,17 @@ import (
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("forecast_list",
-			mcplib.WithDescription("7 day weather variables in hourly and daily resolution for given WGS84 latitude and longitude coordinates. Available worldwide. Returns the ListResponse."),
+			mcplib.WithDescription("7 day weather variables in hourly and daily resolution for given WGS84 latitude and longitude coordinates. Available worldwide. Required: latitude, longitude. Optional: hourly, daily, current_weather (plus 5 more). Returns the ListResponse."),
+			mcplib.WithString("hourly", mcplib.Description("Hourly")),
+			mcplib.WithString("daily", mcplib.Description("Daily")),
+			mcplib.WithString("latitude", mcplib.Required(), mcplib.Description("WGS84 coordinate")),
+			mcplib.WithString("longitude", mcplib.Required(), mcplib.Description("WGS84 coordinate")),
+			mcplib.WithString("current_weather", mcplib.Description("Current weather")),
+			mcplib.WithString("temperature_unit", mcplib.Description("Temperature unit")),
+			mcplib.WithString("wind_speed_unit", mcplib.Description("Wind speed unit")),
+			mcplib.WithString("timeformat", mcplib.Description("If format `unixtime` is selected, all time values are returned in UNIX epoch time in seconds. Please not that all...")),
+			mcplib.WithString("timezone", mcplib.Description("If `timezone` is set, all timestamps are returned as local-time and data is returned starting at 0:00 local-time....")),
+			mcplib.WithString("past_days", mcplib.Description("If `past_days` is set, yesterdays or the day before yesterdays data are also returned.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -247,7 +257,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"name": "forecast",
 				"description": "Manage forecast",
 				"endpoints": []string{"list",  },
-				"syncable": true,
+				"searchable": true,
 			},
 		},
 		"query_tips": []string{

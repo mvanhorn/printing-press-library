@@ -12,6 +12,16 @@ import (
 )
 
 func newForecastPromotedCmd(flags *rootFlags) *cobra.Command {
+	var flagHourly string
+	var flagDaily string
+	var flagLatitude float64
+	var flagLongitude float64
+	var flagCurrentWeather bool
+	var flagTemperatureUnit string
+	var flagWindSpeedUnit string
+	var flagTimeformat string
+	var flagTimezone string
+	var flagPastDays int
 
 	cmd := &cobra.Command{
 		Use:   "forecast",
@@ -20,6 +30,51 @@ func newForecastPromotedCmd(flags *rootFlags) *cobra.Command {
 		Example: "  open-meteo-pp-cli forecast",
 		Annotations: map[string]string{"pp:endpoint": "forecast.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("latitude") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "latitude")
+			}
+			if !cmd.Flags().Changed("longitude") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "longitude")
+			}
+			if cmd.Flags().Changed("temperature-unit") {
+				allowedTemperatureUnit := []string{ "celsius", "fahrenheit" }
+				validTemperatureUnit := false
+				for _, v := range allowedTemperatureUnit {
+					if flagTemperatureUnit == v {
+						validTemperatureUnit = true
+						break
+					}
+				}
+				if !validTemperatureUnit {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "temperature-unit", flagTemperatureUnit, allowedTemperatureUnit)
+				}
+			}
+			if cmd.Flags().Changed("wind-speed-unit") {
+				allowedWindSpeedUnit := []string{ "kmh", "ms", "mph", "kn" }
+				validWindSpeedUnit := false
+				for _, v := range allowedWindSpeedUnit {
+					if flagWindSpeedUnit == v {
+						validWindSpeedUnit = true
+						break
+					}
+				}
+				if !validWindSpeedUnit {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "wind-speed-unit", flagWindSpeedUnit, allowedWindSpeedUnit)
+				}
+			}
+			if cmd.Flags().Changed("timeformat") {
+				allowedTimeformat := []string{ "iso8601", "unixtime" }
+				validTimeformat := false
+				for _, v := range allowedTimeformat {
+					if flagTimeformat == v {
+						validTimeformat = true
+						break
+					}
+				}
+				if !validTimeformat {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "timeformat", flagTimeformat, allowedTimeformat)
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -27,6 +82,36 @@ func newForecastPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/forecast"
 			params := map[string]string{}
+			if flagHourly != "" {
+				params["hourly"] = fmt.Sprintf("%v", flagHourly)
+			}
+			if flagDaily != "" {
+				params["daily"] = fmt.Sprintf("%v", flagDaily)
+			}
+			if flagLatitude != 0.0 {
+				params["latitude"] = fmt.Sprintf("%v", flagLatitude)
+			}
+			if flagLongitude != 0.0 {
+				params["longitude"] = fmt.Sprintf("%v", flagLongitude)
+			}
+			if flagCurrentWeather != false {
+				params["current_weather"] = fmt.Sprintf("%v", flagCurrentWeather)
+			}
+			if flagTemperatureUnit != "" {
+				params["temperature_unit"] = fmt.Sprintf("%v", flagTemperatureUnit)
+			}
+			if flagWindSpeedUnit != "" {
+				params["wind_speed_unit"] = fmt.Sprintf("%v", flagWindSpeedUnit)
+			}
+			if flagTimeformat != "" {
+				params["timeformat"] = fmt.Sprintf("%v", flagTimeformat)
+			}
+			if flagTimezone != "" {
+				params["timezone"] = fmt.Sprintf("%v", flagTimezone)
+			}
+			if flagPastDays != 0 {
+				params["past_days"] = fmt.Sprintf("%v", flagPastDays)
+			}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "forecast", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
@@ -79,6 +164,16 @@ func newForecastPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
+	cmd.Flags().StringVar(&flagHourly, "hourly", "", "Hourly")
+	cmd.Flags().StringVar(&flagDaily, "daily", "", "Daily")
+	cmd.Flags().Float64Var(&flagLatitude, "latitude", 0.0, "WGS84 coordinate")
+	cmd.Flags().Float64Var(&flagLongitude, "longitude", 0.0, "WGS84 coordinate")
+	cmd.Flags().BoolVar(&flagCurrentWeather, "current-weather", false, "Current weather")
+	cmd.Flags().StringVar(&flagTemperatureUnit, "temperature-unit", "celsius", "Temperature unit (one of: celsius, fahrenheit)")
+	cmd.Flags().StringVar(&flagWindSpeedUnit, "wind-speed-unit", "kmh", "Wind speed unit (one of: kmh, ms, mph, kn)")
+	cmd.Flags().StringVar(&flagTimeformat, "timeformat", "iso8601", "If format `unixtime` is selected, all time values are returned in UNIX epoch time in seconds. Please not that all... (one of: iso8601, unixtime)")
+	cmd.Flags().StringVar(&flagTimezone, "timezone", "", "If `timezone` is set, all timestamps are returned as local-time and data is returned starting at 0:00 local-time....")
+	cmd.Flags().IntVar(&flagPastDays, "past-days", 0, "If `past_days` is set, yesterdays or the day before yesterdays data are also returned. (one of: 1, 2)")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

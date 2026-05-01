@@ -643,6 +643,8 @@ func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) 
 	}
 
 	switch resource {
+	case "forecast":
+		return db.UpsertForecast(data)
 	default:
 		return db.Upsert(resource, id, data)
 	}
@@ -679,7 +681,6 @@ func parseSinceDuration(s string) (time.Time, error) {
 
 func defaultSyncResources() []string {
 	return []string{
-		"forecast",
 	}
 }
 
@@ -688,7 +689,6 @@ func defaultSyncResources() []string {
 // this preserves the actual endpoint path like "/ISteamApps/GetAppList/v2".
 func syncResourcePath(resource string) string {
 	paths := map[string]string{
-		"forecast": "/v1/forecast",
 	}
 	if p, ok := paths[resource]; ok {
 		return p

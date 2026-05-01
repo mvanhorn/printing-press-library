@@ -254,6 +254,75 @@ func TestSchemaVersion_ReopenIsIdempotent(t *testing.T) {
 	}
 }
 
+// TestMigrate_AddsColumnsOnUpgrade_Forecast verifies that opening a
+// database created by an older binary succeeds and adds newly generated
+// columns before CREATE INDEX runs against the pre-existing table. Regression
+// coverage for parent_id upgrades and indexed generated columns.
+func TestMigrate_AddsColumnsOnUpgrade_Forecast(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	// Pre-create the DB with the older table shape: id, data, synced_at and
+	// none of the newer generated columns. user_version stays 0 (pre-gate).
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE TABLE forecast (
+		id TEXT PRIMARY KEY,
+		data JSON NOT NULL,
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create old table: %v", err)
+	}
+	raw.Close()
+
+	// Opening with the new binary must run CREATE INDEX statements without
+	// erroring on missing generated columns.
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open upgraded db: %v", err)
+	}
+	defer s.Close()
+
+	// The migration must have added every generated column.
+	rows, err := s.DB().Query(`PRAGMA table_info(forecast)`)
+	if err != nil {
+		t.Fatalf("table_info: %v", err)
+	}
+	defer rows.Close()
+
+	hasColumn := make(map[string]bool)
+	for rows.Next() {
+		var cid int
+		var name, typ string
+		var notnull, pk int
+		var dflt sql.NullString
+		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+			t.Fatalf("scan: %v", err)
+		}
+		hasColumn[name] = true
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatalf("rows: %v", err)
+	}
+
+	for _, want := range []string{
+		"latitude",
+		"longitude",
+		"current_weather",
+		"temperature_unit",
+		"wind_speed_unit",
+		"timeformat",
+		"timezone",
+		"past_days",
+	} {
+		if !hasColumn[want] {
+			t.Fatalf("%s column missing from forecast after migrate", want)
+		}
+	}
+}
+
 // TestMigrate_AddsColumnsOnUpgrade_SyncState verifies that opening a
 // database created by an older binary succeeds and adds newly generated
 // columns before CREATE INDEX runs against the pre-existing table. Regression

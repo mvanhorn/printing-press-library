@@ -184,6 +184,14 @@ func (s *Store) ensureColumn(ctx context.Context, conn *sql.Conn, table, column,
 // word.
 func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
 	for _, c := range []struct{ table, column, decl string }{
+		{table: "forecast", column: "latitude", decl: "REAL"},
+		{table: "forecast", column: "longitude", decl: "REAL"},
+		{table: "forecast", column: "current_weather", decl: "INTEGER"},
+		{table: "forecast", column: "temperature_unit", decl: "TEXT"},
+		{table: "forecast", column: "wind_speed_unit", decl: "TEXT"},
+		{table: "forecast", column: "timeformat", decl: "TEXT"},
+		{table: "forecast", column: "timezone", decl: "TEXT"},
+		{table: "forecast", column: "past_days", decl: "INTEGER"},
 		{table: "sync_state", column: "last_cursor", decl: "TEXT"},
 		{table: "sync_state", column: "last_synced_at", decl: "DATETIME"},
 		{table: "sync_state", column: "total_count", decl: "INTEGER DEFAULT 0"},
@@ -239,7 +247,15 @@ func (s *Store) migrate(ctx context.Context) error {
 		`CREATE TABLE IF NOT EXISTS forecast (
 			id TEXT PRIMARY KEY,
 			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			latitude REAL,
+			longitude REAL,
+			current_weather INTEGER,
+			temperature_unit TEXT,
+			wind_speed_unit TEXT,
+			timeformat TEXT,
+			timezone TEXT,
+			past_days INTEGER
 		)`,
 	}
 
@@ -555,6 +571,63 @@ func LookupFieldValue(obj map[string]any, snakeKey string) any {
 func lookupFieldValue(obj map[string]any, snakeKey string) any {
 	return LookupFieldValue(obj, snakeKey)
 }
+// upsertForecastTx writes the typed-table portion of a forecast upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertForecastTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO forecast (id, data, synced_at, latitude, longitude, current_weather, temperature_unit, wind_speed_unit, timeformat, timezone, past_days)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, latitude = excluded.latitude, longitude = excluded.longitude, current_weather = excluded.current_weather, temperature_unit = excluded.temperature_unit, wind_speed_unit = excluded.wind_speed_unit, timeformat = excluded.timeformat, timezone = excluded.timezone, past_days = excluded.past_days`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "latitude"),
+		lookupFieldValue(obj, "longitude"),
+		lookupFieldValue(obj, "current_weather"),
+		lookupFieldValue(obj, "temperature_unit"),
+		lookupFieldValue(obj, "wind_speed_unit"),
+		lookupFieldValue(obj, "timeformat"),
+		lookupFieldValue(obj, "timezone"),
+		lookupFieldValue(obj, "past_days"),
+	); err != nil {
+		return fmt.Errorf("insert into forecast: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertForecast inserts or updates a forecast record with domain-specific columns.
+func (s *Store) UpsertForecast(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling forecast: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for forecast")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "forecast", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertForecastTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
 
 // resourceIDFieldOverrides projects per-resource IDField (set by the profiler
 // from x-resource-id or response-schema fallback) into a runtime lookup map.
@@ -637,6 +710,10 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 		}
 
 		switch resourceType {
+		case "forecast":
+			if err := s.upsertForecastTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
 		}
 		stored++
 	}

@@ -215,7 +215,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		for k, v := range headerOverrides {
 			req.Header.Set(k, v)
 		}
-		req.Header.Set("User-Agent", "github.com/mvanhorn/printing-press-library/library/other/open-meteo/1.0")
+		req.Header.Set("User-Agent", "open-meteo-pp-cli/1.0")
 
 		resp, err := c.HTTPClient.Do(req)
 		if err != nil {
