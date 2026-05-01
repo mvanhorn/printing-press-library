@@ -14,11 +14,11 @@ import (
 func newItemCategoryRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "retrieve <id>",
-		Aliases:     []string{"get"},
-		Short:       "Item categories determine where items will be placed in the players bag.",
-		Example:     "  pokeapi-pp-cli item-category retrieve 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "item-category.retrieve"},
+		Use:   "retrieve <id>",
+		Aliases: []string{"get"},
+		Short: "Item categories determine where items will be placed in the players bag.",
+		Example: "  pokeapi-pp-cli item-category retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "item-category.retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -31,7 +31,7 @@ func newItemCategoryRetrieveCmd(flags *rootFlags) *cobra.Command {
 			path := "/api/v2/item-category/{id}/"
 			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "item-category", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "item-category", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

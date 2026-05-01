@@ -14,11 +14,11 @@ import (
 func newMetaPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "meta",
-		Short:       "Returns metadata about the current deployed version of the API, including the git commit hash, deploy date, and tag...",
-		Long:        "Shortcut for 'meta list'. Returns metadata about the current deployed version of the API, including the git commit hash, deploy date, and tag...",
-		Example:     "  pokeapi-pp-cli meta",
-		Annotations: map[string]string{"pp:endpoint": "meta.list"},
+		Use:   "meta",
+		Short: "Returns metadata about the current deployed version of the API, including the git commit hash, deploy date, and tag...",
+		Long:  "Shortcut for 'meta list'. Returns metadata about the current deployed version of the API, including the git commit hash, deploy date, and tag...",
+		Example: "  pokeapi-pp-cli meta",
+		Annotations: map[string]string{"pp:endpoint": "meta.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -27,7 +27,7 @@ func newMetaPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/api/v2/meta/"
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "meta", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "meta", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

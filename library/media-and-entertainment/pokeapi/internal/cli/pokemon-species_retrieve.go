@@ -14,11 +14,11 @@ import (
 func newPokemonSpeciesRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "retrieve <id>",
-		Aliases:     []string{"get"},
-		Short:       "A Pokémon Species forms the basis for at least one Pokémon. Attributes of a Pokémon species are shared across all...",
-		Example:     "  pokeapi-pp-cli pokemon-species retrieve 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "pokemon-species.retrieve"},
+		Use:   "retrieve <id>",
+		Aliases: []string{"get"},
+		Short: "A Pokémon Species forms the basis for at least one Pokémon. Attributes of a Pokémon species are shared across all...",
+		Example: "  pokeapi-pp-cli pokemon-species retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "pokemon-species.retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -31,7 +31,7 @@ func newPokemonSpeciesRetrieveCmd(flags *rootFlags) *cobra.Command {
 			path := "/api/v2/pokemon-species/{id}/"
 			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "pokemon-species", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "pokemon-species", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

@@ -14,11 +14,11 @@ import (
 func newItemFlingEffectRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "retrieve <id>",
-		Aliases:     []string{"get"},
-		Short:       "The various effects of the move'Fling' when used with different items.",
-		Example:     "  pokeapi-pp-cli item-fling-effect retrieve 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "item-fling-effect.retrieve"},
+		Use:   "retrieve <id>",
+		Aliases: []string{"get"},
+		Short: "The various effects of the move'Fling' when used with different items.",
+		Example: "  pokeapi-pp-cli item-fling-effect retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "item-fling-effect.retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -31,7 +31,7 @@ func newItemFlingEffectRetrieveCmd(flags *rootFlags) *cobra.Command {
 			path := "/api/v2/item-fling-effect/{id}/"
 			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "item-fling-effect", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "item-fling-effect", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

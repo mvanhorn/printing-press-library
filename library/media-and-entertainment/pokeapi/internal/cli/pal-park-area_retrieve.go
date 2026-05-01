@@ -14,11 +14,11 @@ import (
 func newPalParkAreaRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "retrieve <id>",
-		Aliases:     []string{"get"},
-		Short:       "Areas used for grouping Pokémon encounters in Pal Park. They're like habitats that are specific to Pal Park.",
-		Example:     "  pokeapi-pp-cli pal-park-area retrieve 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "pal-park-area.retrieve"},
+		Use:   "retrieve <id>",
+		Aliases: []string{"get"},
+		Short: "Areas used for grouping Pokémon encounters in Pal Park. They're like habitats that are specific to Pal Park.",
+		Example: "  pokeapi-pp-cli pal-park-area retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "pal-park-area.retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -31,7 +31,7 @@ func newPalParkAreaRetrieveCmd(flags *rootFlags) *cobra.Command {
 			path := "/api/v2/pal-park-area/{id}/"
 			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "pal-park-area", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "pal-park-area", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

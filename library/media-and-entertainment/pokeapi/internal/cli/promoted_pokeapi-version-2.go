@@ -11,39 +11,50 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newVersionGameRetrieveCmd(flags *rootFlags) *cobra.Command {
+func newPokeapiVersion2PromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "game-retrieve <id>",
-		Aliases:     []string{"get"},
-		Short:       "Versions of the games, e.g., Red, Blue or Yellow.",
-		Example:     "  pokeapi-pp-cli version game-retrieve 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "version.game-retrieve"},
+		Use:   "pokeapi-version-2 <id>",
+		Short: "Versions of the games, e.g., Red, Blue or Yellow.",
+		Long:  "Shortcut for 'pokeapi-version-2 game-version-retrieve'. Versions of the games, e.g., Red, Blue or Yellow.",
+		Example: "  pokeapi-pp-cli pokeapi-version-2",
+		Annotations: map[string]string{"pp:endpoint": "pokeapi-version-2.game-version-retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
-				return cmd.Help()
-			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
 			path := "/api/v2/version/{id}/"
+			if len(args) < 1 {
+				return usageErr(fmt.Errorf("id is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "id"))
+			}
 			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "version", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "pokeapi-version-2", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
-			// Print provenance to stderr for human-facing output
+			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
+			// so output helpers see the inner data, not the wrapper.
+			data = extractResponseData(data)
+
+			// Print provenance to stderr
 			{
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				if json.Unmarshal(data, &countItems) != nil {
+					// Single object, not an array
+					countItems = []json.RawMessage{data}
+				}
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags.
-			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
+			// CSV bypasses JSON pipe path so --csv works when piped
+			if flags.csv {
+				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			}
+			// For JSON output, wrap with provenance envelope. --select wins over
+			// --compact when both are set; --compact only runs when no explicit
+			// fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
 				if flags.selectFields != "" {
@@ -57,7 +68,6 @@ func newVersionGameRetrieveCmd(flags *rootFlags) *cobra.Command {
 				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
-			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
 				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
@@ -73,6 +83,8 @@ func newVersionGameRetrieveCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
+
+	// Wire sibling endpoints and sub-resources as subcommands
 
 	return cmd
 }

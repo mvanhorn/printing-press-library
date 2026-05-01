@@ -14,11 +14,11 @@ import (
 func newEncounterConditionRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "retrieve <id>",
-		Aliases:     []string{"get"},
-		Short:       "Conditions which affect what pokemon might appear in the wild, e.g., day or night.",
-		Example:     "  pokeapi-pp-cli encounter-condition retrieve 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "encounter-condition.retrieve"},
+		Use:   "retrieve <id>",
+		Aliases: []string{"get"},
+		Short: "Conditions which affect what pokemon might appear in the wild, e.g., day or night.",
+		Example: "  pokeapi-pp-cli encounter-condition retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "encounter-condition.retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -31,7 +31,7 @@ func newEncounterConditionRetrieveCmd(flags *rootFlags) *cobra.Command {
 			path := "/api/v2/encounter-condition/{id}/"
 			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "encounter-condition", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "encounter-condition", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

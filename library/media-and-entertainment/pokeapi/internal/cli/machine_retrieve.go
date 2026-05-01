@@ -14,11 +14,11 @@ import (
 func newMachineRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "retrieve <id>",
-		Aliases:     []string{"get"},
-		Short:       "Machines are the representation of items that teach moves to Pokémon. They vary from version to version, so it is...",
-		Example:     "  pokeapi-pp-cli machine retrieve 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "machine.retrieve"},
+		Use:   "retrieve <id>",
+		Aliases: []string{"get"},
+		Short: "Machines are the representation of items that teach moves to Pokémon. They vary from version to version, so it is...",
+		Example: "  pokeapi-pp-cli machine retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "machine.retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -31,7 +31,7 @@ func newMachineRetrieveCmd(flags *rootFlags) *cobra.Command {
 			path := "/api/v2/machine/{id}/"
 			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "machine", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "machine", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

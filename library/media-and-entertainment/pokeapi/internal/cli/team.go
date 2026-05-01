@@ -20,6 +20,9 @@ func newTeamCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newTeamCoverageCmd(flags))
 	cmd.AddCommand(newTeamGapsCmd(flags))
 	cmd.AddCommand(newTeamSuggestCmd(flags))
+	cmd.AddCommand(newTeamCoverageCmd(flags))
+	cmd.AddCommand(newTeamGapsCmd(flags))
+	cmd.AddCommand(newTeamSuggestCmd(flags))
 	return cmd
 }
 

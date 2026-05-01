@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/pokeapi/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // isNilOrEmpty checks whether a JSON object has nil or empty values for
@@ -124,7 +124,7 @@ In local mode: searches locally synced data only.`,
 				dbPath = defaultDBPath("pokeapi-pp-cli")
 			}
 
-			db, err := store.Open(dbPath)
+			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'pokeapi-pp-cli sync' first to populate the local database.", err)
 			}
@@ -177,26 +177,31 @@ func outputSearchResults(cmd *cobra.Command, flags *rootFlags, results []json.Ra
 		results = results[:limit]
 	}
 
-	if len(results) == 0 {
-		fmt.Fprintf(cmd.ErrOrStderr(), "No results (source: %s)\n", prov.Source)
-		return nil
-	}
+	jsonMode := flags.asJSON || !isTerminal(cmd.OutOrStdout())
 
-	// Print provenance to stderr for human output
-	printProvenance(cmd, len(results), prov)
-
-	if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+	// JSON mode always emits a valid envelope, including on no matches —
+	// agents pipe stdout through json.loads / jq and need parseable output
+	// regardless of result count. The filtered slice is built via make
+	// above, so it's non-nil even when empty; json.Marshal renders that
+	// as `[]` rather than `null`.
+	if jsonMode {
 		data, err := json.Marshal(results)
 		if err != nil {
 			return err
 		}
-		wrapped, err := wrapWithProvenance(json.RawMessage(data), prov)
+		wrapped, err := wrapWithProvenance(data, prov)
 		if err != nil {
 			return err
 		}
 		return printOutput(cmd.OutOrStdout(), wrapped, true)
 	}
 
+	if len(results) == 0 {
+		fmt.Fprintf(cmd.ErrOrStderr(), "No results (source: %s)\n", prov.Source)
+		return nil
+	}
+
+	printProvenance(cmd, len(results), prov)
 	for _, r := range results {
 		fmt.Fprintln(cmd.OutOrStdout(), string(r))
 	}

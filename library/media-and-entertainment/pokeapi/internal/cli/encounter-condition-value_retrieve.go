@@ -14,11 +14,11 @@ import (
 func newEncounterConditionValueRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "retrieve <id>",
-		Aliases:     []string{"get"},
-		Short:       "Encounter condition values are the various states that an encounter condition can have, i.e., time of day can be...",
-		Example:     "  pokeapi-pp-cli encounter-condition-value retrieve 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "encounter-condition-value.retrieve"},
+		Use:   "retrieve <id>",
+		Aliases: []string{"get"},
+		Short: "Encounter condition values are the various states that an encounter condition can have, i.e., time of day can be...",
+		Example: "  pokeapi-pp-cli encounter-condition-value retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "encounter-condition-value.retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -31,7 +31,7 @@ func newEncounterConditionValueRetrieveCmd(flags *rootFlags) *cobra.Command {
 			path := "/api/v2/encounter-condition-value/{id}/"
 			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "encounter-condition-value", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "encounter-condition-value", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

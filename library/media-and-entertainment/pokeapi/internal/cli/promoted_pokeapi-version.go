@@ -11,18 +11,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newVersionGameListCmd(flags *rootFlags) *cobra.Command {
+func newPokeapiVersionPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagLimit int
-	var flagOffset int
+	var flagOffset string
 	var flagQ string
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:         "game-list",
-		Aliases:     []string{"list"},
-		Short:       "Versions of the games, e.g., Red, Blue or Yellow.",
-		Example:     "  pokeapi-pp-cli version game-list",
-		Annotations: map[string]string{"pp:endpoint": "version.game-list"},
+		Use:   "pokeapi-version",
+		Short: "Versions of the games, e.g., Red, Blue or Yellow.",
+		Long:  "Shortcut for 'pokeapi-version game-version-list'. Versions of the games, e.g., Red, Blue or Yellow.",
+		Example: "  pokeapi-pp-cli pokeapi-version",
+		Annotations: map[string]string{"pp:endpoint": "pokeapi-version.game-version-list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -30,23 +30,34 @@ func newVersionGameListCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/api/v2/version/"
-			data, prov, err := resolvePaginatedRead(c, flags, "version", path, map[string]string{
-				"limit":  fmt.Sprintf("%v", flagLimit),
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "pokeapi-version", path, map[string]string{
+				"limit": fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
-				"q":      fmt.Sprintf("%v", flagQ),
+				"q": fmt.Sprintf("%v", flagQ),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
-			// Print provenance to stderr for human-facing output
+			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
+			// so output helpers see the inner data, not the wrapper.
+			data = extractResponseData(data)
+
+			// Print provenance to stderr
 			{
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				if json.Unmarshal(data, &countItems) != nil {
+					// Single object, not an array
+					countItems = []json.RawMessage{data}
+				}
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags.
-			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
+			// CSV bypasses JSON pipe path so --csv works when piped
+			if flags.csv {
+				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			}
+			// For JSON output, wrap with provenance envelope. --select wins over
+			// --compact when both are set; --compact only runs when no explicit
+			// fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
 				if flags.selectFields != "" {
@@ -60,7 +71,6 @@ func newVersionGameListCmd(flags *rootFlags) *cobra.Command {
 				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
-			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
 				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
@@ -77,9 +87,11 @@ func newVersionGameListCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().IntVar(&flagLimit, "limit", 0, "Number of results to return per page.")
-	cmd.Flags().IntVar(&flagOffset, "offset", 0, "The initial index from which to return the results.")
+	cmd.Flags().StringVar(&flagOffset, "offset", "", "The initial index from which to return the results.")
 	cmd.Flags().StringVar(&flagQ, "q", "", "> Only available locally and not at [pokeapi.co](https://pokeapi.co/docs/v2) Case-insensitive query applied on the...")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
+
+	// Wire sibling endpoints and sub-resources as subcommands
 
 	return cmd
 }

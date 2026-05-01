@@ -29,6 +29,7 @@ func newEvolveCmd(flags *rootFlags) *cobra.Command {
 		Short: "Evolution-direction queries (e.g. 'how do I get an Umbreon?')",
 	}
 	cmd.AddCommand(newEvolveIntoCmd(flags))
+	cmd.AddCommand(newEvolveIntoCmd(flags))
 	return cmd
 }
 

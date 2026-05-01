@@ -35,6 +35,7 @@ func newEncountersCmd(flags *rootFlags) *cobra.Command {
 		Short: "Encounter queries",
 	}
 	cmd.AddCommand(newEncountersByRegionCmd(flags))
+	cmd.AddCommand(newEncountersByRegionCmd(flags))
 	return cmd
 }
 

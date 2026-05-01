@@ -13,14 +13,14 @@ import (
 
 func newLocationAreaListCmd(flags *rootFlags) *cobra.Command {
 	var flagLimit int
-	var flagOffset int
+	var flagOffset string
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:         "list",
-		Short:       "Location areas are sections of areas, such as floors in a building or cave. Each area has its own set of possible...",
-		Example:     "  pokeapi-pp-cli location-area list",
-		Annotations: map[string]string{"pp:endpoint": "location-area.list"},
+		Use:   "list",
+		Short: "Location areas are sections of areas, such as floors in a building or cave. Each area has its own set of possible...",
+		Example: "  pokeapi-pp-cli location-area list",
+		Annotations: map[string]string{"pp:endpoint": "location-area.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -28,8 +28,8 @@ func newLocationAreaListCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/api/v2/location-area/"
-			data, prov, err := resolvePaginatedRead(c, flags, "location-area", path, map[string]string{
-				"limit":  fmt.Sprintf("%v", flagLimit),
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "location-area", path, map[string]string{
+				"limit": fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {
@@ -74,7 +74,7 @@ func newLocationAreaListCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().IntVar(&flagLimit, "limit", 0, "Number of results to return per page.")
-	cmd.Flags().IntVar(&flagOffset, "offset", 0, "The initial index from which to return the results.")
+	cmd.Flags().StringVar(&flagOffset, "offset", "", "The initial index from which to return the results.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

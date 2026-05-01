@@ -14,11 +14,11 @@ import (
 func newEvolutionChainRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "retrieve <id>",
-		Aliases:     []string{"get"},
-		Short:       "Evolution chains are essentially family trees. They start with the lowest stage within a family and detail evolution...",
-		Example:     "  pokeapi-pp-cli evolution-chain retrieve 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "evolution-chain.retrieve"},
+		Use:   "retrieve <id>",
+		Aliases: []string{"get"},
+		Short: "Evolution chains are essentially family trees. They start with the lowest stage within a family and detail evolution...",
+		Example: "  pokeapi-pp-cli evolution-chain retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "evolution-chain.retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -31,7 +31,7 @@ func newEvolutionChainRetrieveCmd(flags *rootFlags) *cobra.Command {
 			path := "/api/v2/evolution-chain/{id}/"
 			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "evolution-chain", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "evolution-chain", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

@@ -14,11 +14,11 @@ import (
 func newItemAttributeRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "retrieve <id>",
-		Aliases:     []string{"get"},
-		Short:       "Item attributes define particular aspects of items, e.g.'usable in battle' or 'consumable'.",
-		Example:     "  pokeapi-pp-cli item-attribute retrieve 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "item-attribute.retrieve"},
+		Use:   "retrieve <id>",
+		Aliases: []string{"get"},
+		Short: "Item attributes define particular aspects of items, e.g.'usable in battle' or 'consumable'.",
+		Example: "  pokeapi-pp-cli item-attribute retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "item-attribute.retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -31,7 +31,7 @@ func newItemAttributeRetrieveCmd(flags *rootFlags) *cobra.Command {
 			path := "/api/v2/item-attribute/{id}/"
 			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "item-attribute", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "item-attribute", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

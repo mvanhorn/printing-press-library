@@ -9,8 +9,8 @@ import (
 	"os"
 	"sort"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/pokeapi/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newAnalyticsCmd(flags *rootFlags) *cobra.Command {
@@ -38,7 +38,7 @@ Data must be synced first with the sync command.`,
 				dbPath = defaultDBPath("pokeapi-pp-cli")
 			}
 
-			db, err := store.Open(dbPath)
+			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'pokeapi-pp-cli sync' first.", err)
 			}

@@ -15,10 +15,11 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/pokeapi/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/pokeapi/internal/config"
+	"sort"
 	"strings"
 	"time"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/pokeapi/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/pokeapi/internal/config"
 )
 
 type Client struct {
@@ -30,6 +31,8 @@ type Client struct {
 	cacheDir   string
 	limiter    *cliutil.AdaptiveLimiter
 }
+
+
 
 // APIError carries HTTP status information for structured exit codes.
 type APIError struct {
@@ -212,7 +215,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		for k, v := range headerOverrides {
 			req.Header.Set(k, v)
 		}
-		req.Header.Set("User-Agent", "pokeapi-pp-cli/2.7.0")
+		req.Header.Set("User-Agent", "github.com/mvanhorn/printing-press-library/library/media-and-entertainment/pokeapi/2.7.0")
 
 		resp, err := c.HTTPClient.Do(req)
 		if err != nil {
@@ -271,13 +274,25 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 // call — the caller is responsible for passing cached auth material only.
 func (c *Client) dryRun(method, targetURL, path string, params map[string]string, body []byte, headerOverrides map[string]string, authHeader string) (json.RawMessage, int, error) {
 	fmt.Fprintf(os.Stderr, "%s %s\n", method, targetURL)
+	queryPrinted := false
 	if params != nil {
-		for k, v := range params {
-			if v != "" {
-				fmt.Fprintf(os.Stderr, "  ?%s=%s\n", k, v)
+		keys := make([]string, 0, len(params))
+		for k := range params {
+			if params[k] != "" {
+				keys = append(keys, k)
 			}
 		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			sep := "?"
+			if queryPrinted {
+				sep = "&"
+			}
+			fmt.Fprintf(os.Stderr, "  %s%s=%s\n", sep, k, params[k])
+			queryPrinted = true
+		}
 	}
+	_ = queryPrinted
 	if body != nil {
 		var pretty json.RawMessage
 		if json.Unmarshal(body, &pretty) == nil {
@@ -399,6 +414,7 @@ func sanitizeJSONResponse(body []byte) []byte {
 	}
 	return body
 }
+
 
 // maskToken redacts all but the last 4 characters of a token for safe display.
 func maskToken(token string) string {

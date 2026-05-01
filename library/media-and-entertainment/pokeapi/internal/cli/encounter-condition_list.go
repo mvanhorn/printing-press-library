@@ -13,15 +13,15 @@ import (
 
 func newEncounterConditionListCmd(flags *rootFlags) *cobra.Command {
 	var flagLimit int
-	var flagOffset int
+	var flagOffset string
 	var flagQ string
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:         "list",
-		Short:       "Conditions which affect what pokemon might appear in the wild, e.g., day or night.",
-		Example:     "  pokeapi-pp-cli encounter-condition list",
-		Annotations: map[string]string{"pp:endpoint": "encounter-condition.list"},
+		Use:   "list",
+		Short: "Conditions which affect what pokemon might appear in the wild, e.g., day or night.",
+		Example: "  pokeapi-pp-cli encounter-condition list",
+		Annotations: map[string]string{"pp:endpoint": "encounter-condition.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -29,10 +29,10 @@ func newEncounterConditionListCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/api/v2/encounter-condition/"
-			data, prov, err := resolvePaginatedRead(c, flags, "encounter-condition", path, map[string]string{
-				"limit":  fmt.Sprintf("%v", flagLimit),
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "encounter-condition", path, map[string]string{
+				"limit": fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
-				"q":      fmt.Sprintf("%v", flagQ),
+				"q": fmt.Sprintf("%v", flagQ),
 			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err)
@@ -76,7 +76,7 @@ func newEncounterConditionListCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().IntVar(&flagLimit, "limit", 0, "Number of results to return per page.")
-	cmd.Flags().IntVar(&flagOffset, "offset", 0, "The initial index from which to return the results.")
+	cmd.Flags().StringVar(&flagOffset, "offset", "", "The initial index from which to return the results.")
 	cmd.Flags().StringVar(&flagQ, "q", "", "> Only available locally and not at [pokeapi.co](https://pokeapi.co/docs/v2) Case-insensitive query applied on the...")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 

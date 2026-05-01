@@ -14,11 +14,11 @@ import (
 func newVersionGroupRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "retrieve <id>",
-		Aliases:     []string{"get"},
-		Short:       "Version groups categorize highly similar versions of the games.",
-		Example:     "  pokeapi-pp-cli version-group retrieve 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "version-group.retrieve"},
+		Use:   "retrieve <id>",
+		Aliases: []string{"get"},
+		Short: "Version groups categorize highly similar versions of the games.",
+		Example: "  pokeapi-pp-cli version-group retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "version-group.retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -31,7 +31,7 @@ func newVersionGroupRetrieveCmd(flags *rootFlags) *cobra.Command {
 			path := "/api/v2/version-group/{id}/"
 			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "version-group", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "version-group", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

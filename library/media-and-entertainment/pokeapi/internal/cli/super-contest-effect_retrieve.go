@@ -14,11 +14,11 @@ import (
 func newSuperContestEffectRetrieveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "retrieve <id>",
-		Aliases:     []string{"get"},
-		Short:       "Super contest effects refer to the effects of moves when used in super contests.",
-		Example:     "  pokeapi-pp-cli super-contest-effect retrieve 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "super-contest-effect.retrieve"},
+		Use:   "retrieve <id>",
+		Aliases: []string{"get"},
+		Short: "Super contest effects refer to the effects of moves when used in super contests.",
+		Example: "  pokeapi-pp-cli super-contest-effect retrieve 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "super-contest-effect.retrieve", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -31,7 +31,7 @@ func newSuperContestEffectRetrieveCmd(flags *rootFlags) *cobra.Command {
 			path := "/api/v2/super-contest-effect/{id}/"
 			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "super-contest-effect", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "super-contest-effect", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

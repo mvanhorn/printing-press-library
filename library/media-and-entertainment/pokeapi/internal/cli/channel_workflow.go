@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/pokeapi/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newWorkflowCmd(flags *rootFlags) *cobra.Command {
@@ -49,13 +49,13 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			if dbPath == "" {
 				dbPath = defaultDBPath("pokeapi-pp-cli")
 			}
-			s, err := store.Open(dbPath)
+			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
 			}
 			defer s.Close()
 
-			resources := []string{"ability", "berry", "berry-firmness", "berry-flavor", "characteristic", "contest-effect", "contest-type", "egg-group", "encounter-condition", "encounter-condition-value", "encounter-method", "evolution-chain", "evolution-trigger", "gender", "generation", "growth-rate", "item", "item-attribute", "item-category", "item-fling-effect", "item-pocket", "language", "location", "location-area", "machine", "meta", "move", "move-ailment", "move-battle-style", "move-category", "move-damage-class", "move-learn-method", "move-target", "nature", "pal-park-area", "pokeathlon-stat", "pokedex", "pokemon", "pokemon-color", "pokemon-form", "pokemon-habitat", "pokemon-shape", "pokemon-species", "region", "stat", "super-contest-effect", "type", "version", "version-group"}
+			resources := []string{"ability", "berry", "berry-firmness", "berry-flavor", "characteristic", "contest-effect", "contest-type", "egg-group", "encounter-condition", "encounter-condition-value", "encounter-method", "evolution-chain", "evolution-trigger", "gender", "generation", "growth-rate", "item", "item-attribute", "item-category", "item-fling-effect", "item-pocket", "language", "location", "location-area", "machine", "meta", "move", "move-ailment", "move-battle-style", "move-category", "move-damage-class", "move-learn-method", "move-target", "nature", "pal-park-area", "pokeapi-version", "pokeathlon-stat", "pokedex", "pokemon", "pokemon-color", "pokemon-form", "pokemon-habitat", "pokemon-shape", "pokemon-species", "region", "stat", "super-contest-effect", "type", "version-group",  }
 			totalSynced := 0
 
 			for _, resource := range resources {
@@ -94,9 +94,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 						break
 					}
 					for _, item := range items {
-						var obj struct {
-							ID string `json:"id"`
-						}
+						var obj struct{ ID string `json:"id"` }
 						json.Unmarshal(item, &obj)
 						id := obj.ID
 						if id == "" {
@@ -159,7 +157,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 			if dbPath == "" {
 				dbPath = defaultDBPath("pokeapi-pp-cli")
 			}
-			s, err := store.Open(dbPath)
+			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
 			}

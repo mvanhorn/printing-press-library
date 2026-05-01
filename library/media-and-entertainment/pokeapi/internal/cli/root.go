@@ -13,9 +13,9 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/pokeapi/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/pokeapi/internal/config"
+	"github.com/spf13/cobra"
 )
 
 var version = "1.0.0"
@@ -81,27 +81,11 @@ func Execute() error {
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "pokeapi-pp-cli",
-		Short: `Pokeapi CLI — PokéAPI as a fully offline Pokédex with SQL, full-text search, type math, and a damage calculator no other Pokémon tool…`,
-		Long: `Pokeapi CLI — PokéAPI as a fully offline Pokédex with SQL, full-text search, type math, and a damage calculator no other Pokémon tool…
+		Short: "Manage pokeapi resources via the pokeapi API",
+		Long: `Manage pokeapi resources via the pokeapi API.
 
-Highlights (not in the official API docs):
-  • pokemon by-ability   Find every Pokémon with a given ability. Live API has no reverse index — this i…
-  • move find   Find moves by status effect, damage class, type, or target — e.g. all moves tha…
-  • team suggest   Given an in-progress team, score every remaining Pokémon by how well it covers …
-  • pokemon diff-learnset   Compare the move learnsets of two Pokémon (often regional forms or megas) and s…
-  • pokemon history   Show how a Pokémon has changed over generations: type changes, stat changes, ab…
-  • pokemon forms   List every form for a species (e.g. Vulpix vs Alolan Vulpix) with type, stat, a…
-  • evolve into   Given a target Pokémon, surface the species you would need to evolve and the co…
-  • team gaps   List which of the 18 types your in-progress team has neither defensive resistan…
-  • search   Full-text search across Pokémon, moves, abilities, items, and locations — names…
-  • sql   Read-only SQL access to the local store. Power users and agents can compose joi…
-  • encounters by-region   Render a region-level encounter table joining locations, areas, encounters, and…
-  • damage   Compute expected damage range for a move from one Pokémon to another, factoring…
-  • pokemon top   Rank Pokémon by a base stat (attack, special-attack, speed, hp, etc.), optional…
-
-Agent mode: add --agent to any command for JSON output + non-interactive mode.
-Health check: run 'pokeapi-pp-cli doctor' to verify auth and connectivity.
-See README.md or the bundled SKILL.md for recipes.`,
+Add --agent to any command for JSON output + non-interactive mode.
+Run 'pokeapi-pp-cli doctor' to verify auth and connectivity.`,
 		SilenceUsage: true,
 		Version:      version,
 	}
@@ -205,7 +189,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newLocationCmd(flags))
 	rootCmd.AddCommand(newLocationAreaCmd(flags))
 	rootCmd.AddCommand(newMachineCmd(flags))
-	rootCmd.AddCommand(newMoveCmd(flags))
+	moveCmd := newMoveCmd(flags)
+	rootCmd.AddCommand(moveCmd)
 	rootCmd.AddCommand(newMoveAilmentCmd(flags))
 	rootCmd.AddCommand(newMoveBattleStyleCmd(flags))
 	rootCmd.AddCommand(newMoveCategoryCmd(flags))
@@ -216,7 +201,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newPalParkAreaCmd(flags))
 	rootCmd.AddCommand(newPokeathlonStatCmd(flags))
 	rootCmd.AddCommand(newPokedexCmd(flags))
-	rootCmd.AddCommand(newPokemonCmd(flags))
+	pokemonCmd := newPokemonCmd(flags)
+	rootCmd.AddCommand(pokemonCmd)
 	rootCmd.AddCommand(newPokemonColorCmd(flags))
 	rootCmd.AddCommand(newPokemonFormCmd(flags))
 	rootCmd.AddCommand(newPokemonHabitatCmd(flags))
@@ -226,7 +212,6 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newStatCmd(flags))
 	rootCmd.AddCommand(newSuperContestEffectCmd(flags))
 	rootCmd.AddCommand(newTypeCmd(flags))
-	rootCmd.AddCommand(newVersionCmd(flags))
 	rootCmd.AddCommand(newVersionGroupCmd(flags))
 	rootCmd.AddCommand(newDoctorCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
@@ -241,30 +226,25 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newWorkflowCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))
 	rootCmd.AddCommand(newMetaPromotedCmd(flags))
+	rootCmd.AddCommand(newPokeapiVersionPromotedCmd(flags))
+	rootCmd.AddCommand(newPokeapiVersion2PromotedCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
-	// Novel feature commands (hand-written; not generator-emitted).
 	rootCmd.AddCommand(newTeamCmd(flags))
 	rootCmd.AddCommand(newEvolveCmd(flags))
 	rootCmd.AddCommand(newEncountersCmd(flags))
 	rootCmd.AddCommand(newDamageCmd(flags))
 	rootCmd.AddCommand(newSQLCmd(flags))
-
-	// Attach novel subcommands to spec-generated parent commands.
-	if pokemonCmd, _, _ := rootCmd.Find([]string{"pokemon"}); pokemonCmd != nil {
-		pokemonCmd.AddCommand(newPokemonProfileCmd(flags))
-		pokemonCmd.AddCommand(newPokemonEvolutionCmd(flags))
-		pokemonCmd.AddCommand(newPokemonMatchupsCmd(flags))
-		pokemonCmd.AddCommand(newPokemonMovesCmd(flags))
-		pokemonCmd.AddCommand(newPokemonFormsCmd(flags))
-		pokemonCmd.AddCommand(newPokemonDiffLearnsetCmd(flags))
-		pokemonCmd.AddCommand(newPokemonHistoryCmd(flags))
-		pokemonCmd.AddCommand(newPokemonByAbilityCmd(flags))
-		pokemonCmd.AddCommand(newPokemonTopCmd(flags))
-	}
-	if moveCmd, _, _ := rootCmd.Find([]string{"move"}); moveCmd != nil {
-		moveCmd.AddCommand(newMoveFindCmd(flags))
-	}
+	pokemonCmd.AddCommand(newPokemonProfileCmd(flags))
+	pokemonCmd.AddCommand(newPokemonEvolutionCmd(flags))
+	pokemonCmd.AddCommand(newPokemonMatchupsCmd(flags))
+	pokemonCmd.AddCommand(newPokemonMovesCmd(flags))
+	pokemonCmd.AddCommand(newPokemonFormsCmd(flags))
+	pokemonCmd.AddCommand(newPokemonDiffLearnsetCmd(flags))
+	pokemonCmd.AddCommand(newPokemonHistoryCmd(flags))
+	pokemonCmd.AddCommand(newPokemonByAbilityCmd(flags))
+	pokemonCmd.AddCommand(newPokemonTopCmd(flags))
+	moveCmd.AddCommand(newMoveFindCmd(flags))
 
 	return rootCmd
 }

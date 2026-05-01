@@ -5,115 +5,116 @@ package types
 
 import "encoding/json"
 
+
 type AbilityChange struct {
 	EffectEntries json.RawMessage `json:"effect_entries"`
-	VersionGroup  string          `json:"version_group"`
+	VersionGroup string `json:"version_group"`
 }
 
 type AbilityChangeEffectText struct {
-	Effect   string `json:"effect"`
+	Effect string `json:"effect"`
 	Language string `json:"language"`
 }
 
 type AbilityDetail struct {
-	EffectChanges     json.RawMessage `json:"effect_changes"`
-	EffectEntries     json.RawMessage `json:"effect_entries"`
+	EffectChanges json.RawMessage `json:"effect_changes"`
+	EffectEntries json.RawMessage `json:"effect_entries"`
 	FlavorTextEntries json.RawMessage `json:"flavor_text_entries"`
-	Generation        string          `json:"generation"`
-	Id                int             `json:"id"`
-	IsMainSeries      bool            `json:"is_main_series"`
-	Name              string          `json:"name"`
-	Names             json.RawMessage `json:"names"`
-	Pokemon           json.RawMessage `json:"pokemon"`
+	Generation string `json:"generation"`
+	Id int `json:"id"`
+	IsMainSeries bool `json:"is_main_series"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
+	Pokemon json.RawMessage `json:"pokemon"`
 }
 
 type AbilityEffectText struct {
-	Effect      string `json:"effect"`
-	Language    string `json:"language"`
+	Effect string `json:"effect"`
+	Language string `json:"language"`
 	ShortEffect string `json:"short_effect"`
 }
 
 type AbilityFlavorText struct {
-	FlavorText   string `json:"flavor_text"`
-	Language     string `json:"language"`
+	FlavorText string `json:"flavor_text"`
+	Language string `json:"language"`
 	VersionGroup string `json:"version_group"`
 }
 
 type AbilityName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type AbilitySummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type BerryDetail struct {
-	Firmness         string          `json:"firmness"`
-	Flavors          json.RawMessage `json:"flavors"`
-	GrowthTime       int             `json:"growth_time"`
-	Id               int             `json:"id"`
-	Item             string          `json:"item"`
-	MaxHarvest       int             `json:"max_harvest"`
-	Name             string          `json:"name"`
-	NaturalGiftPower int             `json:"natural_gift_power"`
-	NaturalGiftType  string          `json:"natural_gift_type"`
-	Size             int             `json:"size"`
-	Smoothness       int             `json:"smoothness"`
-	SoilDryness      int             `json:"soil_dryness"`
+	Firmness string `json:"firmness"`
+	Flavors json.RawMessage `json:"flavors"`
+	GrowthTime int `json:"growth_time"`
+	Id int `json:"id"`
+	Item string `json:"item"`
+	MaxHarvest int `json:"max_harvest"`
+	Name string `json:"name"`
+	NaturalGiftPower int `json:"natural_gift_power"`
+	NaturalGiftType string `json:"natural_gift_type"`
+	Size int `json:"size"`
+	Smoothness int `json:"smoothness"`
+	SoilDryness int `json:"soil_dryness"`
 }
 
 type BerryFirmnessDetail struct {
 	Berries json.RawMessage `json:"berries"`
-	Id      int             `json:"id"`
-	Name    string          `json:"name"`
-	Names   json.RawMessage `json:"names"`
+	Id int `json:"id"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
 }
 
 type BerryFirmnessName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type BerryFirmnessSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type BerryFlavorDetail struct {
-	Berries     json.RawMessage `json:"berries"`
-	ContestType string          `json:"contest_type"`
-	Id          int             `json:"id"`
-	Name        string          `json:"name"`
-	Names       json.RawMessage `json:"names"`
+	Berries json.RawMessage `json:"berries"`
+	ContestType string `json:"contest_type"`
+	Id int `json:"id"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
 }
 
 type BerryFlavorName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type BerryFlavorSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type BerrySummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type CharacteristicDescription struct {
 	Description string `json:"description"`
-	Language    string `json:"language"`
+	Language string `json:"language"`
 }
 
 type CharacteristicDetail struct {
-	Descriptions   json.RawMessage `json:"descriptions"`
-	GeneModulo     int             `json:"gene_modulo"`
-	HighestStat    string          `json:"highest_stat"`
-	Id             int             `json:"id"`
+	Descriptions json.RawMessage `json:"descriptions"`
+	GeneModulo int `json:"gene_modulo"`
+	HighestStat string `json:"highest_stat"`
+	Id int `json:"id"`
 	PossibleValues json.RawMessage `json:"possible_values"`
 }
 
@@ -122,21 +123,21 @@ type CharacteristicSummary struct {
 }
 
 type ContestEffectDetail struct {
-	Appeal            int             `json:"appeal"`
-	EffectEntries     json.RawMessage `json:"effect_entries"`
+	Appeal int `json:"appeal"`
+	EffectEntries json.RawMessage `json:"effect_entries"`
 	FlavorTextEntries json.RawMessage `json:"flavor_text_entries"`
-	Id                int             `json:"id"`
-	Jam               int             `json:"jam"`
+	Id int `json:"id"`
+	Jam int `json:"jam"`
 }
 
 type ContestEffectEffectText struct {
-	Effect   string `json:"effect"`
+	Effect string `json:"effect"`
 	Language string `json:"language"`
 }
 
 type ContestEffectFlavorText struct {
 	FlavorText string `json:"flavor_text"`
-	Language   string `json:"language"`
+	Language string `json:"language"`
 }
 
 type ContestEffectSummary struct {
@@ -144,95 +145,95 @@ type ContestEffectSummary struct {
 }
 
 type ContestTypeDetail struct {
-	BerryFlavor string          `json:"berry_flavor"`
-	Id          int             `json:"id"`
-	Name        string          `json:"name"`
-	Names       json.RawMessage `json:"names"`
+	BerryFlavor string `json:"berry_flavor"`
+	Id int `json:"id"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
 }
 
 type ContestTypeName struct {
-	Color    string `json:"color"`
+	Color string `json:"color"`
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type ContestTypeSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type EggGroupDetail struct {
-	Id             int             `json:"id"`
-	Name           string          `json:"name"`
-	Names          json.RawMessage `json:"names"`
+	Id int `json:"id"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
 	PokemonSpecies json.RawMessage `json:"pokemon_species"`
 }
 
 type EggGroupName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type EggGroupSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type EncounterConditionDetail struct {
-	Id     int             `json:"id"`
-	Name   string          `json:"name"`
-	Names  json.RawMessage `json:"names"`
+	Id int `json:"id"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
 	Values json.RawMessage `json:"values"`
 }
 
 type EncounterConditionName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type EncounterConditionSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type EncounterConditionValueDetail struct {
-	Condition string          `json:"condition"`
-	Id        int             `json:"id"`
-	Name      string          `json:"name"`
-	Names     json.RawMessage `json:"names"`
+	Condition string `json:"condition"`
+	Id int `json:"id"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
 }
 
 type EncounterConditionValueName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type EncounterConditionValueSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type EncounterMethodDetail struct {
-	Id    int             `json:"id"`
-	Name  string          `json:"name"`
+	Id int `json:"id"`
+	Name string `json:"name"`
 	Names json.RawMessage `json:"names"`
-	Order int             `json:"order"`
+	Order int `json:"order"`
 }
 
 type EncounterMethodName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type EncounterMethodSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type EvolutionChainDetail struct {
 	BabyTriggerItem string `json:"baby_trigger_item"`
-	Chain           string `json:"chain"`
-	Id              int    `json:"id"`
+	Chain string `json:"chain"`
+	Id int `json:"id"`
 }
 
 type EvolutionChainSummary struct {
@@ -240,267 +241,267 @@ type EvolutionChainSummary struct {
 }
 
 type EvolutionTriggerDetail struct {
-	Id             int             `json:"id"`
-	Name           string          `json:"name"`
-	Names          json.RawMessage `json:"names"`
+	Id int `json:"id"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
 	PokemonSpecies json.RawMessage `json:"pokemon_species"`
 }
 
 type EvolutionTriggerName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type EvolutionTriggerSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type Experience struct {
 	Experience int `json:"experience"`
-	Level      int `json:"level"`
+	Level int `json:"level"`
 }
 
 type GenderDetail struct {
-	Id                    int             `json:"id"`
-	Name                  string          `json:"name"`
+	Id int `json:"id"`
+	Name string `json:"name"`
 	PokemonSpeciesDetails json.RawMessage `json:"pokemon_species_details"`
-	RequiredForEvolution  json.RawMessage `json:"required_for_evolution"`
+	RequiredForEvolution json.RawMessage `json:"required_for_evolution"`
 }
 
 type GenderSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type GenerationDetail struct {
-	Abilities      json.RawMessage `json:"abilities"`
-	Id             int             `json:"id"`
-	MainRegion     string          `json:"main_region"`
-	Moves          json.RawMessage `json:"moves"`
-	Name           string          `json:"name"`
-	Names          json.RawMessage `json:"names"`
+	Abilities json.RawMessage `json:"abilities"`
+	Id int `json:"id"`
+	MainRegion string `json:"main_region"`
+	Moves json.RawMessage `json:"moves"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
 	PokemonSpecies json.RawMessage `json:"pokemon_species"`
-	Types          json.RawMessage `json:"types"`
-	VersionGroups  json.RawMessage `json:"version_groups"`
+	Types json.RawMessage `json:"types"`
+	VersionGroups json.RawMessage `json:"version_groups"`
 }
 
 type GenerationName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type GenerationSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type GrowthRateDescription struct {
 	Description string `json:"description"`
-	Language    string `json:"language"`
+	Language string `json:"language"`
 }
 
 type GrowthRateDetail struct {
-	Descriptions   json.RawMessage `json:"descriptions"`
-	Formula        string          `json:"formula"`
-	Id             int             `json:"id"`
-	Levels         json.RawMessage `json:"levels"`
-	Name           string          `json:"name"`
+	Descriptions json.RawMessage `json:"descriptions"`
+	Formula string `json:"formula"`
+	Id int `json:"id"`
+	Levels json.RawMessage `json:"levels"`
+	Name string `json:"name"`
 	PokemonSpecies json.RawMessage `json:"pokemon_species"`
 }
 
 type GrowthRateSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type ItemAttributeDescription struct {
 	Description string `json:"description"`
-	Language    string `json:"language"`
+	Language string `json:"language"`
 }
 
 type ItemAttributeDetail struct {
 	Descriptions json.RawMessage `json:"descriptions"`
-	Id           int             `json:"id"`
-	Items        json.RawMessage `json:"items"`
-	Name         string          `json:"name"`
-	Names        json.RawMessage `json:"names"`
+	Id int `json:"id"`
+	Items json.RawMessage `json:"items"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
 }
 
 type ItemAttributeName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type ItemAttributeSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type ItemCategoryDetail struct {
-	Id     int             `json:"id"`
-	Items  json.RawMessage `json:"items"`
-	Name   string          `json:"name"`
-	Names  json.RawMessage `json:"names"`
-	Pocket string          `json:"pocket"`
+	Id int `json:"id"`
+	Items json.RawMessage `json:"items"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
+	Pocket string `json:"pocket"`
 }
 
 type ItemCategoryName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type ItemCategorySummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type ItemDetail struct {
-	Attributes        json.RawMessage `json:"attributes"`
-	BabyTriggerFor    string          `json:"baby_trigger_for"`
-	Category          string          `json:"category"`
-	Cost              int             `json:"cost"`
-	EffectEntries     json.RawMessage `json:"effect_entries"`
+	Attributes json.RawMessage `json:"attributes"`
+	BabyTriggerFor string `json:"baby_trigger_for"`
+	Category string `json:"category"`
+	Cost int `json:"cost"`
+	EffectEntries json.RawMessage `json:"effect_entries"`
 	FlavorTextEntries json.RawMessage `json:"flavor_text_entries"`
-	FlingEffect       string          `json:"fling_effect"`
-	FlingPower        int             `json:"fling_power"`
-	GameIndices       json.RawMessage `json:"game_indices"`
-	HeldByPokemon     json.RawMessage `json:"held_by_pokemon"`
-	Id                int             `json:"id"`
-	Machines          json.RawMessage `json:"machines"`
-	Name              string          `json:"name"`
-	Names             json.RawMessage `json:"names"`
-	Sprites           string          `json:"sprites"`
+	FlingEffect string `json:"fling_effect"`
+	FlingPower int `json:"fling_power"`
+	GameIndices json.RawMessage `json:"game_indices"`
+	HeldByPokemon json.RawMessage `json:"held_by_pokemon"`
+	Id int `json:"id"`
+	Machines json.RawMessage `json:"machines"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
+	Sprites string `json:"sprites"`
 }
 
 type ItemEffectText struct {
-	Effect      string `json:"effect"`
-	Language    string `json:"language"`
+	Effect string `json:"effect"`
+	Language string `json:"language"`
 	ShortEffect string `json:"short_effect"`
 }
 
 type ItemFlavorText struct {
-	Language     string `json:"language"`
-	Text         string `json:"text"`
+	Language string `json:"language"`
+	Text string `json:"text"`
 	VersionGroup string `json:"version_group"`
 }
 
 type ItemFlingEffectDetail struct {
 	EffectEntries json.RawMessage `json:"effect_entries"`
-	Id            int             `json:"id"`
-	Items         json.RawMessage `json:"items"`
-	Name          string          `json:"name"`
+	Id int `json:"id"`
+	Items json.RawMessage `json:"items"`
+	Name string `json:"name"`
 }
 
 type ItemFlingEffectEffectText struct {
-	Effect   string `json:"effect"`
+	Effect string `json:"effect"`
 	Language string `json:"language"`
 }
 
 type ItemFlingEffectSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type ItemGameIndex struct {
-	GameIndex  int    `json:"game_index"`
+	GameIndex int `json:"game_index"`
 	Generation string `json:"generation"`
 }
 
 type ItemName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type ItemPocketDetail struct {
 	Categories json.RawMessage `json:"categories"`
-	Id         int             `json:"id"`
-	Name       string          `json:"name"`
-	Names      json.RawMessage `json:"names"`
+	Id int `json:"id"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
 }
 
 type ItemPocketName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type ItemPocketSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type ItemSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type LanguageDetail struct {
-	Id       int             `json:"id"`
-	Iso3166  string          `json:"iso3166"`
-	Iso639   string          `json:"iso639"`
-	Name     string          `json:"name"`
-	Names    json.RawMessage `json:"names"`
-	Official bool            `json:"official"`
+	Id int `json:"id"`
+	Iso3166 string `json:"iso3166"`
+	Iso639 string `json:"iso639"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
+	Official bool `json:"official"`
 }
 
 type LanguageName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type LanguageSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type LocationAreaDetail struct {
 	EncounterMethodRates json.RawMessage `json:"encounter_method_rates"`
-	GameIndex            int             `json:"game_index"`
-	Id                   int             `json:"id"`
-	Location             string          `json:"location"`
-	Name                 string          `json:"name"`
-	Names                json.RawMessage `json:"names"`
-	PokemonEncounters    json.RawMessage `json:"pokemon_encounters"`
+	GameIndex int `json:"game_index"`
+	Id int `json:"id"`
+	Location string `json:"location"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
+	PokemonEncounters json.RawMessage `json:"pokemon_encounters"`
 }
 
 type LocationAreaName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type LocationAreaSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type LocationDetail struct {
-	Areas       json.RawMessage `json:"areas"`
+	Areas json.RawMessage `json:"areas"`
 	GameIndices json.RawMessage `json:"game_indices"`
-	Id          int             `json:"id"`
-	Name        string          `json:"name"`
-	Names       json.RawMessage `json:"names"`
-	Region      string          `json:"region"`
+	Id int `json:"id"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
+	Region string `json:"region"`
 }
 
 type LocationGameIndex struct {
-	GameIndex  int    `json:"game_index"`
+	GameIndex int `json:"game_index"`
 	Generation string `json:"generation"`
 }
 
 type LocationName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type LocationSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type MachineDetail struct {
-	Id           int    `json:"id"`
-	Item         string `json:"item"`
-	Move         string `json:"move"`
+	Id int `json:"id"`
+	Item string `json:"item"`
+	Move string `json:"move"`
 	VersionGroup string `json:"version_group"`
 }
 
@@ -509,830 +510,830 @@ type MachineSummary struct {
 }
 
 type MoveBattleStyleDetail struct {
-	Id    int             `json:"id"`
-	Name  string          `json:"name"`
+	Id int `json:"id"`
+	Name string `json:"name"`
 	Names json.RawMessage `json:"names"`
 }
 
 type MoveBattleStyleName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type MoveBattleStyleSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type MoveChange struct {
-	Ttype         string          `json:"Ttype"`
-	Accuracy      int             `json:"accuracy"`
-	EffectChance  int             `json:"effect_chance"`
+	Ttype string `json:"Ttype"`
+	Accuracy int `json:"accuracy"`
+	EffectChance int `json:"effect_chance"`
 	EffectEntries json.RawMessage `json:"effect_entries"`
-	Power         int             `json:"power"`
-	Pp            int             `json:"pp"`
-	VersionGroup  string          `json:"version_group"`
+	Power int `json:"power"`
+	Pp int `json:"pp"`
+	VersionGroup string `json:"version_group"`
 }
 
 type MoveDamageClassDescription struct {
 	Description string `json:"description"`
-	Language    string `json:"language"`
+	Language string `json:"language"`
 }
 
 type MoveDamageClassDetail struct {
 	Descriptions json.RawMessage `json:"descriptions"`
-	Id           int             `json:"id"`
-	Moves        json.RawMessage `json:"moves"`
-	Name         string          `json:"name"`
-	Names        json.RawMessage `json:"names"`
+	Id int `json:"id"`
+	Moves json.RawMessage `json:"moves"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
 }
 
 type MoveDamageClassName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type MoveDamageClassSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type MoveDetail struct {
-	Ttype              string          `json:"Ttype"`
-	Accuracy           int             `json:"accuracy"`
-	ContestCombos      string          `json:"contest_combos"`
-	ContestEffect      string          `json:"contest_effect"`
-	ContestType        string          `json:"contest_type"`
-	DamageClass        string          `json:"damage_class"`
-	EffectChance       int             `json:"effect_chance"`
-	EffectChanges      json.RawMessage `json:"effect_changes"`
-	EffectEntries      json.RawMessage `json:"effect_entries"`
-	FlavorTextEntries  json.RawMessage `json:"flavor_text_entries"`
-	Generation         string          `json:"generation"`
-	Id                 int             `json:"id"`
-	LearnedByPokemon   json.RawMessage `json:"learned_by_pokemon"`
-	Machines           json.RawMessage `json:"machines"`
-	Meta               string          `json:"meta"`
-	Name               string          `json:"name"`
-	Names              json.RawMessage `json:"names"`
-	PastValues         json.RawMessage `json:"past_values"`
-	Power              int             `json:"power"`
-	Pp                 int             `json:"pp"`
-	Priority           int             `json:"priority"`
-	StatChanges        json.RawMessage `json:"stat_changes"`
-	SuperContestEffect string          `json:"super_contest_effect"`
-	Target             string          `json:"target"`
+	Ttype string `json:"Ttype"`
+	Accuracy int `json:"accuracy"`
+	ContestCombos string `json:"contest_combos"`
+	ContestEffect string `json:"contest_effect"`
+	ContestType string `json:"contest_type"`
+	DamageClass string `json:"damage_class"`
+	EffectChance int `json:"effect_chance"`
+	EffectChanges json.RawMessage `json:"effect_changes"`
+	EffectEntries json.RawMessage `json:"effect_entries"`
+	FlavorTextEntries json.RawMessage `json:"flavor_text_entries"`
+	Generation string `json:"generation"`
+	Id int `json:"id"`
+	LearnedByPokemon json.RawMessage `json:"learned_by_pokemon"`
+	Machines json.RawMessage `json:"machines"`
+	Meta string `json:"meta"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
+	PastValues json.RawMessage `json:"past_values"`
+	Power int `json:"power"`
+	Pp int `json:"pp"`
+	Priority int `json:"priority"`
+	StatChanges json.RawMessage `json:"stat_changes"`
+	SuperContestEffect string `json:"super_contest_effect"`
+	Target string `json:"target"`
 }
 
 type MoveFlavorText struct {
-	FlavorText   string `json:"flavor_text"`
-	Language     string `json:"language"`
+	FlavorText string `json:"flavor_text"`
+	Language string `json:"language"`
 	VersionGroup string `json:"version_group"`
 }
 
 type MoveLearnMethodDescription struct {
 	Description string `json:"description"`
-	Language    string `json:"language"`
+	Language string `json:"language"`
 }
 
 type MoveLearnMethodDetail struct {
-	Descriptions  json.RawMessage `json:"descriptions"`
-	Id            int             `json:"id"`
-	Name          string          `json:"name"`
-	Names         json.RawMessage `json:"names"`
+	Descriptions json.RawMessage `json:"descriptions"`
+	Id int `json:"id"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
 	VersionGroups json.RawMessage `json:"version_groups"`
 }
 
 type MoveLearnMethodName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type MoveLearnMethodSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type MoveMeta struct {
-	Ailment       string `json:"ailment"`
-	AilmentChance int    `json:"ailment_chance"`
-	Category      string `json:"category"`
-	CritRate      int    `json:"crit_rate"`
-	Drain         int    `json:"drain"`
-	FlinchChance  int    `json:"flinch_chance"`
-	Healing       int    `json:"healing"`
-	MaxHits       int    `json:"max_hits"`
-	MaxTurns      int    `json:"max_turns"`
-	MinHits       int    `json:"min_hits"`
-	MinTurns      int    `json:"min_turns"`
-	StatChance    int    `json:"stat_chance"`
+	Ailment string `json:"ailment"`
+	AilmentChance int `json:"ailment_chance"`
+	Category string `json:"category"`
+	CritRate int `json:"crit_rate"`
+	Drain int `json:"drain"`
+	FlinchChance int `json:"flinch_chance"`
+	Healing int `json:"healing"`
+	MaxHits int `json:"max_hits"`
+	MaxTurns int `json:"max_turns"`
+	MinHits int `json:"min_hits"`
+	MinTurns int `json:"min_turns"`
+	StatChance int `json:"stat_chance"`
 }
 
 type MoveMetaAilmentDetail struct {
-	Id    int             `json:"id"`
+	Id int `json:"id"`
 	Moves json.RawMessage `json:"moves"`
-	Name  string          `json:"name"`
+	Name string `json:"name"`
 	Names json.RawMessage `json:"names"`
 }
 
 type MoveMetaAilmentName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type MoveMetaAilmentSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type MoveMetaCategoryDescription struct {
 	Description string `json:"description"`
-	Language    string `json:"language"`
+	Language string `json:"language"`
 }
 
 type MoveMetaCategoryDetail struct {
 	Descriptions json.RawMessage `json:"descriptions"`
-	Id           int             `json:"id"`
-	Moves        json.RawMessage `json:"moves"`
-	Name         string          `json:"name"`
+	Id int `json:"id"`
+	Moves json.RawMessage `json:"moves"`
+	Name string `json:"name"`
 }
 
 type MoveMetaCategorySummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type MoveName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type MoveSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type MoveTargetDescription struct {
 	Description string `json:"description"`
-	Language    string `json:"language"`
+	Language string `json:"language"`
 }
 
 type MoveTargetDetail struct {
 	Descriptions json.RawMessage `json:"descriptions"`
-	Id           int             `json:"id"`
-	Moves        json.RawMessage `json:"moves"`
-	Name         string          `json:"name"`
-	Names        json.RawMessage `json:"names"`
+	Id int `json:"id"`
+	Moves json.RawMessage `json:"moves"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
 }
 
 type MoveTargetName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type MoveTargetSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type NatureBattleStylePreference struct {
-	HighHpPreference int    `json:"high_hp_preference"`
-	LowHpPreference  int    `json:"low_hp_preference"`
-	MoveBattleStyle  string `json:"move_battle_style"`
+	HighHpPreference int `json:"high_hp_preference"`
+	LowHpPreference int `json:"low_hp_preference"`
+	MoveBattleStyle string `json:"move_battle_style"`
 }
 
 type NatureDetail struct {
-	Berries                    json.RawMessage `json:"berries"`
-	DecreasedStat              string          `json:"decreased_stat"`
-	HatesFlavor                string          `json:"hates_flavor"`
-	Id                         int             `json:"id"`
-	IncreasedStat              string          `json:"increased_stat"`
-	LikesFlavor                string          `json:"likes_flavor"`
+	Berries json.RawMessage `json:"berries"`
+	DecreasedStat string `json:"decreased_stat"`
+	HatesFlavor string `json:"hates_flavor"`
+	Id int `json:"id"`
+	IncreasedStat string `json:"increased_stat"`
+	LikesFlavor string `json:"likes_flavor"`
 	MoveBattleStylePreferences json.RawMessage `json:"move_battle_style_preferences"`
-	Name                       string          `json:"name"`
-	Names                      json.RawMessage `json:"names"`
-	PokeathlonStatChanges      json.RawMessage `json:"pokeathlon_stat_changes"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
+	PokeathlonStatChanges json.RawMessage `json:"pokeathlon_stat_changes"`
 }
 
 type NatureName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type NatureSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type PaginatedAbilitySummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedBerryFirmnessSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedBerryFlavorSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedBerrySummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedCharacteristicSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedContestEffectSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedContestTypeSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedEggGroupSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedEncounterConditionSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedEncounterConditionValueSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedEncounterMethodSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedEvolutionChainSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedEvolutionTriggerSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedGenderSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedGenerationSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedGrowthRateSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedItemAttributeSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedItemCategorySummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedItemFlingEffectSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedItemPocketSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedItemSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedLanguageSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedLocationAreaSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedLocationSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedMachineSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedMoveBattleStyleSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedMoveDamageClassSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedMoveLearnMethodSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedMoveMetaAilmentSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedMoveMetaCategorySummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedMoveSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedMoveTargetSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedNatureSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedPalParkAreaSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedPokeathlonStatSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedPokedexSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedPokemonColorSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedPokemonFormSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedPokemonHabitatSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedPokemonShapeSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedPokemonSpeciesSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedPokemonSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedRegionSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedStatSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedSuperContestEffectSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedTypeSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedVersionGroupSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PaginatedVersionSummaryList struct {
-	Count    int             `json:"count"`
-	Next     string          `json:"next"`
-	Previous string          `json:"previous"`
-	Results  json.RawMessage `json:"results"`
+	Count int `json:"count"`
+	Next string `json:"next"`
+	Previous string `json:"previous"`
+	Results json.RawMessage `json:"results"`
 }
 
 type PalParkAreaDetail struct {
-	Id                int             `json:"id"`
-	Name              string          `json:"name"`
-	Names             json.RawMessage `json:"names"`
+	Id int `json:"id"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
 	PokemonEncounters json.RawMessage `json:"pokemon_encounters"`
 }
 
 type PalParkAreaName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type PalParkAreaSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type PokeathlonStatDetail struct {
-	AffectingNatures string          `json:"affecting_natures"`
-	Id               int             `json:"id"`
-	Name             string          `json:"name"`
-	Names            json.RawMessage `json:"names"`
+	AffectingNatures string `json:"affecting_natures"`
+	Id int `json:"id"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
 }
 
 type PokeathlonStatName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type PokeathlonStatSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type PokedexDescription struct {
 	Description string `json:"description"`
-	Language    string `json:"language"`
+	Language string `json:"language"`
 }
 
 type PokedexDetail struct {
-	Descriptions   json.RawMessage `json:"descriptions"`
-	Id             int             `json:"id"`
-	IsMainSeries   bool            `json:"is_main_series"`
-	Name           string          `json:"name"`
-	Names          json.RawMessage `json:"names"`
+	Descriptions json.RawMessage `json:"descriptions"`
+	Id int `json:"id"`
+	IsMainSeries bool `json:"is_main_series"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
 	PokemonEntries json.RawMessage `json:"pokemon_entries"`
-	Region         string          `json:"region"`
-	VersionGroups  json.RawMessage `json:"version_groups"`
+	Region string `json:"region"`
+	VersionGroups json.RawMessage `json:"version_groups"`
 }
 
 type PokedexName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type PokedexSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type PokemonColorDetail struct {
-	Id             int             `json:"id"`
-	Name           string          `json:"name"`
-	Names          json.RawMessage `json:"names"`
+	Id int `json:"id"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
 	PokemonSpecies json.RawMessage `json:"pokemon_species"`
 }
 
 type PokemonColorName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type PokemonColorSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type PokemonDetail struct {
-	Abilities              json.RawMessage `json:"abilities"`
-	BaseExperience         int             `json:"base_experience"`
-	Cries                  string          `json:"cries"`
-	Forms                  json.RawMessage `json:"forms"`
-	GameIndices            json.RawMessage `json:"game_indices"`
-	Height                 int             `json:"height"`
-	HeldItems              json.RawMessage `json:"held_items"`
-	Id                     int             `json:"id"`
-	IsDefault              bool            `json:"is_default"`
-	LocationAreaEncounters string          `json:"location_area_encounters"`
-	Moves                  json.RawMessage `json:"moves"`
-	Name                   string          `json:"name"`
-	Order                  int             `json:"order"`
-	PastAbilities          json.RawMessage `json:"past_abilities"`
-	PastStats              string          `json:"past_stats"`
-	PastTypes              json.RawMessage `json:"past_types"`
-	Species                string          `json:"species"`
-	Sprites                string          `json:"sprites"`
-	Stats                  json.RawMessage `json:"stats"`
-	Types                  json.RawMessage `json:"types"`
-	Weight                 int             `json:"weight"`
+	Abilities json.RawMessage `json:"abilities"`
+	BaseExperience int `json:"base_experience"`
+	Cries string `json:"cries"`
+	Forms json.RawMessage `json:"forms"`
+	GameIndices json.RawMessage `json:"game_indices"`
+	Height int `json:"height"`
+	HeldItems json.RawMessage `json:"held_items"`
+	Id int `json:"id"`
+	IsDefault bool `json:"is_default"`
+	LocationAreaEncounters string `json:"location_area_encounters"`
+	Moves json.RawMessage `json:"moves"`
+	Name string `json:"name"`
+	Order int `json:"order"`
+	PastAbilities json.RawMessage `json:"past_abilities"`
+	PastStats string `json:"past_stats"`
+	PastTypes json.RawMessage `json:"past_types"`
+	Species string `json:"species"`
+	Sprites string `json:"sprites"`
+	Stats json.RawMessage `json:"stats"`
+	Types json.RawMessage `json:"types"`
+	Weight int `json:"weight"`
 }
 
 type PokemonDexEntry struct {
-	EntryNumber int    `json:"entry_number"`
-	Pokedex     string `json:"pokedex"`
+	EntryNumber int `json:"entry_number"`
+	Pokedex string `json:"pokedex"`
 }
 
 type PokemonFormDetail struct {
-	FormName     string          `json:"form_name"`
-	FormNames    json.RawMessage `json:"form_names"`
-	FormOrder    int             `json:"form_order"`
-	Id           int             `json:"id"`
-	IsBattleOnly bool            `json:"is_battle_only"`
-	IsDefault    bool            `json:"is_default"`
-	IsMega       bool            `json:"is_mega"`
-	Name         string          `json:"name"`
-	Names        json.RawMessage `json:"names"`
-	Order        int             `json:"order"`
-	Pokemon      string          `json:"pokemon"`
-	Sprites      string          `json:"sprites"`
-	Types        json.RawMessage `json:"types"`
-	VersionGroup string          `json:"version_group"`
+	FormName string `json:"form_name"`
+	FormNames json.RawMessage `json:"form_names"`
+	FormOrder int `json:"form_order"`
+	Id int `json:"id"`
+	IsBattleOnly bool `json:"is_battle_only"`
+	IsDefault bool `json:"is_default"`
+	IsMega bool `json:"is_mega"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
+	Order int `json:"order"`
+	Pokemon string `json:"pokemon"`
+	Sprites string `json:"sprites"`
+	Types json.RawMessage `json:"types"`
+	VersionGroup string `json:"version_group"`
 }
 
 type PokemonFormSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type PokemonGameIndex struct {
-	GameIndex int    `json:"game_index"`
-	Version   string `json:"version"`
+	GameIndex int `json:"game_index"`
+	Version string `json:"version"`
 }
 
 type PokemonHabitatDetail struct {
-	Id             int             `json:"id"`
-	Name           string          `json:"name"`
-	Names          json.RawMessage `json:"names"`
+	Id int `json:"id"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
 	PokemonSpecies json.RawMessage `json:"pokemon_species"`
 }
 
 type PokemonHabitatName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type PokemonHabitatSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type PokemonShapeDetail struct {
-	AwesomeNames   json.RawMessage `json:"awesome_names"`
-	Id             int             `json:"id"`
-	Name           string          `json:"name"`
-	Names          json.RawMessage `json:"names"`
+	AwesomeNames json.RawMessage `json:"awesome_names"`
+	Id int `json:"id"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
 	PokemonSpecies json.RawMessage `json:"pokemon_species"`
 }
 
 type PokemonShapeSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type PokemonSpeciesDescription struct {
 	Description string `json:"description"`
-	Language    string `json:"language"`
+	Language string `json:"language"`
 }
 
 type PokemonSpeciesDetail struct {
-	BaseHappiness        int             `json:"base_happiness"`
-	CaptureRate          int             `json:"capture_rate"`
-	Color                string          `json:"color"`
-	EggGroups            json.RawMessage `json:"egg_groups"`
-	EvolutionChain       string          `json:"evolution_chain"`
-	EvolvesFromSpecies   string          `json:"evolves_from_species"`
-	FlavorTextEntries    json.RawMessage `json:"flavor_text_entries"`
-	FormDescriptions     json.RawMessage `json:"form_descriptions"`
-	FormsSwitchable      bool            `json:"forms_switchable"`
-	GenderRate           int             `json:"gender_rate"`
-	Genera               json.RawMessage `json:"genera"`
-	Generation           string          `json:"generation"`
-	GrowthRate           string          `json:"growth_rate"`
-	Habitat              string          `json:"habitat"`
-	HasGenderDifferences bool            `json:"has_gender_differences"`
-	HatchCounter         int             `json:"hatch_counter"`
-	Id                   int             `json:"id"`
-	IsBaby               bool            `json:"is_baby"`
-	IsLegendary          bool            `json:"is_legendary"`
-	IsMythical           bool            `json:"is_mythical"`
-	Name                 string          `json:"name"`
-	Names                json.RawMessage `json:"names"`
-	Order                int             `json:"order"`
-	PalParkEncounters    json.RawMessage `json:"pal_park_encounters"`
-	PokedexNumbers       json.RawMessage `json:"pokedex_numbers"`
-	Shape                string          `json:"shape"`
-	Varieties            json.RawMessage `json:"varieties"`
+	BaseHappiness int `json:"base_happiness"`
+	CaptureRate int `json:"capture_rate"`
+	Color string `json:"color"`
+	EggGroups json.RawMessage `json:"egg_groups"`
+	EvolutionChain string `json:"evolution_chain"`
+	EvolvesFromSpecies string `json:"evolves_from_species"`
+	FlavorTextEntries json.RawMessage `json:"flavor_text_entries"`
+	FormDescriptions json.RawMessage `json:"form_descriptions"`
+	FormsSwitchable bool `json:"forms_switchable"`
+	GenderRate int `json:"gender_rate"`
+	Genera json.RawMessage `json:"genera"`
+	Generation string `json:"generation"`
+	GrowthRate string `json:"growth_rate"`
+	Habitat string `json:"habitat"`
+	HasGenderDifferences bool `json:"has_gender_differences"`
+	HatchCounter int `json:"hatch_counter"`
+	Id int `json:"id"`
+	IsBaby bool `json:"is_baby"`
+	IsLegendary bool `json:"is_legendary"`
+	IsMythical bool `json:"is_mythical"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
+	Order int `json:"order"`
+	PalParkEncounters json.RawMessage `json:"pal_park_encounters"`
+	PokedexNumbers json.RawMessage `json:"pokedex_numbers"`
+	Shape string `json:"shape"`
+	Varieties json.RawMessage `json:"varieties"`
 }
 
 type PokemonSpeciesFlavorText struct {
 	FlavorText string `json:"flavor_text"`
-	Language   string `json:"language"`
-	Version    string `json:"version"`
+	Language string `json:"language"`
+	Version string `json:"version"`
 }
 
 type PokemonSpeciesSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type PokemonStat struct {
-	BaseStat int    `json:"base_stat"`
-	Effort   int    `json:"effort"`
-	Stat     string `json:"stat"`
+	BaseStat int `json:"base_stat"`
+	Effort int `json:"effort"`
+	Stat string `json:"stat"`
 }
 
 type PokemonSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type RegionDetail struct {
-	Id             int             `json:"id"`
-	Locations      json.RawMessage `json:"locations"`
-	MainGeneration string          `json:"main_generation"`
-	Name           string          `json:"name"`
-	Names          json.RawMessage `json:"names"`
-	Pokedexes      json.RawMessage `json:"pokedexes"`
-	VersionGroups  json.RawMessage `json:"version_groups"`
+	Id int `json:"id"`
+	Locations json.RawMessage `json:"locations"`
+	MainGeneration string `json:"main_generation"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
+	Pokedexes json.RawMessage `json:"pokedexes"`
+	VersionGroups json.RawMessage `json:"version_groups"`
 }
 
 type RegionName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type RegionSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type StatDetail struct {
-	AffectingItems   json.RawMessage `json:"affecting_items"`
-	AffectingMoves   string          `json:"affecting_moves"`
-	AffectingNatures string          `json:"affecting_natures"`
-	Characteristics  json.RawMessage `json:"characteristics"`
-	GameIndex        int             `json:"game_index"`
-	Id               int             `json:"id"`
-	IsBattleOnly     bool            `json:"is_battle_only"`
-	MoveDamageClass  string          `json:"move_damage_class"`
-	Name             string          `json:"name"`
-	Names            json.RawMessage `json:"names"`
+	AffectingItems json.RawMessage `json:"affecting_items"`
+	AffectingMoves string `json:"affecting_moves"`
+	AffectingNatures string `json:"affecting_natures"`
+	Characteristics json.RawMessage `json:"characteristics"`
+	GameIndex int `json:"game_index"`
+	Id int `json:"id"`
+	IsBattleOnly bool `json:"is_battle_only"`
+	MoveDamageClass string `json:"move_damage_class"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
 }
 
 type StatName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type StatSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type SuperContestEffectDetail struct {
-	Appeal            int             `json:"appeal"`
+	Appeal int `json:"appeal"`
 	FlavorTextEntries json.RawMessage `json:"flavor_text_entries"`
-	Id                int             `json:"id"`
-	Moves             json.RawMessage `json:"moves"`
+	Id int `json:"id"`
+	Moves json.RawMessage `json:"moves"`
 }
 
 type SuperContestEffectFlavorText struct {
 	FlavorText string `json:"flavor_text"`
-	Language   string `json:"language"`
+	Language string `json:"language"`
 }
 
 type SuperContestEffectSummary struct {
@@ -1340,58 +1341,59 @@ type SuperContestEffectSummary struct {
 }
 
 type TypeDetail struct {
-	DamageRelations     string          `json:"damage_relations"`
-	GameIndices         json.RawMessage `json:"game_indices"`
-	Generation          string          `json:"generation"`
-	Id                  int             `json:"id"`
-	MoveDamageClass     string          `json:"move_damage_class"`
-	Moves               json.RawMessage `json:"moves"`
-	Name                string          `json:"name"`
-	Names               json.RawMessage `json:"names"`
+	DamageRelations string `json:"damage_relations"`
+	GameIndices json.RawMessage `json:"game_indices"`
+	Generation string `json:"generation"`
+	Id int `json:"id"`
+	MoveDamageClass string `json:"move_damage_class"`
+	Moves json.RawMessage `json:"moves"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
 	PastDamageRelations json.RawMessage `json:"past_damage_relations"`
-	Pokemon             json.RawMessage `json:"pokemon"`
-	Sprites             string          `json:"sprites"`
+	Pokemon json.RawMessage `json:"pokemon"`
+	Sprites string `json:"sprites"`
 }
 
 type TypeGameIndex struct {
-	GameIndex  int    `json:"game_index"`
+	GameIndex int `json:"game_index"`
 	Generation string `json:"generation"`
 }
 
 type TypeSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type VersionDetail struct {
-	Id           int             `json:"id"`
-	Name         string          `json:"name"`
-	Names        json.RawMessage `json:"names"`
-	VersionGroup string          `json:"version_group"`
+	Id int `json:"id"`
+	Name string `json:"name"`
+	Names json.RawMessage `json:"names"`
+	VersionGroup string `json:"version_group"`
 }
 
 type VersionGroupDetail struct {
-	Generation       string          `json:"generation"`
-	Id               int             `json:"id"`
+	Generation string `json:"generation"`
+	Id int `json:"id"`
 	MoveLearnMethods json.RawMessage `json:"move_learn_methods"`
-	Name             string          `json:"name"`
-	Order            int             `json:"order"`
-	Pokedexes        json.RawMessage `json:"pokedexes"`
-	Regions          json.RawMessage `json:"regions"`
-	Versions         json.RawMessage `json:"versions"`
+	Name string `json:"name"`
+	Order int `json:"order"`
+	Pokedexes json.RawMessage `json:"pokedexes"`
+	Regions json.RawMessage `json:"regions"`
+	Versions json.RawMessage `json:"versions"`
 }
 
 type VersionGroupSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
 
 type VersionName struct {
 	Language string `json:"language"`
-	Name     string `json:"name"`
+	Name string `json:"name"`
 }
 
 type VersionSummary struct {
 	Name string `json:"name"`
-	Url  string `json:"url"`
+	Url string `json:"url"`
 }
+
