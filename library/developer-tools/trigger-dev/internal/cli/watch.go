@@ -20,6 +20,7 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "watch",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Monitor runs in real time and alert on failures",
 		Long: `Watch for run failures in real time by polling the API at a configurable interval.
 Displays new failures as they occur and optionally sends desktop notifications.

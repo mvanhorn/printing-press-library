@@ -95,6 +95,7 @@ func newGalleryCmd(flags *rootFlags) *cobra.Command {
 func newCookCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "cook <slug>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "Show a cook profile and the recipes they've published",
 		Example: "  allrecipes-pp-cli cook john-mitzewich --agent",
 		Args:    cobra.MinimumNArgs(1),

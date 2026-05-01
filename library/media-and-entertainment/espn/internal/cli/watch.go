@@ -14,6 +14,7 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "watch <sport> <league>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Live score updates for a game (polls every 30s)",
 		Example: `  espn-pp-cli watch football nfl --event 401547417
   espn-pp-cli watch basketball nba --event 401584793 --interval 15s`,

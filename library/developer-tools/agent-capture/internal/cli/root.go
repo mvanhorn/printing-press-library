@@ -50,6 +50,7 @@ func init() {
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 	Short: "Print the version of agent-capture",
 	Run: func(cmd *cobra.Command, args []string) {
 		if jsonOutput {

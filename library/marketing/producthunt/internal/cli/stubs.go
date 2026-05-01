@@ -168,6 +168,7 @@ it appeared in Atom feed entries you've synced.`,
 func newCollectionCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:     "collection <slug>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "(stub) Curated collections — CF-gated, no Atom alternative",
 		Example: `  producthunt-pp-cli collection launch-week --json`,
 		Args:    cobra.ExactArgs(1),

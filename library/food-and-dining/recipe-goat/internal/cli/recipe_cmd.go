@@ -110,6 +110,7 @@ func newRecipeGetCmd(flags *rootFlags) *cobra.Command {
 func newRecipeOpenCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:     "open <id>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "Open a saved recipe in the default browser",
 		Example: "  recipe-goat-pp-cli recipe open 12",
 		Args:    cobra.ExactArgs(1),

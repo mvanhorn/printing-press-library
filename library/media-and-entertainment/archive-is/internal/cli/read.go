@@ -1310,6 +1310,7 @@ func newRequestCmd(flags *rootFlags) *cobra.Command {
 	// still running.
 	checkCmd := &cobra.Command{
 		Use:   "check <url>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Check whether an archive request has completed",
 		Long:  "Consults the local request state file first; if the URL has a known terminal\nstate (ready or failed), reports it immediately. Otherwise falls back to a\ntimegate lookup.\n\nUse after 'request <url>' without --wait to check if the capture finished.",
 		RunE: func(cmd *cobra.Command, args []string) error {

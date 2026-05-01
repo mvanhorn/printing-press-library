@@ -21,6 +21,7 @@ func newOpenCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "open <id>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Print or launch a story URL or HN thread (--launch to open in browser)",
 		Long: `Show the URL associated with a Hacker News item, or launch it in the browser.
 

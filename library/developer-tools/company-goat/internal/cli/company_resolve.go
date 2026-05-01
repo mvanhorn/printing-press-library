@@ -184,6 +184,7 @@ func newResolveCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "resolve <name-or-domain>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Resolve a company name to a canonical domain. Returns numbered candidates if ambiguous.",
 		Long: `Resolve a company name into a canonical domain by querying Wikidata, the YC directory, and DNS probes in parallel.
 

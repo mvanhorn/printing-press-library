@@ -15,6 +15,7 @@ func newOpenCmd(flags *rootFlags) *cobra.Command {
 	var launch bool
 	cmd := &cobra.Command{
 		Use:   "open <slug-or-url>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Resolve a Food52 recipe/article slug to its canonical URL (and optionally launch it)",
 		Long: strings.TrimSpace(`
 Resolves a Food52 recipe slug, story slug, or full Food52 URL to its

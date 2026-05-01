@@ -36,6 +36,7 @@ var reservedSlugs = map[string]bool{
 func newLinksLintCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "lint",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Audit short-key slugs for collisions, typos, and reserved words",
 		Long: `Scan every link slug in the workspace for hygiene issues:
   - reserved-word slugs (admin, api, dashboard, etc. — collides with the web app)

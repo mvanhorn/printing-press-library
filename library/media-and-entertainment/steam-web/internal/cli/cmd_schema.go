@@ -11,6 +11,7 @@ import (
 func newSchemaCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "schema <appid>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show a game's stat and achievement schema",
 		Long:  `Display the full schema of stats and achievements defined for a game.`,
 		Example: `  # Show schema for CS2

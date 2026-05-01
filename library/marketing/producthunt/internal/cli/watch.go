@@ -30,6 +30,7 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "watch",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show entries new since the last sync (and optionally record a new snapshot)",
 		Long: `Diff the live /feed against the most recent snapshot in the store. Returns
 entries whose PostID isn't in that snapshot — the "new" set.

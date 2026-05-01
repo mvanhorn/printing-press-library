@@ -19,6 +19,7 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "watch [location]",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Continuously poll NWS alerts and print new ones as they arrive",
 		Long:  "Poll the NWS alerts endpoint at a regular interval and display new alerts as they appear. Useful during severe weather events. Exit with Ctrl+C.",
 		Example: `  weather-goat-pp-cli watch

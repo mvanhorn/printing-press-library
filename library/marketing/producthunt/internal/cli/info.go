@@ -114,6 +114,7 @@ func newOpenCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "open <slug>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Open the Product Hunt page for a slug in the default browser",
 		Long: `Resolve a slug to its canonical Product Hunt URL (or external URL with
 --external) and hand it to the OS's default browser via 'open' (macOS),

@@ -10,6 +10,7 @@ import (
 func newResolveCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "resolve <vanityurl>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Resolve a Steam vanity URL to a Steam ID",
 		Long:  `Look up a Steam user's 64-bit Steam ID from their custom profile URL name.`,
 		Example: `  # Resolve a vanity URL to a Steam ID

@@ -13,6 +13,7 @@ import (
 
 var convertCmd = &cobra.Command{
 	Use:   "convert <input> <output>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 	Short: "Convert video to optimized GIF with two-pass palette generation",
 	Long: `Convert an MP4 or MOV video file to an optimized animated GIF.
 Uses two-pass palette generation for high quality output with small file sizes.`,

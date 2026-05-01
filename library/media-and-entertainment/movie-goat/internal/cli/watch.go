@@ -15,6 +15,7 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "watch <title-or-id>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find where to stream, rent, or buy a movie or TV show",
 		Long: `Look up streaming availability for a movie or TV show.
 Accepts a TMDb ID (number) or a title (string) to search for.

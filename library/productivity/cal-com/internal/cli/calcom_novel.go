@@ -789,6 +789,7 @@ func newCalcomAnalyticsBookingsCmd(flags *rootFlags) *cobra.Command {
 	var groupBy string
 	cmd := &cobra.Command{
 		Use:   "bookings",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Booking volume over a time window, optionally grouped",
 		Long:  `Aggregates booking counts from the local store. Group by event-type, attendee, weekday, hour, or status.`,
 		Example: `  cal-com-pp-cli analytics bookings --window 30d --json
@@ -1510,6 +1511,7 @@ func newBookingsPendingCmd(flags *rootFlags) *cobra.Command {
 	var maxAge string
 	cmd := &cobra.Command{
 		Use:     "pending",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "List pending-confirmation bookings, oldest first",
 		Long:    `Filters bookings whose status is unconfirmed/pending and sorts by age. Use --max-age to keep only those approaching expiry (e.g. 24h).`,
 		Example: `  cal-com-pp-cli bookings pending --max-age 24h --json`,

@@ -895,6 +895,7 @@ anyone deciding whether to reroute.`,
 func newResolveCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "resolve <ident>",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "Show every code (codeshare, canonical, operator) for one flight",
 		Example: `  flightgoat-pp-cli resolve UA123`,
 		Args:    cobra.ExactArgs(1),
