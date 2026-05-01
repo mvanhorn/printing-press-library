@@ -14,11 +14,14 @@ import (
 func newOrdersSuggestionCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "suggestion <customerId>",
-		Short:   "Get personalized order suggestions for a customer",
-		Example: "  pagliacci-pizza-pp-cli orders suggestion 12345",
-		Args:    cobra.ExactArgs(1),
+		Use:   "suggestion <customerId>",
+		Short: "Get personalized order suggestions for a customer",
+		Example: "  pagliacci-pizza-pp-cli orders suggestion example-value",
+		Annotations: map[string]string{"pp:endpoint": "orders.suggestion", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) == 0 {
+				return cmd.Help()
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -27,7 +30,7 @@ func newOrdersSuggestionCmd(flags *rootFlags) *cobra.Command {
 			path := "/OrderSuggestion/{customerId}"
 			path = replacePathParam(path, "customerId", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "orders", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "orders", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -37,14 +40,15 @@ func newOrdersSuggestionCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

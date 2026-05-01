@@ -13,9 +13,9 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/pagliacci-pizza/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/pagliacci-pizza/internal/config"
+	"github.com/spf13/cobra"
 )
 
 var version = "1.0.0"
@@ -46,26 +46,46 @@ type rootFlags struct {
 	deliverSink DeliverSink
 }
 
+// RootCmd returns the Cobra command tree without executing it. The MCP server
+// uses this to mirror every user-facing command as an agent tool.
+func RootCmd() *cobra.Command {
+	var flags rootFlags
+	return newRootCmd(&flags)
+}
+
 // Execute runs the CLI in non-interactive mode: never prompts, all values via flags or stdin.
 func Execute() error {
 	var flags rootFlags
+	rootCmd := newRootCmd(&flags)
 
+	err := rootCmd.Execute()
+	if err != nil && strings.Contains(err.Error(), "unknown flag") {
+		msg := err.Error()
+		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
+		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
+			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
+			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
+				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
+			}
+		}
+	}
+	if err == nil && flags.deliverBuf != nil {
+		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
+			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
+			return derr
+		}
+	}
+	return err
+}
+
+func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "pagliacci-pizza-pp-cli",
-		Short: `Pagliacci CLI — Order Seattle's favorite pizza from the terminal — every endpoint, plus discount stacking, slice rotation across stores…`,
-		Long: `Pagliacci CLI — Order Seattle's favorite pizza from the terminal — every endpoint, plus discount stacking, slice rotation across stores…
+		Short: "Manage pagliacci-pizza resources via the pagliacci-pizza API",
+		Long: `Manage pagliacci-pizza resources via the pagliacci-pizza API.
 
-Highlights (not in the official API docs):
-  • slices today   See which Pagliacci slices are available right now at every Seattle store, sort…
-  • store tonight   List stores that are still open and can deliver to your saved address right now…
-  • rewards stack   Compute the best application of stored coupons, reward redemption, and account …
-  • orders reorder   Re-create a past order as a fresh cart, with price revalidation since prices ch…
-  • address best-time   Resolve a saved address label to the next available delivery slot in one call.
-  • orders summary   Aggregate order spend over a time range, with top items and store breakdown.
-
-Agent mode: add --agent to any command for JSON output + non-interactive mode.
-Health check: run 'pagliacci-pizza-pp-cli doctor' to verify auth and connectivity.
-See README.md or the bundled SKILL.md for recipes.`,
+Add --agent to any command for JSON output + non-interactive mode.
+Run 'pagliacci-pizza-pp-cli doctor' to verify auth and connectivity.`,
 		SilenceUsage: true,
 		Version:      version,
 	}
@@ -89,7 +109,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'pagliacci-pizza-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
-	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 2, "Max requests per second (0 to disable, default 2 for sniffed APIs)")
+	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		if flags.deliverSpec != "" {
@@ -148,57 +168,41 @@ See README.md or the bundled SKILL.md for recipes.`,
 		// runs a bounded API refresh. Failures become stderr warnings;
 		// the command proceeds with the stale cache either way.
 		if resources, isRead := readCommandResources[cmd.CommandPath()]; isRead {
-			flags.freshnessMeta = autoRefreshIfStale(cmd.Context(), &flags, resources)
+			flags.freshnessMeta = autoRefreshIfStale(cmd.Context(), flags, resources)
 		}
 		return nil
 	}
-	rootCmd.AddCommand(newAccountCmd(&flags))
-	rootCmd.AddCommand(newAddressCmd(&flags))
-	rootCmd.AddCommand(newCartCmd(&flags))
-	rootCmd.AddCommand(newCreditCmd(&flags))
-	rootCmd.AddCommand(newCustomerCmd(&flags))
-	rootCmd.AddCommand(newCustomerFeedbackCmd(&flags))
-	rootCmd.AddCommand(newGiftsCmd(&flags))
-	rootCmd.AddCommand(newMenuCmd(&flags))
-	rootCmd.AddCommand(newOrdersCmd(&flags))
-	rootCmd.AddCommand(newRewardsCmd(&flags))
-	rootCmd.AddCommand(newSchedulingCmd(&flags))
-	rootCmd.AddCommand(newStoreCmd(&flags))
-	rootCmd.AddCommand(newSystemCmd(&flags))
-	rootCmd.AddCommand(newDoctorCmd(&flags))
-	rootCmd.AddCommand(newAuthCmd(&flags))
+	rootCmd.AddCommand(newAccountCmd(flags))
+	rootCmd.AddCommand(newAddressCmd(flags))
+	rootCmd.AddCommand(newCartCmd(flags))
+	rootCmd.AddCommand(newCreditCmd(flags))
+	rootCmd.AddCommand(newCustomerCmd(flags))
+	rootCmd.AddCommand(newCustomerFeedbackCmd(flags))
+	rootCmd.AddCommand(newGiftsCmd(flags))
+	rootCmd.AddCommand(newMenuCmd(flags))
+	rootCmd.AddCommand(newOrdersCmd(flags))
+	rootCmd.AddCommand(newRewardsCmd(flags))
+	rootCmd.AddCommand(newSchedulingCmd(flags))
+	rootCmd.AddCommand(newStoreCmd(flags))
+	rootCmd.AddCommand(newSystemCmd(flags))
+	rootCmd.AddCommand(newDoctorCmd(flags))
+	rootCmd.AddCommand(newAuthCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
-	rootCmd.AddCommand(newProfileCmd(&flags))
-	rootCmd.AddCommand(newFeedbackCmd(&flags))
-	rootCmd.AddCommand(newWhichCmd(&flags))
-	rootCmd.AddCommand(newExportCmd(&flags))
-	rootCmd.AddCommand(newImportCmd(&flags))
-	rootCmd.AddCommand(newSearchCmd(&flags))
-	rootCmd.AddCommand(newSyncCmd(&flags))
-	rootCmd.AddCommand(newTailCmd(&flags))
-	rootCmd.AddCommand(newAnalyticsCmd(&flags))
-	rootCmd.AddCommand(newWorkflowCmd(&flags))
-	rootCmd.AddCommand(newSlicesCmd(&flags))
+	rootCmd.AddCommand(newProfileCmd(flags))
+	rootCmd.AddCommand(newFeedbackCmd(flags))
+	rootCmd.AddCommand(newWhichCmd(flags))
+	rootCmd.AddCommand(newExportCmd(flags))
+	rootCmd.AddCommand(newImportCmd(flags))
+	rootCmd.AddCommand(newSearchCmd(flags))
+	rootCmd.AddCommand(newSyncCmd(flags))
+	rootCmd.AddCommand(newTailCmd(flags))
+	rootCmd.AddCommand(newAnalyticsCmd(flags))
+	rootCmd.AddCommand(newWorkflowCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
-	err := rootCmd.Execute()
-	if err != nil && strings.Contains(err.Error(), "unknown flag") {
-		msg := err.Error()
-		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
-		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
-			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
-			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
-				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
-			}
-		}
-	}
-	if err == nil && flags.deliverBuf != nil {
-		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
-			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
-			return derr
-		}
-	}
-	return err
+	rootCmd.AddCommand(newSlicesCmd(flags))
+
+	return rootCmd
 }
 
 func ExitCode(err error) int {

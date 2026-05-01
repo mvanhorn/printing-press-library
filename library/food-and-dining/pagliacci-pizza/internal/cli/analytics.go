@@ -9,8 +9,8 @@ import (
 	"os"
 	"sort"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/pagliacci-pizza/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newAnalyticsCmd(flags *rootFlags) *cobra.Command {
@@ -20,8 +20,9 @@ func newAnalyticsCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 
 	cmd := &cobra.Command{
-		Use:   "analytics",
-		Short: "Run analytics queries on locally synced data",
+		Use:         "analytics",
+		Short:       "Run analytics queries on locally synced data",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Long: `Analyze locally synced data with count, group-by, and summary operations.
 Data must be synced first with the sync command.`,
 		Example: `  # Count records by type
@@ -37,7 +38,7 @@ Data must be synced first with the sync command.`,
 				dbPath = defaultDBPath("pagliacci-pizza-pp-cli")
 			}
 
-			db, err := store.Open(dbPath)
+			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'pagliacci-pizza-pp-cli sync' first.", err)
 			}

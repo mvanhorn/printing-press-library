@@ -8,404 +8,549 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/pagliacci-pizza/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/pagliacci-pizza/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/pagliacci-pizza/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/pagliacci-pizza/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/pagliacci-pizza/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/pagliacci-pizza/internal/store"
 )
-
-// looksLikeAuthError checks if an error message body contains auth-related keywords.
-func looksLikeAuthError(msg string) bool {
-	lower := strings.ToLower(msg)
-	patterns := []string{
-		`\bkey\b`,
-		`\btoken\b`,
-		`\bunauthorized\b`,
-		`\bapi_key\b`,
-		`missing.{0,20}key`,
-		`required.{0,20}key`,
-		`\bforbidden\b`,
-		`\bauthenticat`,
-		`\bcredential`,
-	}
-	for _, p := range patterns {
-		if matched, _ := regexp.MatchString(p, lower); matched {
-			return true
-		}
-	}
-	return false
-}
-
-// sanitizeErrorBody truncates and strips credential-shaped strings from error output.
-func sanitizeErrorBody(msg string) string {
-	if len(msg) > 200 {
-		msg = msg[:200] + "..."
-	}
-	credPatterns := regexp.MustCompile(`(?i)(sk-[a-zA-Z0-9]{8,}|sk_live_[a-zA-Z0-9]+|Bearer\s+[a-zA-Z0-9._\-]+|key=[a-zA-Z0-9._\-]+)`)
-	msg = credPatterns.ReplaceAllString(msg, "[REDACTED]")
-	return msg
-}
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("account_confirm_email",
-			mcplib.WithDescription("Confirm a new account by clicking the email-confirmation link's token"),
+			mcplib.WithDescription("Confirm a new account by clicking the email-confirmation link's token. Required: token. (public)"),
+			mcplib.WithString("token", mcplib.Required(), mcplib.Description("token")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/ConfirmEmail/{token}", []string{"token"}),
+		makeAPIHandler("GET", "/ConfirmEmail/{token}", []string{"token", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("account_create_token",
-			mcplib.WithDescription("Issue a session token (used internally by the SPA for token refresh)"),
+			mcplib.WithDescription("Issue a session token (used internally by the SPA for token refresh). (public)"),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/CreateToken", []string{}),
+		makeAPIHandler("POST", "/CreateToken", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("account_login",
-			mcplib.WithDescription("Authenticate with email/phone + password. Response sets customerId and authToken cookies."),
+			mcplib.WithDescription("Authenticate with email/phone + password. Response sets customerId and authToken cookies. (public)"),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/Login", []string{}),
+		makeAPIHandler("POST", "/Login", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("account_logout",
-			mcplib.WithDescription("Invalidate the current session"),
+			mcplib.WithDescription("Invalidate the current session. (public)"),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/Logout", []string{}),
+		makeAPIHandler("POST", "/Logout", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("account_password_forgot",
-			mcplib.WithDescription("Request a password reset email"),
+			mcplib.WithDescription("Request a password reset email. (public)"),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/PasswordForgot", []string{}),
+		makeAPIHandler("POST", "/PasswordForgot", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("account_password_reset",
-			mcplib.WithDescription("Reset a password using a token from PasswordForgot email"),
+			mcplib.WithDescription("Reset a password using a token from PasswordForgot email. (public)"),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/PasswordReset", []string{}),
+		makeAPIHandler("POST", "/PasswordReset", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("account_register",
-			mcplib.WithDescription("Create a new customer account"),
+			mcplib.WithDescription("Create a new customer account. (public)"),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/Register", []string{}),
+		makeAPIHandler("POST", "/Register", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("address_create",
-			mcplib.WithDescription("Create a new saved address"),
+			mcplib.WithDescription("Create a new saved address."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/AddressName", []string{}),
+		makeAPIHandler("POST", "/AddressName", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("address_delete",
-			mcplib.WithDescription("Delete a saved address Destructive operation."),
+			mcplib.WithDescription("Delete a saved address. Required: id. Destructive."),
+			mcplib.WithString("id", mcplib.Required(), mcplib.Description("id")),
+			mcplib.WithDestructiveHintAnnotation(true),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/AddressName/{id}", []string{"id"}),
+		makeAPIHandler("DELETE", "/AddressName/{id}", []string{"id", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("address_get",
-			mcplib.WithDescription("Get a saved address by ID"),
+			mcplib.WithDescription("Get a saved address by ID. Required: id."),
+			mcplib.WithString("id", mcplib.Required(), mcplib.Description("id")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/AddressName/{id}", []string{"id"}),
+		makeAPIHandler("GET", "/AddressName/{id}", []string{"id", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("address_get_info",
-			mcplib.WithDescription("Get address info by saved ID"),
+			mcplib.WithDescription("Get address info by saved ID. Required: id."),
+			mcplib.WithString("id", mcplib.Required(), mcplib.Description("id")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/AddressInfo/{id}", []string{"id"}),
+		makeAPIHandler("GET", "/AddressInfo/{id}", []string{"id", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("address_list",
-			mcplib.WithDescription("List the authenticated user's saved addresses"),
+			mcplib.WithDescription("List the authenticated user's saved addresses."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/AddressName", []string{}),
+		makeAPIHandler("GET", "/AddressName", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("address_lookup",
-			mcplib.WithDescription("Validate an address and check delivery zone (returns store ID if deliverable)"),
+			mcplib.WithDescription("Validate an address and check delivery zone (returns store ID if deliverable). (public)"),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/AddressInfo", []string{}),
+		makeAPIHandler("POST", "/AddressInfo", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("cart_get_quote_building",
-			mcplib.WithDescription("Get the current cart/quote-building state by building ID"),
+			mcplib.WithDescription("Get the current cart/quote-building state by building ID. Required: buildingId."),
+			mcplib.WithString("buildingId", mcplib.Required(), mcplib.Description("buildingId")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/QuoteBuilding/{buildingId}", []string{"buildingId"}),
+		makeAPIHandler("GET", "/QuoteBuilding/{buildingId}", []string{"buildingId", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("cart_price_order",
-			mcplib.WithDescription("Compute the total price for an order (cart contents, taxes, fees, delivery) before sending"),
+			mcplib.WithDescription("Compute the total price for an order (cart contents, taxes, fees, delivery) before sending."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/OrderPrice", []string{}),
+		makeAPIHandler("POST", "/OrderPrice", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("cart_send_order",
 			mcplib.WithDescription("Submit an order. Requires payment information for guests; uses stored payment for authenticated users."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/OrderSend", []string{}),
+		makeAPIHandler("POST", "/OrderSend", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("cart_update_quote_building",
-			mcplib.WithDescription("Update cart contents (add/remove/modify items)"),
+			mcplib.WithDescription("Update cart contents (add/remove/modify items). Required: buildingId."),
+			mcplib.WithString("buildingId", mcplib.Required(), mcplib.Description("buildingId")),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/QuoteBuilding/{buildingId}", []string{"buildingId"}),
+		makeAPIHandler("POST", "/QuoteBuilding/{buildingId}", []string{"buildingId", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("credit_delete",
-			mcplib.WithDescription("Remove an account credit entry Destructive operation."),
+			mcplib.WithDescription("Remove an account credit entry. Required: id. Destructive."),
+			mcplib.WithString("id", mcplib.Required(), mcplib.Description("id")),
+			mcplib.WithDestructiveHintAnnotation(true),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/StoredCredit/{id}", []string{"id"}),
+		makeAPIHandler("DELETE", "/StoredCredit/{id}", []string{"id", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("credit_get",
-			mcplib.WithDescription("Get a single credit entry"),
+			mcplib.WithDescription("Get a single credit entry. Required: id."),
+			mcplib.WithString("id", mcplib.Required(), mcplib.Description("id")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/StoredCredit/{id}", []string{"id"}),
+		makeAPIHandler("GET", "/StoredCredit/{id}", []string{"id", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("credit_list",
-			mcplib.WithDescription("List the authenticated user's account credit entries"),
+			mcplib.WithDescription("List the authenticated user's account credit entries."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/StoredCredit", []string{}),
+		makeAPIHandler("GET", "/StoredCredit", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("customer_access_devices_delete",
-			mcplib.WithDescription("Revoke a device's access to the account Destructive operation."),
+			mcplib.WithDescription("Revoke a device's access to the account. Required: deviceId. Destructive."),
+			mcplib.WithString("deviceId", mcplib.Required(), mcplib.Description("deviceId")),
+			mcplib.WithDestructiveHintAnnotation(true),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/AccessDevice/{deviceId}", []string{"deviceId"}),
+		makeAPIHandler("DELETE", "/AccessDevice/{deviceId}", []string{"deviceId", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("customer_access_devices_list",
-			mcplib.WithDescription("List devices that have access to this account"),
+			mcplib.WithDescription("List devices that have access to this account."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/AccessDevice", []string{}),
+		makeAPIHandler("GET", "/AccessDevice", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("customer_get",
-			mcplib.WithDescription("Get customer profile by ID"),
+			mcplib.WithDescription("Get customer profile by ID. Required: customerId."),
+			mcplib.WithString("customerId", mcplib.Required(), mcplib.Description("customerId")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/Customer/{customerId}", []string{"customerId"}),
+		makeAPIHandler("GET", "/Customer/{customerId}", []string{"customerId", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("customer_migrate_answer",
-			mcplib.WithDescription("Submit the answer to a migration question"),
+			mcplib.WithDescription("Submit the answer to a migration question."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/MigrateAnswer", []string{}),
+		makeAPIHandler("POST", "/MigrateAnswer", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("customer_migrate_question",
-			mcplib.WithDescription("Submit a security/migration question (legacy account migration flow)"),
+			mcplib.WithDescription("Submit a security/migration question (legacy account migration flow)."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/MigrateQuestion", []string{}),
+		makeAPIHandler("POST", "/MigrateQuestion", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("customer_feedback_get",
-			mcplib.WithDescription("Get a feedback submission by ID"),
+			mcplib.WithDescription("Get a feedback submission by ID. Required: id."),
+			mcplib.WithString("id", mcplib.Required(), mcplib.Description("id")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/Feedback/{id}", []string{"id"}),
+		makeAPIHandler("GET", "/Feedback/{id}", []string{"id", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("customer_feedback_submit",
-			mcplib.WithDescription("Submit customer feedback (guest or authenticated)"),
+			mcplib.WithDescription("Submit customer feedback (guest or authenticated)."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/Feedback", []string{}),
+		makeAPIHandler("POST", "/Feedback", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("gifts_check",
-			mcplib.WithDescription("Check the balance of a gift card by ID and PIN (no auth required to check)"),
+			mcplib.WithDescription("Check the balance of a gift card by ID and PIN (no auth required to check). Required: id, pin."),
+			mcplib.WithString("id", mcplib.Required(), mcplib.Description("id")),
+			mcplib.WithString("pin", mcplib.Required(), mcplib.Description("pin")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/CheckGift/{id}/{pin}", []string{"id", "pin"}),
+		makeAPIHandler("GET", "/CheckGift/{id}/{pin}", []string{"id","pin", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("gifts_delete",
-			mcplib.WithDescription("Remove a stored gift card from the account Destructive operation."),
+			mcplib.WithDescription("Remove a stored gift card from the account. Required: id. Destructive."),
+			mcplib.WithString("id", mcplib.Required(), mcplib.Description("id")),
+			mcplib.WithDestructiveHintAnnotation(true),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/StoredGift/{id}", []string{"id"}),
+		makeAPIHandler("DELETE", "/StoredGift/{id}", []string{"id", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("gifts_get",
-			mcplib.WithDescription("Get a single stored gift card by ID"),
+			mcplib.WithDescription("Get a single stored gift card by ID. Required: id."),
+			mcplib.WithString("id", mcplib.Required(), mcplib.Description("id")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/StoredGift/{id}", []string{"id"}),
+		makeAPIHandler("GET", "/StoredGift/{id}", []string{"id", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("gifts_list",
-			mcplib.WithDescription("List the authenticated user's stored gift cards"),
+			mcplib.WithDescription("List the authenticated user's stored gift cards."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/StoredGift", []string{}),
+		makeAPIHandler("GET", "/StoredGift", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("gifts_transfer",
-			mcplib.WithDescription("Transfer gift card balance to another account"),
+			mcplib.WithDescription("Transfer gift card balance to another account."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/TransferGift", []string{}),
+		makeAPIHandler("POST", "/TransferGift", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("gifts_value",
-			mcplib.WithDescription("Get current value/balance of a saved gift card"),
+			mcplib.WithDescription("Get current value/balance of a saved gift card. Required: id."),
+			mcplib.WithString("id", mcplib.Required(), mcplib.Description("id")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/GiftValue/{id}", []string{"id"}),
+		makeAPIHandler("GET", "/GiftValue/{id}", []string{"id", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("menu_cache",
-			mcplib.WithDescription("Get the full menu (categories, products, prices, descriptions, images) for a store"),
+			mcplib.WithDescription("Get the full menu (categories, products, prices, descriptions, images) for a store. Required: storeId. (public)"),
+			mcplib.WithString("storeId", mcplib.Required(), mcplib.Description("storeId")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/MenuCache/{storeId}", []string{"storeId"}),
+		makeAPIHandler("GET", "/MenuCache/{storeId}", []string{"storeId", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("menu_product_price",
-			mcplib.WithDescription("Calculate the price for a customized product (size, toppings, modifiers)"),
+			mcplib.WithDescription("Calculate the price for a customized product (size, toppings, modifiers). (public)"),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/ProductPrice", []string{}),
+		makeAPIHandler("POST", "/ProductPrice", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("menu_slices",
-			mcplib.WithDescription("Get available slices across all stores for the current day (perishable, rotates daily)"),
+			mcplib.WithDescription("Get available slices across all stores for the current day (perishable, rotates daily). (public)"),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/MenuSlices", []string{}),
+		makeAPIHandler("GET", "/MenuSlices", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("menu_top",
-			mcplib.WithDescription("Get featured top-of-menu items for a store"),
+			mcplib.WithDescription("Get featured top-of-menu items for a store. Required: storeId. (public)"),
+			mcplib.WithString("storeId", mcplib.Required(), mcplib.Description("storeId")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/MenuTop/{storeId}", []string{"storeId"}),
+		makeAPIHandler("GET", "/MenuTop/{storeId}", []string{"storeId", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("orders_clone",
-			mcplib.WithDescription("Get order data shaped for re-ordering (transforms a past order into a new cart)"),
+			mcplib.WithDescription("Get order data shaped for re-ordering (transforms a past order into a new cart). Required: orderId."),
+			mcplib.WithString("orderId", mcplib.Required(), mcplib.Description("orderId")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/OrderClone/{orderId}", []string{"orderId"}),
+		makeAPIHandler("GET", "/OrderClone/{orderId}", []string{"orderId", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("orders_get",
-			mcplib.WithDescription("Get the full detail of a single past order (items, prices, store, time)"),
+			mcplib.WithDescription("Get the full detail of a single past order (items, prices, store, time). Required: orderId."),
+			mcplib.WithString("orderId", mcplib.Required(), mcplib.Description("orderId")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/OrderListItem/{orderId}", []string{"orderId"}),
+		makeAPIHandler("GET", "/OrderListItem/{orderId}", []string{"orderId", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("orders_list",
-			mcplib.WithDescription("List the authenticated user's order history (paginated)"),
+			mcplib.WithDescription("List the authenticated user's order history (paginated). Required: page, pageSize."),
+			mcplib.WithString("page", mcplib.Required(), mcplib.Description("page")),
+			mcplib.WithString("pageSize", mcplib.Required(), mcplib.Description("pageSize")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/OrderList/{page}/{pageSize}", []string{"page", "pageSize"}),
+		makeAPIHandler("GET", "/OrderList/{page}/{pageSize}", []string{"page","pageSize", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("orders_list_gift_cards",
-			mcplib.WithDescription("List orders that purchased gift cards"),
+			mcplib.WithDescription("List orders that purchased gift cards."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/OrderListGC", []string{}),
+		makeAPIHandler("GET", "/OrderListGC", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("orders_list_pending",
-			mcplib.WithDescription("List orders that are currently in flight (placed but not yet delivered/picked up)"),
+			mcplib.WithDescription("List orders that are currently in flight (placed but not yet delivered/picked up)."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/OrderListPending", []string{}),
+		makeAPIHandler("GET", "/OrderListPending", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("orders_suggestion",
-			mcplib.WithDescription("Get personalized order suggestions for a customer"),
+			mcplib.WithDescription("Get personalized order suggestions for a customer. Required: customerId."),
+			mcplib.WithString("customerId", mcplib.Required(), mcplib.Description("customerId")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/OrderSuggestion/{customerId}", []string{"customerId"}),
+		makeAPIHandler("GET", "/OrderSuggestion/{customerId}", []string{"customerId", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("rewards_card",
-			mcplib.WithDescription("Get the authenticated user's reward card balance, points, and available rewards"),
+			mcplib.WithDescription("Get the authenticated user's reward card balance, points, and available rewards."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/RewardCard", []string{}),
+		makeAPIHandler("GET", "/RewardCard", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("rewards_coupon_lookup",
-			mcplib.WithDescription("Look up a coupon by its serial number (validate before applying)"),
+			mcplib.WithDescription("Look up a coupon by its serial number (validate before applying). Required: serial."),
+			mcplib.WithString("serial", mcplib.Required(), mcplib.Description("serial")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/CouponSerial/{serial}", []string{"serial"}),
+		makeAPIHandler("GET", "/CouponSerial/{serial}", []string{"serial", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("rewards_history",
-			mcplib.WithDescription("Get reward earning/redemption history (most recent N entries)"),
+			mcplib.WithDescription("Get reward earning/redemption history (most recent N entries). Required: customerId, count."),
+			mcplib.WithString("customerId", mcplib.Required(), mcplib.Description("customerId")),
+			mcplib.WithString("count", mcplib.Required(), mcplib.Description("count")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/RewardHistory/{customerId}/{count}", []string{"customerId", "count"}),
+		makeAPIHandler("GET", "/RewardHistory/{customerId}/{count}", []string{"customerId","count", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("rewards_stored_coupons",
-			mcplib.WithDescription("List coupons saved to the authenticated user's account"),
+			mcplib.WithDescription("List coupons saved to the authenticated user's account."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/StoredCoupons", []string{}),
+		makeAPIHandler("GET", "/StoredCoupons", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("scheduling_slot_list",
-			mcplib.WithDescription("List available time-window slots for a store and service type"),
+			mcplib.WithDescription("List available time-window slots for a store and service type. Required: storeId, serviceType. (public)"),
+			mcplib.WithString("storeId", mcplib.Required(), mcplib.Description("storeId")),
+			mcplib.WithString("serviceType", mcplib.Required(), mcplib.Description("serviceType")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/TimeWindows/{storeId}/{serviceType}", []string{"storeId", "serviceType"}),
+		makeAPIHandler("GET", "/TimeWindows/{storeId}/{serviceType}", []string{"storeId","serviceType", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("scheduling_slot_list_for_date",
-			mcplib.WithDescription("List allowed slot times for a specific delivery/pickup date (YYYYMMDD)"),
+			mcplib.WithDescription("List allowed slot times for a specific delivery/pickup date (YYYYMMDD). Required: storeId, serviceType, date. (public)"),
+			mcplib.WithString("storeId", mcplib.Required(), mcplib.Description("storeId")),
+			mcplib.WithString("serviceType", mcplib.Required(), mcplib.Description("serviceType")),
+			mcplib.WithString("date", mcplib.Required(), mcplib.Description("date")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/TimeWindows/{storeId}/{serviceType}/{date}", []string{"storeId", "serviceType", "date"}),
+		makeAPIHandler("GET", "/TimeWindows/{storeId}/{serviceType}/{date}", []string{"storeId","serviceType","date", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("scheduling_window_days",
-			mcplib.WithDescription("List available delivery or pickup days for a store. serviceType is DEL (delivery) or PICK (pickup)"),
+			mcplib.WithDescription("List available delivery or pickup days for a store. serviceType is DEL (delivery) or PICK (pickup). Required: storeId, serviceType. (public)"),
+			mcplib.WithString("storeId", mcplib.Required(), mcplib.Description("storeId")),
+			mcplib.WithString("serviceType", mcplib.Required(), mcplib.Description("serviceType")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/TimeWindowDays/{storeId}/{serviceType}", []string{"storeId", "serviceType"}),
+		makeAPIHandler("GET", "/TimeWindowDays/{storeId}/{serviceType}", []string{"storeId","serviceType", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("store_compute_quote",
-			mcplib.WithDescription("Compute a quote for a specific store with cart contents (returns Delivery, Drone, Pickup wait values)"),
+			mcplib.WithDescription("Compute a quote for a specific store with cart contents (returns Delivery, Drone, Pickup wait values). Required: storeId."),
+			mcplib.WithString("storeId", mcplib.Required(), mcplib.Description("storeId")),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/QuoteStore/{storeId}", []string{"storeId"}),
+		makeAPIHandler("POST", "/QuoteStore/{storeId}", []string{"storeId", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("store_get",
-			mcplib.WithDescription("Get a single store by its numeric ID"),
+			mcplib.WithDescription("Get a single store by its numeric ID. Required: storeId. (public)"),
+			mcplib.WithString("storeId", mcplib.Required(), mcplib.Description("storeId")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/Store/{storeId}", []string{"storeId"}),
+		makeAPIHandler("GET", "/Store/{storeId}", []string{"storeId", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("store_get_quote",
-			mcplib.WithDescription("Get quote-store metadata (delivery fee, drone status, pickup wait time) for a single store"),
+			mcplib.WithDescription("Get quote-store metadata (delivery fee, drone status, pickup wait time) for a single store. Required: storeId."),
+			mcplib.WithString("storeId", mcplib.Required(), mcplib.Description("storeId")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/QuoteStore/{storeId}", []string{"storeId"}),
+		makeAPIHandler("GET", "/QuoteStore/{storeId}", []string{"storeId", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("store_list",
-			mcplib.WithDescription("List all Pagliacci store locations with addresses, hours, GPS, amenities, and available slices"),
+			mcplib.WithDescription("List all Pagliacci store locations with addresses, hours, GPS, amenities, and available slices. (public)"),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/Store", []string{}),
+		makeAPIHandler("GET", "/Store", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("store_list_quotes",
-			mcplib.WithDescription("List quote-store metadata (delivery fee, drone status, pickup wait) for all stores"),
+			mcplib.WithDescription("List quote-store metadata (delivery fee, drone status, pickup wait) for all stores."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/QuoteStore", []string{}),
+		makeAPIHandler("GET", "/QuoteStore", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("system_site_wide_message",
-			mcplib.WithDescription("Get site-wide announcement banner text (closures, holiday hours, etc.)"),
+			mcplib.WithDescription("Get site-wide announcement banner text (closures, holiday hours, etc.). (public)"),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/SiteWideMessage", []string{}),
+		makeAPIHandler("GET", "/SiteWideMessage", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("system_version",
-			mcplib.WithDescription("Get the current API version"),
+			mcplib.WithDescription("Get the current API version. (public)"),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/Version", []string{}),
-	)
-	// Sync tool — populates local database for offline search and sql queries
-	s.AddTool(
-		mcplib.NewTool("sync",
-			mcplib.WithDescription("Sync API data to local SQLite database. Run this before using search or sql tools. Supports incremental sync."),
-			mcplib.WithString("resources", mcplib.Description("Comma-separated resource types to sync (omit for all)")),
-			mcplib.WithString("since", mcplib.Description("Incremental sync since duration (e.g. 7d, 24h, 1w)")),
-			mcplib.WithBoolean("full", mcplib.Description("Full resync ignoring checkpoints")),
-		),
-		handleSync,
+		makeAPIHandler("GET", "/Version", []string{ }),
 	)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
@@ -413,6 +558,8 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDescription("Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)")),
 			mcplib.WithNumber("limit", mcplib.Description("Max results (default 25)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleSearch,
 	)
@@ -421,6 +568,8 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("sql",
 			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT only). Tables match resource names.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleSQL,
 	)
@@ -430,9 +579,15 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("context",
 			mcplib.WithDescription("Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleContext,
 	)
+
+	// Runtime Cobra-tree mirror — exposes every user-facing command that is
+	// not already covered by a typed endpoint or framework MCP tool.
+	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
@@ -495,16 +650,16 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 			switch {
 			case strings.Contains(msg, "HTTP 409"):
 				return mcplib.NewToolResultText("already exists (no-op)"), nil
-			case strings.Contains(msg, "HTTP 400") && looksLikeAuthError(msg):
-				return mcplib.NewToolResultError("authentication error: " + sanitizeErrorBody(msg) +
+			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
+				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
 					"\n      Run 'pagliacci-pizza-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
-				return mcplib.NewToolResultError("authentication failed: " + sanitizeErrorBody(msg) +
+				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your API credentials." +
 					"\n      Run 'pagliacci-pizza-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
-				return mcplib.NewToolResultError("permission denied: " + sanitizeErrorBody(msg) +
+				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: your credentials are valid but lack access to this resource." +
 					"\n      Run 'pagliacci-pizza-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
@@ -545,20 +700,15 @@ func newMCPClient() (*client.Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
-	return client.New(cfg, 30*time.Second, 2), nil
+	return client.New(cfg, 30*time.Second, 0), nil
 }
 
 func dbPath() string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", "pagliacci-pizza-pp-cli", "data.db")
 }
-
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
-
-func handleSync(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	return mcplib.NewToolResultText("sync not yet implemented via MCP - use the CLI: pagliacci-pizza-pp-cli sync"), nil
-}
 
 func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
@@ -572,7 +722,7 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 		limit = int(v)
 	}
 
-	db, err := store.Open(dbPath())
+	db, err := store.OpenWithContext(ctx, dbPath())
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
@@ -602,7 +752,7 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		}
 	}
 
-	db, err := store.Open(dbPath())
+	db, err := store.OpenWithContext(ctx, dbPath())
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
@@ -636,85 +786,98 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
-		"api":          "pagliacci",
-		"description":  "CLI for the Pagliacci Pizza ordering API. Browse stores, menus, and available slices; manage your cart, place...",
-		"archetype":    "crm",
-		"tool_count":   57,
-		"tool_surface": "MCP exposes the endpoints listed under `resources` (plus sync/search/sql/context utilities when present). Items under `cli_only_capabilities` require running the companion pagliacci-pizza-pp-cli binary; the MCP cannot invoke them.",
+		"api":         "pagliacci-pizza",
+		"description": "CLI for the Pagliacci Pizza ordering API. Browse stores, menus, and available slices; manage your cart, place...",
+		"archetype":   "crm",
+		"tool_count":  57,
+		// tool_surface tells agents which surface a capability lives on.
+		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion pagliacci-pizza-pp-cli binary.",
 		"auth": map[string]any{
 			"type": "composed",
 		},
 		"resources": []map[string]any{
 			{
-				"name":        "account",
+				"name": "account",
 				"description": "Authentication and registration (no auth required for these endpoints)",
-				"endpoints":   []string{"confirm_email", "create_token", "login", "logout", "password_forgot", "password_reset", "register"},
+				"endpoints": []string{"confirm_email", "create_token", "login", "logout", "password_forgot", "password_reset", "register",  },
+				"searchable": true,
 			},
 			{
-				"name":        "address",
+				"name": "address",
 				"description": "Address validation and saved address book",
-				"endpoints":   []string{"create", "delete", "get", "get_info", "list", "lookup"},
-				"syncable":    true,
+				"endpoints": []string{"create", "delete", "get", "get_info", "list", "lookup",  },
+				"syncable": true,
+				"searchable": true,
 			},
 			{
-				"name":        "cart",
+				"name": "cart",
 				"description": "Build and price an order before sending it",
-				"endpoints":   []string{"get_quote_building", "price_order", "send_order", "update_quote_building"},
+				"endpoints": []string{"get_quote_building", "price_order", "send_order", "update_quote_building",  },
+				"searchable": true,
 			},
 			{
-				"name":        "credit",
+				"name": "credit",
 				"description": "Account credit balance and entries",
-				"endpoints":   []string{"delete", "get", "list"},
-				"syncable":    true,
+				"endpoints": []string{"delete", "get", "list",  },
+				"syncable": true,
+				"searchable": true,
 			},
 			{
-				"name":        "customer",
+				"name": "customer",
 				"description": "Customer profile and devices",
-				"endpoints":   []string{"access_devices_delete", "access_devices_list", "get", "migrate_answer", "migrate_question"},
-				"syncable":    true,
+				"endpoints": []string{"access_devices_delete", "access_devices_list", "get", "migrate_answer", "migrate_question",  },
+				"syncable": true,
+				"searchable": true,
 			},
 			{
-				"name":        "customer_feedback",
+				"name": "customer_feedback",
 				"description": "Customer feedback submissions to Pagliacci",
-				"endpoints":   []string{"get", "submit"},
+				"endpoints": []string{"get", "submit",  },
+				"searchable": true,
 			},
 			{
-				"name":        "gifts",
+				"name": "gifts",
 				"description": "Stored gift cards, balance lookup, and transfer",
-				"endpoints":   []string{"check", "delete", "get", "list", "transfer", "value"},
-				"syncable":    true,
+				"endpoints": []string{"check", "delete", "get", "list", "transfer", "value",  },
+				"syncable": true,
+				"searchable": true,
 			},
 			{
-				"name":        "menu",
+				"name": "menu",
 				"description": "Menus, slices, and product pricing",
-				"endpoints":   []string{"cache", "product_price", "slices", "top"},
+				"endpoints": []string{"cache", "product_price", "slices", "top",  },
+				"searchable": true,
 			},
 			{
-				"name":        "orders",
+				"name": "orders",
 				"description": "Order history and details",
-				"endpoints":   []string{"clone", "get", "list", "list_gift_cards", "list_pending", "suggestion"},
-				"syncable":    true,
+				"endpoints": []string{"clone", "get", "list", "list_gift_cards", "list_pending", "suggestion",  },
+				"syncable": true,
+				"searchable": true,
 			},
 			{
-				"name":        "rewards",
+				"name": "rewards",
 				"description": "Loyalty card, rewards history, and stored coupons",
-				"endpoints":   []string{"card", "coupon_lookup", "history", "stored_coupons"},
+				"endpoints": []string{"card", "coupon_lookup", "history", "stored_coupons",  },
+				"searchable": true,
 			},
 			{
-				"name":        "scheduling",
+				"name": "scheduling",
 				"description": "Delivery and pickup time windows",
-				"endpoints":   []string{"slot_list", "slot_list_for_date", "window_days"},
+				"endpoints": []string{"slot_list", "slot_list_for_date", "window_days",  },
+				"searchable": true,
 			},
 			{
-				"name":        "store",
+				"name": "store",
 				"description": "Pagliacci store locations, hours, and quote info",
-				"endpoints":   []string{"compute_quote", "get", "get_quote", "list", "list_quotes"},
-				"syncable":    true,
+				"endpoints": []string{"compute_quote", "get", "get_quote", "list", "list_quotes",  },
+				"syncable": true,
+				"searchable": true,
 			},
 			{
-				"name":        "system",
+				"name": "system",
 				"description": "System information and announcements",
-				"endpoints":   []string{"site_wide_message", "version"},
+				"endpoints": []string{"site_wide_message", "version",  },
 			},
 		},
 		"query_tips": []string{
@@ -724,21 +887,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
 		},
-		"cli_only_capabilities": []map[string]string{
-			{"name": "Today's slices across all stores", "command": "slices today", "description": "See which Pagliacci slices are available right now at every Seattle store, sorted by proximity to your saved address.", "rationale": "Requires syncing MenuSlices for all 8+ stores into the local store and joining by location. Pagliacci's web UI shows...", "via": "cli"},
-			{"name": "Open store tonight", "command": "store tonight", "description": "List stores that are still open and can deliver to your saved address right now, sorted by ETA.", "rationale": "Requires real-time TimeWindowDays + Store.OpenHour + delivery-zone resolution. Pagliacci's UI lists all stores...", "via": "cli"},
-			{"name": "Stack discounts to maximize savings", "command": "rewards stack", "description": "Compute the best application of stored coupons, reward redemption, and account credit for a given order total....", "rationale": "Requires joining StoredCoupons + RewardCard + StoredCredit and applying optimal-application logic. The site applies...", "via": "cli"},
-			{"name": "Reorder last (or by ID)", "command": "orders reorder", "description": "Re-create a past order as a fresh cart, with price revalidation since prices change. Add --send to also submit.", "rationale": "Composes OrderListItem + OrderClone + OrderPrice. The site has a one-click reorder but exposes no batch mode.", "via": "cli"},
-			{"name": "Address-aware delivery time picker", "command": "address best-time", "description": "Resolve a saved address label to the next available delivery slot in one call.", "rationale": "Joins AddressName + AddressInfo zone resolution + TimeWindows lookup.", "via": "cli"},
-			{"name": "Spend summary", "command": "orders summary", "description": "Aggregate order spend over a time range, with top items and store breakdown.", "rationale": "Aggregates OrderListItem locally. The site lets you browse history one order at a time.", "via": "cli"},
-		},
 		"playbook": []map[string]string{
-			{"topic": "Today's slices across all stores", "insight": "Requires syncing MenuSlices for all 8+ stores into the local store and joining by location. Pagliacci's web UI shows slices one store at a time."},
-			{"topic": "Open store tonight", "insight": "Requires real-time TimeWindowDays + Store.OpenHour + delivery-zone resolution. Pagliacci's UI lists all stores regardless of cutoff."},
-			{"topic": "Stack discounts to maximize savings", "insight": "Requires joining StoredCoupons + RewardCard + StoredCredit and applying optimal-application logic. The site applies coupons one at a time at checkout."},
-			{"topic": "Reorder last (or by ID)", "insight": "Composes OrderListItem + OrderClone + OrderPrice. The site has a one-click reorder but exposes no batch mode."},
-			{"topic": "Address-aware delivery time picker", "insight": "Joins AddressName + AddressInfo zone resolution + TimeWindows lookup."},
-			{"topic": "Spend summary", "insight": "Aggregates OrderListItem locally. The site lets you browse history one order at a time."},
 			{"topic": "Contact lookup", "insight": "Use search for finding contacts by name/email. List endpoints return unsorted results and require pagination for large datasets."},
 			{"topic": "Activity tracking", "insight": "When checking deal activity, sync first and query locally. CRM APIs often throttle activity-log endpoints heavily."},
 		},
@@ -747,110 +896,9 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 	return mcplib.NewToolResultText(string(data)), nil
 }
 
-// RegisterNovelFeatureTools registers MCP tools that shell out to the
-// companion CLI binary. Empty body when the spec has no novel features.
+// RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP
+// mains. New generated mains call RegisterTools only; RegisterTools now
+// includes the runtime Cobra-tree mirror.
 func RegisterNovelFeatureTools(s *server.MCPServer) {
-	s.AddTool(
-		mcplib.NewTool("slices_today",
-			mcplib.WithDescription("See which Pagliacci slices are available right now at every Seattle store, sorted by proximity to your saved address."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("slices today"),
-	)
-	s.AddTool(
-		mcplib.NewTool("store_tonight",
-			mcplib.WithDescription("List stores that are still open and can deliver to your saved address right now, sorted by ETA."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("store tonight"),
-	)
-	s.AddTool(
-		mcplib.NewTool("rewards_stack",
-			mcplib.WithDescription("Compute the best application of stored coupons, reward redemption, and account credit for a given order total. Defaults to single-best-coupon + credit; multi-coupon stacking is flagged --experimental."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("rewards stack"),
-	)
-	s.AddTool(
-		mcplib.NewTool("orders_reorder",
-			mcplib.WithDescription("Re-create a past order as a fresh cart, with price revalidation since prices change. Add --send to also submit."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("orders reorder"),
-	)
-	s.AddTool(
-		mcplib.NewTool("address_best_time",
-			mcplib.WithDescription("Resolve a saved address label to the next available delivery slot in one call."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("address best-time"),
-	)
-	s.AddTool(
-		mcplib.NewTool("orders_summary",
-			mcplib.WithDescription("Aggregate order spend over a time range, with top items and store breakdown."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("orders summary"),
-	)
-}
-
-// siblingCLIPath resolves the companion CLI via sibling-of-executable,
-// PAGLIACCI_PIZZA_CLI_PATH env var, then PATH.
-func siblingCLIPath() (string, error) {
-	const cliName = "pagliacci-pizza-pp-cli"
-	if exe, err := os.Executable(); err == nil {
-		candidate := filepath.Join(filepath.Dir(exe), cliName)
-		if _, err := os.Stat(candidate); err == nil {
-			return candidate, nil
-		}
-	}
-	if v := os.Getenv("PAGLIACCI_PIZZA_CLI_PATH"); v != "" {
-		return v, nil
-	}
-	return exec.LookPath(cliName)
-}
-
-// shellOutToCLI returns an MCP tool handler that runs commandSpec against
-// the companion CLI. Resolves the binary path and pre-splits commandSpec
-// at registration so the per-call work is just user-arg split + exec.
-func shellOutToCLI(commandSpec string) server.ToolHandlerFunc {
-	cliPath, lookupErr := siblingCLIPath()
-	prefixArgs := splitShellArgs(commandSpec)
-	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		if lookupErr != nil {
-			return mcplib.NewToolResultError(fmt.Sprintf("companion CLI binary not found: %v\nTried sibling lookup, PAGLIACCI_PIZZA_CLI_PATH env var, and PATH.", lookupErr)), nil
-		}
-		userArgs, _ := req.GetArguments()["args"].(string)
-		finalArgs := append(append([]string{}, prefixArgs...), splitShellArgs(userArgs)...)
-		cmd := exec.CommandContext(ctx, cliPath, finalArgs...)
-		out, err := cmd.CombinedOutput()
-		if err != nil {
-			return mcplib.NewToolResultError(string(out)), nil
-		}
-		return mcplib.NewToolResultText(string(out)), nil
-	}
-}
-
-// splitShellArgs whitespace-splits with double-quoted-token preservation.
-func splitShellArgs(s string) []string {
-	var tokens []string
-	var cur []rune
-	inQuote := false
-	for _, r := range s {
-		switch {
-		case r == '"':
-			inQuote = !inQuote
-		case (r == ' ' || r == '\t') && !inQuote:
-			if len(cur) > 0 {
-				tokens = append(tokens, string(cur))
-				cur = cur[:0]
-			}
-		default:
-			cur = append(cur, r)
-		}
-	}
-	if len(cur) > 0 {
-		tokens = append(tokens, string(cur))
-	}
-	return tokens
+	_ = s
 }

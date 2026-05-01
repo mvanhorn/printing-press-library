@@ -224,7 +224,7 @@ func newOrdersSummaryCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(err)
 			}
 
-			db, err := openStoreForRead("pagliacci-pizza-pp-cli")
+			db, err := openStoreForRead(cmd.Context(), "pagliacci-pizza-pp-cli")
 			if err != nil {
 				return &cliError{code: 5, err: fmt.Errorf("opening local store: %w", err)}
 			}

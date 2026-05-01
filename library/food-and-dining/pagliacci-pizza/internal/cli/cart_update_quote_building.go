@@ -16,11 +16,14 @@ func newCartUpdateQuoteBuildingCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "update_quote_building <buildingId>",
-		Short:   "Update cart contents (add/remove/modify items)",
-		Example: "  pagliacci-pizza-pp-cli cart update_quote_building 490 --stdin",
-		Args:    cobra.ExactArgs(1),
+		Use:   "update-quote-building <buildingId>",
+		Short: "Update cart contents (add/remove/modify items)",
+		Example: "  pagliacci-pizza-pp-cli cart update_quote_building example-value",
+		Annotations: map[string]string{"pp:endpoint": "cart.update_quote_building"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) == 0 {
+				return cmd.Help()
+			}
 			if !stdinBody {
 			}
 			c, err := flags.newClient()
@@ -58,9 +61,7 @@ func newCartUpdateQuoteBuildingCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
@@ -74,13 +75,15 @@ func newCartUpdateQuoteBuildingCmd(flags *rootFlags) *cobra.Command {
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",

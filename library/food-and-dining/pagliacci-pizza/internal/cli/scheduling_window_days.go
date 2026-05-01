@@ -14,11 +14,14 @@ import (
 func newSchedulingWindowDaysCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "window_days <storeId> <serviceType>",
-		Short:   "List available delivery or pickup days for a store. serviceType is DEL (delivery) or PICK (pickup)",
-		Example: "  pagliacci-pizza-pp-cli scheduling window_days 490 DEL",
-		Args:    cobra.ExactArgs(2),
+		Use:   "window-days <storeId> <serviceType>",
+		Short: "List available delivery or pickup days for a store. serviceType is DEL (delivery) or PICK (pickup)",
+		Example: "  pagliacci-pizza-pp-cli scheduling window_days example-value example-value",
+		Annotations: map[string]string{"pp:endpoint": "scheduling.window_days", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) == 0 {
+				return cmd.Help()
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -26,9 +29,12 @@ func newSchedulingWindowDaysCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/TimeWindowDays/{storeId}/{serviceType}"
 			path = replacePathParam(path, "storeId", args[0])
+			if len(args) < 2 {
+				return usageErr(fmt.Errorf("serviceType is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "serviceType"))
+			}
 			path = replacePathParam(path, "serviceType", args[1])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "scheduling", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "scheduling", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -38,14 +44,15 @@ func newSchedulingWindowDaysCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

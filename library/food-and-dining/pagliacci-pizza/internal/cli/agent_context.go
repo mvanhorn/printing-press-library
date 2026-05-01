@@ -22,13 +22,13 @@ const agentContextSchemaVersion = "2"
 // (2026-04-13 Wrangler post): agents can introspect the live CLI without
 // parsing --help or reading source.
 type agentContext struct {
-	SchemaVersion              string                 `json:"schema_version"`
-	CLI                        agentContextCLI        `json:"cli"`
-	Auth                       agentContextAuth       `json:"auth"`
-	Discovery                  *agentContextDiscovery `json:"discovery,omitempty"`
-	Commands                   []agentContextCommand  `json:"commands"`
-	AvailableProfiles          []string               `json:"available_profiles"`
-	FeedbackEndpointConfigured bool                   `json:"feedback_endpoint_configured"`
+	SchemaVersion               string                `json:"schema_version"`
+	CLI                         agentContextCLI       `json:"cli"`
+	Auth                        agentContextAuth      `json:"auth"`
+	Discovery                   *agentContextDiscovery `json:"discovery,omitempty"`
+	Commands                    []agentContextCommand `json:"commands"`
+	AvailableProfiles           []string              `json:"available_profiles"`
+	FeedbackEndpointConfigured  bool                  `json:"feedback_endpoint_configured"`
 }
 
 type agentContextCLI struct {
@@ -74,8 +74,9 @@ type agentContextFlag struct {
 func newAgentContextCmd(rootCmd *cobra.Command) *cobra.Command {
 	var pretty bool
 	cmd := &cobra.Command{
-		Use:   "agent-context",
-		Short: "Emit structured JSON describing this CLI for agents",
+		Use:         "agent-context",
+		Short:       "Emit structured JSON describing this CLI for agents",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Long: `Outputs a machine-readable description of commands, flags, and auth so
 agents can introspect this CLI at runtime without parsing --help or
 reading source. Schema is versioned via schema_version.`,
@@ -93,7 +94,8 @@ reading source. Schema is versioned via schema_version.`,
 }
 
 func buildAgentContext(rootCmd *cobra.Command) agentContext {
-	envVars := []string{}
+	envVars := []string{
+	}
 	authMode := "composed"
 	if authMode == "" {
 		authMode = "none"
@@ -121,35 +123,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 }
 
 func buildAgentDiscoveryContext() *agentContextDiscovery {
-	return &agentContextDiscovery{
-		Source:        "traffic-analysis",
-		TargetURL:     "https://pagliacci.com/",
-		EntryCount:    26,
-		APIEntryCount: 26,
-		Reachability:  "standard_http (95% confidence)",
-		Protocols: []string{
-			"rest_json (98% confidence)",
-		},
-		AuthCandidates: []string{
-			"composed — headers: Authorization — cookies: customerId, authToken",
-		},
-		Protections: []string{},
-		GenerationHints: []string{
-			"requires_browser_auth",
-			"composed_auth",
-		},
-		Warnings: []string{},
-		CandidateCommands: []string{
-			"store list — GET /Store returned full inventory of locations",
-			"menu top — GET /MenuTop/{storeId} drives the home menu UI",
-			"menu cache — GET /MenuCache/{storeId} returns the full menu",
-			"menu slices — GET /MenuSlices returns today's slices across all stores",
-			"address lookup — POST /AddressInfo validates an address and resolves a delivery store",
-			"address list — GET /AddressName returns saved addresses",
-			"orders list — GET /OrderList/{page}/{size} returns paginated history",
-			"orders get — GET /OrderListItem/{id} returns full detail",
-		},
-	}
+	return nil
 }
 
 // collectAgentCommands walks the cobra tree from the given command and

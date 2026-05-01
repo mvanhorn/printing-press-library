@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"sort"
@@ -315,7 +316,7 @@ func validateAndExtractDeliverable(c *client.Client, body map[string]any) (map[i
 
 // loadStoresJSON returns the stores array from local cache or live /Store.
 func loadStoresJSON(c *client.Client) (json.RawMessage, error) {
-	if db, err := openStoreForRead("pagliacci-pizza-pp-cli"); err == nil && db != nil {
+	if db, err := openStoreForRead(context.Background(), "pagliacci-pizza-pp-cli"); err == nil && db != nil {
 		items, _ := db.List("store", 0)
 		db.Close()
 		if len(items) > 0 {

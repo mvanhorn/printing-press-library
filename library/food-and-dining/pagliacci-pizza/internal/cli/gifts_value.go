@@ -14,11 +14,14 @@ import (
 func newGiftsValueCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "value <id>",
-		Short:   "Get current value/balance of a saved gift card",
-		Example: "  pagliacci-pizza-pp-cli gifts value 12345",
-		Args:    cobra.ExactArgs(1),
+		Use:   "value <id>",
+		Short: "Get current value/balance of a saved gift card",
+		Example: "  pagliacci-pizza-pp-cli gifts value 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "gifts.value", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) == 0 {
+				return cmd.Help()
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -27,7 +30,7 @@ func newGiftsValueCmd(flags *rootFlags) *cobra.Command {
 			path := "/GiftValue/{id}"
 			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "gifts", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "gifts", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -37,14 +40,15 @@ func newGiftsValueCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

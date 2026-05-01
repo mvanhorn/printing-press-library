@@ -12,10 +12,11 @@ import (
 
 func newSlicesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "slices",
+		Use:         "slices",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Slice availability across stores (today's perishable rotation)",
+		Short:       "Slice availability across stores (today's perishable rotation)",
 	}
+	cmd.AddCommand(newSlicesTodayCmd(flags))
 	cmd.AddCommand(newSlicesTodayCmd(flags))
 	return cmd
 }
@@ -114,9 +115,9 @@ func newSlicesTodayCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 
 	cmd := &cobra.Command{
-		Use:   "today",
+		Use:         "today",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Show slices available right now at every Pagliacci store, joined with store name and address",
+		Short:       "Show slices available right now at every Pagliacci store, joined with store name and address",
 		Example: `  pagliacci-pizza-pp-cli slices today
   pagliacci-pizza-pp-cli slices today --store 492
   pagliacci-pizza-pp-cli slices today --json`,
@@ -136,7 +137,7 @@ func newSlicesTodayCmd(flags *rootFlags) *cobra.Command {
 			// path produces an array of store objects with per-store
 			// Slices populated for today.
 			var stores json.RawMessage
-			if db, dberr := openStoreForRead("pagliacci-pizza-pp-cli"); dberr == nil && db != nil {
+			if db, dberr := openStoreForRead(cmd.Context(), "pagliacci-pizza-pp-cli"); dberr == nil && db != nil {
 				if items, lerr := db.List("store", 0); lerr == nil && len(items) > 0 {
 					if marshaled, merr := json.Marshal(items); merr == nil {
 						stores = marshaled

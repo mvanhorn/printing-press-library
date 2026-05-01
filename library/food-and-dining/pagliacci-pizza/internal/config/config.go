@@ -13,15 +13,15 @@ import (
 )
 
 type Config struct {
-	BaseURL       string    `json:"base_url"`
-	AuthHeaderVal string    `json:"auth_header"`
-	AuthSource    string    `json:"-"`
-	AccessToken   string    `json:"access_token"`
-	RefreshToken  string    `json:"refresh_token"`
-	TokenExpiry   time.Time `json:"token_expiry"`
-	ClientID      string    `json:"client_id"`
-	ClientSecret  string    `json:"client_secret"`
-	Path          string    `json:"-"`
+	BaseURL        string `json:"base_url"`
+	AuthHeaderVal  string `json:"auth_header"`
+	AuthSource     string `json:"-"`
+	AccessToken    string `json:"access_token"`
+	RefreshToken   string `json:"refresh_token"`
+	TokenExpiry    time.Time `json:"token_expiry"`
+	ClientID       string `json:"client_id"`
+	ClientSecret   string `json:"client_secret"`
+	Path           string `json:"-"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -32,7 +32,7 @@ func Load(configPath string) (*Config, error) {
 	// Resolve config path
 	path := configPath
 	if path == "" {
-		path = os.Getenv("PAGLIACCI_CONFIG")
+		path = os.Getenv("PAGLIACCI_PIZZA_CONFIG")
 	}
 	if path == "" {
 		home, _ := os.UserHomeDir()
@@ -42,14 +42,16 @@ func Load(configPath string) (*Config, error) {
 
 	// Try to load config file
 	if data, err := os.ReadFile(path); err == nil {
-		_ = json.Unmarshal(data, cfg)
+		if err := json.Unmarshal(data, cfg); err != nil {
+			return nil, fmt.Errorf("parsing config %s: %w", path, err)
+		}
 		cfg.Path = path
 	}
 
 	// Env var overrides
 
 	// Base URL override (used by printing-press verify to point at mock/test servers)
-	if v := os.Getenv("PAGLIACCI_BASE_URL"); v != "" {
+	if v := os.Getenv("PAGLIACCI_PIZZA_BASE_URL"); v != "" {
 		cfg.BaseURL = v
 	}
 	return cfg, nil
@@ -104,10 +106,7 @@ func (c *Config) save() error {
 	if err != nil {
 		return fmt.Errorf("marshaling config: %w", err)
 	}
-	if err := os.WriteFile(c.Path, data, 0o600); err != nil {
-		return fmt.Errorf("writing config: %w", err)
-	}
-	return nil
+	return os.WriteFile(c.Path, data, 0o600)
 }
 
 // Ensure strings import is used

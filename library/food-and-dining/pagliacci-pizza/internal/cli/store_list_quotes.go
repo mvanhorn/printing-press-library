@@ -14,9 +14,10 @@ import (
 func newStoreListQuotesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "list_quotes",
-		Short:   "List quote-store metadata (delivery fee, drone status, pickup wait) for all stores",
+		Use:   "list-quotes",
+		Short: "List quote-store metadata (delivery fee, drone status, pickup wait) for all stores",
 		Example: "  pagliacci-pizza-pp-cli store list_quotes",
+		Annotations: map[string]string{"pp:endpoint": "store.list_quotes", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -25,7 +26,7 @@ func newStoreListQuotesCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/QuoteStore"
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "store", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "store", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -35,14 +36,15 @@ func newStoreListQuotesCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

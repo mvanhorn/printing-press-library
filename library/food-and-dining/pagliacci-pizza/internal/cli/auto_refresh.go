@@ -20,23 +20,30 @@ import (
 // Populated from generated syncable resource commands and any custom
 // command-path coverage declared in spec.Cache.Commands.
 var readCommandResources = map[string][]string{
-	"pagliacci-pizza-pp-cli address":      {"address"},
-	"pagliacci-pizza-pp-cli address get":  {"address"},
-	"pagliacci-pizza-pp-cli address list": {"address"},
-	"pagliacci-pizza-pp-cli credit":       {"credit"},
-	"pagliacci-pizza-pp-cli credit get":   {"credit"},
-	"pagliacci-pizza-pp-cli credit list":  {"credit"},
-	"pagliacci-pizza-pp-cli customer":     {"customer"},
-	"pagliacci-pizza-pp-cli customer get": {"customer"},
+	"pagliacci-pizza-pp-cli address":        {"address"},
+	"pagliacci-pizza-pp-cli address list":   {"address"},
+	"pagliacci-pizza-pp-cli address get":    {"address"},
+	"pagliacci-pizza-pp-cli address search": {"address"},
+	"pagliacci-pizza-pp-cli credit":        {"credit"},
+	"pagliacci-pizza-pp-cli credit list":   {"credit"},
+	"pagliacci-pizza-pp-cli credit get":    {"credit"},
+	"pagliacci-pizza-pp-cli credit search": {"credit"},
+	"pagliacci-pizza-pp-cli customer":        {"customer"},
+	"pagliacci-pizza-pp-cli customer list":   {"customer"},
+	"pagliacci-pizza-pp-cli customer get":    {"customer"},
+	"pagliacci-pizza-pp-cli customer search": {"customer"},
 	"pagliacci-pizza-pp-cli gifts":        {"gifts"},
-	"pagliacci-pizza-pp-cli gifts get":    {"gifts"},
 	"pagliacci-pizza-pp-cli gifts list":   {"gifts"},
-	"pagliacci-pizza-pp-cli orders":       {"orders"},
-	"pagliacci-pizza-pp-cli orders get":   {"orders"},
-	"pagliacci-pizza-pp-cli orders list":  {"orders"},
+	"pagliacci-pizza-pp-cli gifts get":    {"gifts"},
+	"pagliacci-pizza-pp-cli gifts search": {"gifts"},
+	"pagliacci-pizza-pp-cli orders":        {"orders"},
+	"pagliacci-pizza-pp-cli orders list":   {"orders"},
+	"pagliacci-pizza-pp-cli orders get":    {"orders"},
+	"pagliacci-pizza-pp-cli orders search": {"orders"},
 	"pagliacci-pizza-pp-cli store":        {"store"},
-	"pagliacci-pizza-pp-cli store get":    {"store"},
 	"pagliacci-pizza-pp-cli store list":   {"store"},
+	"pagliacci-pizza-pp-cli store get":    {"store"},
+	"pagliacci-pizza-pp-cli store search": {"store"},
 }
 
 // cachePolicy returns the cache freshness policy assembled from spec
@@ -47,7 +54,7 @@ func cachePolicy() cliutil.Policy {
 	perResource := map[string]time.Duration{}
 	// Default env opt-out name is the CLI name normalized with the same
 	// ASCII-safe convention used in generated docs and config env vars.
-	envOptOut := "PAGLIACCI_NO_AUTO_REFRESH"
+	envOptOut := "PAGLIACCI_PIZZA_NO_AUTO_REFRESH"
 	return cliutil.Policy{
 		StaleAfter:   staleAfter,
 		PerResource:  perResource,
@@ -92,7 +99,7 @@ func autoRefreshIfStale(ctx context.Context, flags *rootFlags, resources []strin
 		return meta
 	}
 	dbPath := defaultDBPath("pagliacci-pizza-pp-cli")
-	db, err := store.Open(dbPath)
+	db, err := store.OpenWithContext(ctx, dbPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "warning: auto-refresh skipped (open: %v)\n", err)
 		meta.Decision = "error"

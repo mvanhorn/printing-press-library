@@ -16,9 +16,10 @@ func newCustomerMigrateQuestionCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "migrate_question",
-		Short:   "Submit a security/migration question (legacy account migration flow)",
+		Use:   "migrate-question",
+		Short: "Submit a security/migration question (legacy account migration flow)",
 		Example: "  pagliacci-pizza-pp-cli customer migrate_question",
+		Annotations: map[string]string{"pp:endpoint": "customer.migrate_question"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 			}
@@ -56,9 +57,7 @@ func newCustomerMigrateQuestionCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
@@ -72,13 +71,15 @@ func newCustomerMigrateQuestionCmd(flags *rootFlags) *cobra.Command {
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",

@@ -7,6 +7,7 @@
 package store
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -14,6 +15,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	_ "modernc.org/sqlite"
@@ -35,11 +37,28 @@ func IsUUID(s string) bool {
 const StoreSchemaVersion = 1
 
 type Store struct {
-	db   *sql.DB
-	path string
+	db *sql.DB
+	// writeMu serializes all DB writes. Read paths bypass the lock and run
+	// concurrently against WAL. Resource-level concurrency in sync.go.tmpl
+	// is 1 (one goroutine per resource via len(resources)-sized work channel)
+	// — read-then-write sequences (e.g., GetSyncCursor → SaveSyncState) are
+	// race-free by construction within a resource.
+	writeMu sync.Mutex
+	path    string
 }
 
+// Open opens or creates the SQLite store at dbPath using the background
+// context. Prefer OpenWithContext from a Cobra command so SIGINT during
+// a slow migration interrupts the open instead of stranding the caller.
 func Open(dbPath string) (*Store, error) {
+	return OpenWithContext(context.Background(), dbPath)
+}
+
+// OpenWithContext opens or creates the SQLite store at dbPath. The
+// context is honored by the migration path: cancellation interrupts the
+// retry-on-SQLITE_BUSY loop and propagates ctx.Err() back to the caller
+// instead of waiting out the full migrationLockTimeout.
+func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
 		return nil, fmt.Errorf("creating db directory: %w", err)
 	}
@@ -55,7 +74,7 @@ func Open(dbPath string) (*Store, error) {
 	db.SetMaxOpenConns(2)
 
 	s := &Store{db: db, path: dbPath}
-	if err := s.migrate(); err != nil {
+	if err := s.migrate(ctx); err != nil {
 		db.Close()
 		return nil, fmt.Errorf("running migrations: %w", err)
 	}
@@ -90,18 +109,6 @@ func (s *Store) SchemaVersion() (int, error) {
 	return v, nil
 }
 
-// setSchemaVersion stamps PRAGMA user_version. The value is not parameterizable
-// in SQLite's PRAGMA syntax, so it is formatted into the statement; migrate()
-// only calls this with the compile-time StoreSchemaVersion constant, so there
-// is no untrusted input.
-func (s *Store) setSchemaVersion(version int) error {
-	stmt := fmt.Sprintf(`PRAGMA user_version = %d`, version)
-	if _, err := s.db.Exec(stmt); err != nil {
-		return fmt.Errorf("stamp user_version: %w", err)
-	}
-	return nil
-}
-
 // ensureColumn adds a column to an existing table if it isn't already
 // present. It is the upgrade-path safety valve for schema additions:
 // CREATE TABLE IF NOT EXISTS is a no-op when the table already exists, so
@@ -111,10 +118,13 @@ func (s *Store) setSchemaVersion(version int) error {
 //
 // Skips silently if the table doesn't yet exist (fresh install — the
 // CREATE TABLE migration will create it with the column already declared)
-// or if the column already exists.
-func (s *Store) ensureColumn(table, column, decl string) error {
+// or if the column already exists. Runs on the pinned migration
+// connection so it sees the writes performed by the in-flight BEGIN
+// IMMEDIATE transaction; using s.db here would route through the pool
+// and BUSY against the holding writer under concurrent migrators.
+func (s *Store) ensureColumn(ctx context.Context, conn *sql.Conn, table, column, decl string) error {
 	var name string
-	err := s.db.QueryRow(
+	err := conn.QueryRowContext(ctx,
 		`SELECT name FROM sqlite_master WHERE type='table' AND name=?`, table,
 	).Scan(&name)
 	if err == sql.ErrNoRows {
@@ -124,7 +134,7 @@ func (s *Store) ensureColumn(table, column, decl string) error {
 		return fmt.Errorf("checking table %s: %w", table, err)
 	}
 
-	rows, err := s.db.Query(fmt.Sprintf(`PRAGMA table_info("%s")`, table))
+	rows, err := conn.QueryContext(ctx, fmt.Sprintf(`PRAGMA table_info("%s")`, table))
 	if err != nil {
 		return fmt.Errorf("table_info %s: %w", table, err)
 	}
@@ -145,7 +155,7 @@ func (s *Store) ensureColumn(table, column, decl string) error {
 		return fmt.Errorf("iterating table_info %s: %w", table, err)
 	}
 
-	if _, err := s.db.Exec(fmt.Sprintf(`ALTER TABLE "%s" ADD COLUMN "%s" %s`, table, column, decl)); err != nil {
+	if _, err := conn.ExecContext(ctx, fmt.Sprintf(`ALTER TABLE "%s" ADD COLUMN "%s" %s`, table, column, decl)); err != nil {
 		// A concurrent Open() may have added the column between our
 		// PRAGMA check and this ALTER. SQLite returns SQLITE_ERROR with
 		// "duplicate column name", which busy_timeout does not retry.
@@ -172,26 +182,55 @@ func (s *Store) ensureColumn(table, column, decl string) error {
 // double-quote characters into the Go string and break compilation for
 // any spec whose dependent-resource snake_cased name is a SQL reserved
 // word.
-func (s *Store) backfillColumns() error {
-	for _, c := range []struct{ table, column, decl string }{} {
-		if err := s.ensureColumn(c.table, c.column, c.decl); err != nil {
+func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
+	for _, c := range []struct{ table, column, decl string }{
+		{table: "cart", column: "building_id", decl: "TEXT"},
+		{table: "orders", column: "order_id", decl: "TEXT"},
+		{table: "orders", column: "customer_id", decl: "TEXT"},
+		{table: "orders", column: "page", decl: "TEXT"},
+		{table: "orders", column: "page_size", decl: "TEXT"},
+		{table: "rewards", column: "customer_id", decl: "TEXT"},
+		{table: "rewards", column: "count", decl: "TEXT"},
+		{table: "rewards", column: "serial", decl: "TEXT"},
+		{table: "gifts", column: "pin", decl: "TEXT"},
+		{table: "store", column: "store_id", decl: "TEXT"},
+		{table: "menu", column: "store_id", decl: "TEXT"},
+		{table: "scheduling", column: "store_id", decl: "TEXT"},
+		{table: "scheduling", column: "service_type", decl: "TEXT"},
+		{table: "scheduling", column: "date", decl: "TEXT"},
+		{table: "account", column: "token", decl: "TEXT"},
+		{table: "customer", column: "customer_id", decl: "TEXT"},
+		{table: "sync_state", column: "last_cursor", decl: "TEXT"},
+		{table: "sync_state", column: "last_synced_at", decl: "DATETIME"},
+		{table: "sync_state", column: "total_count", decl: "INTEGER DEFAULT 0"},
+	} {
+		if err := s.ensureColumn(ctx, conn, c.table, c.column, c.decl); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (s *Store) migrate() error {
-	current, err := s.SchemaVersion()
+func (s *Store) migrate(ctx context.Context) error {
+	conn, err := s.db.Conn(ctx)
 	if err != nil {
-		return fmt.Errorf("reading schema version: %w", err)
+		return fmt.Errorf("acquiring migration connection: %w", err)
+	}
+	defer conn.Close()
+
+	// Read user_version before the migration lock so an old binary
+	// opening a newer-schema DB rejects immediately. WAL readers don't
+	// normally block on writers, but the fresh-DB WAL-init race can BUSY
+	// a SELECT — share the lock's deadline so total budget stays bounded.
+	deadline := time.Now().Add(migrationLockTimeout)
+	var current int
+	if err := retryOnBusy(ctx, deadline, "reading schema version", func() error {
+		return conn.QueryRowContext(ctx, `PRAGMA user_version`).Scan(&current)
+	}); err != nil {
+		return err
 	}
 	if current > StoreSchemaVersion {
 		return fmt.Errorf("database schema version %d is newer than supported version %d; upgrade the CLI binary or open an older database", current, StoreSchemaVersion)
-	}
-
-	if err := s.backfillColumns(); err != nil {
-		return fmt.Errorf("backfilling columns: %w", err)
 	}
 
 	migrations := []string{
@@ -213,42 +252,13 @@ func (s *Store) migrate() error {
 		`CREATE VIRTUAL TABLE IF NOT EXISTS resources_fts USING fts5(
 			id, resource_type, content, tokenize='porter unicode61'
 		)`,
-		`CREATE TABLE IF NOT EXISTS customer (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE TABLE IF NOT EXISTS credit (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE TABLE IF NOT EXISTS gifts (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE TABLE IF NOT EXISTS menu (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
 		`CREATE TABLE IF NOT EXISTS cart (
 			id TEXT PRIMARY KEY,
 			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			building_id TEXT
 		)`,
-		`CREATE TABLE IF NOT EXISTS orders (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE TABLE IF NOT EXISTS rewards (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE TABLE IF NOT EXISTS customer_feedback (
+		`CREATE TABLE IF NOT EXISTS credit (
 			id TEXT PRIMARY KEY,
 			data JSON NOT NULL,
 			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -258,15 +268,53 @@ func (s *Store) migrate() error {
 			data JSON NOT NULL,
 			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
-		`CREATE TABLE IF NOT EXISTS store (
+		`CREATE TABLE IF NOT EXISTS orders (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			order_id TEXT,
+			customer_id TEXT,
+			page TEXT,
+			page_size TEXT
+		)`,
+		`CREATE TABLE IF NOT EXISTS rewards (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			customer_id TEXT,
+			count TEXT,
+			serial TEXT
+		)`,
+		`CREATE TABLE IF NOT EXISTS gifts (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			pin TEXT
+		)`,
+		`CREATE TABLE IF NOT EXISTS customer_feedback (
 			id TEXT PRIMARY KEY,
 			data JSON NOT NULL,
 			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
+		`CREATE TABLE IF NOT EXISTS store (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			store_id TEXT
+		)`,
+		`CREATE TABLE IF NOT EXISTS menu (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			store_id TEXT
+		)`,
 		`CREATE TABLE IF NOT EXISTS scheduling (
 			id TEXT PRIMARY KEY,
 			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			store_id TEXT,
+			service_type TEXT,
+			date TEXT
 		)`,
 		`CREATE TABLE IF NOT EXISTS address (
 			id TEXT PRIMARY KEY,
@@ -276,24 +324,167 @@ func (s *Store) migrate() error {
 		`CREATE TABLE IF NOT EXISTS account (
 			id TEXT PRIMARY KEY,
 			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			token TEXT
+		)`,
+		`CREATE TABLE IF NOT EXISTS customer (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			customer_id TEXT
 		)`,
 	}
 
-	for _, m := range migrations {
-		if _, err := s.db.Exec(m); err != nil {
-			return fmt.Errorf("migration failed: %w", err)
+	// Run every migration — including the column backfill and the
+	// schema-version stamp — inside a single BEGIN IMMEDIATE transaction
+	// pinned to one connection. IMMEDIATE acquires SQLite's RESERVED lock
+	// at BEGIN time so concurrent migrators serialize on it instead of
+	// racing per-statement and tripping SQLITE_BUSY despite busy_timeout.
+	// modernc.org/sqlite's busy_timeout does not always cover write-write
+	// contention at BEGIN/COMMIT time, so we retry both explicitly on
+	// SQLITE_BUSY for up to migrationLockTimeout.
+	return withMigrationLock(ctx, conn, deadline, func() error {
+		// Re-read user_version inside the lock. This is load-bearing,
+		// not paranoid: between the pre-lock read above and our
+		// successful BEGIN IMMEDIATE, a newer-binary peer may have
+		// committed a higher version stamp. Without this re-read, an
+		// older binary (smaller StoreSchemaVersion) would proceed to
+		// stamp its own lower version at the end of the closure,
+		// silently downgrading user_version on a schema that's already
+		// at the newer level. Future maintainers: leave this read in.
+		var current int
+		if err := conn.QueryRowContext(ctx, `PRAGMA user_version`).Scan(&current); err != nil {
+			return fmt.Errorf("reading schema version: %w", err)
 		}
-	}
-	// Stamp the schema version after successful migration. On a fresh DB
-	// this writes 1; on an already-stamped DB this is a no-op write of the
-	// same value. An older DB with user_version = 0 and pre-existing tables
-	// gets stamped here without any data rewrites because the migrations
-	// above are idempotent via CREATE TABLE IF NOT EXISTS.
-	if err := s.setSchemaVersion(StoreSchemaVersion); err != nil {
+		if current > StoreSchemaVersion {
+			return fmt.Errorf("database schema version %d is newer than supported version %d; upgrade the CLI binary or open an older database", current, StoreSchemaVersion)
+		}
+
+		if err := s.backfillColumns(ctx, conn); err != nil {
+			return fmt.Errorf("backfilling columns: %w", err)
+		}
+		for _, m := range migrations {
+			if _, err := conn.ExecContext(ctx, m); err != nil {
+				return fmt.Errorf("migration failed: %w", err)
+			}
+		}
+		// Stamp the schema version. On a fresh DB this writes 1; on an
+		// already-stamped DB this is a no-op write of the same value.
+		// An older DB with user_version = 0 and pre-existing tables
+		// gets stamped here without any data rewrites because the
+		// migrations above are idempotent via CREATE TABLE IF NOT EXISTS.
+		if _, err := conn.ExecContext(ctx, fmt.Sprintf(`PRAGMA user_version = %d`, StoreSchemaVersion)); err != nil {
+			return fmt.Errorf("stamp user_version: %w", err)
+		}
+		return nil
+	})
+}
+
+const (
+	migrationLockTimeout    = 30 * time.Second
+	migrationLockBackoffMin = 5 * time.Millisecond
+	migrationLockBackoffMax = 100 * time.Millisecond
+)
+
+// withMigrationLock runs fn inside a BEGIN IMMEDIATE / COMMIT pair on
+// conn, retrying both BEGIN and COMMIT on SQLITE_BUSY against the
+// caller-provided deadline. Sharing the deadline with the pre-lock
+// version read keeps total Open() latency bounded by a single budget.
+// The real upper bound is deadline + one trailing backoff interval
+// (≤100ms) + the driver's busy_timeout for the in-flight Exec, since
+// the deadline is checked after each failed attempt rather than as a
+// hard wall-clock cutoff. fn must use conn (not s.db) so its writes
+// participate in the held transaction.
+func withMigrationLock(ctx context.Context, conn *sql.Conn, deadline time.Time, fn func() error) error {
+	if err := execWithBusyRetry(ctx, conn, "BEGIN IMMEDIATE", "begin migration transaction", deadline); err != nil {
 		return err
 	}
+	committed := false
+	defer func() {
+		if committed {
+			return
+		}
+		// ROLLBACK uses context.Background() so caller-context cancellation
+		// can't strand the connection in an open transaction. A failed
+		// rollback is rare on local SQLite (broken file handle, fatal
+		// driver error) but worth surfacing — silent swallow leaves a
+		// pinned connection returned to the pool with state that will
+		// confuse later queries.
+		if _, rerr := conn.ExecContext(context.Background(), "ROLLBACK"); rerr != nil {
+			fmt.Fprintf(os.Stderr, "warning: store migration rollback failed: %v\n", rerr)
+		}
+	}()
+
+	if err := fn(); err != nil {
+		return err
+	}
+
+	if err := execWithBusyRetry(ctx, conn, "COMMIT", "commit migration transaction", deadline); err != nil {
+		return err
+	}
+	committed = true
 	return nil
+}
+
+// execWithBusyRetry runs stmt on conn and retries on SQLITE_BUSY until
+// deadline. It covers BEGIN IMMEDIATE and COMMIT contention;
+// modernc.org/sqlite's busy_timeout does not reliably cover either when
+// multiple connections race for the WAL write lock.
+func execWithBusyRetry(ctx context.Context, conn *sql.Conn, stmt, label string, deadline time.Time) error {
+	return retryOnBusy(ctx, deadline, label, func() error {
+		_, err := conn.ExecContext(ctx, stmt)
+		return err
+	})
+}
+
+// retryOnBusy runs op and retries it on SQLITE_BUSY/LOCKED until
+// deadline. The same retry shape covers Exec, Query, and any other
+// SQLite call that can race the WAL writer lock — including the
+// pre-lock user_version read, where the WAL initialization race on a
+// fresh DB can BUSY a SELECT that should otherwise succeed under WAL
+// reader/writer concurrency.
+func retryOnBusy(ctx context.Context, deadline time.Time, label string, op func() error) error {
+	backoff := migrationLockBackoffMin
+	for {
+		err := op()
+		if err == nil {
+			return nil
+		}
+		if !isSQLiteBusy(err) {
+			return fmt.Errorf("%s: %w", label, err)
+		}
+		if time.Now().After(deadline) {
+			// The label carries the operation context (e.g. "begin
+			// migration transaction", "reading schema version") — we
+			// don't hardcode "waiting for write lock" because pre-lock
+			// reads also flow through this helper.
+			return fmt.Errorf("%s: timed out after %s under SQLite contention: %w", label, migrationLockTimeout, err)
+		}
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("%s: %w", label, ctx.Err())
+		case <-time.After(backoff):
+		}
+		backoff = min(backoff*2, migrationLockBackoffMax)
+	}
+}
+
+// isSQLiteBusy reports whether err is a retryable SQLite lock condition.
+// Covers both the file-level WAL writer race (SQLITE_BUSY / "database is
+// locked") and the table-level shared-cache contention (SQLITE_LOCKED /
+// "database table is locked"). The match is on the error string because
+// modernc.org/sqlite does not export an error type the generated code
+// can switch on without dragging the driver package into every store
+// consumer.
+func isSQLiteBusy(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := err.Error()
+	return strings.Contains(msg, "SQLITE_BUSY") ||
+		strings.Contains(msg, "SQLITE_LOCKED") ||
+		strings.Contains(msg, "database is locked") ||
+		strings.Contains(msg, "database table is locked")
 }
 
 func (s *Store) upsertGenericResourceTx(tx *sql.Tx, resourceType, id string, data json.RawMessage) error {
@@ -327,6 +518,8 @@ func (s *Store) upsertGenericResourceTx(tx *sql.Tx, resourceType, id string, dat
 }
 
 func (s *Store) Upsert(resourceType, id string, data json.RawMessage) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
@@ -427,7 +620,11 @@ func ftsRowID(id string) int64 {
 	return int64(h & 0x7FFFFFFFFFFFFFFF) // ensure positive
 }
 
-func lookupFieldValue(obj map[string]any, snakeKey string) any {
+// LookupFieldValue resolves a field value from a JSON object map, trying
+// the snake_case key first and the camelCase rendering second. Exported so
+// the sync command's extractID and the upsert path resolve fields the same
+// way — a divergence here produces silent drops on heterogeneous payloads.
+func LookupFieldValue(obj map[string]any, snakeKey string) any {
 	if v, ok := obj[snakeKey]; ok {
 		return v
 	}
@@ -444,49 +641,589 @@ func lookupFieldValue(obj map[string]any, snakeKey string) any {
 	return nil
 }
 
-// UpsertBatch inserts or replaces multiple records in a single transaction.
-// This is 10-100x faster than individual Upsert calls for bulk operations.
+// lookupFieldValue is kept as an unexported alias for in-package callers so
+// the existing UpsertBatch code reads naturally without prefixing every call
+// with the package name.
+func lookupFieldValue(obj map[string]any, snakeKey string) any {
+	return LookupFieldValue(obj, snakeKey)
+}
+// upsertCartTx writes the typed-table portion of a cart upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertCartTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO cart (id, data, synced_at, building_id)
+		 VALUES (?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, building_id = excluded.building_id`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "building_id"),
+	); err != nil {
+		return fmt.Errorf("insert into cart: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertCart inserts or updates a cart record with domain-specific columns.
+func (s *Store) UpsertCart(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling cart: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for cart")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "cart", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertCartTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+// upsertOrdersTx writes the typed-table portion of a orders upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertOrdersTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO orders (id, data, synced_at, order_id, customer_id, page, page_size)
+		 VALUES (?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, order_id = excluded.order_id, customer_id = excluded.customer_id, page = excluded.page, page_size = excluded.page_size`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "order_id"),
+		lookupFieldValue(obj, "customer_id"),
+		lookupFieldValue(obj, "page"),
+		lookupFieldValue(obj, "page_size"),
+	); err != nil {
+		return fmt.Errorf("insert into orders: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertOrders inserts or updates a orders record with domain-specific columns.
+func (s *Store) UpsertOrders(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling orders: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for orders")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "orders", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertOrdersTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+// upsertRewardsTx writes the typed-table portion of a rewards upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertRewardsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO rewards (id, data, synced_at, customer_id, count, serial)
+		 VALUES (?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, customer_id = excluded.customer_id, count = excluded.count, serial = excluded.serial`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "customer_id"),
+		lookupFieldValue(obj, "count"),
+		lookupFieldValue(obj, "serial"),
+	); err != nil {
+		return fmt.Errorf("insert into rewards: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertRewards inserts or updates a rewards record with domain-specific columns.
+func (s *Store) UpsertRewards(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling rewards: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for rewards")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "rewards", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertRewardsTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+// upsertGiftsTx writes the typed-table portion of a gifts upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertGiftsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO gifts (id, data, synced_at, pin)
+		 VALUES (?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, pin = excluded.pin`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "pin"),
+	); err != nil {
+		return fmt.Errorf("insert into gifts: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertGifts inserts or updates a gifts record with domain-specific columns.
+func (s *Store) UpsertGifts(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling gifts: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for gifts")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "gifts", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertGiftsTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+// upsertStoreTx writes the typed-table portion of a store upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertStoreTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO store (id, data, synced_at, store_id)
+		 VALUES (?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, store_id = excluded.store_id`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "store_id"),
+	); err != nil {
+		return fmt.Errorf("insert into store: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertStore inserts or updates a store record with domain-specific columns.
+func (s *Store) UpsertStore(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling store: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for store")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "store", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertStoreTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+// upsertMenuTx writes the typed-table portion of a menu upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertMenuTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO menu (id, data, synced_at, store_id)
+		 VALUES (?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, store_id = excluded.store_id`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "store_id"),
+	); err != nil {
+		return fmt.Errorf("insert into menu: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertMenu inserts or updates a menu record with domain-specific columns.
+func (s *Store) UpsertMenu(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling menu: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for menu")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "menu", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertMenuTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+// upsertSchedulingTx writes the typed-table portion of a scheduling upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertSchedulingTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO scheduling (id, data, synced_at, store_id, service_type, date)
+		 VALUES (?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, store_id = excluded.store_id, service_type = excluded.service_type, date = excluded.date`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "store_id"),
+		lookupFieldValue(obj, "service_type"),
+		lookupFieldValue(obj, "date"),
+	); err != nil {
+		return fmt.Errorf("insert into scheduling: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertScheduling inserts or updates a scheduling record with domain-specific columns.
+func (s *Store) UpsertScheduling(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling scheduling: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for scheduling")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "scheduling", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertSchedulingTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+// upsertAccountTx writes the typed-table portion of a account upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertAccountTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO account (id, data, synced_at, token)
+		 VALUES (?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, token = excluded.token`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "token"),
+	); err != nil {
+		return fmt.Errorf("insert into account: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertAccount inserts or updates a account record with domain-specific columns.
+func (s *Store) UpsertAccount(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling account: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for account")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "account", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertAccountTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+// upsertCustomerTx writes the typed-table portion of a customer upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertCustomerTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO customer (id, data, synced_at, customer_id)
+		 VALUES (?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, customer_id = excluded.customer_id`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "customer_id"),
+	); err != nil {
+		return fmt.Errorf("insert into customer: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertCustomer inserts or updates a customer record with domain-specific columns.
+func (s *Store) UpsertCustomer(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling customer: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for customer")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "customer", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertCustomerTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+// resourceIDFieldOverrides projects per-resource IDField (set by the profiler
+// from x-resource-id or response-schema fallback) into a runtime lookup map.
+// UpsertBatch consults this first so the templated path wins over the
+// generic fallback list. Empty when no resource declared an override; the
+// runtime fallback list still applies.
+//
+// Includes both flat resources and dependent (parent-child) resources so a
+// child path-item annotated with x-resource-id resolves the same as a flat
+// path-item.
+var resourceIDFieldOverrides = map[string]string{
+}
+
+// genericIDFieldFallbacks is the runtime safety net for resources that did
+// NOT receive a templated IDField. API-specific names belong in spec
+// annotations (x-resource-id), not this list.
+var genericIDFieldFallbacks = []string{"id", "ID", "name", "uuid", "slug", "key", "code", "uid"}
+
+// UpsertBatch inserts or replaces multiple records in a single transaction
+// and returns (stored, extractFailures, err). stored counts rows actually
+// landed; extractFailures counts items that survived JSON unmarshal but had
+// no extractable primary key (templated IDField AND generic fallback both
+// missed). callers (sync.go.tmpl) compare these against len(items) to emit
+// the per-item primary_key_unresolved warning and the F4b
+// stored_count_zero_after_extraction probe.
 //
 // For resource types that have a domain-specific typed table, the per-item
 // generic insert is followed by a dispatch to the matching upsert<Pascal>Tx
 // inside the same transaction. Without that dispatch, paginated syncs would
 // only populate the generic resources table — typed tables (and indexed
 // columns like parent_id added by dependent-resource sync) would stay empty.
-func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) error {
+func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, int, error) {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
 	tx, err := s.db.Begin()
 	if err != nil {
-		return fmt.Errorf("starting batch transaction: %w", err)
+		return 0, 0, fmt.Errorf("starting batch transaction: %w", err)
 	}
 	defer tx.Rollback()
 
-	var skippedCount int
+	var stored, skippedCount, extractFailures int
 	for _, item := range items {
 		var obj map[string]any
 		if err := json.Unmarshal(item, &obj); err != nil {
+			skippedCount++
 			continue
 		}
-		// Try common primary key field names in priority order.
+		// Templated IDField wins; generic fallback list runs second when
+		// the override is empty OR the override field is absent on this
+		// particular item (response shape mismatches happen even when the
+		// spec declares x-resource-id).
 		var id string
-		for _, key := range []string{"id", "ID", "ticker", "event_ticker", "series_ticker", "key", "code", "uid", "uuid", "slug", "name"} {
-			if v := lookupFieldValue(obj, key); v != nil {
+		if override, ok := resourceIDFieldOverrides[resourceType]; ok && override != "" {
+			if v := lookupFieldValue(obj, override); v != nil {
 				s := fmt.Sprintf("%v", v)
 				if s != "" && s != "<nil>" {
 					id = s
-					break
+				}
+			}
+		}
+		if id == "" {
+			for _, key := range genericIDFieldFallbacks {
+				if v := lookupFieldValue(obj, key); v != nil {
+					s := fmt.Sprintf("%v", v)
+					if s != "" && s != "<nil>" {
+						id = s
+						break
+					}
 				}
 			}
 		}
 		if id == "" {
 			skippedCount++
+			extractFailures++
 			continue
 		}
 
 		if err := s.upsertGenericResourceTx(tx, resourceType, id, item); err != nil {
-			return fmt.Errorf("upserting %s/%s: %w", resourceType, id, err)
+			return 0, extractFailures, fmt.Errorf("upserting %s/%s: %w", resourceType, id, err)
 		}
 
 		switch resourceType {
+		case "cart":
+			if err := s.upsertCartTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "orders":
+			if err := s.upsertOrdersTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "rewards":
+			if err := s.upsertRewardsTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "gifts":
+			if err := s.upsertGiftsTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "store":
+			if err := s.upsertStoreTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "menu":
+			if err := s.upsertMenuTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "scheduling":
+			if err := s.upsertSchedulingTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "account":
+			if err := s.upsertAccountTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "customer":
+			if err := s.upsertCustomerTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
 		}
+		stored++
 	}
 
 	// Warn when most items in a batch lack an extractable ID — this likely
@@ -495,10 +1232,15 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) error 
 		fmt.Fprintf(os.Stderr, "warning: %d/%d %s items skipped (no extractable ID field found)\n", skippedCount, len(items), resourceType)
 	}
 
-	return tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return 0, extractFailures, err
+	}
+	return stored, extractFailures, nil
 }
 
 func (s *Store) SaveSyncState(resourceType, cursor string, count int) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
 	_, err := s.db.Exec(
 		`INSERT INTO sync_state (resource_type, last_cursor, last_synced_at, total_count)
 		 VALUES (?, ?, ?, ?)
@@ -522,6 +1264,8 @@ func (s *Store) GetSyncState(resourceType string) (cursor string, lastSynced tim
 
 // SaveSyncCursor stores the pagination cursor for a resource type.
 func (s *Store) SaveSyncCursor(resourceType, cursor string) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
 	_, err := s.db.Exec(
 		`INSERT INTO sync_state (resource_type, last_cursor, last_synced_at, total_count)
 		 VALUES (?, ?, CURRENT_TIMESTAMP, 0)
@@ -579,6 +1323,8 @@ func (s *Store) GetLastSyncedAt(resourceType string) string {
 
 // ClearSyncCursors resets all sync state for a full resync.
 func (s *Store) ClearSyncCursors() error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
 	_, err := s.db.Exec("DELETE FROM sync_state")
 	return err
 }

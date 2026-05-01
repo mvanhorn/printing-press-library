@@ -14,11 +14,14 @@ import (
 func newRewardsHistoryCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "history <customerId> <count>",
-		Short:   "Get reward earning/redemption history (most recent N entries)",
-		Example: "  pagliacci-pizza-pp-cli rewards history 12345 10",
-		Args:    cobra.ExactArgs(2),
+		Use:   "history <customerId> <count>",
+		Short: "Get reward earning/redemption history (most recent N entries)",
+		Example: "  pagliacci-pizza-pp-cli rewards history example-value example-value",
+		Annotations: map[string]string{"pp:endpoint": "rewards.history", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) == 0 {
+				return cmd.Help()
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -26,9 +29,12 @@ func newRewardsHistoryCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/RewardHistory/{customerId}/{count}"
 			path = replacePathParam(path, "customerId", args[0])
+			if len(args) < 2 {
+				return usageErr(fmt.Errorf("count is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "count"))
+			}
 			path = replacePathParam(path, "count", args[1])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "rewards", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "rewards", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -38,14 +44,15 @@ func newRewardsHistoryCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

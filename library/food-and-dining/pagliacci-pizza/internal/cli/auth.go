@@ -8,17 +8,17 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/spf13/cobra"
 	"io"
 	"net/http"
 	"os"
 	"os/exec"
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/pagliacci-pizza/internal/config"
 	"path/filepath"
 	"runtime"
 	"sort"
 	"strings"
 	"time"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/pagliacci-pizza/internal/config"
+	"github.com/spf13/cobra"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
@@ -33,7 +33,6 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 
 	return cmd
 }
-
 // chromeProfile holds info about a discovered Chrome profile.
 type chromeProfile struct {
 	Dir         string // directory name (e.g. "Default", "Profile 1")
@@ -121,7 +120,7 @@ profile by name when the installed backend supports it.`,
 			}
 			// Step 4: Compose auth header from named cookies
 			cookieMap := parseCookieString(cookies)
-			requiredCookies := []string{"customerId", "authToken"}
+			requiredCookies := []string{"customerId", "authToken" }
 
 			// Check if all required cookies were found on disk
 			allFound := true
@@ -648,7 +647,6 @@ func extractViaCookieScoop(domain, profileDir string) (string, error) {
 	result = strings.TrimPrefix(result, "Cookie: ")
 	return result, nil
 }
-
 // validateComposedAuth makes a lightweight test request to verify the session is still active.
 // Uses the API base URL — any authenticated endpoint returning 401/403 indicates expiry.
 // A non-auth error (404, 500, timeout) is treated as "can't validate, assume OK" to avoid
@@ -660,6 +658,7 @@ func validateComposedAuth(authHeader string) error {
 		return nil // can't validate, assume OK
 	}
 	req.Header.Set("Authorization", authHeader)
+	req.Header.Set("User-Agent", "pagliacci-pizza-pp-cli/2.3.6")
 
 	client := &http.Client{Timeout: 5 * time.Second}
 	resp, err := client.Do(req)
@@ -673,7 +672,6 @@ func validateComposedAuth(authHeader string) error {
 	}
 	return nil
 }
-
 // --- Live browser cookie extraction (session cookies fallback) ---
 
 // extractLiveCookies reads document.cookie from a live Chrome session.

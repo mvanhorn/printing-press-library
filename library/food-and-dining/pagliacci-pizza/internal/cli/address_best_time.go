@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -33,7 +34,7 @@ func resolveAddressByLabel(c *client.Client, label string) (map[string]any, erro
 	}
 
 	// Local first
-	if db, err := openStoreForRead("pagliacci-pizza-pp-cli"); err == nil && db != nil {
+	if db, err := openStoreForRead(context.Background(), "pagliacci-pizza-pp-cli"); err == nil && db != nil {
 		items, _ := db.List("address", 0)
 		db.Close()
 		if hit := findLabel(items, target); hit != nil {
@@ -232,7 +233,7 @@ func newAddressBestTimeCmd(flags *rootFlags) *cobra.Command {
 			slots := extractSlotTimes(slotResp)
 
 			storeName := ""
-			if db, derr := openStoreForRead("pagliacci-pizza-pp-cli"); derr == nil && db != nil {
+			if db, derr := openStoreForRead(cmd.Context(), "pagliacci-pizza-pp-cli"); derr == nil && db != nil {
 				if raw, gerr := db.Get("store", fmt.Sprintf("%d", storeID)); gerr == nil && raw != nil {
 					var s map[string]any
 					if json.Unmarshal(raw, &s) == nil {

@@ -9,7 +9,7 @@ import (
 
 func newCustomerFeedbackCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "customer_feedback",
+		Use:   "customer-feedback",
 		Short: "Customer feedback submissions to Pagliacci",
 	}
 
