@@ -151,6 +151,29 @@ Known pitfalls the verifier handles:
 - A subcommand sharing a leaf name with a top-level command (e.g. `profile save` vs. top-level `save`) — resolved via `rootCmd.AddCommand` lookup + constructor naming convention (`new{Parent1}{Parent2}{Leaf}Cmd`).
 - `$(...)` command substitution in recipes can look like positional args — reported as `[likely false positive]` and not blocking.
 
+## Preflight before opening a PR
+
+The following checks run in CI on every PR. Run them locally first; CI failures on these are slow-feedback (~minutes per push) and routinely catch the same drift you can catch in seconds.
+
+For any CLI you touched (`library/<category>/<slug>/`):
+
+```bash
+# 1. SKILL.md / README.md / source consistency — catches command renames,
+#    dropped commands, flag rename drift between docs and code.
+python3 .github/scripts/verify-skill/verify_skill.py --dir library/<category>/<slug>/
+
+# 2. Build, vet, test from the CLI root.
+cd library/<category>/<slug>/
+go build ./...
+go vet ./...
+go test ./...
+```
+
+Common failure shapes that CI surfaces but local runs catch first:
+- Resource renames driven by framework collisions (e.g., `search` → `<api>-search`, `auth` → `<api>-auth`) leave SKILL.md / README.md referencing the old command path. The verifier flags `[unknown-command]`.
+- A novel command's NOVEL helper file deleted but its `AddCommand` line still in `root.go` → build fail.
+- Body of a templated function modified to call a hand-written helper that got dropped during a regeneration → test fail.
+
 ## Pointers to deeper context
 
 - Generator internals, patcher behavior, and plan docs live in [cli-printing-press](https://github.com/mvanhorn/cli-printing-press).
