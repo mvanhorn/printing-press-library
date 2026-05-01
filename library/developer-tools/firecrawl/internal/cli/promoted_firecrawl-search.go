@@ -11,56 +11,52 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newMapPromotedCmd(flags *rootFlags) *cobra.Command {
-	var bodyIgnoreSitemap bool
-	var bodyIncludeSubdomains bool
+func newFirecrawlSearchPromotedCmd(flags *rootFlags) *cobra.Command {
+	var bodyIgnoreInvalidURLs bool
 	var bodyLimit int
-	var bodySearch string
-	var bodySitemapOnly bool
+	var bodyLocation string
+	var bodyQuery string
+	var bodyTbs string
 	var bodyTimeout int
-	var bodyUrl string
 
 	cmd := &cobra.Command{
-		Use:   "map",
-		Short: "Map multiple URLs based on options",
-		Long:  "Shortcut for 'map urls'. Map multiple URLs based on options",
-		Example: "  firecrawl-pp-cli map",
-		Annotations: map[string]string{"pp:endpoint": "map.urls"},
+		Use:   "firecrawl-search",
+		Short: "Search and optionally scrape search results",
+		Long:  "Shortcut for 'firecrawl-search search-and-scrape'. Search and optionally scrape search results",
+		Example: "  firecrawl-pp-cli firecrawl-search",
+		Annotations: map[string]string{"pp:endpoint": "firecrawl-search.search-and-scrape"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !cmd.Flags().Changed("url") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "url")
+			if !cmd.Flags().Changed("query") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "query")
 			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/map"
+			path := "/search"
 			// HasStore + non-GET falls through to a live API call here
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
 			body := map[string]any{}
-			if bodyIgnoreSitemap != false {
-				body["ignoreSitemap"] = bodyIgnoreSitemap
-			}
-			if bodyIncludeSubdomains != false {
-				body["includeSubdomains"] = bodyIncludeSubdomains
+			if bodyIgnoreInvalidURLs != false {
+				body["ignoreInvalidURLs"] = bodyIgnoreInvalidURLs
 			}
 			if bodyLimit != 0 {
 				body["limit"] = bodyLimit
 			}
-			if bodySearch != "" {
-				body["search"] = bodySearch
+			if bodyLocation != "" {
+				body["location"] = bodyLocation
 			}
-			if bodySitemapOnly != false {
-				body["sitemapOnly"] = bodySitemapOnly
+			if bodyQuery != "" {
+				body["query"] = bodyQuery
+			}
+			if bodyTbs != "" {
+				body["tbs"] = bodyTbs
 			}
 			if bodyTimeout != 0 {
 				body["timeout"] = bodyTimeout
-			}
-			if bodyUrl != "" {
-				body["url"] = bodyUrl
 			}
 			data, _, err := c.Post(path, body)
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
@@ -115,13 +111,12 @@ func newMapPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().BoolVar(&bodyIgnoreSitemap, "ignore-sitemap", true, "Ignore the website sitemap when crawling.")
-	cmd.Flags().BoolVar(&bodyIncludeSubdomains, "include-subdomains", true, "Include subdomains of the website")
-	cmd.Flags().IntVar(&bodyLimit, "limit", 5000, "Maximum number of links to return")
-	cmd.Flags().StringVar(&bodySearch, "search", "", "Search query to use for mapping. During the Alpha phase, the 'smart' part of the search functionality is limited to...")
-	cmd.Flags().BoolVar(&bodySitemapOnly, "sitemap-only", false, "Only return links found in the website sitemap")
-	cmd.Flags().IntVar(&bodyTimeout, "timeout", 0, "Timeout in milliseconds. There is no timeout by default.")
-	cmd.Flags().StringVar(&bodyUrl, "url", "", "The base URL to start crawling from")
+	cmd.Flags().BoolVar(&bodyIgnoreInvalidURLs, "ignore-invalid-ur-ls", false, "Excludes URLs from the search results that are invalid for other Firecrawl endpoints. This helps reduce errors if...")
+	cmd.Flags().IntVar(&bodyLimit, "limit", 5, "Maximum number of results to return")
+	cmd.Flags().StringVar(&bodyLocation, "location", "", "Location parameter for search results")
+	cmd.Flags().StringVar(&bodyQuery, "query", "", "The search query")
+	cmd.Flags().StringVar(&bodyTbs, "tbs", "", "Time-based search parameter")
+	cmd.Flags().IntVar(&bodyTimeout, "timeout", 60000, "Timeout in milliseconds")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 
