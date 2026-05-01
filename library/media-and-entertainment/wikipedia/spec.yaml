@@ -80,25 +80,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/MediaList"
 
-  /page/related/{title}:
-    get:
-      operationId: get-related
-      summary: Get related articles
-      description: Returns articles related to the given topic.
-      tags: [pages]
-      parameters:
-        - name: title
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Related articles
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/RelatedPages"
+  # /page/related/{title} removed: Wikimedia deprecated this endpoint
+  # (returns HTTP 403 globally as of 2026). Replacement, when available,
+  # would slot in here with the same shape. See PR #170 sweep verification.
 
   /page/random/summary:
     get:

@@ -25,7 +25,7 @@ import (
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("feed_get-on-this-day",
-			mcplib.WithDescription("Events on this day Returns OnThisDay."),
+			mcplib.WithDescription("Returns events, births, deaths, or holidays that occurred on a given date. Required: type (default: all), month, day."),
 			mcplib.WithString("type", mcplib.Description("Type")),
 			mcplib.WithString("month", mcplib.Required(), mcplib.Description("Month")),
 			mcplib.WithString("day", mcplib.Required(), mcplib.Description("Day")),
@@ -37,7 +37,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("page_get-html",
-			mcplib.WithDescription("Get article HTML"),
+			mcplib.WithDescription("Returns the full article body as styled HTML. Required: title."),
 			mcplib.WithString("title", mcplib.Required(), mcplib.Description("Title")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -47,7 +47,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("page_get-media",
-			mcplib.WithDescription("Get article media Returns MediaList."),
+			mcplib.WithDescription("Returns images, videos, and other media files associated with an article. Required: title."),
 			mcplib.WithString("title", mcplib.Required(), mcplib.Description("Title")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -57,7 +57,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("page_get-random",
-			mcplib.WithDescription("Get a random article summary Returns Summary."),
+			mcplib.WithDescription("Returns a random Wikipedia article summary."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -65,18 +65,8 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("GET", "/page/random/summary", []string{ }),
 	)
 	s.AddTool(
-		mcplib.NewTool("page_get-related",
-			mcplib.WithDescription("Get related articles Returns RelatedPages."),
-			mcplib.WithString("title", mcplib.Required(), mcplib.Description("Title")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/page/related/{title}", []string{"title", }),
-	)
-	s.AddTool(
 		mcplib.NewTool("page_get-summary",
-			mcplib.WithDescription("Get article summary Returns Summary."),
+			mcplib.WithDescription("Returns a page summary including title, extract text, thumbnail, and coordinates. Required: title. Optional: redirect (default: true)."),
 			mcplib.WithString("title", mcplib.Required(), mcplib.Description("Article title (underscores for spaces, e.g. 'Python_(programming_language)')")),
 			mcplib.WithString("redirect", mcplib.Description("Follow redirects")),
 			mcplib.WithReadOnlyHintAnnotation(true),
@@ -243,7 +233,7 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		}
 	}
 
-	db, err := store.Open(dbPath())
+	db, err := store.OpenWithContext(ctx, dbPath())
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
@@ -280,7 +270,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"api":         "wikipedia",
 		"description": "Wikipedia REST API. Get article summaries, search, browse related topics, and access on-this-day events. No...",
 		"archetype":   "content",
-		"tool_count":  6,
+		"tool_count":  5,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion wikipedia-pp-cli binary.",
 		"resources": []map[string]any{
@@ -293,7 +283,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{
 				"name": "page",
 				"description": "Article content and metadata",
-				"endpoints": []string{"get-html", "get-media", "get-random", "get-related", "get-summary",  },
+				"endpoints": []string{"get-html", "get-media", "get-random", "get-summary",  },
 				"searchable": true,
 			},
 		},
@@ -303,18 +293,6 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
-		},
-		// Command-mirror capabilities are exposed through MCP by shelling out
-		// to the companion CLI binary.
-		"command_mirror_capabilities": []map[string]string{
-			{"name": "Article summary", "command": "page get-summary", "description": "Fetch concise Wikipedia article summaries for quick research and agent context.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Related article discovery", "command": "page get-related", "description": "Find related pages from a seed article to expand research paths.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "On-this-day feed", "command": "feed", "description": "Explore on-this-day events as a ready-made discovery workflow.", "rationale": "", "via": "mcp-command-mirror"},
-		},
-		"playbook": []map[string]string{
-			{"topic": "Article summary", "insight": ""},
-			{"topic": "Related article discovery", "insight": ""},
-			{"topic": "On-this-day feed", "insight": ""},
 		},
 	}
 	data, _ := json.MarshalIndent(ctx, "", "  ")

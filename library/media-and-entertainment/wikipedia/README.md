@@ -55,7 +55,6 @@ Article content and metadata
 - **`wikipedia-pp-cli page get-html`** - Get article HTML
 - **`wikipedia-pp-cli page get-media`** - Get article media
 - **`wikipedia-pp-cli page get-random`** - Get a random article summary
-- **`wikipedia-pp-cli page get-related`** - Get related articles
 - **`wikipedia-pp-cli page get-summary`** - Get article summary
 
 
