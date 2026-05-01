@@ -11,19 +11,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newSearchRepositoriesCmd(flags *rootFlags) *cobra.Command {
+func newDockerHubSearchPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagQuery string
 	var flagPageSize int
-	var flagPage int
+	var flagPage string
 	var flagIsOfficial bool
 	var flagIsAutomated bool
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "repositories",
-		Aliases: []string{"list"},
-		Short: "Search Docker Hub repositories",
-		Example: "  docker-hub-pp-cli search repositories",
+		Use:   "docker-hub-search",
+		Short: "Full-text search across all Docker Hub repositories. Returns name, description, stars, and pull counts.",
+		Long:  "Shortcut for 'docker-hub-search search-repositories'. Full-text search across all Docker Hub repositories. Returns name, description, stars, and pull counts.",
+		Example: "  docker-hub-pp-cli docker-hub-search",
+		Annotations: map[string]string{"pp:endpoint": "docker-hub-search.search-repositories", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "query")
@@ -34,30 +35,42 @@ func newSearchRepositoriesCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v2/search/repositories/"
-			data, prov, err := resolvePaginatedRead(c, flags, "search", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "docker-hub-search", path, map[string]string{
 				"query": fmt.Sprintf("%v", flagQuery),
 				"page_size": fmt.Sprintf("%v", flagPageSize),
 				"page": fmt.Sprintf("%v", flagPage),
 				"is_official": fmt.Sprintf("%v", flagIsOfficial),
 				"is_automated": fmt.Sprintf("%v", flagIsAutomated),
-			}, flagAll, "", "", "")
+			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
-			// Print provenance to stderr for human-facing output
+			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
+			// so output helpers see the inner data, not the wrapper.
+			data = extractResponseData(data)
+
+			// Print provenance to stderr
 			{
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				if json.Unmarshal(data, &countItems) != nil {
+					// Single object, not an array
+					countItems = []json.RawMessage{data}
+				}
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// CSV bypasses JSON pipe path so --csv works when piped
+			if flags.csv {
+				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			}
+			// For JSON output, wrap with provenance envelope. --select wins over
+			// --compact when both are set; --compact only runs when no explicit
+			// fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -65,7 +78,6 @@ func newSearchRepositoriesCmd(flags *rootFlags) *cobra.Command {
 				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
-			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
 				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
@@ -83,10 +95,12 @@ func newSearchRepositoriesCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagQuery, "query", "", "Search query (image name, keyword, etc.)")
 	cmd.Flags().IntVar(&flagPageSize, "page-size", 25, "Results per page")
-	cmd.Flags().IntVar(&flagPage, "page", 1, "Page number")
+	cmd.Flags().StringVar(&flagPage, "page", "1", "Page number")
 	cmd.Flags().BoolVar(&flagIsOfficial, "is-official", false, "Filter to official images only")
 	cmd.Flags().BoolVar(&flagIsAutomated, "is-automated", false, "Filter to automated builds only")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
+
+	// Wire sibling endpoints and sub-resources as subcommands
 
 	return cmd
 }

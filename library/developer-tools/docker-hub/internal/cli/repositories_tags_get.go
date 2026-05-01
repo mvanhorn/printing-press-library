@@ -15,8 +15,9 @@ func newRepositoriesTagsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "get <namespace> <repository> <tag>",
-		Short: "Get tag details",
+		Short: "Full details for a specific tag including multi-architecture image digests and total size.",
 		Example: "  docker-hub-pp-cli repositories tags get example-resource example-value example-value",
+		Annotations: map[string]string{"pp:endpoint": "tags.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -37,7 +38,7 @@ func newRepositoriesTagsGetCmd(flags *rootFlags) *cobra.Command {
 			}
 			path = replacePathParam(path, "tag", args[2])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "tags", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "tags", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -47,14 +48,15 @@ func newRepositoriesTagsGetCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

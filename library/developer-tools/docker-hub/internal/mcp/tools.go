@@ -8,82 +8,90 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/docker-hub/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/docker-hub/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/docker-hub/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/docker-hub/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/docker-hub/internal/store"
 )
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
-		mcplib.NewTool("repositories_get-repository",
-			mcplib.WithDescription("Get repository details Returns Repository."),
-			mcplib.WithString("namespace", mcplib.Required(), mcplib.Description("Namespace (use 'library' for official images)")),
-			mcplib.WithString("repository", mcplib.Required(), mcplib.Description("Repository name")),
-		),
-		makeAPIHandler("GET", "/v2/repositories/{namespace}/{repository}/", []string{"namespace", "repository"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("repositories_dockerfile_get",
-			mcplib.WithDescription("Get Dockerfile content Returns Dockerfile."),
-			mcplib.WithString("namespace", mcplib.Required(), mcplib.Description("Namespace")),
-			mcplib.WithString("repository", mcplib.Required(), mcplib.Description("Repository")),
-		),
-		makeAPIHandler("GET", "/v2/repositories/{namespace}/{repository}/dockerfile/", []string{"namespace", "repository"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("repositories_tags_get",
-			mcplib.WithDescription("Get tag details Returns TagDetail."),
-			mcplib.WithString("namespace", mcplib.Required(), mcplib.Description("Namespace")),
-			mcplib.WithString("repository", mcplib.Required(), mcplib.Description("Repository")),
-			mcplib.WithString("tag", mcplib.Required(), mcplib.Description("Tag name (e.g. 'latest', '1.25', 'alpine')")),
-		),
-		makeAPIHandler("GET", "/v2/repositories/{namespace}/{repository}/tags/{tag}/", []string{"namespace", "repository", "tag"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("repositories_tags_list",
-			mcplib.WithDescription("List image tags Returns TagList."),
-			mcplib.WithString("namespace", mcplib.Required(), mcplib.Description("Namespace")),
-			mcplib.WithString("repository", mcplib.Required(), mcplib.Description("Repository")),
-			mcplib.WithString("page_size", mcplib.Description("Page size")),
-			mcplib.WithString("page", mcplib.Description("Page")),
-			mcplib.WithString("ordering", mcplib.Description("Sort order")),
-		),
-		makeAPIHandler("GET", "/v2/repositories/{namespace}/{repository}/tags/", []string{"namespace", "repository"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("search_repositories",
-			mcplib.WithDescription("Search Docker Hub repositories Returns SearchResults."),
+		mcplib.NewTool("docker-hub-search_search-repositories",
+			mcplib.WithDescription("Full-text search across all Docker Hub repositories. Returns name, description, stars, and pull counts. Required: query. Optional: page_size (default: 25), page (default: 1), is_official (plus 1 more)."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query (image name, keyword, etc.)")),
 			mcplib.WithString("page_size", mcplib.Description("Results per page")),
 			mcplib.WithString("page", mcplib.Description("Page number")),
 			mcplib.WithString("is_official", mcplib.Description("Filter to official images only")),
 			mcplib.WithString("is_automated", mcplib.Description("Filter to automated builds only")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/search/repositories/", []string{}),
+		makeAPIHandler("GET", "/v2/search/repositories/", []string{ }),
 	)
-	// Sync tool — populates local database for offline search and sql queries
 	s.AddTool(
-		mcplib.NewTool("sync",
-			mcplib.WithDescription("Sync API data to local SQLite database. Run this before using search or sql tools. Supports incremental sync."),
-			mcplib.WithString("resources", mcplib.Description("Comma-separated resource types to sync (omit for all)")),
-			mcplib.WithString("since", mcplib.Description("Incremental sync since duration (e.g. 7d, 24h, 1w)")),
-			mcplib.WithBoolean("full", mcplib.Description("Full resync ignoring checkpoints")),
+		mcplib.NewTool("repositories_get-repository",
+			mcplib.WithDescription("Full metadata for a Docker Hub repository including pull count, stars, description, and last update time. Required: namespace, repository. Returns the Repository."),
+			mcplib.WithString("namespace", mcplib.Required(), mcplib.Description("Namespace (use 'library' for official images)")),
+			mcplib.WithString("repository", mcplib.Required(), mcplib.Description("Repository name")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		handleSync,
+		makeAPIHandler("GET", "/v2/repositories/{namespace}/{repository}/", []string{"namespace","repository", }),
+	)
+	s.AddTool(
+		mcplib.NewTool("repositories_dockerfile_get",
+			mcplib.WithDescription("Retrieve the Dockerfile used to build this image. Available for many official and automated images. Required: namespace, repository. Returns the Dockerfile."),
+			mcplib.WithString("namespace", mcplib.Required(), mcplib.Description("Namespace")),
+			mcplib.WithString("repository", mcplib.Required(), mcplib.Description("Repository")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/v2/repositories/{namespace}/{repository}/dockerfile/", []string{"namespace","repository", }),
+	)
+	s.AddTool(
+		mcplib.NewTool("repositories_tags_get",
+			mcplib.WithDescription("Full details for a specific tag including multi-architecture image digests and total size. Required: namespace, repository, tag. Returns the TagDetail."),
+			mcplib.WithString("namespace", mcplib.Required(), mcplib.Description("Namespace")),
+			mcplib.WithString("repository", mcplib.Required(), mcplib.Description("Repository")),
+			mcplib.WithString("tag", mcplib.Required(), mcplib.Description("Tag name (e.g. 'latest', '1.25', 'alpine')")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/v2/repositories/{namespace}/{repository}/tags/{tag}/", []string{"namespace","repository","tag", }),
+	)
+	s.AddTool(
+		mcplib.NewTool("repositories_tags_list",
+			mcplib.WithDescription("All available tags for a repository with sizes, digests, and last push time. Required: namespace, repository. Optional: page_size (default: 25), page (default: 1), ordering. Returns the TagList."),
+			mcplib.WithString("namespace", mcplib.Required(), mcplib.Description("Namespace")),
+			mcplib.WithString("repository", mcplib.Required(), mcplib.Description("Repository")),
+			mcplib.WithString("page_size", mcplib.Description("Page size")),
+			mcplib.WithString("page", mcplib.Description("Page")),
+			mcplib.WithString("ordering", mcplib.Description("Sort order")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/v2/repositories/{namespace}/{repository}/tags/", []string{"namespace","repository", }),
 	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
 			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT only). Tables match resource names.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleSQL,
 	)
@@ -93,9 +101,15 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("context",
 			mcplib.WithDescription("Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleContext,
 	)
+
+	// Runtime Cobra-tree mirror — exposes every user-facing command that is
+	// not already covered by a typed endpoint or framework MCP tool.
+	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
@@ -211,13 +225,8 @@ func dbPath() string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", "docker-hub-pp-cli", "data.db")
 }
-
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
-
-func handleSync(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	return mcplib.NewToolResultText("sync not yet implemented via MCP - use the CLI: docker-hub-pp-cli sync"), nil
-}
 
 func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
@@ -234,7 +243,7 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		}
 	}
 
-	db, err := store.Open(dbPath())
+	db, err := store.OpenWithContext(ctx, dbPath())
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
@@ -268,24 +277,25 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
-		"api":          "docker-hub",
-		"description":  "Docker Hub public API. Search container images, browse tags, check sizes, inspect Dockerfiles, and explore the...",
-		"archetype":    "generic",
-		"tool_count":   5,
-		"tool_surface": "MCP exposes the endpoints listed under `resources` (plus sync/search/sql/context utilities when present). Items under `cli_only_capabilities` require running the companion docker-hub-pp-cli binary; the MCP cannot invoke them.",
+		"api":         "docker-hub",
+		"description": "Docker Hub public API. Search container images, browse tags, check sizes, inspect Dockerfiles, and explore the...",
+		"archetype":   "generic",
+		"tool_count":  5,
+		// tool_surface tells agents which surface a capability lives on.
+		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion docker-hub-pp-cli binary.",
 		"resources": []map[string]any{
 			{
-				"name":        "repositories",
-				"description": "Repository metadata and details",
-				"endpoints":   []string{"get-repository"},
-				"searchable":  true,
+				"name": "docker-hub-search",
+				"description": "Manage docker hub search",
+				"endpoints": []string{"search-repositories",  },
+				"syncable": true,
+				"searchable": true,
 			},
 			{
-				"name":        "search",
-				"description": "Search across all Docker Hub repositories",
-				"endpoints":   []string{"repositories"},
-				"syncable":    true,
-				"searchable":  true,
+				"name": "repositories",
+				"description": "Repository metadata and details",
+				"endpoints": []string{"get-repository",  },
+				"searchable": true,
 			},
 		},
 		"query_tips": []string{
@@ -300,89 +310,9 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 	return mcplib.NewToolResultText(string(data)), nil
 }
 
-// RegisterNovelFeatureTools registers MCP tools that shell out to the
-// companion CLI binary. Empty body when the spec has no novel features.
+// RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP
+// mains. New generated mains call RegisterTools only; RegisterTools now
+// includes the runtime Cobra-tree mirror.
 func RegisterNovelFeatureTools(s *server.MCPServer) {
-	s.AddTool(
-		mcplib.NewTool("search",
-			mcplib.WithDescription("Search Docker Hub repositories with agent-ready JSON, compact output, and live/local source controls."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("search"),
-	)
-	s.AddTool(
-		mcplib.NewTool("repositories",
-			mcplib.WithDescription("Inspect repository metadata and tags from one CLI surface for image selection and automation."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("repositories"),
-	)
-	s.AddTool(
-		mcplib.NewTool("workflow_archive",
-			mcplib.WithDescription("Sync Docker Hub resources into the local store so agents can search and analyze without repeated live calls."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("workflow archive"),
-	)
-}
-
-// siblingCLIPath resolves the companion CLI via sibling-of-executable,
-// DOCKER_HUB_CLI_PATH env var, then PATH.
-func siblingCLIPath() (string, error) {
-	const cliName = "docker-hub-pp-cli"
-	if exe, err := os.Executable(); err == nil {
-		candidate := filepath.Join(filepath.Dir(exe), cliName)
-		if _, err := os.Stat(candidate); err == nil {
-			return candidate, nil
-		}
-	}
-	if v := os.Getenv("DOCKER_HUB_CLI_PATH"); v != "" {
-		return v, nil
-	}
-	return exec.LookPath(cliName)
-}
-
-// shellOutToCLI returns an MCP tool handler that runs commandSpec against
-// the companion CLI. Resolves the binary path and pre-splits commandSpec
-// at registration so the per-call work is just user-arg split + exec.
-func shellOutToCLI(commandSpec string) server.ToolHandlerFunc {
-	cliPath, lookupErr := siblingCLIPath()
-	prefixArgs := splitShellArgs(commandSpec)
-	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		if lookupErr != nil {
-			return mcplib.NewToolResultError(fmt.Sprintf("companion CLI binary not found: %v\nTried sibling lookup, DOCKER_HUB_CLI_PATH env var, and PATH.", lookupErr)), nil
-		}
-		userArgs, _ := req.GetArguments()["args"].(string)
-		finalArgs := append(append([]string{}, prefixArgs...), splitShellArgs(userArgs)...)
-		cmd := exec.CommandContext(ctx, cliPath, finalArgs...)
-		out, err := cmd.CombinedOutput()
-		if err != nil {
-			return mcplib.NewToolResultError(string(out)), nil
-		}
-		return mcplib.NewToolResultText(string(out)), nil
-	}
-}
-
-// splitShellArgs whitespace-splits with double-quoted-token preservation.
-func splitShellArgs(s string) []string {
-	var tokens []string
-	var cur []rune
-	inQuote := false
-	for _, r := range s {
-		switch {
-		case r == '"':
-			inQuote = !inQuote
-		case (r == ' ' || r == '\t') && !inQuote:
-			if len(cur) > 0 {
-				tokens = append(tokens, string(cur))
-				cur = cur[:0]
-			}
-		default:
-			cur = append(cur, r)
-		}
-	}
-	if len(cur) > 0 {
-		tokens = append(tokens, string(cur))
-	}
-	return tokens
+	_ = s
 }

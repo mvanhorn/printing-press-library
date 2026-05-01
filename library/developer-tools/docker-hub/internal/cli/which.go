@@ -28,11 +28,11 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
-	{Command: "repositories get-repository", Description: "Get repository details", Group: "repositories"},
-	{Command: "repositories dockerfile get", Description: "Get Dockerfile content", Group: "repositories"},
-	{Command: "repositories tags get", Description: "Get tag details", Group: "repositories"},
-	{Command: "repositories tags list", Description: "List image tags", Group: "repositories"},
-	{Command: "search repositories", Description: "Search Docker Hub repositories", Group: "search"},
+	{Command: "docker-hub-search search-repositories", Description: "Full-text search across all Docker Hub repositories. Returns name, description, stars, and pull counts.", Group: "docker-hub-search"},
+	{Command: "repositories get-repository", Description: "Full metadata for a Docker Hub repository including pull count, stars, description, and last update time.", Group: "repositories"},
+	{Command: "repositories dockerfile get", Description: "Retrieve the Dockerfile used to build this image. Available for many official and automated images.", Group: "repositories"},
+	{Command: "repositories tags get", Description: "Full details for a specific tag including multi-architecture image digests and total size.", Group: "repositories"},
+	{Command: "repositories tags list", Description: "All available tags for a repository with sizes, digests, and last push time.", Group: "repositories"},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.

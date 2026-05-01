@@ -13,14 +13,15 @@ import (
 
 func newRepositoriesTagsListCmd(flags *rootFlags) *cobra.Command {
 	var flagPageSize int
-	var flagPage int
+	var flagPage string
 	var flagOrdering string
 	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:   "list <namespace> <repository>",
-		Short: "List image tags",
+		Short: "All available tags for a repository with sizes, digests, and last push time.",
 		Example: "  docker-hub-pp-cli repositories tags list example-resource example-value",
+		Annotations: map[string]string{"pp:endpoint": "tags.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -49,11 +50,11 @@ func newRepositoriesTagsListCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("repository is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "repository"))
 			}
 			path = replacePathParam(path, "repository", args[1])
-			data, prov, err := resolvePaginatedRead(c, flags, "tags", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "tags", path, map[string]string{
 				"page_size": fmt.Sprintf("%v", flagPageSize),
 				"page": fmt.Sprintf("%v", flagPage),
 				"ordering": fmt.Sprintf("%v", flagOrdering),
-			}, flagAll, "", "", "")
+			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -63,14 +64,15 @@ func newRepositoriesTagsListCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -95,7 +97,7 @@ func newRepositoriesTagsListCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().IntVar(&flagPageSize, "page-size", 25, "Page size")
-	cmd.Flags().IntVar(&flagPage, "page", 1, "Page")
+	cmd.Flags().StringVar(&flagPage, "page", "1", "Page")
 	cmd.Flags().StringVar(&flagOrdering, "ordering", "", "Sort order (one of: last_updated, -last_updated, name, -name)")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
