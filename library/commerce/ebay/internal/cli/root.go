@@ -81,11 +81,19 @@ func Execute() error {
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "ebay-pp-cli",
-		Short: `Search, comp, watch, and snipe eBay auctions and listings from the terminal.`,
-		Long: `Search, comp, watch, and snipe eBay auctions and listings from the terminal.
+		Short: `Discover, monitor, and analyze eBay listings, auctions, and sold comps from the terminal.`,
+		Long: `Discover, monitor, and analyze eBay listings, auctions, and sold comps from the terminal.
+
+The killer feature is auctions filtering by bid count and ending window — the
+query the eBay site can no longer answer since the Finding API was retired.
+Pair it with sold-comp pricing, watchlists, and saved searches.
 
 Add --agent to any command for JSON output + non-interactive mode.
-Run 'ebay-pp-cli doctor' to verify auth and connectivity.`,
+Run 'ebay-pp-cli doctor' to verify auth and connectivity.
+
+Note: bid placement (bid, snipe, bid-group) is experimental and currently
+fails end-to-end because eBay step-ups auth on /bfl/placebid. See README
+#known-limitations.`,
 		SilenceUsage: true,
 		Version:      version,
 	}

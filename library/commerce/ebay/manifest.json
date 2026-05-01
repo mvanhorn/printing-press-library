@@ -3,7 +3,7 @@
   "name": "ebay-pp-mcp",
   "display_name": "eBay",
   "version": "3.0.1",
-  "description": "eBay API surface as MCP tools.",
+  "description": "eBay discovery and intelligence as MCP tools: auctions filtering, sold-comp pricing, deals, watchlists, saved searches.",
   "author": {
     "name": "CLI Printing Press"
   },

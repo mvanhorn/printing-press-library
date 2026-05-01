@@ -1,7 +1,7 @@
 {
   "api_name": "ebay",
   "base_url": "https://www.ebay.com",
-  "description": "Buyer-power-user CLI for eBay. Sold-comp intelligence, true sniper bidding, watchlist intelligence, saved-search feeds, and a local SQLite store for cross-listing analytics.",
+  "description": "Discovery and intelligence CLI for eBay. Sold-comp pricing, auctions filtered by bid count and ending window, watchlists, saved-search feeds, and a local SQLite store for cross-listing analytics. Bid placement is experimental and currently fails because eBay step-ups auth on /bfl/placebid.",
   "mcp_ready": "partial",
   "http_transport": "browser-chrome",
   "auth": {

@@ -107,7 +107,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
 			Name:        "ebay-pp-cli",
-			Description: "Buyer-power-user CLI for eBay. Sold-comp intelligence, true sniper bidding, watchlist intelligence, saved-search...",
+			Description: "Discovery and intelligence CLI for eBay. Auctions filtered by bid count and ending window, sold-comp pricing, watchlists, saved searches. Bid placement (bid, snipe, bid-group) is experimental and currently fails because eBay step-ups auth on /bfl/placebid -- those commands are hidden from --help.",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{
@@ -148,9 +148,9 @@ func buildAgentDiscoveryContext() *agentContextDiscovery {
 			"has_per_request_fraud_token",
 		},
 		Warnings: []string{
-			"fraud_token_ttl: Forter token TTL is unknown; long-running snipes may need to refresh forterToken at fire time by re-fetching the bid module",
-			"referrer_check: Direct nav to /bfl/placebid/<id> returns Oops error; bid module must be fetched via in-page click context",
+			"placebid_step_up: eBay redirects /bfl/placebid/<id> to sign-in for cookie-only sessions; bid, snipe, and bid-group cannot complete end-to-end from this CLI today",
 			"akamai_active: Akamai bot manager active — Surf must use Chrome TLS fingerprint or stdlib HTTP will be blocked",
+			"rate_limit: Sustained scraping triggers eBay 403s; use auth refresh and back off when this happens",
 		},
 		CandidateCommands: []string{},
 	}
