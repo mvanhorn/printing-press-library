@@ -1,4 +1,5 @@
 name: movie
+display_name: Movie GOAT
 description: "The movie goat CLI — search, discover, and track movies and TV shows using TMDb and OMDb"
 version: "1.0.0"
 base_url: "https://api.themoviedb.org/3"

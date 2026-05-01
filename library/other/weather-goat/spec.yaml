@@ -1,4 +1,5 @@
 name: weather
+display_name: Weather GOAT
 description: "Weather GOAT — forecasts, alerts, air quality, and activity verdicts powered by Open-Meteo and NWS"
 version: "1.0.0"
 base_url: "https://api.open-meteo.com/v1"

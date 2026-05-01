@@ -1,6 +1,6 @@
 {
   "openapi": "3.0.0",
-  "info": {
+  "info": {"x-display-name":"Firecrawl",
     "title": "Firecrawl API",
     "version": "1.0.0",
     "description": "API for interacting with Firecrawl services to perform web scraping and crawling tasks.",

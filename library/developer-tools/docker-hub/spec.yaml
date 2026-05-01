@@ -1,5 +1,6 @@
 openapi: "3.0.3"
 info:
+  x-display-name: Docker Hub
   title: Docker Hub
   version: "2.0.0"
   description: |

@@ -1,5 +1,6 @@
 openapi: "3.0.3"
 info:
+  x-display-name: Postman Explore
   title: Postman Explore API
   description: |
     Undocumented internal API powering the public API discovery surface at

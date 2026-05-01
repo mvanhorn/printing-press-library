@@ -1,5 +1,6 @@
 openapi: 3.0.2
 info:
+  x-display-name: Flight GOAT
   title: flightgoat
   version: 4.17.1
   description: |

@@ -1,5 +1,6 @@
 openapi: 3.0.3
 info:
+  x-display-name: CoinGecko
   title: CoinGecko API
   description: CoinGecko public API for cryptocurrency data. Free tier, no API key required for basic endpoints.
   version: 3.0.1

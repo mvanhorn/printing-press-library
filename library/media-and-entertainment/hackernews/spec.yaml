@@ -1,4 +1,5 @@
 name: hackernews
+display_name: Hacker News
 description: "Hacker News from your terminal — with a local store, full-text search, and agent-native output no other HN tool has"
 cli_description: "Read, search, and analyze Hacker News with a local SQLite store, offline full-text search, and agent-native output"
 version: "1.0.0"

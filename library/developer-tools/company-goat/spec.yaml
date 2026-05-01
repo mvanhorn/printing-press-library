@@ -1,4 +1,5 @@
 name: company-goat
+display_name: Company GOAT
 description: Look up startups across SEC Form D, GitHub, Hacker News, Companies House, YC, Wikidata, and DNS in one command. Built for scouts, founders, BD, and AI agents researching small/midsize startups.
 cli_description: One call across seven authoritative sources to research a startup's funding history (SEC Form D), engineering velocity (GitHub), HN mentions, legal entity (US/UK), and domain age. Compares competitors side-by-side and flags inconsistencies between public claims and filings.
 version: "0.1.0"

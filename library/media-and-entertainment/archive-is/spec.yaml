@@ -1,4 +1,5 @@
 name: archive-is
+display_name: archive.today
 description: "Archive.is CLI - paywall bypass and web archive lookup via the archive.today / archive.ph service"
 version: "1.0.0"
 base_url: "https://archive.ph"

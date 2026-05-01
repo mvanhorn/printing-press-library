@@ -1,5 +1,6 @@
 openapi: "3.0.3"
 info:
+  x-display-name: PyPI
   title: PyPI
   version: "1.0.0"
   description: |

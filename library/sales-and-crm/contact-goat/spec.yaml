@@ -1,5 +1,6 @@
 openapi: 3.0.3
 info:
+  x-display-name: Contact GOAT
   title: Happenstance Web App (cookie-auth)
   version: "0.1.0"
   description: |

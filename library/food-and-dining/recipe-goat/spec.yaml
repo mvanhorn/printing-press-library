@@ -1,4 +1,5 @@
 name: recipe-goat
+display_name: Recipe GOAT
 kind: synthetic
 description: "Recipe GOAT — find the best version of any recipe across 37 trusted sites, with offline cookbook, pantry match, substitution lookup, meal planning, and USDA-backed nutrition."
 version: "0.2.0"

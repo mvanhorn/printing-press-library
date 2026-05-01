@@ -1,5 +1,6 @@
 openapi: "3.0.3"
 info:
+  x-display-name: Wikipedia
   title: Wikipedia
   version: "1.0.0"
   description: |

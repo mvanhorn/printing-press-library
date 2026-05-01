@@ -1,4 +1,5 @@
 name: espn
+display_name: ESPN
 description: "ESPN Sports API CLI — scores, standings, news, and game data across 17 sports and 139 leagues"
 version: "0.1.0"
 base_url: "https://site.api.espn.com/apis/site/v2/sports"

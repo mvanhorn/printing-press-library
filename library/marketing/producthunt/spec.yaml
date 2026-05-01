@@ -1,4 +1,5 @@
 name: producthunt
+display_name: Product Hunt
 description: "Token-free Product Hunt CLI — browse today's featured launches, sync locally, and compose views the website itself doesn't expose."
 version: "0.1.0"
 kind: synthetic

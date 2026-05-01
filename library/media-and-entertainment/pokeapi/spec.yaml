@@ -1,5 +1,6 @@
 openapi: 3.1.0
 info:
+  x-display-name: PokéAPI
   title: PokéAPI
   version: 2.7.0
   description: "All the Pokémon data you'll ever need in one place, easily accessible\

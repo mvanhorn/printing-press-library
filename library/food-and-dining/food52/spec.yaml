@@ -1,4 +1,5 @@
 name: food52
+display_name: Food52
 kind: synthetic
 description: "Search, browse, and read Food52 — recipes, articles, and structured ingredients/steps from the Food52 community-curated cookbook, with offline FTS and a local cache."
 cli_description: "Search and read Food52 recipes and articles from your terminal — ingredients, steps, ratings, and full article text without leaving the shell."

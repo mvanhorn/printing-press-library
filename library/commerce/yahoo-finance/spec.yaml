@@ -1,4 +1,5 @@
 name: yahoo-finance
+display_name: Yahoo Finance
 description: "Yahoo Finance CLI — market data, quotes, fundamentals, options, news"
 version: "1.0.0"
 base_url: "https://query1.finance.yahoo.com"

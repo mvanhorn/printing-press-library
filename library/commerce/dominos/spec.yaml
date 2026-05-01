@@ -1,4 +1,5 @@
 name: dominos
+display_name: Domino's
 description: "Domino's Pizza CLI - order pizza, browse menus, track orders, and manage rewards from the terminal"
 version: 0.1.0
 base_url: https://order.dominos.com

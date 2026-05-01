@@ -1,5 +1,6 @@
 openapi: 3.0.0
 info:
+  x-display-name: Kalshi
   title: Kalshi Trade API Manual Endpoints
   version: 3.13.0
   description: Manually defined OpenAPI spec for endpoints being migrated to spec-first approach

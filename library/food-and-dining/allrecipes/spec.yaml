@@ -1,4 +1,5 @@
 name: allrecipes
+display_name: Allrecipes
 description: "Allrecipes Pocket — every Allrecipes recipe in your terminal: cached as data, with pantry-aware search, Bayesian-smoothed ranking, multi-recipe grocery lists, and clean markdown export."
 version: "0.1.0"
 kind: synthetic

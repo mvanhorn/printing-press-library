@@ -1,5 +1,6 @@
 openapi: 3.0.0
 info:
+  x-display-name: Open-Meteo
   title: Open-Meteo APIs
   description: 'Open-Meteo offers free weather forecast APIs for open-source developers and non-commercial use. No API key is required.'
   version: '1.0'

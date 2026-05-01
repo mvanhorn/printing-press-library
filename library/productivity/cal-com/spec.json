@@ -19129,7 +19129,7 @@
       }
     }
   },
-  "info": {
+  "info": {"x-display-name":"Cal.com",
     "title": "Cal.com API v2",
     "description": "Cal.com v2 API \u2014 scheduling infrastructure. Authenticate with a Bearer token (API key from Settings > Developer > API Keys). Supports per-endpoint versioning via cal-api-version header.",
     "version": "1.0.0",
