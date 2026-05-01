@@ -1,6 +1,6 @@
 ---
 name: pp-ebay
-description: "Printing Press CLI for eBay. Sold-comp intelligence (average sale price over 90 days with outlier trim), true sniper bidding (max held client-side, fired at T-N seconds via the user's session), has-bids+ending-window auction discovery, and a local SQLite store for cross-listing analytics. Trigger phrases: 'comp this card', 'snipe this auction', 'what did this sell for'."
+description: "Printing Press CLI for eBay. Discovery and intelligence: sold-comp pricing (average sale price over 90 days with outlier trim), auctions filtered by bid count and ending window (the query the eBay site can no longer answer), watchlists, saved searches, and a local SQLite store for cross-listing analytics. Trigger phrases: 'comp this card', 'find ebay auctions ending soon', 'what did this sell for', 'find listings under $X for ...'. Bid placement (bid, snipe, bid-group) is experimental and currently fails because eBay step-ups auth on /bfl/placebid -- direct the user to bid in the browser."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata: '{"openclaw":{"requires":{"bins":["ebay-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/commerce/ebay/cmd/ebay-pp-cli@latest","bins":["ebay-pp-cli"],"label":"Install via go install"}]}}'
@@ -8,35 +8,28 @@ metadata: '{"openclaw":{"requires":{"bins":["ebay-pp-cli"]},"install":[{"id":"go
 
 # eBay — Printing Press CLI
 
-Buyer-power-user CLI for eBay. Sold-comp intelligence, true sniper bidding, watchlist intelligence, saved-search feeds, and a local SQLite store for cross-listing analytics.
+Discover, monitor, and analyze eBay listings, auctions, and sold comps from the terminal. Bid placement is experimental and currently fails (see Known Limitations); all discovery and intelligence commands are stable.
 
 ## Unique Capabilities
 
 These capabilities aren't available in any other tool for this API.
 
-### Buyer intelligence
-- **`comp`** — Average sale price for any item over the last 90 days with smart matching, condition normalization, outlier trim, and percentile distribution.
-
-  _When pricing a bid, you need the realistic distribution of recent sales, not a single anchor. Trim handles outliers; dedupe handles title variants._
-
-  ```bash
-  ebay-pp-cli comp "Cooper Flagg /50 Topps Chrome" --trim --json --select mean,median,sample_size
-  ```
-- **`snipe`** — Hold a max bid client-side, fire through the user's authenticated session at lead-seconds before close. Other bidders never see the max until it's too late to react.
-
-  _Reveals max only at fire time, not on bid-form open. Other bidders cannot react inside 8 seconds._
-
-  ```bash
-  ebay-pp-cli snipe 123456789012 --max 50.00 --lead 8s
-  ```
-- **`auctions`** — Search active auctions filtered by bid count and ending window (e.g. "Steph Curry cards with at least 3 bids ending in next hour").
+### Discovery and intelligence
+- **`auctions`** — Search active auctions filtered by bid count and ending window (e.g. "Steph Curry cards with at least 3 bids ending in next hour"). The eBay site can no longer answer this query since the Finding API was retired in February 2025.
 
   _Finds price-discoverable competition windows where last-second bidding actually moves the price._
 
   ```bash
   ebay-pp-cli auctions "Steph Curry rookie" --has-bids --ending-within 1h --json --select item_id,price,bids,time_left
   ```
-- **`comp`** — 1.5x IQR outlier trim on sold-comp results. Surfaces the realistic price band buyers should anchor on, with stddev and quartiles.
+- **`comp`** — Average sale price for any item over the last 90 days with smart matching, condition normalization, outlier trim, and percentile distribution.
+
+  _When pricing a bid (or deciding whether to even bother), you need the realistic distribution of recent sales, not a single anchor. Trim handles outliers; dedupe handles title variants._
+
+  ```bash
+  ebay-pp-cli comp "Cooper Flagg /50 Topps Chrome" --trim --json --select mean,median,sample_size
+  ```
+- **`comp` outlier trim** — 1.5x IQR outlier trim on sold-comp results. Surfaces the realistic price band buyers should anchor on, with stddev and quartiles.
 
   _Tells you what a normal buyer actually paid versus a record sale or a fire-sale outlier._
 
@@ -50,19 +43,33 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   ebay-pp-cli comp "Cooper Flagg /50" --dedupe-variants
   ```
+- **`listings`** — Active listing search filtered by auction/BIN, condition, and price band.
+
+  ```bash
+  ebay-pp-cli listings --nkw "PSA Mariners Griffey" --lh-bin 1 --udlo 10 --udhi 30
+  ```
 
 ## When to use
 
 - User asks "what did this card / watch / item sell for" → `ebay-pp-cli comp "<title>" --trim`
 - User asks "find auctions ending soon with bids" → `ebay-pp-cli auctions "<query>" --has-bids --ending-within 1h`
-- User asks to bid programmatically without revealing max → `ebay-pp-cli snipe <itemId> --max <amount>`
+- User asks "find Buy It Now listings under $X for ..." → `ebay-pp-cli listings --nkw "<query>" --lh-bin 1 --udhi <max>`
+- User asks "watch this listing" / "show my watchlist" → `ebay-pp-cli watch list`
+- User asks to bid programmatically → **explain the limitation** (eBay step-ups auth on `/bfl/placebid`); link them to bid in the browser. Do not run `bid` or `snipe` on their behalf.
 
 ## Anti-triggers
 
 This CLI is NOT the right tool for:
+- **Placing bids.** `bid`/`snipe`/`bid-group` are experimental and fail end-to-end. Direct the user to bid in their browser.
 - Listing items as a seller (use the eBay Sell APIs / Seller Hub directly).
 - Order fulfillment or shipping label generation.
 - Bulk inventory management for sellers.
+
+## Known Limitations
+
+- **Bid placement** (`bid`, `snipe`, `bid-group`) cannot complete end-to-end because eBay step-ups auth on `/bfl/placebid` for cookie-only sessions. These commands are hidden from default `--help` and print a warning when invoked. Users should bid in the browser.
+- **Rate limiting**: Sustained scraping triggers eBay 403s. Recovery: `ebay-pp-cli auth refresh` and back off.
+- **Stub commands**: Watchlist write paths, saved-search CRUD, feed, offer-hunter ship as "not yet implemented" stubs.
 
 ## HTTP Transport
 
@@ -75,15 +82,9 @@ This CLI was generated with browser-observed traffic context.
 - Protocols: html_scraping (95% confidence), rest_json (90% confidence)
 - Auth signals: — cookies: cid, s, nonsession, dp1, ebaysid, ds1, ds2, shs, npii
 - Generation hints: requires_browser_auth, requires_protected_client, uses_chrome_cookie_import, has_per_request_csrf, has_per_request_fraud_token
-- Caveats: fraud_token_ttl: Forter token TTL is unknown; long-running snipes may need to refresh forterToken at fire time by re-fetching the bid module; referrer_check: Direct nav to /bfl/placebid/<id> returns Oops error; bid module must be fetched via in-page click context; akamai_active: Akamai bot manager active — Surf must use Chrome TLS fingerprint or stdlib HTTP will be blocked
+- Caveats: placebid_step_up: eBay redirects /bfl/placebid/<id> to sign-in for cookie-only sessions, so bid placement cannot complete from this CLI today; akamai_active: Akamai bot manager active — Surf must use Chrome TLS fingerprint or stdlib HTTP will be blocked; rate_limit: sustained scraping triggers 403s, recover with auth refresh and back off
 
 ## Command Reference
-
-**bid** — Place bids on auction listings (authenticated)
-
-- `ebay-pp-cli bid confirm` — Place the actual bid (action=confirmbid). The endpoint that wins or loses an auction.
-- `ebay-pp-cli bid module` — Load the bid form module to extract srt + forterToken (internal step)
-- `ebay-pp-cli bid trisk` — Trust/risk pre-check before bid placement (action=trisk)
 
 **deal** — eBay Deals feed
 
@@ -101,7 +102,7 @@ This CLI was generated with browser-observed traffic context.
 
 - `ebay-pp-cli sold` — Search sold completed listings by keyword (90 day window)
 
-**watch** — Watchlist (authenticated)
+**watch** — Watchlist (authenticated, read-only)
 
 - `ebay-pp-cli watch` — List items in the user's watchlist
 
@@ -109,13 +110,18 @@ This CLI was generated with browser-observed traffic context.
 **Hand-written commands**
 
 - `ebay-pp-cli comp <query>` — Sold-comp intelligence: average sale price, distribution, trendline for items matching the query over the last 90 days.
-- `ebay-pp-cli snipe <itemId> --max <amount>` — True sniper bid: hold a max client-side, fire at T-N seconds with the user's session. Max stays hidden from other...
-- `ebay-pp-cli bid-group` — Coordinated multi-item snipe groups (single-win, multi-win=N, contingency).
 - `ebay-pp-cli auctions <query>` — Search active auctions filtered by bid count, ending window, condition. The 'has bids ending in next hour' query.
 - `ebay-pp-cli feed <saved-search>` — Stream new listings matching a saved search, with sold-comp context appended to each item.
-- `ebay-pp-cli offer-hunter <saved-search>` — Auto-submit best offers across a saved search at a percentage of asking price.
 - `ebay-pp-cli history` — Buying history (won, lost, paid) over a configurable window.
 - `ebay-pp-cli saved-search` — Local saved-search CRUD.
+
+**Hidden experimental commands**
+
+These commands exist in the binary but are excluded from `--help` because they currently fail end-to-end. Reach them by name (e.g. `ebay-pp-cli snipe --help`) for details.
+
+- `ebay-pp-cli bid` — Place bids (experimental; eBay step-up auth blocks).
+- `ebay-pp-cli snipe <itemId> --max <amount>` — Sniper bid (experimental; depends on bid flow).
+- `ebay-pp-cli bid-group` — Coordinated multi-item snipe groups (experimental; depends on snipe).
 
 
 ### Finding the right command
