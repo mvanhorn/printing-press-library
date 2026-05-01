@@ -20,9 +20,12 @@ func newSnipeCmd(flags *rootFlags) *cobra.Command {
 		now      bool
 	)
 	cmd := &cobra.Command{
-		Use:   "snipe <itemId>",
-		Short: "Schedule a max bid that fires through the user's session in the final seconds",
-		Long: `Place a sniper bid: hold a max client-side, bid through your authenticated
+		Use:    "snipe <itemId>",
+		Short:  "[experimental] Schedule a max bid (currently broken: depends on bid flow)",
+		Hidden: true,
+		Long: `[experimental — currently fails end-to-end. See README#known-limitations.]
+
+Place a sniper bid: hold a max client-side, bid through your authenticated
 eBay session at lead-seconds before the auction ends. Other bidders only see
 the bid when it's too late to react.
 
@@ -36,6 +39,7 @@ Examples:
 		Example: `  ebay-pp-cli snipe 123456789012 --max 50.00
   ebay-pp-cli snipe 123456789012 --max 50.00 --simulate`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			experimentalWarning(cmd, "snipe")
 			if len(args) == 0 {
 				return cmd.Help()
 			}
@@ -71,12 +75,16 @@ Examples:
 			}
 
 			// Look up the item end time so we can wait until lead-seconds before close.
-			src := srcebay.New(c)
-			listing, err := src.FetchItem(ctx, itemID)
-			if err != nil {
-				return fmt.Errorf("fetching item %s: %w", itemID, err)
+			// Skip the fetch entirely when --now is set; the end time isn't needed.
+			var endsAt time.Time
+			if !now {
+				src := srcebay.New(c)
+				listing, err := src.FetchItem(ctx, itemID)
+				if err != nil {
+					return fmt.Errorf("fetching item %s: %w", itemID, err)
+				}
+				endsAt = listing.EndsAt
 			}
-			endsAt := listing.EndsAt
 			if now || endsAt.IsZero() {
 				// Fire immediately when --now or item end time is unknown.
 				res, err := placer.Place(ctx, plan)

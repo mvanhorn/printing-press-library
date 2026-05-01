@@ -14,7 +14,8 @@ import (
 func newBidGroupCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "bid-group",
-		Short:       "Coordinated multi-item snipe groups (single-win, multi-win, contingency)",
+		Short:       "[experimental] Coordinated multi-item snipe groups (depends on snipe; currently broken)",
+		Hidden:      true,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 	}
 	cmd.AddCommand(novelStub(flags, "create", "Create a new bid group", "bid-group create <name> --type single-win|multi-win=N|contingency"))
