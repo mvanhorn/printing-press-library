@@ -28,16 +28,9 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
-	{Command: "goat", Description: "Query any dish across 37 recipe sites and rank results by normalized rating × review count × author trust × site trust × recency.", Group: "Cross-site intelligence", WhyItMatters: "Use this when you need the single best version of a dish — the agent gets structured results with provenance and trust signals instead of guessing from a web search."},
-	{Command: "sub", Description: "Aggregate ingredient substitutions from King Arthur, Serious Eats, AllRecipes reviews, and Budget Bytes. Ranked by source trust with ratios and context.", Group: "Cross-site intelligence", WhyItMatters: "When a recipe needs a sub, agents can pick the best one given the cooking context (baking vs marinade) instead of suggesting the first hit on Google."},
-	{Command: "cookbook match", Description: "Find recipes in the local cookbook that you can make right now with listed ingredients, or with ≤N missing ingredients.", Group: "Local state that compounds", WhyItMatters: "When the user says 'what can I make with what's in my fridge,' the agent gets ranked candidates with missing-ingredient counts instead of guessing."},
-	{Command: "tonight", Description: "Pick dinner in 2 seconds: filter cookbook by time budget, recency from cook log, and dietary/kid-friendly flags.", Group: "Local state that compounds", WhyItMatters: "Ends the 20-minute 'what are we having' debate with three data-backed candidates."},
-	{Command: "recipe reviews", Description: "Surface the top modifications cooks actually made to a recipe (\"added an egg: 22 cooks; baked 5 min less: 17; honey instead of sugar: 14\").", Group: "Cross-site intelligence", WhyItMatters: "Agents give the user the collective wisdom of reviewers instead of just star ratings."},
-	{Command: "recipe get --nutrition", Description: "When a site omits nutrition, parse ingredients, match USDA FoodData Central IDs, compute per-serving macros locally.", Group: "Cross-site intelligence", WhyItMatters: "Agents can answer 'is this recipe high-protein?' reliably even when the source doesn't publish macros."},
-	{Command: "search --kid-friendly", Description: "Filter recipes against an editable ingredient-exclusion list (capers, anchovies, excess heat, raw fish, etc.). Personalizable per-child.", Group: "Local state that compounds", WhyItMatters: "Parents get results actually edible by their kids, not marketing's idea of 'kid-friendly'."},
-	{Command: "meal-plan shopping-list", Description: "Aggregate ingredients across planned meals, reconcile units (2 cup + 1 cup milk → 3 cup), group by grocery aisle.", Group: "Local state that compounds", WhyItMatters: "The agent hands the user a complete shopping list ready for grocery day, aisle-grouped."},
-	{Command: "recipe get", Description: "Flag out-of-season ingredients inline (\"⚠ asparagus is out of season in November — peak April–June\") and suggest in-season swaps.", Group: "Cross-site intelligence", WhyItMatters: "Agents surface cost + quality signals the user wouldn't otherwise see."},
-	{Command: "recipe cost", Description: "Rough cost per serving using Budget Bytes line-item data plus USDA retail averages as fallback. Always shows an honesty band (±30%).", Group: "Local state that compounds", WhyItMatters: "Agents can triage recipes by rough cost without pretending to precision grocery data doesn't provide."},
+	{Command: "foods get", Description: "Get a specific food by FDC ID", Group: "foods"},
+	{Command: "foods list", Description: "List foods paginated", Group: "foods"},
+	{Command: "foods search", Description: "Search USDA FoodData Central for foods matching a query", Group: "foods"},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.
@@ -162,12 +155,6 @@ Exit codes:
 			}
 
 			if len(matches) == 0 {
-				// Under --dry-run, treat "no match" as a soft success so CI and
-				// structural verifiers can exercise the command with synthetic
-				// queries. Real invocations still surface the error.
-				if flags.dryRun {
-					return renderWhich(cmd, flags, []whichMatch{})
-				}
 				return usageErr(fmt.Errorf("no match for %q; try '%s --help' for the full command list", query, cmd.Root().Name()))
 			}
 			return renderWhich(cmd, flags, matches)

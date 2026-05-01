@@ -13,9 +13,9 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/recipe-goat/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/recipe-goat/internal/config"
+	"github.com/spf13/cobra"
 )
 
 var version = "1.0.0"
@@ -81,24 +81,11 @@ func Execute() error {
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "recipe-goat-pp-cli",
-		Short: `Recipe Goat CLI — Find the best version of any recipe across 37 trusted sites — then plan, shop, and cook with a local kitchen companion.`,
-		Long: `Recipe Goat CLI — Find the best version of any recipe across 37 trusted sites — then plan, shop, and cook with a local kitchen companion.
+		Short: "Manage recipe-goat resources via the recipe-goat API",
+		Long: `Manage recipe-goat resources via the recipe-goat API.
 
-Highlights (not in the official API docs):
-  • goat   Query any dish across 37 recipe sites and rank results by normalized ra…
-  • sub   Aggregate ingredient substitutions from King Arthur, Serious Eats, AllRecipes r…
-  • cookbook match   Find recipes in the local cookbook that you can make right now with listed ingr…
-  • tonight   Pick dinner in 2 seconds: filter cookbook by time budget, recency from cook log…
-  • recipe reviews   Surface the top modifications cooks actually made to a recipe ("added an egg: 2…
-  • recipe get --nutrition   When a site omits nutrition, parse ingredients, match USDA FoodData Central IDs…
-  • search --kid-friendly   Filter recipes against an editable ingredient-exclusion list (capers, anchovies…
-  • meal-plan shopping-list   Aggregate ingredients across planned meals, reconcile units (2 cup + 1 cup milk…
-  • recipe get   Flag out-of-season ingredients inline ("⚠ asparagus is out of season in Novembe…
-  • recipe cost   Rough cost per serving using Budget Bytes line-item data plus USDA retail avera…
-
-Agent mode: add --agent to any command for JSON output + non-interactive mode.
-Health check: run 'recipe-goat-pp-cli doctor' to verify auth and connectivity.
-See README.md or the bundled SKILL.md for recipes.`,
+Add --agent to any command for JSON output + non-interactive mode.
+Run 'recipe-goat-pp-cli doctor' to verify auth and connectivity.`,
 		SilenceUsage: true,
 		Version:      version,
 	}
@@ -190,7 +177,6 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newWorkflowCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
-	// Phase 3: recipe aggregation commands (hand-built, ported from 2026-04-13 baseline).
 	rootCmd.AddCommand(newRecipeCmd(flags))
 	rootCmd.AddCommand(newSaveCmd(flags))
 	rootCmd.AddCommand(newCookbookCmd(flags))

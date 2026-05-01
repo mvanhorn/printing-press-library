@@ -24,6 +24,10 @@ func newRecipeCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newRecipeOpenCmd(flags))
 	cmd.AddCommand(newRecipeReviewsCmd(flags))
 	cmd.AddCommand(newRecipeCostCmd(flags))
+	cmd.AddCommand(newRecipeGetCmd(flags))
+	cmd.AddCommand(newRecipeOpenCmd(flags))
+	cmd.AddCommand(newRecipeReviewsCmd(flags))
+	cmd.AddCommand(newRecipeCostCmd(flags))
 	return cmd
 }
 
@@ -109,11 +113,11 @@ func newRecipeGetCmd(flags *rootFlags) *cobra.Command {
 
 func newRecipeOpenCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:     "open <id>",
+		Use:         "open <id>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "Open a saved recipe in the default browser",
-		Example: "  recipe-goat-pp-cli recipe open 12",
-		Args:    cobra.ExactArgs(1),
+		Short:       "Open a saved recipe in the default browser",
+		Example:     "  recipe-goat-pp-cli recipe open 12",
+		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id, err := strconv.ParseInt(args[0], 10, 64)
 			if err != nil {

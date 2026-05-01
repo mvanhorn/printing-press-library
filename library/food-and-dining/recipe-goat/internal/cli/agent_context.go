@@ -22,13 +22,13 @@ const agentContextSchemaVersion = "2"
 // (2026-04-13 Wrangler post): agents can introspect the live CLI without
 // parsing --help or reading source.
 type agentContext struct {
-	SchemaVersion              string                 `json:"schema_version"`
-	CLI                        agentContextCLI        `json:"cli"`
-	Auth                       agentContextAuth       `json:"auth"`
-	Discovery                  *agentContextDiscovery `json:"discovery,omitempty"`
-	Commands                   []agentContextCommand  `json:"commands"`
-	AvailableProfiles          []string               `json:"available_profiles"`
-	FeedbackEndpointConfigured bool                   `json:"feedback_endpoint_configured"`
+	SchemaVersion               string                `json:"schema_version"`
+	CLI                         agentContextCLI       `json:"cli"`
+	Auth                        agentContextAuth      `json:"auth"`
+	Discovery                   *agentContextDiscovery `json:"discovery,omitempty"`
+	Commands                    []agentContextCommand `json:"commands"`
+	AvailableProfiles           []string              `json:"available_profiles"`
+	FeedbackEndpointConfigured  bool                  `json:"feedback_endpoint_configured"`
 }
 
 type agentContextCLI struct {
@@ -74,8 +74,9 @@ type agentContextFlag struct {
 func newAgentContextCmd(rootCmd *cobra.Command) *cobra.Command {
 	var pretty bool
 	cmd := &cobra.Command{
-		Use:   "agent-context",
-		Short: "Emit structured JSON describing this CLI for agents",
+		Use:         "agent-context",
+		Short:       "Emit structured JSON describing this CLI for agents",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Long: `Outputs a machine-readable description of commands, flags, and auth so
 agents can introspect this CLI at runtime without parsing --help or
 reading source. Schema is versioned via schema_version.`,

@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -46,12 +47,12 @@ func isNetworkError(err error) bool {
 
 // openStoreForRead opens the local SQLite store for reading.
 // Returns nil, nil if the database file does not exist (no sync has been run).
-func openStoreForRead(cliName string) (*store.Store, error) {
+func openStoreForRead(ctx context.Context, cliName string) (*store.Store, error) {
 	dbPath := defaultDBPath(cliName)
 	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 		return nil, nil
 	}
-	return store.Open(dbPath)
+	return store.OpenWithContext(ctx, dbPath)
 }
 
 // localProvenance builds a DataProvenance for local data reads.
@@ -85,23 +86,28 @@ func attachFreshness(prov DataProvenance, flags *rootFlags) DataProvenance {
 //   - isList: true for list endpoints, false for get-by-ID endpoints
 //   - path: the API path (e.g., "/links" or "/links/abc123")
 //   - params: query parameters for the API call
-func resolveRead(c *client.Client, flags *rootFlags, resourceType string, isList bool, path string, params map[string]string) (json.RawMessage, DataProvenance, error) {
+//   - headers: per-endpoint required headers (e.g. cal-api-version, Stripe-Version)
+//     baked in by the command template at codegen time. Pass nil when the endpoint
+//     declares no per-endpoint header overrides. Without this parameter, store-backed
+//     reads on per-endpoint-versioned APIs silently get the wrong response shape
+//     (cal-com retro #334 F1).
+func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, isList bool, path string, params map[string]string, headers map[string]string) (json.RawMessage, DataProvenance, error) {
 	switch flags.dataSource {
 	case "local":
-		data, prov, err := resolveLocal(resourceType, isList, path, params, "user_requested")
+		data, prov, err := resolveLocal(ctx, resourceType, isList, path, params, "user_requested")
 		return data, attachFreshness(prov, flags), err
 
 	case "live":
-		data, err := c.Get(path, params)
+		data, err := c.GetWithHeaders(path, params, headers)
 		if err != nil {
 			return nil, DataProvenance{}, err
 		}
 		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"
-		data, err := c.Get(path, params)
+		data, err := c.GetWithHeaders(path, params, headers)
 		if err == nil {
-			writeThroughCache(resourceType, data)
+			writeThroughCache(ctx, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		if !isNetworkError(err) {
@@ -109,7 +115,7 @@ func resolveRead(c *client.Client, flags *rootFlags, resourceType string, isList
 			return nil, DataProvenance{}, err
 		}
 		// Network error — try local fallback
-		fallbackData, fallbackProv, fallbackErr := resolveLocal(resourceType, isList, path, params, "api_unreachable")
+		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, resourceType, isList, path, params, "api_unreachable")
 		if fallbackErr != nil {
 			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'recipe-goat-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
 		}
@@ -118,30 +124,32 @@ func resolveRead(c *client.Client, flags *rootFlags, resourceType string, isList
 }
 
 // resolvePaginatedRead dispatches a paginated GET request to either the live API
-// or local store. When local, skips pagination and returns all synced data.
-func resolvePaginatedRead(c *client.Client, flags *rootFlags, resourceType string, path string, params map[string]string, fetchAll bool, cursorParam, nextCursorPath, hasMoreField string) (json.RawMessage, DataProvenance, error) {
+// or local store. When local, skips pagination and returns all synced data. The
+// headers argument carries per-endpoint required headers; pass nil when the
+// endpoint declares no overrides.
+func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, nextCursorPath, hasMoreField string) (json.RawMessage, DataProvenance, error) {
 	switch flags.dataSource {
 	case "local":
-		data, prov, err := resolveLocal(resourceType, true, path, params, "user_requested")
+		data, prov, err := resolveLocal(ctx, resourceType, true, path, params, "user_requested")
 		return data, attachFreshness(prov, flags), err
 
 	case "live":
-		data, err := paginatedGet(c, path, params, fetchAll, cursorParam, nextCursorPath, hasMoreField)
+		data, err := paginatedGet(c, path, params, headers, fetchAll, cursorParam, nextCursorPath, hasMoreField)
 		if err != nil {
 			return nil, DataProvenance{}, err
 		}
 		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"
-		data, err := paginatedGet(c, path, params, fetchAll, cursorParam, nextCursorPath, hasMoreField)
+		data, err := paginatedGet(c, path, params, headers, fetchAll, cursorParam, nextCursorPath, hasMoreField)
 		if err == nil {
-			writeThroughCache(resourceType, data)
+			writeThroughCache(ctx, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		if !isNetworkError(err) {
 			return nil, DataProvenance{}, err
 		}
-		fallbackData, fallbackProv, fallbackErr := resolveLocal(resourceType, true, path, params, "api_unreachable")
+		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, resourceType, true, path, params, "api_unreachable")
 		if fallbackErr != nil {
 			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'recipe-goat-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
 		}
@@ -152,8 +160,8 @@ func resolvePaginatedRead(c *client.Client, flags *rootFlags, resourceType strin
 // writeThroughCache upserts live API results into the local SQLite store so
 // FTS search covers everything the user has looked up — not just explicit syncs.
 // Best-effort: failures are silently ignored (the live result already succeeded).
-func writeThroughCache(resourceType string, data json.RawMessage) {
-	db, err := store.Open(defaultDBPath("recipe-goat-pp-cli"))
+func writeThroughCache(ctx context.Context, resourceType string, data json.RawMessage) {
+	db, err := store.OpenWithContext(ctx, defaultDBPath("recipe-goat-pp-cli"))
 	if err != nil {
 		return
 	}
@@ -205,8 +213,8 @@ func writeThroughCache(resourceType string, data json.RawMessage) {
 // Note: local reads return ALL synced data for the resource type. Endpoint-specific
 // filters (query params, path scoping like /teams/{id}/users) are NOT applied locally.
 // The provenance metadata includes "unscoped":true when params were present but not applied.
-func resolveLocal(resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
-	db, err := openStoreForRead("recipe-goat-pp-cli")
+func resolveLocal(ctx context.Context, resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
+	db, err := openStoreForRead(ctx, "recipe-goat-pp-cli")
 	if err != nil {
 		return nil, DataProvenance{}, fmt.Errorf("opening local database: %w\nRun 'recipe-goat-pp-cli sync' first.", err)
 	}

@@ -4,20 +4,68 @@
 package cli
 
 import (
+	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/recipe-goat/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/recipe-goat/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/recipe-goat/internal/recipes"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/recipe-goat/internal/store"
+	"github.com/spf13/cobra"
 )
 
+// looksLikeDoctorInterstitial reports whether the response body matches a known
+// bot-detection challenge page (Cloudflare, Akamai, Vercel, AWS WAF, DataDome,
+// PerimeterX). Only fires on the doctor probe — used to distinguish "transport
+// reached the wall" from "transport failed entirely." Returns the vendor name
+// when matched, or empty string when no match.
+//
+// Markers are anchored to <title> or vendor-specific strings to avoid
+// false-positives on benign content. For example, a recipe titled "Just A
+// Moment of Pause Cookies" must NOT match the Cloudflare challenge marker;
+// only "<title>just a moment" (the actual interstitial title) does.
+func looksLikeDoctorInterstitial(body []byte) string {
+	if len(body) == 0 {
+		return ""
+	}
+	limit := len(body)
+	if limit > 8192 {
+		limit = 8192
+	}
+	prefix := strings.ToLower(string(body[:limit]))
+	if !strings.Contains(prefix, "<title") {
+		// Every bot interstitial we recognize sets a <title>; bodies without
+		// one are body-only API responses, not challenge pages.
+		return ""
+	}
+	switch {
+	case strings.Contains(prefix, "<title>just a moment") || // CF JS challenge
+		strings.Contains(prefix, "challenges.cloudflare.com") || // CF Turnstile
+		(strings.Contains(prefix, "attention required") && strings.Contains(prefix, "cloudflare")):
+		return "Cloudflare"
+	case strings.Contains(prefix, "akamai") && (strings.Contains(prefix, "request unsuccessful") || strings.Contains(prefix, "access denied")):
+		return "Akamai"
+	case strings.Contains(prefix, "x-vercel-mitigated") || strings.Contains(prefix, "x-vercel-challenge-token") ||
+		(strings.Contains(prefix, "vercel") && strings.Contains(prefix, "challenge")):
+		return "Vercel"
+	case strings.Contains(prefix, "request blocked") && strings.Contains(prefix, "aws waf"):
+		return "AWS WAF"
+	case strings.Contains(prefix, "datadome") && (strings.Contains(prefix, "blocked") || strings.Contains(prefix, "captcha") || strings.Contains(prefix, "challenge")):
+		return "DataDome"
+	case strings.Contains(prefix, "perimeterx") || strings.Contains(prefix, "px-captcha"):
+		return "PerimeterX"
+	}
+	return ""
+}
+
 func newDoctorCmd(flags *rootFlags) *cobra.Command {
-	return &cobra.Command{
+	var failOn string
+	cmd := &cobra.Command{
 		Use:   "doctor",
 		Short: "Check CLI health",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -59,121 +107,104 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				report["env_vars"] = fmt.Sprintf("%d/%d set", authEnvSet, authEnvChecked)
 			}
 
-			// Check API connectivity and validate credentials
+			// Check API connectivity and validate credentials.
+			//
+			// The doctor uses the same client every other command uses --
+			// flags.newClient() returns a *client.Client wrapping whatever
+			// transport the spec declared (Surf for browser-chrome, stdlib
+			// for standard). A separate stdlib http.Client would silently
+			// bypass that choice and report false negatives against
+			// Cloudflare-fronted, Akamai-fronted, or otherwise bot-detected
+			// sites. By going through flags.newClient(), the doctor's
+			// reachability verdict matches what real commands experience.
 			if cfg != nil && cfg.BaseURL != "" {
-				httpClient := &http.Client{Timeout: 5 * time.Second}
-				baseURL := strings.TrimRight(cfg.BaseURL, "/")
-
-				// Step 1: Basic reachability (unauthenticated HEAD)
-				headReq, _ := http.NewRequest("HEAD", baseURL, nil)
-				headResp, headErr := httpClient.Do(headReq)
-				apiReachable := false
-				if headErr == nil {
-					headResp.Body.Close()
-					apiReachable = true
-				}
-
-				// If HEAD failed, try GET on common health endpoints
-				if !apiReachable {
-					for _, p := range []string{"/health", "/healthz", "/status", "/ping", ""} {
-						healthResp, healthErr := httpClient.Get(baseURL + p)
-						if healthErr != nil {
-							continue
+				c, clientErr := flags.newClient()
+				if clientErr != nil {
+					report["api"] = fmt.Sprintf("client init error: %s", clientErr)
+				} else {
+					// Step 1: Basic reachability via the configured transport.
+					reachBody, reachErr := c.Get("/", nil)
+					var reachAPIErr *client.APIError
+					switch {
+					case reachErr == nil:
+						// 2xx response — clearly reachable. Still inspect the
+						// body for a known interstitial; some bot walls return
+						// 200 with a JS challenge page.
+						if vendor := looksLikeDoctorInterstitial(reachBody); vendor != "" {
+							report["api"] = fmt.Sprintf("blocked by %s interstitial — the configured transport reached the wall. Try a different network, wait for the IP-level rate limit to clear, or check that the browser-chrome transport is bound correctly.", vendor)
+						} else {
+							report["api"] = "reachable"
 						}
-						healthResp.Body.Close()
-						apiReachable = true
-						break
+					case errors.As(reachErr, &reachAPIErr):
+						// Non-2xx from the server. The network reached, the
+						// server responded — that's "reachable" for our
+						// purposes. Inspect the response body for a known
+						// interstitial first; otherwise note the status.
+						status := reachAPIErr.StatusCode
+						if vendor := looksLikeDoctorInterstitial([]byte(reachAPIErr.Body)); vendor != "" {
+							report["api"] = fmt.Sprintf("blocked by %s interstitial (HTTP %d) — the configured transport reached the wall.", vendor, status)
+						} else {
+							report["api"] = fmt.Sprintf("reachable (HTTP %d at /)", status)
+						}
+					default:
+						// Network-level failure: DNS, connection refused, TLS,
+						// transport init, etc. The transport itself didn't
+						// connect.
+						report["api"] = fmt.Sprintf("unreachable: %s", reachErr)
 					}
-				}
 
-				if !apiReachable {
-					report["api"] = fmt.Sprintf("unreachable: %s", headErr)
-				} else {
-					report["api"] = "reachable"
-				}
-
-				// Step 2: Validate credentials with an authenticated request
-				authHeader := cfg.AuthHeader()
-				if authHeader == "" {
-					// No auth configured — skip credential validation
-				} else if !apiReachable {
-					report["credentials"] = "skipped (API unreachable)"
-				} else {
-					authReq, _ := http.NewRequest("GET", baseURL, nil)
-					authReq.Header.Set("X-API-KEY", authHeader)
-					authReq.Header.Set("User-Agent", "recipe-goat-pp-cli")
-					authResp, authErr := httpClient.Do(authReq)
-					if authErr != nil {
-						report["credentials"] = "error: could not reach API"
+					// Step 2: Validate credentials with an authenticated probe.
+					authHeader := cfg.AuthHeader()
+					if authHeader == "" {
+						// No auth configured — skip credential validation
+					} else if reachErr != nil && !errors.As(reachErr, &reachAPIErr) {
+						report["credentials"] = "skipped (API unreachable)"
 					} else {
-						authResp.Body.Close()
+						verifyPath := "/"
+						authParams := map[string]string{}
+						authHeaders := map[string]string{}
+						authHeaders["X-API-KEY"] = authHeader
+						_, authErr := c.GetWithHeaders(verifyPath, authParams, authHeaders)
+						var authAPIErr *client.APIError
 						switch {
-						case authResp.StatusCode >= 200 && authResp.StatusCode < 300:
+						case authErr == nil:
 							report["credentials"] = "valid"
-						case authResp.StatusCode == 401 || authResp.StatusCode == 403:
-							report["credentials"] = fmt.Sprintf("invalid (HTTP %d) — check your credentials", authResp.StatusCode)
+						case errors.As(authErr, &authAPIErr):
+							switch {
+							case authAPIErr.StatusCode == 401 || authAPIErr.StatusCode == 403:
+								// The probe hit the bare base URL because no auth.verify_path
+								// is configured in the spec. Many APIs return 401/403 from a
+								// bare versioned root regardless of token validity (the path
+								// isn't routed but the gateway still demands credentials).
+								// Don't claim invalid without certainty — set verify_path to
+								// a known-good authenticated GET (e.g. /me, /v1/account, /user)
+								// for a definitive verdict.
+								report["credentials"] = fmt.Sprintf("inconclusive (HTTP %d from base URL — set auth.verify_path in spec for a definitive probe)", authAPIErr.StatusCode)
+							default:
+								// Non-auth HTTP error (404, 500, etc.) — don't blame credentials
+								report["credentials"] = fmt.Sprintf("ok (HTTP %d from %s, but auth was accepted)", authAPIErr.StatusCode, verifyPath)
+							}
 						default:
-							// Non-auth HTTP error (404, 500, etc.) — don't blame credentials
-							report["credentials"] = fmt.Sprintf("ok (HTTP %d from base URL, but auth was accepted)", authResp.StatusCode)
+							report["credentials"] = fmt.Sprintf("error: %s", authErr)
 						}
 					}
 				}
 			} else if cfg != nil && cfg.BaseURL == "" {
 				report["api"] = "not configured (set base_url in config file)"
 			}
+			// Cache health: only reported when this CLI has a local store.
+			// Surfaces rows + last_synced_at per resource, schema version,
+			// and a fresh/stale/unknown verdict so agents can introspect
+			// whether to trust the cached data before issuing queries.
+			report["cache"] = collectCacheReport(cmd.Context(), "")
 
 			report["version"] = version
 
-			// Recipe site reachability — probes every site in the registry with
-			// a short-timeout HEAD. Results land in report["sites"] for JSON,
-			// and in the human output block below.
-			//
-			// Surf-Chrome impersonation: probe drift between this command and
-			// the real Fetch path was a documented bug class — ChromeUA over
-			// stdlib transport returned "blocked" for sites Surf actually
-			// reaches. Use the same client builder used by goat/search/recipe.
-			siteStatuses := make([]map[string]any, 0, len(recipes.Sites))
-			probeClient := httpClientForSites(5 * time.Second)
-			for _, s := range recipes.Sites {
-				u := "https://www." + s.Hostname + "/"
-				// Use GET, not HEAD: many recipe-site CDNs (BBC, RecipeTin
-				// Eats, AllRecipes, Serious Eats, The Kitchn) terminate
-				// HEAD requests with a TLS shutdown / EOF even though they
-				// serve GET cleanly. Doctor was reporting these as
-				// "unreachable EOF" when they were actually fine — a probe
-				// drift bug. GET with a 1-byte Range works for sites that
-				// support it; for those that don't, we still read the
-				// headers and discard the body.
-				req, _ := http.NewRequest("GET", u, nil)
-				req.Header.Set("User-Agent", recipes.ChromeUA)
-				req.Header.Set("Range", "bytes=0-1023")
-				status := "reachable"
-				code := 0
-				resp, err := probeClient.Do(req)
-				if err != nil {
-					status = fmt.Sprintf("unreachable (%s)", err)
-				} else {
-					code = resp.StatusCode
-					_, _ = io.Copy(io.Discard, resp.Body)
-					resp.Body.Close()
-					if code >= 400 && code != 416 {
-						// 416 Range Not Satisfiable is a partial-response
-						// quirk on sites that don't support Range — treat
-						// as reachable since headers came back.
-						status = fmt.Sprintf("blocked (HTTP %d)", code)
-					}
-				}
-				siteStatuses = append(siteStatuses, map[string]any{
-					"host":   s.Hostname,
-					"tier":   s.Tier,
-					"status": status,
-					"code":   code,
-				})
-			}
-			report["sites"] = siteStatuses
-
 			if flags.asJSON {
-				return flags.printJSON(cmd, report)
+				if err := printJSONFiltered(cmd.OutOrStdout(), report, flags); err != nil {
+					return err
+				}
+				return doctorExitForFailOn(failOn, report)
 			}
 
 			// Human-readable output with color
@@ -195,7 +226,13 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				case strings.HasPrefix(s, "optional"):
 					// Optional-auth CLI with no key set — informational, not a failure.
 					indicator = yellow("INFO")
-				case strings.Contains(s, "error") || strings.Contains(s, "not configured") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid"):
+				case strings.HasPrefix(s, "inconclusive"):
+					// The credential probe could not produce a definitive verdict
+					// (typically because the bare base URL returns 401/403 even for
+					// valid tokens). Surface as WARN, not FAIL — the user's actual
+					// commands will reveal a real auth failure if one exists.
+					indicator = yellow("WARN")
+				case strings.Contains(s, "error") || strings.Contains(s, "not configured") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing"):
 					indicator = red("FAIL")
 				case s == "not required":
 					// Public APIs: no auth needed is a healthy state, not a warning.
@@ -218,20 +255,200 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			if keyURL, ok := report["auth_key_url"]; ok {
 				fmt.Fprintf(w, "  Get a key at: %v\n", keyURL)
 			}
-
-			// Recipe sites reachability section.
-			fmt.Fprintln(w, "\nRECIPE SITES")
-			for _, s := range siteStatuses {
-				host := s["host"].(string)
-				tier := s["tier"].(int)
-				status := s["status"].(string)
-				indicator := green("OK")
-				if strings.Contains(status, "unreachable") || strings.Contains(status, "blocked") {
-					indicator = yellow("WARN")
+			// Cache section: render after the primary health block so it
+			// sits next to version info, mirroring the JSON report layout.
+			if cacheAny, ok := report["cache"]; ok {
+				if cacheRep, ok := cacheAny.(map[string]any); ok {
+					renderCacheReport(w, cacheRep)
 				}
-				fmt.Fprintf(w, "  %s %s (Tier %d) — %s\n", indicator, host, tier, status)
 			}
-			return nil
+			return doctorExitForFailOn(failOn, report)
 		},
+	}
+	cmd.Flags().StringVar(&failOn, "fail-on", "", "Exit non-zero when a health level is reached: stale, error. Default is never.")
+	return cmd
+}
+
+// doctorExitForFailOn returns a non-nil error when the report's worst
+// status meets or exceeds the --fail-on threshold. "error" always trips
+// when any section reports an error; "stale" also trips when the cache
+// section is stale. The default empty string means never fail on status.
+func doctorExitForFailOn(failOn string, report map[string]any) error {
+	if failOn == "" {
+		return nil
+	}
+	worstError := false
+	worstStale := false
+	for _, v := range report {
+		s, ok := v.(string)
+		if ok {
+			if strings.Contains(s, "error") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing") {
+				worstError = true
+			}
+		}
+		if m, ok := v.(map[string]any); ok {
+			if st, _ := m["status"].(string); st == "error" {
+				worstError = true
+			} else if st == "stale" {
+				worstStale = true
+			}
+		}
+	}
+	switch failOn {
+	case "error":
+		if worstError {
+			return fmt.Errorf("doctor: --fail-on=error triggered")
+		}
+	case "stale":
+		if worstError || worstStale {
+			return fmt.Errorf("doctor: --fail-on=stale triggered")
+		}
+	default:
+		return fmt.Errorf("doctor: unknown --fail-on value %q (valid: stale, error)", failOn)
+	}
+	return nil
+}
+
+// collectCacheReport opens the local store, reads per-resource sync state,
+// and returns a map summarising cache health. Never panics on missing DB
+// or open failure; returns a map with status=unknown or status=error so the
+// caller can render and agents can interpret.
+//
+// staleAfterSpec is the CLI's configured threshold (e.g. "6h"); empty means
+// use the runtime default. The default is deliberately conservative (6h)
+// because the alternative is no freshness story at all.
+func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]any {
+	report := map[string]any{}
+	dbPath := defaultDBPath("recipe-goat-pp-cli")
+	report["db_path"] = dbPath
+
+	fi, err := os.Stat(dbPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			report["status"] = "unknown"
+			report["hint"] = "Database not created yet; run 'recipe-goat-pp-cli sync' to hydrate."
+			return report
+		}
+		report["status"] = "error"
+		report["error"] = err.Error()
+		return report
+	}
+	report["db_bytes"] = fi.Size()
+
+	s, err := store.OpenWithContext(ctx, dbPath)
+	if err != nil {
+		report["status"] = "error"
+		report["error"] = err.Error()
+		return report
+	}
+	defer s.Close()
+
+	if v, verr := s.SchemaVersion(); verr == nil {
+		report["schema_version"] = v
+	}
+
+	staleAfter := 6 * time.Hour
+	if staleAfterSpec != "" {
+		if d, derr := time.ParseDuration(staleAfterSpec); derr == nil {
+			staleAfter = d
+		}
+	}
+
+	rows, qerr := s.DB().Query(`SELECT resource_type, COALESCE(total_count, 0), last_synced_at FROM sync_state ORDER BY resource_type`)
+	if qerr != nil {
+		// sync_state may not exist on a fresh DB that has migrated but not
+		// yet had any sync runs — treat as unknown rather than error.
+		report["status"] = "unknown"
+		report["hint"] = "No sync state recorded; run 'recipe-goat-pp-cli sync' to populate."
+		return report
+	}
+	defer rows.Close()
+
+	var resources []map[string]any
+	fresh := true
+	haveAny := false
+	oldest := time.Duration(0)
+	for rows.Next() {
+		var rtype string
+		var count int64
+		var lastSynced sql.NullTime
+		if err := rows.Scan(&rtype, &count, &lastSynced); err != nil {
+			continue
+		}
+		r := map[string]any{"type": rtype, "rows": count}
+		if lastSynced.Valid {
+			haveAny = true
+			r["last_synced_at"] = lastSynced.Time.UTC().Format(time.RFC3339)
+			age := time.Since(lastSynced.Time)
+			r["staleness"] = age.Round(time.Minute).String()
+			if age > staleAfter {
+				fresh = false
+			}
+			if age > oldest {
+				oldest = age
+			}
+		} else {
+			r["staleness"] = "never"
+			fresh = false
+		}
+		resources = append(resources, r)
+	}
+	report["resources"] = resources
+	report["stale_after"] = staleAfter.String()
+
+	switch {
+	case !haveAny && len(resources) == 0:
+		report["status"] = "unknown"
+		report["hint"] = "sync_state is empty; run 'recipe-goat-pp-cli sync' to hydrate."
+	case fresh:
+		report["status"] = "fresh"
+	default:
+		report["status"] = "stale"
+		report["oldest_age"] = oldest.Round(time.Minute).String()
+		report["hint"] = "Some resources are older than stale_after; run 'recipe-goat-pp-cli sync' to refresh."
+	}
+	return report
+}
+
+func renderCacheReport(w io.Writer, rep map[string]any) {
+	status, _ := rep["status"].(string)
+	indicator := green("OK")
+	switch status {
+	case "stale":
+		indicator = yellow("WARN")
+	case "error":
+		indicator = red("FAIL")
+	case "unknown":
+		indicator = yellow("INFO")
+	}
+	fmt.Fprintf(w, "  %s Cache: %s\n", indicator, status)
+	if v, ok := rep["db_path"]; ok {
+		fmt.Fprintf(w, "    db_path: %v\n", v)
+	}
+	if v, ok := rep["schema_version"]; ok {
+		fmt.Fprintf(w, "    schema_version: %v\n", v)
+	}
+	if v, ok := rep["db_bytes"]; ok {
+		fmt.Fprintf(w, "    db_bytes: %v\n", v)
+	}
+	if v, ok := rep["stale_after"]; ok {
+		fmt.Fprintf(w, "    stale_after: %v\n", v)
+	}
+	if v, ok := rep["oldest_age"]; ok {
+		fmt.Fprintf(w, "    oldest_age: %v\n", v)
+	}
+	if resourcesAny, ok := rep["resources"]; ok {
+		if resources, ok := resourcesAny.([]map[string]any); ok && len(resources) > 0 {
+			fmt.Fprintf(w, "    resources:\n")
+			for _, r := range resources {
+				rtype, _ := r["type"].(string)
+				rows := r["rows"]
+				staleness, _ := r["staleness"].(string)
+				fmt.Fprintf(w, "      - %s: %v rows, %s\n", rtype, rows, staleness)
+			}
+		}
+	}
+	if hint, ok := rep["hint"]; ok {
+		fmt.Fprintf(w, "    hint: %v\n", hint)
 	}
 }

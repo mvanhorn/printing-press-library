@@ -21,6 +21,10 @@ func newMealPlanCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newMealPlanShowCmd(flags))
 	cmd.AddCommand(newMealPlanRemoveCmd(flags))
 	cmd.AddCommand(newMealPlanShoppingCmd(flags))
+	cmd.AddCommand(newMealPlanSetCmd(flags))
+	cmd.AddCommand(newMealPlanShowCmd(flags))
+	cmd.AddCommand(newMealPlanRemoveCmd(flags))
+	cmd.AddCommand(newMealPlanShoppingCmd(flags))
 	return cmd
 }
 

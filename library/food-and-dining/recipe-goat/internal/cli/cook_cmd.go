@@ -18,6 +18,8 @@ func newCookCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.AddCommand(newCookLogCmd(flags))
 	cmd.AddCommand(newCookHistoryCmd(flags))
+	cmd.AddCommand(newCookLogCmd(flags))
+	cmd.AddCommand(newCookHistoryCmd(flags))
 	return cmd
 }
 

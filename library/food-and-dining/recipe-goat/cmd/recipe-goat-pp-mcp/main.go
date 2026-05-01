@@ -13,7 +13,7 @@ import (
 
 func main() {
 	s := server.NewMCPServer(
-		"Recipe Goat",
+		"Recipe GOAT",
 		"1.0.0",
 		server.WithToolCapabilities(false),
 	)

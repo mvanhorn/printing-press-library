@@ -17,10 +17,10 @@ func newFoodsListCmd(flags *rootFlags) *cobra.Command {
 	var flagDataType string
 
 	cmd := &cobra.Command{
-		Use:     "list",
-		Short:   "List foods paginated",
+		Use:   "list",
+		Short: "List foods paginated",
 		Example: "  recipe-goat-pp-cli foods list",
-		Annotations: map[string]string{"pp:endpoint": "foods.list"},
+		Annotations: map[string]string{"pp:endpoint": "foods.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -38,7 +38,7 @@ func newFoodsListCmd(flags *rootFlags) *cobra.Command {
 			if flagDataType != "" {
 				params["dataType"] = fmt.Sprintf("%v", flagDataType)
 			}
-			data, prov, err := resolveRead(c, flags, "foods", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "foods", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -48,14 +48,15 @@ func newFoodsListCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

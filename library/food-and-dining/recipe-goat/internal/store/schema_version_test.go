@@ -4,9 +4,13 @@
 package store
 
 import (
+	"context"
 	"database/sql"
+	"errors"
 	"path/filepath"
+	"sync"
 	"testing"
+	"time"
 
 	_ "modernc.org/sqlite"
 )
@@ -88,6 +92,141 @@ func TestSchemaVersion_RefusesNewerDB(t *testing.T) {
 	}
 }
 
+// TestMigrate_ConcurrentFreshDB exercises the BEGIN IMMEDIATE migration
+// transaction. Without it, N goroutines opening the same fresh DB in
+// parallel race per CREATE TABLE statement and trip SQLITE_BUSY despite
+// the busy_timeout. With it, they serialize on the RESERVED lock
+// acquired at BEGIN time and every Open succeeds.
+func TestMigrate_ConcurrentFreshDB(t *testing.T) {
+	if testing.Short() {
+		t.Skip("concurrent migration test can take up to migrationLockTimeout under contention")
+	}
+	t.Parallel()
+
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	const n = 8
+	errs := make(chan error, n)
+	var wg sync.WaitGroup
+	wg.Add(n)
+	for i := 0; i < n; i++ {
+		go func() {
+			defer wg.Done()
+			s, err := Open(dbPath)
+			if err != nil {
+				errs <- err
+				return
+			}
+			s.Close()
+		}()
+	}
+	wg.Wait()
+	close(errs)
+
+	for err := range errs {
+		t.Fatalf("concurrent Open failed: %v", err)
+	}
+}
+
+// holdWriteLock takes an exclusive write lock on dbPath that a peer's
+// BEGIN IMMEDIATE cannot acquire until the returned cleanup runs. Used
+// to construct contention scenarios in the migration tests.
+func holdWriteLock(t *testing.T, dbPath string) (cleanup func()) {
+	t.Helper()
+	holder, err := sql.Open("sqlite", dbPath+"?_journal_mode=WAL&_busy_timeout=5000")
+	if err != nil {
+		t.Fatalf("open holder: %v", err)
+	}
+	htx, err := holder.Begin()
+	if err != nil {
+		_ = holder.Close()
+		t.Fatalf("begin holder tx: %v", err)
+	}
+	if _, err := htx.Exec(`CREATE TABLE IF NOT EXISTS holder_lock (id INTEGER)`); err != nil {
+		_ = htx.Rollback()
+		_ = holder.Close()
+		t.Fatalf("seed holder write: %v", err)
+	}
+	return func() {
+		_ = htx.Rollback()
+		_ = holder.Close()
+	}
+}
+
+// TestOpenWithContext_RespectsCancellation verifies that a caller that
+// cancels its context during a stalled migration sees the cancellation
+// surface as the returned error within a short window, instead of
+// having to wait out the full migrationLockTimeout. SIGINT in a Cobra
+// command's context must interrupt store.Open, not just block on it.
+func TestOpenWithContext_RespectsCancellation(t *testing.T) {
+	t.Parallel()
+
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	defer holdWriteLock(t, dbPath)()
+
+	// Pre-cancel the context. The migration's BEGIN IMMEDIATE will BUSY
+	// against the holder; the very first iteration of retryOnBusy then
+	// hits the ctx.Done() arm of its select and propagates ctx.Canceled.
+	// A blocked-then-cancel pattern using time.Sleep would prove the
+	// same property but cost the sleep interval on every CI run.
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	start := time.Now()
+	_, err := OpenWithContext(ctx, dbPath)
+	elapsed := time.Since(start)
+
+	if err == nil {
+		t.Fatalf("expected OpenWithContext to fail under contention with cancelled ctx")
+	}
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("expected context.Canceled in error chain, got: %v", err)
+	}
+	// Without ctx threading this would block until migrationLockTimeout
+	// (default 30s). 5s is generous headroom over the actual return
+	// time (microseconds for a pre-cancelled ctx) without flaking CI.
+	if elapsed > 5*time.Second {
+		t.Fatalf("OpenWithContext returned after %s; pre-cancelled ctx should short-circuit immediately", elapsed)
+	}
+}
+
+// TestMigrate_RejectsNewerDBImmediately verifies that an old binary
+// opening a newer-schema DB rejects fast even when a peer migrator is
+// still holding the write lock. The schema-version check runs on the
+// pinned connection BEFORE BEGIN IMMEDIATE so the rejection path
+// doesn't have to wait out the migration lock.
+func TestMigrate_RejectsNewerDBImmediately(t *testing.T) {
+	t.Parallel()
+
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	// Pre-stamp the DB at a version this binary doesn't support.
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	if _, err := raw.Exec(`PRAGMA user_version = 999`); err != nil {
+		t.Fatalf("stamp future version: %v", err)
+	}
+	raw.Close()
+
+	defer holdWriteLock(t, dbPath)()
+
+	start := time.Now()
+	_, err = Open(dbPath)
+	elapsed := time.Since(start)
+
+	if err == nil {
+		t.Fatalf("expected Open to refuse a newer-schema DB")
+	}
+	// The fast-path goal: rejection must arrive well under
+	// migrationLockTimeout. 5s leaves headroom over the WAL init race
+	// (a few ms in practice) without being so tight CI flakes.
+	if elapsed > 5*time.Second {
+		t.Fatalf("Open rejected after %s; fast-path should reject in well under migrationLockTimeout (30s)", elapsed)
+	}
+}
+
 // TestSchemaVersion_ReopenIsIdempotent verifies that opening an already
 // correctly-stamped DB is a no-op — the second open reads the version
 // and the migrations are all idempotent (CREATE TABLE IF NOT EXISTS).
@@ -112,5 +251,136 @@ func TestSchemaVersion_ReopenIsIdempotent(t *testing.T) {
 	}
 	if v != StoreSchemaVersion {
 		t.Fatalf("reopened version = %d, want %d", v, StoreSchemaVersion)
+	}
+}
+
+// TestMigrate_AddsColumnsOnUpgrade_Foods verifies that opening a
+// database created by an older binary succeeds and adds newly generated
+// columns before CREATE INDEX runs against the pre-existing table. Regression
+// coverage for parent_id upgrades and indexed generated columns.
+func TestMigrate_AddsColumnsOnUpgrade_Foods(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	// Pre-create the DB with the older table shape: id, data, synced_at and
+	// none of the newer generated columns. user_version stays 0 (pre-gate).
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE TABLE foods (
+		id TEXT PRIMARY KEY,
+		data JSON NOT NULL,
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create old table: %v", err)
+	}
+	raw.Close()
+
+	// Opening with the new binary must run CREATE INDEX statements without
+	// erroring on missing generated columns.
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open upgraded db: %v", err)
+	}
+	defer s.Close()
+
+	// The migration must have added every generated column.
+	rows, err := s.DB().Query(`PRAGMA table_info(foods)`)
+	if err != nil {
+		t.Fatalf("table_info: %v", err)
+	}
+	defer rows.Close()
+
+	hasColumn := make(map[string]bool)
+	for rows.Next() {
+		var cid int
+		var name, typ string
+		var notnull, pk int
+		var dflt sql.NullString
+		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+			t.Fatalf("scan: %v", err)
+		}
+		hasColumn[name] = true
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatalf("rows: %v", err)
+	}
+
+	for _, want := range []string{
+		"query",
+		"page_size",
+		"page_number",
+		"data_type",
+		"fdc_id",
+		"nutrients",
+	} {
+		if !hasColumn[want] {
+			t.Fatalf("%s column missing from foods after migrate", want)
+		}
+	}
+}
+
+// TestMigrate_AddsColumnsOnUpgrade_SyncState verifies that opening a
+// database created by an older binary succeeds and adds newly generated
+// columns before CREATE INDEX runs against the pre-existing table. Regression
+// coverage for parent_id upgrades and indexed generated columns.
+func TestMigrate_AddsColumnsOnUpgrade_SyncState(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	// Pre-create the DB with the older table shape: id, data, synced_at and
+	// none of the newer generated columns. user_version stays 0 (pre-gate).
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE TABLE sync_state (
+		id TEXT PRIMARY KEY,
+		data JSON NOT NULL,
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create old table: %v", err)
+	}
+	raw.Close()
+
+	// Opening with the new binary must run CREATE INDEX statements without
+	// erroring on missing generated columns.
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open upgraded db: %v", err)
+	}
+	defer s.Close()
+
+	// The migration must have added every generated column.
+	rows, err := s.DB().Query(`PRAGMA table_info(sync_state)`)
+	if err != nil {
+		t.Fatalf("table_info: %v", err)
+	}
+	defer rows.Close()
+
+	hasColumn := make(map[string]bool)
+	for rows.Next() {
+		var cid int
+		var name, typ string
+		var notnull, pk int
+		var dflt sql.NullString
+		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+			t.Fatalf("scan: %v", err)
+		}
+		hasColumn[name] = true
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatalf("rows: %v", err)
+	}
+
+	for _, want := range []string{
+		"last_cursor",
+		"last_synced_at",
+		"total_count",
+	} {
+		if !hasColumn[want] {
+			t.Fatalf("%s column missing from sync_state after migrate", want)
+		}
 	}
 }

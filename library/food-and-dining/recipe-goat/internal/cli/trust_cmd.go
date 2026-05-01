@@ -21,6 +21,8 @@ func newTrustCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.AddCommand(newTrustListCmd(flags))
 	cmd.AddCommand(newTrustSetCmd(flags))
+	cmd.AddCommand(newTrustListCmd(flags))
+	cmd.AddCommand(newTrustSetCmd(flags))
 	return cmd
 }
 

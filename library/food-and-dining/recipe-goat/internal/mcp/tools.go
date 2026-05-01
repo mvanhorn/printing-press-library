@@ -26,7 +26,7 @@ import (
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("foods_get",
-			mcplib.WithDescription("Get a specific food by FDC ID Returns Food."),
+			mcplib.WithDescription("Get a specific food by FDC ID. Required: fdc_id. Optional: nutrients. Returns the Food."),
 			mcplib.WithString("fdc_id", mcplib.Required(), mcplib.Description("FoodData Central ID")),
 			mcplib.WithString("nutrients", mcplib.Description("Comma-separated nutrient IDs to return")),
 			mcplib.WithReadOnlyHintAnnotation(true),
@@ -37,7 +37,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("foods_list",
-			mcplib.WithDescription("List foods paginated Returns array of Food."),
+			mcplib.WithDescription("List foods paginated. Optional: pageSize, pageNumber, dataType. Returns array of Food."),
 			mcplib.WithString("pageSize", mcplib.Description("Results per page (1–200)")),
 			mcplib.WithString("pageNumber", mcplib.Description("Page number (1-indexed)")),
 			mcplib.WithString("dataType", mcplib.Description("Comma-separated list: Foundation,SR Legacy,Branded,Survey (FNDDS)")),
@@ -49,7 +49,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("foods_search",
-			mcplib.WithDescription("Search USDA FoodData Central for foods matching a query Returns FoodSearchResult."),
+			mcplib.WithDescription("Search USDA FoodData Central for foods matching a query. Required: query. Optional: pageSize, pageNumber, dataType. Returns the FoodSearchResult."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search term (e.g., 'chicken breast raw')")),
 			mcplib.WithString("pageSize", mcplib.Description("Results per page (1–200)")),
 			mcplib.WithString("pageNumber", mcplib.Description("Page number (1-indexed)")),
@@ -151,16 +151,19 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
 					"\n      Set your API key: export USDA_FDC_API_KEY=<your-key>" +
+					"\n      Get a key at: https://fdc.nal.usda.gov/api-key-signup" +
 					"\n      Run 'recipe-goat-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
 				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your API key." +
 					"\n      Set it with: export USDA_FDC_API_KEY=<your-key>" +
+					"\n      Get a key at: https://fdc.nal.usda.gov/api-key-signup" +
 					"\n      Run 'recipe-goat-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: your credentials are valid but lack access to this resource." +
 					"\n      Set it with: export USDA_FDC_API_KEY=<your-key>" +
+					"\n      Get a key at: https://fdc.nal.usda.gov/api-key-signup" +
 					"\n      Run 'recipe-goat-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
@@ -225,7 +228,7 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		}
 	}
 
-	db, err := store.Open(dbPath())
+	db, err := store.OpenWithContext(ctx, dbPath())
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
@@ -268,6 +271,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"auth": map[string]any{
 			"type": "api_key",
 			"env_vars": []string{"USDA_FDC_API_KEY",  },
+			"key_url": "https://fdc.nal.usda.gov/api-key-signup",
 		},
 		"resources": []map[string]any{
 			{
@@ -284,32 +288,6 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
-		},
-		// Command-mirror capabilities are exposed through MCP by shelling out
-		// to the companion CLI binary.
-		"command_mirror_capabilities": []map[string]string{
-			{"name": "Best-version ranker", "command": "goat", "description": "Query any dish across 37 recipe sites and rank results by normalized rating × review count × author trust × site...", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Substitution lookup", "command": "sub", "description": "Aggregate ingredient substitutions from King Arthur, Serious Eats, AllRecipes reviews, and Budget Bytes. Ranked by...", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Pantry match", "command": "cookbook match", "description": "Find recipes in the local cookbook that you can make right now with listed ingredients, or with ≤N missing...", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Tonight picker", "command": "tonight", "description": "Pick dinner in 2 seconds: filter cookbook by time budget, recency from cook log, and dietary/kid-friendly flags.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Review-modification digest", "command": "recipe reviews", "description": "Surface the top modifications cooks actually made to a recipe ('added an egg: 22 cooks; baked 5 min less: 17; honey...", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "USDA nutrition backfill", "command": "recipe get --nutrition", "description": "When a site omits nutrition, parse ingredients, match USDA FoodData Central IDs, compute per-serving macros locally.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Kid-friendly filter", "command": "search --kid-friendly", "description": "Filter recipes against an editable ingredient-exclusion list (capers, anchovies, excess heat, raw fish, etc.)....", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Unit-reconciling shopping list", "command": "meal-plan shopping-list", "description": "Aggregate ingredients across planned meals, reconcile units (2 cup + 1 cup milk → 3 cup), group by grocery aisle.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Inline seasonal flag", "command": "recipe get", "description": "Flag out-of-season ingredients inline ('⚠ asparagus is out of season in November — peak April–June') and...", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Honest cost estimate", "command": "recipe cost", "description": "Rough cost per serving using Budget Bytes line-item data plus USDA retail averages as fallback. Always shows an...", "rationale": "", "via": "mcp-command-mirror"},
-		},
-		"playbook": []map[string]string{
-			{"topic": "Best-version ranker", "insight": ""},
-			{"topic": "Substitution lookup", "insight": ""},
-			{"topic": "Pantry match", "insight": ""},
-			{"topic": "Tonight picker", "insight": ""},
-			{"topic": "Review-modification digest", "insight": ""},
-			{"topic": "USDA nutrition backfill", "insight": ""},
-			{"topic": "Kid-friendly filter", "insight": ""},
-			{"topic": "Unit-reconciling shopping list", "insight": ""},
-			{"topic": "Inline seasonal flag", "insight": ""},
-			{"topic": "Honest cost estimate", "insight": ""},
 		},
 	}
 	data, _ := json.MarshalIndent(ctx, "", "  ")

@@ -22,6 +22,12 @@ func newCookbookCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newCookbookTagCmd(flags))
 	cmd.AddCommand(newCookbookUntagCmd(flags))
 	cmd.AddCommand(newCookbookMatchCmd(flags))
+	cmd.AddCommand(newCookbookListCmd(flags))
+	cmd.AddCommand(newCookbookSearchCmd(flags))
+	cmd.AddCommand(newCookbookRemoveCmd(flags))
+	cmd.AddCommand(newCookbookTagCmd(flags))
+	cmd.AddCommand(newCookbookUntagCmd(flags))
+	cmd.AddCommand(newCookbookMatchCmd(flags))
 	return cmd
 }
 
