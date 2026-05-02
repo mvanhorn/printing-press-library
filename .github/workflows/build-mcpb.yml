@@ -1,0 +1,206 @@
+name: Build MCPB bundles
+
+# Builds cross-platform .mcpb bundles for printed CLIs and uploads them as
+# release assets keyed by `<slug>-current` (a moving tag). The README in
+# each CLI links to releases/download/<slug>-current/<binary>-<os>-<arch>.mcpb,
+# so each push to main rebuilds and the URL stays stable forever.
+#
+# Triggers:
+#   - workflow_dispatch (manual): rebuild a specific CLI or "all"
+#   - push to main on library/** (excluding build/): rebuild affected CLIs
+#
+# Auth: requires GENERATOR_READ_TOKEN (fine-grained PAT with Contents:read on
+# mvanhorn/cli-printing-press) so `go install` can fetch the printing-press
+# generator from a private repo.
+
+on:
+  workflow_dispatch:
+    inputs:
+      cli:
+        description: 'CLI to rebuild as <category>/<slug>, or "all" for every CLI in the library'
+        required: false
+        default: ''
+  push:
+    branches: [main]
+    paths:
+      - 'library/**'
+      - '!library/**/build/**'
+      - '.github/workflows/build-mcpb.yml'
+
+permissions:
+  contents: write  # for creating/updating releases
+
+jobs:
+  detect:
+    name: Detect affected CLIs
+    runs-on: ubuntu-latest
+    outputs:
+      affected: ${{ steps.detect.outputs.affected }}
+      count: ${{ steps.detect.outputs.count }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # need history to diff against parent commit
+      - id: detect
+        name: Determine affected CLIs
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_CLI: ${{ inputs.cli }}
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            if [ -z "$INPUT_CLI" ] || [ "$INPUT_CLI" = "all" ]; then
+              affected=$(find library -mindepth 2 -maxdepth 2 -type d \
+                | sed 's|library/||' \
+                | sort -u \
+                | jq -R . | jq -s -c .)
+            else
+              affected=$(printf '%s' "$INPUT_CLI" | jq -R . | jq -s -c .)
+            fi
+          else
+            # Push event: diff against parent commit. The all-zeros sentinel
+            # appears for initial branch pushes; fall back to HEAD^ then to
+            # listing all library entries so the workflow degrades gracefully.
+            if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ] || [ -z "$BEFORE_SHA" ]; then
+              changed_paths=$(git diff --name-only "HEAD^" "HEAD" -- 'library/**' 2>/dev/null || git ls-files 'library/**')
+            else
+              changed_paths=$(git diff --name-only "$BEFORE_SHA" "$AFTER_SHA" -- 'library/**' || true)
+            fi
+            affected=$(printf '%s\n' "$changed_paths" \
+              | awk -F/ 'NF >= 3 && $1 == "library" { print $2"/"$3 }' \
+              | sort -u \
+              | jq -R . | jq -s -c .)
+          fi
+          # Filter out empty/null entries
+          affected=$(printf '%s' "$affected" | jq -c '[ .[] | select(. != null and . != "") ]')
+          count=$(printf '%s' "$affected" | jq 'length')
+          echo "affected=$affected" >> "$GITHUB_OUTPUT"
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          echo "Affected CLIs ($count): $affected"
+
+  bundle:
+    name: Bundle ${{ matrix.target }} (${{ matrix.platform }})
+    needs: detect
+    if: needs.detect.outputs.count != '0'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(needs.detect.outputs.affected) }}
+        platform:
+          - darwin/amd64
+          - darwin/arm64
+          - linux/amd64
+          - linux/arm64
+          - windows/amd64
+          - windows/arm64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+      - name: Configure git for private modules
+        env:
+          TOKEN: ${{ secrets.GENERATOR_READ_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::error::GENERATOR_READ_TOKEN secret is not set. The workflow needs a fine-grained PAT with Contents:read on mvanhorn/cli-printing-press."
+            exit 1
+          fi
+          git config --global url."https://oauth2:${TOKEN}@github.com/".insteadOf "https://github.com/"
+      - name: Install printing-press
+        env:
+          GOPRIVATE: github.com/mvanhorn/*
+        run: |
+          go install github.com/mvanhorn/cli-printing-press/v3/cmd/printing-press@latest
+          printing-press --version
+      - name: Bundle MCPB
+        env:
+          CLI_TARGET: ${{ matrix.target }}
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          set -euo pipefail
+          cli_dir="library/${CLI_TARGET}"
+          if [ ! -f "${cli_dir}/manifest.json" ]; then
+            echo "::warning::${cli_dir} has no manifest.json — skipping bundle (likely pre-v3.0.0; needs regen via printing-press-publish)."
+            exit 0
+          fi
+          os="${PLATFORM%/*}"
+          arch="${PLATFORM#*/}"
+          slug=$(basename "${CLI_TARGET}")
+          out="${RUNNER_TEMP}/out/${slug}-pp-mcp-${os}-${arch}.mcpb"
+          mkdir -p "$(dirname "$out")"
+          printing-press bundle "$cli_dir" --platform "${PLATFORM}" --output "$out"
+          ls -lh "$out"
+      - name: Upload bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcpb-${{ matrix.target }}-${{ matrix.platform }}
+          path: ${{ runner.temp }}/out/*.mcpb
+          if-no-files-found: ignore
+          retention-days: 7
+
+  release:
+    name: Release ${{ matrix.target }}
+    needs: [detect, bundle]
+    if: needs.detect.outputs.count != '0'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(needs.detect.outputs.affected) }}
+    concurrency:
+      group: release-${{ matrix.target }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compute slug
+        id: slug
+        env:
+          CLI_TARGET: ${{ matrix.target }}
+        run: |
+          slug=$(basename "${CLI_TARGET}")
+          echo "slug=${slug}" >> "$GITHUB_OUTPUT"
+      - name: Download bundle artifacts for this CLI
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/dl
+          pattern: mcpb-${{ matrix.target }}-*
+          merge-multiple: true
+      - name: List downloaded artifacts
+        run: |
+          ls -lh "${RUNNER_TEMP}/dl" || true
+          count=$(find "${RUNNER_TEMP}/dl" -name '*.mcpb' 2>/dev/null | wc -l | tr -d ' ')
+          if [ "$count" = "0" ]; then
+            echo "::warning::No .mcpb files were produced for ${{ matrix.target }} — bundle job may have skipped (no manifest.json) or failed across all platforms."
+            exit 0
+          fi
+          echo "Found $count .mcpb files."
+      - name: Publish release ${{ steps.slug.outputs.slug }}-current
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLUG: ${{ steps.slug.outputs.slug }}
+          CLI_TARGET: ${{ matrix.target }}
+        run: |
+          set -euo pipefail
+          tag="${SLUG}-current"
+          # If no .mcpb files were produced, skip release publish.
+          if ! find "${RUNNER_TEMP}/dl" -name '*.mcpb' -print -quit | grep -q .; then
+            echo "No bundles to publish for ${SLUG}; skipping release."
+            exit 0
+          fi
+          notes=$(printf 'Auto-built MCPB bundles for **%s** at commit %s.\n\nDownload the .mcpb file matching your platform and double-click it to install in Claude Desktop.\n\n_This is a moving tag — it always points at the latest bundle build. For a pinned version, install from the per-CLI Go module._' "${CLI_TARGET}" "${GITHUB_SHA}")
+          if gh release view "${tag}" >/dev/null 2>&1; then
+            echo "Updating existing release ${tag}"
+            gh release upload "${tag}" "${RUNNER_TEMP}"/dl/*.mcpb --clobber
+            gh release edit "${tag}" --notes "${notes}" --target "${GITHUB_SHA}"
+          else
+            echo "Creating new release ${tag}"
+            gh release create "${tag}" "${RUNNER_TEMP}"/dl/*.mcpb \
+              --title "${SLUG} (latest bundles)" \
+              --notes "${notes}" \
+              --target "${GITHUB_SHA}" \
+              --latest=false
+          fi

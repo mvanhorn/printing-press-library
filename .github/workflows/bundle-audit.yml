@@ -1,0 +1,126 @@
+name: Bundle audit
+
+# One-shot diagnostic that walks every CLI in the library and tries to
+# build a host-platform .mcpb. Reports which CLIs bundle cleanly today
+# vs which need regeneration (typically pre-v3.0.0 CLIs that lack the
+# manifest.json the MCPB packager expects).
+#
+# Updates a sticky issue with the latest results so progress against the
+# pre-v3.0.0 backlog is trackable across runs.
+#
+# This workflow is dispatch-only — it doesn't run on push.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  audit:
+    name: Audit bundleability
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+      - name: Configure git for private modules
+        env:
+          TOKEN: ${{ secrets.GENERATOR_READ_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::error::GENERATOR_READ_TOKEN secret is not set."
+            exit 1
+          fi
+          git config --global url."https://oauth2:${TOKEN}@github.com/".insteadOf "https://github.com/"
+      - name: Install printing-press
+        env:
+          GOPRIVATE: github.com/mvanhorn/*
+        run: |
+          go install github.com/mvanhorn/cli-printing-press/v3/cmd/printing-press@latest
+          printing-press --version
+      - name: Run audit
+        id: audit
+        run: |
+          set -uo pipefail
+          report="${RUNNER_TEMP}/audit.md"
+          {
+            echo "# Bundle Audit"
+            echo
+            printf '_Last run: %s (commit %s)_\n\n' "$(date -u +'%Y-%m-%d %H:%M UTC')" "${GITHUB_SHA::7}"
+            echo "| Status | CLI | printing-press version | Notes |"
+            echo "|--------|-----|------------------------|-------|"
+          } > "$report"
+
+          ok=0
+          fail=0
+          missing_manifest=0
+
+          while IFS= read -r cli_dir; do
+            target=${cli_dir#library/}
+            slug=$(basename "$cli_dir")
+            pp_version=""
+            if [ -f "${cli_dir}/.printing-press.json" ]; then
+              pp_version=$(jq -r '.printing_press_version // ""' "${cli_dir}/.printing-press.json" 2>/dev/null || echo "")
+            fi
+
+            if [ ! -f "${cli_dir}/manifest.json" ]; then
+              echo "| ⛔ regen | \`${target}\` | ${pp_version:-?} | no manifest.json (pre-MCPB) |" >> "$report"
+              missing_manifest=$((missing_manifest+1))
+              continue
+            fi
+
+            tmp_out="${RUNNER_TEMP}/${slug}.mcpb"
+            if printing-press bundle "$cli_dir" --output "$tmp_out" >/tmp/bundle.log 2>&1; then
+              size=$(du -h "$tmp_out" 2>/dev/null | awk '{print $1}')
+              echo "| ✅ ok | \`${target}\` | ${pp_version:-?} | ${size:-?} |" >> "$report"
+              ok=$((ok+1))
+              rm -f "$tmp_out"
+            else
+              # Quote the first error line so the table cell doesn't break on pipes/newlines
+              err=$(head -3 /tmp/bundle.log | tr '\n' ' ' | sed 's/|/\\|/g' | head -c 200)
+              echo "| ⛔ regen | \`${target}\` | ${pp_version:-?} | ${err} |" >> "$report"
+              fail=$((fail+1))
+            fi
+          done < <(find library -mindepth 2 -maxdepth 2 -type d | sort)
+
+          {
+            echo
+            echo "## Summary"
+            printf -- '- ✅ Bundles cleanly: **%d**\n' "$ok"
+            printf -- '- ⛔ Needs regen (no manifest): **%d**\n' "$missing_manifest"
+            printf -- '- ⛔ Bundle attempt failed: **%d**\n' "$fail"
+            echo
+            echo "## Remediation"
+            echo
+            echo "- ✅ rows: trigger \`build-mcpb.yml\` (\`gh workflow run build-mcpb.yml -f cli=<category>/<slug>\`) to publish a release."
+            echo "- ⛔ rows: regenerate the CLI through the full pipeline via the \`printing-press-publish\` skill, then republish."
+          } >> "$report"
+
+          cat "$report"
+          # Make the file content available to the next step
+          {
+            echo 'report<<REPORT_EOF'
+            cat "$report"
+            echo 'REPORT_EOF'
+          } >> "$GITHUB_OUTPUT"
+      - name: Update tracking issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPORT: ${{ steps.audit.outputs.report }}
+        run: |
+          set -euo pipefail
+          title="Bundle Audit"
+          # Find existing issue (open or closed) authored by the workflow
+          existing=$(gh issue list --search "in:title \"${title}\"" --state all --limit 1 --json number --jq '.[0].number // empty')
+          if [ -n "${existing}" ]; then
+            echo "Updating issue #${existing}"
+            gh issue edit "${existing}" --body "${REPORT}"
+            gh issue reopen "${existing}" 2>/dev/null || true
+          else
+            echo "Creating new issue"
+            gh issue create --title "${title}" --body "${REPORT}" --label "bundle-audit" 2>/dev/null \
+              || gh issue create --title "${title}" --body "${REPORT}"
+          fi

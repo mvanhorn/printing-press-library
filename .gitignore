@@ -14,6 +14,10 @@ __debug_bin*
 # Build artifacts from printing-press verify/scorecard
 *-validation
 
+# Local-dev MCPB scratch — autoBundleForHost writes here. CI publishes
+# canonical bundles to GitHub release assets keyed by <slug>-current.
+library/**/build/
+
 # Generator build artifacts (CI uses `go run`, these come from local `go build`)
 tools/generate-skills/generate-skills
 
