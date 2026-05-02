@@ -5,7 +5,7 @@
   "api_name": "wikipedia",
   "display_name": "Wikipedia",
   "cli_name": "wikipedia-pp-cli",
-  "owner": "trevin-chow",
+  "owner": "hiten-shah",
   "spec_path": "/Users/tmchow/Code/printing-press-library/library/media-and-entertainment/wikipedia/spec.yaml",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:2665a92c5652d080a55a02a059b2e1beb5f52a0d3b012802cc6aeb095691db75",

@@ -42,9 +42,9 @@ checksum:
 brews:
   - name: pypi-pp-cli
     repository:
-      owner: trevin-chow
+      owner: hiten-shah
       name: homebrew-tap
-    homepage: "https://github.com/trevin-chow/pypi-pp-cli"
+    homepage: "https://github.com/hiten-shah/pypi-pp-cli"
     description: "PyPI JSON API. Look up Python package metadata, versions, release files,
 and vulnerability data. Browse recent updates and newest packages via RSS feeds.
 No authentication required — all endpoints are public."
