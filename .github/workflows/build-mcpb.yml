@@ -1,17 +1,21 @@
-name: Build MCPB bundles
+name: Build CLI release artifacts
 
-# Builds cross-platform .mcpb bundles for printed CLIs and uploads them as
-# release assets keyed by `<slug>-current` (a moving tag). The README in
-# each CLI links to releases/download/<slug>-current/<binary>-<os>-<arch>.mcpb,
-# so each push to main rebuilds and the URL stays stable forever.
+# Builds cross-platform release artifacts for printed CLIs and publishes them
+# under a moving `<slug>-current` tag. Each release contains:
+#   - .mcpb bundles for Claude Desktop (3 platforms: darwin/arm64, windows/amd64, windows/arm64)
+#   - raw CLI binaries for terminal users (6 platforms: standard Go matrix)
+#
+# The README in each CLI links to releases/download/<slug>-current/<asset>,
+# so each push to main rebuilds and the URLs stay stable forever.
 #
 # Triggers:
 #   - workflow_dispatch (manual): rebuild a specific CLI or "all"
 #   - push to main on library/** (excluding build/): rebuild affected CLIs
 #
 # Auth: requires GENERATOR_READ_TOKEN (fine-grained PAT with Contents:read on
-# mvanhorn/cli-printing-press) so `go install` can fetch the printing-press
-# generator from a private repo.
+# mvanhorn/cli-printing-press) so the bundle job can `go install` the
+# printing-press generator from a private repo. The build-cli job doesn't
+# need it — printed CLIs only depend on public Go modules.
 
 on:
   workflow_dispatch:
@@ -156,9 +160,70 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+  build-cli:
+    name: Build CLI ${{ matrix.target }} (${{ matrix.platform }})
+    needs: detect
+    if: needs.detect.outputs.count != '0'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(needs.detect.outputs.affected) }}
+        # Standard Go cross-compile matrix. Linux included because terminal
+        # users on servers/CI want it; the MCPB matrix above is narrower
+        # because Claude Desktop doesn't ship on Linux.
+        platform:
+          - darwin/amd64
+          - darwin/arm64
+          - linux/amd64
+          - linux/arm64
+          - windows/amd64
+          - windows/arm64
+    concurrency:
+      group: build-cli-${{ matrix.target }}-${{ matrix.platform }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.25'
+      - name: Build CLI binary
+        env:
+          CLI_TARGET: ${{ matrix.target }}
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          set -euo pipefail
+          cli_dir="library/${CLI_TARGET}"
+          os="${PLATFORM%/*}"
+          arch="${PLATFORM#*/}"
+          slug=$(basename "${CLI_TARGET}")
+          echo "SLUG=${slug}" >> "$GITHUB_ENV"
+          echo "PLATFORM_TAG=${os}-${arch}" >> "$GITHUB_ENV"
+          ext=""
+          if [ "$os" = "windows" ]; then
+            ext=".exe"
+          fi
+          out="${RUNNER_TEMP}/out/${slug}-pp-cli-${os}-${arch}${ext}"
+          mkdir -p "$(dirname "$out")"
+          cd "$cli_dir"
+          # CGO_ENABLED=0 — printed CLIs use the pure-Go modernc/sqlite driver
+          # so cross-compile works without C toolchains. Matches the goreleaser
+          # config the CLI ships with.
+          GOOS="$os" GOARCH="$arch" CGO_ENABLED=0 \
+            go build -trimpath -ldflags='-s -w' \
+            -o "$out" "./cmd/${slug}-pp-cli"
+          ls -lh "$out"
+      - name: Upload CLI artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: cli-${{ env.SLUG }}-${{ env.PLATFORM_TAG }}
+          path: ${{ runner.temp }}/out/*
+          if-no-files-found: ignore
+          retention-days: 7
+
   release:
     name: Release ${{ matrix.target }}
-    needs: [detect, bundle]
+    needs: [detect, bundle, build-cli]
     if: needs.detect.outputs.count != '0'
     runs-on: ubuntu-latest
     strategy:
@@ -180,21 +245,30 @@ jobs:
         run: |
           slug=$(basename "${CLI_TARGET}")
           echo "slug=${slug}" >> "$GITHUB_OUTPUT"
-      - name: Download bundle artifacts for this CLI
+      - name: Download MCPB artifacts for this CLI
         uses: actions/download-artifact@v7
         with:
           path: ${{ runner.temp }}/dl
           pattern: mcpb-${{ steps.slug.outputs.slug }}-*
           merge-multiple: true
+      - name: Download CLI binary artifacts for this CLI
+        uses: actions/download-artifact@v7
+        with:
+          path: ${{ runner.temp }}/dl
+          pattern: cli-${{ steps.slug.outputs.slug }}-*
+          merge-multiple: true
       - name: List downloaded artifacts
         run: |
           ls -lh "${RUNNER_TEMP}/dl" || true
-          count=$(find "${RUNNER_TEMP}/dl" -name '*.mcpb' 2>/dev/null | wc -l | tr -d ' ')
-          if [ "$count" = "0" ]; then
-            echo "::warning::No .mcpb files were produced for ${{ matrix.target }} — bundle job may have skipped (no manifest.json) or failed across all platforms."
+          mcpb_count=$(find "${RUNNER_TEMP}/dl" -name '*.mcpb' 2>/dev/null | wc -l | tr -d ' ')
+          # CLI binaries have no consistent extension — count what's left after excluding .mcpb.
+          all_count=$(find "${RUNNER_TEMP}/dl" -type f 2>/dev/null | wc -l | tr -d ' ')
+          cli_count=$((all_count - mcpb_count))
+          echo "Found ${mcpb_count} .mcpb file(s) and ${cli_count} CLI binary file(s)."
+          if [ "$all_count" = "0" ]; then
+            echo "::warning::No artifacts were produced for ${{ matrix.target }} — bundle and build-cli jobs may have all failed."
             exit 0
           fi
-          echo "Found $count .mcpb files."
       - name: Publish release ${{ steps.slug.outputs.slug }}-current
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -203,20 +277,20 @@ jobs:
         run: |
           set -euo pipefail
           tag="${SLUG}-current"
-          # If no .mcpb files were produced, skip release publish.
-          if ! find "${RUNNER_TEMP}/dl" -name '*.mcpb' -print -quit | grep -q .; then
-            echo "No bundles to publish for ${SLUG}; skipping release."
+          # Skip if neither bundle nor CLI artifacts were produced.
+          if ! find "${RUNNER_TEMP}/dl" -type f -print -quit | grep -q .; then
+            echo "No artifacts to publish for ${SLUG}; skipping release."
             exit 0
           fi
-          notes=$(printf 'Auto-built MCPB bundles for **%s** at commit %s.\n\nDownload the .mcpb file matching your platform and double-click it to install in Claude Desktop.\n\n_This is a moving tag — it always points at the latest bundle build. For a pinned version, install from the per-CLI Go module._' "${CLI_TARGET}" "${GITHUB_SHA}")
+          notes=$(printf 'Auto-built artifacts for **%s** at commit %s.\n\n**Claude Desktop:** download the matching `.mcpb` file and double-click to install.\n\n**Terminal CLI:** download the binary matching your platform. On macOS you may need to clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, `chmod +x <binary>`.\n\n_This is a moving tag — it always points at the latest build._' "${CLI_TARGET}" "${GITHUB_SHA}")
           if gh release view "${tag}" >/dev/null 2>&1; then
             echo "Updating existing release ${tag}"
-            gh release upload "${tag}" "${RUNNER_TEMP}"/dl/*.mcpb --clobber
+            gh release upload "${tag}" "${RUNNER_TEMP}"/dl/* --clobber
             gh release edit "${tag}" --notes "${notes}" --target "${GITHUB_SHA}"
           else
             echo "Creating new release ${tag}"
-            gh release create "${tag}" "${RUNNER_TEMP}"/dl/*.mcpb \
-              --title "${SLUG} (latest bundles)" \
+            gh release create "${tag}" "${RUNNER_TEMP}"/dl/* \
+              --title "${SLUG} (latest build)" \
               --notes "${notes}" \
               --target "${GITHUB_SHA}" \
               --latest=false
