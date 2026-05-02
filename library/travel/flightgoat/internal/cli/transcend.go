@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"sort"
 	"strconv"
 	"strings"
@@ -19,6 +18,7 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/travel/flightgoat/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/travel/flightgoat/internal/gflights"
 
 	"github.com/spf13/cobra"
 )
@@ -410,12 +410,6 @@ command lists the long routes and exits with a helpful message.`,
 				}
 			}
 
-			fliPath, fliErr := exec.LookPath("fli")
-			if fliErr != nil {
-				fmt.Fprintln(cmd.ErrOrStderr(), "fli not found. Install with: pipx install flights")
-				fmt.Fprintln(cmd.ErrOrStderr(), "Without fli, showing long routes only, no prices.")
-			}
-
 			type row struct {
 				Destination   string `json:"destination"`
 				DurationHours string `json:"duration_hours"`
@@ -429,23 +423,28 @@ command lists the long routes and exits with a helpful message.`,
 					Destination:   dest,
 					DurationHours: fmt.Sprintf("%dh%02dm", dur/60, dur%60),
 				}
-				if fliErr == nil {
-					// Best-effort fli date-range query. Time-boxed to avoid hangs.
-					ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-					out, err := exec.CommandContext(ctx, fliPath, "dates",
-						airport, dest, "--from", start[:10], "--to", end[:10], "--json").Output()
-					cancel()
-					if err == nil && len(out) > 0 {
-						var parsed []struct {
-							Date  string  `json:"date"`
-							Price float64 `json:"price"`
+				// Best-effort native Google Flights dates query. Time-boxed
+				// per destination so a slow Google response can't tank the
+				// whole longhaul scan.
+				ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+				dr, err := gflights.Dates(ctx, gflights.DatesOptions{
+					Origin:      airport,
+					Destination: dest,
+					From:        start[:10],
+					To:          end[:10],
+				})
+				cancel()
+				if err == nil && dr != nil && len(dr.Dates) > 0 {
+					cheapest := dr.Dates[0]
+					for _, dp := range dr.Dates[1:] {
+						if dp.Price > 0 && dp.Price < cheapest.Price {
+							cheapest = dp
 						}
-						if json.Unmarshal(out, &parsed) == nil && len(parsed) > 0 {
-							sort.SliceStable(parsed, func(i, j int) bool { return parsed[i].Price < parsed[j].Price })
-							r.CheapestDate = parsed[0].Date
-							r.CheapestPrice = fmt.Sprintf("$%.0f", parsed[0].Price)
-							r.Source = "google-flights-via-fli"
-						}
+					}
+					if cheapest.Price > 0 {
+						r.CheapestDate = cheapest.DepartureDate
+						r.CheapestPrice = fmt.Sprintf("$%.0f", cheapest.Price)
+						r.Source = "google-flights-native"
 					}
 				}
 				results = append(results, r)
@@ -676,25 +675,21 @@ Requires 'fli' (pipx install flights) for pricing.`,
 			date := args[2]
 
 			if flags.dryRun {
-				fmt.Fprintf(cmd.ErrOrStderr(), "fli flights %s %s %s --json\n", origin, dest, date)
+				fmt.Fprintf(cmd.ErrOrStderr(), "gflights.Search(%s -> %s on %s)\n", origin, dest, date)
 				fmt.Fprintf(cmd.ErrOrStderr(), "GET /airports/%s/flights/to/%s?start=<last30d>&end=<now>&max_pages=3\n", origin, dest)
 				fmt.Fprintln(cmd.ErrOrStderr(), "\n(dry run - no requests sent; would join Google Flights prices with AeroAPI reliability)")
 				return nil
 			}
 
-			fliPath, fliErr := exec.LookPath("fli")
-			if fliErr != nil {
-				return fmt.Errorf("fli CLI not found. Install with: pipx install flights")
-			}
 			ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 			defer cancel()
-			out, err := exec.CommandContext(ctx, fliPath, "flights", origin, dest, date, "--json").Output()
+			searchResult, err := gflights.Search(ctx, gflights.SearchOptions{
+				Origin:        origin,
+				Destination:   dest,
+				DepartureDate: date,
+			})
 			if err != nil {
-				return fmt.Errorf("fli search failed: %w", err)
-			}
-			var fliResults []map[string]any
-			if err := json.Unmarshal(out, &fliResults); err != nil {
-				return fmt.Errorf("parsing fli output: %w", err)
+				return fmt.Errorf("google flights search failed: %w", err)
 			}
 
 			c, err := flags.newClient()
@@ -731,21 +726,24 @@ Requires 'fli' (pipx install flights) for pricing.`,
 			}
 
 			type row struct {
-				Price         any     `json:"price"`
+				Price         float64 `json:"price"`
 				Airline       string  `json:"airline"`
-				Duration      any     `json:"duration"`
-				Stops         any     `json:"stops"`
+				Duration      int     `json:"duration_minutes"`
+				Stops         int     `json:"stops"`
 				OnTimePercent float64 `json:"on_time_percent_30d"`
 			}
-			results := make([]row, 0, len(fliResults))
-			for _, f := range fliResults {
-				a, _ := f["airline"].(string)
+			results := make([]row, 0, len(searchResult.Flights))
+			for _, f := range searchResult.Flights {
+				airline := ""
+				if len(f.Legs) > 0 {
+					airline = f.Legs[0].Airline.Code
+				}
 				results = append(results, row{
-					Price:         f["price"],
-					Airline:       a,
-					Duration:      f["duration"],
-					Stops:         f["stops"],
-					OnTimePercent: reliabilityByAirline[a],
+					Price:         f.Price,
+					Airline:       airline,
+					Duration:      f.DurationMinutes,
+					Stops:         f.Stops,
+					OnTimePercent: reliabilityByAirline[airline],
 				})
 			}
 			sort.SliceStable(results, func(i, j int) bool {
@@ -1017,45 +1015,47 @@ func newGfSearchCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "gf-search <origin> <destination> <date>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Google Flights search via fli (price + duration + airlines)",
-		Long: `gf-search delegates to the 'fli' Python CLI for Google Flights search.
-Install fli first: pipx install flights
+		Short: "Google Flights search (price + duration + airlines)",
+		Long: `gf-search runs a Google Flights search through flightgoat's native
+Go backend (no Python dependency). Returns price, duration, airline, and
+leg details.
 
-When --alert-if-under PRICE is set, a FlightAware AeroAPI alert is created
-automatically if a result is found below the threshold.`,
+When --alert-if-under PRICE is set, a notice is emitted if any result
+price is below the threshold.`,
 		Example: `  flightgoat-pp-cli gf-search SEA LHR 2026-06-15
   flightgoat-pp-cli gf-search JFK CDG 2026-07-01 --alert-if-under 600`,
 		Args: cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if flags.dryRun {
-				fmt.Fprintf(cmd.ErrOrStderr(), "fli flights %s %s %s --json\n", args[0], args[1], args[2])
+				fmt.Fprintf(cmd.ErrOrStderr(), "gflights.Search(%s -> %s on %s)\n", args[0], args[1], args[2])
 				if alertIfUnder > 0 {
 					fmt.Fprintf(cmd.ErrOrStderr(), "(would emit alert if any result price < $%.0f)\n", alertIfUnder)
 				}
-				fmt.Fprintln(cmd.ErrOrStderr(), "\n(dry run - no subprocess launched; would shell out to fli for Google Flights search)")
+				fmt.Fprintln(cmd.ErrOrStderr(), "\n(dry run - no network call)")
 				return nil
 			}
 
-			fliPath, err := exec.LookPath("fli")
-			if err != nil {
-				return fmt.Errorf("fli CLI not found. Install with: pipx install flights")
-			}
 			ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 			defer cancel()
-			out, err := exec.CommandContext(ctx, fliPath, "flights", args[0], args[1], args[2], "--json").Output()
+			result, err := gflights.Search(ctx, gflights.SearchOptions{
+				Origin:        args[0],
+				Destination:   args[1],
+				DepartureDate: args[2],
+			})
 			if err != nil {
-				return fmt.Errorf("fli search failed: %w", err)
+				return fmt.Errorf("google flights search failed: %w", err)
+			}
+			out, err := json.MarshalIndent(result, "", "  ")
+			if err != nil {
+				return fmt.Errorf("encoding result: %w", err)
 			}
 			fmt.Fprintln(cmd.OutOrStdout(), string(out))
 			if alertIfUnder > 0 {
-				var results []map[string]any
-				if json.Unmarshal(out, &results) == nil {
-					for _, r := range results {
-						if p, ok := r["price"].(float64); ok && p < alertIfUnder {
-							fmt.Fprintf(cmd.ErrOrStderr(), "Found %s %s %s at $%.0f (under $%.0f threshold)\n",
-								args[0], args[1], args[2], p, alertIfUnder)
-							break
-						}
+				for _, f := range result.Flights {
+					if f.Price > 0 && f.Price < alertIfUnder {
+						fmt.Fprintf(cmd.ErrOrStderr(), "Found %s %s %s at $%.0f (under $%.0f threshold)\n",
+							args[0], args[1], args[2], f.Price, alertIfUnder)
+						break
 					}
 				}
 			}

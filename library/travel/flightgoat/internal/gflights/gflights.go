@@ -15,11 +15,7 @@ package gflights
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
-	"os/exec"
-	"strconv"
 	"strings"
 	"time"
 
@@ -27,10 +23,6 @@ import (
 	"golang.org/x/text/currency"
 	"golang.org/x/text/language"
 )
-
-// ErrFliNotInstalled is returned when the fli fallback binary can't be found
-// AND the native backend already failed.
-var ErrFliNotInstalled = errors.New("fli not installed (run: pipx install flights)")
 
 // Airport matches the nested shape used across the normalized return types.
 type Airport struct {
@@ -122,18 +114,13 @@ type SearchOptions struct {
 	ForceFallback bool
 }
 
-// Search runs a flight search. Tries the native Go backend first, falls back
-// to the fli Python CLI if the native path fails.
+// Search runs a flight search via the native Go backend (krisukox).
+// Previously fell back to a fli Python subprocess on retryable errors;
+// that fallback has been removed to keep the binary self-contained for
+// MCPB packaging. If the native path fails on Google's abuse detection,
+// users can rerun later or use the AeroAPI commands instead.
 func Search(ctx context.Context, opts SearchOptions) (*SearchResult, error) {
-	if !opts.ForceFallback {
-		if result, err := searchNative(ctx, opts); err == nil {
-			return result, nil
-		} else if !isRetryableErr(err) {
-			// Non-retryable: bubble up without bothering the fallback
-			return nil, err
-		}
-	}
-	return searchFli(ctx, opts)
+	return searchNative(ctx, opts)
 }
 
 // searchNative uses krisukox/google-flights-api for a pure-Go call to
@@ -253,78 +240,6 @@ func tripTypeName(t krisukox.TripType) string {
 }
 
 // searchFli is the fallback path using the fli Python CLI via subprocess.
-func searchFli(ctx context.Context, opts SearchOptions) (*SearchResult, error) {
-	fliPath, err := exec.LookPath("fli")
-	if err != nil {
-		return nil, ErrFliNotInstalled
-	}
-	args := []string{"flights", opts.Origin, opts.Destination, opts.DepartureDate, "--format", "json"}
-	if opts.ReturnDate != "" {
-		args = append(args, "--return", opts.ReturnDate)
-	}
-	if opts.TimeWindow != "" {
-		args = append(args, "--time", opts.TimeWindow)
-	}
-	if len(opts.Airlines) > 0 {
-		args = append(args, "--airlines", strings.Join(opts.Airlines, " "))
-	}
-	if opts.CabinClass != "" {
-		args = append(args, "--class", strings.ToUpper(opts.CabinClass))
-	}
-	if opts.MaxStops != "" {
-		args = append(args, "--stops", strings.ToUpper(opts.MaxStops))
-	}
-	if opts.SortBy != "" {
-		args = append(args, "--sort", strings.ToUpper(opts.SortBy))
-	}
-	if opts.Passengers > 1 {
-		args = append(args, "--passengers", strconv.Itoa(opts.Passengers))
-	}
-	if opts.ExcludeBasic {
-		args = append(args, "--exclude-basic")
-	}
-	if _, ok := ctx.Deadline(); !ok {
-		var cancel context.CancelFunc
-		ctx, cancel = context.WithTimeout(ctx, 60*time.Second)
-		defer cancel()
-	}
-	out, err := exec.CommandContext(ctx, fliPath, args...).Output()
-	if err != nil {
-		return nil, fmt.Errorf("fli flights failed: %w", err)
-	}
-	var fliRaw struct {
-		Success    bool   `json:"success"`
-		DataSource string `json:"data_source"`
-		SearchType string `json:"search_type"`
-		TripType   string `json:"trip_type"`
-		Count      int    `json:"count"`
-		Flights    []Flight `json:"flights"`
-	}
-	if err := json.Unmarshal(out, &fliRaw); err != nil {
-		return nil, fmt.Errorf("parsing fli output: %w", err)
-	}
-	if !fliRaw.Success {
-		return nil, fmt.Errorf("fli reported failure (check origin/destination IATA codes and date)")
-	}
-	return &SearchResult{
-		Success:    true,
-		Source:     "fli-fallback",
-		DataSource: fliRaw.DataSource,
-		SearchType: fliRaw.SearchType,
-		TripType:   fliRaw.TripType,
-		Query: SearchQuery{
-			Origin:        opts.Origin,
-			Destination:   opts.Destination,
-			DepartureDate: opts.DepartureDate,
-			ReturnDate:    opts.ReturnDate,
-			CabinClass:    strings.ToUpper(opts.CabinClass),
-			MaxStops:      strings.ToUpper(opts.MaxStops),
-		},
-		Count:   fliRaw.Count,
-		Flights: fliRaw.Flights,
-	}, nil
-}
-
 // DatesOptions drives a cheapest-dates query.
 type DatesOptions struct {
 	Origin      string
@@ -339,94 +254,16 @@ type DatesOptions struct {
 	Sort        bool
 }
 
-// Dates runs a cheapest-dates query. The native backend does not expose a
-// calendar endpoint, so we always use fli for this. If fli isn't installed,
-// returns ErrFliNotInstalled.
+// Dates runs a cheapest-dates query against Google Flights' GetCalendarGraph
+// endpoint via the native Go backend (see dates_native.go). Previously this
+// shelled out to the fli Python library; that dependency was dropped to
+// keep the binary self-contained for MCPB packaging.
 func Dates(ctx context.Context, opts DatesOptions) (*DatesResult, error) {
-	fliPath, err := exec.LookPath("fli")
-	if err != nil {
-		return nil, ErrFliNotInstalled
-	}
-	args := []string{"dates", opts.Origin, opts.Destination, "--format", "json"}
-	if opts.From != "" {
-		args = append(args, "--from", opts.From)
-	}
-	if opts.To != "" {
-		args = append(args, "--to", opts.To)
-	}
-	if opts.Duration > 0 {
-		args = append(args, "--duration", strconv.Itoa(opts.Duration))
-	}
-	if len(opts.Airlines) > 0 {
-		args = append(args, "--airlines", strings.Join(opts.Airlines, " "))
-	}
-	if opts.RoundTrip {
-		args = append(args, "--round")
-	}
-	if opts.MaxStops != "" {
-		args = append(args, "--stops", strings.ToUpper(opts.MaxStops))
-	}
-	if opts.CabinClass != "" {
-		args = append(args, "--class", strings.ToUpper(opts.CabinClass))
-	}
-	if opts.Sort {
-		args = append(args, "--sort")
-	}
 	if _, ok := ctx.Deadline(); !ok {
 		var cancel context.CancelFunc
 		ctx, cancel = context.WithTimeout(ctx, 90*time.Second)
 		defer cancel()
 	}
-	out, err := exec.CommandContext(ctx, fliPath, args...).Output()
-	if err != nil {
-		return nil, fmt.Errorf("fli dates failed: %w", err)
-	}
-	var fliRaw struct {
-		Success    bool        `json:"success"`
-		DataSource string      `json:"data_source"`
-		SearchType string      `json:"search_type"`
-		Count      int         `json:"count"`
-		Dates      []DatePrice `json:"dates"`
-	}
-	if err := json.Unmarshal(out, &fliRaw); err != nil {
-		return nil, fmt.Errorf("parsing fli dates output: %w", err)
-	}
-	if !fliRaw.Success {
-		return nil, fmt.Errorf("fli reported failure (check origin/destination IATA codes and date range)")
-	}
-	return &DatesResult{
-		Success:    true,
-		Source:     "fli-fallback",
-		DataSource: fliRaw.DataSource,
-		SearchType: fliRaw.SearchType,
-		Query: SearchQuery{
-			Origin:      opts.Origin,
-			Destination: opts.Destination,
-		},
-		Count: fliRaw.Count,
-		Dates: fliRaw.Dates,
-	}, nil
+	return datesNative(ctx, opts)
 }
 
-// isRetryableErr returns true when a native-backend error is the kind that
-// typically means "Google bot-blocked us, try the fli fallback." Other errors
-// (bad IATA code, parse errors) should fail fast without calling fli.
-func isRetryableErr(err error) bool {
-	if err == nil {
-		return false
-	}
-	msg := strings.ToLower(err.Error())
-	for _, signal := range []string{"abuse", "captcha", "blocked", "429", "timeout", "401", "403"} {
-		if strings.Contains(msg, signal) {
-			return true
-		}
-	}
-	// Also retry on raw-response parsing failures which are often a sign
-	// Google returned an HTML challenge page instead of protobuf.
-	for _, signal := range []string{"unmarshal", "invalid character", "unexpected eof"} {
-		if strings.Contains(msg, signal) {
-			return true
-		}
-	}
-	return false
-}

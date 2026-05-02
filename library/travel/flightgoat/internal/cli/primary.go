@@ -44,11 +44,9 @@ func newGfFlightsCmd(flags *rootFlags) *cobra.Command {
 		Use:   "flights <origin> <destination> <date>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Search Google Flights for a specific date (free, no API key required)",
-		Long: `flights is flightgoat's headline command. It queries Google Flights through
-the fli Python library (reverse-engineered, not scraped) and returns real prices,
-durations, airlines, and leg details. No API key. No auth. Just results.
-
-Requires the fli CLI: pipx install flights`,
+		Long: `flights is flightgoat's headline command. It queries Google Flights via
+flightgoat's native Go backend (no Python dependency) and returns real prices,
+durations, airlines, and leg details. No API key. No auth. Just results.`,
 		Example: `  # Cheapest SEA -> LHR on June 15
   flightgoat-pp-cli flights SEA LHR 2026-06-15
 
@@ -76,15 +74,15 @@ Requires the fli CLI: pipx install flights`,
 				ExcludeBasic:  excludeBasic,
 			}
 			if flags.dryRun {
-				fmt.Fprintf(cmd.OutOrStdout(), "fli flights %s %s %s --format json", opts.Origin, opts.Destination, opts.DepartureDate)
+				fmt.Fprintf(cmd.OutOrStdout(), "gflights.Search(%s -> %s on %s)", opts.Origin, opts.Destination, opts.DepartureDate)
 				if opts.ReturnDate != "" {
-					fmt.Fprintf(cmd.OutOrStdout(), " --return %s", opts.ReturnDate)
+					fmt.Fprintf(cmd.OutOrStdout(), " return=%s", opts.ReturnDate)
 				}
 				if opts.MaxStops != "" {
-					fmt.Fprintf(cmd.OutOrStdout(), " --stops %s", strings.ToUpper(opts.MaxStops))
+					fmt.Fprintf(cmd.OutOrStdout(), " stops=%s", strings.ToUpper(opts.MaxStops))
 				}
 				if len(opts.Airlines) > 0 {
-					fmt.Fprintf(cmd.OutOrStdout(), " --airlines %s", strings.Join(opts.Airlines, " "))
+					fmt.Fprintf(cmd.OutOrStdout(), " airlines=%s", strings.Join(opts.Airlines, ","))
 				}
 				fmt.Fprintln(cmd.OutOrStdout(), "\n(dry run - no request sent)")
 				return nil
@@ -161,9 +159,8 @@ func newGfDatesCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find the cheapest dates to fly between two airports (free, no API key required)",
 		Long: `dates scans Google Flights for the cheapest days to travel a route over
-a range of dates. No API key required. Wraps the fli Python library.
-
-Requires fli: pipx install flights`,
+a range of dates. No API key required. Uses flightgoat's native Go backend
+(no Python dependency).`,
 		Example: `  # Cheapest dates SEA -> LHR over the next 2 months
   flightgoat-pp-cli dates SEA LHR
 
@@ -187,7 +184,7 @@ Requires fli: pipx install flights`,
 				Sort:        doSort,
 			}
 			if flags.dryRun {
-				fmt.Fprintf(cmd.OutOrStdout(), "fli dates %s %s --format json --from %s --to %s\n", opts.Origin, opts.Destination, opts.From, opts.To)
+				fmt.Fprintf(cmd.OutOrStdout(), "gflights.Dates(%s -> %s from=%s to=%s)\n", opts.Origin, opts.Destination, opts.From, opts.To)
 				fmt.Fprintln(cmd.OutOrStdout(), "(dry run - no request sent)")
 				return nil
 			}
