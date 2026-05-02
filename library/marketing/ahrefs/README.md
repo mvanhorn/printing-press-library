@@ -6,15 +6,15 @@ Learn more at [Ahrefs](https://docs.ahrefs.com/docs/api/reference/introduction).
 
 ## Install
 
+### Binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/ahrefs-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
+
 ### Go
 
 ```
 go install github.com/mvanhorn/printing-press-library/library/marketing/ahrefs/cmd/ahrefs-pp-cli@latest
 ```
-
-### Binary
-
-Download from [Releases](https://github.com/mvanhorn/printing-press-library/releases).
 
 ## Quick Start
 
@@ -150,17 +150,53 @@ This CLI is designed for AI agent consumption:
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
 
-## Use as MCP Server
+## Use with Claude Code
 
-This CLI ships a companion MCP server for use with Claude Desktop, Cursor, and other MCP-compatible tools.
+Install the focused skill — it auto-installs the CLI on first invocation:
 
-### Claude Code
+```bash
+npx skills add mvanhorn/printing-press-library/cli-skills/pp-ahrefs -g
+```
+
+Then invoke `/pp-ahrefs <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
+
+<details>
+<summary>Use as an MCP server in Claude Code (advanced)</summary>
+
+If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/marketing/ahrefs/cmd/ahrefs-pp-mcp@latest
+```
+
+Then register it:
 
 ```bash
 claude mcp add ahrefs ahrefs-pp-mcp -e AHREFS_API_KEY=<your-key>
 ```
 
-### Claude Desktop
+</details>
+
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/ahrefs-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `AHREFS_API_KEY` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle, install the MCP binary and configure it manually.
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/marketing/ahrefs/cmd/ahrefs-pp-mcp@latest
+```
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 
@@ -176,6 +212,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
   }
 }
 ```
+
+</details>
 
 ## Health Check
 
