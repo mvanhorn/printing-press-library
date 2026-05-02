@@ -1,9 +1,9 @@
 {
   "manifest_version": "0.3",
   "name": "flightgoat-pp-mcp",
-  "display_name": "flightgoat",
-  "version": "1.2.1",
-  "description": "Free Google Flights search, Kayak nonstop route explorer, and optional FlightAware live tracking in one CLI. No API key required for search.",
+  "display_name": "Flight GOAT",
+  "version": "3.6.0",
+  "description": "Flight GOAT API surface as MCP tools.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -23,7 +23,7 @@
     "flightgoat_api_key_auth": {
       "type": "string",
       "title": "FLIGHTGOAT_API_KEY_AUTH",
-      "description": "Sets FLIGHTGOAT_API_KEY_AUTH for the flightgoat MCP server.",
+      "description": "Sets FLIGHTGOAT_API_KEY_AUTH for the Flight GOAT MCP server.",
       "sensitive": true,
       "required": true
     }
@@ -35,6 +35,5 @@
       "linux",
       "win32"
     ]
-  },
-  "cli_binary": "flightgoat-pp-cli"
+  }
 }

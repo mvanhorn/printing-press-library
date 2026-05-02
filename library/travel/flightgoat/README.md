@@ -1,197 +1,504 @@
 # Flightgoat CLI
 
-The GOAT flight CLI: search flights, explore nonstop routes, track live status, and find the longest, cheapest, and most-reliable flights from your airport. Wraps FlightAware AeroAPI with novel compound commands that join live data, price search, and local analytics.
+# Introduction
+AeroAPI is a simple, query-based API that gives software developers access
+to a variety of FlightAware's flight data. Users can obtain current or
+historical data. AeroAPI is a RESTful API delivering accurate and
+actionable aviation data. With the introduction of Foresight™, customers
+have access to the data that powers over half of the predictive airline
+ETAs in the US.
+
+## Categories
+AeroAPI is divided into several categories to make things easier to
+discover.
+- Flights: Summary information, planned routes, positions and more
+- Foresight: Flight positions enhanced with FlightAware Foresight™
+- Airports: Airport information and FIDS style resources
+- Operators: Operator information and fleet activity resources
+- Alerts: Configure flight alerts and delivery destinations
+- History: Historical flight access for various endpoints
+- Miscellaneous: Flight disruption, future schedule information, and aircraft owner information
+
+## Development Tools
+AeroAPI is defined using the OpenAPI Spec 3.0, which means it can be easily
+imported into tools like Postman. To get started try importing the API
+specification using
+[Postman's instructions](https://learning.postman.com/docs/integrations/available-integrations/working-with-openAPI/).
+Once imported as a collection only the "Value" field under the collection's
+Authorization tab needs to be populated and saved before making calls.
+
+The AeroAPI OpenAPI specification is located at:\
+https://flightaware.com/commercial/aeroapi/resources/aeroapi-openapi.yml
+
+Our [open source AeroApps project](/aeroapi/portal/resources)
+provides a small collection of services and sample applications to help
+you get started.
+
+The Flight Information Display System (FIDS) AeroApp is an example of a
+multi-tier application using multiple languages and Docker containers.
+It demonstrates connectivity, data caching, flight presentation, and leveraging flight maps.
+
+The Alerts AeroApp demonstrates the use of AeroAPI to set, edit, and
+receive alerts in a sample application with a Dockerized Python backend
+and a React frontend.
+
+Our AeroAPI push notification [testing interface](/commercial/aeroapi/send.rvt)
+provides a quick and easy way to test the delivery of customized alerts via AeroAPI push.
 
 ## Install
 
-```bash
-go install github.com/mvanhorn/printing-press-library/library/travel/flightgoat/cmd/flightgoat-pp-cli@latest
+### Binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/flightgoat-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
+
+### Go
+
+```
+go install github.com/mvanhorn/printing-press-library/library/other/flightgoat/cmd/flightgoat-pp-cli@latest
 ```
 
-Optional: install the `fli` helper for Google Flights price lookups used by `compare` and `gf-search`:
+## Quick Start
 
-```bash
-pipx install flights
-```
+### 1. Install
 
-## Authentication
+See [Install](#install) above.
 
-Get an API key from the [FlightAware AeroAPI portal](https://www.flightaware.com/commercial/aeroapi/).
+### 2. Set Up Credentials
+
+Get your API key from your API provider's developer portal. The key typically looks like a long alphanumeric string.
 
 ```bash
 export FLIGHTGOAT_API_KEY_AUTH="<paste-your-key>"
 ```
 
-Any of these environment variables also works (checked in order):
-`FLIGHTGOAT_API_KEY_AUTH`, `FLIGHTGOAT_API_KEY`, `FLIGHTAWARE_API_KEY`,
-`AEROAPI_API_KEY`, `AEROAPI_KEY`.
+You can also persist this in your config file at `~/.config/flightgoat-pp-cli/config.toml`.
 
-To override the base URL (for testing or enterprise endpoints):
+### 3. Verify Setup
 
 ```bash
-export FLIGHTGOAT_BASE_URL="https://aeroapi.flightaware.com/aeroapi"
-```
-
-## Quick Start
-
-```bash
-# 1. Check credentials and connectivity
 flightgoat-pp-cli doctor
-
-# 2. Sync airports/operators to the local SQLite store for offline analytics
-flightgoat-pp-cli sync
-
-# 3. Daily brief for your home airport: departures, delays, weather, disruptions
-flightgoat-pp-cli digest SEA
-
-# 4. See every nonstop 8+ hour flight out of SEA this month
-flightgoat-pp-cli longhaul SEA --min-hours 8
-
-# 5. Compare Google Flights prices + AeroAPI on-time reliability for one route
-flightgoat-pp-cli compare SEA LHR 2026-06-15
 ```
 
-## Unique Features
+This checks your configuration and credentials.
 
-These capabilities aren't available in any other tool for the AeroAPI.
-They combine FlightAware's flight data with local analytics and (optionally)
-Google Flights pricing to answer questions no single endpoint can.
+### 4. Try Your First Command
 
-- **`longhaul <airport>`** — Every nonstop flight from an airport that's at least N hours long over a month or date range. Answers the travel-hacker "where can I go nonstop for 10+ hours on points?" question in one call.
-- **`explore <airport>`** — Every nonstop destination with typical duration, operating airlines, and frequency. A Kayak /direct matrix in your terminal.
-- **`cheapest-longhaul <airport>`** — Cheapest days to fly the longest nonstop routes over a date range.
-- **`ontime-now <airport>`** — Every departure from an airport today with live on-time status, delay in minutes, and status in one table.
-- **`reliability <origin> <destination>`** — Historical on-time percentage for a specific route over the last N days, grouped by airline.
-- **`compare <origin> <destination> <date>`** — Joins Google Flights price results with AeroAPI reliability per airline. Sorts by reliability so you can pick the cheapest flight that's likely to actually run on time.
-- **`monitor <ident>`** — Watches a flight through its lifecycle. Polls at an interval, prints only status changes, exits on arrival.
-- **`heatmap`** — Single sorted table showing where active delays are right now across every major airport. Filter by region.
-- **`digest <airport>`** — One-command daily brief: departures today, active delays, current weather, top destinations.
-- **`eta <ident>`** — Weather-adjusted ETA combining Foresight prediction with destination weather forecast.
-- **`aircraft-bio <registration>`** — Full history of a tail number: recent flights, owner (when available), last known flight.
-- **`gf-search <origin> <destination> <date>`** — Google Flights search via `fli` with optional `--alert-if-under PRICE` that creates a FlightAware alert when a cheap result appears.
-- **`resolve <ident>`** — Shows every code for one physical flight (codeshare, canonical, operator) so travelers don't have to hunt codeshares.
+```bash
+flightgoat-pp-cli airports get mock-value
+```
+
+## Usage
+
+Run `flightgoat-pp-cli --help` for the full command reference and flag list.
 
 ## Commands
 
-### Flight search and status
+### aircraft
 
-| Command | Description |
-|---------|-------------|
-| `flights get <ident>` | Information for a specific flight |
-| `flights get-by-search` | Search flights with the AeroAPI query language |
-| `flights get-by-position-search` | Search by geographic bounding box |
-| `flights get-count-by-search` | Count flights matching a search |
-| `history get <registration>` | Last known flight for an aircraft |
-| `history get-flight <id>` | Historical details for one flight |
-| `history get-flight-track <id>` | Position track history |
-| `history get-flight-route <id>` | Filed route |
-| `history get-flight-map <id>` | Track image |
+Manage aircraft
 
-### Airports, operators, aircraft
+- **`flightgoat-pp-cli aircraft get-flight-type`** - Returns information about an aircraft type, given an ICAO aircraft type designator string.
+Data returned includes the description, type, manufacturer, engine type, and engine
+count.
 
-| Command | Description |
-|---------|-------------|
-| `airports get <code>` | Static information about an airport |
-| `airports get-all` | All airports |
-| `airports get-delays-for-all` | Every airport with active delays |
-| `airports get-nearby` | Airports near a coordinate |
-| `operators get <code>` | Operator (airline) information |
-| `operators get-all` | All operators |
-| `aircraft <type>` | Aircraft type details (shortcut) |
+### airports
 
-### Foresight and predictions
+Manage airports
 
-| Command | Description |
-|---------|-------------|
-| `foresight get-flight-with <ident>` | Flight with ML-enhanced predictions |
-| `foresight get-flight-position-with <ident>` | Positions with Foresight data |
+- **`flightgoat-pp-cli airports get`** - Returns information about an airport given an ICAO or LID airport code
+such as KLAX, KIAH, O07, etc. Data returned includes airport name,
+city, state (when known), latitude, longitude, and timezone.
+- **`flightgoat-pp-cli airports get-all`** - Returns the ICAO identifiers of all known airports. For airports that
+do not have an ICAO identifier, the FAA LID identifier will be used.
+Links for further information about each airport are included.
+- **`flightgoat-pp-cli airports get-delays-for-all`** - Returns a list of airports with delays. There may be multiple reasons
+returned per airport if there are multiple types of delays reported at
+an airport. Note that individual flights can be delayed without there
+being an airport-wide delay returned by this endpoint.
+- **`flightgoat-pp-cli airports get-nearby`** - Returns a list of airports located within a given distance from the
+given location.
 
-### Alerts and schedules
+### alerts
 
-| Command | Description |
-|---------|-------------|
-| `alerts create` | Configure a new flight alert |
-| `alerts get-all` | List configured alerts |
-| `alerts update <id>` | Modify an alert |
-| `alerts delete <id>` | Remove an alert |
-| `alerts set-endpoint` | Set the default alert callback URL |
-| `schedules get-by-date` | Scheduled flights by date |
+AeroAPI alerting can be used to configure and receive real-time alerts on key flight
+events. With customizable alerting offered by our alert endpoints, AeroAPI empowers
+users to selectively pick various types of events/filters to alert on. By doing so,
+you can receive specially tailored alerts delivered to you for events such as flight plan
+filed, flight departure (out and off), flight arrival (on and in), and more!
 
-### Data pipeline and analytics
+To get started with alerting, the **PUT /alerts/endpoint** endpoint must first be used
+to set up the account-wide default URL that alerts will be delivered to. This step must
+be done before any alerts can be configured and will serve as the fallback URL that all
+alerts will be sent to for the account if a specific delivery URL is not designated on a
+particular alert. If this is not performed before configuring alerts, then you will
+receive a 400 error with an error message reminding you of this step when trying to interact
+with the **POST /alerts** endpoint. Once a URL is set via the **PUT /alerts/endpoint** endpoint,
+then alerts can be configured using the **POST /alerts** endpoint. The **GET /alerts** endpoint
+can also be used to retrieve all currently configured alerts associated with your AeroAPI key.
+The **GET /alerts** endpoint will allow you to easily retrieve the id of any specific alerts of
+interest configured for the account which can let you use the **GET** **PUT** and **DELETE**
+**/alerts/{id}** endpoints to retrieve, update, and delete specific alerts.
 
-| Command | Description |
-|---------|-------------|
-| `sync` | Sync API data to local SQLite for offline analytics |
-| `search <query>` | Full-text or domain-specific search over synced data |
-| `analytics` | Count, group-by, and summary operations on synced data |
-| `export` | Export synced data as JSONL or JSON |
-| `import` | Import JSONL records via create/upsert API calls |
-| `tail` | Stream live changes by polling the API at an interval |
+When configuring an individual alert, the *target_url* field can be set to a URL that’s
+different than the account-wide target endpoint set via the **PUT /alerts/endpoint**. If
+the *target_url* field is set on an alert, then that specific alert will be delivered to
+the specified *target_url* rather than the default account-wide one. If this field is not
+configured for the alert, then the alert will be delivered to the default account-wide endpoint.
+By setting this field, one can easily target different alerts to be received by different endpoints
+which can be useful for configuring per-application alerts or sending alerts to an alternate
+development environment without having to adjust a production alert configuration.
 
-### Account and utilities
+For each alert configured, one-to-many ‘events’ can be set for alert delivery. While most
+events will result in one alert delivery, both the *arrival* and the *departure* events can
+result in multiple alerts delivered (referred to as bundled). The *departure* event bundles the
+departure (actual OFF the ground) alert, along with the flight plan filed alert and up to 5
+per-departure changes which can include alerts for significant departure delays of over
+30 minutes, gate changes, and airport delays. FlightAware Global customers will
+also receive *Power on* and *Ready to taxi* alerts as part of the departure bundle. The *arrival* event
+bundles the arrival (actual ON the ground) alert, along with up to 5 en-route changes (including delays
+of over 30 minutes and excluding diversions) identified. FlightAware Global customers will also receive
+*taxi stop* times as part of the *arrival* bundle. Setting a bundled type and unbundled type for an
+On/Off will only result in a single alert in the case where events may overlap.
 
-| Command | Description |
-|---------|-------------|
-| `doctor` | Check auth, config, and API connectivity |
-| `auth` | Manage authentication tokens |
-| `api` | Browse all API endpoints by interface name |
-| `version` | Print version and build info |
+If there is a need to change the alert configurations, updating an alert using the **PUT /alerts/{id}**
+endpoint and a unique alert identifier (id) is preferred rather than creating an additional alert.
+By doing so, you can avoid duplicate alerts being delivered which could create unnecessary noise
+if they are not of interest anymore.
+
+If at any point there is a need to delete an alert, the **DELETE alerts/{id}** endpoint can be
+leveraged to delete an alert so that it won’t be delivered anymore. As a reminder, specific alert
+IDs can be retrieved from the **GET /alerts** endpoint.
+
+- **`flightgoat-pp-cli alerts create`** - Create a new AeroAPI flight alert. When the alert is triggered, a
+callback mechanism will be used to notify the address set via the
+/alerts/endpoint endpoint. Each callback will be charged as a query and
+count towards usage for the AeroAPI key that created the alert. If this key
+is disabled or removed, the alert will no longer be available.
+If a target_url is provided, then this specific alert will be delivered
+to that address regardless of the adress set via the /alerts/endpoint endpoint.
+- **`flightgoat-pp-cli alerts delete`** - Deletes specific alert with given ID
+- **`flightgoat-pp-cli alerts delete-endpoint`** - Remove the default account-wide URL that will be POSTed to for alerts that are
+not configured with a specific URL. This means that any alerts that are not configured
+with a specific URL will not be delivered.
+- **`flightgoat-pp-cli alerts get`** - Returns the configuration data for an alert with the specified ID.
+- **`flightgoat-pp-cli alerts get-all`** - Returns all configured alerts for the FlightAware account (this
+includes alerts configured through other means by the FlightAware user
+owning the AeroAPI account like FlightAware's website or mobile apps).
+- **`flightgoat-pp-cli alerts get-endpoint`** - Returns URL that will be POSTed to for alerts that are delivered via AeroAPI.
+- **`flightgoat-pp-cli alerts set-endpoint`** - Updates the default URL that will be POSTed to for alerts that are delivered via AeroAPI.
+This sets the account-wide default URL that all alerts will be delivered to unless
+the specific alert has a different delivery address configured for it.
+- **`flightgoat-pp-cli alerts update`** - Modifies the configuration for an alert with the specified ID. If a target
+URL address is provided, then the alert will be delivered to that address
+even if it is different than the default account-wide address set through
+the alerts/endpoint endpoint. Updating an alert that was created with a
+different AeroAPI key is possible, but will not change the AeroAPI key that
+the alert is associated with for usage.
+
+### disruption-counts
+
+Manage disruption counts
+
+- **`flightgoat-pp-cli disruption-counts get`** - Returns flight cancellation/delay counts in the specified time period
+for a particular airline or airport.
+- **`flightgoat-pp-cli disruption-counts get-all`** - Returns overall flight cancellation/delay counts in the specified time
+period for either all airlines or all airports.
+
+### flights
+
+Manage flights
+
+- **`flightgoat-pp-cli flights get`** - Returns the flight info status summary for a registration, ident, or
+fa_flight_id.  If a fa_flight_id is specified then a maximum of 1
+flight is returned, unless the flight has been diverted in which case
+both the original flight and any diversions will be returned with a
+duplicate fa_flight_id. If a registration or ident is specified,
+approximately 14 days of recent and scheduled flight information is
+returned, ordered by `scheduled_out` (or `scheduled_off` if
+`scheduled_out` is missing) descending. Alternately, specify a start
+and end parameter to find your flight(s) of interest, including up to
+10 days of flight history.
+- **`flightgoat-pp-cli flights get-by-advanced-search`** - Returns currently or recently airborne flights based on geospatial
+search parameters.
+
+Query parameters include a latitude/longitude box, aircraft ident with
+wildcards, type with wildcards, prefix, origin airport,
+destination airport, origin or destination airport, groundspeed, and
+altitude. It takes search terms in a single string comprising of
+{operator key value} elements and returns an array of flight
+structures. Each search term must be enclosed in curly braces. Multiple
+search terms can be combined in an implicit boolean "and" by separating
+the terms with at least one space. This function only searches flight
+data representing approximately the last 24 hours. Codeshares and
+alternate idents are NOT searched when matching against the ident key.
+
+The supported operators include (note that operators take different numbers of arguments):
+
+* false - results must have the specified boolean key set to a value of false. Example: {false arrived}
+* true - results must have the specified boolean key set to a value of true. Example: {true lifeguard}
+* null - results must have the specified key set to a null value. Example: {null waypoints}
+* notnull - results must have the specified key not set to a null value. Example: {notnull aircraftType}
+* = - results must have a key that exactly matches the specified value. Example: {= aircraftType C172}
+* != - results must have a key that must not match the specified value. Example: {!= prefix H}
+* < - results must have a key that is lexicographically less-than a specified value. Example: {< arrivalTime 1276811040}
+* \> - results must have a key that is lexicographically greater-than a specified value. Example: {> speed 500}
+* <= - results must have a key that is lexicographically less-than-or-equal-to a specified value. Example: {<= alt 8000}
+* \>= - results must have a key that is lexicographically greater-than-or-equal-to a specified value.
+* match - results must have a key that matches against a case-insensitive wildcard pattern. Example: {match ident AAL*}
+* notmatch - results must have a key that does not match against a case-insensitive wildcard pattern. Example: {notmatch aircraftType B76*}
+* range - results must have a key that is numerically between the two specified values. Example: {range alt 8000 20000}
+* in - results must have a key that exactly matches one of the specified values. Example: {in orig {KLAX KBUR KSNA KLGB}}
+* orig_or_dest - results must have either the origin or destination key exactly match one of the specified values. Example: {orig_or_dest {KLAX KBUR KSNA KLGB}}
+* airline - results will only include airline flight if the argument is 1, or will only include GA flights if the argument is 0. Example: {airline 1}
+* aircraftType - results must have an aircraftType key that matches one of the specified case-insensitive wildcard patterns. Example: {aircraftType {B76* B77*}}
+* ident - results must have an ident key that matches one of the specified case-insensitive wildcard patterns. Example: {ident {N123* N456* AAL* UAL*}}
+* ident_or_reg - results must have an ident key or was known to be operated by an aircraft registration that matches one of the specified case-insensitive wildcard patterns. Example: {ident_or_reg {N123* N456* AAL* UAL*}}
+
+The supported key names include (note that not all of these key names are returned in the result structure, and some have slightly different names):
+
+* actualDepartureTime - Actual time of departure, or null if not departed yet. UNIX epoch timestamp seconds since 1970
+* aircraftType - aircraft type ID (for example: B763)
+* alt - altitude at last reported position (hundreds of feet or Flight Level)
+* altChange - altitude change indication (for example: "C" if climbing, "D" if descending, and empty if it is level)
+* arrivalTime - Actual time of arrival, or null if not arrived yet. UNIX epoch timestamp seconds since 1970
+* arrived - true if the flight has arrived at its destination.
+* cancelled - true if the flight has been cancelled. The meaning of cancellation is that the flight is no longer being tracked by FlightAware. There are a number of reasons a flight may be cancelled including cancellation by the airline, but that will not always be the case.
+* cdt - Controlled Departure Time, set if there is a ground hold on the flight. UNIX epoch timestamp seconds since 1970
+* clock - Time of last received position. UNIX epoch timestamp seconds since 1970
+* cta - Controlled Time of Arrival, set if there is a ground hold on the flight. UNIX epoch timestamp seconds since 1970
+* dest - ICAO airport code of destination (for example: KLAX)
+* edt - Estimated Departure Time. Epoch timestamp seconds since 1970
+* eta - Estimated Time of Arrival. Epoch timestamp seconds since 1970
+* fdt - Field Departure Time. UNIX epoch timestamp seconds since 1970
+* firstPositionTime - Time when first reported position was received, or 0 if no position has been received yet. Epoch timestamp seconds since 1970
+* fixes - intersections and/or VORs along the route (for example: SLS AMERO ARTOM VODIR NOTOS ULAPA ACA NUXCO OLULA PERAS ALIPO UPN GDL KEDMA BRISA CUL PERTI CEN PPE ALTAR ASUTA JLI RONLD LAADY WYVIL OLDEE RAL PDZ ARNES BASET WELLZ CIVET)
+* fp - unique identifier assigned by FlightAware for this flight, aka fa_flight_id.
+* gs - ground speed at last reported position, in kts.
+* heading - direction of travel at last reported position.
+* hiLat - highest latitude travelled by flight.
+* hiLon - highest longitude travelled by flight.
+* ident - flight identifier or registration of aircraft.
+* lastPositionTime - Time when last reported position was received, or 0 if no position has been received yet. Epoch timestamp seconds since 1970.
+* lat - latitude of last reported position.
+* lifeguard - true if a "lifeguard" rescue flight.
+* lon - longitude of last reported position.
+* lowLat - lowest latitude travelled by flight.
+* lowLon - lowest longitude travelled by flight.
+* ogta - Original Time of Arrival. UNIX epoch timestamp seconds since 1970
+* ogtd - Original Time of Departure. UNIX epoch timestamp seconds since 1970
+* orig - ICAO airport code of origin (for example: KIAH)
+* physClass - physical class (for example: J is jet)
+* prefix - A one or two character identifier prefix code (common values: G or GG Medevac, L Lifeguard, A Air Taxi, H Heavy, M Medium).
+* speed - ground speed, in kts.
+* status - Single letter code for current flight status, can be S Scheduled, F Filed, A Active, Z Completed, or X Cancelled.
+* updateType - data source of last position (P=projected, O=oceanic, Z=radar, A=ADS-B, M=multilateration, D=datalink, X=surface and near surface (ADS-B and ASDE-X), S=space-based).
+* waypoints - all of the intersections and VORs comprising the route
+- **`flightgoat-pp-cli flights get-by-position-search`** - Returns flight positions based on geospatial search parameters.  This
+allows you to locate flights that have ever flown within a specific a
+latitude/longitude box, groundspeed, and altitude. It takes search
+terms in a single string comprising of {operator key value} elements
+and returns an array of flight structures. Each search term must be
+enclosed in curly braces. Multiple search terms can be combined in an
+implicit boolean "and" by separating the terms with at least one space.
+This function only searches flight data representing approximately the
+last 24 hours.
+
+The supported operators include (note that operators take different numbers of arguments):
+
+* false - results must have the specified boolean key set to a value of false. Example: {false preferred}
+* true - results must have the specified boolean key set to a value of true. Example: {true preferred}
+* null - results must have the specified key set to a null value. Example: {null waypoints}
+* notnull - results must have the specified key not set to a null value. Example: {notnull aircraftType}
+* = - results must have a key that exactly matches the specified value. Example: {= fp C172}
+* != - results must have a key that must not match the specified value. Example: {!= prefix H}
+* < - results must have a key that is lexicographically less-than a specified value. Example: {< arrivalTime 1276811040}
+* \> - results must have a key that is lexicographically greater-than a specified value. Example: {> speed 500}
+* <= - results must have a key that is lexicographically less-than-or-equal-to a specified value. Example: {<= alt 8000}
+* \>= - results must have a key that is lexicographically greater-than-or-equal-to a specified value.
+* match - results must have a key that matches against a case-insensitive wildcard pattern. Example: {match ident AAL*}
+* notmatch - results must have a key that does not match against a case-insensitive wildcard pattern. Example: {notmatch aircraftType B76*}
+* range - results must have a key that is numerically between the two specified values. Example: {range alt 8000 20000}
+* in - results must have a key that exactly matches one of the specified values. Example: {in orig {KLAX KBUR KSNA KLGB}}
+
+The supported key names include (note that not all of these key names are returned in the result structure, and some have slightly different names):
+
+* alt - Altitude, measured in hundreds of feet or Flight Level.
+* altChange - a one-character code indicating the change in altitude.
+* cid - a three-character cid code
+* clock - UNIX epoch timestamp seconds since 1970
+* fp - unique identifier assigned by FlightAware for this flight, aka fa_flight_id.
+* gs - ground speed, measured in kts.
+* lat - latitude of the reported position.
+* lon - longitude of the reported position
+* updateType - source of the last reported position (P=projected, O=oceanic, Z=radar, A=ADS-B, M=multilateration, D=datalink, X=surface and near surface (ADS-B and ASDE-X), S=space-based)
+- **`flightgoat-pp-cli flights get-by-search`** - Search for airborne flights by matching against various parameters including
+geospatial data. Uses a simplified query syntax compared to
+/flights/search/advanced.
+- **`flightgoat-pp-cli flights get-count-by-search`** - Full search query documentation is available at the /flights/search
+endpoint.
+
+### foresight
+
+Foresight endpoints provide access to FlightAware's Foresight predictive models and
+predictions for key events. Our advanced machine learning (ML) models identify key
+influencing factors for a flight to forecast future events in real-time, providing
+unprecedented insight to improve operational efficiencies and facilitate better
+decision-making in the air and on the ground. To learn more about the power of Foresight,
+visit https://www.flightaware.com/commercial/foresight/
+
+These endpoints each mirror a non-Foresight equivalent endpoint of similar functionality,
+with the addition of all the ML 'predicted' values included in the Foresight response. The
+respective non-Foresight endpoint response includes a flag, 'foresight_predictions_available',
+which can optionally be used as a trigger to obtain and leverage Foresight predictions on an
+as-needed basis and manage cost. Foresight is only available to Premium tier customers.
+Contact integrationsales@flightaware.com for more information, pricing details, and to have
+your account enabled for Foresight.
+
+- **`flightgoat-pp-cli foresight get-flight-position-with`** - Get flight's current position, including Foresight data
+- **`flightgoat-pp-cli foresight get-flight-with`** - Returns the flight info status summary for a registration, ident, or
+fa_flight_id, including all available predicted fields.  If a
+fa_flight_id is specified then a maximum of 1 flight is returned,
+unless the flight has been diverted in which case both the original
+flight and any diversions will be returned with a duplicate fa_flight_id.
+- **`flightgoat-pp-cli foresight get-flights-by-advanced-search-with`** - Returns currently or recently airborne flights based on geospatial
+search parameters. If available, flights' predicted OOOI fields will be
+set.
+
+### history
+
+Manage history
+
+- **`flightgoat-pp-cli history get-aircraft-last-flight`** - Returns flight info status summary for an aircraft's last known flight
+given its registration. The search is limited to flights flown since
+January 1, 2011. On a successful response, the body will contain a
+flights array with only 1 element. If a user queries a registration with
+it's last known flight before January 1, 2011, an empty flights array will
+be returned.
+- **`flightgoat-pp-cli history get-flight`** - Returns historical flight info status summary for a registration, ident,
+or fa_flight_id. If a fa_flight_id is specified then a maximum of 1
+flight is returned, unless the flight has been diverted in which case
+both the original flight and any diversions will be returned with a
+duplicate fa_flight_id. If a registraion or ident is specified then a
+start_date and end_date must be specified. The span between start_date
+and end_date can be up to 7 days. No more than 40 pages may be requested
+at once. Data is available from now back to 2011-01-01 00:00:00 UTC.
+
+The field `inbound_fa_flight_id` will not be populated by this resource.
+- **`flightgoat-pp-cli history get-flight-map`** - Returns a historical flight's track as a base64-encoded image. Image can contain a
+variety of additional data layers beyond just the track. Data is available from now back to
+2011-01-01T00:00:00Z.
+- **`flightgoat-pp-cli history get-flight-route`** - Returns information about a historical flight's filed route including
+coordinates, names, and types of fixes along the route.  Not all flight
+routes can be successfully decoded by this endpoint, particularly if the
+flight is not entirely within the continental U.S. airspace, since this function
+only has access to navaids within that area. If data on a waypoint is
+missing then the type will be listed as "UNKNOWN". Data is available from now back to
+2011-01-01T00:00:00Z.
+- **`flightgoat-pp-cli history get-flight-track`** - Returns the track for a historical flight as an array of positions.
+Data is available from now back to 2011-01-01T00:00:00Z.
+
+### operators
+
+Manage operators
+
+- **`flightgoat-pp-cli operators get`** - Returns information for an operator such as their name, ICAO/IATA
+codes, headquarter location, etc.
+- **`flightgoat-pp-cli operators get-all`** - Returns list of operator references (ICAO/IATA codes and URLs to access
+more information).
+
+### schedules
+
+Manage schedules
+
+- **`flightgoat-pp-cli schedules get-by-date`** - Returns scheduled flights that have been published by airlines. These
+schedules are available for up to three months in the past as well as
+one year into the future.
+
 
 ## Output Formats
 
-Every read command supports these flags:
-
 ```bash
-# Default: human-readable table in terminal, JSON when piped
-flightgoat-pp-cli longhaul SEA --min-hours 8
+# Human-readable table (default in terminal, JSON when piped)
+flightgoat-pp-cli airports get mock-value
 
-# Force JSON for scripting
-flightgoat-pp-cli longhaul SEA --min-hours 8 --json
+# JSON for scripting and agents
+flightgoat-pp-cli airports get mock-value --json
 
 # Filter to specific fields
-flightgoat-pp-cli explore SEA --json --select destination,airline,duration_minutes
+flightgoat-pp-cli airports get mock-value --json --select id,name,status
 
-# Compact output (reduced key set) for LLM tokens
-flightgoat-pp-cli digest SEA --compact
+# Dry run — show the request without sending
+flightgoat-pp-cli airports get mock-value --dry-run
 
-# CSV for spreadsheet work
-flightgoat-pp-cli reliability SEA LHR --days 30 --csv
-
-# Dry run: print the planned request without sending
-flightgoat-pp-cli compare SEA LHR 2026-06-15 --dry-run
-
-# Agent mode: --json --compact --no-input --no-color --yes in one flag
-flightgoat-pp-cli digest SEA --agent
+# Agent mode — JSON + compact + no prompts in one flag
+flightgoat-pp-cli airports get mock-value --agent
 ```
 
 ## Agent Usage
 
 This CLI is designed for AI agent consumption:
 
-- **Non-interactive** — never prompts, every input is a flag
-- **Pipeable** — `--json` output to stdout, human hints and errors to stderr
-- **Filterable** — `--select id,name` returns only the fields you need
-- **Previewable** — `--dry-run` shows the planned request(s) without sending
-- **Cacheable** — GET responses cached for 5 minutes, bypass with `--no-cache`
-- **Offline** — `--data-source local` searches the local SQLite without any API call
-- **Agent-safe by default** — no colors, no prompts unless `--human-friendly` is set
-- **Provenance-aware** — every response carries a `source: live|local|cache` envelope
+- **Non-interactive** - never prompts, every input is a flag
+- **Pipeable** - `--json` output to stdout, errors to stderr
+- **Filterable** - `--select id,name` returns only fields you need
+- **Previewable** - `--dry-run` shows the request without sending
+- **Retryable** - creates return "already exists" on retry, deletes return "already deleted"
+- **Confirmable** - `--yes` for explicit confirmation of destructive actions
+- **Piped input** - write commands can accept structured input when their help lists `--stdin`
+- **Offline-friendly** - sync/search commands can use the local SQLite store when available
+- **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
 
-## MCP Server
+## Use with Claude Code
 
-A companion MCP server (`flightgoat-pp-mcp`) exposes all commands as tools for Claude Code, Claude Desktop, Cursor, and any MCP-compatible client.
+Install the focused skill — it auto-installs the CLI on first invocation:
 
-### Claude Code
+```bash
+npx skills add mvanhorn/printing-press-library/cli-skills/pp-flightgoat -g
+```
+
+Then invoke `/pp-flightgoat <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
+
+<details>
+<summary>Use as an MCP server in Claude Code (advanced)</summary>
+
+If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/other/flightgoat/cmd/flightgoat-pp-mcp@latest
+```
+
+Then register it:
 
 ```bash
 claude mcp add flightgoat flightgoat-pp-mcp -e FLIGHTGOAT_API_KEY_AUTH=<your-key>
 ```
 
-### Claude Desktop
+</details>
 
-Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/flightgoat-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `FLIGHTGOAT_API_KEY_AUTH` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/other/flightgoat/cmd/flightgoat-pp-mcp@latest
+```
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 
 ```json
 {
@@ -206,139 +513,31 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 }
 ```
 
-## Cookbook
-
-```bash
-# Find every nonstop 10+ hour flight out of JFK in July 2026
-flightgoat-pp-cli longhaul JFK --min-hours 10 --month 2026-07
-
-# Direct destinations from SEA with airlines and frequency
-flightgoat-pp-cli explore SEA --json | jq '.[] | {dest: .destination, airlines, flights_per_week}'
-
-# Which SEA to LHR airline is most reliable over the last 60 days
-flightgoat-pp-cli reliability SEA LHR --days 60
-
-# Combine price and reliability for a specific date
-flightgoat-pp-cli compare SEA LHR 2026-06-15
-
-# Watch UA100 until it lands, checking every 2 minutes
-flightgoat-pp-cli monitor UA100 --interval 2m --until-arrival
-
-# Morning brief for your home airport
-flightgoat-pp-cli digest SEA --json
-
-# Every US airport with active delays right now
-flightgoat-pp-cli heatmap --region US
-
-# Everything UA5 touches (codeshares, operators, canonical)
-flightgoat-pp-cli resolve UA5
-
-# Full tail number history for N628TS
-flightgoat-pp-cli aircraft-bio N628TS
-
-# Alert when JFK->CDG drops under $600
-flightgoat-pp-cli gf-search JFK CDG 2026-07-01 --alert-if-under 600
-
-# Sync operators + airports for offline browsing
-flightgoat-pp-cli sync
-
-# Search synced data for a string
-flightgoat-pp-cli search "United" --type operators
-
-# Count records by type in the local store
-flightgoat-pp-cli analytics
-
-# Export synced operators as JSONL
-flightgoat-pp-cli export operators --format jsonl --output operators.jsonl
-
-# Preview a compare without hitting the network or fli
-flightgoat-pp-cli compare SEA LHR 2026-06-15 --dry-run
-```
+</details>
 
 ## Health Check
 
-```
-$ flightgoat-pp-cli doctor
-  OK Config: ok
-  OK Auth: configured
-  OK API: reachable
-  config_path: /Users/you/.config/flightgoat-pp-cli/config.toml
-  base_url: https://aeroapi.flightaware.com/aeroapi
-  version: 4.17.1
+```bash
+flightgoat-pp-cli doctor
 ```
 
-If `Auth: not configured` appears, set `FLIGHTGOAT_API_KEY_AUTH`. If `API: unreachable`, check your network and that your key has quota remaining.
+Verifies configuration, credentials, and connectivity to the API.
 
 ## Configuration
 
-Config file: `~/.config/flightgoat-pp-cli/config.toml` (override with `FLIGHTGOAT_CONFIG`).
+Config file: `~/.config/flightgoat-pp-cli/config.toml`
 
 Environment variables:
-
-| Variable | Purpose |
-|----------|---------|
-| `FLIGHTGOAT_API_KEY_AUTH` | Primary API key variable |
-| `FLIGHTGOAT_API_KEY` | Alias for the API key |
-| `FLIGHTAWARE_API_KEY` | Alias matching FlightAware's own docs |
-| `AEROAPI_API_KEY` | Alias matching the AeroAPI portal |
-| `AEROAPI_KEY` | Shorter alias |
-| `FLIGHTGOAT_BASE_URL` | Override the AeroAPI base URL |
-| `FLIGHTGOAT_CONFIG` | Override the config file path |
-| `NO_COLOR` | Disable colored output |
+- `FLIGHTGOAT_API_KEY_AUTH`
 
 ## Troubleshooting
-
 **Authentication errors (exit code 4)**
-- `flightgoat-pp-cli doctor` confirms whether your key is set and accepted
-- Verify the env var: `echo $FLIGHTGOAT_API_KEY_AUTH`
-- AeroAPI keys are not JWT tokens — they're simple opaque strings
-
+- Run `flightgoat-pp-cli doctor` to check credentials
+- Verify the environment variable is set: `echo $FLIGHTGOAT_API_KEY_AUTH`
 **Not found errors (exit code 3)**
-- Airport codes must be IATA (3 letters) or ICAO (4 letters), case-insensitive
-- Flight idents should be the operator code plus number (e.g., `UA100`, not `UA 100`)
+- Check the resource ID is correct
+- Run the `list` command to see available items
 
-**Rate limit errors (exit code 7)**
-- The CLI auto-retries with exponential backoff
-- Use `--rate-limit 1.0` to cap requests per second
-- Sync and transcendence commands respect `--max-pages` to bound cost
+---
 
-**`fli` not found**
-- `compare` and `gf-search` shell out to the `fli` Python CLI
-- Install it with `pipx install flights`
-
-**Empty results for `longhaul` / `explore`**
-- AeroAPI's scheduled-departures endpoint only returns data for a limited window
-- Try a narrower `--from`/`--to` or a current month with `--month YYYY-MM`
-
-## Rate Limits
-
-AeroAPI rate limits depend on your plan tier. This CLI honors them with:
-
-- Proactive client-side rate limiting (configurable with `--rate-limit`)
-- Exponential backoff on 429 responses
-- A 5-minute local cache for GET requests (bypass with `--no-cache`)
-- Paginated commands cap at `--max-pages` (default 5) to bound cost
-
-## Sources and Inspiration
-
-This CLI was built by studying and crediting these community projects:
-
-- [**fli**](https://github.com/punitarani/fli) — Python Google Flights client (used as a subprocess for `compare` and `gf-search`)
-- [**aeroapps**](https://github.com/flightaware/aeroapps) — FlightAware's sample apps
-- [**mcp-server-flight-aware-aeroapi**](https://github.com/mikedarke/mcp-server-flight-aware-aeroapi) — TypeScript MCP server
-- [**flights-mcp-server**](https://github.com/smamidipaka6/flights-mcp-server) — Python MCP server
-- [**google-flights-mcp**](https://github.com/HaroldLeo/google-flights-mcp) — Python
-- [**salamentic-google-flights-mcp**](https://github.com/salamentic/google-flights-mcp) — Python
-- [**fast-flights**](https://github.com/AWeirdDev/flights) — Python
-- [**flights-search-cli**](https://github.com/jaebradley/flights-search-cli) — JavaScript
-
-Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press).
-
-<!-- pr-218-features -->
-## Agent workflow features
-
-This CLI was patched to add these agent-workflow capabilities (see [`printing-press patch`](https://github.com/mvanhorn/cli-printing-press/pull/221)):
-
-- **Named profiles** — save a set of flags under a name and reuse them: `flightgoat-pp-cli profile save <name> --<flag> <value>`, then `flightgoat-pp-cli --profile <name> <command>`. Flag precedence: explicit flag > env var > profile > default.
-- **`--deliver`** — route command output to a sink other than stdout. Values: `file:<path>` writes atomically via tmp+rename; `webhook:<url>` POSTs as JSON (or NDJSON with `--compact`).
-- **`feedback`** — record in-band feedback about the CLI. Entries append as JSON lines to `~/.flightgoat-pp-cli/feedback.jsonl`. When `FLIGHTGOAT_FEEDBACK_ENDPOINT` is set and either `--send` is passed or `FLIGHTGOAT_FEEDBACK_AUTO_SEND=true`, the entry is also POSTed upstream.
+Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)

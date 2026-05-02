@@ -184,25 +184,18 @@ func (s *Store) ensureColumn(ctx context.Context, conn *sql.Conn, table, column,
 // word.
 func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
 	for _, c := range []struct{ table, column, decl string }{
-		{table: "airports", column: "max_pages", decl: "INTEGER"},
-		{table: "airports", column: "cursor", decl: "TEXT"},
-		{table: "airports", column: "latitude", decl: "REAL"},
-		{table: "airports", column: "longitude", decl: "REAL"},
-		{table: "airports", column: "radius", decl: "INTEGER"},
-		{table: "airports", column: "only_iap", decl: "INTEGER"},
-		{table: "nearby", column: "airports_id", decl: "TEXT"},
-		{table: "routes", column: "airports_id", decl: "TEXT"},
-		{table: "weather", column: "airports_id", decl: "TEXT"},
-		{table: "canonical", column: "airports_id", decl: "TEXT"},
-		{table: "delays", column: "airports_id", decl: "TEXT"},
-		{table: "flights", column: "airports_id", decl: "TEXT"},
-		{table: "foresight", column: "ident", decl: "TEXT"},
-		{table: "foresight", column: "ident_type", decl: "TEXT"},
-		{table: "foresight", column: "start", decl: "TEXT"},
-		{table: "foresight", column: "end", decl: "TEXT"},
-		{table: "foresight", column: "max_pages", decl: "INTEGER"},
-		{table: "foresight", column: "cursor", decl: "TEXT"},
-		{table: "foresight", column: "query", decl: "TEXT"},
+		{table: "blocked", column: "aircraft_id", decl: "TEXT"},
+		{table: "owner", column: "aircraft_id", decl: "TEXT"},
+		{table: "schedules", column: "date_start", decl: "TEXT"},
+		{table: "schedules", column: "date_end", decl: "TEXT"},
+		{table: "schedules", column: "origin", decl: "TEXT"},
+		{table: "schedules", column: "destination", decl: "TEXT"},
+		{table: "schedules", column: "airline", decl: "TEXT"},
+		{table: "schedules", column: "flight_number", decl: "INTEGER"},
+		{table: "schedules", column: "include_codeshares", decl: "INTEGER"},
+		{table: "schedules", column: "include_regional", decl: "INTEGER"},
+		{table: "schedules", column: "max_pages", decl: "INTEGER"},
+		{table: "schedules", column: "cursor", decl: "TEXT"},
 		{table: "alerts", column: "max_pages", decl: "INTEGER"},
 		{table: "alerts", column: "cursor", decl: "TEXT"},
 		{table: "alerts", column: "aircraft_type", decl: "TEXT"},
@@ -214,21 +207,23 @@ func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
 		{table: "alerts", column: "origin", decl: "TEXT"},
 		{table: "alerts", column: "start", decl: "DATETIME"},
 		{table: "alerts", column: "target_url", decl: "TEXT"},
-		{table: "alerts", column: "enabled", decl: "INTEGER"},
 		{table: "alerts", column: "url", decl: "TEXT"},
+		{table: "alerts", column: "enabled", decl: "INTEGER"},
 		{table: "operators", column: "max_pages", decl: "INTEGER"},
 		{table: "operators", column: "cursor", decl: "TEXT"},
+		{table: "canonical", column: "operators_id", decl: "TEXT"},
+		{table: "flights", column: "operators_id", decl: "TEXT"},
 		{table: "disruption_counts", column: "entity_type", decl: "TEXT"},
 		{table: "disruption_counts", column: "time_period", decl: "TEXT"},
 		{table: "disruption_counts", column: "max_pages", decl: "INTEGER"},
 		{table: "disruption_counts", column: "cursor", decl: "TEXT"},
-		{table: "intents", column: "flights_id", decl: "TEXT"},
-		{table: "map", column: "flights_id", decl: "TEXT"},
-		{table: "position", column: "flights_id", decl: "TEXT"},
-		{table: "route", column: "flights_id", decl: "TEXT"},
-		{table: "track", column: "flights_id", decl: "TEXT"},
-		{table: "blocked", column: "aircraft_id", decl: "TEXT"},
-		{table: "owner", column: "aircraft_id", decl: "TEXT"},
+		{table: "foresight", column: "ident", decl: "TEXT"},
+		{table: "foresight", column: "ident_type", decl: "TEXT"},
+		{table: "foresight", column: "start", decl: "TEXT"},
+		{table: "foresight", column: "end", decl: "TEXT"},
+		{table: "foresight", column: "max_pages", decl: "INTEGER"},
+		{table: "foresight", column: "cursor", decl: "TEXT"},
+		{table: "foresight", column: "query", decl: "TEXT"},
 		{table: "history", column: "ident", decl: "TEXT"},
 		{table: "history", column: "ident_type", decl: "TEXT"},
 		{table: "history", column: "start", decl: "TEXT"},
@@ -242,16 +237,21 @@ func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
 		{table: "history", column: "airports_expand_view", decl: "INTEGER"},
 		{table: "history", column: "show_airports", decl: "INTEGER"},
 		{table: "history", column: "include_estimated_positions", decl: "INTEGER"},
-		{table: "schedules", column: "date_start", decl: "TEXT"},
-		{table: "schedules", column: "date_end", decl: "TEXT"},
-		{table: "schedules", column: "origin", decl: "TEXT"},
-		{table: "schedules", column: "destination", decl: "TEXT"},
-		{table: "schedules", column: "airline", decl: "TEXT"},
-		{table: "schedules", column: "flight_number", decl: "INTEGER"},
-		{table: "schedules", column: "include_codeshares", decl: "INTEGER"},
-		{table: "schedules", column: "include_regional", decl: "INTEGER"},
-		{table: "schedules", column: "max_pages", decl: "INTEGER"},
-		{table: "schedules", column: "cursor", decl: "TEXT"},
+		{table: "airports", column: "max_pages", decl: "INTEGER"},
+		{table: "airports", column: "cursor", decl: "TEXT"},
+		{table: "airports", column: "latitude", decl: "REAL"},
+		{table: "airports", column: "longitude", decl: "REAL"},
+		{table: "airports", column: "radius", decl: "INTEGER"},
+		{table: "airports", column: "only_iap", decl: "INTEGER"},
+		{table: "routes", column: "airports_id", decl: "TEXT"},
+		{table: "weather", column: "airports_id", decl: "TEXT"},
+		{table: "delays", column: "airports_id", decl: "TEXT"},
+		{table: "nearby", column: "airports_id", decl: "TEXT"},
+		{table: "track", column: "flights_id", decl: "TEXT"},
+		{table: "intents", column: "flights_id", decl: "TEXT"},
+		{table: "map", column: "flights_id", decl: "TEXT"},
+		{table: "position", column: "flights_id", decl: "TEXT"},
+		{table: "route", column: "flights_id", decl: "TEXT"},
 		{table: "sync_state", column: "last_cursor", decl: "TEXT"},
 		{table: "sync_state", column: "last_synced_at", decl: "DATETIME"},
 		{table: "sync_state", column: "total_count", decl: "INTEGER DEFAULT 0"},
@@ -304,70 +304,34 @@ func (s *Store) migrate(ctx context.Context) error {
 		`CREATE VIRTUAL TABLE IF NOT EXISTS resources_fts USING fts5(
 			id, resource_type, content, tokenize='porter unicode61'
 		)`,
-		`CREATE TABLE IF NOT EXISTS airports (
+		`CREATE TABLE IF NOT EXISTS blocked (
+			id TEXT PRIMARY KEY,
+			aircraft_id TEXT NOT NULL,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_blocked_aircraft_id ON blocked(aircraft_id)`,
+		`CREATE TABLE IF NOT EXISTS owner (
+			id TEXT PRIMARY KEY,
+			aircraft_id TEXT NOT NULL,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_owner_aircraft_id ON owner(aircraft_id)`,
+		`CREATE TABLE IF NOT EXISTS schedules (
 			id TEXT PRIMARY KEY,
 			data JSON NOT NULL,
 			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			date_start TEXT,
+			date_end TEXT,
+			origin TEXT,
+			destination TEXT,
+			airline TEXT,
+			flight_number INTEGER,
+			include_codeshares INTEGER,
+			include_regional INTEGER,
 			max_pages INTEGER,
-			cursor TEXT,
-			latitude REAL,
-			longitude REAL,
-			radius INTEGER,
-			only_iap INTEGER
-		)`,
-		`CREATE TABLE IF NOT EXISTS nearby (
-			id TEXT PRIMARY KEY,
-			airports_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_nearby_airports_id ON nearby(airports_id)`,
-		`CREATE TABLE IF NOT EXISTS routes (
-			id TEXT PRIMARY KEY,
-			airports_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_routes_airports_id ON routes(airports_id)`,
-		`CREATE TABLE IF NOT EXISTS weather (
-			id TEXT PRIMARY KEY,
-			airports_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_weather_airports_id ON weather(airports_id)`,
-		`CREATE TABLE IF NOT EXISTS canonical (
-			id TEXT PRIMARY KEY,
-			airports_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_canonical_airports_id ON canonical(airports_id)`,
-		`CREATE TABLE IF NOT EXISTS delays (
-			id TEXT PRIMARY KEY,
-			airports_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_delays_airports_id ON delays(airports_id)`,
-		`CREATE TABLE IF NOT EXISTS flights (
-			id TEXT PRIMARY KEY,
-			airports_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_flights_airports_id ON flights(airports_id)`,
-		`CREATE TABLE IF NOT EXISTS foresight (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			ident TEXT,
-			ident_type TEXT,
-			start TEXT,
-			"end" TEXT,
-			max_pages INTEGER,
-			cursor TEXT,
-			query TEXT
+			cursor TEXT
 		)`,
 		`CREATE TABLE IF NOT EXISTS alerts (
 			id TEXT PRIMARY KEY,
@@ -384,8 +348,8 @@ func (s *Store) migrate(ctx context.Context) error {
 			origin TEXT,
 			start DATETIME,
 			target_url TEXT,
-			enabled INTEGER,
-			url TEXT
+			url TEXT,
+			enabled INTEGER
 		)`,
 		`CREATE TABLE IF NOT EXISTS operators (
 			id TEXT PRIMARY KEY,
@@ -394,6 +358,20 @@ func (s *Store) migrate(ctx context.Context) error {
 			max_pages INTEGER,
 			cursor TEXT
 		)`,
+		`CREATE TABLE IF NOT EXISTS canonical (
+			id TEXT PRIMARY KEY,
+			operators_id TEXT NOT NULL,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_canonical_operators_id ON canonical(operators_id)`,
+		`CREATE TABLE IF NOT EXISTS flights (
+			id TEXT PRIMARY KEY,
+			operators_id TEXT NOT NULL,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_flights_operators_id ON flights(operators_id)`,
 		`CREATE TABLE IF NOT EXISTS disruption_counts (
 			id TEXT PRIMARY KEY,
 			data JSON NOT NULL,
@@ -403,6 +381,82 @@ func (s *Store) migrate(ctx context.Context) error {
 			max_pages INTEGER,
 			cursor TEXT
 		)`,
+		`CREATE TABLE IF NOT EXISTS foresight (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			ident TEXT,
+			ident_type TEXT,
+			start TEXT,
+			"end" TEXT,
+			max_pages INTEGER,
+			cursor TEXT,
+			query TEXT
+		)`,
+		`CREATE TABLE IF NOT EXISTS history (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			ident TEXT,
+			ident_type TEXT,
+			start TEXT,
+			"end" TEXT,
+			max_pages INTEGER,
+			cursor TEXT,
+			registration TEXT,
+			height INTEGER,
+			width INTEGER,
+			show_data_block INTEGER,
+			airports_expand_view INTEGER,
+			show_airports INTEGER,
+			include_estimated_positions INTEGER
+		)`,
+		`CREATE TABLE IF NOT EXISTS airports (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			max_pages INTEGER,
+			cursor TEXT,
+			latitude REAL,
+			longitude REAL,
+			radius INTEGER,
+			only_iap INTEGER
+		)`,
+		`CREATE TABLE IF NOT EXISTS routes (
+			id TEXT PRIMARY KEY,
+			airports_id TEXT NOT NULL,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_routes_airports_id ON routes(airports_id)`,
+		`CREATE TABLE IF NOT EXISTS weather (
+			id TEXT PRIMARY KEY,
+			airports_id TEXT NOT NULL,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_weather_airports_id ON weather(airports_id)`,
+		`CREATE TABLE IF NOT EXISTS delays (
+			id TEXT PRIMARY KEY,
+			airports_id TEXT NOT NULL,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_delays_airports_id ON delays(airports_id)`,
+		`CREATE TABLE IF NOT EXISTS nearby (
+			id TEXT PRIMARY KEY,
+			airports_id TEXT NOT NULL,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_nearby_airports_id ON nearby(airports_id)`,
+		`CREATE TABLE IF NOT EXISTS track (
+			id TEXT PRIMARY KEY,
+			flights_id TEXT NOT NULL,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_track_flights_id ON track(flights_id)`,
 		`CREATE TABLE IF NOT EXISTS intents (
 			id TEXT PRIMARY KEY,
 			flights_id TEXT NOT NULL,
@@ -431,60 +485,6 @@ func (s *Store) migrate(ctx context.Context) error {
 			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_route_flights_id ON route(flights_id)`,
-		`CREATE TABLE IF NOT EXISTS track (
-			id TEXT PRIMARY KEY,
-			flights_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_track_flights_id ON track(flights_id)`,
-		`CREATE TABLE IF NOT EXISTS blocked (
-			id TEXT PRIMARY KEY,
-			aircraft_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_blocked_aircraft_id ON blocked(aircraft_id)`,
-		`CREATE TABLE IF NOT EXISTS owner (
-			id TEXT PRIMARY KEY,
-			aircraft_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_owner_aircraft_id ON owner(aircraft_id)`,
-		`CREATE TABLE IF NOT EXISTS history (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			ident TEXT,
-			ident_type TEXT,
-			start TEXT,
-			"end" TEXT,
-			max_pages INTEGER,
-			cursor TEXT,
-			registration TEXT,
-			height INTEGER,
-			width INTEGER,
-			show_data_block INTEGER,
-			airports_expand_view INTEGER,
-			show_airports INTEGER,
-			include_estimated_positions INTEGER
-		)`,
-		`CREATE TABLE IF NOT EXISTS schedules (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			date_start TEXT,
-			date_end TEXT,
-			origin TEXT,
-			destination TEXT,
-			airline TEXT,
-			flight_number INTEGER,
-			include_codeshares INTEGER,
-			include_regional INTEGER,
-			max_pages INTEGER,
-			cursor TEXT
-		)`,
 	}
 
 	// Run every migration — including the column backfill and the
@@ -778,7 +778,7 @@ func ftsRowID(id string) int64 {
 // way — a divergence here produces silent drops on heterogeneous payloads.
 func LookupFieldValue(obj map[string]any, snakeKey string) any {
 	if v, ok := obj[snakeKey]; ok {
-		return v
+		return sqliteFieldValue(v)
 	}
 	parts := strings.Split(snakeKey, "_")
 	for i := 1; i < len(parts); i++ {
@@ -788,9 +788,22 @@ func LookupFieldValue(obj map[string]any, snakeKey string) any {
 		parts[i] = strings.ToUpper(parts[i][:1]) + parts[i][1:]
 	}
 	if v, ok := obj[strings.Join(parts, "")]; ok {
-		return v
+		return sqliteFieldValue(v)
 	}
 	return nil
+}
+
+func sqliteFieldValue(v any) any {
+	switch v.(type) {
+	case nil, string, bool, int, int64, float64, []byte:
+		return v
+	default:
+		data, err := json.Marshal(v)
+		if err != nil {
+			return fmt.Sprint(v)
+		}
+		return string(data)
+	}
 }
 
 // lookupFieldValue is kept as an unexported alias for in-package callers so
@@ -798,6 +811,549 @@ func LookupFieldValue(obj map[string]any, snakeKey string) any {
 // with the package name.
 func lookupFieldValue(obj map[string]any, snakeKey string) any {
 	return LookupFieldValue(obj, snakeKey)
+}
+// upsertBlockedTx writes the typed-table portion of a blocked upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertBlockedTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO blocked (id, aircraft_id, data, synced_at)
+		 VALUES (?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET aircraft_id = excluded.aircraft_id, data = excluded.data, synced_at = excluded.synced_at`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "aircraft_id"),
+	); err != nil {
+		return fmt.Errorf("insert into blocked: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertBlocked inserts or updates a blocked record with domain-specific columns.
+func (s *Store) UpsertBlocked(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling blocked: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for blocked")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "blocked", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertBlockedTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+// upsertOwnerTx writes the typed-table portion of a owner upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertOwnerTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO owner (id, aircraft_id, data, synced_at)
+		 VALUES (?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET aircraft_id = excluded.aircraft_id, data = excluded.data, synced_at = excluded.synced_at`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "aircraft_id"),
+	); err != nil {
+		return fmt.Errorf("insert into owner: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertOwner inserts or updates a owner record with domain-specific columns.
+func (s *Store) UpsertOwner(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling owner: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for owner")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "owner", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertOwnerTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+// upsertSchedulesTx writes the typed-table portion of a schedules upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertSchedulesTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO schedules (id, data, synced_at, date_start, date_end, origin, destination, airline, flight_number, include_codeshares, include_regional, max_pages, cursor)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, date_start = excluded.date_start, date_end = excluded.date_end, origin = excluded.origin, destination = excluded.destination, airline = excluded.airline, flight_number = excluded.flight_number, include_codeshares = excluded.include_codeshares, include_regional = excluded.include_regional, max_pages = excluded.max_pages, cursor = excluded.cursor`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "date_start"),
+		lookupFieldValue(obj, "date_end"),
+		lookupFieldValue(obj, "origin"),
+		lookupFieldValue(obj, "destination"),
+		lookupFieldValue(obj, "airline"),
+		lookupFieldValue(obj, "flight_number"),
+		lookupFieldValue(obj, "include_codeshares"),
+		lookupFieldValue(obj, "include_regional"),
+		lookupFieldValue(obj, "max_pages"),
+		lookupFieldValue(obj, "cursor"),
+	); err != nil {
+		return fmt.Errorf("insert into schedules: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertSchedules inserts or updates a schedules record with domain-specific columns.
+func (s *Store) UpsertSchedules(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling schedules: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for schedules")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "schedules", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertSchedulesTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+// upsertAlertsTx writes the typed-table portion of a alerts upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertAlertsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO alerts (id, data, synced_at, max_pages, cursor, aircraft_type, destination, "end", eta, ident, max_weekly, origin, start, target_url, url, enabled)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, max_pages = excluded.max_pages, cursor = excluded.cursor, aircraft_type = excluded.aircraft_type, destination = excluded.destination, "end" = excluded."end", eta = excluded.eta, ident = excluded.ident, max_weekly = excluded.max_weekly, origin = excluded.origin, start = excluded.start, target_url = excluded.target_url, url = excluded.url, enabled = excluded.enabled`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "max_pages"),
+		lookupFieldValue(obj, "cursor"),
+		lookupFieldValue(obj, "aircraft_type"),
+		lookupFieldValue(obj, "destination"),
+		lookupFieldValue(obj, "end"),
+		lookupFieldValue(obj, "eta"),
+		lookupFieldValue(obj, "ident"),
+		lookupFieldValue(obj, "max_weekly"),
+		lookupFieldValue(obj, "origin"),
+		lookupFieldValue(obj, "start"),
+		lookupFieldValue(obj, "target_url"),
+		lookupFieldValue(obj, "url"),
+		lookupFieldValue(obj, "enabled"),
+	); err != nil {
+		return fmt.Errorf("insert into alerts: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertAlerts inserts or updates a alerts record with domain-specific columns.
+func (s *Store) UpsertAlerts(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling alerts: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for alerts")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "alerts", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertAlertsTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+// upsertOperatorsTx writes the typed-table portion of a operators upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertOperatorsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO operators (id, data, synced_at, max_pages, cursor)
+		 VALUES (?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, max_pages = excluded.max_pages, cursor = excluded.cursor`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "max_pages"),
+		lookupFieldValue(obj, "cursor"),
+	); err != nil {
+		return fmt.Errorf("insert into operators: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertOperators inserts or updates a operators record with domain-specific columns.
+func (s *Store) UpsertOperators(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling operators: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for operators")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "operators", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertOperatorsTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+// upsertCanonicalTx writes the typed-table portion of a canonical upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertCanonicalTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO canonical (id, operators_id, data, synced_at)
+		 VALUES (?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET operators_id = excluded.operators_id, data = excluded.data, synced_at = excluded.synced_at`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "operators_id"),
+	); err != nil {
+		return fmt.Errorf("insert into canonical: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertCanonical inserts or updates a canonical record with domain-specific columns.
+func (s *Store) UpsertCanonical(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling canonical: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for canonical")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "canonical", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertCanonicalTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+// upsertFlightsTx writes the typed-table portion of a flights upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertFlightsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO flights (id, operators_id, data, synced_at)
+		 VALUES (?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET operators_id = excluded.operators_id, data = excluded.data, synced_at = excluded.synced_at`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "operators_id"),
+	); err != nil {
+		return fmt.Errorf("insert into flights: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertFlights inserts or updates a flights record with domain-specific columns.
+func (s *Store) UpsertFlights(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling flights: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for flights")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "flights", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertFlightsTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+// upsertDisruptionCountsTx writes the typed-table portion of a disruption_counts upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertDisruptionCountsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO disruption_counts (id, data, synced_at, entity_type, time_period, max_pages, cursor)
+		 VALUES (?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, entity_type = excluded.entity_type, time_period = excluded.time_period, max_pages = excluded.max_pages, cursor = excluded.cursor`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "entity_type"),
+		lookupFieldValue(obj, "time_period"),
+		lookupFieldValue(obj, "max_pages"),
+		lookupFieldValue(obj, "cursor"),
+	); err != nil {
+		return fmt.Errorf("insert into disruption_counts: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertDisruptionCounts inserts or updates a disruption_counts record with domain-specific columns.
+func (s *Store) UpsertDisruptionCounts(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling disruption_counts: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for disruption_counts")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "disruption_counts", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertDisruptionCountsTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+// upsertForesightTx writes the typed-table portion of a foresight upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertForesightTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO foresight (id, data, synced_at, ident, ident_type, start, "end", max_pages, cursor, query)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, ident = excluded.ident, ident_type = excluded.ident_type, start = excluded.start, "end" = excluded."end", max_pages = excluded.max_pages, cursor = excluded.cursor, query = excluded.query`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "ident"),
+		lookupFieldValue(obj, "ident_type"),
+		lookupFieldValue(obj, "start"),
+		lookupFieldValue(obj, "end"),
+		lookupFieldValue(obj, "max_pages"),
+		lookupFieldValue(obj, "cursor"),
+		lookupFieldValue(obj, "query"),
+	); err != nil {
+		return fmt.Errorf("insert into foresight: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertForesight inserts or updates a foresight record with domain-specific columns.
+func (s *Store) UpsertForesight(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling foresight: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for foresight")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "foresight", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertForesightTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+// upsertHistoryTx writes the typed-table portion of a history upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertHistoryTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO history (id, data, synced_at, ident, ident_type, start, "end", max_pages, cursor, registration, height, width, show_data_block, airports_expand_view, show_airports, include_estimated_positions)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, ident = excluded.ident, ident_type = excluded.ident_type, start = excluded.start, "end" = excluded."end", max_pages = excluded.max_pages, cursor = excluded.cursor, registration = excluded.registration, height = excluded.height, width = excluded.width, show_data_block = excluded.show_data_block, airports_expand_view = excluded.airports_expand_view, show_airports = excluded.show_airports, include_estimated_positions = excluded.include_estimated_positions`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "ident"),
+		lookupFieldValue(obj, "ident_type"),
+		lookupFieldValue(obj, "start"),
+		lookupFieldValue(obj, "end"),
+		lookupFieldValue(obj, "max_pages"),
+		lookupFieldValue(obj, "cursor"),
+		lookupFieldValue(obj, "registration"),
+		lookupFieldValue(obj, "height"),
+		lookupFieldValue(obj, "width"),
+		lookupFieldValue(obj, "show_data_block"),
+		lookupFieldValue(obj, "airports_expand_view"),
+		lookupFieldValue(obj, "show_airports"),
+		lookupFieldValue(obj, "include_estimated_positions"),
+	); err != nil {
+		return fmt.Errorf("insert into history: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertHistory inserts or updates a history record with domain-specific columns.
+func (s *Store) UpsertHistory(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling history: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for history")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "history", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertHistoryTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
 // upsertAirportsTx writes the typed-table portion of a airports upsert
 // inside an existing transaction. The caller is responsible for the generic
@@ -849,56 +1405,6 @@ func (s *Store) UpsertAirports(data json.RawMessage) error {
 		return err
 	}
 	if err := s.upsertAirportsTx(tx, id, obj, data); err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-// upsertNearbyTx writes the typed-table portion of a nearby upsert
-// inside an existing transaction. The caller is responsible for the generic
-// resources insert (via upsertGenericResourceTx) and for committing the tx.
-// Splitting this out lets UpsertBatch dispatch typed inserts per item without
-// opening a per-item transaction.
-func (s *Store) upsertNearbyTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
-	if _, err := tx.Exec(
-		`INSERT INTO nearby (id, airports_id, data, synced_at)
-		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET airports_id = excluded.airports_id, data = excluded.data, synced_at = excluded.synced_at`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "airports_id"),
-	); err != nil {
-		return fmt.Errorf("insert into nearby: %w", err)
-	}
-
-	return nil
-}
-
-// UpsertNearby inserts or updates a nearby record with domain-specific columns.
-func (s *Store) UpsertNearby(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling nearby: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for nearby")
-	}
-
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "nearby", id, data); err != nil {
-		return err
-	}
-	if err := s.upsertNearbyTx(tx, id, obj, data); err != nil {
 		return err
 	}
 
@@ -1004,56 +1510,6 @@ func (s *Store) UpsertWeather(data json.RawMessage) error {
 
 	return tx.Commit()
 }
-// upsertCanonicalTx writes the typed-table portion of a canonical upsert
-// inside an existing transaction. The caller is responsible for the generic
-// resources insert (via upsertGenericResourceTx) and for committing the tx.
-// Splitting this out lets UpsertBatch dispatch typed inserts per item without
-// opening a per-item transaction.
-func (s *Store) upsertCanonicalTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
-	if _, err := tx.Exec(
-		`INSERT INTO canonical (id, airports_id, data, synced_at)
-		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET airports_id = excluded.airports_id, data = excluded.data, synced_at = excluded.synced_at`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "airports_id"),
-	); err != nil {
-		return fmt.Errorf("insert into canonical: %w", err)
-	}
-
-	return nil
-}
-
-// UpsertCanonical inserts or updates a canonical record with domain-specific columns.
-func (s *Store) UpsertCanonical(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling canonical: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for canonical")
-	}
-
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "canonical", id, data); err != nil {
-		return err
-	}
-	if err := s.upsertCanonicalTx(tx, id, obj, data); err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
 // upsertDelaysTx writes the typed-table portion of a delays upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1104,14 +1560,14 @@ func (s *Store) UpsertDelays(data json.RawMessage) error {
 
 	return tx.Commit()
 }
-// upsertFlightsTx writes the typed-table portion of a flights upsert
+// upsertNearbyTx writes the typed-table portion of a nearby upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
 // Splitting this out lets UpsertBatch dispatch typed inserts per item without
 // opening a per-item transaction.
-func (s *Store) upsertFlightsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+func (s *Store) upsertNearbyTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO flights (id, airports_id, data, synced_at)
+		`INSERT INTO nearby (id, airports_id, data, synced_at)
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET airports_id = excluded.airports_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
@@ -1119,22 +1575,22 @@ func (s *Store) upsertFlightsTx(tx *sql.Tx, id string, obj map[string]any, data 
 		time.Now(),
 		lookupFieldValue(obj, "airports_id"),
 	); err != nil {
-		return fmt.Errorf("insert into flights: %w", err)
+		return fmt.Errorf("insert into nearby: %w", err)
 	}
 
 	return nil
 }
 
-// UpsertFlights inserts or updates a flights record with domain-specific columns.
-func (s *Store) UpsertFlights(data json.RawMessage) error {
+// UpsertNearby inserts or updates a nearby record with domain-specific columns.
+func (s *Store) UpsertNearby(data json.RawMessage) error {
 	var obj map[string]any
 	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling flights: %w", err)
+		return fmt.Errorf("unmarshaling nearby: %w", err)
 	}
 
 	id := extractObjectID(obj)
 	if id == "" {
-		return fmt.Errorf("missing id for flights")
+		return fmt.Errorf("missing id for nearby")
 	}
 
 	s.writeMu.Lock()
@@ -1145,52 +1601,46 @@ func (s *Store) UpsertFlights(data json.RawMessage) error {
 	}
 	defer tx.Rollback()
 
-	if err := s.upsertGenericResourceTx(tx, "flights", id, data); err != nil {
+	if err := s.upsertGenericResourceTx(tx, "nearby", id, data); err != nil {
 		return err
 	}
-	if err := s.upsertFlightsTx(tx, id, obj, data); err != nil {
+	if err := s.upsertNearbyTx(tx, id, obj, data); err != nil {
 		return err
 	}
 
 	return tx.Commit()
 }
-// upsertForesightTx writes the typed-table portion of a foresight upsert
+// upsertTrackTx writes the typed-table portion of a track upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
 // Splitting this out lets UpsertBatch dispatch typed inserts per item without
 // opening a per-item transaction.
-func (s *Store) upsertForesightTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+func (s *Store) upsertTrackTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO foresight (id, data, synced_at, ident, ident_type, start, "end", max_pages, cursor, query)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, ident = excluded.ident, ident_type = excluded.ident_type, start = excluded.start, "end" = excluded."end", max_pages = excluded.max_pages, cursor = excluded.cursor, query = excluded.query`,
+		`INSERT INTO track (id, flights_id, data, synced_at)
+		 VALUES (?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET flights_id = excluded.flights_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "ident"),
-		lookupFieldValue(obj, "ident_type"),
-		lookupFieldValue(obj, "start"),
-		lookupFieldValue(obj, "end"),
-		lookupFieldValue(obj, "max_pages"),
-		lookupFieldValue(obj, "cursor"),
-		lookupFieldValue(obj, "query"),
+		lookupFieldValue(obj, "flights_id"),
 	); err != nil {
-		return fmt.Errorf("insert into foresight: %w", err)
+		return fmt.Errorf("insert into track: %w", err)
 	}
 
 	return nil
 }
 
-// UpsertForesight inserts or updates a foresight record with domain-specific columns.
-func (s *Store) UpsertForesight(data json.RawMessage) error {
+// UpsertTrack inserts or updates a track record with domain-specific columns.
+func (s *Store) UpsertTrack(data json.RawMessage) error {
 	var obj map[string]any
 	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling foresight: %w", err)
+		return fmt.Errorf("unmarshaling track: %w", err)
 	}
 
 	id := extractObjectID(obj)
 	if id == "" {
-		return fmt.Errorf("missing id for foresight")
+		return fmt.Errorf("missing id for track")
 	}
 
 	s.writeMu.Lock()
@@ -1201,176 +1651,10 @@ func (s *Store) UpsertForesight(data json.RawMessage) error {
 	}
 	defer tx.Rollback()
 
-	if err := s.upsertGenericResourceTx(tx, "foresight", id, data); err != nil {
+	if err := s.upsertGenericResourceTx(tx, "track", id, data); err != nil {
 		return err
 	}
-	if err := s.upsertForesightTx(tx, id, obj, data); err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-// upsertAlertsTx writes the typed-table portion of a alerts upsert
-// inside an existing transaction. The caller is responsible for the generic
-// resources insert (via upsertGenericResourceTx) and for committing the tx.
-// Splitting this out lets UpsertBatch dispatch typed inserts per item without
-// opening a per-item transaction.
-func (s *Store) upsertAlertsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
-	if _, err := tx.Exec(
-		`INSERT INTO alerts (id, data, synced_at, max_pages, cursor, aircraft_type, destination, "end", eta, ident, max_weekly, origin, start, target_url, enabled, url)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, max_pages = excluded.max_pages, cursor = excluded.cursor, aircraft_type = excluded.aircraft_type, destination = excluded.destination, "end" = excluded."end", eta = excluded.eta, ident = excluded.ident, max_weekly = excluded.max_weekly, origin = excluded.origin, start = excluded.start, target_url = excluded.target_url, enabled = excluded.enabled, url = excluded.url`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "max_pages"),
-		lookupFieldValue(obj, "cursor"),
-		lookupFieldValue(obj, "aircraft_type"),
-		lookupFieldValue(obj, "destination"),
-		lookupFieldValue(obj, "end"),
-		lookupFieldValue(obj, "eta"),
-		lookupFieldValue(obj, "ident"),
-		lookupFieldValue(obj, "max_weekly"),
-		lookupFieldValue(obj, "origin"),
-		lookupFieldValue(obj, "start"),
-		lookupFieldValue(obj, "target_url"),
-		lookupFieldValue(obj, "enabled"),
-		lookupFieldValue(obj, "url"),
-	); err != nil {
-		return fmt.Errorf("insert into alerts: %w", err)
-	}
-
-	return nil
-}
-
-// UpsertAlerts inserts or updates a alerts record with domain-specific columns.
-func (s *Store) UpsertAlerts(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling alerts: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for alerts")
-	}
-
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "alerts", id, data); err != nil {
-		return err
-	}
-	if err := s.upsertAlertsTx(tx, id, obj, data); err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-// upsertOperatorsTx writes the typed-table portion of a operators upsert
-// inside an existing transaction. The caller is responsible for the generic
-// resources insert (via upsertGenericResourceTx) and for committing the tx.
-// Splitting this out lets UpsertBatch dispatch typed inserts per item without
-// opening a per-item transaction.
-func (s *Store) upsertOperatorsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
-	if _, err := tx.Exec(
-		`INSERT INTO operators (id, data, synced_at, max_pages, cursor)
-		 VALUES (?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, max_pages = excluded.max_pages, cursor = excluded.cursor`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "max_pages"),
-		lookupFieldValue(obj, "cursor"),
-	); err != nil {
-		return fmt.Errorf("insert into operators: %w", err)
-	}
-
-	return nil
-}
-
-// UpsertOperators inserts or updates a operators record with domain-specific columns.
-func (s *Store) UpsertOperators(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling operators: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for operators")
-	}
-
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "operators", id, data); err != nil {
-		return err
-	}
-	if err := s.upsertOperatorsTx(tx, id, obj, data); err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-// upsertDisruptionCountsTx writes the typed-table portion of a disruption_counts upsert
-// inside an existing transaction. The caller is responsible for the generic
-// resources insert (via upsertGenericResourceTx) and for committing the tx.
-// Splitting this out lets UpsertBatch dispatch typed inserts per item without
-// opening a per-item transaction.
-func (s *Store) upsertDisruptionCountsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
-	if _, err := tx.Exec(
-		`INSERT INTO disruption_counts (id, data, synced_at, entity_type, time_period, max_pages, cursor)
-		 VALUES (?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, entity_type = excluded.entity_type, time_period = excluded.time_period, max_pages = excluded.max_pages, cursor = excluded.cursor`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "entity_type"),
-		lookupFieldValue(obj, "time_period"),
-		lookupFieldValue(obj, "max_pages"),
-		lookupFieldValue(obj, "cursor"),
-	); err != nil {
-		return fmt.Errorf("insert into disruption_counts: %w", err)
-	}
-
-	return nil
-}
-
-// UpsertDisruptionCounts inserts or updates a disruption_counts record with domain-specific columns.
-func (s *Store) UpsertDisruptionCounts(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling disruption_counts: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for disruption_counts")
-	}
-
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "disruption_counts", id, data); err != nil {
-		return err
-	}
-	if err := s.upsertDisruptionCountsTx(tx, id, obj, data); err != nil {
+	if err := s.upsertTrackTx(tx, id, obj, data); err != nil {
 		return err
 	}
 
@@ -1576,277 +1860,6 @@ func (s *Store) UpsertRoute(data json.RawMessage) error {
 
 	return tx.Commit()
 }
-// upsertTrackTx writes the typed-table portion of a track upsert
-// inside an existing transaction. The caller is responsible for the generic
-// resources insert (via upsertGenericResourceTx) and for committing the tx.
-// Splitting this out lets UpsertBatch dispatch typed inserts per item without
-// opening a per-item transaction.
-func (s *Store) upsertTrackTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
-	if _, err := tx.Exec(
-		`INSERT INTO track (id, flights_id, data, synced_at)
-		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET flights_id = excluded.flights_id, data = excluded.data, synced_at = excluded.synced_at`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "flights_id"),
-	); err != nil {
-		return fmt.Errorf("insert into track: %w", err)
-	}
-
-	return nil
-}
-
-// UpsertTrack inserts or updates a track record with domain-specific columns.
-func (s *Store) UpsertTrack(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling track: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for track")
-	}
-
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "track", id, data); err != nil {
-		return err
-	}
-	if err := s.upsertTrackTx(tx, id, obj, data); err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-// upsertBlockedTx writes the typed-table portion of a blocked upsert
-// inside an existing transaction. The caller is responsible for the generic
-// resources insert (via upsertGenericResourceTx) and for committing the tx.
-// Splitting this out lets UpsertBatch dispatch typed inserts per item without
-// opening a per-item transaction.
-func (s *Store) upsertBlockedTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
-	if _, err := tx.Exec(
-		`INSERT INTO blocked (id, aircraft_id, data, synced_at)
-		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET aircraft_id = excluded.aircraft_id, data = excluded.data, synced_at = excluded.synced_at`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "aircraft_id"),
-	); err != nil {
-		return fmt.Errorf("insert into blocked: %w", err)
-	}
-
-	return nil
-}
-
-// UpsertBlocked inserts or updates a blocked record with domain-specific columns.
-func (s *Store) UpsertBlocked(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling blocked: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for blocked")
-	}
-
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "blocked", id, data); err != nil {
-		return err
-	}
-	if err := s.upsertBlockedTx(tx, id, obj, data); err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-// upsertOwnerTx writes the typed-table portion of a owner upsert
-// inside an existing transaction. The caller is responsible for the generic
-// resources insert (via upsertGenericResourceTx) and for committing the tx.
-// Splitting this out lets UpsertBatch dispatch typed inserts per item without
-// opening a per-item transaction.
-func (s *Store) upsertOwnerTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
-	if _, err := tx.Exec(
-		`INSERT INTO owner (id, aircraft_id, data, synced_at)
-		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET aircraft_id = excluded.aircraft_id, data = excluded.data, synced_at = excluded.synced_at`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "aircraft_id"),
-	); err != nil {
-		return fmt.Errorf("insert into owner: %w", err)
-	}
-
-	return nil
-}
-
-// UpsertOwner inserts or updates a owner record with domain-specific columns.
-func (s *Store) UpsertOwner(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling owner: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for owner")
-	}
-
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "owner", id, data); err != nil {
-		return err
-	}
-	if err := s.upsertOwnerTx(tx, id, obj, data); err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-// upsertHistoryTx writes the typed-table portion of a history upsert
-// inside an existing transaction. The caller is responsible for the generic
-// resources insert (via upsertGenericResourceTx) and for committing the tx.
-// Splitting this out lets UpsertBatch dispatch typed inserts per item without
-// opening a per-item transaction.
-func (s *Store) upsertHistoryTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
-	if _, err := tx.Exec(
-		`INSERT INTO history (id, data, synced_at, ident, ident_type, start, "end", max_pages, cursor, registration, height, width, show_data_block, airports_expand_view, show_airports, include_estimated_positions)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, ident = excluded.ident, ident_type = excluded.ident_type, start = excluded.start, "end" = excluded."end", max_pages = excluded.max_pages, cursor = excluded.cursor, registration = excluded.registration, height = excluded.height, width = excluded.width, show_data_block = excluded.show_data_block, airports_expand_view = excluded.airports_expand_view, show_airports = excluded.show_airports, include_estimated_positions = excluded.include_estimated_positions`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "ident"),
-		lookupFieldValue(obj, "ident_type"),
-		lookupFieldValue(obj, "start"),
-		lookupFieldValue(obj, "end"),
-		lookupFieldValue(obj, "max_pages"),
-		lookupFieldValue(obj, "cursor"),
-		lookupFieldValue(obj, "registration"),
-		lookupFieldValue(obj, "height"),
-		lookupFieldValue(obj, "width"),
-		lookupFieldValue(obj, "show_data_block"),
-		lookupFieldValue(obj, "airports_expand_view"),
-		lookupFieldValue(obj, "show_airports"),
-		lookupFieldValue(obj, "include_estimated_positions"),
-	); err != nil {
-		return fmt.Errorf("insert into history: %w", err)
-	}
-
-	return nil
-}
-
-// UpsertHistory inserts or updates a history record with domain-specific columns.
-func (s *Store) UpsertHistory(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling history: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for history")
-	}
-
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "history", id, data); err != nil {
-		return err
-	}
-	if err := s.upsertHistoryTx(tx, id, obj, data); err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-// upsertSchedulesTx writes the typed-table portion of a schedules upsert
-// inside an existing transaction. The caller is responsible for the generic
-// resources insert (via upsertGenericResourceTx) and for committing the tx.
-// Splitting this out lets UpsertBatch dispatch typed inserts per item without
-// opening a per-item transaction.
-func (s *Store) upsertSchedulesTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
-	if _, err := tx.Exec(
-		`INSERT INTO schedules (id, data, synced_at, date_start, date_end, origin, destination, airline, flight_number, include_codeshares, include_regional, max_pages, cursor)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, date_start = excluded.date_start, date_end = excluded.date_end, origin = excluded.origin, destination = excluded.destination, airline = excluded.airline, flight_number = excluded.flight_number, include_codeshares = excluded.include_codeshares, include_regional = excluded.include_regional, max_pages = excluded.max_pages, cursor = excluded.cursor`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "date_start"),
-		lookupFieldValue(obj, "date_end"),
-		lookupFieldValue(obj, "origin"),
-		lookupFieldValue(obj, "destination"),
-		lookupFieldValue(obj, "airline"),
-		lookupFieldValue(obj, "flight_number"),
-		lookupFieldValue(obj, "include_codeshares"),
-		lookupFieldValue(obj, "include_regional"),
-		lookupFieldValue(obj, "max_pages"),
-		lookupFieldValue(obj, "cursor"),
-	); err != nil {
-		return fmt.Errorf("insert into schedules: %w", err)
-	}
-
-	return nil
-}
-
-// UpsertSchedules inserts or updates a schedules record with domain-specific columns.
-func (s *Store) UpsertSchedules(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling schedules: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for schedules")
-	}
-
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "schedules", id, data); err != nil {
-		return err
-	}
-	if err := s.upsertSchedulesTx(tx, id, obj, data); err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
 
 // resourceIDFieldOverrides projects per-resource IDField (set by the profiler
 // from x-resource-id or response-schema fallback) into a runtime lookup map.
@@ -1933,36 +1946,16 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 		}
 
 		switch resourceType {
-		case "airports":
-			if err := s.upsertAirportsTx(tx, id, obj, item); err != nil {
+		case "blocked":
+			if err := s.upsertBlockedTx(tx, id, obj, item); err != nil {
 				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
 			}
-		case "nearby":
-			if err := s.upsertNearbyTx(tx, id, obj, item); err != nil {
+		case "owner":
+			if err := s.upsertOwnerTx(tx, id, obj, item); err != nil {
 				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
 			}
-		case "routes":
-			if err := s.upsertRoutesTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "weather":
-			if err := s.upsertWeatherTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "canonical":
-			if err := s.upsertCanonicalTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "delays":
-			if err := s.upsertDelaysTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "flights":
-			if err := s.upsertFlightsTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "foresight":
-			if err := s.upsertForesightTx(tx, id, obj, item); err != nil {
+		case "schedules":
+			if err := s.upsertSchedulesTx(tx, id, obj, item); err != nil {
 				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
 			}
 		case "alerts":
@@ -1973,8 +1966,48 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 			if err := s.upsertOperatorsTx(tx, id, obj, item); err != nil {
 				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
 			}
+		case "canonical":
+			if err := s.upsertCanonicalTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "flights":
+			if err := s.upsertFlightsTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
 		case "disruption_counts":
 			if err := s.upsertDisruptionCountsTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "foresight":
+			if err := s.upsertForesightTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "history":
+			if err := s.upsertHistoryTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "airports":
+			if err := s.upsertAirportsTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "routes":
+			if err := s.upsertRoutesTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "weather":
+			if err := s.upsertWeatherTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "delays":
+			if err := s.upsertDelaysTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "nearby":
+			if err := s.upsertNearbyTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "track":
+			if err := s.upsertTrackTx(tx, id, obj, item); err != nil {
 				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
 			}
 		case "intents":
@@ -1991,26 +2024,6 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 			}
 		case "route":
 			if err := s.upsertRouteTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "track":
-			if err := s.upsertTrackTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "blocked":
-			if err := s.upsertBlockedTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "owner":
-			if err := s.upsertOwnerTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "history":
-			if err := s.upsertHistoryTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "schedules":
-			if err := s.upsertSchedulesTx(tx, id, obj, item); err != nil {
 				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
 			}
 		}

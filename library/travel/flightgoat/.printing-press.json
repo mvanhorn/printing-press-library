@@ -1,16 +1,18 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-04-11T04:45:18.659254Z",
-  "printing_press_version": "1.2.1",
+  "generated_at": "2026-05-02T22:09:06.820184Z",
+  "printing_press_version": "3.6.0",
   "api_name": "flightgoat",
+  "display_name": "Flight GOAT",
   "cli_name": "flightgoat-pp-cli",
-  "spec_path": "/Users/mvanhorn/printing-press/.runstate/mvanhorn-eb6a05f2/runs/20260411-000903/research/flightgoat-spec.yml",
+  "owner": "matt-van-horn",
+  "spec_path": "/Users/tmchow/Code/printing-press-library/library/travel/flightgoat/spec.yaml",
   "spec_format": "openapi3",
-  "spec_checksum": "sha256:63942288967e23c71e769e4d8414ecbeb83ef6f0a76650f66c795044cb4e93bb",
-  "run_id": "20260411-000903",
+  "spec_checksum": "sha256:94fe4ec3b81edf5bb13ecf259afde3f7f17a83af4d6feb3cba28a51385009e4c",
   "mcp_binary": "flightgoat-pp-mcp",
   "mcp_tool_count": 58,
   "mcp_ready": "full",
+  "api_version": "4.17.1",
   "auth_type": "api_key",
   "auth_env_vars": [
     "FLIGHTGOAT_API_KEY_AUTH"

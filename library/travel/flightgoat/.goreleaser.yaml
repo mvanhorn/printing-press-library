@@ -9,7 +9,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/flightgoat/internal/cli.version={{ .Version }}
+      - -s -w -X flightgoat-pp-cli/internal/cli.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -44,7 +44,7 @@ brews:
     repository:
       owner: matt-van-horn
       name: homebrew-tap
-    homepage: "https://github.com/mvanhorn/printing-press-library"
+    homepage: "https://github.com/matt-van-horn/flightgoat-pp-cli"
     description: "# Introduction
 AeroAPI is a simple, query-based API that gives software developers access
 to a variety of FlightAware's flight data. Users can obtain current or
