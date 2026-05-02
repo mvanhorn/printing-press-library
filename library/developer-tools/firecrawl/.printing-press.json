@@ -1,23 +1,22 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-04-26T16:17:56.721376Z",
-  "printing_press_version": "2.3.7",
+  "generated_at": "2026-05-02T21:59:51.713959Z",
+  "printing_press_version": "3.6.0",
   "api_name": "firecrawl",
+  "display_name": "Firecrawl",
   "cli_name": "firecrawl-pp-cli",
-  "spec_path": "/tmp/firecrawl.spec",
+  "owner": "hiten-shah",
+  "spec_path": "/Users/tmchow/Code/printing-press-library/library/developer-tools/firecrawl/spec.json",
   "spec_format": "openapi3",
-  "spec_checksum": "sha256:22f33583990d97666415c9cd3da8afe22ecee96944cc34f8988454ec5d53e140",
+  "spec_checksum": "sha256:49990c59f5e6ddccc24dd2deff027166cacc5cb19ff41b1e954d87838ce88be2",
   "mcp_binary": "firecrawl-pp-mcp",
   "mcp_tool_count": 20,
   "mcp_ready": "full",
   "api_version": "1.0.0",
   "auth_type": "bearer_token",
   "auth_env_vars": [
-    "FIRECRAWL_TOKEN"
+    "FIRECRAWL_BEARER_AUTH"
   ],
-  "category": "developer-tools",
-  "spec_source": "official",
-  "spec_url": "https://raw.githubusercontent.com/mendableai/firecrawl/main/apps/api/openapi.json",
   "novel_features": [
     {
       "name": "Single-page scrape",

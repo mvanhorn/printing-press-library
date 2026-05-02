@@ -3,7 +3,7 @@ name: pp-firecrawl
 description: "Printing Press CLI for Firecrawl. API for interacting with Firecrawl services to perform web scraping and crawling tasks."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["firecrawl-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/developer-tools/firecrawl/cmd/firecrawl-pp-cli@latest","bins":["firecrawl-pp-cli"],"label":"Install via go install"}]}}'
+metadata: '{"openclaw":{"requires":{"bins":["firecrawl-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/other/firecrawl-pp-cli/cmd/firecrawl-pp-cli@latest","bins":["firecrawl-pp-cli"],"label":"Install via go install"}]}}'
 ---
 
 # Firecrawl — Printing Press CLI
@@ -36,6 +36,10 @@ API for interacting with Firecrawl services to perform web scraping and crawling
 - `firecrawl-pp-cli extract data` — Extract structured data from pages using LLMs
 - `firecrawl-pp-cli extract get-status` — Get the status of an extract job
 
+**firecrawl-search** — Manage firecrawl search
+
+- `firecrawl-pp-cli firecrawl-search` — Search and optionally scrape search results
+
 **llmstxt** — Manage llmstxt
 
 - `firecrawl-pp-cli llmstxt generate-llms-txt` — Generate LLMs.txt for a website
@@ -43,15 +47,11 @@ API for interacting with Firecrawl services to perform web scraping and crawling
 
 **map** — Manage map
 
-- `firecrawl-pp-cli map urls` — Map multiple URLs based on options
+- `firecrawl-pp-cli map` — Map multiple URLs based on options
 
 **scrape** — Manage scrape
 
 - `firecrawl-pp-cli scrape` — Scrape a single URL and optionally extract information using an LLM
-
-**search** — Manage search
-
-- `firecrawl-pp-cli search <query>` — Search and optionally scrape search results
 
 **team** — Manage team
 
@@ -77,7 +77,7 @@ Store your access token:
 firecrawl-pp-cli auth set-token YOUR_TOKEN_HERE
 ```
 
-Or set `FIRECRAWL_TOKEN` as an environment variable.
+Or set `FIRECRAWL_BEARER_AUTH` as an environment variable.
 
 Run `firecrawl-pp-cli doctor` to verify setup.
 
@@ -89,7 +89,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
 
   ```bash
-  firecrawl-pp-cli batch cancel-scrape 550e8400-e29b-41d4-a716-446655440000 --agent --select id,name,status
+  firecrawl-pp-cli batch cancel-scrape mock-value --agent --select id,name,status
   ```
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
@@ -140,7 +140,7 @@ A profile is a saved set of flag values, reused across invocations. Use it when 
 
 ```
 firecrawl-pp-cli profile save briefing --json
-firecrawl-pp-cli --profile briefing batch cancel-scrape 550e8400-e29b-41d4-a716-446655440000
+firecrawl-pp-cli --profile briefing batch cancel-scrape mock-value
 firecrawl-pp-cli profile list --json
 firecrawl-pp-cli profile show briefing
 firecrawl-pp-cli profile delete briefing --yes
@@ -173,7 +173,7 @@ Parse `$ARGUMENTS`:
 1. Check Go is installed: `go version` (requires Go 1.23+)
 2. Install:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/developer-tools/firecrawl/cmd/firecrawl-pp-cli@latest
+   go install github.com/mvanhorn/printing-press-library/library/other/firecrawl-pp-cli/cmd/firecrawl-pp-cli@latest
    ```
 3. Verify: `firecrawl-pp-cli --version`
 4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -182,7 +182,7 @@ Parse `$ARGUMENTS`:
 
 1. Install the MCP server:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/developer-tools/firecrawl/cmd/firecrawl-pp-mcp@latest
+   go install github.com/mvanhorn/printing-press-library/library/other/firecrawl-pp-cli/cmd/firecrawl-pp-mcp@latest
    ```
 2. Register with Claude Code:
    ```bash

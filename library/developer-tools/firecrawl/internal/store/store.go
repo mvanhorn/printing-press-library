@@ -184,21 +184,22 @@ func (s *Store) ensureColumn(ctx context.Context, conn *sql.Conn, table, column,
 // word.
 func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
 	for _, c := range []struct{ table, column, decl string }{
+		{table: "crawl", column: "allow_backward_links", decl: "INTEGER"},
+		{table: "crawl", column: "allow_external_links", decl: "INTEGER"},
+		{table: "crawl", column: "delay", decl: "REAL"},
+		{table: "crawl", column: "ignore_query_parameters", decl: "INTEGER"},
+		{table: "crawl", column: "ignore_sitemap", decl: "INTEGER"},
+		{table: "crawl", column: "limit", decl: "INTEGER"},
+		{table: "crawl", column: "max_depth", decl: "INTEGER"},
+		{table: "crawl", column: "max_discovery_depth", decl: "INTEGER"},
+		{table: "crawl", column: "url", decl: "TEXT"},
+		{table: "errors", column: "crawl_id", decl: "TEXT"},
 		{table: "deep_research", column: "analysis_prompt", decl: "TEXT"},
 		{table: "deep_research", column: "max_depth", decl: "INTEGER"},
 		{table: "deep_research", column: "max_urls", decl: "INTEGER"},
 		{table: "deep_research", column: "query", decl: "TEXT"},
 		{table: "deep_research", column: "system_prompt", decl: "TEXT"},
 		{table: "deep_research", column: "time_limit", decl: "INTEGER"},
-		{table: "llmstxt", column: "max_urls", decl: "INTEGER"},
-		{table: "llmstxt", column: "show_full_text", decl: "INTEGER"},
-		{table: "llmstxt", column: "url", decl: "TEXT"},
-		{table: "extract", column: "enable_web_search", decl: "INTEGER"},
-		{table: "extract", column: "ignore_invalid_ur_ls", decl: "INTEGER"},
-		{table: "extract", column: "ignore_sitemap", decl: "INTEGER"},
-		{table: "extract", column: "include_subdomains", decl: "INTEGER"},
-		{table: "extract", column: "prompt", decl: "TEXT"},
-		{table: "extract", column: "show_sources", decl: "INTEGER"},
 		{table: "map", column: "ignore_sitemap", decl: "INTEGER"},
 		{table: "map", column: "include_subdomains", decl: "INTEGER"},
 		{table: "map", column: "limit", decl: "INTEGER"},
@@ -206,18 +207,6 @@ func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
 		{table: "map", column: "sitemap_only", decl: "INTEGER"},
 		{table: "map", column: "timeout", decl: "INTEGER"},
 		{table: "map", column: "url", decl: "TEXT"},
-		{table: "scrape", column: "block_ads", decl: "INTEGER"},
-		{table: "scrape", column: "max_age", decl: "INTEGER"},
-		{table: "scrape", column: "mobile", decl: "INTEGER"},
-		{table: "scrape", column: "only_main_content", decl: "INTEGER"},
-		{table: "scrape", column: "parse_pdf", decl: "INTEGER"},
-		{table: "scrape", column: "proxy", decl: "TEXT"},
-		{table: "scrape", column: "remove_base64_images", decl: "INTEGER"},
-		{table: "scrape", column: "skip_tls_verification", decl: "INTEGER"},
-		{table: "scrape", column: "store_in_cache", decl: "INTEGER"},
-		{table: "scrape", column: "timeout", decl: "INTEGER"},
-		{table: "scrape", column: "url", decl: "TEXT"},
-		{table: "scrape", column: "wait_for", decl: "INTEGER"},
 		{table: "firecrawl_search", column: "ignore_invalid_ur_ls", decl: "INTEGER"},
 		{table: "firecrawl_search", column: "limit", decl: "INTEGER"},
 		{table: "firecrawl_search", column: "location", decl: "TEXT"},
@@ -236,16 +225,27 @@ func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
 		{table: "batch", column: "store_in_cache", decl: "INTEGER"},
 		{table: "batch", column: "timeout", decl: "INTEGER"},
 		{table: "batch", column: "wait_for", decl: "INTEGER"},
-		{table: "crawl", column: "allow_backward_links", decl: "INTEGER"},
-		{table: "crawl", column: "allow_external_links", decl: "INTEGER"},
-		{table: "crawl", column: "delay", decl: "REAL"},
-		{table: "crawl", column: "ignore_query_parameters", decl: "INTEGER"},
-		{table: "crawl", column: "ignore_sitemap", decl: "INTEGER"},
-		{table: "crawl", column: "limit", decl: "INTEGER"},
-		{table: "crawl", column: "max_depth", decl: "INTEGER"},
-		{table: "crawl", column: "max_discovery_depth", decl: "INTEGER"},
-		{table: "crawl", column: "url", decl: "TEXT"},
-		{table: "errors", column: "crawl_id", decl: "TEXT"},
+		{table: "extract", column: "enable_web_search", decl: "INTEGER"},
+		{table: "extract", column: "ignore_invalid_ur_ls", decl: "INTEGER"},
+		{table: "extract", column: "ignore_sitemap", decl: "INTEGER"},
+		{table: "extract", column: "include_subdomains", decl: "INTEGER"},
+		{table: "extract", column: "prompt", decl: "TEXT"},
+		{table: "extract", column: "show_sources", decl: "INTEGER"},
+		{table: "llmstxt", column: "max_urls", decl: "INTEGER"},
+		{table: "llmstxt", column: "show_full_text", decl: "INTEGER"},
+		{table: "llmstxt", column: "url", decl: "TEXT"},
+		{table: "scrape", column: "block_ads", decl: "INTEGER"},
+		{table: "scrape", column: "max_age", decl: "INTEGER"},
+		{table: "scrape", column: "mobile", decl: "INTEGER"},
+		{table: "scrape", column: "only_main_content", decl: "INTEGER"},
+		{table: "scrape", column: "parse_pdf", decl: "INTEGER"},
+		{table: "scrape", column: "proxy", decl: "TEXT"},
+		{table: "scrape", column: "remove_base64_images", decl: "INTEGER"},
+		{table: "scrape", column: "skip_tls_verification", decl: "INTEGER"},
+		{table: "scrape", column: "store_in_cache", decl: "INTEGER"},
+		{table: "scrape", column: "timeout", decl: "INTEGER"},
+		{table: "scrape", column: "url", decl: "TEXT"},
+		{table: "scrape", column: "wait_for", decl: "INTEGER"},
 		{table: "sync_state", column: "last_cursor", decl: "TEXT"},
 		{table: "sync_state", column: "last_synced_at", decl: "DATETIME"},
 		{table: "sync_state", column: "total_count", decl: "INTEGER DEFAULT 0"},
@@ -298,98 +298,6 @@ func (s *Store) migrate(ctx context.Context) error {
 		`CREATE VIRTUAL TABLE IF NOT EXISTS resources_fts USING fts5(
 			id, resource_type, content, tokenize='porter unicode61'
 		)`,
-		`CREATE TABLE IF NOT EXISTS deep_research (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			analysis_prompt TEXT,
-			max_depth INTEGER,
-			max_urls INTEGER,
-			query TEXT,
-			system_prompt TEXT,
-			time_limit INTEGER
-		)`,
-		`CREATE TABLE IF NOT EXISTS llmstxt (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			max_urls INTEGER,
-			show_full_text INTEGER,
-			url TEXT
-		)`,
-		`CREATE TABLE IF NOT EXISTS extract (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			enable_web_search INTEGER,
-			ignore_invalid_ur_ls INTEGER,
-			ignore_sitemap INTEGER,
-			include_subdomains INTEGER,
-			prompt TEXT,
-			show_sources INTEGER
-		)`,
-		`CREATE TABLE IF NOT EXISTS map (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			ignore_sitemap INTEGER,
-			include_subdomains INTEGER,
-			"limit" INTEGER,
-			search TEXT,
-			sitemap_only INTEGER,
-			timeout INTEGER,
-			url TEXT
-		)`,
-		`CREATE TABLE IF NOT EXISTS scrape (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			block_ads INTEGER,
-			max_age INTEGER,
-			mobile INTEGER,
-			only_main_content INTEGER,
-			parse_pdf INTEGER,
-			proxy TEXT,
-			remove_base64_images INTEGER,
-			skip_tls_verification INTEGER,
-			store_in_cache INTEGER,
-			timeout INTEGER,
-			url TEXT,
-			wait_for INTEGER
-		)`,
-		`CREATE TABLE IF NOT EXISTS firecrawl_search (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			ignore_invalid_ur_ls INTEGER,
-			"limit" INTEGER,
-			location TEXT,
-			query TEXT,
-			tbs TEXT,
-			timeout INTEGER
-		)`,
-		`CREATE TABLE IF NOT EXISTS batch (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			block_ads INTEGER,
-			ignore_invalid_ur_ls INTEGER,
-			max_age INTEGER,
-			mobile INTEGER,
-			only_main_content INTEGER,
-			parse_pdf INTEGER,
-			proxy TEXT,
-			remove_base64_images INTEGER,
-			skip_tls_verification INTEGER,
-			store_in_cache INTEGER,
-			timeout INTEGER,
-			wait_for INTEGER
-		)`,
-		`CREATE TABLE IF NOT EXISTS team (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
 		`CREATE TABLE IF NOT EXISTS crawl (
 			id TEXT PRIMARY KEY,
 			data JSON NOT NULL,
@@ -411,6 +319,76 @@ func (s *Store) migrate(ctx context.Context) error {
 			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_errors_crawl_id ON errors(crawl_id)`,
+		`CREATE TABLE IF NOT EXISTS deep_research (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			analysis_prompt TEXT,
+			max_depth INTEGER,
+			max_urls INTEGER,
+			query TEXT,
+			system_prompt TEXT,
+			time_limit INTEGER
+		)`,
+		`CREATE TABLE IF NOT EXISTS map (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			ignore_sitemap INTEGER,
+			include_subdomains INTEGER,
+			"limit" INTEGER,
+			search TEXT,
+			sitemap_only INTEGER,
+			timeout INTEGER,
+			url TEXT
+		)`,
+		`CREATE TABLE IF NOT EXISTS firecrawl_search (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			ignore_invalid_ur_ls INTEGER,
+			"limit" INTEGER,
+			location TEXT,
+			query TEXT,
+			tbs TEXT,
+			timeout INTEGER
+		)`,
+		`CREATE TABLE IF NOT EXISTS extract (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			enable_web_search INTEGER,
+			ignore_invalid_ur_ls INTEGER,
+			ignore_sitemap INTEGER,
+			include_subdomains INTEGER,
+			prompt TEXT,
+			show_sources INTEGER
+		)`,
+		`CREATE TABLE IF NOT EXISTS llmstxt (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			max_urls INTEGER,
+			show_full_text INTEGER,
+			url TEXT
+		)`,
+		`CREATE TABLE IF NOT EXISTS scrape (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			block_ads INTEGER,
+			max_age INTEGER,
+			mobile INTEGER,
+			only_main_content INTEGER,
+			parse_pdf INTEGER,
+			proxy TEXT,
+			remove_base64_images INTEGER,
+			skip_tls_verification INTEGER,
+			store_in_cache INTEGER,
+			timeout INTEGER,
+			url TEXT,
+			wait_for INTEGER
+		)`,
 	}
 
 	// Run every migration — including the column backfill and the
@@ -704,7 +682,7 @@ func ftsRowID(id string) int64 {
 // way — a divergence here produces silent drops on heterogeneous payloads.
 func LookupFieldValue(obj map[string]any, snakeKey string) any {
 	if v, ok := obj[snakeKey]; ok {
-		return v
+		return sqliteFieldValue(v)
 	}
 	parts := strings.Split(snakeKey, "_")
 	for i := 1; i < len(parts); i++ {
@@ -714,9 +692,22 @@ func LookupFieldValue(obj map[string]any, snakeKey string) any {
 		parts[i] = strings.ToUpper(parts[i][:1]) + parts[i][1:]
 	}
 	if v, ok := obj[strings.Join(parts, "")]; ok {
-		return v
+		return sqliteFieldValue(v)
 	}
 	return nil
+}
+
+func sqliteFieldValue(v any) any {
+	switch v.(type) {
+	case nil, string, bool, int, int64, float64, []byte:
+		return v
+	default:
+		data, err := json.Marshal(v)
+		if err != nil {
+			return fmt.Sprint(v)
+		}
+		return string(data)
+	}
 }
 
 // lookupFieldValue is kept as an unexported alias for in-package callers so
@@ -724,340 +715,6 @@ func LookupFieldValue(obj map[string]any, snakeKey string) any {
 // with the package name.
 func lookupFieldValue(obj map[string]any, snakeKey string) any {
 	return LookupFieldValue(obj, snakeKey)
-}
-// upsertDeepResearchTx writes the typed-table portion of a deep_research upsert
-// inside an existing transaction. The caller is responsible for the generic
-// resources insert (via upsertGenericResourceTx) and for committing the tx.
-// Splitting this out lets UpsertBatch dispatch typed inserts per item without
-// opening a per-item transaction.
-func (s *Store) upsertDeepResearchTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
-	if _, err := tx.Exec(
-		`INSERT INTO deep_research (id, data, synced_at, analysis_prompt, max_depth, max_urls, query, system_prompt, time_limit)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, analysis_prompt = excluded.analysis_prompt, max_depth = excluded.max_depth, max_urls = excluded.max_urls, query = excluded.query, system_prompt = excluded.system_prompt, time_limit = excluded.time_limit`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "analysis_prompt"),
-		lookupFieldValue(obj, "max_depth"),
-		lookupFieldValue(obj, "max_urls"),
-		lookupFieldValue(obj, "query"),
-		lookupFieldValue(obj, "system_prompt"),
-		lookupFieldValue(obj, "time_limit"),
-	); err != nil {
-		return fmt.Errorf("insert into deep_research: %w", err)
-	}
-
-	return nil
-}
-
-// UpsertDeepResearch inserts or updates a deep_research record with domain-specific columns.
-func (s *Store) UpsertDeepResearch(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling deep_research: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for deep_research")
-	}
-
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "deep_research", id, data); err != nil {
-		return err
-	}
-	if err := s.upsertDeepResearchTx(tx, id, obj, data); err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-// upsertLlmstxtTx writes the typed-table portion of a llmstxt upsert
-// inside an existing transaction. The caller is responsible for the generic
-// resources insert (via upsertGenericResourceTx) and for committing the tx.
-// Splitting this out lets UpsertBatch dispatch typed inserts per item without
-// opening a per-item transaction.
-func (s *Store) upsertLlmstxtTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
-	if _, err := tx.Exec(
-		`INSERT INTO llmstxt (id, data, synced_at, max_urls, show_full_text, url)
-		 VALUES (?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, max_urls = excluded.max_urls, show_full_text = excluded.show_full_text, url = excluded.url`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "max_urls"),
-		lookupFieldValue(obj, "show_full_text"),
-		lookupFieldValue(obj, "url"),
-	); err != nil {
-		return fmt.Errorf("insert into llmstxt: %w", err)
-	}
-
-	return nil
-}
-
-// UpsertLlmstxt inserts or updates a llmstxt record with domain-specific columns.
-func (s *Store) UpsertLlmstxt(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling llmstxt: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for llmstxt")
-	}
-
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "llmstxt", id, data); err != nil {
-		return err
-	}
-	if err := s.upsertLlmstxtTx(tx, id, obj, data); err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-// upsertExtractTx writes the typed-table portion of a extract upsert
-// inside an existing transaction. The caller is responsible for the generic
-// resources insert (via upsertGenericResourceTx) and for committing the tx.
-// Splitting this out lets UpsertBatch dispatch typed inserts per item without
-// opening a per-item transaction.
-func (s *Store) upsertExtractTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
-	if _, err := tx.Exec(
-		`INSERT INTO extract (id, data, synced_at, enable_web_search, ignore_invalid_ur_ls, ignore_sitemap, include_subdomains, prompt, show_sources)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, enable_web_search = excluded.enable_web_search, ignore_invalid_ur_ls = excluded.ignore_invalid_ur_ls, ignore_sitemap = excluded.ignore_sitemap, include_subdomains = excluded.include_subdomains, prompt = excluded.prompt, show_sources = excluded.show_sources`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "enable_web_search"),
-		lookupFieldValue(obj, "ignore_invalid_ur_ls"),
-		lookupFieldValue(obj, "ignore_sitemap"),
-		lookupFieldValue(obj, "include_subdomains"),
-		lookupFieldValue(obj, "prompt"),
-		lookupFieldValue(obj, "show_sources"),
-	); err != nil {
-		return fmt.Errorf("insert into extract: %w", err)
-	}
-
-	return nil
-}
-
-// UpsertExtract inserts or updates a extract record with domain-specific columns.
-func (s *Store) UpsertExtract(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling extract: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for extract")
-	}
-
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "extract", id, data); err != nil {
-		return err
-	}
-	if err := s.upsertExtractTx(tx, id, obj, data); err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-// upsertMapTx writes the typed-table portion of a map upsert
-// inside an existing transaction. The caller is responsible for the generic
-// resources insert (via upsertGenericResourceTx) and for committing the tx.
-// Splitting this out lets UpsertBatch dispatch typed inserts per item without
-// opening a per-item transaction.
-func (s *Store) upsertMapTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
-	if _, err := tx.Exec(
-		`INSERT INTO map (id, data, synced_at, ignore_sitemap, include_subdomains, "limit", search, sitemap_only, timeout, url)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, ignore_sitemap = excluded.ignore_sitemap, include_subdomains = excluded.include_subdomains, "limit" = excluded."limit", search = excluded.search, sitemap_only = excluded.sitemap_only, timeout = excluded.timeout, url = excluded.url`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "ignore_sitemap"),
-		lookupFieldValue(obj, "include_subdomains"),
-		lookupFieldValue(obj, "limit"),
-		lookupFieldValue(obj, "search"),
-		lookupFieldValue(obj, "sitemap_only"),
-		lookupFieldValue(obj, "timeout"),
-		lookupFieldValue(obj, "url"),
-	); err != nil {
-		return fmt.Errorf("insert into map: %w", err)
-	}
-
-	return nil
-}
-
-// UpsertMap inserts or updates a map record with domain-specific columns.
-func (s *Store) UpsertMap(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling map: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for map")
-	}
-
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "map", id, data); err != nil {
-		return err
-	}
-	if err := s.upsertMapTx(tx, id, obj, data); err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-// upsertScrapeTx writes the typed-table portion of a scrape upsert
-// inside an existing transaction. The caller is responsible for the generic
-// resources insert (via upsertGenericResourceTx) and for committing the tx.
-// Splitting this out lets UpsertBatch dispatch typed inserts per item without
-// opening a per-item transaction.
-func (s *Store) upsertScrapeTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
-	if _, err := tx.Exec(
-		`INSERT INTO scrape (id, data, synced_at, block_ads, max_age, mobile, only_main_content, parse_pdf, proxy, remove_base64_images, skip_tls_verification, store_in_cache, timeout, url, wait_for)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, block_ads = excluded.block_ads, max_age = excluded.max_age, mobile = excluded.mobile, only_main_content = excluded.only_main_content, parse_pdf = excluded.parse_pdf, proxy = excluded.proxy, remove_base64_images = excluded.remove_base64_images, skip_tls_verification = excluded.skip_tls_verification, store_in_cache = excluded.store_in_cache, timeout = excluded.timeout, url = excluded.url, wait_for = excluded.wait_for`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "block_ads"),
-		lookupFieldValue(obj, "max_age"),
-		lookupFieldValue(obj, "mobile"),
-		lookupFieldValue(obj, "only_main_content"),
-		lookupFieldValue(obj, "parse_pdf"),
-		lookupFieldValue(obj, "proxy"),
-		lookupFieldValue(obj, "remove_base64_images"),
-		lookupFieldValue(obj, "skip_tls_verification"),
-		lookupFieldValue(obj, "store_in_cache"),
-		lookupFieldValue(obj, "timeout"),
-		lookupFieldValue(obj, "url"),
-		lookupFieldValue(obj, "wait_for"),
-	); err != nil {
-		return fmt.Errorf("insert into scrape: %w", err)
-	}
-
-	return nil
-}
-
-// UpsertScrape inserts or updates a scrape record with domain-specific columns.
-func (s *Store) UpsertScrape(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling scrape: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for scrape")
-	}
-
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "scrape", id, data); err != nil {
-		return err
-	}
-	if err := s.upsertScrapeTx(tx, id, obj, data); err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-// upsertFirecrawlSearchTx writes the typed-table portion of a firecrawl_search upsert
-// inside an existing transaction. The caller is responsible for the generic
-// resources insert (via upsertGenericResourceTx) and for committing the tx.
-// Splitting this out lets UpsertBatch dispatch typed inserts per item without
-// opening a per-item transaction.
-func (s *Store) upsertFirecrawlSearchTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
-	if _, err := tx.Exec(
-		`INSERT INTO firecrawl_search (id, data, synced_at, ignore_invalid_ur_ls, "limit", location, query, tbs, timeout)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, ignore_invalid_ur_ls = excluded.ignore_invalid_ur_ls, "limit" = excluded."limit", location = excluded.location, query = excluded.query, tbs = excluded.tbs, timeout = excluded.timeout`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "ignore_invalid_ur_ls"),
-		lookupFieldValue(obj, "limit"),
-		lookupFieldValue(obj, "location"),
-		lookupFieldValue(obj, "query"),
-		lookupFieldValue(obj, "tbs"),
-		lookupFieldValue(obj, "timeout"),
-	); err != nil {
-		return fmt.Errorf("insert into firecrawl_search: %w", err)
-	}
-
-	return nil
-}
-
-// UpsertFirecrawlSearch inserts or updates a firecrawl_search record with domain-specific columns.
-func (s *Store) UpsertFirecrawlSearch(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling firecrawl_search: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for firecrawl_search")
-	}
-
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "firecrawl_search", id, data); err != nil {
-		return err
-	}
-	if err := s.upsertFirecrawlSearchTx(tx, id, obj, data); err != nil {
-		return err
-	}
-
-	return tx.Commit()
 }
 // upsertCrawlTx writes the typed-table portion of a crawl upsert
 // inside an existing transaction. The caller is responsible for the generic
@@ -1167,6 +824,340 @@ func (s *Store) UpsertErrors(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+// upsertDeepResearchTx writes the typed-table portion of a deep_research upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertDeepResearchTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO deep_research (id, data, synced_at, analysis_prompt, max_depth, max_urls, query, system_prompt, time_limit)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, analysis_prompt = excluded.analysis_prompt, max_depth = excluded.max_depth, max_urls = excluded.max_urls, query = excluded.query, system_prompt = excluded.system_prompt, time_limit = excluded.time_limit`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "analysis_prompt"),
+		lookupFieldValue(obj, "max_depth"),
+		lookupFieldValue(obj, "max_urls"),
+		lookupFieldValue(obj, "query"),
+		lookupFieldValue(obj, "system_prompt"),
+		lookupFieldValue(obj, "time_limit"),
+	); err != nil {
+		return fmt.Errorf("insert into deep_research: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertDeepResearch inserts or updates a deep_research record with domain-specific columns.
+func (s *Store) UpsertDeepResearch(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling deep_research: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for deep_research")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "deep_research", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertDeepResearchTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+// upsertMapTx writes the typed-table portion of a map upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertMapTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO map (id, data, synced_at, ignore_sitemap, include_subdomains, "limit", search, sitemap_only, timeout, url)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, ignore_sitemap = excluded.ignore_sitemap, include_subdomains = excluded.include_subdomains, "limit" = excluded."limit", search = excluded.search, sitemap_only = excluded.sitemap_only, timeout = excluded.timeout, url = excluded.url`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "ignore_sitemap"),
+		lookupFieldValue(obj, "include_subdomains"),
+		lookupFieldValue(obj, "limit"),
+		lookupFieldValue(obj, "search"),
+		lookupFieldValue(obj, "sitemap_only"),
+		lookupFieldValue(obj, "timeout"),
+		lookupFieldValue(obj, "url"),
+	); err != nil {
+		return fmt.Errorf("insert into map: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertMap inserts or updates a map record with domain-specific columns.
+func (s *Store) UpsertMap(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling map: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for map")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "map", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertMapTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+// upsertFirecrawlSearchTx writes the typed-table portion of a firecrawl_search upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertFirecrawlSearchTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO firecrawl_search (id, data, synced_at, ignore_invalid_ur_ls, "limit", location, query, tbs, timeout)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, ignore_invalid_ur_ls = excluded.ignore_invalid_ur_ls, "limit" = excluded."limit", location = excluded.location, query = excluded.query, tbs = excluded.tbs, timeout = excluded.timeout`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "ignore_invalid_ur_ls"),
+		lookupFieldValue(obj, "limit"),
+		lookupFieldValue(obj, "location"),
+		lookupFieldValue(obj, "query"),
+		lookupFieldValue(obj, "tbs"),
+		lookupFieldValue(obj, "timeout"),
+	); err != nil {
+		return fmt.Errorf("insert into firecrawl_search: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertFirecrawlSearch inserts or updates a firecrawl_search record with domain-specific columns.
+func (s *Store) UpsertFirecrawlSearch(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling firecrawl_search: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for firecrawl_search")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "firecrawl_search", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertFirecrawlSearchTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+// upsertExtractTx writes the typed-table portion of a extract upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertExtractTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO extract (id, data, synced_at, enable_web_search, ignore_invalid_ur_ls, ignore_sitemap, include_subdomains, prompt, show_sources)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, enable_web_search = excluded.enable_web_search, ignore_invalid_ur_ls = excluded.ignore_invalid_ur_ls, ignore_sitemap = excluded.ignore_sitemap, include_subdomains = excluded.include_subdomains, prompt = excluded.prompt, show_sources = excluded.show_sources`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "enable_web_search"),
+		lookupFieldValue(obj, "ignore_invalid_ur_ls"),
+		lookupFieldValue(obj, "ignore_sitemap"),
+		lookupFieldValue(obj, "include_subdomains"),
+		lookupFieldValue(obj, "prompt"),
+		lookupFieldValue(obj, "show_sources"),
+	); err != nil {
+		return fmt.Errorf("insert into extract: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertExtract inserts or updates a extract record with domain-specific columns.
+func (s *Store) UpsertExtract(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling extract: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for extract")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "extract", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertExtractTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+// upsertLlmstxtTx writes the typed-table portion of a llmstxt upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertLlmstxtTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO llmstxt (id, data, synced_at, max_urls, show_full_text, url)
+		 VALUES (?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, max_urls = excluded.max_urls, show_full_text = excluded.show_full_text, url = excluded.url`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "max_urls"),
+		lookupFieldValue(obj, "show_full_text"),
+		lookupFieldValue(obj, "url"),
+	); err != nil {
+		return fmt.Errorf("insert into llmstxt: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertLlmstxt inserts or updates a llmstxt record with domain-specific columns.
+func (s *Store) UpsertLlmstxt(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling llmstxt: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for llmstxt")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "llmstxt", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertLlmstxtTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+// upsertScrapeTx writes the typed-table portion of a scrape upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertScrapeTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO scrape (id, data, synced_at, block_ads, max_age, mobile, only_main_content, parse_pdf, proxy, remove_base64_images, skip_tls_verification, store_in_cache, timeout, url, wait_for)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, block_ads = excluded.block_ads, max_age = excluded.max_age, mobile = excluded.mobile, only_main_content = excluded.only_main_content, parse_pdf = excluded.parse_pdf, proxy = excluded.proxy, remove_base64_images = excluded.remove_base64_images, skip_tls_verification = excluded.skip_tls_verification, store_in_cache = excluded.store_in_cache, timeout = excluded.timeout, url = excluded.url, wait_for = excluded.wait_for`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "block_ads"),
+		lookupFieldValue(obj, "max_age"),
+		lookupFieldValue(obj, "mobile"),
+		lookupFieldValue(obj, "only_main_content"),
+		lookupFieldValue(obj, "parse_pdf"),
+		lookupFieldValue(obj, "proxy"),
+		lookupFieldValue(obj, "remove_base64_images"),
+		lookupFieldValue(obj, "skip_tls_verification"),
+		lookupFieldValue(obj, "store_in_cache"),
+		lookupFieldValue(obj, "timeout"),
+		lookupFieldValue(obj, "url"),
+		lookupFieldValue(obj, "wait_for"),
+	); err != nil {
+		return fmt.Errorf("insert into scrape: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertScrape inserts or updates a scrape record with domain-specific columns.
+func (s *Store) UpsertScrape(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling scrape: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for scrape")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "scrape", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertScrapeTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
 
 // resourceIDFieldOverrides projects per-resource IDField (set by the profiler
 // from x-resource-id or response-schema fallback) into a runtime lookup map.
@@ -1250,36 +1241,36 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 		}
 
 		switch resourceType {
-		case "deep_research":
-			if err := s.upsertDeepResearchTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "llmstxt":
-			if err := s.upsertLlmstxtTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "extract":
-			if err := s.upsertExtractTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "map":
-			if err := s.upsertMapTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "scrape":
-			if err := s.upsertScrapeTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "firecrawl_search":
-			if err := s.upsertFirecrawlSearchTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
 		case "crawl":
 			if err := s.upsertCrawlTx(tx, id, obj, item); err != nil {
 				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
 			}
 		case "errors":
 			if err := s.upsertErrorsTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "deep_research":
+			if err := s.upsertDeepResearchTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "map":
+			if err := s.upsertMapTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "firecrawl_search":
+			if err := s.upsertFirecrawlSearchTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "extract":
+			if err := s.upsertExtractTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "llmstxt":
+			if err := s.upsertLlmstxtTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "scrape":
+			if err := s.upsertScrapeTx(tx, id, obj, item); err != nil {
 				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
 			}
 		}

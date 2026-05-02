@@ -9,7 +9,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/firecrawl/internal/cli.version={{ .Version }}
+      - -s -w -X firecrawl-pp-cli/internal/cli.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -44,7 +44,7 @@ brews:
     repository:
       owner: hiten-shah
       name: homebrew-tap
-    homepage: "https://github.com/mvanhorn/printing-press-library"
+    homepage: "https://github.com/hiten-shah/firecrawl-pp-cli"
     description: "API for interacting with Firecrawl services to perform web scraping and crawling tasks."
     install: |
       bin.install "firecrawl-pp-cli"

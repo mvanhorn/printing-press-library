@@ -23,7 +23,7 @@ type Config struct {
 	ClientID       string `toml:"client_id"`
 	ClientSecret   string `toml:"client_secret"`
 	Path           string `toml:"-"`
-	FirecrawlToken string `toml:"token"`
+	FirecrawlBearerAuth string `toml:"bearer_auth"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -51,9 +51,9 @@ func Load(configPath string) (*Config, error) {
 	}
 
 	// Env var overrides
-	if v := os.Getenv("FIRECRAWL_TOKEN"); v != "" {
-		cfg.FirecrawlToken = v
-		cfg.AuthSource = "env:FIRECRAWL_TOKEN"
+	if v := os.Getenv("FIRECRAWL_BEARER_AUTH"); v != "" {
+		cfg.FirecrawlBearerAuth = v
+		cfg.AuthSource = "env:FIRECRAWL_BEARER_AUTH"
 	}
 
 	// Base URL override (used by printing-press verify to point at mock/test servers)
@@ -67,12 +67,14 @@ func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
 	}
+	// Env-var token wins over file-stored AccessToken (env > config convention).
+	if c.FirecrawlBearerAuth != "" {
+		c.AuthSource = "env:FIRECRAWL_BEARER_AUTH"
+		return "Bearer " + c.FirecrawlBearerAuth
+	}
 	if c.AccessToken != "" {
 		c.AuthSource = "oauth2"
 		return "Bearer " + c.AccessToken
-	}
-	if c.FirecrawlToken != "" {
-		return "Bearer " + c.FirecrawlToken
 	}
 	return ""
 }

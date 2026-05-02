@@ -6,15 +6,15 @@ Learn more at [Firecrawl](https://firecrawl.dev/support).
 
 ## Install
 
+### Binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/firecrawl-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
+
 ### Go
 
 ```
-go install github.com/mvanhorn/printing-press-library/library/developer-tools/firecrawl/cmd/firecrawl-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/other/firecrawl/cmd/firecrawl-pp-cli@latest
 ```
-
-### Binary
-
-Download from [Releases](https://github.com/mvanhorn/printing-press-library/releases).
 
 ## Quick Start
 
@@ -33,7 +33,7 @@ firecrawl-pp-cli auth set-token YOUR_TOKEN_HERE
 Or set it via environment variable:
 
 ```bash
-export FIRECRAWL_TOKEN="your-token-here"
+export FIRECRAWL_BEARER_AUTH="your-token-here"
 ```
 
 ### 3. Verify Setup
@@ -47,7 +47,7 @@ This checks your configuration and credentials.
 ### 4. Try Your First Command
 
 ```bash
-firecrawl-pp-cli batch cancel-scrape
+firecrawl-pp-cli batch cancel-scrape mock-value
 ```
 
 ## Usage
@@ -88,6 +88,12 @@ Manage extract
 - **`firecrawl-pp-cli extract data`** - Extract structured data from pages using LLMs
 - **`firecrawl-pp-cli extract get-status`** - Get the status of an extract job
 
+### firecrawl-search
+
+Manage firecrawl search
+
+- **`firecrawl-pp-cli firecrawl-search search-and-scrape`** - Search and optionally scrape search results
+
 ### llmstxt
 
 Manage llmstxt
@@ -107,12 +113,6 @@ Manage scrape
 
 - **`firecrawl-pp-cli scrape and-extract-from-url`** - Scrape a single URL and optionally extract information using an LLM
 
-### search
-
-Manage search
-
-- **`firecrawl-pp-cli search and-scrape`** - Search and optionally scrape search results
-
 ### team
 
 Manage team
@@ -125,19 +125,19 @@ Manage team
 
 ```bash
 # Human-readable table (default in terminal, JSON when piped)
-firecrawl-pp-cli batch cancel-scrape
+firecrawl-pp-cli batch cancel-scrape mock-value
 
 # JSON for scripting and agents
-firecrawl-pp-cli batch cancel-scrape --json
+firecrawl-pp-cli batch cancel-scrape mock-value --json
 
 # Filter to specific fields
-firecrawl-pp-cli batch cancel-scrape --json --select id,name,status
+firecrawl-pp-cli batch cancel-scrape mock-value --json --select id,name,status
 
 # Dry run — show the request without sending
-firecrawl-pp-cli batch cancel-scrape --dry-run
+firecrawl-pp-cli batch cancel-scrape mock-value --dry-run
 
 # Agent mode — JSON + compact + no prompts in one flag
-firecrawl-pp-cli batch cancel-scrape --agent
+firecrawl-pp-cli batch cancel-scrape mock-value --agent
 ```
 
 ## Agent Usage
@@ -156,17 +156,53 @@ This CLI is designed for AI agent consumption:
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
 
-## Use as MCP Server
+## Use with Claude Code
 
-This CLI ships a companion MCP server for use with Claude Desktop, Cursor, and other MCP-compatible tools.
-
-### Claude Code
+Install the focused skill — it auto-installs the CLI on first invocation:
 
 ```bash
-claude mcp add firecrawl firecrawl-pp-mcp -e FIRECRAWL_TOKEN=<your-token>
+npx skills add mvanhorn/printing-press-library/cli-skills/pp-firecrawl -g
 ```
 
-### Claude Desktop
+Then invoke `/pp-firecrawl <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
+
+<details>
+<summary>Use as an MCP server in Claude Code (advanced)</summary>
+
+If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/other/firecrawl/cmd/firecrawl-pp-mcp@latest
+```
+
+Then register it:
+
+```bash
+claude mcp add firecrawl firecrawl-pp-mcp -e FIRECRAWL_BEARER_AUTH=<your-token>
+```
+
+</details>
+
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/firecrawl-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `FIRECRAWL_BEARER_AUTH` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/other/firecrawl/cmd/firecrawl-pp-mcp@latest
+```
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 
@@ -176,12 +212,14 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
     "firecrawl": {
       "command": "firecrawl-pp-mcp",
       "env": {
-        "FIRECRAWL_TOKEN": "<your-key>"
+        "FIRECRAWL_BEARER_AUTH": "<your-key>"
       }
     }
   }
 }
 ```
+
+</details>
 
 ## Health Check
 
@@ -196,12 +234,12 @@ Verifies configuration, credentials, and connectivity to the API.
 Config file: `~/.config/firecrawl-pp-cli/config.toml`
 
 Environment variables:
-- `FIRECRAWL_TOKEN`
+- `FIRECRAWL_BEARER_AUTH`
 
 ## Troubleshooting
 **Authentication errors (exit code 4)**
 - Run `firecrawl-pp-cli doctor` to check credentials
-- Verify the environment variable is set: `echo $FIRECRAWL_TOKEN`
+- Verify the environment variable is set: `echo $FIRECRAWL_BEARER_AUTH`
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items

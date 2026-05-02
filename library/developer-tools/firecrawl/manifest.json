@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "firecrawl-pp-mcp",
   "display_name": "Firecrawl",
-  "version": "2.3.7",
+  "version": "3.6.0",
   "description": "Firecrawl API surface as MCP tools.",
   "author": {
     "name": "CLI Printing Press"
@@ -15,15 +15,15 @@
       "command": "${__dirname}/bin/firecrawl-pp-mcp",
       "args": [],
       "env": {
-        "FIRECRAWL_TOKEN": "${user_config.firecrawl_token}"
+        "FIRECRAWL_BEARER_AUTH": "${user_config.firecrawl_bearer_auth}"
       }
     }
   },
   "user_config": {
-    "firecrawl_token": {
+    "firecrawl_bearer_auth": {
       "type": "string",
-      "title": "FIRECRAWL_TOKEN",
-      "description": "Sets FIRECRAWL_TOKEN for the Firecrawl MCP server.",
+      "title": "FIRECRAWL_BEARER_AUTH",
+      "description": "Sets FIRECRAWL_BEARER_AUTH for the Firecrawl MCP server.",
       "sensitive": true,
       "required": true
     }
@@ -35,6 +35,5 @@
       "linux",
       "win32"
     ]
-  },
-  "cli_binary": "firecrawl-pp-cli"
+  }
 }

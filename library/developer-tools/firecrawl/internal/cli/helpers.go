@@ -204,17 +204,17 @@ func classifyAPIError(err error) error {
 		return nil
 	case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
 		return authErr(fmt.Errorf("%w\nhint: the API rejected the request — this usually means auth is missing or invalid."+
-			"\n      Set your API key: export FIRECRAWL_TOKEN=<your-key>"+
+			"\n      Set your API key: export FIRECRAWL_BEARER_AUTH=<your-key>"+
 			"\n      Run 'firecrawl-pp-cli doctor' to check auth status."+
 			"\n      Response: "+cliutil.SanitizeErrorBody(msg), err))
 	case strings.Contains(msg, "HTTP 401"):
 		return authErr(fmt.Errorf("%w\nhint: check your token. Set it with: firecrawl-pp-cli auth set-token <token>"+
-			"\n      or: export FIRECRAWL_TOKEN=<your-token>"+
+			"\n      or: export FIRECRAWL_BEARER_AUTH=<your-token>"+
 			"\n      Run 'firecrawl-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 403"):
 		return authErr(fmt.Errorf("%w\nhint: permission denied. Your credentials are valid but lack access to this resource."+
 			"\n      Check that your API key has the required permissions."+
-			"\n      Set it with: export FIRECRAWL_TOKEN=<your-key>"+
+			"\n      Set it with: export FIRECRAWL_BEARER_AUTH=<your-key>"+
 			"\n      Run 'firecrawl-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 404"):
 		return notFoundErr(fmt.Errorf("%w\nhint: resource not found. Run the 'list' command to see available items", err))
@@ -1146,7 +1146,12 @@ func printProvenance(cmd *cobra.Command, count int, prov DataProvenance) {
 	fmt.Fprintf(cmd.ErrOrStderr(), "%s%d results (cached, synced %s)\n", prefix, count, age)
 }
 
-// wrapWithProvenance wraps JSON data in a provenance envelope: {"results": ..., "meta": {...}}.
+// wrapWithProvenance wraps response data in a provenance envelope:
+// {"results": ..., "meta": {...}}. When data is valid JSON, it embeds as
+// the parsed shape; when data is non-JSON (e.g., XML/RSS responses, plain
+// text), it embeds as a JSON string so json.Marshal doesn't choke on
+// "invalid character '<'" while still passing the raw payload through to
+// the consumer.
 func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMessage, error) {
 	meta := map[string]any{"source": prov.Source}
 	if prov.SyncedAt != nil {
@@ -1161,8 +1166,12 @@ func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMess
 	if prov.Freshness != nil {
 		meta["freshness"] = prov.Freshness
 	}
+	var results any = json.RawMessage(data)
+	if !json.Valid(data) {
+		results = string(data)
+	}
 	envelope := map[string]any{
-		"results": json.RawMessage(data),
+		"results": results,
 		"meta":    meta,
 	}
 	return json.Marshal(envelope)

@@ -14,7 +14,7 @@ import (
 func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "auth",
-		Short: "Manage FIRECRAWL_TOKEN credentials",
+		Short: "Manage FIRECRAWL_BEARER_AUTH credentials",
 	}
 
 	cmd.AddCommand(newAuthStatusCmd(flags))
@@ -41,7 +41,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintln(w, red("Not authenticated"))
 				fmt.Fprintln(w, "")
 				fmt.Fprintln(w, "Set your token:")
-				fmt.Fprintln(w, "  export FIRECRAWL_TOKEN=\"your-token-here\"")
+				fmt.Fprintln(w, "  export FIRECRAWL_BEARER_AUTH=\"your-token-here\"")
 				fmt.Fprintf(w, "  firecrawl-pp-cli auth set-token <token>\n")
 				return authErr(fmt.Errorf("no credentials configured"))
 			}
@@ -101,8 +101,8 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			// Warn if env vars still set
-			if os.Getenv("FIRECRAWL_TOKEN") != "" {
-				fmt.Fprintf(cmd.OutOrStdout(), "Config cleared. Note: FIRECRAWL_TOKEN env var is still set.\n")
+			if os.Getenv("FIRECRAWL_BEARER_AUTH") != "" {
+				fmt.Fprintf(cmd.OutOrStdout(), "Config cleared. Note: FIRECRAWL_BEARER_AUTH env var is still set.\n")
 				return nil
 			}
 			fmt.Fprintln(cmd.OutOrStdout(), "Logged out. Credentials cleared.")

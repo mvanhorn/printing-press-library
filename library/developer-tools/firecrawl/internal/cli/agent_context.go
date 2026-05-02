@@ -95,7 +95,7 @@ reading source. Schema is versioned via schema_version.`,
 
 func buildAgentContext(rootCmd *cobra.Command) agentContext {
 	envVars := []string{
-		"FIRECRAWL_TOKEN",
+		"FIRECRAWL_BEARER_AUTH",
 	}
 	authMode := "bearer_token"
 	if authMode == "" {

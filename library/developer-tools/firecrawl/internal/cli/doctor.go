@@ -86,7 +86,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				header := cfg.AuthHeader()
 				if header == "" {
 					report["auth"] = "not configured"
-					report["auth_hint"] = "export FIRECRAWL_TOKEN=<your-key>"
+					report["auth_hint"] = "export FIRECRAWL_BEARER_AUTH=<your-key>"
 				} else {
 					report["auth"] = "configured"
 					report["auth_source"] = cfg.AuthSource
@@ -97,7 +97,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			authEnvChecked := 0
 			authEnvSet := 0
 			authEnvChecked++
-			if os.Getenv("FIRECRAWL_TOKEN") != "" {
+			if os.Getenv("FIRECRAWL_BEARER_AUTH") != "" {
 				authEnvSet++
 			}
 			if authEnvSet == 0 {
