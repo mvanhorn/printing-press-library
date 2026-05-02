@@ -422,6 +422,24 @@
       }
     },
     {
+      "name": "sentry",
+      "category": "monitoring",
+      "api": "Sentry",
+      "description": "Error tracking and performance monitoring - projects, issues, events, releases",
+      "path": "library/monitoring/sentry",
+      "mcp": {
+        "binary": "sentry-pp-mcp",
+        "transport": "stdio",
+        "tool_count": 219,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "SENTRY_AUTH_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "shopify",
       "category": "commerce",
       "api": "Shopify",

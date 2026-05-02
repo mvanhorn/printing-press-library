@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-02T18:03:09.525036Z",
+  "printing_press_version": "3.4.3",
+  "api_name": "sentry",
+  "display_name": "Sentry",
+  "cli_name": "sentry-pp-cli",
+  "spec_url": "https://raw.githubusercontent.com/getsentry/sentry-api-schema/main/openapi-derefed.json",
+  "spec_path": "/Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260502-124520/research/sentry-openapi-normalized.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:daa94aa366448545eb25fc424c13ce32f40a096e3c6c26568d00bc9d1bef0ad1",
+  "run_id": "20260502-124520",
+  "catalog_entry": "sentry",
+  "category": "monitoring",
+  "description": "Error tracking and performance monitoring - projects, issues, events, releases",
+  "mcp_binary": "sentry-pp-mcp",
+  "mcp_tool_count": 219,
+  "mcp_ready": "full",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "SENTRY_AUTH_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Sentry organization inventory",
+      "command": "organizations list",
+      "description": "List Sentry organizations available to the authenticated token with structured output."
+    },
+    {
+      "name": "Seer model inventory",
+      "command": "seer",
+      "description": "List the active LLM model names available through Sentry Seer."
+    }
+  ]
+}

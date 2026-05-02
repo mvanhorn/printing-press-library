@@ -1,0 +1,253 @@
+
+=== dogfood ===
+warning: skipping body field "replayAccessMembers": complex type not supported as CLI flag
+warning: skipping body field "trustedRelays": complex type not supported as CLI flag
+warning: skipping body field "schema": complex type not supported as CLI flag
+warning: skipping body field "triggers": complex type not supported as CLI flag
+warning: skipping body field "filters": complex type not supported as CLI flag
+warning: skipping body field "permissions": complex type not supported as CLI flag
+warning: skipping body field "projects": complex type not supported as CLI flag
+warning: skipping body field "widgets": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "project_ids": complex type not supported as CLI flag
+warning: skipping body field "statusDetails": complex type not supported as CLI flag
+warning: skipping body field "teamRoles": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "commits": complex type not supported as CLI flag
+warning: skipping body field "refs": complex type not supported as CLI flag
+warning: skipping body field "action_filters": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "detector_ids": complex type not supported as CLI flag
+warning: skipping body field "triggers": complex type not supported as CLI flag
+warning: skipping body field "highlightContext": complex type not supported as CLI flag
+warning: skipping body field "triggers": complex type not supported as CLI flag
+warning: skipping body field "filters": complex type not supported as CLI flag
+warning: skipping body field "permissions": complex type not supported as CLI flag
+warning: skipping body field "projects": complex type not supported as CLI flag
+warning: skipping body field "widgets": complex type not supported as CLI flag
+warning: skipping body field "condition_group": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "data_sources": complex type not supported as CLI flag
+warning: skipping body field "workflow_ids": complex type not supported as CLI flag
+warning: skipping body field "projects": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "project_ids": complex type not supported as CLI flag
+warning: skipping body field "statusDetails": complex type not supported as CLI flag
+warning: skipping body field "teamRoles": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "commits": complex type not supported as CLI flag
+warning: skipping body field "refs": complex type not supported as CLI flag
+warning: skipping body field "action_filters": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "detector_ids": complex type not supported as CLI flag
+warning: skipping body field "triggers": complex type not supported as CLI flag
+warning: skipping body field "statusDetails": complex type not supported as CLI flag
+warning: skipping body field "rateLimit": complex type not supported as CLI flag
+warning: skipping body field "actions": complex type not supported as CLI flag
+warning: skipping body field "conditions": complex type not supported as CLI flag
+warning: skipping body field "filters": complex type not supported as CLI flag
+warning: skipping body field "filters": complex type not supported as CLI flag
+warning: skipping body field "layout": complex type not supported as CLI flag
+warning: skipping body field "filters": complex type not supported as CLI flag
+warning: skipping body field "layout": complex type not supported as CLI flag
+warning: skipping body field "projects": complex type not supported as CLI flag
+warning: skipping body field "condition_group": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "data_sources": complex type not supported as CLI flag
+warning: skipping body field "workflow_ids": complex type not supported as CLI flag
+warning: skipping body field "Operations": complex type not supported as CLI flag
+warning: skipping body field "Operations": complex type not supported as CLI flag
+warning: skipping body field "dynamicSdkLoaderOptions": complex type not supported as CLI flag
+warning: skipping body field "rateLimit": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "actions": complex type not supported as CLI flag
+warning: skipping body field "conditions": complex type not supported as CLI flag
+warning: skipping body field "filters": complex type not supported as CLI flag
+warning: skipping body field "data": complex type not supported as CLI flag
+Dogfood Report: sentry-pp-cli
+================================
+
+Path Validity:     0/0 valid (FAIL)
+
+Auth Protocol:     MATCH
+  Spec: bearer token format (expects "Bearer " prefix)
+  Generated: Uses "Bearer" prefix
+  Detail: spec and generated client both use "Bearer"
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     PARTIAL
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: uses generic Search only or direct SQL
+  Domain tables: 1
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    2/2 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: PASS
+
+=== verify ===
+warning: skipping body field "replayAccessMembers": complex type not supported as CLI flag
+warning: skipping body field "trustedRelays": complex type not supported as CLI flag
+warning: skipping body field "schema": complex type not supported as CLI flag
+warning: skipping body field "triggers": complex type not supported as CLI flag
+warning: skipping body field "filters": complex type not supported as CLI flag
+warning: skipping body field "permissions": complex type not supported as CLI flag
+warning: skipping body field "projects": complex type not supported as CLI flag
+warning: skipping body field "widgets": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "project_ids": complex type not supported as CLI flag
+warning: skipping body field "statusDetails": complex type not supported as CLI flag
+warning: skipping body field "teamRoles": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "commits": complex type not supported as CLI flag
+warning: skipping body field "refs": complex type not supported as CLI flag
+warning: skipping body field "action_filters": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "detector_ids": complex type not supported as CLI flag
+warning: skipping body field "triggers": complex type not supported as CLI flag
+warning: skipping body field "highlightContext": complex type not supported as CLI flag
+warning: skipping body field "triggers": complex type not supported as CLI flag
+warning: skipping body field "filters": complex type not supported as CLI flag
+warning: skipping body field "permissions": complex type not supported as CLI flag
+warning: skipping body field "projects": complex type not supported as CLI flag
+warning: skipping body field "widgets": complex type not supported as CLI flag
+warning: skipping body field "condition_group": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "data_sources": complex type not supported as CLI flag
+warning: skipping body field "workflow_ids": complex type not supported as CLI flag
+warning: skipping body field "projects": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "project_ids": complex type not supported as CLI flag
+warning: skipping body field "statusDetails": complex type not supported as CLI flag
+warning: skipping body field "teamRoles": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "commits": complex type not supported as CLI flag
+warning: skipping body field "refs": complex type not supported as CLI flag
+warning: skipping body field "action_filters": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "detector_ids": complex type not supported as CLI flag
+warning: skipping body field "triggers": complex type not supported as CLI flag
+warning: skipping body field "statusDetails": complex type not supported as CLI flag
+warning: skipping body field "rateLimit": complex type not supported as CLI flag
+warning: skipping body field "actions": complex type not supported as CLI flag
+warning: skipping body field "conditions": complex type not supported as CLI flag
+warning: skipping body field "filters": complex type not supported as CLI flag
+warning: skipping body field "filters": complex type not supported as CLI flag
+warning: skipping body field "layout": complex type not supported as CLI flag
+warning: skipping body field "filters": complex type not supported as CLI flag
+warning: skipping body field "layout": complex type not supported as CLI flag
+warning: skipping body field "projects": complex type not supported as CLI flag
+warning: skipping body field "condition_group": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "data_sources": complex type not supported as CLI flag
+warning: skipping body field "workflow_ids": complex type not supported as CLI flag
+warning: skipping body field "Operations": complex type not supported as CLI flag
+warning: skipping body field "Operations": complex type not supported as CLI flag
+warning: skipping body field "dynamicSdkLoaderOptions": complex type not supported as CLI flag
+warning: skipping body field "rateLimit": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "actions": complex type not supported as CLI flag
+warning: skipping body field "conditions": complex type not supported as CLI flag
+warning: skipping body field "filters": complex type not supported as CLI flag
+warning: skipping body field "data": complex type not supported as CLI flag
+Runtime Verification: /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260502-124520/working/sentry-pp-cli/sentry-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+agent-context                  read         PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+load                           read         PASS   PASS     PASS     3/3
+organizations                  read         PASS   PASS     PASS     3/3
+orphans                        read         PASS   PASS     PASS     3/3
+profile                        read         PASS   PASS     PASS     3/3
+projects                       read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+seer                           read         PASS   PASS     PASS     3/3
+sentry-app-installations       read         PASS   PASS     PASS     3/3
+sentry-apps                    read         PASS   PASS     PASS     3/3
+stale                          data-layer   PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+teams                          read         PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     PASS     3/3
+
+Data Pipeline: PASS: sync completed (table validation skipped — sql command unavailable)
+Pass Rate: 100% (23/23 passed, 0 critical)
+Verdict: PASS
+
+=== workflow-verify ===
+Workflow Verification: sentry-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== verify-skill ===
+=== sentry-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, unknown-command)
+
+=== scorecard ===
+Quality Scorecard: sentry
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          8/10
+  README               8/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          10/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency 4/10
+  MCP Remote Transport 5/10
+  MCP Tool Design      5/10
+  MCP Surface Strategy 2/10
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              10/10
+  Vision               9/10
+  Workflows            10/10
+  Insight              9/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           8/10
+  Data Pipeline Integrity 7/10
+  Sync Correctness        10/10
+  Live API Verification   5/10
+  Type Fidelity           4/5
+  Dead Code               5/5
+
+  Total: 80/100 - Grade A
+  Note: omitted from denominator: mcp_description_quality
+
+Live Check (behavioral sample)
+  Passed: 2/2  (100% pass rate)
+
+Gaps:
+  - mcp_token_efficiency scored 4/10 - needs improvement
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  dogfood           PASS    0         4.906s
+  verify            PASS    0         6.702s
+  workflow-verify   PASS    0         36ms
+  verify-skill      PASS    0         1.965s
+  scorecard         PASS    0         516ms
+
+Verdict: PASS (5/5 legs passed)

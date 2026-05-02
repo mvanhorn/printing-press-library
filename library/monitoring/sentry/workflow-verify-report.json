@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260502-124520/working/sentry-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

@@ -1,0 +1,73 @@
+warning: skipping body field "replayAccessMembers": complex type not supported as CLI flag
+warning: skipping body field "trustedRelays": complex type not supported as CLI flag
+warning: skipping body field "schema": complex type not supported as CLI flag
+warning: skipping body field "triggers": complex type not supported as CLI flag
+warning: skipping body field "filters": complex type not supported as CLI flag
+warning: skipping body field "permissions": complex type not supported as CLI flag
+warning: skipping body field "projects": complex type not supported as CLI flag
+warning: skipping body field "widgets": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "project_ids": complex type not supported as CLI flag
+warning: skipping body field "statusDetails": complex type not supported as CLI flag
+warning: skipping body field "teamRoles": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "commits": complex type not supported as CLI flag
+warning: skipping body field "refs": complex type not supported as CLI flag
+warning: skipping body field "action_filters": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "detector_ids": complex type not supported as CLI flag
+warning: skipping body field "triggers": complex type not supported as CLI flag
+warning: skipping body field "highlightContext": complex type not supported as CLI flag
+warning: skipping body field "triggers": complex type not supported as CLI flag
+warning: skipping body field "filters": complex type not supported as CLI flag
+warning: skipping body field "permissions": complex type not supported as CLI flag
+warning: skipping body field "projects": complex type not supported as CLI flag
+warning: skipping body field "widgets": complex type not supported as CLI flag
+warning: skipping body field "condition_group": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "data_sources": complex type not supported as CLI flag
+warning: skipping body field "workflow_ids": complex type not supported as CLI flag
+warning: skipping body field "projects": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "project_ids": complex type not supported as CLI flag
+warning: skipping body field "statusDetails": complex type not supported as CLI flag
+warning: skipping body field "teamRoles": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "commits": complex type not supported as CLI flag
+warning: skipping body field "refs": complex type not supported as CLI flag
+warning: skipping body field "action_filters": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "detector_ids": complex type not supported as CLI flag
+warning: skipping body field "triggers": complex type not supported as CLI flag
+warning: skipping body field "statusDetails": complex type not supported as CLI flag
+warning: skipping body field "rateLimit": complex type not supported as CLI flag
+warning: skipping body field "actions": complex type not supported as CLI flag
+warning: skipping body field "conditions": complex type not supported as CLI flag
+warning: skipping body field "filters": complex type not supported as CLI flag
+warning: skipping body field "filters": complex type not supported as CLI flag
+warning: skipping body field "layout": complex type not supported as CLI flag
+warning: skipping body field "filters": complex type not supported as CLI flag
+warning: skipping body field "layout": complex type not supported as CLI flag
+warning: skipping body field "projects": complex type not supported as CLI flag
+warning: skipping body field "condition_group": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "data_sources": complex type not supported as CLI flag
+warning: skipping body field "workflow_ids": complex type not supported as CLI flag
+warning: skipping body field "Operations": complex type not supported as CLI flag
+warning: skipping body field "Operations": complex type not supported as CLI flag
+warning: skipping body field "dynamicSdkLoaderOptions": complex type not supported as CLI flag
+warning: skipping body field "rateLimit": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "actions": complex type not supported as CLI flag
+warning: skipping body field "conditions": complex type not supported as CLI flag
+warning: skipping body field "filters": complex type not supported as CLI flag
+warning: skipping body field "data": complex type not supported as CLI flag
+PASS go mod tidy
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS sentry-pp-cli --help
+PASS sentry-pp-cli version
+PASS sentry-pp-cli doctor
+Generated sentry at /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260502-124520/working/sentry-pp-cli
+Bundled /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260502-124520/working/sentry-pp-cli/build/sentry-pp-mcp-darwin-arm64.mcpb

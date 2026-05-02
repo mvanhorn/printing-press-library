@@ -1,0 +1,156 @@
+{
+  "api_name": "sentry",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "getsentry/sentry-mcp",
+      "url": "https://github.com/getsentry/sentry-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 673,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "getsentry/cli",
+      "url": "https://github.com/getsentry/cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [
+    "bearer-auth",
+    "regional-base-url",
+    "incident-triage",
+    "agent-debugging"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-02T17:46:53Z",
+  "novel_features": [
+    {
+      "name": "Sentry organization inventory",
+      "command": "organizations list",
+      "description": "List Sentry organizations available to the authenticated token with structured output.",
+      "rationale": "Uses Sentry’s authenticated organizations endpoint and adds agent-friendly selection and output modes.",
+      "example": "sentry-pp-cli organizations list --json --select slug,name",
+      "why_it_matters": "Use this first when an agent needs to discover the organization slug for Sentry API work.",
+      "group": "Read-only Sentry inventory"
+    },
+    {
+      "name": "Seer model inventory",
+      "command": "seer",
+      "description": "List the active LLM model names available through Sentry Seer.",
+      "rationale": "Uses Sentry’s Seer model endpoint as a compact capability discovery command.",
+      "example": "sentry-pp-cli seer --json",
+      "why_it_matters": "Use this when an agent needs to know which Seer-backed model identifiers Sentry exposes.",
+      "group": "Read-only Sentry inventory"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Sentry organization inventory",
+      "command": "organizations list",
+      "description": "List Sentry organizations available to the authenticated token with structured output.",
+      "rationale": "Uses Sentry’s authenticated organizations endpoint and adds agent-friendly selection and output modes.",
+      "example": "sentry-pp-cli organizations list --json --select slug,name",
+      "why_it_matters": "Use this first when an agent needs to discover the organization slug for Sentry API work.",
+      "group": "Read-only Sentry inventory"
+    },
+    {
+      "name": "Seer model inventory",
+      "command": "seer",
+      "description": "List the active LLM model names available through Sentry Seer.",
+      "rationale": "Uses Sentry’s Seer model endpoint as a compact capability discovery command.",
+      "example": "sentry-pp-cli seer --json",
+      "why_it_matters": "Use this when an agent needs to know which Seer-backed model identifiers Sentry exposes.",
+      "group": "Read-only Sentry inventory"
+    }
+  ],
+  "narrative": {
+    "display_name": "Sentry",
+    "headline": "A broad Sentry API CLI with local search, SQL, export, and MCP surfaces for incident work.",
+    "value_prop": "Use Sentry from scripts and agents without memorizing endpoint shapes. The CLI wraps the catalog OpenAPI, supports structured output, and adds local sync/search/SQL paths for incident triage and release audits.",
+    "auth_narrative": "Set SENTRY_AUTH_TOKEN to a Sentry user or organization token with read scopes such as org:read, project:read, and event:read. Set SENTRY_REGION=de for EU-region SaaS organizations, or configure the base URL for self-hosted Sentry if supported by the generated config.",
+    "quickstart": [
+      {
+        "command": "sentry-pp-cli doctor --json",
+        "comment": "Confirm token and API reachability before running endpoint commands."
+      },
+      {
+        "command": "sentry-pp-cli organizations list --json --select slug,name",
+        "comment": "Find the organization slug used by most Sentry API calls."
+      },
+      {
+        "command": "sentry-pp-cli organizations projects list-an-organization-s my-org --json --select slug,name",
+        "comment": "List projects once you know the organization slug."
+      },
+      {
+        "command": "sentry-pp-cli organizations issues list-an-organization-s my-org --json --select shortId,title,count,userCount",
+        "comment": "Start incident triage with organization issues."
+      },
+      {
+        "command": "sentry-pp-cli search timeout --json --select title,url,resource",
+        "comment": "Search synced local data when you need offline or repeated context."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized",
+        "fix": "Export SENTRY_AUTH_TOKEN with a valid Sentry token and rerun `sentry-pp-cli doctor --json`."
+      },
+      {
+        "symptom": "EU organization returns not found",
+        "fix": "Set SENTRY_REGION=de or the generated base-url flag/env var before retrying."
+      },
+      {
+        "symptom": "Issue or project commands need a slug",
+        "fix": "Run `sentry-pp-cli organizations list --json --select slug,name` and then project list commands to discover fixture slugs."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or script needs structured access to Sentry organizations, projects, issues, events, releases, monitors, teams, and related observability data. Prefer it over a hosted MCP when you need local binaries, local sync/search/SQL, CSV/JSON output, or direct control over auth and region routing.",
+    "recipes": [
+      {
+        "title": "Discover orgs",
+        "command": "sentry-pp-cli organizations list --json --select slug,name",
+        "explanation": "Find organization slugs for scoped Sentry commands."
+      },
+      {
+        "title": "List projects for an org",
+        "command": "sentry-pp-cli organizations projects list-an-organization-s my-org --json --select slug,name",
+        "explanation": "Find project slugs before project-scoped incident queries."
+      },
+      {
+        "title": "List issues narrowly",
+        "command": "sentry-pp-cli organizations issues list-an-organization-s my-org --agent --select shortId,title,count,userCount",
+        "explanation": "Keep agent context focused while triaging current issues."
+      },
+      {
+        "title": "Export organization inventory",
+        "command": "sentry-pp-cli export organizations --format json --output sentry-organizations.json",
+        "explanation": "Create a portable incident handoff file after syncing or listing data."
+      },
+      {
+        "title": "Inspect CLI capabilities",
+        "command": "sentry-pp-cli agent-context --pretty",
+        "explanation": "Give an agent the live command and auth surface before choosing a Sentry operation."
+      }
+    ],
+    "trigger_phrases": [
+      "check Sentry issues",
+      "list Sentry projects",
+      "debug a Sentry event",
+      "audit Sentry releases",
+      "search Sentry incidents",
+      "use Sentry",
+      "run Sentry"
+    ]
+  }
+}

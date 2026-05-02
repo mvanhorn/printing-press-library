@@ -1,0 +1,165 @@
+warning: skipping body field "replayAccessMembers": complex type not supported as CLI flag
+warning: skipping body field "trustedRelays": complex type not supported as CLI flag
+warning: skipping body field "schema": complex type not supported as CLI flag
+warning: skipping body field "triggers": complex type not supported as CLI flag
+warning: skipping body field "filters": complex type not supported as CLI flag
+warning: skipping body field "permissions": complex type not supported as CLI flag
+warning: skipping body field "projects": complex type not supported as CLI flag
+warning: skipping body field "widgets": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "project_ids": complex type not supported as CLI flag
+warning: skipping body field "statusDetails": complex type not supported as CLI flag
+warning: skipping body field "teamRoles": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "commits": complex type not supported as CLI flag
+warning: skipping body field "refs": complex type not supported as CLI flag
+warning: skipping body field "action_filters": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "detector_ids": complex type not supported as CLI flag
+warning: skipping body field "triggers": complex type not supported as CLI flag
+warning: skipping body field "highlightContext": complex type not supported as CLI flag
+warning: skipping body field "triggers": complex type not supported as CLI flag
+warning: skipping body field "filters": complex type not supported as CLI flag
+warning: skipping body field "permissions": complex type not supported as CLI flag
+warning: skipping body field "projects": complex type not supported as CLI flag
+warning: skipping body field "widgets": complex type not supported as CLI flag
+warning: skipping body field "condition_group": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "data_sources": complex type not supported as CLI flag
+warning: skipping body field "workflow_ids": complex type not supported as CLI flag
+warning: skipping body field "projects": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "project_ids": complex type not supported as CLI flag
+warning: skipping body field "statusDetails": complex type not supported as CLI flag
+warning: skipping body field "teamRoles": complex type not supported as CLI flag
+warning: skipping body field "config": complex type not supported as CLI flag
+warning: skipping body field "commits": complex type not supported as CLI flag
+warning: skipping body field "refs": complex type not supported as CLI flag
+warning: skipping PUT "/api/0/organizations/{organization_id_or_slug}/workflows/{workflow_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/environments/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/events/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/filters/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/hooks/": endpoint limit (100) reached for resource "0".0
+warning: skipping POST "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/hooks/": endpoint limit (100) reached for resource "0".0
+warning: skipping DELETE "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/issues/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/issues/": endpoint limit (100) reached for resource "0".0
+warning: skipping PUT "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/issues/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/keys/": endpoint limit (100) reached for resource "0".0
+warning: skipping POST "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/keys/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/members/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/ownership/": endpoint limit (100) reached for resource "0".0
+warning: skipping PUT "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/ownership/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/rules/": endpoint limit (100) reached for resource "0".0
+warning: skipping POST "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/rules/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/stats/": endpoint limit (100) reached for resource "0".0
+warning: skipping DELETE "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/symbol-sources/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/symbol-sources/": endpoint limit (100) reached for resource "0".0
+warning: skipping POST "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/symbol-sources/": endpoint limit (100) reached for resource "0".0
+warning: skipping PUT "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/symbol-sources/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/teams/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/user-feedback/": endpoint limit (100) reached for resource "0".0
+warning: skipping POST "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/user-feedback/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/users/": endpoint limit (100) reached for resource "0".0
+warning: skipping DELETE "/api/0/sentry-app-installations/{uuid}/external-issues/{external_issue_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping POST "/api/0/teams/{organization_id_or_slug}/{team_id_or_slug}/external-teams/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/teams/{organization_id_or_slug}/{team_id_or_slug}/members/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/teams/{organization_id_or_slug}/{team_id_or_slug}/projects/": endpoint limit (100) reached for resource "0".0
+warning: skipping POST "/api/0/teams/{organization_id_or_slug}/{team_id_or_slug}/projects/": endpoint limit (100) reached for resource "0".0
+warning: skipping DELETE "/api/0/organizations/{organization_id_or_slug}/discover/saved/{query_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/discover/saved/{query_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping PUT "/api/0/organizations/{organization_id_or_slug}/discover/saved/{query_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/issues/{issue_id}/autofix/": endpoint limit (100) reached for resource "0".0
+warning: skipping POST "/api/0/organizations/{organization_id_or_slug}/issues/{issue_id}/autofix/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/issues/{issue_id}/events/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/issues/{issue_id}/external-issues/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/issues/{issue_id}/hashes/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/monitors/{monitor_id_or_slug}/checkins/": endpoint limit (100) reached for resource "0".0
+warning: skipping DELETE "/api/0/organizations/{organization_id_or_slug}/notifications/actions/{action_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/notifications/actions/{action_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping PUT "/api/0/organizations/{organization_id_or_slug}/notifications/actions/{action_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/preprodartifacts/{artifact_id}/install-details/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/preprodartifacts/{artifact_id}/size-analysis/": endpoint limit (100) reached for resource "0".0
+warning: skipping POST "/api/0/organizations/{organization_id_or_slug}/projects/{project_id_or_slug}/detectors/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/releases/{version}/commitfiles/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/releases/{version}/commits/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/releases/{version}/deploys/": endpoint limit (100) reached for resource "0".0
+warning: skipping POST "/api/0/organizations/{organization_id_or_slug}/releases/{version}/deploys/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/releases/{version}/files/": endpoint limit (100) reached for resource "0".0
+warning: skipping POST "/api/0/organizations/{organization_id_or_slug}/releases/{version}/files/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/repos/{repo_id}/commits/": endpoint limit (100) reached for resource "0".0
+warning: skipping DELETE "/api/0/organizations/{organization_id_or_slug}/scim/v2/Groups/{team_id_or_slug}": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/scim/v2/Groups/{team_id_or_slug}": endpoint limit (100) reached for resource "0".0
+warning: skipping PATCH "/api/0/organizations/{organization_id_or_slug}/scim/v2/Groups/{team_id_or_slug}": endpoint limit (100) reached for resource "0".0
+warning: skipping DELETE "/api/0/organizations/{organization_id_or_slug}/scim/v2/Users/{member_id}": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/scim/v2/Users/{member_id}": endpoint limit (100) reached for resource "0".0
+warning: skipping PATCH "/api/0/organizations/{organization_id_or_slug}/scim/v2/Users/{member_id}": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/environments/{environment}/": endpoint limit (100) reached for resource "0".0
+warning: skipping PUT "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/environments/{environment}/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/events/{event_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping DELETE "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/files/dsyms/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/files/dsyms/": endpoint limit (100) reached for resource "0".0
+warning: skipping POST "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/files/dsyms/": endpoint limit (100) reached for resource "0".0
+warning: skipping PUT "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/filters/{filter_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping DELETE "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/hooks/{hook_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/hooks/{hook_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping PUT "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/hooks/{hook_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping DELETE "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/keys/{key_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/keys/{key_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping PUT "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/keys/{key_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping DELETE "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/monitors/{monitor_id_or_slug}/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/monitors/{monitor_id_or_slug}/": endpoint limit (100) reached for resource "0".0
+warning: skipping PUT "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/monitors/{monitor_id_or_slug}/": endpoint limit (100) reached for resource "0".0
+warning: skipping DELETE "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/replays/{replay_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping DELETE "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/rules/{rule_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/rules/{rule_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping PUT "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/rules/{rule_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping DELETE "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/teams/{team_id_or_slug}/": endpoint limit (100) reached for resource "0".0
+warning: skipping POST "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/teams/{team_id_or_slug}/": endpoint limit (100) reached for resource "0".0
+warning: skipping DELETE "/api/0/teams/{organization_id_or_slug}/{team_id_or_slug}/external-teams/{external_team_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping PUT "/api/0/teams/{organization_id_or_slug}/{team_id_or_slug}/external-teams/{external_team_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/issues/{issue_id}/events/{event_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/issues/{issue_id}/tags/{key}/": endpoint limit (100) reached for resource "0".0
+warning: skipping DELETE "/api/0/organizations/{organization_id_or_slug}/members/{member_id}/teams/{team_id_or_slug}/": endpoint limit (100) reached for resource "0".0
+warning: skipping POST "/api/0/organizations/{organization_id_or_slug}/members/{member_id}/teams/{team_id_or_slug}/": endpoint limit (100) reached for resource "0".0
+warning: skipping PUT "/api/0/organizations/{organization_id_or_slug}/members/{member_id}/teams/{team_id_or_slug}/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/prevent/owner/{owner}/repositories/": endpoint limit (100) reached for resource "0".0
+warning: skipping DELETE "/api/0/organizations/{organization_id_or_slug}/releases/{version}/files/{file_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/releases/{version}/files/{file_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping PUT "/api/0/organizations/{organization_id_or_slug}/releases/{version}/files/{file_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/events/{event_id}/source-map-debug/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/monitors/{monitor_id_or_slug}/checkins/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/preprod/size-analysis/status-check-rules/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/preprodartifacts/build-distribution/latest/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/releases/{version}/commits/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/releases/{version}/files/": endpoint limit (100) reached for resource "0".0
+warning: skipping POST "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/releases/{version}/files/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/replays/jobs/delete/": endpoint limit (100) reached for resource "0".0
+warning: skipping POST "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/replays/jobs/delete/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/replays/{replay_id}/clicks/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/replays/{replay_id}/recording-segments/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/replays/{replay_id}/viewed-by/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/tags/{key}/values/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/issues/{issue_id}/tags/{key}/values/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/prevent/owner/{owner}/repositories/sync/": endpoint limit (100) reached for resource "0".0
+warning: skipping POST "/api/0/organizations/{organization_id_or_slug}/prevent/owner/{owner}/repositories/sync/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/prevent/owner/{owner}/repositories/tokens/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/prevent/owner/{owner}/repository/{repository}/": endpoint limit (100) reached for resource "0".0
+warning: skipping DELETE "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/releases/{version}/files/{file_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/releases/{version}/files/{file_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping PUT "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/releases/{version}/files/{file_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/replays/jobs/delete/{job_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/projects/{organization_id_or_slug}/{project_id_or_slug}/replays/{replay_id}/recording-segments/{segment_id}/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/prevent/owner/{owner}/repository/{repository}/branches/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/prevent/owner/{owner}/repository/{repository}/test-results-aggregates/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/prevent/owner/{owner}/repository/{repository}/test-results/": endpoint limit (100) reached for resource "0".0
+warning: skipping GET "/api/0/organizations/{organization_id_or_slug}/prevent/owner/{owner}/repository/{repository}/test-suites/": endpoint limit (100) reached for resource "0".0
+warning: skipping POST "/api/0/organizations/{organization_id_or_slug}/prevent/owner/{owner}/repository/{repository}/token/regenerate/": endpoint limit (100) reached for resource "0".0
+PASS go mod tidy
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS sentry-pp-cli --help
+PASS sentry-pp-cli version
+PASS sentry-pp-cli doctor
+Generated sentry at /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260502-124520/working/sentry-pp-cli
+Bundled /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260502-124520/working/sentry-pp-cli/build/sentry-pp-mcp-darwin-arm64.mcpb

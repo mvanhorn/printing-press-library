@@ -1,0 +1,53 @@
+version: 2
+project_name: sentry-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: sentry-pp-cli
+    main: ./cmd/sentry-pp-cli
+    binary: sentry-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/monitoring/sentry/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: sentry-pp-mcp
+    main: ./cmd/sentry-pp-mcp
+    binary: sentry-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: sentry-pp-cli
+    repository:
+      owner: cathryn-lavery
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Sentry Public API
+
+Authentication: use an Authorization: Bearer token. The generated CLI reads SENTRY_AUTH_TOKEN for live Sentry API calls."
+    install: |
+      bin.install "sentry-pp-cli"
+      bin.install "sentry-pp-mcp"
