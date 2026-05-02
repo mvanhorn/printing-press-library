@@ -276,11 +276,21 @@ jobs:
           fi
       - name: Publish release ${{ steps.slug.outputs.slug }}-current
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Use a fine-grained PAT (Contents:write on this repo) instead of
+          # the default GITHUB_TOKEN. The workflow's GITHUB_TOKEN reports
+          # contents:write in its permissions log but the API still 403s on
+          # release creation — likely a silent installation-token cap from
+          # the GitHub Actions integration itself, invisible from the API.
+          # The PAT bypasses that cap by acting as the user who minted it.
+          GH_TOKEN: ${{ secrets.RELEASE_WRITE_TOKEN }}
           SLUG: ${{ steps.slug.outputs.slug }}
           CLI_TARGET: ${{ matrix.target }}
         run: |
           set -euo pipefail
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "::error::RELEASE_WRITE_TOKEN secret is not set. Without it, the release step cannot create or update releases. See the PR that introduced this for setup instructions."
+            exit 1
+          fi
           tag="${SLUG}-current"
           # Skip if neither bundle nor CLI artifacts were produced.
           if ! find "${RUNNER_TEMP}/dl" -type f -print -quit | grep -q .; then
