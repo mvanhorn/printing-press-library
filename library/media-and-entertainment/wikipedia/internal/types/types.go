@@ -49,7 +49,6 @@ type RelatedPages struct {
 }
 
 type Summary struct {
-	Ttype string `json:"Ttype"`
 	ContentUrls string `json:"content_urls"`
 	Coordinates string `json:"coordinates"`
 	Description string `json:"description"`
@@ -61,6 +60,7 @@ type Summary struct {
 	Thumbnail string `json:"thumbnail"`
 	Timestamp string `json:"timestamp"`
 	Title string `json:"title"`
+	Type string `json:"type"`
 }
 
 type Thumbnail struct {

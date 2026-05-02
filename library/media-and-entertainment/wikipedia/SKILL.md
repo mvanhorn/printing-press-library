@@ -3,7 +3,7 @@ name: pp-wikipedia
 description: "Printing Press CLI for Wikipedia. Wikipedia REST API. Get article summaries, search, browse related topics, and access on-this-day events. No..."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["wikipedia-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/wikipedia/cmd/wikipedia-pp-cli@latest","bins":["wikipedia-pp-cli"],"label":"Install via go install"}]}}'
+metadata: '{"openclaw":{"requires":{"bins":["wikipedia-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/other/wikipedia-pp-cli/cmd/wikipedia-pp-cli@latest","bins":["wikipedia-pp-cli"],"label":"Install via go install"}]}}'
 ---
 
 # Wikipedia — Printing Press CLI
@@ -20,14 +20,14 @@ Do not activate this CLI for requests that require creating, updating, deleting,
 
 **feed** — Manage feed
 
-- `wikipedia-pp-cli feed` — Events on this day
+- `wikipedia-pp-cli feed <day>` — Returns events, births, deaths, or holidays that occurred on a given date.
 
 **page** — Article content and metadata
 
-- `wikipedia-pp-cli page get-html` — Get article HTML
-- `wikipedia-pp-cli page get-media` — Get article media
-- `wikipedia-pp-cli page get-random` — Get a random article summary
-- `wikipedia-pp-cli page get-summary` — Get article summary
+- `wikipedia-pp-cli page get-html` — Returns the full article body as styled HTML.
+- `wikipedia-pp-cli page get-media` — Returns images, videos, and other media files associated with an article.
+- `wikipedia-pp-cli page get-random` — Returns a random Wikipedia article summary.
+- `wikipedia-pp-cli page get-summary` — Returns a page summary including title, extract text, thumbnail, and coordinates.
 
 
 ### Finding the right command
@@ -54,7 +54,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
 
   ```bash
-  wikipedia-pp-cli feed 1 --month 1 --agent --select id,name,status
+  wikipedia-pp-cli feed mock-value --agent --select id,name,status
   ```
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
@@ -106,7 +106,7 @@ A profile is a saved set of flag values, reused across invocations. Use it when 
 
 ```
 wikipedia-pp-cli profile save briefing --json
-wikipedia-pp-cli --profile briefing feed 1 --month 1
+wikipedia-pp-cli --profile briefing feed mock-value
 wikipedia-pp-cli profile list --json
 wikipedia-pp-cli profile show briefing
 wikipedia-pp-cli profile delete briefing --yes
@@ -138,7 +138,7 @@ Parse `$ARGUMENTS`:
 1. Check Go is installed: `go version` (requires Go 1.23+)
 2. Install:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/wikipedia/cmd/wikipedia-pp-cli@latest
+   go install github.com/mvanhorn/printing-press-library/library/other/wikipedia-pp-cli/cmd/wikipedia-pp-cli@latest
    ```
 3. Verify: `wikipedia-pp-cli --version`
 4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -147,7 +147,7 @@ Parse `$ARGUMENTS`:
 
 1. Install the MCP server:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/wikipedia/cmd/wikipedia-pp-mcp@latest
+   go install github.com/mvanhorn/printing-press-library/library/other/wikipedia-pp-cli/cmd/wikipedia-pp-mcp@latest
    ```
 2. Register with Claude Code:
    ```bash

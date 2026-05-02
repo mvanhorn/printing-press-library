@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "wikipedia-pp-mcp",
   "display_name": "Wikipedia",
-  "version": "2.3.7",
+  "version": "3.6.0",
   "description": "Wikipedia API surface as MCP tools.",
   "author": {
     "name": "CLI Printing Press"

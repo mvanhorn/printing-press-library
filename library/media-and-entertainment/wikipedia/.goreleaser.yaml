@@ -9,7 +9,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/wikipedia/internal/cli.version={{ .Version }}
+      - -s -w -X wikipedia-pp-cli/internal/cli.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -42,9 +42,9 @@ checksum:
 brews:
   - name: wikipedia-pp-cli
     repository:
-      owner: hiten-shah
+      owner: trevin-chow
       name: homebrew-tap
-    homepage: "https://github.com/mvanhorn/printing-press-library"
+    homepage: "https://github.com/trevin-chow/wikipedia-pp-cli"
     description: "Wikipedia REST API. Get article summaries, search, browse related topics,
 and access on-this-day events. No authentication required.
 Uses a polite User-Agent header."

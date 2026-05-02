@@ -1,33 +1,18 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-04-26T15:00:13.080866Z",
-  "printing_press_version": "2.3.7",
+  "generated_at": "2026-05-02T21:33:38.273886Z",
+  "printing_press_version": "3.6.0",
   "api_name": "wikipedia",
+  "display_name": "Wikipedia",
   "cli_name": "wikipedia-pp-cli",
-  "spec_path": "/tmp/wikipedia-spec.yaml",
+  "owner": "trevin-chow",
+  "spec_path": "/Users/tmchow/Code/printing-press-library/library/media-and-entertainment/wikipedia/spec.yaml",
   "spec_format": "openapi3",
-  "spec_checksum": "sha256:62fa1feff74aef04678f7dcf5dfb47e3dad083acb0a78134cef50a286d20ac0a",
+  "spec_checksum": "sha256:2665a92c5652d080a55a02a059b2e1beb5f52a0d3b012802cc6aeb095691db75",
   "mcp_binary": "wikipedia-pp-mcp",
-  "mcp_tool_count": 6,
-  "mcp_public_tool_count": 6,
+  "mcp_tool_count": 5,
+  "mcp_public_tool_count": 5,
   "mcp_ready": "full",
   "api_version": "1.0.0",
-  "auth_type": "none",
-  "novel_features": [
-    {
-      "name": "Article summary",
-      "command": "page get-summary",
-      "description": "Fetch concise Wikipedia article summaries for quick research and agent context."
-    },
-    {
-      "name": "Related article discovery",
-      "command": "page get-related",
-      "description": "Find related pages from a seed article to expand research paths."
-    },
-    {
-      "name": "On-this-day feed",
-      "command": "feed",
-      "description": "Explore on-this-day events as a ready-made discovery workflow."
-    }
-  ]
+  "auth_type": "none"
 }

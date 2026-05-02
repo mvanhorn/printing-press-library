@@ -238,11 +238,6 @@ func (s *Store) migrate(ctx context.Context) error {
 		`CREATE VIRTUAL TABLE IF NOT EXISTS resources_fts USING fts5(
 			id, resource_type, content, tokenize='porter unicode61'
 		)`,
-		`CREATE TABLE IF NOT EXISTS feed (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
 		`CREATE TABLE IF NOT EXISTS page (
 			id TEXT PRIMARY KEY,
 			data JSON NOT NULL,
@@ -543,7 +538,7 @@ func ftsRowID(id string) int64 {
 // way — a divergence here produces silent drops on heterogeneous payloads.
 func LookupFieldValue(obj map[string]any, snakeKey string) any {
 	if v, ok := obj[snakeKey]; ok {
-		return v
+		return sqliteFieldValue(v)
 	}
 	parts := strings.Split(snakeKey, "_")
 	for i := 1; i < len(parts); i++ {
@@ -553,9 +548,22 @@ func LookupFieldValue(obj map[string]any, snakeKey string) any {
 		parts[i] = strings.ToUpper(parts[i][:1]) + parts[i][1:]
 	}
 	if v, ok := obj[strings.Join(parts, "")]; ok {
-		return v
+		return sqliteFieldValue(v)
 	}
 	return nil
+}
+
+func sqliteFieldValue(v any) any {
+	switch v.(type) {
+	case nil, string, bool, int, int64, float64, []byte:
+		return v
+	default:
+		data, err := json.Marshal(v)
+		if err != nil {
+			return fmt.Sprint(v)
+		}
+		return string(data)
+	}
 }
 
 // lookupFieldValue is kept as an unexported alias for in-package callers so
