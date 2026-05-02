@@ -279,6 +279,25 @@
       }
     },
     {
+      "name": "klaviyo",
+      "category": "marketing",
+      "api": "Klaviyo",
+      "description": "Marketing automation, profiles, events, campaigns, flows, segments, and templates.",
+      "path": "library/marketing/klaviyo",
+      "mcp": {
+        "binary": "klaviyo-pp-mcp",
+        "transport": "stdio",
+        "tool_count": 308,
+        "public_tool_count": 11,
+        "auth_type": "api_key",
+        "env_vars": [
+          "KLAVIYO_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "linear",
       "category": "project-management",
       "api": "Linear",

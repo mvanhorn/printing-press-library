@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "klaviyo-pp-mcp",
+  "display_name": "Klaviyo",
+  "version": "3.5.0",
+  "description": "Marketing automation, profiles, events, campaigns, flows, segments, and templates.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/klaviyo-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/klaviyo-pp-mcp",
+      "args": [],
+      "env": {
+        "KLAVIYO_API_KEY": "${user_config.klaviyo_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "klaviyo_api_key": {
+      "type": "string",
+      "title": "KLAVIYO_API_KEY",
+      "description": "Sets KLAVIYO_API_KEY for the Klaviyo MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

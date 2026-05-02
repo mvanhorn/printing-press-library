@@ -1,0 +1,51 @@
+version: 2
+project_name: klaviyo-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: klaviyo-pp-cli
+    main: ./cmd/klaviyo-pp-cli
+    binary: klaviyo-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: klaviyo-pp-mcp
+    main: ./cmd/klaviyo-pp-mcp
+    binary: klaviyo-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: klaviyo-pp-cli
+    repository:
+      owner: cathryn-lavery
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The Klaviyo REST API. Please visit https://developers.klaviyo.com for more details."
+    install: |
+      bin.install "klaviyo-pp-cli"
+      bin.install "klaviyo-pp-mcp"

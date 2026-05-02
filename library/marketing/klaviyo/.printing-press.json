@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-02T18:02:09.219489Z",
+  "printing_press_version": "3.5.0",
+  "api_name": "klaviyo",
+  "display_name": "Klaviyo",
+  "cli_name": "klaviyo-pp-cli",
+  "owner": "cathryn-lavery",
+  "spec_url": "https://raw.githubusercontent.com/klaviyo/openapi/3fb87e6042183f6c790c60f2473e4c254efe81b3/openapi/stable.json",
+  "spec_path": "/Users/cathrynlavery/printing-press/.runstate/cli-printing-press-klaviyo-b1952ca2/runs/20260502T175749Z-699b4af1/specs/klaviyo-stable.preprocessed.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:be7778d9d5729d95e84464a8792e349f80da3235dc398d505eabacff63c11191",
+  "catalog_entry": "klaviyo",
+  "category": "marketing",
+  "description": "Marketing automation, profiles, events, campaigns, flows, segments, and templates.",
+  "mcp_binary": "klaviyo-pp-mcp",
+  "mcp_tool_count": 308,
+  "mcp_public_tool_count": 11,
+  "mcp_ready": "full",
+  "api_version": "2026-04-15",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "KLAVIYO_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Campaign Deploy",
+      "command": "campaigns deploy",
+      "description": "Create an email template, create a draft campaign, and assign the template to the campaign message in one audited workflow."
+    },
+    {
+      "name": "Campaign Image Swap",
+      "command": "campaigns image-swap",
+      "description": "Find a campaign message template and replace an image URL inside the HTML while preserving the rest of the draft."
+    },
+    {
+      "name": "Flow Decay",
+      "command": "flow-decay",
+      "description": "Identify flows whose open or click performance has decayed across recent time buckets using synced local data."
+    },
+    {
+      "name": "Cohort Retention",
+      "command": "cohort",
+      "description": "Group profiles by first event date and compute retention or repeat-action curves from synced profiles and events."
+    },
+    {
+      "name": "Attribution Join",
+      "command": "attribution",
+      "description": "Join order events with campaign and flow attribution properties to summarize revenue by channel and source."
+    },
+    {
+      "name": "Profile Dedup",
+      "command": "dedup",
+      "description": "Find profiles that appear duplicated by email, phone, or cross-channel collisions in the local profile mirror."
+    },
+    {
+      "name": "Campaign Reconcile",
+      "command": "reconcile",
+      "description": "Compare campaign UTM evidence with local Klaviyo order events and optional Shopify credentials when available."
+    },
+    {
+      "name": "Brief To Strategy",
+      "command": "plan brief-to-strategy",
+      "description": "Turn a growth brief into a structured Klaviyo campaign, flow, segment, and experiment strategy."
+    },
+    {
+      "name": "QA Gate",
+      "command": "plan qa-gate",
+      "description": "Run a launch-readiness checklist for links, offers, dates, timezone, fallback tokens, compliance, and deliverability flags."
+    }
+  ]
+}

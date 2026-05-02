@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/cathrynlavery/printing-press/library/klaviyo",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}
