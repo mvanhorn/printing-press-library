@@ -1,0 +1,359 @@
+{
+  "api_name": "scrape-creators",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "scrapecreators-cli",
+      "url": "https://github.com/ScrapeCreators/scrapecreators-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 110,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "n8n-nodes-scrape-creators",
+      "url": "https://github.com/adrianhorning08/n8n-nodes-scrape-creators",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-02T00:25:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-platform presence matrix",
+      "command": "creator find",
+      "description": "Given a single handle, see which of 11+ platforms the creator is on, with follower counts side-by-side.",
+      "rationale": "Requires fanning out to every profile endpoint and joining results — no single API call answers this.",
+      "example": "scrape-creators-pp-cli creator find mrbeast --json",
+      "why_it_matters": "When an agent needs a creator's full footprint before writing outreach or analysis, this returns it in one call instead of 11.",
+      "group": "Cross-platform compounding"
+    },
+    {
+      "name": "Trend triangulation across platforms",
+      "command": "trends triangulate",
+      "description": "Snapshot a hashtag or keyword on TikTok, YouTube, Reddit, and Threads in one call to see which platform it's rising fastest on.",
+      "rationale": "Joins per-platform search endpoints with a normalized count delta from the local snapshot table. No single endpoint exposes cross-platform trend velocity.",
+      "example": "scrape-creators-pp-cli trends triangulate \"AI agents\" --json",
+      "why_it_matters": "Marketers asking 'is this trend cresting on TikTok' can see the answer plus the leading-indicator platform in one command.",
+      "group": "Cross-platform compounding"
+    },
+    {
+      "name": "Transcript full-text search across 5 platforms",
+      "command": "transcripts search",
+      "description": "FTS5-indexed search across all transcripts you've synced — TikTok, YouTube, Instagram, Facebook, and Twitter videos.",
+      "rationale": "Batch-fetches and indexes transcripts locally; the API returns one transcript per call, so cross-creator/cross-platform search is only possible after sync.",
+      "example": "scrape-creators-pp-cli transcripts search \"affiliate link\" --json --select creator,platform,snippet",
+      "why_it_matters": "Agents doing brand-mention or keyword-monitoring across video content can grep their entire synced corpus offline.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Ad library unified search",
+      "command": "ads search",
+      "description": "Search Facebook, Google, and LinkedIn ad libraries in one query — see every ad a brand is currently running.",
+      "rationale": "Three separate endpoints (`facebook/adLibrary/search/companies`, `google/adLibrary/advertisers/search`, `linkedin/ads/search`) joined and deduplicated by company.",
+      "example": "scrape-creators-pp-cli ads search \"Liquid Death\" --json",
+      "why_it_matters": "Competitive intel without juggling three vendors and three APIs.",
+      "group": "Cross-platform compounding"
+    },
+    {
+      "name": "Engagement spike detector",
+      "command": "content spikes",
+      "description": "Find videos that performed significantly above a creator's average — the ones that actually went viral.",
+      "rationale": "Requires the creator's full content history with view/like counts in the local store to compute the baseline.",
+      "example": "scrape-creators-pp-cli content spikes mrbeast --threshold 2.0 --platform youtube --json",
+      "why_it_matters": "When asked 'which videos took off,' the agent can answer with statistical confidence instead of guessing.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Multi-creator comparison",
+      "command": "creator compare",
+      "description": "Compare two or more creators side-by-side on follower count, engagement rate, posting cadence, and content volume.",
+      "rationale": "Needs synced profile + content data; a single API call doesn't return comparative stats.",
+      "example": "scrape-creators-pp-cli creator compare mrbeast pewdiepie --platform youtube --json",
+      "why_it_matters": "Influencer-shortlist work that used to take a spreadsheet now takes one command.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Follower growth tracker",
+      "command": "creator track",
+      "description": "Snapshot a creator's follower count daily across every platform; chart their growth trajectory over time.",
+      "rationale": "Daily snapshots in SQLite reveal trends no single API call provides.",
+      "example": "scrape-creators-pp-cli creator track mrbeast --json",
+      "why_it_matters": "Trend lines for momentum decisions (sponsorship, partnership timing).",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Content cadence analysis",
+      "command": "content cadence",
+      "description": "See when a creator posts — by day of week and hour — across every platform you've synced for them.",
+      "rationale": "Requires aggregated post timestamps from the local store; the API returns posts but not posting-pattern statistics.",
+      "example": "scrape-creators-pp-cli content cadence mrbeast --platform tiktok --json",
+      "why_it_matters": "Benchmark a competitor's publishing strategy or recommend the right slot for a creator partner.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Engagement rate ranker",
+      "command": "content analyze",
+      "description": "Rank a creator's synced content by engagement rate (not raw likes) so you see their true best performers.",
+      "rationale": "Computes (likes+comments+shares)/views per item from local data; engagement rate isn't a field the API returns.",
+      "example": "scrape-creators-pp-cli content analyze mrbeast --platform youtube --json",
+      "why_it_matters": "Surfaces over-performers that raw view counts hide.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Trend delta tracker",
+      "command": "trends delta",
+      "description": "Track whether a hashtag is growing or shrinking by comparing video counts across snapshot intervals.",
+      "rationale": "Snapshot table in SQLite + scheduled snapshots; a single API call returns a count, not a trend.",
+      "example": "scrape-creators-pp-cli trends delta \"booktok\" --days 7 --platform tiktok --json",
+      "why_it_matters": "Distinguish a stable hashtag from a rising or dying one in seconds.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Brand ad campaign monitor",
+      "command": "ads monitor",
+      "description": "Snapshot a brand's ads on Facebook, Google, and LinkedIn into SQLite; on rerun, diff new ads vs ones that disappeared.",
+      "rationale": "Requires persistent storage of past ad fingerprints; the API returns a current list but no diff.",
+      "example": "scrape-creators-pp-cli ads monitor \"Liquid Death\" --json",
+      "why_it_matters": "Cron-friendly competitive monitoring without glue code.",
+      "group": "Cross-platform compounding"
+    },
+    {
+      "name": "Link-in-bio universal resolver",
+      "command": "bio resolve",
+      "description": "Paste any linktree.ee, komi.io, pillar.io, linkbio, or linkme URL and get the unified destination list.",
+      "rationale": "Auto-detects the service from the URL and dispatches to the right endpoint; five endpoints unified behind one command.",
+      "example": "scrape-creators-pp-cli bio resolve https://linktr.ee/mrbeast --json",
+      "why_it_matters": "Lead-research tasks that need a creator's full link footprint stop caring which bio service they used.",
+      "group": "Cross-platform compounding"
+    },
+    {
+      "name": "Credit burn rate monitor",
+      "command": "account budget",
+      "description": "See how fast you're spending API credits and how many days remain at current pace, fused with the API's own usage history.",
+      "rationale": "Local `usage_log` table + the API's `get-api-usage` and `get-most-used-routes` endpoints; neither alone is sufficient for projection.",
+      "example": "scrape-creators-pp-cli account budget --json",
+      "why_it_matters": "Catches runaway sync jobs before they exhaust the plan.",
+      "group": "Operator ergonomics"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-platform presence matrix",
+      "command": "creator find",
+      "description": "Given a single handle, see which of 11+ platforms the creator is on, with follower counts side-by-side.",
+      "rationale": "Requires fanning out to every profile endpoint and joining results — no single API call answers this.",
+      "example": "scrape-creators-pp-cli creator find mrbeast --json",
+      "why_it_matters": "When an agent needs a creator's full footprint before writing outreach or analysis, this returns it in one call instead of 11.",
+      "group": "Cross-platform compounding"
+    },
+    {
+      "name": "Trend triangulation across platforms",
+      "command": "trends triangulate",
+      "description": "Snapshot a hashtag or keyword on TikTok, YouTube, Reddit, and Threads in one call to see which platform it's rising fastest on.",
+      "rationale": "Joins per-platform search endpoints with a normalized count delta from the local snapshot table. No single endpoint exposes cross-platform trend velocity.",
+      "example": "scrape-creators-pp-cli trends triangulate \"AI agents\" --json",
+      "why_it_matters": "Marketers asking 'is this trend cresting on TikTok' can see the answer plus the leading-indicator platform in one command.",
+      "group": "Cross-platform compounding"
+    },
+    {
+      "name": "Transcript full-text search across 5 platforms",
+      "command": "transcripts search",
+      "description": "FTS5-indexed search across all transcripts you've synced — TikTok, YouTube, Instagram, Facebook, and Twitter videos.",
+      "rationale": "Batch-fetches and indexes transcripts locally; the API returns one transcript per call, so cross-creator/cross-platform search is only possible after sync.",
+      "example": "scrape-creators-pp-cli transcripts search \"affiliate link\" --json --select creator,platform,snippet",
+      "why_it_matters": "Agents doing brand-mention or keyword-monitoring across video content can grep their entire synced corpus offline.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Ad library unified search",
+      "command": "ads search",
+      "description": "Search Facebook, Google, and LinkedIn ad libraries in one query — see every ad a brand is currently running.",
+      "rationale": "Three separate endpoints (`facebook/adLibrary/search/companies`, `google/adLibrary/advertisers/search`, `linkedin/ads/search`) joined and deduplicated by company.",
+      "example": "scrape-creators-pp-cli ads search \"Liquid Death\" --json",
+      "why_it_matters": "Competitive intel without juggling three vendors and three APIs.",
+      "group": "Cross-platform compounding"
+    },
+    {
+      "name": "Engagement spike detector",
+      "command": "content spikes",
+      "description": "Find videos that performed significantly above a creator's average — the ones that actually went viral.",
+      "rationale": "Requires the creator's full content history with view/like counts in the local store to compute the baseline.",
+      "example": "scrape-creators-pp-cli content spikes mrbeast --threshold 2.0 --platform youtube --json",
+      "why_it_matters": "When asked 'which videos took off,' the agent can answer with statistical confidence instead of guessing.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Multi-creator comparison",
+      "command": "creator compare",
+      "description": "Compare two or more creators side-by-side on follower count, engagement rate, posting cadence, and content volume.",
+      "rationale": "Needs synced profile + content data; a single API call doesn't return comparative stats.",
+      "example": "scrape-creators-pp-cli creator compare mrbeast pewdiepie --platform youtube --json",
+      "why_it_matters": "Influencer-shortlist work that used to take a spreadsheet now takes one command.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Follower growth tracker",
+      "command": "creator track",
+      "description": "Snapshot a creator's follower count daily across every platform; chart their growth trajectory over time.",
+      "rationale": "Daily snapshots in SQLite reveal trends no single API call provides.",
+      "example": "scrape-creators-pp-cli creator track mrbeast --json",
+      "why_it_matters": "Trend lines for momentum decisions (sponsorship, partnership timing).",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Content cadence analysis",
+      "command": "content cadence",
+      "description": "See when a creator posts — by day of week and hour — across every platform you've synced for them.",
+      "rationale": "Requires aggregated post timestamps from the local store; the API returns posts but not posting-pattern statistics.",
+      "example": "scrape-creators-pp-cli content cadence mrbeast --platform tiktok --json",
+      "why_it_matters": "Benchmark a competitor's publishing strategy or recommend the right slot for a creator partner.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Engagement rate ranker",
+      "command": "content analyze",
+      "description": "Rank a creator's synced content by engagement rate (not raw likes) so you see their true best performers.",
+      "rationale": "Computes (likes+comments+shares)/views per item from local data; engagement rate isn't a field the API returns.",
+      "example": "scrape-creators-pp-cli content analyze mrbeast --platform youtube --json",
+      "why_it_matters": "Surfaces over-performers that raw view counts hide.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Trend delta tracker",
+      "command": "trends delta",
+      "description": "Track whether a hashtag is growing or shrinking by comparing video counts across snapshot intervals.",
+      "rationale": "Snapshot table in SQLite + scheduled snapshots; a single API call returns a count, not a trend.",
+      "example": "scrape-creators-pp-cli trends delta \"booktok\" --days 7 --platform tiktok --json",
+      "why_it_matters": "Distinguish a stable hashtag from a rising or dying one in seconds.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Brand ad campaign monitor",
+      "command": "ads monitor",
+      "description": "Snapshot a brand's ads on Facebook, Google, and LinkedIn into SQLite; on rerun, diff new ads vs ones that disappeared.",
+      "rationale": "Requires persistent storage of past ad fingerprints; the API returns a current list but no diff.",
+      "example": "scrape-creators-pp-cli ads monitor \"Liquid Death\" --json",
+      "why_it_matters": "Cron-friendly competitive monitoring without glue code.",
+      "group": "Cross-platform compounding"
+    },
+    {
+      "name": "Link-in-bio universal resolver",
+      "command": "bio resolve",
+      "description": "Paste any linktree.ee, komi.io, pillar.io, linkbio, or linkme URL and get the unified destination list.",
+      "rationale": "Auto-detects the service from the URL and dispatches to the right endpoint; five endpoints unified behind one command.",
+      "example": "scrape-creators-pp-cli bio resolve https://linktr.ee/mrbeast --json",
+      "why_it_matters": "Lead-research tasks that need a creator's full link footprint stop caring which bio service they used.",
+      "group": "Cross-platform compounding"
+    },
+    {
+      "name": "Credit burn rate monitor",
+      "command": "account budget",
+      "description": "See how fast you're spending API credits and how many days remain at current pace, fused with the API's own usage history.",
+      "rationale": "Local `usage_log` table + the API's `get-api-usage` and `get-most-used-routes` endpoints; neither alone is sufficient for projection.",
+      "example": "scrape-creators-pp-cli account budget --json",
+      "why_it_matters": "Catches runaway sync jobs before they exhaust the plan.",
+      "group": "Operator ergonomics"
+    }
+  ],
+  "narrative": {
+    "display_name": "Scrape Creators",
+    "headline": "Every Scrape Creators endpoint, plus offline search, cross-platform compounding, and a local store no other Scrape Creators tool ships with.",
+    "value_prop": "Wrap all 114 Scrape Creators endpoints across 23 platforms — TikTok, Instagram, YouTube, Facebook, LinkedIn, Twitter, Reddit, Threads, Bluesky, Pinterest, and more — and add a SQLite-backed store with full-text transcript search, cross-platform presence checks, ad-library unified search, and credit-burn projection. Read-only across the board, agent-native by default, every command a typed MCP tool.",
+    "auth_narrative": "Set SCRAPE_CREATORS_API_KEY (get one at https://scrapecreators.com). One header, no OAuth handshake.",
+    "quickstart": [
+      {
+        "command": "scrape-creators-pp-cli account balance --json",
+        "comment": "Verify auth and see remaining credits."
+      },
+      {
+        "command": "scrape-creators-pp-cli creator find mrbeast --json",
+        "comment": "Cross-platform presence — see every platform a creator is on."
+      },
+      {
+        "command": "scrape-creators-pp-cli tiktok profile mrbeast --json",
+        "comment": "Pull a single profile (any of 23 platforms supported)."
+      },
+      {
+        "command": "scrape-creators-pp-cli sync --resources tiktok",
+        "comment": "Persist tiktok resources to local SQLite (use --resources for any platform)."
+      },
+      {
+        "command": "scrape-creators-pp-cli transcripts search \"giveaway\" --json",
+        "comment": "FTS5 across every synced transcript, offline."
+      },
+      {
+        "command": "scrape-creators-pp-cli ads search \"Liquid Death\" --json",
+        "comment": "Unified Facebook + Google + LinkedIn ad library search."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 unauthorized",
+        "fix": "Set SCRAPE_CREATORS_API_KEY in your environment or run `scrape-creators-pp-cli auth set-token \u003ckey\u003e`."
+      },
+      {
+        "symptom": "Empty result for a profile that should exist",
+        "fix": "Some platforms require a username, others a handle prefixed with @, and a few need the numeric ID. Check the command's `--help` for the exact arg shape."
+      },
+      {
+        "symptom": "Credits running out faster than expected",
+        "fix": "Run `scrape-creators-pp-cli account budget --json` — it shows daily spend and projects days remaining."
+      },
+      {
+        "symptom": "Transcript search returns nothing",
+        "fix": "Transcripts must be synced first — run `scrape-creators-pp-cli sync --resources tiktok` (or any platform with transcripts) and try again."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs public social-media data across multiple platforms in one invocation, when you need offline search over previously fetched content, or when you want cross-platform compound queries (presence, ads, trends) that no single API call answers. It's read-only — pair it with a posting tool if you need write capability.",
+    "recipes": [
+      {
+        "title": "Map a creator's full footprint",
+        "command": "scrape-creators-pp-cli creator find mrbeast --json --select platform,handle,follower_count",
+        "explanation": "Probes every platform's profile endpoint and returns a presence matrix with follower counts. Useful before writing a brief or outreach email."
+      },
+      {
+        "title": "Find a creator's viral hits",
+        "command": "scrape-creators-pp-cli sync --resources youtube \u0026\u0026 scrape-creators-pp-cli content spikes mrbeast --threshold 2.0 --platform youtube --json",
+        "explanation": "Sync videos to local SQLite, then return videos whose engagement is more than 2× the creator's average."
+      },
+      {
+        "title": "Track a brand's ad campaigns across networks",
+        "command": "scrape-creators-pp-cli ads monitor \"Liquid Death\" --json",
+        "explanation": "Snapshots Facebook + Google + LinkedIn ads into SQLite; rerun on a cron and diff new vs disappeared."
+      },
+      {
+        "title": "Triangulate where a trend is rising",
+        "command": "scrape-creators-pp-cli trends triangulate \"AI agents\" --json --select platform,result_count,delta_pct",
+        "explanation": "Probes TikTok, YouTube, Reddit, and Threads for a topic and returns per-platform velocity. Reads the leading platform when run repeatedly."
+      },
+      {
+        "title": "Grep your transcript corpus",
+        "command": "scrape-creators-pp-cli transcripts search \"affiliate link\" --json --select creator,platform,video_url,snippet",
+        "explanation": "FTS5 over every transcript you've synced, returning the creator/platform/URL/match — useful for brand-safety audits."
+      }
+    ],
+    "trigger_phrases": [
+      "scrape creators",
+      "tiktok profile",
+      "instagram profile",
+      "youtube channel",
+      "facebook ad library",
+      "creator on every platform",
+      "social media transcript search",
+      "use scrape-creators",
+      "run scrape-creators"
+    ]
+  }
+}

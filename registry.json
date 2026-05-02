@@ -388,17 +388,18 @@
       "name": "scrape-creators",
       "category": "developer-tools",
       "api": "Scrape Creators",
-      "description": "The easiest way to scrape public social media data at scale. Extract profiles, posts, videos, comments, and more from TikTok, Instagram, YouTube, Twitter, LinkedIn, Facebook, Reddit, and 27+ platforms.",
+      "description": "Scrape public social media data from the terminal \u2014 profiles, posts, videos, comments, ads, and transcripts across TikTok, Instagram, YouTube, Twitter/X, LinkedIn, Facebook, Reddit, Threads, Bluesky, Pinterest, Snapchat, Twitch, Kick, Truth Social, and 15+ link-in-bio / creator link services.",
       "path": "library/developer-tools/scrape-creators",
       "mcp": {
         "binary": "scrape-creators-pp-mcp",
         "transport": "stdio",
-        "tool_count": 115,
+        "tool_count": 114,
         "auth_type": "api_key",
         "env_vars": [
           "SCRAPE_CREATORS_API_KEY_AUTH"
         ],
-        "mcp_ready": "full"
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
       }
     },
     {

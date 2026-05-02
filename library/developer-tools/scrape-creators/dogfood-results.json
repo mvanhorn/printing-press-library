@@ -1,28 +1,29 @@
 {
   "dir": "/Users/tmchow/printing-press/library/scrape-creators",
-  "verdict": "WARN",
+  "spec_path": "/Users/tmchow/printing-press/library/scrape-creators/spec.json",
+  "verdict": "PASS",
   "path_check": {
-    "tested": 0,
-    "valid": 0,
-    "valid_pct": 0
+    "tested": 4,
+    "valid": 4,
+    "valid_pct": 100
   },
   "auth_check": {
     "spec_scheme": "",
-    "generated_format": "",
+    "generated_format": "unknown",
     "match": true,
-    "detail": "spec not provided; auth protocol check skipped"
+    "detail": "spec not provided or no bot/bearer scheme detected"
   },
   "browser_session_check": {
     "required": false,
     "pass": true,
-    "detail": "spec not provided; browser-session auth check skipped"
+    "detail": "browser-session auth not required"
   },
   "dead_flags": {
-    "total": 16,
+    "total": 17,
     "dead": 0
   },
   "dead_functions": {
-    "total": 45,
+    "total": 48,
     "dead": 0
   },
   "pipeline_check": {
@@ -32,16 +33,15 @@
     "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 1 domain tables found"
   },
   "example_check": {
-    "tested": 0,
-    "with_examples": 0,
-    "valid_examples": 0,
-    "skipped": true,
-    "detail": "could not discover command tree from agent-context: agent-context failed: unknown command \"agent-context\" for \"scrape-creators-pp-cli\""
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 139,
-      "registered": 139
+      "defined": 173,
+      "registered": 173
     },
     "config_consistency": {
       "consistent": true
@@ -54,8 +54,8 @@
     }
   },
   "novel_features_check": {
-    "planned": 8,
-    "found": 8
+    "planned": 13,
+    "found": 13
   },
   "mcp_surface_parity": {
     "state": "runtime_walking",
@@ -63,20 +63,21 @@
     "detail": "MCP surface mirrors the Cobra tree at runtime"
   },
   "reimplementation_check": {
-    "checked": 8,
-    "exempted_via_store": 1
+    "checked": 13,
+    "exempted_via_store": 9
   },
   "source_client_check": {
     "checked": 0,
     "skipped": true
   },
+  "print_json_filtered_check": {
+    "checked": 156
+  },
   "test_presence": {
     "checked": 0
   },
   "naming_check": {
-    "checked": 133
+    "checked": 156
   },
-  "issues": [
-    "example check skipped: could not discover command tree from agent-context: agent-context failed: unknown command \"agent-context\" for \"scrape-creators-pp-cli\""
-  ]
+  "issues": null
 }

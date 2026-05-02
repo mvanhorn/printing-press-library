@@ -2023,50 +2023,6 @@
       ]
     },
     {
-      "name": "tiktok_list-songs",
-      "description": "Gets the current trending and popular songs/sounds on TikTok, sourced from the TikTok Creative Center. Returns `sound_list`, an array of song objects each with `title`, `author`, `clip_id`, `rank`, `cover` image URL, `duration`, `link` to the sound page, and a `trend` array showing popularity over time. Filter by country, time period (7/30/120 days), rank type (popular vs surging), and commercial music approval. Optional: page, timePeriod, rankType (plus 3 more).",
-      "method": "GET",
-      "path": "/v1/tiktok/songs/popular",
-      "params": [
-        {
-          "name": "page",
-          "type": "float",
-          "location": "query",
-          "description": "Page number"
-        },
-        {
-          "name": "timePeriod",
-          "type": "string",
-          "location": "query",
-          "description": "Time period to get popular songs from"
-        },
-        {
-          "name": "rankType",
-          "type": "string",
-          "location": "query",
-          "description": "Get popular or surging songs"
-        },
-        {
-          "name": "newOnBoard",
-          "type": "bool",
-          "location": "query",
-          "description": "New to top 100"
-        },
-        {
-          "name": "commercialMusic",
-          "type": "bool",
-          "location": "query",
-          "description": "Approved for business use?"
-        },
-        {
-          "name": "countryCode",
-          "type": "string",
-          "location": "query",
-          "description": "Country code to get popular songs from"
-        }
-      ]
-    },
-    {
       "name": "tiktok_list-user",
       "description": "Retrieves audience demographic data for a TikTok user, showing where their followers are located by country. Returns `audienceLocations`, an array of objects each containing `country`, `countryCode`, `count`, and `percentage`. Costs 26 credits per request. Required: handle.",
       "method": "GET",
@@ -2304,38 +2260,6 @@
       ]
     },
     {
-      "name": "tiktok_list-videos",
-      "description": "Discovers trending and popular TikTok videos, filterable by time period (7 or 30 days) and country. Returns a list of video objects each with `title`, `item_url` (link to the TikTok), `cover`, `region`, and engagement stats. Sortable by likes, views (hot), comments, or reposts. Optional: period, page, orderBy (plus 1 more).",
-      "method": "GET",
-      "path": "/v1/tiktok/videos/popular",
-      "params": [
-        {
-          "name": "period",
-          "type": "string",
-          "location": "query",
-          "description": "Time period in days (7 or 30)"
-        },
-        {
-          "name": "page",
-          "type": "float",
-          "location": "query",
-          "description": "Page number"
-        },
-        {
-          "name": "orderBy",
-          "type": "string",
-          "location": "query",
-          "description": "Sort videos by likes, views (hot), comments, or reposts"
-        },
-        {
-          "name": "countryCode",
-          "type": "string",
-          "location": "query",
-          "description": "Country code to get popular videos from"
-        }
-      ]
-    },
-    {
       "name": "truthsocial_list",
       "description": "Fetches a single Truth Social post by URL, returning text, id, created_at, url, content, account details, media_attachments, card link previews, replies_count, reblogs_count, and favourites_count. Only posts from prominent public figures (e.g., Trump, Vance) are accessible without authentication. Required: url.",
       "method": "GET",
@@ -2424,6 +2348,33 @@
           "location": "query",
           "description": "Twitch handle",
           "required": true
+        }
+      ]
+    },
+    {
+      "name": "twitch_list-user",
+      "description": "Fetches a list of videos (100 max) for a Twitch user, returning each video's id, slug, url, embedURL, title, viewCount, language, durationSeconds, game info, broadcaster details with follower count, thumbnailURL, and videoQualities at multiple resolutions with a signed videoURL for playback. Supports pagination via cursor and a trim option for lighter responses. Required: handle. Optional: filter_by, sort_by.",
+      "method": "GET",
+      "path": "/v1/twitch/user/videos",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Twitch handle",
+          "required": true
+        },
+        {
+          "name": "filter_by",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by"
         }
       ]
     },

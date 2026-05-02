@@ -1,13 +1,16 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-04-22T21:32:02.459997Z",
-  "printing_press_version": "1.3.2",
+  "generated_at": "2026-05-02T02:46:24.688866Z",
+  "printing_press_version": "3.2.1",
   "api_name": "scrape-creators",
   "display_name": "Scrape Creators",
   "cli_name": "scrape-creators-pp-cli",
-  "spec_url": "https://docs.scrapecreators.com/openapi.json",
+  "spec_path": "https://docs.scrapecreators.com/openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:84d94e42d427fc09a88d36afa5f0524d824f4a6e69e7aa138e69bed51f99121d",
+  "run_id": "20260501-171858",
   "mcp_binary": "scrape-creators-pp-mcp",
-  "mcp_tool_count": 115,
+  "mcp_tool_count": 114,
   "mcp_ready": "full",
   "auth_type": "api_key",
   "auth_env_vars": [
@@ -15,44 +18,69 @@
   ],
   "novel_features": [
     {
-      "name": "Engagement Spike Detector",
-      "command": "videos spikes",
+      "name": "Cross-platform presence matrix",
+      "command": "creator find",
+      "description": "Given a single handle, see which of 11+ platforms the creator is on, with follower counts side-by-side."
+    },
+    {
+      "name": "Trend triangulation across platforms",
+      "command": "trends triangulate",
+      "description": "Snapshot a hashtag or keyword on TikTok, YouTube, Reddit, and Threads in one call to see which platform it's rising fastest on."
+    },
+    {
+      "name": "Transcript full-text search across 5 platforms",
+      "command": "transcripts search",
+      "description": "FTS5-indexed search across all transcripts you've synced — TikTok, YouTube, Instagram, Facebook, and Twitter videos."
+    },
+    {
+      "name": "Ad library unified search",
+      "command": "ads search",
+      "description": "Search Facebook, Google, and LinkedIn ad libraries in one query — see every ad a brand is currently running."
+    },
+    {
+      "name": "Engagement spike detector",
+      "command": "content spikes",
       "description": "Find videos that performed significantly above a creator's average — the ones that actually went viral."
     },
     {
-      "name": "Transcript Full-Text Search",
-      "command": "transcripts search",
-      "description": "Search across all a creator's video transcripts for any keyword or phrase — like grep for TikTok."
-    },
-    {
-      "name": "Multi-Creator Comparison",
-      "command": "profile compare",
+      "name": "Multi-creator comparison",
+      "command": "creator compare",
       "description": "Compare two or more creators side-by-side on follower count, engagement rate, posting cadence, and content volume."
     },
     {
-      "name": "Content Cadence Analysis",
-      "command": "videos cadence",
-      "description": "See when a creator posts — by day of week and hour — so you can benchmark their publishing strategy."
+      "name": "Follower growth tracker",
+      "command": "creator track",
+      "description": "Snapshot a creator's follower count daily across every platform; chart their growth trajectory over time."
     },
     {
-      "name": "Follower Growth Tracker",
-      "command": "profile track",
-      "description": "Record daily follower snapshots for any creator and chart their growth trajectory over time."
+      "name": "Content cadence analysis",
+      "command": "content cadence",
+      "description": "See when a creator posts — by day of week and hour — across every platform you've synced for them."
     },
     {
-      "name": "Credit Burn Rate Monitor",
-      "command": "account budget",
-      "description": "Track how quickly you're spending API credits and project how many days until you hit your limit."
+      "name": "Engagement rate ranker",
+      "command": "content analyze",
+      "description": "Rank a creator's synced content by engagement rate (not raw likes) so you see their true best performers."
     },
     {
-      "name": "Hashtag Trend Delta",
-      "command": "search trends",
+      "name": "Trend delta tracker",
+      "command": "trends delta",
       "description": "Track whether a hashtag is growing or shrinking by comparing video counts across snapshot intervals."
     },
     {
-      "name": "Video Engagement Ranker",
-      "command": "videos analyze",
-      "description": "Rank all of a creator's synced videos by engagement rate (not raw likes) to surface their true best performers."
+      "name": "Brand ad campaign monitor",
+      "command": "ads monitor",
+      "description": "Snapshot a brand's ads on Facebook, Google, and LinkedIn into SQLite; on rerun, diff new ads vs ones that disappeared."
+    },
+    {
+      "name": "Link-in-bio universal resolver",
+      "command": "bio resolve",
+      "description": "Paste any linktree.ee, komi.io, pillar.io, linkbio, or linkme URL and get the unified destination list."
+    },
+    {
+      "name": "Credit burn rate monitor",
+      "command": "account budget",
+      "description": "See how fast you're spending API credits and how many days remain at current pace, fused with the API's own usage history."
     }
   ]
 }

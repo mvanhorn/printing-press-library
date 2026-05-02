@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "scrape-creators-pp-mcp",
   "display_name": "Scrape Creators",
-  "version": "1.3.2",
+  "version": "3.2.1",
   "description": "Scrape Creators API surface as MCP tools.",
   "author": {
     "name": "CLI Printing Press"

@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/tmchow/printing-press/.runstate/streamed-percolating-dolphin-7d44da6b/runs/20260501-171858/working/scrape-creators-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

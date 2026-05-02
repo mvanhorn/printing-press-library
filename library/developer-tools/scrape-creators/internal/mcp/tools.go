@@ -15,8 +15,8 @@ import (
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/cli"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/store"
@@ -31,7 +31,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/account/credit-balance", []string{ }),
+		makeAPIHandler("GET", "/v1/account/credit-balance", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("account_list-getapiusage",
@@ -43,7 +43,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/account/get-api-usage", []string{ }),
+		makeAPIHandler("GET", "/v1/account/get-api-usage", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("account_list-getdailyusagecount",
@@ -52,7 +52,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/account/get-daily-usage-count", []string{ }),
+		makeAPIHandler("GET", "/v1/account/get-daily-usage-count", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("account_list-getmostusedroutes",
@@ -63,7 +63,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/account/get-most-used-routes", []string{ }),
+		makeAPIHandler("GET", "/v1/account/get-most-used-routes", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("amazon_list",
@@ -73,7 +73,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/amazon/shop", []string{ }),
+		makeAPIHandler("GET", "/v1/amazon/shop", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bluesky_list",
@@ -83,7 +83,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/bluesky/post", []string{ }),
+		makeAPIHandler("GET", "/v1/bluesky/post", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bluesky_list-profile",
@@ -93,7 +93,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/bluesky/profile", []string{ }),
+		makeAPIHandler("GET", "/v1/bluesky/profile", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bluesky_list-user",
@@ -104,7 +104,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/bluesky/user/posts", []string{ }),
+		makeAPIHandler("GET", "/v1/bluesky/user/posts", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("detect-age-gender_list",
@@ -114,7 +114,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/detect-age-gender", []string{ }),
+		makeAPIHandler("GET", "/v1/detect-age-gender", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list",
@@ -124,7 +124,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/facebook/post", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/post", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list-adlibrary",
@@ -137,7 +137,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/facebook/adLibrary/ad", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/adLibrary/ad", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list-adlibrary-2",
@@ -157,7 +157,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/facebook/adLibrary/company/ads", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/adLibrary/company/ads", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list-adlibrary-3",
@@ -177,7 +177,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/facebook/adLibrary/search/ads", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/adLibrary/search/ads", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list-adlibrary-4",
@@ -187,7 +187,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/facebook/adLibrary/search/companies", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/adLibrary/search/companies", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list-group",
@@ -200,7 +200,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/facebook/group/posts", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/group/posts", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list-post",
@@ -212,7 +212,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/facebook/post/comments", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/post/comments", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list-post-2",
@@ -222,7 +222,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/facebook/post/transcript", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/post/transcript", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list-profile",
@@ -233,7 +233,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/facebook/profile", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/profile", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list-profile-2",
@@ -245,7 +245,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/facebook/profile/photos", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/profile/photos", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list-profile-3",
@@ -257,7 +257,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/facebook/profile/posts", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/profile/posts", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("facebook_list-profile-4",
@@ -269,7 +269,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/facebook/profile/reels", []string{ }),
+		makeAPIHandler("GET", "/v1/facebook/profile/reels", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("google_list",
@@ -279,7 +279,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/google/ad", []string{ }),
+		makeAPIHandler("GET", "/v1/google/ad", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("google_list-adlibrary",
@@ -289,7 +289,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/google/adLibrary/advertisers/search", []string{ }),
+		makeAPIHandler("GET", "/v1/google/adLibrary/advertisers/search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("google_list-company",
@@ -306,7 +306,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/google/company/ads", []string{ }),
+		makeAPIHandler("GET", "/v1/google/company/ads", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("google_list-search",
@@ -319,7 +319,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/google/search", []string{ }),
+		makeAPIHandler("GET", "/v1/google/search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list",
@@ -329,7 +329,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/instagram/basic-profile", []string{ }),
+		makeAPIHandler("GET", "/v1/instagram/basic-profile", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list-media",
@@ -339,7 +339,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/instagram/media/transcript", []string{ }),
+		makeAPIHandler("GET", "/v2/instagram/media/transcript", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list-post",
@@ -352,7 +352,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/instagram/post", []string{ }),
+		makeAPIHandler("GET", "/v1/instagram/post", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list-post-2",
@@ -363,7 +363,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/instagram/post/comments", []string{ }),
+		makeAPIHandler("GET", "/v2/instagram/post/comments", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list-profile",
@@ -374,7 +374,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/instagram/profile", []string{ }),
+		makeAPIHandler("GET", "/v1/instagram/profile", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list-reels",
@@ -386,7 +386,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/instagram/reels/search", []string{ }),
+		makeAPIHandler("GET", "/v2/instagram/reels/search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list-song",
@@ -397,7 +397,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/instagram/song/reels", []string{ }),
+		makeAPIHandler("GET", "/v1/instagram/song/reels", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list-user",
@@ -407,7 +407,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/instagram/user/embed", []string{ }),
+		makeAPIHandler("GET", "/v1/instagram/user/embed", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list-user-2",
@@ -418,7 +418,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/instagram/user/highlights", []string{ }),
+		makeAPIHandler("GET", "/v1/instagram/user/highlights", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list-user-3",
@@ -431,7 +431,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/instagram/user/reels", []string{ }),
+		makeAPIHandler("GET", "/v1/instagram/user/reels", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list-user-4",
@@ -443,7 +443,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/instagram/user/posts", []string{ }),
+		makeAPIHandler("GET", "/v2/instagram/user/posts", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("instagram_list-user-5",
@@ -453,7 +453,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/instagram/user/highlight/detail", []string{ }),
+		makeAPIHandler("GET", "/v1/instagram/user/highlight/detail", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("kick_list",
@@ -463,7 +463,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/kick/clip", []string{ }),
+		makeAPIHandler("GET", "/v1/kick/clip", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("komi_list",
@@ -473,7 +473,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/komi", []string{ }),
+		makeAPIHandler("GET", "/v1/komi", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("linkbio_list",
@@ -483,7 +483,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/linkbio", []string{ }),
+		makeAPIHandler("GET", "/v1/linkbio", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("linkedin_list",
@@ -493,7 +493,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/linkedin/ad", []string{ }),
+		makeAPIHandler("GET", "/v1/linkedin/ad", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("linkedin_list-ads",
@@ -509,7 +509,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/linkedin/ads/search", []string{ }),
+		makeAPIHandler("GET", "/v1/linkedin/ads/search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("linkedin_list-company",
@@ -519,7 +519,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/linkedin/company", []string{ }),
+		makeAPIHandler("GET", "/v1/linkedin/company", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("linkedin_list-company-2",
@@ -530,7 +530,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/linkedin/company/posts", []string{ }),
+		makeAPIHandler("GET", "/v1/linkedin/company/posts", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("linkedin_list-post",
@@ -540,7 +540,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/linkedin/post", []string{ }),
+		makeAPIHandler("GET", "/v1/linkedin/post", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("linkedin_list-profile",
@@ -550,7 +550,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/linkedin/profile", []string{ }),
+		makeAPIHandler("GET", "/v1/linkedin/profile", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("linkme_list",
@@ -560,7 +560,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/linkme", []string{ }),
+		makeAPIHandler("GET", "/v1/linkme", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("linktree_list",
@@ -570,7 +570,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/linktree", []string{ }),
+		makeAPIHandler("GET", "/v1/linktree", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("pillar_list",
@@ -580,7 +580,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/pillar", []string{ }),
+		makeAPIHandler("GET", "/v1/pillar", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("pinterest_list",
@@ -592,7 +592,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/pinterest/board", []string{ }),
+		makeAPIHandler("GET", "/v1/pinterest/board", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("pinterest_list-pin",
@@ -603,7 +603,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/pinterest/pin", []string{ }),
+		makeAPIHandler("GET", "/v1/pinterest/pin", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("pinterest_list-search",
@@ -615,7 +615,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/pinterest/search", []string{ }),
+		makeAPIHandler("GET", "/v1/pinterest/search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("pinterest_list-user",
@@ -626,7 +626,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/pinterest/user/boards", []string{ }),
+		makeAPIHandler("GET", "/v1/pinterest/user/boards", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("reddit_list",
@@ -636,7 +636,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/reddit/ad", []string{ }),
+		makeAPIHandler("GET", "/v1/reddit/ad", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("reddit_list-ads",
@@ -651,7 +651,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/reddit/ads/search", []string{ }),
+		makeAPIHandler("GET", "/v1/reddit/ads/search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("reddit_list-post",
@@ -663,7 +663,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/reddit/post/comments", []string{ }),
+		makeAPIHandler("GET", "/v1/reddit/post/comments", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("reddit_list-search",
@@ -677,7 +677,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/reddit/search", []string{ }),
+		makeAPIHandler("GET", "/v1/reddit/search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("reddit_list-subreddit",
@@ -691,7 +691,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/reddit/subreddit", []string{ }),
+		makeAPIHandler("GET", "/v1/reddit/subreddit", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("reddit_list-subreddit-2",
@@ -702,7 +702,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/reddit/subreddit/details", []string{ }),
+		makeAPIHandler("GET", "/v1/reddit/subreddit/details", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("reddit_list-subreddit-3",
@@ -716,7 +716,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/reddit/subreddit/search", []string{ }),
+		makeAPIHandler("GET", "/v1/reddit/subreddit/search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("snapchat_list",
@@ -726,7 +726,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/snapchat/profile", []string{ }),
+		makeAPIHandler("GET", "/v1/snapchat/profile", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("threads_list",
@@ -737,7 +737,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/threads/post", []string{ }),
+		makeAPIHandler("GET", "/v1/threads/post", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("threads_list-profile",
@@ -747,7 +747,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/threads/profile", []string{ }),
+		makeAPIHandler("GET", "/v1/threads/profile", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("threads_list-search",
@@ -760,7 +760,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/threads/search", []string{ }),
+		makeAPIHandler("GET", "/v1/threads/search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("threads_list-search-2",
@@ -770,7 +770,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/threads/search/users", []string{ }),
+		makeAPIHandler("GET", "/v1/threads/search/users", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("threads_list-user",
@@ -781,7 +781,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/threads/user/posts", []string{ }),
+		makeAPIHandler("GET", "/v1/threads/user/posts", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list",
@@ -792,7 +792,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/get-trending-feed", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/get-trending-feed", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-creators",
@@ -806,7 +806,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/creators/popular", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/creators/popular", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-hashtags",
@@ -820,7 +820,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/hashtags/popular", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/hashtags/popular", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-product",
@@ -831,7 +831,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/product", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/product", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-profile",
@@ -841,7 +841,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/profile", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/profile", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-profile-2",
@@ -856,7 +856,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v3/tiktok/profile/videos", []string{ }),
+		makeAPIHandler("GET", "/v3/tiktok/profile/videos", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-search",
@@ -869,7 +869,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/search/hashtag", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/search/hashtag", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-search-2",
@@ -884,7 +884,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/search/keyword", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/search/keyword", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-search-3",
@@ -898,7 +898,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/search/top", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/search/top", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-search-4",
@@ -910,7 +910,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/search/users", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/search/users", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-shop",
@@ -922,7 +922,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/shop/products", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/shop/products", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-shop-2",
@@ -934,7 +934,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/shop/search", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/shop/search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-shop-3",
@@ -947,7 +947,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/shop/product/reviews", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/shop/product/reviews", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-song",
@@ -957,7 +957,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/song", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/song", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-song-2",
@@ -968,22 +968,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/song/videos", []string{ }),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-songs",
-			mcplib.WithDescription("Gets the current trending and popular songs/sounds on TikTok, sourced from the TikTok Creative Center. Returns `sound_list`, an array of song objects each with `title`, `author`, `clip_id`, `rank`, `cover` image URL, `duration`, `link` to the sound page, and a `trend` array showing popularity over time. Filter by country, time period (7/30/120 days), rank type (popular vs surging), and commercial music approval. Optional: page, timePeriod, rankType (plus 3 more)."),
-			mcplib.WithString("page", mcplib.Description("Page number")),
-			mcplib.WithString("timePeriod", mcplib.Description("Time period to get popular songs from")),
-			mcplib.WithString("rankType", mcplib.Description("Get popular or surging songs")),
-			mcplib.WithString("newOnBoard", mcplib.Description("New to top 100")),
-			mcplib.WithString("commercialMusic", mcplib.Description("Approved for business use?")),
-			mcplib.WithString("countryCode", mcplib.Description("Country code to get popular songs from")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/songs/popular", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/song/videos", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-user",
@@ -993,7 +978,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/user/audience", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/user/audience", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-user-2",
@@ -1006,7 +991,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/user/followers", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/user/followers", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-user-3",
@@ -1018,7 +1003,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/user/following", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/user/following", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-user-4",
@@ -1028,7 +1013,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/user/live", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/user/live", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-user-5",
@@ -1040,7 +1025,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/user/showcase", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/user/showcase", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-video",
@@ -1054,7 +1039,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/tiktok/video", []string{ }),
+		makeAPIHandler("GET", "/v2/tiktok/video", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-video-2",
@@ -1066,7 +1051,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/video/comments", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/video/comments", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-video-3",
@@ -1078,7 +1063,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/video/transcript", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/video/transcript", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiktok_list-video-4",
@@ -1090,20 +1075,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/tiktok/video/comment/replies", []string{ }),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-videos",
-			mcplib.WithDescription("Discovers trending and popular TikTok videos, filterable by time period (7 or 30 days) and country. Returns a list of video objects each with `title`, `item_url` (link to the TikTok), `cover`, `region`, and engagement stats. Sortable by likes, views (hot), comments, or reposts. Optional: period, page, orderBy (plus 1 more)."),
-			mcplib.WithString("period", mcplib.Description("Time period in days (7 or 30)")),
-			mcplib.WithString("page", mcplib.Description("Page number")),
-			mcplib.WithString("orderBy", mcplib.Description("Sort videos by likes, views (hot), comments, or reposts")),
-			mcplib.WithString("countryCode", mcplib.Description("Country code to get popular videos from")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/videos/popular", []string{ }),
+		makeAPIHandler("GET", "/v1/tiktok/video/comment/replies", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("truthsocial_list",
@@ -1113,7 +1085,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/truthsocial/post", []string{ }),
+		makeAPIHandler("GET", "/v1/truthsocial/post", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("truthsocial_list-profile",
@@ -1123,7 +1095,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/truthsocial/profile", []string{ }),
+		makeAPIHandler("GET", "/v1/truthsocial/profile", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("truthsocial_list-user",
@@ -1136,7 +1108,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/truthsocial/user/posts", []string{ }),
+		makeAPIHandler("GET", "/v1/truthsocial/user/posts", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("twitch_list",
@@ -1146,7 +1118,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/twitch/clip", []string{ }),
+		makeAPIHandler("GET", "/v1/twitch/clip", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("twitch_list-profile",
@@ -1156,7 +1128,19 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/twitch/profile", []string{ }),
+		makeAPIHandler("GET", "/v1/twitch/profile", []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("twitch_list-user",
+			mcplib.WithDescription("Fetches a list of videos (100 max) for a Twitch user, returning each video's id, slug, url, embedURL, title, viewCount, language, durationSeconds, game info, broadcaster details with follower count, thumbnailURL, and videoQualities at multiple resolutions with a signed videoURL for playback. Supports pagination via cursor and a trim option for lighter responses. Required: handle. Optional: filter_by, sort_by."),
+			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Twitch handle")),
+			mcplib.WithString("filter_by", mcplib.Description("Filter by")),
+			mcplib.WithString("sort_by", mcplib.Description("Sort by")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/v1/twitch/user/videos", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("twitter_list",
@@ -1166,7 +1150,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/twitter/community", []string{ }),
+		makeAPIHandler("GET", "/v1/twitter/community", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("twitter_list-community",
@@ -1176,7 +1160,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/twitter/community/tweets", []string{ }),
+		makeAPIHandler("GET", "/v1/twitter/community/tweets", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("twitter_list-profile",
@@ -1186,7 +1170,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/twitter/profile", []string{ }),
+		makeAPIHandler("GET", "/v1/twitter/profile", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("twitter_list-tweet",
@@ -1197,7 +1181,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/twitter/tweet", []string{ }),
+		makeAPIHandler("GET", "/v1/twitter/tweet", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("twitter_list-tweet-2",
@@ -1207,7 +1191,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/twitter/tweet/transcript", []string{ }),
+		makeAPIHandler("GET", "/v1/twitter/tweet/transcript", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("twitter_list-usertweets",
@@ -1218,7 +1202,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/twitter/user-tweets", []string{ }),
+		makeAPIHandler("GET", "/v1/twitter/user-tweets", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list",
@@ -1230,7 +1214,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/youtube/channel", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/channel", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list-channel",
@@ -1243,7 +1227,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/youtube/channel/shorts", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/channel/shorts", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list-channelvideos",
@@ -1257,7 +1241,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/youtube/channel-videos", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/channel-videos", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list-communitypost",
@@ -1267,7 +1251,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/youtube/community-post", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/community-post", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list-playlist",
@@ -1277,7 +1261,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/youtube/playlist", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/playlist", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list-search",
@@ -1294,7 +1278,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/youtube/search", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list-search-2",
@@ -1306,7 +1290,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/youtube/search/hashtag", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/search/hashtag", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list-shorts",
@@ -1315,7 +1299,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/youtube/shorts/trending", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/shorts/trending", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list-video",
@@ -1326,7 +1310,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/youtube/video", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/video", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list-video-2",
@@ -1338,7 +1322,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/youtube/video/comments", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/video/comments", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list-video-3",
@@ -1349,7 +1333,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/youtube/video/transcript", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/video/transcript", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("youtube_list-video-4",
@@ -1359,7 +1343,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/youtube/video/comment/replies", []string{ }),
+		makeAPIHandler("GET", "/v1/youtube/video/comment/replies", []string{}),
 	)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
@@ -1519,6 +1503,7 @@ func dbPath() string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", "scrape-creators-pp-cli", "data.db")
 }
+
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
 
@@ -1534,7 +1519,7 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 		limit = int(v)
 	}
 
-	db, err := store.Open(dbPath())
+	db, err := store.OpenWithContext(ctx, dbPath())
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
@@ -1564,7 +1549,7 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		}
 	}
 
-	db, err := store.Open(dbPath())
+	db, err := store.OpenWithContext(ctx, dbPath())
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
@@ -1601,162 +1586,162 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"api":         "scrape-creators",
 		"description": "The easiest way to scrape public social media data at scale. Extract profiles, posts, videos, comments, and more...",
 		"archetype":   "communication",
-		"tool_count":  115,
+		"tool_count":  114,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion scrape-creators-pp-cli binary.",
 		"auth": map[string]any{
-			"type": "api_key",
-			"env_vars": []string{"SCRAPE_CREATORS_API_KEY_AUTH",  },
+			"type":     "api_key",
+			"env_vars": []string{"SCRAPE_CREATORS_API_KEY_AUTH"},
 		},
 		"resources": []map[string]any{
 			{
-				"name": "account",
+				"name":        "account",
 				"description": "Manage account",
-				"endpoints": []string{"list", "list-getapiusage", "list-getdailyusagecount", "list-getmostusedroutes",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list", "list-getapiusage", "list-getdailyusagecount", "list-getmostusedroutes"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "amazon",
+				"name":        "amazon",
 				"description": "Manage amazon",
-				"endpoints": []string{"list",  },
-				"searchable": true,
+				"endpoints":   []string{"list"},
+				"searchable":  true,
 			},
 			{
-				"name": "bluesky",
+				"name":        "bluesky",
 				"description": "Get Bluesky posts and profile info",
-				"endpoints": []string{"list", "list-profile", "list-user",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list", "list-profile", "list-user"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "detect-age-gender",
+				"name":        "detect-age-gender",
 				"description": "Manage detect age gender",
-				"endpoints": []string{"list",  },
-				"searchable": true,
+				"endpoints":   []string{"list"},
+				"searchable":  true,
 			},
 			{
-				"name": "facebook",
+				"name":        "facebook",
 				"description": "Get public Facebook profiles and posts",
-				"endpoints": []string{"list", "list-adlibrary", "list-adlibrary-2", "list-adlibrary-3", "list-adlibrary-4", "list-group", "list-post", "list-post-2", "list-profile", "list-profile-2", "list-profile-3", "list-profile-4",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list", "list-adlibrary", "list-adlibrary-2", "list-adlibrary-3", "list-adlibrary-4", "list-group", "list-post", "list-post-2", "list-profile", "list-profile-2", "list-profile-3", "list-profile-4"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "google",
+				"name":        "google",
 				"description": "Scrape Google search results",
-				"endpoints": []string{"list", "list-adlibrary", "list-company", "list-search",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list", "list-adlibrary", "list-company", "list-search"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "instagram",
+				"name":        "instagram",
 				"description": "Gets Instagram profiles, posts, and reels",
-				"endpoints": []string{"list", "list-media", "list-post", "list-post-2", "list-profile", "list-reels", "list-song", "list-user", "list-user-2", "list-user-3", "list-user-4", "list-user-5",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list", "list-media", "list-post", "list-post-2", "list-profile", "list-reels", "list-song", "list-user", "list-user-2", "list-user-3", "list-user-4", "list-user-5"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "kick",
+				"name":        "kick",
 				"description": "Scrape Kick clips",
-				"endpoints": []string{"list",  },
-				"searchable": true,
+				"endpoints":   []string{"list"},
+				"searchable":  true,
 			},
 			{
-				"name": "komi",
+				"name":        "komi",
 				"description": "Scrape Komi pages",
-				"endpoints": []string{"list",  },
-				"searchable": true,
+				"endpoints":   []string{"list"},
+				"searchable":  true,
 			},
 			{
-				"name": "linkbio",
+				"name":        "linkbio",
 				"description": "Scrape Linkbio (lnk.bio) pages",
-				"endpoints": []string{"list",  },
-				"searchable": true,
+				"endpoints":   []string{"list"},
+				"searchable":  true,
 			},
 			{
-				"name": "linkedin",
+				"name":        "linkedin",
 				"description": "Scrape LinkedIn",
-				"endpoints": []string{"list", "list-ads", "list-company", "list-company-2", "list-post", "list-profile",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list", "list-ads", "list-company", "list-company-2", "list-post", "list-profile"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "linkme",
+				"name":        "linkme",
 				"description": "Get Linkme profile info",
-				"endpoints": []string{"list",  },
-				"searchable": true,
+				"endpoints":   []string{"list"},
+				"searchable":  true,
 			},
 			{
-				"name": "linktree",
+				"name":        "linktree",
 				"description": "Scrape Linktree pages",
-				"endpoints": []string{"list",  },
-				"searchable": true,
+				"endpoints":   []string{"list"},
+				"searchable":  true,
 			},
 			{
-				"name": "pillar",
+				"name":        "pillar",
 				"description": "Scrape Pillar pages",
-				"endpoints": []string{"list",  },
-				"searchable": true,
+				"endpoints":   []string{"list"},
+				"searchable":  true,
 			},
 			{
-				"name": "pinterest",
+				"name":        "pinterest",
 				"description": "Scrape Pinterest pins",
-				"endpoints": []string{"list", "list-pin", "list-search", "list-user",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list", "list-pin", "list-search", "list-user"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "reddit",
+				"name":        "reddit",
 				"description": "Scrape Reddit posts and comments",
-				"endpoints": []string{"list", "list-ads", "list-post", "list-search", "list-subreddit", "list-subreddit-2", "list-subreddit-3",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list", "list-ads", "list-post", "list-search", "list-subreddit", "list-subreddit-2", "list-subreddit-3"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "snapchat",
+				"name":        "snapchat",
 				"description": "Scrape Snapchat user profiles and thier stories",
-				"endpoints": []string{"list",  },
-				"searchable": true,
+				"endpoints":   []string{"list"},
+				"searchable":  true,
 			},
 			{
-				"name": "threads",
+				"name":        "threads",
 				"description": "Get Threads posts",
-				"endpoints": []string{"list", "list-profile", "list-search", "list-search-2", "list-user",  },
-				"searchable": true,
+				"endpoints":   []string{"list", "list-profile", "list-search", "list-search-2", "list-user"},
+				"searchable":  true,
 			},
 			{
-				"name": "tiktok",
+				"name":        "tiktok",
 				"description": "Scrape TikTok profiles, videos, and more",
-				"endpoints": []string{"list", "list-creators", "list-hashtags", "list-product", "list-profile", "list-profile-2", "list-search", "list-search-2", "list-search-3", "list-search-4", "list-shop", "list-shop-2", "list-shop-3", "list-song", "list-song-2", "list-songs", "list-user", "list-user-2", "list-user-3", "list-user-4", "list-user-5", "list-video", "list-video-2", "list-video-3", "list-video-4", "list-videos",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list", "list-creators", "list-hashtags", "list-product", "list-profile", "list-profile-2", "list-search", "list-search-2", "list-search-3", "list-search-4", "list-shop", "list-shop-2", "list-shop-3", "list-song", "list-song-2", "list-user", "list-user-2", "list-user-3", "list-user-4", "list-user-5", "list-video", "list-video-2", "list-video-3", "list-video-4"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "truthsocial",
+				"name":        "truthsocial",
 				"description": "Manage truthsocial",
-				"endpoints": []string{"list", "list-profile", "list-user",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list", "list-profile", "list-user"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "twitch",
+				"name":        "twitch",
 				"description": "Scrape Twitch clips",
-				"endpoints": []string{"list", "list-profile",  },
-				"searchable": true,
+				"endpoints":   []string{"list", "list-profile", "list-user"},
+				"searchable":  true,
 			},
 			{
-				"name": "twitter",
+				"name":        "twitter",
 				"description": "Get Twitter profiles, tweets, followers and more",
-				"endpoints": []string{"list", "list-community", "list-profile", "list-tweet", "list-tweet-2", "list-usertweets",  },
-				"searchable": true,
+				"endpoints":   []string{"list", "list-community", "list-profile", "list-tweet", "list-tweet-2", "list-usertweets"},
+				"searchable":  true,
 			},
 			{
-				"name": "youtube",
+				"name":        "youtube",
 				"description": "Scrape YouTube channels, videos, and more",
-				"endpoints": []string{"list", "list-channel", "list-channelvideos", "list-communitypost", "list-playlist", "list-search", "list-search-2", "list-shorts", "list-video", "list-video-2", "list-video-3", "list-video-4",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list", "list-channel", "list-channelvideos", "list-communitypost", "list-playlist", "list-search", "list-search-2", "list-shorts", "list-video", "list-video-2", "list-video-3", "list-video-4"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 		},
 		"query_tips": []string{
@@ -1766,7 +1751,37 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
 		},
+		// Command-mirror capabilities are exposed through MCP by shelling out
+		// to the companion CLI binary.
+		"command_mirror_capabilities": []map[string]string{
+			{"name": "Cross-platform presence matrix", "command": "creator find", "description": "Given a single handle, see which of 11+ platforms the creator is on, with follower counts side-by-side.", "rationale": "Requires fanning out to every profile endpoint and joining results — no single API call answers this.", "via": "mcp-command-mirror"},
+			{"name": "Trend triangulation across platforms", "command": "trends triangulate", "description": "Snapshot a hashtag or keyword on TikTok, YouTube, Reddit, and Threads in one call to see which platform it's rising...", "rationale": "Joins per-platform search endpoints with a normalized count delta from the local snapshot table. No single endpoint...", "via": "mcp-command-mirror"},
+			{"name": "Transcript full-text search across 5 platforms", "command": "transcripts search", "description": "FTS5-indexed search across all transcripts you've synced — TikTok, YouTube, Instagram, Facebook, and Twitter videos.", "rationale": "Batch-fetches and indexes transcripts locally; the API returns one transcript per call, so...", "via": "mcp-command-mirror"},
+			{"name": "Ad library unified search", "command": "ads search", "description": "Search Facebook, Google, and LinkedIn ad libraries in one query — see every ad a brand is currently running.", "rationale": "Three separate endpoints (`facebook/adLibrary/search/companies`, `google/adLibrary/advertisers/search`,...", "via": "mcp-command-mirror"},
+			{"name": "Engagement spike detector", "command": "content spikes", "description": "Find videos that performed significantly above a creator's average — the ones that actually went viral.", "rationale": "Requires the creator's full content history with view/like counts in the local store to compute the baseline.", "via": "mcp-command-mirror"},
+			{"name": "Multi-creator comparison", "command": "profile compare", "description": "Compare two or more creators side-by-side on follower count, engagement rate, posting cadence, and content volume.", "rationale": "Needs synced profile + content data; a single API call doesn't return comparative stats.", "via": "mcp-command-mirror"},
+			{"name": "Follower growth tracker", "command": "profile track", "description": "Snapshot a creator's follower count daily across every platform; chart their growth trajectory over time.", "rationale": "Daily snapshots in SQLite reveal trends no single API call provides.", "via": "mcp-command-mirror"},
+			{"name": "Content cadence analysis", "command": "content cadence", "description": "See when a creator posts — by day of week and hour — across every platform you've synced for them.", "rationale": "Requires aggregated post timestamps from the local store; the API returns posts but not posting-pattern statistics.", "via": "mcp-command-mirror"},
+			{"name": "Engagement rate ranker", "command": "content analyze", "description": "Rank a creator's synced content by engagement rate (not raw likes) so you see their true best performers.", "rationale": "Computes (likes+comments+shares)/views per item from local data; engagement rate isn't a field the API returns.", "via": "mcp-command-mirror"},
+			{"name": "Trend delta tracker", "command": "trends delta", "description": "Track whether a hashtag is growing or shrinking by comparing video counts across snapshot intervals.", "rationale": "Snapshot table in SQLite + scheduled snapshots; a single API call returns a count, not a trend.", "via": "mcp-command-mirror"},
+			{"name": "Brand ad campaign monitor", "command": "ads monitor", "description": "Snapshot a brand's ads on Facebook, Google, and LinkedIn into SQLite; on rerun, diff new ads vs ones that disappeared.", "rationale": "Requires persistent storage of past ad fingerprints; the API returns a current list but no diff.", "via": "mcp-command-mirror"},
+			{"name": "Link-in-bio universal resolver", "command": "bio resolve", "description": "Paste any linktree.ee, komi.io, pillar.io, linkbio, or linkme URL and get the unified destination list.", "rationale": "Auto-detects the service from the URL and dispatches to the right endpoint; five endpoints unified behind one command.", "via": "mcp-command-mirror"},
+			{"name": "Credit burn rate monitor", "command": "account budget", "description": "See how fast you're spending API credits and how many days remain at current pace, fused with the API's own usage...", "rationale": "Local `usage_log` table + the API's `get-api-usage` and `get-most-used-routes` endpoints; neither alone is...", "via": "mcp-command-mirror"},
+		},
 		"playbook": []map[string]string{
+			{"topic": "Cross-platform presence matrix", "insight": "Requires fanning out to every profile endpoint and joining results — no single API call answers this."},
+			{"topic": "Trend triangulation across platforms", "insight": "Joins per-platform search endpoints with a normalized count delta from the local snapshot table. No single endpoint exposes cross-platform trend velocity."},
+			{"topic": "Transcript full-text search across 5 platforms", "insight": "Batch-fetches and indexes transcripts locally; the API returns one transcript per call, so cross-creator/cross-platform search is only possible after sync."},
+			{"topic": "Ad library unified search", "insight": "Three separate endpoints (`facebook/adLibrary/search/companies`, `google/adLibrary/advertisers/search`, `linkedin/ads/search`) joined and deduplicated by company."},
+			{"topic": "Engagement spike detector", "insight": "Requires the creator's full content history with view/like counts in the local store to compute the baseline."},
+			{"topic": "Multi-creator comparison", "insight": "Needs synced profile + content data; a single API call doesn't return comparative stats."},
+			{"topic": "Follower growth tracker", "insight": "Daily snapshots in SQLite reveal trends no single API call provides."},
+			{"topic": "Content cadence analysis", "insight": "Requires aggregated post timestamps from the local store; the API returns posts but not posting-pattern statistics."},
+			{"topic": "Engagement rate ranker", "insight": "Computes (likes+comments+shares)/views per item from local data; engagement rate isn't a field the API returns."},
+			{"topic": "Trend delta tracker", "insight": "Snapshot table in SQLite + scheduled snapshots; a single API call returns a count, not a trend."},
+			{"topic": "Brand ad campaign monitor", "insight": "Requires persistent storage of past ad fingerprints; the API returns a current list but no diff."},
+			{"topic": "Link-in-bio universal resolver", "insight": "Auto-detects the service from the URL and dispatches to the right endpoint; five endpoints unified behind one command."},
+			{"topic": "Credit burn rate monitor", "insight": "Local `usage_log` table + the API's `get-api-usage` and `get-most-used-routes` endpoints; neither alone is sufficient for projection."},
 			{"topic": "Message search", "insight": "Use the search tool on synced data rather than paginating through message history. Message APIs often have aggressive rate limits."},
 			{"topic": "Channel health", "insight": "When analyzing channel activity, use the channel-health command or sql aggregation on synced messages. Don't iterate individual messages via API."},
 		},
