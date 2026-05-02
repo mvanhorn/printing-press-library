@@ -274,6 +274,32 @@ jobs:
             echo "::warning::No artifacts were produced for ${{ matrix.target }} — bundle and build-cli jobs may have all failed."
             exit 0
           fi
+      - name: Verify release-write PAT
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_WRITE_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "::error::RELEASE_WRITE_TOKEN secret is not set. Without it, the release step cannot create or update releases. See the PR that introduced this for setup instructions."
+            exit 1
+          fi
+          # Probe the user identity. If the token is unrecognized, this 401s
+          # before the release step gets a chance to fail with a confusing
+          # "error checking for existing release". On success, prints the
+          # authenticated login so the runtime audit trail shows which
+          # account's PAT actually executed the release.
+          if ! resp=$(gh api /user --jq '.login' 2>&1); then
+            echo "::error::RELEASE_WRITE_TOKEN failed authentication. Verify the PAT exists, hasn't expired, and includes Contents:write on this repo. Raw error: ${resp}"
+            exit 1
+          fi
+          echo "Release token authenticated as: ${resp}"
+          # Verify the token has access to this specific repo. If the PAT
+          # was scoped to a different repo (e.g., the generator), this 404s.
+          if ! gh api "/repos/${GITHUB_REPOSITORY}" --jq '.full_name' >/dev/null 2>&1; then
+            echo "::error::RELEASE_WRITE_TOKEN does not have access to ${GITHUB_REPOSITORY}. Re-scope the PAT to include this repo."
+            exit 1
+          fi
+          echo "PAT confirmed for repo ${GITHUB_REPOSITORY}."
       - name: Publish release ${{ steps.slug.outputs.slug }}-current
         env:
           # Use a fine-grained PAT (Contents:write on this repo) instead of
@@ -287,10 +313,6 @@ jobs:
           CLI_TARGET: ${{ matrix.target }}
         run: |
           set -euo pipefail
-          if [ -z "${GH_TOKEN:-}" ]; then
-            echo "::error::RELEASE_WRITE_TOKEN secret is not set. Without it, the release step cannot create or update releases. See the PR that introduced this for setup instructions."
-            exit 1
-          fi
           tag="${SLUG}-current"
           # Skip if neither bundle nor CLI artifacts were produced.
           if ! find "${RUNNER_TEMP}/dl" -type f -print -quit | grep -q .; then
