@@ -400,6 +400,27 @@
       }
     },
     {
+      "name": "shopify",
+      "category": "commerce",
+      "api": "Shopify",
+      "description": "Operate a Shopify store from the terminal with curated Admin GraphQL commands, local sync, analytics, and bulk exports.",
+      "path": "library/commerce/shopify",
+      "mcp": {
+        "binary": "shopify-pp-mcp",
+        "transport": "stdio",
+        "tool_count": 10,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "SHOPIFY_SHOP",
+          "SHOPIFY_API_VERSION",
+          "SHOPIFY_ACCESS_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "slack",
       "category": "productivity",
       "api": "Slack",

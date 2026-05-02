@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-02T03:53:03.774005Z",
+  "printing_press_version": "3.2.1",
+  "api_name": "shopify",
+  "display_name": "Shopify",
+  "cli_name": "shopify-pp-cli",
+  "owner": "user",
+  "spec_path": "catalog/specs/shopify-2026-04-wrapper.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:4e5ca1c0c251eed7ac5fce5c7bcf974c584bcdea07ffb495eb6c5dd37fe00d69",
+  "mcp_binary": "shopify-pp-mcp",
+  "mcp_tool_count": 10,
+  "mcp_ready": "full",
+  "api_version": "2026-04",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "SHOPIFY_ACCESS_TOKEN"
+  ],
+  "endpoint_template_vars": [
+    "shop",
+    "api_version"
+  ],
+  "auth_key_url": "https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens",
+  "novel_features": [
+    {
+      "name": "Bulk operation runner",
+      "command": "bulk-operations",
+      "description": "Inspect the current Shopify bulk operation and launch bulk GraphQL export jobs from query text or a query file."
+    }
+  ]
+}

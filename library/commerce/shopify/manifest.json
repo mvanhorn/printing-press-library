@@ -1,0 +1,54 @@
+{
+  "manifest_version": "0.3",
+  "name": "shopify-pp-mcp",
+  "display_name": "Shopify",
+  "version": "3.2.1",
+  "description": "Shopify API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/shopify-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/shopify-pp-mcp",
+      "args": [],
+      "env": {
+        "SHOPIFY_ACCESS_TOKEN": "${user_config.shopify_access_token}",
+        "SHOPIFY_API_VERSION": "${user_config.shopify_api_version}",
+        "SHOPIFY_SHOP": "${user_config.shopify_shop}"
+      }
+    }
+  },
+  "user_config": {
+    "shopify_access_token": {
+      "type": "string",
+      "title": "SHOPIFY_ACCESS_TOKEN",
+      "description": "Sets SHOPIFY_ACCESS_TOKEN for the Shopify MCP server. Get a credential from https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens.",
+      "sensitive": true,
+      "required": true
+    },
+    "shopify_api_version": {
+      "type": "string",
+      "title": "SHOPIFY_API_VERSION",
+      "description": "Sets SHOPIFY_API_VERSION for the endpoint template variable {api_version}.",
+      "required": true,
+      "default": "2026-04"
+    },
+    "shopify_shop": {
+      "type": "string",
+      "title": "SHOPIFY_SHOP",
+      "description": "Sets SHOPIFY_SHOP for the endpoint template variable {shop}.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
