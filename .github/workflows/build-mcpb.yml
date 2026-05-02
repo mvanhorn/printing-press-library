@@ -90,10 +90,11 @@ jobs:
       matrix:
         target: ${{ fromJson(needs.detect.outputs.affected) }}
         platform:
-          - darwin/amd64
+          # Scoped to platforms Claude Desktop actually runs on. Intel Macs
+          # dropped because Apple Silicon dominates the install base; Linux
+          # dropped because Claude Desktop doesn't ship there at all (Linux
+          # Claude Code users have the focused skill path instead of MCPB).
           - darwin/arm64
-          - linux/amd64
-          - linux/arm64
           - windows/amd64
           - windows/arm64
     steps:
@@ -123,13 +124,20 @@ jobs:
         run: |
           set -euo pipefail
           cli_dir="library/${CLI_TARGET}"
+          os="${PLATFORM%/*}"
+          arch="${PLATFORM#*/}"
+          slug=$(basename "${CLI_TARGET}")
+          # Set artifact-name env vars unconditionally so the upload step
+          # always has valid values, even when we early-exit below.
+          # actions/upload-artifact@v4 rejects / in names; slugs are unique
+          # across the library (slug-keyed dirs), so slug + os-arch is a
+          # safe and stable artifact name.
+          echo "SLUG=${slug}" >> "$GITHUB_ENV"
+          echo "PLATFORM_TAG=${os}-${arch}" >> "$GITHUB_ENV"
           if [ ! -f "${cli_dir}/manifest.json" ]; then
             echo "::warning::${cli_dir} has no manifest.json — skipping bundle (likely pre-v3.0.0; needs regen via printing-press-publish)."
             exit 0
           fi
-          os="${PLATFORM%/*}"
-          arch="${PLATFORM#*/}"
-          slug=$(basename "${CLI_TARGET}")
           out="${RUNNER_TEMP}/out/${slug}-pp-mcp-${os}-${arch}.mcpb"
           mkdir -p "$(dirname "$out")"
           printing-press bundle "$cli_dir" --platform "${PLATFORM}" --output "$out"
@@ -137,7 +145,7 @@ jobs:
       - name: Upload bundle artifact
         uses: actions/upload-artifact@v4
         with:
-          name: mcpb-${{ matrix.target }}-${{ matrix.platform }}
+          name: mcpb-${{ env.SLUG }}-${{ env.PLATFORM_TAG }}
           path: ${{ runner.temp }}/out/*.mcpb
           if-no-files-found: ignore
           retention-days: 7
@@ -167,7 +175,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: ${{ runner.temp }}/dl
-          pattern: mcpb-${{ matrix.target }}-*
+          pattern: mcpb-${{ steps.slug.outputs.slug }}-*
           merge-multiple: true
       - name: List downloaded artifacts
         run: |
