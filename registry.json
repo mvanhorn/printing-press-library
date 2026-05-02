@@ -351,15 +351,17 @@
       "name": "producthunt",
       "category": "marketing",
       "api": "Product Hunt",
-      "description": "Token-free Product Hunt CLI \u2014 browse today's featured launches, sync locally, and compose views the website itself doesn't expose.",
+      "description": "Read Product Hunt from your terminal \u2014 works token-free for the daily skim, unlocks a launch-day cockpit and a marketer research desk in one onboarding step.",
       "path": "library/marketing/producthunt",
       "mcp": {
         "binary": "producthunt-pp-mcp",
         "transport": "stdio",
         "tool_count": 1,
         "public_tool_count": 1,
-        "auth_type": "none",
-        "env_vars": [],
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "PRODUCT_HUNT_TOKEN"
+        ],
         "mcp_ready": "full",
         "spec_format": "internal"
       }

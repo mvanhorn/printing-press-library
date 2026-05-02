@@ -45,7 +45,7 @@ brews:
       owner: trevin-chow
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Token-free Product Hunt CLI — browse today's featured launches, sync locally, and compose views the website itself doesn't expose."
+    description: "Read Product Hunt from your terminal — works token-free for the daily skim, unlocks a launch-day cockpit and a marketer research desk in one onboarding step."
     install: |
       bin.install "producthunt-pp-cli"
       bin.install "producthunt-pp-mcp"

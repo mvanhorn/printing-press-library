@@ -1,15 +1,85 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-04-23T07:38:35.155401Z",
-  "printing_press_version": "1.3.3-0.20260423064016-d4eed9e4b078",
+  "generated_at": "2026-05-02T03:43:31.538965Z",
+  "printing_press_version": "3.2.1",
   "api_name": "producthunt",
+  "display_name": "Producthunt",
   "cli_name": "producthunt-pp-cli",
-  "spec_path": "/Users/tmchow/printing-press/.runstate/cli-printing-press-8bdedb85/runs/20260422-231129/research/producthunt-spec.yaml",
+  "spec_path": "/Users/tmchow/printing-press/.runstate/linear-herding-lollipop-44b2f933/runs/20260501-170103/research/producthunt-spec.yaml",
   "spec_format": "internal",
-  "spec_checksum": "sha256:5f2a790bc0abd4d86b59dfce01a47f235b40a50b74ae5049ee8ac9e7351b851a",
-  "run_id": "20260422-231129",
+  "spec_checksum": "sha256:e20ac1a69cdcfd625920685a15f895430747fb554548a2b1ba5bd395b1a4a355",
+  "run_id": "20260501-170103",
+  "catalog_entry": "producthunt",
+  "category": "marketing",
+  "description": "Find, monitor, and export Product Hunt launches for launch research, scouting, and competitive tracking without requiring a Product Hunt API application.",
   "mcp_binary": "producthunt-pp-mcp",
   "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
   "mcp_ready": "full",
-  "auth_type": "none"
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "PRODUCT_HUNT_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Launch-day tracker",
+      "command": "posts launch-day",
+      "description": "Renders your launch's votes-over-time trajectory side-by-side with today's top 5 launches — the answer to 'am I catching up to the leader.' Sync-driven, refreshes from the local store."
+    },
+    {
+      "name": "Hour-by-hour benchmark",
+      "command": "posts benchmark",
+      "description": "Reports percentile curves at hour-N for top-10 and top-50 launches in a topic, computed from accumulated local history. Tells a founder if their hour-6 votes are 'good' for their category."
+    },
+    {
+      "name": "Vote trajectory",
+      "command": "posts trajectory",
+      "description": "Plots a single launch's votes-over-time from local snapshots. Foundational for launch-day-tracker; also useful standalone for retro analysis after the fact."
+    },
+    {
+      "name": "Comments → genuine questions",
+      "command": "posts questions",
+      "description": "Surfaces only comments that look like real questions (regex `?` plus heuristic verbs like 'how does', 'what's the', 'can it'), ranked by vote count. Cuts hundreds of launch-day comments down to the ones that need a maker's reply."
+    },
+    {
+      "name": "Side-by-side launch compare",
+      "command": "posts compare",
+      "description": "Column-aligned comparison of two or more launches: votes, comments, topics, tagline, url, launch-time delta. Replaces juggling browser tabs."
+    },
+    {
+      "name": "Category snapshot",
+      "command": "category snapshot",
+      "description": "Slide-deck-ready brief for a topic over a window: leaderboard + momentum delta vs prior window + most active poster handles + top emerging tagline tags."
+    },
+    {
+      "name": "Brand-mention grep",
+      "command": "posts grep",
+      "description": "Searches taglines and descriptions of launches in a window for a term — your brand, a competitor's brand, a category keyword. Returns matching launches with the matched snippet."
+    },
+    {
+      "name": "Lookalike launches",
+      "command": "posts lookalike",
+      "description": "Given a launch slug, finds the most similar prior launches by topic overlap plus tagline FTS rank. Builds a competitive set automatically."
+    },
+    {
+      "name": "Launches calendar",
+      "command": "launches calendar",
+      "description": "Shows what launched what day in a week (and prior weeks for context), with hour-of-day distribution. Helps a founder pick a strong launch slot."
+    },
+    {
+      "name": "Topic watch",
+      "command": "topics watch",
+      "description": "Detects new posts crossing a vote threshold in a topic since the last sync. Synthesizes an offline subscription against an API that has none."
+    },
+    {
+      "name": "Time-window posts query",
+      "command": "posts since",
+      "description": "Local-first time-window query: `posts since 2h`, `posts since 24h`. Falls through to live GraphQL if the window extends past the last sync."
+    },
+    {
+      "name": "Agent context snapshot",
+      "command": "context",
+      "description": "Returns a single JSON blob covering top posts in a window, top comments, topic followers, and your viewer status. One call answers 'what's the state of this topic right now' for an agent."
+    }
+  ]
 }

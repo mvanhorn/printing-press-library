@@ -1,19 +1,24 @@
 {
   "api_name": "producthunt",
-  "base_url": "https://www.producthunt.com",
-  "description": "Token-free Product Hunt CLI — browse today's featured launches, sync locally, and compose views the website itself doesn't expose.",
+  "base_url": "https://api.producthunt.com/v2/api/graphql",
+  "description": "Read Product Hunt from your terminal — works token-free for the daily skim, unlocks a launch-day cockpit and a marketer research desk in one onboarding step.",
   "mcp_ready": "full",
   "http_transport": "standard",
   "auth": {
-    "type": "none"
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "PRODUCT_HUNT_TOKEN"
+    ]
   },
   "required_headers": [],
   "tools": [
     {
       "name": "feed_get",
-      "description": "Fetch the 50-entry public Atom feed of recent featured launches",
+      "description": "Fetch the public Atom feed of recent featured launches; needs no token.",
       "method": "GET",
       "path": "/feed",
+      "no_auth": true,
       "params": []
     }
   ]

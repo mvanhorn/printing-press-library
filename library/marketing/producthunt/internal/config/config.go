@@ -14,83 +14,16 @@ import (
 )
 
 type Config struct {
-	BaseURL       string    `toml:"base_url"`
-	AuthHeaderVal string    `toml:"auth_header"`
-	AuthSource    string    `toml:"-"`
-	AuthType      string    `toml:"auth_type"` // "" / "none" / "oauth"
-	AccessToken   string    `toml:"access_token"`
-	RefreshToken  string    `toml:"refresh_token"`
-	TokenExpiry   time.Time `toml:"token_expiry"`
-	ClientID      string    `toml:"client_id"`
-	ClientSecret  string    `toml:"client_secret"`
-
-	// AutoSync controls whether read commands warm the store from the Atom
-	// feed before serving a query. Default true. Integrators that prefer
-	// hand-managed warmth can set this to false via `producthunt-pp-cli
-	// config set auto_sync false` (or by editing the TOML directly).
-	AutoSync *bool `toml:"auto_sync"`
-
-	// AutoEnrich controls whether `search` calls GraphQL on thin local
-	// results without requiring the --enrich flag each time. Requires a
-	// Product Hunt GraphQL token. Default false — enrichment is opt-in.
-	AutoEnrich bool `toml:"auto_enrich"`
-
-	Path string `toml:"-"`
-}
-
-// AutoSyncEnabled returns true when read commands should run auto-sync.
-// nil AutoSync means "never configured" → default true.
-func (c *Config) AutoSyncEnabled() bool {
-	if c.AutoSync == nil {
-		return true
-	}
-	return *c.AutoSync
-}
-
-// GraphQLTokenEnvVars returns the supported env vars, in precedence order.
-func GraphQLTokenEnvVars() []string {
-	return []string{"PRODUCTHUNT_GRAPHQL_TOKEN", "PRODUCTHUNT_DEVELOPER_TOKEN", "PRODUCTHUNT_API_TOKEN"}
-}
-
-// HasGraphQLToken reports whether Product Hunt GraphQL reads can be attempted.
-// Both OAuth client-credentials tokens and dashboard developer tokens are valid
-// for the public read-only GraphQL fields this CLI uses. Unknown auth_type
-// values are deliberately not treated as GraphQL-capable because a stray token
-// in the config should not unlock API calls under an unsupported auth scheme.
-func (c *Config) HasGraphQLToken() bool {
-	if c == nil || c.AccessToken == "" {
-		return false
-	}
-	switch c.AuthType {
-	case "oauth", "developer_token", "graphql_token", "":
-		return true
-	default:
-		return false
-	}
-}
-
-// HasOAuth reports whether OAuth credentials are configured. Kept for older
-// call sites; new Product Hunt code should prefer HasGraphQLToken because a
-// developer token unlocks the same public GraphQL read path.
-func (c *Config) HasOAuth() bool {
-	return c != nil && c.AuthType == "oauth" && c.AccessToken != ""
-}
-
-func (c *Config) GraphQLAuthMode() string {
-	if c == nil || c.AccessToken == "" {
-		return "atom_only"
-	}
-	switch c.AuthType {
-	case "oauth":
-		return "oauth_client_credentials"
-	case "developer_token", "graphql_token":
-		return c.AuthType
-	case "":
-		// Backward-compatible with tokens saved before auth_type was set.
-		return "graphql_token"
-	default:
-		return "unsupported_auth_type"
-	}
+	BaseURL          string    `toml:"base_url"`
+	AuthHeaderVal    string    `toml:"auth_header"`
+	AuthSource       string    `toml:"-"`
+	AccessToken      string    `toml:"access_token"`
+	RefreshToken     string    `toml:"refresh_token"`
+	TokenExpiry      time.Time `toml:"token_expiry"`
+	ClientID         string    `toml:"client_id"`
+	ClientSecret     string    `toml:"client_secret"`
+	Path             string    `toml:"-"`
+	ProductHuntToken string    `toml:"hunt_token"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -118,10 +51,9 @@ func Load(configPath string) (*Config, error) {
 	}
 
 	// Env var overrides
-	if v := firstEnv(GraphQLTokenEnvVars()...); v != "" {
-		cfg.AccessToken = v
-		cfg.AuthType = "developer_token"
-		cfg.AuthSource = "env"
+	if v := os.Getenv("PRODUCT_HUNT_TOKEN"); v != "" {
+		cfg.ProductHuntToken = v
+		cfg.AuthSource = "env:PRODUCT_HUNT_TOKEN"
 	}
 
 	// Base URL override (used by printing-press verify to point at mock/test servers)
@@ -134,6 +66,13 @@ func Load(configPath string) (*Config, error) {
 func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
+	}
+	if c.AccessToken != "" {
+		c.AuthSource = "oauth2"
+		return "Bearer " + c.AccessToken
+	}
+	if c.ProductHuntToken != "" {
+		return "Bearer " + c.ProductHuntToken
 	}
 	return ""
 }
@@ -157,42 +96,13 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 	c.AccessToken = accessToken
 	c.RefreshToken = refreshToken
 	c.TokenExpiry = expiry
-	if accessToken != "" && c.AuthType == "" {
-		c.AuthType = "graphql_token"
-	}
-	return c.save()
-}
-
-func (c *Config) SaveGraphQLToken(accessToken string) error {
-	c.AuthType = "developer_token"
-	c.ClientID = ""
-	c.ClientSecret = ""
-	c.AccessToken = accessToken
-	c.RefreshToken = ""
-	c.TokenExpiry = time.Time{}
-	return c.save()
-}
-
-// SaveOAuth persists OAuth app credentials and the access token obtained via
-// client_credentials exchange. Sets AuthType = "oauth" so downstream code
-// (HasGraphQLToken, backfill gate) can see the store is authenticated.
-func (c *Config) SaveOAuth(clientID, clientSecret, accessToken string, expiry time.Time) error {
-	c.AuthType = "oauth"
-	c.ClientID = clientID
-	c.ClientSecret = clientSecret
-	c.AccessToken = accessToken
-	c.RefreshToken = "" // client_credentials grant has no refresh token
-	c.TokenExpiry = expiry
 	return c.save()
 }
 
 func (c *Config) ClearTokens() error {
-	c.AuthType = ""
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
-	c.ClientID = ""
-	c.ClientSecret = ""
 	return c.save()
 }
 
@@ -208,11 +118,5 @@ func (c *Config) save() error {
 	return os.WriteFile(c.Path, data, 0o600)
 }
 
-func firstEnv(names ...string) string {
-	for _, name := range names {
-		if v := strings.TrimSpace(os.Getenv(name)); v != "" {
-			return v
-		}
-	}
-	return ""
-}
+// Ensure strings import is used
+var _ = strings.ReplaceAll

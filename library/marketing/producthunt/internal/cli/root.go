@@ -13,40 +13,32 @@ import (
 	"text/tabwriter"
 	"time"
 
+	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/marketing/producthunt/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/marketing/producthunt/internal/config"
-	"github.com/spf13/cobra"
 )
 
-var version = "1.1.0"
+var version = "1.0.0"
 
 type rootFlags struct {
-	asJSON       bool
-	compact      bool
-	csv          bool
-	plain        bool
-	quiet        bool
-	dryRun       bool
-	noCache      bool
-	noInput      bool
-	yes          bool
-	agent        bool
-	selectFields string
-	configPath   string
-	profileName  string
-	deliverSpec  string
-	timeout      time.Duration
-	rateLimit    float64
-	dataSource   string
-
-	// Self-warming knobs. See ph_autosync.go.
-	noAutoSync bool
-	caller     string
-
-	// Populated by EnsureFresh when an auto-sync-aware command runs it.
-	// Attached to the command's JSON output as _meta.auto_synced via
-	// attachAutoSyncMeta before the result goes to printOutputWithFlags.
-	autoSyncMeta *AutoSyncMeta
+	asJSON        bool
+	compact       bool
+	csv           bool
+	plain         bool
+	quiet         bool
+	dryRun        bool
+	noCache       bool
+	noInput       bool
+	yes           bool
+	agent         bool
+	selectFields  string
+	configPath    string
+	profileName   string
+	deliverSpec   string
+	timeout       time.Duration
+	rateLimit     float64
+	dataSource    string
+	freshnessMeta any
 
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
@@ -54,34 +46,60 @@ type rootFlags struct {
 	deliverSink DeliverSink
 }
 
+// RootCmd returns the Cobra command tree without executing it. The MCP server
+// uses this to mirror every user-facing command as an agent tool.
+func RootCmd() *cobra.Command {
+	var flags rootFlags
+	return newRootCmd(&flags)
+}
+
 // Execute runs the CLI in non-interactive mode: never prompts, all values via flags or stdin.
 func Execute() error {
 	var flags rootFlags
+	rootCmd := newRootCmd(&flags)
 
+	err := rootCmd.Execute()
+	if err != nil && strings.Contains(err.Error(), "unknown flag") {
+		msg := err.Error()
+		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
+		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
+			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
+			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
+				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
+			}
+		}
+	}
+	if err == nil && flags.deliverBuf != nil {
+		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
+			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
+			return derr
+		}
+	}
+	return err
+}
+
+func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "producthunt-pp-cli",
-		Short: `Token-free Product Hunt CLI — browse today's featured launches, sync a local history, and compose views PH's own site doesn't expose.`,
-		Long: `Token-free Product Hunt CLI.
+		Short: `Read and analyze Product Hunt launches, topics, comments, and your own profile via the official GraphQL API (free personal token), with a token-free RSS fallback.`,
+		Long: `Read and analyze Product Hunt launches, topics, comments, and your own profile via the official GraphQL API (free personal token), with a token-free RSS fallback.
 
-Read the public Atom feed, persist a local SQLite history, and compose trend, calendar,
-maker, and tagline views that Product Hunt's own UI hides. Anonymous mode needs no
-OAuth, no complexity budget, and no resident browser; optional GraphQL auth unlocks
-historical backfill and search enrichment.
+Highlights (not in the official API docs):
+  • posts launch-day   Renders your launch's votes-over-time trajectory side-by-side with today's top …
+  • posts benchmark   Reports percentile curves at hour-N for top-10 and top-50 launches in a topic, …
+  • posts trajectory   Plots a single launch's votes-over-time from local snapshots. Foundational for …
+  • posts questions   Surfaces only comments that look like real questions (regex '?' plus heuristic …
+  • posts compare   Column-aligned comparison of two or more launches: votes, comments, topics, tag…
+  • category snapshot   Slide-deck-ready brief for a topic over a window: leaderboard + momentum delta …
+  • posts grep   Searches taglines and descriptions of launches in a window for a term — your br…
+  • posts lookalike   Given a launch slug, finds the most similar prior launches by topic overlap plu…
+  • launches calendar   Shows what launched what day in a week (and prior weeks for context), with hour…
+  • topics watch   Detects new posts crossing a vote threshold in a topic since the last sync. Syn…
+  • posts since   Local-first time-window query: 'posts since 2h', 'posts since 24h'. Falls throu…
+  • context   Returns a single JSON blob covering top posts in a window, top comments, topic …
 
-Highlights (only possible because we keep a local /feed snapshot store):
-  • trend <slug>       First-seen and how long a product lingered on the feed
-  • calendar --week    Week-at-a-glance: which products were featured each day
-  • makers --since 30d Top authors across every snapshot in a window
-  • outbound-diff      Products whose external landing URL changed between syncs
-  • tagline-grep       Regex/FTS search across every tagline we've ever seen
-  • watch              New-since-last-sync diff, idempotent and cron-friendly
-  • authors related    Co-occurrence graph from authors that appear together in snapshots
-  • doctor             Atom-first health check — /feed parse, store schema, CF-gate story
-
-Agent mode: add --agent to any command for JSON output + non-interactive defaults.
-Health check: run 'producthunt-pp-cli doctor' first if something looks empty.
-Known limits: Cloudflare gates the HTML site; deep-page commands (post detail, comments,
-historical leaderboards, topic feeds, user profiles) are shipped as explicit stubs.
+Agent mode: add --agent to any command for JSON output + non-interactive mode.
+Health check: run 'producthunt-pp-cli doctor' to verify auth and connectivity.
 See README.md or the bundled SKILL.md for recipes.`,
 		SilenceUsage: true,
 		Version:      version,
@@ -107,8 +125,6 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'producthunt-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
-	rootCmd.PersistentFlags().BoolVar(&flags.noAutoSync, "no-auto-sync", false, "Skip the automatic Atom sync that read commands run when the local store is >24h stale")
-	rootCmd.PersistentFlags().StringVar(&flags.caller, "caller", "", "Identify the calling integrator in logs (e.g. 'last30days/3.0.1') for debugging and diagnostics")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		if flags.deliverSpec != "" {
@@ -163,65 +179,35 @@ See README.md or the bundled SKILL.md for recipes.`,
 		}
 		return nil
 	}
-	rootCmd.AddCommand(newDoctorCmd(&flags))
-	rootCmd.AddCommand(newAuthCmd(&flags))
-	rootCmd.AddCommand(newAgentContextCmd(rootCmd, &flags))
-	rootCmd.AddCommand(newProfileCmd(&flags))
-	rootCmd.AddCommand(newFeedbackCmd(&flags))
-	rootCmd.AddCommand(newWhichCmd(&flags))
-	rootCmd.AddCommand(newExportCmd(&flags))
-	rootCmd.AddCommand(newImportCmd(&flags))
-	rootCmd.AddCommand(newSyncCmd(&flags))
-	rootCmd.AddCommand(newBackfillCmd(&flags))
-	rootCmd.AddCommand(newWorkflowCmd(&flags))
-	rootCmd.AddCommand(newAPICmd(&flags))
-	rootCmd.AddCommand(newFeedPromotedCmd(&flags))
+	rootCmd.AddCommand(newDoctorCmd(flags))
+	rootCmd.AddCommand(newAuthCmd(flags))
+	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
+	rootCmd.AddCommand(newProfileCmd(flags))
+	rootCmd.AddCommand(newFeedbackCmd(flags))
+	rootCmd.AddCommand(newWhichCmd(flags))
+	rootCmd.AddCommand(newExportCmd(flags))
+	rootCmd.AddCommand(newImportCmd(flags))
+	rootCmd.AddCommand(newSyncCmd(flags))
+	rootCmd.AddCommand(newWorkflowCmd(flags))
+	rootCmd.AddCommand(newAPICmd(flags))
+	rootCmd.AddCommand(newFeedPromotedCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
+	// Product Hunt domain commands (Phase 3 hand-built):
+	rootCmd.AddCommand(newPostsCmd(flags))
+	rootCmd.AddCommand(newCommentsCmd(flags))
+	rootCmd.AddCommand(newCollectionsCmd(flags))
+	rootCmd.AddCommand(newTopicsCmd(flags))
+	rootCmd.AddCommand(newUsersCmd(flags))
+	rootCmd.AddCommand(newCategoryCmd(flags))
+	rootCmd.AddCommand(newLaunchesCmd(flags))
+	rootCmd.AddCommand(newContextCmd(flags))
+	rootCmd.AddCommand(newWhoamiCmd(flags))
+	rootCmd.AddCommand(newTodayCmd(flags))
+	rootCmd.AddCommand(newRecentCmd(flags))
+	rootCmd.AddCommand(newSearchCmd(flags))
+	rootCmd.AddCommand(newSQLCmd(flags))
 
-	// Product-Hunt-specific commands. Absorbed and transcendence features.
-	rootCmd.AddCommand(newTodayCmd(&flags))
-	rootCmd.AddCommand(newRecentCmd(&flags))
-	rootCmd.AddCommand(newListCmd(&flags))
-	rootCmd.AddCommand(newSearchCmd(&flags))
-	rootCmd.AddCommand(newGetCmd(&flags))
-	rootCmd.AddCommand(newOpenCmd(&flags))
-	rootCmd.AddCommand(newTrendCmd(&flags))
-	rootCmd.AddCommand(newWatchCmd(&flags))
-	rootCmd.AddCommand(newMakersCmd(&flags))
-	rootCmd.AddCommand(newCalendarCmd(&flags))
-	rootCmd.AddCommand(newOutboundDiffCmd(&flags))
-	rootCmd.AddCommand(newTaglineGrepCmd(&flags))
-	rootCmd.AddCommand(newAuthorsCmd(&flags))
-
-	// CF-gated honest stubs: shipped so agents discover the gaps rather
-	// than hitting mysterious empty results. Each emits a structured
-	// JSON explanation and exits non-zero.
-	rootCmd.AddCommand(newPostCmd(&flags))
-	rootCmd.AddCommand(newCommentsCmd(&flags))
-	rootCmd.AddCommand(newLeaderboardCmd(&flags))
-	rootCmd.AddCommand(newTopicCmd(&flags))
-	rootCmd.AddCommand(newUserCmd(&flags))
-	rootCmd.AddCommand(newCollectionCmd(&flags))
-	rootCmd.AddCommand(newNewsletterCmd(&flags))
-
-	err := rootCmd.Execute()
-	if err != nil && strings.Contains(err.Error(), "unknown flag") {
-		msg := err.Error()
-		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
-		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
-			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
-			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
-				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
-			}
-		}
-	}
-	if err == nil && flags.deliverBuf != nil {
-		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
-			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
-			return derr
-		}
-	}
-	return err
+	return rootCmd
 }
 
 func ExitCode(err error) int {

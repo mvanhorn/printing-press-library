@@ -14,8 +14,11 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/marketing/producthunt/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/marketing/producthunt/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/marketing/producthunt/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/marketing/producthunt/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/marketing/producthunt/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/marketing/producthunt/internal/store"
 )
 
@@ -23,25 +26,20 @@ import (
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("feed_get",
-			mcplib.WithDescription("Fetch the 50-entry public Atom feed of recent featured launches"),
+			mcplib.WithDescription("Fetch Product Hunt's public Atom feed at https://www.producthunt.com/feed without any authentication. Returns the last ~47 entries (about 6 weeks of featured launches) as raw Atom XML; each entry has id, title, published/updated timestamps, link, content (HTML, brief), and author name. Use this for token-free daily skim or as a fallback when the GraphQL API is rate-limited; for vote counts, comment counts, makers, topics, or full descriptions use a GraphQL-backed tool like `posts_list`, `today`, or `recent`."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/feed", []string{}),
-	)
-	// Sync tool — populates local database for offline search and sql queries
-	s.AddTool(
-		mcplib.NewTool("sync",
-			mcplib.WithDescription("Sync API data to local SQLite database. Run this before using search or sql tools. Supports incremental sync."),
-			mcplib.WithString("resources", mcplib.Description("Comma-separated resource types to sync (omit for all)")),
-			mcplib.WithString("since", mcplib.Description("Incremental sync since duration (e.g. 7d, 24h, 1w)")),
-			mcplib.WithBoolean("full", mcplib.Description("Full resync ignoring checkpoints")),
-		),
-		handleSync,
 	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
 			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT only). Tables match resource names.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleSQL,
 	)
@@ -51,9 +49,15 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("context",
 			mcplib.WithDescription("Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleContext,
 	)
+
+	// Runtime Cobra-tree mirror — exposes every user-facing command that is
+	// not already covered by a typed endpoint or framework MCP tool.
+	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
@@ -116,14 +120,21 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 			switch {
 			case strings.Contains(msg, "HTTP 409"):
 				return mcplib.NewToolResultText("already exists (no-op)"), nil
+			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
+				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
+					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
+					"\n      Set your API key: export PRODUCT_HUNT_TOKEN=<your-key>" +
+					"\n      Run 'producthunt-pp-cli-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
-				return mcplib.NewToolResultError("authentication failed: " + msg +
-					"\nhint: check your API credentials." +
-					"\n      Run 'producthunt-pp-cli doctor' to check auth status."), nil
+				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
+					"\nhint: check your token." +
+					"\n      Set it with: export PRODUCT_HUNT_TOKEN=<your-key>" +
+					"\n      Run 'producthunt-pp-cli-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
-				return mcplib.NewToolResultError("permission denied: " + msg +
+				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: your credentials are valid but lack access to this resource." +
-					"\n      Run 'producthunt-pp-cli doctor' to check auth status."), nil
+					"\n      Set it with: export PRODUCT_HUNT_TOKEN=<your-key>" +
+					"\n      Run 'producthunt-pp-cli-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
 					return mcplib.NewToolResultText("already deleted (no-op)"), nil
@@ -157,7 +168,7 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 
 func newMCPClient() (*client.Client, error) {
 	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "producthunt-pp-cli", "config.toml")
+	cfgPath := filepath.Join(home, ".config", "producthunt-pp-cli-pp-cli", "config.toml")
 	cfg, err := config.Load(cfgPath)
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
@@ -167,15 +178,11 @@ func newMCPClient() (*client.Client, error) {
 
 func dbPath() string {
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".local", "share", "producthunt-pp-cli", "data.db")
+	return filepath.Join(home, ".local", "share", "producthunt-pp-cli-pp-cli", "data.db")
 }
 
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
-
-func handleSync(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	return mcplib.NewToolResultText("sync not yet implemented via MCP - use the CLI: producthunt-pp-cli sync"), nil
-}
 
 func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
@@ -192,7 +199,7 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		}
 	}
 
-	db, err := store.Open(dbPath())
+	db, err := store.OpenWithContext(ctx, dbPath())
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
@@ -226,15 +233,20 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
-		"api":          "producthunt",
-		"description":  "Token-free Product Hunt CLI — browse today's featured launches, sync locally, and compose views the website itself...",
-		"archetype":    "generic",
-		"tool_count":   1,
-		"tool_surface": "MCP exposes the endpoints listed under `resources` (plus sync/search/sql/context utilities when present). Items under `cli_only_capabilities` require running the companion producthunt-pp-cli binary; the MCP cannot invoke them.",
+		"api":         "producthunt-pp-cli",
+		"description": "Read Product Hunt from your terminal — works token-free for the daily skim, unlocks a launch-day cockpit and a...",
+		"archetype":   "generic",
+		"tool_count":  1,
+		// tool_surface tells agents which surface a capability lives on.
+		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion producthunt-pp-cli-pp-cli binary.",
+		"auth": map[string]any{
+			"type":     "bearer_token",
+			"env_vars": []string{"PRODUCT_HUNT_TOKEN"},
+		},
 		"resources": []map[string]any{
 			{
 				"name":        "feed",
-				"description": "Public Atom feed of featured Product Hunt launches",
+				"description": "Public Atom feed of featured Product Hunt launches (no auth required)",
 				"endpoints":   []string{"get"},
 			},
 		},
@@ -245,32 +257,44 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
 		},
-		"cli_only_capabilities": []map[string]string{
-			{"name": "First-seen trajectory", "command": "trend", "description": "See when a product first appeared in the Product Hunt feed and how many days it lingered there.", "rationale": "Product Hunt's own UI shows current day rank but hides historical presence; a local /feed snapshot store makes this...", "via": "cli"},
-			{"name": "Launch-calendar", "command": "calendar", "description": "Week-at-a-glance showing which products were featured each day.", "rationale": "Requires multiple daily snapshots of the /feed joined by first-seen date; no single API call yields this.", "via": "cli"},
-			{"name": "Maker burn chart", "command": "makers", "description": "Top authors (makers or hunters) across all synced /feed snapshots in a time window.", "rationale": "Aggregates the Atom author field across every snapshot — a single /feed snapshot only surfaces that day's 50 authors.", "via": "cli"},
-			{"name": "Outbound-URL drift", "command": "outbound-diff", "description": "Detect products whose external landing URL changed between sync cycles.", "rationale": "Each /feed entry's canonical link hops through PH's /r/p/<id> redirect; comparing across snapshots surfaces...", "via": "cli"},
-			{"name": "Tagline grep", "command": "tagline-grep", "description": "Regex/FTS search across every tagline the CLI has ever seen.", "rationale": "/feed taglines are dense, high-signal one-liners; an FTS-backed archive over time turns them into a semantic filter.", "via": "cli"},
-			{"name": "New-since-last-sync watcher", "command": "watch", "description": "Show only entries that appeared since the last sync. Idempotent; cron-friendly.", "rationale": "Requires the last snapshot to diff against; /feed alone can't tell you what's new to you.", "via": "cli"},
-			{"name": "Author-co-occurrence graph", "command": "authors related", "description": "Authors who repeatedly appear alongside a given author in the same /feed snapshots.", "rationale": "A rough social signal derived purely from the Atom author field across many snapshots.", "via": "cli"},
-			{"name": "Atom-first doctor", "command": "doctor", "description": "Probe /feed, parse the Atom XML, validate store schema, and surface exact failure modes.", "rationale": "This CLI's reachability story is unusual (only /feed works); the doctor has to explain the CF gate on HTML routes...", "via": "cli"},
+		// Command-mirror capabilities are exposed through MCP by shelling out
+		// to the companion CLI binary.
+		"command_mirror_capabilities": []map[string]string{
+			{"name": "Launch-day tracker", "command": "posts launch-day", "description": "Renders your launch's votes-over-time trajectory side-by-side with today's top 5 launches — the answer to 'am I...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Hour-by-hour benchmark", "command": "posts benchmark", "description": "Reports percentile curves at hour-N for top-10 and top-50 launches in a topic, computed from accumulated local...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Vote trajectory", "command": "posts trajectory", "description": "Plots a single launch's votes-over-time from local snapshots. Foundational for launch-day-tracker; also useful...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Comments → genuine questions", "command": "posts questions", "description": "Surfaces only comments that look like real questions (regex `?` plus heuristic verbs like 'how does', 'what's the',...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Side-by-side launch compare", "command": "posts compare", "description": "Column-aligned comparison of two or more launches: votes, comments, topics, tagline, url, launch-time delta....", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Category snapshot", "command": "category snapshot", "description": "Slide-deck-ready brief for a topic over a window: leaderboard + momentum delta vs prior window + most active poster...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Brand-mention grep", "command": "posts grep", "description": "Searches taglines and descriptions of launches in a window for a term — your brand, a competitor's brand, a...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Lookalike launches", "command": "posts lookalike", "description": "Given a launch slug, finds the most similar prior launches by topic overlap plus tagline FTS rank. Builds a...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Launches calendar", "command": "launches calendar", "description": "Shows what launched what day in a week (and prior weeks for context), with hour-of-day distribution. Helps a founder...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Topic watch", "command": "topics watch", "description": "Detects new posts crossing a vote threshold in a topic since the last sync. Synthesizes an offline subscription...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Time-window posts query", "command": "posts since", "description": "Local-first time-window query: `posts since 2h`, `posts since 24h`. Falls through to live GraphQL if the window...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Agent context snapshot", "command": "context", "description": "Returns a single JSON blob covering top posts in a window, top comments, topic followers, and your viewer status....", "rationale": "", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "First-seen trajectory", "insight": "Product Hunt's own UI shows current day rank but hides historical presence; a local /feed snapshot store makes this queryable."},
-			{"topic": "Launch-calendar", "insight": "Requires multiple daily snapshots of the /feed joined by first-seen date; no single API call yields this."},
-			{"topic": "Maker burn chart", "insight": "Aggregates the Atom author field across every snapshot — a single /feed snapshot only surfaces that day's 50 authors."},
-			{"topic": "Outbound-URL drift", "insight": "Each /feed entry's canonical link hops through PH's /r/p/<id> redirect; comparing across snapshots surfaces beta→launch domain moves."},
-			{"topic": "Tagline grep", "insight": "/feed taglines are dense, high-signal one-liners; an FTS-backed archive over time turns them into a semantic filter."},
-			{"topic": "New-since-last-sync watcher", "insight": "Requires the last snapshot to diff against; /feed alone can't tell you what's new to you."},
-			{"topic": "Author-co-occurrence graph", "insight": "A rough social signal derived purely from the Atom author field across many snapshots."},
-			{"topic": "Atom-first doctor", "insight": "This CLI's reachability story is unusual (only /feed works); the doctor has to explain the CF gate on HTML routes and the /feed health in one place."},
+			{"topic": "Launch-day tracker", "insight": ""},
+			{"topic": "Hour-by-hour benchmark", "insight": ""},
+			{"topic": "Vote trajectory", "insight": ""},
+			{"topic": "Comments → genuine questions", "insight": ""},
+			{"topic": "Side-by-side launch compare", "insight": ""},
+			{"topic": "Category snapshot", "insight": ""},
+			{"topic": "Brand-mention grep", "insight": ""},
+			{"topic": "Lookalike launches", "insight": ""},
+			{"topic": "Launches calendar", "insight": ""},
+			{"topic": "Topic watch", "insight": ""},
+			{"topic": "Time-window posts query", "insight": ""},
+			{"topic": "Agent context snapshot", "insight": ""},
 		},
 	}
 	data, _ := json.MarshalIndent(ctx, "", "  ")
 	return mcplib.NewToolResultText(string(data)), nil
 }
 
-// RegisterNovelFeatureTools registers MCP tools that shell out to the
-// companion CLI binary. Empty body when the spec has no novel features.
+// RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP
+// mains. New generated mains call RegisterTools only; RegisterTools now
+// includes the runtime Cobra-tree mirror.
 func RegisterNovelFeatureTools(s *server.MCPServer) {
+	_ = s
 }

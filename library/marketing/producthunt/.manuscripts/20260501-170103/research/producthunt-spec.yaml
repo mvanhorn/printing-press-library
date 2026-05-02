@@ -1,0 +1,145 @@
+name: producthunt
+description: "Read Product Hunt from your terminal — works token-free for the daily skim, unlocks a launch-day cockpit and a marketer research desk in one onboarding step."
+version: "0.1.0"
+kind: synthetic
+spec_source: composed
+http_transport: standard
+website_url: "https://www.producthunt.com"
+category: marketing
+base_url: "https://www.producthunt.com"
+cli_description: "Read and analyze Product Hunt launches, topics, comments, and your own profile via the official GraphQL API (free personal token), with a token-free RSS fallback."
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  env_vars:
+    - PRODUCT_HUNT_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/producthunt-pp-cli/config.toml"
+
+resources:
+  feed:
+    description: "Public Atom feed of featured Product Hunt launches (no auth required)"
+    endpoints:
+      get:
+        method: GET
+        path: "/feed"
+        description: "Fetch the public Atom feed of recent featured launches; needs no token"
+        no_auth: true
+        response:
+          type: text
+          item: string
+
+extra_commands:
+  - name: posts
+    description: "Get, list, and analyze Product Hunt launches via GraphQL"
+  - name: posts get
+    args: "<id-or-slug>"
+    description: "Fetch full detail for a single launch (votes, comments, topics, makers, media)"
+  - name: posts list
+    description: "List launches filtered by topic, order, featured-flag, or posted-after window"
+  - name: posts comments
+    args: "<id-or-slug>"
+    description: "List comments on a launch (commenter identities are redacted by Product Hunt)"
+  - name: posts trajectory
+    args: "<slug>"
+    description: "Plot a launch's votes-over-time from local snapshots"
+  - name: posts launch-day
+    args: "<my-slug>"
+    description: "Render YOUR launch's trajectory side-by-side with today's top 5 launches"
+  - name: posts benchmark
+    description: "Show percentile vote curves at hour-N for top-10 / top-50 launches in a topic"
+  - name: posts compare
+    args: "<slug1> <slug2> [<slug3>...]"
+    description: "Column-aligned comparison of N launches: votes, comments, topics, tagline, url"
+  - name: posts questions
+    args: "<slug>"
+    description: "Filter a launch's comments to only those that look like genuine questions"
+  - name: posts grep
+    description: "Search synced launches' taglines and descriptions for a keyword (brand-mention tracker)"
+  - name: posts lookalike
+    args: "<slug>"
+    description: "Find prior launches in the same topic with similar tagline tokens (competitive set)"
+  - name: posts since
+    args: "<duration>"
+    description: "Local-first time-window query (e.g., `posts since 6h`); falls through to live API"
+  - name: comments
+    description: "Get individual comments by id"
+  - name: comments get
+    args: "<id>"
+    description: "Fetch a single comment by ID"
+  - name: collections
+    description: "Get and list Product Hunt curated collections"
+  - name: collections get
+    args: "<id-or-slug>"
+    description: "Fetch a single collection with its post list"
+  - name: collections list
+    description: "List collections, optionally filtered by featured-flag or by a contained post/user"
+  - name: topics
+    description: "Get, list, and search Product Hunt topics (categories)"
+  - name: topics get
+    args: "<id-or-slug>"
+    description: "Fetch a single topic (followers count, posts count)"
+  - name: topics list
+    description: "List topics, optionally ordered by newest or popularity"
+  - name: topics search
+    args: "<query>"
+    description: "Search topics by name or description"
+  - name: topics watch
+    args: "<slug>"
+    description: "Detect new posts crossing a vote threshold in a topic since the last sync"
+  - name: users
+    description: "Get user profiles and a user's launch/voted history (non-self users redacted by Product Hunt)"
+  - name: users get
+    args: "<id-or-username>"
+    description: "Fetch a user profile (only `whoami`/yourself returns full data; non-self users return [REDACTED])"
+  - name: users posts
+    args: "<username>"
+    description: "List the posts a user has made (post data is unredacted; the user identity itself may be redacted)"
+  - name: users voted-posts
+    args: "<username>"
+    description: "List the posts a user has voted for (same redaction caveat as users posts)"
+  - name: whoami
+    description: "Show the authenticated user (full data; reports remaining complexity-budget and auth mode)"
+  - name: category
+    description: "Marketer research desk: category-level snapshots and trends"
+  - name: category snapshot
+    description: "Slide-deck-ready brief for a topic over a window: leaderboard, momentum delta, active handles, emerging tags"
+  - name: launches
+    description: "Calendar and timing analysis for launch slot picking"
+  - name: launches calendar
+    description: "Show what launched what day in a week, with hour-of-day distribution"
+  - name: context
+    description: "Single-call agent snapshot: top posts + top comments + topic state + viewer in one JSON blob"
+  - name: today
+    description: "Today's top launches (alias for `posts list --order=RANKING --posted-after=midnight`)"
+  - name: recent
+    description: "Most recent launches (alias for `posts list --order=NEWEST`)"
+  - name: search
+    args: "<query>"
+    description: "Full-text search of locally synced posts"
+  - name: sync
+    description: "Sync the local store: posts, topics, collections, comments (cursor-based, resumable)"
+  - name: sql
+    args: "<query>"
+    description: "Read-only SQL against the local SQLite store"
+  - name: auth
+    description: "Manage Product Hunt authentication (developer token by default, OAuth client_credentials alternate)"
+  - name: auth onboard
+    description: "Interactive wizard: walks you through creating a free OAuth app, prefills `https://localhost/callback` for the unused redirect URI, accepts your developer token, validates with a `viewer` ping, writes config"
+  - name: auth set-token
+    args: "<token>"
+    description: "Set the developer token explicitly without going through the onboarding wizard"
+  - name: auth status
+    description: "Report which auth mode is active and what data it can access"
+  - name: doctor
+    description: "Auth-stage-aware diagnostic: tells you whether to onboard, regenerate a token, or wait for a budget reset"
+
+mcp:
+  transport: ["stdio", "http"]
+
+cache:
+  enabled: true
+  default_ttl_hours: 24

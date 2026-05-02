@@ -1,0 +1,39 @@
+Quality Scorecard: producthunt-pp-cli
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          9/10
+  README               8/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          9/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency 0/10
+  MCP Remote Transport 5/10
+  MCP Tool Design      N/A
+  MCP Surface Strategy N/A
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              7/10
+  Vision               8/10
+  Workflows            8/10
+  Insight              4/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           N/A
+  Auth Protocol           6/10
+  Data Pipeline Integrity 7/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           2/5
+  Dead Code               5/5
+
+  Total: 75/100 - Grade B
+  Note: omitted from denominator: mcp_description_quality, mcp_tool_design, mcp_surface_strategy, path_validity, live_api_verification
+
+Gaps:
+  - mcp_token_efficiency scored 0/10 - needs improvement
+  - insight scored 4/10 - needs improvement
+  - MCP: 1 tools (1 public, 0 auth-required) — readiness: full

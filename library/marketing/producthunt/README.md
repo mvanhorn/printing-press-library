@@ -1,16 +1,10 @@
 # Product Hunt CLI
 
-**A self-warming terminal view of Product Hunt.**
+**Read Product Hunt from your terminal — works token-free for the daily skim, unlocks a launch-day cockpit and a marketer research desk in one onboarding step.**
 
-[Product Hunt](https://www.producthunt.com) is the daily launch board for new products — makers post, hunters submit, and the community votes and comments.
+A two-tier CLI for Product Hunt. The public Atom feed works with zero setup. A single `producthunt auth onboard` walks you through generating a free personal developer token (callback-URL trick included) to unlock the full GraphQL surface — posts, topics, collections, comments, viewer — plus the launch-day cockpit (trajectories, benchmarks, side-by-side compare, comment question-triage) and the marketer research desk (category snapshot, brand-mention grep, lookalike, launch calendar) that PH's UI has never offered.
 
-This CLI ships three tiers of access, picking the lightest one automatically:
-
-1. **Atom auto-sync (always on, no auth).** Every read command checks whether the local SQLite store is stale (>24h since last sync) and silently fetches the public `/feed` before serving the query. Integrators just call `search`/`list`/etc. — the CLI keeps itself fresh. This builds history from the moment you start syncing.
-2. **`search --enrich` (opt-in, authenticated).** When local results are thin for a topic, fires one narrow GraphQL query for that topic over the last 30 days. Fail-soft: if Product Hunt GraphQL auth isn't configured or the budget is close to the floor, local results are returned with structured metadata explaining the skipped enrichment.
-3. **`backfill` (explicit, authenticated).** Paginates the Product Hunt GraphQL `posts` field over a window (default 30 days) and seeds the store in one shot. Budget-aware, resumable via `backfill resume`. Used for cold-starts, gap recovery after offline periods, or deliberate historical windows.
-
-Every command speaks JSON, filters fields with `--select`, and exits with typed codes for scripts and agents.
+Learn more at [Product Hunt](https://www.producthunt.com).
 
 ## Install
 
@@ -26,276 +20,200 @@ Download from [Releases](https://github.com/mvanhorn/printing-press-library/rele
 
 ## Authentication
 
-The Atom runtime is token-free by construction. All the daily-driver commands (`sync`, `today`, `recent`, `list`, `search`, `trend`, `calendar`, `makers`, `tagline-grep`, `watch`, `outbound-diff`) read the public `/feed` and need no credentials.
-
-Product Hunt GraphQL auth is opt-in and unlocks two capabilities that the anonymous Atom feed cannot provide:
-
-- `search --enrich` — top up thin local search results from the GraphQL API
-- `backfill` — bulk-seed historical posts in one call
-
-Anonymous mode cannot retroactively backfill the past because `/feed` exposes only the current feed window. It can build durable long-term history by running `sync` or relying on auto-sync from now forward.
-
-For guided setup:
-
-```bash
-producthunt-pp-cli auth setup
-```
-
-OAuth app path:
-
-```bash
-# Visit https://www.producthunt.com/v2/oauth/applications
-# Create an app:
-#   Name: producthunt-pp-cli
-#   Redirect URI: https://localhost/callback
-producthunt-pp-cli auth register
-```
-
-Agent/CI path:
-
-```bash
-PRODUCTHUNT_CLIENT_ID=... PRODUCTHUNT_CLIENT_SECRET=... \
-  producthunt-pp-cli auth register --no-input
-
-PRODUCTHUNT_DEVELOPER_TOKEN=... \
-  producthunt-pp-cli auth set-token --token-env PRODUCTHUNT_DEVELOPER_TOKEN
-```
-
-The CLI saves credentials to `~/.config/producthunt-pp-cli/config.toml` with `0600` perms. Revoke with `auth logout`. `auth status --json`, `doctor --json`, and `agent-context` expose whether GraphQL-powered features are currently available.
-
-Product Hunt's HTML pages (post detail, user profiles, topic pages, historical leaderboards, newsletter archive) are gated by Cloudflare against automated HTTP clients. Commands that would need those routes (`post`, `comments`, `leaderboard`, `topic`, `user`, `collection`, `newsletter`) ship as explicit stubs that emit a structured JSON explanation and exit with code 3. They are named in the command reference below so agents and scripts can discover the gap without hitting opaque timeouts.
+Product Hunt's GraphQL API supports two auth modes; the CLI handles both. Recommended for personal use: visit https://www.producthunt.com/v2/oauth/applications, create an application (the redirect URL field is required by the form but unused for personal-token flow — set it to `https://localhost/callback`), then scroll to the bottom of the app page and click `Create Token` to generate a developer token that never expires. Set `PRODUCT_HUNT_TOKEN=<your-token>` or run `producthunt auth onboard` for an interactive walkthrough. For CI/automation, the alternate mode is OAuth `client_credentials`: set `PRODUCT_HUNT_CLIENT_ID` and `PRODUCT_HUNT_CLIENT_SECRET` from the same app page; the CLI exchanges them for an access token internally and refreshes on 401 (note: under OAuth client_credentials, the `whoami` command returns null because the public scope has no user context). The public Atom feed (`producthunt feed`) needs no token at all.
 
 ## Quick Start
 
 ```bash
-# First run: no setup needed — auto-sync fires when the store is stale.
-producthunt-pp-cli search "ai agent"
+# Token-free first read — the public Atom feed surfaces the latest 5 launches
+producthunt feed --count 5
 
-# Or kick off a manual sync explicitly.
-producthunt-pp-cli sync
 
-# Optional Tier 2/3: configure Product Hunt GraphQL, then bulk-seed 30 days.
-producthunt-pp-cli auth setup
-producthunt-pp-cli auth register
-producthunt-pp-cli backfill --days 30 --dry-run  # estimate first
-producthunt-pp-cli backfill --days 30
+# Interactive setup for the personal developer token (includes the callback URL trick)
+producthunt auth onboard
 
-# Agent-friendly shortlist with only the fields you want.
-producthunt-pp-cli today --limit 10 --json --select 'slug,title,tagline,author'
 
-# Rank trajectory for a slug across every snapshot you've synced.
-# (Replace 'seeknal' with any real slug from 'today' output.)
-producthunt-pp-cli trend seeknal --json
+# Confirms the token works and shows your remaining complexity-points budget
+producthunt doctor
 
-# Diff the live feed against your last sync; idempotent, cron-safe.
-producthunt-pp-cli watch --agent
 
-# Regex search across every tagline ever synced.
-producthunt-pp-cli tagline-grep 'ai.*agent' --since 90d
+# GraphQL-backed snapshot of today's top launches with votes, comments, and topics
+producthunt today
+
+
+# Full detail for a single launch by slug — agent-friendly JSON
+producthunt posts get notion --json
+
+
+# Backfill the local store so trajectories, benchmarks, and offline search work
+producthunt sync --resource posts --posted-after 2026-04-01
+
 ```
 
 ## Unique Features
 
-These capabilities aren't available in any other Product Hunt tool.
+These capabilities aren't available in any other tool for this API.
 
-### Local state that compounds
+### Founder launch-day cockpit
+- **`posts launch-day`** — Renders your launch's votes-over-time trajectory side-by-side with today's top 5 launches — the answer to 'am I catching up to the leader.' Sync-driven, refreshes from the local store.
 
-- **`trend`** — See when a product first appeared on the feed, how many days it lingered, and its best/worst rank across every snapshot.
-
-  _Reach for this when you want to judge a product's momentum without a token or the web UI._
+  _Reach for this on launch day when a maker asks 'how am I tracking vs the leaders' — the side-by-side trajectories replace ten tabs._
 
   ```bash
-  producthunt-pp-cli trend seeknal --json
+  producthunt posts launch-day my-launch-slug --json
+  ```
+- **`posts benchmark`** — Reports percentile curves at hour-N for top-10 and top-50 launches in a topic, computed from accumulated local history. Tells a founder if their hour-6 votes are 'good' for their category.
+
+  _Use before launching to set realistic targets, or during launch to know whether a slow start is normal for the category or a real problem._
+
+  ```bash
+  producthunt posts benchmark --topic artificial-intelligence --hour 6 --json
+  ```
+- **`posts trajectory`** — Plots a single launch's votes-over-time from local snapshots. Foundational for launch-day-tracker; also useful standalone for retro analysis after the fact.
+
+  _Reach for this when reviewing a past launch or competitor — the curve shows momentum that a single end-of-day vote count hides._
+
+  ```bash
+  producthunt posts trajectory my-launch-slug --json
+  ```
+- **`posts questions`** — Surfaces only comments that look like real questions (regex `?` plus heuristic verbs like 'how does', 'what's the', 'can it'), ranked by vote count. Cuts hundreds of launch-day comments down to the ones that need a maker's reply.
+
+  _Use during or after launch day to identify which comments deserve a real reply versus which are cheerleading or spam._
+
+  ```bash
+  producthunt posts questions my-launch-slug --json
+  ```
+- **`posts compare`** — Column-aligned comparison of two or more launches: votes, comments, topics, tagline, url, launch-time delta. Replaces juggling browser tabs.
+
+  _Pick this when a founder is benchmarking their launch against precedents or a marketer is triangulating between similar competitive launches._
+
+  ```bash
+  producthunt posts compare cursor-ide windsurf-ide claude-code --json
   ```
 
-- **`calendar`** — Week-at-a-glance showing which products were featured each day. Zero-count days are included so the window is always complete.
+### Marketer research desk
+- **`category snapshot`** — Slide-deck-ready brief for a topic over a window: leaderboard + momentum delta vs prior window + most active poster handles + top emerging tagline tags.
 
-  _Use for retrospectives, competitive scans, or weekly maker newsletters._
+  _Reach for this on weekly category-research cadence — the single-output brief replaces opening 30 launch pages by hand._
 
   ```bash
-  producthunt-pp-cli calendar --week 2026-W16 --agent
+  producthunt category snapshot --topic artificial-intelligence --window weekly --agent --select leaderboard,momentum_delta
+  ```
+- **`posts grep`** — Searches taglines and descriptions of launches in a window for a term — your brand, a competitor's brand, a category keyword. Returns matching launches with the matched snippet.
+
+  _Use this as a recurring brand-mention monitor or to find competitive launches that name your category in their pitch._
+
+  ```bash
+  producthunt posts grep --term "\\bclaude\\b" --since 7d --topic developer-tools --json
+  ```
+- **`posts lookalike`** — Given a launch slug, finds the most similar prior launches by topic overlap plus tagline FTS rank. Builds a competitive set automatically.
+
+  _Reach for this to build a competitive set quickly or to find precedent launches when planning your own positioning._
+
+  ```bash
+  producthunt posts lookalike notion --json --select edges.node.name,edges.node.tagline
+  ```
+- **`launches calendar`** — Shows what launched what day in a week (and prior weeks for context), with hour-of-day distribution. Helps a founder pick a strong launch slot.
+
+  _Use before scheduling a launch to find a less-crowded day or hour in your topic._
+
+  ```bash
+  producthunt launches calendar --topic artificial-intelligence --week 18 --json
   ```
 
-- **`makers`** — Top authors (makers and hunters) aggregated across every snapshot in a time window.
+### Cross-persona monitoring
+- **`topics watch`** — Detects new posts crossing a vote threshold in a topic since the last sync. Synthesizes an offline subscription against an API that has none.
 
-  _Pick this when scouting prolific makers or writing a monthly recap._
-
-  ```bash
-  producthunt-pp-cli makers --since 30d --top 10 --agent
-  ```
-
-- **`outbound-diff`** — Products whose external landing URL changed between sync cycles. Detects beta→launch domain moves and link swaps.
-
-  _Only meaningful after at least two syncs with different URLs; a single snapshot returns `[]` honestly._
+  _Schedule this in cron to alert on notable new launches in a vertical without hammering the GraphQL endpoint._
 
   ```bash
-  producthunt-pp-cli outbound-diff --since 30d --json
-  ```
-
-- **`tagline-grep`** — FTS5 or regex search across every tagline the CLI has ever synced. Auto-switches to regex mode when the pattern contains `.*+?()[]|\` so `ai.*agent` just works.
-
-  ```bash
-  producthunt-pp-cli tagline-grep 'ai.*agent' --since 90d --json --select 'slug,title,tagline,published'
-  ```
-
-- **`authors related`** — Authors who repeatedly appear alongside a given author in the same feed snapshots — a rough social signal from pure /feed data.
-
-  ```bash
-  producthunt-pp-cli authors related --to 'Ryan Hoover' --since 90d --json
+  producthunt topics watch artificial-intelligence --min-votes 200 --json
   ```
 
 ### Agent-native plumbing
+- **`posts since`** — Local-first time-window query: `posts since 2h`, `posts since 24h`. Falls through to live GraphQL if the window extends past the last sync.
 
-- **`watch`** — New entries since the last sync, nothing else. Idempotent: back-to-back runs at the same rate return `new_count: 0` when the feed hasn't changed.
-
-  ```bash
-  producthunt-pp-cli watch --agent --compact
-  ```
-
-### Atom-first diagnostics
-
-- **`doctor`** — Probes `/feed`, parses the Atom body, reports entry count and fetch latency, verifies the local SQLite schema, and names every Cloudflare-gated route so you know why certain commands are stubbed.
+  _Reach for this from agentic flows that ask 'what's new on Product Hunt' — the local-first behavior keeps token costs low and the fall-through guarantees freshness._
 
   ```bash
-  producthunt-pp-cli doctor --json
+  producthunt posts since 6h --json --select edges.node.name,edges.node.votesCount
   ```
+- **`context`** — Returns a single JSON blob covering top posts in a window, top comments, topic followers, and your viewer status. One call answers 'what's the state of this topic right now' for an agent.
+
+  _Use as the first call in an agentic Product Hunt workflow — one snapshot replaces 'list posts then list comments then check viewer'._
+
+  ```bash
+  producthunt context --topic artificial-intelligence --since 24h --json
+  ```
+
+## Usage
+
+Run `producthunt-pp-cli --help` for the full command reference and flag list.
 
 ## Commands
 
-### Reads (backed by /feed + local store)
+### feed
 
-| Command | What it does |
-|---------|--------------|
-| `today` | Top N featured launches (store first, live `/feed` fallback) |
-| `recent` | Live-fetch `/feed`, bypass the store |
-| `sync` | Fetch `/feed` and persist a ranked snapshot |
-| `list` | Filter the local store by author, date range, or sort field |
-| `search <query>` | FTS5 match across titles, taglines, authors, and slugs |
-| `get <slug>` | One post's full `/feed` payload (`info` remains an alias) |
-| `open <slug>` | Launch the Product Hunt page in your default browser |
-| `feed raw` | Dump the raw Atom XML to stdout |
-| `feed refresh` | Alias for `sync` |
+Public Atom feed of featured Product Hunt launches (no auth required)
 
-### Aggregates (only possible because we keep history)
+- **`producthunt-pp-cli feed get`** - Fetch the public Atom feed of recent featured launches; needs no token
 
-| Command | What it does |
-|---------|--------------|
-| `trend <slug>` | Rank trajectory, first/last seen, days on feed, appearances |
-| `watch` | Diff-since-last-sync; optionally records a fresh snapshot |
-| `makers --since <window>` | Top authors across snapshots in a window |
-| `calendar --week` or `--days` | Calendar view from daily snapshots |
-| `outbound-diff` | Products whose external URL changed across syncs |
-| `tagline-grep <pattern>` | FTS or regex search across every tagline seen |
-| `authors related --to <name>` | Co-occurrence graph from snapshots |
-
-### Cloudflare-gated stubs (exit 3, structured JSON)
-
-Cloudflare blocks Product Hunt's HTML routes for automated HTTP clients. These commands exist so scripts and agents discover the gap instead of hitting opaque timeouts. Each emits JSON with `cf_gated: true`, names the alternative, and exits with code 3.
-
-`post <slug>` · `comments <slug>` · `leaderboard {daily,weekly,monthly,yearly}` · `topic <slug>` · `user <handle>` · `collection <slug>` · `newsletter`
-
-### Utility
-
-`doctor` · `version` · `auth {setup,status,register,set-token,logout}` · `profile` · `which` · `feedback` · `agent-context` · `api` · `workflow` · `export` · `import`
-
-Auth is optional: Atom-backed commands need no credentials, while `backfill` and `search --enrich` use configured Product Hunt GraphQL credentials when present.
 
 ## Output Formats
 
 ```bash
-# Human-readable table (default in terminal; JSON when piped).
-producthunt-pp-cli today
+# Human-readable table (default in terminal, JSON when piped)
+producthunt-pp-cli feed
 
-# JSON for scripting and agents.
-producthunt-pp-cli today --json
+# JSON for scripting and agents
+producthunt-pp-cli feed --json
 
-# Narrow to exactly the fields you want (dotted paths descend into nested structures).
-producthunt-pp-cli today --json --select 'slug,title,tagline,author,published'
+# Filter to specific fields
+producthunt-pp-cli feed --json --select id,name,status
 
-# CSV for spreadsheets.
-producthunt-pp-cli list --since 30d --csv --select 'id,slug,title,author,published'
+# Dry run — show the request without sending
+producthunt-pp-cli feed --dry-run
 
-# Show what sync would do without writing.
-producthunt-pp-cli sync --dry-run-feed
-
-# Agent mode: JSON + compact + no prompts + no color in one flag.
-producthunt-pp-cli today --agent
-```
-
-## Cookbook
-
-```bash
-# Daily agent briefing — sync, then narrow payload for the model.
-producthunt-pp-cli sync && \
-  producthunt-pp-cli today --limit 10 --agent --select 'slug,title,tagline,author,published'
-
-# Weekly maker recap — aggregate authors from the last 7 days of snapshots.
-producthunt-pp-cli makers --since 7d --top 10 --agent
-
-# Tagline trend check — regex across 90 days of taglines.
-producthunt-pp-cli tagline-grep 'agent|copilot' --since 90d --json \
-  --select 'slug,title,tagline,published'
-
-# Scraper-parity CSV export — matches the column set of fernandod1/ProductHunt-scraper.
-producthunt-pp-cli list --since 30d --csv \
-  --select 'id,slug,title,tagline,author,published,discussion_url,external_url' > ph.csv
-
-# Cron-friendly new-launch watcher.
-producthunt-pp-cli watch --agent --compact
-
-# Rank trajectory for a specific slug.
-producthunt-pp-cli trend <slug> --json --select 'slug,title,best_rank,appearance_count,days_on_feed'
-
-# Open a product page in your browser from a slug.
-producthunt-pp-cli open <slug>
-
-# Full-text search the local store.
-producthunt-pp-cli search 'ai agent' --limit 5 --json --select 'slug,title,tagline'
+# Agent mode — JSON + compact + no prompts in one flag
+producthunt-pp-cli feed --agent
 ```
 
 ## Agent Usage
 
-This CLI was designed for non-interactive use by AI agents, scripts, and CI.
+This CLI is designed for AI agent consumption:
 
-- **Non-interactive** — never prompts; every input is a flag or positional argument.
-- **Pipeable** — `--json` writes to stdout, errors to stderr.
-- **Filterable** — `--select slug,title,author` returns only the fields you name. Dotted paths descend into nested objects and arrays (`--select 'appearances.rank,appearances.taken_at'` on `trend` output).
-- **Compact** — `--compact` returns only high-gravity fields.
-- **Previewable** — `sync --dry-run-feed` fetches and parses without writing.
-- **Agent-safe by default** — no colors or terminal formatting unless `--human-friendly` is set.
-- **Read-only** — no writes against Product Hunt. Commands that would need write auth are not shipped.
+- **Non-interactive** - never prompts, every input is a flag
+- **Pipeable** - `--json` output to stdout, errors to stderr
+- **Filterable** - `--select id,name` returns only fields you need
+- **Previewable** - `--dry-run` shows the request without sending
+- **Read-only by default** - this CLI does not create, update, delete, publish, send, or mutate remote resources
+- **Offline-friendly** - sync/search commands can use the local SQLite store when available
+- **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
-**Agent mode:** pass `--agent` to any command for the bundle: `--json --compact --no-input --no-color --yes`.
-
-**Exit codes used by this CLI:**
-
-| Code | Meaning |
-|------|---------|
-| `0` | Success |
-| `2` | Usage error (bad flag, missing required arg) |
-| `3` | Not found, or Cloudflare-gated stub command |
-| `5` | API / parse error |
-| `10` | Config error |
+Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
 
 ## Use as MCP Server
 
-The repo also ships a companion MCP server (`producthunt-pp-mcp`) for Claude Desktop, Cursor, and other MCP-compatible tools. **The MCP surface is deliberately narrow** — it exposes the `/feed` read operation as a single tool. For the richer transcendence commands (`trend`, `calendar`, `makers`, `outbound-diff`, `tagline-grep`, `authors related`), use the CLI directly; they depend on a local snapshot store that an in-process MCP tool cannot maintain meaningfully.
+This CLI ships a companion MCP server for use with Claude Desktop, Cursor, and other MCP-compatible tools.
 
 ### Claude Code
 
 ```bash
-claude mcp add producthunt producthunt-pp-mcp
+claude mcp add producthunt producthunt-pp-mcp -e PRODUCT_HUNT_TOKEN=<your-token>
 ```
 
 ### Claude Desktop
 
-Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 
 ```json
 {
   "mcpServers": {
     "producthunt": {
-      "command": "producthunt-pp-mcp"
+      "command": "producthunt-pp-mcp",
+      "env": {
+        "PRODUCT_HUNT_TOKEN": "<your-key>"
+      }
     }
   }
 }
@@ -304,62 +222,44 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 ## Health Check
 
 ```bash
-producthunt-pp-cli doctor --json
+producthunt-pp-cli doctor
 ```
 
-Reports:
-- `/feed` reachability (HTTP status + fetch latency) and Atom parse status.
-- Entry count in the most recent fetch.
-- Local SQLite schema version and last sync timestamp.
-- The full list of Cloudflare-gated routes the runtime intentionally skips.
-
-`doctor --fail-on error` exits non-zero when any section reports an error, useful in monitoring wrappers.
+Verifies configuration, credentials, and connectivity to the API.
 
 ## Configuration
 
-Config file (optional): `~/.config/producthunt-pp-cli/config.toml`
+Config file: `~/.config/producthunt-pp-cli/config.toml`
 
-Local data store: `~/.local/share/producthunt-pp-cli/data.db` (SQLite, created on first `sync`).
-
-Override the store path with `--db <path>` on any command that reads or writes it.
+Environment variables:
+- `PRODUCT_HUNT_TOKEN`
 
 ## Troubleshooting
+**Authentication errors (exit code 4)**
+- Run `producthunt-pp-cli doctor` to check credentials
+- Verify the environment variable is set: `echo $PRODUCT_HUNT_TOKEN`
+**Not found errors (exit code 3)**
+- Check the resource ID is correct
+- Run the `list` command to see available items
 
-- **Empty results after install** — run `producthunt-pp-cli sync` first. The store starts empty and the CLI refuses to fabricate data.
-- **`post <slug>`, `leaderboard daily`, etc. exit with code 3** — expected. Those commands are Cloudflare-gated stubs. Use `get <slug>` for `/feed`-level metadata and `open <slug>` to view the real page in your browser.
-- **`/feed` parse fails** — run `producthunt-pp-cli doctor --json` to confirm the feed is still serving Atom XML. Product Hunt occasionally returns a 503 during deploys.
-- **`search` returns nothing** — FTS5 only indexes what has been synced. One snapshot is 50 entries; run `sync` on a schedule to build a meaningful index.
-- **`trend <slug>` says "not in store"** — the slug was not in any snapshot the CLI has taken. Run `sync` when the product is currently featured, or wait for the next sync to pick it up.
-- **`tagline-grep` with a dotted pattern** — the pattern auto-switches to regex mode when it sees `.*+?()[]|\`. To force FTS5 literal phrase matching, use `--mode fts` and quote the phrase.
+### API-specific
 
-## HTTP Transport
-
-All HTTP requests go out with a Chrome-compatible `User-Agent` and `Accept` headers so the public Atom endpoint responds identically whether the CLI is running from a laptop or CI. There is no resident browser, no Playwright, no Chromium sidecar — plain `net/http` against `https://www.producthunt.com/feed`.
-
-Cloudflare's challenge on the HTML routes does not trigger for `/feed`; no clearance cookie is needed for the surface this CLI uses.
-
-## Discovery Signals
-
-This CLI was generated from live traffic analysis of `https://www.producthunt.com`.
-
-- **Reachability:** `atom_primary` (confidence 0.95) — `/feed` is the single replayable surface.
-- **Protocols observed:** `atom_feed` (50 entries per snapshot).
-- **Auth signals:** none.
-- **Protection signals:** Cloudflare Turnstile on all HTML routes.
-- **Generation hints:** `emit_browser_compatible_ua`, `emit_atom_parser`, `emit_store_snapshots`, `atom_primary_runtime`.
-- **Verified during discovery:** the `/feed?category=<slug>` query parameter is ignored server-side (response is byte-equivalent to the unfiltered feed). No per-topic Atom endpoint exists.
+- **`invalid_oauth_token` error from any GraphQL command** — Run `producthunt doctor` — if the token is missing run `producthunt auth onboard`; if the token is present but rejected, regenerate it at https://www.producthunt.com/v2/oauth/applications and `producthunt auth set-token <new>`
+- **Maker names and commenter usernames show as `[REDACTED]`** — Product Hunt globally redacts `Post.makers`, `Post.comments[].user`, `user()` non-self lookups, and `Collection.user` for both auth modes — `Post.user` (the poster) and `viewer` (yourself) are unredacted; pass `--select` to suppress the [REDACTED] columns
+- **`whoami` returns `null`** — You are using OAuth client_credentials; the public scope has no user context — switch to a developer token (`producthunt auth onboard` will do this) to use `whoami`
+- **`RATE_LIMIT_EXCEEDED` after a heavy command** — PH's per-token complexity budget is 6,250 points / 15 min — `producthunt whoami` reports the remaining budget and reset epoch; rerun after the reset or split the work across windows
+- **RSS feed entries are missing votes / comments / makers** — Product Hunt's Atom feed is intentionally minimal — `producthunt auth onboard` unlocks the GraphQL tier where those fields exist
 
 ---
 
 ## Sources & Inspiration
 
-Built by studying every Product Hunt client that reached public release:
+This CLI was built by studying these projects and resources:
 
-- [**jaipandya/producthunt-mcp-server**](https://github.com/jaipandya/producthunt-mcp-server) — Python, 43 stars. Canonical MCP mapping of the GraphQL API; taught us the resource shape.
-- [**sunilkumarc/product-hunt-cli**](https://github.com/sunilkumarc/product-hunt-cli) — JavaScript. Original "what should a PH CLI do" reference.
-- [**fernandod1/ProductHunt-scraper**](https://github.com/fernandod1/ProductHunt-scraper) — Python. Source of the scraper-parity CSV column set.
-- [**shashankpolanki/Producthunt-Scraper**](https://github.com/shashankpolanki/Producthunt-Scraper) — Python. Daily-leaderboard Scrapy cron that inspired `sync` + `trend`.
-- [**sungwoncho/node-producthunt**](https://github.com/sungwoncho/node-producthunt) — JavaScript.
-- [**sibis/producthunt-cli**](https://github.com/sibis/producthunt-cli) — JavaScript.
+- [**sunilkumarc/product-hunt-cli**](https://github.com/sunilkumarc/product-hunt-cli) — JavaScript (21 stars)
+- [**jaipandya/producthunt-mcp-server**](https://github.com/jaipandya/producthunt-mcp-server) — Python
+- [**Kristories/phunt**](https://github.com/Kristories/phunt) — JavaScript
+- [**Mayandev/hacker-feeds-cli**](https://github.com/Mayandev/hacker-feeds-cli) — JavaScript
+- [**producthunt/producthunt-api**](https://github.com/producthunt/producthunt-api) — JavaScript
 
-Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press).
+Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)

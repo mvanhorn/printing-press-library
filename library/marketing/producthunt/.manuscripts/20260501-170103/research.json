@@ -1,0 +1,377 @@
+{
+  "api_name": "producthunt",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "jaipandya/producthunt-mcp-server",
+      "url": "https://github.com/jaipandya/producthunt-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sunilkumarc/product-hunt-cli",
+      "url": "https://github.com/sunilkumarc/product-hunt-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 21,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Kristories/phunt",
+      "url": "https://github.com/Kristories/phunt",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Mayandev/hacker-feeds-cli",
+      "url": "https://github.com/Mayandev/hacker-feeds-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "producthunt/producthunt-api",
+      "url": "https://github.com/producthunt/producthunt-api",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-01T17:25:00Z",
+  "novel_features": [
+    {
+      "name": "Launch-day tracker",
+      "command": "posts launch-day",
+      "description": "Renders your launch's votes-over-time trajectory side-by-side with today's top 5 launches — the answer to 'am I catching up to the leader.' Sync-driven, refreshes from the local store.",
+      "rationale": "Indie founders refresh the leaderboard every few minutes during launch day. Only a CLI accumulating periodic snapshots can plot trajectories at all; PH's GraphQL is point-in-time and the website never charts trajectory.",
+      "example": "producthunt posts launch-day my-launch-slug --json",
+      "why_it_matters": "Reach for this on launch day when a maker asks 'how am I tracking vs the leaders' — the side-by-side trajectories replace ten tabs.",
+      "group": "Founder launch-day cockpit"
+    },
+    {
+      "name": "Hour-by-hour benchmark",
+      "command": "posts benchmark",
+      "description": "Reports percentile curves at hour-N for top-10 and top-50 launches in a topic, computed from accumulated local history. Tells a founder if their hour-6 votes are 'good' for their category.",
+      "rationale": "Requires a local store of past launches with periodic snapshots. PH exposes only current votes; benchmarks across a category require accumulated history that doesn't exist anywhere else.",
+      "example": "producthunt posts benchmark --topic artificial-intelligence --hour 6 --json",
+      "why_it_matters": "Use before launching to set realistic targets, or during launch to know whether a slow start is normal for the category or a real problem.",
+      "group": "Founder launch-day cockpit"
+    },
+    {
+      "name": "Vote trajectory",
+      "command": "posts trajectory",
+      "description": "Plots a single launch's votes-over-time from local snapshots. Foundational for launch-day-tracker; also useful standalone for retro analysis after the fact.",
+      "rationale": "PH's GraphQL is point-in-time. Trajectory only exists if you've been syncing; the local store turns a stream of snapshots into a time series.",
+      "example": "producthunt posts trajectory my-launch-slug --json",
+      "why_it_matters": "Reach for this when reviewing a past launch or competitor — the curve shows momentum that a single end-of-day vote count hides.",
+      "group": "Founder launch-day cockpit"
+    },
+    {
+      "name": "Comments → genuine questions",
+      "command": "posts questions",
+      "description": "Surfaces only comments that look like real questions (regex `?` plus heuristic verbs like 'how does', 'what's the', 'can it'), ranked by vote count. Cuts hundreds of launch-day comments down to the ones that need a maker's reply.",
+      "rationale": "Requires comments to be in the local store and a question-detection heuristic over comment bodies. PH's UI shows comments chronologically with no question filter.",
+      "example": "producthunt posts questions my-launch-slug --json",
+      "why_it_matters": "Use during or after launch day to identify which comments deserve a real reply versus which are cheerleading or spam.",
+      "group": "Founder launch-day cockpit"
+    },
+    {
+      "name": "Side-by-side launch compare",
+      "command": "posts compare",
+      "description": "Column-aligned comparison of two or more launches: votes, comments, topics, tagline, url, launch-time delta. Replaces juggling browser tabs.",
+      "rationale": "Comparison across N posts requires N GraphQL fetches plus a layout step; no competing tool exposes it as a single command.",
+      "example": "producthunt posts compare cursor-ide windsurf-ide claude-code --json",
+      "why_it_matters": "Pick this when a founder is benchmarking their launch against precedents or a marketer is triangulating between similar competitive launches.",
+      "group": "Founder launch-day cockpit"
+    },
+    {
+      "name": "Category snapshot",
+      "command": "category snapshot",
+      "description": "Slide-deck-ready brief for a topic over a window: leaderboard + momentum delta vs prior window + most active poster handles + top emerging tagline tags.",
+      "rationale": "Requires day-by-day local aggregations across `posts` filtered by `topic`, plus comparison against the prior window. A single GraphQL call returns current state, not the multi-window comparison.",
+      "example": "producthunt category snapshot --topic artificial-intelligence --window weekly --agent --select leaderboard,momentum_delta",
+      "why_it_matters": "Reach for this on weekly category-research cadence — the single-output brief replaces opening 30 launch pages by hand.",
+      "group": "Marketer research desk"
+    },
+    {
+      "name": "Brand-mention grep",
+      "command": "posts grep",
+      "description": "Searches taglines and descriptions of launches in a window for a term — your brand, a competitor's brand, a category keyword. Returns matching launches with the matched snippet.",
+      "rationale": "Requires synced launches and FTS5 over tagline+description. PH's UI has no keyword search across launches.",
+      "example": "producthunt posts grep --term \"\\\\bclaude\\\\b\" --since 7d --topic developer-tools --json",
+      "why_it_matters": "Use this as a recurring brand-mention monitor or to find competitive launches that name your category in their pitch.",
+      "group": "Marketer research desk"
+    },
+    {
+      "name": "Lookalike launches",
+      "command": "posts lookalike",
+      "description": "Given a launch slug, finds the most similar prior launches by topic overlap plus tagline FTS rank. Builds a competitive set automatically.",
+      "rationale": "Requires both topic-set comparison and FTS rank over taglines, both of which need the local store.",
+      "example": "producthunt posts lookalike notion --json --select edges.node.name,edges.node.tagline",
+      "why_it_matters": "Reach for this to build a competitive set quickly or to find precedent launches when planning your own positioning.",
+      "group": "Marketer research desk"
+    },
+    {
+      "name": "Launches calendar",
+      "command": "launches calendar",
+      "description": "Shows what launched what day in a week (and prior weeks for context), with hour-of-day distribution. Helps a founder pick a strong launch slot.",
+      "rationale": "Requires a local store with launch timestamps and a calendar-rendering step. PH's UI organizes by day but doesn't surface hour-of-day or week-over-week density.",
+      "example": "producthunt launches calendar --topic artificial-intelligence --week 18 --json",
+      "why_it_matters": "Use before scheduling a launch to find a less-crowded day or hour in your topic.",
+      "group": "Marketer research desk"
+    },
+    {
+      "name": "Topic watch",
+      "command": "topics watch",
+      "description": "Detects new posts crossing a vote threshold in a topic since the last sync. Synthesizes an offline subscription against an API that has none.",
+      "rationale": "Product Hunt has no subscription/webhook endpoint. We synthesize one by diffing the local store between syncs and reporting only the deltas.",
+      "example": "producthunt topics watch artificial-intelligence --min-votes 200 --json",
+      "why_it_matters": "Schedule this in cron to alert on notable new launches in a vertical without hammering the GraphQL endpoint.",
+      "group": "Cross-persona monitoring"
+    },
+    {
+      "name": "Time-window posts query",
+      "command": "posts since",
+      "description": "Local-first time-window query: `posts since 2h`, `posts since 24h`. Falls through to live GraphQL if the window extends past the last sync.",
+      "rationale": "Requires the local store to know when it last synced and a fall-through path to `posts(postedAfter:)` for the gap. Single GraphQL calls cannot answer 'what changed since X' efficiently when X is recent.",
+      "example": "producthunt posts since 6h --json --select edges.node.name,edges.node.votesCount",
+      "why_it_matters": "Reach for this from agentic flows that ask 'what's new on Product Hunt' — the local-first behavior keeps token costs low and the fall-through guarantees freshness.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Agent context snapshot",
+      "command": "context",
+      "description": "Returns a single JSON blob covering top posts in a window, top comments, topic followers, and your viewer status. One call answers 'what's the state of this topic right now' for an agent.",
+      "rationale": "Folds 4 separate GraphQL calls into one local read. Only possible because the underlying data is already in the local store.",
+      "example": "producthunt context --topic artificial-intelligence --since 24h --json",
+      "why_it_matters": "Use as the first call in an agentic Product Hunt workflow — one snapshot replaces 'list posts then list comments then check viewer'.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Launch-day tracker",
+      "command": "posts launch-day",
+      "description": "Renders your launch's votes-over-time trajectory side-by-side with today's top 5 launches — the answer to 'am I catching up to the leader.' Sync-driven, refreshes from the local store.",
+      "rationale": "Indie founders refresh the leaderboard every few minutes during launch day. Only a CLI accumulating periodic snapshots can plot trajectories at all; PH's GraphQL is point-in-time and the website never charts trajectory.",
+      "example": "producthunt posts launch-day my-launch-slug --json",
+      "why_it_matters": "Reach for this on launch day when a maker asks 'how am I tracking vs the leaders' — the side-by-side trajectories replace ten tabs.",
+      "group": "Founder launch-day cockpit"
+    },
+    {
+      "name": "Hour-by-hour benchmark",
+      "command": "posts benchmark",
+      "description": "Reports percentile curves at hour-N for top-10 and top-50 launches in a topic, computed from accumulated local history. Tells a founder if their hour-6 votes are 'good' for their category.",
+      "rationale": "Requires a local store of past launches with periodic snapshots. PH exposes only current votes; benchmarks across a category require accumulated history that doesn't exist anywhere else.",
+      "example": "producthunt posts benchmark --topic artificial-intelligence --hour 6 --json",
+      "why_it_matters": "Use before launching to set realistic targets, or during launch to know whether a slow start is normal for the category or a real problem.",
+      "group": "Founder launch-day cockpit"
+    },
+    {
+      "name": "Vote trajectory",
+      "command": "posts trajectory",
+      "description": "Plots a single launch's votes-over-time from local snapshots. Foundational for launch-day-tracker; also useful standalone for retro analysis after the fact.",
+      "rationale": "PH's GraphQL is point-in-time. Trajectory only exists if you've been syncing; the local store turns a stream of snapshots into a time series.",
+      "example": "producthunt posts trajectory my-launch-slug --json",
+      "why_it_matters": "Reach for this when reviewing a past launch or competitor — the curve shows momentum that a single end-of-day vote count hides.",
+      "group": "Founder launch-day cockpit"
+    },
+    {
+      "name": "Comments → genuine questions",
+      "command": "posts questions",
+      "description": "Surfaces only comments that look like real questions (regex `?` plus heuristic verbs like 'how does', 'what's the', 'can it'), ranked by vote count. Cuts hundreds of launch-day comments down to the ones that need a maker's reply.",
+      "rationale": "Requires comments to be in the local store and a question-detection heuristic over comment bodies. PH's UI shows comments chronologically with no question filter.",
+      "example": "producthunt posts questions my-launch-slug --json",
+      "why_it_matters": "Use during or after launch day to identify which comments deserve a real reply versus which are cheerleading or spam.",
+      "group": "Founder launch-day cockpit"
+    },
+    {
+      "name": "Side-by-side launch compare",
+      "command": "posts compare",
+      "description": "Column-aligned comparison of two or more launches: votes, comments, topics, tagline, url, launch-time delta. Replaces juggling browser tabs.",
+      "rationale": "Comparison across N posts requires N GraphQL fetches plus a layout step; no competing tool exposes it as a single command.",
+      "example": "producthunt posts compare cursor-ide windsurf-ide claude-code --json",
+      "why_it_matters": "Pick this when a founder is benchmarking their launch against precedents or a marketer is triangulating between similar competitive launches.",
+      "group": "Founder launch-day cockpit"
+    },
+    {
+      "name": "Category snapshot",
+      "command": "category snapshot",
+      "description": "Slide-deck-ready brief for a topic over a window: leaderboard + momentum delta vs prior window + most active poster handles + top emerging tagline tags.",
+      "rationale": "Requires day-by-day local aggregations across `posts` filtered by `topic`, plus comparison against the prior window. A single GraphQL call returns current state, not the multi-window comparison.",
+      "example": "producthunt category snapshot --topic artificial-intelligence --window weekly --agent --select leaderboard,momentum_delta",
+      "why_it_matters": "Reach for this on weekly category-research cadence — the single-output brief replaces opening 30 launch pages by hand.",
+      "group": "Marketer research desk"
+    },
+    {
+      "name": "Brand-mention grep",
+      "command": "posts grep",
+      "description": "Searches taglines and descriptions of launches in a window for a term — your brand, a competitor's brand, a category keyword. Returns matching launches with the matched snippet.",
+      "rationale": "Requires synced launches and FTS5 over tagline+description. PH's UI has no keyword search across launches.",
+      "example": "producthunt posts grep --term \"\\\\bclaude\\\\b\" --since 7d --topic developer-tools --json",
+      "why_it_matters": "Use this as a recurring brand-mention monitor or to find competitive launches that name your category in their pitch.",
+      "group": "Marketer research desk"
+    },
+    {
+      "name": "Lookalike launches",
+      "command": "posts lookalike",
+      "description": "Given a launch slug, finds the most similar prior launches by topic overlap plus tagline FTS rank. Builds a competitive set automatically.",
+      "rationale": "Requires both topic-set comparison and FTS rank over taglines, both of which need the local store.",
+      "example": "producthunt posts lookalike notion --json --select edges.node.name,edges.node.tagline",
+      "why_it_matters": "Reach for this to build a competitive set quickly or to find precedent launches when planning your own positioning.",
+      "group": "Marketer research desk"
+    },
+    {
+      "name": "Launches calendar",
+      "command": "launches calendar",
+      "description": "Shows what launched what day in a week (and prior weeks for context), with hour-of-day distribution. Helps a founder pick a strong launch slot.",
+      "rationale": "Requires a local store with launch timestamps and a calendar-rendering step. PH's UI organizes by day but doesn't surface hour-of-day or week-over-week density.",
+      "example": "producthunt launches calendar --topic artificial-intelligence --week 18 --json",
+      "why_it_matters": "Use before scheduling a launch to find a less-crowded day or hour in your topic.",
+      "group": "Marketer research desk"
+    },
+    {
+      "name": "Topic watch",
+      "command": "topics watch",
+      "description": "Detects new posts crossing a vote threshold in a topic since the last sync. Synthesizes an offline subscription against an API that has none.",
+      "rationale": "Product Hunt has no subscription/webhook endpoint. We synthesize one by diffing the local store between syncs and reporting only the deltas.",
+      "example": "producthunt topics watch artificial-intelligence --min-votes 200 --json",
+      "why_it_matters": "Schedule this in cron to alert on notable new launches in a vertical without hammering the GraphQL endpoint.",
+      "group": "Cross-persona monitoring"
+    },
+    {
+      "name": "Time-window posts query",
+      "command": "posts since",
+      "description": "Local-first time-window query: `posts since 2h`, `posts since 24h`. Falls through to live GraphQL if the window extends past the last sync.",
+      "rationale": "Requires the local store to know when it last synced and a fall-through path to `posts(postedAfter:)` for the gap. Single GraphQL calls cannot answer 'what changed since X' efficiently when X is recent.",
+      "example": "producthunt posts since 6h --json --select edges.node.name,edges.node.votesCount",
+      "why_it_matters": "Reach for this from agentic flows that ask 'what's new on Product Hunt' — the local-first behavior keeps token costs low and the fall-through guarantees freshness.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Agent context snapshot",
+      "command": "context",
+      "description": "Returns a single JSON blob covering top posts in a window, top comments, topic followers, and your viewer status. One call answers 'what's the state of this topic right now' for an agent.",
+      "rationale": "Folds 4 separate GraphQL calls into one local read. Only possible because the underlying data is already in the local store.",
+      "example": "producthunt context --topic artificial-intelligence --since 24h --json",
+      "why_it_matters": "Use as the first call in an agentic Product Hunt workflow — one snapshot replaces 'list posts then list comments then check viewer'.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Product Hunt",
+    "headline": "Read Product Hunt from your terminal — works token-free for the daily skim, unlocks a launch-day cockpit and a marketer research desk in one onboarding step.",
+    "value_prop": "A two-tier CLI for Product Hunt. The public Atom feed works with zero setup. A single `producthunt auth onboard` walks you through generating a free personal developer token (callback-URL trick included) to unlock the full GraphQL surface — posts, topics, collections, comments, viewer — plus the launch-day cockpit (trajectories, benchmarks, side-by-side compare, comment question-triage) and the marketer research desk (category snapshot, brand-mention grep, lookalike, launch calendar) that PH's UI has never offered.",
+    "auth_narrative": "Product Hunt's GraphQL API supports two auth modes; the CLI handles both. Recommended for personal use: visit https://www.producthunt.com/v2/oauth/applications, create an application (the redirect URL field is required by the form but unused for personal-token flow — set it to `https://localhost/callback`), then scroll to the bottom of the app page and click `Create Token` to generate a developer token that never expires. Set `PRODUCT_HUNT_TOKEN=\u003cyour-token\u003e` or run `producthunt auth onboard` for an interactive walkthrough. For CI/automation, the alternate mode is OAuth `client_credentials`: set `PRODUCT_HUNT_CLIENT_ID` and `PRODUCT_HUNT_CLIENT_SECRET` from the same app page; the CLI exchanges them for an access token internally and refreshes on 401 (note: under OAuth client_credentials, the `whoami` command returns null because the public scope has no user context). The public Atom feed (`producthunt feed`) needs no token at all.",
+    "quickstart": [
+      {
+        "command": "producthunt feed --count 5",
+        "comment": "Token-free first read — the public Atom feed surfaces the latest 5 launches"
+      },
+      {
+        "command": "producthunt auth onboard",
+        "comment": "Interactive setup for the personal developer token (includes the callback URL trick)"
+      },
+      {
+        "command": "producthunt doctor",
+        "comment": "Confirms the token works and shows your remaining complexity-points budget"
+      },
+      {
+        "command": "producthunt today",
+        "comment": "GraphQL-backed snapshot of today's top launches with votes, comments, and topics"
+      },
+      {
+        "command": "producthunt posts get notion --json",
+        "comment": "Full detail for a single launch by slug — agent-friendly JSON"
+      },
+      {
+        "command": "producthunt sync --resource posts --posted-after 2026-04-01",
+        "comment": "Backfill the local store so trajectories, benchmarks, and offline search work"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "`invalid_oauth_token` error from any GraphQL command",
+        "fix": "Run `producthunt doctor` — if the token is missing run `producthunt auth onboard`; if the token is present but rejected, regenerate it at https://www.producthunt.com/v2/oauth/applications and `producthunt auth set-token \u003cnew\u003e`"
+      },
+      {
+        "symptom": "Maker names and commenter usernames show as `[REDACTED]`",
+        "fix": "Product Hunt globally redacts `Post.makers`, `Post.comments[].user`, `user()` non-self lookups, and `Collection.user` for both auth modes — `Post.user` (the poster) and `viewer` (yourself) are unredacted; pass `--select` to suppress the [REDACTED] columns"
+      },
+      {
+        "symptom": "`whoami` returns `null`",
+        "fix": "You are using OAuth client_credentials; the public scope has no user context — switch to a developer token (`producthunt auth onboard` will do this) to use `whoami`"
+      },
+      {
+        "symptom": "`RATE_LIMIT_EXCEEDED` after a heavy command",
+        "fix": "PH's per-token complexity budget is 6,250 points / 15 min — `producthunt whoami` reports the remaining budget and reset epoch; rerun after the reset or split the work across windows"
+      },
+      {
+        "symptom": "RSS feed entries are missing votes / comments / makers",
+        "fix": "Product Hunt's Atom feed is intentionally minimal — `producthunt auth onboard` unlocks the GraphQL tier where those fields exist"
+      }
+    ],
+    "when_to_use": "Pick this CLI when an agent or script needs Product Hunt data — daily launch leaderboards, topic-vertical scouting, individual launch detail with comments, or aggregated trajectories that PH's own UI never exposes. The local SQLite store and GraphQL fall-through mean repeated queries stay cheap; the no-auth feed tier means the CLI is useful before the user has even configured a key. Indie founders launching this week reach for the launch-day cockpit (`launch-day`, `benchmark`, `trajectory`, `questions`, `compare`); marketers doing competitive research reach for the marketer research desk (`category snapshot`, `posts grep`, `lookalike`, `launches calendar`).",
+    "recipes": [
+      {
+        "title": "Launch-day cockpit for your own launch",
+        "command": "producthunt posts launch-day my-launch-slug --json",
+        "explanation": "Renders your launch's vote trajectory side-by-side with today's top 5 — the answer to 'am I catching up to the leader' without refreshing the website"
+      },
+      {
+        "title": "Triage a launch's comments to genuine questions",
+        "command": "producthunt posts questions my-launch-slug --json",
+        "explanation": "Filters synced comments to only those that look like real questions (regex `\\\\?` plus question-verbs) ranked by vote count — replaces scrolling 200 comments to find the 5 that deserve a reply"
+      },
+      {
+        "title": "Narrow a deeply nested response with --agent --select",
+        "command": "producthunt posts list --topic artificial-intelligence --posted-after 2026-04-01 --agent --select edges.node.name,edges.node.votesCount,edges.node.user.username",
+        "explanation": "Posts list responses are deeply nested (edges -\u003e node -\u003e user); pairing `--agent` with dotted `--select` paths keeps the output to just the columns the agent needs and slashes token cost"
+      },
+      {
+        "title": "Weekly category brief for marketing",
+        "command": "producthunt category snapshot --topic developer-tools --window weekly --json",
+        "explanation": "Single-output brief: leaderboard for the week, momentum delta vs prior week, most active poster handles, top emerging tagline tags — slide-deck-ready"
+      },
+      {
+        "title": "Brand-mention monitor",
+        "command": "producthunt posts grep --term \"\\\\bclaude\\\\b|\\\\banthropic\\\\b\" --since 7d --json",
+        "explanation": "Finds any launch in the window with `claude` or `anthropic` in tagline or description — schedule it nightly to catch competitive activity"
+      }
+    ],
+    "trigger_phrases": [
+      "what launched on product hunt today",
+      "find ai launches on product hunt this week",
+      "how is my product hunt launch tracking",
+      "compare these product hunt launches",
+      "summarize the comments on this product hunt post",
+      "what does a good product hunt launch look like at hour 6",
+      "use producthunt",
+      "run producthunt"
+    ]
+  }
+}

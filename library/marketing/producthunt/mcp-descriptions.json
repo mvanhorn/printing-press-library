@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "feed_get": "Fetch Product Hunt's public Atom feed at https://www.producthunt.com/feed without any authentication. Returns the last ~47 entries (about 6 weeks of featured launches) as raw Atom XML; each entry has id, title, published/updated timestamps, link, content (HTML, brief), and author name. Use this for token-free daily skim or as a fallback when the GraphQL API is rate-limited; for vote counts, comment counts, makers, topics, or full descriptions use a GraphQL-backed tool like `posts_list`, `today`, or `recent`."
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "checks": [
+    {
+      "endpoint": "https://api.producthunt.com/v2/api/graphql",
+      "method": "POST",
+      "auth": "bearer-bogus",
+      "http_code": 401,
+      "verdict": "PASS",
+      "notes": "Expected 401 when sent without auth or with an invalid token. Endpoint is up; structured GraphQL error returned, not bot-protection challenge."
+    },
+    {
+      "endpoint": "https://api.producthunt.com/v2/api/graphql",
+      "method": "POST",
+      "auth": "user-supplied-key",
+      "http_code": 401,
+      "verdict": "WARN",
+      "notes": "User-provided key returns invalid_oauth_token; OAuth client_credentials returns invalid_client. Architecture is unaffected (build still proceeds); Phase 5 live dogfood will need a verified working developer token from the user."
+    },
+    {
+      "endpoint": "https://www.producthunt.com/feed",
+      "method": "GET",
+      "auth": "none",
+      "http_code": 200,
+      "verdict": "PASS",
+      "notes": "Public Atom feed reachable; ~47 entries spanning ~6 weeks."
+    }
+  ],
+  "overall_verdict": "PASS",
+  "rationale": "Both surfaces (GraphQL + RSS) reachable. Build can proceed."
+}

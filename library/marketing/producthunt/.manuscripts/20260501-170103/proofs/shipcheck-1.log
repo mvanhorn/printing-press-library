@@ -1,0 +1,128 @@
+
+=== dogfood ===
+Dogfood Report: producthunt-pp-cli
+================================
+
+Path Validity:     0/0 valid (SKIP)
+  Detail: synthetic spec: path validity not applicable
+
+Auth Protocol:     MATCH
+  Spec: bearer token format (expects "Bearer " prefix)
+  Generated: Uses "Bearer" prefix
+  Detail: spec and generated client both use "Bearer"
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     PARTIAL
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: uses generic Search only or direct SQL
+  Domain tables: 1
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    12/12 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: FAIL
+  - pure-logic packages with no tests: phgql
+
+=== verify ===
+Runtime Verification: /Users/tmchow/printing-press/.runstate/linear-herding-lollipop-44b2f933/runs/20260501-170103/working/producthunt-pp-cli/producthunt-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+agent-context                  read         PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+category                       read         PASS   PASS     PASS     3/3
+collections                    read         PASS   PASS     PASS     3/3
+comments                       read         PASS   PASS     PASS     3/3
+context                        read         PASS   PASS     FAIL     2/3
+doctor                         local        PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+feed                           read         PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+launches                       read         PASS   PASS     PASS     3/3
+posts                          read         PASS   PASS     PASS     3/3
+profile                        read         PASS   PASS     PASS     3/3
+recent                         read         PASS   PASS     FAIL     2/3
+search                         data-layer   PASS   PASS     PASS     3/3
+sql                            data-layer   PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+today                          data-layer   PASS   PASS     PASS     3/3
+topics                         read         PASS   PASS     PASS     3/3
+users                          read         PASS   PASS     PASS     3/3
+which                          read         PASS   FAIL     FAIL     1/3
+whoami                         read         PASS   PASS     FAIL     2/3
+workflow                       read         PASS   PASS     PASS     3/3
+
+Data Pipeline: PASS: 5 domain tables created
+Pass Rate: 96% (24/25 passed, 0 critical)
+Verdict: PASS
+
+=== workflow-verify ===
+Workflow Verification: producthunt-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== verify-skill ===
+=== producthunt-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, unknown-command)
+
+=== scorecard ===
+Quality Scorecard: producthunt-pp-cli
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          9/10
+  README               8/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          9/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency 0/10
+  MCP Remote Transport 5/10
+  MCP Tool Design      N/A
+  MCP Surface Strategy N/A
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              7/10
+  Vision               8/10
+  Workflows            8/10
+  Insight              4/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           N/A
+  Auth Protocol           6/10
+  Data Pipeline Integrity 7/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           2/5
+  Dead Code               5/5
+
+  Total: 75/100 - Grade B
+  Note: omitted from denominator: mcp_description_quality, mcp_tool_design, mcp_surface_strategy, path_validity, live_api_verification
+
+Gaps:
+  - mcp_token_efficiency scored 0/10 - needs improvement
+  - insight scored 4/10 - needs improvement
+  - MCP: 1 tools (1 public, 0 auth-required) — readiness: full
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  dogfood           PASS    0         1.734s
+  verify            PASS    0         2.955s
+  workflow-verify   PASS    0         11ms
+  verify-skill      PASS    0         223ms
+  scorecard         PASS    0         32ms
+
+Verdict: PASS (5/5 legs passed)

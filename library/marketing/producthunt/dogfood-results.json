@@ -1,7 +1,7 @@
 {
-  "dir": ".",
-  "spec_path": "spec.yaml",
-  "verdict": "PASS",
+  "dir": "/Users/tmchow/printing-press/.runstate/linear-herding-lollipop-44b2f933/runs/20260501-170103/working/producthunt-pp-cli",
+  "spec_path": "/Users/tmchow/printing-press/.runstate/linear-herding-lollipop-44b2f933/runs/20260501-170103/research/producthunt-spec.yaml",
+  "verdict": "FAIL",
   "path_check": {
     "tested": 0,
     "valid": 0,
@@ -10,10 +10,10 @@
     "detail": "synthetic spec: path validity not applicable"
   },
   "auth_check": {
-    "spec_scheme": "",
-    "generated_format": "unknown",
+    "spec_scheme": "bearer token format (expects \"Bearer \" prefix)",
+    "generated_format": "Bearer ",
     "match": true,
-    "detail": "spec not provided or no bot/bearer scheme detected"
+    "detail": "spec and generated client both use \"Bearer\""
   },
   "browser_session_check": {
     "required": false,
@@ -21,18 +21,18 @@
     "detail": "browser-session auth not required"
   },
   "dead_flags": {
-    "total": 19,
+    "total": 17,
     "dead": 0
   },
   "dead_functions": {
-    "total": 42,
+    "total": 48,
     "dead": 0
   },
   "pipeline_check": {
     "sync_calls_domain": true,
-    "search_calls_domain": true,
+    "search_calls_domain": false,
     "domain_tables": 1,
-    "detail": "sync uses domain-specific Upsert methods; search uses domain-specific Search methods; 1 domain tables found"
+    "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 1 domain tables found"
   },
   "example_check": {
     "tested": 10,
@@ -42,10 +42,13 @@
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 51,
-      "registered": 51
+      "defined": 61,
+      "registered": 61
     },
     "config_consistency": {
+      "write_fields": [
+        ", token, "
+      ],
       "consistent": true
     },
     "workflow_completeness": {
@@ -56,20 +59,34 @@
     }
   },
   "novel_features_check": {
-    "planned": 0,
-    "found": 0,
-    "skipped": true
+    "planned": 12,
+    "found": 12
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
   },
   "reimplementation_check": {
-    "checked": 0,
-    "exempted_via_store": 0,
-    "skipped": true
+    "checked": 12,
+    "exempted_via_store": 3
+  },
+  "source_client_check": {
+    "checked": 3
+  },
+  "print_json_filtered_check": {
+    "checked": 40
   },
   "test_presence": {
-    "checked": 2
+    "checked": 1,
+    "missing_tests": [
+      "phgql"
+    ]
   },
   "naming_check": {
-    "checked": 34
+    "checked": 40
   },
-  "issues": null
+  "issues": [
+    "pure-logic packages with no tests: phgql"
+  ]
 }

@@ -8,16 +8,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/marketing/producthunt/internal/store"
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/marketing/producthunt/internal/store"
 )
 
 func newWorkflowCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "workflow",
 		Short: "Compound workflows that combine multiple API operations",
-		Example: `  producthunt-pp-cli workflow archive
-  producthunt-pp-cli workflow status --json`,
 	}
 
 	cmd.AddCommand(newWorkflowArchiveCmd(flags))
@@ -51,7 +49,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			if dbPath == "" {
 				dbPath = defaultDBPath("producthunt-pp-cli")
 			}
-			s, err := store.Open(dbPath)
+			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
 			}
@@ -149,8 +147,9 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 
 	cmd := &cobra.Command{
-		Use:   "status",
-		Short: "Show local archive status and sync state for all resources",
+		Use:         "status",
+		Short:       "Show local archive status and sync state for all resources",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Example: `  # Show archive status
   producthunt-pp-cli workflow status
 
@@ -160,7 +159,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 			if dbPath == "" {
 				dbPath = defaultDBPath("producthunt-pp-cli")
 			}
-			s, err := store.Open(dbPath)
+			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
 			}

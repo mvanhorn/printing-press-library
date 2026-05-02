@@ -4,26 +4,23 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/marketing/producthunt/internal/config"
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/marketing/producthunt/internal/config"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "auth",
-		Short: "Manage authentication tokens",
+		Short: "Manage PRODUCT_HUNT_TOKEN credentials",
 	}
 
 	cmd.AddCommand(newAuthStatusCmd(flags))
 	cmd.AddCommand(newAuthSetTokenCmd(flags))
 	cmd.AddCommand(newAuthLogoutCmd(flags))
-	cmd.AddCommand(newAuthRegisterCmd(flags))
-	cmd.AddCommand(newAuthSetupCmd(flags))
+	cmd.AddCommand(newAuthOnboardCmd(flags))
 
 	return cmd
 }
@@ -39,135 +36,51 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 				return configErr(err)
 			}
 
-			status := buildAuthStatus(cfg)
-			if flags.asJSON || flags.agent {
-				raw, _ := json.Marshal(status)
-				return printOutputWithFlags(cmd.OutOrStdout(), raw, flags)
-			}
-
-			// Distinguish the three states the CLI can be in:
-			//   - GraphQL-token-configured (Tier 2/3 unlocked)
-			//   - unauthenticated (Atom runtime only — which is still useful)
 			w := cmd.OutOrStdout()
-			if cfg.HasGraphQLToken() {
-				label := "Authenticated (Product Hunt GraphQL token)"
-				if cfg.GraphQLAuthMode() == "oauth_client_credentials" {
-					label = "Authenticated (OAuth client credentials)"
-				}
-				fmt.Fprintln(w, green(label))
-				fmt.Fprintf(w, "  Config: %s\n", cfg.Path)
-				if cfg.ClientID != "" {
-					fmt.Fprintf(w, "  Client ID: %s\n", maskMiddle(cfg.ClientID, 4, 4))
-				}
-				if !cfg.TokenExpiry.IsZero() {
-					fmt.Fprintf(w, "  Token expires: %s\n", cfg.TokenExpiry.Format("2006-01-02 15:04:05 MST"))
-				}
-				fmt.Fprintln(w, "  Unlocked: backfill, search --enrich")
-				return nil
+			header := cfg.AuthHeader()
+			if header == "" {
+				fmt.Fprintln(w, red("Not authenticated"))
+				fmt.Fprintln(w, "")
+				fmt.Fprintln(w, "Set your token:")
+				fmt.Fprintln(w, "  export PRODUCT_HUNT_TOKEN=\"your-token-here\"")
+				fmt.Fprintf(w, "  producthunt-pp-cli auth set-token <token>\n")
+				return authErr(fmt.Errorf("no credentials configured"))
 			}
 
-			// No auth configured. This is NOT an error — the Atom runtime
-			// (sync/recent/today/list/search) works without auth. Only
-			// Tier 2/3 features need it.
-			fmt.Fprintln(w, yellow("Atom-only (no auth configured)"))
-			fmt.Fprintln(w, "  Atom-runtime commands work without auth and build history from now forward.")
-			fmt.Fprintln(w, "")
-			fmt.Fprintln(w, "To unlock historical GraphQL backfill and search enrichment:")
-			fmt.Fprintln(w, "  producthunt-pp-cli auth setup")
+			fmt.Fprintln(w, green("Authenticated"))
+			fmt.Fprintf(w, "  Source: %s\n", cfg.AuthSource)
+			fmt.Fprintf(w, "  Config: %s\n", cfg.Path)
 			return nil
 		},
 	}
 }
 
 func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
-	var tokenEnv string
-	cmd := &cobra.Command{
+	return &cobra.Command{
 		Use:     "set-token <token>",
-		Short:   "Save a Product Hunt developer/API token to the config file",
-		Example: "  producthunt-pp-cli auth set-token --token-env PRODUCTHUNT_DEVELOPER_TOKEN",
-		Args: func(cmd *cobra.Command, args []string) error {
-			if tokenEnv != "" {
-				if len(args) > 0 {
-					return fmt.Errorf("pass either <token> or --token-env, not both")
-				}
-				return nil
-			}
-			return cobra.ExactArgs(1)(cmd, args)
-		},
+		Short:   "Save an API token to the config file",
+		Example: "  producthunt-pp-cli auth set-token sk_live_abc123",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
 			}
 
-			token := ""
-			if tokenEnv != "" {
-				token = strings.TrimSpace(os.Getenv(tokenEnv))
-				if token == "" {
-					return usageErr(fmt.Errorf("%s is empty or unset", tokenEnv))
-				}
-			} else {
-				token = strings.TrimSpace(args[0])
-			}
-			if token == "" {
-				return usageErr(fmt.Errorf("token is required"))
-			}
+			// Clear any legacy auth_header so AuthHeader() falls through to
+			// "Bearer " + AccessToken with the new token. Without this, a
+			// pre-existing auth_header value (common after regenerate) shadows
+			// the newly-saved access_token and set-token silently has no effect.
+			// Silent clear (no log line): a masked-tail variant could leak
+			// token bytes through scripted dogfood that captures stderr.
+			cfg.AuthHeaderVal = ""
 
-			if err := cfg.SaveGraphQLToken(token); err != nil {
+			// Save the token directly via the config's save mechanism
+			if err := cfg.SaveTokens("", "", args[0], "", cfg.TokenExpiry); err != nil {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}
 
-			if flags.asJSON || flags.agent {
-				raw, _ := json.Marshal(map[string]any{
-					"status":         "saved",
-					"config_path":    cfg.Path,
-					"auth_mode":      cfg.GraphQLAuthMode(),
-					"token_source":   tokenSourceLabel(tokenEnv),
-					"unlocked":       []string{"backfill", "search --enrich"},
-					"token_redacted": true,
-				})
-				return printOutputWithFlags(cmd.OutOrStdout(), raw, flags)
-			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Token saved to %s\n", cfg.Path)
-			return nil
-		},
-	}
-	cmd.Flags().StringVar(&tokenEnv, "token-env", "", "Environment variable containing a Product Hunt developer/API token")
-	return cmd
-}
-
-func newAuthSetupCmd(flags *rootFlags) *cobra.Command {
-	return &cobra.Command{
-		Use:   "setup",
-		Short: "Show guided setup for Product Hunt GraphQL access",
-		Long: `Print the safest setup paths for optional Product Hunt GraphQL access.
-
-Anonymous Atom commands do not need this. Configure GraphQL only when you want
-historical backfill or search enrichment.`,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, _ := config.Load(flags.configPath)
-			setup := authSetupPayload(cfg)
-			if flags.asJSON || flags.agent {
-				raw, _ := json.Marshal(setup)
-				return printOutputWithFlags(cmd.OutOrStdout(), raw, flags)
-			}
-			w := cmd.OutOrStdout()
-			fmt.Fprintln(w, bold("Optional Product Hunt GraphQL setup"))
-			fmt.Fprintln(w, "")
-			fmt.Fprintln(w, "Anonymous mode already works:")
-			fmt.Fprintln(w, "  producthunt-pp-cli sync")
-			fmt.Fprintln(w, "  producthunt-pp-cli search \"ai agent\"")
-			fmt.Fprintln(w, "")
-			fmt.Fprintln(w, "To unlock historical backfill and search enrichment:")
-			fmt.Fprintln(w, "  1. Open https://www.producthunt.com/v2/oauth/applications")
-			fmt.Fprintln(w, "  2. Create a new application")
-			fmt.Fprintln(w, "  3. Use Name: producthunt-pp-cli")
-			fmt.Fprintln(w, "  4. Use Redirect URI: https://localhost/callback")
-			fmt.Fprintln(w, "  5. Run: producthunt-pp-cli auth register")
-			fmt.Fprintln(w, "")
-			fmt.Fprintln(w, "Agent/CI alternatives:")
-			fmt.Fprintln(w, "  PRODUCTHUNT_CLIENT_ID=... PRODUCTHUNT_CLIENT_SECRET=... producthunt-pp-cli auth register --no-input")
-			fmt.Fprintln(w, "  PRODUCTHUNT_DEVELOPER_TOKEN=... producthunt-pp-cli auth set-token --token-env PRODUCTHUNT_DEVELOPER_TOKEN")
 			return nil
 		},
 	}
@@ -188,48 +101,13 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 				return configErr(fmt.Errorf("clearing tokens: %w", err))
 			}
 
-			activeEnvVars := activeGraphQLTokenEnvVars()
-			if flags.asJSON || flags.agent {
-				raw, _ := json.Marshal(map[string]any{
-					"status":                     "cleared",
-					"config_path":                cfg.Path,
-					"stored_credentials_cleared": true,
-					"env_credentials_active":     len(activeEnvVars) > 0,
-					"active_env_vars":            activeEnvVars,
-					"effective_mode":             effectiveModeAfterLogout(activeEnvVars),
-				})
-				return printOutputWithFlags(cmd.OutOrStdout(), raw, flags)
+			// Warn if env vars still set
+			if os.Getenv("PRODUCT_HUNT_TOKEN") != "" {
+				fmt.Fprintf(cmd.OutOrStdout(), "Config cleared. Note: PRODUCT_HUNT_TOKEN env var is still set.\n")
+				return nil
 			}
-			w := cmd.OutOrStdout()
-			fmt.Fprintln(w, "Logged out. Stored credentials cleared.")
-			if len(activeEnvVars) > 0 {
-				fmt.Fprintf(w, "Warning: env credentials are still active via %s; unset them to fully return to Atom-only mode.\n", strings.Join(activeEnvVars, ", "))
-			}
+			fmt.Fprintln(cmd.OutOrStdout(), "Logged out. Credentials cleared.")
 			return nil
 		},
 	}
-}
-
-func tokenSourceLabel(tokenEnv string) string {
-	if tokenEnv != "" {
-		return "env:" + tokenEnv
-	}
-	return "argument"
-}
-
-func activeGraphQLTokenEnvVars() []string {
-	var active []string
-	for _, name := range config.GraphQLTokenEnvVars() {
-		if strings.TrimSpace(os.Getenv(name)) != "" {
-			active = append(active, name)
-		}
-	}
-	return active
-}
-
-func effectiveModeAfterLogout(activeEnvVars []string) string {
-	if len(activeEnvVars) > 0 {
-		return "developer_token_env"
-	}
-	return "atom_only"
 }

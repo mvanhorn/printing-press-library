@@ -4,19 +4,64 @@
 package cli
 
 import (
+	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/marketing/producthunt/internal/atom"
+	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/marketing/producthunt/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/marketing/producthunt/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/marketing/producthunt/internal/store"
-	"github.com/spf13/cobra"
 )
+
+// looksLikeDoctorInterstitial reports whether the response body matches a known
+// bot-detection challenge page (Cloudflare, Akamai, Vercel, AWS WAF, DataDome,
+// PerimeterX). Only fires on the doctor probe — used to distinguish "transport
+// reached the wall" from "transport failed entirely." Returns the vendor name
+// when matched, or empty string when no match.
+//
+// Markers are anchored to <title> or vendor-specific strings to avoid
+// false-positives on benign content. For example, a recipe titled "Just A
+// Moment of Pause Cookies" must NOT match the Cloudflare challenge marker;
+// only "<title>just a moment" (the actual interstitial title) does.
+func looksLikeDoctorInterstitial(body []byte) string {
+	if len(body) == 0 {
+		return ""
+	}
+	limit := len(body)
+	if limit > 8192 {
+		limit = 8192
+	}
+	prefix := strings.ToLower(string(body[:limit]))
+	if !strings.Contains(prefix, "<title") {
+		// Every bot interstitial we recognize sets a <title>; bodies without
+		// one are body-only API responses, not challenge pages.
+		return ""
+	}
+	switch {
+	case strings.Contains(prefix, "<title>just a moment") || // CF JS challenge
+		strings.Contains(prefix, "challenges.cloudflare.com") || // CF Turnstile
+		(strings.Contains(prefix, "attention required") && strings.Contains(prefix, "cloudflare")):
+		return "Cloudflare"
+	case strings.Contains(prefix, "akamai") && (strings.Contains(prefix, "request unsuccessful") || strings.Contains(prefix, "access denied")):
+		return "Akamai"
+	case strings.Contains(prefix, "x-vercel-mitigated") || strings.Contains(prefix, "x-vercel-challenge-token") ||
+		(strings.Contains(prefix, "vercel") && strings.Contains(prefix, "challenge")):
+		return "Vercel"
+	case strings.Contains(prefix, "request blocked") && strings.Contains(prefix, "aws waf"):
+		return "AWS WAF"
+	case strings.Contains(prefix, "datadome") && (strings.Contains(prefix, "blocked") || strings.Contains(prefix, "captcha") || strings.Contains(prefix, "challenge")):
+		return "DataDome"
+	case strings.Contains(prefix, "perimeterx") || strings.Contains(prefix, "px-captcha"):
+		return "PerimeterX"
+	}
+	return ""
+}
 
 func newDoctorCmd(flags *rootFlags) *cobra.Command {
 	var failOn string
@@ -36,120 +81,134 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				report["base_url"] = cfg.BaseURL
 			}
 
-			// Check auth. Anonymous Atom mode is healthy; GraphQL auth is an
-			// optional capability for historical backfill and search enrichment.
-			authStatus := buildAuthStatus(cfg)
-			report["auth"] = authStatus.Mode
-			report["auth_capabilities"] = authStatus
+			// Check auth
+			if cfg != nil {
+				header := cfg.AuthHeader()
+				if header == "" {
+					report["auth"] = "not configured"
+					report["auth_hint"] = "export PRODUCT_HUNT_TOKEN=<your-key>"
+				} else {
+					report["auth"] = "configured"
+					report["auth_source"] = cfg.AuthSource
+				}
+			}
 
 			// Check auth environment variables
+			authEnvChecked := 0
+			authEnvSet := 0
+			authEnvChecked++
+			if os.Getenv("PRODUCT_HUNT_TOKEN") != "" {
+				authEnvSet++
+			}
+			if authEnvSet == 0 {
+				report["env_vars"] = fmt.Sprintf("none set (checked %d)", authEnvChecked)
+			} else {
+				report["env_vars"] = fmt.Sprintf("%d/%d set", authEnvSet, authEnvChecked)
+			}
 
-			// Check API connectivity and validate credentials
+			// Check API connectivity and validate credentials.
+			//
+			// The doctor uses the same client every other command uses --
+			// flags.newClient() returns a *client.Client wrapping whatever
+			// transport the spec declared (Surf for browser-chrome, stdlib
+			// for standard). A separate stdlib http.Client would silently
+			// bypass that choice and report false negatives against
+			// Cloudflare-fronted, Akamai-fronted, or otherwise bot-detected
+			// sites. By going through flags.newClient(), the doctor's
+			// reachability verdict matches what real commands experience.
 			if cfg != nil && cfg.BaseURL != "" {
-				httpClient := &http.Client{Timeout: 5 * time.Second}
-				baseURL := strings.TrimRight(cfg.BaseURL, "/")
-
-				// Step 1: Basic reachability (unauthenticated HEAD)
-				headReq, _ := http.NewRequest("HEAD", baseURL, nil)
-				headResp, headErr := httpClient.Do(headReq)
-				apiReachable := false
-				if headErr == nil {
-					headResp.Body.Close()
-					apiReachable = true
-				}
-
-				// If HEAD failed, try GET on common health endpoints
-				if !apiReachable {
-					for _, p := range []string{"/health", "/healthz", "/status", "/ping", ""} {
-						healthResp, healthErr := httpClient.Get(baseURL + p)
-						if healthErr != nil {
-							continue
+				c, clientErr := flags.newClient()
+				if clientErr != nil {
+					report["api"] = fmt.Sprintf("client init error: %s", clientErr)
+				} else {
+					// Step 1: Basic reachability via the configured transport.
+					reachBody, reachErr := c.Get("/", nil)
+					var reachAPIErr *client.APIError
+					switch {
+					case reachErr == nil:
+						// 2xx response — clearly reachable. Still inspect the
+						// body for a known interstitial; some bot walls return
+						// 200 with a JS challenge page.
+						if vendor := looksLikeDoctorInterstitial(reachBody); vendor != "" {
+							report["api"] = fmt.Sprintf("blocked by %s interstitial — the configured transport reached the wall. Try a different network, wait for the IP-level rate limit to clear, or check that the browser-chrome transport is bound correctly.", vendor)
+						} else {
+							report["api"] = "reachable"
 						}
-						healthResp.Body.Close()
-						apiReachable = true
-						break
+					case errors.As(reachErr, &reachAPIErr):
+						// Non-2xx from the server. The network reached, the
+						// server responded — that's "reachable" for our
+						// purposes. Inspect the response body for a known
+						// interstitial first; otherwise note the status.
+						status := reachAPIErr.StatusCode
+						if vendor := looksLikeDoctorInterstitial([]byte(reachAPIErr.Body)); vendor != "" {
+							report["api"] = fmt.Sprintf("blocked by %s interstitial (HTTP %d) — the configured transport reached the wall.", vendor, status)
+						} else {
+							report["api"] = fmt.Sprintf("reachable (HTTP %d at /)", status)
+						}
+					default:
+						// Network-level failure: DNS, connection refused, TLS,
+						// transport init, etc. The transport itself didn't
+						// connect.
+						report["api"] = fmt.Sprintf("unreachable: %s", reachErr)
 					}
-				}
 
-				if !apiReachable {
-					report["api"] = fmt.Sprintf("unreachable: %s", headErr)
-				} else {
-					report["api"] = "reachable"
-				}
-
-				// Step 2: Validate credentials with an authenticated request
-				authHeader := cfg.AuthHeader()
-				if authHeader == "" {
-					// No auth configured — skip credential validation
-				} else if !apiReachable {
-					report["credentials"] = "skipped (API unreachable)"
-				} else {
-					authReq, _ := http.NewRequest("GET", baseURL, nil)
-					authReq.Header.Set("Authorization", authHeader)
-					authResp, authErr := httpClient.Do(authReq)
-					if authErr != nil {
-						report["credentials"] = "error: could not reach API"
+					// Step 2: Validate credentials with an authenticated probe.
+					authHeader := cfg.AuthHeader()
+					if authHeader == "" {
+						// No auth configured — skip credential validation
+					} else if reachErr != nil && !errors.As(reachErr, &reachAPIErr) {
+						report["credentials"] = "skipped (API unreachable)"
 					} else {
-						authResp.Body.Close()
+						verifyPath := "/"
+						authParams := map[string]string{}
+						authHeaders := map[string]string{}
+						authHeaders["Authorization"] = authHeader
+						authHeaders["User-Agent"] = "producthunt-pp-cli"
+						_, authErr := c.GetWithHeaders(verifyPath, authParams, authHeaders)
+						var authAPIErr *client.APIError
 						switch {
-						case authResp.StatusCode >= 200 && authResp.StatusCode < 300:
+						case authErr == nil:
 							report["credentials"] = "valid"
-						case authResp.StatusCode == 401 || authResp.StatusCode == 403:
-							report["credentials"] = fmt.Sprintf("invalid (HTTP %d) — check your credentials", authResp.StatusCode)
+						case errors.As(authErr, &authAPIErr):
+							switch {
+							case authAPIErr.StatusCode == 401 || authAPIErr.StatusCode == 403:
+								// The probe hit the bare base URL because no auth.verify_path
+								// is configured in the spec. Many APIs return 401/403 from a
+								// bare versioned root regardless of token validity (the path
+								// isn't routed but the gateway still demands credentials).
+								// Don't claim invalid without certainty — set verify_path to
+								// a known-good authenticated GET (e.g. /me, /v1/account, /user)
+								// for a definitive verdict.
+								report["credentials"] = fmt.Sprintf("inconclusive (HTTP %d from base URL — set auth.verify_path in spec for a definitive probe)", authAPIErr.StatusCode)
+							default:
+								// Non-auth HTTP error (404, 500, etc.) — don't blame credentials
+								report["credentials"] = fmt.Sprintf("ok (HTTP %d from %s, but auth was accepted)", authAPIErr.StatusCode, verifyPath)
+							}
 						default:
-							// Non-auth HTTP error (404, 500, etc.) — don't blame credentials
-							report["credentials"] = fmt.Sprintf("ok (HTTP %d from base URL, but auth was accepted)", authResp.StatusCode)
+							report["credentials"] = fmt.Sprintf("error: %s", authErr)
 						}
 					}
 				}
 			} else if cfg != nil && cfg.BaseURL == "" {
 				report["api"] = "not configured (set base_url in config file)"
 			}
-			// Atom feed probe: the only surface this CLI's runtime uses.
-			// The generic API reachability check above hits / (the homepage),
-			// which Cloudflare blocks — so "api unreachable" is expected and
-			// not a failure. What matters is that /feed returns valid Atom XML.
-			feedStart := time.Now()
-			body, ferr := fetchFeedBody(10 * time.Second)
-			if ferr != nil {
-				report["feed"] = fmt.Sprintf("unreachable: %s", ferr)
-				report["feed_status"] = "fail"
-			} else {
-				feed, perr := atom.Parse(body)
-				if perr != nil {
-					report["feed"] = fmt.Sprintf("parse-failed: %s", perr)
-					report["feed_status"] = "fail"
-				} else {
-					report["feed"] = "ok"
-					report["feed_status"] = "ok"
-					report["feed_entry_count"] = len(feed.Entries)
-					report["feed_elapsed_ms"] = time.Since(feedStart).Milliseconds()
-				}
-			}
-			// Runtime note: Cloudflare blocks HTML routes for automated
-			// clients; commands backed by /posts/<slug>, /leaderboard/...,
-			// /topics/..., /@handle, /collections, newsletter archive are
-			// shipped as honest stubs. /feed is the replayable surface.
-			report["runtime_shape"] = "atom_primary"
-			report["cf_gated_routes"] = []string{
-				"/posts/<slug>",
-				"/leaderboard/<period>/<date>",
-				"/topics/<slug>",
-				"/@<handle>",
-				"/collections/<slug>",
-				"/newsletters/archive/...",
-			}
-
 			// Cache health: only reported when this CLI has a local store.
 			// Surfaces rows + last_synced_at per resource, schema version,
 			// and a fresh/stale/unknown verdict so agents can introspect
 			// whether to trust the cached data before issuing queries.
-			report["cache"] = collectCacheReport("")
+			report["cache"] = collectCacheReport(cmd.Context(), "")
+
+			// Auth-stage-aware Product Hunt GraphQL probe. Replaces the
+			// generic credentials check above with the actual `viewer`
+			// query, which is the only way to disambiguate "no token"
+			// from "bad token" from "valid token". Also surfaces the
+			// remaining complexity-points budget.
+			report["graphql"] = phGraphQLProbe(cmd.Context(), cfg)
 
 			report["version"] = version
 
 			if flags.asJSON {
-				if err := flags.printJSON(cmd, report); err != nil {
+				if err := printJSONFiltered(cmd.OutOrStdout(), report, flags); err != nil {
 					return err
 				}
 				return doctorExitForFailOn(failOn, report)
@@ -174,9 +233,15 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				case strings.HasPrefix(s, "optional"):
 					// Optional-auth CLI with no key set — informational, not a failure.
 					indicator = yellow("INFO")
+				case strings.HasPrefix(s, "inconclusive"):
+					// The credential probe could not produce a definitive verdict
+					// (typically because the bare base URL returns 401/403 even for
+					// valid tokens). Surface as WARN, not FAIL — the user's actual
+					// commands will reveal a real auth failure if one exists.
+					indicator = yellow("WARN")
 				case strings.Contains(s, "error") || strings.Contains(s, "not configured") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing"):
 					indicator = red("FAIL")
-				case s == "atom_only":
+				case s == "not required":
 					// Public APIs: no auth needed is a healthy state, not a warning.
 					indicator = green("OK")
 				case strings.Contains(s, "not ") || strings.Contains(s, "skipped") || strings.Contains(s, "inferred"):
@@ -191,6 +256,9 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			// Print auth setup hints (indented under Auth line)
+			if hint, ok := report["auth_hint"]; ok {
+				fmt.Fprintf(w, "  hint: %v\n", hint)
+			}
 			// Cache section: render after the primary health block so it
 			// sits next to version info, mirroring the JSON report layout.
 			if cacheAny, ok := report["cache"]; ok {
@@ -253,7 +321,7 @@ func doctorExitForFailOn(failOn string, report map[string]any) error {
 // staleAfterSpec is the CLI's configured threshold (e.g. "6h"); empty means
 // use the runtime default. The default is deliberately conservative (6h)
 // because the alternative is no freshness story at all.
-func collectCacheReport(staleAfterSpec string) map[string]any {
+func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]any {
 	report := map[string]any{}
 	dbPath := defaultDBPath("producthunt-pp-cli")
 	report["db_path"] = dbPath
@@ -271,7 +339,7 @@ func collectCacheReport(staleAfterSpec string) map[string]any {
 	}
 	report["db_bytes"] = fi.Size()
 
-	s, err := store.Open(dbPath)
+	s, err := store.OpenWithContext(ctx, dbPath)
 	if err != nil {
 		report["status"] = "error"
 		report["error"] = err.Error()

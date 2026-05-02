@@ -10,14 +10,12 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-
-	"github.com/mvanhorn/printing-press-library/library/marketing/producthunt/internal/config"
 )
 
 // agentContextSchemaVersion is bumped on any breaking change to the JSON
 // shape emitted by `agent-context`. Agents should check this before
-// parsing. Shape at v3 adds Product Hunt access tiers and GraphQL auth hints.
-const agentContextSchemaVersion = "3"
+// parsing. Shape at v2 adds optional browser-sniff discovery context.
+const agentContextSchemaVersion = "2"
 
 // agentContext is the structured description of this CLI consumed by AI
 // agents. Inspired by Cloudflare's /cdn-cgi/explorer/api runtime endpoint
@@ -40,16 +38,8 @@ type agentContextCLI struct {
 }
 
 type agentContextAuth struct {
-	Mode                 string   `json:"mode"`
-	EnvVars              []string `json:"env_vars"`
-	AnonymousHistoryMode string   `json:"anonymous_history_mode"`
-	GraphQLConfigured    bool     `json:"graphql_configured"`
-	GraphQLValidation    string   `json:"graphql_validation"`
-	CanBackfill          bool     `json:"can_backfill"`
-	CanEnrichSearch      bool     `json:"can_enrich_search"`
-	SetupCommand         string   `json:"setup_command,omitempty"`
-	SetupURL             string   `json:"setup_url,omitempty"`
-	Unlocked             []string `json:"unlocked,omitempty"`
+	Mode    string   `json:"mode"`
+	EnvVars []string `json:"env_vars"`
 }
 
 type agentContextDiscovery struct {
@@ -81,18 +71,17 @@ type agentContextFlag struct {
 	Default string `json:"default,omitempty"`
 }
 
-func newAgentContextCmd(rootCmd *cobra.Command, flags *rootFlags) *cobra.Command {
+func newAgentContextCmd(rootCmd *cobra.Command) *cobra.Command {
 	var pretty bool
 	cmd := &cobra.Command{
-		Use:   "agent-context",
-		Short: "Emit structured JSON describing this CLI for agents",
+		Use:         "agent-context",
+		Short:       "Emit structured JSON describing this CLI for agents",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Long: `Outputs a machine-readable description of commands, flags, and auth so
 agents can introspect this CLI at runtime without parsing --help or
 reading source. Schema is versioned via schema_version.`,
-		Example: `  producthunt-pp-cli agent-context --pretty
-  producthunt-pp-cli agent-context | jq '.commands[].name'`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx := buildAgentContext(rootCmd, flags)
+			ctx := buildAgentContext(rootCmd)
 			enc := json.NewEncoder(os.Stdout)
 			if pretty {
 				enc.SetIndent("", "  ")
@@ -104,13 +93,14 @@ reading source. Schema is versioned via schema_version.`,
 	return cmd
 }
 
-func buildAgentContext(rootCmd *cobra.Command, flags *rootFlags) agentContext {
-	configPath := ""
-	if flags != nil {
-		configPath = flags.configPath
+func buildAgentContext(rootCmd *cobra.Command) agentContext {
+	envVars := []string{
+		"PRODUCT_HUNT_TOKEN",
 	}
-	cfg, _ := config.Load(configPath)
-	authStatus := buildAuthStatus(cfg)
+	authMode := "bearer_token"
+	if authMode == "" {
+		authMode = "none"
+	}
 	profiles := ListProfileNames()
 	if profiles == nil {
 		profiles = []string{}
@@ -119,20 +109,12 @@ func buildAgentContext(rootCmd *cobra.Command, flags *rootFlags) agentContext {
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
 			Name:        "producthunt-pp-cli",
-			Description: "Token-free Product Hunt CLI — browse today's featured launches, sync locally, and compose views the website itself...",
+			Description: "Read Product Hunt from your terminal — works token-free for the daily skim, unlocks a launch-day cockpit and a...",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{
-			Mode:                 authStatus.Mode,
-			EnvVars:              authStatus.EnvVars,
-			AnonymousHistoryMode: authStatus.AnonymousHistoryMode,
-			GraphQLConfigured:    authStatus.GraphQLConfigured,
-			GraphQLValidation:    authStatus.GraphQLValidation,
-			CanBackfill:          authStatus.CanBackfill,
-			CanEnrichSearch:      authStatus.CanEnrichSearch,
-			SetupCommand:         authStatus.SetupCommand,
-			SetupURL:             authStatus.SetupURL,
-			Unlocked:             authStatus.Unlocked,
+			Mode:    authMode,
+			EnvVars: envVars,
 		},
 		Discovery:                  buildAgentDiscoveryContext(),
 		Commands:                   collectAgentCommands(rootCmd),
@@ -142,45 +124,7 @@ func buildAgentContext(rootCmd *cobra.Command, flags *rootFlags) agentContext {
 }
 
 func buildAgentDiscoveryContext() *agentContextDiscovery {
-	return &agentContextDiscovery{
-		Source:        "traffic-analysis",
-		TargetURL:     "https://www.producthunt.com",
-		EntryCount:    9,
-		APIEntryCount: 1,
-		Reachability:  "atom_primary (95% confidence)",
-		Protocols: []string{
-			"atom_feed (95% confidence)",
-		},
-		AuthCandidates: []string{
-			"none",
-			"producthunt_graphql_token",
-		},
-		Protections: []string{
-			"cloudflare_turnstile (90% confidence)",
-		},
-		GenerationHints: []string{
-			"emit_browser_compatible_ua",
-			"emit_atom_parser",
-			"emit_store_snapshots",
-			"atom_primary_runtime",
-			"emit_known_gap_readme_section",
-		},
-		Warnings: []string{
-			"html_routes_cf_blocked: All producthunt.com HTML routes return 403 to non-browser HTTP clients. Features that require per-post / per-topic / per-user HTML must ship as explicit stubs. The /feed?category= query parameter is ignored server-side; do not ship a category filter that claims it works.",
-			"playwright_cf_challenge: Playwright Chromium could not clear the Cloudflare Turnstile interactive challenge during browser-sniff; no XHR capture was possible.",
-		},
-		CandidateCommands: []string{
-			"today — Direct render of /feed latest 50",
-			"recent — Live fetch of /feed with --limit",
-			"sync — Persist /feed snapshot to local store",
-			"backfill — Authenticated GraphQL historical seed; optional Product Hunt API token required",
-			"list — Query persisted snapshots by date/author",
-			"search — FTS over stored titles and taglines; --enrich can top up with authenticated GraphQL",
-			"get — Show /feed entry for a slug (alias: info)",
-			"trend — Rank/first-seen trajectory from persisted snapshots",
-			"watch — Diff current /feed vs last snapshot",
-		},
-	}
+	return nil
 }
 
 // collectAgentCommands walks the cobra tree from the given command and
