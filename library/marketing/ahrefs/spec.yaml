@@ -1,0 +1,4049 @@
+# Reconstructed from ahrefs/ahrefs-python at 15022030974ffbd46f82dd3d6fb9d298d6b30bf9.
+# Run scripts/reconstruct-ahrefs-spec.py to regenerate.
+name: ahrefs
+display_name: Ahrefs
+description: SEO and competitive intelligence API for backlinks, keywords, rank tracking,
+  site audit, and SERP data.
+cli_description: Query Ahrefs backlinks, keyword, rank tracking, site audit, and SERP
+  data from the terminal.
+version: v3
+spec_source: community
+category: marketing
+website_url: https://docs.ahrefs.com/docs/api/reference/introduction
+base_url: https://api.ahrefs.com/v3
+http_transport: standard
+auth:
+  type: api_key
+  in: header
+  header: Authorization
+  format: Bearer {api_key}
+  env_vars:
+  - AHREFS_API_KEY
+  key_url: https://app.ahrefs.com/api
+  verify_path: /subscription-info/limits-and-usage
+config:
+  format: toml
+  path: ~/.config/ahrefs-pp-cli/config.toml
+mcp:
+  transport:
+  - stdio
+  - http
+resources:
+  public:
+    description: Public endpoints.
+    endpoints:
+      crawler_ips:
+        method: GET
+        path: /public/crawler-ips
+        description: Crawler IP addresses
+        params: []
+        body: []
+        response:
+          type: array
+          item: PublicCrawlerIpsData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+        no_auth: true
+      crawler_ip_ranges:
+        method: GET
+        path: /public/crawler-ip-ranges
+        description: Crawler IP ranges
+        params: []
+        body: []
+        response:
+          type: array
+          item: PublicCrawlerIpRangesData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+        no_auth: true
+  subscription_info:
+    description: Subscription Info endpoints.
+    endpoints:
+      limits_and_usage:
+        method: GET
+        path: /subscription-info/limits-and-usage
+        description: Limits and usage
+        params: []
+        body: []
+        response:
+          type: object
+          item: SubscriptionInfoLimitsAndUsageData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+  site_explorer:
+    description: Site Explorer endpoints.
+    endpoints:
+      domain_rating:
+        method: GET
+        path: /site-explorer/domain-rating
+        description: Point-in-time snapshot. Domain rating
+        params:
+        - name: protocol
+          type: string
+          required: false
+          positional: false
+          description: The protocol of your target.
+          default: both
+          enum:
+          - both
+          - http
+          - https
+        - name: target
+          type: string
+          required: true
+          positional: false
+          description: 'The target of the search: a domain or a URL.'
+        - name: date
+          type: string
+          required: true
+          positional: false
+          description: A date to report metrics on in YYYY-MM-DD format.
+          format: date
+        body: []
+        response:
+          type: object
+          item: SiteExplorerDomainRatingData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+      domain_rating_history:
+        method: GET
+        path: /site-explorer/domain-rating-history
+        description: Time-series. Domain Rating history
+        params:
+        - name: history_grouping
+          type: string
+          required: false
+          positional: false
+          description: The time interval used to group historical data.
+          default: monthly
+          enum:
+          - daily
+          - weekly
+          - monthly
+        - name: date_to
+          type: string
+          required: false
+          positional: false
+          description: The end date of the historical period in YYYY-MM-DD format.
+          format: date
+        - name: date_from
+          type: string
+          required: true
+          positional: false
+          description: The start date of the historical period in YYYY-MM-DD format.
+          format: date
+        - name: target
+          type: string
+          required: true
+          positional: false
+          description: 'The target of the search: a domain or a URL.'
+        body: []
+        response:
+          type: array
+          item: SiteExplorerDomainRatingHistoryData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+      backlinks_stats:
+        method: GET
+        path: /site-explorer/backlinks-stats
+        description: Backlinks stats
+        params:
+        - name: protocol
+          type: string
+          required: false
+          positional: false
+          description: The protocol of your target.
+          default: both
+          enum:
+          - both
+          - http
+          - https
+        - name: target
+          type: string
+          required: true
+          positional: false
+          description: 'The target of the search: a domain or a URL.'
+        - name: mode
+          type: string
+          required: false
+          positional: false
+          description: The scope of the search based on the target you entered.
+          default: subdomains
+          enum:
+          - exact
+          - prefix
+          - domain
+          - subdomains
+        - name: date
+          type: string
+          required: true
+          positional: false
+          description: A date to report metrics on in YYYY-MM-DD format.
+          format: date
+        body: []
+        response:
+          type: object
+          item: SiteExplorerBacklinksStatsData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+      refdomains_history:
+        method: GET
+        path: /site-explorer/refdomains-history
+        description: Time-series. Refdomains history
+        params:
+        - name: history_grouping
+          type: string
+          required: false
+          positional: false
+          description: The time interval used to group historical data.
+          default: monthly
+          enum:
+          - daily
+          - weekly
+          - monthly
+        - name: date_to
+          type: string
+          required: false
+          positional: false
+          description: The end date of the historical period in YYYY-MM-DD format.
+          format: date
+        - name: date_from
+          type: string
+          required: true
+          positional: false
+          description: The start date of the historical period in YYYY-MM-DD format.
+          format: date
+        - name: protocol
+          type: string
+          required: false
+          positional: false
+          description: The protocol of your target.
+          default: both
+          enum:
+          - both
+          - http
+          - https
+        - name: target
+          type: string
+          required: true
+          positional: false
+          description: 'The target of the search: a domain or a URL.'
+        - name: mode
+          type: string
+          required: false
+          positional: false
+          description: The scope of the search based on the target you entered.
+          default: subdomains
+          enum:
+          - exact
+          - prefix
+          - domain
+          - subdomains
+        body: []
+        response:
+          type: array
+          item: SiteExplorerRefdomainsHistoryData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+      metrics:
+        method: GET
+        path: /site-explorer/metrics
+        description: Point-in-time snapshot. Metrics
+        params:
+        - name: volume_mode
+          type: string
+          required: false
+          positional: false
+          description: 'The search volume calculation mode: monthly or average. It
+            affects volume, traffic, and traffic value.'
+          default: monthly
+          enum:
+          - monthly
+          - average
+        - name: country
+          type: string
+          required: false
+          positional: false
+          description: A two-letter country code (ISO 3166-1 alpha-2).
+        - name: protocol
+          type: string
+          required: false
+          positional: false
+          description: The protocol of your target.
+          default: both
+          enum:
+          - both
+          - http
+          - https
+        - name: target
+          type: string
+          required: true
+          positional: false
+          description: 'The target of the search: a domain or a URL.'
+        - name: mode
+          type: string
+          required: false
+          positional: false
+          description: The scope of the search based on the target you entered.
+          default: subdomains
+          enum:
+          - exact
+          - prefix
+          - domain
+          - subdomains
+        - name: date
+          type: string
+          required: true
+          positional: false
+          description: A date to report metrics on in YYYY-MM-DD format.
+          format: date
+        body: []
+        response:
+          type: object
+          item: SiteExplorerMetricsData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+      all_backlinks:
+        method: GET
+        path: /site-explorer/all-backlinks
+        description: Backlinks
+        params:
+        - name: timeout
+          type: integer
+          required: false
+          positional: false
+          description: A manual timeout duration in seconds.
+        - name: limit
+          type: integer
+          required: false
+          positional: false
+          description: The number of results to return.
+          default: 1000
+        - name: order_by
+          type: string
+          required: false
+          positional: false
+          description: A column to order results by. See the response schema for valid
+            column identifiers, except for `link_group_count`, which is not supported
+            in `order_by` for this endpoint.
+        - name: where
+          type: string
+          required: false
+          positional: false
+          description: Filter expression. See filter-syntax.md for syntax.
+        - name: select
+          type: string
+          required: true
+          positional: false
+          description: A comma-separated list of columns to return. See response schema
+            for valid column identifiers.
+        - name: protocol
+          type: string
+          required: false
+          positional: false
+          description: The protocol of your target.
+          default: both
+          enum:
+          - both
+          - http
+          - https
+        - name: target
+          type: string
+          required: true
+          positional: false
+          description: 'The target of the search: a domain or a URL.'
+        - name: mode
+          type: string
+          required: false
+          positional: false
+          description: The scope of the search based on the target you entered.
+          default: subdomains
+          enum:
+          - exact
+          - prefix
+          - domain
+          - subdomains
+        - name: aggregation
+          type: string
+          required: false
+          positional: false
+          description: The backlinks grouping mode.
+          default: similar_links
+          enum:
+          - similar_links
+          - 1_per_domain
+          - all
+        - name: history
+          type: string
+          required: false
+          positional: false
+          description: A time frame to add lost backlinks to the report. Choose between
+            `live` (no history), `since:<date>` (history since a specified date),
+            and `all_time` (full history). The date should be in YYYY-MM-DD format.
+          default: all_time
+        body: []
+        response:
+          type: array
+          item: SiteExplorerAllBacklinksData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+      broken_backlinks:
+        method: GET
+        path: /site-explorer/broken-backlinks
+        description: Broken Backlinks
+        params:
+        - name: timeout
+          type: integer
+          required: false
+          positional: false
+          description: A manual timeout duration in seconds.
+        - name: limit
+          type: integer
+          required: false
+          positional: false
+          description: The number of results to return.
+          default: 1000
+        - name: order_by
+          type: string
+          required: false
+          positional: false
+          description: A column to order results by. See the response schema for valid
+            column identifiers, except for `http_code_target`, `last_visited_target`,
+            `link_group_count`, which are not supported in `order_by` for this endpoint.
+        - name: where
+          type: string
+          required: false
+          positional: false
+          description: Filter expression. See filter-syntax.md for syntax.
+        - name: select
+          type: string
+          required: true
+          positional: false
+          description: A comma-separated list of columns to return. See response schema
+            for valid column identifiers.
+        - name: protocol
+          type: string
+          required: false
+          positional: false
+          description: The protocol of your target.
+          default: both
+          enum:
+          - both
+          - http
+          - https
+        - name: target
+          type: string
+          required: true
+          positional: false
+          description: 'The target of the search: a domain or a URL.'
+        - name: mode
+          type: string
+          required: false
+          positional: false
+          description: The scope of the search based on the target you entered.
+          default: subdomains
+          enum:
+          - exact
+          - prefix
+          - domain
+          - subdomains
+        - name: aggregation
+          type: string
+          required: false
+          positional: false
+          description: The backlinks grouping mode.
+          default: similar_links
+          enum:
+          - similar_links
+          - 1_per_domain
+          - all
+        body: []
+        response:
+          type: array
+          item: SiteExplorerBrokenBacklinksData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+      organic_keywords:
+        method: GET
+        path: /site-explorer/organic-keywords
+        description: Organic keywords
+        params:
+        - name: timeout
+          type: integer
+          required: false
+          positional: false
+          description: A manual timeout duration in seconds.
+        - name: limit
+          type: integer
+          required: false
+          positional: false
+          description: The number of results to return.
+          default: 1000
+        - name: order_by
+          type: string
+          required: false
+          positional: false
+          description: A column to order results by. See response schema for valid
+            column identifiers.
+        - name: where
+          type: string
+          required: false
+          positional: false
+          description: Filter expression. See filter-syntax.md for syntax.
+        - name: select
+          type: string
+          required: true
+          positional: false
+          description: A comma-separated list of columns to return. See response schema
+            for valid column identifiers.
+        - name: protocol
+          type: string
+          required: false
+          positional: false
+          description: The protocol of your target.
+          default: both
+          enum:
+          - both
+          - http
+          - https
+        - name: target
+          type: string
+          required: true
+          positional: false
+          description: 'The target of the search: a domain or a URL.'
+        - name: mode
+          type: string
+          required: false
+          positional: false
+          description: The scope of the search based on the target you entered.
+          default: subdomains
+          enum:
+          - exact
+          - prefix
+          - domain
+          - subdomains
+        - name: country
+          type: string
+          required: false
+          positional: false
+          description: A two-letter country code (ISO 3166-1 alpha-2).
+        - name: date_compared
+          type: string
+          required: false
+          positional: false
+          description: A date to compare metrics with in YYYY-MM-DD format.
+          format: date
+        - name: date
+          type: string
+          required: true
+          positional: false
+          description: A date to report metrics on in YYYY-MM-DD format.
+          format: date
+        - name: volume_mode
+          type: string
+          required: false
+          positional: false
+          description: 'The search volume calculation mode: monthly or average. It
+            affects volume, traffic, and traffic value.'
+          default: monthly
+          enum:
+          - monthly
+          - average
+        body: []
+        response:
+          type: array
+          item: SiteExplorerOrganicKeywordsData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+      organic_competitors:
+        method: GET
+        path: /site-explorer/organic-competitors
+        description: Organic competitors
+        params:
+        - name: timeout
+          type: integer
+          required: false
+          positional: false
+          description: A manual timeout duration in seconds.
+        - name: limit
+          type: integer
+          required: false
+          positional: false
+          description: The number of results to return.
+          default: 1000
+        - name: order_by
+          type: string
+          required: false
+          positional: false
+          description: A column to order results by. See response schema for valid
+            column identifiers.
+        - name: where
+          type: string
+          required: false
+          positional: false
+          description: Filter expression. See filter-syntax.md for syntax.
+        - name: select
+          type: string
+          required: true
+          positional: false
+          description: A comma-separated list of columns to return. See response schema
+            for valid column identifiers.
+        - name: protocol
+          type: string
+          required: false
+          positional: false
+          description: The protocol of your target.
+          default: both
+          enum:
+          - both
+          - http
+          - https
+        - name: target
+          type: string
+          required: true
+          positional: false
+          description: 'The target of the search: a domain or a URL.'
+        - name: mode
+          type: string
+          required: false
+          positional: false
+          description: The scope of the search based on the target you entered.
+          default: subdomains
+          enum:
+          - exact
+          - prefix
+          - domain
+          - subdomains
+        - name: country
+          type: string
+          required: true
+          positional: false
+          description: A two-letter country code (ISO 3166-1 alpha-2).
+        - name: date_compared
+          type: string
+          required: false
+          positional: false
+          description: A date to compare metrics with in YYYY-MM-DD format.
+          format: date
+        - name: date
+          type: string
+          required: true
+          positional: false
+          description: A date to report metrics on in YYYY-MM-DD format.
+          format: date
+        - name: volume_mode
+          type: string
+          required: false
+          positional: false
+          description: 'The search volume calculation mode: monthly or average. It
+            affects volume, traffic, and traffic value.'
+          default: monthly
+          enum:
+          - monthly
+          - average
+        body: []
+        response:
+          type: array
+          item: SiteExplorerOrganicCompetitorsData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+      top_pages:
+        method: GET
+        path: /site-explorer/top-pages
+        description: Top pages
+        params:
+        - name: timeout
+          type: integer
+          required: false
+          positional: false
+          description: A manual timeout duration in seconds.
+        - name: limit
+          type: integer
+          required: false
+          positional: false
+          description: The number of results to return.
+          default: 1000
+        - name: order_by
+          type: string
+          required: false
+          positional: false
+          description: A column to order results by. See response schema for valid
+            column identifiers.
+        - name: where
+          type: string
+          required: false
+          positional: false
+          description: Filter expression. See filter-syntax.md for syntax.
+        - name: select
+          type: string
+          required: true
+          positional: false
+          description: A comma-separated list of columns to return. See response schema
+            for valid column identifiers.
+        - name: protocol
+          type: string
+          required: false
+          positional: false
+          description: The protocol of your target.
+          default: both
+          enum:
+          - both
+          - http
+          - https
+        - name: target
+          type: string
+          required: true
+          positional: false
+          description: 'The target of the search: a domain or a URL.'
+        - name: mode
+          type: string
+          required: false
+          positional: false
+          description: The scope of the search based on the target you entered.
+          default: subdomains
+          enum:
+          - exact
+          - prefix
+          - domain
+          - subdomains
+        - name: country
+          type: string
+          required: false
+          positional: false
+          description: A two-letter country code (ISO 3166-1 alpha-2).
+        - name: date_compared
+          type: string
+          required: false
+          positional: false
+          description: A date to compare metrics with in YYYY-MM-DD format.
+          format: date
+        - name: date
+          type: string
+          required: true
+          positional: false
+          description: A date to report metrics on in YYYY-MM-DD format.
+          format: date
+        - name: volume_mode
+          type: string
+          required: false
+          positional: false
+          description: 'The search volume calculation mode: monthly or average. It
+            affects volume, traffic, and traffic value.'
+          default: monthly
+          enum:
+          - monthly
+          - average
+        body: []
+        response:
+          type: array
+          item: SiteExplorerTopPagesData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+      pages_by_traffic:
+        method: GET
+        path: /site-explorer/pages-by-traffic
+        description: Pages by traffic
+        params:
+        - name: volume_mode
+          type: string
+          required: false
+          positional: false
+          description: 'The search volume calculation mode: monthly or average. It
+            affects volume, traffic, and traffic value.'
+          default: monthly
+          enum:
+          - monthly
+          - average
+        - name: country
+          type: string
+          required: false
+          positional: false
+          description: A two-letter country code (ISO 3166-1 alpha-2).
+        - name: protocol
+          type: string
+          required: false
+          positional: false
+          description: The protocol of your target.
+          default: both
+          enum:
+          - both
+          - http
+          - https
+        - name: target
+          type: string
+          required: true
+          positional: false
+          description: 'The target of the search: a domain or a URL.'
+        - name: mode
+          type: string
+          required: false
+          positional: false
+          description: The scope of the search based on the target you entered.
+          default: subdomains
+          enum:
+          - exact
+          - prefix
+          - domain
+          - subdomains
+        body: []
+        response:
+          type: object
+          item: SiteExplorerPagesByTrafficData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+      metrics_by_country:
+        method: GET
+        path: /site-explorer/metrics-by-country
+        description: Metrics by country
+        params:
+        - name: select
+          type: string
+          required: false
+          positional: false
+          description: A comma-separated list of columns to return. See response schema
+            for valid column identifiers.
+          default: paid_cost,paid_keywords,org_cost,paid_pages,org_keywords_1_3,org_keywords,org_traffic,paid_traffic,country
+        - name: volume_mode
+          type: string
+          required: false
+          positional: false
+          description: 'The search volume calculation mode: monthly or average. It
+            affects volume, traffic, and traffic value.'
+          default: monthly
+          enum:
+          - monthly
+          - average
+        - name: protocol
+          type: string
+          required: false
+          positional: false
+          description: The protocol of your target.
+          default: both
+          enum:
+          - both
+          - http
+          - https
+        - name: target
+          type: string
+          required: true
+          positional: false
+          description: 'The target of the search: a domain or a URL.'
+        - name: mode
+          type: string
+          required: false
+          positional: false
+          description: The scope of the search based on the target you entered.
+          default: subdomains
+          enum:
+          - exact
+          - prefix
+          - domain
+          - subdomains
+        - name: date
+          type: string
+          required: true
+          positional: false
+          description: A date to report metrics on in YYYY-MM-DD format.
+          format: date
+        body: []
+        response:
+          type: array
+          item: SiteExplorerMetricsByCountryData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+  keywords_explorer:
+    description: Keywords Explorer endpoints.
+    endpoints:
+      overview:
+        method: GET
+        path: /keywords-explorer/overview
+        description: Overview
+        params:
+        - name: timeout
+          type: integer
+          required: false
+          positional: false
+          description: A manual timeout duration in seconds.
+        - name: limit
+          type: integer
+          required: false
+          positional: false
+          description: The number of results to return.
+          default: 1000
+        - name: order_by
+          type: string
+          required: false
+          positional: false
+          description: A column to order results by. See the response schema for valid
+            column identifiers, except for `volume_monthly`, which is not supported
+            in `order_by` for this endpoint.
+        - name: where
+          type: string
+          required: false
+          positional: false
+          description: Filter expression. See filter-syntax.md for syntax.
+        - name: select
+          type: string
+          required: true
+          positional: false
+          description: A comma-separated list of columns to return. See response schema
+            for valid column identifiers.
+        - name: volume_monthly_date_to
+          type: string
+          required: false
+          positional: false
+          description: The end date in YYYY-MM-DD format for retrieving historical
+            monthly search volumes in the `volume_monthly_history` field. Required
+            only if `volume_monthly_history` is requested.
+          format: date
+        - name: volume_monthly_date_from
+          type: string
+          required: false
+          positional: false
+          description: The start date in YYYY-MM-DD format for retrieving historical
+            monthly search volumes in the `volume_monthly_history` field. Required
+            only if `volume_monthly_history` is requested.
+          format: date
+        - name: target_mode
+          type: string
+          required: false
+          positional: false
+          description: The scope of the target URL you specified.
+          enum:
+          - exact
+          - prefix
+          - domain
+          - subdomains
+        - name: target
+          type: string
+          required: false
+          positional: false
+          description: 'The target of the search: a domain or a URL.'
+        - name: target_position
+          type: string
+          required: false
+          positional: false
+          description: Filters keywords based on the ranking position of the specified
+            `target`.
+          enum:
+          - in_top10
+          - in_top100
+        - name: country
+          type: string
+          required: true
+          positional: false
+          description: A two-letter country code (ISO 3166-1 alpha-2).
+        - name: search_engine
+          type: string
+          required: false
+          positional: false
+          description: '[Deprecated on 5 Aug 2024].'
+          default: google
+          enum:
+          - google
+        - name: keywords
+          type: string
+          required: false
+          positional: false
+          description: A comma-separated list of keywords to show metrics for.
+        - name: keyword_list_id
+          type: integer
+          required: false
+          positional: false
+          description: The id of an existing keyword list to show metrics for.
+        body: []
+        response:
+          type: array
+          item: KeywordsExplorerOverviewData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+      matching_terms:
+        method: GET
+        path: /keywords-explorer/matching-terms
+        description: Matching terms
+        params:
+        - name: timeout
+          type: integer
+          required: false
+          positional: false
+          description: A manual timeout duration in seconds.
+        - name: limit
+          type: integer
+          required: false
+          positional: false
+          description: The number of results to return.
+          default: 1000
+        - name: order_by
+          type: string
+          required: false
+          positional: false
+          description: A column to order results by. See the response schema for valid
+            column identifiers, except for `volume_monthly`, which is not supported
+            in `order_by` for this endpoint.
+        - name: where
+          type: string
+          required: false
+          positional: false
+          description: Filter expression. See filter-syntax.md for syntax.
+        - name: select
+          type: string
+          required: true
+          positional: false
+          description: A comma-separated list of columns to return. See response schema
+            for valid column identifiers.
+        - name: country
+          type: string
+          required: true
+          positional: false
+          description: A two-letter country code (ISO 3166-1 alpha-2).
+        - name: search_engine
+          type: string
+          required: false
+          positional: false
+          description: '[Deprecated on 5 Aug 2024].'
+          default: google
+          enum:
+          - google
+        - name: keywords
+          type: string
+          required: false
+          positional: false
+          description: A comma-separated list of keywords to show metrics for.
+        - name: keyword_list_id
+          type: integer
+          required: false
+          positional: false
+          description: The id of an existing keyword list to show metrics for.
+        - name: match_mode
+          type: string
+          required: false
+          positional: false
+          description: Keyword ideas contain the words from your query in any order
+            (terms mode) or in the exact order they are written (phrase mode).
+          default: terms
+          enum:
+          - terms
+          - phrase
+        - name: terms
+          type: string
+          required: false
+          positional: false
+          description: All keywords ideas or keywords ideas phrased as questions.
+          default: all
+          enum:
+          - all
+          - questions
+        body: []
+        response:
+          type: array
+          item: KeywordsExplorerMatchingTermsData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+      related_terms:
+        method: GET
+        path: /keywords-explorer/related-terms
+        description: Related terms
+        params:
+        - name: timeout
+          type: integer
+          required: false
+          positional: false
+          description: A manual timeout duration in seconds.
+        - name: limit
+          type: integer
+          required: false
+          positional: false
+          description: The number of results to return.
+          default: 1000
+        - name: order_by
+          type: string
+          required: false
+          positional: false
+          description: A column to order results by. See the response schema for valid
+            column identifiers, except for `volume_monthly`, which is not supported
+            in `order_by` for this endpoint.
+        - name: where
+          type: string
+          required: false
+          positional: false
+          description: Filter expression. See filter-syntax.md for syntax.
+        - name: select
+          type: string
+          required: true
+          positional: false
+          description: A comma-separated list of columns to return. See response schema
+            for valid column identifiers.
+        - name: country
+          type: string
+          required: true
+          positional: false
+          description: A two-letter country code (ISO 3166-1 alpha-2).
+        - name: keywords
+          type: string
+          required: false
+          positional: false
+          description: A comma-separated list of keywords to show metrics for.
+        - name: keyword_list_id
+          type: integer
+          required: false
+          positional: false
+          description: The id of an existing keyword list to show metrics for.
+        - name: view_for
+          type: string
+          required: false
+          positional: false
+          description: View keywords for the top 10 or top 100 ranking pages.
+          default: top_10
+          enum:
+          - top_10
+          - top_100
+        - name: terms
+          type: string
+          required: false
+          positional: false
+          description: Related keywords which top-ranking pages also rank for (`also_rank_for`),
+            additional keywords frequently mentioned in top-ranking pages (`also_talk_about`),
+            or combination of both (`all`).
+          default: all
+          enum:
+          - also_rank_for
+          - also_talk_about
+          - all
+        body: []
+        response:
+          type: array
+          item: KeywordsExplorerRelatedTermsData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+      search_suggestions:
+        method: GET
+        path: /keywords-explorer/search-suggestions
+        description: Search suggestions
+        params:
+        - name: timeout
+          type: integer
+          required: false
+          positional: false
+          description: A manual timeout duration in seconds.
+        - name: limit
+          type: integer
+          required: false
+          positional: false
+          description: The number of results to return.
+          default: 1000
+        - name: order_by
+          type: string
+          required: false
+          positional: false
+          description: A column to order results by. See the response schema for valid
+            column identifiers, except for `volume_monthly`, which is not supported
+            in `order_by` for this endpoint.
+        - name: where
+          type: string
+          required: false
+          positional: false
+          description: Filter expression. See filter-syntax.md for syntax.
+        - name: select
+          type: string
+          required: true
+          positional: false
+          description: A comma-separated list of columns to return. See response schema
+            for valid column identifiers.
+        - name: country
+          type: string
+          required: true
+          positional: false
+          description: A two-letter country code (ISO 3166-1 alpha-2).
+        - name: search_engine
+          type: string
+          required: false
+          positional: false
+          description: '[Deprecated on 5 Aug 2024].'
+          default: google
+          enum:
+          - google
+        - name: keywords
+          type: string
+          required: false
+          positional: false
+          description: A comma-separated list of keywords to show metrics for.
+        - name: keyword_list_id
+          type: integer
+          required: false
+          positional: false
+          description: The id of an existing keyword list to show metrics for.
+        body: []
+        response:
+          type: array
+          item: KeywordsExplorerSearchSuggestionsData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+      volume_history:
+        method: GET
+        path: /keywords-explorer/volume-history
+        description: Time-series. Volume history
+        params:
+        - name: date_to
+          type: string
+          required: false
+          positional: false
+          description: The end date of the historical period in YYYY-MM-DD format.
+          format: date
+        - name: date_from
+          type: string
+          required: false
+          positional: false
+          description: The start date of the historical period in YYYY-MM-DD format.
+          format: date
+        - name: country
+          type: string
+          required: true
+          positional: false
+          description: A two-letter country code (ISO 3166-1 alpha-2).
+        - name: keyword
+          type: string
+          required: true
+          positional: false
+          description: The keyword to show metrics for.
+        body: []
+        response:
+          type: array
+          item: KeywordsExplorerVolumeHistoryData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+      volume_by_country:
+        method: GET
+        path: /keywords-explorer/volume-by-country
+        description: Volume by country
+        params:
+        - name: limit
+          type: integer
+          required: false
+          positional: false
+          description: The number of results to return.
+        - name: search_engine
+          type: string
+          required: false
+          positional: false
+          description: '[Deprecated on 5 Aug 2024].'
+          default: google
+          enum:
+          - google
+        - name: keyword
+          type: string
+          required: true
+          positional: false
+          description: The keyword to show metrics for.
+        body: []
+        response:
+          type: array
+          item: KeywordsExplorerVolumeByCountryData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+  rank_tracker:
+    description: Rank Tracker endpoints.
+    endpoints:
+      overview:
+        method: GET
+        path: /rank-tracker/overview
+        description: Overview
+        params:
+        - name: timeout
+          type: integer
+          required: false
+          positional: false
+          description: A manual timeout duration in seconds.
+        - name: limit
+          type: integer
+          required: false
+          positional: false
+          description: The number of results to return.
+          default: 1000
+        - name: order_by
+          type: string
+          required: false
+          positional: false
+          description: A column to order results by. See response schema for valid
+            column identifiers.
+        - name: where
+          type: string
+          required: false
+          positional: false
+          description: Filter expression. See filter-syntax.md for syntax.
+        - name: select
+          type: string
+          required: true
+          positional: false
+          description: A comma-separated list of columns to return. See response schema
+            for valid column identifiers.
+        - name: date_compared
+          type: string
+          required: false
+          positional: false
+          description: A date to compare metrics with in YYYY-MM-DD format.
+          format: date
+        - name: date
+          type: string
+          required: true
+          positional: false
+          description: A date to report metrics on in YYYY-MM-DD format.
+          format: date
+        - name: device
+          type: string
+          required: true
+          positional: false
+          description: Choose between mobile and desktop rankings.
+          enum:
+          - desktop
+          - mobile
+        - name: project_id
+          type: integer
+          required: true
+          positional: false
+          description: 'The unique identifier of the project. You can find it in the
+            URL of your Rank Tracker project in Ahrefs: `https://app.ahrefs.com/rank-tracker/overview/#project_id#`'
+        - name: volume_mode
+          type: string
+          required: false
+          positional: false
+          description: 'The search volume calculation mode: monthly or average. It
+            affects volume, traffic, and traffic value.'
+          default: monthly
+          enum:
+          - monthly
+          - average
+        body: []
+        response:
+          type: array
+          item: RankTrackerOverviewData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+      competitors_overview:
+        method: GET
+        path: /rank-tracker/competitors-overview
+        description: Competitors overview
+        params:
+        - name: timeout
+          type: integer
+          required: false
+          positional: false
+          description: A manual timeout duration in seconds.
+        - name: limit
+          type: integer
+          required: false
+          positional: false
+          description: The number of results to return.
+          default: 1000
+        - name: order_by
+          type: string
+          required: false
+          positional: false
+          description: A column to order results by. See response schema for valid
+            column identifiers.
+        - name: where
+          type: string
+          required: false
+          positional: false
+          description: Filter expression. See filter-syntax.md for syntax.
+        - name: select
+          type: string
+          required: true
+          positional: false
+          description: A comma-separated list of columns to return. See response schema
+            for valid column identifiers.
+        - name: date_compared
+          type: string
+          required: false
+          positional: false
+          description: A date to compare metrics with in YYYY-MM-DD format.
+          format: date
+        - name: date
+          type: string
+          required: true
+          positional: false
+          description: A date to report metrics on in YYYY-MM-DD format.
+          format: date
+        - name: device
+          type: string
+          required: true
+          positional: false
+          description: Choose between mobile and desktop rankings.
+          enum:
+          - desktop
+          - mobile
+        - name: project_id
+          type: integer
+          required: true
+          positional: false
+          description: 'The unique identifier of the project. You can find it in the
+            URL of your Rank Tracker project in Ahrefs: `https://app.ahrefs.com/rank-tracker/overview/#project_id#`'
+        - name: volume_mode
+          type: string
+          required: false
+          positional: false
+          description: 'The search volume calculation mode: monthly or average. It
+            affects volume, traffic, and traffic value.'
+          default: monthly
+          enum:
+          - monthly
+          - average
+        body: []
+        response:
+          type: array
+          item: RankTrackerCompetitorsOverviewData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+      serp_overview:
+        method: GET
+        path: /rank-tracker/serp-overview
+        description: SERP Overview
+        params:
+        - name: top_positions
+          type: integer
+          required: false
+          positional: false
+          description: The number of top organic SERP positions to return. If not
+            specified, all available positions will be returned.
+        - name: device
+          type: string
+          required: true
+          positional: false
+          description: Choose between mobile and desktop rankings.
+          enum:
+          - desktop
+          - mobile
+        - name: date
+          type: string
+          required: false
+          positional: false
+          description: A timestamp on which the last available SERP Overview is returned
+            in YYYY-MM-DDThh:mm:ss format. If it is not specified, the most recent
+            SERP Overview is returned.
+        - name: location_id
+          type: integer
+          required: false
+          positional: false
+          description: The location ID of a tracked keyword.You can use the `management/project-keywords`
+            endpoint to get country codes, language codes and location IDs for your
+            tracked keywords.
+        - name: country
+          type: string
+          required: true
+          positional: false
+          description: A two-letter country code (ISO 3166-1 alpha-2).
+        - name: language_code
+          type: string
+          required: false
+          positional: false
+          description: The language code of a tracked keyword.You can use the `management/project-keywords`
+            endpoint to get country codes, language codes and location IDs for your
+            tracked keywords.
+        - name: keyword
+          type: string
+          required: true
+          positional: false
+          description: The keyword to return SERP Overview for.
+        - name: project_id
+          type: integer
+          required: true
+          positional: false
+          description: 'The unique identifier of the project. You can find it in the
+            URL of your Rank Tracker project in Ahrefs: `https://app.ahrefs.com/rank-tracker/overview/#project_id#`'
+        body: []
+        response:
+          type: array
+          item: RankTrackerSerpOverviewData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+  site_audit:
+    description: Site Audit endpoints.
+    endpoints:
+      projects:
+        method: GET
+        path: /site-audit/projects
+        description: Project Health Scores
+        params:
+        - name: project_url
+          type: string
+          required: false
+          positional: false
+          description: Filters projects by target URL (ignores protocol and trailing
+            slash).
+        - name: project_name
+          type: string
+          required: false
+          positional: false
+          description: Filters projects by name.
+        - name: date
+          type: string
+          required: false
+          positional: false
+          description: A timestamp in `YYYY-MM-DDThh:mm:ss` format specifying the
+            crawl date to retrieve metrics from. Defaults to the most recent available
+            crawl if omitted. For scheduled crawls, we return data from the latest
+            crawl finished before the specified timestamp. For Always-on audit crawls,
+            we return data as of the provided date and time. If the time component
+            is omitted, it defaults to `00:00:00`. The timestamp is interpreted in
+            UTC.
+        - name: project_id
+          type: integer
+          required: false
+          positional: false
+          description: 'The unique identifier of the project. You can find it in the
+            URL of your Site Audit project in Ahrefs: `https://app.ahrefs.com/site-audit/#project_id#`'
+        body: []
+        response:
+          type: array
+          item: SiteAuditProjectsData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+      issues:
+        method: GET
+        path: /site-audit/issues
+        description: Project Issues
+        params:
+        - name: date_compared
+          type: string
+          required: false
+          positional: false
+          description: A timestamp in `YYYY-MM-DDThh:mm:ss` format specifying the
+            crawl date to compare metrics with. Follows the same rules as the `date`
+            field.
+        - name: date
+          type: string
+          required: false
+          positional: false
+          description: A timestamp in `YYYY-MM-DDThh:mm:ss` format specifying the
+            crawl date to retrieve metrics from. Defaults to the most recent available
+            crawl if omitted. For scheduled crawls, we return data from the latest
+            crawl finished before the specified timestamp. For Always-on audit crawls,
+            we return data as of the provided date and time. If the time component
+            is omitted, it defaults to `00:00:00`. The timestamp is interpreted in
+            UTC.
+        - name: project_id
+          type: integer
+          required: true
+          positional: false
+          description: 'The unique identifier of the project. You can find it in the
+            URL of your Site Audit project in Ahrefs: `https://app.ahrefs.com/site-audit/#project_id#`'
+        body: []
+        response:
+          type: array
+          item: SiteAuditIssuesData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+      page_explorer:
+        method: GET
+        path: /site-audit/page-explorer
+        description: Page explorer
+        params:
+        - name: timeout
+          type: integer
+          required: false
+          positional: false
+          description: A manual timeout duration in seconds.
+        - name: limit
+          type: integer
+          required: false
+          positional: false
+          description: The number of results to return.
+          default: 1000
+        - name: order_by
+          type: string
+          required: false
+          positional: false
+          description: A column to order results by. See response schema for valid
+            column identifiers.
+        - name: where
+          type: string
+          required: false
+          positional: false
+          description: Filter expression. See filter-syntax.md for syntax.
+        - name: select
+          type: string
+          required: false
+          positional: false
+          description: A comma-separated list of columns to return. See response schema
+            for valid column identifiers.
+          default: page_rating,url,is_rendered,http_code,content_type,title,meta_description,h1,traffic,canonical,canonical_code,redirect,redirect_code,compliant,page_is_noindex,page_is_nofollow,incoming_all_links,links_count_internal,links_count_external,links_count_internal4xx,links_count_external4xx,hreflang_issues,psi_crux_cls_category,psi_crux_lcp_category,psi_crux_inp_category,jsonld_schema_types,jsonld_validation_kinds,origin,depth
+        - name: filter_mode
+          type: string
+          required: false
+          positional: false
+          description: 'Indicates which pages to return compared to the previous crawl.
+            If not specified, all URLs that match your filter conditions are returned.
+            `added`: URLs that are a new match for your filter conditions. `new`:
+            URLs that are newly crawled and match your filter conditions. `removed`:
+            URLs that stopped matching your filter conditions. `missing`: URLs that
+            weren''t crawled, but previously matched your filter conditions. `no_change`:
+            URLs that match your filter conditions in a crawl and the crawl before
+            it.'
+          enum:
+          - added
+          - new
+          - removed
+          - missing
+          - no_change
+        - name: issue_id
+          type: string
+          required: false
+          positional: false
+          description: The unique identifier of an issue. When specified, only URLs
+            affected by this issue are returned. You can get issue IDs by querying
+            the `site-audit/issues` endpoint.
+        - name: date_compared
+          type: string
+          required: false
+          positional: false
+          description: A timestamp in `YYYY-MM-DDThh:mm:ss` format specifying the
+            crawl date to compare metrics with. Follows the same rules as the `date`
+            field.
+        - name: date
+          type: string
+          required: false
+          positional: false
+          description: A timestamp in `YYYY-MM-DDThh:mm:ss` format specifying the
+            crawl date to retrieve metrics from. Defaults to the most recent available
+            crawl if omitted. For scheduled crawls, we return data from the latest
+            crawl finished before the specified timestamp. For Always-on audit crawls,
+            we return data as of the provided date and time. If the time component
+            is omitted, it defaults to `00:00:00`. The timestamp is interpreted in
+            UTC.
+        - name: project_id
+          type: integer
+          required: true
+          positional: false
+          description: 'The unique identifier of the project. Only projects with verified
+            ownership are supported. You can find the project ID in the URL of your
+            Site Audit project in Ahrefs: `https://app.ahrefs.com/site-audit/#project_id#`'
+        body: []
+        response:
+          type: array
+          item: SiteAuditPageExplorerData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+      page_content:
+        method: GET
+        path: /site-audit/page-content
+        description: Page content
+        params:
+        - name: select
+          type: string
+          required: true
+          positional: false
+          description: A comma-separated list of columns to return. See response schema
+            for valid column identifiers.
+        - name: date
+          type: string
+          required: false
+          positional: false
+          description: A timestamp in `YYYY-MM-DDThh:mm:ss` format specifying the
+            crawl date to retrieve metrics from. Defaults to the most recent available
+            crawl if omitted. For scheduled crawls, we return data from the latest
+            crawl finished before the specified timestamp. For Always-on audit crawls,
+            we return data as of the provided date and time. If the time component
+            is omitted, it defaults to `00:00:00`. The timestamp is interpreted in
+            UTC.
+        - name: target_url
+          type: string
+          required: true
+          positional: false
+          description: The URL of the page to retrieve content for.
+        - name: project_id
+          type: integer
+          required: true
+          positional: false
+          description: 'The unique identifier of the project. Only projects with verified
+            ownership are supported. You can find the project ID in the URL of your
+            Site Audit project in Ahrefs: `https://app.ahrefs.com/site-audit/#project_id#`'
+        body: []
+        response:
+          type: object
+          item: SiteAuditPageContentData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+  serp_overview:
+    description: Serp Overview endpoints.
+    endpoints:
+      serp_overview:
+        method: GET
+        path: /serp-overview/serp-overview
+        description: SERP Overview
+        params:
+        - name: select
+          type: string
+          required: true
+          positional: false
+          description: A comma-separated list of columns to return. See response schema
+            for valid column identifiers.
+        - name: top_positions
+          type: integer
+          required: false
+          positional: false
+          description: The number of top organic SERP positions to return. If not
+            specified, all available positions will be returned.
+        - name: date
+          type: string
+          required: false
+          positional: false
+          description: A timestamp on which the last available SERP Overview is returned
+            in YYYY-MM-DDThh:mm:ss format. If it is not specified, the most recent
+            SERP Overview is returned.
+        - name: country
+          type: string
+          required: true
+          positional: false
+          description: A two-letter country code (ISO 3166-1 alpha-2).
+        - name: keyword
+          type: string
+          required: true
+          positional: false
+          description: The keyword to return SERP Overview for.
+        body: []
+        response:
+          type: array
+          item: SerpOverviewData
+        pagination: null
+        meta:
+          mcp:read-only: 'true'
+types:
+  KeywordsExplorerMatchingTermsData:
+    fields:
+    - name: cpc
+      type: integer
+    - name: cps
+      type: number
+    - name: difficulty
+      type: integer
+    - name: first_seen
+      type: string
+    - name: global_volume
+      type: integer
+    - name: intents
+      type: object
+    - name: keyword
+      type: string
+    - name: parent_topic
+      type: string
+    - name: serp_features
+      type: array
+    - name: serp_last_update
+      type: string
+    - name: traffic_potential
+      type: integer
+    - name: volume
+      type: integer
+    - name: volume_desktop_pct
+      type: number
+    - name: volume_mobile_pct
+      type: number
+    - name: volume_monthly
+      type: integer
+  KeywordsExplorerOverviewData:
+    fields:
+    - name: clicks
+      type: integer
+    - name: cpc
+      type: integer
+    - name: cps
+      type: number
+    - name: difficulty
+      type: integer
+    - name: first_seen
+      type: string
+    - name: global_volume
+      type: integer
+    - name: intents
+      type: object
+    - name: keyword
+      type: string
+    - name: parent_topic
+      type: string
+    - name: parent_volume
+      type: integer
+    - name: searches_pct_clicks_organic_and_paid
+      type: number
+    - name: searches_pct_clicks_organic_only
+      type: number
+    - name: searches_pct_clicks_paid_only
+      type: number
+    - name: serp_features
+      type: array
+    - name: serp_last_update
+      type: string
+    - name: traffic_potential
+      type: integer
+    - name: volume
+      type: integer
+    - name: volume_desktop_pct
+      type: number
+    - name: volume_mobile_pct
+      type: number
+    - name: volume_monthly
+      type: integer
+    - name: volume_monthly_history
+      type: array
+  KeywordsExplorerRelatedTermsData:
+    fields:
+    - name: cpc
+      type: integer
+    - name: cps
+      type: number
+    - name: difficulty
+      type: integer
+    - name: first_seen
+      type: string
+    - name: global_volume
+      type: integer
+    - name: intents
+      type: object
+    - name: keyword
+      type: string
+    - name: parent_topic
+      type: string
+    - name: serp_features
+      type: array
+    - name: serp_last_update
+      type: string
+    - name: traffic_potential
+      type: integer
+    - name: volume
+      type: integer
+    - name: volume_desktop_pct
+      type: number
+    - name: volume_mobile_pct
+      type: number
+    - name: volume_monthly
+      type: integer
+  KeywordsExplorerSearchSuggestionsData:
+    fields:
+    - name: cpc
+      type: integer
+    - name: cps
+      type: number
+    - name: difficulty
+      type: integer
+    - name: first_seen
+      type: string
+    - name: global_volume
+      type: integer
+    - name: intents
+      type: object
+    - name: keyword
+      type: string
+    - name: parent_topic
+      type: string
+    - name: serp_features
+      type: array
+    - name: serp_last_update
+      type: string
+    - name: traffic_potential
+      type: integer
+    - name: volume
+      type: integer
+    - name: volume_desktop_pct
+      type: number
+    - name: volume_mobile_pct
+      type: number
+    - name: volume_monthly
+      type: integer
+  KeywordsExplorerVolumeByCountryData:
+    fields:
+    - name: country
+      type: string
+    - name: volume
+      type: integer
+  KeywordsExplorerVolumeHistoryData:
+    fields:
+    - name: date
+      type: string
+    - name: volume
+      type: integer
+  PublicCrawlerIpRangesData:
+    fields:
+    - name: ipv4_prefix
+      type: string
+  PublicCrawlerIpsData:
+    fields:
+    - name: ip_address
+      type: string
+  RankTrackerCompetitorsOverviewData:
+    fields:
+    - name: competitors_list
+      type: array
+    - name: country
+      type: string
+    - name: keyword
+      type: string
+    - name: keyword_difficulty
+      type: integer
+    - name: keyword_has_data
+      type: boolean
+    - name: keyword_is_frozen
+      type: boolean
+    - name: language
+      type: string
+    - name: location
+      type: string
+    - name: serp_features
+      type: array
+    - name: serp_updated
+      type: string
+    - name: serp_updated_prev
+      type: string
+    - name: tags
+      type: array
+    - name: volume
+      type: integer
+  RankTrackerOverviewData:
+    fields:
+    - name: best_position_has_thumbnail
+      type: boolean
+    - name: best_position_has_thumbnail_previous
+      type: boolean
+    - name: best_position_has_video_preview
+      type: boolean
+    - name: best_position_has_video_preview_previous
+      type: boolean
+    - name: best_position_kind
+      type: string
+    - name: best_position_kind_previous
+      type: string
+    - name: clicks
+      type: integer
+    - name: clicks_per_search
+      type: number
+    - name: cost_per_click
+      type: integer
+    - name: country
+      type: string
+    - name: country_prev
+      type: string
+    - name: created_at
+      type: string
+    - name: is_branded
+      type: boolean
+    - name: is_commercial
+      type: boolean
+    - name: is_informational
+      type: boolean
+    - name: is_local
+      type: boolean
+    - name: is_navigational
+      type: boolean
+    - name: is_transactional
+      type: boolean
+    - name: keyword
+      type: string
+    - name: keyword_difficulty
+      type: integer
+    - name: keyword_has_data
+      type: boolean
+    - name: keyword_is_frozen
+      type: boolean
+    - name: keyword_prev
+      type: string
+    - name: language
+      type: string
+    - name: language_prev
+      type: string
+    - name: location
+      type: string
+    - name: location_prev
+      type: string
+    - name: parent_topic
+      type: string
+    - name: position
+      type: integer
+    - name: position_diff
+      type: integer
+    - name: position_prev
+      type: integer
+    - name: search_type_image
+      type: number
+    - name: search_type_news
+      type: number
+    - name: search_type_video
+      type: number
+    - name: search_type_web
+      type: number
+    - name: serp_features
+      type: array
+    - name: serp_features_prev
+      type: array
+    - name: serp_updated
+      type: string
+    - name: serp_updated_prev
+      type: string
+    - name: tags
+      type: array
+    - name: tags_prev
+      type: array
+    - name: target_positions_count
+      type: integer
+    - name: traffic
+      type: integer
+    - name: traffic_diff
+      type: integer
+    - name: traffic_prev
+      type: integer
+    - name: url
+      type: string
+    - name: url_prev
+      type: string
+    - name: volume
+      type: integer
+    - name: volume_desktop_pct
+      type: number
+    - name: volume_mobile_pct
+      type: number
+  RankTrackerSerpOverviewData:
+    fields:
+    - name: position
+      type: integer
+    - name: title
+      type: string
+    - name: url
+      type: string
+    - name: type
+      type: array
+    - name: update_date
+      type: string
+    - name: nr_words
+      type: integer
+    - name: domain_rating
+      type: number
+    - name: url_rating
+      type: number
+    - name: ahrefs_rank
+      type: integer
+    - name: backlinks
+      type: integer
+    - name: refdomains
+      type: integer
+    - name: traffic
+      type: integer
+    - name: value
+      type: integer
+    - name: keywords
+      type: integer
+    - name: top_keyword
+      type: string
+    - name: top_keyword_volume
+      type: integer
+    - name: page_type
+      type: string
+  SerpOverviewData:
+    fields:
+    - name: ahrefs_rank
+      type: integer
+    - name: backlinks
+      type: integer
+    - name: domain_rating
+      type: number
+    - name: keywords
+      type: integer
+    - name: page_type
+      type: string
+    - name: position
+      type: integer
+    - name: refdomains
+      type: integer
+    - name: title
+      type: string
+    - name: top_keyword
+      type: string
+    - name: top_keyword_volume
+      type: integer
+    - name: traffic
+      type: integer
+    - name: type
+      type: array
+    - name: update_date
+      type: string
+    - name: url
+      type: string
+    - name: url_rating
+      type: number
+    - name: value
+      type: integer
+  SiteAuditIssuesData:
+    fields:
+    - name: issue_id
+      type: string
+    - name: name
+      type: string
+    - name: importance
+      type: string
+    - name: category
+      type: string
+    - name: is_indexable
+      type: boolean
+    - name: crawled
+      type: integer
+    - name: change
+      type: integer
+    - name: added
+      type: integer
+    - name: new
+      type: integer
+    - name: removed
+      type: integer
+    - name: missing
+      type: integer
+  SiteAuditPageContentData:
+    fields:
+    - name: crawl_datetime
+      type: string
+    - name: page_text
+      type: string
+    - name: raw_html
+      type: string
+    - name: rendered_html
+      type: string
+  SiteAuditPageExplorerData:
+    fields:
+    - name: ai_content_level
+      type: string
+    - name: ai_content_status
+      type: string
+    - name: alternate
+      type: integer
+    - name: alternate_diff
+      type: integer
+    - name: alternate_prev
+      type: integer
+    - name: backlinks
+      type: integer
+    - name: backlinks_diff
+      type: integer
+    - name: backlinks_prev
+      type: integer
+    - name: canonical
+      type: string
+    - name: canonical_code
+      type: integer
+    - name: canonical_counts
+      type: integer
+    - name: canonical_counts_diff
+      type: integer
+    - name: canonical_counts_prev
+      type: integer
+    - name: canonical_group_hash
+      type: integer
+    - name: canonical_is_canonical
+      type: boolean
+    - name: canonical_is_canonical_prev
+      type: boolean
+    - name: canonical_no_crawl_reason
+      type: string
+    - name: canonical_no_crawl_reason_prev
+      type: string
+    - name: canonical_prev
+      type: string
+    - name: canonical_scheme
+      type: string
+    - name: canonical_scheme_prev
+      type: string
+    - name: compliant
+      type: boolean
+    - name: compliant_prev
+      type: boolean
+    - name: compression
+      type: string
+    - name: compression_prev
+      type: string
+    - name: content_encoding
+      type: string
+    - name: content_encoding_prev
+      type: string
+    - name: content_length
+      type: integer
+    - name: content_length_diff
+      type: integer
+    - name: content_length_prev
+      type: integer
+    - name: content_nr_word
+      type: integer
+    - name: content_nr_word_diff
+      type: integer
+    - name: content_nr_word_prev
+      type: integer
+    - name: content_type
+      type: string
+    - name: content_type_prev
+      type: string
+    - name: css_no_crawl_reason
+      type: array
+    - name: css_no_crawl_reason_prev
+      type: array
+    - name: curl_code
+      type: integer
+    - name: depth
+      type: integer
+    - name: depth_diff
+      type: integer
+    - name: depth_prev
+      type: integer
+    - name: dofollow
+      type: integer
+    - name: dofollow_prev
+      type: integer
+    - name: domain
+      type: string
+    - name: duplicate_content
+      type: integer
+    - name: duplicate_content_canonical_hreflang
+      type: integer
+    - name: duplicate_content_canonical_hreflang_diff
+      type: integer
+    - name: duplicate_content_canonical_hreflang_prev
+      type: integer
+    - name: duplicate_content_diff
+      type: integer
+    - name: duplicate_content_prev
+      type: integer
+    - name: duplicate_description
+      type: integer
+    - name: duplicate_description_canonical_hreflang
+      type: integer
+    - name: duplicate_description_canonical_hreflang_diff
+      type: integer
+    - name: duplicate_description_canonical_hreflang_prev
+      type: integer
+    - name: duplicate_description_diff
+      type: integer
+    - name: duplicate_description_prev
+      type: integer
+    - name: duplicate_group_identifier
+      type: integer
+    - name: duplicate_h1
+      type: integer
+    - name: duplicate_h1_diff
+      type: integer
+    - name: duplicate_h1_prev
+      type: integer
+    - name: duplicate_h1canonical_hreflang
+      type: integer
+    - name: duplicate_h1canonical_hreflang_diff
+      type: integer
+    - name: duplicate_h1canonical_hreflang_prev
+      type: integer
+    - name: duplicate_title
+      type: integer
+    - name: duplicate_title_canonical_hreflang
+      type: integer
+    - name: duplicate_title_canonical_hreflang_diff
+      type: integer
+    - name: duplicate_title_canonical_hreflang_prev
+      type: integer
+    - name: duplicate_title_diff
+      type: integer
+    - name: duplicate_title_prev
+      type: integer
+    - name: edu
+      type: integer
+    - name: edu_diff
+      type: integer
+    - name: edu_prev
+      type: integer
+    - name: external_code
+      type: array
+    - name: external_link_anchor
+      type: array
+    - name: external_link_anchor_prev
+      type: array
+    - name: external_link_domain
+      type: array
+    - name: external_link_domain_prev
+      type: array
+    - name: external_links
+      type: array
+    - name: external_links_is_canonical
+      type: array
+    - name: external_links_is_canonical_prev
+      type: array
+    - name: external_links_prev
+      type: array
+    - name: external_no_crawl_reason
+      type: array
+    - name: external_no_crawl_reason_prev
+      type: array
+    - name: external_scheme
+      type: array
+    - name: external_scheme_prev
+      type: array
+    - name: final_redirect
+      type: string
+    - name: final_redirect_code
+      type: integer
+    - name: final_redirect_no_crawl_reason
+      type: string
+    - name: final_redirect_no_crawl_reason_prev
+      type: string
+    - name: final_redirect_prev
+      type: string
+    - name: found_in_sitemaps
+      type: array
+    - name: found_in_sitemaps_length
+      type: integer
+    - name: found_in_sitemaps_prev
+      type: array
+    - name: gov
+      type: integer
+    - name: gov_diff
+      type: integer
+    - name: gov_prev
+      type: integer
+    - name: h1
+      type: array
+    - name: h1_prev
+      type: array
+    - name: h1length
+      type: array
+    - name: h1length_prev
+      type: array
+    - name: h2
+      type: array
+    - name: h2_prev
+      type: array
+    - name: hash_content
+      type: integer
+    - name: hash_descriptions
+      type: array
+    - name: hash_h1
+      type: array
+    - name: hash_text
+      type: integer
+    - name: hash_titles
+      type: array
+    - name: hreflang
+      type: array
+    - name: hreflang_code_is_valid
+      type: array
+    - name: hreflang_code_is_valid_prev
+      type: array
+    - name: hreflang_country
+      type: array
+    - name: hreflang_country_prev
+      type: array
+    - name: hreflang_group_hash
+      type: integer
+    - name: hreflang_inlink_urls
+      type: array
+    - name: hreflang_inlink_urls_prev
+      type: array
+    - name: hreflang_issues
+      type: array
+    - name: hreflang_issues_prev
+      type: array
+    - name: hreflang_language
+      type: array
+    - name: hreflang_language_prev
+      type: array
+    - name: hreflang_link
+      type: array
+    - name: hreflang_link_is_canonical
+      type: array
+    - name: hreflang_link_is_canonical_prev
+      type: array
+    - name: hreflang_link_prev
+      type: array
+    - name: hreflang_no_crawl_reason
+      type: array
+    - name: hreflang_no_crawl_reason_prev
+      type: array
+    - name: hreflang_pages_urls
+      type: array
+    - name: hreflang_pages_urls_count
+      type: integer
+    - name: hreflang_pages_urls_count_diff
+      type: integer
+    - name: hreflang_pages_urls_count_prev
+      type: integer
+    - name: hreflang_pages_urls_prev
+      type: array
+    - name: hreflang_prev
+      type: array
+    - name: html_lang
+      type: string
+    - name: html_lang_code_is_valid
+      type: boolean
+    - name: html_lang_code_is_valid_prev
+      type: boolean
+    - name: html_lang_country
+      type: string
+    - name: html_lang_country_prev
+      type: string
+    - name: html_lang_language
+      type: string
+    - name: html_lang_language_prev
+      type: string
+    - name: html_lang_prev
+      type: string
+    - name: http_code
+      type: integer
+    - name: http_header
+      type: array
+    - name: http_header_prev
+      type: array
+    - name: http_header_robots
+      type: array
+    - name: http_header_robots_prev
+      type: array
+    - name: http_headers_size
+      type: integer
+    - name: http_headers_size_diff
+      type: integer
+    - name: http_headers_size_prev
+      type: integer
+    - name: images_no_crawl_reason
+      type: array
+    - name: images_no_crawl_reason_prev
+      type: array
+    - name: incoming_all_links
+      type: integer
+    - name: incoming_all_links_diff
+      type: integer
+    - name: incoming_all_links_prev
+      type: integer
+    - name: incoming_canonical
+      type: integer
+    - name: incoming_canonical_diff
+      type: integer
+    - name: incoming_canonical_prev
+      type: integer
+    - name: incoming_css
+      type: integer
+    - name: incoming_css_diff
+      type: integer
+    - name: incoming_css_prev
+      type: integer
+    - name: incoming_follow
+      type: integer
+    - name: incoming_follow_diff
+      type: integer
+    - name: incoming_follow_prev
+      type: integer
+    - name: incoming_hreflang
+      type: integer
+    - name: incoming_hreflang_diff
+      type: integer
+    - name: incoming_hreflang_prev
+      type: integer
+    - name: incoming_image
+      type: integer
+    - name: incoming_image_diff
+      type: integer
+    - name: incoming_image_prev
+      type: integer
+    - name: incoming_js
+      type: integer
+    - name: incoming_js_diff
+      type: integer
+    - name: incoming_js_prev
+      type: integer
+    - name: incoming_links
+      type: integer
+    - name: incoming_links_diff
+      type: integer
+    - name: incoming_links_prev
+      type: integer
+    - name: incoming_nofollow
+      type: integer
+    - name: incoming_nofollow_diff
+      type: integer
+    - name: incoming_nofollow_prev
+      type: integer
+    - name: incoming_pagination
+      type: integer
+    - name: incoming_pagination_diff
+      type: integer
+    - name: incoming_pagination_prev
+      type: integer
+    - name: incoming_redirect
+      type: integer
+    - name: incoming_redirect_diff
+      type: integer
+    - name: incoming_redirect_prev
+      type: integer
+    - name: indexnow_error
+      type: string
+    - name: indexnow_error_prev
+      type: string
+    - name: indexnow_reason
+      type: string
+    - name: indexnow_reason_prev
+      type: string
+    - name: indexnow_status
+      type: string
+    - name: indexnow_status_prev
+      type: string
+    - name: indexnow_submitted_at
+      type: string
+    - name: indexnow_submitted_at_prev
+      type: string
+    - name: internal_code
+      type: array
+    - name: internal_inlink_urls
+      type: array
+    - name: internal_inlink_urls_prev
+      type: array
+    - name: internal_link_anchor
+      type: array
+    - name: internal_link_anchor_prev
+      type: array
+    - name: internal_link_domain
+      type: array
+    - name: internal_link_domain_prev
+      type: array
+    - name: internal_links
+      type: array
+    - name: internal_links_is_canonical
+      type: array
+    - name: internal_links_is_canonical_prev
+      type: array
+    - name: internal_links_prev
+      type: array
+    - name: internal_no_crawl_reason
+      type: array
+    - name: internal_no_crawl_reason_prev
+      type: array
+    - name: internal_scheme
+      type: array
+    - name: internal_scheme_prev
+      type: array
+    - name: is_html
+      type: boolean
+    - name: is_in_sitemap
+      type: boolean
+    - name: is_in_sitemap_prev
+      type: boolean
+    - name: is_page_title_used_in_serp
+      type: boolean
+    - name: is_redirect_loop
+      type: boolean
+    - name: is_redirect_loop_prev
+      type: boolean
+    - name: is_rendered
+      type: boolean
+    - name: is_rendered_prev
+      type: boolean
+    - name: is_valid_internal_html
+      type: boolean
+    - name: is_valid_internal_html_prev
+      type: boolean
+    - name: js_no_crawl_reason
+      type: array
+    - name: js_no_crawl_reason_prev
+      type: array
+    - name: jsonld_attributes
+      type: array
+    - name: jsonld_attributes_prev
+      type: array
+    - name: jsonld_schema_types
+      type: array
+    - name: jsonld_schema_types_prev
+      type: array
+    - name: jsonld_validation_kinds
+      type: array
+    - name: jsonld_validation_kinds_prev
+      type: array
+    - name: jsonld_values
+      type: array
+    - name: jsonld_values_prev
+      type: array
+    - name: keywords
+      type: array
+    - name: keywords_prev
+      type: array
+    - name: length
+      type: integer
+    - name: links_count_css
+      type: integer
+    - name: links_count_css_prev
+      type: integer
+    - name: links_count_external
+      type: integer
+    - name: links_count_external3xx
+      type: integer
+    - name: links_count_external3xx_diff
+      type: integer
+    - name: links_count_external3xx_prev
+      type: integer
+    - name: links_count_external4xx
+      type: integer
+    - name: links_count_external4xx_diff
+      type: integer
+    - name: links_count_external4xx_prev
+      type: integer
+    - name: links_count_external5xx
+      type: integer
+    - name: links_count_external5xx_diff
+      type: integer
+    - name: links_count_external5xx_prev
+      type: integer
+    - name: links_count_external_diff
+      type: integer
+    - name: links_count_external_follow
+      type: integer
+    - name: links_count_external_follow_diff
+      type: integer
+    - name: links_count_external_follow_prev
+      type: integer
+    - name: links_count_external_nofollow
+      type: integer
+    - name: links_count_external_nofollow_diff
+      type: integer
+    - name: links_count_external_nofollow_prev
+      type: integer
+    - name: links_count_external_non_canonical
+      type: integer
+    - name: links_count_external_non_canonical_diff
+      type: integer
+    - name: links_count_external_non_canonical_prev
+      type: integer
+    - name: links_count_external_prev
+      type: integer
+    - name: links_count_external_xxx
+      type: integer
+    - name: links_count_external_xxx_diff
+      type: integer
+    - name: links_count_external_xxx_prev
+      type: integer
+    - name: links_count_images
+      type: integer
+    - name: links_count_images_diff
+      type: integer
+    - name: links_count_images_prev
+      type: integer
+    - name: links_count_images_with_alt
+      type: integer
+    - name: links_count_images_with_alt_diff
+      type: integer
+    - name: links_count_images_with_alt_prev
+      type: integer
+    - name: links_count_images_without_alt
+      type: integer
+    - name: links_count_images_without_alt_diff
+      type: integer
+    - name: links_count_images_without_alt_prev
+      type: integer
+    - name: links_count_internal
+      type: integer
+    - name: links_count_internal3xx
+      type: integer
+    - name: links_count_internal3xx_diff
+      type: integer
+    - name: links_count_internal3xx_prev
+      type: integer
+    - name: links_count_internal4xx
+      type: integer
+    - name: links_count_internal4xx_diff
+      type: integer
+    - name: links_count_internal4xx_prev
+      type: integer
+    - name: links_count_internal5xx
+      type: integer
+    - name: links_count_internal5xx_diff
+      type: integer
+    - name: links_count_internal5xx_prev
+      type: integer
+    - name: links_count_internal_diff
+      type: integer
+    - name: links_count_internal_follow
+      type: integer
+    - name: links_count_internal_follow_diff
+      type: integer
+    - name: links_count_internal_follow_prev
+      type: integer
+    - name: links_count_internal_nofollow
+      type: integer
+    - name: links_count_internal_nofollow_diff
+      type: integer
+    - name: links_count_internal_nofollow_prev
+      type: integer
+    - name: links_count_internal_non_canonical
+      type: integer
+    - name: links_count_internal_non_canonical_diff
+      type: integer
+    - name: links_count_internal_non_canonical_prev
+      type: integer
+    - name: links_count_internal_prev
+      type: integer
+    - name: links_count_internal_xxx
+      type: integer
+    - name: links_count_internal_xxx_diff
+      type: integer
+    - name: links_count_internal_xxx_prev
+      type: integer
+    - name: links_count_js
+      type: integer
+    - name: links_count_js_diff
+      type: integer
+    - name: links_count_js_prev
+      type: integer
+    - name: links_css
+      type: array
+    - name: links_css_code
+      type: array
+    - name: links_css_domain
+      type: array
+    - name: links_css_domain_prev
+      type: array
+    - name: links_css_prev
+      type: array
+    - name: links_css_scheme
+      type: array
+    - name: links_css_scheme_prev
+      type: array
+    - name: links_external3xx
+      type: array
+    - name: links_external3xx_prev
+      type: array
+    - name: links_external4xx
+      type: array
+    - name: links_external4xx_prev
+      type: array
+    - name: links_external5xx
+      type: array
+    - name: links_external5xx_prev
+      type: array
+    - name: links_external_follow
+      type: array
+    - name: links_external_follow_prev
+      type: array
+    - name: links_external_nofollow
+      type: array
+    - name: links_external_nofollow_prev
+      type: array
+    - name: links_external_non_canonical
+      type: array
+    - name: links_external_non_canonical_prev
+      type: array
+    - name: links_external_xxx
+      type: array
+    - name: links_external_xxx_prev
+      type: array
+    - name: links_hreflang_code
+      type: array
+    - name: links_images
+      type: array
+    - name: links_images_alt
+      type: array
+    - name: links_images_alt_prev
+      type: array
+    - name: links_images_code
+      type: array
+    - name: links_images_domain
+      type: array
+    - name: links_images_domain_prev
+      type: array
+    - name: links_images_prev
+      type: array
+    - name: links_images_scheme
+      type: array
+    - name: links_images_scheme_prev
+      type: array
+    - name: links_images_with_alt
+      type: array
+    - name: links_images_with_alt_prev
+      type: array
+    - name: links_images_without_alt
+      type: array
+    - name: links_images_without_alt_prev
+      type: array
+    - name: links_internal3xx
+      type: array
+    - name: links_internal3xx_prev
+      type: array
+    - name: links_internal4xx
+      type: array
+    - name: links_internal4xx_prev
+      type: array
+    - name: links_internal5xx
+      type: array
+    - name: links_internal5xx_prev
+      type: array
+    - name: links_internal_follow
+      type: array
+    - name: links_internal_follow_prev
+      type: array
+    - name: links_internal_nofollow
+      type: array
+    - name: links_internal_nofollow_prev
+      type: array
+    - name: links_internal_non_canonical
+      type: array
+    - name: links_internal_non_canonical_prev
+      type: array
+    - name: links_internal_xxx
+      type: array
+    - name: links_internal_xxx_prev
+      type: array
+    - name: links_js
+      type: array
+    - name: links_js_code
+      type: array
+    - name: links_js_domain
+      type: array
+    - name: links_js_domain_prev
+      type: array
+    - name: links_js_prev
+      type: array
+    - name: links_js_scheme
+      type: array
+    - name: links_js_scheme_prev
+      type: array
+    - name: loading_time
+      type: integer
+    - name: loading_time_diff
+      type: integer
+    - name: loading_time_prev
+      type: integer
+    - name: meta_description
+      type: array
+    - name: meta_description_length
+      type: array
+    - name: meta_description_length_prev
+      type: array
+    - name: meta_description_prev
+      type: array
+    - name: meta_refresh
+      type: array
+    - name: meta_refresh_prev
+      type: array
+    - name: meta_robots
+      type: array
+    - name: meta_robots_prev
+      type: array
+    - name: meta_twitter_tags_app_google_play
+      type: string
+    - name: meta_twitter_tags_app_google_play_prev
+      type: string
+    - name: meta_twitter_tags_app_ipad
+      type: string
+    - name: meta_twitter_tags_app_ipad_prev
+      type: string
+    - name: meta_twitter_tags_app_iphone
+      type: string
+    - name: meta_twitter_tags_app_iphone_prev
+      type: string
+    - name: meta_twitter_tags_attributes
+      type: array
+    - name: meta_twitter_tags_attributes_prev
+      type: array
+    - name: meta_twitter_tags_card
+      type: string
+    - name: meta_twitter_tags_card_prev
+      type: string
+    - name: meta_twitter_tags_description
+      type: string
+    - name: meta_twitter_tags_description_prev
+      type: string
+    - name: meta_twitter_tags_image
+      type: string
+    - name: meta_twitter_tags_image_prev
+      type: string
+    - name: meta_twitter_tags_image_url_invalid
+      type: boolean
+    - name: meta_twitter_tags_image_url_invalid_prev
+      type: boolean
+    - name: meta_twitter_tags_player
+      type: string
+    - name: meta_twitter_tags_player_height
+      type: integer
+    - name: meta_twitter_tags_player_height_diff
+      type: integer
+    - name: meta_twitter_tags_player_height_prev
+      type: integer
+    - name: meta_twitter_tags_player_prev
+      type: string
+    - name: meta_twitter_tags_player_width
+      type: integer
+    - name: meta_twitter_tags_player_width_diff
+      type: integer
+    - name: meta_twitter_tags_player_width_prev
+      type: integer
+    - name: meta_twitter_tags_site
+      type: string
+    - name: meta_twitter_tags_site_prev
+      type: string
+    - name: meta_twitter_tags_title
+      type: string
+    - name: meta_twitter_tags_title_prev
+      type: string
+    - name: meta_twitter_tags_valid
+      type: boolean
+    - name: meta_twitter_tags_valid_prev
+      type: boolean
+    - name: meta_twitter_tags_values
+      type: array
+    - name: meta_twitter_tags_values_prev
+      type: array
+    - name: navigation_next
+      type: string
+    - name: navigation_next_code
+      type: integer
+    - name: navigation_next_no_crawl_reason
+      type: string
+    - name: navigation_next_no_crawl_reason_prev
+      type: string
+    - name: navigation_next_prev
+      type: string
+    - name: navigation_prev_code
+      type: integer
+    - name: navigation_prev_no_crawl_reason
+      type: string
+    - name: navigation_prev_no_crawl_reason_prev
+      type: string
+    - name: no_crawl_reason
+      type: string
+    - name: no_crawl_reason_prev
+      type: string
+    - name: nofollow
+      type: integer
+    - name: nofollow_diff
+      type: integer
+    - name: nofollow_prev
+      type: integer
+    - name: nr_h1
+      type: integer
+    - name: nr_h1_prev
+      type: integer
+    - name: nr_meta_description
+      type: integer
+    - name: nr_meta_description_diff
+      type: integer
+    - name: nr_meta_description_prev
+      type: integer
+    - name: nr_redirect_chain_urls
+      type: integer
+    - name: nr_redirect_chain_urls_diff
+      type: integer
+    - name: nr_redirect_chain_urls_prev
+      type: integer
+    - name: nr_titles
+      type: integer
+    - name: nr_titles_diff
+      type: integer
+    - name: nr_titles_prev
+      type: integer
+    - name: og_tags_attributes
+      type: array
+    - name: og_tags_attributes_prev
+      type: array
+    - name: og_tags_image
+      type: string
+    - name: og_tags_image_prev
+      type: string
+    - name: og_tags_image_url_invalid
+      type: boolean
+    - name: og_tags_image_url_invalid_prev
+      type: boolean
+    - name: og_tags_inconsistent_canonical
+      type: boolean
+    - name: og_tags_inconsistent_canonical_prev
+      type: boolean
+    - name: og_tags_title
+      type: string
+    - name: og_tags_title_prev
+      type: string
+    - name: og_tags_type
+      type: string
+    - name: og_tags_type_prev
+      type: string
+    - name: og_tags_url
+      type: string
+    - name: og_tags_url_prev
+      type: string
+    - name: og_tags_url_valid
+      type: boolean
+    - name: og_tags_url_valid_prev
+      type: boolean
+    - name: og_tags_valid
+      type: boolean
+    - name: og_tags_valid_prev
+      type: boolean
+    - name: og_tags_value
+      type: array
+    - name: og_tags_value_prev
+      type: array
+    - name: origin
+      type: string
+    - name: origin_prev
+      type: string
+    - name: page_is_nofollow
+      type: boolean
+    - name: page_is_nofollow_prev
+      type: boolean
+    - name: page_is_noindex
+      type: boolean
+    - name: page_is_noindex_prev
+      type: boolean
+    - name: page_rating
+      type: integer
+    - name: page_raw_ur
+      type: integer
+    - name: page_raw_ur_diff
+      type: integer
+    - name: page_raw_ur_prev
+      type: integer
+    - name: page_type
+      type: array
+    - name: page_type_prev
+      type: array
+    - name: pagination_group
+      type: integer
+    - name: pagination_group_prev
+      type: integer
+    - name: positions
+      type: integer
+    - name: positions_diff
+      type: integer
+    - name: positions_prev
+      type: integer
+    - name: positions_top10
+      type: integer
+    - name: positions_top10_diff
+      type: integer
+    - name: positions_top10_prev
+      type: integer
+    - name: positions_top3
+      type: integer
+    - name: positions_top3_diff
+      type: integer
+    - name: positions_top3_prev
+      type: integer
+    - name: psi_crux_cls_category
+      type: string
+    - name: psi_crux_cls_category_prev
+      type: string
+    - name: psi_crux_cls_distributions_proportion
+      type: array
+    - name: psi_crux_cls_distributions_proportion_prev
+      type: array
+    - name: psi_crux_cls_percentile
+      type: number
+    - name: psi_crux_cls_percentile_diff
+      type: integer
+    - name: psi_crux_cls_percentile_prev
+      type: number
+    - name: psi_crux_fid_category
+      type: string
+    - name: psi_crux_fid_category_prev
+      type: string
+    - name: psi_crux_fid_distributions_proportion
+      type: array
+    - name: psi_crux_fid_distributions_proportion_prev
+      type: array
+    - name: psi_crux_fid_percentile
+      type: number
+    - name: psi_crux_fid_percentile_diff
+      type: integer
+    - name: psi_crux_fid_percentile_prev
+      type: number
+    - name: psi_crux_inp_category
+      type: string
+    - name: psi_crux_inp_category_prev
+      type: string
+    - name: psi_crux_inp_distributions_proportion
+      type: array
+    - name: psi_crux_inp_distributions_proportion_prev
+      type: array
+    - name: psi_crux_inp_percentile
+      type: number
+    - name: psi_crux_inp_percentile_diff
+      type: integer
+    - name: psi_crux_inp_percentile_prev
+      type: number
+    - name: psi_crux_lcp_category
+      type: string
+    - name: psi_crux_lcp_category_prev
+      type: string
+    - name: psi_crux_lcp_distributions_proportion
+      type: array
+    - name: psi_crux_lcp_distributions_proportion_prev
+      type: array
+    - name: psi_crux_lcp_percentile
+      type: number
+    - name: psi_crux_lcp_percentile_diff
+      type: integer
+    - name: psi_crux_lcp_percentile_prev
+      type: number
+    - name: psi_lighthouse_cls_error_message
+      type: string
+    - name: psi_lighthouse_cls_error_message_prev
+      type: string
+    - name: psi_lighthouse_cls_value
+      type: number
+    - name: psi_lighthouse_cls_value_diff
+      type: integer
+    - name: psi_lighthouse_cls_value_prev
+      type: number
+    - name: psi_lighthouse_lcp_error_message
+      type: string
+    - name: psi_lighthouse_lcp_error_message_prev
+      type: string
+    - name: psi_lighthouse_lcp_value
+      type: number
+    - name: psi_lighthouse_lcp_value_diff
+      type: integer
+    - name: psi_lighthouse_lcp_value_prev
+      type: number
+    - name: psi_lighthouse_score
+      type: integer
+    - name: psi_lighthouse_score_diff
+      type: integer
+    - name: psi_lighthouse_score_prev
+      type: integer
+    - name: psi_lighthouse_tbt_error_message
+      type: string
+    - name: psi_lighthouse_tbt_error_message_prev
+      type: string
+    - name: psi_lighthouse_tbt_value
+      type: number
+    - name: psi_lighthouse_tbt_value_diff
+      type: integer
+    - name: psi_lighthouse_tbt_value_prev
+      type: number
+    - name: psi_mobile_issues
+      type: array
+    - name: psi_mobile_issues_explanations
+      type: array
+    - name: psi_mobile_issues_explanations_prev
+      type: array
+    - name: psi_mobile_issues_prev
+      type: array
+    - name: psi_request_error_message
+      type: string
+    - name: psi_request_error_message_prev
+      type: string
+    - name: psi_request_status
+      type: string
+    - name: psi_request_status_prev
+      type: string
+    - name: redirect
+      type: string
+    - name: redirect_chain_urls
+      type: array
+    - name: redirect_chain_urls_code
+      type: array
+    - name: redirect_chain_urls_no_crawl_reason
+      type: array
+    - name: redirect_chain_urls_no_crawl_reason_prev
+      type: array
+    - name: redirect_chain_urls_prev
+      type: array
+    - name: redirect_code
+      type: integer
+    - name: redirect_counts
+      type: integer
+    - name: redirect_counts_diff
+      type: integer
+    - name: redirect_counts_prev
+      type: integer
+    - name: redirect_is_canonical
+      type: boolean
+    - name: redirect_is_canonical_prev
+      type: boolean
+    - name: redirect_no_crawl_reason
+      type: string
+    - name: redirect_no_crawl_reason_prev
+      type: string
+    - name: redirect_prev
+      type: string
+    - name: redirect_scheme
+      type: string
+    - name: redirect_scheme_prev
+      type: string
+    - name: refclass_c
+      type: integer
+    - name: refclass_c_diff
+      type: integer
+    - name: refclass_c_prev
+      type: integer
+    - name: refhosts
+      type: integer
+    - name: refhosts_diff
+      type: integer
+    - name: refhosts_prev
+      type: integer
+    - name: refips
+      type: integer
+    - name: refips_prev
+      type: integer
+    - name: refpages
+      type: integer
+    - name: refpages_diff
+      type: integer
+    - name: refpages_prev
+      type: integer
+    - name: robots_allow_rules
+      type: array
+    - name: robots_allow_rules_prev
+      type: array
+    - name: robots_crawl_delay
+      type: integer
+    - name: robots_crawl_delay_prev
+      type: integer
+    - name: robots_disallow_rules
+      type: array
+    - name: robots_disallow_rules_prev
+      type: array
+    - name: robots_error
+      type: string
+    - name: robots_error_prev
+      type: string
+    - name: robots_error_text
+      type: string
+    - name: robots_error_text_prev
+      type: string
+    - name: robots_redirect_loop
+      type: array
+    - name: robots_redirect_loop_prev
+      type: array
+    - name: robots_sitemaps
+      type: array
+    - name: robots_sitemaps_prev
+      type: array
+    - name: rss
+      type: integer
+    - name: rss_diff
+      type: integer
+    - name: rss_prev
+      type: integer
+    - name: scheme
+      type: string
+    - name: self_canonical
+      type: boolean
+    - name: self_canonical_prev
+      type: boolean
+    - name: self_hreflang
+      type: array
+    - name: self_hreflang_code_is_valid
+      type: array
+    - name: self_hreflang_code_is_valid_prev
+      type: array
+    - name: self_hreflang_country
+      type: array
+    - name: self_hreflang_country_prev
+      type: array
+    - name: self_hreflang_language
+      type: array
+    - name: self_hreflang_language_prev
+      type: array
+    - name: self_hreflang_prev
+      type: array
+    - name: serp_title
+      type: string
+    - name: serp_title_prev
+      type: string
+    - name: sitemap_error
+      type: string
+    - name: sitemap_error_prev
+      type: string
+    - name: sitemap_error_text
+      type: string
+    - name: sitemap_error_text_prev
+      type: string
+    - name: sitemap_is_index
+      type: boolean
+    - name: sitemap_is_index_prev
+      type: boolean
+    - name: sitemap_nr_urls
+      type: integer
+    - name: sitemap_nr_urls_prev
+      type: integer
+    - name: sitemap_save_max_size
+      type: integer
+    - name: sitemap_save_max_size_diff
+      type: integer
+    - name: sitemap_save_max_size_prev
+      type: integer
+    - name: sitemap_unzipped_size
+      type: integer
+    - name: sitemap_unzipped_size_diff
+      type: integer
+    - name: sitemap_unzipped_size_prev
+      type: integer
+    - name: size
+      type: integer
+    - name: size_diff
+      type: integer
+    - name: size_prev
+      type: integer
+    - name: size_uncompressed
+      type: integer
+    - name: size_uncompressed_diff
+      type: integer
+    - name: size_uncompressed_prev
+      type: integer
+    - name: source
+      type: array
+    - name: source_prev
+      type: array
+    - name: stamp
+      type: string
+    - name: stamp_prev
+      type: string
+    - name: time_to_first_byte
+      type: integer
+    - name: time_to_first_byte_prev
+      type: integer
+    - name: title
+      type: array
+    - name: title_prev
+      type: array
+    - name: titles_length
+      type: array
+    - name: titles_length_prev
+      type: array
+    - name: top_keyword
+      type: string
+    - name: top_keyword_position
+      type: integer
+    - name: top_keyword_position_diff
+      type: integer
+    - name: top_keyword_position_prev
+      type: integer
+    - name: top_keyword_prev
+      type: string
+    - name: traffic
+      type: number
+    - name: traffic_diff
+      type: number
+    - name: traffic_prev
+      type: number
+    - name: url
+      type: string
+    - name: url_prev
+      type: string
+  SiteAuditProjectsData:
+    fields:
+    - name: project_id
+      type: string
+    - name: project_name
+      type: string
+    - name: target_protocol
+      type: string
+    - name: target_url
+      type: string
+    - name: target_mode
+      type: string
+    - name: date
+      type: string
+    - name: status
+      type: string
+    - name: health_score
+      type: integer
+    - name: urls_with_errors
+      type: integer
+    - name: urls_with_warnings
+      type: integer
+    - name: urls_with_notices
+      type: integer
+    - name: total
+      type: integer
+  SiteExplorerAllBacklinksData:
+    fields:
+    - name: ahrefs_rank_source
+      type: integer
+    - name: ahrefs_rank_target
+      type: integer
+    - name: alt
+      type: string
+    - name: anchor
+      type: string
+    - name: broken_redirect_new_target
+      type: string
+    - name: broken_redirect_reason
+      type: string
+    - name: broken_redirect_source
+      type: string
+    - name: class_c
+      type: integer
+    - name: discovered_status
+      type: string
+    - name: domain_rating_source
+      type: number
+    - name: domain_rating_target
+      type: number
+    - name: drop_reason
+      type: string
+    - name: encoding
+      type: string
+    - name: first_seen
+      type: string
+    - name: first_seen_link
+      type: string
+    - name: http_code
+      type: integer
+    - name: http_crawl
+      type: boolean
+    - name: ip_source
+      type: string
+    - name: is_alternate
+      type: boolean
+    - name: is_canonical
+      type: boolean
+    - name: is_content
+      type: boolean
+    - name: is_dofollow
+      type: boolean
+    - name: is_form
+      type: boolean
+    - name: is_frame
+      type: boolean
+    - name: is_image
+      type: boolean
+    - name: is_lost
+      type: boolean
+    - name: is_new
+      type: boolean
+    - name: is_nofollow
+      type: boolean
+    - name: is_redirect
+      type: boolean
+    - name: is_redirect_lost
+      type: boolean
+    - name: is_root_source
+      type: boolean
+    - name: is_root_target
+      type: boolean
+    - name: is_rss
+      type: boolean
+    - name: is_spam
+      type: boolean
+    - name: is_sponsored
+      type: boolean
+    - name: is_text
+      type: boolean
+    - name: is_ugc
+      type: boolean
+    - name: js_crawl
+      type: boolean
+    - name: languages
+      type: array
+    - name: last_seen
+      type: string
+    - name: last_visited
+      type: string
+    - name: link_group_count
+      type: integer
+    - name: link_type
+      type: string
+    - name: linked_domains_source_domain
+      type: integer
+    - name: linked_domains_source_page
+      type: integer
+    - name: linked_domains_target_domain
+      type: integer
+    - name: links_external
+      type: integer
+    - name: links_internal
+      type: integer
+    - name: lost_reason
+      type: string
+    - name: name_source
+      type: string
+    - name: name_target
+      type: string
+    - name: noindex
+      type: boolean
+    - name: page_category_source
+      type: string
+    - name: page_size
+      type: integer
+    - name: page_type_source
+      type: string
+    - name: port_source
+      type: integer
+    - name: port_target
+      type: integer
+    - name: positions
+      type: integer
+    - name: powered_by
+      type: array
+    - name: redirect_code
+      type: integer
+    - name: redirect_kind
+      type: array
+    - name: refdomains_source
+      type: integer
+    - name: refdomains_source_domain
+      type: integer
+    - name: refdomains_target_domain
+      type: integer
+    - name: root_name_source
+      type: string
+    - name: root_name_target
+      type: string
+    - name: snippet_left
+      type: string
+    - name: snippet_right
+      type: string
+    - name: source_page_author
+      type: string
+    - name: source_page_publish_date
+      type: string
+    - name: title
+      type: string
+    - name: tld_class_source
+      type: string
+    - name: tld_class_target
+      type: string
+    - name: traffic
+      type: integer
+    - name: traffic_domain
+      type: integer
+    - name: url_from
+      type: string
+    - name: url_from_plain
+      type: string
+    - name: url_rating_source
+      type: number
+    - name: url_redirect
+      type: array
+    - name: url_redirect_with_target
+      type: array
+    - name: url_to
+      type: string
+    - name: url_to_plain
+      type: string
+  SiteExplorerBacklinksStatsData:
+    fields:
+    - name: live
+      type: integer
+    - name: all_time
+      type: integer
+    - name: live_refdomains
+      type: integer
+    - name: all_time_refdomains
+      type: integer
+  SiteExplorerBrokenBacklinksData:
+    fields:
+    - name: ahrefs_rank_source
+      type: integer
+    - name: ahrefs_rank_target
+      type: integer
+    - name: alt
+      type: string
+    - name: anchor
+      type: string
+    - name: class_c
+      type: integer
+    - name: domain_rating_source
+      type: number
+    - name: domain_rating_target
+      type: number
+    - name: encoding
+      type: string
+    - name: first_seen
+      type: string
+    - name: first_seen_link
+      type: string
+    - name: http_code
+      type: integer
+    - name: http_code_target
+      type: integer
+    - name: http_crawl
+      type: boolean
+    - name: ip_source
+      type: string
+    - name: is_alternate
+      type: boolean
+    - name: is_canonical
+      type: boolean
+    - name: is_content
+      type: boolean
+    - name: is_dofollow
+      type: boolean
+    - name: is_form
+      type: boolean
+    - name: is_frame
+      type: boolean
+    - name: is_image
+      type: boolean
+    - name: is_nofollow
+      type: boolean
+    - name: is_redirect
+      type: boolean
+    - name: is_root_source
+      type: boolean
+    - name: is_root_target
+      type: boolean
+    - name: is_rss
+      type: boolean
+    - name: is_spam
+      type: boolean
+    - name: is_sponsored
+      type: boolean
+    - name: is_text
+      type: boolean
+    - name: is_ugc
+      type: boolean
+    - name: js_crawl
+      type: boolean
+    - name: languages
+      type: array
+    - name: last_seen
+      type: string
+    - name: last_visited
+      type: string
+    - name: last_visited_target
+      type: string
+    - name: link_group_count
+      type: integer
+    - name: link_type
+      type: string
+    - name: linked_domains_source_domain
+      type: integer
+    - name: linked_domains_source_page
+      type: integer
+    - name: linked_domains_target_domain
+      type: integer
+    - name: links_external
+      type: integer
+    - name: links_internal
+      type: integer
+    - name: name_source
+      type: string
+    - name: name_target
+      type: string
+    - name: page_category_source
+      type: string
+    - name: page_size
+      type: integer
+    - name: page_type_source
+      type: string
+    - name: port_source
+      type: integer
+    - name: port_target
+      type: integer
+    - name: positions
+      type: integer
+    - name: powered_by
+      type: array
+    - name: redirect_code
+      type: integer
+    - name: redirect_kind
+      type: array
+    - name: refdomains_source
+      type: integer
+    - name: refdomains_source_domain
+      type: integer
+    - name: refdomains_target_domain
+      type: integer
+    - name: root_name_source
+      type: string
+    - name: root_name_target
+      type: string
+    - name: snippet_left
+      type: string
+    - name: snippet_right
+      type: string
+    - name: source_page_author
+      type: string
+    - name: title
+      type: string
+    - name: tld_class_source
+      type: string
+    - name: tld_class_target
+      type: string
+    - name: traffic
+      type: integer
+    - name: traffic_domain
+      type: integer
+    - name: url_from
+      type: string
+    - name: url_from_plain
+      type: string
+    - name: url_rating_source
+      type: number
+    - name: url_redirect
+      type: array
+    - name: url_redirect_with_target
+      type: array
+    - name: url_to
+      type: string
+    - name: url_to_plain
+      type: string
+  SiteExplorerDomainRatingData:
+    fields:
+    - name: domain_rating
+      type: number
+    - name: ahrefs_rank
+      type: integer
+  SiteExplorerDomainRatingHistoryData:
+    fields:
+    - name: date
+      type: string
+    - name: domain_rating
+      type: number
+  SiteExplorerMetricsByCountryData:
+    fields:
+    - name: country
+      type: string
+    - name: org_cost
+      type: integer
+    - name: org_keywords
+      type: integer
+    - name: org_keywords_1_3
+      type: integer
+    - name: org_traffic
+      type: integer
+    - name: paid_cost
+      type: integer
+    - name: paid_keywords
+      type: integer
+    - name: paid_pages
+      type: integer
+    - name: paid_traffic
+      type: integer
+  SiteExplorerMetricsData:
+    fields:
+    - name: org_keywords
+      type: integer
+    - name: paid_keywords
+      type: integer
+    - name: org_keywords_1_3
+      type: integer
+    - name: org_traffic
+      type: integer
+    - name: org_cost
+      type: integer
+    - name: paid_traffic
+      type: integer
+    - name: paid_cost
+      type: integer
+    - name: paid_pages
+      type: integer
+  SiteExplorerOrganicCompetitorsData:
+    fields:
+    - name: competitor_domain
+      type: string
+    - name: competitor_url
+      type: string
+    - name: domain_rating
+      type: number
+    - name: group_mode
+      type: string
+    - name: keywords_common
+      type: integer
+    - name: keywords_competitor
+      type: integer
+    - name: keywords_target
+      type: integer
+    - name: pages
+      type: integer
+    - name: pages_diff
+      type: integer
+    - name: pages_merged
+      type: integer
+    - name: pages_prev
+      type: integer
+    - name: share
+      type: number
+    - name: traffic
+      type: integer
+    - name: traffic_diff
+      type: integer
+    - name: traffic_merged
+      type: integer
+    - name: traffic_prev
+      type: integer
+    - name: value
+      type: integer
+    - name: value_diff
+      type: integer
+    - name: value_merged
+      type: integer
+    - name: value_prev
+      type: integer
+  SiteExplorerOrganicKeywordsData:
+    fields:
+    - name: all_positions
+      type: array
+    - name: all_positions_prev
+      type: array
+    - name: best_position
+      type: integer
+    - name: best_position_diff
+      type: integer
+    - name: best_position_has_thumbnail
+      type: boolean
+    - name: best_position_has_thumbnail_prev
+      type: boolean
+    - name: best_position_has_video
+      type: boolean
+    - name: best_position_has_video_prev
+      type: boolean
+    - name: best_position_kind
+      type: string
+    - name: best_position_kind_merged
+      type: string
+    - name: best_position_kind_prev
+      type: string
+    - name: best_position_prev
+      type: integer
+    - name: best_position_set
+      type: string
+    - name: best_position_set_prev
+      type: string
+    - name: best_position_url
+      type: string
+    - name: best_position_url_prev
+      type: string
+    - name: cpc
+      type: integer
+    - name: cpc_merged
+      type: integer
+    - name: cpc_prev
+      type: integer
+    - name: entities
+      type: array
+    - name: is_best_position_set_top_11_50
+      type: boolean
+    - name: is_best_position_set_top_11_50_prev
+      type: boolean
+    - name: is_best_position_set_top_3
+      type: boolean
+    - name: is_best_position_set_top_3_prev
+      type: boolean
+    - name: is_best_position_set_top_4_10
+      type: boolean
+    - name: is_best_position_set_top_4_10_prev
+      type: boolean
+    - name: is_branded
+      type: boolean
+    - name: is_commercial
+      type: boolean
+    - name: is_informational
+      type: boolean
+    - name: is_local
+      type: boolean
+    - name: is_navigational
+      type: boolean
+    - name: is_transactional
+      type: boolean
+    - name: keyword
+      type: string
+    - name: keyword_country
+      type: string
+    - name: keyword_difficulty
+      type: integer
+    - name: keyword_difficulty_merged
+      type: integer
+    - name: keyword_difficulty_prev
+      type: integer
+    - name: keyword_language
+      type: array
+    - name: keyword_merged
+      type: string
+    - name: keyword_prev
+      type: string
+    - name: language
+      type: string
+    - name: language_prev
+      type: string
+    - name: last_update
+      type: string
+    - name: last_update_prev
+      type: string
+    - name: serp_features
+      type: array
+    - name: serp_features_count
+      type: integer
+    - name: serp_features_count_prev
+      type: integer
+    - name: serp_features_merged
+      type: array
+    - name: serp_features_prev
+      type: array
+    - name: serp_target_main_positions_count
+      type: integer
+    - name: serp_target_main_positions_count_prev
+      type: integer
+    - name: serp_target_positions_count
+      type: integer
+    - name: serp_target_positions_count_prev
+      type: integer
+    - name: status
+      type: string
+    - name: sum_paid_traffic
+      type: integer
+    - name: sum_paid_traffic_merged
+      type: integer
+    - name: sum_paid_traffic_prev
+      type: integer
+    - name: sum_traffic
+      type: integer
+    - name: sum_traffic_merged
+      type: integer
+    - name: sum_traffic_prev
+      type: integer
+    - name: volume
+      type: integer
+    - name: volume_desktop_pct
+      type: number
+    - name: volume_merged
+      type: integer
+    - name: volume_mobile_pct
+      type: number
+    - name: volume_prev
+      type: integer
+    - name: words
+      type: integer
+    - name: words_merged
+      type: integer
+    - name: words_prev
+      type: integer
+  SiteExplorerPagesByTrafficData:
+    fields:
+    - name: range0_pages
+      type: integer
+    - name: range100_traffic
+      type: integer
+    - name: range100_pages
+      type: integer
+    - name: range1k_traffic
+      type: integer
+    - name: range1k_pages
+      type: integer
+    - name: range5k_traffic
+      type: integer
+    - name: range5k_pages
+      type: integer
+    - name: range10k_traffic
+      type: integer
+    - name: range10k_pages
+      type: integer
+    - name: range10k_plus_traffic
+      type: integer
+    - name: range10k_plus_pages
+      type: integer
+  SiteExplorerRefdomainsHistoryData:
+    fields:
+    - name: date
+      type: string
+    - name: refdomains
+      type: integer
+  SiteExplorerTopPagesData:
+    fields:
+    - name: keywords
+      type: integer
+    - name: keywords_diff
+      type: integer
+    - name: keywords_diff_percent
+      type: integer
+    - name: keywords_merged
+      type: integer
+    - name: keywords_prev
+      type: integer
+    - name: page_type
+      type: string
+    - name: raw_url
+      type: string
+    - name: raw_url_prev
+      type: string
+    - name: referring_domains
+      type: integer
+    - name: status
+      type: string
+    - name: sum_traffic
+      type: integer
+    - name: sum_traffic_merged
+      type: integer
+    - name: sum_traffic_prev
+      type: integer
+    - name: top_keyword
+      type: string
+    - name: top_keyword_best_position
+      type: integer
+    - name: top_keyword_best_position_diff
+      type: integer
+    - name: top_keyword_best_position_kind
+      type: string
+    - name: top_keyword_best_position_kind_prev
+      type: string
+    - name: top_keyword_best_position_prev
+      type: integer
+    - name: top_keyword_best_position_title
+      type: string
+    - name: top_keyword_best_position_title_prev
+      type: string
+    - name: top_keyword_country
+      type: string
+    - name: top_keyword_country_prev
+      type: string
+    - name: top_keyword_prev
+      type: string
+    - name: top_keyword_volume
+      type: integer
+    - name: top_keyword_volume_prev
+      type: integer
+    - name: traffic_diff
+      type: integer
+    - name: traffic_diff_percent
+      type: integer
+    - name: ur
+      type: number
+    - name: url
+      type: string
+    - name: url_prev
+      type: string
+    - name: value
+      type: integer
+    - name: value_diff
+      type: integer
+    - name: value_diff_percent
+      type: integer
+    - name: value_merged
+      type: integer
+    - name: value_prev
+      type: integer
+  SubscriptionInfoLimitsAndUsageData:
+    fields:
+    - name: subscription
+      type: string
+    - name: usage_reset_date
+      type: string
+    - name: units_limit_workspace
+      type: integer
+    - name: units_usage_workspace
+      type: integer
+    - name: units_limit_api_key
+      type: integer
+    - name: units_usage_api_key
+      type: integer
+    - name: api_key_expiration_date
+      type: string

@@ -9,6 +9,25 @@
       "path": "library/developer-tools/agent-capture"
     },
     {
+      "name": "ahrefs",
+      "category": "marketing",
+      "api": "Ahrefs",
+      "description": "Query Ahrefs backlinks, keyword, rank tracking, site audit, and SERP data from the terminal.",
+      "path": "library/marketing/ahrefs",
+      "mcp": {
+        "binary": "ahrefs-pp-mcp",
+        "transport": "stdio",
+        "tool_count": 29,
+        "public_tool_count": 2,
+        "auth_type": "api_key",
+        "env_vars": [
+          "AHREFS_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "allrecipes",
       "category": "food-and-dining",
       "api": "Allrecipes",

@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-02T04:49:52.124135Z",
+  "printing_press_version": "3.4.0",
+  "api_name": "ahrefs",
+  "display_name": "Ahrefs",
+  "cli_name": "ahrefs-pp-cli",
+  "owner": "user",
+  "spec_path": "catalog/specs/ahrefs-v3.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:ec46e6814b3488f73dbd28e779bc2bcdc88c8ed4cba54141b0d9d5b28a4c14cc",
+  "catalog_entry": "ahrefs",
+  "category": "marketing",
+  "description": "Query Ahrefs backlinks, keyword, rank tracking, site audit, and SERP data from the terminal.",
+  "mcp_binary": "ahrefs-pp-mcp",
+  "mcp_tool_count": 29,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "v3",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "AHREFS_API_KEY"
+  ],
+  "auth_key_url": "https://app.ahrefs.com/api",
+  "novel_features": [
+    {
+      "name": "Crawler IP allowlist lookup",
+      "command": "public crawler-ips",
+      "description": "Return Ahrefs crawler IP addresses without requiring an Ahrefs API key."
+    },
+    {
+      "name": "Crawler CIDR range lookup",
+      "command": "public crawler-ip-ranges",
+      "description": "Return Ahrefs crawler IP ranges without requiring an Ahrefs API key."
+    },
+    {
+      "name": "API usage and limit check",
+      "command": "subscription-info",
+      "description": "Inspect Ahrefs API subscription limits and usage through the documented v3 endpoint."
+    },
+    {
+      "name": "Backlink profile snapshot",
+      "command": "site-explorer backlinks-stats",
+      "description": "Fetch point-in-time backlink metrics for a target from Ahrefs Site Explorer."
+    },
+    {
+      "name": "Keyword volume by country",
+      "command": "keywords-explorer volume-by-country",
+      "description": "Compare keyword search volume across countries from Ahrefs Keywords Explorer."
+    }
+  ]
+}

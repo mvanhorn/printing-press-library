@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "ahrefs-pp-mcp",
+  "display_name": "Ahrefs",
+  "version": "3.4.0",
+  "description": "Query Ahrefs backlinks, keyword, rank tracking, site audit, and SERP data from the terminal.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ahrefs-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ahrefs-pp-mcp",
+      "args": [],
+      "env": {
+        "AHREFS_API_KEY": "${user_config.ahrefs_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "ahrefs_api_key": {
+      "type": "string",
+      "title": "AHREFS_API_KEY",
+      "description": "Sets AHREFS_API_KEY for the Ahrefs MCP server. Get a credential from https://app.ahrefs.com/api.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
