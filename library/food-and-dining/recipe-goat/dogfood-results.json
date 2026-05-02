@@ -1,35 +1,41 @@
 {
   "dir": "/Users/tmchow/Code/printing-press-library/library/food-and-dining/recipe-goat",
+  "spec_path": "/Users/tmchow/Code/printing-press-library/library/food-and-dining/recipe-goat/spec.yaml",
   "verdict": "WARN",
   "path_check": {
     "tested": 0,
     "valid": 0,
-    "valid_pct": 0
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "synthetic spec: path validity not applicable"
   },
   "auth_check": {
     "spec_scheme": "",
-    "generated_format": "",
+    "generated_format": "unknown",
     "match": true,
-    "detail": "spec not provided; auth protocol check skipped"
+    "detail": "spec not provided or no bot/bearer scheme detected"
   },
   "browser_session_check": {
     "required": false,
     "pass": true,
-    "detail": "spec not provided; browser-session auth check skipped"
+    "detail": "browser-session auth not required"
   },
   "dead_flags": {
     "total": 17,
     "dead": 0
   },
   "dead_functions": {
-    "total": 48,
-    "dead": 0
+    "total": 49,
+    "dead": 1,
+    "items": [
+      "extractResponseData"
+    ]
   },
   "pipeline_check": {
     "sync_calls_domain": true,
     "search_calls_domain": false,
-    "domain_tables": 2,
-    "detail": "sync uses domain-specific Upsert methods; search methods not found; 2 domain tables found"
+    "domain_tables": 1,
+    "detail": "sync uses domain-specific Upsert methods; search methods not found; 1 domain tables found"
   },
   "example_check": {
     "tested": 10,
@@ -87,6 +93,111 @@
       }
     ]
   },
+  "print_json_filtered_check": {
+    "checked": 30,
+    "findings": [
+      {
+        "file": "internal/cli/cook_cmd.go",
+        "line": 112,
+        "snippet": "return flags.printJSON(cmd, entries)"
+      },
+      {
+        "file": "internal/cli/cookbook_cmd.go",
+        "line": 55,
+        "snippet": "return flags.printJSON(cmd, recs)"
+      },
+      {
+        "file": "internal/cli/cookbook_cmd.go",
+        "line": 131,
+        "snippet": "return flags.printJSON(cmd, recs)"
+      },
+      {
+        "file": "internal/cli/cookbook_cmd.go",
+        "line": 274,
+        "snippet": "return flags.printJSON(cmd, matches)"
+      },
+      {
+        "file": "internal/cli/goat_cmd.go",
+        "line": 108,
+        "snippet": "return flags.printJSON(cmd, []goatEntry{})"
+      },
+      {
+        "file": "internal/cli/goat_cmd.go",
+        "line": 207,
+        "snippet": "return flags.printJSON(cmd, entries)"
+      },
+      {
+        "file": "internal/cli/meal_plan_cmd.go",
+        "line": 97,
+        "snippet": "return flags.printJSON(cmd, entries)"
+      },
+      {
+        "file": "internal/cli/meal_plan_cmd.go",
+        "line": 222,
+        "snippet": "return flags.printJSON(cmd, out)"
+      },
+      {
+        "file": "internal/cli/recipe_cmd.go",
+        "line": 91,
+        "snippet": "return flags.printJSON(cmd, r)"
+      },
+      {
+        "file": "internal/cli/recipe_cmd.go",
+        "line": 192,
+        "snippet": "return flags.printJSON(cmd, payload)"
+      },
+      {
+        "file": "internal/cli/recipe_cmd.go",
+        "line": 248,
+        "snippet": "return flags.printJSON(cmd, payload)"
+      },
+      {
+        "file": "internal/cli/save_cmd.go",
+        "line": 41,
+        "snippet": "return flags.printJSON(cmd, []map[string]any{})"
+      },
+      {
+        "file": "internal/cli/save_cmd.go",
+        "line": 53,
+        "snippet": "return flags.printJSON(cmd, []map[string]any{})"
+      },
+      {
+        "file": "internal/cli/save_cmd.go",
+        "line": 114,
+        "snippet": "if err := flags.printJSON(cmd, results); err != nil {"
+      },
+      {
+        "file": "internal/cli/search_cmd.go",
+        "line": 74,
+        "snippet": "return flags.printJSON(cmd, results)"
+      },
+      {
+        "file": "internal/cli/sub_cmd.go",
+        "line": 47,
+        "snippet": "return flags.printJSON(cmd, subs)"
+      },
+      {
+        "file": "internal/cli/tonight_cmd.go",
+        "line": 164,
+        "snippet": "return flags.printJSON(cmd, out)"
+      },
+      {
+        "file": "internal/cli/trending_cmd.go",
+        "line": 39,
+        "snippet": "return flags.printJSON(cmd, []trendingEntry{})"
+      },
+      {
+        "file": "internal/cli/trending_cmd.go",
+        "line": 92,
+        "snippet": "return flags.printJSON(cmd, all)"
+      },
+      {
+        "file": "internal/cli/trust_cmd.go",
+        "line": 40,
+        "snippet": "return flags.printJSON(cmd, payload)"
+      }
+    ]
+  },
   "test_presence": {
     "checked": 1
   },
@@ -94,6 +205,8 @@
     "checked": 30
   },
   "issues": [
-    "3 source client file(s) without rate-limit handling: internal/recipes/archive.go — outbound HTTP without rate limiter (cliutil.AdaptiveLimiter or equivalent); internal/recipes/fetch.go — outbound HTTP without rate limiter (cliutil.AdaptiveLimiter or equivalent); internal/recipes/nutrition.go — outbound HTTP without rate limiter or typed 429 handling"
+    "1 dead helper functions found",
+    "3 source client file(s) without rate-limit handling: internal/recipes/archive.go — outbound HTTP without rate limiter (cliutil.AdaptiveLimiter or equivalent); internal/recipes/fetch.go — outbound HTTP without rate limiter (cliutil.AdaptiveLimiter or equivalent); internal/recipes/nutrition.go — outbound HTTP without rate limiter or typed 429 handling",
+    "20 call site(s) using flags.printJSON(cmd, v) — silently drops --select/--compact/--csv/--quiet, switch to printJSONFiltered(cmd.OutOrStdout(), v, flags): internal/cli/cook_cmd.go:112; internal/cli/cookbook_cmd.go:55; internal/cli/cookbook_cmd.go:131; internal/cli/cookbook_cmd.go:274; internal/cli/goat_cmd.go:108; internal/cli/goat_cmd.go:207; internal/cli/meal_plan_cmd.go:97; internal/cli/meal_plan_cmd.go:222; internal/cli/recipe_cmd.go:91; internal/cli/recipe_cmd.go:192; internal/cli/recipe_cmd.go:248; internal/cli/save_cmd.go:41; internal/cli/save_cmd.go:53; internal/cli/save_cmd.go:114; internal/cli/search_cmd.go:74; internal/cli/sub_cmd.go:47; internal/cli/tonight_cmd.go:164; internal/cli/trending_cmd.go:39; internal/cli/trending_cmd.go:92; internal/cli/trust_cmd.go:40"
   ]
 }

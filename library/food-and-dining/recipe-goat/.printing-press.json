@@ -1,74 +1,22 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-04-26T08:26:31.069758Z",
-  "printing_press_version": "2.3.6",
+  "generated_at": "2026-05-02T21:04:06.889768Z",
+  "printing_press_version": "3.6.0",
   "api_name": "recipe-goat",
+  "display_name": "Recipe GOAT",
   "cli_name": "recipe-goat-pp-cli",
-  "spec_path": "/Users/tmchow/printing-press/.runstate/fizzy-moseying-frost-c63a1182/runs/20260426-002121/research/recipe-goat-spec.yaml",
+  "owner": "trevin-chow",
+  "spec_path": "/Users/tmchow/Code/printing-press-library/library/food-and-dining/recipe-goat/spec.yaml",
   "spec_format": "internal",
-  "spec_checksum": "sha256:3e4cc18e45ffe05020f9b7aeaea6453484135ef5248cfed12b46959906e332c4",
-  "run_id": "20260426-002121",
+  "spec_checksum": "sha256:6cc89de634abce15d2612148b24c64f157fe6700532a7e18cfa1edc19b3def73",
   "mcp_binary": "recipe-goat-pp-mcp",
   "mcp_tool_count": 3,
   "mcp_ready": "full",
+  "api_version": "0.2.0",
   "auth_type": "api_key",
   "auth_env_vars": [
     "USDA_FDC_API_KEY"
   ],
-  "novel_features": [
-    {
-      "name": "Best-version ranker",
-      "command": "goat",
-      "description": "Query any dish across 37 recipe sites and rank results by normalized rating × review count × author trust × site trust × recency."
-    },
-    {
-      "name": "Substitution lookup",
-      "command": "sub",
-      "description": "Aggregate ingredient substitutions from King Arthur, Serious Eats, AllRecipes reviews, and Budget Bytes. Ranked by source trust with ratios and context."
-    },
-    {
-      "name": "Pantry match",
-      "command": "cookbook match",
-      "description": "Find recipes in the local cookbook that you can make right now with listed ingredients, or with ≤N missing ingredients."
-    },
-    {
-      "name": "Tonight picker",
-      "command": "tonight",
-      "description": "Pick dinner in 2 seconds: filter cookbook by time budget, recency from cook log, and dietary/kid-friendly flags."
-    },
-    {
-      "name": "Review-modification digest",
-      "command": "recipe reviews",
-      "description": "Surface the top modifications cooks actually made to a recipe (\"added an egg: 22 cooks; baked 5 min less: 17; honey instead of sugar: 14\")."
-    },
-    {
-      "name": "USDA nutrition backfill",
-      "command": "recipe get --nutrition",
-      "description": "When a site omits nutrition, parse ingredients, match USDA FoodData Central IDs, compute per-serving macros locally."
-    },
-    {
-      "name": "Kid-friendly filter",
-      "command": "search --kid-friendly",
-      "description": "Filter recipes against an editable ingredient-exclusion list (capers, anchovies, excess heat, raw fish, etc.). Personalizable per-child."
-    },
-    {
-      "name": "Unit-reconciling shopping list",
-      "command": "meal-plan shopping-list",
-      "description": "Aggregate ingredients across planned meals, reconcile units (2 cup + 1 cup milk → 3 cup), group by grocery aisle."
-    },
-    {
-      "name": "Inline seasonal flag",
-      "command": "recipe get",
-      "description": "Flag out-of-season ingredients inline (\"⚠ asparagus is out of season in November — peak April–June\") and suggest in-season swaps."
-    },
-    {
-      "name": "Honest cost estimate",
-      "command": "recipe cost",
-      "description": "Rough cost per serving using Budget Bytes line-item data plus USDA retail averages as fallback. Always shows an honesty band (±30%)."
-    }
-  ],
-  "category": "food-and-dining",
-  "description": "Recipe GOAT aggregates 15 of the web's most trusted recipe sites (King Arthur, Serious Eats, Budget Bytes, Smitten Kitchen, Food52, BBC Good Food, and more), ranks results by merged trust + rating + review-count signals, and builds a local SQLite cookbook that powers pantry match, cook log, meal plans, and aisle-grouped shopping lists. Unique commands like `goat` (best-version ranker), `sub` (cross-site substitution aggregation), `tonight` (decision-fatigue killer), and `cookbook match --have` (pantry match) solve problems no single recipe site can.",
   "auth_key_url": "https://fdc.nal.usda.gov/api-key-signup",
   "auth_optional": true
 }

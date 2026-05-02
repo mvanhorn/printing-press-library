@@ -1,98 +1,18 @@
 ---
 name: pp-recipe-goat
-description: "Find the best version of any recipe across 37 trusted sites — then plan, shop, and cook with a local kitchen companion. Trigger phrases: `find me the best recipe for`, `what can I make with`, `substitute for`, `set up a meal plan`, `shopping list from my meal plan`, `tonight's dinner`, `use recipe-goat`, `run recipe-goat`."
+description: "Printing Press CLI for Recipe Goat. Recipe GOAT — find the best version of any recipe across 37 trusted sites, with offline cookbook, pantry match,..."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["recipe-goat-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/food-and-dining/recipe-goat/cmd/recipe-goat-pp-cli@latest","bins":["recipe-goat-pp-cli"],"label":"Install via go install"}]}}'
+metadata: '{"openclaw":{"requires":{"bins":["recipe-goat-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/other/recipe-goat-pp-cli/cmd/recipe-goat-pp-cli@latest","bins":["recipe-goat-pp-cli"],"label":"Install via go install"}]}}'
 ---
 
 # Recipe Goat — Printing Press CLI
 
-Recipe GOAT aggregates 37 of the web's most trusted recipe sites (King Arthur, Serious Eats, Budget Bytes, Smitten Kitchen, Food52, AllRecipes, Food Network, Simply Recipes, EatingWell, BBC Good Food, Bon Appétit, Epicurious, and 25 more), ranks results by merged trust + rating + review-count signals, and builds a local SQLite cookbook that powers pantry match, cook log, meal plans, and aisle-grouped shopping lists. Unique commands like `goat` (best-version ranker), `sub` (cross-site substitution lookup), `tonight` (decision-fatigue killer), and `cookbook match --have` (pantry match) solve problems no single recipe site can.
-
-## When to Use This CLI
-
-Reach for Recipe GOAT when the user needs the best version of a dish without site-hopping, wants to query their own cookbook by pantry contents, needs a shopping list for a meal plan, or wants ingredient substitution lookups. The ranking weights real reader signal (rating × log(reviews)) at 80% and editorial site-trust at 15%, so tie-break favors curated chef/baker sites over crowdsourced aggregators like AllRecipes.
+Recipe GOAT — find the best version of any recipe across 37 trusted sites, with offline cookbook, pantry match, substitution lookup, meal planning, and USDA-backed nutrition.
 
 ## When Not to Use This CLI
 
-This CLI does not change remote state. Do not use it to order groceries (use Instacart-pp-cli), order delivery (use Domino's-pp-cli or another delivery CLI), book restaurant reservations, send recipe links by email or message, or post to social platforms. Recipe GOAT does build local SQLite state — saved cookbook, tags, cook log, meal plan slots — and supports `import` (POSTs to USDA endpoints), so local-side mutation is fully expected.
-
-## Unique Capabilities
-
-These capabilities aren't available in any other tool for this API.
-
-### Cross-site intelligence
-
-- **`goat`** — Query any dish across 37 recipe sites and rank results by normalized rating × review count × author trust × site trust × recency.
-
-  _Use this when you need the single best version of a dish — the agent gets structured results with provenance and trust signals instead of guessing from a web search._
-
-  ```bash
-  recipe-goat-pp-cli goat "chicken tikka masala" --limit 5 --json
-  ```
-- **`sub`** — Curated ingredient-substitution table sourced from King Arthur, Serious Eats, Budget Bytes, Minimalist Baker, and AllRecipes community reviews. Hand-curated and shipped with the binary (no live fetching at query time); ranked by source trust with ratios and context filters.
-
-  _When a recipe needs a sub, agents can pick the best one given the cooking context (baking vs marinade) instead of suggesting the first hit on Google._
-
-  ```bash
-  recipe-goat-pp-cli sub buttermilk --context baking
-  ```
-- **`recipe reviews`** *(planned, work-in-progress — emits a stub today)* — Will surface the top modifications cooks made to a recipe once the source-review fetcher is wired. Today the command returns a clearly-labeled placeholder so agents don't depend on it.
-
-  ```bash
-  recipe-goat-pp-cli recipe reviews <id> --limit 10  # emits stub message in v1
-  ```
-- **`recipe get --nutrition`** — When a site omits nutrition, parse ingredients, match USDA FoodData Central IDs, compute per-serving macros locally.
-
-  _Agents can answer 'is this recipe high-protein?' reliably even when the source doesn't publish macros._
-
-  ```bash
-  recipe-goat-pp-cli recipe get https://www.budgetbytes.com/creamy-mushroom-pasta/ --nutrition
-  ```
-- **`recipe get`** — Flag out-of-season ingredients inline ("⚠ asparagus is out of season in November — peak April–June") and suggest in-season swaps.
-
-  _Agents surface cost + quality signals the user wouldn't otherwise see._
-
-  ```bash
-  recipe-goat-pp-cli recipe get <url>  # seasonal flag appears automatically
-  ```
-
-### Local state that compounds
-
-- **`cookbook match`** — Find recipes in the local cookbook that you can make right now with listed ingredients, or with ≤N missing ingredients.
-
-  _When the user says 'what can I make with what's in my fridge,' the agent gets ranked candidates with missing-ingredient counts instead of guessing._
-
-  ```bash
-  recipe-goat-pp-cli cookbook match --have "chicken,rice,broccoli" --missing-max 2
-  ```
-- **`tonight`** — Pick dinner in 2 seconds: filter cookbook by time budget, recency from cook log, and dietary/kid-friendly flags.
-
-  _Ends the 20-minute 'what are we having' debate with three data-backed candidates._
-
-  ```bash
-  recipe-goat-pp-cli tonight --max-time 30m --no-repeat-within 7d --kid-friendly
-  ```
-- **`search --kid-friendly`** — Filter recipes against an editable ingredient-exclusion list (capers, anchovies, excess heat, raw fish, etc.). Personalizable per-child.
-
-  _Parents get results actually edible by their kids, not marketing's idea of 'kid-friendly'._
-
-  ```bash
-  recipe-goat-pp-cli search "chicken dinner" --kid-friendly --limit 10
-  ```
-- **`meal-plan shopping-list`** — Aggregate ingredients across planned meals, reconcile units (2 cup + 1 cup milk → 3 cup), group by grocery aisle.
-
-  _The agent hands the user a complete shopping list ready for grocery day, aisle-grouped._
-
-  ```bash
-  recipe-goat-pp-cli meal-plan shopping-list --week --export md
-  ```
-- **`recipe cost`** *(approximate, work-in-progress — placeholder heuristic only)* — Will eventually estimate cost per serving from Budget Bytes line-item data plus USDA retail averages. Today the command emits a clearly-labeled stub with a note that ingredient-price data integration is not yet wired.
-
-  ```bash
-  recipe-goat-pp-cli recipe cost <id>  # emits placeholder + wip note in v1
-  ```
+Do not activate this CLI for requests that require creating, updating, deleting, publishing, commenting, upvoting, inviting, ordering, sending messages, booking, purchasing, or changing remote state. This printed CLI exposes read-only commands for inspection, export, sync, and analysis.
 
 ## HTTP Transport
 
@@ -117,52 +37,15 @@ recipe-goat-pp-cli which "<capability in your own words>"
 
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
-## Recipes
-
-
-### Find the best version of a dish
-
-```bash
-recipe-goat-pp-cli goat "carbonara" --limit 5
-```
-
-Fetches each site's listing for the query, validates JSON-LD on each candidate, and ranks survivors by `0.55 × rating + 0.25 × log(reviews+1)/log(1000) + 0.15 × site_trust + 0.05 × recency`. Rating/reviews come from each page's Schema.org `aggregateRating`. `site_trust` is hand-curated 0.70–0.95 (editorial chef/baker sites 0.9–0.95; crowdsourced aggregators 0.70–0.75). Two trust-aware adjustments run before scoring: curated sites with no Schema.org rating get an imputed 4.5/100 baseline (editorial vetting ≈ 100 implicit favorable reviews); aggregator-site ratings are Bayesian-smoothed toward 4.0 with credibility C=200 (so a 5.0/100 from AllRecipes effectively becomes 4.33, while a 4.7/5000 stays 4.67). Net effect: niche curated recipes with no ratings can outrank mid-tier AllRecipes results; heavily-reviewed AllRecipes blockbusters still rank where their reader signal earns them.
-
-### Save and tag for weeknight
-
-```bash
-recipe-goat-pp-cli save <url> --tags weeknight,pasta
-```
-
-Persist the recipe locally with tags you'll filter on later.
-
-### Plan 5 dinners with kid-safe ingredients
-
-```bash
-recipe-goat-pp-cli tonight --max-time 30m --kid-friendly --limit 5
-```
-
-Three candidates from your cookbook that match time and ingredient constraints.
-
-### Aggregate shopping list for the week
-
-```bash
-recipe-goat-pp-cli meal-plan shopping-list --week --aisle
-```
-
-Shopping list grouped by grocery aisle with unit reconciliation.
-
-### Substitute an out-of-stock ingredient
-
-```bash
-recipe-goat-pp-cli sub eggs --context baking --vegan
-```
-
-Context-aware substitutions ranked by source trust.
-
 ## Auth Setup
 
-USDA FoodData Central (free, 3,500 req/hr) enables nutrition backfill when a recipe site omits macros. Get a key at https://fdc.nal.usda.gov/api-key-signup and export USDA_FDC_API_KEY. All other features work without any authentication.
+Set your API key via environment variable:
+
+```bash
+export USDA_FDC_API_KEY="<your-key>"
+```
+
+Or persist it in `~/.config/recipe-goat-pp-cli/config.toml`.
 
 Run `recipe-goat-pp-cli doctor` to verify setup.
 
@@ -259,7 +142,7 @@ Parse `$ARGUMENTS`:
 1. Check Go is installed: `go version` (requires Go 1.25+)
 2. Install:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/food-and-dining/recipe-goat/cmd/recipe-goat-pp-cli@latest
+   go install github.com/mvanhorn/printing-press-library/library/other/recipe-goat-pp-cli/cmd/recipe-goat-pp-cli@latest
    ```
 3. Verify: `recipe-goat-pp-cli --version`
 4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -268,7 +151,7 @@ Parse `$ARGUMENTS`:
 
 1. Install the MCP server:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/food-and-dining/recipe-goat/cmd/recipe-goat-pp-mcp@latest
+   go install github.com/mvanhorn/printing-press-library/library/other/recipe-goat-pp-cli/cmd/recipe-goat-pp-mcp@latest
    ```
 2. Register with Claude Code:
    ```bash

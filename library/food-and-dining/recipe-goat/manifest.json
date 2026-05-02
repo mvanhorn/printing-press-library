@@ -1,9 +1,9 @@
 {
   "manifest_version": "0.3",
   "name": "recipe-goat-pp-mcp",
-  "display_name": "Recipe Goat",
-  "version": "2.3.6",
-  "description": "Find the best version of any recipe across 37 trusted sites — trust-aware ranking weights real reader signal at 80% and editorial trust at 15% (curated chef/baker sites win tie-break over crowdsourced aggregators). Builds a local SQLite cookbook with pantry match, meal plans, cook log, substitutions, and USDA-backed nutrition backfill. Powered by Surf-Chrome HTTP transport — bypasses TLS-fingerprint bot detection that previously blocked Dotdash properties.",
+  "display_name": "Recipe GOAT",
+  "version": "3.6.0",
+  "description": "Recipe GOAT API surface as MCP tools.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -23,7 +23,7 @@
     "usda_fdc_api_key": {
       "type": "string",
       "title": "USDA_FDC_API_KEY",
-      "description": "Optional. Sets USDA_FDC_API_KEY for the recipe-goat MCP server. Get a credential from https://fdc.nal.usda.gov/api-key-signup.",
+      "description": "Optional. Sets USDA_FDC_API_KEY for the Recipe GOAT MCP server. Get a credential from https://fdc.nal.usda.gov/api-key-signup.",
       "sensitive": true
     }
   },

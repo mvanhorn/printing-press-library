@@ -9,7 +9,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w -X github.com/mvanhorn/printing-press-library/library/food-and-dining/recipe-goat/internal/cli.version={{ .Version }}
+      - -s -w -X recipe-goat-pp-cli/internal/cli.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -44,8 +44,8 @@ brews:
     repository:
       owner: trevin-chow
       name: homebrew-tap
-    homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Recipe GOAT — find the best version of any recipe across 37 trusted sites (King Arthur, Serious Eats, Smitten Kitchen, AllRecipes, Food52, BBC Food, and 31 more), with offline cookbook, pantry match, substitution lookup, meal planning, and USDA-backed nutrition."
+    homepage: "https://github.com/trevin-chow/recipe-goat-pp-cli"
+    description: "Recipe GOAT — find the best version of any recipe across 37 trusted sites, with offline cookbook, pantry match, substitution lookup, meal planning, and USDA-backed nutrition."
     install: |
       bin.install "recipe-goat-pp-cli"
       bin.install "recipe-goat-pp-mcp"
