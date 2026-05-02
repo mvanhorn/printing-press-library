@@ -14,9 +14,9 @@ import (
 func newArticlesBrowseSubCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	cmd := &cobra.Command{
-		Use:   "browse-sub <vertical> <subvertical>",
+		Use:         "browse-sub <vertical> <subvertical>",
+		Short:       "Browse Food52 articles in a vertical/subvertical (e.g. food baking, life travel)",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Browse Food52 articles in a vertical/subvertical (e.g. food baking, life travel)",
 		Example: strings.Trim(`
   food52-pp-cli articles browse-sub food baking
   food52-pp-cli articles browse-sub food drinks --limit 10 --json

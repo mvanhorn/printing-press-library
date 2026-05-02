@@ -1,6 +1,6 @@
 {
-  "dir": "/Users/tmchow/printing-press/.runstate/scalable-riding-bentley-ddec9fb5/runs/20260426-230853/working/food52-pp-cli",
-  "spec_path": "/Users/tmchow/printing-press/.runstate/scalable-riding-bentley-ddec9fb5/runs/20260426-230853/research/food52-spec.yaml",
+  "dir": "/Users/tmchow/printing-press/.runstate/swirling-spinning-blum-1bac0b4e/runs/20260501-164925/working/food52-pp-cli",
+  "spec_path": "/Users/tmchow/printing-press/.runstate/swirling-spinning-blum-1bac0b4e/runs/20260501-164925/research/food52-spec.yaml",
   "verdict": "PASS",
   "path_check": {
     "tested": 0,
@@ -25,7 +25,7 @@
     "dead": 0
   },
   "dead_functions": {
-    "total": 20,
+    "total": 47,
     "dead": 0
   },
   "pipeline_check": {
@@ -42,8 +42,8 @@
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 45,
-      "registered": 45
+      "defined": 41,
+      "registered": 41
     },
     "config_consistency": {
       "consistent": true
@@ -56,20 +56,29 @@
     }
   },
   "novel_features_check": {
-    "planned": 0,
-    "found": 0,
-    "skipped": true
+    "planned": 7,
+    "found": 7
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
   },
   "reimplementation_check": {
-    "checked": 0,
-    "exempted_via_store": 0,
-    "skipped": true
+    "checked": 7,
+    "exempted_via_store": 4
+  },
+  "source_client_check": {
+    "checked": 9
+  },
+  "print_json_filtered_check": {
+    "checked": 35
   },
   "test_presence": {
     "checked": 1
   },
   "naming_check": {
-    "checked": 34
+    "checked": 35
   },
   "issues": null
 }

@@ -1,3 +1,8 @@
+// HTTP requests in this file go through doWithLimiter (see ratelimit.go),
+// which paces calls with cliutil.AdaptiveLimiter and surfaces a typed
+// *cliutil.RateLimitError when 429 retries are exhausted. Empty-on-throttle
+// is indistinguishable from "no data exists" — callers must treat the
+// limiter's typed error as a hard failure rather than swallow it.
 package food52
 
 import (
@@ -161,19 +166,16 @@ func getHTML(httpc HTTPClient, url string) ([]byte, error) {
 		return nil, err
 	}
 	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-	resp, err := httpc.Do(req)
+	resp, body, err := doWithLimiter(httpc, req)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 	if resp.StatusCode >= 400 {
 		return nil, fmt.Errorf("HTTP %d from %s", resp.StatusCode, url)
 	}
 	const maxResponseBytes = 8 * 1024 * 1024 // 8 MB ceiling for any single page or bundle
-	limited := http.MaxBytesReader(nil, resp.Body, maxResponseBytes)
-	body, err := readAll(limited)
-	if err != nil {
-		return nil, err
+	if len(body) > maxResponseBytes {
+		body = body[:maxResponseBytes]
 	}
 	return body, nil
 }

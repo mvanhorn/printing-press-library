@@ -70,12 +70,7 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 		}
 		return out
 	}
-	// Split on whitespace and hyphens/underscores so a hyphenated query like
-	// "stale-tickets" or "test-query" tokenizes to ["stale", "tickets"] for
-	// per-token matching, while still allowing the full string to match as a
-	// substring elsewhere.
-	tokenized := strings.NewReplacer("-", " ", "_", " ").Replace(q)
-	qTokens := strings.Fields(tokenized)
+	qTokens := strings.Fields(q)
 
 	scored := make([]whichMatch, 0, len(index))
 	for i, e := range index {
@@ -121,16 +116,9 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	if strings.Contains(cmd, query) {
 		score += 2
 	}
-	// Substring match on the description (whole query first, then per-token).
+	// Substring match on the description.
 	if strings.Contains(desc, query) {
 		score += 2
-	} else {
-		for _, qt := range qTokens {
-			if len(qt) >= 3 && strings.Contains(desc, qt) {
-				score += 1
-				break
-			}
-		}
 	}
 	// Group tag match.
 	if group != "" {

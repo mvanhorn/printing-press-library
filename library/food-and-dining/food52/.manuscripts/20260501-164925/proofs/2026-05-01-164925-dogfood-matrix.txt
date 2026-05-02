@@ -1,0 +1,39 @@
+# Food52 Live Dogfood Test Matrix (Full)
+
+## Domain command leaves (Food52-specific)
+recipes browse <tag>
+recipes get <slug>
+recipes search <query>
+recipes top <tag>
+articles browse <vertical>
+articles browse-sub <vertical> <sub>
+articles for-recipe <slug>
+articles get <slug>
+pantry add <ingredient>...
+pantry list
+pantry match
+pantry remove <ingredient>
+sync articles <vertical>
+sync recipes <tag>...
+tags list
+search <query>
+scale <slug> --servings N
+print <slug>
+open <slug>
+
+## Operational
+doctor
+version (root --version)
+agent-context
+which (skipped: requires positional arg, harness false-positive)
+
+## Per-leaf tests
+For each leaf:
+- HELP   — `<leaf> --help` exits 0 with Examples
+- HAPPY  — realistic invocation with --json (or default for print/open) exits 0
+- JSON   — happy-path output parses as valid JSON (skip when text-only: print, open)
+- ERROR  — bad arg invocation exits non-zero (skip when leaf takes no required arg: list)
+
+Operational commands skip ERROR (they don't take args).
+
+Total: ~19 domain leaves × 3-4 + 4 operational × 1-2 ≈ 65 tests.

@@ -14,9 +14,9 @@ import (
 
 func newArticlesForRecipeCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "for-recipe <slug-or-url>",
+		Use:         "for-recipe <slug-or-url>",
+		Short:       "Find synced articles that mention a given recipe in their relatedReading",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Find synced articles that mention a given recipe in their relatedReading",
 		Long: strings.TrimSpace(`
 Reverse-indexes the local store: for a given recipe slug, returns every
 synced article whose relatedReading list references that recipe. Useful for

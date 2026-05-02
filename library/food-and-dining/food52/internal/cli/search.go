@@ -19,9 +19,9 @@ func newLocalSearchCmd(flags *rootFlags) *cobra.Command {
 		limit int
 	)
 	cmd := &cobra.Command{
-		Use:   "search <query>",
+		Use:         "search <query>",
+		Short:       "Full-text search the local store across synced recipes and articles",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Full-text search the local store across synced recipes and articles",
 		Long: strings.TrimSpace(`
 Searches every recipe and article you have synced into the local SQLite store
 using a LIKE-based scan over title, slug, and (for articles) body text. Run

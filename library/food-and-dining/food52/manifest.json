@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "food52-pp-mcp",
   "display_name": "Food52",
-  "version": "2.3.10",
-  "description": "Search, browse, and read Food52 from your terminal \u2014 with offline FTS, pantry matching, recipe scaling, and the editorial signals other tools throw away.",
+  "version": "3.2.1",
+  "description": "Food52 API surface as MCP tools.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -23,6 +23,5 @@
       "linux",
       "win32"
     ]
-  },
-  "cli_binary": "food52-pp-cli"
+  }
 }

@@ -11,7 +11,7 @@
   "tools": [
     {
       "name": "articles_browse",
-      "description": "Browse the latest Food52 articles in a vertical (food, life)",
+      "description": "Browse the latest Food52 articles in a vertical (food, life). Required: vertical (default: food).",
       "method": "GET",
       "path": "/{vertical}",
       "no_auth": true,
@@ -27,7 +27,7 @@
     },
     {
       "name": "articles_get",
-      "description": "Get a Food52 article (story) by slug",
+      "description": "Get a Food52 article (story) by slug. Required: slug (default: best-mothers-day-gift-ideas).",
       "method": "GET",
       "path": "/story/{slug}",
       "no_auth": true,
@@ -43,7 +43,7 @@
     },
     {
       "name": "recipes_browse",
-      "description": "Browse Food52 recipes filtered by a tag (e.g. chicken, breakfast, vegetarian)",
+      "description": "Browse Food52 recipes filtered by a tag (e.g. chicken, breakfast, vegetarian). Required: tag (default: chicken).",
       "method": "GET",
       "path": "/recipes/{tag}",
       "no_auth": true,
@@ -59,7 +59,7 @@
     },
     {
       "name": "recipes_get",
-      "description": "Get full structured details for a single Food52 recipe by slug",
+      "description": "Get full structured details for a single Food52 recipe by slug. Required: slug.",
       "method": "GET",
       "path": "/recipes/{slug}",
       "no_auth": true,

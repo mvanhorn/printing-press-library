@@ -20,9 +20,9 @@ func newRecipesSearchCmd(flags *rootFlags) *cobra.Command {
 		sort    string
 	)
 	cmd := &cobra.Command{
-		Use:   "search <query>",
+		Use:         "search <query>",
+		Short:       "Search Food52 recipes via Typesense (Food52's own search backend)",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Search Food52 recipes via Typesense (Food52's own search backend)",
 		Long: strings.TrimSpace(`
 Search Food52's recipe collection. Uses the public Typesense search-only key
 that the CLI auto-discovers from Food52's JS bundle on first run, so there is

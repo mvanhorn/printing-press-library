@@ -10,7 +10,7 @@ import (
 func newRecipesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "recipes",
-		Short: "Browse Food52 recipes by tag and fetch single recipe details (data extracted from SSR __NEXT_DATA__)",
+		Short: "Browse Food52 recipes by tag and fetch single recipe details (extracted from Next.js __NEXT_DATA__ embedded in SSR HTML)",
 	}
 
 	cmd.AddCommand(newRecipesBrowseCmd(flags))

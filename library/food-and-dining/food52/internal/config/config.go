@@ -7,21 +7,22 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/pelletier/go-toml/v2"
 )
 
 type Config struct {
-	BaseURL       string    `toml:"base_url"`
-	AuthHeaderVal string    `toml:"auth_header"`
-	AuthSource    string    `toml:"-"`
-	AccessToken   string    `toml:"access_token"`
-	RefreshToken  string    `toml:"refresh_token"`
-	TokenExpiry   time.Time `toml:"token_expiry"`
-	ClientID      string    `toml:"client_id"`
-	ClientSecret  string    `toml:"client_secret"`
-	Path          string    `toml:"-"`
+	BaseURL        string `toml:"base_url"`
+	AuthHeaderVal  string `toml:"auth_header"`
+	AuthSource     string `toml:"-"`
+	AccessToken    string `toml:"access_token"`
+	RefreshToken   string `toml:"refresh_token"`
+	TokenExpiry    time.Time `toml:"token_expiry"`
+	ClientID       string `toml:"client_id"`
+	ClientSecret   string `toml:"client_secret"`
+	Path           string `toml:"-"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -64,6 +65,19 @@ func (c *Config) AuthHeader() string {
 	return ""
 }
 
+func applyAuthFormat(format string, replacements map[string]string) string {
+	if format == "" {
+		return ""
+	}
+	for key, value := range replacements {
+		format = strings.ReplaceAll(format, "{"+key+"}", value)
+	}
+	if strings.Contains(format, "{") {
+		return ""
+	}
+	return format
+}
+
 func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken string, expiry time.Time) error {
 	c.ClientID = clientID
 	c.ClientSecret = clientSecret
@@ -91,3 +105,6 @@ func (c *Config) save() error {
 	}
 	return os.WriteFile(c.Path, data, 0o600)
 }
+
+// Ensure strings import is used
+var _ = strings.ReplaceAll

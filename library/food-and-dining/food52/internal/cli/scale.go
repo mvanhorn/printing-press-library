@@ -16,9 +16,9 @@ import (
 func newScaleCmd(flags *rootFlags) *cobra.Command {
 	var servings int
 	cmd := &cobra.Command{
-		Use:   "scale <slug-or-url>",
+		Use:         "scale <slug-or-url>",
+		Short:       "Scale a Food52 recipe's ingredients to a different number of servings",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Scale a Food52 recipe's ingredients to a different number of servings",
 		Long: strings.TrimSpace(`
 Fetches a recipe, parses its yield from the JSON-LD recipeYield field, and
 rewrites every ingredient quantity proportionally. Falls back to the SSR
@@ -34,8 +34,14 @@ unchanged.
   food52-pp-cli scale https://food52.com/recipes/mom-s-japanese-curry-chicken-with-radish-and-cauliflower --servings 6
 `, "\n"),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 || servings <= 0 {
+			if len(args) == 0 {
 				return cmd.Help()
+			}
+			if dryRunOK(flags) {
+				return nil
+			}
+			if servings <= 0 {
+				return fmt.Errorf("scale requires --servings N (positive integer); got %d", servings)
 			}
 			slug := recipeSlugFromArg(args[0])
 			if slug == "" {

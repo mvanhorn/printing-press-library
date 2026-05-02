@@ -1,12 +1,14 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-04-27T08:37:41.006659Z",
-  "printing_press_version": "2.3.10-0.20260427083629-6b2be74d017b+dirty",
+  "generated_at": "2026-05-02T00:48:24.189971Z",
+  "printing_press_version": "3.2.1",
   "api_name": "food52",
+  "display_name": "Food52",
   "cli_name": "food52-pp-cli",
+  "spec_path": "/Users/tmchow/printing-press/.runstate/swirling-spinning-blum-1bac0b4e/runs/20260501-164925/research/food52-spec.yaml",
   "spec_format": "internal",
-  "spec_checksum": "sha256:5865cd633b915ca70849d6d1ab1e712293446d03467aa0f77b0f0f07f8f6162e",
-  "run_id": "20260426-230853",
+  "spec_checksum": "sha256:0805a98dce1a73403398a4ed9ef2e01e992e6229ad61989afa69be24c3963581",
+  "run_id": "20260501-164925",
   "mcp_binary": "food52-pp-mcp",
   "mcp_tool_count": 4,
   "mcp_public_tool_count": 4,
@@ -14,7 +16,7 @@
   "auth_type": "none",
   "novel_features": [
     {
-      "name": "Pantry \u2192 recipe matcher",
+      "name": "Pantry → recipe matcher",
       "command": "pantry match",
       "description": "Find Food52 recipes whose ingredients overlap your local pantry, ranked by coverage."
     },
@@ -41,14 +43,12 @@
     {
       "name": "Cooking-mode print view",
       "command": "print",
-      "description": "Render a recipe as ingredients + numbered steps with no nav, no images, no ads, no comments \u2014 ready to pipe to lp or paste into notes."
+      "description": "Render a recipe as ingredients + numbered steps with no nav, no images, no ads, no comments — ready to pipe to lp or paste into notes."
     },
     {
-      "name": "Article \u2194 recipe cross-reference",
+      "name": "Article ↔ recipe cross-reference",
       "command": "articles for-recipe",
       "description": "Find synced articles that mention a given recipe in their relatedReading."
     }
-  ],
-  "category": "food-and-dining",
-  "description": "Search, browse, and read Food52 from your terminal \u2014 with offline FTS, pantry matching, recipe scaling, and the editorial signals other tools throw away."
+  ]
 }

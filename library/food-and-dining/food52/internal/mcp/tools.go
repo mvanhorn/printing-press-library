@@ -5,184 +5,311 @@ package mcp
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
+	"strings"
+	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/food52/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/food52/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/food52/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/food52/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/food52/internal/store"
 )
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("articles_browse",
-			mcplib.WithDescription("Browse the latest Food52 articles in a vertical (food, life)"),
+			mcplib.WithDescription("Browse the latest Food52 articles in a vertical (food, life). Required: vertical (default: food)."),
 			mcplib.WithString("vertical", mcplib.Required(), mcplib.Description("Vertical slug (food, life)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/{vertical}", []string{"vertical"}),
+		makeAPIHandler("GET", "/{vertical}", []string{"vertical", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("articles_get",
-			mcplib.WithDescription("Get a Food52 article (story) by slug"),
+			mcplib.WithDescription("Get a Food52 article (story) by slug. Required: slug (default: best-mothers-day-gift-ideas)."),
 			mcplib.WithString("slug", mcplib.Required(), mcplib.Description("Article slug from the URL (e.g. best-mothers-day-gift-ideas)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/story/{slug}", []string{"slug"}),
+		makeAPIHandler("GET", "/story/{slug}", []string{"slug", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("recipes_browse",
-			mcplib.WithDescription("Browse Food52 recipes filtered by a tag (e.g. chicken, breakfast, vegetarian)"),
+			mcplib.WithDescription("Browse Food52 recipes filtered by a tag (e.g. chicken, breakfast, vegetarian). Required: tag (default: chicken)."),
 			mcplib.WithString("tag", mcplib.Required(), mcplib.Description("Tag slug (chicken, breakfast, dinner, vegetarian, dessert, pasta, etc.)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/recipes/{tag}", []string{"tag"}),
+		makeAPIHandler("GET", "/recipes/{tag}", []string{"tag", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("recipes_get",
-			mcplib.WithDescription("Get full structured details for a single Food52 recipe by slug"),
+			mcplib.WithDescription("Get full structured details for a single Food52 recipe by slug. Required: slug."),
 			mcplib.WithString("slug", mcplib.Required(), mcplib.Description("Recipe slug from the URL (e.g. mom-s-japanese-curry-chicken-with-radish-and-cauliflower)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/recipes/{slug}", []string{"slug"}),
-	)
-	// Sync tool — populates local database for offline search and sql queries
-	s.AddTool(
-		mcplib.NewTool("sync",
-			mcplib.WithDescription("Sync API data to local SQLite. Run before search/sql."),
-			mcplib.WithString("resources", mcplib.Description("CSV resource types (omit for all)")),
-			mcplib.WithString("since", mcplib.Description("Incremental window (e.g. 7d, 24h)")),
-			mcplib.WithBoolean("full", mcplib.Description("Full resync, ignoring checkpoints")),
-		),
-		handleSync,
+		makeAPIHandler("GET", "/recipes/{slug}", []string{"slug", }),
 	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
-			mcplib.WithDescription("Read-only SELECT over synced tables. Requires sync first."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SELECT only; tables match resource names")),
+			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT only). Tables match resource names.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleSQL,
 	)
 
-	// Context tool — front-loaded domain knowledge for agents. Call first.
+	// Context tool — front-loaded domain knowledge for agents.
+	// Call this first to understand the API taxonomy, query patterns, and capabilities.
 	s.AddTool(
 		mcplib.NewTool("context",
-			mcplib.WithDescription("Resource taxonomy, query tips, and unique capabilities. Call first."),
+			mcplib.WithDescription("Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleContext,
 	)
+
+	// Runtime Cobra-tree mirror — exposes every user-facing command that is
+	// not already covered by a typed endpoint or framework MCP tool.
+	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
 }
 
-// RegisterNovelFeatureTools registers MCP tools that shell out to the
-// companion CLI binary. Empty body when the spec has no novel features.
-func RegisterNovelFeatureTools(s *server.MCPServer) {
-	s.AddTool(
-		mcplib.NewTool("pantry_match",
-			mcplib.WithDescription("Find Food52 recipes whose ingredients overlap your local pantry, ranked by coverage."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("pantry match"),
-	)
-	s.AddTool(
-		mcplib.NewTool("search",
-			mcplib.WithDescription("Full-text search across every recipe and article you have synced, with type filtering."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("search"),
-	)
-	s.AddTool(
-		mcplib.NewTool("sync_recipes",
-			mcplib.WithDescription("Pull recipes for one or more tags into the local FTS-indexed store."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("sync recipes"),
-	)
-	s.AddTool(
-		mcplib.NewTool("recipes_top",
-			mcplib.WithDescription("Show only Food52 Test-Kitchen-approved recipes for a tag, with a rating floor."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("recipes top"),
-	)
-	s.AddTool(
-		mcplib.NewTool("scale",
-			mcplib.WithDescription("Scale a recipe's ingredients to a different number of servings using its Schema.org recipeYield."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("scale"),
-	)
-	s.AddTool(
-		mcplib.NewTool("print",
-			mcplib.WithDescription("Render a recipe as ingredients + numbered steps with no nav, no images, no ads, no comments — ready to pipe to lp or paste into notes."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("print"),
-	)
-	s.AddTool(
-		mcplib.NewTool("articles_for_recipe",
-			mcplib.WithDescription("Find synced articles that mention a given recipe in their relatedReading."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("articles for-recipe"),
-	)
-}
-
-// siblingCLIPath resolves the companion CLI via sibling-of-executable,
-// FOOD52_CLI_PATH env var, then PATH.
-func siblingCLIPath() (string, error) {
-	const cliName = "food52-pp-cli"
-	if exe, err := os.Executable(); err == nil {
-		candidate := filepath.Join(filepath.Dir(exe), cliName)
-		if _, err := os.Stat(candidate); err == nil {
-			return candidate, nil
-		}
-	}
-	if v := os.Getenv("FOOD52_CLI_PATH"); v != "" {
-		return v, nil
-	}
-	return exec.LookPath(cliName)
-}
-
-// shellOutToCLI returns an MCP tool handler that runs commandSpec against
-// the companion CLI. Resolves the binary path and pre-splits commandSpec
-// at registration so the per-call work is just user-arg split + exec.
-func shellOutToCLI(commandSpec string) server.ToolHandlerFunc {
-	cliPath, lookupErr := siblingCLIPath()
-	prefixArgs := splitShellArgs(commandSpec)
+// makeAPIHandler creates a generic MCP tool handler for an API endpoint.
+func makeAPIHandler(method, pathTemplate string, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		if lookupErr != nil {
-			return mcplib.NewToolResultError(fmt.Sprintf("companion CLI binary not found: %v\nTried sibling lookup, FOOD52_CLI_PATH env var, and PATH.", lookupErr)), nil
-		}
-		userArgs, _ := req.GetArguments()["args"].(string)
-		finalArgs := append(append([]string{}, prefixArgs...), splitShellArgs(userArgs)...)
-		cmd := exec.CommandContext(ctx, cliPath, finalArgs...)
-		out, err := cmd.CombinedOutput()
+		c, err := newMCPClient()
 		if err != nil {
-			return mcplib.NewToolResultError(string(out)), nil
+			return mcplib.NewToolResultError(err.Error()), nil
 		}
-		return mcplib.NewToolResultText(string(out)), nil
+
+		// mcp-go v0.47+ made CallToolParams.Arguments an `any` to support
+		// non-map payloads; GetArguments() returns the map[string]any shape
+		// we rely on here (or an empty map when the payload is something else).
+		args := req.GetArguments()
+
+		// Build path by substituting positional params
+		path := pathTemplate
+		for _, p := range positionalParams {
+			if v, ok := args[p]; ok {
+				path = strings.Replace(path, "{"+p+"}", fmt.Sprintf("%v", v), 1)
+			}
+		}
+
+		// Collect non-positional params as query params
+		params := make(map[string]string)
+		for k, v := range args {
+			isPositional := false
+			for _, p := range positionalParams {
+				if k == p {
+					isPositional = true
+					break
+				}
+			}
+			if !isPositional {
+				params[k] = fmt.Sprintf("%v", v)
+			}
+		}
+
+		var data json.RawMessage
+		switch method {
+		case "GET":
+			data, err = c.Get(path, params)
+		case "POST":
+			body, _ := json.Marshal(args)
+			data, _, err = c.Post(path, body)
+		case "PUT":
+			body, _ := json.Marshal(args)
+			data, _, err = c.Put(path, body)
+		case "PATCH":
+			body, _ := json.Marshal(args)
+			data, _, err = c.Patch(path, body)
+		case "DELETE":
+			data, _, err = c.Delete(path)
+		default:
+			return mcplib.NewToolResultError("unsupported method: " + method), nil
+		}
+
+		if err != nil {
+			msg := err.Error()
+			switch {
+			case strings.Contains(msg, "HTTP 409"):
+				return mcplib.NewToolResultText("already exists (no-op)"), nil
+			case strings.Contains(msg, "HTTP 401"):
+				return mcplib.NewToolResultError("authentication failed: " + msg +
+					"\nhint: check your API credentials." +
+					"\n      Run 'food52-pp-cli doctor' to check auth status."), nil
+			case strings.Contains(msg, "HTTP 403"):
+				return mcplib.NewToolResultError("permission denied: " + msg +
+					"\nhint: your credentials are valid but lack access to this resource." +
+					"\n      Run 'food52-pp-cli doctor' to check auth status."), nil
+			case strings.Contains(msg, "HTTP 404"):
+				if method == "DELETE" {
+					return mcplib.NewToolResultText("already deleted (no-op)"), nil
+				}
+				return mcplib.NewToolResultError("not found: " + msg), nil
+			case strings.Contains(msg, "HTTP 429"):
+				return mcplib.NewToolResultError("rate limited: " + msg), nil
+			default:
+				return mcplib.NewToolResultError(msg), nil
+			}
+		}
+
+		// For GET responses, wrap bare arrays with count metadata
+		if method == "GET" {
+			trimmed := strings.TrimSpace(string(data))
+			if len(trimmed) > 0 && trimmed[0] == '[' {
+				var items []json.RawMessage
+				if json.Unmarshal(data, &items) == nil {
+					wrapped := map[string]any{
+						"count": len(items),
+						"items": items,
+					}
+					out, _ := json.Marshal(wrapped)
+					return mcplib.NewToolResultText(string(out)), nil
+				}
+			}
+		}
+		return mcplib.NewToolResultText(string(data)), nil
 	}
 }
 
-// splitShellArgs whitespace-splits with double-quoted-token preservation.
-func splitShellArgs(s string) []string {
-	var tokens []string
-	var cur []rune
-	inQuote := false
-	for _, r := range s {
-		switch {
-		case r == '"':
-			inQuote = !inQuote
-		case (r == ' ' || r == '\t') && !inQuote:
-			if len(cur) > 0 {
-				tokens = append(tokens, string(cur))
-				cur = cur[:0]
-			}
-		default:
-			cur = append(cur, r)
+func newMCPClient() (*client.Client, error) {
+	home, _ := os.UserHomeDir()
+	cfgPath := filepath.Join(home, ".config", "food52-pp-cli", "config.toml")
+	cfg, err := config.Load(cfgPath)
+	if err != nil {
+		return nil, fmt.Errorf("loading config: %w", err)
+	}
+	return client.New(cfg, 30*time.Second, 2), nil
+}
+
+func dbPath() string {
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, ".local", "share", "food52-pp-cli", "data.db")
+}
+// Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
+// The CLI's defaultDBPath() in the cli package uses the same canonical path.
+
+func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	args := req.GetArguments()
+	query, ok := args["query"].(string)
+	if !ok || query == "" {
+		return mcplib.NewToolResultError("query is required"), nil
+	}
+
+	// Block write operations
+	upper := strings.ToUpper(strings.TrimSpace(query))
+	for _, prefix := range []string{"INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "CREATE"} {
+		if strings.HasPrefix(upper, prefix) {
+			return mcplib.NewToolResultError("only SELECT queries are allowed"), nil
 		}
 	}
-	if len(cur) > 0 {
-		tokens = append(tokens, string(cur))
+
+	db, err := store.OpenWithContext(ctx, dbPath())
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
-	return tokens
+	defer db.Close()
+
+	rows, err := db.Query(query)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("query failed: %v", err)), nil
+	}
+	defer rows.Close()
+
+	cols, _ := rows.Columns()
+	var results []map[string]any
+	for rows.Next() {
+		values := make([]any, len(cols))
+		ptrs := make([]any, len(cols))
+		for i := range values {
+			ptrs[i] = &values[i]
+		}
+		rows.Scan(ptrs...)
+		row := make(map[string]any)
+		for i, col := range cols {
+			row[col] = values[i]
+		}
+		results = append(results, row)
+	}
+
+	data, _ := json.MarshalIndent(results, "", "  ")
+	return mcplib.NewToolResultText(string(data)), nil
+}
+
+func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	ctx := map[string]any{
+		"api":         "food52",
+		"description": "Search, browse, and read Food52 — recipes, articles, and structured ingredients/steps from the Food52...",
+		"archetype":   "content",
+		"tool_count":  4,
+		// tool_surface tells agents which surface a capability lives on.
+		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion food52-pp-cli binary.",
+		"resources": []map[string]any{
+			{
+				"name": "articles",
+				"description": "Browse and read Food52 stories (articles) from the food and life verticals",
+				"endpoints": []string{"browse", "get",  },
+				"searchable": true,
+			},
+			{
+				"name": "recipes",
+				"description": "Browse Food52 recipes by tag and fetch single recipe details (extracted from Next.js __NEXT_DATA__ embedded in SSR HTML)",
+				"endpoints": []string{"browse", "get",  },
+				"searchable": true,
+			},
+		},
+		"query_tips": []string{
+			"Pagination uses cursor-based paging. Pass after parameter for subsequent pages.",
+			"Control page size with the limit parameter (default 100).",
+			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
+			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
+			"Prefer sql/search over repeated API calls when the data is already synced.",
+		},
+		// Command-mirror capabilities are exposed through MCP by shelling out
+		// to the companion CLI binary.
+		"command_mirror_capabilities": []map[string]string{
+			{"name": "Pantry → recipe matcher", "command": "pantry match", "description": "Find Food52 recipes whose ingredients overlap your local pantry, ranked by coverage.", "rationale": "Requires a local pantry inventory joined against synced recipe ingredients — Food52's site only lets you filter by...", "via": "mcp-command-mirror"},
+			{"name": "Offline FTS across recipes and articles", "command": "search", "description": "Full-text search across every recipe and article you have synced, with type filtering.", "rationale": "Requires recipes + articles in the local store; Food52's own search hits only one corpus at a time and needs a...", "via": "mcp-command-mirror"},
+			{"name": "Sync a tag or vertical", "command": "sync recipes", "description": "Pull recipes for one or more tags into the local FTS-indexed store.", "rationale": "Foundation for offline pantry match and local search — not possible without synced state.", "via": "mcp-command-mirror"},
+			{"name": "Test-Kitchen + rating-filtered browse", "command": "recipes top", "description": "Show only Food52 Test-Kitchen-approved recipes for a tag, with a rating floor.", "rationale": "Uses Food52's testKitchenApproved + averageRating editorial signals that other recipe scrapers throw away. Food52's...", "via": "mcp-command-mirror"},
+			{"name": "Recipe scaling via JSON-LD", "command": "scale", "description": "Scale a recipe's ingredients to a different number of servings using its Schema.org recipeYield.", "rationale": "Parses recipeYield + recipeIngredient from the page's JSON-LD and rewrites quantities. Food52's site has no scaler.", "via": "mcp-command-mirror"},
+			{"name": "Cooking-mode print view", "command": "print", "description": "Render a recipe as ingredients + numbered steps with no nav, no images, no ads, no comments — ready to pipe to lp...", "rationale": "The Food52 site's print button still loads ad chrome; the structured data lets us strip everything to just the...", "via": "mcp-command-mirror"},
+			{"name": "Article ↔ recipe cross-reference", "command": "articles for-recipe", "description": "Find synced articles that mention a given recipe in their relatedReading.", "rationale": "Recipes link to articles, but never the reverse — we build the reverse index in the local store.", "via": "mcp-command-mirror"},
+		},
+		"playbook": []map[string]string{
+			{"topic": "Pantry → recipe matcher", "insight": "Requires a local pantry inventory joined against synced recipe ingredients — Food52's site only lets you filter by one ingredient at a time."},
+			{"topic": "Offline FTS across recipes and articles", "insight": "Requires recipes + articles in the local store; Food52's own search hits only one corpus at a time and needs a network round trip."},
+			{"topic": "Sync a tag or vertical", "insight": "Foundation for offline pantry match and local search — not possible without synced state."},
+			{"topic": "Test-Kitchen + rating-filtered browse", "insight": "Uses Food52's testKitchenApproved + averageRating editorial signals that other recipe scrapers throw away. Food52's site has no first-class TK-only filter."},
+			{"topic": "Recipe scaling via JSON-LD", "insight": "Parses recipeYield + recipeIngredient from the page's JSON-LD and rewrites quantities. Food52's site has no scaler."},
+			{"topic": "Cooking-mode print view", "insight": "The Food52 site's print button still loads ad chrome; the structured data lets us strip everything to just the cookable text."},
+			{"topic": "Article ↔ recipe cross-reference", "insight": "Recipes link to articles, but never the reverse — we build the reverse index in the local store."},
+		},
+	}
+	data, _ := json.MarshalIndent(ctx, "", "  ")
+	return mcplib.NewToolResultText(string(data)), nil
+}
+
+// RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP
+// mains. New generated mains call RegisterTools only; RegisterTools now
+// includes the runtime Cobra-tree mirror.
+func RegisterNovelFeatureTools(s *server.MCPServer) {
+	_ = s
 }

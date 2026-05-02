@@ -1,14 +1,13 @@
 name: food52
-display_name: Food52
 kind: synthetic
 description: "Search, browse, and read Food52 — recipes, articles, and structured ingredients/steps from the Food52 community-curated cookbook, with offline FTS and a local cache."
 cli_description: "Search and read Food52 recipes and articles from your terminal — ingredients, steps, ratings, and full article text without leaving the shell."
-version: "0.1.0"
+version: "0.2.0"
 base_url: "https://food52.com"
 website_url: "https://food52.com"
 category: "food-and-dining"
 spec_source: sniffed
-http_transport: browser-chrome  # Chrome-impersonated Surf client — Food52 is on Vercel with passive TLS-fingerprint bot mitigation; plain HTTP returns 429.
+http_transport: browser-chrome  # Surf+Chrome impersonation; food52.com is on Vercel with passive TLS-fingerprint mitigation that plain HTTP cannot clear.
 
 auth:
   type: none
@@ -19,7 +18,7 @@ config:
 
 resources:
   recipes:
-    description: "Browse Food52 recipes by tag and fetch single recipe details (data extracted from SSR __NEXT_DATA__)"
+    description: "Browse Food52 recipes by tag and fetch single recipe details (extracted from Next.js __NEXT_DATA__ embedded in SSR HTML)"
     endpoints:
       browse:
         method: GET
@@ -27,13 +26,16 @@ resources:
         description: "Browse Food52 recipes filtered by a tag (e.g. chicken, breakfast, vegetarian)"
         response_format: html
         html_extract:
-          mode: page
+          mode: embedded-json
+          script_selector: "script#__NEXT_DATA__"
+          json_path: "props.pageProps.recipesByTag"
         params:
           - name: tag
             type: string
             required: true
             positional: true
             description: "Tag slug (chicken, breakfast, dinner, vegetarian, dessert, pasta, etc.)"
+            default: "chicken"
         no_auth: true
 
       get:
@@ -42,13 +44,16 @@ resources:
         description: "Get full structured details for a single Food52 recipe by slug"
         response_format: html
         html_extract:
-          mode: page
+          mode: embedded-json
+          script_selector: "script#__NEXT_DATA__"
+          json_path: "props.pageProps.recipe"
         params:
           - name: slug
             type: string
             required: true
             positional: true
             description: "Recipe slug from the URL (e.g. mom-s-japanese-curry-chicken-with-radish-and-cauliflower)"
+            default: "mom-s-japanese-curry-chicken-with-radish-and-cauliflower"
         no_auth: true
 
   articles:
@@ -60,13 +65,16 @@ resources:
         description: "Browse the latest Food52 articles in a vertical (food, life)"
         response_format: html
         html_extract:
-          mode: page
+          mode: embedded-json
+          script_selector: "script#__NEXT_DATA__"
+          json_path: "props.pageProps.blogPosts"
         params:
           - name: vertical
             type: string
             required: true
             positional: true
             description: "Vertical slug (food, life)"
+            default: "food"
         no_auth: true
 
       get:
@@ -75,22 +83,31 @@ resources:
         description: "Get a Food52 article (story) by slug"
         response_format: html
         html_extract:
-          mode: page
+          mode: embedded-json
+          script_selector: "script#__NEXT_DATA__"
+          json_path: "props.pageProps.blogPost"
         params:
           - name: slug
             type: string
             required: true
             positional: true
             description: "Article slug from the URL (e.g. best-mothers-day-gift-ideas)"
+            default: "best-mothers-day-gift-ideas"
         no_auth: true
 
 extra_commands:
   - name: "recipes search"
     args: "<query>"
     description: "Search Food52 recipes via Typesense (host + search-only key auto-discovered from the public JS bundle)"
+  - name: "recipes top"
+    args: "<tag>"
+    description: "Show only Test-Kitchen-approved recipes for a tag, with an optional rating floor (--min-rating)"
   - name: "articles browse-sub"
     args: "<vertical> <subvertical>"
     description: "Browse a Food52 article subvertical (e.g. food baking, food drinks, life travel)"
+  - name: "articles for-recipe"
+    args: "<slug>"
+    description: "Find synced articles whose relatedReading mentions the given recipe slug"
   - name: "tags list"
     description: "List Food52 recipe tags discovered from the homepage navigation (chicken, breakfast, vegetarian, dessert, pasta, ...)"
   - name: "sync recipes"
@@ -120,4 +137,4 @@ extra_commands:
     description: "Print a clean cooking-friendly view of a recipe (ingredients + numbered steps, no nav, no images, ready to paste or copy)"
   - name: "open"
     args: "<slug-or-url>"
-    description: "Resolve a Food52 recipe or article slug to its canonical URL (prints by default; pair with --launch to actually open in the browser — agents should leave --launch off)"
+    description: "Print a Food52 recipe or article URL; pass --launch to actually open it in the default browser"

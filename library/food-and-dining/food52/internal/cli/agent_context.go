@@ -74,8 +74,9 @@ type agentContextFlag struct {
 func newAgentContextCmd(rootCmd *cobra.Command) *cobra.Command {
 	var pretty bool
 	cmd := &cobra.Command{
-		Use:   "agent-context",
-		Short: "Emit structured JSON describing this CLI for agents",
+		Use:         "agent-context",
+		Short:       "Emit structured JSON describing this CLI for agents",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Long: `Outputs a machine-readable description of commands, flags, and auth so
 agents can introspect this CLI at runtime without parsing --help or
 reading source. Schema is versioned via schema_version.`,
@@ -121,7 +122,43 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 }
 
 func buildAgentDiscoveryContext() *agentContextDiscovery {
-	return nil
+	return &agentContextDiscovery{
+		Source:        "traffic-analysis",
+		TargetURL:     "https://food52.com/",
+		EntryCount:    0,
+		APIEntryCount: 0,
+		Reachability:  "browser_http (95% confidence)",
+		Protocols: []string{
+			"ssr_embedded_data (100% confidence)",
+			"next_data_json (100% confidence)",
+			"rest_json (100% confidence)",
+			"schema_org_jsonld (100% confidence)",
+		},
+		AuthCandidates: []string{
+			"none",
+		},
+		Protections: []string{
+			"vercel_bot_mitigation_passive_tls (100% confidence)",
+		},
+		GenerationHints: []string{
+			"browser_http_transport",
+		},
+		Warnings: []string{
+			"scope_note: Hotline (/hotline, /hotline/questions/<topic>) returns only siteSettings in pageProps and renders no question/answer data in the DOM. The community Q&A is effectively unreachable for unauthenticated read scrapers. Excluded from CLI scope.",
+			"scope_note: Shop endpoints exist on shop.food52.com and food52.myshopify.com/api/2025-01/graphql.json but require Shopify Storefront API token discovery; deferred from v1.",
+			"scope_note: buildId (Pq8fQj0nm7uTx90i5u0si at the time of browser-sniff) and _app.js bundle hash change on every Food52 deploy. The CLI's runtime discovery (buildId from __NEXT_DATA__.buildId, key from regex over the active _app-<hash>.js) handles rotation transparently.",
+			"scope_note: Typesense /collections endpoint requires the admin key (search-only key returns 403 there). The CLI does not list collections; it queries the known collection name 'recipes_production_food52_current' directly.",
+		},
+		CandidateCommands: []string{
+			"recipes search",
+			"recipes browse",
+			"recipes get",
+			"tags list",
+			"verticals list",
+			"articles browse",
+			"articles get",
+		},
+	}
 }
 
 // collectAgentCommands walks the cobra tree from the given command and

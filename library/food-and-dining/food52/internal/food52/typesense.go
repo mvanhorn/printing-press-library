@@ -1,3 +1,8 @@
+// HTTP requests in this file go through doWithLimiter (see ratelimit.go),
+// which paces calls with cliutil.AdaptiveLimiter and surfaces a typed
+// *cliutil.RateLimitError when 429 retries are exhausted. Empty-on-throttle
+// is indistinguishable from "no data exists" — callers must treat the
+// limiter's typed error as a hard failure rather than swallow it.
 package food52
 
 import (
@@ -83,14 +88,9 @@ func SearchRecipes(httpc HTTPClient, d *Discovery, p SearchRecipesParams) (*Sear
 	req.Header.Set("X-TYPESENSE-API-KEY", d.TypesenseAPIKey)
 	req.Header.Set("Accept", "application/json")
 
-	resp, err := httpc.Do(req)
+	resp, body, err := doWithLimiter(httpc, req)
 	if err != nil {
 		return nil, fmt.Errorf("food52 search: %w", err)
-	}
-	defer resp.Body.Close()
-	body, err := readAll(resp.Body)
-	if err != nil {
-		return nil, err
 	}
 	if resp.StatusCode == 401 || resp.StatusCode == 403 {
 		return nil, ErrTypesenseAuth

@@ -14,8 +14,8 @@ func newArticlesCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	cmd.AddCommand(newArticlesBrowseCmd(flags))
-	cmd.AddCommand(newArticlesBrowseSubCmd(flags))
 	cmd.AddCommand(newArticlesGetCmd(flags))
+	cmd.AddCommand(newArticlesBrowseSubCmd(flags))
 	cmd.AddCommand(newArticlesForRecipeCmd(flags))
 	return cmd
 }

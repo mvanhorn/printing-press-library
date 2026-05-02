@@ -14,7 +14,6 @@ import (
 func newTagsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "tags",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Discover Food52 recipe tags and filter the curated taxonomy",
 	}
 	cmd.AddCommand(newTagsListCmd(flags))
@@ -24,9 +23,9 @@ func newTagsCmd(flags *rootFlags) *cobra.Command {
 func newTagsListCmd(flags *rootFlags) *cobra.Command {
 	var kind string
 	cmd := &cobra.Command{
-		Use:   "list",
+		Use:         "list",
+		Short:       "List Food52 recipe tags discovered from the homepage navigation, optionally filtered by kind",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "List Food52 recipe tags discovered from the homepage navigation, optionally filtered by kind",
 		Long: strings.TrimSpace(`
 List the curated Food52 tag taxonomy. Tags are grouped by kind:
 meal, course, ingredient, cuisine, lifestyle, preparation, convenience.

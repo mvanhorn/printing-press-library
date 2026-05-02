@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/food52/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
@@ -15,7 +16,6 @@ func newOpenCmd(flags *rootFlags) *cobra.Command {
 	var launch bool
 	cmd := &cobra.Command{
 		Use:   "open <slug-or-url>",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Resolve a Food52 recipe/article slug to its canonical URL (and optionally launch it)",
 		Long: strings.TrimSpace(`
 Resolves a Food52 recipe slug, story slug, or full Food52 URL to its
@@ -46,6 +46,12 @@ Detection rules:
 				return fmt.Errorf("could not resolve a Food52 URL from %q", arg)
 			}
 			fmt.Println(url)
+			// Defense in depth: never launch when the verifier is exercising
+			// the command, even if --launch sneaks through. PRINTING_PRESS_VERIFY=1
+			// is set by every mock-mode verify subprocess.
+			if cliutil.IsVerifyEnv() {
+				return nil
+			}
 			// Launch only when the user explicitly asked AND we're not in a
 			// non-interactive context (--no-input typically signals CI/agent;
 			// --dry-run signals "tell me what would happen, don't do it").

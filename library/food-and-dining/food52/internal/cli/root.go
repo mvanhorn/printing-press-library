@@ -10,6 +10,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"text/tabwriter"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/food52/internal/client"
@@ -20,23 +21,24 @@ import (
 var version = "1.0.0"
 
 type rootFlags struct {
-	asJSON       bool
-	compact      bool
-	csv          bool
-	plain        bool
-	quiet        bool
-	dryRun       bool
-	noCache      bool
-	noInput      bool
-	yes          bool
-	agent        bool
-	selectFields string
-	configPath   string
-	profileName  string
-	deliverSpec  string
-	timeout      time.Duration
-	rateLimit    float64
-	dataSource   string
+	asJSON        bool
+	compact       bool
+	csv           bool
+	plain         bool
+	quiet         bool
+	dryRun        bool
+	noCache       bool
+	noInput       bool
+	yes           bool
+	agent         bool
+	selectFields  string
+	configPath    string
+	profileName   string
+	deliverSpec   string
+	timeout       time.Duration
+	rateLimit     float64
+	dataSource    string
+	freshnessMeta any
 
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
@@ -44,10 +46,39 @@ type rootFlags struct {
 	deliverSink DeliverSink
 }
 
+// RootCmd returns the Cobra command tree without executing it. The MCP server
+// uses this to mirror every user-facing command as an agent tool.
+func RootCmd() *cobra.Command {
+	var flags rootFlags
+	return newRootCmd(&flags)
+}
+
 // Execute runs the CLI in non-interactive mode: never prompts, all values via flags or stdin.
 func Execute() error {
 	var flags rootFlags
+	rootCmd := newRootCmd(&flags)
 
+	err := rootCmd.Execute()
+	if err != nil && strings.Contains(err.Error(), "unknown flag") {
+		msg := err.Error()
+		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
+		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
+			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
+			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
+				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
+			}
+		}
+	}
+	if err == nil && flags.deliverBuf != nil {
+		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
+			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
+			return derr
+		}
+	}
+	return err
+}
+
+func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "food52-pp-cli",
 		Short: `Search and read Food52 recipes and articles from your terminal — ingredients, steps, ratings, and full article text without leaving the shell.`,
@@ -143,44 +174,26 @@ See README.md or the bundled SKILL.md for recipes.`,
 		}
 		return nil
 	}
-	rootCmd.AddCommand(newArticlesCmd(&flags))
-	rootCmd.AddCommand(newRecipesCmd(&flags))
-	rootCmd.AddCommand(newTagsCmd(&flags))
-	rootCmd.AddCommand(newOpenCmd(&flags))
-	rootCmd.AddCommand(newPantryCmd(&flags))
-	rootCmd.AddCommand(newLocalSearchCmd(&flags))
-	rootCmd.AddCommand(newScaleCmd(&flags))
-	rootCmd.AddCommand(newPrintCmd(&flags))
-	rootCmd.AddCommand(newDoctorCmd(&flags))
-	rootCmd.AddCommand(newAuthCmd(&flags))
+	rootCmd.AddCommand(newArticlesCmd(flags))
+	rootCmd.AddCommand(newRecipesCmd(flags))
+	rootCmd.AddCommand(newTagsCmd(flags))
+	rootCmd.AddCommand(newOpenCmd(flags))
+	rootCmd.AddCommand(newPantryCmd(flags))
+	rootCmd.AddCommand(newLocalSearchCmd(flags))
+	rootCmd.AddCommand(newScaleCmd(flags))
+	rootCmd.AddCommand(newPrintCmd(flags))
+	rootCmd.AddCommand(newDoctorCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
-	rootCmd.AddCommand(newProfileCmd(&flags))
-	rootCmd.AddCommand(newFeedbackCmd(&flags))
-	rootCmd.AddCommand(newWhichCmd(&flags))
-	rootCmd.AddCommand(newExportCmd(&flags))
-	rootCmd.AddCommand(newImportCmd(&flags))
-	rootCmd.AddCommand(newSyncCmd(&flags))
-	rootCmd.AddCommand(newWorkflowCmd(&flags))
+	rootCmd.AddCommand(newProfileCmd(flags))
+	rootCmd.AddCommand(newFeedbackCmd(flags))
+	rootCmd.AddCommand(newWhichCmd(flags))
+	rootCmd.AddCommand(newExportCmd(flags))
+	rootCmd.AddCommand(newImportCmd(flags))
+	rootCmd.AddCommand(newSyncCmd(flags))
+	rootCmd.AddCommand(newWorkflowCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
-	err := rootCmd.Execute()
-	if err != nil && strings.Contains(err.Error(), "unknown flag") {
-		msg := err.Error()
-		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
-		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
-			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
-			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
-				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
-			}
-		}
-	}
-	if err == nil && flags.deliverBuf != nil {
-		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
-			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
-			return derr
-		}
-	}
-	return err
+	return rootCmd
 }
 
 func ExitCode(err error) int {
@@ -212,7 +225,7 @@ func (f *rootFlags) printTable(w *cobra.Command, headers []string, rows [][]stri
 	if f.asJSON {
 		return fmt.Errorf("use printJSON for JSON output")
 	}
-	tw := newTabWriter(w.OutOrStdout())
+	tw := tabwriter.NewWriter(w.OutOrStdout(), 2, 4, 2, ' ', 0)
 	header := ""
 	for i, h := range headers {
 		if i > 0 {

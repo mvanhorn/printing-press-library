@@ -20,25 +20,7 @@ Download from [Releases](https://github.com/mvanhorn/printing-press-library/rele
 
 ## Authentication
 
-**Nothing to set up.** No Food52 sign-in, no API key, no env var.
-
-Two pieces of plumbing make that possible:
-
-1. **Vercel bot mitigation** is bypassed at the transport layer. Food52 sits
-   behind Vercel's TLS-fingerprint challenge — `curl` and stock Go
-   `net/http` get the "Just a moment…" interstitial. The printed CLI uses
-   [Surf](https://github.com/imroc/req) with Chrome impersonation so every
-   request looks like a real Chrome handshake. No clearance cookie, no
-   resident browser, no JS execution.
-2. **Typesense search-only key** is auto-discovered. Food52's recipe search
-   is powered by a public Typesense cluster. The CLI fetches the
-   `/_app.js` bundle on first use, parses out the host + search-only key,
-   and caches them locally. The bundle hash rotates on every Food52 deploy
-   — `food52-pp-cli doctor` re-runs the discovery if a cached key starts
-   returning auth errors. You never see this happen.
-
-If `doctor` reports `unreachable` or `Vercel Security Checkpoint`, the
-transport is the problem — see [Troubleshooting](#troubleshooting).
+No Food52 sign-in required. Food52 sits behind Vercel bot mitigation, but the challenge is passive (TLS-fingerprint), not JS-active — Surf with Chrome impersonation clears it without cookies or setup. Search uses a Typesense search-only key the CLI auto-discovers from Food52's public JS bundle, so users never see a key prompt or env var.
 
 ## Quick Start
 
@@ -73,7 +55,6 @@ food52-pp-cli print sarah-fennel-s-best-lunch-lady-brownie-recipe
 These capabilities aren't available in any other tool for this API.
 
 ### Local state that compounds
-
 - **`pantry match`** — Find Food52 recipes whose ingredients overlap your local pantry, ranked by coverage.
 
   _Reach for this when the user asks 'what can I make with what I have' rather than searching for one dish at a time._
@@ -104,7 +85,6 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Editorial signals others ignore
-
 - **`recipes top`** — Show only Food52 Test-Kitchen-approved recipes for a tag, with a rating floor.
 
   _Pick this over a broad search when the user wants 'a recipe Food52's editors signed off on,' not just any community recipe._
@@ -114,7 +94,6 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Recipe transforms
-
 - **`scale`** — Scale a recipe's ingredients to a different number of servings using its Schema.org recipeYield.
 
   _Use when the user is cooking for a different headcount than the recipe's default yield._
@@ -136,60 +115,37 @@ Run `food52-pp-cli --help` for the full command reference and flag list.
 
 ## Commands
 
-### Recipes
+### articles
 
-- **`food52-pp-cli recipes browse <tag>`** — Browse recipes filtered by tag (chicken, breakfast, vegetarian, dessert, …)
-- **`food52-pp-cli recipes get <slug-or-url>`** — Full structured recipe (ingredients, steps, ratings, kitchen notes)
-- **`food52-pp-cli recipes search <query>`** — Live Typesense search across the whole site
-- **`food52-pp-cli recipes top <tag>`** — Test-Kitchen-approved + rating-floored browse
-- **`food52-pp-cli scale <slug-or-url> --servings N`** — Rewrite a recipe's quantities to a different yield
-- **`food52-pp-cli print <slug-or-url>`** — Clean ingredients + numbered steps, ready to pipe to `lp`
+Browse and read Food52 stories (articles) from the food and life verticals
 
-### Articles
+- **`food52-pp-cli articles browse`** - Browse the latest Food52 articles in a vertical (food, life)
+- **`food52-pp-cli articles get`** - Get a Food52 article (story) by slug
 
-- **`food52-pp-cli articles browse <vertical>`** — Latest articles in `food` or `life`
-- **`food52-pp-cli articles browse-sub <vertical> <subvertical>`** — Drill into a subvertical (e.g. `food baking`)
-- **`food52-pp-cli articles get <slug-or-url>`** — Full article body + author + dek
-- **`food52-pp-cli articles for-recipe <slug-or-url>`** — Reverse index: which synced articles mention this recipe?
+### recipes
 
-### Local store and pantry
+Browse Food52 recipes by tag and fetch single recipe details (extracted from Next.js __NEXT_DATA__ embedded in SSR HTML)
 
-- **`food52-pp-cli sync recipes <tag> [<tag>...]`** — Pull recipes for one or more tags into the local FTS-indexed store
-- **`food52-pp-cli sync articles <vertical> [<subvertical>]`** — Pull article listings into the local store
-- **`food52-pp-cli search <query>`** — Offline FTS5 search across synced recipes and articles
-- **`food52-pp-cli pantry add <ingredient> [<ingredient>...]`** — Add ingredients to the local pantry
-- **`food52-pp-cli pantry list`** — Show the pantry
-- **`food52-pp-cli pantry remove <ingredient>`** — Remove an ingredient
-- **`food52-pp-cli pantry match`** — Find synced recipes that match (or mostly match) the pantry
-
-### Discovery and utilities
-
-- **`food52-pp-cli tags list`** — Discover recipe tags from the homepage navigation
-- **`food52-pp-cli open <slug-or-url>`** — Resolve a slug to its canonical URL (prints by default; pair with `--launch` to actually open in the browser)
-- **`food52-pp-cli which "<capability>"`** — Find the right command from a natural-language description
-- **`food52-pp-cli doctor`** — Verify transport, auth, and cache health
-- **`food52-pp-cli agent-context`** — Emit a structured JSON description of this CLI for agents
-- **`food52-pp-cli profile {save,use,list,show,delete}`** — Reusable flag presets
-- **`food52-pp-cli feedback "..."`** — Record a one-line note about the CLI (local by default)
-- **`food52-pp-cli {export,import}`** — Move synced data in/out as JSONL
+- **`food52-pp-cli recipes browse`** - Browse Food52 recipes filtered by a tag (e.g. chicken, breakfast, vegetarian)
+- **`food52-pp-cli recipes get`** - Get full structured details for a single Food52 recipe by slug
 
 
 ## Output Formats
 
 ```bash
-# Human-readable text (default in terminal, JSON when piped)
+# Human-readable table (default in terminal, JSON when piped)
 food52-pp-cli articles get best-mothers-day-gift-ideas
 
 # JSON for scripting and agents
 food52-pp-cli articles get best-mothers-day-gift-ideas --json
 
-# Project just the fields you need (dotted paths descend; arrays traverse element-wise)
-food52-pp-cli recipes search chicken --json --select 'hits.title,hits.slug,hits.average_rating'
+# Filter to specific fields
+food52-pp-cli articles get best-mothers-day-gift-ideas --json --select id,name,status
 
-# Dry run — show the URL the CLI would hit, without making the request
-food52-pp-cli recipes get sarah-fennel-s-best-lunch-lady-brownie-recipe --dry-run
+# Dry run — show the request without sending
+food52-pp-cli articles get best-mothers-day-gift-ideas --dry-run
 
-# Agent mode — turns on --json, --compact, --no-input, --no-color, --yes in one flag
+# Agent mode — JSON + compact + no prompts in one flag
 food52-pp-cli articles get best-mothers-day-gift-ideas --agent
 ```
 
@@ -234,90 +190,48 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 ## Health Check
 
 ```bash
-$ food52-pp-cli doctor
-  OK Config: ok
-  OK Auth: not required
-  OK API: reachable
-  config_path: ~/.config/food52-pp-cli/config.toml
-  base_url: https://food52.com
-  version: 1.0.0
-  INFO Cache: unknown
-    db_path: ~/.local/share/food52-pp-cli/data.db
-    schema_version: 1
-    db_bytes: 122880
-    stale_after: 6h0m0s
-    hint: sync_state is empty; run 'food52-pp-cli sync' to hydrate.
+food52-pp-cli doctor
 ```
 
-Verifies the Surf-Chrome transport is clearing the Vercel challenge, that
-the Typesense discovery key is reachable, and reports cache status. Run
-`food52-pp-cli doctor --fail-on=stale` in cron to gate scheduled syncs.
+Verifies configuration and connectivity to the API.
 
 ## Configuration
 
-Config file: `~/.config/food52-pp-cli/config.toml` (override with `--config <path>`).
-
-Environment variables:
-
-| Var | Effect |
-|-----|--------|
-| `FOOD52_CONFIG` | Override config-file path |
-| `FOOD52_BASE_URL` | Override the Food52 base URL (used by tests / mocks; you don't need this) |
-| `FOOD52_FEEDBACK_ENDPOINT` | If set, `feedback` may POST entries to this URL (with `--send` or `FOOD52_FEEDBACK_AUTO_SEND=true`). Default is local-only. |
-| `FOOD52_FEEDBACK_AUTO_SEND` | When `true`, every `feedback` entry is sent to the endpoint above. |
-| `NO_COLOR`, `TERM=dumb` | Disable ANSI colors even with `--human-friendly`. |
-
-Local data:
-
-| Path | Contents |
-|------|----------|
-| `~/.local/share/food52-pp-cli/data.db` | SQLite store (synced recipes/articles, pantry, FTS index) |
-| `~/.food52-pp-cli/feedback.jsonl` | `feedback` entries (append-only, local) |
-
-## Cookbook
-
-```bash
-# Find a TK-approved chicken recipe under 5 ingredients, project just what an agent needs
-food52-pp-cli recipes search chicken --tag 5-ingredients-or-fewer --json \
-  --select 'hits.title,hits.slug,hits.test_kitchen_approved,hits.average_rating'
-
-# Pull the structured recipe for piping into a meal planner
-food52-pp-cli recipes get mom-s-japanese-curry-chicken-with-radish-and-cauliflower --json \
-  --select 'title,ingredients,instructions,average_rating,yield'
-
-# One-shot offline cookbook for a flight
-food52-pp-cli sync recipes weeknight quick-and-easy 30-minutes-or-fewer
-food52-pp-cli search 'weeknight' --json
-
-# What can I make with what I have?
-food52-pp-cli pantry add chicken garlic onion ginger lemon
-food52-pp-cli sync recipes chicken --limit 50
-food52-pp-cli pantry match --min-coverage 0.6 --json \
-  --select 'matches.title,matches.coverage,matches.missing_ingredients'
-
-# Cook from a recipe (no nav, no images, no comments)
-food52-pp-cli print sarah-fennel-s-best-lunch-lady-brownie-recipe
-
-# Scale a recipe to a different headcount
-food52-pp-cli scale mom-s-japanese-curry-chicken-with-radish-and-cauliflower --servings 8 --json
-
-# What's the editorial context behind a recipe?
-food52-pp-cli sync articles food
-food52-pp-cli articles for-recipe sarah-fennel-s-best-lunch-lady-brownie-recipe --json
-```
+Config file: `~/.config/food52-pp-cli/config.toml`
 
 ## Troubleshooting
-
 **Not found errors (exit code 3)**
-- Check the slug is correct. Food52 occasionally renames slugs — run `recipes search '<title-fragment>'` to find the current canonical slug.
+- Check the resource ID is correct
+- Run the `list` command to see available items
 
 ### API-specific
 
-- **HTTP 429 or 'Vercel Security Checkpoint' on every request** — You are not using the printed CLI's transport. `curl` and stock Go `net/http` cannot clear Vercel's TLS-fingerprint challenge. Run requests through `food52-pp-cli` itself (which uses Surf + Chrome impersonation) or rebuild from source if your binary is older than the Surf integration.
-- **recipes search returns 'Typesense key discovery failed'** — Run `food52-pp-cli doctor` — it re-fetches the public `/_app.js` bundle. Food52 rotates the bundle hash on each deploy; the CLI auto-recovers on the next call.
-- **recipes get returns 404 for a slug that exists** — Food52 occasionally renames slugs. Try `recipes search '<title-fragment>'` to find the current canonical slug, or `open <slug>` to confirm in a browser.
-- **scale fails with "no recipeYield"** — Some recipes ship a pan size instead of a serving count (e.g. `sarah-fennel-s-best-lunch-lady-brownie-recipe` returns "1 9x13" pan"). Scale is a no-op for those — pick a recipe whose yield reads "Serves: N" or "Makes N servings".
-- **pantry match returns nothing** — Run `sync recipes <tag>` first. `pantry match` joins the local store, not the live site. After syncing, run `food52-pp-cli search` to confirm rows landed.
+- **HTTP 429 or 'Vercel Security Checkpoint' on every request** — Confirm you are running the printed CLI (which uses Surf + Chrome impersonation) and not your own curl. Plain HTTP is blocked by design; the CLI's transport handles it.
+- **recipes search returns 'Typesense key discovery failed'** — Run `food52-pp-cli doctor` — it re-fetches the public _app.js bundle. Food52 rotates the bundle hash on each deploy; the CLI auto-recovers.
+- **recipes get returns 404 for a slug that exists** — Food52 sometimes renames slugs. Try `recipes search '<title-fragment>'` to find the current canonical slug.
+- **pantry match returns nothing** — Run `sync recipes <tag>` first — pantry match operates on the synced store, not the live site. Try `food52-pp-cli search` to confirm sync wrote rows.
+
+## HTTP Transport
+
+This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It does not require a resident browser process for normal API calls.
+
+## Discovery Signals
+
+This CLI was generated with browser-captured traffic analysis.
+- Target observed: https://food52.com/
+- Capture coverage: 0 API entries from 0 total network entries
+- Reachability: browser_http (95% confidence)
+- Protocols: ssr_embedded_data (100% confidence), next_data_json (100% confidence), rest_json (100% confidence), schema_org_jsonld (100% confidence)
+- Auth signals: none
+- Protection signals: vercel_bot_mitigation_passive_tls (100% confidence)
+- Generation hints: browser_http_transport
+- Candidate command ideas: recipes search; recipes browse; recipes get; tags list; verticals list; articles browse; articles get
+
+Warnings from discovery:
+- scope_note: Hotline (/hotline, /hotline/questions/<topic>) returns only siteSettings in pageProps and renders no question/answer data in the DOM. The community Q&A is effectively unreachable for unauthenticated read scrapers. Excluded from CLI scope.
+- scope_note: Shop endpoints exist on shop.food52.com and food52.myshopify.com/api/2025-01/graphql.json but require Shopify Storefront API token discovery; deferred from v1.
+- scope_note: buildId (Pq8fQj0nm7uTx90i5u0si at the time of browser-sniff) and _app.js bundle hash change on every Food52 deploy. The CLI's runtime discovery (buildId from __NEXT_DATA__.buildId, key from regex over the active _app-<hash>.js) handles rotation transparently.
+- scope_note: Typesense /collections endpoint requires the admin key (search-only key returns 403 there). The CLI does not list collections; it queries the known collection name 'recipes_production_food52_current' directly.
 
 ---
 

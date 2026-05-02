@@ -14,9 +14,9 @@ import (
 
 func newPrintCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "print <slug-or-url>",
+		Use:         "print <slug-or-url>",
+		Short:       "Print a clean cooking-mode view of a Food52 recipe (no ads, no nav, no images)",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Print a clean cooking-mode view of a Food52 recipe (no ads, no nav, no images)",
 		Long: strings.TrimSpace(`
 Renders a recipe to stdout as a fixed-width view: title, yield, total time,
 numbered ingredient list, numbered steps. Strip-down designed for piping to
