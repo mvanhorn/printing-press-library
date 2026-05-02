@@ -21,6 +21,11 @@ jobs:
   audit:
     name: Audit bundleability
     runs-on: ubuntu-latest
+    concurrency:
+      # Audits take ~25 min; cancel any in-flight audit when a newer one
+      # is dispatched. The newer one's results supersede.
+      group: bundle-audit
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5

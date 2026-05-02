@@ -97,6 +97,12 @@ jobs:
           - darwin/arm64
           - windows/amd64
           - windows/arm64
+    concurrency:
+      # Cancel in-flight bundles when a newer push for the same (cli, platform)
+      # lands. The newer source supersedes the older, so completing the older
+      # build would just produce assets we'd overwrite seconds later.
+      group: bundle-${{ matrix.target }}-${{ matrix.platform }}
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -160,8 +166,11 @@ jobs:
       matrix:
         target: ${{ fromJson(needs.detect.outputs.affected) }}
     concurrency:
+      # Cancel in-flight releases for the same CLI when a newer push lands.
+      # gh release upload --clobber is per-asset, so a canceled mid-upload
+      # is recovered by the superseding run's upload pass.
       group: release-${{ matrix.target }}
-      cancel-in-progress: false
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
       - name: Compute slug
