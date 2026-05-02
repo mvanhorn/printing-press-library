@@ -209,17 +209,52 @@ This CLI is designed for AI agent consumption:
 
 Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate limited, `10` config error.
 
-## Use as MCP Server
+## Use with Claude Code
 
-This CLI ships a companion MCP server for use with Claude Desktop, Cursor, and other MCP-compatible tools.
+Install the focused skill — it auto-installs the CLI on first invocation:
 
-### Claude Code
+```bash
+npx skills add mvanhorn/printing-press-library/cli-skills/pp-postman-explore -g
+```
+
+Then invoke `/pp-postman-explore <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
+
+<details>
+<summary>Use as an MCP server in Claude Code (advanced)</summary>
+
+If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/postman-explore/cmd/postman-explore-pp-mcp@latest
+```
+
+Then register it:
 
 ```bash
 claude mcp add postman-explore postman-explore-pp-mcp
 ```
 
-### Claude Desktop
+</details>
+
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/postman-explore-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle, install the MCP binary and configure it manually.
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/postman-explore/cmd/postman-explore-pp-mcp@latest
+```
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 
@@ -232,6 +267,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
   }
 }
 ```
+
+</details>
 
 ## Health Check
 
