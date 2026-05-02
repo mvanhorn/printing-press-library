@@ -38,7 +38,7 @@ jobs:
       affected: ${{ steps.detect.outputs.affected }}
       count: ${{ steps.detect.outputs.count }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0  # need history to diff against parent commit
       - id: detect
@@ -97,8 +97,8 @@ jobs:
           - windows/amd64
           - windows/arm64
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
         with:
           go-version: '1.25'
       - name: Configure git for private modules
@@ -135,7 +135,7 @@ jobs:
           printing-press bundle "$cli_dir" --platform "${PLATFORM}" --output "$out"
           ls -lh "$out"
       - name: Upload bundle artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: mcpb-${{ matrix.target }}-${{ matrix.platform }}
           path: ${{ runner.temp }}/out/*.mcpb
@@ -155,7 +155,7 @@ jobs:
       group: release-${{ matrix.target }}
       cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Compute slug
         id: slug
         env:
@@ -164,7 +164,7 @@ jobs:
           slug=$(basename "${CLI_TARGET}")
           echo "slug=${slug}" >> "$GITHUB_OUTPUT"
       - name: Download bundle artifacts for this CLI
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           path: ${{ runner.temp }}/dl
           pattern: mcpb-${{ matrix.target }}-*
