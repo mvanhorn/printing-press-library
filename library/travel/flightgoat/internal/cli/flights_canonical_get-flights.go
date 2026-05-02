@@ -16,13 +16,27 @@ func newFlightsCanonicalGetFlightsCmd(flags *rootFlags) *cobra.Command {
 	var flagCountryCode string
 
 	cmd := &cobra.Command{
-		Use:     "get-flights <ident>",
+		Use:   "get-flights <ident>",
 		Aliases: []string{"get"},
-		Short:   "Get the canonical ident of a flight",
+		Short: "When the ident parameter is a code that could map to multiple other codes, this endpoint returns an array of...",
 		Example: "  flightgoat-pp-cli flights canonical get-flights example-value",
+		Annotations: map[string]string{"pp:endpoint": "canonical.get-flights", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
+			}
+			if cmd.Flags().Changed("ident-type") {
+				allowedIdentType := []string{ "designator", "registration" }
+				validIdentType := false
+				for _, v := range allowedIdentType {
+					if flagIdentType == v {
+						validIdentType = true
+						break
+					}
+				}
+				if !validIdentType {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "ident-type", flagIdentType, allowedIdentType)
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -38,7 +52,7 @@ func newFlightsCanonicalGetFlightsCmd(flags *rootFlags) *cobra.Command {
 			if flagCountryCode != "" {
 				params["country_code"] = fmt.Sprintf("%v", flagCountryCode)
 			}
-			data, prov, err := resolveRead(c, flags, "canonical", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "canonical", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -48,14 +62,15 @@ func newFlightsCanonicalGetFlightsCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -79,7 +94,7 @@ func newFlightsCanonicalGetFlightsCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagIdentType, "ident-type", "", "Type of ident provided in the ident parameter")
+	cmd.Flags().StringVar(&flagIdentType, "ident-type", "", "Type of ident provided in the ident parameter (one of: designator, registration)")
 	cmd.Flags().StringVar(&flagCountryCode, "country-code", "", "An ISO 3166-1 alpha-2 country code.")
 
 	return cmd

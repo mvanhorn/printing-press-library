@@ -9,9 +9,8 @@ import (
 
 func newAirportsFlightsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "flights",
-		Short:  "Manage flights",
-		Hidden: true,
+		Use:   "flights",
+		Short: "Manage flights",
 	}
 
 	cmd.AddCommand(newAirportsFlightsGetAirportCmd(flags))

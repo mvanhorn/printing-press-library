@@ -21,12 +21,39 @@ func newAirportsFlightsGetBetweenAirportsCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "get-between-airports <id> <dest_id>",
-		Short:   "Get flights with a specific origin and destination",
+		Use:   "get-between-airports <id> <dest_id>",
+		Short: "This endpoint is quite similar to the `FindFlight` operator in prior versions of AeroAPI. Results may include both...",
 		Example: "  flightgoat-pp-cli airports flights get-between-airports 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "flights.get-between-airports", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
+			}
+			if cmd.Flags().Changed("type") {
+				allowedType := []string{ "General_Aviation", "Airline" }
+				validType := false
+				for _, v := range allowedType {
+					if flagType == v {
+						validType = true
+						break
+					}
+				}
+				if !validType {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "type", flagType, allowedType)
+				}
+			}
+			if cmd.Flags().Changed("connection") {
+				allowedConnection := []string{ "nonstop", "onestop" }
+				validConnection := false
+				for _, v := range allowedConnection {
+					if flagConnection == v {
+						validConnection = true
+						break
+					}
+				}
+				if !validConnection {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "connection", flagConnection, allowedConnection)
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -39,14 +66,14 @@ func newAirportsFlightsGetBetweenAirportsCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("dest_id is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "dest_id"))
 			}
 			path = replacePathParam(path, "dest_id", args[1])
-			data, prov, err := resolvePaginatedRead(c, flags, "flights", path, map[string]string{
-				"type":       fmt.Sprintf("%v", flagType),
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "flights", path, map[string]string{
+				"type": fmt.Sprintf("%v", flagType),
 				"connection": fmt.Sprintf("%v", flagConnection),
-				"start":      fmt.Sprintf("%v", flagStart),
-				"end":        fmt.Sprintf("%v", flagEnd),
-				"max_pages":  fmt.Sprintf("%v", flagMaxPages),
-				"cursor":     fmt.Sprintf("%v", flagCursor),
-			}, flagAll, "cursor", "", "")
+				"start": fmt.Sprintf("%v", flagStart),
+				"end": fmt.Sprintf("%v", flagEnd),
+				"max_pages": fmt.Sprintf("%v", flagMaxPages),
+				"cursor": fmt.Sprintf("%v", flagCursor),
+			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -56,14 +83,15 @@ func newAirportsFlightsGetBetweenAirportsCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -87,8 +115,8 @@ func newAirportsFlightsGetBetweenAirportsCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagType, "type", "", "Type of flights to return.")
-	cmd.Flags().StringVar(&flagConnection, "connection", "", "Whether flights should be filtered based on their connection status. If setting start/end date parameters then...")
+	cmd.Flags().StringVar(&flagType, "type", "", "Type of flights to return. (one of: General_Aviation, Airline)")
+	cmd.Flags().StringVar(&flagConnection, "connection", "", "Whether flights should be filtered based on their connection status. If setting start/end date parameters then... (one of: nonstop, onestop)")
 	cmd.Flags().StringVar(&flagStart, "start", "", "The starting date range for flight results. The format is ISO8601 date or datetime, and the bound is inclusive....")
 	cmd.Flags().StringVar(&flagEnd, "end", "", "The ending date range for flight results. The format is ISO8601 date or datetime, and the bound is exclusive....")
 	cmd.Flags().IntVar(&flagMaxPages, "max-pages", 1, "Maximum number of pages to fetch. This is an upper limit and not a guarantee of how many pages will be returned.")

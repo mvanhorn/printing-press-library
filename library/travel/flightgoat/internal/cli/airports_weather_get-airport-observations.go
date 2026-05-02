@@ -20,12 +20,26 @@ func newAirportsWeatherGetAirportObservationsCmd(flags *rootFlags) *cobra.Comman
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "get-airport-observations <id>",
-		Short:   "Get weather conditions for given airport",
+		Use:   "get-airport-observations <id>",
+		Short: "Returns weather for an airport in the form of a decoded METAR, starting from the latest report and working backwards...",
 		Example: "  flightgoat-pp-cli airports weather get-airport-observations 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "weather.get-airport-observations", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
+			}
+			if cmd.Flags().Changed("temperature-units") {
+				allowedTemperatureUnits := []string{ "C", "F", "Celsius", "Fahrenheit" }
+				validTemperatureUnits := false
+				for _, v := range allowedTemperatureUnits {
+					if flagTemperatureUnits == v {
+						validTemperatureUnits = true
+						break
+					}
+				}
+				if !validTemperatureUnits {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "temperature-units", flagTemperatureUnits, allowedTemperatureUnits)
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -34,13 +48,13 @@ func newAirportsWeatherGetAirportObservationsCmd(flags *rootFlags) *cobra.Comman
 
 			path := "/airports/{id}/weather/observations"
 			path = replacePathParam(path, "id", args[0])
-			data, prov, err := resolvePaginatedRead(c, flags, "weather", path, map[string]string{
-				"temperature_units":     fmt.Sprintf("%v", flagTemperatureUnits),
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "weather", path, map[string]string{
+				"temperature_units": fmt.Sprintf("%v", flagTemperatureUnits),
 				"return_nearby_weather": fmt.Sprintf("%v", flagReturnNearbyWeather),
-				"timestamp":             fmt.Sprintf("%v", flagTimestamp),
-				"max_pages":             fmt.Sprintf("%v", flagMaxPages),
-				"cursor":                fmt.Sprintf("%v", flagCursor),
-			}, flagAll, "cursor", "", "")
+				"timestamp": fmt.Sprintf("%v", flagTimestamp),
+				"max_pages": fmt.Sprintf("%v", flagMaxPages),
+				"cursor": fmt.Sprintf("%v", flagCursor),
+			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -50,14 +64,15 @@ func newAirportsWeatherGetAirportObservationsCmd(flags *rootFlags) *cobra.Comman
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -81,7 +96,7 @@ func newAirportsWeatherGetAirportObservationsCmd(flags *rootFlags) *cobra.Comman
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagTemperatureUnits, "temperature-units", "Celsius", "Units to use for temperature fields.")
+	cmd.Flags().StringVar(&flagTemperatureUnits, "temperature-units", "Celsius", "Units to use for temperature fields. (one of: C, F, Celsius, Fahrenheit)")
 	cmd.Flags().BoolVar(&flagReturnNearbyWeather, "return-nearby-weather", false, "If the requested airport does not have a weather conditions report then the weather for the nearest airport within...")
 	cmd.Flags().StringVar(&flagTimestamp, "timestamp", "", "Timestamp from which to begin returning weather data in a 1 day range. Because weather data is returned in reverse...")
 	cmd.Flags().IntVar(&flagMaxPages, "max-pages", 1, "Maximum number of pages to fetch. This is an upper limit and not a guarantee of how many pages will be returned.")

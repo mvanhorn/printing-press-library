@@ -24,10 +24,11 @@ func newFlightsIntentsPostFlightsByIdentCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "post-flights-by-ident <ident>",
+		Use:   "post-flights-by-ident <ident>",
 		Aliases: []string{"create"},
-		Short:   "Submit a Flight Intent",
+		Short: "This operation informs FlightAware of an upcoming (or recently departed) flight. This information is used solely by...",
 		Example: "  flightgoat-pp-cli flights intents post-flights-by-ident example-value --aircraft-type example-value",
+		Annotations: map[string]string{"pp:endpoint": "intents.post-flights-by-ident"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -108,9 +109,7 @@ func newFlightsIntentsPostFlightsByIdentCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
+					var wrapped struct{ Data []map[string]any `json:"data"` }
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
@@ -124,13 +123,15 @@ func newFlightsIntentsPostFlightsByIdentCmd(flags *rootFlags) *cobra.Command {
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",

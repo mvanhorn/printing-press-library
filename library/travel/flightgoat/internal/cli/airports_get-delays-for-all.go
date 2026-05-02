@@ -17,9 +17,10 @@ func newAirportsGetDelaysForAllCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "get-delays-for-all",
-		Short:   "Get delay information for all airports with delays",
+		Use:   "get-delays-for-all",
+		Short: "Returns a list of airports with delays. There may be multiple reasons returned per airport if there are multiple...",
 		Example: "  flightgoat-pp-cli airports get-delays-for-all",
+		Annotations: map[string]string{"pp:endpoint": "airports.get-delays-for-all", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -27,10 +28,10 @@ func newAirportsGetDelaysForAllCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/airports/delays"
-			data, prov, err := resolvePaginatedRead(c, flags, "airports", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "airports", path, map[string]string{
 				"max_pages": fmt.Sprintf("%v", flagMaxPages),
-				"cursor":    fmt.Sprintf("%v", flagCursor),
-			}, flagAll, "cursor", "", "")
+				"cursor": fmt.Sprintf("%v", flagCursor),
+			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -40,14 +41,15 @@ func newAirportsGetDelaysForAllCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

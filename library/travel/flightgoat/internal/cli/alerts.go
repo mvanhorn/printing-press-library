@@ -4,88 +4,22 @@
 package cli
 
 import (
-	"encoding/json"
-	"fmt"
-	"os"
-
 	"github.com/spf13/cobra"
 )
 
-func newAlertsPromotedCmd(flags *rootFlags) *cobra.Command {
-
+func newAlertsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "alerts",
-		Short:   "Get configured alert callback URL",
-		Long:    "Shortcut for 'alerts get-endpoint'. Get configured alert callback URL",
-		Example: "  flightgoat-pp-cli alerts",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := flags.newClient()
-			if err != nil {
-				return err
-			}
-
-			path := "/alerts/endpoint"
-			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "alerts", false, path, params)
-			if err != nil {
-				return classifyAPIError(err)
-			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
-			// Print provenance to stderr
-			{
-				var countItems []json.RawMessage
-				if json.Unmarshal(data, &countItems) != nil {
-					// Single object, not an array
-					countItems = []json.RawMessage{data}
-				}
-				printProvenance(cmd, len(countItems), prov)
-			}
-			// CSV bypasses JSON pipe path so --csv works when piped
-			if flags.csv {
-				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
-			}
-			// For JSON output, wrap with provenance envelope
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
-				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
-				if flags.selectFields != "" {
-					filtered = filterFields(filtered, flags.selectFields)
-				}
-				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
-				if wrapErr != nil {
-					return wrapErr
-				}
-				return printOutput(cmd.OutOrStdout(), wrapped, true)
-			}
-			if wantsHumanTable(cmd.OutOrStdout(), flags) {
-				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
-					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
-						return err
-					}
-					if len(items) >= 25 {
-						fmt.Fprintf(os.Stderr, "\nShowing %d results. To narrow: add --limit, --json --select, or filter flags.\n", len(items))
-					}
-					return nil
-				}
-			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
-		},
+		Use:   "alerts",
+		Short: "AeroAPI alerting can be used to configure and receive real-time alerts on key flight events. With customizable...",
 	}
 
-	// Wire sibling endpoints and sub-resources as subcommands
 	cmd.AddCommand(newAlertsCreateCmd(flags))
 	cmd.AddCommand(newAlertsDeleteCmd(flags))
 	cmd.AddCommand(newAlertsDeleteEndpointCmd(flags))
 	cmd.AddCommand(newAlertsGetCmd(flags))
 	cmd.AddCommand(newAlertsGetAllCmd(flags))
+	cmd.AddCommand(newAlertsGetEndpointCmd(flags))
 	cmd.AddCommand(newAlertsSetEndpointCmd(flags))
 	cmd.AddCommand(newAlertsUpdateCmd(flags))
-
 	return cmd
 }

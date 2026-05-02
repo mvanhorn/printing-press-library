@@ -4,22 +4,21 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"os"
 	"strings"
 	"text/tabwriter"
 	"time"
-
-	"bytes"
-	"io"
-	"os"
 
 	"github.com/mvanhorn/printing-press-library/library/travel/flightgoat/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/travel/flightgoat/internal/config"
 	"github.com/spf13/cobra"
 )
 
-var version = "4.18.0"
+var version = "1.0.0"
 
 type rootFlags struct {
 	asJSON       bool
@@ -34,25 +33,61 @@ type rootFlags struct {
 	agent        bool
 	selectFields string
 	configPath   string
+	profileName  string
+	deliverSpec  string
 	timeout      time.Duration
 	rateLimit    float64
 	dataSource   string
-	profileName  string
-	deliverSpec  string
-	deliverBuf   *bytes.Buffer
-	deliverSink  DeliverSink
+	freshnessMeta any
+
+	// deliverBuf captures command output when --deliver is set to a
+	// non-stdout sink. Flushed to the sink after Execute returns.
+	deliverBuf  *bytes.Buffer
+	deliverSink DeliverSink
+}
+
+// RootCmd returns the Cobra command tree without executing it. The MCP server
+// uses this to mirror every user-facing command as an agent tool.
+func RootCmd() *cobra.Command {
+	var flags rootFlags
+	return newRootCmd(&flags)
 }
 
 // Execute runs the CLI in non-interactive mode: never prompts, all values via flags or stdin.
 func Execute() error {
 	var flags rootFlags
+	rootCmd := newRootCmd(&flags)
 
+	err := rootCmd.Execute()
+	if err != nil && strings.Contains(err.Error(), "unknown flag") {
+		msg := err.Error()
+		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
+		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
+			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
+			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
+				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
+			}
+		}
+	}
+	if err == nil && flags.deliverBuf != nil {
+		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
+			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
+			return derr
+		}
+	}
+	return err
+}
+
+func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:           "flightgoat-pp-cli",
-		Short:         "The GOAT flight CLI. Google Flights search + Kayak nonstop explore + optional FlightAware tracking. No API key required for search.",
-		SilenceUsage:  true,
-		SilenceErrors: true,
-		Version:       version,
+		Use:   "flightgoat-pp-cli",
+		Short: "Manage flightgoat resources via the flightgoat API",
+		Long: `Manage flightgoat resources via the flightgoat API.
+
+Add --agent to any command for JSON output + non-interactive mode.
+Run 'flightgoat-pp-cli doctor' to verify auth and connectivity.`,
+		SilenceUsage: true,
+		Version:      version,
 	}
 	rootCmd.SetVersionTemplate("flightgoat-pp-cli {{ .Version }}\n")
 
@@ -72,10 +107,9 @@ func Execute() error {
 	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
 	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
-	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
-
-	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile")
+	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'flightgoat-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
+	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		if flags.deliverSpec != "" {
@@ -95,7 +129,11 @@ func Execute() error {
 				return err
 			}
 			if profile == nil {
-				return fmt.Errorf("profile %q not found", flags.profileName)
+				available := ListProfileNames()
+				if len(available) == 0 {
+					return fmt.Errorf("profile %q not found (no profiles saved yet; run '%s profile save <name> --<flag> <value>')", flags.profileName, cmd.Root().Name())
+				}
+				return fmt.Errorf("profile %q not found; available: %s", flags.profileName, strings.Join(available, ", "))
 			}
 			if err := ApplyProfileToFlags(cmd, profile); err != nil {
 				return err
@@ -126,61 +164,41 @@ func Execute() error {
 		}
 		return nil
 	}
-	// Primary commands (free, no API key): Google Flights search and dates.
-	// Registered FIRST so they appear at the top of --help, matching the
-	// source priority: Google Flights > Kayak > FlightAware.
-	registerPrimaryCommands(rootCmd, &flags)
-	// Transcendence commands (compound queries that join multiple sources).
-	registerTranscendCommands(rootCmd, &flags)
-
-	rootCmd.AddCommand(newDoctorCmd(&flags))
-	rootCmd.AddCommand(newSearchCmd(&flags))
-	rootCmd.AddCommand(newSyncCmd(&flags))
-	rootCmd.AddCommand(newAnalyticsCmd(&flags))
-	rootCmd.AddCommand(newWorkflowCmd(&flags))
-	rootCmd.AddCommand(newAPICmd(&flags))
-
-	// FlightAware AeroAPI tracking commands (require API key, optional).
-	// Previously these were registered as top-level shortcuts but we demoted
-	// them because flightgoat's headline features don't require FlightAware.
-	rootCmd.AddCommand(newAuthCmd(&flags))
-	rootCmd.AddCommand(newExportCmd(&flags))
-	rootCmd.AddCommand(newImportCmd(&flags))
-	rootCmd.AddCommand(newTailCmd(&flags))
-	rootCmd.AddCommand(newDisruptionCountsPromotedCmd(&flags))
-	// newFlightsPromotedCmd removed: conflicts with the primary 'flights' command.
-	// The underlying AeroAPI /flights/search/advanced endpoint is still reachable
-	// via 'flightgoat-pp-cli api flights get-by-advanced-search'.
-	rootCmd.AddCommand(newHistoryPromotedCmd(&flags))
-	rootCmd.AddCommand(newOperatorsPromotedCmd(&flags))
-	rootCmd.AddCommand(newAirportsPromotedCmd(&flags))
-	rootCmd.AddCommand(newForesightPromotedCmd(&flags))
-	rootCmd.AddCommand(newSchedulesPromotedCmd(&flags))
-	rootCmd.AddCommand(newAircraftPromotedCmd(&flags))
-	rootCmd.AddCommand(newAlertsPromotedCmd(&flags))
+	// Register flightgoat's headline primary and transcendence commands first
+	// so they appear at the top of --help. These join FlightAware AeroAPI +
+	// Google Flights + Kayak + a local SQLite store. See primary.go and
+	// transcend.go for definitions.
+	registerPrimaryCommands(rootCmd, flags)
+	registerTranscendCommands(rootCmd, flags)
+	rootCmd.AddCommand(newAirportsCmd(flags))
+	rootCmd.AddCommand(newAlertsCmd(flags))
+	rootCmd.AddCommand(newDisruptionCountsCmd(flags))
+	// newFlightsCmd not registered: would shadow the primary 'flights'
+	// (Google Flights) command. The AeroAPI /flights/search/advanced
+	// endpoint remains reachable via 'flightgoat-pp-cli api flights
+	// get-by-advanced-search'.
+	rootCmd.AddCommand(newForesightCmd(flags))
+	rootCmd.AddCommand(newHistoryCmd(flags))
+	rootCmd.AddCommand(newOperatorsCmd(flags))
+	rootCmd.AddCommand(newDoctorCmd(flags))
+	rootCmd.AddCommand(newAuthCmd(flags))
+	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
+	rootCmd.AddCommand(newProfileCmd(flags))
+	rootCmd.AddCommand(newFeedbackCmd(flags))
+	rootCmd.AddCommand(newWhichCmd(flags))
+	rootCmd.AddCommand(newExportCmd(flags))
+	rootCmd.AddCommand(newImportCmd(flags))
+	rootCmd.AddCommand(newSearchCmd(flags))
+	rootCmd.AddCommand(newSyncCmd(flags))
+	rootCmd.AddCommand(newTailCmd(flags))
+	rootCmd.AddCommand(newAnalyticsCmd(flags))
+	rootCmd.AddCommand(newWorkflowCmd(flags))
+	rootCmd.AddCommand(newAPICmd(flags))
+	rootCmd.AddCommand(newAircraftPromotedCmd(flags))
+	rootCmd.AddCommand(newSchedulesPromotedCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
-	rootCmd.AddCommand(newProfileCmd(&flags))
-	rootCmd.AddCommand(newFeedbackCmd(&flags))
-
-	err := rootCmd.Execute()
-	if err != nil && strings.Contains(err.Error(), "unknown flag") {
-		msg := err.Error()
-		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
-		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
-			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
-			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
-				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
-			}
-		}
-	}
-	if err == nil && flags.deliverBuf != nil {
-		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
-			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
-			return derr
-		}
-	}
-	return err
+	return rootCmd
 }
 
 func ExitCode(err error) int {

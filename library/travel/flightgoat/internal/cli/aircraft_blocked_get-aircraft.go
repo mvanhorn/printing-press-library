@@ -14,10 +14,11 @@ import (
 func newAircraftBlockedGetAircraftCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "get-aircraft <ident>",
+		Use:   "get-aircraft <ident>",
 		Aliases: []string{"get"},
-		Short:   "Check if a given ident is blocked",
+		Short: "Given an aircraft identification, returns true if the aircraft is blocked from public tracking per request from the...",
 		Example: "  flightgoat-pp-cli aircraft blocked get-aircraft example-value",
+		Annotations: map[string]string{"pp:endpoint": "blocked.get-aircraft", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -30,7 +31,7 @@ func newAircraftBlockedGetAircraftCmd(flags *rootFlags) *cobra.Command {
 			path := "/aircraft/{ident}/blocked"
 			path = replacePathParam(path, "ident", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "blocked", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "blocked", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -40,14 +41,15 @@ func newAircraftBlockedGetAircraftCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

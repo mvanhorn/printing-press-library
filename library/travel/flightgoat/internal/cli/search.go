@@ -105,6 +105,7 @@ In local mode: searches locally synced data only.`,
 
   # JSON output for piping
   flightgoat-pp-cli search "critical" --json --limit 20`,
+		Annotations: map[string]string{"mcp:hidden": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -138,7 +139,7 @@ In local mode: searches locally synced data only.`,
 				dbPath = defaultDBPath("flightgoat-pp-cli")
 			}
 
-			db, err := store.Open(dbPath)
+			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'flightgoat-pp-cli sync' first to populate the local database.", err)
 			}
@@ -146,21 +147,10 @@ In local mode: searches locally synced data only.`,
 
 			var results []json.RawMessage
 			switch resourceType {
-			case "flights":
-				results, err = db.SearchFlights(query, limit)
-			case "airports":
-				results, err = db.SearchAirports(query, limit)
-			case "operators":
-				results, err = db.SearchOperators(query, limit)
-			case "aircraft":
-				results, err = db.SearchAircraft(query, limit)
 			case "":
-				// No type specified: try domain tables first (flights is the primary entity
-				// for this API), fall back to generic FTS if nothing matches.
-				results, err = db.SearchFlights(query, limit)
-				if err == nil && len(results) == 0 {
-					results, err = db.Search(query, limit)
-				}
+				// Search all FTS-enabled tables individually to avoid duplicates.
+				seen := make(map[string]bool)
+				_ = seen // prevent unused error when no FTS tables exist
 			default:
 				// Unrecognized type — fall back to generic search
 				results, err = db.Search(query, limit)
@@ -202,26 +192,31 @@ func outputSearchResults(cmd *cobra.Command, flags *rootFlags, results []json.Ra
 		results = results[:limit]
 	}
 
-	if len(results) == 0 {
-		fmt.Fprintf(cmd.ErrOrStderr(), "No results (source: %s)\n", prov.Source)
-		return nil
-	}
+	jsonMode := flags.asJSON || !isTerminal(cmd.OutOrStdout())
 
-	// Print provenance to stderr for human output
-	printProvenance(cmd, len(results), prov)
-
-	if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+	// JSON mode always emits a valid envelope, including on no matches —
+	// agents pipe stdout through json.loads / jq and need parseable output
+	// regardless of result count. The filtered slice is built via make
+	// above, so it's non-nil even when empty; json.Marshal renders that
+	// as `[]` rather than `null`.
+	if jsonMode {
 		data, err := json.Marshal(results)
 		if err != nil {
 			return err
 		}
-		wrapped, err := wrapWithProvenance(json.RawMessage(data), prov)
+		wrapped, err := wrapWithProvenance(data, prov)
 		if err != nil {
 			return err
 		}
 		return printOutput(cmd.OutOrStdout(), wrapped, true)
 	}
 
+	if len(results) == 0 {
+		fmt.Fprintf(cmd.ErrOrStderr(), "No results (source: %s)\n", prov.Source)
+		return nil
+	}
+
+	printProvenance(cmd, len(results), prov)
 	for _, r := range results {
 		fmt.Fprintln(cmd.OutOrStdout(), string(r))
 	}

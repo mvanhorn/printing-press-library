@@ -19,9 +19,10 @@ func newOperatorsFlightsGetOperatorEnrouteCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "get-operator-enroute <id>",
-		Short:   "Get en route flights",
+		Use:   "get-operator-enroute <id>",
+		Short: "Returns flights for this operator that have departed and are currently en route, ordered by `estimated_on`...",
 		Example: "  flightgoat-pp-cli operators flights get-operator-enroute 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "flights.get-operator-enroute", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -33,12 +34,12 @@ func newOperatorsFlightsGetOperatorEnrouteCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/operators/{id}/flights/enroute"
 			path = replacePathParam(path, "id", args[0])
-			data, prov, err := resolvePaginatedRead(c, flags, "flights", path, map[string]string{
-				"start":     fmt.Sprintf("%v", flagStart),
-				"end":       fmt.Sprintf("%v", flagEnd),
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "flights", path, map[string]string{
+				"start": fmt.Sprintf("%v", flagStart),
+				"end": fmt.Sprintf("%v", flagEnd),
 				"max_pages": fmt.Sprintf("%v", flagMaxPages),
-				"cursor":    fmt.Sprintf("%v", flagCursor),
-			}, flagAll, "cursor", "", "")
+				"cursor": fmt.Sprintf("%v", flagCursor),
+			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -48,14 +49,15 @@ func newOperatorsFlightsGetOperatorEnrouteCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

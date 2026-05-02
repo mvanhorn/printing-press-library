@@ -9,9 +9,8 @@ import (
 
 func newAirportsWeatherCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "weather",
-		Short:  "Manage weather",
-		Hidden: true,
+		Use:   "weather",
+		Short: "Manage weather",
 	}
 
 	cmd.AddCommand(newAirportsWeatherGetAirportForecastCmd(flags))

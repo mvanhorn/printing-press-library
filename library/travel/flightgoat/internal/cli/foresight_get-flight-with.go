@@ -20,12 +20,26 @@ func newForesightGetFlightWithCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "get-flight-with <ident>",
-		Short:   "Get information for a flight, including Foresight data",
+		Use:   "get-flight-with <ident>",
+		Short: "Returns the flight info status summary for a registration, ident, or fa_flight_id, including all available predicted...",
 		Example: "  flightgoat-pp-cli foresight get-flight-with example-value",
+		Annotations: map[string]string{"pp:endpoint": "foresight.get-flight-with", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
+			}
+			if cmd.Flags().Changed("ident-type") {
+				allowedIdentType := []string{ "designator", "registration", "fa_flight_id" }
+				validIdentType := false
+				for _, v := range allowedIdentType {
+					if flagIdentType == v {
+						validIdentType = true
+						break
+					}
+				}
+				if !validIdentType {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "ident-type", flagIdentType, allowedIdentType)
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -34,13 +48,13 @@ func newForesightGetFlightWithCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/foresight/flights/{ident}"
 			path = replacePathParam(path, "ident", args[0])
-			data, prov, err := resolvePaginatedRead(c, flags, "foresight", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "foresight", path, map[string]string{
 				"ident_type": fmt.Sprintf("%v", flagIdentType),
-				"start":      fmt.Sprintf("%v", flagStart),
-				"end":        fmt.Sprintf("%v", flagEnd),
-				"max_pages":  fmt.Sprintf("%v", flagMaxPages),
-				"cursor":     fmt.Sprintf("%v", flagCursor),
-			}, flagAll, "cursor", "", "")
+				"start": fmt.Sprintf("%v", flagStart),
+				"end": fmt.Sprintf("%v", flagEnd),
+				"max_pages": fmt.Sprintf("%v", flagMaxPages),
+				"cursor": fmt.Sprintf("%v", flagCursor),
+			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -50,14 +64,15 @@ func newForesightGetFlightWithCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -81,7 +96,7 @@ func newForesightGetFlightWithCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagIdentType, "ident-type", "", "Type of ident provided in the ident parameter. By default, the passed ident is interpreted as a registration if...")
+	cmd.Flags().StringVar(&flagIdentType, "ident-type", "", "Type of ident provided in the ident parameter. By default, the passed ident is interpreted as a registration if... (one of: designator, registration, fa_flight_id)")
 	cmd.Flags().StringVar(&flagStart, "start", "", "The starting date range for flight results, comparing against flights' `scheduled_out` field (or `scheduled_off` if...")
 	cmd.Flags().StringVar(&flagEnd, "end", "", "The ending date range for flight results, comparing against flights' `scheduled_out` field (or `scheduled_off` if...")
 	cmd.Flags().IntVar(&flagMaxPages, "max-pages", 1, "Maximum number of pages to fetch. This is an upper limit and not a guarantee of how many pages will be returned.")

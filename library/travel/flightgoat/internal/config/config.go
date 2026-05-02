@@ -14,16 +14,16 @@ import (
 )
 
 type Config struct {
-	BaseURL              string    `toml:"base_url"`
-	AuthHeaderVal        string    `toml:"auth_header"`
-	AuthSource           string    `toml:"-"`
-	AccessToken          string    `toml:"access_token"`
-	RefreshToken         string    `toml:"refresh_token"`
-	TokenExpiry          time.Time `toml:"token_expiry"`
-	ClientID             string    `toml:"client_id"`
-	ClientSecret         string    `toml:"client_secret"`
-	Path                 string    `toml:"-"`
-	FlightgoatApiKeyAuth string    `toml:"api_key_auth"`
+	BaseURL        string `toml:"base_url"`
+	AuthHeaderVal  string `toml:"auth_header"`
+	AuthSource     string `toml:"-"`
+	AccessToken    string `toml:"access_token"`
+	RefreshToken   string `toml:"refresh_token"`
+	TokenExpiry    time.Time `toml:"token_expiry"`
+	ClientID       string `toml:"client_id"`
+	ClientSecret   string `toml:"client_secret"`
+	Path           string `toml:"-"`
+	FlightgoatApiKeyAuth string `toml:"api_key_auth"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -50,21 +50,16 @@ func Load(configPath string) (*Config, error) {
 		}
 	}
 
-	// Env var overrides. Accept flightgoat-native vars first, then fall back to
-	// common FlightAware AeroAPI env var names so users with existing setups work.
-	for _, name := range []string{"FLIGHTGOAT_API_KEY_AUTH", "FLIGHTGOAT_API_KEY", "FLIGHTAWARE_API_KEY", "AEROAPI_API_KEY", "AEROAPI_KEY"} {
-		if v := os.Getenv(name); v != "" {
-			cfg.FlightgoatApiKeyAuth = v
-			cfg.AuthSource = "env:" + name
-			break
-		}
+	// Env var overrides
+	if v := os.Getenv("FLIGHTGOAT_API_KEY_AUTH"); v != "" {
+		cfg.FlightgoatApiKeyAuth = v
+		cfg.AuthSource = "env:FLIGHTGOAT_API_KEY_AUTH"
 	}
 
 	// Base URL override (used by printing-press verify to point at mock/test servers)
 	if v := os.Getenv("FLIGHTGOAT_BASE_URL"); v != "" {
 		cfg.BaseURL = v
 	}
-
 	return cfg, nil
 }
 

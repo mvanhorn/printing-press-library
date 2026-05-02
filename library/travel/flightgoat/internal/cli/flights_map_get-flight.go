@@ -22,10 +22,11 @@ func newFlightsMapGetFlightCmd(flags *rootFlags) *cobra.Command {
 	var flagBoundingBox string
 
 	cmd := &cobra.Command{
-		Use:     "get-flight <id>",
+		Use:   "get-flight <id>",
 		Aliases: []string{"get"},
-		Short:   "Get an image of a flight's track on a map",
+		Short: "Returns a flight's track as a base64-encoded image. Image can contain a variety of additional data layers beyond...",
 		Example: "  flightgoat-pp-cli flights map get-flight 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "map.get-flight", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -62,7 +63,7 @@ func newFlightsMapGetFlightCmd(flags *rootFlags) *cobra.Command {
 			if flagBoundingBox != "" {
 				params["bounding_box"] = fmt.Sprintf("%v", flagBoundingBox)
 			}
-			data, prov, err := resolveRead(c, flags, "map", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "map", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -72,14 +73,15 @@ func newFlightsMapGetFlightCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -105,8 +107,8 @@ func newFlightsMapGetFlightCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().IntVar(&flagHeight, "height", 480, "Height of requested image (pixels)")
 	cmd.Flags().IntVar(&flagWidth, "width", 640, "Width of requested image (pixels)")
-	cmd.Flags().StringVar(&flagLayerOn, "layer-on", "", "List of map layers to enable")
-	cmd.Flags().StringVar(&flagLayerOff, "layer-off", "", "List of map layers to disable")
+	cmd.Flags().StringVar(&flagLayerOn, "layer-on", "[\"country boundaries\",\"US state boundaries\",\"water\",\"US major roads\",\"radar\",\"track\",\"flights\",\"airports\"]", "List of map layers to enable")
+	cmd.Flags().StringVar(&flagLayerOff, "layer-off", "[\"US Cities\",\"european country boundaries\",\"asia country boundaries\",\"major airports\"]", "List of map layers to disable")
 	cmd.Flags().BoolVar(&flagShowDataBlock, "show-data-block", false, "Whether a textual caption containing the ident, type, heading, altitude, origin, and destination should be displayed...")
 	cmd.Flags().BoolVar(&flagAirportsExpandView, "airports-expand-view", false, "Whether to force zoom area to ensure origin/destination airports are visible. Enabling this flag forcefully enables...")
 	cmd.Flags().BoolVar(&flagShowAirports, "show-airports", false, "Whether to show the origin/destination airports for the flight as labeled points on the map.")

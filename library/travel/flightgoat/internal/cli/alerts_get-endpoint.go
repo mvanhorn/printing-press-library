@@ -11,54 +11,40 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newAircraftPromotedCmd(flags *rootFlags) *cobra.Command {
+func newAlertsGetEndpointCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "aircraft <type>",
-		Short:   "Get information about an aircraft type",
-		Long:    "Shortcut for 'aircraft get-flight-type'. Get information about an aircraft type",
-		Example: "  flightgoat-pp-cli aircraft",
+		Use:   "get-endpoint",
+		Short: "Returns URL that will be POSTed to for alerts that are delivered via AeroAPI.",
+		Example: "  flightgoat-pp-cli alerts get-endpoint",
+		Annotations: map[string]string{"pp:endpoint": "alerts.get-endpoint", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/aircraft/types/{type}"
-			if len(args) < 1 {
-				return usageErr(fmt.Errorf("type is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "type"))
-			}
-			path = replacePathParam(path, "type", args[0])
+			path := "/alerts/endpoint"
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "aircraft", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "alerts", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
-			// Print provenance to stderr
+			// Print provenance to stderr for human-facing output
 			{
 				var countItems []json.RawMessage
-				if json.Unmarshal(data, &countItems) != nil {
-					// Single object, not an array
-					countItems = []json.RawMessage{data}
-				}
+				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// CSV bypasses JSON pipe path so --csv works when piped
-			if flags.csv {
-				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
-			}
-			// For JSON output, wrap with provenance envelope
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -66,6 +52,7 @@ func newAircraftPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
+			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
 				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
@@ -81,10 +68,6 @@ func newAircraftPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-
-	// Wire sibling endpoints and sub-resources as subcommands
-	cmd.AddCommand(newAircraftBlockedGetAircraftCmd(flags))
-	cmd.AddCommand(newAircraftOwnerGetAircraftCmd(flags))
 
 	return cmd
 }

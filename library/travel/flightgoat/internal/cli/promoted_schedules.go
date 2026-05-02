@@ -25,10 +25,11 @@ func newSchedulesPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "schedules",
-		Short:   "Get scheduled flights",
-		Long:    "Shortcut for 'schedules get-by-date'. Get scheduled flights",
+		Use:   "schedules",
+		Short: "Returns scheduled flights that have been published by airlines. These schedules are available for up to three months...",
+		Long:  "Shortcut for 'schedules get-by-date'. Returns scheduled flights that have been published by airlines. These schedules are available for up to three months...",
 		Example: "  flightgoat-pp-cli schedules",
+		Annotations: map[string]string{"pp:endpoint": "schedules.get-by-date", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("date-start") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "date-start")
@@ -42,18 +43,18 @@ func newSchedulesPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/schedules/{date_start}/{date_end}"
-			data, prov, err := resolvePaginatedRead(c, flags, "schedules", path, map[string]string{
-				"date_start":         fmt.Sprintf("%v", flagDateStart),
-				"date_end":           fmt.Sprintf("%v", flagDateEnd),
-				"origin":             fmt.Sprintf("%v", flagOrigin),
-				"destination":        fmt.Sprintf("%v", flagDestination),
-				"airline":            fmt.Sprintf("%v", flagAirline),
-				"flight_number":      fmt.Sprintf("%v", flagFlightNumber),
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "schedules", path, map[string]string{
+				"date_start": fmt.Sprintf("%v", flagDateStart),
+				"date_end": fmt.Sprintf("%v", flagDateEnd),
+				"origin": fmt.Sprintf("%v", flagOrigin),
+				"destination": fmt.Sprintf("%v", flagDestination),
+				"airline": fmt.Sprintf("%v", flagAirline),
+				"flight_number": fmt.Sprintf("%v", flagFlightNumber),
 				"include_codeshares": fmt.Sprintf("%v", flagIncludeCodeshares),
-				"include_regional":   fmt.Sprintf("%v", flagIncludeRegional),
-				"max_pages":          fmt.Sprintf("%v", flagMaxPages),
-				"cursor":             fmt.Sprintf("%v", flagCursor),
-			}, flagAll, "cursor", "", "")
+				"include_regional": fmt.Sprintf("%v", flagIncludeRegional),
+				"max_pages": fmt.Sprintf("%v", flagMaxPages),
+				"cursor": fmt.Sprintf("%v", flagCursor),
+			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -74,14 +75,15 @@ func newSchedulesPromotedCmd(flags *rootFlags) *cobra.Command {
 			if flags.csv {
 				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 			}
-			// For JSON output, wrap with provenance envelope
+			// For JSON output, wrap with provenance envelope. --select wins over
+			// --compact when both are set; --compact only runs when no explicit
+			// fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

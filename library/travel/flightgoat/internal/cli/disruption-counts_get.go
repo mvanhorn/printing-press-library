@@ -16,12 +16,39 @@ func newDisruptionCountsGetCmd(flags *rootFlags) *cobra.Command {
 	var flagTimePeriod string
 
 	cmd := &cobra.Command{
-		Use:     "get <id>",
-		Short:   "Get flight disruption statistics for a particular entity",
+		Use:   "get <id>",
+		Short: "Returns flight cancellation/delay counts in the specified time period for a particular airline or airport.",
 		Example: "  flightgoat-pp-cli disruption-counts get 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "disruption-counts.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
+			}
+			if cmd.Flags().Changed("entity-type") {
+				allowedEntityType := []string{ "airline", "origin", "destination" }
+				validEntityType := false
+				for _, v := range allowedEntityType {
+					if flagEntityType == v {
+						validEntityType = true
+						break
+					}
+				}
+				if !validEntityType {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "entity-type", flagEntityType, allowedEntityType)
+				}
+			}
+			if cmd.Flags().Changed("time-period") {
+				allowedTimePeriod := []string{ "yesterday", "today", "tomorrow", "plus2days", "twoDaysAgo", "minus2plus12hrs", "next36hrs", "week" }
+				validTimePeriod := false
+				for _, v := range allowedTimePeriod {
+					if flagTimePeriod == v {
+						validTimePeriod = true
+						break
+					}
+				}
+				if !validTimePeriod {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "time-period", flagTimePeriod, allowedTimePeriod)
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -35,7 +62,7 @@ func newDisruptionCountsGetCmd(flags *rootFlags) *cobra.Command {
 			if flagTimePeriod != "" {
 				params["time_period"] = fmt.Sprintf("%v", flagTimePeriod)
 			}
-			data, prov, err := resolveRead(c, flags, "disruption-counts", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "disruption-counts", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -45,14 +72,15 @@ func newDisruptionCountsGetCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -76,8 +104,8 @@ func newDisruptionCountsGetCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagEntityType, "entity-type", "airline", "The type of entity to get disruption statistics for.")
-	cmd.Flags().StringVar(&flagTimePeriod, "time-period", "today", "Time period")
+	cmd.Flags().StringVar(&flagEntityType, "entity-type", "airline", "The type of entity to get disruption statistics for. (one of: airline, origin, destination)")
+	cmd.Flags().StringVar(&flagTimePeriod, "time-period", "today", "Time period (one of: yesterday, today, tomorrow, plus2days, twoDaysAgo, minus2plus12hrs, next36hrs, week)")
 
 	return cmd
 }

@@ -21,9 +21,10 @@ func newAirportsGetNearbyCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "get-nearby",
-		Short:   "Get airports near a location",
+		Use:   "get-nearby",
+		Short: "Returns a list of airports located within a given distance from the given location.",
 		Example: "  flightgoat-pp-cli airports get-nearby",
+		Annotations: map[string]string{"pp:endpoint": "airports.get-nearby", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("latitude") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "latitude")
@@ -40,14 +41,14 @@ func newAirportsGetNearbyCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/airports/nearby"
-			data, prov, err := resolvePaginatedRead(c, flags, "airports", path, map[string]string{
-				"latitude":  fmt.Sprintf("%v", flagLatitude),
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "airports", path, map[string]string{
+				"latitude": fmt.Sprintf("%v", flagLatitude),
 				"longitude": fmt.Sprintf("%v", flagLongitude),
-				"radius":    fmt.Sprintf("%v", flagRadius),
-				"only_iap":  fmt.Sprintf("%v", flagOnlyIap),
+				"radius": fmt.Sprintf("%v", flagRadius),
+				"only_iap": fmt.Sprintf("%v", flagOnlyIap),
 				"max_pages": fmt.Sprintf("%v", flagMaxPages),
-				"cursor":    fmt.Sprintf("%v", flagCursor),
-			}, flagAll, "cursor", "", "")
+				"cursor": fmt.Sprintf("%v", flagCursor),
+			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -57,14 +58,15 @@ func newAirportsGetNearbyCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

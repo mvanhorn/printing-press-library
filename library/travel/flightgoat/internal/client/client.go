@@ -15,11 +15,10 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"strconv"
+	"sort"
 	"strings"
-	"sync"
 	"time"
-
+	"github.com/mvanhorn/printing-press-library/library/travel/flightgoat/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/travel/flightgoat/internal/config"
 )
 
@@ -30,93 +29,10 @@ type Client struct {
 	DryRun     bool
 	NoCache    bool
 	cacheDir   string
-	limiter    *adaptiveLimiter
+	limiter    *cliutil.AdaptiveLimiter
 }
 
-// adaptiveLimiter provides proactive rate limiting with adaptive ceiling discovery.
-// Starts at a conservative floor rate and ramps up after consecutive successes.
-// On 429, halves the rate and records a ceiling. Per-session only — not persisted.
-// Thread-safe: all methods are guarded by a mutex for concurrent sync workers.
-type adaptiveLimiter struct {
-	mu          sync.Mutex
-	rate        float64   // current requests per second
-	floor       float64   // starting/minimum rate
-	ceiling     float64   // discovered ceiling (0 = unknown)
-	successes   int       // consecutive successes since last 429
-	rampAfter   int       // successes needed before increasing rate
-	lastRequest time.Time // zero-value on init — first call skips wait (intentional)
-}
 
-func newAdaptiveLimiter(ratePerSec float64) *adaptiveLimiter {
-	if ratePerSec <= 0 {
-		return nil
-	}
-	return &adaptiveLimiter{
-		rate:      ratePerSec,
-		floor:     ratePerSec,
-		rampAfter: 10,
-	}
-}
-
-// Wait blocks until the rate limiter allows the next request.
-func (l *adaptiveLimiter) Wait() {
-	if l == nil {
-		return
-	}
-	l.mu.Lock()
-	delay := time.Duration(float64(time.Second) / l.rate)
-	elapsed := time.Since(l.lastRequest)
-	l.mu.Unlock()
-	if elapsed < delay {
-		time.Sleep(delay - elapsed)
-	}
-	l.mu.Lock()
-	l.lastRequest = time.Now()
-	l.mu.Unlock()
-}
-
-// OnSuccess records a successful request and ramps up the rate after enough consecutive successes.
-func (l *adaptiveLimiter) OnSuccess() {
-	if l == nil {
-		return
-	}
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	l.successes++
-	if l.successes >= l.rampAfter {
-		newRate := l.rate * 1.25
-		if l.ceiling > 0 && newRate > l.ceiling*0.9 {
-			newRate = l.ceiling * 0.9
-		}
-		l.rate = newRate
-		l.successes = 0
-	}
-}
-
-// OnRateLimit records a 429 response — halves the rate and discovers the ceiling.
-func (l *adaptiveLimiter) OnRateLimit() {
-	if l == nil {
-		return
-	}
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	l.ceiling = l.rate
-	l.rate = l.rate / 2
-	if l.rate < 0.5 {
-		l.rate = 0.5 // absolute minimum: 1 request per 2 seconds
-	}
-	l.successes = 0
-}
-
-// Rate returns the current rate in requests per second. Returns 0 if the limiter is nil.
-func (l *adaptiveLimiter) Rate() float64 {
-	if l == nil {
-		return 0
-	}
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	return l.rate
-}
 
 // APIError carries HTTP status information for structured exit codes.
 type APIError struct {
@@ -130,15 +46,20 @@ func (e *APIError) Error() string {
 	return fmt.Sprintf("%s %s returned HTTP %d: %s", e.Method, e.Path, e.StatusCode, e.Body)
 }
 
+func newHTTPClient(timeout time.Duration, jar http.CookieJar) *http.Client {
+	return &http.Client{Timeout: timeout, Jar: jar}
+}
+
 func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 	homeDir, _ := os.UserHomeDir()
 	cacheDir := filepath.Join(homeDir, ".cache", "flightgoat-pp-cli")
+	httpClient := newHTTPClient(timeout, nil)
 	return &Client{
 		BaseURL:    strings.TrimRight(cfg.BaseURL, "/"),
 		Config:     cfg,
-		HTTPClient: &http.Client{Timeout: timeout},
+		HTTPClient: httpClient,
 		cacheDir:   cacheDir,
-		limiter:    newAdaptiveLimiter(rateLimit),
+		limiter:    cliutil.NewAdaptiveLimiter(rateLimit),
 	}
 }
 
@@ -163,6 +84,11 @@ func (c *Client) GetWithHeaders(path string, params map[string]string, headers m
 		c.writeCache(path, params, result)
 	}
 	return result, err
+}
+
+func (c *Client) ProbeGet(path string) (int, error) {
+	_, status, err := c.do("GET", path, nil, nil, nil)
+	return status, err
 }
 
 func (c *Client) cacheKey(path string, params map[string]string) string {
@@ -239,9 +165,18 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		bodyBytes = b
 	}
 
+	// Resolve auth material before the dry-run branch so --dry-run can preview
+	// exactly what would be sent. Uses only cached credentials; a token that
+	// requires a network refresh will be re-fetched on the live request path,
+	// not during dry-run.
+	authHeader, err := c.authHeader()
+	if err != nil {
+		return nil, 0, err
+	}
+
 	// Build the request for dry-run display or actual execution
 	if c.DryRun {
-		return c.dryRun(method, targetURL, path, params, bodyBytes, headerOverrides)
+		return c.dryRun(method, targetURL, path, params, bodyBytes, headerOverrides, authHeader)
 	}
 
 	const maxRetries = 3
@@ -273,10 +208,6 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			req.URL.RawQuery = q.Encode()
 		}
 
-		authHeader, err := c.authHeader()
-		if err != nil {
-			return nil, 0, err
-		}
 		if authHeader != "" {
 			req.Header.Set("x-apikey", authHeader)
 		}
@@ -315,7 +246,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		// Rate limited - adjust adaptive limiter and retry
 		if resp.StatusCode == 429 && attempt < maxRetries {
 			c.limiter.OnRateLimit()
-			wait := retryAfter(resp)
+			wait := cliutil.RetryAfter(resp)
 			fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
 			time.Sleep(wait)
 			lastErr = apiErr
@@ -338,15 +269,30 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 	return nil, 0, lastErr
 }
 
-func (c *Client) dryRun(method, targetURL, path string, params map[string]string, body []byte, headerOverrides map[string]string) (json.RawMessage, int, error) {
+// dryRun prints the outgoing request exactly as the live path would send it,
+// using the auth material already resolved in `do()`. Never triggers a network
+// call — the caller is responsible for passing cached auth material only.
+func (c *Client) dryRun(method, targetURL, path string, params map[string]string, body []byte, headerOverrides map[string]string, authHeader string) (json.RawMessage, int, error) {
 	fmt.Fprintf(os.Stderr, "%s %s\n", method, targetURL)
+	queryPrinted := false
 	if params != nil {
-		for k, v := range params {
-			if v != "" {
-				fmt.Fprintf(os.Stderr, "  ?%s=%s\n", k, v)
+		keys := make([]string, 0, len(params))
+		for k := range params {
+			if params[k] != "" {
+				keys = append(keys, k)
 			}
 		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			sep := "?"
+			if queryPrinted {
+				sep = "&"
+			}
+			fmt.Fprintf(os.Stderr, "  %s%s=%s\n", sep, k, params[k])
+			queryPrinted = true
+		}
 	}
+	_ = queryPrinted
 	if body != nil {
 		var pretty json.RawMessage
 		if json.Unmarshal(body, &pretty) == nil {
@@ -356,15 +302,18 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 			enc.Encode(pretty)
 		}
 	}
-	authHeader, err := c.authHeader()
-	if err != nil {
-		return nil, 0, err
-	}
 	if authHeader != "" {
-		fmt.Fprintf(os.Stderr, "  Authorization: %s\n", maskToken(authHeader))
+		fmt.Fprintf(os.Stderr, "  %s: %s\n", "x-apikey", maskToken(authHeader))
 	}
 	fmt.Fprintf(os.Stderr, "\n(dry run - no request sent)\n")
 	return json.RawMessage(`{"dry_run": true}`), 0, nil
+}
+
+func (c *Client) ConfiguredTimeout() time.Duration {
+	if c.HTTPClient != nil && c.HTTPClient.Timeout > 0 {
+		return c.HTTPClient.Timeout
+	}
+	return 30 * time.Second
 }
 
 func (c *Client) authHeader() (string, error) {
@@ -441,32 +390,6 @@ func (c *Client) refreshAccessToken() error {
 	return nil
 }
 
-const maxRetryWait = 60 * time.Second
-
-func retryAfter(resp *http.Response) time.Duration {
-	header := resp.Header.Get("Retry-After")
-	if header == "" {
-		return 5 * time.Second
-	}
-	if seconds, err := strconv.Atoi(header); err == nil {
-		d := time.Duration(seconds) * time.Second
-		if d > maxRetryWait {
-			return maxRetryWait
-		}
-		return d
-	}
-	if t, err := http.ParseTime(header); err == nil {
-		wait := time.Until(t)
-		if wait > maxRetryWait {
-			return maxRetryWait
-		}
-		if wait > 0 {
-			return wait
-		}
-	}
-	return 5 * time.Second
-}
-
 // sanitizeJSONResponse strips known JSONP/XSSI prefixes and UTF-8 BOM from
 // response bodies so that downstream JSON parsing succeeds. For clean JSON
 // responses these checks are no-ops.
@@ -491,6 +414,7 @@ func sanitizeJSONResponse(body []byte) []byte {
 	}
 	return body
 }
+
 
 // maskToken redacts all but the last 4 characters of a token for safe display.
 func maskToken(token string) string {

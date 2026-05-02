@@ -16,10 +16,11 @@ func newAirportsWeatherGetAirportForecastCmd(flags *rootFlags) *cobra.Command {
 	var flagReturnNearbyWeather bool
 
 	cmd := &cobra.Command{
-		Use:     "get-airport-forecast <id>",
+		Use:   "get-airport-forecast <id>",
 		Aliases: []string{"get"},
-		Short:   "Get weather forecast for given airport",
+		Short: "Returns the weather forecast for an airport in the form of a decoded TAF (Terminal Area Forecast). Only a single...",
 		Example: "  flightgoat-pp-cli airports weather get-airport-forecast 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "weather.get-airport-forecast", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -38,7 +39,7 @@ func newAirportsWeatherGetAirportForecastCmd(flags *rootFlags) *cobra.Command {
 			if flagReturnNearbyWeather != false {
 				params["return_nearby_weather"] = fmt.Sprintf("%v", flagReturnNearbyWeather)
 			}
-			data, prov, err := resolveRead(c, flags, "weather", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "weather", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -48,14 +49,15 @@ func newAirportsWeatherGetAirportForecastCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

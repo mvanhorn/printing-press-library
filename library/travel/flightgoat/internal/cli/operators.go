@@ -4,96 +4,18 @@
 package cli
 
 import (
-	"encoding/json"
-	"fmt"
-	"os"
-
 	"github.com/spf13/cobra"
 )
 
-func newOperatorsPromotedCmd(flags *rootFlags) *cobra.Command {
-	var flagMaxPages int
-	var flagCursor string
-	var flagAll bool
-
+func newOperatorsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "operators",
-		Short:   "Get all operators.",
-		Long:    "Shortcut for 'operators get-all'. Get all operators.",
-		Example: "  flightgoat-pp-cli operators",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := flags.newClient()
-			if err != nil {
-				return err
-			}
-
-			path := "/operators"
-			data, prov, err := resolvePaginatedRead(c, flags, "operators", path, map[string]string{
-				"max_pages": fmt.Sprintf("%v", flagMaxPages),
-				"cursor":    fmt.Sprintf("%v", flagCursor),
-			}, flagAll, "cursor", "", "")
-			if err != nil {
-				return classifyAPIError(err)
-			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
-			// Print provenance to stderr
-			{
-				var countItems []json.RawMessage
-				if json.Unmarshal(data, &countItems) != nil {
-					// Single object, not an array
-					countItems = []json.RawMessage{data}
-				}
-				printProvenance(cmd, len(countItems), prov)
-			}
-			// CSV bypasses JSON pipe path so --csv works when piped
-			if flags.csv {
-				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
-			}
-			// For JSON output, wrap with provenance envelope
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
-				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
-				if flags.selectFields != "" {
-					filtered = filterFields(filtered, flags.selectFields)
-				}
-				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
-				if wrapErr != nil {
-					return wrapErr
-				}
-				return printOutput(cmd.OutOrStdout(), wrapped, true)
-			}
-			if wantsHumanTable(cmd.OutOrStdout(), flags) {
-				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
-					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
-						return err
-					}
-					if len(items) >= 25 {
-						fmt.Fprintf(os.Stderr, "\nShowing %d results. To narrow: add --limit, --json --select, or filter flags.\n", len(items))
-					}
-					return nil
-				}
-			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
-		},
+		Use:   "operators",
+		Short: "Manage operators",
 	}
-	cmd.Flags().IntVar(&flagMaxPages, "max-pages", 1, "Maximum number of pages to fetch. This is an upper limit and not a guarantee of how many pages will be returned.")
-	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Opaque value used to get the next batch of data from a paged collection.")
-	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
-	// Wire sibling endpoints and sub-resources as subcommands
 	cmd.AddCommand(newOperatorsGetCmd(flags))
-	cmd.AddCommand(newOperatorsCanonicalGetOperatorsCmd(flags))
-	{
-		sub := newOperatorsFlightsCmd(flags)
-		sub.Hidden = false // unhide: the raw parent is hidden but these are useful under the promoted command
-		cmd.AddCommand(sub)
-	}
-
+	cmd.AddCommand(newOperatorsGetAllCmd(flags))
+	cmd.AddCommand(newOperatorsCanonicalCmd(flags))
+	cmd.AddCommand(newOperatorsFlightsCmd(flags))
 	return cmd
 }

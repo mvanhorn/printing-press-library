@@ -21,12 +21,26 @@ func newAirportsFlightsGetAirportScheduledArrivalsCmd(flags *rootFlags) *cobra.C
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "get-airport-scheduled-arrivals <id>",
-		Short:   "Get future flights arriving at an airport",
+		Use:   "get-airport-scheduled-arrivals <id>",
+		Short: "Returns flights that are expected to arrive at an airport. This can include both undeparted and en route flights....",
 		Example: "  flightgoat-pp-cli airports flights get-airport-scheduled-arrivals 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "flights.get-airport-scheduled-arrivals", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
+			}
+			if cmd.Flags().Changed("type") {
+				allowedType := []string{ "General_Aviation", "Airline" }
+				validType := false
+				for _, v := range allowedType {
+					if flagType == v {
+						validType = true
+						break
+					}
+				}
+				if !validType {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "type", flagType, allowedType)
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -35,14 +49,14 @@ func newAirportsFlightsGetAirportScheduledArrivalsCmd(flags *rootFlags) *cobra.C
 
 			path := "/airports/{id}/flights/scheduled_arrivals"
 			path = replacePathParam(path, "id", args[0])
-			data, prov, err := resolvePaginatedRead(c, flags, "flights", path, map[string]string{
-				"airline":   fmt.Sprintf("%v", flagAirline),
-				"type":      fmt.Sprintf("%v", flagType),
-				"start":     fmt.Sprintf("%v", flagStart),
-				"end":       fmt.Sprintf("%v", flagEnd),
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "flights", path, map[string]string{
+				"airline": fmt.Sprintf("%v", flagAirline),
+				"type": fmt.Sprintf("%v", flagType),
+				"start": fmt.Sprintf("%v", flagStart),
+				"end": fmt.Sprintf("%v", flagEnd),
 				"max_pages": fmt.Sprintf("%v", flagMaxPages),
-				"cursor":    fmt.Sprintf("%v", flagCursor),
-			}, flagAll, "cursor", "", "")
+				"cursor": fmt.Sprintf("%v", flagCursor),
+			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -52,14 +66,15 @@ func newAirportsFlightsGetAirportScheduledArrivalsCmd(flags *rootFlags) *cobra.C
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -84,7 +99,7 @@ func newAirportsFlightsGetAirportScheduledArrivalsCmd(flags *rootFlags) *cobra.C
 		},
 	}
 	cmd.Flags().StringVar(&flagAirline, "airline", "", "Airline to filter flights by. Do not provide airline if type is provided.")
-	cmd.Flags().StringVar(&flagType, "type", "", "Type of flights to return. Do not provide type if airline is provided.")
+	cmd.Flags().StringVar(&flagType, "type", "", "Type of flights to return. Do not provide type if airline is provided. (one of: General_Aviation, Airline)")
 	cmd.Flags().StringVar(&flagStart, "start", "", "The starting date range for flight results. The format is ISO8601 date or datetime, and the bound is inclusive....")
 	cmd.Flags().StringVar(&flagEnd, "end", "", "The ending date range for flight results. The format is ISO8601 date or datetime, and the bound is exclusive....")
 	cmd.Flags().IntVar(&flagMaxPages, "max-pages", 1, "Maximum number of pages to fetch. This is an upper limit and not a guarantee of how many pages will be returned.")

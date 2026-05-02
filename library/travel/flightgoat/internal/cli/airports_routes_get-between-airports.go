@@ -19,13 +19,27 @@ func newAirportsRoutesGetBetweenAirportsCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "get-between-airports <id> <dest_id>",
+		Use:   "get-between-airports <id> <dest_id>",
 		Aliases: []string{"get"},
-		Short:   "Get routes between 2 airports",
+		Short: "Returns information about assigned IFR routings between two airports.",
 		Example: "  flightgoat-pp-cli airports routes get-between-airports 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "routes.get-between-airports", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
+			}
+			if cmd.Flags().Changed("sort-by") {
+				allowedSortBy := []string{ "count", "last_departure_time" }
+				validSortBy := false
+				for _, v := range allowedSortBy {
+					if flagSortBy == v {
+						validSortBy = true
+						break
+					}
+				}
+				if !validSortBy {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "sort-by", flagSortBy, allowedSortBy)
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -38,12 +52,12 @@ func newAirportsRoutesGetBetweenAirportsCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("dest_id is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "dest_id"))
 			}
 			path = replacePathParam(path, "dest_id", args[1])
-			data, prov, err := resolvePaginatedRead(c, flags, "routes", path, map[string]string{
-				"sort_by":      fmt.Sprintf("%v", flagSortBy),
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "routes", path, map[string]string{
+				"sort_by": fmt.Sprintf("%v", flagSortBy),
 				"max_file_age": fmt.Sprintf("%v", flagMaxFileAge),
-				"max_pages":    fmt.Sprintf("%v", flagMaxPages),
-				"cursor":       fmt.Sprintf("%v", flagCursor),
-			}, flagAll, "cursor", "", "")
+				"max_pages": fmt.Sprintf("%v", flagMaxPages),
+				"cursor": fmt.Sprintf("%v", flagCursor),
+			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -53,14 +67,15 @@ func newAirportsRoutesGetBetweenAirportsCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -84,7 +99,7 @@ func newAirportsRoutesGetBetweenAirportsCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagSortBy, "sort-by", "count", "Field to sort results by. 'count' will sort results by the route filing count (descending). 'last_departure_time'...")
+	cmd.Flags().StringVar(&flagSortBy, "sort-by", "count", "Field to sort results by. 'count' will sort results by the route filing count (descending). 'last_departure_time'... (one of: count, last_departure_time)")
 	cmd.Flags().StringVar(&flagMaxFileAge, "max-file-age", "2 weeks", "Maximum filed plan age of flights to consider. Can be a value less than or equal to 14 days (2 weeks) OR 1 month OR...")
 	cmd.Flags().IntVar(&flagMaxPages, "max-pages", 1, "Maximum number of pages to fetch. This is an upper limit and not a guarantee of how many pages will be returned.")
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Opaque value used to get the next batch of data from a paged collection.")

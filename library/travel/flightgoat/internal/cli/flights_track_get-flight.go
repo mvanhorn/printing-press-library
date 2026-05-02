@@ -15,10 +15,11 @@ func newFlightsTrackGetFlightCmd(flags *rootFlags) *cobra.Command {
 	var flagIncludeEstimatedPositions bool
 
 	cmd := &cobra.Command{
-		Use:     "get-flight <id>",
+		Use:   "get-flight <id>",
 		Aliases: []string{"get"},
-		Short:   "Get flight's track",
+		Short: "Returns the track for a flight as an array of positions. Data from up to 10 days ago can be obtained. If looking for...",
 		Example: "  flightgoat-pp-cli flights track get-flight 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "track.get-flight", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -34,7 +35,7 @@ func newFlightsTrackGetFlightCmd(flags *rootFlags) *cobra.Command {
 			if flagIncludeEstimatedPositions != false {
 				params["include_estimated_positions"] = fmt.Sprintf("%v", flagIncludeEstimatedPositions)
 			}
-			data, prov, err := resolveRead(c, flags, "track", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "track", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -44,14 +45,15 @@ func newFlightsTrackGetFlightCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
