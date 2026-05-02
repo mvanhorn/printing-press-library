@@ -16,7 +16,7 @@
   "novel_features": [
     {
       "name": "Repository discovery",
-      "command": "search",
+      "command": "docker-hub-search",
       "description": "Search Docker Hub repositories with agent-ready JSON, compact output, and live/local source controls."
     },
     {

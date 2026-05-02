@@ -14,5 +14,17 @@
   "mcp_public_tool_count": 5,
   "mcp_ready": "full",
   "api_version": "1.0.0",
-  "auth_type": "none"
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Article summary",
+      "command": "page get-summary",
+      "description": "Fetch concise Wikipedia article summaries for quick research and agent context."
+    },
+    {
+      "name": "On-this-day feed",
+      "command": "feed",
+      "description": "Explore on-this-day events as a ready-made discovery workflow."
+    }
+  ]
 }

@@ -18,5 +18,57 @@
     "USDA_FDC_API_KEY"
   ],
   "auth_key_url": "https://fdc.nal.usda.gov/api-key-signup",
-  "auth_optional": true
+  "auth_optional": true,
+  "novel_features": [
+    {
+      "name": "Best-version ranker",
+      "command": "goat",
+      "description": "Query any dish across 37 recipe sites and rank results by normalized rating \u00d7 review count \u00d7 author trust \u00d7 site trust \u00d7 recency."
+    },
+    {
+      "name": "Substitution lookup",
+      "command": "sub",
+      "description": "Aggregate ingredient substitutions from King Arthur, Serious Eats, AllRecipes reviews, and Budget Bytes. Ranked by source trust with ratios and context."
+    },
+    {
+      "name": "Pantry match",
+      "command": "cookbook match",
+      "description": "Find recipes in the local cookbook that you can make right now with listed ingredients, or with \u2264N missing ingredients."
+    },
+    {
+      "name": "Tonight picker",
+      "command": "tonight",
+      "description": "Pick dinner in 2 seconds: filter cookbook by time budget, recency from cook log, and dietary/kid-friendly flags."
+    },
+    {
+      "name": "Review-modification digest",
+      "command": "recipe reviews",
+      "description": "Surface the top modifications cooks actually made to a recipe (\"added an egg: 22 cooks; baked 5 min less: 17; honey instead of sugar: 14\")."
+    },
+    {
+      "name": "USDA nutrition backfill",
+      "command": "recipe get --nutrition",
+      "description": "When a site omits nutrition, parse ingredients, match USDA FoodData Central IDs, compute per-serving macros locally."
+    },
+    {
+      "name": "Kid-friendly filter",
+      "command": "search --kid-friendly",
+      "description": "Filter recipes against an editable ingredient-exclusion list (capers, anchovies, excess heat, raw fish, etc.). Personalizable per-child."
+    },
+    {
+      "name": "Unit-reconciling shopping list",
+      "command": "meal-plan shopping-list",
+      "description": "Aggregate ingredients across planned meals, reconcile units (2 cup + 1 cup milk \u2192 3 cup), group by grocery aisle."
+    },
+    {
+      "name": "Inline seasonal flag",
+      "command": "recipe get",
+      "description": "Flag out-of-season ingredients inline (\"\u26a0 asparagus is out of season in November \u2014 peak April\u2013June\") and suggest in-season swaps."
+    },
+    {
+      "name": "Honest cost estimate",
+      "command": "recipe cost",
+      "description": "Rough cost per serving using Budget Bytes line-item data plus USDA retail averages as fallback. Always shows an honesty band (\u00b130%)."
+    }
+  ]
 }
