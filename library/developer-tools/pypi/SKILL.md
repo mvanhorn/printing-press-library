@@ -3,7 +3,7 @@ name: pp-pypi
 description: "Printing Press CLI for Pypi. PyPI JSON API. Look up Python package metadata, versions, release files, and vulnerability data. Browse recent..."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["pypi-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/developer-tools/pypi/cmd/pypi-pp-cli@latest","bins":["pypi-pp-cli"],"label":"Install via go install"}]}}'
+metadata: '{"openclaw":{"requires":{"bins":["pypi-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/other/pypi-pp-cli/cmd/pypi-pp-cli@latest","bins":["pypi-pp-cli"],"label":"Install via go install"}]}}'
 ---
 
 # Pypi — Printing Press CLI
@@ -23,8 +23,8 @@ Do not activate this CLI for requests that require creating, updating, deleting,
 
 **rss** — RSS feeds for recent updates and newest packages
 
-- `pypi-pp-cli rss newest-packages` — Newest packages
-- `pypi-pp-cli rss recent-updates` — Recent package updates
+- `pypi-pp-cli rss newest-packages` — RSS feed of the newest packages added to PyPI.
+- `pypi-pp-cli rss recent-updates` — RSS feed of the most recently updated packages on PyPI.
 
 
 ### Finding the right command
@@ -135,7 +135,7 @@ Parse `$ARGUMENTS`:
 1. Check Go is installed: `go version` (requires Go 1.23+)
 2. Install:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/developer-tools/pypi/cmd/pypi-pp-cli@latest
+   go install github.com/mvanhorn/printing-press-library/library/other/pypi-pp-cli/cmd/pypi-pp-cli@latest
    ```
 3. Verify: `pypi-pp-cli --version`
 4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -144,7 +144,7 @@ Parse `$ARGUMENTS`:
 
 1. Install the MCP server:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/developer-tools/pypi/cmd/pypi-pp-mcp@latest
+   go install github.com/mvanhorn/printing-press-library/library/other/pypi-pp-cli/cmd/pypi-pp-mcp@latest
    ```
 2. Register with Claude Code:
    ```bash

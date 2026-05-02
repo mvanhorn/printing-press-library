@@ -9,7 +9,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/pypi/internal/cli.version={{ .Version }}
+      - -s -w -X pypi-pp-cli/internal/cli.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -42,9 +42,9 @@ checksum:
 brews:
   - name: pypi-pp-cli
     repository:
-      owner: hiten-shah
+      owner: trevin-chow
       name: homebrew-tap
-    homepage: "https://github.com/mvanhorn/printing-press-library"
+    homepage: "https://github.com/trevin-chow/pypi-pp-cli"
     description: "PyPI JSON API. Look up Python package metadata, versions, release files,
 and vulnerability data. Browse recent updates and newest packages via RSS feeds.
 No authentication required — all endpoints are public."
