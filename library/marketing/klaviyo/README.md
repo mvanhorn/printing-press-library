@@ -8,15 +8,15 @@ Learn more at [Klaviyo](https://developers.klaviyo.com).
 
 ## Install
 
+### Binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/klaviyo-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
+
 ### Go
 
 ```
 go install github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/cmd/klaviyo-pp-cli@latest
 ```
-
-### Binary
-
-Download from [Releases](https://github.com/mvanhorn/printing-press-library/releases).
 
 ## Authentication
 
@@ -1734,11 +1734,11 @@ This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle â€
 
 To install:
 
-1. Download [`klaviyo-pp-mcp-darwin-arm64.mcpb`](https://github.com/mvanhorn/printing-press-library/blob/main/library/marketing/klaviyo/build/klaviyo-pp-mcp-darwin-arm64.mcpb) from the public library.
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/klaviyo-current).
 2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
 3. Fill in `KLAVIYO_API_KEY` when Claude Desktop prompts you.
 
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`); for other platforms, build a bundle with `printing-press bundle <cli-dir> --platform <os>/<arch>` or use the manual config below.
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
 
 <details>
 <summary>Manual JSON config (advanced)</summary>
