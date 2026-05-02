@@ -42,7 +42,7 @@ checksum:
 brews:
   - name: scrape-creators-pp-cli
     repository:
-      owner: trevin-chow
+      owner: adrian-horning
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
     description: "The easiest way to scrape public social media data at scale. Extract profiles, posts, videos, comments, and more from TikTok, Instagram, YouTube, Twitter, LinkedIn, Facebook, Reddit, and 27+ platforms."
