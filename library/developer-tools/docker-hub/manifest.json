@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "docker-hub-pp-mcp",
   "display_name": "Docker Hub",
-  "version": "2.3.7",
+  "version": "3.6.0",
   "description": "Docker Hub API surface as MCP tools.",
   "author": {
     "name": "CLI Printing Press"
@@ -23,6 +23,5 @@
       "linux",
       "win32"
     ]
-  },
-  "cli_binary": "docker-hub-pp-cli"
+  }
 }

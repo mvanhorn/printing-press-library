@@ -3,7 +3,7 @@ name: pp-docker-hub
 description: "Printing Press CLI for Docker Hub. Docker Hub public API. Search container images, browse tags, check sizes, inspect Dockerfiles, and explore the..."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["docker-hub-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/developer-tools/docker-hub/cmd/docker-hub-pp-cli@latest","bins":["docker-hub-pp-cli"],"label":"Install via go install"}]}}'
+metadata: '{"openclaw":{"requires":{"bins":["docker-hub-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/other/docker-hub-pp-cli/cmd/docker-hub-pp-cli@latest","bins":["docker-hub-pp-cli"],"label":"Install via go install"}]}}'
 ---
 
 # Docker Hub — Printing Press CLI
@@ -18,13 +18,13 @@ Do not activate this CLI for requests that require creating, updating, deleting,
 
 ## Command Reference
 
+**docker-hub-search** — Manage docker hub search
+
+- `docker-hub-pp-cli docker-hub-search` — Full-text search across all Docker Hub repositories. Returns name, description, stars, and pull counts.
+
 **repositories** — Repository metadata and details
 
-- `docker-hub-pp-cli repositories` — Get repository details
-
-**search** — Search across all Docker Hub repositories
-
-- `docker-hub-pp-cli search repositories` — Search Docker Hub repositories
+- `docker-hub-pp-cli repositories <namespace> <repository>` — Full metadata for a Docker Hub repository including pull count, stars, description, and last update time.
 
 
 ### Finding the right command
@@ -51,7 +51,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
 
   ```bash
-  docker-hub-pp-cli repositories library nginx --agent --select id,name,status
+  docker-hub-pp-cli docker-hub-search --agent --select id,name,status
   ```
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
@@ -103,7 +103,7 @@ A profile is a saved set of flag values, reused across invocations. Use it when 
 
 ```
 docker-hub-pp-cli profile save briefing --json
-docker-hub-pp-cli --profile briefing repositories library nginx
+docker-hub-pp-cli --profile briefing docker-hub-search
 docker-hub-pp-cli profile list --json
 docker-hub-pp-cli profile show briefing
 docker-hub-pp-cli profile delete briefing --yes
@@ -135,7 +135,7 @@ Parse `$ARGUMENTS`:
 1. Check Go is installed: `go version` (requires Go 1.23+)
 2. Install:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/developer-tools/docker-hub/cmd/docker-hub-pp-cli@latest
+   go install github.com/mvanhorn/printing-press-library/library/other/docker-hub-pp-cli/cmd/docker-hub-pp-cli@latest
    ```
 3. Verify: `docker-hub-pp-cli --version`
 4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -144,7 +144,7 @@ Parse `$ARGUMENTS`:
 
 1. Install the MCP server:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/developer-tools/docker-hub/cmd/docker-hub-pp-mcp@latest
+   go install github.com/mvanhorn/printing-press-library/library/other/docker-hub-pp-cli/cmd/docker-hub-pp-mcp@latest
    ```
 2. Register with Claude Code:
    ```bash
