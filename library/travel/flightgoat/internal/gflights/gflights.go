@@ -59,7 +59,7 @@ type Flight struct {
 // SearchResult is the normalized envelope returned by Search.
 type SearchResult struct {
 	Success    bool     `json:"success"`
-	Source     string   `json:"source"` // "native-go" or "fli-fallback"
+	Source     string   `json:"source"` // "native-go" — krisukox/google-flights-api
 	DataSource string   `json:"data_source"`
 	SearchType string   `json:"search_type"`
 	TripType   string   `json:"trip_type"`
@@ -110,8 +110,6 @@ type SearchOptions struct {
 	SortBy        string
 	Passengers    int
 	ExcludeBasic  bool
-	// ForceFallback forces the fli Python subprocess path for debugging.
-	ForceFallback bool
 }
 
 // Search runs a flight search via the native Go backend (krisukox).
@@ -239,7 +237,6 @@ func tripTypeName(t krisukox.TripType) string {
 	return "one_way"
 }
 
-// searchFli is the fallback path using the fli Python CLI via subprocess.
 // DatesOptions drives a cheapest-dates query.
 type DatesOptions struct {
 	Origin      string

@@ -30,6 +30,8 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	"google.golang.org/protobuf/encoding/protowire"
 )
 
 const (
@@ -123,8 +125,7 @@ func datesChunk(ctx context.Context, opts DatesOptions, from, to time.Time) ([]D
 	req.Header.Set("Accept", "*/*")
 	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
 
-	client := &http.Client{Timeout: 30 * time.Second}
-	resp, err := client.Do(req)
+	resp, err := utlsClient().Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("calling calendar endpoint: %w", err)
 	}
@@ -149,10 +150,13 @@ func datesChunk(ctx context.Context, opts DatesOptions, from, to time.Time) ([]D
 // chunk. The shape mirrors fli's DateSearchFilters.format() — see
 // fli/models/google_flights/dates.py for the canonical field map.
 func buildDatesPayload(opts DatesOptions, from, to time.Time) (string, error) {
-	tripType := tripTypeOneWay
 	if opts.RoundTrip {
-		tripType = tripTypeRoundTrip
+		// Round-trip needs a second segment with origin/dest swapped (per fli's
+		// flight_segments len-2 case). Reject up front rather than build a
+		// one-way payload that wouldn't match the user's intent.
+		return "", errors.New("round-trip date searches not yet implemented in native backend")
 	}
+
 	seat, err := mapSeatType(opts.CabinClass)
 	if err != nil {
 		return "", err
@@ -194,23 +198,15 @@ func buildDatesPayload(opts DatesOptions, from, to time.Time) (string, error) {
 		3,                                                         // [14] unknown — fli always sends 3
 	}
 
-	// For round trips we'd need a second segment for the return — fli builds
-	// it from the same args but with origin/dest swapped. This implementation
-	// handles ONE_WAY first; round-trip support is a TODO that mirrors fli's
-	// `flight_segments` len-2 case.
-	if opts.RoundTrip {
-		return "", errors.New("round-trip date searches not yet implemented in native backend")
-	}
-
 	filters := []any{
 		nil, // [0] placeholder (dates uses nil; flights uses [])
 		[]any{
-			nil,                          // [0]
-			nil,                          // [1]
-			tripType,                     // [2] trip type
-			nil,                          // [3]
-			[]any{},                      // [4]
-			seat,                         // [5] seat type
+			nil,                                   // [0]
+			nil,                                   // [1]
+			tripTypeOneWay,                        // [2] trip type (round-trip rejected above)
+			nil,                                   // [3]
+			[]any{},                               // [4]
+			seat,                                  // [5] seat type
 			[]any{passengerAdults(opts), 0, 0, 0}, // [6] passengers: [adults, children, lap, seat]
 			nil,                          // [7] price limit
 			nil,                          // [8]
@@ -351,141 +347,56 @@ func parsePriceAndCurrency(raw any) (float64, string) {
 	return priceVal, currency
 }
 
-// extractCurrency walks the base64-decoded protobuf inside the price token to
-// find field 3 (nested message) -> field 3 (currency string). Mirrors fli's
-// extract_currency_from_price_token in fli/core/currency.py.
+// extractCurrency walks the base64-decoded protobuf inside the price token
+// to find field 3 (nested message) -> field 3 (currency string). Mirrors
+// fli's extract_currency_from_price_token in fli/core/currency.py.
 func extractCurrency(token string) string {
 	if token == "" {
 		return ""
 	}
-	// urlsafe base64 may need padding.
-	padding := (4 - len(token)%4) % 4
-	padded := token + strings.Repeat("=", padding)
-	data, err := base64.URLEncoding.DecodeString(padded)
+	// Tokens are urlsafe base64 without padding; fall back to std b64 in case
+	// some endpoint variant returns the standard alphabet. Raw* variants
+	// handle missing padding natively.
+	data, err := base64.RawURLEncoding.DecodeString(token)
 	if err != nil {
-		// Fall back to standard b64 in case the token isn't urlsafe.
-		data, err = base64.StdEncoding.DecodeString(padded)
+		data, err = base64.RawStdEncoding.DecodeString(token)
 		if err != nil {
 			return ""
 		}
 	}
-	currency, ok := findCurrencyField(data)
+	nested, ok := findField3Bytes(data)
 	if !ok {
 		return ""
 	}
-	return strings.ToUpper(currency)
+	currency, ok := findField3Bytes(nested)
+	if !ok {
+		return ""
+	}
+	return strings.ToUpper(string(currency))
 }
 
-// findCurrencyField walks a protobuf payload looking for field 3 (length-
-// delimited), recurses into it, and returns field 3 (length-delimited) within
-// the nested message as the currency string.
-func findCurrencyField(data []byte) (string, bool) {
-	off := 0
-	for off < len(data) {
-		tag, n, err := readVarint(data[off:])
-		if err != nil {
-			return "", false
+// findField3Bytes walks a protobuf message and returns the bytes of the first
+// field 3 with wire type 2 (length-delimited / nested message or string).
+// Uses protowire so we don't reimplement varint + wiretype dispatch by hand.
+func findField3Bytes(data []byte) ([]byte, bool) {
+	for len(data) > 0 {
+		num, typ, n := protowire.ConsumeTag(data)
+		if n < 0 {
+			return nil, false
 		}
-		off += n
-		fieldNum := tag >> 3
-		wireType := tag & 0x7
-
-		if fieldNum == 3 && wireType == 2 {
-			length, n, err := readVarint(data[off:])
-			if err != nil {
-				return "", false
+		data = data[n:]
+		if num == 3 && typ == protowire.BytesType {
+			v, m := protowire.ConsumeBytes(data)
+			if m < 0 {
+				return nil, false
 			}
-			off += n
-			end := off + int(length)
-			if end > len(data) {
-				return "", false
-			}
-			nested := data[off:end]
-			off = end
-
-			// Recurse one level: in the nested message, look for field 3 (the
-			// ISO currency code as a length-delimited string).
-			noff := 0
-			for noff < len(nested) {
-				ntag, nn, nerr := readVarint(nested[noff:])
-				if nerr != nil {
-					break
-				}
-				noff += nn
-				nfn := ntag >> 3
-				nwt := ntag & 0x7
-				if nfn == 3 && nwt == 2 {
-					nlen, nn2, nerr2 := readVarint(nested[noff:])
-					if nerr2 != nil {
-						break
-					}
-					noff += nn2
-					nend := noff + int(nlen)
-					if nend > len(nested) {
-						break
-					}
-					return string(nested[noff:nend]), true
-				}
-				noff = skipField(nested, noff, nwt)
-				if noff < 0 {
-					break
-				}
-			}
-			continue
+			return v, true
 		}
-		off = skipField(data, off, wireType)
-		if off < 0 {
-			return "", false
+		n = protowire.ConsumeFieldValue(num, typ, data)
+		if n < 0 {
+			return nil, false
 		}
+		data = data[n:]
 	}
-	return "", false
-}
-
-func readVarint(data []byte) (uint64, int, error) {
-	var value uint64
-	var shift uint
-	for i, b := range data {
-		value |= uint64(b&0x7F) << shift
-		if b&0x80 == 0 {
-			return value, i + 1, nil
-		}
-		shift += 7
-		if shift >= 64 {
-			return 0, 0, errors.New("varint too large")
-		}
-	}
-	return 0, 0, errors.New("unexpected end of data")
-}
-
-func skipField(data []byte, off int, wireType uint64) int {
-	switch wireType {
-	case 0: // varint
-		_, n, err := readVarint(data[off:])
-		if err != nil {
-			return -1
-		}
-		return off + n
-	case 1: // fixed64
-		if off+8 > len(data) {
-			return -1
-		}
-		return off + 8
-	case 2: // length-delimited
-		length, n, err := readVarint(data[off:])
-		if err != nil {
-			return -1
-		}
-		off += n
-		if off+int(length) > len(data) {
-			return -1
-		}
-		return off + int(length)
-	case 5: // fixed32
-		if off+4 > len(data) {
-			return -1
-		}
-		return off + 4
-	default:
-		return -1
-	}
+	return nil, false
 }
