@@ -31,6 +31,11 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version: '1.26'
+          # Audit walks every CLI; no single go.sum to key the module cache on,
+          # and the cache hit-rate would be near zero anyway (every CLI's go.sum
+          # differs). Disable caching to silence the "Dependencies file is not
+          # found" warning.
+          cache: false
       - name: Configure git for private modules
         env:
           TOKEN: ${{ secrets.GENERATOR_READ_TOKEN }}

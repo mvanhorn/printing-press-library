@@ -112,6 +112,10 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version: '1.26'
+          # Public library is a monorepo with per-CLI go.mod under library/<cat>/<slug>/.
+          # Point setup-go at this matrix entry's go.sum so its module cache is keyed
+          # correctly. Without this, setup-go warns "Dependencies file is not found".
+          cache-dependency-path: library/${{ matrix.target }}/go.sum
       - name: Configure git for private modules
         env:
           TOKEN: ${{ secrets.GENERATOR_READ_TOKEN }}
@@ -187,6 +191,7 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version: '1.26'
+          cache-dependency-path: library/${{ matrix.target }}/go.sum
       - name: Build CLI binary
         env:
           CLI_TARGET: ${{ matrix.target }}
