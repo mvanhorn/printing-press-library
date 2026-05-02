@@ -6,6 +6,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"regexp"
 	"strconv"
@@ -362,7 +363,7 @@ func syncResource(c interface {
 		// "primary_key_unresolved" the first time any single item
 		// fails, and the F4b "stored_count_zero_after_extraction"
 		// probe when extraction succeeded but rows still didn't land.
-		stored, extractFailures, err := db.UpsertBatch(resource, items)
+		stored, extractFailures, err := upsertResourceBatch(db, resource, items)
 		if err != nil {
 			if !humanFriendly {
 				fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
@@ -562,12 +563,16 @@ func extractPageItems(data json.RawMessage, cursorParam string) ([]json.RawMessa
 func extractPaginationFromEnvelope(envelope map[string]json.RawMessage, cursorParam string) (string, bool) {
 	var hasMore bool
 
+	nextCursor := nextCursorFromLinks(envelope, cursorParam)
+
 	// Try common cursor field names
 	cursorKeys := []string{
 		"next_cursor", "nextCursor", "cursor", "next_page_token",
 		"nextPageToken", "page_token", "after", "end_cursor", "endCursor",
 	}
-	nextCursor := findCursorInMap(envelope, cursorKeys)
+	if nextCursor == "" {
+		nextCursor = findCursorInMap(envelope, cursorKeys)
+	}
 
 	// If no top-level cursor was found, look one level deeper into well-known
 	// pagination wrapper objects. Slack returns {"messages":[...],
@@ -611,6 +616,53 @@ func extractPaginationFromEnvelope(envelope map[string]json.RawMessage, cursorPa
 	return nextCursor, hasMore
 }
 
+// nextCursorFromLinks extracts JSON:API-style pagination cursors from
+// {"links":{"next":"https://example.com/items?page[cursor]=..."}}.
+func nextCursorFromLinks(envelope map[string]json.RawMessage, cursorParam string) string {
+	rawLinks, ok := envelope["links"]
+	if !ok {
+		return ""
+	}
+	var links map[string]json.RawMessage
+	if json.Unmarshal(rawLinks, &links) != nil {
+		return ""
+	}
+	rawNext, ok := links["next"]
+	if !ok {
+		return ""
+	}
+	var nextURL string
+	if json.Unmarshal(rawNext, &nextURL) != nil || nextURL == "" {
+		return ""
+	}
+
+	cursorKeys := []string{cursorParam}
+	if cursorParam != "page[cursor]" {
+		cursorKeys = append(cursorKeys, "page[cursor]")
+	}
+	if cursorParam != "cursor" {
+		cursorKeys = append(cursorKeys, "cursor")
+	}
+	if cursorParam != "after" {
+		cursorKeys = append(cursorKeys, "after")
+	}
+
+	parsed, err := url.Parse(nextURL)
+	if err != nil {
+		return ""
+	}
+	values := parsed.Query()
+	for _, key := range cursorKeys {
+		if key == "" {
+			continue
+		}
+		if cursor := values.Get(key); cursor != "" {
+			return cursor
+		}
+	}
+	return ""
+}
+
 // findCursorInMap returns the first non-empty string-typed value in m
 // whose key matches one of cursorKeys. Used by extractPaginationFromEnvelope
 // to scan both the top-level envelope and well-known wrapper objects with
@@ -629,6 +681,60 @@ func findCursorInMap(m map[string]json.RawMessage, cursorKeys []string) string {
 	return ""
 }
 
+type discriminatorDispatch struct {
+	Field  string
+	Values map[string]string
+}
+
+var discriminatorDispatchers = map[string]discriminatorDispatch{
+}
+
+func upsertResourceBatch(db *store.Store, resource string, items []json.RawMessage) (int, int, error) {
+	if _, ok := discriminatorDispatchers[resource]; !ok {
+		return db.UpsertBatch(resource, items)
+	}
+
+	grouped := map[string][]json.RawMessage{}
+	order := []string{}
+	for _, item := range items {
+		target := resource
+		var obj map[string]any
+		if err := json.Unmarshal(item, &obj); err == nil {
+			target = resolveDiscriminatedResource(resource, obj)
+		}
+		if _, ok := grouped[target]; !ok {
+			order = append(order, target)
+		}
+		grouped[target] = append(grouped[target], item)
+	}
+
+	var stored, extractFailures int
+	for _, target := range order {
+		targetStored, targetExtractFailures, err := db.UpsertBatch(target, grouped[target])
+		if err != nil {
+			return stored, extractFailures + targetExtractFailures, err
+		}
+		stored += targetStored
+		extractFailures += targetExtractFailures
+	}
+	return stored, extractFailures, nil
+}
+
+func resolveDiscriminatedResource(resource string, obj map[string]any) string {
+	dispatcher, ok := discriminatorDispatchers[resource]
+	if !ok || dispatcher.Field == "" {
+		return resource
+	}
+	value := store.LookupFieldValue(obj, dispatcher.Field)
+	if value == nil {
+		return resource
+	}
+	if target, ok := dispatcher.Values[fmt.Sprintf("%v", value)]; ok && target != "" {
+		return target
+	}
+	return resource
+}
+
 // upsertSingleObject stores a non-array API response as a single record.
 func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) error {
 	var obj map[string]any
@@ -636,6 +742,8 @@ func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) 
 		// Not a JSON object either - store raw under resource name
 		return db.Upsert(resource, resource, data)
 	}
+
+	resource = resolveDiscriminatedResource(resource, obj)
 
 	id := extractID(resource, obj)
 	if id == "" {

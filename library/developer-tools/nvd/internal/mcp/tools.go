@@ -25,8 +25,11 @@ import (
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("json_search-cpes",
-			mcplib.WithDescription("Search Common Platform Enumeration names to find exact product identifiers for vulnerability lookups. Optional: cpeMatchString. Returns the CpeSearchResults."),
+			mcplib.WithDescription("Search Common Platform Enumeration names to find exact product identifiers for vulnerability lookups. Optional: keywordSearch, cpeMatchString, resultsPerPage (default: 20) (plus 1 more). Returns the CpeSearchResults."),
+			mcplib.WithString("keywordSearch", mcplib.Description("Search CPE names by keyword")),
 			mcplib.WithString("cpeMatchString", mcplib.Description("Partial CPE match pattern")),
+			mcplib.WithString("resultsPerPage", mcplib.Description("Results per page")),
+			mcplib.WithString("startIndex", mcplib.Description("Start index")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -35,9 +38,12 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("json_search-cves",
-			mcplib.WithDescription("Search vulnerabilities by keyword, CVE ID, CPE name, publication date, or CVSS severity. Optional: cveId, cpeName, pubStartDate (plus 4 more). Returns the CveSearchResults."),
+			mcplib.WithDescription("Search vulnerabilities by keyword, CVE ID, CPE name, publication date, or CVSS severity. Optional: keywordSearch, cveId, cpeName (plus 7 more). Returns the CveSearchResults."),
+			mcplib.WithString("keywordSearch", mcplib.Description("Full-text search (product name, technology, etc.)")),
 			mcplib.WithString("cveId", mcplib.Description("Exact CVE ID (e.g. CVE-2024-0727)")),
 			mcplib.WithString("cpeName", mcplib.Description("CPE 2.3 formatted name to find vulnerabilities for a specific product version")),
+			mcplib.WithString("resultsPerPage", mcplib.Description("Results per page")),
+			mcplib.WithString("startIndex", mcplib.Description("Start index")),
 			mcplib.WithString("pubStartDate", mcplib.Description("Filter by publication date (inclusive)")),
 			mcplib.WithString("pubEndDate", mcplib.Description("Filter by publication date (inclusive)")),
 			mcplib.WithString("cvssV3Severity", mcplib.Description("Filter by CVSS v3 severity")),

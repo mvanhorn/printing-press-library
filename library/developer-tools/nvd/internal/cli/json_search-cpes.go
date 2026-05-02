@@ -12,7 +12,10 @@ import (
 )
 
 func newJsonSearchCpesCmd(flags *rootFlags) *cobra.Command {
+	var flagKeywordSearch string
 	var flagCpeMatchString string
+	var flagResultsPerPage int
+	var flagStartIndex int
 
 	cmd := &cobra.Command{
 		Use:   "search-cpes",
@@ -28,8 +31,17 @@ func newJsonSearchCpesCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/rest/json/cpes/2.0"
 			params := map[string]string{}
+			if flagKeywordSearch != "" {
+				params["keywordSearch"] = fmt.Sprintf("%v", flagKeywordSearch)
+			}
 			if flagCpeMatchString != "" {
 				params["cpeMatchString"] = fmt.Sprintf("%v", flagCpeMatchString)
+			}
+			if flagResultsPerPage != 0 {
+				params["resultsPerPage"] = fmt.Sprintf("%v", flagResultsPerPage)
+			}
+			if flagStartIndex != 0 {
+				params["startIndex"] = fmt.Sprintf("%v", flagStartIndex)
 			}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "json", false, path, params, nil)
 			if err != nil {
@@ -73,7 +85,10 @@ func newJsonSearchCpesCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
+	cmd.Flags().StringVar(&flagKeywordSearch, "keyword-search", "", "Search CPE names by keyword")
 	cmd.Flags().StringVar(&flagCpeMatchString, "cpe-match-string", "", "Partial CPE match pattern")
+	cmd.Flags().IntVar(&flagResultsPerPage, "results-per-page", 20, "Results per page")
+	cmd.Flags().IntVar(&flagStartIndex, "start-index", 0, "Start index")
 
 	return cmd
 }

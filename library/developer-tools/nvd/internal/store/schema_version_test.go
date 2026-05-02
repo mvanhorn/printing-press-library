@@ -308,6 +308,10 @@ func TestMigrate_AddsColumnsOnUpgrade_Json(t *testing.T) {
 	}
 
 	for _, want := range []string{
+		"keyword_search",
+		"cpe_match_string",
+		"results_per_page",
+		"start_index",
 		"cve_id",
 		"cpe_name",
 		"pub_start_date",
@@ -315,7 +319,6 @@ func TestMigrate_AddsColumnsOnUpgrade_Json(t *testing.T) {
 		"cvss_v3_severity",
 		"has_kev",
 		"is_vulnerable",
-		"cpe_match_string",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from json after migrate", want)

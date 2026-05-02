@@ -1,9 +1,9 @@
 {
   "manifest_version": "0.3",
   "name": "nvd-pp-mcp",
-  "display_name": "Nvd",
-  "version": "2.3.7",
-  "description": "Nvd API surface as MCP tools.",
+  "display_name": "National Vulnerability Database",
+  "version": "3.6.0",
+  "description": "National Vulnerability Database API surface as MCP tools.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -23,6 +23,5 @@
       "linux",
       "win32"
     ]
-  },
-  "cli_binary": "nvd-pp-cli"
+  }
 }

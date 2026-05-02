@@ -12,8 +12,11 @@ import (
 )
 
 func newJsonSearchCvesCmd(flags *rootFlags) *cobra.Command {
+	var flagKeywordSearch string
 	var flagCveId string
 	var flagCpeName string
+	var flagResultsPerPage int
+	var flagStartIndex int
 	var flagPubStartDate string
 	var flagPubEndDate string
 	var flagCvssV3Severity string
@@ -46,11 +49,20 @@ func newJsonSearchCvesCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/rest/json/cves/2.0"
 			params := map[string]string{}
+			if flagKeywordSearch != "" {
+				params["keywordSearch"] = fmt.Sprintf("%v", flagKeywordSearch)
+			}
 			if flagCveId != "" {
 				params["cveId"] = fmt.Sprintf("%v", flagCveId)
 			}
 			if flagCpeName != "" {
 				params["cpeName"] = fmt.Sprintf("%v", flagCpeName)
+			}
+			if flagResultsPerPage != 0 {
+				params["resultsPerPage"] = fmt.Sprintf("%v", flagResultsPerPage)
+			}
+			if flagStartIndex != 0 {
+				params["startIndex"] = fmt.Sprintf("%v", flagStartIndex)
 			}
 			if flagPubStartDate != "" {
 				params["pubStartDate"] = fmt.Sprintf("%v", flagPubStartDate)
@@ -109,8 +121,11 @@ func newJsonSearchCvesCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
+	cmd.Flags().StringVar(&flagKeywordSearch, "keyword-search", "", "Full-text search (product name, technology, etc.)")
 	cmd.Flags().StringVar(&flagCveId, "cve-id", "", "Exact CVE ID (e.g. CVE-2024-0727)")
 	cmd.Flags().StringVar(&flagCpeName, "cpe-name", "", "CPE 2.3 formatted name to find vulnerabilities for a specific product version")
+	cmd.Flags().IntVar(&flagResultsPerPage, "results-per-page", 20, "Results per page")
+	cmd.Flags().IntVar(&flagStartIndex, "start-index", 0, "Start index")
 	cmd.Flags().StringVar(&flagPubStartDate, "pub-start-date", "", "Filter by publication date (inclusive)")
 	cmd.Flags().StringVar(&flagPubEndDate, "pub-end-date", "", "Filter by publication date (inclusive)")
 	cmd.Flags().StringVar(&flagCvssV3Severity, "cvss-v3-severity", "", "Filter by CVSS v3 severity (one of: LOW, MEDIUM, HIGH, CRITICAL)")

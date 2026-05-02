@@ -215,7 +215,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		for k, v := range headerOverrides {
 			req.Header.Set(k, v)
 		}
-		req.Header.Set("User-Agent", "github.com/mvanhorn/printing-press-library/library/developer-tools/nvd/2.0.0")
+		req.Header.Set("User-Agent", "nvd-pp-cli/2.0.0")
 
 		resp, err := c.HTTPClient.Do(req)
 		if err != nil {

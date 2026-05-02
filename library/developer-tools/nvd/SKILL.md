@@ -3,7 +3,7 @@ name: pp-nvd
 description: "Printing Press CLI for Nvd. The NVD is the U.S. government repository of standards-based vulnerability management data. Search CVEs by keyword,..."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["nvd-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/developer-tools/nvd/cmd/nvd-pp-cli@latest","bins":["nvd-pp-cli"],"label":"Install via go install"}]}}'
+metadata: '{"openclaw":{"requires":{"bins":["nvd-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/other/nvd-pp-cli/cmd/nvd-pp-cli@latest","bins":["nvd-pp-cli"],"label":"Install via go install"}]}}'
 ---
 
 # Nvd — Printing Press CLI
@@ -20,8 +20,8 @@ Do not activate this CLI for requests that require creating, updating, deleting,
 
 **json** — Manage json
 
-- `nvd-pp-cli json search-cpes` — Search CPE names
-- `nvd-pp-cli json search-cves` — Search CVEs
+- `nvd-pp-cli json search-cpes` — Search Common Platform Enumeration names to find exact product identifiers for vulnerability lookups.
+- `nvd-pp-cli json search-cves` — Search vulnerabilities by keyword, CVE ID, CPE name, publication date, or CVSS severity.
 
 
 ### Finding the right command
@@ -132,7 +132,7 @@ Parse `$ARGUMENTS`:
 1. Check Go is installed: `go version` (requires Go 1.23+)
 2. Install:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/developer-tools/nvd/cmd/nvd-pp-cli@latest
+   go install github.com/mvanhorn/printing-press-library/library/other/nvd-pp-cli/cmd/nvd-pp-cli@latest
    ```
 3. Verify: `nvd-pp-cli --version`
 4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -141,7 +141,7 @@ Parse `$ARGUMENTS`:
 
 1. Install the MCP server:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/developer-tools/nvd/cmd/nvd-pp-mcp@latest
+   go install github.com/mvanhorn/printing-press-library/library/other/nvd-pp-cli/cmd/nvd-pp-mcp@latest
    ```
 2. Register with Claude Code:
    ```bash

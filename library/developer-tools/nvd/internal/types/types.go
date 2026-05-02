@@ -67,11 +67,11 @@ type CvssData struct {
 }
 
 type CvssMetric struct {
-	Ttype string `json:"Ttype"`
 	CvssData string `json:"cvssData"`
 	ExploitabilityScore float64 `json:"exploitabilityScore"`
 	ImpactScore float64 `json:"impactScore"`
 	Source string `json:"source"`
+	Type string `json:"type"`
 }
 
 type LangString struct {

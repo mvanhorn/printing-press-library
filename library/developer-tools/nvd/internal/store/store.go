@@ -184,6 +184,10 @@ func (s *Store) ensureColumn(ctx context.Context, conn *sql.Conn, table, column,
 // word.
 func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
 	for _, c := range []struct{ table, column, decl string }{
+		{table: "json", column: "keyword_search", decl: "TEXT"},
+		{table: "json", column: "cpe_match_string", decl: "TEXT"},
+		{table: "json", column: "results_per_page", decl: "INTEGER"},
+		{table: "json", column: "start_index", decl: "INTEGER"},
 		{table: "json", column: "cve_id", decl: "TEXT"},
 		{table: "json", column: "cpe_name", decl: "TEXT"},
 		{table: "json", column: "pub_start_date", decl: "DATETIME"},
@@ -191,7 +195,6 @@ func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
 		{table: "json", column: "cvss_v3_severity", decl: "TEXT"},
 		{table: "json", column: "has_kev", decl: "INTEGER"},
 		{table: "json", column: "is_vulnerable", decl: "INTEGER"},
-		{table: "json", column: "cpe_match_string", decl: "TEXT"},
 		{table: "sync_state", column: "last_cursor", decl: "TEXT"},
 		{table: "sync_state", column: "last_synced_at", decl: "DATETIME"},
 		{table: "sync_state", column: "total_count", decl: "INTEGER DEFAULT 0"},
@@ -248,14 +251,17 @@ func (s *Store) migrate(ctx context.Context) error {
 			id TEXT PRIMARY KEY,
 			data JSON NOT NULL,
 			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			keyword_search TEXT,
+			cpe_match_string TEXT,
+			results_per_page INTEGER,
+			start_index INTEGER,
 			cve_id TEXT,
 			cpe_name TEXT,
 			pub_start_date DATETIME,
 			pub_end_date DATETIME,
 			cvss_v3_severity TEXT,
 			has_kev INTEGER,
-			is_vulnerable INTEGER,
-			cpe_match_string TEXT
+			is_vulnerable INTEGER
 		)`,
 	}
 
@@ -550,7 +556,7 @@ func ftsRowID(id string) int64 {
 // way — a divergence here produces silent drops on heterogeneous payloads.
 func LookupFieldValue(obj map[string]any, snakeKey string) any {
 	if v, ok := obj[snakeKey]; ok {
-		return v
+		return sqliteFieldValue(v)
 	}
 	parts := strings.Split(snakeKey, "_")
 	for i := 1; i < len(parts); i++ {
@@ -560,9 +566,22 @@ func LookupFieldValue(obj map[string]any, snakeKey string) any {
 		parts[i] = strings.ToUpper(parts[i][:1]) + parts[i][1:]
 	}
 	if v, ok := obj[strings.Join(parts, "")]; ok {
-		return v
+		return sqliteFieldValue(v)
 	}
 	return nil
+}
+
+func sqliteFieldValue(v any) any {
+	switch v.(type) {
+	case nil, string, bool, int, int64, float64, []byte:
+		return v
+	default:
+		data, err := json.Marshal(v)
+		if err != nil {
+			return fmt.Sprint(v)
+		}
+		return string(data)
+	}
 }
 
 // lookupFieldValue is kept as an unexported alias for in-package callers so
@@ -578,12 +597,16 @@ func lookupFieldValue(obj map[string]any, snakeKey string) any {
 // opening a per-item transaction.
 func (s *Store) upsertJsonTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO json (id, data, synced_at, cve_id, cpe_name, pub_start_date, pub_end_date, cvss_v3_severity, has_kev, is_vulnerable, cpe_match_string)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, cve_id = excluded.cve_id, cpe_name = excluded.cpe_name, pub_start_date = excluded.pub_start_date, pub_end_date = excluded.pub_end_date, cvss_v3_severity = excluded.cvss_v3_severity, has_kev = excluded.has_kev, is_vulnerable = excluded.is_vulnerable, cpe_match_string = excluded.cpe_match_string`,
+		`INSERT INTO json (id, data, synced_at, keyword_search, cpe_match_string, results_per_page, start_index, cve_id, cpe_name, pub_start_date, pub_end_date, cvss_v3_severity, has_kev, is_vulnerable)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, keyword_search = excluded.keyword_search, cpe_match_string = excluded.cpe_match_string, results_per_page = excluded.results_per_page, start_index = excluded.start_index, cve_id = excluded.cve_id, cpe_name = excluded.cpe_name, pub_start_date = excluded.pub_start_date, pub_end_date = excluded.pub_end_date, cvss_v3_severity = excluded.cvss_v3_severity, has_kev = excluded.has_kev, is_vulnerable = excluded.is_vulnerable`,
 		id,
 		string(data),
 		time.Now(),
+		lookupFieldValue(obj, "keyword_search"),
+		lookupFieldValue(obj, "cpe_match_string"),
+		lookupFieldValue(obj, "results_per_page"),
+		lookupFieldValue(obj, "start_index"),
 		lookupFieldValue(obj, "cve_id"),
 		lookupFieldValue(obj, "cpe_name"),
 		lookupFieldValue(obj, "pub_start_date"),
@@ -591,7 +614,6 @@ func (s *Store) upsertJsonTx(tx *sql.Tx, id string, obj map[string]any, data jso
 		lookupFieldValue(obj, "cvss_v3_severity"),
 		lookupFieldValue(obj, "has_kev"),
 		lookupFieldValue(obj, "is_vulnerable"),
-		lookupFieldValue(obj, "cpe_match_string"),
 	); err != nil {
 		return fmt.Errorf("insert into json: %w", err)
 	}
