@@ -385,23 +385,6 @@
       }
     },
     {
-      "name": "pagliacci-pizza",
-      "category": "food-and-dining",
-      "api": "Pagliacci Pizza",
-      "description": "Order Seattle's favorite pizza from the terminal — every endpoint, plus discount stacking, slice rotation across stores, and a local order history nobody else has.",
-      "path": "library/food-and-dining/pagliacci-pizza",
-      "mcp": {
-        "binary": "pagliacci-pp-mcp",
-        "transport": "stdio",
-        "tool_count": 57,
-        "public_tool_count": 19,
-        "auth_type": "composed",
-        "env_vars": [],
-        "mcp_ready": "partial",
-        "spec_format": "internal"
-      }
-    },
-    {
       "name": "pokeapi",
       "category": "media-and-entertainment",
       "api": "PokéAPI",
