@@ -1,30 +1,55 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-04-26T15:00:17.208248Z",
-  "printing_press_version": "2.3.7",
+  "generated_at": "2026-05-02T23:43:19.364863Z",
+  "printing_press_version": "3.6.1",
   "api_name": "open-meteo",
+  "display_name": "Open-Meteo",
   "cli_name": "open-meteo-pp-cli",
-  "spec_path": "/tmp/open-meteo-spec.yaml",
-  "spec_format": "openapi3",
-  "spec_checksum": "sha256:aa1cf4a1c9f4a0a53c9326696596d067e6802c4fb01d3fe36a7611ad7419a9ad",
+  "spec_path": "/Users/tmchow/printing-press/.runstate/nifty-nibbling-toucan-ab654d77/runs/20260502-155141/research/open-meteo-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:7596374aa55bc8956aa988381c666dcbd3390f7b1def57c4aa9c7c89315819b4",
+  "run_id": "20260502-155141",
+  "description": "Forecasts, historicals, marine, air quality, flood, climate, ensemble, and seasonal data from Open-Meteo's free tier.",
   "mcp_binary": "open-meteo-pp-mcp",
-  "mcp_tool_count": 1,
+  "mcp_tool_count": 11,
+  "mcp_public_tool_count": 11,
   "mcp_ready": "full",
-  "api_version": "1.0",
-  "auth_type": "api_key",
-  "auth_env_vars": [
-    "OPEN_METEO_APIS_API_KEY"
-  ],
+  "auth_type": "none",
   "novel_features": [
     {
-      "name": "Forecast workflow",
-      "command": "forecast",
-      "description": "Get a seven-day weather forecast for coordinates from the Open-Meteo API."
+      "name": "Forecast diff",
+      "command": "forecast diff",
+      "description": "See exactly what changed since the last forecast pull for this location — temperature deltas, new precipitation hours, weather-code shifts."
     },
     {
-      "name": "Offline forecast archive",
-      "command": "workflow archive",
-      "description": "Sync weather API results into local storage for repeat analysis."
+      "name": "Climate-vs-now comparison",
+      "command": "compare",
+      "description": "Compare today's weather (or any forecast hour) against the 30-year climate normal for that date and place."
+    },
+    {
+      "name": "Activity verdict",
+      "command": "is-good-for",
+      "description": "Verdict (GO / CAUTION / STOP) for surfing, skiing, hiking, running, biking based on combined forecast + marine + air-quality thresholds."
+    },
+    {
+      "name": "Climate normals",
+      "command": "normals",
+      "description": "Compute the 30-year (or user-specified) climate normal for any (location, day-of-year, variable) tuple."
+    },
+    {
+      "name": "Multi-location panel",
+      "command": "panel",
+      "description": "One-command snapshot panel for N locations side-by-side — batched in a single Open-Meteo call when possible."
+    },
+    {
+      "name": "Forecast accuracy back-test",
+      "command": "accuracy",
+      "description": "For any past date, compare what the model predicted (cached snapshot) against what actually happened (archive ground truth)."
+    },
+    {
+      "name": "Weather-code mix",
+      "command": "weather-mix",
+      "description": "Distribution of WMO weather conditions (% clear, % rain, % storms, etc.) over an arbitrary historical window for a place."
     }
   ]
 }

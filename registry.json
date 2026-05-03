@@ -352,6 +352,22 @@
       }
     },
     {
+      "name": "open-meteo",
+      "category": "other",
+      "api": "Open-Meteo",
+      "description": "Forecasts, historicals, marine, air quality, flood, climate, ensemble, and seasonal data from Open-Meteo's free tier.",
+      "path": "library/other/open-meteo",
+      "mcp": {
+        "binary": "open-meteo-pp-mcp",
+        "transport": "stdio",
+        "tool_count": 11,
+        "public_tool_count": 11,
+        "auth_type": "none",
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "pagliacci-pizza",
       "category": "food-and-dining",
       "api": "Pagliacci Pizza",

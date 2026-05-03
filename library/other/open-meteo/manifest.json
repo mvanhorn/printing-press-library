@@ -1,9 +1,9 @@
 {
   "manifest_version": "0.3",
   "name": "open-meteo-pp-mcp",
-  "display_name": "Open Meteo",
-  "version": "2.3.7",
-  "description": "Open Meteo API surface as MCP tools.",
+  "display_name": "Open-Meteo",
+  "version": "3.6.1",
+  "description": "Forecasts, historicals, marine, air quality, flood, climate, ensemble, and seasonal data from Open-Meteo's free tier.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -13,19 +13,7 @@
     "entry_point": "bin/open-meteo-pp-mcp",
     "mcp_config": {
       "command": "${__dirname}/bin/open-meteo-pp-mcp",
-      "args": [],
-      "env": {
-        "OPEN_METEO_APIS_API_KEY": "${user_config.open_meteo_apis_api_key}"
-      }
-    }
-  },
-  "user_config": {
-    "open_meteo_apis_api_key": {
-      "type": "string",
-      "title": "OPEN_METEO_APIS_API_KEY",
-      "description": "Sets OPEN_METEO_APIS_API_KEY for the Open Meteo MCP server.",
-      "sensitive": true,
-      "required": true
+      "args": []
     }
   },
   "compatibility": {
@@ -35,6 +23,5 @@
       "linux",
       "win32"
     ]
-  },
-  "cli_binary": "open-meteo-pp-cli"
+  }
 }

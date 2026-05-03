@@ -1,0 +1,892 @@
+{
+  "api_name": "open-meteo",
+  "base_url": "https://api.open-meteo.com",
+  "description": "Free, open-source weather, climate, and air-quality data — covers Open-Meteo's full no-API-key surface (forecast, archive, marine, air-quality, flood, climate, ensemble, seasonal, geocoding, elevation).",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "air-quality_get",
+      "description": "Air quality forecast and historical: pollutants, AQI, pollen, UV. Required: latitude, longitude. Optional: hourly, current, timeformat (default: iso8601) (plus 8 more).",
+      "method": "GET",
+      "path": "/v1/air-quality",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "latitude",
+          "type": "string",
+          "location": "query",
+          "description": "WGS84 latitude. Comma-separated for batch.",
+          "required": true
+        },
+        {
+          "name": "longitude",
+          "type": "string",
+          "location": "query",
+          "description": "WGS84 longitude. Comma-separated for batch.",
+          "required": true
+        },
+        {
+          "name": "hourly",
+          "type": "string",
+          "location": "query",
+          "description": "Hourly variables (pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,ozone,sulphur_dioxide,uv_index,uv_index_clear_sky,european_aqi,us_aqi,alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen,...)."
+        },
+        {
+          "name": "current",
+          "type": "string",
+          "location": "query",
+          "description": "Current air-quality variables."
+        },
+        {
+          "name": "timeformat",
+          "type": "string",
+          "location": "query",
+          "description": "Time output format."
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "query",
+          "description": "Named timezone, auto, or UTC."
+        },
+        {
+          "name": "past_days",
+          "type": "int",
+          "location": "query",
+          "description": "Include past days."
+        },
+        {
+          "name": "forecast_days",
+          "type": "int",
+          "location": "query",
+          "description": "Forecast days (1-7)."
+        },
+        {
+          "name": "forecast_hours",
+          "type": "int",
+          "location": "query",
+          "description": "Forecast hours."
+        },
+        {
+          "name": "past_hours",
+          "type": "int",
+          "location": "query",
+          "description": "Past hours."
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date."
+        },
+        {
+          "name": "domains",
+          "type": "string",
+          "location": "query",
+          "description": "Air-quality model domain."
+        }
+      ]
+    },
+    {
+      "name": "archive_get",
+      "description": "Historical hourly/daily weather observations from ERA5 (1940 to ~5 days ago). Required: latitude, longitude, start_date, end_date. Optional: hourly, daily, temperature_unit (default: celsius) (plus 6 more).",
+      "method": "GET",
+      "path": "/v1/archive",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "latitude",
+          "type": "string",
+          "location": "query",
+          "description": "WGS84 latitude in degrees. Comma-separated for batch.",
+          "required": true
+        },
+        {
+          "name": "longitude",
+          "type": "string",
+          "location": "query",
+          "description": "WGS84 longitude in degrees. Comma-separated for batch.",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Archive start date (YYYY-MM-DD). Earliest 1940-01-01.",
+          "required": true
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "Archive end date (YYYY-MM-DD). Latest ~5 days ago.",
+          "required": true
+        },
+        {
+          "name": "hourly",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated hourly variables."
+        },
+        {
+          "name": "daily",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated daily aggregates."
+        },
+        {
+          "name": "temperature_unit",
+          "type": "string",
+          "location": "query",
+          "description": "Temperature unit."
+        },
+        {
+          "name": "wind_speed_unit",
+          "type": "string",
+          "location": "query",
+          "description": "Wind speed unit."
+        },
+        {
+          "name": "precipitation_unit",
+          "type": "string",
+          "location": "query",
+          "description": "Precipitation unit."
+        },
+        {
+          "name": "timeformat",
+          "type": "string",
+          "location": "query",
+          "description": "Time output format."
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "query",
+          "description": "Named timezone, auto, or UTC."
+        },
+        {
+          "name": "models",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated archive models (era5_seamless, era5, era5_land, ecmwf_ifs, cerra)."
+        },
+        {
+          "name": "cell_selection",
+          "type": "string",
+          "location": "query",
+          "description": "Grid cell selection preference."
+        }
+      ]
+    },
+    {
+      "name": "climate_get",
+      "description": "Daily CMIP6 climate projections for any (lat, lon) under SSP scenarios. Models include EC_Earth3P_HR, CMCC_CM2_VHR4, MRI_AGCM3_2_S, MPI_ESM1_2_XR, FGOALS_f3_H, NICAM16_8S, HiRAM_SIT_HR. Required: latitude, longitude, start_date, end_date. Optional: daily, temperature_unit (default: celsius), wind_speed_unit (default: kmh) (plus 4 more).",
+      "method": "GET",
+      "path": "/v1/climate",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "latitude",
+          "type": "string",
+          "location": "query",
+          "description": "WGS84 latitude.",
+          "required": true
+        },
+        {
+          "name": "longitude",
+          "type": "string",
+          "location": "query",
+          "description": "WGS84 longitude.",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Climate start date (YYYY-MM-DD). 1950 to 2050.",
+          "required": true
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "Climate end date (YYYY-MM-DD). 1950 to 2050.",
+          "required": true
+        },
+        {
+          "name": "daily",
+          "type": "string",
+          "location": "query",
+          "description": "Daily climate variables (temperature_2m_mean,temperature_2m_max,temperature_2m_min,precipitation_sum,relative_humidity_2m_mean,wind_speed_10m_mean,...)."
+        },
+        {
+          "name": "temperature_unit",
+          "type": "string",
+          "location": "query",
+          "description": "Temperature unit."
+        },
+        {
+          "name": "wind_speed_unit",
+          "type": "string",
+          "location": "query",
+          "description": "Wind speed unit."
+        },
+        {
+          "name": "precipitation_unit",
+          "type": "string",
+          "location": "query",
+          "description": "Precipitation unit."
+        },
+        {
+          "name": "timeformat",
+          "type": "string",
+          "location": "query",
+          "description": "Time output format."
+        },
+        {
+          "name": "models",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated CMIP6 models (EC_Earth3P_HR,CMCC_CM2_VHR4,MRI_AGCM3_2_S,MPI_ESM1_2_XR,FGOALS_f3_H,NICAM16_8S,HiRAM_SIT_HR)."
+        },
+        {
+          "name": "disable_bias_correction",
+          "type": "bool",
+          "location": "query",
+          "description": "Disable bias correction (default false)."
+        }
+      ]
+    },
+    {
+      "name": "elevation_get",
+      "description": "Lookup elevation in meters for one or more coordinate pairs (up to 100). Required: latitude, longitude.",
+      "method": "GET",
+      "path": "/v1/elevation",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "latitude",
+          "type": "string",
+          "location": "query",
+          "description": "WGS84 latitude. Comma-separated for batch (up to 100 values).",
+          "required": true
+        },
+        {
+          "name": "longitude",
+          "type": "string",
+          "location": "query",
+          "description": "WGS84 longitude. Comma-separated for batch (up to 100 values).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ensemble_get",
+      "description": "Hourly ensemble forecasts; returns all ensemble members so you can quantify uncertainty. Required: latitude, longitude. Optional: hourly, temperature_unit (default: celsius), wind_speed_unit (default: kmh) (plus 11 more).",
+      "method": "GET",
+      "path": "/v1/ensemble",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "latitude",
+          "type": "string",
+          "location": "query",
+          "description": "WGS84 latitude.",
+          "required": true
+        },
+        {
+          "name": "longitude",
+          "type": "string",
+          "location": "query",
+          "description": "WGS84 longitude.",
+          "required": true
+        },
+        {
+          "name": "hourly",
+          "type": "string",
+          "location": "query",
+          "description": "Hourly variables (one per ensemble member returned)."
+        },
+        {
+          "name": "temperature_unit",
+          "type": "string",
+          "location": "query",
+          "description": "Temperature unit."
+        },
+        {
+          "name": "wind_speed_unit",
+          "type": "string",
+          "location": "query",
+          "description": "Wind speed unit."
+        },
+        {
+          "name": "precipitation_unit",
+          "type": "string",
+          "location": "query",
+          "description": "Precipitation unit."
+        },
+        {
+          "name": "timeformat",
+          "type": "string",
+          "location": "query",
+          "description": "Time output format."
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "query",
+          "description": "Named timezone, auto, or UTC."
+        },
+        {
+          "name": "past_days",
+          "type": "int",
+          "location": "query",
+          "description": "Past days."
+        },
+        {
+          "name": "forecast_days",
+          "type": "int",
+          "location": "query",
+          "description": "Forecast days."
+        },
+        {
+          "name": "forecast_hours",
+          "type": "int",
+          "location": "query",
+          "description": "Forecast hours."
+        },
+        {
+          "name": "past_hours",
+          "type": "int",
+          "location": "query",
+          "description": "Past hours."
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date."
+        },
+        {
+          "name": "models",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated ensemble models (icon_seamless, icon_global, gfs_seamless, gfs025, gfs05, ecmwf_ifs025, ecmwf_ifs04, gem_global)."
+        },
+        {
+          "name": "cell_selection",
+          "type": "string",
+          "location": "query",
+          "description": "Grid cell selection."
+        }
+      ]
+    },
+    {
+      "name": "flood_get",
+      "description": "Daily river discharge forecasts and historicals from GloFAS. Required: latitude, longitude. Optional: daily, timeformat (default: iso8601), past_days (plus 6 more).",
+      "method": "GET",
+      "path": "/v1/flood",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "latitude",
+          "type": "string",
+          "location": "query",
+          "description": "WGS84 latitude.",
+          "required": true
+        },
+        {
+          "name": "longitude",
+          "type": "string",
+          "location": "query",
+          "description": "WGS84 longitude.",
+          "required": true
+        },
+        {
+          "name": "daily",
+          "type": "string",
+          "location": "query",
+          "description": "Daily flood variables (river_discharge,river_discharge_mean,river_discharge_median,river_discharge_max,river_discharge_min,river_discharge_p25,river_discharge_p75)."
+        },
+        {
+          "name": "timeformat",
+          "type": "string",
+          "location": "query",
+          "description": "Time output format."
+        },
+        {
+          "name": "past_days",
+          "type": "int",
+          "location": "query",
+          "description": "Include past days."
+        },
+        {
+          "name": "forecast_days",
+          "type": "int",
+          "location": "query",
+          "description": "Forecast days (1-210)."
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date."
+        },
+        {
+          "name": "ensemble",
+          "type": "bool",
+          "location": "query",
+          "description": "Return all ensemble members."
+        },
+        {
+          "name": "models",
+          "type": "string",
+          "location": "query",
+          "description": "GloFAS model versions (forecast_v3, forecast_v4, seamless_v3, seamless_v4)."
+        },
+        {
+          "name": "cell_selection",
+          "type": "string",
+          "location": "query",
+          "description": "Grid cell selection."
+        }
+      ]
+    },
+    {
+      "name": "forecast_get",
+      "description": "7-16 day weather forecast for one or more coordinates. Pass comma-separated latitude/longitude for batch fetch. Required: latitude, longitude. Optional: elevation, hourly, daily (plus 19 more).",
+      "method": "GET",
+      "path": "/v1/forecast",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "latitude",
+          "type": "string",
+          "location": "query",
+          "description": "WGS84 latitude in degrees. Single value (47.6) or comma-separated for multi-location batch (47.6,52.5).",
+          "required": true
+        },
+        {
+          "name": "longitude",
+          "type": "string",
+          "location": "query",
+          "description": "WGS84 longitude in degrees. Single value (-122.3) or comma-separated for multi-location batch (-122.3,13.4).",
+          "required": true
+        },
+        {
+          "name": "elevation",
+          "type": "string",
+          "location": "query",
+          "description": "Optional elevation override in meters. Use 'nan' to disable downscaling."
+        },
+        {
+          "name": "hourly",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated hourly variables (e.g., temperature_2m,precipitation,weather_code,wind_speed_10m,relative_humidity_2m,cloud_cover)."
+        },
+        {
+          "name": "daily",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated daily variables (e.g., temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code,sunrise,sunset)."
+        },
+        {
+          "name": "current",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated current variables (e.g., temperature_2m,wind_speed_10m,weather_code)."
+        },
+        {
+          "name": "minutely_15",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated 15-minute variables (e.g., temperature_2m,precipitation)."
+        },
+        {
+          "name": "temperature_unit",
+          "type": "string",
+          "location": "query",
+          "description": "Temperature unit."
+        },
+        {
+          "name": "wind_speed_unit",
+          "type": "string",
+          "location": "query",
+          "description": "Wind speed unit."
+        },
+        {
+          "name": "precipitation_unit",
+          "type": "string",
+          "location": "query",
+          "description": "Precipitation unit."
+        },
+        {
+          "name": "timeformat",
+          "type": "string",
+          "location": "query",
+          "description": "Time output format."
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "query",
+          "description": "Named timezone, 'auto' (resolved from coords), or UTC. Defaults to GMT."
+        },
+        {
+          "name": "past_days",
+          "type": "int",
+          "location": "query",
+          "description": "Include this many past days (0-92)."
+        },
+        {
+          "name": "forecast_days",
+          "type": "int",
+          "location": "query",
+          "description": "Number of forecast days (1-16). Default 7."
+        },
+        {
+          "name": "forecast_hours",
+          "type": "int",
+          "location": "query",
+          "description": "Number of forecast hours."
+        },
+        {
+          "name": "forecast_minutely_15",
+          "type": "int",
+          "location": "query",
+          "description": "Number of 15-min forecast slots."
+        },
+        {
+          "name": "past_hours",
+          "type": "int",
+          "location": "query",
+          "description": "Number of past hours."
+        },
+        {
+          "name": "past_minutely_15",
+          "type": "int",
+          "location": "query",
+          "description": "Number of past 15-min slots."
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Forecast start date (YYYY-MM-DD)."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "Forecast end date (YYYY-MM-DD)."
+        },
+        {
+          "name": "start_hour",
+          "type": "string",
+          "location": "query",
+          "description": "Forecast start hour (YYYY-MM-DDTHH:MM)."
+        },
+        {
+          "name": "end_hour",
+          "type": "string",
+          "location": "query",
+          "description": "Forecast end hour (YYYY-MM-DDTHH:MM)."
+        },
+        {
+          "name": "models",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated forecast models (gfs_seamless, ecmwf_ifs025, dwd_icon, jma_seamless, metno_seamless, gem_seamless, meteofrance_arpege_world, etc.). Default best-available."
+        },
+        {
+          "name": "cell_selection",
+          "type": "string",
+          "location": "query",
+          "description": "Grid cell selection preference."
+        }
+      ]
+    },
+    {
+      "name": "geocode_get",
+      "description": "Look up a single location by its Open-Meteo geocoding ID. Required: id. Optional: language, format (default: json).",
+      "method": "GET",
+      "path": "/v1/get",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "Open-Meteo geocoding location ID.",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "ISO-639 language code for localized names."
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format."
+        }
+      ]
+    },
+    {
+      "name": "geocode_search",
+      "description": "Search locations worldwide by name ('Berlin', 'Springfield, IL') or postcode. Required: name. Optional: count (default: 10), language, format (default: json).",
+      "method": "GET",
+      "path": "/v1/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Location name or postcode (\u003e=2 chars). Case-insensitive.",
+          "required": true
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "query",
+          "description": "Max results to return (1-100)."
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "ISO-639 language code for localized names (en, de, fr, es, it, pt, ru, zh, ja, ...)."
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format."
+        }
+      ]
+    },
+    {
+      "name": "marine_get",
+      "description": "Marine forecast/historical: waves, swells, sea-surface temperature. Required: latitude, longitude. Optional: hourly, daily, current (plus 11 more).",
+      "method": "GET",
+      "path": "/v1/marine",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "latitude",
+          "type": "string",
+          "location": "query",
+          "description": "WGS84 latitude. Comma-separated for batch.",
+          "required": true
+        },
+        {
+          "name": "longitude",
+          "type": "string",
+          "location": "query",
+          "description": "WGS84 longitude. Comma-separated for batch.",
+          "required": true
+        },
+        {
+          "name": "hourly",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated hourly marine variables (wave_height,wave_direction,wave_period,wind_wave_height,swell_wave_height,sea_surface_temperature,...)."
+        },
+        {
+          "name": "daily",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated daily marine aggregates."
+        },
+        {
+          "name": "current",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated current-conditions marine variables."
+        },
+        {
+          "name": "length_unit",
+          "type": "string",
+          "location": "query",
+          "description": "Wave height/length unit."
+        },
+        {
+          "name": "wind_speed_unit",
+          "type": "string",
+          "location": "query",
+          "description": "Wind speed unit."
+        },
+        {
+          "name": "timeformat",
+          "type": "string",
+          "location": "query",
+          "description": "Time output format."
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "query",
+          "description": "Named timezone, auto, or UTC."
+        },
+        {
+          "name": "past_days",
+          "type": "int",
+          "location": "query",
+          "description": "Include past days."
+        },
+        {
+          "name": "forecast_days",
+          "type": "int",
+          "location": "query",
+          "description": "Forecast days (1-8)."
+        },
+        {
+          "name": "forecast_hours",
+          "type": "int",
+          "location": "query",
+          "description": "Forecast hours."
+        },
+        {
+          "name": "past_hours",
+          "type": "int",
+          "location": "query",
+          "description": "Past hours."
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Start date."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "End date."
+        },
+        {
+          "name": "cell_selection",
+          "type": "string",
+          "location": "query",
+          "description": "Grid cell selection."
+        }
+      ]
+    },
+    {
+      "name": "seasonal_get",
+      "description": "9-month seasonal forecast at six-hourly resolution. Default model is NCEP CFSv2. Required: latitude, longitude. Optional: six_hourly, daily, temperature_unit (default: celsius) (plus 8 more).",
+      "method": "GET",
+      "path": "/v1/seasonal",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "latitude",
+          "type": "string",
+          "location": "query",
+          "description": "WGS84 latitude.",
+          "required": true
+        },
+        {
+          "name": "longitude",
+          "type": "string",
+          "location": "query",
+          "description": "WGS84 longitude.",
+          "required": true
+        },
+        {
+          "name": "six_hourly",
+          "type": "string",
+          "location": "query",
+          "description": "Six-hourly variables (temperature_2m,precipitation,...)."
+        },
+        {
+          "name": "daily",
+          "type": "string",
+          "location": "query",
+          "description": "Daily aggregates."
+        },
+        {
+          "name": "temperature_unit",
+          "type": "string",
+          "location": "query",
+          "description": "Temperature unit."
+        },
+        {
+          "name": "wind_speed_unit",
+          "type": "string",
+          "location": "query",
+          "description": "Wind speed unit."
+        },
+        {
+          "name": "precipitation_unit",
+          "type": "string",
+          "location": "query",
+          "description": "Precipitation unit."
+        },
+        {
+          "name": "timeformat",
+          "type": "string",
+          "location": "query",
+          "description": "Time output format."
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "query",
+          "description": "Named timezone, auto, or UTC."
+        },
+        {
+          "name": "past_days",
+          "type": "int",
+          "location": "query",
+          "description": "Past days."
+        },
+        {
+          "name": "forecast_days",
+          "type": "int",
+          "location": "query",
+          "description": "Forecast days (default 92)."
+        },
+        {
+          "name": "models",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated seasonal models (cfsv2)."
+        },
+        {
+          "name": "cell_selection",
+          "type": "string",
+          "location": "query",
+          "description": "Grid cell selection."
+        }
+      ]
+    }
+  ]
+}

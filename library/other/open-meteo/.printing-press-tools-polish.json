@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-02T23:58:50.662201Z",
+  "cli_dir": "/Users/tmchow/printing-press/library/open-meteo",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-02T23:54:53.588468Z"
+  }
+}

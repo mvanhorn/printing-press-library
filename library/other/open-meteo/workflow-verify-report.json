@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/tmchow/printing-press/library/open-meteo",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

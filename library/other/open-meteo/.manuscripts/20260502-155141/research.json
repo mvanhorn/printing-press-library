@@ -1,0 +1,317 @@
+{
+  "api_name": "open-meteo",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "cmer81/open-meteo-mcp",
+      "url": "https://github.com/cmer81/open-meteo-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 17,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "isdaniel/mcp_weather_server",
+      "url": "https://github.com/isdaniel/mcp_weather_server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "JeremyMorgan/Weather-MCP-Server",
+      "url": "https://github.com/jeremymorgan/weather-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "open-meteo/python-requests",
+      "url": "https://github.com/open-meteo/python-requests",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "frenck/python-open-meteo",
+      "url": "https://github.com/frenck/python-open-meteo",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "m0rp43us/openmeteopy",
+      "url": "https://github.com/m0rp43us/openmeteopy",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "johnallen3d/conditions",
+      "url": "https://github.com/johnallen3d/conditions",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "R366Y/weather_cli",
+      "url": "https://github.com/R366Y/weather_cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-02T22:55:00Z",
+  "novel_features": [
+    {
+      "name": "Forecast diff",
+      "command": "forecast diff",
+      "description": "See exactly what changed since the last forecast pull for this location — temperature deltas, new precipitation hours, weather-code shifts.",
+      "rationale": "Requires a local snapshot history of past forecasts; Open-Meteo only returns the current model run, so no live API call can answer 'what changed?'.",
+      "example": "open-meteo-pp-cli forecast diff --place Seattle --json --select changes",
+      "why_it_matters": "Pick this when an agent needs to react to forecast changes (alerting, replanning) rather than to the current forecast itself.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Climate-vs-now comparison",
+      "command": "compare",
+      "description": "Compare today's weather (or any forecast hour) against the 30-year climate normal for that date and place.",
+      "rationale": "Joins the archive endpoint (1940+ ERA5) with the current forecast locally; the API does not expose anomaly fields.",
+      "example": "open-meteo-pp-cli compare --place Seattle --metric temperature_2m_mean --years 30 --json",
+      "why_it_matters": "Use when a user asks 'is this weather unusual?' or 'how does this compare to historical?' — a single API call cannot answer.",
+      "group": "Cross-API joins"
+    },
+    {
+      "name": "Activity verdict",
+      "command": "is-good-for",
+      "description": "Verdict (GO / CAUTION / STOP) for surfing, skiing, hiking, running, biking based on combined forecast + marine + air-quality thresholds.",
+      "rationale": "Combines forecast, marine, and air-quality endpoints with activity-specific threshold libraries; no single endpoint returns an opinion.",
+      "example": "open-meteo-pp-cli is-good-for surfing --place \"Half Moon Bay, CA\" --json",
+      "why_it_matters": "Use when the user asks a decision question, not a data question. Saves the agent from synthesizing 3 endpoint calls into a verdict.",
+      "group": "Cross-API joins"
+    },
+    {
+      "name": "Climate normals",
+      "command": "normals",
+      "description": "Compute the 30-year (or user-specified) climate normal for any (location, day-of-year, variable) tuple.",
+      "rationale": "Requires aggregating decades of ERA5 archive locally; the API does not expose precomputed normals.",
+      "example": "open-meteo-pp-cli normals --place Seattle --month 7 --variable temperature_2m_max --years 30 --json",
+      "why_it_matters": "Use to ground a 'normal vs current' answer. Also useful for travel/timing recommendations across decades.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Multi-location panel",
+      "command": "panel",
+      "description": "One-command snapshot panel for N locations side-by-side — batched in a single Open-Meteo call when possible.",
+      "rationale": "Open-Meteo natively accepts comma-separated coordinates for batch fetch, but returns a list. We render side-by-side and emit clean per-location arrays.",
+      "example": "open-meteo-pp-cli panel --place Seattle,Berlin,Tokyo --current temperature_2m,wind_speed_10m,weather_code --json",
+      "why_it_matters": "Use to compare conditions across locations in one shot; cheaper and faster than N separate calls.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Forecast accuracy back-test",
+      "command": "accuracy",
+      "description": "For any past date, compare what the model predicted (cached snapshot) against what actually happened (archive ground truth).",
+      "rationale": "Requires both a stored snapshot of the past forecast and the archive truth value; no API call provides this.",
+      "example": "open-meteo-pp-cli accuracy --place Seattle --date 2025-12-25 --variable temperature_2m_max --json",
+      "why_it_matters": "Use to score forecast trust over time, or to debug a 'why did the forecast change?' question.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Weather-code mix",
+      "command": "weather-mix",
+      "description": "Distribution of WMO weather conditions (% clear, % rain, % storms, etc.) over an arbitrary historical window for a place.",
+      "rationale": "Requires aggregating archive hourly weather codes into category buckets locally.",
+      "example": "open-meteo-pp-cli weather-mix --place Seattle --past-days 30 --json",
+      "why_it_matters": "Use for travel planning, climatology summaries, or 'how often does it rain in November?' questions.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Forecast diff",
+      "command": "forecast diff",
+      "description": "See exactly what changed since the last forecast pull for this location — temperature deltas, new precipitation hours, weather-code shifts.",
+      "rationale": "Requires a local snapshot history of past forecasts; Open-Meteo only returns the current model run, so no live API call can answer 'what changed?'.",
+      "example": "open-meteo-pp-cli forecast diff --place Seattle --json --select changes",
+      "why_it_matters": "Pick this when an agent needs to react to forecast changes (alerting, replanning) rather than to the current forecast itself.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Climate-vs-now comparison",
+      "command": "compare",
+      "description": "Compare today's weather (or any forecast hour) against the 30-year climate normal for that date and place.",
+      "rationale": "Joins the archive endpoint (1940+ ERA5) with the current forecast locally; the API does not expose anomaly fields.",
+      "example": "open-meteo-pp-cli compare --place Seattle --metric temperature_2m_mean --years 30 --json",
+      "why_it_matters": "Use when a user asks 'is this weather unusual?' or 'how does this compare to historical?' — a single API call cannot answer.",
+      "group": "Cross-API joins"
+    },
+    {
+      "name": "Activity verdict",
+      "command": "is-good-for",
+      "description": "Verdict (GO / CAUTION / STOP) for surfing, skiing, hiking, running, biking based on combined forecast + marine + air-quality thresholds.",
+      "rationale": "Combines forecast, marine, and air-quality endpoints with activity-specific threshold libraries; no single endpoint returns an opinion.",
+      "example": "open-meteo-pp-cli is-good-for surfing --place \"Half Moon Bay, CA\" --json",
+      "why_it_matters": "Use when the user asks a decision question, not a data question. Saves the agent from synthesizing 3 endpoint calls into a verdict.",
+      "group": "Cross-API joins"
+    },
+    {
+      "name": "Climate normals",
+      "command": "normals",
+      "description": "Compute the 30-year (or user-specified) climate normal for any (location, day-of-year, variable) tuple.",
+      "rationale": "Requires aggregating decades of ERA5 archive locally; the API does not expose precomputed normals.",
+      "example": "open-meteo-pp-cli normals --place Seattle --month 7 --variable temperature_2m_max --years 30 --json",
+      "why_it_matters": "Use to ground a 'normal vs current' answer. Also useful for travel/timing recommendations across decades.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Multi-location panel",
+      "command": "panel",
+      "description": "One-command snapshot panel for N locations side-by-side — batched in a single Open-Meteo call when possible.",
+      "rationale": "Open-Meteo natively accepts comma-separated coordinates for batch fetch, but returns a list. We render side-by-side and emit clean per-location arrays.",
+      "example": "open-meteo-pp-cli panel --place Seattle,Berlin,Tokyo --current temperature_2m,wind_speed_10m,weather_code --json",
+      "why_it_matters": "Use to compare conditions across locations in one shot; cheaper and faster than N separate calls.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Forecast accuracy back-test",
+      "command": "accuracy",
+      "description": "For any past date, compare what the model predicted (cached snapshot) against what actually happened (archive ground truth).",
+      "rationale": "Requires both a stored snapshot of the past forecast and the archive truth value; no API call provides this.",
+      "example": "open-meteo-pp-cli accuracy --place Seattle --date 2025-12-25 --variable temperature_2m_max --json",
+      "why_it_matters": "Use to score forecast trust over time, or to debug a 'why did the forecast change?' question.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Weather-code mix",
+      "command": "weather-mix",
+      "description": "Distribution of WMO weather conditions (% clear, % rain, % storms, etc.) over an arbitrary historical window for a place.",
+      "rationale": "Requires aggregating archive hourly weather codes into category buckets locally.",
+      "example": "open-meteo-pp-cli weather-mix --place Seattle --past-days 30 --json",
+      "why_it_matters": "Use for travel planning, climatology summaries, or 'how often does it rain in November?' questions.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Open-Meteo",
+    "headline": "Every Open-Meteo endpoint family in one CLI — forecast, archive, marine, air quality, flood, climate, ensemble, seasonal, geocoding, elevation.",
+    "value_prop": "Comprehensive coverage of Open-Meteo's free, no-API-key tier across all 11 endpoint families. City-name input via integrated geocoding, WMO code humanization, and a local SQLite cache that powers commands no upstream tool can: forecast diff, climate-vs-now compare, activity verdicts, climate normals.",
+    "auth_narrative": "No API key required. The free tier supports up to ~10,000 requests per day for non-commercial use. If you have an Open-Meteo customer-tier subscription, set OPEN_METEO_API_KEY in the environment and the CLI auto-routes to customer-*.open-meteo.com with the apikey appended — same commands, same flags, higher limits, commercial use allowed.",
+    "quickstart": [
+      {
+        "command": "open-meteo-pp-cli geocode search --name Seattle --count 1 --json",
+        "comment": "Resolve a place name to coordinates first. The novel commands (panel, compare, normals, weather-mix, forecast diff, accuracy, is-good-for) all accept --place natively; spec-derived commands take --latitude/--longitude."
+      },
+      {
+        "command": "open-meteo-pp-cli panel --place Seattle --current temperature_2m,weather_code --humanize",
+        "comment": "Current conditions for a city by name. Panel batches one or more places by name."
+      },
+      {
+        "command": "open-meteo-pp-cli forecast --latitude 47.6062 --longitude -122.3321 --daily temperature_2m_max,temperature_2m_min,precipitation_sum --forecast-days 7 --json",
+        "comment": "7-day daily forecast as JSON, given lat/lon."
+      },
+      {
+        "command": "open-meteo-pp-cli archive --latitude 47.6062 --longitude -122.3321 --start-date 2024-01-01 --end-date 2024-01-31 --daily temperature_2m_max --json",
+        "comment": "Historical ERA5 data — works for any date back to 1940."
+      },
+      {
+        "command": "open-meteo-pp-cli compare --place Seattle --metric temperature_2m_mean --years 30 --json",
+        "comment": "Climate-vs-now anomaly: how today compares to the 30-year normal."
+      },
+      {
+        "command": "open-meteo-pp-cli panel --place Seattle,Berlin,Tokyo --current temperature_2m,weather_code --json",
+        "comment": "Side-by-side multi-location panel in one batched call."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "429 \"Daily API request limit exceeded\"",
+        "fix": "Free tier caps ~10k/day, 5k/hr, 600/min. Wait, or set OPEN_METEO_API_KEY for the customer tier."
+      },
+      {
+        "symptom": "\"reason\":\"Cannot initialize a Float from invalid Float value 'nan'\"",
+        "fix": "Some variables are missing for some hours (e.g., night-time UV). Drop the variable or filter: --select hourly.time,hourly.temperature_2m"
+      },
+      {
+        "symptom": "Place name returns wrong location",
+        "fix": "Disambiguate with comma-separated context: --place \"Springfield, IL, US\". Or look up by ID: open-meteo-pp-cli geocode search Springfield --count 10"
+      },
+      {
+        "symptom": "Hourly arrays look misaligned",
+        "fix": "All hourly/daily arrays index-align with .time. Use --select hourly.time,hourly.temperature_2m to keep them paired in agent output."
+      }
+    ],
+    "when_to_use": "Use this CLI for any weather, climate, or air-quality question that does not require a paid commercial agreement. It covers forecasts (16 days, multiple models), historicals (ERA5 from 1940), marine waves, air quality with pollen, river flood discharge, CMIP6 climate projections, and ensemble runs. Reach for the novel commands (compare, normals, weather-mix, panel, is-good-for) when the user is asking a decision or anomaly question rather than a raw-data question.",
+    "recipes": [
+      {
+        "title": "Pick a slim forecast slice for an agent",
+        "command": "open-meteo-pp-cli forecast --latitude 47.6062 --longitude -122.3321 --hourly temperature_2m,precipitation,weather_code --forecast-days 3 --json --select hourly.time,hourly.temperature_2m,hourly.weather_code",
+        "explanation": "Use --select with dotted paths to narrow deeply nested time-series arrays. Open-Meteo responses can be tens of KB; this trims them to the columns you actually need. Resolve city names via 'geocode search' first or use the novel commands (panel, compare, weather-mix, ...) which accept --place directly."
+      },
+      {
+        "title": "Diff what changed in tomorrow's forecast",
+        "command": "open-meteo-pp-cli forecast diff --place Seattle --json",
+        "explanation": "Compares the current forecast against the cached prior pull for this place and emits only the changed hours."
+      },
+      {
+        "title": "Anomaly check: is this temperature unusual?",
+        "command": "open-meteo-pp-cli compare --place Seattle --metric temperature_2m_mean --years 30 --json",
+        "explanation": "Joins the 30-year ERA5 archive normal for the date and place against the current forecast."
+      },
+      {
+        "title": "Side-by-side panel for travel planning",
+        "command": "open-meteo-pp-cli panel --place \"Seattle,Berlin,Tokyo\" --current temperature_2m,weather_code --json",
+        "explanation": "Open-Meteo accepts comma-separated coords natively; the CLI batches the call and labels each result by place."
+      },
+      {
+        "title": "How often does it rain in October in Seattle?",
+        "command": "open-meteo-pp-cli weather-mix --place Seattle --start-date 2024-10-01 --end-date 2024-10-31 --json",
+        "explanation": "Aggregates archive hourly WMO codes into a category histogram (% clear / % rain / % storms / etc.)."
+      }
+    ],
+    "trigger_phrases": [
+      "what's the weather in",
+      "forecast for",
+      "is it going to rain",
+      "marine forecast",
+      "air quality in",
+      "historical weather",
+      "climate normal",
+      "use open-meteo",
+      "run open-meteo"
+    ]
+  }
+}

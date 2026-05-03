@@ -1,0 +1,74 @@
+# Dogfood matrix — Sat May  2 16:35:00 PDT 2026
+
+PASS  doctor
+PASS  version
+PASS  doctor --json
+PASS  doctor JSON fidelity  (valid JSON)
+PASS  forecast --help
+PASS  forecast happy
+PASS  forecast JSON  (valid JSON)
+PASS  forecast missing lat  (expected non-zero, got 1)
+PASS  archive --help
+PASS  archive happy
+PASS  archive JSON  (valid JSON)
+PASS  archive missing dates  (expected non-zero, got 1)
+PASS  marine --help
+PASS  marine happy
+PASS  marine JSON  (valid JSON)
+PASS  air-quality --help
+PASS  air-quality happy
+PASS  air-quality JSON  (valid JSON)
+PASS  flood --help
+PASS  flood happy
+PASS  flood JSON  (valid JSON)
+PASS  climate --help
+PASS  climate happy
+PASS  climate JSON  (valid JSON)
+PASS  ensemble --help
+PASS  ensemble happy
+PASS  ensemble JSON  (valid JSON)
+PASS  seasonal --help
+PASS  seasonal happy
+PASS  seasonal JSON  (valid JSON)
+PASS  elevation --help
+PASS  elevation single
+PASS  elevation batch
+PASS  elevation JSON  (valid JSON)
+PASS  geocode search --help
+PASS  geocode search happy
+PASS  geocode get happy
+PASS  geocode search JSON  (valid JSON)
+PASS  panel --help
+PASS  panel single place
+PASS  panel multi place
+PASS  panel JSON  (valid JSON)
+PASS  panel bad place  (expected non-zero, got 1)
+PASS  compare --help
+PASS  compare happy
+PASS  compare JSON  (valid JSON)
+PASS  normals --help
+PASS  normals happy
+PASS  normals JSON  (valid JSON)
+PASS  normals missing month  (expected non-zero, got 1)
+PASS  weather-mix --help
+PASS  weather-mix past-days
+PASS  weather-mix JSON  (valid JSON)
+PASS  weather-mix missing dates  (expected non-zero, got 1)
+PASS  forecast diff --help
+PASS  forecast diff first run
+PASS  forecast diff second run
+PASS  forecast diff JSON  (valid JSON)
+PASS  accuracy --help
+PASS  accuracy missing date  (expected non-zero, got 1)
+PASS  accuracy happy
+PASS  accuracy JSON  (valid JSON)
+PASS  is-good-for --help
+PASS  is-good-for hiking
+PASS  is-good-for running
+PASS  is-good-for biking
+PASS  is-good-for surfing
+PASS  is-good-for skiing
+PASS  is-good-for unknown activity
+PASS  is-good-for JSON  (valid JSON)
+
+PASS: 70, FAIL: 0, Total: 70

@@ -42,10 +42,10 @@ checksum:
 brews:
   - name: open-meteo-pp-cli
     repository:
-      owner: hiten-shah
+      owner: trevin-chow
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Open-Meteo offers free weather forecast APIs for open-source developers and non-commercial use. No API key is required."
+    description: "Free, open-source weather, climate, and air-quality data — covers Open-Meteo's full no-API-key surface (forecast, archive, marine, air-quality, flood, climate, ensemble, seasonal, geocoding, elevation)."
     install: |
       bin.install "open-meteo-pp-cli"
       bin.install "open-meteo-pp-mcp"
