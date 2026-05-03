@@ -516,6 +516,29 @@
       }
     },
     {
+      "name": "tiktok-shop",
+      "category": "commerce",
+      "api": "TikTok Shop",
+      "description": "Safe v1 TikTok Shop Seller API CLI/MCP for auth readiness, token exchange and refresh, read-only shops, orders, products, inventory search, fulfillment packages, and warehouses.",
+      "path": "library/commerce/tiktok-shop",
+      "mcp": {
+        "binary": "tiktok-shop-pp-mcp",
+        "transport": "stdio",
+        "tool_count": 11,
+        "public_tool_count": 11,
+        "auth_type": "signed_tiktok_shop_open_api",
+        "env_vars": [
+          "TIKTOK_SHOP_APP_KEY",
+          "TIKTOK_SHOP_APP_SECRET",
+          "TIKTOK_SHOP_ACCESS_TOKEN",
+          "TIKTOK_SHOP_REFRESH_TOKEN",
+          "TIKTOK_SHOP_SHOP_CIPHER"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "trigger-dev",
       "category": "developer-tools",
       "api": "Trigger.dev",
