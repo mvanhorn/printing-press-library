@@ -30,7 +30,20 @@ type FeedbackEntry struct {
 
 const feedbackMaxTextLen = 4096
 
+// syntheticFeedbackText is the placeholder string the cli-printing-press
+// verify pipeline injects when probing the feedback command without a real
+// argument. It must never be persisted to the user's actual ledger — pre-fix
+// the verify pipeline polluted ~/.airbnb-vrbo-pp-cli/feedback.jsonl with
+// these entries on every probe run.
+const syntheticFeedbackText = "mock-value"
+
 func feedbackFilePath() (string, error) {
+	if dir := os.Getenv("AIRBNB_VRBO_DATA_DIR"); dir != "" {
+		if err := os.MkdirAll(dir, 0o700); err != nil {
+			return "", fmt.Errorf("creating state dir: %w", err)
+		}
+		return filepath.Join(dir, "feedback.jsonl"), nil
+	}
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", fmt.Errorf("resolving home dir: %w", err)
@@ -129,6 +142,13 @@ maintainer sees it.`,
 				truncated = true
 			}
 
+			// Drop synthetic verify-pipeline probes silently. The probe
+			// only confirms the command runs; persisting the placeholder
+			// would contaminate the user's real ledger.
+			if text == syntheticFeedbackText {
+				return nil
+			}
+
 			entry := FeedbackEntry{
 				Text:      text,
 				CLI:       "airbnb-vrbo-pp-cli",
@@ -207,6 +227,13 @@ func newFeedbackListCmd(flags *rootFlags) *cobra.Command {
 				}
 				var e FeedbackEntry
 				if err := json.Unmarshal([]byte(line), &e); err != nil {
+					continue
+				}
+				// Drop synthetic verify-pipeline probes that pre-existed
+				// the writer-side guard. New entries are blocked at write
+				// time; this filter cleans up legacy contamination on
+				// read without rewriting the file.
+				if e.Text == syntheticFeedbackText {
 					continue
 				}
 				entries = append(entries, e)

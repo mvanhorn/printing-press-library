@@ -8,6 +8,7 @@ import (
 	"os"
 	"sort"
 
+	"github.com/mvanhorn/printing-press-library/library/travel/airbnb-vrbo/internal/searchbackend"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -25,6 +26,7 @@ type agentContext struct {
 	SchemaVersion              string                 `json:"schema_version"`
 	CLI                        agentContextCLI        `json:"cli"`
 	Auth                       agentContextAuth       `json:"auth"`
+	SearchBackend              string                 `json:"search_backend"`
 	Discovery                  *agentContextDiscovery `json:"discovery,omitempty"`
 	Commands                   []agentContextCommand  `json:"commands"`
 	AvailableProfiles          []string               `json:"available_profiles"`
@@ -114,11 +116,23 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 			Mode:    authMode,
 			EnvVars: envVars,
 		},
+		SearchBackend:              activeSearchBackendName(),
 		Discovery:                  buildAgentDiscoveryContext(),
 		Commands:                   collectAgentCommands(rootCmd),
 		AvailableProfiles:          profiles,
 		FeedbackEndpointConfigured: FeedbackEndpointConfigured(),
 	}
+}
+
+// activeSearchBackendName reports which search backend AutoSelect would
+// resolve right now. Surfaces the resolution so introspecting agents can
+// tell whether a paid backend is configured or DDG is the default.
+func activeSearchBackendName() string {
+	chain := searchbackend.Select("")
+	if len(chain) == 0 {
+		return ""
+	}
+	return chain[0].Name()
 }
 
 func buildAgentDiscoveryContext() *agentContextDiscovery {
