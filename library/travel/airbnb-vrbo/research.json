@@ -1,0 +1,347 @@
+{
+  "api_name": "airbnb-vrbo",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "openbnb-org/mcp-server-airbnb",
+      "url": "https://github.com/openbnb-org/mcp-server-airbnb",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 443,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Apify ecomscrape/vrbo-property-search-scraper",
+      "url": "https://apify.com/ecomscrape/vrbo-property-search-scraper",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Apify easyapi/vrbo-property-listing-scraper",
+      "url": "https://apify.com/easyapi/vrbo-property-listing-scraper",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Apify jupri/vrbo-property",
+      "url": "https://apify.com/jupri/vrbo-property",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "markswendsen-code/mcp-vrbo",
+      "url": "https://github.com/markswendsen-code/mcp-vrbo",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "vedantparmar12/airbnb-mcp",
+      "url": "https://github.com/vedantparmar12/airbnb-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Edioff/vrbo-scraper",
+      "url": "https://github.com/Edioff/vrbo-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Stevesie VRBO API",
+      "url": "https://stevesie.com/apps/vrbo-api",
+      "language": "Documentation",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-03T04:50:00Z",
+  "novel_features": [
+    {
+      "name": "Triple-source price arbitrage",
+      "command": "cheapest",
+      "description": "Given an Airbnb or VRBO listing URL, find the host's direct booking site and report the cheapest of three sources.",
+      "rationale": "Composes host extraction (from listing HTML) + pluggable web-search backend (Parallel/DDG/Brave/Tavily) + price scrape from direct site. The two existing competitors (getaway.direct, hichee.com) are browser-only Chrome extensions; no CLI does this.",
+      "example": "airbnb-vrbo-pp-cli cheapest 'https://www.airbnb.com/rooms/37124493?check_in=2026-05-16\u0026check_out=2026-05-19' --agent",
+      "why_it_matters": "When a user names an Airbnb/VRBO listing, this is the right tool to reach for. Returns a structured comparison of OTA fees vs direct booking with actionable URLs.",
+      "group": "Host-direct arbitrage"
+    },
+    {
+      "name": "Plan a trip composite",
+      "command": "plan",
+      "description": "Search Airbnb and VRBO in parallel for a city/dates/budget, then run cheapest on the top results, return a ranked-by-savings list.",
+      "rationale": "Single command turns a vacation question into a budget-optimized booking shortlist. Requires the local store join across listings, hosts, prices, and direct-site lookups.",
+      "example": "airbnb-vrbo-pp-cli plan 'Lake Tahoe' --checkin 2026-05-16 --checkout 2026-05-19 --guests 4 --budget 1500 --agent",
+      "why_it_matters": "The agent-friendly trip planner. One call returns ranked results across both platforms with direct-booking URLs and savings amounts.",
+      "group": "Host-direct arbitrage"
+    },
+    {
+      "name": "Fee-breakdown comparison",
+      "command": "compare",
+      "description": "Side-by-side: OTA total (with cleaning + service + tax fees) vs direct booking total, with dollar and percent savings.",
+      "rationale": "Joins the listing's fee structure (from VRBO priceSummary or Airbnb StaysPdpBookItQuery) with the direct-site price discovered via cheapest. Browser competitors show this in a popup; this is the agent-native version.",
+      "example": "airbnb-vrbo-pp-cli compare 'https://www.airbnb.com/rooms/37124493' --checkin 2026-05-16 --checkout 2026-05-19 --json",
+      "why_it_matters": "Use when an agent needs to justify a booking recommendation with concrete savings numbers.",
+      "group": "Host-direct arbitrage"
+    },
+    {
+      "name": "Cross-platform same-property match",
+      "command": "match",
+      "description": "Given a listing on Airbnb (or VRBO), find the same property on the other platform via geocode + amenities + photo signal.",
+      "rationale": "Same property listed on both platforms is a strong arbitrage signal (often different prices, fees, taxes). Requires the local fingerprint hash + cross-platform sync. No tool does this.",
+      "example": "airbnb-vrbo-pp-cli match 'https://www.airbnb.com/rooms/37124493' --json",
+      "why_it_matters": "Cross-platform price discrimination is real; the same condo can cost 15 percent less on VRBO. This finds it.",
+      "group": "Cross-platform"
+    },
+    {
+      "name": "Price-drop watchlist",
+      "command": "watch",
+      "description": "Add saved listings to a watchlist with target prices; daily sync checks for drops; cron-friendly exit codes signal hits.",
+      "rationale": "Local store + sync + diff. Vacation-rental price-drop watchers exist for hotels (Hopper) but not for STR; certainly not as a CLI with cron exit codes.",
+      "example": "airbnb-vrbo-pp-cli watch add 'https://www.airbnb.com/rooms/37124493' --max-price 350 --checkin 2026-05-16 --checkout 2026-05-19",
+      "why_it_matters": "Use when a user is shopping a specific listing and waiting for a price drop. Schedule watch check daily; act on exit code 7.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Host portfolio analysis",
+      "command": "host portfolio",
+      "description": "Given a host or property management company name, list every known listing under them across Airbnb and VRBO.",
+      "rationale": "Local store aggregation across platforms. PMCs with 10+ listings almost always have a direct booking site, which feeds the cheapest heuristic.",
+      "example": "airbnb-vrbo-pp-cli host portfolio 'Vacasa' --json --select listings.title,listings.location",
+      "why_it_matters": "Discover bulk patterns: which PMCs operate in this city, which have direct sites, where to focus arbitrage.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Wishlist diff over time",
+      "command": "wishlist diff",
+      "description": "Track price changes on Airbnb wishlists over time; report which saved listings dropped, by how much, and over what window.",
+      "rationale": "Requires local sync of wishlists + price history. Airbnb itself does not expose price-history; only we can show it.",
+      "example": "airbnb-vrbo-pp-cli wishlist diff --since 2026-04-01 --json",
+      "why_it_matters": "User saved a listing months ago and forgot. This surfaces price movement so they can act before booking.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Reverse-image listing twin",
+      "command": "find-twin",
+      "description": "Reverse image search a listing's photos to find the same property on direct booking sites or alternate platforms.",
+      "rationale": "hichee.com's magic button as a CLI. Uses Parallel image search or Tavily image-search backend. Degrades to text search on photo alt-text if no image backend available.",
+      "example": "airbnb-vrbo-pp-cli find-twin 'https://www.airbnb.com/rooms/37124493' --json",
+      "why_it_matters": "When host extraction fails (vague host name), reverse image search is the most reliable signal.",
+      "group": "Host-direct arbitrage"
+    },
+    {
+      "name": "Listing fingerprint",
+      "command": "fingerprint",
+      "description": "Stable hash from photos + amenities + host + city; used by match for dedupe; exposed for power-user export workflows.",
+      "rationale": "Requires the same multi-signal extraction as match but exposed standalone. Power users dedupe across spreadsheet exports.",
+      "example": "airbnb-vrbo-pp-cli fingerprint 'https://www.airbnb.com/rooms/37124493'",
+      "why_it_matters": "Build your own external joins on listings; stable across sessions.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Triple-source price arbitrage",
+      "command": "cheapest",
+      "description": "Given an Airbnb or VRBO listing URL, find the host's direct booking site and report the cheapest of three sources.",
+      "rationale": "Composes host extraction (from listing HTML) + pluggable web-search backend (Parallel/DDG/Brave/Tavily) + price scrape from direct site. The two existing competitors (getaway.direct, hichee.com) are browser-only Chrome extensions; no CLI does this.",
+      "example": "airbnb-vrbo-pp-cli cheapest 'https://www.airbnb.com/rooms/37124493?check_in=2026-05-16\u0026check_out=2026-05-19' --agent",
+      "why_it_matters": "When a user names an Airbnb/VRBO listing, this is the right tool to reach for. Returns a structured comparison of OTA fees vs direct booking with actionable URLs.",
+      "group": "Host-direct arbitrage"
+    },
+    {
+      "name": "Plan a trip composite",
+      "command": "plan",
+      "description": "Search Airbnb and VRBO in parallel for a city/dates/budget, then run cheapest on the top results, return a ranked-by-savings list.",
+      "rationale": "Single command turns a vacation question into a budget-optimized booking shortlist. Requires the local store join across listings, hosts, prices, and direct-site lookups.",
+      "example": "airbnb-vrbo-pp-cli plan 'Lake Tahoe' --checkin 2026-05-16 --checkout 2026-05-19 --guests 4 --budget 1500 --agent",
+      "why_it_matters": "The agent-friendly trip planner. One call returns ranked results across both platforms with direct-booking URLs and savings amounts.",
+      "group": "Host-direct arbitrage"
+    },
+    {
+      "name": "Fee-breakdown comparison",
+      "command": "compare",
+      "description": "Side-by-side: OTA total (with cleaning + service + tax fees) vs direct booking total, with dollar and percent savings.",
+      "rationale": "Joins the listing's fee structure (from VRBO priceSummary or Airbnb StaysPdpBookItQuery) with the direct-site price discovered via cheapest. Browser competitors show this in a popup; this is the agent-native version.",
+      "example": "airbnb-vrbo-pp-cli compare 'https://www.airbnb.com/rooms/37124493' --checkin 2026-05-16 --checkout 2026-05-19 --json",
+      "why_it_matters": "Use when an agent needs to justify a booking recommendation with concrete savings numbers.",
+      "group": "Host-direct arbitrage"
+    },
+    {
+      "name": "Cross-platform same-property match",
+      "command": "match",
+      "description": "Given a listing on Airbnb (or VRBO), find the same property on the other platform via geocode + amenities + photo signal.",
+      "rationale": "Same property listed on both platforms is a strong arbitrage signal (often different prices, fees, taxes). Requires the local fingerprint hash + cross-platform sync. No tool does this.",
+      "example": "airbnb-vrbo-pp-cli match 'https://www.airbnb.com/rooms/37124493' --json",
+      "why_it_matters": "Cross-platform price discrimination is real; the same condo can cost 15 percent less on VRBO. This finds it.",
+      "group": "Cross-platform"
+    },
+    {
+      "name": "Price-drop watchlist",
+      "command": "watch",
+      "description": "Add saved listings to a watchlist with target prices; daily sync checks for drops; cron-friendly exit codes signal hits.",
+      "rationale": "Local store + sync + diff. Vacation-rental price-drop watchers exist for hotels (Hopper) but not for STR; certainly not as a CLI with cron exit codes.",
+      "example": "airbnb-vrbo-pp-cli watch add 'https://www.airbnb.com/rooms/37124493' --max-price 350 --checkin 2026-05-16 --checkout 2026-05-19",
+      "why_it_matters": "Use when a user is shopping a specific listing and waiting for a price drop. Schedule watch check daily; act on exit code 7.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Host portfolio analysis",
+      "command": "host portfolio",
+      "description": "Given a host or property management company name, list every known listing under them across Airbnb and VRBO.",
+      "rationale": "Local store aggregation across platforms. PMCs with 10+ listings almost always have a direct booking site, which feeds the cheapest heuristic.",
+      "example": "airbnb-vrbo-pp-cli host portfolio 'Vacasa' --json --select listings.title,listings.location",
+      "why_it_matters": "Discover bulk patterns: which PMCs operate in this city, which have direct sites, where to focus arbitrage.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Wishlist diff over time",
+      "command": "wishlist diff",
+      "description": "Track price changes on Airbnb wishlists over time; report which saved listings dropped, by how much, and over what window.",
+      "rationale": "Requires local sync of wishlists + price history. Airbnb itself does not expose price-history; only we can show it.",
+      "example": "airbnb-vrbo-pp-cli wishlist diff --since 2026-04-01 --json",
+      "why_it_matters": "User saved a listing months ago and forgot. This surfaces price movement so they can act before booking.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Reverse-image listing twin",
+      "command": "find-twin",
+      "description": "Reverse image search a listing's photos to find the same property on direct booking sites or alternate platforms.",
+      "rationale": "hichee.com's magic button as a CLI. Uses Parallel image search or Tavily image-search backend. Degrades to text search on photo alt-text if no image backend available.",
+      "example": "airbnb-vrbo-pp-cli find-twin 'https://www.airbnb.com/rooms/37124493' --json",
+      "why_it_matters": "When host extraction fails (vague host name), reverse image search is the most reliable signal.",
+      "group": "Host-direct arbitrage"
+    },
+    {
+      "name": "Listing fingerprint",
+      "command": "fingerprint",
+      "description": "Stable hash from photos + amenities + host + city; used by match for dedupe; exposed for power-user export workflows.",
+      "rationale": "Requires the same multi-signal extraction as match but exposed standalone. Power users dedupe across spreadsheet exports.",
+      "example": "airbnb-vrbo-pp-cli fingerprint 'https://www.airbnb.com/rooms/37124493'",
+      "why_it_matters": "Build your own external joins on listings; stable across sessions.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Airbnb + VRBO",
+    "headline": "Skip the platform fee. Find the host's direct booking site for any Airbnb or VRBO listing.",
+    "value_prop": "Search Airbnb and VRBO from the terminal. Then run cheapest on a listing to extract the host's brand, web-search for their direct booking site, and report the lowest of three prices side-by-side. Cross-platform match, price-drop watchlist, host portfolio analysis, and trip planning all built on a local store that compounds over time.",
+    "auth_narrative": "Public search and listing detail need no auth. Authenticated features (Airbnb wishlists, trip history) use cookie import via auth login --chrome. The web-search backend is pluggable: Parallel.ai (paid, best), DuckDuckGo HTML (free default), Brave Search API (free tier), or Tavily (free tier).",
+    "quickstart": [
+      {
+        "command": "airbnb-vrbo-pp-cli doctor",
+        "comment": "Verify reachability and which search backend is active."
+      },
+      {
+        "command": "airbnb-vrbo-pp-cli airbnb search 'Lake Tahoe' --checkin 2026-05-16 --checkout 2026-05-19 --guests 4",
+        "comment": "Find listings on Airbnb."
+      },
+      {
+        "command": "airbnb-vrbo-pp-cli vrbo search 'Lake Tahoe' --checkin 2026-05-16 --checkout 2026-05-19 --guests 4",
+        "comment": "Same query, VRBO side."
+      },
+      {
+        "command": "airbnb-vrbo-pp-cli cheapest 'https://www.airbnb.com/rooms/37124493?check_in=2026-05-16\u0026check_out=2026-05-19'",
+        "comment": "The headline command. Find the host's direct booking site and the cheapest of three sources."
+      },
+      {
+        "command": "airbnb-vrbo-pp-cli plan 'Lake Tahoe' --checkin 2026-05-16 --checkout 2026-05-19 --guests 4 --budget 1500",
+        "comment": "One call: search both platforms, find direct sites, return ranked-by-savings list."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "VRBO returns 'Bot or Not?' challenge",
+        "fix": "The CLI uses Surf with Chrome TLS impersonation and a warmup pattern by default. If you still see challenges: run airbnb-vrbo-pp-cli doctor --probe vrbo to verify the warmup is firing; reduce request rate with --rate 0.3 (req/sec)."
+      },
+      {
+        "symptom": "cheapest returns 'no direct site found'",
+        "fix": "Try --search-backend parallel or --search-backend brave for higher-quality results; ensure PARALLEL_API_KEY or BRAVE_SEARCH_API_KEY is set in env."
+      },
+      {
+        "symptom": "Airbnb wishlist commands fail with auth error",
+        "fix": "Run airbnb-vrbo-pp-cli auth login --chrome to import your Chrome cookies; airbnb-vrbo-pp-cli auth status verifies."
+      },
+      {
+        "symptom": "watch check exits with code 7 unexpectedly",
+        "fix": "Code 7 means at least one watched listing dropped below threshold — that is the success path. Check with airbnb-vrbo-pp-cli watch list --since 24h."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent or user names an Airbnb or VRBO listing URL, asks about vacation rental fees or savings, mentions 'book direct,' or wants to compare prices across STR platforms. The cheapest command is the headline; plan and compare extend it. The local store accumulates listings, hosts, and price history across sessions, so re-running queries gets faster and richer over time.",
+    "recipes": [
+      {
+        "title": "Find the cheapest way to book a saved Airbnb listing",
+        "command": "airbnb-vrbo-pp-cli cheapest 'https://www.airbnb.com/rooms/37124493' --checkin 2026-05-16 --checkout 2026-05-19 --json --select savings,direct.url,direct.total,airbnb.total",
+        "explanation": "Returns just the savings and price comparison fields, not the full host-extraction trace."
+      },
+      {
+        "title": "Plan a 4-guest Tahoe trip across both platforms",
+        "command": "airbnb-vrbo-pp-cli plan 'Lake Tahoe' --checkin 2026-05-16 --checkout 2026-05-19 --guests 4 --budget 1500 --agent",
+        "explanation": "Fans out across Airbnb + VRBO + direct discovery; ranks by total savings."
+      },
+      {
+        "title": "Watch for price drops on saved listings",
+        "command": "airbnb-vrbo-pp-cli watch add 'https://www.airbnb.com/rooms/37124493' --max-price 350 \u0026\u0026 airbnb-vrbo-pp-cli watch check",
+        "explanation": "Add to watchlist, then check with cron — exits 7 when any drop is under threshold."
+      },
+      {
+        "title": "Find a Vacasa property in Austin and book direct",
+        "command": "airbnb-vrbo-pp-cli host portfolio 'Vacasa' --city Austin --agent --select listings.title,listings.direct_url",
+        "explanation": "Bulk discovery of one PMC's portfolio with direct URLs already resolved."
+      },
+      {
+        "title": "Compare deeply nested response",
+        "command": "airbnb-vrbo-pp-cli airbnb get 37124493 --agent --select listing.title,listing.coordinate.latitude,listing.coordinate.longitude,pricingQuote.structuredStayDisplayPrice.primaryLine.price,pricingQuote.structuredStayDisplayPrice.secondaryLine.price",
+        "explanation": "Use --select with dotted paths to narrow Airbnb's deeply nested SSR Apollo cache to just the high-gravity fields."
+      }
+    ],
+    "trigger_phrases": [
+      "find the direct booking site",
+      "skip the airbnb fee",
+      "compare airbnb and vrbo",
+      "vacation rental cheapest",
+      "book direct",
+      "use airbnb-vrbo",
+      "run airbnb-vrbo"
+    ]
+  }
+}

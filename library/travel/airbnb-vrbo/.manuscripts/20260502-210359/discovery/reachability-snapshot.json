@@ -1,0 +1,29 @@
+{
+  "captured_at": "2026-05-03T04:10:11Z",
+  "sources": {
+    "airbnb_home": {
+      "url": "https://www.airbnb.com/",
+      "mode": "standard_http",
+      "confidence": 0.95,
+      "stdlib_status": 200
+    },
+    "airbnb_xhr_api": {
+      "url": "https://www.airbnb.com/api/v2/explore_tabs",
+      "mode": "unknown (400 - GraphQL needs proper params)",
+      "note": "browser-sniff needed to capture working POST to /api/v3/StaysSearch"
+    },
+    "vrbo_home": {
+      "url": "https://www.vrbo.com/",
+      "mode": "browser_http",
+      "confidence": 0.85,
+      "stdlib_status": 429,
+      "surf_chrome_status": 200,
+      "note": "ship Surf transport in CLI; Akamai blocks plain stdlib"
+    },
+    "parallel_home": {
+      "url": "https://parallel.ai",
+      "mode": "standard_http",
+      "confidence": 0.95
+    }
+  }
+}

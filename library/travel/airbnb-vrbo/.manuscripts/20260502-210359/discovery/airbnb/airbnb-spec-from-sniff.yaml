@@ -1,0 +1,2160 @@
+name: airbnb
+description: Discovered API spec for a0-muscache
+version: 0.1.0
+base_url: https://www.airbnb.com
+spec_source: sniffed
+auth:
+    type: api_key
+    header: X-Airbnb-API-Key
+    format: ""
+    env_vars:
+        - A0_MUSCACHE_API_KEY
+    in: header
+config:
+    format: toml
+    path: ~/.config/airbnb-pp-cli/config.toml
+resources:
+    $rpc:
+        description: Operations on GetViewportInfo
+        endpoints:
+            create_GetViewportInfo:
+                method: POST
+                path: /$rpc/google.internal.maps.mapsjs.v1.MapsJsInternalService/GetViewportInfo
+                description: POST /$rpc/google.internal.maps.mapsjs.v1.MapsJsInternalService/GetViewportInfo
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: GetViewportInfo
+                pagination: null
+    GetConsentFlagsQuery:
+        description: Operations on GetConsentFlagsQuery
+        endpoints:
+            get_GetConsentFlagsQuery:
+                method: GET
+                path: /api/v3/GetConsentFlagsQuery/{hash}
+                description: GET /api/v3/GetConsentFlagsQuery/{hash}
+                params:
+                    - name: currency
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: extensions
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hash
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The hash path segment
+                      fields: []
+                    - name: locale
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: operationName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: variables
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: GetConsentFlagsQuery
+                pagination: null
+    GetThumbnailPicQuery:
+        description: Operations on GetThumbnailPicQuery
+        endpoints:
+            get_GetThumbnailPicQuery:
+                method: GET
+                path: /api/v3/GetThumbnailPicQuery/{hash}
+                description: GET /api/v3/GetThumbnailPicQuery/{hash}
+                params:
+                    - name: currency
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: extensions
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hash
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The hash path segment
+                      fields: []
+                    - name: locale
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: operationName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: variables
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: GetThumbnailPicQuery
+                pagination: null
+    Header:
+        description: Operations on Header
+        endpoints:
+            get_Header:
+                method: GET
+                path: /api/v3/Header/{hash}
+                description: GET /api/v3/Header/{hash}
+                params:
+                    - name: currency
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: extensions
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hash
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The hash path segment
+                      fields: []
+                    - name: locale
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: operationName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: variables
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Header
+                pagination: null
+    IsHostQuery:
+        description: Operations on IsHostQuery
+        endpoints:
+            get_IsHostQuery:
+                method: GET
+                path: /api/v3/IsHostQuery/{hash}
+                description: GET /api/v3/IsHostQuery/{hash}
+                params:
+                    - name: currency
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: extensions
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hash
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The hash path segment
+                      fields: []
+                    - name: locale
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: operationName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: IsHostQuery
+                pagination: null
+    MapViewportInfoQuery:
+        description: Operations on MapViewportInfoQuery
+        endpoints:
+            get_MapViewportInfoQuery:
+                method: GET
+                path: /api/v3/MapViewportInfoQuery/{hash}
+                description: GET /api/v3/MapViewportInfoQuery/{hash}
+                params:
+                    - name: currency
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: extensions
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hash
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The hash path segment
+                      fields: []
+                    - name: locale
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: operationName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: variables
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: MapViewportInfoQuery
+                pagination: null
+    NaviServerAnnouncementsQuery:
+        description: Operations on NaviServerAnnouncementsQuery
+        endpoints:
+            get_NaviServerAnnouncementsQuery:
+                method: GET
+                path: /api/v3/NaviServerAnnouncementsQuery/{hash}
+                description: GET /api/v3/NaviServerAnnouncementsQuery/{hash}
+                params:
+                    - name: currency
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: extensions
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hash
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The hash path segment
+                      fields: []
+                    - name: locale
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: operationName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: variables
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: NaviServerAnnouncementsQuery
+                pagination: null
+    PlacesMapTileLayersQuery:
+        description: Operations on PlacesMapTileLayersQuery
+        endpoints:
+            get_PlacesMapTileLayersQuery:
+                method: GET
+                path: /api/v3/PlacesMapTileLayersQuery/{hash}
+                description: GET /api/v3/PlacesMapTileLayersQuery/{hash}
+                params:
+                    - name: currency
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: extensions
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hash
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The hash path segment
+                      fields: []
+                    - name: locale
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: operationName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: variables
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: PlacesMapTileLayersQuery
+                pagination: null
+    SimilarListingsCarouselQuery:
+        description: Operations on SimilarListingsCarouselQuery
+        endpoints:
+            get_SimilarListingsCarouselQuery:
+                method: GET
+                path: /api/v3/SimilarListingsCarouselQuery/{hash}
+                description: GET /api/v3/SimilarListingsCarouselQuery/{hash}
+                params:
+                    - name: currency
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: extensions
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hash
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The hash path segment
+                      fields: []
+                    - name: locale
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: operationName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: variables
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: SimilarListingsCarouselQuery
+                pagination: null
+    StaysPdpBookItQuery:
+        description: Operations on StaysPdpBookItQuery
+        endpoints:
+            get_StaysPdpBookItQuery:
+                method: GET
+                path: /api/v3/StaysPdpBookItQuery/{hash}
+                description: GET /api/v3/StaysPdpBookItQuery/{hash}
+                params:
+                    - name: currency
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: extensions
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hash
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The hash path segment
+                      fields: []
+                    - name: locale
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: operationName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: variables
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: StaysPdpBookItQuery
+                pagination: null
+    StaysPdpSections:
+        description: Operations on StaysPdpSections
+        endpoints:
+            create_StaysPdpSections:
+                method: POST
+                path: /api/v3/StaysPdpSections/{hash}
+                description: POST /api/v3/StaysPdpSections/{hash}
+                params:
+                    - name: currency
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hash
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The hash path segment
+                      fields: []
+                    - name: locale
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: operationName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body:
+                    - name: extensions
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: persistedQuery
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: sha256Hash
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: version
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: dateRange
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: endDate
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: startDate
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: demandStayListingId
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: federatedSearchId
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                        - name: guestCounts
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: numberOfAdults
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: id
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includeGpAmenitiesFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includeGpBookItFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includeGpBookItNonExperiencedGuestFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includeGpDescriptionFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includeGpHeroFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includeGpHighlightsFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includeGpLocationPdpFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includeGpMarqueeBookItFloatingFooterFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includeGpMarqueeBookItNavFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includeGpMarqueeBookItSidebarFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includeGpMeetYourHostFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includeGpNavFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includeGpNavMobileFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includeGpNonExperiencedGuestLearnMoreModalFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includeGpOverviewV2Fragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includeGpPoliciesFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includeGpReportToAirbnbFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includeGpReviewsEmptyFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includeGpReviewsFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includeGpReviewsHighlightBannerFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includeGpTitleFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includePdpMigrationAmenitiesFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includePdpMigrationBookItCalendarSheetFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includePdpMigrationBookItFloatingFooterFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includePdpMigrationBookItNavFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includePdpMigrationBookItNonExperiencedGuestFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includePdpMigrationDescriptionFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includePdpMigrationHeroFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includePdpMigrationHighlightsFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includePdpMigrationLocationPdpFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includePdpMigrationMarqueeBookItFloatingFooterFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includePdpMigrationMarqueeBookItNavFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includePdpMigrationMarqueeBookItSidebarFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includePdpMigrationMeetYourHostFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includePdpMigrationNavFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includePdpMigrationNavMobileFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includePdpMigrationOverviewV2Fragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includePdpMigrationPoliciesFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includePdpMigrationReportToAirbnbFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includePdpMigrationReviewsEmptyFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includePdpMigrationReviewsFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includePdpMigrationReviewsHighlightBannerFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: includePdpMigrationTitleFragment
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: p3ImpressionId
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: pdpSectionsRequest
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: adults
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: bypassTargetings
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: checkIn
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: checkOut
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: federatedSearchId
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: uuid
+                            - name: hostPreview
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: layouts
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: p3ImpressionId
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: pets
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: preview
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: privateBooking
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: sectionIds
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: staysBookingMigrationEnabled
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: useNewSectionWrapperApi
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                response:
+                    type: object
+                    item: StaysPdpSections
+                pagination: null
+    WishlistIndexPageQuery:
+        description: Operations on WishlistIndexPageQuery
+        endpoints:
+            get_WishlistIndexPageQuery:
+                method: GET
+                path: /api/v3/WishlistIndexPageQuery/{hash}
+                description: GET /api/v3/WishlistIndexPageQuery/{hash}
+                params:
+                    - name: currency
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: extensions
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hash
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The hash path segment
+                      fields: []
+                    - name: locale
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: operationName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: variables
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: WishlistIndexPageQuery
+                pagination: null
+    WishlistItemsAsyncQuery:
+        description: Operations on WishlistItemsAsyncQuery
+        endpoints:
+            get_WishlistItemsAsyncQuery:
+                method: GET
+                path: /api/v3/WishlistItemsAsyncQuery/{hash}
+                description: GET /api/v3/WishlistItemsAsyncQuery/{hash}
+                params:
+                    - name: currency
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: extensions
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hash
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The hash path segment
+                      fields: []
+                    - name: locale
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: operationName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: variables
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: WishlistItemsAsyncQuery
+                pagination: null
+    default:
+        description: Operations on default
+        endpoints:
+            list_endpoint:
+                method: GET
+                path: /
+                description: GET /
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: response
+                pagination: null
+    get-data-layer-variables:
+        description: Operations on get-data-layer-variables
+        endpoints:
+            create_get_data_layer_variables:
+                method: POST
+                path: /api/v2/get-data-layer-variables
+                description: POST /api/v2/get-data-layer-variables
+                params:
+                    - name: currency
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: locale
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body:
+                    - name: bevId
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: listingId
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: userId
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: get_data_layer_variables
+                pagination: null
+    js:
+        description: Operations on js
+        endpoints:
+            create_js:
+                method: POST
+                path: /js/
+                description: POST /js/
+                params: []
+                body:
+                    - name: Referer
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: cid
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ddk
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ddv
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: eventCounters
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: jsType
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: jspl
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: request
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: responsePage
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: js
+                pagination: null
+    manifest.json:
+        description: Operations on manifest.json
+        endpoints:
+            list_manifest.json:
+                method: GET
+                path: /manifest.json
+                description: GET /manifest.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: manifest.json
+                pagination: null
+    maps:
+        description: Operations on mapConfigs:batchGet
+        endpoints:
+            list_mapConfigs:batchGet:
+                method: GET
+                path: /maps/api/mapsjs/mapConfigs:batchGet
+                description: GET /maps/api/mapsjs/mapConfigs:batchGet
+                params:
+                    - name: alt
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: language
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: major_version
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: map_ids
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: map_type
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: minor_version
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: region
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: mapConfigs:batchGet
+                pagination: null
+    marketing_event_tracking:
+        description: Operations on marketing_event_tracking
+        endpoints:
+            create_marketing_event_tracking:
+                method: POST
+                path: /api/v2/marketing_event_tracking
+                description: POST /api/v2/marketing_event_tracking
+                params:
+                    - name: currency
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: locale
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body:
+                    - name: event_data
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: context_uuid
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                        - name: delay_seconds
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: emit_growth_landing_page_impression_event
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: impression_uuid
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                        - name: page_name
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: referrer
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: req_uuid
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: event_type
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: marketing_event_tracking
+                pagination: null
+    pagead:
+        description: Operations on conversion
+        endpoints:
+            get_conversion:
+                method: GET
+                path: /pagead/conversion/{id}/
+                description: GET /pagead/conversion/{id}/
+                params:
+                    - name: _is_sw
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: _tu
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: auid
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: bg
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: bttype
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: cv
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: data
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: dma
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ec_mode
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: em
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: fmt
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: fst
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: gcd
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: gcs
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: gtm
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: guid
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                    - name: label
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: npa
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: pscdl
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: random
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: rcb
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: s3p
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: tag_exp
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: tiba
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: u_h
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: u_w
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: uaa
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: uab
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: uafvl
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: uam
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: uamb
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: uap
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: uapv
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: uaw
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: uip
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: url
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: value
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: conversion
+                pagination: null
+    pictures:
+        description: Operations on 37da5952-38f8-4a2a-a040-44a405709035.json
+        endpoints:
+            list_37da5952_38f8_4a2a_a040_44a405709035.json:
+                method: GET
+                path: /pictures/airbnb-platform-assets/AirbnbPlatformAssets-Tips/original/37da5952-38f8-4a2a-a040-44a405709035.json
+                description: GET /pictures/airbnb-platform-assets/AirbnbPlatformAssets-Tips/original/37da5952-38f8-4a2a-a040-44a405709035.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: 37da5952_38f8_4a2a_a040_44a405709035.json
+                pagination: null
+    styleTables:
+        description: Operations on 1b8e074336cb4c1ff83183d1
+        endpoints:
+            list_1b8e074336cb4c1ff83183d1:
+                method: GET
+                path: /v1/styleTables/1b8e074336cb4c1ff83183d1
+                description: GET /v1/styleTables/1b8e074336cb4c1ff83183d1
+                params:
+                    - name: configSet
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: configVersion
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: version
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: 1b8e074336cb4c1ff83183d1
+                pagination: null
+    track:
+        description: Operations on realtimeconversion
+        endpoints:
+            create_realtimeconversion:
+                method: POST
+                path: /track/realtimeconversion
+                description: POST /track/realtimeconversion
+                params: []
+                body:
+                    - name: data
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: adv
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: currency
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: order_id
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: pixel_ids
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: privacy_settings
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: referrer_url
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: url
+                        - name: td2
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                response:
+                    type: object
+                    item: realtimeconversion
+                pagination: null
+            options_realtimeconversion:
+                method: OPTIONS
+                path: /track/realtimeconversion
+                description: OPTIONS /track/realtimeconversion
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: realtimeconversion
+                pagination: null
+    tracking:
+        description: Operations on messages
+        endpoints:
+            create_messages:
+                method: POST
+                path: /tracking/jitney/logging/messages
+                description: POST /tracking/jitney/logging/messages
+                params: []
+                body:
+                    - name: event_data
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: context
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: bev
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: client_session_id
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: uuid
+                            - name: country_of_ip
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: device
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: environment
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: extra_data
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: impression_uuid
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: uuid
+                            - name: language
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: locale
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: locale_country
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: ntp_corrected_time
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: page_name
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: platform
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: raw_timestamp
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: screen_height
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: screen_width
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: source
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: time_zone
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: timestamp
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: user_agent
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: user_id
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: version
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: visitor_id
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: web
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: data_layer_event_data
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: dynx_params
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: urlContainsPII
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: data_layer_event_name
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: event_name
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: schema
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: event_name
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: schema
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: trackingjs_logging_version
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: uuid
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: uuid
+                response:
+                    type: object
+                    item: messages
+                pagination: null
+types: {}

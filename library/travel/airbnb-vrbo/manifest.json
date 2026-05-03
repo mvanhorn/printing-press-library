@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "airbnb-vrbo-pp-mcp",
+  "display_name": "Airbnb Vrbo",
+  "version": "3.6.1",
+  "description": "Search Airbnb and VRBO, find the host's direct booking site, and report the cheapest of three sources side-by-side.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/airbnb-vrbo-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/airbnb-vrbo-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
