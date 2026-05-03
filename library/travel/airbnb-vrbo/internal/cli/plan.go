@@ -30,6 +30,9 @@ func newPlanCmd(flags *rootFlags) *cobra.Command {
 			if checkin == "" || checkout == "" {
 				return usageErr(fmt.Errorf("--checkin and --checkout are required"))
 			}
+			if err := validateDates(checkin, checkout); err != nil {
+				return usageErr(err)
+			}
 			city := args[0]
 			type source struct{ name string }
 			results, errs := cliutil.FanoutRun(cmd.Context(), []source{{"airbnb"}, {"vrbo"}}, func(s source) string { return s.name }, func(ctx context.Context, s source) ([]string, error) {

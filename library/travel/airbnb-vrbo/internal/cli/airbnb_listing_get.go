@@ -28,6 +28,9 @@ func newAirbnbListingGetCmd(flags *rootFlags) *cobra.Command {
 			if flagId == "" && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "id")
 			}
+			if err := validateDates(flagCheckin, flagCheckout); err != nil {
+				return usageErr(err)
+			}
 			if flags.dryRun {
 				return printJSONFiltered(cmd.OutOrStdout(), &airbnb.Listing{ID: flagId}, flags)
 			}

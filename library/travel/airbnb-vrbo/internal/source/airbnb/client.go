@@ -158,7 +158,7 @@ func (c *Client) fetchDeferredJSON(ctx context.Context, target, path string, out
 	}
 	script := doc.Find("#data-deferred-state-0").First().Text()
 	if strings.TrimSpace(script) == "" {
-		return fmt.Errorf("Airbnb deferred state script not found")
+		return ErrNotFound
 	}
 	var root any
 	if err := json.Unmarshal([]byte(script), &root); err != nil {

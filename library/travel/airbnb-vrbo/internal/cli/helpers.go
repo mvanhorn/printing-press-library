@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/travel/airbnb-vrbo/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/travel/airbnb-vrbo/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/travel/airbnb-vrbo/internal/source/airbnb"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"
@@ -196,6 +197,9 @@ func isSyncAccessWarning(err error) (*accessWarning, bool) {
 
 // classifyAPIError maps API errors to structured exit codes with actionable hints.
 func classifyAPIError(err error) error {
+	if errors.Is(err, airbnb.ErrNotFound) {
+		return notFoundErr(fmt.Errorf("listing not found: %w", err))
+	}
 	msg := err.Error()
 	switch {
 	case strings.Contains(msg, "HTTP 409"):

@@ -40,6 +40,12 @@ func newAirbnbListingSearchCmd(flags *rootFlags) *cobra.Command {
 			if flagLocation == "" && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "location")
 			}
+			if err := validatePropertyType(flagPropertyType); err != nil {
+				return usageErr(err)
+			}
+			if err := validateDates(flagCheckin, flagCheckout); err != nil {
+				return usageErr(err)
+			}
 			if flags.dryRun {
 				return printJSONFiltered(cmd.OutOrStdout(), []airbnb.Listing{}, flags)
 			}

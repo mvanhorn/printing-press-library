@@ -16,6 +16,9 @@ func newCheapestCmd(flags *rootFlags) *cobra.Command {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
+			if err := validateDates(checkin, checkout); err != nil {
+				return usageErr(err)
+			}
 			target := stripURLArg(args[0])
 			if flags.dryRun {
 				return printJSONFiltered(cmd.OutOrStdout(), dryRunCheapest(target), flags)
