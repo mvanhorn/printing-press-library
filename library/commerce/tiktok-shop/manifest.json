@@ -1,0 +1,89 @@
+{
+  "manifest_version": "0.3",
+  "name": "tiktok-shop-pp-mcp",
+  "display_name": "TikTok Shop",
+  "version": "0.1.0",
+  "description": "Safe v1 TikTok Shop Printing Press MCP. Read-only commerce tools and token refresh are sourced from official Partner Center docs; mutations are deferred.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/tiktok-shop-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/tiktok-shop-pp-mcp",
+      "args": [],
+      "env": {
+        "TIKTOK_SHOP_APP_KEY": "${user_config.tiktok_shop_app_key}",
+        "TIKTOK_SHOP_APP_SECRET": "${user_config.tiktok_shop_app_secret}",
+        "TIKTOK_SHOP_ACCESS_TOKEN": "${user_config.tiktok_shop_access_token}",
+        "TIKTOK_SHOP_REFRESH_TOKEN": "${user_config.tiktok_shop_refresh_token}",
+        "TIKTOK_SHOP_SHOP_ID": "${user_config.tiktok_shop_shop_id}",
+        "TIKTOK_SHOP_SHOP_CIPHER": "${user_config.tiktok_shop_shop_cipher}",
+        "TIKTOK_SHOP_BASE_URL": "${user_config.tiktok_shop_base_url}",
+        "TIKTOK_SHOP_AUTH_BASE_URL": "${user_config.tiktok_shop_auth_base_url}"
+      }
+    }
+  },
+  "user_config": {
+    "tiktok_shop_app_key": {
+      "type": "string",
+      "title": "TIKTOK_SHOP_APP_KEY",
+      "description": "TikTok Shop Partner Center app key. Official auth docs: https://partner.tiktokshop.com/docv2/page/678e3a3292b0f40314a92d75",
+      "sensitive": true,
+      "required": true
+    },
+    "tiktok_shop_app_secret": {
+      "type": "string",
+      "title": "TIKTOK_SHOP_APP_SECRET",
+      "description": "TikTok Shop Partner Center app secret used for official HMAC-SHA256 signing. Never commit this value.",
+      "sensitive": true,
+      "required": true
+    },
+    "tiktok_shop_access_token": {
+      "type": "string",
+      "title": "TIKTOK_SHOP_ACCESS_TOKEN",
+      "description": "Access token from the official TikTok Shop authorization flow. Sent only as x-tts-access-token.",
+      "sensitive": true,
+      "required": true
+    },
+    "tiktok_shop_refresh_token": {
+      "type": "string",
+      "title": "TIKTOK_SHOP_REFRESH_TOKEN",
+      "description": "Refresh token from the official TikTok Shop authorization flow. Required only for auth refresh.",
+      "sensitive": true,
+      "required": false
+    },
+    "tiktok_shop_shop_id": {
+      "type": "string",
+      "title": "TIKTOK_SHOP_SHOP_ID",
+      "description": "Optional shop identifier for local bookkeeping. API calls use shop_cipher where official docs require it.",
+      "required": false
+    },
+    "tiktok_shop_shop_cipher": {
+      "type": "string",
+      "title": "TIKTOK_SHOP_SHOP_CIPHER",
+      "description": "Shop cipher returned by Get Authorized Shops; required for shop-scoped order/product/inventory/logistics calls.",
+      "sensitive": true,
+      "required": false
+    },
+    "tiktok_shop_base_url": {
+      "type": "string",
+      "title": "TIKTOK_SHOP_BASE_URL",
+      "description": "Optional override. Defaults to official https://open-api.tiktokglobalshop.com.",
+      "required": false
+    },
+    "tiktok_shop_auth_base_url": {
+      "type": "string",
+      "title": "TIKTOK_SHOP_AUTH_BASE_URL",
+      "description": "Optional override. Defaults to official https://auth.tiktok-shops.com.",
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": ["darwin", "linux", "win32"]
+  },
+  "cli_binary": "tiktok-shop-pp-cli"
+}

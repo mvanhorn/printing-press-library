@@ -1,0 +1,35 @@
+{
+  "api_name": "tiktok-shop",
+  "base_url": "https://open-api.tiktokglobalshop.com",
+  "description": "Safe v1 TikTok Shop MCP tools sourced only from official Partner Center docs. Mutations are deferred unless explicitly listed as read-only.",
+  "mcp_ready": "safe_v1_read_only",
+  "http_transport": "standard",
+  "auth": {
+    "type": "signed_tiktok_shop_open_api",
+    "token_header": "x-tts-access-token",
+    "required_env": [
+      "TIKTOK_SHOP_APP_KEY",
+      "TIKTOK_SHOP_APP_SECRET",
+      "TIKTOK_SHOP_ACCESS_TOKEN"
+    ],
+    "shop_scoped_env": ["TIKTOK_SHOP_SHOP_CIPHER"],
+    "official_docs": [
+      "https://partner.tiktokshop.com/docv2/page/678e3a3292b0f40314a92d75",
+      "https://partner.tiktokshop.com/docv2/page/678e3a3d4ddec3030b238faf"
+    ]
+  },
+  "required_headers": ["content-type: application/json", "x-tts-access-token"],
+  "tools": [
+    {"name": "context", "status": "implemented", "risk": "low"},
+    {"name": "shops_info", "status": "implemented", "risk": "medium", "doc_url": "https://partner.tiktokshop.com/docv2/page/6507ead7b99d5302be949ba9"},
+    {"name": "orders_list", "status": "implemented", "risk": "high_pii", "doc_url": "https://partner.tiktokshop.com/docv2/page/650aa8094a0bb702c06df242"},
+    {"name": "orders_get", "status": "implemented", "risk": "high_pii", "doc_url": "https://partner.tiktokshop.com/docv2/page/650aa8ccc16ffe02b8f167a0"},
+    {"name": "products_list", "status": "implemented", "risk": "medium", "doc_url": "https://partner.tiktokshop.com/docv2/page/6503081a56e2bb0289dd6d7d"},
+    {"name": "products_get", "status": "implemented", "risk": "medium", "doc_url": "https://partner.tiktokshop.com/docv2/page/6509d85b4a0bb702c057fdda"},
+    {"name": "inventory_get", "status": "implemented", "risk": "medium", "doc_url": "https://partner.tiktokshop.com/docv2/page/650a9191c16ffe02b8eec161"},
+    {"name": "fulfillment_list", "status": "implemented", "risk": "high_pii", "doc_url": "https://partner.tiktokshop.com/docv2/page/650aa592bace3e02b75db748"},
+    {"name": "fulfillment_get", "status": "implemented", "risk": "high_pii", "doc_url": "https://partner.tiktokshop.com/docv2/page/650aa39fbace3e02b75d8617"},
+    {"name": "fulfillment_warehouses", "status": "implemented", "risk": "medium", "doc_url": "https://partner.tiktokshop.com/docv2/page/650aa418defece02be6e66b6"},
+    {"name": "inventory_update_status", "status": "deferred_mutation", "risk": "high_mutation", "doc_url": "https://partner.tiktokshop.com/docv2/page/6503068fc20ad60284b38858"}
+  ]
+}

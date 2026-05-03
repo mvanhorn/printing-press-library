@@ -1,0 +1,342 @@
+openapi: 3.1.0
+info:
+  title: TikTok Shop Printing Press Safe v1
+  version: 0.1.0
+  description: >-
+    Safe v1 surface for TikTok Shop Seller APIs. Every path here is sourced from
+    official TikTok Shop Partner Center docs. Mutating inventory is documented as
+    confirmed but deferred from CLI/MCP execution until idempotency and retry
+    behavior are designed.
+servers:
+  - url: https://open-api.tiktokglobalshop.com
+    description: Official TikTok Shop Open API base URL from endpoint samples.
+  - url: https://auth.tiktok-shops.com
+    description: Official TikTok Shop auth token host.
+security:
+  - ttsAccessToken: []
+paths:
+  /api/v2/token/get:
+    get:
+      operationId: auth_exchange
+      summary: Exchange authorization code for access and refresh tokens.
+      servers:
+        - url: https://auth.tiktok-shops.com
+      security: []
+      externalDocs:
+        url: https://partner.tiktokshop.com/docv2/page/678e3a3292b0f40314a92d75
+      parameters:
+        - $ref: '#/components/parameters/AppKey'
+        - name: app_secret
+          in: query
+          required: true
+          schema: { type: string }
+        - name: auth_code
+          in: query
+          required: true
+          schema: { type: string }
+        - name: grant_type
+          in: query
+          required: true
+          schema: { const: authorized_code }
+      responses:
+        '200': { $ref: '#/components/responses/TikTokEnvelope' }
+  /api/v2/token/refresh:
+    get:
+      operationId: auth_refresh
+      summary: Refresh an access token.
+      servers:
+        - url: https://auth.tiktok-shops.com
+      security: []
+      externalDocs:
+        url: https://partner.tiktokshop.com/docv2/page/678e3a3292b0f40314a92d75
+      parameters:
+        - $ref: '#/components/parameters/AppKey'
+        - name: app_secret
+          in: query
+          required: true
+          schema: { type: string }
+        - name: refresh_token
+          in: query
+          required: true
+          schema: { type: string }
+        - name: grant_type
+          in: query
+          required: true
+          schema: { const: refresh_token }
+      responses:
+        '200': { $ref: '#/components/responses/TikTokEnvelope' }
+  /authorization/202309/shops:
+    get:
+      operationId: shops_authorized
+      summary: Retrieve shops authorized for the app and token.
+      externalDocs:
+        url: https://partner.tiktokshop.com/docv2/page/6507ead7b99d5302be949ba9
+      parameters:
+        - $ref: '#/components/parameters/AppKey'
+        - $ref: '#/components/parameters/Timestamp'
+        - $ref: '#/components/parameters/Sign'
+      responses:
+        '200': { $ref: '#/components/responses/TikTokEnvelope' }
+  /seller/202309/shops:
+    get:
+      operationId: shops_active
+      summary: Retrieve all active shops that belong to a seller.
+      externalDocs:
+        url: https://partner.tiktokshop.com/docv2/page/650a69e24a0bb702c067291c
+      parameters:
+        - $ref: '#/components/parameters/AppKey'
+        - $ref: '#/components/parameters/Timestamp'
+        - $ref: '#/components/parameters/Sign'
+      responses:
+        '200': { $ref: '#/components/responses/TikTokEnvelope' }
+  /order/202309/orders/search:
+    post:
+      operationId: orders_search
+      summary: Search orders by time window and filters.
+      description: Returns buyer/order data; treat response as PII.
+      externalDocs:
+        url: https://partner.tiktokshop.com/docv2/page/650aa8094a0bb702c06df242
+      parameters:
+        - $ref: '#/components/parameters/AppKey'
+        - $ref: '#/components/parameters/Timestamp'
+        - $ref: '#/components/parameters/Sign'
+        - $ref: '#/components/parameters/ShopCipher'
+        - $ref: '#/components/parameters/PageSize100'
+        - $ref: '#/components/parameters/PageToken'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200': { $ref: '#/components/responses/TikTokEnvelope' }
+  /order/202309/orders:
+    get:
+      operationId: orders_get
+      summary: Get detailed order information for up to 50 order IDs.
+      description: Returns buyer/order data; treat response as PII.
+      externalDocs:
+        url: https://partner.tiktokshop.com/docv2/page/650aa8ccc16ffe02b8f167a0
+      parameters:
+        - $ref: '#/components/parameters/AppKey'
+        - $ref: '#/components/parameters/Timestamp'
+        - $ref: '#/components/parameters/Sign'
+        - $ref: '#/components/parameters/ShopCipher'
+        - name: ids
+          in: query
+          required: true
+          schema: { type: string }
+          description: Comma-separated TikTok Shop order IDs; official max count 50.
+      responses:
+        '200': { $ref: '#/components/responses/TikTokEnvelope' }
+  /product/202309/products/search:
+    post:
+      operationId: products_search
+      summary: Retrieve products matching query/body filters.
+      externalDocs:
+        url: https://partner.tiktokshop.com/docv2/page/6503081a56e2bb0289dd6d7d
+      parameters:
+        - $ref: '#/components/parameters/AppKey'
+        - $ref: '#/components/parameters/Timestamp'
+        - $ref: '#/components/parameters/Sign'
+        - $ref: '#/components/parameters/ShopCipher'
+        - $ref: '#/components/parameters/PageSize100'
+        - $ref: '#/components/parameters/PageToken'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200': { $ref: '#/components/responses/TikTokEnvelope' }
+  /product/202309/products/{product_id}:
+    get:
+      operationId: products_get
+      summary: Retrieve all properties of a product except FREEZE/DELETED.
+      externalDocs:
+        url: https://partner.tiktokshop.com/docv2/page/6509d85b4a0bb702c057fdda
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema: { type: string }
+        - $ref: '#/components/parameters/AppKey'
+        - $ref: '#/components/parameters/Timestamp'
+        - $ref: '#/components/parameters/Sign'
+        - $ref: '#/components/parameters/ShopCipher'
+      responses:
+        '200': { $ref: '#/components/responses/TikTokEnvelope' }
+  /product/202309/inventory/search:
+    post:
+      operationId: inventory_search
+      summary: Retrieve inventory information for product IDs or SKU IDs.
+      externalDocs:
+        url: https://partner.tiktokshop.com/docv2/page/650a9191c16ffe02b8eec161
+      parameters:
+        - $ref: '#/components/parameters/AppKey'
+        - $ref: '#/components/parameters/Timestamp'
+        - $ref: '#/components/parameters/Sign'
+        - $ref: '#/components/parameters/ShopCipher'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_ids:
+                  type: array
+                  items: { type: string }
+                sku_ids:
+                  type: array
+                  items: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/TikTokEnvelope' }
+  /logistics/202309/warehouses:
+    get:
+      operationId: warehouses_list
+      summary: Retrieve all warehouse information associated with the seller.
+      externalDocs:
+        url: https://partner.tiktokshop.com/docv2/page/650aa418defece02be6e66b6
+      parameters:
+        - $ref: '#/components/parameters/AppKey'
+        - $ref: '#/components/parameters/Timestamp'
+        - $ref: '#/components/parameters/Sign'
+        - $ref: '#/components/parameters/ShopCipher'
+      responses:
+        '200': { $ref: '#/components/responses/TikTokEnvelope' }
+  /fulfillment/202309/packages/search:
+    post:
+      operationId: packages_search
+      summary: Retrieve package IDs based on specified conditions.
+      externalDocs:
+        url: https://partner.tiktokshop.com/docv2/page/650aa592bace3e02b75db748
+      parameters:
+        - $ref: '#/components/parameters/AppKey'
+        - $ref: '#/components/parameters/Timestamp'
+        - $ref: '#/components/parameters/Sign'
+        - $ref: '#/components/parameters/ShopCipher'
+        - name: page_size
+          in: query
+          required: true
+          schema: { type: integer, minimum: 1, maximum: 50 }
+        - $ref: '#/components/parameters/PageToken'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200': { $ref: '#/components/responses/TikTokEnvelope' }
+  /fulfillment/202309/packages/{package_id}:
+    get:
+      operationId: packages_get
+      summary: Return information about a package.
+      externalDocs:
+        url: https://partner.tiktokshop.com/docv2/page/650aa39fbace3e02b75d8617
+      parameters:
+        - name: package_id
+          in: path
+          required: true
+          schema: { type: string }
+        - $ref: '#/components/parameters/AppKey'
+        - $ref: '#/components/parameters/Timestamp'
+        - $ref: '#/components/parameters/Sign'
+        - $ref: '#/components/parameters/ShopCipher'
+      responses:
+        '200': { $ref: '#/components/responses/TikTokEnvelope' }
+  /product/202309/products/{product_id}/inventory/update:
+    post:
+      operationId: inventory_update_deferred
+      summary: Confirmed endpoint, deferred from executable v1.
+      description: >-
+        Official endpoint is confirmed, but CLI/MCP execution is deferred because
+        the v1 plan does not yet define safe idempotency, no-retry mutation
+        behavior, and operator confirmations for stock changes.
+      externalDocs:
+        url: https://partner.tiktokshop.com/docv2/page/6503068fc20ad60284b38858
+      x-printing-press-status: deferred_mutation
+      responses:
+        '501':
+          description: Deferred by Printing Press safe v1 policy.
+components:
+  securitySchemes:
+    ttsAccessToken:
+      type: apiKey
+      in: header
+      name: x-tts-access-token
+      description: Access token from official TikTok Shop token exchange/refresh flow.
+  parameters:
+    AppKey:
+      name: app_key
+      in: query
+      required: true
+      schema: { type: string }
+    Timestamp:
+      name: timestamp
+      in: query
+      required: true
+      schema: { type: integer }
+      description: Unix timestamp GMT/UTC.
+    Sign:
+      name: sign
+      in: query
+      required: true
+      schema: { type: string }
+      description: HMAC-SHA256 signature using app secret; see official signing docs.
+    ShopCipher:
+      name: shop_cipher
+      in: query
+      required: true
+      schema: { type: string }
+      description: Shop cipher from Get Authorized Shops.
+    PageSize100:
+      name: page_size
+      in: query
+      required: true
+      schema: { type: integer, minimum: 1, maximum: 100 }
+    PageToken:
+      name: page_token
+      in: query
+      required: false
+      schema: { type: string }
+  responses:
+    TikTokEnvelope:
+      description: TikTok Shop envelope with code, message, request_id, and data.
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: true
+externalDocs:
+  description: Official TikTok Shop Seller API overview.
+  url: https://partner.tiktokshop.com/docv2/page/650b1f2ff1fd3102b93c6d3d
+x-printing-press:
+  endpoint_status: confirmed_safe_v1_with_deferred_mutations
+  signing_doc: https://partner.tiktokshop.com/docv2/page/678e3a3d4ddec3030b238faf
+  rate_limits: unclear_not_encoded
+  official_docs:
+    - url: https://partner.tiktokshop.com/docv2/page/678e3a3292b0f40314a92d75
+      status: confirmed
+      note: Authorization overview; auth code exchange and token refresh endpoints.
+    - url: https://partner.tiktokshop.com/docv2/page/678e3a3d4ddec3030b238faf
+      status: confirmed
+      note: HMAC-SHA256 signing algorithm using app secret.
+    - url: https://partner.tiktokshop.com/docv2/page/6507ead7b99d5302be949ba9
+      status: confirmed
+      note: Get Authorized Shops.
+    - url: https://partner.tiktokshop.com/docv2/page/650aa8094a0bb702c06df242
+      status: confirmed
+      note: Get Order List.
+    - url: https://partner.tiktokshop.com/docv2/page/6503068fc20ad60284b38858
+      status: confirmed_deferred
+      note: Update Inventory endpoint confirmed but not executable in safe v1.
+    - url: https://partner.tiktokshop.com/docv2/page/69c3070c441217049711fdea
+      status: deferred_v2
+      note: Search Returns uses 202602 return_refund API and is out of safe v1.

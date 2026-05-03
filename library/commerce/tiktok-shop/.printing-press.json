@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-02T00:00:00Z",
+  "printing_press_version": "scaffold+confirmed-safe-v1",
+  "api_name": "tiktok-shop",
+  "display_name": "TikTok Shop",
+  "cli_name": "tiktok-shop-pp-cli",
+  "owner": "cathryn-lavery",
+  "spec_path": "library/commerce/tiktok-shop/spec.yaml",
+  "spec_format": "openapi_3_1",
+  "spec_checksum": "manual-confirmed-official-docs",
+  "mcp_binary": "tiktok-shop-pp-mcp",
+  "mcp_tool_count": 11,
+  "mcp_ready": "safe_v1_read_only",
+  "auth_type": "signed_tiktok_shop_open_api",
+  "auth_env_vars": [
+    "TIKTOK_SHOP_APP_KEY",
+    "TIKTOK_SHOP_APP_SECRET",
+    "TIKTOK_SHOP_ACCESS_TOKEN",
+    "TIKTOK_SHOP_REFRESH_TOKEN",
+    "TIKTOK_SHOP_SHOP_CIPHER"
+  ],
+  "auth_key_url": "https://partner.tiktokshop.com/docv2/page/678e3a3292b0f40314a92d75"
+}
