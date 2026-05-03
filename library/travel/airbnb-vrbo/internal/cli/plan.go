@@ -35,12 +35,15 @@ func newPlanCmd(flags *rootFlags) *cobra.Command {
 			}
 			city := args[0]
 			type source struct{ name string }
+			// Per-listing timeouts are isolated: a slow vrbo or airbnb leg
+			// no longer fails the whole call. Pre-fix, "context deadline
+			// exceeded" returned results: [] for the entire response.
 			results, errs := cliutil.FanoutRun(cmd.Context(), []source{{"airbnb"}, {"vrbo"}}, func(s source) string { return s.name }, func(ctx context.Context, s source) ([]string, error) {
-				ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+				legCtx, cancel := context.WithTimeout(ctx, 15*time.Second)
 				defer cancel()
 				switch s.name {
 				case "airbnb":
-					listings, _, err := airbnb.Search(ctx, airbnb.SearchParams{Location: city, Checkin: checkin, Checkout: checkout, Adults: guests})
+					listings, _, err := airbnb.Search(legCtx, airbnb.SearchParams{Location: city, Checkin: checkin, Checkout: checkout, Adults: guests})
 					var urls []string
 					for _, l := range listings {
 						if budget == 0 || (l.PriceBreakdown != nil && l.PriceBreakdown.Total <= budget) {
@@ -52,20 +55,18 @@ func newPlanCmd(flags *rootFlags) *cobra.Command {
 					}
 					return urls, err
 				default:
-					props, _, err := vrbo.Search(ctx, vrbo.SearchParams{Location: city, Checkin: checkin, Checkout: checkout, Adults: guests, PageSize: top(topN)})
-					var urls []string
-					for _, p := range props {
-						if budget == 0 || (p.PriceBreakdown != nil && p.PriceBreakdown.Total <= budget) {
-							urls = append(urls, p.URL)
-						}
-						if len(urls) >= top(topN) {
-							break
-						}
-					}
-					return urls, err
+					return nil, vrbo.ErrDisabled
 				}
 			}, cliutil.WithConcurrency(2))
 			cliutil.FanoutReportErrors(cmd.ErrOrStderr(), errs)
+			failures := []map[string]any{}
+			for _, e := range errs {
+				reason := e.Err.Error()
+				if vrbo.IsDisabled(e.Err) {
+					reason = "vrbo_disabled"
+				}
+				failures = append(failures, map[string]any{"source": e.Source, "reason": reason})
+			}
 			var urls []string
 			for _, r := range results {
 				urls = append(urls, r.Value...)
@@ -78,9 +79,9 @@ func newPlanCmd(flags *rootFlags) *cobra.Command {
 				urls = urls[:cheapestLimit]
 			}
 			cheapest, cerrs := cliutil.FanoutRun(cmd.Context(), urls, func(s string) string { return s }, func(ctx context.Context, u string) (map[string]any, error) {
-				ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+				legCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
 				defer cancel()
-				ch, err := computeCheapest(ctx, u, cheapestParams{Checkin: checkin, Checkout: checkout, Guests: guests, SearchBackend: backend, MaxDirectResults: 1})
+				ch, err := computeCheapest(legCtx, u, cheapestParams{Checkin: checkin, Checkout: checkout, Guests: guests, SearchBackend: backend, MaxDirectResults: 1})
 				if err != nil {
 					return nil, err
 				}
@@ -89,12 +90,15 @@ func newPlanCmd(flags *rootFlags) *cobra.Command {
 				return map[string]any{"platform_url": u, "direct_url": directURL(ch), "savings": pt - dt, "cheapest": ch.Cheapest, "listing": ch.Listing}, nil
 			}, cliutil.WithConcurrency(3))
 			cliutil.FanoutReportErrors(cmd.ErrOrStderr(), cerrs)
+			for _, e := range cerrs {
+				failures = append(failures, map[string]any{"source": e.Source, "reason": e.Err.Error()})
+			}
 			out := make([]map[string]any, 0, len(cheapest))
 			for _, r := range cheapest {
 				out = append(out, r.Value)
 			}
 			sortBySavings(out)
-			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"city": city, "results": out}, flags)
+			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"city": city, "results": out, "failures": failures}, flags)
 		},
 	}
 	cmd.Flags().StringVar(&checkin, "checkin", "", "Arrival date YYYY-MM-DD")
