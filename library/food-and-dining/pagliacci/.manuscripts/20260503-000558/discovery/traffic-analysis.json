@@ -1,0 +1,83 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://pagliacci.com/",
+    "captured_at": "2026-04-26T00:30:00Z",
+    "entry_count": 26,
+    "api_entry_count": 26,
+    "noise_entry_count": 0,
+    "host_distribution": {
+      "pag-api.azurewebsites.net": 26
+    }
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.95,
+    "reasons": [
+      "API responds to standard HTTPS requests",
+      "Composed PagliacciAuth header replays from cookies (verified: customerId|authToken pattern matches XHR captures)",
+      "No bot-detection or WAF challenge observed across 26 requests"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "rest_json",
+      "confidence": 0.98
+    }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "type": "composed",
+        "confidence": 0.95,
+        "header_names": ["Authorization"],
+        "cookie_names": ["customerId", "authToken"],
+        "domain_hints": ["pagliacci.com"]
+      }
+    ]
+  },
+  "protections": [],
+  "endpoint_clusters": [
+    {"host": "pag-api.azurewebsites.net", "method": "GET", "path": "/Version", "count": 1, "statuses": [200], "content_types": ["application/json"]},
+    {"host": "pag-api.azurewebsites.net", "method": "GET", "path": "/SiteWideMessage", "count": 1, "statuses": [200], "content_types": ["application/json"]},
+    {"host": "pag-api.azurewebsites.net", "method": "GET", "path": "/Store", "count": 1, "statuses": [200], "content_types": ["application/json"]},
+    {"host": "pag-api.azurewebsites.net", "method": "GET", "path": "/QuoteStore", "count": 2, "statuses": [200], "content_types": ["application/json"]},
+    {"host": "pag-api.azurewebsites.net", "method": "GET", "path": "/QuoteStore/{storeId}", "count": 2, "statuses": [200], "content_types": ["application/json"]},
+    {"host": "pag-api.azurewebsites.net", "method": "POST", "path": "/QuoteStore/{storeId}", "count": 4, "statuses": [200], "content_types": ["application/json"]},
+    {"host": "pag-api.azurewebsites.net", "method": "GET", "path": "/MenuTop/{storeId}", "count": 2, "statuses": [200], "content_types": ["application/json"]},
+    {"host": "pag-api.azurewebsites.net", "method": "GET", "path": "/MenuCache/{storeId}", "count": 2, "statuses": [200], "content_types": ["application/json"]},
+    {"host": "pag-api.azurewebsites.net", "method": "GET", "path": "/MenuSlices", "count": 1, "statuses": [200], "content_types": ["application/json"]},
+    {"host": "pag-api.azurewebsites.net", "method": "GET", "path": "/TimeWindowDays/{storeId}/{type}", "count": 3, "statuses": [200], "content_types": ["application/json"]},
+    {"host": "pag-api.azurewebsites.net", "method": "GET", "path": "/TimeWindows/{storeId}/{type}", "count": 1, "statuses": [200], "content_types": ["application/json"]},
+    {"host": "pag-api.azurewebsites.net", "method": "GET", "path": "/TimeWindows/{storeId}/{type}/{date}", "count": 4, "statuses": [200], "content_types": ["application/json"]},
+    {"host": "pag-api.azurewebsites.net", "method": "POST", "path": "/Login", "count": 1, "statuses": [200], "content_types": ["application/json"]},
+    {"host": "pag-api.azurewebsites.net", "method": "GET", "path": "/Customer/{customerId}", "count": 1, "statuses": [200], "content_types": ["application/json"]},
+    {"host": "pag-api.azurewebsites.net", "method": "GET", "path": "/AddressName", "count": 2, "statuses": [200], "content_types": ["application/json"]},
+    {"host": "pag-api.azurewebsites.net", "method": "GET", "path": "/StoredCredit", "count": 1, "statuses": [200], "content_types": ["application/json"]},
+    {"host": "pag-api.azurewebsites.net", "method": "GET", "path": "/StoredCoupons", "count": 1, "statuses": [200], "content_types": ["application/json"]},
+    {"host": "pag-api.azurewebsites.net", "method": "GET", "path": "/RewardCard", "count": 1, "statuses": [200], "content_types": ["application/json"]},
+    {"host": "pag-api.azurewebsites.net", "method": "GET", "path": "/OrderList/{page}/{size}", "count": 2, "statuses": [200], "content_types": ["application/json"]},
+    {"host": "pag-api.azurewebsites.net", "method": "GET", "path": "/OrderListItem/{orderId}", "count": 2, "statuses": [200], "content_types": ["application/json"]},
+    {"host": "pag-api.azurewebsites.net", "method": "GET", "path": "/OrderListPending", "count": 2, "statuses": [404], "content_types": [""]},
+    {"host": "pag-api.azurewebsites.net", "method": "GET", "path": "/QuoteBuilding/{buildingId}", "count": 2, "statuses": [200], "content_types": ["application/json"]}
+  ],
+  "candidate_commands": [
+    {"name": "store list", "resource": "store", "confidence": 0.99, "rationale": "GET /Store returned full inventory of locations"},
+    {"name": "menu top", "resource": "menu", "confidence": 0.95, "rationale": "GET /MenuTop/{storeId} drives the home menu UI"},
+    {"name": "menu cache", "resource": "menu", "confidence": 0.95, "rationale": "GET /MenuCache/{storeId} returns the full menu"},
+    {"name": "menu slices", "resource": "menu", "confidence": 0.95, "rationale": "GET /MenuSlices returns today's slices across all stores"},
+    {"name": "address lookup", "resource": "address", "confidence": 0.9, "rationale": "POST /AddressInfo validates an address and resolves a delivery store"},
+    {"name": "address list", "resource": "address", "confidence": 0.9, "rationale": "GET /AddressName returns saved addresses"},
+    {"name": "orders list", "resource": "orders", "confidence": 0.95, "rationale": "GET /OrderList/{page}/{size} returns paginated history"},
+    {"name": "orders get", "resource": "orders", "confidence": 0.95, "rationale": "GET /OrderListItem/{id} returns full detail"},
+    {"name": "orders price", "resource": "cart", "confidence": 0.85, "rationale": "POST /OrderPrice computes total before send"},
+    {"name": "orders send", "resource": "cart", "confidence": 0.85, "rationale": "POST /OrderSend submits an order"},
+    {"name": "rewards card", "resource": "rewards", "confidence": 0.95, "rationale": "GET /RewardCard returns balance and rewards"},
+    {"name": "rewards stored-coupons", "resource": "rewards", "confidence": 0.95, "rationale": "GET /StoredCoupons returns saved coupons"}
+  ],
+  "generation_hints": [
+    "requires_browser_auth",
+    "composed_auth"
+  ],
+  "warnings": []
+}

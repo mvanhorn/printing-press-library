@@ -1,0 +1,355 @@
+{
+  "api_name": "pagliacci",
+  "base_url": "https://pag-api.azurewebsites.net/api",
+  "description": "CLI for the Pagliacci Pizza ordering API. Browse stores, menus, and\navailable slices; manage your cart, place orders, and track delivery\nwindows; manage saved addresses, rewards, stored coupons, credit, and\ngifts. Backed by Pagliacci's Azure-hosted REST API and authenticated\nvia Chrome cookies (composed PagliacciAuth header).",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "composed",
+    "header": "Authorization",
+    "format": "PagliacciAuth {customerId}|{authToken}",
+    "cookie_domain": "pagliacci.com"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "account_confirm_email",
+      "description": "Confirm a new account by clicking the email-confirmation link's token. Required: token. (public)",
+      "method": "GET",
+      "path": "/ConfirmEmail/{token}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "path",
+          "description": "token",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "account_login",
+      "description": "Authenticate with email/phone + password. Response sets customerId and authToken cookies. (public)",
+      "method": "POST",
+      "path": "/Login",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "account_password_forgot",
+      "description": "Request a password reset email. (public)",
+      "method": "POST",
+      "path": "/PasswordForgot",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "account_password_reset",
+      "description": "Reset a password using a token from PasswordForgot email. (public)",
+      "method": "POST",
+      "path": "/PasswordReset",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "account_register",
+      "description": "Create a new customer account. (public)",
+      "method": "POST",
+      "path": "/Register",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "address_get_info",
+      "description": "Get address info by saved ID. Required: id. (public)",
+      "method": "GET",
+      "path": "/AddressInfo/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "address_lookup",
+      "description": "Validate an address and check delivery zone (returns store ID if deliverable). (public)",
+      "method": "POST",
+      "path": "/AddressInfo",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "cart_price_order",
+      "description": "Compute the total price for an order (cart contents, taxes, fees, delivery) before sending. (public)",
+      "method": "POST",
+      "path": "/OrderPrice",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "cart_send_order",
+      "description": "Submit an order. Requires payment information for guests; uses stored payment for authenticated users. (public)",
+      "method": "POST",
+      "path": "/OrderSend",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "customer_feedback_submit",
+      "description": "Submit customer feedback (guest or authenticated). (public)",
+      "method": "POST",
+      "path": "/Feedback",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "gifts_check",
+      "description": "Check the balance of a gift card by ID and PIN (no auth required to check). Required: id, pin. (public)",
+      "method": "GET",
+      "path": "/CheckGift/{id}/{pin}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        },
+        {
+          "name": "pin",
+          "type": "string",
+          "location": "path",
+          "description": "pin",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "menu_cache",
+      "description": "Get the full menu (categories, products, prices, descriptions, images) for a store. Required: storeId. (public)",
+      "method": "GET",
+      "path": "/MenuCache/{storeId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "storeId",
+          "type": "string",
+          "location": "path",
+          "description": "storeId",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "menu_product_price",
+      "description": "Calculate the price for a customized product (size, toppings, modifiers). (public)",
+      "method": "POST",
+      "path": "/ProductPrice",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "menu_slices",
+      "description": "Get available slices across all stores for the current day (perishable, rotates daily). (public)",
+      "method": "GET",
+      "path": "/MenuSlices",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "menu_top",
+      "description": "Get featured top-of-menu items for a store. Required: storeId. (public)",
+      "method": "GET",
+      "path": "/MenuTop/{storeId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "storeId",
+          "type": "string",
+          "location": "path",
+          "description": "storeId",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rewards_coupon_lookup",
+      "description": "Look up a coupon by its serial number (validate before applying). Required: serial. (public)",
+      "method": "GET",
+      "path": "/CouponSerial/{serial}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "serial",
+          "type": "string",
+          "location": "path",
+          "description": "serial",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scheduling_slot_list",
+      "description": "List available time-window slots for a store and service type. Required: storeId, serviceType. (public)",
+      "method": "GET",
+      "path": "/TimeWindows/{storeId}/{serviceType}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "storeId",
+          "type": "string",
+          "location": "path",
+          "description": "storeId",
+          "required": true
+        },
+        {
+          "name": "serviceType",
+          "type": "string",
+          "location": "path",
+          "description": "serviceType",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scheduling_slot_list_for_date",
+      "description": "List allowed slot times for a specific delivery/pickup date (YYYYMMDD). Required: storeId, serviceType, date. (public)",
+      "method": "GET",
+      "path": "/TimeWindows/{storeId}/{serviceType}/{date}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "storeId",
+          "type": "string",
+          "location": "path",
+          "description": "storeId",
+          "required": true
+        },
+        {
+          "name": "serviceType",
+          "type": "string",
+          "location": "path",
+          "description": "serviceType",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "path",
+          "description": "date",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scheduling_window_days",
+      "description": "List available delivery or pickup days for a store. serviceType is DEL (delivery) or PICK (pickup). Required: storeId, serviceType. (public)",
+      "method": "GET",
+      "path": "/TimeWindowDays/{storeId}/{serviceType}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "storeId",
+          "type": "string",
+          "location": "path",
+          "description": "storeId",
+          "required": true
+        },
+        {
+          "name": "serviceType",
+          "type": "string",
+          "location": "path",
+          "description": "serviceType",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "store_compute_quote",
+      "description": "Compute a quote for a specific store with cart contents (returns Delivery, Drone, Pickup wait values). Required: storeId. (public)",
+      "method": "POST",
+      "path": "/QuoteStore/{storeId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "storeId",
+          "type": "string",
+          "location": "path",
+          "description": "storeId",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "store_get",
+      "description": "Get a single store by its numeric ID. Required: storeId. (public)",
+      "method": "GET",
+      "path": "/Store/{storeId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "storeId",
+          "type": "string",
+          "location": "path",
+          "description": "storeId",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "store_get_quote",
+      "description": "Get quote-store metadata (delivery fee, drone status, pickup wait time) for a single store. Required: storeId. (public)",
+      "method": "GET",
+      "path": "/QuoteStore/{storeId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "storeId",
+          "type": "string",
+          "location": "path",
+          "description": "storeId",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "store_list",
+      "description": "List all Pagliacci store locations with addresses, hours, GPS, amenities, and available slices. (public)",
+      "method": "GET",
+      "path": "/Store",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "store_list_quotes",
+      "description": "List quote-store metadata (delivery fee, drone status, pickup wait) for all stores. (public)",
+      "method": "GET",
+      "path": "/QuoteStore",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "system_site_wide_message",
+      "description": "Get site-wide announcement banner text (closures, holiday hours, etc.). (public)",
+      "method": "GET",
+      "path": "/SiteWideMessage",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "system_version",
+      "description": "Get the current API version. (public)",
+      "method": "GET",
+      "path": "/Version",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

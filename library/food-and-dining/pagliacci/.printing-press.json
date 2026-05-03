@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-03T08:19:09.168277Z",
+  "printing_press_version": "3.7.0",
+  "api_name": "pagliacci",
+  "display_name": "Pagliacci Pizza",
+  "cli_name": "pagliacci-pp-cli",
+  "spec_path": "/Users/tmchow/printing-press/.runstate/eager-crafting-bengio-5a1d4594/runs/20260503-000558/research/pagliacci-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:667b9f080b678cf797a833ebde38348eed7882d47b4c7ab14a2df954a091bbb8",
+  "run_id": "20260503-000558",
+  "description": "Order Seattle's Pagliacci Pizza from the terminal — half-and-half pies, small-party planner, slice rotation, and rewards stacking.",
+  "mcp_binary": "pagliacci-pp-mcp",
+  "mcp_tool_count": 57,
+  "mcp_public_tool_count": 26,
+  "mcp_ready": "partial",
+  "auth_type": "composed",
+  "novel_features": [
+    {
+      "name": "Today's slices across all stores",
+      "command": "slices today",
+      "description": "See which Pagliacci slices are available right now at every Seattle store, sorted by proximity to your saved address."
+    },
+    {
+      "name": "Open stores tonight",
+      "command": "store tonight",
+      "description": "List stores that are still open and can deliver to your saved address right now, sorted by ETA."
+    },
+    {
+      "name": "Stack discounts to maximize savings",
+      "command": "rewards stack",
+      "description": "Compute the best application of stored coupons, reward redemption, and account credit for a given order total. Defaults to single-best-coupon + credit; multi-coupon stacking is flagged --experimental."
+    },
+    {
+      "name": "Reorder the family favorite",
+      "command": "orders reorder",
+      "description": "Re-create a past order as a fresh cart, with price revalidation since prices change. Add --send to also submit."
+    },
+    {
+      "name": "Address-aware delivery time picker",
+      "command": "address best-time",
+      "description": "Resolve a saved address label to the next available delivery slot in one call."
+    },
+    {
+      "name": "Household ordering rhythm",
+      "command": "orders summary",
+      "description": "Aggregate orders over a time range with top items, store breakdown, and order frequency."
+    },
+    {
+      "name": "Half-and-half pizza builder",
+      "command": "menu half-half",
+      "description": "Build a half-and-half pizza in one command, with each side's toppings validated against the menu and priced via ProductPrice."
+    },
+    {
+      "name": "Small-party order planner",
+      "command": "orders plan",
+      "description": "Given the number of people and a saved address, suggest a complete order plan: best store, delivery slot, sized cart contents, and the optimal discount stack."
+    }
+  ]
+}

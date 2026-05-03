@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "pagliacci-pp-mcp",
+  "display_name": "Pagliacci Pizza",
+  "version": "3.7.0",
+  "description": "Order Seattle's Pagliacci Pizza from the terminal — half-and-half pies, small-party planner, slice rotation, and rewards stacking.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/pagliacci-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/pagliacci-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
