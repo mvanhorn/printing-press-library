@@ -48,7 +48,7 @@
       "name": "allrecipes",
       "category": "food-and-dining",
       "api": "Allrecipes",
-      "description": "Allrecipes Pocket \u2014 every Allrecipes recipe in your terminal: cached as data, with pantry-aware search, Bayesian-smoothed ranking, multi-recipe grocery lists, and clean markdown export.",
+      "description": "Allrecipes Pocket — every Allrecipes recipe in your terminal: cached as data, with pantry-aware search, Bayesian-smoothed ranking, multi-recipe grocery lists, and clean markdown export.",
       "path": "library/food-and-dining/allrecipes",
       "mcp": {
         "binary": "allrecipes-pp-mcp",
@@ -90,6 +90,22 @@
         "env_vars": [
           "CAL_COM_TOKEN"
         ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "coingecko",
+      "category": "payments",
+      "api": "Coingecko",
+      "description": "CoinGecko public API for cryptocurrency data. Free tier, no API key required for basic endpoints.",
+      "path": "library/payments/coingecko",
+      "mcp": {
+        "binary": "coingecko-pp-mcp",
+        "transport": "stdio",
+        "tool_count": 11,
+        "public_tool_count": 11,
+        "auth_type": "none",
         "mcp_ready": "full",
         "spec_format": "openapi3"
       }
@@ -147,6 +163,22 @@
       }
     },
     {
+      "name": "docker-hub",
+      "category": "developer-tools",
+      "api": "Docker Hub",
+      "description": "Docker Hub public API. Search container images, browse tags, check sizes, inspect Dockerfiles, and explore the world's largest container registry. No authentication required for public repositories (rate limited to ~18 req/min).",
+      "path": "library/developer-tools/docker-hub",
+      "mcp": {
+        "binary": "docker-hub-pp-mcp",
+        "transport": "stdio",
+        "tool_count": 5,
+        "public_tool_count": 5,
+        "auth_type": "none",
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "dominos",
       "category": "commerce",
       "api": "Dominos Pizza",
@@ -169,7 +201,7 @@
       "name": "dub",
       "category": "marketing",
       "api": "Dub",
-      "description": "Modern link attribution platform \u2014 short links, conversion tracking, affiliate/partner programs.",
+      "description": "Modern link attribution platform — short links, conversion tracking, affiliate/partner programs.",
       "path": "library/marketing/dub",
       "mcp": {
         "binary": "dub-pp-mcp",
@@ -217,6 +249,24 @@
       }
     },
     {
+      "name": "firecrawl",
+      "category": "developer-tools",
+      "api": "Firecrawl",
+      "description": "API for interacting with Firecrawl services to perform web scraping and crawling tasks.",
+      "path": "library/developer-tools/firecrawl",
+      "mcp": {
+        "binary": "firecrawl-pp-mcp",
+        "transport": "stdio",
+        "tool_count": 20,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "FIRECRAWL_BEARER_AUTH"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "flightgoat",
       "category": "travel",
       "api": "flightgoat",
@@ -239,7 +289,7 @@
       "name": "food52",
       "category": "food-and-dining",
       "api": "Food52",
-      "description": "Search, browse, and read Food52 from your terminal \u2014 with offline FTS, pantry matching, recipe scaling, and the editorial signals other tools throw away.",
+      "description": "Search, browse, and read Food52 from your terminal — with offline FTS, pantry matching, recipe scaling, and the editorial signals other tools throw away.",
       "path": "library/food-and-dining/food52",
       "mcp": {
         "binary": "food52-pp-mcp",
@@ -256,7 +306,7 @@
       "name": "hackernews",
       "category": "media-and-entertainment",
       "api": "Hacker News",
-      "description": "Hacker News from your terminal \u2014 with a local store, full-text search, and agent-native output no other HN tool has",
+      "description": "Hacker News from your terminal — with a local store, full-text search, and agent-native output no other HN tool has",
       "path": "library/media-and-entertainment/hackernews",
       "mcp": {
         "binary": "hackernews-pp-mcp",
@@ -270,7 +320,7 @@
       }
     },
     {
-      "name": "hubspot-pp-cli",
+      "name": "hubspot",
       "category": "sales-and-crm",
       "api": "HubSpot",
       "description": "Manage HubSpot CRM contacts, companies, deals, tickets, engagements, pipelines, and associations with offline search and pipeline analytics",
@@ -369,6 +419,22 @@
       }
     },
     {
+      "name": "nvd",
+      "category": "developer-tools",
+      "api": "National Vulnerability Database",
+      "description": "The NVD is the U.S. government repository of standards-based vulnerability management data. Search CVEs by keyword, product (CPE name), CVE ID, or date range. Get CVSS scores, affected versions, references, and severity ratings. No API key required (optional for higher rate limits).",
+      "path": "library/developer-tools/nvd",
+      "mcp": {
+        "binary": "nvd-pp-mcp",
+        "transport": "stdio",
+        "tool_count": 2,
+        "public_tool_count": 2,
+        "auth_type": "none",
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "open-meteo",
       "category": "other",
       "api": "Open-Meteo",
@@ -388,7 +454,7 @@
       "name": "pagliacci",
       "category": "food-and-dining",
       "api": "Pagliacci Pizza",
-      "description": "Order Seattle's Pagliacci Pizza from the terminal \u2014 half-and-half pies, small-party planner, slice rotation, and rewards stacking.",
+      "description": "Order Seattle's Pagliacci Pizza from the terminal — half-and-half pies, small-party planner, slice rotation, and rewards stacking.",
       "path": "library/food-and-dining/pagliacci",
       "mcp": {
         "binary": "pagliacci-pp-mcp",
@@ -404,8 +470,8 @@
     {
       "name": "pokeapi",
       "category": "media-and-entertainment",
-      "api": "Pok\u00e9API",
-      "description": "Fully offline Pok\u00e9dex with SQL, full-text search, type math, and a damage calculator no other Pok\u00e9mon tool ships as a CLI.",
+      "api": "PokéAPI",
+      "description": "Fully offline Pokédex with SQL, full-text search, type math, and a damage calculator no other Pokémon tool ships as a CLI.",
       "path": "library/media-and-entertainment/pokeapi",
       "mcp": {
         "binary": "pokeapi-pp-mcp",
@@ -439,7 +505,7 @@
       "name": "producthunt",
       "category": "marketing",
       "api": "Product Hunt",
-      "description": "Read Product Hunt from your terminal \u2014 works token-free for the daily skim, unlocks a launch-day cockpit and a marketer research desk in one onboarding step.",
+      "description": "Read Product Hunt from your terminal — works token-free for the daily skim, unlocks a launch-day cockpit and a marketer research desk in one onboarding step.",
       "path": "library/marketing/producthunt",
       "mcp": {
         "binary": "producthunt-pp-mcp",
@@ -455,10 +521,26 @@
       }
     },
     {
+      "name": "pypi",
+      "category": "developer-tools",
+      "api": "PyPI",
+      "description": "PyPI JSON API. Look up Python package metadata, versions, release files, and vulnerability data. Browse recent updates and newest packages via RSS feeds. No authentication required — all endpoints are public.",
+      "path": "library/developer-tools/pypi",
+      "mcp": {
+        "binary": "pypi-pp-mcp",
+        "transport": "stdio",
+        "tool_count": 4,
+        "public_tool_count": 4,
+        "auth_type": "none",
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "recipe-goat",
       "category": "food-and-dining",
       "api": "Cross-site recipe aggregator (37 trusted sites: King Arthur, Serious Eats, Smitten Kitchen, AllRecipes, Food52, BBC Food, EatingWell, Food Network, and 29 more) + USDA FoodData Central",
-      "description": "Find the best version of any recipe across 37 trusted sites \u2014 trust-aware ranking weights real reader signal at 80% and editorial trust at 15% (curated chef/baker sites win tie-break over crowdsourced aggregators). Builds a local SQLite cookbook with pantry match, meal plans, cook log, substitutions, and USDA-backed nutrition backfill. Powered by Surf-Chrome HTTP transport \u2014 bypasses TLS-fingerprint bot detection that previously blocked Dotdash properties.",
+      "description": "Find the best version of any recipe across 37 trusted sites — trust-aware ranking weights real reader signal at 80% and editorial trust at 15% (curated chef/baker sites win tie-break over crowdsourced aggregators). Builds a local SQLite cookbook with pantry match, meal plans, cook log, substitutions, and USDA-backed nutrition backfill. Powered by Surf-Chrome HTTP transport — bypasses TLS-fingerprint bot detection that previously blocked Dotdash properties.",
       "path": "library/food-and-dining/recipe-goat",
       "mcp": {
         "binary": "recipe-goat-pp-mcp",
@@ -476,7 +558,7 @@
       "name": "scrape-creators",
       "category": "developer-tools",
       "api": "Scrape Creators",
-      "description": "Scrape public social media data from the terminal \u2014 profiles, posts, videos, comments, ads, and transcripts across TikTok, Instagram, YouTube, Twitter/X, LinkedIn, Facebook, Reddit, Threads, Bluesky, Pinterest, Snapchat, Twitch, Kick, Truth Social, and 15+ link-in-bio / creator link services.",
+      "description": "Scrape public social media data from the terminal — profiles, posts, videos, comments, ads, and transcripts across TikTok, Instagram, YouTube, Twitter/X, LinkedIn, Facebook, Reddit, Threads, Bluesky, Pinterest, Snapchat, Twitch, Kick, Truth Social, and 15+ link-in-bio / creator link services.",
       "path": "library/developer-tools/scrape-creators",
       "mcp": {
         "binary": "scrape-creators-pp-mcp",
@@ -599,10 +681,26 @@
       }
     },
     {
+      "name": "wikipedia",
+      "category": "media-and-entertainment",
+      "api": "Wikipedia",
+      "description": "Wikipedia REST API. Get article summaries, search, browse related topics, and access on-this-day events. No authentication required. Uses a polite User-Agent header.",
+      "path": "library/media-and-entertainment/wikipedia",
+      "mcp": {
+        "binary": "wikipedia-pp-mcp",
+        "transport": "stdio",
+        "tool_count": 5,
+        "public_tool_count": 5,
+        "auth_type": "none",
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "yahoo-finance",
       "category": "commerce",
       "api": "Yahoo Finance",
-      "description": "Quotes, charts, fundamentals, options chains, and a local portfolio/watchlist tracker against Yahoo Finance \u2014 no API key, with Chrome-session fallback for rate-limited IPs",
+      "description": "Quotes, charts, fundamentals, options chains, and a local portfolio/watchlist tracker against Yahoo Finance — no API key, with Chrome-session fallback for rate-limited IPs",
       "path": "library/commerce/yahoo-finance",
       "mcp": {
         "binary": "yahoo-finance-pp-mcp",
