@@ -14,7 +14,7 @@ import (
 func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "auth",
-		Short: "Manage DUB_TOKEN credentials",
+		Short: "Manage DUB_API_KEY credentials (DUB_TOKEN is also accepted)",
 	}
 
 	cmd.AddCommand(newAuthStatusCmd(flags))
@@ -65,6 +65,14 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return configErr(err)
 			}
+
+			// Clear any legacy auth_header so AuthHeader() falls through to
+			// "Bearer " + AccessToken with the new token. Without this, a
+			// pre-existing auth_header value (common after regenerate) shadows
+			// the newly-saved access_token and set-token silently has no effect.
+			// Silent clear (no log line): a masked-tail variant could leak
+			// token bytes through scripted dogfood that captures stderr.
+			cfg.AuthHeaderVal = ""
 
 			// Save the token directly via the config's save mechanism
 			if err := cfg.SaveTokens("", "", args[0], "", cfg.TokenExpiry); err != nil {

@@ -16,15 +16,16 @@ func newTagsGetCmd(flags *rootFlags) *cobra.Command {
 	var flagSortOrder string
 	var flagSearch string
 	var flagIds string
-	var flagPage float64
+	var flagPage string
 	var flagPageSize float64
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "get",
-		Aliases: []string{"list"},
-		Short:   "List all tags",
-		Example: "  dub-pp-cli tags get",
+		Use:         "get",
+		Aliases:     []string{"list"},
+		Short:       "Retrieve a paginated list of tags for the authenticated workspace.",
+		Example:     "  dub-pp-cli tags get",
+		Annotations: map[string]string{"pp:endpoint": "tags.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("sort-by") {
 				allowedSortBy := []string{"name", "createdAt"}
@@ -58,14 +59,14 @@ func newTagsGetCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/tags"
-			data, prov, err := resolvePaginatedRead(c, flags, "tags", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "tags", path, map[string]string{
 				"sortBy":    fmt.Sprintf("%v", flagSortBy),
 				"sortOrder": fmt.Sprintf("%v", flagSortOrder),
 				"search":    fmt.Sprintf("%v", flagSearch),
 				"ids":       fmt.Sprintf("%v", flagIds),
 				"page":      fmt.Sprintf("%v", flagPage),
 				"pageSize":  fmt.Sprintf("%v", flagPageSize),
-			}, flagAll, "", "", "")
+			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -111,7 +112,7 @@ func newTagsGetCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagSortOrder, "sort-order", "asc", "The order to sort the tags by. (one of: asc, desc)")
 	cmd.Flags().StringVar(&flagSearch, "search", "", "The search term to filter the tags by.")
 	cmd.Flags().StringVar(&flagIds, "ids", "", "IDs of tags to filter by.")
-	cmd.Flags().Float64Var(&flagPage, "page", 0.0, "The page number for pagination.")
+	cmd.Flags().StringVar(&flagPage, "page", "", "The page number for pagination.")
 	cmd.Flags().Float64Var(&flagPageSize, "page-size", 100.000000, "The number of items per page.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 

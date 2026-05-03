@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newAnalyticsRetrieveCmd(flags *rootFlags) *cobra.Command {
+func newDubAnalyticsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagEvent string
 	var flagGroupBy string
 	var flagDomain string
@@ -52,10 +52,11 @@ func newAnalyticsRetrieveCmd(flags *rootFlags) *cobra.Command {
 	var flagQr bool
 
 	cmd := &cobra.Command{
-		Use:     "retrieve",
-		Aliases: []string{"list"},
-		Short:   "Retrieve analytics for a link, a domain, or the authenticated workspace.",
-		Example: "  dub-pp-cli analytics retrieve",
+		Use:         "dub-analytics",
+		Short:       "Retrieve analytics for a link, a domain, or the authenticated workspace. The response type depends on the `event`...",
+		Long:        "Shortcut for 'dub-analytics retrieve-analytics'. Retrieve analytics for a link, a domain, or the authenticated workspace. The response type depends on the `event`...",
+		Example:     "  dub-pp-cli dub-analytics",
+		Annotations: map[string]string{"pp:endpoint": "dub-analytics.retrieve-analytics", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("event") {
 				allowedEvent := []string{"clicks", "leads", "sales", "composite"}
@@ -230,19 +231,30 @@ func newAnalyticsRetrieveCmd(flags *rootFlags) *cobra.Command {
 			if flagQr != false {
 				params["qr"] = fmt.Sprintf("%v", flagQr)
 			}
-			data, prov, err := resolveRead(c, flags, "analytics", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "dub-analytics", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
-			// Print provenance to stderr for human-facing output
+			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
+			// so output helpers see the inner data, not the wrapper.
+			data = extractResponseData(data)
+
+			// Print provenance to stderr
 			{
 				var countItems []json.RawMessage
-				_ = json.Unmarshal(data, &countItems)
+				if json.Unmarshal(data, &countItems) != nil {
+					// Single object, not an array
+					countItems = []json.RawMessage{data}
+				}
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags.
-			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
+			// CSV bypasses JSON pipe path so --csv works when piped
+			if flags.csv {
+				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			}
+			// For JSON output, wrap with provenance envelope. --select wins over
+			// --compact when both are set; --compact only runs when no explicit
+			// fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
 				if flags.selectFields != "" {
@@ -256,7 +268,6 @@ func newAnalyticsRetrieveCmd(flags *rootFlags) *cobra.Command {
 				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
-			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
 				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
@@ -310,6 +321,8 @@ func newAnalyticsRetrieveCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagProgramId, "program-id", "", "Deprecated: This is automatically inferred from your workspace's defaultProgramId. The ID of the program to retrieve...")
 	cmd.Flags().StringVar(&flagTagIds, "tag-ids", "", "Deprecated: Use `tagId` instead. The tag IDs to retrieve analytics for.")
 	cmd.Flags().BoolVar(&flagQr, "qr", false, "Deprecated: Use the `trigger` field instead. Filter for QR code scans. If true, filter for QR codes only. If false,...")
+
+	// Wire sibling endpoints and sub-resources as subcommands
 
 	return cmd
 }

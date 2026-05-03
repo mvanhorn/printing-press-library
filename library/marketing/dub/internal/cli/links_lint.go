@@ -1,235 +1,226 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
-
-// links_lint scans the local /store cache for slug-collision and config issues
-// across links — duplicate slugs, mixed http/https variants, expired but still
-// active links. Reads exclusively from the store.Open-backed SQLite database.
+// Hand-written novel feature: links lint.
+// Audit short-key slugs for lookalike collisions, reserved-word violations,
+// and brand-conflict hazards across domains.
 
 package cli
 
 import (
-	"encoding/json"
+	"database/sql"
 	"fmt"
-	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
 )
 
-type lintFinding struct {
-	Severity string   `json:"severity"`
-	Code     string   `json:"code"`
-	Domain   string   `json:"domain,omitempty"`
-	Slug     string   `json:"slug"`
-	Message  string   `json:"message"`
-	Related  []string `json:"related,omitempty"`
+// reservedWords are short-keys that conflict with Dub's own routing or
+// common meta paths.
+var reservedWords = map[string]bool{
+	"admin": true, "api": true, "app": true, "auth": true, "dashboard": true,
+	"docs": true, "help": true, "login": true, "logout": true, "register": true,
+	"settings": true, "static": true, "support": true, "terms": true,
+	"privacy": true, "robots.txt": true, "sitemap.xml": true, "favicon.ico": true,
+	"qr": true, "track": true, "events": true,
 }
 
-// reservedSlugs are words that often shadow Dub's web app routes or look unprofessional as short keys.
-var reservedSlugs = map[string]bool{
-	"admin": true, "api": true, "dashboard": true, "settings": true, "login": true,
-	"signup": true, "logout": true, "auth": true, "billing": true, "help": true,
-	"support": true, "docs": true, "doc": true, "blog": true, "pricing": true,
-	"about": true, "contact": true, "privacy": true, "terms": true, "tos": true,
-	"undefined": true, "null": true, "true": true, "false": true,
+type lintFinding struct {
+	ID       string `json:"id"`
+	Domain   string `json:"domain"`
+	Key      string `json:"key"`
+	Severity string `json:"severity"`
+	Issue    string `json:"issue"`
+	Detail   string `json:"detail,omitempty"`
 }
 
 func newLinksLintCmd(flags *rootFlags) *cobra.Command {
+	var dbPath string
+
 	cmd := &cobra.Command{
 		Use:   "lint",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Audit short-key slugs for collisions, typos, and reserved words",
-		Long: `Scan every link slug in the workspace for hygiene issues:
-  - reserved-word slugs (admin, api, dashboard, etc. — collides with the web app)
-  - lookalike pairs (e.g. /launch vs /launches differ by one trailing char)
-  - case-only differences within the same domain (case-insensitive resolvers can collide)
-  - empty or single-character slugs
+		Short: "Audit slugs for lookalike collisions, reserved words, and brand-conflict hazards",
+		Long: `Pure local-data audit:
+  • lookalike pairs (` + "`/launch`" + ` vs ` + "`/launches`" + `, ` + "`/foo`" + ` vs ` + "`/Foo`" + `)
+  • reserved-word violations (` + "`/admin`" + `, ` + "`/api`" + `, ` + "`/dashboard`" + `, etc.)
+  • case-sensitivity hazards across the same domain
+  • slugs containing whitespace or path separators
 
-Pure local-data analysis. Run sync first.`,
-		Example: `  dub-pp-cli links lint --json
-  dub-pp-cli links lint --agent --select code,slug,message`,
+Run ` + "`dub-pp-cli sync`" + ` first.`,
+		Example: strings.Trim(`
+  dub-pp-cli links lint --json
+  dub-pp-cli links lint --json --select severity,key,issue
+`, "\n"),
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			db, err := openStoreForRead("dub-pp-cli")
-			if err != nil {
-				return apiErr(fmt.Errorf("open local store: %w", err))
+			if dryRunOK(flags) {
+				return nil
 			}
-			if db == nil {
-				return notFoundErr(fmt.Errorf("no local store found. run `dub-pp-cli sync --full` first"))
+			db, err := openLocalStore(cmd.Context(), dbPath)
+			if err != nil {
+				return err
 			}
 			defer db.Close()
-
-			rows, err := db.DB().Query(`SELECT id, data FROM links WHERE archived = 0 OR archived IS NULL`)
+			rows, err := db.DB().QueryContext(cmd.Context(), `
+				SELECT id, COALESCE(domain,''), COALESCE("key",'')
+				FROM links
+			`)
 			if err != nil {
-				return apiErr(fmt.Errorf("query links: %w", err))
+				return fmt.Errorf("querying links: %w", err)
 			}
 			defer rows.Close()
 
-			collected := make([]struct{ domain, slug string }, 0)
+			type slug struct{ id, domain, key string }
+			var slugs []slug
 			for rows.Next() {
-				var id, raw string
-				if err := rows.Scan(&id, &raw); err != nil {
-					continue
+				var id, domain, key string
+				if err := rows.Scan(&id, &domain, &key); err != nil {
+					return err
 				}
-				var obj map[string]any
-				if err := json.Unmarshal([]byte(raw), &obj); err != nil {
-					continue
-				}
-				domain := stringField(obj, "domain")
-				slug := stringField(obj, "key")
-				if slug == "" {
-					continue
-				}
-				collected = append(collected, struct{ domain, slug string }{domain: domain, slug: slug})
+				slugs = append(slugs, slug{id, domain, key})
+			}
+			if len(slugs) == 0 {
+				return hintEmptyStore("links")
 			}
 
-			findings := lintSlugs(collected)
-			sort.Slice(findings, func(i, j int) bool {
-				if findings[i].Severity != findings[j].Severity {
-					return severityRank(findings[i].Severity) > severityRank(findings[j].Severity)
+			byDomain := map[string][]slug{}
+			for _, s := range slugs {
+				byDomain[s.domain] = append(byDomain[s.domain], s)
+			}
+
+			var findings []lintFinding
+			for domain, ds := range byDomain {
+				_ = domain
+				lower := map[string]string{}
+				for _, s := range ds {
+					if reservedWords[strings.ToLower(s.key)] {
+						findings = append(findings, lintFinding{
+							ID: s.id, Domain: s.domain, Key: s.key,
+							Severity: "error",
+							Issue:    "reserved-word",
+							Detail:   "slug collides with a reserved path",
+						})
+					}
+					if strings.ContainsAny(s.key, " \t/?#") {
+						findings = append(findings, lintFinding{
+							ID: s.id, Domain: s.domain, Key: s.key,
+							Severity: "error",
+							Issue:    "invalid-character",
+							Detail:   "slug contains whitespace or path separator",
+						})
+					}
+					l := strings.ToLower(s.key)
+					if existing, ok := lower[l]; ok && existing != s.key {
+						findings = append(findings, lintFinding{
+							ID: s.id, Domain: s.domain, Key: s.key,
+							Severity: "warning",
+							Issue:    "case-collision",
+							Detail:   fmt.Sprintf("differs only in case from %q", existing),
+						})
+					} else {
+						lower[l] = s.key
+					}
 				}
-				return findings[i].Slug < findings[j].Slug
-			})
+				// Lookalike pairs: pluralizations and trailing-character drift.
+				keys := make([]string, 0, len(ds))
+				for _, s := range ds {
+					keys = append(keys, s.key)
+				}
+				for i := 0; i < len(keys); i++ {
+					for j := i + 1; j < len(keys); j++ {
+						a, b := keys[i], keys[j]
+						if a == b {
+							continue
+						}
+						if isLookalike(a, b) {
+							findings = append(findings, lintFinding{
+								Domain: domain, Key: a,
+								Severity: "warning",
+								Issue:    "lookalike",
+								Detail:   fmt.Sprintf("similar to %q", b),
+							})
+						}
+					}
+				}
+			}
 
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
-				return flags.printJSON(cmd, findings)
+				return printJSONFiltered(cmd.OutOrStdout(), findings, flags)
 			}
 			if len(findings) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "lint clean — no slug issues found")
+				fmt.Fprintln(cmd.OutOrStdout(), "No lint findings.")
 				return nil
 			}
-			headers := []string{"SEVERITY", "CODE", "DOMAIN", "SLUG", "MESSAGE"}
-			rowsTbl := make([][]string, 0, len(findings))
+			fmt.Fprintf(cmd.OutOrStdout(), "%-8s %-30s %s\n", "SEV", "KEY", "ISSUE")
 			for _, f := range findings {
-				msg := f.Message
-				if len(msg) > 60 {
-					msg = msg[:57] + "..."
-				}
-				rowsTbl = append(rowsTbl, []string{f.Severity, f.Code, f.Domain, f.Slug, msg})
+				fmt.Fprintf(cmd.OutOrStdout(), "%-8s %-30s %s\n",
+					f.Severity, truncate(f.Domain+"/"+f.Key, 30), f.Issue)
 			}
-			return flags.printTable(cmd, headers, rowsTbl)
+			return nil
 		},
 	}
+	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	return cmd
 }
 
-// lintSlugs is the pure-logic core of the lint command.
-func lintSlugs(slots []struct{ domain, slug string }) []lintFinding {
-	findings := make([]lintFinding, 0)
-
-	// reserved + length checks
-	for _, s := range slots {
-		lower := strings.ToLower(s.slug)
-		if reservedSlugs[lower] {
-			findings = append(findings, lintFinding{
-				Severity: "warn",
-				Code:     "reserved-slug",
-				Domain:   s.domain,
-				Slug:     s.slug,
-				Message:  fmt.Sprintf("slug %q is a reserved word that often clashes with web app routes", s.slug),
-			})
-		}
-		if len(s.slug) <= 1 {
-			findings = append(findings, lintFinding{
-				Severity: "info",
-				Code:     "slug-too-short",
-				Domain:   s.domain,
-				Slug:     s.slug,
-				Message:  "single-character slugs are easy to mistype and hard to remember",
-			})
-		}
-	}
-
-	// case-only collisions within the same domain
-	bySlug := make(map[string][]string) // key: domain|lower-slug, value: original slugs
-	for _, s := range slots {
-		k := s.domain + "|" + strings.ToLower(s.slug)
-		bySlug[k] = append(bySlug[k], s.slug)
-	}
-	for k, originals := range bySlug {
-		uniq := make(map[string]bool)
-		for _, o := range originals {
-			uniq[o] = true
-		}
-		if len(uniq) > 1 {
-			parts := strings.SplitN(k, "|", 2)
-			variants := make([]string, 0, len(uniq))
-			for o := range uniq {
-				variants = append(variants, o)
-			}
-			sort.Strings(variants)
-			findings = append(findings, lintFinding{
-				Severity: "error",
-				Code:     "case-collision",
-				Domain:   parts[0],
-				Slug:     parts[1],
-				Message:  fmt.Sprintf("case-only variants share the same lowercase slug: %s", strings.Join(variants, ", ")),
-				Related:  variants,
-			})
-		}
-	}
-
-	// lookalike pairs (single-trailing-character difference within same domain)
-	byDomain := make(map[string][]string)
-	for _, s := range slots {
-		byDomain[s.domain] = append(byDomain[s.domain], s.slug)
-	}
-	for domain, slugs := range byDomain {
-		uniq := make(map[string]bool)
-		for _, s := range slugs {
-			uniq[s] = true
-		}
-		dedup := make([]string, 0, len(uniq))
-		for s := range uniq {
-			dedup = append(dedup, s)
-		}
-		sort.Strings(dedup)
-		for i, a := range dedup {
-			for _, b := range dedup[i+1:] {
-				if isLookalike(a, b) {
-					findings = append(findings, lintFinding{
-						Severity: "warn",
-						Code:     "lookalike-slug",
-						Domain:   domain,
-						Slug:     a,
-						Message:  fmt.Sprintf("differs by one trailing character from %q — easy to confuse", b),
-						Related:  []string{b},
-					})
-				}
-			}
-		}
-	}
-
-	return findings
-}
-
-// isLookalike returns true if a and b differ only by the trailing character (one is a prefix of the other, by exactly one char).
+// isLookalike returns true when two short-keys are confusingly similar:
+// pluralization (foo → foos), trailing character (foo → foo1), or single
+// character substitution.
 func isLookalike(a, b string) bool {
 	if a == b {
 		return false
 	}
-	la, lb := len(a), len(b)
-	if la > lb {
-		la, lb = lb, la
-		a, b = b, a
+	if a+"s" == b || b+"s" == a {
+		return true
 	}
-	// b is now the longer string. Lookalike if b == a + one char and that char is alphanumeric.
-	if lb-la != 1 {
+	if a+"-" == b || b+"-" == a {
+		return true
+	}
+	// Levenshtein distance == 1 for short keys.
+	if abs(len(a)-len(b)) > 1 {
 		return false
 	}
-	if !strings.HasPrefix(b, a) {
-		return false
-	}
-	last := b[len(b)-1]
-	return (last >= 'a' && last <= 'z') || (last >= 'A' && last <= 'Z') || (last >= '0' && last <= '9')
+	return editDistanceLE(a, b, 1)
 }
 
-func severityRank(s string) int {
-	switch s {
-	case "error":
-		return 3
-	case "warn":
-		return 2
-	case "info":
-		return 1
+func abs(n int) int {
+	if n < 0 {
+		return -n
 	}
-	return 0
+	return n
 }
+
+// editDistanceLE returns true if Levenshtein distance between a and b is at
+// most maxD. Cheap implementation for very short strings.
+func editDistanceLE(a, b string, maxD int) bool {
+	if a == b {
+		return true
+	}
+	if abs(len(a)-len(b)) > maxD {
+		return false
+	}
+	d := 0
+	i, j := 0, 0
+	for i < len(a) && j < len(b) {
+		if a[i] == b[j] {
+			i++
+			j++
+			continue
+		}
+		d++
+		if d > maxD {
+			return false
+		}
+		switch {
+		case len(a) > len(b):
+			i++
+		case len(b) > len(a):
+			j++
+		default:
+			i++
+			j++
+		}
+	}
+	d += (len(a) - i) + (len(b) - j)
+	return d <= maxD
+}
+
+// _ = sql.NullString to ensure database/sql is used after refactors.
+var _ sql.NullString

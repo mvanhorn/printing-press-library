@@ -14,14 +14,15 @@ import (
 func newPartnersListApplicationsCmd(flags *rootFlags) *cobra.Command {
 	var flagCountry string
 	var flagGroupId string
-	var flagPage float64
+	var flagPage string
 	var flagPageSize float64
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "list-applications",
-		Short:   "List all pending partner applications",
-		Example: "  dub-pp-cli partners list-applications",
+		Use:         "list-applications",
+		Short:       "Retrieve a paginated list of pending applications for your partner program.",
+		Example:     "  dub-pp-cli partners list-applications",
+		Annotations: map[string]string{"pp:endpoint": "partners.list-applications", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -29,12 +30,12 @@ func newPartnersListApplicationsCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/partners/applications"
-			data, prov, err := resolvePaginatedRead(c, flags, "partners", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "partners", path, map[string]string{
 				"country":  fmt.Sprintf("%v", flagCountry),
 				"groupId":  fmt.Sprintf("%v", flagGroupId),
 				"page":     fmt.Sprintf("%v", flagPage),
 				"pageSize": fmt.Sprintf("%v", flagPageSize),
-			}, flagAll, "", "", "")
+			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -78,7 +79,7 @@ func newPartnersListApplicationsCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagCountry, "country", "", "A filter on the list based on the partner's `country` field.")
 	cmd.Flags().StringVar(&flagGroupId, "group-id", "", "A filter on the list based on the partner's `groupId` field.")
-	cmd.Flags().Float64Var(&flagPage, "page", 0.0, "The page number for pagination.")
+	cmd.Flags().StringVar(&flagPage, "page", "", "The page number for pagination.")
 	cmd.Flags().Float64Var(&flagPageSize, "page-size", 100.000000, "The number of items per page.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 

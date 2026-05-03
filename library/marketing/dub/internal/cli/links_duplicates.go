@@ -1,138 +1,134 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
-
-// links_duplicates groups synced links by destination URL and returns clusters
-// where two or more short links point to the same target. Reads from the local
-// /store cache via store.Open — no API call.
+// Hand-written novel feature: links duplicates.
+// Find every link in the workspace pointing to the same destination URL.
 
 package cli
 
 import (
-	"encoding/json"
+	"database/sql"
 	"fmt"
-	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
 )
 
 type dupGroup struct {
-	URL        string   `json:"url"`
-	Count      int      `json:"count"`
-	ShortLinks []string `json:"short_links"`
-	IDs        []string `json:"ids"`
+	URL   string         `json:"url"`
+	Count int            `json:"count"`
+	Links []dupLinkEntry `json:"links"`
+}
+
+type dupLinkEntry struct {
+	ID     string `json:"id"`
+	Domain string `json:"domain"`
+	Key    string `json:"key"`
+	Clicks int    `json:"clicks"`
 }
 
 func newLinksDuplicatesCmd(flags *rootFlags) *cobra.Command {
-	var ignoreUTM bool
+	var dbPath string
+	var minCount int
+	var ignoreCase bool
 
 	cmd := &cobra.Command{
-		Use:     "duplicates",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-		Aliases: []string{"dups"},
-		Short:   "Find links pointing to the same destination URL",
-		Long: `Group every link in the local store by its destination URL and surface every
-URL that appears more than once. Useful for consolidation campaigns where the
-same landing page accidentally got multiple short links.`,
-		Example: `  # Find all duplicate destinations
+		Use:   "duplicates",
+		Short: "Find every link in the workspace pointing to the same destination URL",
+		Long: `Group local links by their normalized destination URL and surface
+groups with two or more entries — the consolidation candidates.
+
+Useful after bulk-create overruns or when migrating UTMs and you want to
+audit overlap before deleting.`,
+		Example: strings.Trim(`
+  # Default: groups of 2+ duplicates
   dub-pp-cli links duplicates --json
 
-  # Treat utm_*-only differences as the same URL
-  dub-pp-cli links duplicates --ignore-utm --agent`,
+  # Tighter: only groups of 5+ (campaign-wide overlap)
+  dub-pp-cli links duplicates --min-count 5 --json
+`, "\n"),
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			db, err := openStoreForRead("dub-pp-cli")
-			if err != nil {
-				return apiErr(fmt.Errorf("open local store: %w", err))
+			if dryRunOK(flags) {
+				return nil
 			}
-			if db == nil {
-				return notFoundErr(fmt.Errorf("no local store found. run `dub-pp-cli sync --full` first"))
+			db, err := openLocalStore(cmd.Context(), dbPath)
+			if err != nil {
+				return err
 			}
 			defer db.Close()
 
-			rows, err := db.DB().Query(`SELECT id, data FROM links WHERE archived = 0 OR archived IS NULL`)
+			rows, err := db.DB().QueryContext(cmd.Context(), `
+				SELECT id, COALESCE(domain,''), COALESCE("key",''), COALESCE(data,'{}')
+				FROM links
+			`)
 			if err != nil {
-				return apiErr(fmt.Errorf("query links: %w", err))
+				return fmt.Errorf("querying links: %w", err)
 			}
 			defer rows.Close()
 
-			groups := make(map[string]*dupGroup)
+			groups := map[string][]dupLinkEntry{}
+			seen := 0
 			for rows.Next() {
-				var id, raw string
-				if err := rows.Scan(&id, &raw); err != nil {
-					continue
+				var id, domain, key string
+				var blob sql.NullString
+				if err := rows.Scan(&id, &domain, &key, &blob); err != nil {
+					return err
 				}
-				var obj map[string]any
-				if err := json.Unmarshal([]byte(raw), &obj); err != nil {
-					continue
+				seen++
+				blobBytes := []byte(blob.String)
+				if !blob.Valid {
+					blobBytes = []byte("{}")
 				}
-				url := stringField(obj, "url")
+				url := extractFromData(blobBytes, "url")
 				if url == "" {
 					continue
 				}
-				key := normalizeURL(url, ignoreUTM)
-				short := stringField(obj, "shortLink")
-				if g, ok := groups[key]; ok {
-					g.Count++
-					g.ShortLinks = append(g.ShortLinks, short)
-					g.IDs = append(g.IDs, id)
-				} else {
-					groups[key] = &dupGroup{URL: url, Count: 1, ShortLinks: []string{short}, IDs: []string{id}}
+				bucket := url
+				if ignoreCase {
+					bucket = strings.ToLower(url)
 				}
+				groups[bucket] = append(groups[bucket], dupLinkEntry{
+					ID:     id,
+					Domain: domain,
+					Key:    key,
+					Clicks: int(extractNumber(blobBytes, "clicks")),
+				})
+			}
+			if seen == 0 {
+				return hintEmptyStore("links")
 			}
 
-			out := make([]dupGroup, 0)
-			for _, g := range groups {
-				if g.Count > 1 {
-					out = append(out, *g)
+			var results []dupGroup
+			for url, entries := range groups {
+				if len(entries) < minCount {
+					continue
+				}
+				results = append(results, dupGroup{URL: url, Count: len(entries), Links: entries})
+			}
+			// Sort largest groups first, then by url.
+			for i := 0; i < len(results); i++ {
+				for j := i + 1; j < len(results); j++ {
+					if results[j].Count > results[i].Count ||
+						(results[j].Count == results[i].Count && results[j].URL < results[i].URL) {
+						results[i], results[j] = results[j], results[i]
+					}
 				}
 			}
-			sort.Slice(out, func(i, j int) bool { return out[i].Count > out[j].Count })
 
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
-				return flags.printJSON(cmd, out)
+				return printJSONFiltered(cmd.OutOrStdout(), results, flags)
 			}
-			if len(out) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "no duplicate destinations found")
+			if len(results) == 0 {
+				fmt.Fprintln(cmd.OutOrStdout(), "No duplicate destinations found.")
 				return nil
 			}
-			headers := []string{"COUNT", "URL", "SHORT_LINKS"}
-			rowsTbl := make([][]string, 0, len(out))
-			for _, g := range out {
-				url := g.URL
-				if len(url) > 60 {
-					url = url[:57] + "..."
-				}
-				rowsTbl = append(rowsTbl, []string{fmt.Sprintf("%d", g.Count), url, strings.Join(g.ShortLinks, ", ")})
+			fmt.Fprintf(cmd.OutOrStdout(), "%-6s %s\n", "COUNT", "URL")
+			for _, g := range results {
+				fmt.Fprintf(cmd.OutOrStdout(), "%-6d %s\n", g.Count, truncate(g.URL, 90))
 			}
-			return flags.printTable(cmd, headers, rowsTbl)
+			return nil
 		},
 	}
-
-	cmd.Flags().BoolVar(&ignoreUTM, "ignore-utm", false, "Strip utm_* params before comparing destination URLs")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
+	cmd.Flags().IntVar(&minCount, "min-count", 2, "Minimum group size to report")
+	cmd.Flags().BoolVar(&ignoreCase, "ignore-case", false, "Compare URLs case-insensitively")
 	return cmd
-}
-
-// normalizeURL collapses utm_* params (and trims trailing slashes) when ignoreUTM is set.
-// Pure logic; tested in links_duplicates_test.go.
-func normalizeURL(raw string, ignoreUTM bool) string {
-	if !ignoreUTM {
-		return raw
-	}
-	idx := strings.Index(raw, "?")
-	if idx < 0 {
-		return strings.TrimRight(raw, "/")
-	}
-	base := strings.TrimRight(raw[:idx], "/")
-	params := strings.Split(raw[idx+1:], "&")
-	keep := make([]string, 0, len(params))
-	for _, p := range params {
-		if strings.HasPrefix(strings.ToLower(p), "utm_") {
-			continue
-		}
-		keep = append(keep, p)
-	}
-	if len(keep) == 0 {
-		return base
-	}
-	sort.Strings(keep)
-	return base + "?" + strings.Join(keep, "&")
 }

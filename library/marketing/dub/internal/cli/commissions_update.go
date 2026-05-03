@@ -23,9 +23,10 @@ func newCommissionsUpdateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "update <id>",
-		Short:   "Update a commission",
-		Example: "  dub-pp-cli commissions update 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "update <id>",
+		Short:       "Update an existing commission amount. This is useful for handling refunds (partial or full) or fraudulent sales.",
+		Example:     "  dub-pp-cli commissions update 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "commissions.update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

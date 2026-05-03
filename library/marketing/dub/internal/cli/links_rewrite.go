@@ -1,195 +1,175 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
-
-// links_rewrite walks the local /store cache (store.Open-backed) to find links
-// matching the given pattern, computes the rewritten destination, and either
-// previews the diff (--dry-run) or PATCHes the API. Multi-source: store + API.
+// Hand-written novel feature: links rewrite.
+// Show every link that would change and the exact patch BEFORE sending.
+// Mass UTM or domain migrations with dry-run safety.
 
 package cli
 
 import (
+	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
-	"regexp"
-	"sort"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
 
-type rewriteHit struct {
-	ID        string `json:"id"`
-	Domain    string `json:"domain"`
-	Key       string `json:"key"`
-	ShortLink string `json:"shortLink,omitempty"`
-	Before    string `json:"before"`
-	After     string `json:"after"`
+type rewritePlan struct {
+	ID      string `json:"id"`
+	Domain  string `json:"domain"`
+	Key     string `json:"key"`
+	OldURL  string `json:"oldUrl"`
+	NewURL  string `json:"newUrl"`
+	Applied bool   `json:"applied"`
+	Error   string `json:"error,omitempty"`
 }
 
 func newLinksRewriteCmd(flags *rootFlags) *cobra.Command {
+	var dbPath string
 	var match string
 	var replace string
-	var domainFilter string
-	var dryRun bool
-	var doApply bool
+	var apply bool
+	var maxLinks int
 
 	cmd := &cobra.Command{
 		Use:   "rewrite",
-		Short: "Bulk URL/UTM rewrite with diff preview before sending",
-		Long: `Rewrite the destination URL of every link whose URL matches a regex.
-Show every link that would change AND the exact patch BEFORE sending the bulk
-update. The --dry-run flag (default) makes this a safe preview; pass --apply to
-actually patch the matched links via the API.
+		Short: "Show every link that would change and the exact patch BEFORE sending",
+		Long: `Bulk URL/UTM rewrite with diff preview. Match a substring in each link's
+destination URL and replace it. Defaults to dry-run; pass --apply to actually
+PATCH /links/{id} for each affected link.
 
-Use cases:
-  - mass UTM source migration (utm_source=oldcamp -> utm_source=newcamp)
-  - domain migration (https://staging.x.com -> https://x.com)
-  - campaign cleanup (deleted-track parameter scrub)`,
-		Example: `  # Preview a UTM source rewrite
-  dub-pp-cli links rewrite --match 'utm_source=oldcamp' --replace 'utm_source=newcamp' --dry-run
+Always run with --dry-run first to confirm the plan.`,
+		Example: strings.Trim(`
+  # Preview a UTM swap (dry-run by default)
+  dub-pp-cli links rewrite --match 'utm_source=launch' --replace 'utm_source=summer'
 
-  # Actually apply, scoped to one domain
-  dub-pp-cli links rewrite --match 'old\.example\.com' --replace 'example.com' --domain dub.sh --apply --yes`,
+  # Apply after reviewing the diff
+  dub-pp-cli links rewrite --match 'utm_source=launch' --replace 'utm_source=summer' --apply --yes
+
+  # Cap blast radius to 25 links per run
+  dub-pp-cli links rewrite --match 'old.example.com' --replace 'new.example.com' --max-links 25
+`, "\n"),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if match == "" || replace == "" {
-				return usageErr(fmt.Errorf("--match and --replace are required"))
+			if match == "" && replace == "" {
+				return cmd.Help()
 			}
-			re, err := regexp.Compile(match)
+			if match == "" {
+				return usageErr(fmt.Errorf("--match is required"))
+			}
+			db, err := openLocalStore(cmd.Context(), dbPath)
 			if err != nil {
-				return usageErr(fmt.Errorf("invalid regex --match: %w", err))
-			}
-			if !dryRun && !doApply && !flags.dryRun {
-				return usageErr(fmt.Errorf("pass --apply (and --yes) to send the patch, or --dry-run to preview"))
-			}
-			previewing := dryRun || flags.dryRun || !doApply
-
-			db, err := openStoreForRead("dub-pp-cli")
-			if err != nil {
-				return apiErr(fmt.Errorf("open local store: %w", err))
-			}
-			if db == nil {
-				return notFoundErr(fmt.Errorf("no local store found. run `dub-pp-cli sync --full` first"))
+				return err
 			}
 			defer db.Close()
-
-			query := `SELECT id, data FROM links WHERE archived = 0 OR archived IS NULL`
-			rows, err := db.DB().Query(query)
+			rows, err := db.DB().QueryContext(cmd.Context(), `
+				SELECT id, COALESCE(domain,''), COALESCE("key",''), COALESCE(data,'{}')
+				FROM links
+			`)
 			if err != nil {
-				return apiErr(fmt.Errorf("query links: %w", err))
+				return fmt.Errorf("querying links: %w", err)
 			}
 			defer rows.Close()
 
-			hits := make([]rewriteHit, 0)
+			var plans []rewritePlan
+			seen := 0
 			for rows.Next() {
-				var id, raw string
-				if err := rows.Scan(&id, &raw); err != nil {
+				var id, domain, key string
+				var blob sql.NullString
+				if err := rows.Scan(&id, &domain, &key, &blob); err != nil {
+					return err
+				}
+				seen++
+				blobBytes := []byte(blob.String)
+				if !blob.Valid {
+					blobBytes = []byte("{}")
+				}
+				oldURL := extractFromData(blobBytes, "url")
+				if oldURL == "" || !strings.Contains(oldURL, match) {
 					continue
 				}
-				var obj map[string]any
-				if err := json.Unmarshal([]byte(raw), &obj); err != nil {
+				newURL := strings.ReplaceAll(oldURL, match, replace)
+				if newURL == oldURL {
 					continue
 				}
-				domain := stringField(obj, "domain")
-				if domainFilter != "" && domain != domainFilter {
-					continue
-				}
-				url := stringField(obj, "url")
-				if !re.MatchString(url) {
-					continue
-				}
-				after := re.ReplaceAllString(url, replace)
-				if after == url {
-					continue
-				}
-				hits = append(hits, rewriteHit{
-					ID:        id,
-					Domain:    domain,
-					Key:       stringField(obj, "key"),
-					ShortLink: stringField(obj, "shortLink"),
-					Before:    url,
-					After:     after,
+				plans = append(plans, rewritePlan{
+					ID: id, Domain: domain, Key: key,
+					OldURL: oldURL, NewURL: newURL,
 				})
-			}
-			sort.Slice(hits, func(i, j int) bool { return hits[i].ID < hits[j].ID })
-
-			if previewing {
-				if flags.asJSON {
-					return flags.printJSON(cmd, map[string]any{
-						"matched": len(hits),
-						"applied": false,
-						"changes": hits,
-					})
+				if maxLinks > 0 && len(plans) >= maxLinks {
+					break
 				}
-				if len(hits) == 0 {
-					fmt.Fprintln(cmd.OutOrStdout(), "no links matched")
+			}
+			if seen == 0 {
+				return hintEmptyStore("links")
+			}
+
+			// Default behavior is dry-run; --apply opts in to mutation.
+			if !apply || dryRunOK(flags) {
+				if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+					return printJSONFiltered(cmd.OutOrStdout(), plans, flags)
+				}
+				if len(plans) == 0 {
+					fmt.Fprintln(cmd.OutOrStdout(), "No links matched.")
 					return nil
 				}
-				fmt.Fprintf(cmd.OutOrStdout(), "%d link(s) would change. Pass --apply --yes to commit.\n\n", len(hits))
-				headers := []string{"ID", "DOMAIN", "KEY", "BEFORE", "AFTER"}
-				rowsTbl := make([][]string, 0, len(hits))
-				for _, h := range hits {
-					rowsTbl = append(rowsTbl, []string{h.ID, h.Domain, h.Key, trunc(h.Before, 50), trunc(h.After, 50)})
+				fmt.Fprintf(cmd.OutOrStdout(), "Would change %d link(s):\n\n", len(plans))
+				for _, p := range plans {
+					fmt.Fprintf(cmd.OutOrStdout(), "  %s/%s\n", p.Domain, p.Key)
+					fmt.Fprintf(cmd.OutOrStdout(), "    -%s\n", truncate(p.OldURL, 110))
+					fmt.Fprintf(cmd.OutOrStdout(), "    +%s\n\n", truncate(p.NewURL, 110))
 				}
-				return flags.printTable(cmd, headers, rowsTbl)
+				fmt.Fprintln(cmd.OutOrStdout(), "Re-run with --apply --yes to send the patches.")
+				return nil
 			}
 
-			// Apply path
-			if !flags.yes && !flags.noInput {
-				return usageErr(fmt.Errorf("--apply requires --yes (refusing to mutate without confirmation)"))
-			}
-			if len(hits) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "no links matched")
-				return nil
+			if !flags.yes && len(plans) > 5 {
+				return usageErr(fmt.Errorf("rewriting %d links requires --yes", len(plans)))
 			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-			applied := 0
-			failed := 0
-			for _, h := range hits {
-				_, status, err := c.Patch("/links/"+h.ID, map[string]any{"url": h.After})
-				if err != nil {
-					failed++
-					fmt.Fprintf(cmd.ErrOrStderr(), "FAIL %s (status %d): %v\n", h.ID, status, err)
+			ctx := cmd.Context()
+			ok := 0
+			for i := range plans {
+				if err := applyRewrite(ctx, c, &plans[i]); err != nil {
+					plans[i].Error = err.Error()
 					continue
 				}
-				applied++
+				plans[i].Applied = true
+				ok++
 			}
-			summary := map[string]any{"matched": len(hits), "applied": applied, "failed": failed, "changes": hits}
-			if flags.asJSON {
-				return flags.printJSON(cmd, summary)
+			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+				return printJSONFiltered(cmd.OutOrStdout(), plans, flags)
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "applied: %d / %d (failed: %d)\n", applied, len(hits), failed)
-			if failed > 0 {
-				return apiErr(fmt.Errorf("%d link(s) failed to update", failed))
+			fmt.Fprintf(cmd.OutOrStdout(), "Applied %d / %d rewrite(s).\n", ok, len(plans))
+			for _, p := range plans {
+				if p.Error != "" {
+					fmt.Fprintf(cmd.OutOrStdout(), "  FAIL %s/%s — %s\n", p.Domain, p.Key, p.Error)
+				}
 			}
 			return nil
 		},
 	}
-
-	cmd.Flags().StringVar(&match, "match", "", "Regex matched against destination URL (required)")
-	cmd.Flags().StringVar(&replace, "replace", "", "Replacement string applied via regexp.ReplaceAllString (required)")
-	cmd.Flags().StringVar(&domainFilter, "domain", "", "Only consider links on this short domain")
-	cmd.Flags().BoolVar(&dryRun, "dry-run", true, "Preview only — do not patch the API (default)")
-	cmd.Flags().BoolVar(&doApply, "apply", false, "Send the bulk patch (must combine with --yes)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
+	cmd.Flags().StringVar(&match, "match", "", "Substring to match within each link's destination URL")
+	cmd.Flags().StringVar(&replace, "replace", "", "Replacement substring")
+	cmd.Flags().BoolVar(&apply, "apply", false, "Apply the patches (default is dry-run preview)")
+	cmd.Flags().IntVar(&maxLinks, "max-links", 0, "Cap the number of links rewritten in one run (0 = no cap)")
 	return cmd
 }
 
-func trunc(s string, max int) string {
-	if len(s) <= max {
-		return s
-	}
-	return s[:max-3] + "..."
+// applyRewrite issues a PATCH /links/{linkId} with {"url": newURL}.
+func applyRewrite(ctx context.Context, c apiClient, plan *rewritePlan) error {
+	body := map[string]any{"url": plan.NewURL}
+	bodyBytes, _ := json.Marshal(body)
+	_ = ctx
+	_, _, err := c.Patch("/links/"+plan.ID, json.RawMessage(bodyBytes))
+	return err
 }
 
-// previewRewrite is a small pure helper used by tests.
-func previewRewrite(url, match, replace string) (string, bool, error) {
-	re, err := regexp.Compile(match)
-	if err != nil {
-		return "", false, err
-	}
-	if !re.MatchString(url) {
-		return url, false, nil
-	}
-	after := re.ReplaceAllString(url, replace)
-	return after, after != url, nil
+// apiClient is a tiny shim to type-check against the generated *client.Client.
+// The generated client exposes Patch(path, body) (raw, status, err).
+type apiClient interface {
+	Patch(path string, body any) (json.RawMessage, int, error)
 }

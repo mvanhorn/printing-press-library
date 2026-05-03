@@ -19,9 +19,10 @@ func newPartnersBanCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "ban",
-		Short:   "Ban a partner",
-		Example: "  dub-pp-cli partners ban --reason example-value",
+		Use:         "ban",
+		Short:       "Ban a partner from your program. This will disable all links and mark all commissions as canceled.",
+		Example:     "  dub-pp-cli partners ban --reason example-value",
+		Annotations: map[string]string{"pp:endpoint": "partners.ban"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("reason") && !flags.dryRun {

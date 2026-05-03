@@ -15,9 +15,10 @@ func newLinksBulkDeleteCmd(flags *rootFlags) *cobra.Command {
 	var flagLinkIds string
 
 	cmd := &cobra.Command{
-		Use:     "bulk-delete",
-		Short:   "Bulk delete links",
-		Example: "  dub-pp-cli links bulk-delete",
+		Use:         "bulk-delete",
+		Short:       "Bulk delete up to 100 links for the authenticated workspace.",
+		Example:     "  dub-pp-cli links bulk-delete",
+		Annotations: map[string]string{"pp:endpoint": "links.bulk-delete"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("link-ids") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "link-ids")

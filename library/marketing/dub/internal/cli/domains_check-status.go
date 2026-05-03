@@ -15,9 +15,10 @@ func newDomainsCheckStatusCmd(flags *rootFlags) *cobra.Command {
 	var flagDomains string
 
 	cmd := &cobra.Command{
-		Use:     "check-status",
-		Short:   "Check the availability of one or more domains",
-		Example: "  dub-pp-cli domains check-status",
+		Use:         "check-status",
+		Short:       "Check if a domain name is available for purchase. You can check multiple domains at once.",
+		Example:     "  dub-pp-cli domains check-status",
+		Annotations: map[string]string{"pp:endpoint": "domains.check-status", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("domains") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "domains")
@@ -32,7 +33,7 @@ func newDomainsCheckStatusCmd(flags *rootFlags) *cobra.Command {
 			if flagDomains != "" {
 				params["domains"] = fmt.Sprintf("%v", flagDomains)
 			}
-			data, prov, err := resolveRead(c, flags, "domains", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "domains", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

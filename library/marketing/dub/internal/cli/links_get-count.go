@@ -25,9 +25,10 @@ func newLinksGetCountCmd(flags *rootFlags) *cobra.Command {
 	var flagGroupBy string
 
 	cmd := &cobra.Command{
-		Use:     "get-count",
-		Short:   "Retrieve links count",
-		Example: "  dub-pp-cli links get-count",
+		Use:         "get-count",
+		Short:       "Retrieve the number of links for the authenticated workspace.",
+		Example:     "  dub-pp-cli links get-count",
+		Annotations: map[string]string{"pp:endpoint": "links.get-count", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -69,7 +70,7 @@ func newLinksGetCountCmd(flags *rootFlags) *cobra.Command {
 			if flagGroupBy != "" {
 				params["groupBy"] = fmt.Sprintf("%v", flagGroupBy)
 			}
-			data, prov, err := resolveRead(c, flags, "links", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "links", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

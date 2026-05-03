@@ -54,9 +54,10 @@ func newLinksUpsertCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "upsert",
-		Short:   "Upsert a link",
-		Example: "  dub-pp-cli links upsert --url https://example.com/resource",
+		Use:         "upsert",
+		Short:       "Upsert a link for the authenticated workspace by its URL. If a link with the same URL already exists, return it (or...",
+		Example:     "  dub-pp-cli links upsert --url https://example.com/resource",
+		Annotations: map[string]string{"pp:endpoint": "links.upsert"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("url") && !flags.dryRun {

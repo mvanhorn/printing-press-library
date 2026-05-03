@@ -22,9 +22,10 @@ func newPartnersRetrieveAnalyticsCmd(flags *rootFlags) *cobra.Command {
 	var flagGroupBy string
 
 	cmd := &cobra.Command{
-		Use:     "retrieve-analytics",
-		Short:   "Retrieve analytics for a partner",
-		Example: "  dub-pp-cli partners retrieve-analytics",
+		Use:         "retrieve-analytics",
+		Short:       "Retrieve analytics for a partner within a program. The response type vary based on the `groupBy` query parameter.",
+		Example:     "  dub-pp-cli partners retrieve-analytics",
+		Annotations: map[string]string{"pp:endpoint": "partners.retrieve-analytics", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("interval") {
 				allowedInterval := []string{"24h", "7d", "30d", "90d", "1y", "mtd", "qtd", "ytd", "all"}
@@ -83,7 +84,7 @@ func newPartnersRetrieveAnalyticsCmd(flags *rootFlags) *cobra.Command {
 			if flagGroupBy != "" {
 				params["groupBy"] = fmt.Sprintf("%v", flagGroupBy)
 			}
-			data, prov, err := resolveRead(c, flags, "partners", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "partners", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

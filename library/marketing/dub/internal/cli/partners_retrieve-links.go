@@ -16,9 +16,10 @@ func newPartnersRetrieveLinksCmd(flags *rootFlags) *cobra.Command {
 	var flagTenantId string
 
 	cmd := &cobra.Command{
-		Use:     "retrieve-links",
-		Short:   "Retrieve a partner's links.",
-		Example: "  dub-pp-cli partners retrieve-links",
+		Use:         "retrieve-links",
+		Short:       "Retrieve a partner's links by their partner ID or tenant ID.",
+		Example:     "  dub-pp-cli partners retrieve-links",
+		Annotations: map[string]string{"pp:endpoint": "partners.retrieve-links", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -33,7 +34,7 @@ func newPartnersRetrieveLinksCmd(flags *rootFlags) *cobra.Command {
 			if flagTenantId != "" {
 				params["tenantId"] = fmt.Sprintf("%v", flagTenantId)
 			}
-			data, prov, err := resolveRead(c, flags, "partners", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "partners", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

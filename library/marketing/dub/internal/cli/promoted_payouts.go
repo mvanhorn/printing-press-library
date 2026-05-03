@@ -18,15 +18,16 @@ func newPayoutsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagInvoiceId string
 	var flagSortBy string
 	var flagSortOrder string
-	var flagPage float64
+	var flagPage string
 	var flagPageSize float64
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "payouts",
-		Short:   "List all payouts",
-		Long:    "Shortcut for 'payouts list'. List all payouts",
-		Example: "  dub-pp-cli payouts",
+		Use:         "payouts",
+		Short:       "Retrieve a paginated list of payouts for your partner program.",
+		Long:        "Shortcut for 'payouts list'. Retrieve a paginated list of payouts for your partner program.",
+		Example:     "  dub-pp-cli payouts",
+		Annotations: map[string]string{"pp:endpoint": "payouts.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("status") {
 				allowedStatus := []string{"pending", "processing", "processed", "sent", "completed", "failed", "canceled"}
@@ -73,7 +74,7 @@ func newPayoutsPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/payouts"
-			data, prov, err := resolvePaginatedRead(c, flags, "payouts", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "payouts", path, map[string]string{
 				"status":    fmt.Sprintf("%v", flagStatus),
 				"partnerId": fmt.Sprintf("%v", flagPartnerId),
 				"tenantId":  fmt.Sprintf("%v", flagTenantId),
@@ -82,7 +83,7 @@ func newPayoutsPromotedCmd(flags *rootFlags) *cobra.Command {
 				"sortOrder": fmt.Sprintf("%v", flagSortOrder),
 				"page":      fmt.Sprintf("%v", flagPage),
 				"pageSize":  fmt.Sprintf("%v", flagPageSize),
-			}, flagAll, "", "", "")
+			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -140,7 +141,7 @@ func newPayoutsPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagInvoiceId, "invoice-id", "", "Filter the list of payouts by invoice ID (the unique ID of the invoice you receive for each batch payout you process...")
 	cmd.Flags().StringVar(&flagSortBy, "sort-by", "amount", "The field to sort the list of payouts by. (one of: amount, initiatedAt, paidAt)")
 	cmd.Flags().StringVar(&flagSortOrder, "sort-order", "desc", "The sort order for the list of payouts. (one of: asc, desc)")
-	cmd.Flags().Float64Var(&flagPage, "page", 0.0, "The page number for pagination.")
+	cmd.Flags().StringVar(&flagPage, "page", "", "The page number for pagination.")
 	cmd.Flags().Float64Var(&flagPageSize, "page-size", 100.000000, "The number of items per page.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 

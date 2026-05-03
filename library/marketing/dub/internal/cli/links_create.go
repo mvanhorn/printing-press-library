@@ -54,9 +54,10 @@ func newLinksCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "create",
-		Short:   "Create a link",
-		Example: "  dub-pp-cli links create --url https://example.com/resource",
+		Use:         "create",
+		Short:       "Create a link for the authenticated workspace.",
+		Example:     "  dub-pp-cli links create --url https://example.com/resource",
+		Annotations: map[string]string{"pp:endpoint": "links.create"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("url") && !flags.dryRun {

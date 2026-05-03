@@ -20,14 +20,15 @@ func newPartnersListCmd(flags *rootFlags) *cobra.Command {
 	var flagEmail string
 	var flagTenantId string
 	var flagSearch string
-	var flagPage float64
+	var flagPage string
 	var flagPageSize float64
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "list",
-		Short:   "List all partners",
-		Example: "  dub-pp-cli partners list",
+		Use:         "list",
+		Short:       "List all partners for a partner program.",
+		Example:     "  dub-pp-cli partners list",
+		Annotations: map[string]string{"pp:endpoint": "partners.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("status") {
 				allowedStatus := []string{"pending", "approved", "rejected", "invited", "declined", "deactivated", "banned", "archived"}
@@ -74,7 +75,7 @@ func newPartnersListCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/partners"
-			data, prov, err := resolvePaginatedRead(c, flags, "partners", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "partners", path, map[string]string{
 				"groupId":   fmt.Sprintf("%v", flagGroupId),
 				"status":    fmt.Sprintf("%v", flagStatus),
 				"country":   fmt.Sprintf("%v", flagCountry),
@@ -85,7 +86,7 @@ func newPartnersListCmd(flags *rootFlags) *cobra.Command {
 				"search":    fmt.Sprintf("%v", flagSearch),
 				"page":      fmt.Sprintf("%v", flagPage),
 				"pageSize":  fmt.Sprintf("%v", flagPageSize),
-			}, flagAll, "", "", "")
+			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -135,7 +136,7 @@ func newPartnersListCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagEmail, "email", "", "Filter the partner list based on the partner's `email`. The value must be a string. Takes precedence over `search`.")
 	cmd.Flags().StringVar(&flagTenantId, "tenant-id", "", "Filter the partner list based on the partner's `tenantId`. The value must be a string. Takes precedence over `email`...")
 	cmd.Flags().StringVar(&flagSearch, "search", "", "A search query to filter partners by ID, name, email, or link.")
-	cmd.Flags().Float64Var(&flagPage, "page", 0.0, "The page number for pagination.")
+	cmd.Flags().StringVar(&flagPage, "page", "", "The page number for pagination.")
 	cmd.Flags().Float64Var(&flagPageSize, "page-size", 100.000000, "The number of items per page.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 

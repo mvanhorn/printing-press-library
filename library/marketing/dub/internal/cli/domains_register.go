@@ -17,9 +17,10 @@ func newDomainsRegisterCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "register",
-		Short:   "Register a domain",
-		Example: "  dub-pp-cli domains register --domain example-value",
+		Use:         "register",
+		Short:       "Register a domain for the authenticated workspace. Only available for Enterprise Plans.",
+		Example:     "  dub-pp-cli domains register --domain example-value",
+		Annotations: map[string]string{"pp:endpoint": "domains.register"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("domain") && !flags.dryRun {

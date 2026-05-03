@@ -13,14 +13,15 @@ import (
 
 func newFoldersListCmd(flags *rootFlags) *cobra.Command {
 	var flagSearch string
-	var flagPage float64
+	var flagPage string
 	var flagPageSize float64
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "list",
-		Short:   "List all folders",
-		Example: "  dub-pp-cli folders list",
+		Use:         "list",
+		Short:       "Retrieve a paginated list of folders for the authenticated workspace.",
+		Example:     "  dub-pp-cli folders list",
+		Annotations: map[string]string{"pp:endpoint": "folders.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -28,11 +29,11 @@ func newFoldersListCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/folders"
-			data, prov, err := resolvePaginatedRead(c, flags, "folders", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "folders", path, map[string]string{
 				"search":   fmt.Sprintf("%v", flagSearch),
 				"page":     fmt.Sprintf("%v", flagPage),
 				"pageSize": fmt.Sprintf("%v", flagPageSize),
-			}, flagAll, "", "", "")
+			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -75,7 +76,7 @@ func newFoldersListCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagSearch, "search", "", "The search term to filter the folders by.")
-	cmd.Flags().Float64Var(&flagPage, "page", 0.0, "The page number for pagination.")
+	cmd.Flags().StringVar(&flagPage, "page", "", "The page number for pagination.")
 	cmd.Flags().Float64Var(&flagPageSize, "page-size", 50.000000, "The number of items per page.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 

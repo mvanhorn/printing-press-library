@@ -19,9 +19,10 @@ func newTagsCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "create",
-		Short:   "Create a tag",
-		Example: "  dub-pp-cli tags create",
+		Use:         "create",
+		Short:       "Create a tag for the authenticated workspace.",
+		Example:     "  dub-pp-cli tags create",
+		Annotations: map[string]string{"pp:endpoint": "tags.create"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 			}

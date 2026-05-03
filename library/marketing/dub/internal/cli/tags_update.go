@@ -19,9 +19,10 @@ func newTagsUpdateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "update <id>",
-		Short:   "Update a tag",
-		Example: "  dub-pp-cli tags update 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "update <id>",
+		Short:       "Update a tag in the workspace.",
+		Example:     "  dub-pp-cli tags update 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "tags.update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

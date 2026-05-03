@@ -18,9 +18,10 @@ func newLinksBulkUpdateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "bulk-update",
-		Short:   "Bulk update links",
-		Example: "  dub-pp-cli links bulk-update",
+		Use:         "bulk-update",
+		Short:       "Bulk update up to 100 links with the same data for the authenticated workspace.",
+		Example:     "  dub-pp-cli links bulk-update",
+		Annotations: map[string]string{"pp:endpoint": "links.bulk-update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 			}

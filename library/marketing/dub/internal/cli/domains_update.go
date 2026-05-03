@@ -23,9 +23,10 @@ func newDomainsUpdateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "update <slug>",
-		Short:   "Update a domain",
-		Example: "  dub-pp-cli domains update example-value",
+		Use:         "update <slug>",
+		Short:       "Update a domain for the authenticated workspace.",
+		Example:     "  dub-pp-cli domains update example-value",
+		Annotations: map[string]string{"pp:endpoint": "domains.update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

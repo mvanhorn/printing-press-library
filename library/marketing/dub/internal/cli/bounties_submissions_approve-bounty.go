@@ -17,10 +17,11 @@ func newBountiesSubmissionsApproveBountyCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "approve-bounty <bountyId> <submissionId>",
-		Aliases: []string{"create"},
-		Short:   "Approve a bounty submission",
-		Example: "  dub-pp-cli bounties submissions approve-bounty example-value example-value",
+		Use:         "approve-bounty <bountyId> <submissionId>",
+		Aliases:     []string{"create"},
+		Short:       "Approve a bounty submission. Optionally specify a custom reward amount.",
+		Example:     "  dub-pp-cli bounties submissions approve-bounty example-value example-value",
+		Annotations: map[string]string{"pp:endpoint": "submissions.approve-bounty"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

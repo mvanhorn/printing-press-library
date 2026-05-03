@@ -18,9 +18,10 @@ func newLinksGetInfoCmd(flags *rootFlags) *cobra.Command {
 	var flagExternalId string
 
 	cmd := &cobra.Command{
-		Use:     "get-info",
-		Short:   "Retrieve a link",
-		Example: "  dub-pp-cli links get-info",
+		Use:         "get-info",
+		Short:       "Retrieve the info for a link.",
+		Example:     "  dub-pp-cli links get-info",
+		Annotations: map[string]string{"pp:endpoint": "links.get-info", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -41,7 +42,7 @@ func newLinksGetInfoCmd(flags *rootFlags) *cobra.Command {
 			if flagExternalId != "" {
 				params["externalId"] = fmt.Sprintf("%v", flagExternalId)
 			}
-			data, prov, err := resolveRead(c, flags, "links", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "links", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

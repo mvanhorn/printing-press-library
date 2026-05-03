@@ -18,9 +18,10 @@ func newTrackOpenCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "open",
-		Short:   "Track a deep link open event",
-		Example: "  dub-pp-cli track open",
+		Use:         "open",
+		Short:       "This endpoint is used to track when a user opens your app via a Dub-powered deep link (for both iOS and Android).",
+		Example:     "  dub-pp-cli track open",
+		Annotations: map[string]string{"pp:endpoint": "track.open"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 			}

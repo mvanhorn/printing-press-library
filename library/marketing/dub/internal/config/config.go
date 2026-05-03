@@ -14,16 +14,16 @@ import (
 )
 
 type Config struct {
-	BaseURL       string    `toml:"base_url"`
-	AuthHeaderVal string    `toml:"auth_header"`
-	AuthSource    string    `toml:"-"`
-	AccessToken   string    `toml:"access_token"`
-	RefreshToken  string    `toml:"refresh_token"`
-	TokenExpiry   time.Time `toml:"token_expiry"`
-	ClientID      string    `toml:"client_id"`
-	ClientSecret  string    `toml:"client_secret"`
-	Path          string    `toml:"-"`
-	DubToken      string    `toml:"token"`
+	BaseURL        string `toml:"base_url"`
+	AuthHeaderVal  string `toml:"auth_header"`
+	AuthSource     string `toml:"-"`
+	AccessToken    string `toml:"access_token"`
+	RefreshToken   string `toml:"refresh_token"`
+	TokenExpiry    time.Time `toml:"token_expiry"`
+	ClientID       string `toml:"client_id"`
+	ClientSecret   string `toml:"client_secret"`
+	Path           string `toml:"-"`
+	DubToken string `toml:"token"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -50,14 +50,14 @@ func Load(configPath string) (*Config, error) {
 		}
 	}
 
-	// Env var overrides. DUB_TOKEN is the primary name; DUB_API_KEY is accepted
-	// as an alias because that's what Dub's own docs use as the example variable.
-	if v := os.Getenv("DUB_TOKEN"); v != "" {
-		cfg.DubToken = v
-		cfg.AuthSource = "env:DUB_TOKEN"
-	} else if v := os.Getenv("DUB_API_KEY"); v != "" {
+	// Env var overrides — DUB_API_KEY (Speakeasy/official Dub SDK convention) is
+	// preferred; DUB_TOKEN is accepted for compatibility with prior dub-pp-cli prints.
+	if v := os.Getenv("DUB_API_KEY"); v != "" {
 		cfg.DubToken = v
 		cfg.AuthSource = "env:DUB_API_KEY"
+	} else if v := os.Getenv("DUB_TOKEN"); v != "" {
+		cfg.DubToken = v
+		cfg.AuthSource = "env:DUB_TOKEN"
 	}
 
 	// Base URL override (used by printing-press verify to point at mock/test servers)
@@ -71,12 +71,16 @@ func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
 	}
+	// Env-var token wins over file-stored AccessToken (env > config convention).
+	if c.DubToken != "" {
+		if c.AuthSource == "" {
+			c.AuthSource = "env:DUB_TOKEN"
+		}
+		return "Bearer " + c.DubToken
+	}
 	if c.AccessToken != "" {
 		c.AuthSource = "oauth2"
 		return "Bearer " + c.AccessToken
-	}
-	if c.DubToken != "" {
-		return "Bearer " + c.DubToken
 	}
 	return ""
 }

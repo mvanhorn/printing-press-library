@@ -14,9 +14,10 @@ import (
 func newDomainsDeleteCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "delete <slug>",
-		Short:   "Delete a domain",
-		Example: "  dub-pp-cli domains delete example-value",
+		Use:         "delete <slug>",
+		Short:       "Delete a domain from a workspace. It cannot be undone. This will also delete all the links associated with the domain.",
+		Example:     "  dub-pp-cli domains delete example-value",
+		Annotations: map[string]string{"pp:endpoint": "domains.delete"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

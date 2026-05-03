@@ -18,9 +18,10 @@ func newPartnersDeactivateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "deactivate",
-		Short:   "Deactivate a partner",
-		Example: "  dub-pp-cli partners deactivate",
+		Use:         "deactivate",
+		Short:       "This will deactivate the partner from your program and disable all their active links. Their commissions and payouts...",
+		Example:     "  dub-pp-cli partners deactivate",
+		Annotations: map[string]string{"pp:endpoint": "partners.deactivate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 			}

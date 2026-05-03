@@ -14,9 +14,10 @@ import (
 func newTagsDeleteCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "delete <id>",
-		Short:   "Delete a tag",
-		Example: "  dub-pp-cli tags delete 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "delete <id>",
+		Short:       "Delete a tag from the workspace. All existing links will still work, but they will no longer be associated with this...",
+		Example:     "  dub-pp-cli tags delete 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "tags.delete"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

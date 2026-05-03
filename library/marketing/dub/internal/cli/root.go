@@ -46,30 +46,59 @@ type rootFlags struct {
 	deliverSink DeliverSink
 }
 
+// RootCmd returns the Cobra command tree without executing it. The MCP server
+// uses this to mirror every user-facing command as an agent tool.
+func RootCmd() *cobra.Command {
+	var flags rootFlags
+	return newRootCmd(&flags)
+}
+
 // Execute runs the CLI in non-interactive mode: never prompts, all values via flags or stdin.
 func Execute() error {
 	var flags rootFlags
+	rootCmd := newRootCmd(&flags)
 
+	err := rootCmd.Execute()
+	if err != nil && strings.Contains(err.Error(), "unknown flag") {
+		msg := err.Error()
+		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
+		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
+			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
+			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
+				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
+			}
+		}
+	}
+	if err == nil && flags.deliverBuf != nil {
+		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
+			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
+			return derr
+		}
+	}
+	return err
+}
+
+func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "dub-pp-cli",
-		Short: `Dub CLI — Every Dub operation, plus the local-store features no Dub tool — official or community — has ever shipped.`,
-		Long: `Dub CLI — Every Dub operation, plus the local-store features no Dub tool — official or community — has ever shipped.
+		Short: `Dub CLI — Every Dub feature, plus offline search, agent-native output, and a local SQLite store no other Dub tool has.`,
+		Long: `Dub CLI — Every Dub feature, plus offline search, agent-native output, and a local SQLite store no other Dub tool has.
 
 Highlights (not in the official API docs):
   • links stale   Find archived, expired, or zero-traffic links across the workspace before they …
   • links drift   Detect links whose click rate dropped more than threshold percent week-over-wee…
-  • links duplicates   Find every link in the workspace pointing to the same destination URL. Surfaces…
+  • links duplicates   Find every link in the workspace pointing to the same destination URL.
   • links lint   Audit short-key slugs for lookalike collisions, reserved-word violations, and b…
-  • links rewrite   Show every link that would change and the exact patch BEFORE sending. Mass UTM …
-  • campaigns   Performance dashboard aggregated by tag — clicks, leads, sales rolled up across…
-  • funnel   Click-to-lead-to-sale conversion rates per link or campaign. Surfaces where pro…
+  • links rewrite   Show every link that would change and the exact patch BEFORE sending.
+  • links rollup   Performance dashboard aggregated by tag or folder — clicks, leads, sales rolled…
+  • funnel   Click-to-lead-to-sale conversion rates per link or campaign.
   • customers journey   See every link a customer clicked, when they became a lead, and when they purch…
-  • partners leaderboard   Rank partners by commission earned, conversion rate, and clicks generated. Find…
+  • partners leaderboard   Rank partners by commission earned, conversion rate, and clicks generated.
   • partners audit-commissions   Reconcile partners, commissions, bounties, and payouts to flag stale rates, mis…
-  • domains report   Per-domain link count and click distribution. Surfaces over- and under-used cus…
   • health   Cross-resource Monday-morning report: rate-limit headroom, expired-but-active l…
   • since   What happened in the last N hours? Created, updated, deleted links plus partner…
-  • tail   Stream live changes by polling the API at regular intervals. Watch new clicks, …
+  • bounties triage   Group partner-submitted bounty proof by status, age, and bounty type. Surfaces …
+  • bounties payout-projection   Project upcoming payouts from approved-but-unpaid submissions multiplied by cur…
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'dub-pp-cli doctor' to verify auth and connectivity.
@@ -152,88 +181,61 @@ See README.md or the bundled SKILL.md for recipes.`,
 		}
 		return nil
 	}
-	rootCmd.AddCommand(newBountiesCmd(&flags))
-	rootCmd.AddCommand(newCommissionsCmd(&flags))
-	rootCmd.AddCommand(newCustomersCmd(&flags))
-	rootCmd.AddCommand(newDomainsCmd(&flags))
-	rootCmd.AddCommand(newFoldersCmd(&flags))
-	rootCmd.AddCommand(newLinksCmd(&flags))
-	rootCmd.AddCommand(newPartnersCmd(&flags))
-	rootCmd.AddCommand(newTagsCmd(&flags))
-	rootCmd.AddCommand(newTrackCmd(&flags))
-	rootCmd.AddCommand(newDoctorCmd(&flags))
-	rootCmd.AddCommand(newAuthCmd(&flags))
+	bountiesCmd := newBountiesCmd(flags)
+	bountiesCmd.AddCommand(newBountiesTriageCmd(flags))
+	bountiesCmd.AddCommand(newBountiesPayoutProjectionCmd(flags))
+	rootCmd.AddCommand(bountiesCmd)
+
+	rootCmd.AddCommand(newCommissionsCmd(flags))
+
+	customersCmd := newCustomersCmd(flags)
+	customersCmd.AddCommand(newCustomersJourneyCmd(flags))
+	rootCmd.AddCommand(customersCmd)
+
+	rootCmd.AddCommand(newDomainsCmd(flags))
+	rootCmd.AddCommand(newFoldersCmd(flags))
+
+	linksCmd := newLinksCmd(flags)
+	linksCmd.AddCommand(newLinksStaleCmd(flags))
+	linksCmd.AddCommand(newLinksDriftCmd(flags))
+	linksCmd.AddCommand(newLinksDuplicatesCmd(flags))
+	linksCmd.AddCommand(newLinksLintCmd(flags))
+	linksCmd.AddCommand(newLinksRewriteCmd(flags))
+	linksCmd.AddCommand(newLinksRollupCmd(flags))
+	rootCmd.AddCommand(linksCmd)
+
+	partnersCmd := newPartnersCmd(flags)
+	partnersCmd.AddCommand(newPartnersLeaderboardCmd(flags))
+	partnersCmd.AddCommand(newPartnersAuditCommissionsCmd(flags))
+	rootCmd.AddCommand(partnersCmd)
+
+	rootCmd.AddCommand(newTagsCmd(flags))
+	rootCmd.AddCommand(newTrackCmd(flags))
+	rootCmd.AddCommand(newHealthCmd(flags))
+	rootCmd.AddCommand(newSinceCmd(flags))
+	rootCmd.AddCommand(newFunnelCmd(flags))
+	rootCmd.AddCommand(newDoctorCmd(flags))
+	rootCmd.AddCommand(newAuthCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
-	rootCmd.AddCommand(newProfileCmd(&flags))
-	rootCmd.AddCommand(newFeedbackCmd(&flags))
-	rootCmd.AddCommand(newWhichCmd(&flags))
-	rootCmd.AddCommand(newExportCmd(&flags))
-	rootCmd.AddCommand(newImportCmd(&flags))
-	rootCmd.AddCommand(newSearchCmd(&flags))
-	rootCmd.AddCommand(newSyncCmd(&flags))
-	rootCmd.AddCommand(newTailCmd(&flags))
-	rootCmd.AddCommand(newAnalyticsCmd(&flags))
-	rootCmd.AddCommand(newWorkflowCmd(&flags))
-	rootCmd.AddCommand(newAPICmd(&flags))
-	rootCmd.AddCommand(newEventsPromotedCmd(&flags))
-	rootCmd.AddCommand(newPayoutsPromotedCmd(&flags))
-	rootCmd.AddCommand(newQrPromotedCmd(&flags))
-	rootCmd.AddCommand(newTokensPromotedCmd(&flags))
+	rootCmd.AddCommand(newProfileCmd(flags))
+	rootCmd.AddCommand(newFeedbackCmd(flags))
+	rootCmd.AddCommand(newWhichCmd(flags))
+	rootCmd.AddCommand(newExportCmd(flags))
+	rootCmd.AddCommand(newImportCmd(flags))
+	rootCmd.AddCommand(newSearchCmd(flags))
+	rootCmd.AddCommand(newSyncCmd(flags))
+	rootCmd.AddCommand(newTailCmd(flags))
+	rootCmd.AddCommand(newAnalyticsCmd(flags))
+	rootCmd.AddCommand(newWorkflowCmd(flags))
+	rootCmd.AddCommand(newAPICmd(flags))
+	rootCmd.AddCommand(newDubAnalyticsPromotedCmd(flags))
+	rootCmd.AddCommand(newEventsPromotedCmd(flags))
+	rootCmd.AddCommand(newPayoutsPromotedCmd(flags))
+	rootCmd.AddCommand(newQrPromotedCmd(flags))
+	rootCmd.AddCommand(newTokensPromotedCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
-	// Hand-built transcendence commands. These go beyond the absorbed spec
-	// operations — local-store insight commands plus a few cross-resource
-	// aggregations. Top-level registrations live here alongside the
-	// spec-derived commands so the registration graph is one file.
-	rootCmd.AddCommand(newCampaignsCmd(&flags))
-	rootCmd.AddCommand(newFunnelCmd(&flags))
-	rootCmd.AddCommand(newHealthCmd(&flags))
-	rootCmd.AddCommand(newSinceCmd(&flags))
-
-	// Child transcendence subcommands grafted onto generated parents. Each
-	// constructor's name must appear in root.go so the scorecard's
-	// registration scanner recognizes the file as a real registered command
-	// (it scans root.go for new<Cmd> invocations and credits the matching
-	// file under workflow/insight scoring).
-	for _, c := range rootCmd.Commands() {
-		switch c.Name() {
-		case "links":
-			c.AddCommand(newLinksStaleCmd(&flags))
-			c.AddCommand(newLinksDriftCmd(&flags))
-			c.AddCommand(newLinksDuplicatesCmd(&flags))
-			c.AddCommand(newLinksLintCmd(&flags))
-			c.AddCommand(newLinksRewriteCmd(&flags))
-		case "partners":
-			c.AddCommand(newPartnersLeaderboardCmd(&flags))
-			c.AddCommand(newPartnersAuditCommissionsCmd(&flags))
-		case "customers":
-			c.AddCommand(newCustomersJourneyCmd(&flags))
-		case "domains":
-			c.AddCommand(newDomainsReportCmd(&flags))
-		case "analytics":
-			// generator emitted but never registered the API-side analytics retrieve
-			c.AddCommand(newAnalyticsRetrieveCmd(&flags))
-		}
-	}
-
-	err := rootCmd.Execute()
-	if err != nil && strings.Contains(err.Error(), "unknown flag") {
-		msg := err.Error()
-		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
-		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
-			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
-			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
-				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
-			}
-		}
-	}
-	if err == nil && flags.deliverBuf != nil {
-		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
-			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
-			return derr
-		}
-	}
-	return err
+	return rootCmd
 }
 
 func ExitCode(err error) int {

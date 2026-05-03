@@ -19,9 +19,10 @@ func newFoldersCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "create",
-		Short:   "Create a folder",
-		Example: "  dub-pp-cli folders create --name example-resource",
+		Use:         "create",
+		Short:       "Create a folder for the authenticated workspace.",
+		Example:     "  dub-pp-cli folders create --name example-resource",
+		Annotations: map[string]string{"pp:endpoint": "folders.create"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("name") && !flags.dryRun {

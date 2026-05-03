@@ -27,9 +27,10 @@ func newTrackSaleCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "sale",
-		Short:   "Track a sale",
-		Example: "  dub-pp-cli track sale --customerExternalId example-value",
+		Use:         "sale",
+		Short:       "Track a sale for a short link.",
+		Example:     "  dub-pp-cli track sale --customerExternalId example-value",
+		Annotations: map[string]string{"pp:endpoint": "track.sale"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("amount") && !flags.dryRun {

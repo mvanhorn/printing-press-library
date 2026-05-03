@@ -16,9 +16,10 @@ func newLinksBulkCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "bulk-create",
-		Short:   "Bulk create links",
-		Example: "  dub-pp-cli links bulk-create",
+		Use:         "bulk-create",
+		Short:       "Bulk create up to 100 links for the authenticated workspace.",
+		Example:     "  dub-pp-cli links bulk-create",
+		Annotations: map[string]string{"pp:endpoint": "links.bulk-create"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 			}

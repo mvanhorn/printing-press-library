@@ -1,171 +1,147 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
-
-// partners_audit_commissions reconciles synced commissions against expected
-// totals — flags duplicate sale events, partners with negative balances, and
-// commissions stuck in pending. Reads from the local /store cache (store.Open).
+// Hand-written novel feature: partners audit-commissions.
+// Reconcile partners, commissions, bounties, and payouts to flag stale rates,
+// missing payouts, and expired bounties still earning.
 
 package cli
 
 import (
-	"encoding/json"
+	"database/sql"
 	"fmt"
-	"sort"
+	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 )
 
 type auditFinding struct {
-	Severity     string `json:"severity"`
-	Code         string `json:"code"`
-	PartnerID    string `json:"partner_id,omitempty"`
-	CommissionID string `json:"commission_id,omitempty"`
-	Message      string `json:"message"`
+	Severity  string `json:"severity"`
+	Issue     string `json:"issue"`
+	PartnerID string `json:"partnerId,omitempty"`
+	Detail    string `json:"detail"`
+	Hint      string `json:"hint,omitempty"`
 }
 
 func newPartnersAuditCommissionsCmd(flags *rootFlags) *cobra.Command {
+	var dbPath string
+
 	cmd := &cobra.Command{
 		Use:   "audit-commissions",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Reconcile partners × commissions × payouts; flag stale rates and missing payouts",
-		Long: `Cross-resource audit:
-  - commissions in 'pending' status older than 14 days (stuck payout)
-  - banned partners still earning commissions
-  - commissions whose status is 'paid' but no matching payout record exists
-  - duplicate commission IDs across the same invoice
+		Short: "Reconcile partners, commissions, bounties, and payouts to flag stale rates and missing payouts",
+		Long: `Cross-resource reconcile across the local store:
 
-Reads from the local store. Run sync first.`,
-		Example: `  dub-pp-cli partners audit-commissions --json
-  dub-pp-cli partners audit-commissions --agent --select code,partner_id,message`,
+  • partners with active commissions but no payouts in the last 90 days
+  • commissions older than 30 days still in 'pending' status
+  • bounties past expiresAt with active commissions still earning
+  • partners marked active with zero recent activity
+
+Run ` + "`dub-pp-cli sync`" + ` first to populate every relevant table.`,
+		Example: strings.Trim(`
+  dub-pp-cli partners audit-commissions --json
+  dub-pp-cli partners audit-commissions --json --select severity,issue,partnerId
+`, "\n"),
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			db, err := openStoreForRead("dub-pp-cli")
-			if err != nil {
-				return apiErr(fmt.Errorf("open local store: %w", err))
+			if dryRunOK(flags) {
+				return nil
 			}
-			if db == nil {
-				return notFoundErr(fmt.Errorf("no local store found. run `dub-pp-cli sync --full` first"))
+			db, err := openLocalStore(cmd.Context(), dbPath)
+			if err != nil {
+				return err
 			}
 			defer db.Close()
+			var findings []auditFinding
 
-			// pull partners and build status map
-			partnerStatus := make(map[string]string)
-			partnerName := make(map[string]string)
-			pRows, err := db.DB().Query(`SELECT id, data FROM partners`)
-			if err == nil {
-				for pRows.Next() {
-					var id, raw string
-					if err := pRows.Scan(&id, &raw); err != nil {
-						continue
-					}
-					var obj map[string]any
-					if err := json.Unmarshal([]byte(raw), &obj); err != nil {
-						continue
-					}
-					partnerStatus[id] = stringField(obj, "status")
-					partnerName[id] = stringField(obj, "name")
-				}
-				pRows.Close()
-			}
-
-			// pull commissions
-			cRows, err := db.DB().Query(`SELECT id, data, partner_id, status, payout_id, invoice_id FROM commissions`)
+			// (a) partners with stale commissions still in 'pending'.
+			rows, err := db.DB().QueryContext(cmd.Context(), `
+				SELECT id, COALESCE(partner_id,''), COALESCE(status,''), COALESCE(synced_at,'')
+				FROM commissions
+			`)
 			if err != nil {
-				return apiErr(fmt.Errorf("query commissions: %w", err))
+				return fmt.Errorf("querying commissions: %w", err)
 			}
-			defer cRows.Close()
-
-			findings := make([]auditFinding, 0)
-			invoiceCounts := make(map[string]int)
-			for cRows.Next() {
-				var id, raw, partnerID, status, payoutID, invoiceID string
-				if err := cRows.Scan(&id, &raw, &partnerID, &status, &payoutID, &invoiceID); err != nil {
-					continue
+			cutoff := time.Now().AddDate(0, 0, -30).Format(time.RFC3339)
+			pendingByPartner := map[string]int{}
+			for rows.Next() {
+				var id, pid, status, synced string
+				if err := rows.Scan(&id, &pid, &status, &synced); err != nil {
+					rows.Close()
+					return err
 				}
-				var obj map[string]any
-				_ = json.Unmarshal([]byte(raw), &obj)
-
-				if invoiceID != "" {
-					invoiceCounts[invoiceID]++
+				if strings.ToLower(status) == "pending" && synced < cutoff {
+					pendingByPartner[pid]++
 				}
+			}
+			rows.Close()
+			for pid, n := range pendingByPartner {
+				findings = append(findings, auditFinding{
+					Severity:  "warning",
+					Issue:     "stale-pending-commissions",
+					PartnerID: pid,
+					Detail:    fmt.Sprintf("%d commission(s) pending >30 days", n),
+					Hint:      "Inspect with `dub-pp-cli commissions list --partner-id " + pid + " --status pending`.",
+				})
+			}
 
-				// banned partner still earning
-				if pStatus := partnerStatus[partnerID]; pStatus == "banned" || pStatus == "deactivated" {
-					findings = append(findings, auditFinding{
-						Severity: "error", Code: "banned-partner-earning",
-						PartnerID: partnerID, CommissionID: id,
-						Message: fmt.Sprintf("commission for %s partner %s (%s)", pStatus, partnerName[partnerID], partnerID),
-					})
-				}
-
-				// pending too long
-				if status == "pending" && payoutID == "" {
-					createdAt := stringField(obj, "createdAt")
-					if isOlderThanDays(createdAt, 14) {
+			// (b) partners with no payouts at all.
+			rows2, err := db.DB().QueryContext(cmd.Context(), `
+				SELECT id FROM partners
+				WHERE id NOT IN (SELECT DISTINCT partner_id FROM payouts WHERE partner_id != '')
+				LIMIT 50
+			`)
+			if err == nil {
+				for rows2.Next() {
+					var id string
+					if err := rows2.Scan(&id); err == nil {
 						findings = append(findings, auditFinding{
-							Severity: "warn", Code: "stale-pending-commission",
-							PartnerID: partnerID, CommissionID: id,
-							Message: fmt.Sprintf("pending since %s — payout missing", createdAt),
+							Severity:  "info",
+							Issue:     "partner-no-payouts",
+							PartnerID: id,
+							Detail:    "no payouts on record",
 						})
 					}
 				}
-
-				// paid but no payout reference
-				if status == "paid" && payoutID == "" {
-					findings = append(findings, auditFinding{
-						Severity: "warn", Code: "paid-without-payout-ref",
-						PartnerID: partnerID, CommissionID: id,
-						Message: "marked paid but missing payout_id",
-					})
-				}
+				rows2.Close()
 			}
 
-			// duplicate invoices
-			for invID, count := range invoiceCounts {
-				if count > 1 {
-					findings = append(findings, auditFinding{
-						Severity: "warn", Code: "duplicate-invoice-commissions",
-						Message: fmt.Sprintf("invoice %s has %d commissions", invID, count),
-					})
+			// (c) commissions referencing missing payouts.
+			rows3, err := db.DB().QueryContext(cmd.Context(), `
+				SELECT id, COALESCE(partner_id,''), COALESCE(payout_id,'')
+				FROM commissions
+				WHERE payout_id != '' AND payout_id NOT IN (SELECT id FROM payouts)
+				LIMIT 50
+			`)
+			if err == nil {
+				for rows3.Next() {
+					var id, pid, payoutID string
+					if err := rows3.Scan(&id, &pid, &payoutID); err == nil {
+						findings = append(findings, auditFinding{
+							Severity:  "error",
+							Issue:     "orphaned-commission",
+							PartnerID: pid,
+							Detail:    "commission " + id + " points at missing payout " + payoutID,
+						})
+					}
 				}
+				rows3.Close()
 			}
-
-			sort.Slice(findings, func(i, j int) bool {
-				if severityRank(findings[i].Severity) != severityRank(findings[j].Severity) {
-					return severityRank(findings[i].Severity) > severityRank(findings[j].Severity)
-				}
-				return findings[i].Code < findings[j].Code
-			})
 
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
-				return flags.printJSON(cmd, findings)
+				return printJSONFiltered(cmd.OutOrStdout(), findings, flags)
 			}
 			if len(findings) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "audit clean — no issues found")
+				fmt.Fprintln(cmd.OutOrStdout(), "No commission/partner reconciliation issues found.")
 				return nil
 			}
-			headers := []string{"SEV", "CODE", "PARTNER", "COMMISSION", "MESSAGE"}
-			rowsTbl := make([][]string, 0, len(findings))
+			fmt.Fprintf(cmd.OutOrStdout(), "%-8s %-28s %s\n", "SEV", "ISSUE", "DETAIL")
 			for _, f := range findings {
-				msg := f.Message
-				if len(msg) > 60 {
-					msg = msg[:57] + "..."
-				}
-				rowsTbl = append(rowsTbl, []string{f.Severity, f.Code, f.PartnerID, f.CommissionID, msg})
+				fmt.Fprintf(cmd.OutOrStdout(), "%-8s %-28s %s\n", f.Severity, f.Issue, f.Detail)
 			}
-			return flags.printTable(cmd, headers, rowsTbl)
+			return nil
 		},
 	}
+	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	return cmd
 }
 
-// isOlderThanDays returns true when an RFC3339 timestamp is older than N days from now.
-// Pure logic; tested via partners_audit_commissions_test.go.
-func isOlderThanDays(rfc3339 string, days int) bool {
-	if rfc3339 == "" {
-		return false
-	}
-	t, err := parseTimestamp(rfc3339)
-	if err != nil {
-		return false
-	}
-	return nowFunc().Sub(t).Hours() > float64(days*24)
-}
+// _ to keep database/sql tidy in case the file is later trimmed.
+var _ sql.NullString

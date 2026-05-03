@@ -1,10 +1,10 @@
 {
-  "dir": "/Users/tmchow/printing-press/.runstate/robust-honking-castle-c785ea8d/runs/20260426-231211/working/dub-pp-cli",
-  "spec_path": "/Users/tmchow/printing-press/.runstate/robust-honking-castle-c785ea8d/runs/20260426-231211/research/dub-openapi.yaml",
+  "dir": "/Users/tmchow/printing-press/library/dub",
+  "spec_path": "/Users/tmchow/printing-press/.runstate/majestic-giggling-lollipop-a96356fc/runs/20260502-153038/research/dub-openapi.yaml",
   "verdict": "PASS",
   "path_check": {
-    "tested": 4,
-    "valid": 4,
+    "tested": 3,
+    "valid": 3,
     "valid_pct": 100
   },
   "auth_check": {
@@ -23,7 +23,7 @@
     "dead": 0
   },
   "dead_functions": {
-    "total": 48,
+    "total": 50,
     "dead": 0
   },
   "pipeline_check": {
@@ -40,8 +40,8 @@
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 102,
-      "registered": 102
+      "defined": 103,
+      "registered": 103
     },
     "config_consistency": {
       "consistent": true
@@ -54,20 +54,30 @@
     }
   },
   "novel_features_check": {
-    "planned": 0,
-    "found": 0,
-    "skipped": true
+    "planned": 14,
+    "found": 14
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
   },
   "reimplementation_check": {
+    "checked": 14,
+    "exempted_via_store": 14
+  },
+  "source_client_check": {
     "checked": 0,
-    "exempted_via_store": 0,
     "skipped": true
+  },
+  "print_json_filtered_check": {
+    "checked": 96
   },
   "test_presence": {
     "checked": 0
   },
   "naming_check": {
-    "checked": 95
+    "checked": 96
   },
   "issues": null
 }

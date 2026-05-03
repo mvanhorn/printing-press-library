@@ -14,14 +14,15 @@ import (
 func newDomainsListCmd(flags *rootFlags) *cobra.Command {
 	var flagArchived bool
 	var flagSearch string
-	var flagPage float64
+	var flagPage string
 	var flagPageSize float64
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "list",
-		Short:   "List all domains",
-		Example: "  dub-pp-cli domains list",
+		Use:         "list",
+		Short:       "Retrieve a paginated list of domains for the authenticated workspace.",
+		Example:     "  dub-pp-cli domains list",
+		Annotations: map[string]string{"pp:endpoint": "domains.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -29,12 +30,12 @@ func newDomainsListCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/domains"
-			data, prov, err := resolvePaginatedRead(c, flags, "domains", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "domains", path, map[string]string{
 				"archived": fmt.Sprintf("%v", flagArchived),
 				"search":   fmt.Sprintf("%v", flagSearch),
 				"page":     fmt.Sprintf("%v", flagPage),
 				"pageSize": fmt.Sprintf("%v", flagPageSize),
-			}, flagAll, "", "", "")
+			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -78,7 +79,7 @@ func newDomainsListCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().BoolVar(&flagArchived, "archived", false, "Whether to include archived domains in the response. Defaults to `false` if not provided.")
 	cmd.Flags().StringVar(&flagSearch, "search", "", "The search term to filter the domains by.")
-	cmd.Flags().Float64Var(&flagPage, "page", 0.0, "The page number for pagination.")
+	cmd.Flags().StringVar(&flagPage, "page", "", "The page number for pagination.")
 	cmd.Flags().Float64Var(&flagPageSize, "page-size", 50.000000, "The number of items per page.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 

@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "dub-pp-mcp",
   "display_name": "Dub",
-  "version": "2.3.9",
-  "description": "Manage Dub short links, analytics, partner programs, and conversion tracking from the terminal. Local SQLite store unlocks dead-link detection, performance drift, conversion funnels, partner leaderboards, and cross-tag analytics.",
+  "version": "3.6.1",
+  "description": "Dub API surface as MCP tools.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -35,6 +35,5 @@
       "linux",
       "win32"
     ]
-  },
-  "cli_binary": "dub-pp-cli"
+  }
 }

@@ -1,56 +1,48 @@
 # Dub CLI
 
-**Every Dub operation, plus the local-store features no Dub tool — official or community — has ever shipped.**
+**Every Dub feature, plus offline search, agent-native output, and a local SQLite store no other Dub tool has.**
 
-Manage Dub short links, analytics, partner programs, and conversion tracking from the terminal. A local SQLite store unlocks dead-link detection, performance drift, conversion funnels, partner leaderboards, and cross-tag analytics — without burning the rate-limit budget. Every command is agent-native: --json, --select, --dry-run, typed exit codes.
+dub-pp-cli covers all 53 Dub API operations as typed commands, then transcends with cross-resource joins the API cannot answer alone — dead-link detection, drift detection, partner leaderboards from /partners/analytics joined with local commissions, bounty submission triage, and a Monday-morning workspace health report. The official dub-cli covers 6 commands; we cover 67.
 
 Learn more at [Dub](https://dub.co/support).
 
 ## Install
 
+### Binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/dub-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
+
 ### Go
 
 ```
-go install github.com/mvanhorn/printing-press-library/library/marketing/dub/cmd/dub-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/other/dub/cmd/dub-pp-cli@latest
 ```
-
-### Binary
-
-Download from [Releases](https://github.com/mvanhorn/printing-press-library/releases).
 
 ## Authentication
 
-Dub uses workspace-scoped API keys. Get one at https://app.dub.co/settings/tokens and export it as `DUB_TOKEN` (the CLI also accepts `DUB_API_KEY` as an alias for parity with Dub's own SDK examples). `dub-pp-cli doctor` confirms the key reaches the API.
+dub-pp-cli reads DUB_API_KEY from the environment (Speakeasy convention; DUB_TOKEN also accepted for compatibility with prior community CLIs). The key is workspace-scoped — the workspace is implicit in the key. Get one from dub.co/settings/tokens and run `dub-pp-cli doctor` to verify connectivity.
 
 ## Quick Start
 
 ```bash
-# Workspace key from app.dub.co/settings/tokens
-export DUB_TOKEN=dub_yourkey
-
-
-# Confirm auth and reach the API
+# Verify API key, base URL, and rate-limit headroom.
 dub-pp-cli doctor
 
 
-# Pull links, tags, folders, domains, partners, customers into the local store
-dub-pp-cli sync --full
+# Populate the local SQLite store so search and transcendence commands work offline.
+dub-pp-cli sync
 
 
-# Inspect links from the local cache
-dub-pp-cli links get --json --select id,domain,key,clicks
+# List the workspace's links with the fields agents care about.
+dub-pp-cli links list --json --select id,key,url,clicks
 
 
-# See which tags drive the most clicks, leads, sales
-dub-pp-cli campaigns --interval 30d
+# Find dormant links — the headline transcendence feature.
+dub-pp-cli links stale --days 90 --json
 
 
-# Find dead links worth cleaning up
-dub-pp-cli links stale --days 90
-
-
-# Mint a short link
-dub-pp-cli links create --url https://example.com --domain dub.sh
+# Cross-resource Monday-morning report: rate-limit headroom, expiring links, bounty triage backlog.
+dub-pp-cli health --json
 
 ```
 
@@ -59,110 +51,107 @@ dub-pp-cli links create --url https://example.com --domain dub.sh
 These capabilities aren't available in any other tool for this API.
 
 ### Local state that compounds
+- **`links stale`** — Find archived, expired, or zero-traffic links across the workspace before they pile up.
 
-- **`links stale`** — Find archived, expired, or zero-traffic links across the workspace before they pile up. Joins local link metadata with analytics aggregates the API doesn't expose together.
-
-  _Pick up cleanup work without round-tripping every link's analytics endpoint individually._
+  _Use this to clean up dormant short links before a portfolio review or before bulk-archiving. The /analytics endpoint can't filter links by 'no clicks in N days' in a single call._
 
   ```bash
-  dub-pp-cli links stale --days 90 --json
+  dub-pp-cli links stale --days 90 --json --select id,key,clicks,archived
   ```
-- **`links drift`** — Detect links whose click rate dropped more than threshold percent week-over-week. Catches dying campaigns before reporting deadlines.
+- **`links drift`** — Detect links whose click rate dropped more than threshold percent week-over-week.
 
-  _Pre-emptive alerting on silent campaign collapse — catches issues before someone notices traffic is gone._
+  _Catches dying campaigns before reporting deadlines. Use this in a weekly automation to surface attribution links that quietly stopped converting._
 
   ```bash
   dub-pp-cli links drift --window 7d --threshold 30 --json
   ```
-- **`campaigns`** — Performance dashboard aggregated by tag — clicks, leads, sales rolled up across every link wearing each tag.
+- **`links duplicates`** — Find every link in the workspace pointing to the same destination URL.
 
-  _Campaign-level view of what's actually working without manual rollup spreadsheets._
-
-  ```bash
-  dub-pp-cli campaigns --interval 30d --json
-  ```
-- **`funnel`** — Click-to-lead-to-sale conversion rates per link or campaign. Surfaces where prospects drop off in the funnel.
-
-  _Attribution debugging without exporting to a BI tool._
+  _Surfaces accidental duplicates from bulk-create overruns and consolidation candidates after a migration._
 
   ```bash
-  dub-pp-cli funnel --link link_xyz --json
+  dub-pp-cli links duplicates --json
   ```
-- **`customers journey`** — See every link a customer clicked, when they became a lead, and when they purchased — in one timeline.
+- **`links lint`** — Audit short-key slugs for lookalike collisions, reserved-word violations, and brand-conflict hazards.
 
-  _Single-pane-of-glass attribution for one customer instead of stitching four endpoints._
-
-  ```bash
-  dub-pp-cli customers journey --customer cus_xyz --json
-  ```
-- **`partners leaderboard`** — Rank partners by commission earned, conversion rate, and clicks generated. Find your top performers and dormant partners.
-
-  _Partner-program health at a glance without four separate API calls._
-
-  ```bash
-  dub-pp-cli partners leaderboard --by commission --interval 30d --json
-  ```
-
-### Hygiene and safety
-
-- **`links duplicates`** — Find every link in the workspace pointing to the same destination URL. Surfaces accidental duplicates and consolidation candidates.
-
-  _Catches accidental duplicates that fragment analytics and waste short-link slugs._
-
-  ```bash
-  dub-pp-cli links duplicates --json --select url,count,short_links
-  ```
-- **`links lint`** — Audit short-key slugs for lookalike collisions, reserved-word violations, and brand-conflict hazards across domains.
-
-  _Catches typo-shaped redirects and ambiguous aliases before they ship to a campaign._
+  _Use this before a brand campaign launch to catch lookalike slugs that confuse partners or get reserved-word treatment._
 
   ```bash
   dub-pp-cli links lint --json
   ```
-- **`links rewrite`** — Show every link that would change and the exact patch BEFORE sending. Mass UTM or domain migrations with dry-run safety.
+- **`links rollup`** — Performance dashboard aggregated by tag or folder — clicks, leads, sales rolled up across every link wearing each label.
 
-  _Campaign-wide rewrites without blast-radius mistakes._
-
-  ```bash
-  dub-pp-cli links rewrite --match 'utm_source=oldsrc' --replace 'utm_source=newsrc' --dry-run
-  ```
-- **`partners audit-commissions`** — Reconcile partners, commissions, bounties, and payouts to flag stale rates, missing payouts, and expired bounties still earning.
-
-  _Partner-program audit that would otherwise be four API calls plus a spreadsheet._
+  _Use this to compare campaign performance across tag dimensions without reconciling 5 separate API calls._
 
   ```bash
-  dub-pp-cli partners audit-commissions --json
+  dub-pp-cli links rollup --by clicks --group-by tag --json
   ```
-- **`domains report`** — Per-domain link count and click distribution. Surfaces over- and under-used custom domains.
+- **`funnel`** — Click-to-lead-to-sale conversion rates per link or campaign.
 
-  _See which custom domains are pulling weight before renewal time._
+  _Surfaces where prospects drop off in your attribution funnel. Use before quarterly reporting to spot links with high clicks and low conversion._
 
   ```bash
-  dub-pp-cli domains report --json
+  dub-pp-cli funnel --link mylink --min-clicks 50 --json
   ```
-- **`health`** — Cross-resource Monday-morning report: rate-limit headroom, expired-but-active links, dead destination URLs, unverified domains, dormant tags.
+- **`customers journey`** — See every link a customer clicked, when they became a lead, and when they purchased — in one timeline.
 
-  _One command instead of five to triage workspace health._
+  _Use this for QBR-style account reviews or to debug attribution issues for a specific customer._
+
+  ```bash
+  dub-pp-cli customers journey cust_abc123 --json
+  ```
+
+### Agent-native plumbing
+- **`links rewrite`** — Show every link that would change and the exact patch BEFORE sending.
+
+  _Use this before any campaign-wide rewrite. Diff preview prevents the worst class of bulk-mutation mistakes._
+
+  ```bash
+  dub-pp-cli links rewrite --match 'utm_source=oldcampaign' --replace 'utm_source=newcampaign' --dry-run
+  ```
+- **`health`** — Cross-resource Monday-morning report: rate-limit headroom, expired-but-active links, dead destination URLs, unverified domains, dormant tags, bounty submissions awaiting review.
+
+  _Use this as the first thing every morning, or as a CI canary. Surfaces what needs attention without dashboard hopping._
 
   ```bash
   dub-pp-cli health --json
   ```
+- **`since`** — What happened in the last N hours? Created, updated, deleted links plus partner approvals, new bounty submissions, and top-clicked entities.
 
-### Agent-native plumbing
-
-- **`since`** — What happened in the last N hours? Created, updated, deleted links plus partner approvals and top-clicked entities.
-
-  _Powers agent 'what changed' flows without polling a dozen list endpoints._
+  _Use this in agent loops to summarize workspace activity since the last check-in. Cheap and idempotent._
 
   ```bash
   dub-pp-cli since 24h --json
   ```
-- **`tail`** — Stream live changes by polling the API at regular intervals. Watch new clicks, leads, and sales as they happen.
 
-  _Watch a campaign launch in real time without refreshing the dashboard._
+### Partner ops
+- **`partners leaderboard`** — Rank partners by commission earned, conversion rate, and clicks generated.
+
+  _Use this to identify top performers before a partner-tier review, or dormant partners worth deactivating._
 
   ```bash
-  dub-pp-cli tail --interval 10s
+  dub-pp-cli partners leaderboard --by commission --top 10 --json
+  ```
+- **`partners audit-commissions`** — Reconcile partners, commissions, bounties, and payouts to flag stale rates, missing payouts, and expired bounties still earning.
+
+  _Run this before a payout cycle to catch billing surprises. Use in CI before any commission-rate migration._
+
+  ```bash
+  dub-pp-cli partners audit-commissions --json
+  ```
+- **`bounties triage`** — Group partner-submitted bounty proof by status, age, and bounty type. Surfaces backlog awaiting review.
+
+  _Run weekly to keep bounty submissions from rotting. Bounty programs lose partner trust when submissions sit unreviewed._
+
+  ```bash
+  dub-pp-cli bounties triage --status pending --older-than 7d --json
+  ```
+- **`bounties payout-projection`** — Project upcoming payouts from approved-but-unpaid submissions multiplied by current commission rates.
+
+  _Use this for finance/marketing planning. Surfaces upcoming payout liability before the next payout cycle._
+
+  ```bash
+  dub-pp-cli bounties payout-projection --window 30d --json
   ```
 
 ## Usage
@@ -170,12 +159,6 @@ These capabilities aren't available in any other tool for this API.
 Run `dub-pp-cli --help` for the full command reference and flag list.
 
 ## Commands
-
-### analytics
-
-Manage analytics
-
-- **`dub-pp-cli analytics retrieve`** - Retrieve analytics for a link, a domain, or the authenticated workspace.
 
 ### bounties
 
@@ -186,110 +169,116 @@ Manage bounties
 
 Manage commissions
 
-- **`dub-pp-cli commissions bulk-update`** - Bulk update commissions
-- **`dub-pp-cli commissions list`** - List all commissions
-- **`dub-pp-cli commissions update`** - Update a commission
+- **`dub-pp-cli commissions bulk-update`** - Bulk update up to 100 commissions with the same status.
+- **`dub-pp-cli commissions list`** - Retrieve a paginated list of commissions for your partner program.
+- **`dub-pp-cli commissions update`** - Update an existing commission amount. This is useful for handling refunds (partial or full) or fraudulent sales.
 
 ### customers
 
 Manage customers
 
-- **`dub-pp-cli customers delete`** - Delete a customer
-- **`dub-pp-cli customers get`** - List all customers
-- **`dub-pp-cli customers get-id`** - Retrieve a customer
-- **`dub-pp-cli customers update`** - Update a customer
+- **`dub-pp-cli customers delete`** - Delete a customer from a workspace.
+- **`dub-pp-cli customers get`** - Retrieve a paginated list of customers for the authenticated workspace.
+- **`dub-pp-cli customers get-id`** - Retrieve a customer by ID for the authenticated workspace. To retrieve a customer by external ID, prefix the ID with `ext_`.
+- **`dub-pp-cli customers update`** - Update a customer for the authenticated workspace.
 
 ### domains
 
 Manage domains
 
-- **`dub-pp-cli domains check-status`** - Check the availability of one or more domains
-- **`dub-pp-cli domains create`** - Create a domain
-- **`dub-pp-cli domains delete`** - Delete a domain
-- **`dub-pp-cli domains list`** - List all domains
-- **`dub-pp-cli domains register`** - Register a domain
-- **`dub-pp-cli domains update`** - Update a domain
+- **`dub-pp-cli domains check-status`** - Check if a domain name is available for purchase. You can check multiple domains at once.
+- **`dub-pp-cli domains create`** - Create a domain for the authenticated workspace.
+- **`dub-pp-cli domains delete`** - Delete a domain from a workspace. It cannot be undone. This will also delete all the links associated with the domain.
+- **`dub-pp-cli domains list`** - Retrieve a paginated list of domains for the authenticated workspace.
+- **`dub-pp-cli domains register`** - Register a domain for the authenticated workspace. Only available for Enterprise Plans.
+- **`dub-pp-cli domains update`** - Update a domain for the authenticated workspace.
+
+### dub-analytics
+
+Manage dub analytics
+
+- **`dub-pp-cli dub-analytics retrieve-analytics`** - Retrieve analytics for a link, a domain, or the authenticated workspace. The response type depends on the `event` and `type` query parameters.
 
 ### events
 
 Manage events
 
-- **`dub-pp-cli events list`** - List all events
+- **`dub-pp-cli events list`** - Retrieve a paginated list of events for the authenticated workspace.
 
 ### folders
 
 Manage folders
 
-- **`dub-pp-cli folders create`** - Create a folder
-- **`dub-pp-cli folders delete`** - Delete a folder
-- **`dub-pp-cli folders list`** - List all folders
-- **`dub-pp-cli folders update`** - Update a folder
+- **`dub-pp-cli folders create`** - Create a folder for the authenticated workspace.
+- **`dub-pp-cli folders delete`** - Delete a folder from the workspace. All existing links will still work, but they will no longer be associated with this folder.
+- **`dub-pp-cli folders list`** - Retrieve a paginated list of folders for the authenticated workspace.
+- **`dub-pp-cli folders update`** - Update a folder in the workspace.
 
 ### links
 
 Manage links
 
-- **`dub-pp-cli links bulk-create`** - Bulk create links
-- **`dub-pp-cli links bulk-delete`** - Bulk delete links
-- **`dub-pp-cli links bulk-update`** - Bulk update links
-- **`dub-pp-cli links create`** - Create a link
-- **`dub-pp-cli links delete`** - Delete a link
-- **`dub-pp-cli links get`** - List all links
-- **`dub-pp-cli links get-count`** - Retrieve links count
-- **`dub-pp-cli links get-info`** - Retrieve a link
-- **`dub-pp-cli links update`** - Update a link
-- **`dub-pp-cli links upsert`** - Upsert a link
+- **`dub-pp-cli links bulk-create`** - Bulk create up to 100 links for the authenticated workspace.
+- **`dub-pp-cli links bulk-delete`** - Bulk delete up to 100 links for the authenticated workspace.
+- **`dub-pp-cli links bulk-update`** - Bulk update up to 100 links with the same data for the authenticated workspace.
+- **`dub-pp-cli links create`** - Create a link for the authenticated workspace.
+- **`dub-pp-cli links delete`** - Delete a link for the authenticated workspace.
+- **`dub-pp-cli links get`** - Retrieve a paginated list of links for the authenticated workspace.
+- **`dub-pp-cli links get-count`** - Retrieve the number of links for the authenticated workspace.
+- **`dub-pp-cli links get-info`** - Retrieve the info for a link.
+- **`dub-pp-cli links update`** - Update a link for the authenticated workspace. If there's no change, returns it as it is.
+- **`dub-pp-cli links upsert`** - Upsert a link for the authenticated workspace by its URL. If a link with the same URL already exists, return it (or update it if there are any changes). Otherwise, a new link will be created.
 
 ### partners
 
 Manage partners
 
-- **`dub-pp-cli partners approve`** - Approve a partner application
-- **`dub-pp-cli partners ban`** - Ban a partner
-- **`dub-pp-cli partners create`** - Create or update a partner
-- **`dub-pp-cli partners create-link`** - Create a link for a partner
-- **`dub-pp-cli partners deactivate`** - Deactivate a partner
-- **`dub-pp-cli partners list`** - List all partners
-- **`dub-pp-cli partners list-applications`** - List all pending partner applications
-- **`dub-pp-cli partners reject`** - Reject a partner application
-- **`dub-pp-cli partners retrieve-analytics`** - Retrieve analytics for a partner
-- **`dub-pp-cli partners retrieve-links`** - Retrieve a partner's links.
-- **`dub-pp-cli partners upsert-link`** - Upsert a link for a partner
+- **`dub-pp-cli partners approve`** - Approve a pending partner application to your program. The partner will be enrolled in the specified group and notified of the approval.
+- **`dub-pp-cli partners ban`** - Ban a partner from your program. This will disable all links and mark all commissions as canceled.
+- **`dub-pp-cli partners create`** - Creates or updates a partner record (upsert behavior). If a partner with the same email already exists, their program enrollment will be updated with the provided tenantId. If no existing partner is found, a new partner will be created using the supplied information.
+- **`dub-pp-cli partners create-link`** - Create a link for a partner that is enrolled in your program.
+- **`dub-pp-cli partners deactivate`** - This will deactivate the partner from your program and disable all their active links. Their commissions and payouts will remain intact. You can reactivate them later if needed.
+- **`dub-pp-cli partners list`** - List all partners for a partner program.
+- **`dub-pp-cli partners list-applications`** - Retrieve a paginated list of pending applications for your partner program.
+- **`dub-pp-cli partners reject`** - Reject a pending partner application to your program. The partner will be notified via email that their application was not approved.
+- **`dub-pp-cli partners retrieve-analytics`** - Retrieve analytics for a partner within a program. The response type vary based on the `groupBy` query parameter.
+- **`dub-pp-cli partners retrieve-links`** - Retrieve a partner's links by their partner ID or tenant ID.
+- **`dub-pp-cli partners upsert-link`** - Upsert a link for a partner that is enrolled in your program. If a link with the same URL already exists, return it (or update it if there are any changes). Otherwise, a new link will be created.
 
 ### payouts
 
 Manage payouts
 
-- **`dub-pp-cli payouts list`** - List all payouts
+- **`dub-pp-cli payouts list`** - Retrieve a paginated list of payouts for your partner program.
 
 ### qr
 
 Manage qr
 
-- **`dub-pp-cli qr get-qrcode`** - Retrieve a QR code
+- **`dub-pp-cli qr get-qrcode`** - Retrieve a QR code for a link.
 
 ### tags
 
 Manage tags
 
-- **`dub-pp-cli tags create`** - Create a tag
-- **`dub-pp-cli tags delete`** - Delete a tag
-- **`dub-pp-cli tags get`** - List all tags
-- **`dub-pp-cli tags update`** - Update a tag
+- **`dub-pp-cli tags create`** - Create a tag for the authenticated workspace.
+- **`dub-pp-cli tags delete`** - Delete a tag from the workspace. All existing links will still work, but they will no longer be associated with this tag.
+- **`dub-pp-cli tags get`** - Retrieve a paginated list of tags for the authenticated workspace.
+- **`dub-pp-cli tags update`** - Update a tag in the workspace.
 
 ### tokens
 
 Manage tokens
 
-- **`dub-pp-cli tokens create-referrals-embed`** - Create a referrals embed token
+- **`dub-pp-cli tokens create-referrals-embed`** - Create a referrals embed token for the given partner/tenant. The endpoint first attempts to locate an existing enrollment using the provided tenantId. If no enrollment is found, it resolves the partner by email and creates a new enrollment as needed. This results in an upsert-style flow that guarantees a valid enrollment and returns a usable embed token.
 
 ### track
 
 Manage track
 
-- **`dub-pp-cli track lead`** - Track a lead
-- **`dub-pp-cli track open`** - Track a deep link open event
-- **`dub-pp-cli track sale`** - Track a sale
+- **`dub-pp-cli track lead`** - Track a lead for a short link.
+- **`dub-pp-cli track open`** - This endpoint is used to track when a user opens your app via a Dub-powered deep link (for both iOS and Android).
+- **`dub-pp-cli track sale`** - Track a sale for a short link.
 
 
 ## Output Formats
@@ -327,17 +316,79 @@ This CLI is designed for AI agent consumption:
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
 
-## Use as MCP Server
+## Use with Claude Code
 
-This CLI ships a companion MCP server for use with Claude Desktop, Cursor, and other MCP-compatible tools.
-
-### Claude Code
+Install the focused skill — it auto-installs the CLI on first invocation:
 
 ```bash
-claude mcp add dub dub-pp-mcp -e DUB_TOKEN=<your-token>
+npx skills add mvanhorn/printing-press-library/cli-skills/pp-dub -g
 ```
 
-### Claude Desktop
+Then invoke `/pp-dub <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
+
+<details>
+<summary>Use as an MCP server in Claude Code (advanced)</summary>
+
+If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/other/dub/cmd/dub-pp-mcp@latest
+```
+
+Then register it:
+
+```bash
+claude mcp add dub dub-pp-mcp -e DUB_API_KEY=<your-token>
+```
+
+### Remote MCP (Streamable HTTP)
+
+`dub-pp-mcp` also serves over Streamable HTTP for cloud agent hosts. Set
+`DUB_MCP_TRANSPORT=http` (and optionally `DUB_MCP_ADDR=:8080`) before
+launching:
+
+```bash
+DUB_API_KEY=<your-token> DUB_MCP_TRANSPORT=http DUB_MCP_ADDR=:8080 dub-pp-mcp
+# Server: Dub MCP server listening (Streamable HTTP) on :8080/mcp
+```
+
+The default transport is `stdio`, so existing local installs are unaffected.
+
+### Tool surface modes
+
+`dub-pp-mcp` exposes the API to agents through one of two tool surfaces.
+`DUB_MCP_SURFACE` selects which:
+
+- `thin` (default) — two tools, `dub_search` and `dub_execute`, that cover the entire 53-endpoint API. The agent calls `dub_search("create a short link")`, gets a ranked endpoint id back, then calls `dub_execute("links_create", {...})`. Loads ~1K tokens of tool definitions into the agent's catalog instead of ~30K.
+- `full` — the 53 typed endpoint-mirror tools (`links_create`, `analytics_retrieve`, etc.). Use when your MCP host benefits from per-endpoint typed argument schemas and your context budget can absorb the catalog.
+- `both` — registers both surfaces. Useful if you want to A/B in one server.
+
+Default is `thin` because the agent's tool catalog is loaded every conversation regardless of transport, and the orchestration: code pattern collapses the cost without losing coverage.
+
+Pattern source: Anthropic 2026-04 "Building agents that reach production systems with MCP" (Cloudflare's MCP server uses the same search+execute shape for ~2,500 endpoints in ~1K tokens).
+
+</details>
+
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/dub-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `DUB_TOKEN` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/other/dub/cmd/dub-pp-mcp@latest
+```
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 
@@ -354,6 +405,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 }
 ```
 
+</details>
+
 ## Health Check
 
 ```bash
@@ -367,11 +420,7 @@ Verifies configuration, credentials, and connectivity to the API.
 Config file: `~/.config/dub-pp-cli/config.toml`
 
 Environment variables:
-- `DUB_TOKEN` — workspace API key (primary)
-- `DUB_API_KEY` — alias for `DUB_TOKEN` (matches Dub's SDK example name)
-- `DUB_BASE_URL` — override the API base URL for self-hosted Dub instances
-- `DUB_FEEDBACK_ENDPOINT` — destination for opt-in upstream feedback (see `dub-pp-cli feedback --help`)
-- `DUB_FEEDBACK_AUTO_SEND` — when `1`, send feedback automatically without confirmation
+- `DUB_TOKEN`
 
 ## Troubleshooting
 **Authentication errors (exit code 4)**
@@ -383,10 +432,10 @@ Environment variables:
 
 ### API-specific
 
-- **401 Unauthorized — Missing Authorization header** — Run `dub-pp-cli doctor` to confirm `DUB_TOKEN` (or `DUB_API_KEY`) is set; refresh at https://app.dub.co/settings/tokens
-- **429 Too Many Requests on analytics** — Dub enforces per-second sub-limits on /analytics. The CLI honors Retry-After. Cache via `dub-pp-cli sync` and read from the local store.
-- **Local store seems stale** — Run `dub-pp-cli sync --full` to rebuild from the API.
-- **Self-hosted Dub instance** — Override the base URL with DUB_BASE_URL=https://api.your-instance.com.
+- **401 Unauthorized: Invalid API key** — Confirm DUB_API_KEY is set and starts with `dub_`. Tokens from dub.co/settings/tokens are workspace-scoped.
+- **429 rate_limit_exceeded on /analytics** — Analytics has tighter per-second caps (Pro 2/s, Advanced 8/s). The client retries with backoff; pass `--page-size 50` to reduce throughput.
+- **search returns nothing after fresh install** — Run `dub-pp-cli sync` once to populate the local store. Search queries the local FTS index, not the live API.
+- **links rewrite blasted too many links** — Always use `--dry-run` first. The diff preview shows every link that would change before any mutation.
 
 ---
 
@@ -394,10 +443,9 @@ Environment variables:
 
 This CLI was built by studying these projects and resources:
 
-- [**dubinc/dub-ts**](https://github.com/dubinc/dub-ts) — TypeScript (62 stars)
-- [**sujjeee/dubco**](https://github.com/sujjeee/dubco) — TypeScript (24 stars)
-- [**dubinc/dub-go**](https://github.com/dubinc/dub-go) — Go (14 stars)
-- [**dubinc/dub-python**](https://github.com/dubinc/dub-python) — Python (8 stars)
-- [**gitmaxd/dubco-mcp-server-npm**](https://github.com/gitmaxd/dubco-mcp-server-npm) — JavaScript (7 stars)
+- [**dub-cli (official)**](https://github.com/dubinc/dub-cli) — TypeScript
+- [**dubinc/dub-ts**](https://github.com/dubinc/dub-ts) — TypeScript
+- [**gitmaxd/dubco-mcp-server-npm**](https://github.com/gitmaxd/dubco-mcp-server-npm) — JavaScript
+- [**sujjeee/dubco**](https://github.com/sujjeee/dubco) — TypeScript
 
 Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)

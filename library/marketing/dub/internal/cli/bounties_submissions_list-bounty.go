@@ -17,15 +17,16 @@ func newBountiesSubmissionsListBountyCmd(flags *rootFlags) *cobra.Command {
 	var flagPartnerId string
 	var flagSortBy string
 	var flagSortOrder string
-	var flagPage float64
+	var flagPage string
 	var flagPageSize float64
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "list-bounty <bountyId>",
-		Aliases: []string{"get"},
-		Short:   "List bounty submissions",
-		Example: "  dub-pp-cli bounties submissions list-bounty example-value",
+		Use:         "list-bounty <bountyId>",
+		Aliases:     []string{"get"},
+		Short:       "List all submissions for a specific bounty in your partner program.",
+		Example:     "  dub-pp-cli bounties submissions list-bounty example-value",
+		Annotations: map[string]string{"pp:endpoint": "submissions.list-bounty", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -76,7 +77,7 @@ func newBountiesSubmissionsListBountyCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/bounties/{bountyId}/submissions"
 			path = replacePathParam(path, "bountyId", args[0])
-			data, prov, err := resolvePaginatedRead(c, flags, "submissions", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "submissions", path, map[string]string{
 				"status":    fmt.Sprintf("%v", flagStatus),
 				"groupId":   fmt.Sprintf("%v", flagGroupId),
 				"partnerId": fmt.Sprintf("%v", flagPartnerId),
@@ -84,7 +85,7 @@ func newBountiesSubmissionsListBountyCmd(flags *rootFlags) *cobra.Command {
 				"sortOrder": fmt.Sprintf("%v", flagSortOrder),
 				"page":      fmt.Sprintf("%v", flagPage),
 				"pageSize":  fmt.Sprintf("%v", flagPageSize),
-			}, flagAll, "", "", "")
+			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -131,7 +132,7 @@ func newBountiesSubmissionsListBountyCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagPartnerId, "partner-id", "", "The ID of the partner to list submissions for.")
 	cmd.Flags().StringVar(&flagSortBy, "sort-by", "completedAt", "The field to sort the submissions by. (one of: completedAt, performanceCount, socialMetricCount)")
 	cmd.Flags().StringVar(&flagSortOrder, "sort-order", "asc", "The order to sort the submissions by. (one of: asc, desc)")
-	cmd.Flags().Float64Var(&flagPage, "page", 0.0, "The page number for pagination.")
+	cmd.Flags().StringVar(&flagPage, "page", "", "The page number for pagination.")
 	cmd.Flags().Float64Var(&flagPageSize, "page-size", 100.000000, "The number of items per page.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 

@@ -1,0 +1,393 @@
+{
+  "api_name": "dub",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "dub-cli (official)",
+      "url": "https://github.com/dubinc/dub-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "dubinc/dub-ts",
+      "url": "https://github.com/dubinc/dub-ts",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 53,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gitmaxd/dubco-mcp-server-npm",
+      "url": "https://github.com/gitmaxd/dubco-mcp-server-npm",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sujjeee/dubco",
+      "url": "https://github.com/sujjeee/dubco",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-02T22:35:00Z",
+  "novel_features": [
+    {
+      "name": "Dead-link detection",
+      "command": "links stale",
+      "description": "Find archived, expired, or zero-traffic links across the workspace before they pile up.",
+      "rationale": "Joins local link metadata with analytics aggregates that the API doesn't expose together.",
+      "example": "dub-pp-cli links stale --days 90 --json --select id,key,clicks,archived",
+      "why_it_matters": "Use this to clean up dormant short links before a portfolio review or before bulk-archiving. The /analytics endpoint can't filter links by 'no clicks in N days' in a single call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Performance drift detection",
+      "command": "links drift",
+      "description": "Detect links whose click rate dropped more than threshold percent week-over-week.",
+      "rationale": "Requires sequential analytics snapshots stored locally. The /analytics endpoint returns point-in-time data, not deltas.",
+      "example": "dub-pp-cli links drift --window 7d --threshold 30 --json",
+      "why_it_matters": "Catches dying campaigns before reporting deadlines. Use this in a weekly automation to surface attribution links that quietly stopped converting.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Duplicate destination finder",
+      "command": "links duplicates",
+      "description": "Find every link in the workspace pointing to the same destination URL.",
+      "rationale": "Pure SQL self-join over the local link store. The API has no aggregation endpoint for grouping by destination.",
+      "example": "dub-pp-cli links duplicates --json",
+      "why_it_matters": "Surfaces accidental duplicates from bulk-create overruns and consolidation candidates after a migration.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Slug-collision lint",
+      "command": "links lint",
+      "description": "Audit short-key slugs for lookalike collisions, reserved-word violations, and brand-conflict hazards.",
+      "rationale": "Pure local-data audit — no API endpoint to ask whether '/launch' and '/launches' are confusing.",
+      "example": "dub-pp-cli links lint --json",
+      "why_it_matters": "Use this before a brand campaign launch to catch lookalike slugs that confuse partners or get reserved-word treatment.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bulk URL/UTM rewrite with diff",
+      "command": "links rewrite",
+      "description": "Show every link that would change and the exact patch BEFORE sending.",
+      "rationale": "Mass UTM or domain migrations need dry-run safety. The bulk-update endpoint accepts the patch but doesn't preview.",
+      "example": "dub-pp-cli links rewrite --match 'utm_source=oldcampaign' --replace 'utm_source=newcampaign' --dry-run",
+      "why_it_matters": "Use this before any campaign-wide rewrite. Diff preview prevents the worst class of bulk-mutation mistakes.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Tag/folder-grouped rollup",
+      "command": "links rollup",
+      "description": "Performance dashboard aggregated by tag or folder — clicks, leads, sales rolled up across every link wearing each label.",
+      "rationale": "Joins analytics_buckets × links × tags × folders locally. The /analytics endpoint groups by top_links but cannot join with local taxonomy in one call.",
+      "example": "dub-pp-cli links rollup --by clicks --group-by tag --json",
+      "why_it_matters": "Use this to compare campaign performance across tag dimensions without reconciling 5 separate API calls.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Conversion funnel",
+      "command": "funnel",
+      "description": "Click-to-lead-to-sale conversion rates per link or campaign.",
+      "rationale": "Requires joining /events with /track/lead and /track/sale state stored locally over time. The API surfaces individual events but not ratios across windows.",
+      "example": "dub-pp-cli funnel --link mylink --min-clicks 50 --json",
+      "why_it_matters": "Surfaces where prospects drop off in your attribution funnel. Use before quarterly reporting to spot links with high clicks and low conversion.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Customer journey timeline",
+      "command": "customers journey",
+      "description": "See every link a customer clicked, when they became a lead, and when they purchased — in one timeline.",
+      "rationale": "Joins customer record × events × track/lead × track/sale across local store. The API offers no per-customer timeline endpoint.",
+      "example": "dub-pp-cli customers journey cust_abc123 --json",
+      "why_it_matters": "Use this for QBR-style account reviews or to debug attribution issues for a specific customer.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Partner leaderboard",
+      "command": "partners leaderboard",
+      "description": "Rank partners by commission earned, conversion rate, and clicks generated.",
+      "rationale": "Joins /partners/analytics with local commissions × payouts for per-partner ROI accurate to the latest payout cycle.",
+      "example": "dub-pp-cli partners leaderboard --by commission --top 10 --json",
+      "why_it_matters": "Use this to identify top performers before a partner-tier review, or dormant partners worth deactivating.",
+      "group": "Partner ops"
+    },
+    {
+      "name": "Commission audit reconciliation",
+      "command": "partners audit-commissions",
+      "description": "Reconcile partners, commissions, bounties, and payouts to flag stale rates, missing payouts, and expired bounties still earning.",
+      "rationale": "Cross-resource join only possible with all data side-by-side in the local store.",
+      "example": "dub-pp-cli partners audit-commissions --json",
+      "why_it_matters": "Run this before a payout cycle to catch billing surprises. Use in CI before any commission-rate migration.",
+      "group": "Partner ops"
+    },
+    {
+      "name": "Workspace health doctor",
+      "command": "health",
+      "description": "Cross-resource Monday-morning report: rate-limit headroom, expired-but-active links, dead destination URLs, unverified domains, dormant tags, bounty submissions awaiting review.",
+      "rationale": "Aggregates signals across 6 resource families that no single API endpoint surfaces together.",
+      "example": "dub-pp-cli health --json",
+      "why_it_matters": "Use this as the first thing every morning, or as a CI canary. Surfaces what needs attention without dashboard hopping.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Time-windowed change feed",
+      "command": "since",
+      "description": "What happened in the last N hours? Created, updated, deleted links plus partner approvals, new bounty submissions, and top-clicked entities.",
+      "rationale": "Requires local timestamps. Powers agent 'what's new' flows that the API can't answer in a single call.",
+      "example": "dub-pp-cli since 24h --json",
+      "why_it_matters": "Use this in agent loops to summarize workspace activity since the last check-in. Cheap and idempotent.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Bounty submission triage queue",
+      "command": "bounties triage",
+      "description": "Group partner-submitted bounty proof by status, age, and bounty type. Surfaces backlog awaiting review.",
+      "rationale": "Joins /bounties/{id}/submissions across all bounties locally. The API requires per-bounty pagination — the triage view requires aggregation across them.",
+      "example": "dub-pp-cli bounties triage --status pending --older-than 7d --json",
+      "why_it_matters": "Run weekly to keep bounty submissions from rotting. Bounty programs lose partner trust when submissions sit unreviewed.",
+      "group": "Partner ops"
+    },
+    {
+      "name": "Bounty payout projection",
+      "command": "bounties payout-projection",
+      "description": "Project upcoming payouts from approved-but-unpaid submissions multiplied by current commission rates.",
+      "rationale": "Joins bounties × commissions × payouts locally to produce a forecast that no single API endpoint exposes.",
+      "example": "dub-pp-cli bounties payout-projection --window 30d --json",
+      "why_it_matters": "Use this for finance/marketing planning. Surfaces upcoming payout liability before the next payout cycle.",
+      "group": "Partner ops"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Dead-link detection",
+      "command": "links stale",
+      "description": "Find archived, expired, or zero-traffic links across the workspace before they pile up.",
+      "rationale": "Joins local link metadata with analytics aggregates that the API doesn't expose together.",
+      "example": "dub-pp-cli links stale --days 90 --json --select id,key,clicks,archived",
+      "why_it_matters": "Use this to clean up dormant short links before a portfolio review or before bulk-archiving. The /analytics endpoint can't filter links by 'no clicks in N days' in a single call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Performance drift detection",
+      "command": "links drift",
+      "description": "Detect links whose click rate dropped more than threshold percent week-over-week.",
+      "rationale": "Requires sequential analytics snapshots stored locally. The /analytics endpoint returns point-in-time data, not deltas.",
+      "example": "dub-pp-cli links drift --window 7d --threshold 30 --json",
+      "why_it_matters": "Catches dying campaigns before reporting deadlines. Use this in a weekly automation to surface attribution links that quietly stopped converting.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Duplicate destination finder",
+      "command": "links duplicates",
+      "description": "Find every link in the workspace pointing to the same destination URL.",
+      "rationale": "Pure SQL self-join over the local link store. The API has no aggregation endpoint for grouping by destination.",
+      "example": "dub-pp-cli links duplicates --json",
+      "why_it_matters": "Surfaces accidental duplicates from bulk-create overruns and consolidation candidates after a migration.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Slug-collision lint",
+      "command": "links lint",
+      "description": "Audit short-key slugs for lookalike collisions, reserved-word violations, and brand-conflict hazards.",
+      "rationale": "Pure local-data audit — no API endpoint to ask whether '/launch' and '/launches' are confusing.",
+      "example": "dub-pp-cli links lint --json",
+      "why_it_matters": "Use this before a brand campaign launch to catch lookalike slugs that confuse partners or get reserved-word treatment.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bulk URL/UTM rewrite with diff",
+      "command": "links rewrite",
+      "description": "Show every link that would change and the exact patch BEFORE sending.",
+      "rationale": "Mass UTM or domain migrations need dry-run safety. The bulk-update endpoint accepts the patch but doesn't preview.",
+      "example": "dub-pp-cli links rewrite --match 'utm_source=oldcampaign' --replace 'utm_source=newcampaign' --dry-run",
+      "why_it_matters": "Use this before any campaign-wide rewrite. Diff preview prevents the worst class of bulk-mutation mistakes.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Tag/folder-grouped rollup",
+      "command": "links rollup",
+      "description": "Performance dashboard aggregated by tag or folder — clicks, leads, sales rolled up across every link wearing each label.",
+      "rationale": "Joins analytics_buckets × links × tags × folders locally. The /analytics endpoint groups by top_links but cannot join with local taxonomy in one call.",
+      "example": "dub-pp-cli links rollup --by clicks --group-by tag --json",
+      "why_it_matters": "Use this to compare campaign performance across tag dimensions without reconciling 5 separate API calls.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Conversion funnel",
+      "command": "funnel",
+      "description": "Click-to-lead-to-sale conversion rates per link or campaign.",
+      "rationale": "Requires joining /events with /track/lead and /track/sale state stored locally over time. The API surfaces individual events but not ratios across windows.",
+      "example": "dub-pp-cli funnel --link mylink --min-clicks 50 --json",
+      "why_it_matters": "Surfaces where prospects drop off in your attribution funnel. Use before quarterly reporting to spot links with high clicks and low conversion.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Customer journey timeline",
+      "command": "customers journey",
+      "description": "See every link a customer clicked, when they became a lead, and when they purchased — in one timeline.",
+      "rationale": "Joins customer record × events × track/lead × track/sale across local store. The API offers no per-customer timeline endpoint.",
+      "example": "dub-pp-cli customers journey cust_abc123 --json",
+      "why_it_matters": "Use this for QBR-style account reviews or to debug attribution issues for a specific customer.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Partner leaderboard",
+      "command": "partners leaderboard",
+      "description": "Rank partners by commission earned, conversion rate, and clicks generated.",
+      "rationale": "Joins /partners/analytics with local commissions × payouts for per-partner ROI accurate to the latest payout cycle.",
+      "example": "dub-pp-cli partners leaderboard --by commission --top 10 --json",
+      "why_it_matters": "Use this to identify top performers before a partner-tier review, or dormant partners worth deactivating.",
+      "group": "Partner ops"
+    },
+    {
+      "name": "Commission audit reconciliation",
+      "command": "partners audit-commissions",
+      "description": "Reconcile partners, commissions, bounties, and payouts to flag stale rates, missing payouts, and expired bounties still earning.",
+      "rationale": "Cross-resource join only possible with all data side-by-side in the local store.",
+      "example": "dub-pp-cli partners audit-commissions --json",
+      "why_it_matters": "Run this before a payout cycle to catch billing surprises. Use in CI before any commission-rate migration.",
+      "group": "Partner ops"
+    },
+    {
+      "name": "Workspace health doctor",
+      "command": "health",
+      "description": "Cross-resource Monday-morning report: rate-limit headroom, expired-but-active links, dead destination URLs, unverified domains, dormant tags, bounty submissions awaiting review.",
+      "rationale": "Aggregates signals across 6 resource families that no single API endpoint surfaces together.",
+      "example": "dub-pp-cli health --json",
+      "why_it_matters": "Use this as the first thing every morning, or as a CI canary. Surfaces what needs attention without dashboard hopping.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Time-windowed change feed",
+      "command": "since",
+      "description": "What happened in the last N hours? Created, updated, deleted links plus partner approvals, new bounty submissions, and top-clicked entities.",
+      "rationale": "Requires local timestamps. Powers agent 'what's new' flows that the API can't answer in a single call.",
+      "example": "dub-pp-cli since 24h --json",
+      "why_it_matters": "Use this in agent loops to summarize workspace activity since the last check-in. Cheap and idempotent.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Bounty submission triage queue",
+      "command": "bounties triage",
+      "description": "Group partner-submitted bounty proof by status, age, and bounty type. Surfaces backlog awaiting review.",
+      "rationale": "Joins /bounties/{id}/submissions across all bounties locally. The API requires per-bounty pagination — the triage view requires aggregation across them.",
+      "example": "dub-pp-cli bounties triage --status pending --older-than 7d --json",
+      "why_it_matters": "Run weekly to keep bounty submissions from rotting. Bounty programs lose partner trust when submissions sit unreviewed.",
+      "group": "Partner ops"
+    },
+    {
+      "name": "Bounty payout projection",
+      "command": "bounties payout-projection",
+      "description": "Project upcoming payouts from approved-but-unpaid submissions multiplied by current commission rates.",
+      "rationale": "Joins bounties × commissions × payouts locally to produce a forecast that no single API endpoint exposes.",
+      "example": "dub-pp-cli bounties payout-projection --window 30d --json",
+      "why_it_matters": "Use this for finance/marketing planning. Surfaces upcoming payout liability before the next payout cycle.",
+      "group": "Partner ops"
+    }
+  ],
+  "narrative": {
+    "display_name": "Dub",
+    "headline": "Every Dub feature, plus offline search, agent-native output, and a local SQLite store no other Dub tool has.",
+    "value_prop": "dub-pp-cli covers all 53 Dub API operations as typed commands, then transcends with cross-resource joins the API cannot answer alone — dead-link detection, drift detection, partner leaderboards from /partners/analytics joined with local commissions, bounty submission triage, and a Monday-morning workspace health report. The official dub-cli covers 6 commands; we cover 67.",
+    "auth_narrative": "dub-pp-cli reads DUB_API_KEY from the environment (Speakeasy convention; DUB_TOKEN also accepted for compatibility with prior community CLIs). The key is workspace-scoped — the workspace is implicit in the key. Get one from dub.co/settings/tokens and run `dub-pp-cli doctor` to verify connectivity.",
+    "quickstart": [
+      {
+        "command": "dub-pp-cli doctor",
+        "comment": "Verify API key, base URL, and rate-limit headroom."
+      },
+      {
+        "command": "dub-pp-cli sync",
+        "comment": "Populate the local SQLite store so search and transcendence commands work offline."
+      },
+      {
+        "command": "dub-pp-cli links list --json --select id,key,url,clicks",
+        "comment": "List the workspace's links with the fields agents care about."
+      },
+      {
+        "command": "dub-pp-cli links stale --days 90 --json",
+        "comment": "Find dormant links — the headline transcendence feature."
+      },
+      {
+        "command": "dub-pp-cli health --json",
+        "comment": "Cross-resource Monday-morning report: rate-limit headroom, expiring links, bounty triage backlog."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized: Invalid API key",
+        "fix": "Confirm DUB_API_KEY is set and starts with `dub_`. Tokens from dub.co/settings/tokens are workspace-scoped."
+      },
+      {
+        "symptom": "429 rate_limit_exceeded on /analytics",
+        "fix": "Analytics has tighter per-second caps (Pro 2/s, Advanced 8/s). The client retries with backoff; pass `--page-size 50` to reduce throughput."
+      },
+      {
+        "symptom": "search returns nothing after fresh install",
+        "fix": "Run `dub-pp-cli sync` once to populate the local store. Search queries the local FTS index, not the live API."
+      },
+      {
+        "symptom": "links rewrite blasted too many links",
+        "fix": "Always use `--dry-run` first. The diff preview shows every link that would change before any mutation."
+      }
+    ],
+    "when_to_use": "Use dub-pp-cli when an agent or operator needs to manage Dub at workspace scale — bulk link operations, campaign-wide UTM rewrites, partner program audits, bounty triage, or local cross-resource analysis. The CLI's local SQLite store makes joins across links, analytics, partners, commissions, and bounties cheap and offline. Reach for dub-pp-cli over the official `dub-cli` when you need anything beyond link shortening or workspace config.",
+    "recipes": [
+      {
+        "title": "Find dormant links worth archiving",
+        "command": "dub-pp-cli sync \u0026\u0026 dub-pp-cli links stale --days 60 --json --select key,url,clicks,createdAt",
+        "explanation": "Sync first, then ask for links with zero clicks in the last 60 days. Pipe through `jq` to filter further or build an archive batch."
+      },
+      {
+        "title": "Preview a campaign-wide UTM swap before sending",
+        "command": "dub-pp-cli links rewrite --match 'utm_source=launch' --replace 'utm_source=summer' --dry-run --json",
+        "explanation": "The diff preview shows every link that would change. Drop `--dry-run` only after reading the patch."
+      },
+      {
+        "title": "Triage bounty submissions waiting more than 7 days",
+        "command": "dub-pp-cli bounties triage --status pending --older-than 7d --json --select id,partnerId,bountyType,submittedAt",
+        "explanation": "Surfaces the partner submissions rotting in the queue. Pipe through `jq` to group by `partnerId` for outreach lists."
+      },
+      {
+        "title": "Per-partner ROI for the top 10 partners",
+        "command": "dub-pp-cli partners leaderboard --by commission --top 10 --agent --select 'partnerId,email,clicks,leads,sales,commissionTotal,payoutTotal'",
+        "explanation": "Combines /partners/analytics with local commissions and payouts. Use `--select` with dotted paths to keep the response small for agents — leaderboards return wide rows by default."
+      },
+      {
+        "title": "Sync, then run the full Monday-morning health check",
+        "command": "dub-pp-cli sync \u0026\u0026 dub-pp-cli health --json",
+        "explanation": "Combined report across rate-limit headroom, expired-but-active links, dead destination URLs, unverified domains, and bounty submissions awaiting review."
+      }
+    ],
+    "trigger_phrases": [
+      "shorten a link with Dub",
+      "audit my Dub links",
+      "find dormant Dub links",
+      "review Dub bounty submissions",
+      "Dub partner leaderboard",
+      "use dub-pp-cli",
+      "run dub-pp-cli"
+    ]
+  }
+}

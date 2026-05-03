@@ -14,9 +14,10 @@ import (
 func newLinksDeleteCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "delete <linkId>",
-		Short:   "Delete a link",
-		Example: "  dub-pp-cli links delete https://example.com/resource",
+		Use:         "delete <linkId>",
+		Short:       "Delete a link for the authenticated workspace.",
+		Example:     "  dub-pp-cli links delete https://example.com/resource",
+		Annotations: map[string]string{"pp:endpoint": "links.delete"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

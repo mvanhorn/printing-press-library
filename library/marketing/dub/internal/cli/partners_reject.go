@@ -20,9 +20,10 @@ func newPartnersRejectCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "reject",
-		Short:   "Reject a partner application",
-		Example: "  dub-pp-cli partners reject --partnerId example-value",
+		Use:         "reject",
+		Short:       "Reject a pending partner application to your program. The partner will be notified via email that their application...",
+		Example:     "  dub-pp-cli partners reject --partnerId example-value",
+		Annotations: map[string]string{"pp:endpoint": "partners.reject"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("partner-id") && !flags.dryRun {

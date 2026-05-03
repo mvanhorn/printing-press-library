@@ -15,9 +15,10 @@ func newCustomersGetIdCmd(flags *rootFlags) *cobra.Command {
 	var flagIncludeExpandedFields bool
 
 	cmd := &cobra.Command{
-		Use:     "get-id <id>",
-		Short:   "Retrieve a customer",
-		Example: "  dub-pp-cli customers get-id 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-id <id>",
+		Short:       "Retrieve a customer by ID for the authenticated workspace. To retrieve a customer by external ID, prefix the ID with...",
+		Example:     "  dub-pp-cli customers get-id 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "customers.get-id", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -33,7 +34,7 @@ func newCustomersGetIdCmd(flags *rootFlags) *cobra.Command {
 			if flagIncludeExpandedFields != false {
 				params["includeExpandedFields"] = fmt.Sprintf("%v", flagIncludeExpandedFields)
 			}
-			data, prov, err := resolveRead(c, flags, "customers", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "customers", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

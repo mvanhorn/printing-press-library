@@ -21,10 +21,11 @@ func newPartnersUpsertLinkCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "upsert-link",
-		Aliases: []string{"update"},
-		Short:   "Upsert a link for a partner",
-		Example: "  dub-pp-cli partners upsert-link --url https://example.com/resource",
+		Use:         "upsert-link",
+		Aliases:     []string{"update"},
+		Short:       "Upsert a link for a partner that is enrolled in your program. If a link with the same URL already exists, return it...",
+		Example:     "  dub-pp-cli partners upsert-link --url https://example.com/resource",
+		Annotations: map[string]string{"pp:endpoint": "partners.upsert-link"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("url") && !flags.dryRun {

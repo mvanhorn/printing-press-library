@@ -28,14 +28,15 @@ func newCommissionsListCmd(flags *rootFlags) *cobra.Command {
 	var flagTimezone string
 	var flagEndingBefore string
 	var flagStartingAfter string
-	var flagPage float64
+	var flagPage string
 	var flagPageSize float64
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "list",
-		Short:   "List all commissions",
-		Example: "  dub-pp-cli commissions list",
+		Use:         "list",
+		Short:       "Retrieve a paginated list of commissions for your partner program.",
+		Example:     "  dub-pp-cli commissions list",
+		Annotations: map[string]string{"pp:endpoint": "commissions.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("type") {
 				allowedType := []string{"click", "lead", "sale", "custom"}
@@ -108,7 +109,7 @@ func newCommissionsListCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/commissions"
-			data, prov, err := resolvePaginatedRead(c, flags, "commissions", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "commissions", path, map[string]string{
 				"type":          fmt.Sprintf("%v", flagType),
 				"customerId":    fmt.Sprintf("%v", flagCustomerId),
 				"payoutId":      fmt.Sprintf("%v", flagPayoutId),
@@ -127,7 +128,7 @@ func newCommissionsListCmd(flags *rootFlags) *cobra.Command {
 				"startingAfter": fmt.Sprintf("%v", flagStartingAfter),
 				"page":          fmt.Sprintf("%v", flagPage),
 				"pageSize":      fmt.Sprintf("%v", flagPageSize),
-			}, flagAll, "", "", "")
+			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -185,7 +186,7 @@ func newCommissionsListCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagTimezone, "timezone", "", "Timezone")
 	cmd.Flags().StringVar(&flagEndingBefore, "ending-before", "", "If specified, the query only searches for results before this cursor. Mutually exclusive with `startingAfter`.")
 	cmd.Flags().StringVar(&flagStartingAfter, "starting-after", "", "If specified, the query only searches for results after this cursor. Mutually exclusive with `endingBefore`.")
-	cmd.Flags().Float64Var(&flagPage, "page", 0.0, "DEPRECATED. Use `startingAfter` instead.")
+	cmd.Flags().StringVar(&flagPage, "page", "", "DEPRECATED. Use `startingAfter` instead.")
 	cmd.Flags().Float64Var(&flagPageSize, "page-size", 100.000000, "The number of items per page.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 

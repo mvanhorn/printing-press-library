@@ -5,316 +5,318 @@ package types
 
 import "encoding/json"
 
+
 type AnalyticsBrowsers struct {
-	Browser    string  `json:"browser"`
-	Clicks     float64 `json:"clicks"`
-	Leads      float64 `json:"leads"`
+	Browser string `json:"browser"`
+	Clicks float64 `json:"clicks"`
+	Leads float64 `json:"leads"`
 	SaleAmount float64 `json:"saleAmount"`
-	Sales      float64 `json:"sales"`
+	Sales float64 `json:"sales"`
 }
 
 type AnalyticsCities struct {
-	City       string  `json:"city"`
-	Clicks     float64 `json:"clicks"`
-	Country    string  `json:"country"`
-	Leads      float64 `json:"leads"`
-	Region     string  `json:"region"`
+	City string `json:"city"`
+	Clicks float64 `json:"clicks"`
+	Country string `json:"country"`
+	Leads float64 `json:"leads"`
+	Region string `json:"region"`
 	SaleAmount float64 `json:"saleAmount"`
-	Sales      float64 `json:"sales"`
+	Sales float64 `json:"sales"`
 }
 
 type AnalyticsContinents struct {
-	Clicks     float64 `json:"clicks"`
-	Continent  string  `json:"continent"`
-	Leads      float64 `json:"leads"`
+	Clicks float64 `json:"clicks"`
+	Continent string `json:"continent"`
+	Leads float64 `json:"leads"`
 	SaleAmount float64 `json:"saleAmount"`
-	Sales      float64 `json:"sales"`
+	Sales float64 `json:"sales"`
 }
 
 type AnalyticsCount struct {
-	Clicks     float64 `json:"clicks"`
-	Leads      float64 `json:"leads"`
+	Clicks float64 `json:"clicks"`
+	Leads float64 `json:"leads"`
 	SaleAmount float64 `json:"saleAmount"`
-	Sales      float64 `json:"sales"`
+	Sales float64 `json:"sales"`
 }
 
 type AnalyticsCountries struct {
-	City       string  `json:"city"`
-	Clicks     float64 `json:"clicks"`
-	Country    string  `json:"country"`
-	Leads      float64 `json:"leads"`
-	Region     string  `json:"region"`
+	City string `json:"city"`
+	Clicks float64 `json:"clicks"`
+	Country string `json:"country"`
+	Leads float64 `json:"leads"`
+	Region string `json:"region"`
 	SaleAmount float64 `json:"saleAmount"`
-	Sales      float64 `json:"sales"`
+	Sales float64 `json:"sales"`
 }
 
 type AnalyticsDevices struct {
-	Clicks     float64 `json:"clicks"`
-	Device     string  `json:"device"`
-	Leads      float64 `json:"leads"`
+	Clicks float64 `json:"clicks"`
+	Device string `json:"device"`
+	Leads float64 `json:"leads"`
 	SaleAmount float64 `json:"saleAmount"`
-	Sales      float64 `json:"sales"`
+	Sales float64 `json:"sales"`
 }
 
 type AnalyticsOS struct {
-	Clicks     float64 `json:"clicks"`
-	Leads      float64 `json:"leads"`
-	Os         string  `json:"os"`
+	Clicks float64 `json:"clicks"`
+	Leads float64 `json:"leads"`
+	Os string `json:"os"`
 	SaleAmount float64 `json:"saleAmount"`
-	Sales      float64 `json:"sales"`
+	Sales float64 `json:"sales"`
 }
 
 type AnalyticsRefererUrls struct {
-	Clicks     float64 `json:"clicks"`
-	Leads      float64 `json:"leads"`
-	RefererUrl string  `json:"refererUrl"`
+	Clicks float64 `json:"clicks"`
+	Leads float64 `json:"leads"`
+	RefererUrl string `json:"refererUrl"`
 	SaleAmount float64 `json:"saleAmount"`
-	Sales      float64 `json:"sales"`
+	Sales float64 `json:"sales"`
 }
 
 type AnalyticsReferers struct {
-	Clicks     float64 `json:"clicks"`
-	Leads      float64 `json:"leads"`
-	Referer    string  `json:"referer"`
+	Clicks float64 `json:"clicks"`
+	Leads float64 `json:"leads"`
+	Referer string `json:"referer"`
 	SaleAmount float64 `json:"saleAmount"`
-	Sales      float64 `json:"sales"`
+	Sales float64 `json:"sales"`
 }
 
 type AnalyticsRegions struct {
-	City       string  `json:"city"`
-	Clicks     float64 `json:"clicks"`
-	Country    string  `json:"country"`
-	Leads      float64 `json:"leads"`
-	Region     string  `json:"region"`
+	City string `json:"city"`
+	Clicks float64 `json:"clicks"`
+	Country string `json:"country"`
+	Leads float64 `json:"leads"`
+	Region string `json:"region"`
 	SaleAmount float64 `json:"saleAmount"`
-	Sales      float64 `json:"sales"`
+	Sales float64 `json:"sales"`
 }
 
 type AnalyticsTimeseries struct {
-	Clicks     float64 `json:"clicks"`
-	Leads      float64 `json:"leads"`
+	Clicks float64 `json:"clicks"`
+	Leads float64 `json:"leads"`
 	SaleAmount float64 `json:"saleAmount"`
-	Sales      float64 `json:"sales"`
-	Start      string  `json:"start"`
+	Sales float64 `json:"sales"`
+	Start string `json:"start"`
 }
 
 type AnalyticsTopLinks struct {
-	Clicks     float64 `json:"clicks"`
-	Comments   string  `json:"comments"`
-	CreatedAt  string  `json:"createdAt"`
-	Domain     string  `json:"domain"`
-	FolderId   string  `json:"folderId"`
-	Id         string  `json:"id"`
-	Key        string  `json:"key"`
-	Leads      float64 `json:"leads"`
-	Link       string  `json:"link"`
-	PartnerId  string  `json:"partnerId"`
+	Clicks float64 `json:"clicks"`
+	Comments string `json:"comments"`
+	CreatedAt string `json:"createdAt"`
+	Domain string `json:"domain"`
+	FolderId string `json:"folderId"`
+	Id string `json:"id"`
+	Key string `json:"key"`
+	Leads float64 `json:"leads"`
+	Link string `json:"link"`
+	PartnerId string `json:"partnerId"`
 	SaleAmount float64 `json:"saleAmount"`
-	Sales      float64 `json:"sales"`
-	ShortLink  string  `json:"shortLink"`
-	Title      string  `json:"title"`
-	Url        string  `json:"url"`
+	Sales float64 `json:"sales"`
+	ShortLink string `json:"shortLink"`
+	Title string `json:"title"`
+	Url string `json:"url"`
 }
 
 type AnalyticsTopUrls struct {
-	Clicks     float64 `json:"clicks"`
-	Leads      float64 `json:"leads"`
+	Clicks float64 `json:"clicks"`
+	Leads float64 `json:"leads"`
 	SaleAmount float64 `json:"saleAmount"`
-	Sales      float64 `json:"sales"`
-	Url        string  `json:"url"`
+	Sales float64 `json:"sales"`
+	Url string `json:"url"`
 }
 
 type AnalyticsTriggers struct {
-	Clicks     float64 `json:"clicks"`
-	Leads      float64 `json:"leads"`
+	Clicks float64 `json:"clicks"`
+	Leads float64 `json:"leads"`
 	SaleAmount float64 `json:"saleAmount"`
-	Sales      float64 `json:"sales"`
-	Trigger    string  `json:"trigger"`
+	Sales float64 `json:"sales"`
+	Trigger string `json:"trigger"`
 }
 
 type CommissionCreatedEvent struct {
 	CreatedAt string `json:"createdAt"`
-	Data      string `json:"data"`
-	Event     string `json:"event"`
-	Id        string `json:"id"`
+	Data string `json:"data"`
+	Event string `json:"event"`
+	Id string `json:"id"`
 }
 
 type DomainSchema struct {
 	AppleAppSiteAssociation string `json:"appleAppSiteAssociation"`
-	Archived                bool   `json:"archived"`
-	AssetLinks              string `json:"assetLinks"`
-	CreatedAt               string `json:"createdAt"`
-	ExpiredUrl              string `json:"expiredUrl"`
-	Id                      string `json:"id"`
-	Logo                    string `json:"logo"`
-	NotFoundUrl             string `json:"notFoundUrl"`
-	Placeholder             string `json:"placeholder"`
-	Primary                 bool   `json:"primary"`
-	RegisteredDomain        string `json:"registeredDomain"`
-	Slug                    string `json:"slug"`
-	UpdatedAt               string `json:"updatedAt"`
-	Verified                bool   `json:"verified"`
+	Archived bool `json:"archived"`
+	AssetLinks string `json:"assetLinks"`
+	CreatedAt string `json:"createdAt"`
+	ExpiredUrl string `json:"expiredUrl"`
+	Id string `json:"id"`
+	Logo string `json:"logo"`
+	NotFoundUrl string `json:"notFoundUrl"`
+	Placeholder string `json:"placeholder"`
+	Primary bool `json:"primary"`
+	RegisteredDomain string `json:"registeredDomain"`
+	Slug string `json:"slug"`
+	UpdatedAt string `json:"updatedAt"`
+	Verified bool `json:"verified"`
 }
 
 type FolderSchema struct {
-	Ttype       string `json:"Ttype"`
 	AccessLevel string `json:"accessLevel"`
-	CreatedAt   string `json:"createdAt"`
+	CreatedAt string `json:"createdAt"`
 	Description string `json:"description"`
-	Id          string `json:"id"`
-	Name        string `json:"name"`
-	UpdatedAt   string `json:"updatedAt"`
+	Id string `json:"id"`
+	Name string `json:"name"`
+	Type string `json:"type"`
+	UpdatedAt string `json:"updatedAt"`
 }
 
 type LeadCreatedEvent struct {
 	CreatedAt string `json:"createdAt"`
-	Data      string `json:"data"`
-	Event     string `json:"event"`
-	Id        string `json:"id"`
+	Data string `json:"data"`
+	Event string `json:"event"`
+	Id string `json:"id"`
 }
 
 type LinkClickedEvent struct {
 	CreatedAt string `json:"createdAt"`
-	Data      string `json:"data"`
-	Event     string `json:"event"`
-	Id        string `json:"id"`
+	Data string `json:"data"`
+	Event string `json:"event"`
+	Id string `json:"id"`
 }
 
 type LinkErrorSchema struct {
-	Code  string `json:"code"`
+	Code string `json:"code"`
 	Error string `json:"error"`
-	Link  string `json:"link"`
+	Link string `json:"link"`
 }
 
 type LinkSchema struct {
-	Android         string          `json:"android"`
-	Archived        bool            `json:"archived"`
-	Clicks          float64         `json:"clicks"`
-	Comments        string          `json:"comments"`
-	Conversions     float64         `json:"conversions"`
-	CreatedAt       string          `json:"createdAt"`
-	Description     string          `json:"description"`
-	DisabledAt      string          `json:"disabledAt"`
-	DoIndex         bool            `json:"doIndex"`
-	Domain          string          `json:"domain"`
-	ExpiredUrl      string          `json:"expiredUrl"`
-	ExpiresAt       string          `json:"expiresAt"`
-	ExternalId      string          `json:"externalId"`
-	FolderId        string          `json:"folderId"`
-	Geo             string          `json:"geo"`
-	Id              string          `json:"id"`
-	Image           string          `json:"image"`
-	Ios             string          `json:"ios"`
-	Key             string          `json:"key"`
-	LastClicked     string          `json:"lastClicked"`
-	Leads           float64         `json:"leads"`
-	PartnerId       string          `json:"partnerId"`
-	Password        string          `json:"password"`
-	ProgramId       string          `json:"programId"`
-	ProjectId       string          `json:"projectId"`
-	Proxy           bool            `json:"proxy"`
-	PublicStats     bool            `json:"publicStats"`
-	QrCode          string          `json:"qrCode"`
-	Rewrite         bool            `json:"rewrite"`
-	SaleAmount      float64         `json:"saleAmount"`
-	Sales           float64         `json:"sales"`
-	ShortLink       string          `json:"shortLink"`
-	TagId           string          `json:"tagId"`
-	Tags            json.RawMessage `json:"tags"`
-	TenantId        string          `json:"tenantId"`
-	TestCompletedAt string          `json:"testCompletedAt"`
-	TestStartedAt   string          `json:"testStartedAt"`
-	TestVariants    json.RawMessage `json:"testVariants"`
-	Title           string          `json:"title"`
-	TrackConversion bool            `json:"trackConversion"`
-	UpdatedAt       string          `json:"updatedAt"`
-	Url             string          `json:"url"`
-	UserId          string          `json:"userId"`
-	UtmCampaign     string          `json:"utm_campaign"`
-	UtmContent      string          `json:"utm_content"`
-	UtmMedium       string          `json:"utm_medium"`
-	UtmSource       string          `json:"utm_source"`
-	UtmTerm         string          `json:"utm_term"`
-	Video           string          `json:"video"`
-	WebhookIds      json.RawMessage `json:"webhookIds"`
-	WorkspaceId     string          `json:"workspaceId"`
+	Android string `json:"android"`
+	Archived bool `json:"archived"`
+	Clicks float64 `json:"clicks"`
+	Comments string `json:"comments"`
+	Conversions float64 `json:"conversions"`
+	CreatedAt string `json:"createdAt"`
+	Description string `json:"description"`
+	DisabledAt string `json:"disabledAt"`
+	DoIndex bool `json:"doIndex"`
+	Domain string `json:"domain"`
+	ExpiredUrl string `json:"expiredUrl"`
+	ExpiresAt string `json:"expiresAt"`
+	ExternalId string `json:"externalId"`
+	FolderId string `json:"folderId"`
+	Geo string `json:"geo"`
+	Id string `json:"id"`
+	Image string `json:"image"`
+	Ios string `json:"ios"`
+	Key string `json:"key"`
+	LastClicked string `json:"lastClicked"`
+	Leads float64 `json:"leads"`
+	PartnerId string `json:"partnerId"`
+	Password string `json:"password"`
+	ProgramId string `json:"programId"`
+	ProjectId string `json:"projectId"`
+	Proxy bool `json:"proxy"`
+	PublicStats bool `json:"publicStats"`
+	QrCode string `json:"qrCode"`
+	Rewrite bool `json:"rewrite"`
+	SaleAmount float64 `json:"saleAmount"`
+	Sales float64 `json:"sales"`
+	ShortLink string `json:"shortLink"`
+	TagId string `json:"tagId"`
+	Tags json.RawMessage `json:"tags"`
+	TenantId string `json:"tenantId"`
+	TestCompletedAt string `json:"testCompletedAt"`
+	TestStartedAt string `json:"testStartedAt"`
+	TestVariants json.RawMessage `json:"testVariants"`
+	Title string `json:"title"`
+	TrackConversion bool `json:"trackConversion"`
+	UpdatedAt string `json:"updatedAt"`
+	Url string `json:"url"`
+	UserId string `json:"userId"`
+	UtmCampaign string `json:"utm_campaign"`
+	UtmContent string `json:"utm_content"`
+	UtmMedium string `json:"utm_medium"`
+	UtmSource string `json:"utm_source"`
+	UtmTerm string `json:"utm_term"`
+	Video string `json:"video"`
+	WebhookIds json.RawMessage `json:"webhookIds"`
+	WorkspaceId string `json:"workspaceId"`
 }
 
 type LinkTagSchema struct {
 	Color string `json:"color"`
-	Id    string `json:"id"`
-	Name  string `json:"name"`
+	Id string `json:"id"`
+	Name string `json:"name"`
 }
 
 type LinkTagSchemaOutput struct {
 	Color string `json:"color"`
-	Id    string `json:"id"`
-	Name  string `json:"name"`
+	Id string `json:"id"`
+	Name string `json:"name"`
 }
 
 type LinkWebhookEvent struct {
 	CreatedAt string `json:"createdAt"`
-	Data      string `json:"data"`
-	Event     string `json:"event"`
-	Id        string `json:"id"`
+	Data string `json:"data"`
+	Event string `json:"event"`
+	Id string `json:"id"`
 }
 
 type PartnerAnalyticsCount struct {
-	Clicks     float64 `json:"clicks"`
-	Earnings   float64 `json:"earnings"`
-	Leads      float64 `json:"leads"`
+	Clicks float64 `json:"clicks"`
+	Earnings float64 `json:"earnings"`
+	Leads float64 `json:"leads"`
 	SaleAmount float64 `json:"saleAmount"`
-	Sales      float64 `json:"sales"`
+	Sales float64 `json:"sales"`
 }
 
 type PartnerAnalyticsTimeseries struct {
-	Clicks     float64 `json:"clicks"`
-	Earnings   float64 `json:"earnings"`
-	Leads      float64 `json:"leads"`
+	Clicks float64 `json:"clicks"`
+	Earnings float64 `json:"earnings"`
+	Leads float64 `json:"leads"`
 	SaleAmount float64 `json:"saleAmount"`
-	Sales      float64 `json:"sales"`
-	Start      string  `json:"start"`
+	Sales float64 `json:"sales"`
+	Start string `json:"start"`
 }
 
 type PartnerAnalyticsTopLinks struct {
-	Clicks     float64 `json:"clicks"`
-	Comments   string  `json:"comments"`
-	CreatedAt  string  `json:"createdAt"`
-	Domain     string  `json:"domain"`
-	Earnings   float64 `json:"earnings"`
-	FolderId   string  `json:"folderId"`
-	Id         string  `json:"id"`
-	Key        string  `json:"key"`
-	Leads      float64 `json:"leads"`
-	Link       string  `json:"link"`
-	PartnerId  string  `json:"partnerId"`
+	Clicks float64 `json:"clicks"`
+	Comments string `json:"comments"`
+	CreatedAt string `json:"createdAt"`
+	Domain string `json:"domain"`
+	Earnings float64 `json:"earnings"`
+	FolderId string `json:"folderId"`
+	Id string `json:"id"`
+	Key string `json:"key"`
+	Leads float64 `json:"leads"`
+	Link string `json:"link"`
+	PartnerId string `json:"partnerId"`
 	SaleAmount float64 `json:"saleAmount"`
-	Sales      float64 `json:"sales"`
-	ShortLink  string  `json:"shortLink"`
-	Title      string  `json:"title"`
-	Url        string  `json:"url"`
+	Sales float64 `json:"sales"`
+	ShortLink string `json:"shortLink"`
+	Title string `json:"title"`
+	Url string `json:"url"`
 }
 
 type PartnerApplicationSubmittedEvent struct {
 	CreatedAt string `json:"createdAt"`
-	Data      string `json:"data"`
-	Event     string `json:"event"`
-	Id        string `json:"id"`
+	Data string `json:"data"`
+	Event string `json:"event"`
+	Id string `json:"id"`
 }
 
 type PartnerEnrolledEvent struct {
 	CreatedAt string `json:"createdAt"`
-	Data      string `json:"data"`
-	Event     string `json:"event"`
-	Id        string `json:"id"`
+	Data string `json:"data"`
+	Event string `json:"event"`
+	Id string `json:"id"`
 }
 
 type SaleCreatedEvent struct {
 	CreatedAt string `json:"createdAt"`
-	Data      string `json:"data"`
-	Event     string `json:"event"`
-	Id        string `json:"id"`
+	Data string `json:"data"`
+	Event string `json:"event"`
+	Id string `json:"id"`
 }
 
 type linkGeoTargeting struct {
 }
+

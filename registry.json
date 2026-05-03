@@ -152,7 +152,7 @@
       "name": "dub",
       "category": "marketing",
       "api": "Dub",
-      "description": "Manage Dub short links, analytics, partner programs, and conversion tracking from the terminal. Local SQLite store unlocks dead-link detection, performance drift, conversion funnels, partner leaderboards, and cross-tag analytics.",
+      "description": "Modern link attribution platform \u2014 short links, conversion tracking, affiliate/partner programs.",
       "path": "library/marketing/dub",
       "mcp": {
         "binary": "dub-pp-mcp",

@@ -24,9 +24,10 @@ func newPartnersCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "create",
-		Short:   "Create or update a partner",
-		Example: "  dub-pp-cli partners create --email user@example.com",
+		Use:         "create",
+		Short:       "Creates or updates a partner record (upsert behavior). If a partner with the same email already exists, their...",
+		Example:     "  dub-pp-cli partners create --email user@example.com",
+		Annotations: map[string]string{"pp:endpoint": "partners.create"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("email") && !flags.dryRun {

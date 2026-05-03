@@ -12,12 +12,15 @@ import (
 )
 
 func newTokensPromotedCmd(flags *rootFlags) *cobra.Command {
+	var bodyPartnerId string
+	var bodyTenantId string
 
 	cmd := &cobra.Command{
-		Use:     "tokens",
-		Short:   "Create a referrals embed token",
-		Long:    "Shortcut for 'tokens create-referrals-embed'. Create a referrals embed token",
-		Example: "  dub-pp-cli tokens",
+		Use:         "tokens",
+		Short:       "Create a referrals embed token for the given partner/tenant. The endpoint first attempts to locate an existing...",
+		Long:        "Shortcut for 'tokens create-referrals-embed'. Create a referrals embed token for the given partner/tenant. The endpoint first attempts to locate an existing...",
+		Example:     "  dub-pp-cli tokens",
+		Annotations: map[string]string{"pp:endpoint": "tokens.create-referrals-embed"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -25,8 +28,19 @@ func newTokensPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/tokens/embed/referrals"
-			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "tokens", false, path, params)
+			// HasStore + non-GET falls through to a live API call here
+			// rather than through resolveRead (GET-only internally); a
+			// body-aware cached read helper is filed as #425 for when a
+			// second store-backed POST-search consumer ships.
+			body := map[string]any{}
+			if bodyPartnerId != "" {
+				body["partnerId"] = bodyPartnerId
+			}
+			if bodyTenantId != "" {
+				body["tenantId"] = bodyTenantId
+			}
+			data, _, err := c.Post(path, body)
+			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -78,6 +92,8 @@ func newTokensPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
+	cmd.Flags().StringVar(&bodyPartnerId, "partner-id", "", "Partner id")
+	cmd.Flags().StringVar(&bodyTenantId, "tenant-id", "", "Tenant id")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

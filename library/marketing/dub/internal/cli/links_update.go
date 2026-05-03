@@ -52,9 +52,10 @@ func newLinksUpdateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "update <linkId>",
-		Short:   "Update a link",
-		Example: "  dub-pp-cli links update https://example.com/resource",
+		Use:         "update <linkId>",
+		Short:       "Update a link for the authenticated workspace. If there's no change, returns it as it is.",
+		Example:     "  dub-pp-cli links update https://example.com/resource",
+		Annotations: map[string]string{"pp:endpoint": "links.update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

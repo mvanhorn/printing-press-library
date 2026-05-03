@@ -18,9 +18,10 @@ func newPartnersApproveCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "approve",
-		Short:   "Approve a partner application",
-		Example: "  dub-pp-cli partners approve --partnerId example-value",
+		Use:         "approve",
+		Short:       "Approve a pending partner application to your program. The partner will be enrolled in the specified group and...",
+		Example:     "  dub-pp-cli partners approve --partnerId example-value",
+		Annotations: map[string]string{"pp:endpoint": "partners.approve"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("partner-id") && !flags.dryRun {

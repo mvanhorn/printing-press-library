@@ -18,9 +18,10 @@ func newBountiesSubmissionsRejectBountyCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "reject-bounty <bountyId> <submissionId>",
-		Short:   "Reject a bounty submission",
-		Example: "  dub-pp-cli bounties submissions reject-bounty example-value example-value",
+		Use:         "reject-bounty <bountyId> <submissionId>",
+		Short:       "Reject a bounty submission with a specified reason and optional note.",
+		Example:     "  dub-pp-cli bounties submissions reject-bounty example-value example-value",
+		Annotations: map[string]string{"pp:endpoint": "submissions.reject-bounty"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

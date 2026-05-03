@@ -21,9 +21,10 @@ func newPartnersCreateLinkCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "create-link",
-		Short:   "Create a link for a partner",
-		Example: "  dub-pp-cli partners create-link",
+		Use:         "create-link",
+		Short:       "Create a link for a partner that is enrolled in your program.",
+		Example:     "  dub-pp-cli partners create-link",
+		Annotations: map[string]string{"pp:endpoint": "partners.create-link"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 			}

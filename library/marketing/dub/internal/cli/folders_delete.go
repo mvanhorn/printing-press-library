@@ -14,9 +14,10 @@ import (
 func newFoldersDeleteCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "delete <id>",
-		Short:   "Delete a folder",
-		Example: "  dub-pp-cli folders delete 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "delete <id>",
+		Short:       "Delete a folder from the workspace. All existing links will still work, but they will no longer be associated with...",
+		Example:     "  dub-pp-cli folders delete 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "folders.delete"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

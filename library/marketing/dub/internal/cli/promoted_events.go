@@ -49,7 +49,7 @@ func newEventsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagProgramId string
 	var flagTagIds string
 	var flagQr bool
-	var flagPage float64
+	var flagPage string
 	var flagLimit float64
 	var flagSortOrder string
 	var flagSortBy string
@@ -57,10 +57,11 @@ func newEventsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "events",
-		Short:   "List all events",
-		Long:    "Shortcut for 'events list'. List all events",
-		Example: "  dub-pp-cli events",
+		Use:         "events",
+		Short:       "Retrieve a paginated list of events for the authenticated workspace.",
+		Long:        "Shortcut for 'events list'. Retrieve a paginated list of events for the authenticated workspace.",
+		Example:     "  dub-pp-cli events",
+		Annotations: map[string]string{"pp:endpoint": "events.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("event") {
 				allowedEvent := []string{"clicks", "leads", "sales"}
@@ -146,7 +147,7 @@ func newEventsPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/events"
-			data, prov, err := resolvePaginatedRead(c, flags, "events", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "events", path, map[string]string{
 				"event":        fmt.Sprintf("%v", flagEvent),
 				"domain":       fmt.Sprintf("%v", flagDomain),
 				"key":          fmt.Sprintf("%v", flagKey),
@@ -189,7 +190,7 @@ func newEventsPromotedCmd(flags *rootFlags) *cobra.Command {
 				"sortOrder":    fmt.Sprintf("%v", flagSortOrder),
 				"sortBy":       fmt.Sprintf("%v", flagSortBy),
 				"order":        fmt.Sprintf("%v", flagOrder),
-			}, flagAll, "", "", "")
+			}, nil, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -278,7 +279,7 @@ func newEventsPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagProgramId, "program-id", "", "Deprecated: This is automatically inferred from your workspace's defaultProgramId. The ID of the program to retrieve...")
 	cmd.Flags().StringVar(&flagTagIds, "tag-ids", "", "Deprecated: Use `tagId` instead. The tag IDs to retrieve analytics for.")
 	cmd.Flags().BoolVar(&flagQr, "qr", false, "Deprecated: Use the `trigger` field instead. Filter for QR code scans. If true, filter for QR codes only. If false,...")
-	cmd.Flags().Float64Var(&flagPage, "page", 1.000000, "Page")
+	cmd.Flags().StringVar(&flagPage, "page", "1", "Page")
 	cmd.Flags().Float64Var(&flagLimit, "limit", 100.000000, "Limit")
 	cmd.Flags().StringVar(&flagSortOrder, "sort-order", "desc", "The sort order. The default is `desc`. (one of: asc, desc)")
 	cmd.Flags().StringVar(&flagSortBy, "sort-by", "timestamp", "The field to sort the events by. The default is `timestamp`. (one of: timestamp)")

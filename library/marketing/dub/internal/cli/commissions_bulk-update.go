@@ -18,9 +18,10 @@ func newCommissionsBulkUpdateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "bulk-update",
-		Short:   "Bulk update commissions",
-		Example: "  dub-pp-cli commissions bulk-update --status example-value",
+		Use:         "bulk-update",
+		Short:       "Bulk update up to 100 commissions with the same status.",
+		Example:     "  dub-pp-cli commissions bulk-update --status example-value",
+		Annotations: map[string]string{"pp:endpoint": "commissions.bulk-update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("commission-ids") && !flags.dryRun {

@@ -24,10 +24,11 @@ func newTrackLeadCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "lead",
-		Aliases: []string{"create"},
-		Short:   "Track a lead",
-		Example: "  dub-pp-cli track lead --clickId example-value",
+		Use:         "lead",
+		Aliases:     []string{"create"},
+		Short:       "Track a lead for a short link.",
+		Example:     "  dub-pp-cli track lead --clickId example-value",
+		Annotations: map[string]string{"pp:endpoint": "track.lead"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("click-id") && !flags.dryRun {
