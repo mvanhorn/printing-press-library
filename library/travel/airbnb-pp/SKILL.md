@@ -1,18 +1,22 @@
 ---
 name: pp-airbnb
-description: "Skip the platform fee. Find the host's direct booking site for any Airbnb or VRBO listing. Trigger phrases: `find the direct booking site`, `skip the airbnb fee`, `compare airbnb and vrbo`, `vacation rental cheapest`, `book direct`, `use airbnb-pp`, `run airbnb-pp`."
+description: "Skip the Airbnb platform fee. Find the host's direct booking site for any Airbnb listing. Trigger phrases: `find the direct booking site`, `skip the airbnb fee`, `vacation rental cheapest`, `book direct`, `use airbnb-pp`, `run airbnb-pp`. NOTE: VRBO support is currently disabled — pending Akamai workaround."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["airbnb-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/other/airbnb-pp-cli/cmd/airbnb-pp-cli@latest","bins":["airbnb-pp-cli"],"label":"Install via go install"}]}}'
+metadata: '{"openclaw":{"requires":{"bins":["airbnb-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/travel/airbnb-pp/cmd/airbnb-pp-cli@latest","bins":["airbnb-pp-cli"],"label":"Install via go install"}]}}'
 ---
 
-# Airbnb + VRBO — Printing Press CLI
+# Airbnb — Printing Press CLI
 
-Search Airbnb and VRBO from the terminal. Then run cheapest on a listing to extract the host's brand, web-search for their direct booking site, and report the lowest of three prices side-by-side. Cross-platform match, price-drop watchlist, host portfolio analysis, and trip planning all built on a local store that compounds over time.
+Search Airbnb from the terminal, run cheapest on a listing to extract the host's brand, web-search for their direct booking site, and report the lowest of three prices side-by-side. Price-drop watchlist, host portfolio analysis, and trip planning all built on a local store that compounds over time.
+
+> **VRBO support is currently disabled.** VRBO's Akamai bot challenge blocks the scraper. Every VRBO entry point (`vrbo-listing search/get`, `match` from a VRBO URL, `find-twin` from VRBO, the VRBO branch of `cheapest` and `plan`) returns the disabled error. The VRBO source code stays in the tree so re-enabling is a flag flip once an Akamai workaround lands.
+
+> **Renamed from `airbnb-vrbo-pp-cli` to `airbnb-pp-cli` (this release).** State directories migrate automatically on first run. `AIRBNB_VRBO_*` env vars are still read but emit a one-time deprecation warning; use `AIRBNB_PP_*` going forward.
 
 ## When to Use This CLI
 
-Reach for this CLI when an agent or user names an Airbnb or VRBO listing URL, asks about vacation rental fees or savings, mentions 'book direct,' or wants to compare prices across STR platforms. The cheapest command is the headline; plan and compare extend it. The local store accumulates listings, hosts, and price history across sessions, so re-running queries gets faster and richer over time.
+Reach for this CLI when an agent or user names an Airbnb listing URL, asks about Airbnb fees or direct-booking savings, mentions 'book direct,' or wants to plan a trip across listings. The cheapest command is the headline; plan and compare extend it. The local store accumulates listings, hosts, and price history across sessions, so re-running queries gets faster and richer over time.
 
 ## When Not to Use This CLI
 
@@ -288,7 +292,7 @@ Parse `$ARGUMENTS`:
 1. Check Go is installed: `go version` (requires Go 1.23+)
 2. Install:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/other/airbnb-pp-cli/cmd/airbnb-pp-cli@latest
+   go install github.com/mvanhorn/printing-press-library/library/travel/airbnb-pp/cmd/airbnb-pp-cli@latest
    ```
 3. Verify: `airbnb-pp-cli --version`
 4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -297,7 +301,7 @@ Parse `$ARGUMENTS`:
 
 1. Install the MCP server:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/other/airbnb-pp-cli/cmd/airbnb-pp-mcp@latest
+   go install github.com/mvanhorn/printing-press-library/library/travel/airbnb-pp/cmd/airbnb-pp-mcp@latest
    ```
 2. Register with Claude Code:
    ```bash

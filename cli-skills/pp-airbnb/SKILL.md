@@ -3,7 +3,7 @@ name: pp-airbnb
 description: "Skip the platform fee. Find the host's direct booking site for any Airbnb or VRBO listing. Trigger phrases: `find the direct booking site`, `skip the airbnb fee`, `compare airbnb and vrbo`, `vacation rental cheapest`, `book direct`, `use airbnb-pp`, `run airbnb-pp`."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["airbnb-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/other/airbnb-pp-cli/cmd/airbnb-pp-cli@latest","bins":["airbnb-pp-cli"],"label":"Install via go install"}]}}'
+metadata: '{"openclaw":{"requires":{"bins":["airbnb-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/travel/airbnb-pp/cmd/airbnb-pp-cli@latest","bins":["airbnb-pp-cli"],"label":"Install via go install"}]}}'
 ---
 
 # Airbnb + VRBO — Printing Press CLI
@@ -288,11 +288,11 @@ Parse `$ARGUMENTS`:
 1. Check Go is installed: `go version` (requires Go 1.23+)
 2. Install:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/other/airbnb-pp-cli/cmd/airbnb-pp-cli@latest
+   go install github.com/mvanhorn/printing-press-library/library/travel/airbnb-pp/cmd/airbnb-pp-cli@latest
    
    # If `@latest` installs a stale build (Go module proxy cache lag), install from main:
    GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
-     go install github.com/mvanhorn/printing-press-library/library/other/airbnb-pp-cli/cmd/airbnb-pp-cli@main
+     go install github.com/mvanhorn/printing-press-library/library/travel/airbnb-pp/cmd/airbnb-pp-cli@main
    ```
 3. Verify: `airbnb-pp-cli --version`
 4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -301,11 +301,11 @@ Parse `$ARGUMENTS`:
 
 1. Install the MCP server:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/other/airbnb-pp-cli/cmd/airbnb-pp-mcp@latest
+   go install github.com/mvanhorn/printing-press-library/library/travel/airbnb-pp/cmd/airbnb-pp-mcp@latest
    
    # If `@latest` installs a stale build (Go module proxy cache lag), install from main:
    GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
-     go install github.com/mvanhorn/printing-press-library/library/other/airbnb-pp-cli/cmd/airbnb-pp-mcp@main
+     go install github.com/mvanhorn/printing-press-library/library/travel/airbnb-pp/cmd/airbnb-pp-mcp@main
    ```
 2. Register with Claude Code:
    ```bash

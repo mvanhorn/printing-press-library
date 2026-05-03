@@ -1,8 +1,12 @@
-# Airbnb + VRBO CLI
+# Airbnb CLI (`airbnb-pp-cli`)
 
-**Skip the platform fee. Find the host's direct booking site for any Airbnb or VRBO listing.**
+**Skip the Airbnb platform fee. Find the host's direct booking site for any Airbnb listing.**
 
-Search Airbnb and VRBO from the terminal. Then run cheapest on a listing to extract the host's brand, web-search for their direct booking site, and report the lowest of three prices side-by-side. Cross-platform match, price-drop watchlist, host portfolio analysis, and trip planning all built on a local store that compounds over time.
+Search Airbnb from the terminal, run cheapest on a listing to extract the host's brand, web-search for their direct booking site, and report the lowest of three prices side-by-side. Cross-platform match, price-drop watchlist, host portfolio analysis, and trip planning all built on a local store that compounds over time.
+
+> **VRBO is currently disabled.** VRBO's anti-bot protection (Akamai) blocks the scraper, and the previous fallback path returned hardcoded placeholder data with the queried city stamped on top — fake results labeled as if they were real. Every VRBO entry point now returns "vrbo is temporarily disabled — pending Akamai workaround". The VRBO source code stays in tree so re-enabling is a flag flip plus the Akamai workaround. Use this CLI for Airbnb work; expect VRBO to come back in a future release.
+
+> **Renamed from `airbnb-vrbo-pp-cli` to `airbnb-pp-cli`.** Existing users get an automatic one-time state migration on first run (the `~/.airbnb-vrbo-pp-cli` directory is renamed in place to `~/.airbnb-pp-cli`; the same applies to the SQLite cache under `~/.local/share`). `AIRBNB_VRBO_*` env vars are still read but emit a deprecation warning; switch to `AIRBNB_PP_*`. The legacy paths will be dropped in a future release.
 
 ## Install
 
