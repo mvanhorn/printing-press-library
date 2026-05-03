@@ -4,8 +4,6 @@
 package cli
 
 import (
-	"fmt"
-
 	"github.com/mvanhorn/printing-press-library/library/travel/airbnb-vrbo/internal/source/vrbo"
 	"github.com/spf13/cobra"
 )
@@ -30,22 +28,18 @@ func newVrboListingSearchCmd(flags *rootFlags) *cobra.Command {
 			if flagLocation == "" && len(args) > 0 {
 				flagLocation = args[0]
 			}
-			if flagLocation == "" && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "location")
-			}
 			_ = stdinBody
+			_ = flagAll
 			if flags.dryRun {
 				return printJSONFiltered(cmd.OutOrStdout(), []vrbo.Property{}, flags)
 			}
-			results, pagination, err := vrbo.Search(cmd.Context(), vrbo.SearchParams{
-				Location: flagLocation, Checkin: flagCheckin, Checkout: flagCheckout,
-				Adults: flagAdults, Children: flagChildren, Page: flagPage, PageSize: flagPageSize,
-			})
-			if err != nil {
-				return classifyAPIError(err)
-			}
-			_ = flagAll
-			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"results": results, "pagination": pagination}, flags)
+			_ = flagCheckin
+			_ = flagCheckout
+			_ = flagAdults
+			_ = flagChildren
+			_ = flagPage
+			_ = flagPageSize
+			return apiErr(vrbo.ErrDisabled)
 		},
 	}
 	cmd.Flags().StringVar(&flagLocation, "location", "", "")

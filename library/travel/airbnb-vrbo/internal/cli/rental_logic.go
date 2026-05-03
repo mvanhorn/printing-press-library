@@ -112,22 +112,12 @@ func computeCheapest(ctx context.Context, rawURL string, p cheapestParams) (*che
 			platformOption["note"] = airbnbPricingUnavailableNote
 		}
 	case "vrbo":
-		l, err := vrbo.Get(ctx, ref.ID, vrbo.GetParams{Checkin: p.Checkin, Checkout: p.Checkout, Adults: p.Guests})
-		if err != nil {
-			return nil, err
-		}
-		host = hostextract.FromVRBOProperty(l)
-		out.Listing["title"], out.Listing["city"] = l.Title, l.City
-		total, fees := vrboTotals(l)
-		platformOption = map[string]any{"source": "vrbo", "url": l.URL, "total": nullableFloat(total), "fees": fees, "currency": "USD"}
-		if total == 0 {
-			platformOption["note"] = "pricing not available in SSR; try different dates"
-		}
+		return nil, apiErr(vrbo.ErrDisabled)
 	}
 	out.Host = host
 	out.Options = append(out.Options, platformOption)
 	if ref.Platform == "airbnb" {
-		out.Options = append(out.Options, map[string]any{"source": "vrbo", "url": "", "total": nil, "note": "not searched (single-platform mode)"})
+		out.Options = append(out.Options, map[string]any{"source": "vrbo", "url": "", "total": nil, "note": vrbo.ErrDisabled.Error()})
 	} else {
 		out.Options = append(out.Options, map[string]any{"source": "airbnb", "url": "", "total": nil, "note": "not searched (single-platform mode)"})
 	}

@@ -40,14 +40,7 @@ func newFindTwinCmd(flags *rootFlags) *cobra.Command {
 					}
 					query = strings.TrimSpace(l.City + " " + strings.Join(l.Amenities, " "))
 				} else {
-					p, err := vrbo.Get(cmd.Context(), ref.ID, vrbo.GetParams{})
-					if err != nil {
-						return classifyAPIError(err)
-					}
-					if len(p.Photos) > 0 {
-						photo = p.Photos[0]
-					}
-					query = strings.TrimSpace(p.City + " " + strings.Join(p.Amenities, " "))
+					return apiErr(vrbo.ErrDisabled)
 				}
 			}
 			results, err := backend.ImageSearch(cmd.Context(), photo, searchbackend.SearchOpts{Limit: 10})

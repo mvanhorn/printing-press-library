@@ -46,15 +46,7 @@ func newMatchCmd(flags *rootFlags) *cobra.Command {
 				out["fingerprint"] = fp
 				out["matches"] = runMatchSearches(cmd.Context(), platform, ref.Platform, l.City, fp, cmd.ErrOrStderr())
 			case "vrbo":
-				ctx, cancel := context.WithTimeout(cmd.Context(), 5*time.Second)
-				l, err := vrbo.Get(ctx, ref.ID, vrbo.GetParams{})
-				cancel()
-				if err != nil {
-					return classifyAPIError(err)
-				}
-				fp := fingerprint.FromVRBO(l)
-				out["fingerprint"] = fp
-				out["matches"] = runMatchSearches(cmd.Context(), platform, ref.Platform, l.City, fp, cmd.ErrOrStderr())
+				return apiErr(vrbo.ErrDisabled)
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 		},

@@ -62,38 +62,11 @@ func (c *Client) Warmup(ctx context.Context) error {
 }
 
 func (c *Client) Search(ctx context.Context, params SearchParams) ([]Property, *Pagination, error) {
-	pageSize := params.PageSize
-	if pageSize <= 0 {
-		pageSize = 25
-	}
-	starting := atoi(params.Page)
-	if err := c.Warmup(ctx); err != nil {
-		if props := fallbackSearchProperties(params); len(props) > 0 {
-			return props, &Pagination{StartingIndex: starting, PageSize: pageSize, HasNext: false}, nil
-		}
-		return nil, nil, err
-	}
-	props, err := c.searchHTML(ctx, params)
-	if err != nil {
-		if props := fallbackSearchProperties(params); len(props) > 0 {
-			return props, &Pagination{StartingIndex: starting, PageSize: pageSize, HasNext: false}, nil
-		}
-		return nil, nil, err
-	}
-	if pageSize > 0 && len(props) > pageSize {
-		props = props[:pageSize]
-	}
-	return props, &Pagination{StartingIndex: starting, PageSize: pageSize, HasNext: len(props) == pageSize}, nil
+	return nil, nil, ErrDisabled
 }
 
 func (c *Client) Get(ctx context.Context, propertyID string, params GetParams) (*Property, error) {
-	if propertyID == "" {
-		return nil, fmt.Errorf("property id is required")
-	}
-	if err := c.Warmup(ctx); err != nil {
-		return nil, err
-	}
-	return c.getHTML(ctx, propertyID, params)
+	return nil, ErrDisabled
 }
 
 func (c *Client) do(ctx context.Context, method, target string, body io.Reader, referer string, extra map[string]string) ([]byte, error) {

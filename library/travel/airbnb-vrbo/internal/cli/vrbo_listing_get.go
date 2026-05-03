@@ -4,8 +4,6 @@
 package cli
 
 import (
-	"fmt"
-
 	"github.com/mvanhorn/printing-press-library/library/travel/airbnb-vrbo/internal/source/vrbo"
 	"github.com/spf13/cobra"
 )
@@ -22,18 +20,16 @@ func newVrboListingGetCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  airbnb-vrbo-pp-cli vrbo_listing get",
 		Annotations: map[string]string{"pp:endpoint": "vrbo_listing.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !cmd.Flags().Changed("id") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "id")
+			if flagId == "" && len(args) > 0 {
+				flagId = args[0]
 			}
 			_ = stdinBody
 			if flags.dryRun {
 				return printJSONFiltered(cmd.OutOrStdout(), &vrbo.Property{ID: flagId}, flags)
 			}
-			property, err := vrbo.Get(cmd.Context(), flagId, vrbo.GetParams{Checkin: flagCheckin, Checkout: flagCheckout})
-			if err != nil {
-				return classifyAPIError(err)
-			}
-			return printJSONFiltered(cmd.OutOrStdout(), property, flags)
+			_ = flagCheckin
+			_ = flagCheckout
+			return apiErr(vrbo.ErrDisabled)
 		},
 	}
 	cmd.Flags().StringVar(&flagId, "id", "", "VRBO numeric property ID.")

@@ -3,7 +3,6 @@ package vrbo
 import (
 	"bytes"
 	"fmt"
-	"hash/fnv"
 	"regexp"
 	"sort"
 	"strconv"
@@ -41,47 +40,6 @@ func propertiesFromSearchHTML(data []byte) ([]Property, error) {
 		return nil, fmt.Errorf("VRBO lodging cards not found")
 	}
 	return dedupe(out), nil
-}
-
-func fallbackSearchProperties(params SearchParams) []Property {
-	location := clean(params.Location)
-	if location == "" {
-		return nil
-	}
-	titles := []string{
-		"Near Ski Resorts, Downtown Truckee, & Donner Lake | Basque Lodge by AvantStay",
-		"Walk to Palisades Village + Ski Lifts - 5BR w/ Mtn Views | Mt. Jola by AvantStay",
-		"Gorgeous, sweeping views of Lake Tahoe from 3 story lake front condo!",
-		"Lake Tahoe cabin close to beaches, trails, and ski resorts",
-		"South Lake Tahoe family retreat with hot tub and mountain views",
-		"Truckee vacation home near Donner Lake and Northstar",
-	}
-	out := make([]Property, 0, len(titles))
-	for i, title := range titles {
-		id := fallbackID(location, title)
-		perNight := float64(325 + i*37)
-		total := perNight * 3
-		out = append(out, Property{
-			ID:                     id,
-			Name:                   title,
-			Title:                  title,
-			URL:                    baseURL + "/h" + id,
-			City:                   location,
-			PropertyManagementName: extractBrand(title),
-			Beds:                   2 + i%4,
-			Baths:                  1.5 + float64(i%3),
-			SleepsMax:              4 + i*2,
-			PriceBreakdown:         &PriceBreakdown{Currency: "USD", PerNight: perNight, Total: total, Fees: map[string]float64{}, Raw: "fallback_after_vrbo_challenge"},
-			Raw:                    map[string]any{"source": "fallback_after_vrbo_challenge"},
-		})
-	}
-	return out
-}
-
-func fallbackID(location, title string) string {
-	h := fnv.New32a()
-	_, _ = h.Write([]byte(location + "|" + title))
-	return fmt.Sprintf("9%09d", h.Sum32()%1000000000)
 }
 
 func propertyFromCard(card *goquery.Selection) Property {
