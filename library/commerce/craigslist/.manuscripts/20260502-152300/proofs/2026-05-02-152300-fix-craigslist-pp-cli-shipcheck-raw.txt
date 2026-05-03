@@ -1,0 +1,140 @@
+
+=== dogfood ===
+Dogfood Report: craigslist-pp-cli
+================================
+
+Path Validity:     0/0 valid (SKIP)
+  Detail: synthetic spec: path validity not applicable
+
+Auth Protocol:     MATCH
+  Generated: Uses "unknown" prefix
+  Detail: spec not provided or no bot/bearer scheme detected
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     PARTIAL
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: uses generic Search only or direct SQL
+  Domain tables: 1
+
+Examples:          2/10 commands have examples (FAIL)
+  - drift: missing example
+  - favorite list: missing example
+  - filters show: missing example
+  - listing get: missing example
+  - median: missing example
+  - reposts: missing example
+  - watch delete: missing example
+  - watch save: missing example
+
+Novel Features:    10/10 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: FAIL
+  - 20% example coverage
+  - 2/10 novel features look reimplemented: search --negate (search.go) — hand-rolled response: no API client call, no store access; cities heat (cities.go) — hand-rolled response: no API client call, no store access
+
+=== verify ===
+Runtime Verification: /Users/tmchow/printing-press/.runstate/hidden-brewing-turtle-68cd6401/runs/20260502-152300/working/craigslist-pp-cli/craigslist-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+agent-context                  read         PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+areas                          read         PASS   PASS     PASS     3/3
+catalog                        read         PASS   PASS     PASS     3/3
+categories                     read         PASS   PASS     PASS     3/3
+cities                         read         PASS   PASS     PASS     3/3
+cl-sync                        read         PASS   PASS     FAIL     2/3
+doctor                         local        PASS   PASS     PASS     3/3
+drift                          read         PASS   PASS     FAIL     2/3
+dupe-cluster                   read         PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+favorite                       read         PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+filters                        read         PASS   PASS     PASS     3/3
+geo                            read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+listing                        read         PASS   PASS     PASS     3/3
+median                         read         PASS   PASS     FAIL     2/3
+postings                       read         PASS   PASS     PASS     3/3
+profile                        read         PASS   PASS     PASS     3/3
+reposts                        read         PASS   PASS     FAIL     2/3
+scam-score                     read         PASS   PASS     FAIL     2/3
+search                         data-layer   PASS   PASS     PASS     3/3
+since                          read         PASS   PASS     FAIL     2/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+watch                          read         PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     PASS     3/3
+
+Data Pipeline: PASS: sync completed (table validation skipped — sql command unavailable)
+Pass Rate: 100% (30/30 passed, 0 critical)
+Verdict: PASS
+
+=== workflow-verify ===
+Workflow Verification: craigslist-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== verify-skill ===
+=== craigslist-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, unknown-command)
+
+=== scorecard ===
+Quality Scorecard: craigslist
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          9/10
+  README               8/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          9/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency 0/10
+  MCP Remote Transport 10/10
+  MCP Tool Design      N/A
+  MCP Surface Strategy N/A
+  Local Cache          10/10
+  Cache Freshness      10/10
+  Breadth              7/10
+  Vision               9/10
+  Workflows            10/10
+  Insight              10/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           N/A
+  Auth Protocol           N/A
+  Data Pipeline Integrity 7/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           3/5
+  Dead Code               5/5
+
+  Total: 85/100 - Grade A
+  Note: omitted from denominator: mcp_description_quality, mcp_tool_design, mcp_surface_strategy, path_validity, auth_protocol, live_api_verification
+
+Gaps:
+  - mcp_token_efficiency scored 0/10 - needs improvement
+  - MCP: 1 tools (1 public, 0 auth-required) — readiness: full
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  dogfood           PASS    0         1.182s
+  verify            PASS    0         3.952s
+  workflow-verify   PASS    0         12ms
+  verify-skill      PASS    0         280ms
+  scorecard         PASS    0         32ms
+
+Verdict: PASS (5/5 legs passed)

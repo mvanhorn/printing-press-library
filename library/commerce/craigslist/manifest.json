@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "craigslist-pp-mcp",
+  "display_name": "Craigslist",
+  "version": "3.6.0",
+  "description": "Search, sync, and watch Craigslist with a local SQLite snapshot history, cross-city aggregation, scam scoring, and price-drift detection.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/craigslist-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/craigslist-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

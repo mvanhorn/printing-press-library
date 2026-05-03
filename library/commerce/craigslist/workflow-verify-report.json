@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/tmchow/printing-press/.runstate/hidden-brewing-turtle-68cd6401/runs/20260502-152300/working/craigslist-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

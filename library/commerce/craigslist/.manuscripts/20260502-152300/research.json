@@ -1,0 +1,359 @@
+{
+  "api_name": "craigslist",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "juliomalegria/python-craigslist",
+      "url": "https://github.com/juliomalegria/python-craigslist",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1100,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "irahorecka/pycraigslist",
+      "url": "https://github.com/irahorecka/pycraigslist",
+      "language": "Python",
+      "install_method": "",
+      "stars": 54,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "node-craigslist",
+      "url": "https://github.com/brozeph/node-craigslist",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ecnepsnai/craigslist",
+      "url": "https://github.com/ecnepsnai/craigslist",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sa7mon/craigsfeed",
+      "url": "https://github.com/sa7mon/craigsfeed",
+      "language": "Go",
+      "install_method": "",
+      "stars": 5,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "meub/craigslist-for-sale-alerts",
+      "url": "https://github.com/meub/craigslist-for-sale-alerts",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "3d-logic/craigslist-automation",
+      "url": "https://github.com/3d-logic/craigslist-automation",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-02T22:32:30Z",
+  "novel_features": [
+    {
+      "name": "Smart watch with diff types",
+      "command": "watch run",
+      "description": "Periodic poll for a saved search that emits NEW, PRICE-DROP, and SEED events instead of any-listing-I-haven't-seen — so true new listings stand out from edits and reposts. Cross-city repost detection lives in the separate `reposts` command; cross-city dup detection lives in `dupe-cluster`.",
+      "rationale": "Requires per-watch seen-listing history plus a snapshot table of price/title diffs over time. Native CL email alerts and CPlus push notifications can't distinguish edits or reposts from new posts.",
+      "example": "craigslist-pp-cli watch save apartments --query 1BR --negate furnished,sublet --sites sfbay --category apa --max-price 2500 \u0026\u0026 craigslist-pp-cli watch run apartments --seed-only \u0026\u0026 craigslist-pp-cli watch run apartments --json",
+      "why_it_matters": "Pick this over a generic search call when an agent is alerting a user — only true-new listings are worth pinging on, and the typed diff event tells the agent how to phrase the alert.",
+      "group": "Compounding watch surface"
+    },
+    {
+      "name": "Streaming watch tail",
+      "command": "watch tail",
+      "description": "Long-running tail that prints one JSON event per new diff result so an agent or shell pipeline can react in real time. Emits NEW and PRICE-DROP events.",
+      "rationale": "Without local snapshot history there is nothing to diff against; without a saved-search definition there is no scope to poll. Both come from the local store.",
+      "example": "craigslist-pp-cli watch tail apartments --interval 5m --json",
+      "why_it_matters": "When you want a continuous stream of new-listing events to pipe into a Slack/email sender, jq filter, or downstream agent loop.",
+      "group": "Compounding watch surface"
+    },
+    {
+      "name": "Price drift history",
+      "command": "drift",
+      "description": "Show the price timeline for a single listing across every snapshot we've captured.",
+      "rationale": "Requires the local listing_snapshot table that no other CL tool builds. Visualping and PageCrawl monetize this; this command makes it free.",
+      "example": "craigslist-pp-cli drift 7915891289 --json",
+      "why_it_matters": "Agents negotiating on behalf of a buyer can quote concrete price-drop history — \"this listing was $50, now $35, posted 14 days ago.\"",
+      "group": "Local snapshot history"
+    },
+    {
+      "name": "Cross-city duplicate clusters",
+      "command": "dupe-cluster",
+      "description": "Find listings whose body fingerprint and image hash match across cities. Surfaces cross-city scams and aggregator reposts.",
+      "rationale": "Cross-city dedup requires listings from multiple cities in one store. The body shingle + image hash is computed locally on synced data.",
+      "example": "craigslist-pp-cli dupe-cluster --category apa --min-cluster-size 3 --json",
+      "why_it_matters": "Use before driving across town to view a rental — a cluster of 6+ cities for one apartment is almost always a scam.",
+      "group": "Local snapshot history"
+    },
+    {
+      "name": "Scam score",
+      "command": "scam-score",
+      "description": "Rule-based 0-100 score for a listing using brand-new-account, below-median-price, wire-transfer keywords, and cross-city duplicate signals.",
+      "rationale": "Requires the local listing store (median price), the body text from rapi, and the duplicate-cluster output. Mechanical rules; no LLM needed.",
+      "example": "craigslist-pp-cli scam-score 7915891289 --json",
+      "why_it_matters": "Agents triaging \"is this listing legit\" questions get an actionable number plus the per-rule contributions, instead of a vibes-based answer.",
+      "group": "Triage and scoring"
+    },
+    {
+      "name": "Median price across the local market",
+      "command": "median",
+      "description": "p25/p50/p75 of prices for a query, optionally over a time window or split by city.",
+      "rationale": "Pure SQL aggregation over the local listing + listing_snapshot tables. CL has no native aggregation endpoint.",
+      "example": "craigslist-pp-cli median 'iphone 15' --category mob --since 30d --by-city --json",
+      "why_it_matters": "When an agent needs a fair-price benchmark before suggesting an offer, or when a reseller is sizing up a market.",
+      "group": "Triage and scoring"
+    },
+    {
+      "name": "Negative-keyword smart search",
+      "command": "search --negate",
+      "description": "Search with NOT-keyword filtering that Craigslist's own search doesn't support natively.",
+      "rationale": "Calls sapi with the positive query, then applies SQLite FTS5 NOT filtering against the local body text. Works because the local store mirrors what was returned.",
+      "example": "craigslist-pp-cli search '1BR' --category apa --site sfbay --negate furnished,sublet,studio --json",
+      "why_it_matters": "Apartment-hunting and job-search personas live and die by exclusion terms; this is the difference between scanning 50 results and scanning 5.",
+      "group": "Search beyond CL"
+    },
+    {
+      "name": "One-shot what's new since",
+      "command": "since",
+      "description": "Ad-hoc \"what's new in this category in this city since X duration ago\" without setting up a saved search.",
+      "rationale": "Reads sitemap-by-date for the target days (the RSS replacement), fetches detail only for listings not already in the local store, and emits the diff.",
+      "example": "craigslist-pp-cli since 24h --site sfbay --category sss --query ipad --json",
+      "why_it_matters": "The first command an agent should run for \"what hit while I was sleeping\" — no per-watch setup, no state, just a window.",
+      "group": "Search beyond CL"
+    },
+    {
+      "name": "Reposts radar",
+      "command": "reposts",
+      "description": "Find listings that have been reposted N or more times in the last X days, by body fingerprint clustering.",
+      "rationale": "Body-hash clustering across listing_snapshot rows reveals reposts disguised as new listings. The local snapshot table is the only data source where this is computable.",
+      "example": "craigslist-pp-cli reposts 'eames lounge' --min-reposts 3 --window 30d --json",
+      "why_it_matters": "Reposts signal motivated sellers (negotiation leverage) or spam flooders (skip). Telling them apart is the value.",
+      "group": "Local snapshot history"
+    },
+    {
+      "name": "City-by-city heat map",
+      "command": "cities heat",
+      "description": "Across cities, count fresh listings per category over a window. Surfaces which markets are hot for what.",
+      "rationale": "Reads sitemap-by-date counts per (city, category) without fetching listing detail. Pure metadata aggregation.",
+      "example": "craigslist-pp-cli cities heat --category sss --since 24h --top 20 --json",
+      "why_it_matters": "When an agent is hunting cross-city for a specific item, knowing which 3 cities have the most fresh activity tells it where to look first.",
+      "group": "Local snapshot history"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Smart watch with diff types",
+      "command": "watch run",
+      "description": "Periodic poll for a saved search that emits NEW, PRICE-DROP, and SEED events instead of any-listing-I-haven't-seen — so true new listings stand out from edits and reposts. Cross-city repost detection lives in the separate `reposts` command; cross-city dup detection lives in `dupe-cluster`.",
+      "rationale": "Requires per-watch seen-listing history plus a snapshot table of price/title diffs over time. Native CL email alerts and CPlus push notifications can't distinguish edits or reposts from new posts.",
+      "example": "craigslist-pp-cli watch save apartments --query 1BR --negate furnished,sublet --sites sfbay --category apa --max-price 2500 \u0026\u0026 craigslist-pp-cli watch run apartments --seed-only \u0026\u0026 craigslist-pp-cli watch run apartments --json",
+      "why_it_matters": "Pick this over a generic search call when an agent is alerting a user — only true-new listings are worth pinging on, and the typed diff event tells the agent how to phrase the alert.",
+      "group": "Compounding watch surface"
+    },
+    {
+      "name": "Streaming watch tail",
+      "command": "watch tail",
+      "description": "Long-running tail that prints one JSON event per new diff result so an agent or shell pipeline can react in real time. Emits NEW and PRICE-DROP events.",
+      "rationale": "Without local snapshot history there is nothing to diff against; without a saved-search definition there is no scope to poll. Both come from the local store.",
+      "example": "craigslist-pp-cli watch tail apartments --interval 5m --json",
+      "why_it_matters": "When you want a continuous stream of new-listing events to pipe into a Slack/email sender, jq filter, or downstream agent loop.",
+      "group": "Compounding watch surface"
+    },
+    {
+      "name": "Price drift history",
+      "command": "drift",
+      "description": "Show the price timeline for a single listing across every snapshot we've captured.",
+      "rationale": "Requires the local listing_snapshot table that no other CL tool builds. Visualping and PageCrawl monetize this; this command makes it free.",
+      "example": "craigslist-pp-cli drift 7915891289 --json",
+      "why_it_matters": "Agents negotiating on behalf of a buyer can quote concrete price-drop history — \"this listing was $50, now $35, posted 14 days ago.\"",
+      "group": "Local snapshot history"
+    },
+    {
+      "name": "Cross-city duplicate clusters",
+      "command": "dupe-cluster",
+      "description": "Find listings whose body fingerprint and image hash match across cities. Surfaces cross-city scams and aggregator reposts.",
+      "rationale": "Cross-city dedup requires listings from multiple cities in one store. The body shingle + image hash is computed locally on synced data.",
+      "example": "craigslist-pp-cli dupe-cluster --category apa --min-cluster-size 3 --json",
+      "why_it_matters": "Use before driving across town to view a rental — a cluster of 6+ cities for one apartment is almost always a scam.",
+      "group": "Local snapshot history"
+    },
+    {
+      "name": "Scam score",
+      "command": "scam-score",
+      "description": "Rule-based 0-100 score for a listing using brand-new-account, below-median-price, wire-transfer keywords, and cross-city duplicate signals.",
+      "rationale": "Requires the local listing store (median price), the body text from rapi, and the duplicate-cluster output. Mechanical rules; no LLM needed.",
+      "example": "craigslist-pp-cli scam-score 7915891289 --json",
+      "why_it_matters": "Agents triaging \"is this listing legit\" questions get an actionable number plus the per-rule contributions, instead of a vibes-based answer.",
+      "group": "Triage and scoring"
+    },
+    {
+      "name": "Median price across the local market",
+      "command": "median",
+      "description": "p25/p50/p75 of prices for a query, optionally over a time window or split by city.",
+      "rationale": "Pure SQL aggregation over the local listing + listing_snapshot tables. CL has no native aggregation endpoint.",
+      "example": "craigslist-pp-cli median 'iphone 15' --category mob --since 30d --by-city --json",
+      "why_it_matters": "When an agent needs a fair-price benchmark before suggesting an offer, or when a reseller is sizing up a market.",
+      "group": "Triage and scoring"
+    },
+    {
+      "name": "Negative-keyword smart search",
+      "command": "search --negate",
+      "description": "Search with NOT-keyword filtering that Craigslist's own search doesn't support natively.",
+      "rationale": "Calls sapi with the positive query, then applies SQLite FTS5 NOT filtering against the local body text. Works because the local store mirrors what was returned.",
+      "example": "craigslist-pp-cli search '1BR' --category apa --site sfbay --negate furnished,sublet,studio --json",
+      "why_it_matters": "Apartment-hunting and job-search personas live and die by exclusion terms; this is the difference between scanning 50 results and scanning 5.",
+      "group": "Search beyond CL"
+    },
+    {
+      "name": "One-shot what's new since",
+      "command": "since",
+      "description": "Ad-hoc \"what's new in this category in this city since X duration ago\" without setting up a saved search.",
+      "rationale": "Reads sitemap-by-date for the target days (the RSS replacement), fetches detail only for listings not already in the local store, and emits the diff.",
+      "example": "craigslist-pp-cli since 24h --site sfbay --category sss --query ipad --json",
+      "why_it_matters": "The first command an agent should run for \"what hit while I was sleeping\" — no per-watch setup, no state, just a window.",
+      "group": "Search beyond CL"
+    },
+    {
+      "name": "Reposts radar",
+      "command": "reposts",
+      "description": "Find listings that have been reposted N or more times in the last X days, by body fingerprint clustering.",
+      "rationale": "Body-hash clustering across listing_snapshot rows reveals reposts disguised as new listings. The local snapshot table is the only data source where this is computable.",
+      "example": "craigslist-pp-cli reposts 'eames lounge' --min-reposts 3 --window 30d --json",
+      "why_it_matters": "Reposts signal motivated sellers (negotiation leverage) or spam flooders (skip). Telling them apart is the value.",
+      "group": "Local snapshot history"
+    },
+    {
+      "name": "City-by-city heat map",
+      "command": "cities heat",
+      "description": "Across cities, count fresh listings per category over a window. Surfaces which markets are hot for what.",
+      "rationale": "Reads sitemap-by-date counts per (city, category) without fetching listing detail. Pure metadata aggregation.",
+      "example": "craigslist-pp-cli cities heat --category sss --since 24h --top 20 --json",
+      "why_it_matters": "When an agent is hunting cross-city for a specific item, knowing which 3 cities have the most fresh activity tells it where to look first.",
+      "group": "Local snapshot history"
+    }
+  ],
+  "narrative": {
+    "display_name": "Craigslist",
+    "headline": "The local-first Craigslist watcher and triage tool that knows what's a repost, what's a scam, and what just dropped in price.",
+    "value_prop": "craigslist-pp-cli wraps Craigslist's own undocumented JSON endpoints (sapi, rapi, reference) — the same ones the Craigslist mobile app uses — and layers a local SQLite snapshot history on top. That powers cross-city search, saved-search alerts that distinguish true new listings from edits and reposts, price-drift detection, and cross-city duplicate / scam scoring. Free, scriptable, no PII selling, no proxies, no API key.",
+    "auth_narrative": "No authentication required. Craigslist's read endpoints (sapi.craigslist.org/web/v8, rapi.craigslist.org/web/v8, reference.craigslist.org) are public. The CLI sets a polite User-Agent and reuses the cl_b cookie Craigslist auto-issues. Posting and account management are intentionally out of scope for v1.",
+    "quickstart": [
+      {
+        "command": "craigslist-pp-cli catalog refresh",
+        "comment": "Pull the 178-category and 707-area reference taxonomy into the local store; refreshed at most every 30 days per Craigslist's own Cache-Control."
+      },
+      {
+        "command": "craigslist-pp-cli search 'ipad' --site sfbay --category sss --max-price 300",
+        "comment": "Single-city search with a price cap; default human table output."
+      },
+      {
+        "command": "craigslist-pp-cli search 'leica m6' --sites sfbay,nyc,seattle,losangeles,chicago --category pho --json",
+        "comment": "Cross-city hunt for a rare item — fans out parallel sapi calls, source-attributes results."
+      },
+      {
+        "command": "craigslist-pp-cli watch save apartments --query 1BR --negate furnished,sublet --sites sfbay --category apa --max-price 2500",
+        "comment": "Save a smart search with negative keywords Craigslist's own search doesn't support."
+      },
+      {
+        "command": "craigslist-pp-cli watch tail apartments --interval 5m --json",
+        "comment": "Stream new-listing events as JSON lines: [NEW] / [PRICE-DROP]."
+      },
+      {
+        "command": "craigslist-pp-cli scam-score 7915891289 --json",
+        "comment": "Rule-based scam triage on a listing — useful before driving to view a too-good rental."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 403 with body 'Your request has been blocked'",
+        "fix": "You hit Craigslist's anti-bot threshold. Wait 30 minutes, then resume with longer poll intervals (--interval 5m or higher). Avoid running parallel watches across more than 3-5 sites at once."
+      },
+      {
+        "symptom": "Search returns 0 items but the website shows results",
+        "fix": "Confirm the site abbreviation with `craigslist-pp-cli areas list --grep \u003cname\u003e`; sapi rejects requests against unknown hostnames silently. Hostname is the short slug (sfbay, nyc, losangeles), not the city name."
+      },
+      {
+        "symptom": "`watch run` keeps reporting the same listings as NEW",
+        "fix": "The local store is missing or got reset. Run `craigslist-pp-cli watch run \u003cname\u003e` once with `--seed-only` to populate the seen-listing baseline without alerting."
+      },
+      {
+        "symptom": "RSS feeds 403 — \"the URL has ?format=rss in it\"",
+        "fix": "Craigslist hard-blocks RSS as of 2024. The CLI uses sapi/rapi/sitemap-by-date instead — never call CL's RSS URL directly."
+      }
+    ],
+    "when_to_use": "Use craigslist-pp-cli when you need scriptable, local-first access to Craigslist listings — searching with filters Craigslist's own UI doesn't support (NOT-keyword), watching saved searches across multiple cities and getting alerted only on true new listings, doing price-drift or repost detection on housing, and triaging suspect rentals against cross-city duplicate signals. Best for read-heavy workflows: watching, exporting, comparing, scoring. Posting and account management are out of scope.",
+    "recipes": [
+      {
+        "title": "Hunt one item across the western US",
+        "command": "craigslist-pp-cli search 'eames lounge chair' --sites sfbay,losangeles,seattle,sandiego,sacramento,fresno,inlandempire,orangecounty --category fua --max-price 2500 --has-pic --json --select items.title,items.priceDisplay,items.site,items.canonicalUrl",
+        "explanation": "Fans out across 8 west-coast sites in parallel and narrows the JSON to the shape an agent or jq pipeline needs."
+      },
+      {
+        "title": "Watch for a 1BR that isn't furnished or a sublet",
+        "command": "craigslist-pp-cli watch save sf-1br --query '1BR' --sites sfbay --category apa --max-price 2800 --negate furnished,sublet,studio,airbnb \u0026\u0026 craigslist-pp-cli watch tail sf-1br --interval 5m --json",
+        "explanation": "Saved search uses negative keywords Craigslist itself doesn't support; tail emits a stream of [NEW] / [PRICE-DROP] events."
+      },
+      {
+        "title": "Triage a too-good listing",
+        "command": "craigslist-pp-cli scam-score 7915891289 --json \u0026\u0026 craigslist-pp-cli dupe-cluster --pid 7915891289 --json",
+        "explanation": "Score returns the per-rule contributions; dupe-cluster shows whether the same listing exists in other cities."
+      },
+      {
+        "title": "Quote a fair-price range",
+        "command": "craigslist-pp-cli median 'iphone 15' --category mob --since 30d --by-city --json",
+        "explanation": "p25/p50/p75 over the last 30 days, split by city, computed from the local listing_snapshot table."
+      },
+      {
+        "title": "What hit while I was asleep",
+        "command": "craigslist-pp-cli since 12h --site sfbay --category sss --query 'macbook pro' --json",
+        "explanation": "Reads sitemap-by-date for the target window, fetches detail only for listings not already in the local store, emits the diff."
+      }
+    ],
+    "trigger_phrases": [
+      "watch craigslist for",
+      "find new listings on craigslist",
+      "craigslist deal alert",
+      "scan craigslist across cities",
+      "craigslist repost",
+      "craigslist scam check",
+      "use craigslist-pp-cli",
+      "run craigslist-pp"
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+PASS go mod tidy
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS craigslist-pp-cli --help
+PASS craigslist-pp-cli version
+PASS craigslist-pp-cli doctor
+Generated craigslist at /Users/tmchow/printing-press/.runstate/hidden-brewing-turtle-68cd6401/runs/20260502-152300/working/craigslist-pp-cli
+Bundled /Users/tmchow/printing-press/.runstate/hidden-brewing-turtle-68cd6401/runs/20260502-152300/working/craigslist-pp-cli/build/craigslist-pp-mcp-darwin-arm64.mcpb

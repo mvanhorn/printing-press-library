@@ -1,0 +1,78 @@
+name: craigslist
+kind: synthetic
+description: "Craigslist watcher and triage tool that knows what's a repost, what's a scam, and what just dropped in price."
+cli_description: "Search, sync, and watch Craigslist with a local SQLite snapshot history, cross-city aggregation, scam scoring, and price-drift detection."
+version: "1.0.0"
+base_url: "https://sapi.craigslist.org/web/v8"
+website_url: "https://www.craigslist.org"
+category: "commerce"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/craigslist-pp-cli/config.toml"
+
+cache:
+  enabled: true
+
+mcp:
+  transport:
+    - stdio
+    - http
+  addr: ":7777"
+
+resources:
+  postings:
+    description: "Search Craigslist postings via the mobile-app sapi JSON endpoint"
+    endpoints:
+      search:
+        method: GET
+        path: "/postings/search/full"
+        description: "Search Craigslist postings for a query within a city and category"
+        params:
+          - name: query
+            type: string
+            description: "Search query string (matches title and body)"
+          - name: searchPath
+            type: string
+            description: "Category abbreviation (e.g. sss for all-for-sale, apa for apartments, sof for software jobs)"
+            default: "sss"
+          - name: cc
+            type: string
+            description: "Country code (US, CA, GB, AU, etc.)"
+            default: "US"
+          - name: lang
+            type: string
+            description: "Response language code"
+            default: "en"
+          - name: batch
+            type: string
+            description: "Pagination batch in the form <page>-0-360-0-0; use 1-0-360-0-0 for the first page"
+            default: "1-0-360-0-0"
+          - name: min_price
+            type: int
+            description: "Minimum price filter (integer dollars)"
+          - name: max_price
+            type: int
+            description: "Maximum price filter (integer dollars)"
+          - name: hasPic
+            type: int
+            description: "Set to 1 to require listings with a picture"
+          - name: postal
+            type: string
+            description: "ZIP / postal code to anchor distance filtering"
+          - name: search_distance
+            type: int
+            description: "Distance in miles from postal code"
+          - name: srchType
+            type: string
+            description: "Set to T to search titles only"
+          - name: sort
+            type: string
+            description: "Sort order: date, rel, priceasc, pricedsc"
+        response:
+          type: object
+          item: SearchResults
+        no_auth: true

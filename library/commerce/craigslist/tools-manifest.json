@@ -1,0 +1,94 @@
+{
+  "api_name": "craigslist",
+  "base_url": "https://sapi.craigslist.org/web/v8",
+  "description": "Craigslist watcher and triage tool that knows what's a repost, what's a scam, and what just dropped in price.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "postings_search",
+      "description": "Search Craigslist postings for a query within a city and category. Optional: query, searchPath (default: sss), cc (default: US) (plus 9 more). Returns the SearchResults.",
+      "method": "GET",
+      "path": "/postings/search/full",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query string (matches title and body)"
+        },
+        {
+          "name": "searchPath",
+          "type": "string",
+          "location": "query",
+          "description": "Category abbreviation (e.g. sss for all-for-sale, apa for apartments, sof for software jobs)"
+        },
+        {
+          "name": "cc",
+          "type": "string",
+          "location": "query",
+          "description": "Country code (US, CA, GB, AU, etc.)"
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Response language code"
+        },
+        {
+          "name": "batch",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination batch in the form \u003cpage\u003e-0-360-0-0; use 1-0-360-0-0 for the first page"
+        },
+        {
+          "name": "min_price",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum price filter (integer dollars)"
+        },
+        {
+          "name": "max_price",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum price filter (integer dollars)"
+        },
+        {
+          "name": "hasPic",
+          "type": "int",
+          "location": "query",
+          "description": "Set to 1 to require listings with a picture"
+        },
+        {
+          "name": "postal",
+          "type": "string",
+          "location": "query",
+          "description": "ZIP / postal code to anchor distance filtering"
+        },
+        {
+          "name": "search_distance",
+          "type": "int",
+          "location": "query",
+          "description": "Distance in miles from postal code"
+        },
+        {
+          "name": "srchType",
+          "type": "string",
+          "location": "query",
+          "description": "Set to T to search titles only"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order: date, rel, priceasc, pricedsc"
+        }
+      ]
+    }
+  ]
+}

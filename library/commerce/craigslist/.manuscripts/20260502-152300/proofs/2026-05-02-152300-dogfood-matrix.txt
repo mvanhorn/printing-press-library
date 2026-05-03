@@ -1,0 +1,37 @@
+# craigslist-pp-cli Phase 5 dogfood test matrix
+# Generated 2026-05-02T23:33:25Z
+
+## Leaves enumerated
+agent-context
+analytics
+api
+areas
+catalog
+categories
+cities
+cl-sync
+completion
+doctor
+drift
+dupe-cluster
+export
+favorite
+feedback
+filters
+geo
+help
+import
+listing
+median
+postings
+profile
+reposts
+scam-score
+search
+since
+sync
+tail
+version
+watch
+which
+workflow

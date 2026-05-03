@@ -1,0 +1,11 @@
+{
+  "run_id": "20260502-152300",
+  "sources": [
+    {
+      "source_name": "craigslist",
+      "decision": "skip-silent",
+      "reason": "research-found-clean-json-api: sapi.craigslist.org/web/v8 + rapi + reference.craigslist.org are live no-auth JSON endpoints; probe-reachability returned standard_http (confidence 0.95); no browser-sniff needed for endpoint discovery",
+      "asked_at": "2026-05-02T22:32:16Z"
+    }
+  ]
+}
