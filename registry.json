@@ -71,6 +71,7 @@
         "binary": "archive-is-pp-mcp",
         "transport": "stdio",
         "tool_count": 6,
+        "public_tool_count": 0,
         "auth_type": "none",
         "env_vars": [],
         "mcp_ready": "full"
@@ -86,6 +87,7 @@
         "binary": "cal-com-pp-mcp",
         "transport": "stdio",
         "tool_count": 285,
+        "public_tool_count": 0,
         "auth_type": "bearer_token",
         "env_vars": [
           "CAL_COM_TOKEN"
@@ -106,6 +108,7 @@
         "tool_count": 11,
         "public_tool_count": 11,
         "auth_type": "none",
+        "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "openapi3"
       }
@@ -123,7 +126,8 @@
         "public_tool_count": 0,
         "auth_type": "none",
         "env_vars": [],
-        "mcp_ready": "full"
+        "mcp_ready": "full",
+        "spec_format": "internal"
       }
     },
     {
@@ -135,11 +139,12 @@
       "mcp": {
         "binary": "contact-goat-pp-mcp",
         "transport": "stdio",
-        "tool_count": 12,
+        "tool_count": 16,
         "public_tool_count": 0,
         "auth_type": "composed",
         "env_vars": [
-          "DEEPLINE_API_KEY"
+          "DEEPLINE_API_KEY",
+          "HAPPENSTANCE_API_KEY"
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
@@ -174,6 +179,7 @@
         "tool_count": 5,
         "public_tool_count": 5,
         "auth_type": "none",
+        "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "openapi3"
       }
@@ -243,7 +249,9 @@
         "binary": "espn-pp-mcp",
         "transport": "stdio",
         "tool_count": 7,
+        "public_tool_count": 0,
         "auth_type": "none",
+        "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "internal"
       }
@@ -258,6 +266,7 @@
         "binary": "firecrawl-pp-mcp",
         "transport": "stdio",
         "tool_count": 20,
+        "public_tool_count": 0,
         "auth_type": "bearer_token",
         "env_vars": [
           "FIRECRAWL_BEARER_AUTH"
@@ -269,7 +278,7 @@
     {
       "name": "flightgoat",
       "category": "travel",
-      "api": "flightgoat",
+      "api": "Flight GOAT",
       "description": "Free Google Flights search, Kayak nonstop route explorer, and optional FlightAware live tracking in one CLI. No API key required for search.",
       "path": "library/travel/flightgoat",
       "mcp": {
@@ -329,6 +338,7 @@
         "binary": "hubspot-pp-mcp",
         "transport": "stdio",
         "tool_count": 62,
+        "public_tool_count": 0,
         "auth_type": "api_key",
         "env_vars": [
           "HUBSPOT_ACCESS_TOKEN"
@@ -430,6 +440,7 @@
         "tool_count": 2,
         "public_tool_count": 2,
         "auth_type": "none",
+        "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "openapi3"
       }
@@ -446,6 +457,7 @@
         "tool_count": 11,
         "public_tool_count": 11,
         "auth_type": "none",
+        "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "internal"
       }
@@ -532,6 +544,7 @@
         "tool_count": 4,
         "public_tool_count": 4,
         "auth_type": "none",
+        "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "openapi3"
       }
@@ -546,6 +559,7 @@
         "binary": "recipe-goat-pp-mcp",
         "transport": "stdio",
         "tool_count": 3,
+        "public_tool_count": 0,
         "auth_type": "api_key",
         "env_vars": [
           "USDA_FDC_API_KEY"
@@ -564,6 +578,7 @@
         "binary": "scrape-creators-pp-mcp",
         "transport": "stdio",
         "tool_count": 114,
+        "public_tool_count": 0,
         "auth_type": "api_key",
         "env_vars": [
           "SCRAPE_CREATORS_API_KEY_AUTH"
@@ -582,6 +597,7 @@
         "binary": "sentry-pp-mcp",
         "transport": "stdio",
         "tool_count": 219,
+        "public_tool_count": 0,
         "auth_type": "bearer_token",
         "env_vars": [
           "SENTRY_AUTH_TOKEN"
@@ -603,8 +619,6 @@
         "public_tool_count": 0,
         "auth_type": "api_key",
         "env_vars": [
-          "SHOPIFY_SHOP",
-          "SHOPIFY_API_VERSION",
           "SHOPIFY_ACCESS_TOKEN"
         ],
         "mcp_ready": "full",
@@ -621,6 +635,7 @@
         "binary": "slack-pp-mcp",
         "transport": "stdio",
         "tool_count": 66,
+        "public_tool_count": 0,
         "auth_type": "api_key",
         "env_vars": [
           "SLACK_BOT_TOKEN"
@@ -657,6 +672,7 @@
         "binary": "trigger-dev-pp-mcp",
         "transport": "stdio",
         "tool_count": 41,
+        "public_tool_count": 0,
         "auth_type": "api_key",
         "env_vars": [
           "TRIGGER_SECRET_KEY"
@@ -676,6 +692,7 @@
         "tool_count": 5,
         "public_tool_count": 5,
         "auth_type": "none",
+        "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "internal"
       }
@@ -692,6 +709,7 @@
         "tool_count": 5,
         "public_tool_count": 5,
         "auth_type": "none",
+        "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "openapi3"
       }

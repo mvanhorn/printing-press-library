@@ -114,20 +114,33 @@ Adding or updating a CLI should not require an npm publish after v0.1.0 lands. T
 
 While this repo remains private, live installer usage requires `GITHUB_TOKEN` or `GH_TOKEN` for registry and skill fetches plus working private Go module auth. Don't describe the npm install path as public-ready until the package is published and the repo visibility/token story is settled.
 
-## Keeping `cli-skills/` in sync
+## Generated artifacts: `registry.json`, `cli-skills/`, `skills/ppl/references/`
 
-`cli-skills/pp-<slug>/SKILL.md` is a **generated mirror** of `library/<category>/<slug>/SKILL.md`, produced by `tools/generate-skills/main.go`. Any PR that modifies a library SKILL.md or a library CLI's `internal/cli/**` source must also commit the regenerated direct-install skill output.
+Three files in this repo are **generated outputs**, regenerated post-merge by CI workflows that commit with `[skip ci]`. **Do not hand-edit them in PRs** — the next post-merge regen will overwrite your changes, and concurrent PRs that both touch a generated file produce gnarly merge conflicts.
+
+| File | Source of truth | Generator | Workflow trigger |
+|---|---|---|---|
+| `registry.json` | `library/**/.printing-press.json` + `manifest.json` + `.goreleaser.yaml` | `tools/generate-registry/main.go` | `library/**` or generator changes on main |
+| `skills/ppl/references/registry.json` | `registry.json` (mirror) | Same as above | Same as above |
+| `cli-skills/pp-<slug>/SKILL.md` | `library/<category>/<slug>/SKILL.md` | `tools/generate-skills/main.go` | `registry.json`, `library/**/.printing-press.json`, or generator changes on main |
 
 **When you change `library/**/SKILL.md` or `library/**/internal/cli/**`:**
 
-1. Run the generator locally:
-   ```bash
-   go run ./tools/generate-skills/main.go
-   ```
-2. Commit the regenerated `cli-skills/pp-*/SKILL.md` files and `skills/ppl/references/registry.json` alongside your library change.
-3. Bump `.claude-plugin/plugin.json` only when plugin-facing files change, such as `skills/ppl/**` or `.claude-plugin/**`. Per-CLI mirror churn under `cli-skills/` is intentionally outside the plugin manifest's `./skills/` discovery tree.
+The workflow's trigger paths don't include SKILL.md or `internal/cli/**`. Until those triggers expand, run the generator locally and commit the result alongside your library change:
 
-**Why the manual step exists:** `.github/workflows/generate-skills.yml` only triggers on changes to `registry.json`, `library/**/.printing-press.json`, or `tools/generate-skills/**`. It does not fire on SKILL.md or `internal/cli/**` changes. Expanding those triggers is worth a follow-up; until then, the manual run is the workaround.
+```bash
+go run ./tools/generate-skills/main.go
+```
+
+Then commit the regenerated `cli-skills/pp-*/SKILL.md` files alongside your library change. (Don't sync `skills/ppl/references/registry.json` yourself — that mirror is owned by `generate-registry.yml` post-merge.)
+
+**When you change `library/**/.printing-press.json`, `manifest.json`, or `.goreleaser.yaml`:**
+
+Don't touch `registry.json`. The post-merge regen handles it. Your PR's diff stays focused on the actual library change. After your PR merges, `generate-registry.yml` runs, regenerates `registry.json` + the mirror, and commits with `[skip ci]`. The regen-generated commit shows up on main within a minute or two.
+
+**When does this fail?** If the generator itself is broken (compile error, panic) or the source files have invalid JSON, the post-merge run will fail and `registry.json` will go stale. Watch for `generate-registry.yml` failures in the Actions tab after merging library/** changes.
+
+**Bump `.claude-plugin/plugin.json`** only when plugin-facing files change, such as `skills/ppl/**` or `.claude-plugin/**`. Per-CLI mirror churn under `cli-skills/` is intentionally outside the plugin manifest's `./skills/` discovery tree.
 
 ## Marketplace manifest
 

@@ -1,0 +1,67 @@
+name: Regenerate registry.json
+
+# Regenerates registry.json from each CLI's .printing-press.json + manifest.json
+# whenever a library/** change lands on main. Mirrors registry.json into
+# skills/ppl/references/registry.json (where the ppl skill reads it from)
+# and commits both with [skip ci].
+#
+# This is the same generated-artifact pattern this repo already uses for
+# cli-skills/ — PRs don't touch registry.json directly, the post-merge
+# regen does, eliminating the merge-conflict-hell that plagued hand-
+# maintained registry.json updates when multiple PRs landed in the same
+# window.
+#
+# Source of truth: tools/generate-registry/main.go. See its package doc
+# for the field derivation rules.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'library/**/.printing-press.json'
+      - 'library/**/manifest.json'
+      - 'library/**/.goreleaser.yaml'
+      - 'tools/generate-registry/**'
+      - '.github/workflows/generate-registry.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    name: Regenerate and commit
+    runs-on: ubuntu-latest
+    # Cancel an in-flight run when a newer commit lands. The newer
+    # source supersedes ours; finishing the older regen would just
+    # produce output we'd overwrite seconds later.
+    concurrency:
+      group: regenerate-registry
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # We need write access on the same branch we just pushed to.
+          # GITHUB_TOKEN's default ref is the merge commit; explicitly
+          # check out main so the push at the end targets it.
+          ref: main
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.26'
+      - name: Run generator
+        run: go run ./tools/generate-registry/main.go
+      - name: Commit if changed
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- registry.json skills/ppl/references/registry.json; then
+            echo "No registry.json changes; nothing to commit."
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add registry.json skills/ppl/references/registry.json
+          # [skip ci] suppresses the chained workflow run on the
+          # generated commit. Without it, the regen commit would
+          # re-trigger this workflow, producing a noop commit chain.
+          git commit -m "chore(registry): regenerate from library/ [skip ci]"
+          git push
