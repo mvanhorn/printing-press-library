@@ -1,0 +1,51 @@
+version: 2
+project_name: airbnb-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: airbnb-pp-cli
+    main: ./cmd/airbnb-pp-cli
+    binary: airbnb-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X airbnb-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: airbnb-pp-mcp
+    main: ./cmd/airbnb-pp-mcp
+    binary: airbnb-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: airbnb-pp-cli
+    repository:
+      owner: matt-van-horn
+      name: homebrew-tap
+    homepage: "https://github.com/matt-van-horn/airbnb-pp-cli"
+    description: "Skip the Airbnb/VRBO platform fee. Find the host's direct booking site for any listing."
+    install: |
+      bin.install "airbnb-pp-cli"
+      bin.install "airbnb-pp-mcp"
