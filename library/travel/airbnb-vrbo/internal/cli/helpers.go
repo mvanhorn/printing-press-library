@@ -347,8 +347,14 @@ func printJSONFiltered(w io.Writer, v any, flags *rootFlags) error {
 // filterFields keeps only the specified fields (comma-separated) from JSON objects/arrays.
 // Supports dotted paths like "events.shortName" to descend into nested structures.
 // Arrays are traversed element-wise: "events.shortName" keeps shortName on each event.
-func filterFields(data json.RawMessage, fields string) json.RawMessage {
+//
+// Returns the filtered data plus a list of input paths that matched nothing in
+// the response. Callers that hold a stderr writer should surface the unmatched
+// list as a warning so an agent passing --select with a typo (e.g.,
+// "results.fakekey") sees the miss instead of a silent empty-object array.
+func filterFields(data json.RawMessage, fields string) (json.RawMessage, []string) {
 	var paths [][]string
+	var pathsRaw []string
 	for _, f := range strings.Split(fields, ",") {
 		f = strings.TrimSpace(f)
 		if f == "" {
@@ -359,11 +365,53 @@ func filterFields(data json.RawMessage, fields string) json.RawMessage {
 			parts[i] = strings.ToLower(parts[i])
 		}
 		paths = append(paths, parts)
+		pathsRaw = append(pathsRaw, f)
 	}
 	if len(paths) == 0 {
-		return data
+		return data, nil
 	}
-	return filterFieldsRec(data, paths)
+	var unmatched []string
+	for i, p := range paths {
+		if !pathMatches(data, p) {
+			unmatched = append(unmatched, pathsRaw[i])
+		}
+	}
+	return filterFieldsRec(data, paths), unmatched
+}
+
+// pathMatches reports whether path resolves to at least one value in data.
+// Arrays are descended element-wise. Used to detect typo'd --select paths
+// before they become silent empty-object arrays in output.
+func pathMatches(data json.RawMessage, path []string) bool {
+	if len(path) == 0 {
+		return true
+	}
+	var arr []json.RawMessage
+	if err := json.Unmarshal(data, &arr); err == nil {
+		for _, el := range arr {
+			if pathMatches(el, path) {
+				return true
+			}
+		}
+		return false
+	}
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return false
+	}
+	head := path[0]
+	for k, v := range obj {
+		if matchSelectSegment(k, map[string]bool{head: true}, nil) != head {
+			continue
+		}
+		if len(path) == 1 {
+			return true
+		}
+		if pathMatches(v, path[1:]) {
+			return true
+		}
+	}
+	return false
 }
 
 // filterFieldsRec applies path filters to a JSON value. Each path is a list of
@@ -451,7 +499,11 @@ func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) e
 	// only --compact is set (e.g., --agent without --select), the allow-list
 	// still runs.
 	if flags.selectFields != "" {
-		data = filterFields(data, flags.selectFields)
+		filtered, unmatched := filterFields(data, flags.selectFields)
+		data = filtered
+		if len(unmatched) > 0 {
+			fmt.Fprintf(os.Stderr, "warning: --select path(s) matched no fields: %s\n", strings.Join(unmatched, ", "))
+		}
 	} else if flags.compact {
 		data = compactFields(data)
 	}
@@ -526,11 +578,25 @@ func compactObjectFields(obj map[string]any) json.RawMessage {
 	return result
 }
 
-// printCSV renders JSON arrays as CSV with header row.
+// printCSV renders JSON arrays as CSV with header row. When the input is a
+// paginated wrapper (e.g., {pagination: {...}, results: [...]}), the first
+// array-valued top-level key is unwrapped and rendered. Pre-fix, --csv on
+// these shapes silently returned the raw JSON instead of CSV.
 func printCSV(w io.Writer, data json.RawMessage) error {
 	var items []map[string]any
 	if err := json.Unmarshal(data, &items); err != nil || len(items) == 0 {
-		// Single object or empty - just print as JSON
+		var wrapper map[string]json.RawMessage
+		if err := json.Unmarshal(data, &wrapper); err == nil {
+			for _, k := range []string{"results", "items", "data", "rows", "candidates"} {
+				if raw, ok := wrapper[k]; ok {
+					if err := json.Unmarshal(raw, &items); err == nil && len(items) > 0 {
+						break
+					}
+				}
+			}
+		}
+	}
+	if len(items) == 0 {
 		fmt.Fprintln(w, string(data))
 		return nil
 	}
