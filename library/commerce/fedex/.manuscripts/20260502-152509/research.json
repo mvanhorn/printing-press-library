@@ -1,0 +1,419 @@
+{
+  "api_name": "fedex",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "python-fedex",
+      "url": "https://github.com/python-fedex-devs/python-fedex",
+      "language": "Python",
+      "install_method": "",
+      "stars": 155,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "happyreturns/fedex",
+      "url": "https://github.com/happyreturns/fedex",
+      "language": "Go",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "karrio (purplship)",
+      "url": "https://github.com/karrioapi/karrio",
+      "language": "Python",
+      "install_method": "",
+      "stars": 2000,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "markswendsen-code/mcp-fedex",
+      "url": "https://github.com/markswendsen-code/mcp-fedex",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "asrx/go-fedex-api-wrapper",
+      "url": "https://github.com/asrx/go-fedex-api-wrapper",
+      "language": "Go",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-02T18:35:00Z",
+  "novel_features": [
+    {
+      "name": "Rate Shop",
+      "command": "rate shop",
+      "description": "Quote rates across every applicable service type in parallel and rank by cost, transit days, or cost-per-day.",
+      "rationale": "Native rate-quote endpoint returns 200-field JSON for one service. Comparison across services is left to the caller. We parallelize, rank, and persist every quote to the local ledger so future commands can join against it.",
+      "example": "fedex rate shop --from 90210 --to 10001 --weight 5lb --json --select rates.serviceType,rates.totalNetCharge,rates.transitTime",
+      "why_it_matters": "When picking the cheapest viable service for a shipment, this collapses 6+ API calls into one ranked answer. The headline cost-saving command for SMB shippers.",
+      "group": "Save money, save time"
+    },
+    {
+      "name": "Bulk Ship from CSV",
+      "command": "ship bulk",
+      "description": "Create labels for a CSV of orders with adaptive rate limiting, per-row PASS/FAIL accounting, and resume-from-last-success.",
+      "rationale": "FedEx's per-IP throttle (1 req/s sustained for 2 min triggers a 10-min 403 ban) makes naive serial loops dangerous. cliutil.AdaptiveLimiter pairs with the local ledger so a partial run can resume.",
+      "example": "fedex ship bulk --csv orders.csv --service GROUND --output labels/ --resume",
+      "why_it_matters": "The 'I ship 30 packages a day' workflow. Replaces clicking through FedEx Ship Manager one label at a time.",
+      "group": "Save money, save time"
+    },
+    {
+      "name": "Address Book (saved recipients)",
+      "command": "address save",
+      "description": "Save frequently-used recipients to a local address book; reference them by name in ship commands.",
+      "rationale": "SMBs ship to the same recipients repeatedly. ShipStation, FedEx Ship Manager, and Shippo all have address books; we ship one as a local SQLite table.",
+      "example": "fedex address save acme --street '500 Main St' --city Denver --state CO --zip 80202 --country US",
+      "why_it_matters": "Ergonomic parity with paid SaaS competitors. Eliminates retyping addresses for repeat customers.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Doctor with FedEx-specific checks",
+      "command": "doctor",
+      "description": "Verifies OAuth auth, sandbox/prod routing, account-number format, label-format compatibility, and surfaces BAG (Bar Code Analysis Group) approval status.",
+      "rationale": "FedEx production label printing requires per-project BAG approval. Sandbox keys won't ship live labels. Doctor surfaces this before users hit it in production.",
+      "example": "fedex doctor",
+      "why_it_matters": "Avoids the most common 'why won't my labels print' failure mode for first-time users.",
+      "group": "Setup smoothness"
+    },
+    {
+      "name": "Track Diff",
+      "command": "track diff",
+      "description": "Show only the tracking events that have appeared since the last poll for each tracking number in the local store.",
+      "rationale": "FedEx's track endpoint returns the full event timeline every time. To know what's new, you must dedupe locally. We do that automatically.",
+      "example": "fedex track diff --since 1h --json",
+      "why_it_matters": "Replaces tracking-poll dedupe glue agents would otherwise write.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Track Watch (long-poll daemon)",
+      "command": "track watch",
+      "description": "Continuously poll a set of tracking numbers and emit new events to stdout, a webhook, or a file as they arrive. Polling alternative to FedEx push notifications.",
+      "rationale": "FedEx push notifications require a separately-provisioned webhook project (US accounts only); polling has no provisioning friction and works for any account.",
+      "example": "fedex track watch --tracking 794633071234 --interval 10m --webhook https://example.com/hook",
+      "why_it_matters": "Most SMBs don't have provisioned push webhooks. Polling daemon is the universal alternative.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Return Label one-shot",
+      "command": "return create",
+      "description": "Generate a Ground Call Tag (return label) against an existing tracking number with one command, optionally emailing it to the recipient.",
+      "rationale": "Native flow requires constructing a tag-create request from scratch. SMBs want '--tracking \u003corig\u003e' shorthand for the customer-service refund/exchange workflow.",
+      "example": "fedex return create --tracking 794633071234 --reason damaged --email customer@example.com",
+      "why_it_matters": "E-commerce customer-service workflow. Issuing a return label is the most common post-sale interaction.",
+      "group": "Save money, save time"
+    },
+    {
+      "name": "Address Validation Cache",
+      "command": "address validate",
+      "description": "SHA-256-keyed local cache prevents re-billing the FedEx Address Validation API for repeat lookups.",
+      "rationale": "Each AV call has a per-call cost; popular destinations get validated repeatedly. Local cache eliminates duplicate spend.",
+      "example": "fedex address validate --street '1600 Amphitheatre Pkwy' --city 'Mountain View' --state CA --zip 94043 --country US --cache",
+      "why_it_matters": "Direct cost savings — the only feature with a quantifiable per-call $ impact.",
+      "group": "Save money, save time"
+    },
+    {
+      "name": "Shipment Archive Search (FTS)",
+      "command": "archive",
+      "description": "SQLite FTS5 search across every shipment in the local archive — recipient name, address, reference, tracking number, service.",
+      "rationale": "The FedEx API has no list-shipments endpoint. The local archive IS the source of truth.",
+      "example": "fedex archive 'warehouse 47' --service GROUND --json",
+      "why_it_matters": "'Did we ship to ACME last week?' — a question SMBs ask constantly.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Spend Report",
+      "command": "spend report",
+      "description": "Sum of net charges per service type, lane, or account from the local rate-quote and shipment ledger.",
+      "rationale": "Month-end accounting view. Local ledger join produces this in milliseconds.",
+      "example": "fedex spend report --since 30d --by service --json",
+      "why_it_matters": "'How much did I spend on FedEx last month?' — the question every SMB owner asks.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Export shipping history",
+      "command": "export",
+      "description": "Dump shipments + charges + tracking events as CSV or JSON for QuickBooks/Xero reconciliation.",
+      "rationale": "SMB owners typically reconcile FedEx invoices against shipment history monthly. Native API doesn't have a list-shipments endpoint; the local archive does.",
+      "example": "fedex export --format csv --since 30d --output fedex-april.csv",
+      "why_it_matters": "Closes the loop on accounting reconciliation without manual data entry.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "End-of-Day Manifest Report",
+      "command": "manifest",
+      "description": "Generate a printable PDF/text summary of every shipment created today from the local archive, optionally invoking the Ground EOD close API.",
+      "rationale": "The archive has every shipment created today; combining it with the EOD-close call produces the daily manifest operators need for record-keeping.",
+      "example": "fedex manifest --date 2026-05-02 --close --output manifest.md",
+      "why_it_matters": "Closes the warehouse-day workflow loop in one command.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "SQL Composability",
+      "command": "sql",
+      "description": "Direct SQLite SELECT queries against shipments, rate_quotes, tracking_events, address_validations, addresses tables.",
+      "rationale": "Power users want analytical queries the CLI's commands don't pre-package.",
+      "example": "fedex sql \"select serviceType, count(*) as n, sum(net_charge) as spend from shipments where created_at \u003e date('now','-30 days') group by serviceType order by spend desc\"",
+      "why_it_matters": "Escape hatch for arbitrary analytics over the local ledger.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Multi-Account Profiles",
+      "command": "--account",
+      "description": "Named profiles in ~/.config/fedex/accounts.toml let SMBs switch between sandbox/prod, multiple LLCs, or cost centers per-command.",
+      "rationale": "Some SMBs juggle two FedEx accounts (e.g., one for retail, one for wholesale). Named profiles avoid env-var contortions.",
+      "example": "fedex --account retail rate shop --from 90210 --to 10001 --weight 3lb",
+      "why_it_matters": "Eliminates the env-var dance for multi-business operators.",
+      "group": "Setup smoothness"
+    },
+    {
+      "name": "ETD-Aware Ship",
+      "command": "ship etd",
+      "description": "Single-command Electronic Trade Documents shipping: uploads commercial invoice, captures docId, and stitches it into the shipment create call.",
+      "rationale": "Native flow is three separate calls (upload doc -\u003e get docId -\u003e create shipment with reference). One command beats three.",
+      "example": "fedex ship etd --invoice invoice.pdf --orig CN --dest US --recipient-name 'Acme' --weight 2kg --service FEDEX_INTERNATIONAL_PRIORITY",
+      "why_it_matters": "International shipments require ETD; this collapses an error-prone multi-step into one atomic action.",
+      "group": "Save money, save time"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Rate Shop",
+      "command": "rate shop",
+      "description": "Quote rates across every applicable service type in parallel and rank by cost, transit days, or cost-per-day.",
+      "rationale": "Native rate-quote endpoint returns 200-field JSON for one service. Comparison across services is left to the caller. We parallelize, rank, and persist every quote to the local ledger so future commands can join against it.",
+      "example": "fedex rate shop --from 90210 --to 10001 --weight 5lb --json --select rates.serviceType,rates.totalNetCharge,rates.transitTime",
+      "why_it_matters": "When picking the cheapest viable service for a shipment, this collapses 6+ API calls into one ranked answer. The headline cost-saving command for SMB shippers.",
+      "group": "Save money, save time"
+    },
+    {
+      "name": "Bulk Ship from CSV",
+      "command": "ship bulk",
+      "description": "Create labels for a CSV of orders with adaptive rate limiting, per-row PASS/FAIL accounting, and resume-from-last-success.",
+      "rationale": "FedEx's per-IP throttle (1 req/s sustained for 2 min triggers a 10-min 403 ban) makes naive serial loops dangerous. cliutil.AdaptiveLimiter pairs with the local ledger so a partial run can resume.",
+      "example": "fedex ship bulk --csv orders.csv --service GROUND --output labels/ --resume",
+      "why_it_matters": "The 'I ship 30 packages a day' workflow. Replaces clicking through FedEx Ship Manager one label at a time.",
+      "group": "Save money, save time"
+    },
+    {
+      "name": "Address Book (saved recipients)",
+      "command": "address save",
+      "description": "Save frequently-used recipients to a local address book; reference them by name in ship commands.",
+      "rationale": "SMBs ship to the same recipients repeatedly. ShipStation, FedEx Ship Manager, and Shippo all have address books; we ship one as a local SQLite table.",
+      "example": "fedex address save acme --street '500 Main St' --city Denver --state CO --zip 80202 --country US",
+      "why_it_matters": "Ergonomic parity with paid SaaS competitors. Eliminates retyping addresses for repeat customers.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Doctor with FedEx-specific checks",
+      "command": "doctor",
+      "description": "Verifies OAuth auth, sandbox/prod routing, account-number format, label-format compatibility, and surfaces BAG (Bar Code Analysis Group) approval status.",
+      "rationale": "FedEx production label printing requires per-project BAG approval. Sandbox keys won't ship live labels. Doctor surfaces this before users hit it in production.",
+      "example": "fedex doctor",
+      "why_it_matters": "Avoids the most common 'why won't my labels print' failure mode for first-time users.",
+      "group": "Setup smoothness"
+    },
+    {
+      "name": "Track Diff",
+      "command": "track diff",
+      "description": "Show only the tracking events that have appeared since the last poll for each tracking number in the local store.",
+      "rationale": "FedEx's track endpoint returns the full event timeline every time. To know what's new, you must dedupe locally. We do that automatically.",
+      "example": "fedex track diff --since 1h --json",
+      "why_it_matters": "Replaces tracking-poll dedupe glue agents would otherwise write.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Track Watch (long-poll daemon)",
+      "command": "track watch",
+      "description": "Continuously poll a set of tracking numbers and emit new events to stdout, a webhook, or a file as they arrive. Polling alternative to FedEx push notifications.",
+      "rationale": "FedEx push notifications require a separately-provisioned webhook project (US accounts only); polling has no provisioning friction and works for any account.",
+      "example": "fedex track watch --tracking 794633071234 --interval 10m --webhook https://example.com/hook",
+      "why_it_matters": "Most SMBs don't have provisioned push webhooks. Polling daemon is the universal alternative.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Return Label one-shot",
+      "command": "return create",
+      "description": "Generate a Ground Call Tag (return label) against an existing tracking number with one command, optionally emailing it to the recipient.",
+      "rationale": "Native flow requires constructing a tag-create request from scratch. SMBs want '--tracking \u003corig\u003e' shorthand for the customer-service refund/exchange workflow.",
+      "example": "fedex return create --tracking 794633071234 --reason damaged --email customer@example.com",
+      "why_it_matters": "E-commerce customer-service workflow. Issuing a return label is the most common post-sale interaction.",
+      "group": "Save money, save time"
+    },
+    {
+      "name": "Address Validation Cache",
+      "command": "address validate",
+      "description": "SHA-256-keyed local cache prevents re-billing the FedEx Address Validation API for repeat lookups.",
+      "rationale": "Each AV call has a per-call cost; popular destinations get validated repeatedly. Local cache eliminates duplicate spend.",
+      "example": "fedex address validate --street '1600 Amphitheatre Pkwy' --city 'Mountain View' --state CA --zip 94043 --country US --cache",
+      "why_it_matters": "Direct cost savings — the only feature with a quantifiable per-call $ impact.",
+      "group": "Save money, save time"
+    },
+    {
+      "name": "Shipment Archive Search (FTS)",
+      "command": "archive",
+      "description": "SQLite FTS5 search across every shipment in the local archive — recipient name, address, reference, tracking number, service.",
+      "rationale": "The FedEx API has no list-shipments endpoint. The local archive IS the source of truth.",
+      "example": "fedex archive 'warehouse 47' --service GROUND --json",
+      "why_it_matters": "'Did we ship to ACME last week?' — a question SMBs ask constantly.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Spend Report",
+      "command": "spend report",
+      "description": "Sum of net charges per service type, lane, or account from the local rate-quote and shipment ledger.",
+      "rationale": "Month-end accounting view. Local ledger join produces this in milliseconds.",
+      "example": "fedex spend report --since 30d --by service --json",
+      "why_it_matters": "'How much did I spend on FedEx last month?' — the question every SMB owner asks.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Export shipping history",
+      "command": "export",
+      "description": "Dump shipments + charges + tracking events as CSV or JSON for QuickBooks/Xero reconciliation.",
+      "rationale": "SMB owners typically reconcile FedEx invoices against shipment history monthly. Native API doesn't have a list-shipments endpoint; the local archive does.",
+      "example": "fedex export --format csv --since 30d --output fedex-april.csv",
+      "why_it_matters": "Closes the loop on accounting reconciliation without manual data entry.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "End-of-Day Manifest Report",
+      "command": "manifest",
+      "description": "Generate a printable PDF/text summary of every shipment created today from the local archive, optionally invoking the Ground EOD close API.",
+      "rationale": "The archive has every shipment created today; combining it with the EOD-close call produces the daily manifest operators need for record-keeping.",
+      "example": "fedex manifest --date 2026-05-02 --close --output manifest.md",
+      "why_it_matters": "Closes the warehouse-day workflow loop in one command.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "SQL Composability",
+      "command": "sql",
+      "description": "Direct SQLite SELECT queries against shipments, rate_quotes, tracking_events, address_validations, addresses tables.",
+      "rationale": "Power users want analytical queries the CLI's commands don't pre-package.",
+      "example": "fedex sql \"select serviceType, count(*) as n, sum(net_charge) as spend from shipments where created_at \u003e date('now','-30 days') group by serviceType order by spend desc\"",
+      "why_it_matters": "Escape hatch for arbitrary analytics over the local ledger.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "ETD-Aware Ship",
+      "command": "ship etd",
+      "description": "Single-command Electronic Trade Documents shipping: uploads commercial invoice, captures docId, and stitches it into the shipment create call.",
+      "rationale": "Native flow is three separate calls (upload doc -\u003e get docId -\u003e create shipment with reference). One command beats three.",
+      "example": "fedex ship etd --invoice invoice.pdf --orig CN --dest US --recipient-name 'Acme' --weight 2kg --service FEDEX_INTERNATIONAL_PRIORITY",
+      "why_it_matters": "International shipments require ETD; this collapses an error-prone multi-step into one atomic action.",
+      "group": "Save money, save time"
+    }
+  ],
+  "narrative": {
+    "display_name": "FedEx",
+    "headline": "REST-native FedEx CLI for small business shippers, with rate-shopping, bulk CSV labels, an address book, and a local SQLite ledger no other tool has.",
+    "value_prop": "FedEx retires its SOAP APIs on June 1, 2026 and every existing wrapper goes dark. fedex-pp-cli ships the full FedEx OAuth2 REST surface as a single static Go binary. For small-business shippers it adds the four things SaaS competitors charge for: rate-shopping across every service type, bulk-CSV label printing with adaptive rate limits, a local address book, and a SQLite ledger that powers spend reports, archive search, and accounting export.",
+    "auth_narrative": "FedEx uses OAuth2 client_credentials. Run `fedex auth login` once with your sandbox or production Client ID and Client Secret; the CLI mints a 1-hour bearer token, caches it on disk, and refreshes proactively before expiry. Production label printing requires per-project Bar Code Analysis Group (BAG) approval from FedEx — `fedex doctor` surfaces approval status before you hit it.",
+    "quickstart": [
+      {
+        "command": "fedex auth login --client-id $FEDEX_API_KEY --client-secret $FEDEX_SECRET_KEY --env sandbox",
+        "comment": "Mint a bearer token from FedEx OAuth2 client_credentials and cache it"
+      },
+      {
+        "command": "fedex doctor",
+        "comment": "Verify auth, sandbox/prod routing, and surface any BAG approval gaps before you hit them at ship-time"
+      },
+      {
+        "command": "fedex rate shop --from 90210 --to 10001 --weight 5lb --json --select rates.serviceType,rates.totalNetCharge",
+        "comment": "Compare every applicable service type ranked by cost — the most useful one-liner this CLI offers"
+      },
+      {
+        "command": "fedex address save acme --street '500 Main St' --city Denver --state CO --zip 80202 --country US",
+        "comment": "Save a recipient to the local address book so you do not retype it for every shipment"
+      },
+      {
+        "command": "fedex ship bulk --csv orders.csv --service GROUND --resume",
+        "comment": "Batch-create labels with adaptive rate limiting; resumable on partial failure"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 403 with no body, then no responses for 10 minutes",
+        "fix": "You hit the per-IP throttle (1 req/s sustained for 2 min). Use `fedex ship bulk --concurrency 1` or wait 10 minutes; cliutil.AdaptiveLimiter prevents this when used"
+      },
+      {
+        "symptom": "401 NOT.AUTHORIZED.ERROR on every call",
+        "fix": "Token expired or credentials wrong. Run `fedex auth login` again with valid Client ID + Client Secret"
+      },
+      {
+        "symptom": "PDF labels won't print on thermal printer",
+        "fix": "Pass --label-format ZPLII or EPL2 to ship create; thermal printers can't render PDF directly"
+      },
+      {
+        "symptom": "Production ship returns BAG-not-approved error",
+        "fix": "Production label printing requires per-project FedEx Bar Code Analysis Group approval. Run `fedex doctor` for status; submit your BAG application via the FedEx developer portal"
+      },
+      {
+        "symptom": "track diff returns nothing despite known new events",
+        "fix": "Run `fedex track number \u003cnum\u003e` first to seed the local store; diff compares against what's already cached"
+      }
+    ],
+    "when_to_use": "Use fedex-pp-cli when you run a small-to-medium shipping operation and want to programmatically interact with the FedEx REST API. Right fit for: e-commerce stores creating labels from order CSVs, customer-service teams generating return labels, ops teams tracking in-flight shipments, and SMB owners who want a local ledger of every shipment and rate quote for accounting. The local SQLite archive makes it the right tool for analytical queries over historical shipments. Choose this CLI over multi-carrier SaaS (ShipStation, Shippo) when you only need FedEx, want to own your data, and prefer terminal/agent automation over web UIs.",
+    "recipes": [
+      {
+        "title": "Rate-shop and select cheapest service",
+        "command": "fedex rate shop --from 90210 --to 10001 --weight 5lb --json --select rates.serviceType,rates.totalNetCharge,rates.transitTime",
+        "explanation": "Returns every applicable service type with cost and transit time so the agent (or human) picks the right balance."
+      },
+      {
+        "title": "Bulk ship with resume",
+        "command": "fedex ship bulk --csv orders.csv --service GROUND --output labels/ --resume --concurrency 2",
+        "explanation": "Creates labels for every row in orders.csv, respects the FedEx 1 req/s burst limit via cliutil.AdaptiveLimiter, and resumes from the last successful row if interrupted."
+      },
+      {
+        "title": "Save a recipient and ship to them",
+        "command": "fedex address save acme --street '500 Main St' --city Denver --state CO --zip 80202 --country US",
+        "explanation": "Address book lookup avoids retyping recipient details across every shipment."
+      },
+      {
+        "title": "Issue a return label",
+        "command": "fedex return create --tracking 794633071234 --reason damaged --json",
+        "explanation": "Generates a Ground Call Tag against the original tracking; PDF/ZPL label is emitted for the customer."
+      },
+      {
+        "title": "Monthly spend report by service",
+        "command": "fedex spend report --since 30d --by service --json --select service,total_net_charge,shipment_count",
+        "explanation": "Joins shipments + rate quotes from the local ledger; answers 'where did I spend money on FedEx this month'."
+      }
+    ],
+    "trigger_phrases": [
+      "ship a package via FedEx",
+      "rate-shop FedEx services",
+      "bulk-print FedEx labels from CSV",
+      "save a FedEx recipient",
+      "issue a FedEx return label",
+      "FedEx spend this month",
+      "track a FedEx shipment",
+      "use fedex-pp-cli",
+      "run fedex"
+    ]
+  }
+}

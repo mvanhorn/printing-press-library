@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-03T05:54:12.493865Z",
+  "printing_press_version": "3.6.0",
+  "api_name": "fedex",
+  "display_name": "FedEx",
+  "cli_name": "fedex-pp-cli",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:cc42c84fbfa7c3233e2261ae223d582be7a76800142317bb2395e1c5b9499cc8",
+  "run_id": "20260502-152509",
+  "description": "Ship, rate, and track FedEx packages from the terminal — built for small business shippers.",
+  "mcp_binary": "fedex-pp-mcp",
+  "mcp_tool_count": 48,
+  "mcp_ready": "full",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "FEDEX_API_KEY",
+    "FEDEX_SECRET_KEY"
+  ],
+  "auth_key_url": "https://developer.fedex.com/api/en-us/get-started.html",
+  "novel_features": [
+    {
+      "name": "Rate Shop",
+      "command": "rate shop",
+      "description": "Quote rates across every applicable service type in parallel and rank by cost, transit days, or cost-per-day."
+    },
+    {
+      "name": "Bulk Ship from CSV",
+      "command": "ship bulk",
+      "description": "Create labels for a CSV of orders with adaptive rate limiting, per-row PASS/FAIL accounting, and resume-from-last-success."
+    },
+    {
+      "name": "Address Book (saved recipients)",
+      "command": "address save",
+      "description": "Save frequently-used recipients to a local address book; reference them by name in ship commands."
+    },
+    {
+      "name": "Doctor with FedEx-specific checks",
+      "command": "doctor",
+      "description": "Verifies OAuth auth, sandbox/prod routing, account-number format, label-format compatibility, and surfaces BAG (Bar Code Analysis Group) approval status."
+    },
+    {
+      "name": "Track Diff",
+      "command": "track diff",
+      "description": "Show only the tracking events that have appeared since the last poll for each tracking number in the local store."
+    },
+    {
+      "name": "Track Watch (long-poll daemon)",
+      "command": "track watch",
+      "description": "Continuously poll a set of tracking numbers and emit new events to stdout, a webhook, or a file as they arrive. Polling alternative to FedEx push notifications."
+    },
+    {
+      "name": "Return Label one-shot",
+      "command": "return create",
+      "description": "Generate a Ground Call Tag (return label) against an existing tracking number with one command, optionally emailing it to the recipient."
+    },
+    {
+      "name": "Address Validation Cache",
+      "command": "address validate",
+      "description": "SHA-256-keyed local cache prevents re-billing the FedEx Address Validation API for repeat lookups."
+    },
+    {
+      "name": "Shipment Archive Search (FTS)",
+      "command": "archive",
+      "description": "SQLite FTS5 search across every shipment in the local archive — recipient name, address, reference, tracking number, service."
+    },
+    {
+      "name": "Spend Report",
+      "command": "spend report",
+      "description": "Sum of net charges per service type, lane, or account from the local rate-quote and shipment ledger."
+    },
+    {
+      "name": "Export shipping history",
+      "command": "export",
+      "description": "Dump shipments + charges + tracking events as CSV or JSON for QuickBooks/Xero reconciliation."
+    },
+    {
+      "name": "End-of-Day Manifest Report",
+      "command": "manifest",
+      "description": "Generate a printable PDF/text summary of every shipment created today from the local archive, optionally invoking the Ground EOD close API."
+    },
+    {
+      "name": "SQL Composability",
+      "command": "sql",
+      "description": "Direct SQLite SELECT queries against shipments, rate_quotes, tracking_events, address_validations, addresses tables."
+    },
+    {
+      "name": "ETD-Aware Ship",
+      "command": "ship etd",
+      "description": "Single-command Electronic Trade Documents shipping: uploads commercial invoice, captures docId, and stitches it into the shipment create call."
+    }
+  ]
+}

@@ -1,0 +1,1036 @@
+name: fedex
+display_name: FedEx
+description: REST-native CLI for the FedEx Developer API — Ship, Rate, Track, Address Validation, Pickup, Locations, and the rest of the FedEx OAuth2 surface.
+cli_description: Ship, rate, and track FedEx packages from the terminal — built for small business shippers.
+version: "0.1.0"
+spec_source: official
+website_url: "https://developer.fedex.com"
+category: commerce
+base_url: "https://apis-sandbox.fedex.com"
+
+auth:
+  type: bearer_token
+  header: Authorization
+  format: "Bearer {token}"
+  env_vars:
+    - FEDEX_API_KEY
+    - FEDEX_SECRET_KEY
+  key_url: "https://developer.fedex.com/api/en-us/get-started.html"
+  token_url: "https://apis-sandbox.fedex.com/oauth/token"
+
+config:
+  format: toml
+  path: "~/.config/fedex-pp-cli/config.toml"
+
+required_headers:
+  - name: X-locale
+    value: "en_US"
+
+cache:
+  enabled: false
+
+# Cloudflare-pattern MCP enrichment for a 70+ tool surface (48 typed endpoints
+# + ~22 cobratree-walked novel commands). Without this block the default
+# endpoint-mirror surface ships every endpoint as a separately-discoverable
+# tool, which costs ~5,000 catalog tokens per agent session and forces the
+# agent to disambiguate between 70 similar POST endpoints.
+#
+# With this block:
+#   - transport[stdio,http]: same binary serves remote Claude Desktop / hosted agents
+#   - endpoint_tools=hidden: the 48 raw endpoint tools no longer appear in the catalog
+#   - orchestration=code: emits fedex_search + fedex_execute so power users can
+#     still reach every endpoint by name through fedex_execute(endpoint=..., body=...)
+#
+# Intents are deliberately omitted: the 22 cobratree-walked novel commands
+# (rate_shop, ship_bulk, address_save, archive, spend_report, etc.) are
+# already hand-built intent compositions with the local-store joins and
+# multi-call logic that spec-level intents can't express. They surface
+# automatically through cobratree as the user-facing intent layer.
+mcp:
+  transport:
+    - stdio
+    - http
+  endpoint_tools: hidden
+  orchestration: code
+
+resources:
+  # ─────────── ADDRESS VALIDATION ───────────
+  addresses:
+    description: "Address validation"
+    endpoints:
+      validate:
+        method: POST
+        path: "/address/v1/addresses/resolve"
+        description: "Validate one or more addresses (resolved/standardized form, classification, optional resolved coordinates)"
+        body:
+          - name: addressesToValidate
+            type: array
+            required: true
+            description: "Array of addresses to validate (max 100). Each entry: {address: {streetLines:[], city, stateOrProvinceCode, postalCode, countryCode}}."
+          - name: inEffectAsOfTimestamp
+            type: string
+            description: "Optional ISO timestamp to validate as of a particular date"
+          - name: validateAddressControlParameters
+            type: object
+            description: "Optional control parameters (includeResolutionTokens, etc.)"
+        response:
+          type: object
+          item: AddressValidationReply
+
+  # ─────────── RATE ───────────
+  rates:
+    description: "Rate quotes for Express, Ground, Home, Ground Economy, and freight"
+    endpoints:
+      quote:
+        method: POST
+        path: "/rate/v1/rates/quotes"
+        description: "Quote rates for a shipment (Express/Ground/Home/Ground Economy)"
+        body:
+          - name: accountNumber
+            type: object
+            required: true
+            description: "Shipper account number: {value: '...'}"
+          - name: requestedShipment
+            type: object
+            required: true
+            description: "Shipment details — pickupType, serviceType, packagingType, shipper, recipient, requestedPackageLineItems, etc."
+          - name: rateRequestControlParameters
+            type: object
+            description: "Optional control parameters (returnTransitTime, servicesNeededOnRateFailure, variableOptions, etc.)"
+          - name: carrierCodes
+            type: array
+            description: "Optional carrier filter (FDXE, FDXG, FXSP, FXFR)"
+        response:
+          type: object
+          item: RateReply
+
+      quote_freight:
+        method: POST
+        path: "/rate/v1/freight/rates/quotes"
+        description: "Quote rates for freight (LTL) shipments"
+        body:
+          - name: accountNumber
+            type: object
+            required: true
+            description: "Freight account number"
+          - name: requestedShipment
+            type: object
+            required: true
+            description: "Freight shipment details"
+        response:
+          type: object
+          item: FreightRateReply
+
+  # ─────────── SHIP ───────────
+  shipments:
+    description: "Create, validate, cancel, and retrieve shipments"
+    endpoints:
+      create:
+        method: POST
+        path: "/ship/v1/shipments"
+        description: "Create a shipment and generate label(s)"
+        body:
+          - name: labelResponseOptions
+            type: string
+            description: "Label content disposition (URL_ONLY or LABEL)"
+          - name: requestedShipment
+            type: object
+            required: true
+            description: "Full shipment definition: shipper, recipients, requestedPackageLineItems, serviceType, packagingType, labelSpecification, etc."
+          - name: accountNumber
+            type: object
+            required: true
+            description: "Shipper account number"
+          - name: shipAction
+            type: string
+            description: "CONFIRM (default) or TRANSFER for one-rate scenarios"
+          - name: oneLabelAtATime
+            type: boolean
+            description: "Process one label at a time (default false)"
+        response:
+          type: object
+          item: CreateShipmentReply
+
+      validate:
+        method: POST
+        path: "/ship/v1/shipments/packages/validate"
+        description: "Validate a shipment package without creating a label (catches rejections before billing)"
+        body:
+          - name: requestedShipment
+            type: object
+            required: true
+          - name: accountNumber
+            type: object
+            required: true
+        response:
+          type: object
+          item: ValidateShipmentReply
+
+      results:
+        method: POST
+        path: "/ship/v1/shipments/results"
+        description: "Retrieve results of an asynchronous shipment job"
+        body:
+          - name: jobId
+            type: string
+            required: true
+            description: "Job ID returned from an async create"
+          - name: accountNumber
+            type: object
+            required: true
+        response:
+          type: object
+          item: ShipmentResultsReply
+
+      tag:
+        method: POST
+        path: "/ship/v1/shipments/tag"
+        description: "Create a Ground Call Tag (return label) for an existing shipment"
+        body:
+          - name: requestedShipment
+            type: object
+            required: true
+          - name: accountNumber
+            type: object
+            required: true
+        response:
+          type: object
+          item: TagReply
+
+      cancel:
+        method: PUT
+        path: "/ship/v1/shipments/cancel"
+        description: "Cancel a shipment by tracking number"
+        body:
+          - name: accountNumber
+            type: object
+            required: true
+          - name: emailShipment
+            type: boolean
+          - name: senderCountryCode
+            type: string
+            required: true
+          - name: deletionControl
+            type: string
+            description: "DELETE_ALL_PACKAGES (default) or DELETE_ONE_PACKAGE"
+          - name: trackingNumber
+            type: string
+            required: true
+        response:
+          type: object
+          item: CancelShipmentReply
+
+      tag_cancel:
+        method: PUT
+        path: "/ship/v1/shipments/tag/cancel"
+        description: "Cancel a Ground Call Tag"
+        body:
+          - name: accountNumber
+            type: object
+            required: true
+          - name: dispatchLocationId
+            type: string
+            required: true
+          - name: dispatchDate
+            type: string
+            required: true
+          - name: confirmationNumber
+            type: string
+            required: true
+          - name: remarks
+            type: string
+        response:
+          type: object
+          item: CancelTagReply
+
+  # ─────────── TRACK ───────────
+  track:
+    description: "Track shipments by tracking number, reference, TCN, or associated shipment; retrieve documents and configure notifications"
+    endpoints:
+      number:
+        method: POST
+        path: "/track/v1/trackingnumbers"
+        description: "Track up to 30 tracking numbers in one call (returns full event timeline per shipment)"
+        body:
+          - name: includeDetailedScans
+            type: boolean
+            description: "Include detailed scan history (default false)"
+          - name: trackingInfo
+            type: array
+            required: true
+            description: "Array of {trackingNumberInfo: {trackingNumber, carrierCode, trackingNumberUniqueId}}"
+        response:
+          type: object
+          item: TrackReply
+
+      reference:
+        method: POST
+        path: "/track/v1/referencenumbers"
+        description: "Track by reference number (PO/customer ref/RMA)"
+        body:
+          - name: includeDetailedScans
+            type: boolean
+          - name: trackingInfo
+            type: array
+            required: true
+            description: "Array of {referenceNumberInfo: {referenceNumber, accountNumber, ...}, shipDateBegin, shipDateEnd}"
+        response:
+          type: object
+          item: TrackReply
+
+      tcn:
+        method: POST
+        path: "/track/v1/tcn"
+        description: "Track by Transportation Control Number (military/government use)"
+        body:
+          - name: includeDetailedScans
+            type: boolean
+          - name: trackingInfo
+            type: array
+            required: true
+            description: "Array of {tcnInfo: {tcnNumber, ...}}"
+        response:
+          type: object
+          item: TrackReply
+
+      associated:
+        method: POST
+        path: "/track/v1/associatedshipments"
+        description: "Track shipments associated with a master tracking number (multi-piece)"
+        body:
+          - name: includeDetailedScans
+            type: boolean
+          - name: associatedType
+            type: string
+            description: "STANDARD_MPS or GROUP_MPS"
+          - name: masterTrackingNumberInfo
+            type: object
+            required: true
+            description: "Master tracking number info"
+          - name: pagingDetails
+            type: object
+            description: "{resultsPerPage, pagingToken}"
+        response:
+          type: object
+          item: AssociatedTrackReply
+
+      documents:
+        method: POST
+        path: "/track/v1/trackingdocuments"
+        description: "Retrieve tracking documents (signature proof of delivery, etc.)"
+        body:
+          - name: trackDocumentDetail
+            type: object
+            required: true
+            description: "Document type (SIGNATURE_PROOF_OF_DELIVERY, etc.)"
+          - name: trackDocumentSpecification
+            type: array
+            required: true
+        response:
+          type: object
+          item: TrackDocumentsReply
+
+      notifications:
+        method: POST
+        path: "/track/v1/notifications"
+        description: "Configure tracking notifications (email/SMS) for a shipment"
+        body:
+          - name: trackingNumbers
+            type: array
+            required: true
+          - name: senderEMailAddress
+            type: string
+          - name: senderContactName
+            type: string
+          - name: trackingEventNotificationDetail
+            type: object
+            description: "Notification details — recipients, language, events"
+        response:
+          type: object
+          item: NotificationsReply
+
+  # ─────────── PICKUP (Express/Ground) ───────────
+  pickups:
+    description: "Schedule, check availability, and cancel Express/Ground pickups"
+    endpoints:
+      create:
+        method: POST
+        path: "/pickup/v1/pickups"
+        description: "Schedule an Express or Ground pickup at a specified address"
+        body:
+          - name: associatedAccountNumber
+            type: object
+            required: true
+          - name: originDetail
+            type: object
+            required: true
+            description: "{pickupAddressType, pickupLocation, packageLocation, buildingPartCode, buildingPart, readyDateTimestamp, customerCloseTime, geographicalPostalCode}"
+          - name: totalWeight
+            type: object
+            required: true
+          - name: packageCount
+            type: integer
+            required: true
+          - name: carrierCode
+            type: string
+            required: true
+            description: "FDXE (Express) or FDXG (Ground)"
+          - name: remarks
+            type: string
+          - name: countryRelationships
+            type: string
+        response:
+          type: object
+          item: CreatePickupReply
+
+      availability:
+        method: POST
+        path: "/pickup/v1/pickups/availabilities"
+        description: "Check whether pickup is available for a postal code on a date"
+        body:
+          - name: pickupAddress
+            type: object
+            required: true
+          - name: dispatchDate
+            type: string
+          - name: packageReadyTime
+            type: string
+          - name: customerCloseTime
+            type: string
+          - name: pickupRequestType
+            type: array
+            description: "Array of FUTURE_DAY, SAME_DAY"
+          - name: shipmentAttributes
+            type: object
+          - name: numberOfBusinessDays
+            type: integer
+          - name: packageDetails
+            type: array
+          - name: associatedAccountNumber
+            type: object
+          - name: carriers
+            type: array
+            description: "Array of FDXE, FDXG, FXSP"
+        response:
+          type: object
+          item: PickupAvailabilityReply
+
+      cancel:
+        method: PUT
+        path: "/pickup/v1/pickups/cancel"
+        description: "Cancel a previously-scheduled Express/Ground pickup"
+        body:
+          - name: associatedAccountNumber
+            type: object
+            required: true
+          - name: pickupConfirmationCode
+            type: string
+            required: true
+          - name: remarks
+            type: string
+          - name: carrierCode
+            type: string
+            required: true
+          - name: scheduledDate
+            type: string
+            required: true
+          - name: location
+            type: string
+        response:
+          type: object
+          item: CancelPickupReply
+
+  # ─────────── PICKUP (Freight) ───────────
+  freight_pickups:
+    description: "Schedule, check, and cancel freight (LTL) pickups"
+    endpoints:
+      create:
+        method: POST
+        path: "/pickup/v1/freight/pickups"
+        description: "Schedule a freight (LTL) pickup"
+        body:
+          - name: associatedAccountNumber
+            type: object
+            required: true
+          - name: originDetail
+            type: object
+            required: true
+          - name: freightPickupDetail
+            type: object
+            required: true
+          - name: totalWeight
+            type: object
+        response:
+          type: object
+          item: CreateFreightPickupReply
+
+      availability:
+        method: POST
+        path: "/pickup/v1/freight/pickups/availabilities"
+        description: "Check freight pickup availability"
+        body:
+          - name: pickupAddress
+            type: object
+            required: true
+          - name: dispatchDate
+            type: string
+          - name: packageReadyTime
+            type: string
+          - name: associatedAccountNumber
+            type: object
+          - name: carriers
+            type: array
+        response:
+          type: object
+          item: FreightPickupAvailabilityReply
+
+      cancel:
+        method: PUT
+        path: "/pickup/v1/freight/pickups/cancel"
+        description: "Cancel a freight pickup"
+        body:
+          - name: associatedAccountNumber
+            type: object
+            required: true
+          - name: pickupConfirmationCode
+            type: string
+            required: true
+          - name: scheduledDate
+            type: string
+            required: true
+          - name: carrierCode
+            type: string
+            required: true
+        response:
+          type: object
+          item: CancelFreightPickupReply
+
+  # ─────────── LOCATIONS ───────────
+  locations:
+    description: "Find FedEx Office, dropoff, and pickup locations"
+    endpoints:
+      find:
+        method: POST
+        path: "/location/v1/locations"
+        description: "Find FedEx locations near an address or postal code"
+        body:
+          - name: locationsSummaryRequestedAddress
+            type: object
+            description: "Search by address"
+          - name: locationsSummaryGeographicCoordinates
+            type: object
+            description: "Search by lat/long"
+          - name: searchPageDetails
+            type: object
+            description: "{resultsPerPage, pageNumber}"
+          - name: locationAttributesToReturn
+            type: array
+            description: "Array of attribute filters (PACKAGE_PICKUP, COPY_AND_PRINT, NOTARY_SERVICES, etc.)"
+          - name: distance
+            type: object
+            description: "{value, units (KM/MI)}"
+          - name: sortDetail
+            type: object
+        response:
+          type: object
+          item: LocationsReply
+
+  # ─────────── POSTAL CODE VALIDATION ───────────
+  postal:
+    description: "Postal code validation and country servicing"
+    endpoints:
+      validate:
+        method: POST
+        path: "/country/v1/postal/validate"
+        description: "Validate that FedEx services a postal code in a country"
+        body:
+          - name: carrierCode
+            type: string
+            required: true
+            description: "FDXE, FDXG, FXSP"
+          - name: countryCode
+            type: string
+            required: true
+          - name: postalCode
+            type: string
+            required: true
+          - name: stateOrProvinceCode
+            type: string
+          - name: shipDate
+            type: string
+        response:
+          type: object
+          item: PostalValidateReply
+
+  # ─────────── SERVICE AVAILABILITY ───────────
+  availability:
+    description: "Service availability, special-service options, and transit times"
+    endpoints:
+      services:
+        method: POST
+        path: "/availability/v1/packageandserviceoptions"
+        description: "Get available services for an origin/destination pair"
+        body:
+          - name: requestedShipment
+            type: object
+            required: true
+          - name: rateRequestControlParameters
+            type: object
+        response:
+          type: object
+          item: ServicesReply
+
+      special_services:
+        method: POST
+        path: "/availability/v1/specialserviceoptions"
+        description: "Get available special-service options (alcohol, dangerous goods, signature requirements, etc.)"
+        body:
+          - name: requestedShipment
+            type: object
+            required: true
+        response:
+          type: object
+          item: SpecialServicesReply
+
+      transit_times:
+        method: POST
+        path: "/availability/v1/transittimes"
+        description: "Get transit times for an origin/destination pair across services"
+        body:
+          - name: requestedShipment
+            type: object
+            required: true
+        response:
+          type: object
+          item: TransitTimesReply
+
+  # ─────────── GLOBAL TRADE ───────────
+  globaltrade:
+    description: "Global trade regulatory details (HS codes, restrictions)"
+    endpoints:
+      regulatory:
+        method: POST
+        path: "/globaltrade/v1/shipments/regulatorydetails/retrieve"
+        description: "Get regulatory details (HS codes, harmonized system, country restrictions)"
+        body:
+          - name: requestedShipment
+            type: object
+            required: true
+          - name: regulatoryControlParameter
+            type: object
+        response:
+          type: object
+          item: RegulatoryReply
+
+  # ─────────── END-OF-DAY CLOSE ───────────
+  endofday:
+    description: "Submit and modify Ground end-of-day close (daily manifest)"
+    endpoints:
+      close:
+        method: POST
+        path: "/ship/v1/endofday/"
+        description: "Submit Ground end-of-day close (manifest packages shipped today)"
+        body:
+          - name: accountNumber
+            type: object
+            required: true
+          - name: closeDate
+            type: string
+            description: "Defaults to today"
+        response:
+          type: object
+          item: EndOfDayReply
+
+      modify:
+        method: PUT
+        path: "/ship/v1/endofday/"
+        description: "Re-submit or modify a previous end-of-day close"
+        body:
+          - name: accountNumber
+            type: object
+            required: true
+          - name: closeDate
+            type: string
+            required: true
+        response:
+          type: object
+          item: EndOfDayReply
+
+  # ─────────── OPEN SHIP (multi-piece progressive build) ───────────
+  openship:
+    description: "Build multi-piece shipments progressively before confirming (advanced; not needed for typical SMB workflows)"
+    endpoints:
+      create:
+        method: POST
+        path: "/ship/v1/openshipments"
+        description: "Create an open (uncommitted) multi-piece shipment"
+        body:
+          - name: requestedShipment
+            type: object
+            required: true
+          - name: accountNumber
+            type: object
+            required: true
+          - name: openShipmentAction
+            type: string
+            description: "CREATE_PACKAGE or CONFIRM"
+          - name: index
+            type: string
+        response:
+          type: object
+          item: OpenShipReply
+
+      add_package:
+        method: POST
+        path: "/ship/v1/openshipments/packages"
+        description: "Add a package to an open shipment"
+        body:
+          - name: requestedShipment
+            type: object
+            required: true
+          - name: accountNumber
+            type: object
+            required: true
+          - name: index
+            type: string
+            required: true
+        response:
+          type: object
+          item: OpenShipReply
+
+      retrieve:
+        method: POST
+        path: "/ship/v1/openshipments/retrieve"
+        description: "Retrieve an open shipment by index"
+        body:
+          - name: accountNumber
+            type: object
+            required: true
+          - name: index
+            type: string
+            required: true
+        response:
+          type: object
+          item: OpenShipReply
+
+      retrieve_package:
+        method: POST
+        path: "/ship/v1/openshipments/packages/retrieve"
+        description: "Retrieve a specific package from an open shipment"
+        body:
+          - name: accountNumber
+            type: object
+            required: true
+          - name: index
+            type: string
+            required: true
+          - name: packageIndex
+            type: integer
+            required: true
+        response:
+          type: object
+          item: OpenShipReply
+
+      results:
+        method: POST
+        path: "/ship/v1/openshipments/results"
+        description: "Get results of a confirmed open shipment"
+        body:
+          - name: jobId
+            type: string
+            required: true
+          - name: accountNumber
+            type: object
+            required: true
+        response:
+          type: object
+          item: OpenShipResultsReply
+
+      modify:
+        method: PUT
+        path: "/ship/v1/openshipments"
+        description: "Modify an open shipment"
+        body:
+          - name: accountNumber
+            type: object
+            required: true
+          - name: index
+            type: string
+            required: true
+          - name: requestedShipment
+            type: object
+            required: true
+        response:
+          type: object
+          item: OpenShipReply
+
+      modify_package:
+        method: PUT
+        path: "/ship/v1/openshipments/packages"
+        description: "Modify a package in an open shipment"
+        body:
+          - name: accountNumber
+            type: object
+            required: true
+          - name: index
+            type: string
+            required: true
+          - name: packageIndex
+            type: integer
+            required: true
+        response:
+          type: object
+          item: OpenShipReply
+
+      delete:
+        method: PUT
+        path: "/ship/v1/openshipments/delete"
+        description: "Delete an open shipment"
+        body:
+          - name: accountNumber
+            type: object
+            required: true
+          - name: index
+            type: string
+            required: true
+        response:
+          type: object
+          item: DeleteOpenShipReply
+
+      delete_package:
+        method: PUT
+        path: "/ship/v1/openshipments/packages/delete"
+        description: "Delete a package from an open shipment"
+        body:
+          - name: accountNumber
+            type: object
+            required: true
+          - name: index
+            type: string
+            required: true
+          - name: packageIndex
+            type: integer
+            required: true
+        response:
+          type: object
+          item: DeleteOpenShipReply
+
+  # ─────────── CONSOLIDATION ───────────
+  consolidations:
+    description: "Consolidate multiple shipments into one fulfillment (advanced; for high-volume 3PLs)"
+    endpoints:
+      create:
+        method: POST
+        path: "/ship/v1/consolidations"
+        description: "Create a consolidation"
+        body:
+          - name: accountNumber
+            type: object
+            required: true
+          - name: consolidationKey
+            type: object
+          - name: consolidationDetail
+            type: object
+            required: true
+        response:
+          type: object
+          item: ConsolidationReply
+
+      add_shipment:
+        method: POST
+        path: "/ship/v1/consolidations/shipments"
+        description: "Add shipments to a consolidation"
+        body:
+          - name: accountNumber
+            type: object
+            required: true
+          - name: consolidationKey
+            type: object
+            required: true
+          - name: shipmentDetail
+            type: object
+            required: true
+        response:
+          type: object
+          item: ConsolidationReply
+
+      confirm:
+        method: POST
+        path: "/ship/v1/consolidations/confirmations"
+        description: "Confirm a consolidation (locks rates and triggers shipping)"
+        body:
+          - name: accountNumber
+            type: object
+            required: true
+          - name: consolidationKey
+            type: object
+            required: true
+        response:
+          type: object
+          item: ConsolidationConfirmReply
+
+      confirm_results:
+        method: POST
+        path: "/ship/v1/consolidations/confirmationresults"
+        description: "Get results of a consolidation confirmation"
+        body:
+          - name: jobId
+            type: string
+            required: true
+          - name: accountNumber
+            type: object
+            required: true
+        response:
+          type: object
+          item: ConsolidationResultsReply
+
+      results:
+        method: POST
+        path: "/ship/v1/consolidations/results"
+        description: "Get consolidation results"
+        body:
+          - name: jobId
+            type: string
+            required: true
+          - name: accountNumber
+            type: object
+            required: true
+        response:
+          type: object
+          item: ConsolidationResultsReply
+
+      retrieve:
+        method: POST
+        path: "/ship/v1/consolidations/retrieve"
+        description: "Retrieve a consolidation"
+        body:
+          - name: accountNumber
+            type: object
+            required: true
+          - name: consolidationKey
+            type: object
+            required: true
+        response:
+          type: object
+          item: ConsolidationReply
+
+      modify:
+        method: PUT
+        path: "/ship/v1/consolidations"
+        description: "Modify a consolidation"
+        body:
+          - name: accountNumber
+            type: object
+            required: true
+          - name: consolidationKey
+            type: object
+            required: true
+          - name: consolidationDetail
+            type: object
+            required: true
+        response:
+          type: object
+          item: ConsolidationReply
+
+      delete:
+        method: PUT
+        path: "/ship/v1/consolidations/delete"
+        description: "Delete a consolidation"
+        body:
+          - name: accountNumber
+            type: object
+            required: true
+          - name: consolidationKey
+            type: object
+            required: true
+        response:
+          type: object
+          item: DeleteConsolidationReply
+
+      delete_shipment:
+        method: PUT
+        path: "/ship/v1/consolidations/shipments/delete"
+        description: "Remove a shipment from a consolidation"
+        body:
+          - name: accountNumber
+            type: object
+            required: true
+          - name: consolidationKey
+            type: object
+            required: true
+          - name: shipmentKey
+            type: object
+            required: true
+        response:
+          type: object
+          item: DeleteConsolidationReply
+
+  # ─────────── FREIGHT LTL SHIP ───────────
+  freight_shipments:
+    description: "Create freight (LTL) shipments (for industrial shippers)"
+    endpoints:
+      create:
+        method: POST
+        path: "/ship/v1/freight/shipments"
+        description: "Create a freight (LTL) shipment"
+        body:
+          - name: requestedShipment
+            type: object
+            required: true
+          - name: accountNumber
+            type: object
+            required: true
+          - name: labelResponseOptions
+            type: string
+        response:
+          type: object
+          item: CreateFreightShipmentReply
+
+extra_commands:
+  - name: auth login
+    args: "[--client-id <id>] [--client-secret <secret>] [--env sandbox|prod]"
+    description: "Mint an OAuth2 bearer token via client_credentials and cache it on disk"
+  - name: auth logout
+    description: "Clear the cached bearer token"
+  - name: auth status
+    description: "Show the cached token's expiry and which env vars were detected"
+  - name: rate shop
+    args: "--from <zip> --to <zip> --weight <n>[lb|kg]"
+    description: "Quote rates across every applicable service type in parallel and rank by cost or transit"
+  - name: ship bulk
+    args: "--csv <path> --service <type> [--output <dir>] [--resume] [--concurrency N]"
+    description: "Create labels for a CSV of orders with adaptive rate limiting and resumable on partial failure"
+  - name: ship etd
+    args: "--invoice <pdf> --orig <country> --dest <country> ..."
+    description: "Single-command Electronic Trade Documents shipping (upload + reference + ship in one call)"
+  - name: address save
+    args: "--name <name> --street <s> --city <c> --state <s> --zip <z> --country <c>"
+    description: "Save a recipient to the local address book"
+  - name: address list
+    description: "List saved recipients in the local address book"
+  - name: address delete
+    args: "--name <name>"
+    description: "Delete a saved recipient from the local address book"
+  - name: track diff
+    args: "[--since <duration>] [--tracking <num>...]"
+    description: "Show only tracking events that have appeared since the last poll"
+  - name: track watch
+    args: "--tracking <num> [--interval <duration>] [--webhook <url>]"
+    description: "Long-poll daemon: continuously poll tracking and emit new events"
+  - name: return create
+    args: "--tracking <orig-tracking> [--reason <reason>] [--email <addr>]"
+    description: "Generate a return label (Ground Call Tag) for an existing shipment"
+  - name: spend report
+    args: "[--since <duration>] [--by service|account|lane]"
+    description: "Sum net charges per service type from the local shipment ledger"
+  - name: archive
+    args: "<query>"
+    description: "FTS5 search across shipments in the local archive"
+  - name: export
+    args: "[--format csv|json] [--since <duration>] [--output <file>]"
+    description: "Export shipment history for accounting reconciliation"
+  - name: manifest
+    args: "[--date YYYY-MM-DD] [--close] [--pdf <file>]"
+    description: "Generate end-of-day manifest report from local archive; optionally fire Ground EOD close"
+  - name: doctor
+    description: "Verify auth, sandbox/prod routing, account-number format, label-format compatibility, BAG approval status"

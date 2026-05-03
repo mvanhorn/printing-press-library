@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-03T03:00:36.908631Z",
+  "cli_dir": "/Users/tmchow/printing-press/.runstate/happy-foraging-frost-cd11564f/runs/20260502-152509/working/fedex-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-03T02:57:12.044042Z"
+  }
+}

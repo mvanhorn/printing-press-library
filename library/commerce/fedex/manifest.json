@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "fedex-pp-mcp",
+  "display_name": "FedEx",
+  "version": "3.6.0",
+  "description": "Ship, rate, and track FedEx packages from the terminal — built for small business shippers.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/fedex-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/fedex-pp-mcp",
+      "args": [],
+      "env": {
+        "FEDEX_API_KEY": "${user_config.fedex_api_key}",
+        "FEDEX_SECRET_KEY": "${user_config.fedex_secret_key}"
+      }
+    }
+  },
+  "user_config": {
+    "fedex_api_key": {
+      "type": "string",
+      "title": "FEDEX_API_KEY",
+      "description": "Sets FEDEX_API_KEY for the FedEx MCP server. Get a credential from https://developer.fedex.com/api/en-us/get-started.html.",
+      "sensitive": true,
+      "required": true
+    },
+    "fedex_secret_key": {
+      "type": "string",
+      "title": "FEDEX_SECRET_KEY",
+      "description": "Sets FEDEX_SECRET_KEY for the FedEx MCP server. Get a credential from https://developer.fedex.com/api/en-us/get-started.html.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,1824 @@
+{
+  "tools": [
+    {
+      "name": "address_delete",
+      "description": "Delete an address book entry by name",
+      "parameters": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "args": {
+            "description": "Additional positional arguments or raw CLI flags to append to the command.",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'fedex-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "address_list",
+      "description": "List saved address book entries",
+      "parameters": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'fedex-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "address_save",
+      "description": "Save a recipient to the local address book",
+      "parameters": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "args": {
+            "description": "Additional positional arguments or raw CLI flags to append to the command.",
+            "type": "string"
+          },
+          "city": {
+            "description": "City",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "company": {
+            "description": "Recipient company",
+            "type": "string"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "contact-name": {
+            "description": "Recipient contact name",
+            "type": "string"
+          },
+          "country": {
+            "description": "ISO country code (default: US)",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "email": {
+            "description": "Recipient email",
+            "type": "string"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "notes": {
+            "description": "Free-form notes",
+            "type": "string"
+          },
+          "phone": {
+            "description": "Recipient phone",
+            "type": "string"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'fedex-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "residential": {
+            "description": "Mark as residential address (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "state": {
+            "description": "State or province code",
+            "type": "string"
+          },
+          "street": {
+            "description": "Street line 1",
+            "type": "string"
+          },
+          "street2": {
+            "description": "Street line 2",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          },
+          "zip": {
+            "description": "Postal code",
+            "type": "string"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "address_validate",
+      "description": "Validate an address with a SHA-256 keyed local cache (skips API on repeat lookups)",
+      "parameters": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "cache": {
+            "description": "Consult local cache before calling the API (default: true)",
+            "type": "boolean"
+          },
+          "city": {
+            "description": "City",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "country": {
+            "description": "ISO country code (default: US)",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'fedex-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "state": {
+            "description": "State or province code",
+            "type": "string"
+          },
+          "street": {
+            "description": "Street line",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          },
+          "zip": {
+            "description": "Postal code",
+            "type": "string"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "archive",
+      "description": "Search the local shipment archive (FTS5 over recipient, reference, tracking)",
+      "parameters": {
+        "properties": {
+          "account": {
+            "description": "Filter by account",
+            "type": "string"
+          },
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "args": {
+            "description": "Additional positional arguments or raw CLI flags to append to the command.",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Max rows to return (default: 50)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'fedex-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "service": {
+            "description": "Filter by service_type",
+            "type": "string"
+          },
+          "since": {
+            "description": "Only shipments created within this duration (e.g. 24h, 720h)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "context",
+      "description": "Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first.",
+      "parameters": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "export",
+      "description": "Export paginated API data to a local file. Supports JSONL (one JSON object\nper line, streaming-friendly) and JSON (array). JSONL is recommended for\nlarge datasets as it has no memory pressure.",
+      "parameters": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "args": {
+            "description": "Additional positional arguments or raw CLI flags to append to the command.",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "format": {
+            "description": "Output format: jsonl or json (default: jsonl)",
+            "type": "string"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Maximum records to export (0 = unlimited) (default: 0)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache for fresh data (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "output": {
+            "description": "Output file path (default: stdout)",
+            "type": "string"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'fedex-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "fedex_execute",
+      "description": "Execute one fedex API endpoint by its endpoint_id (from fedex_search). Params are passed as a JSON object; path placeholders and query strings are resolved automatically.",
+      "parameters": {
+        "properties": {
+          "endpoint_id": {
+            "description": "Endpoint identifier returned by fedex_search (e.g., \"users.list\").",
+            "type": "string"
+          },
+          "params": {
+            "description": "Parameters for the endpoint. Path placeholders match by name; remaining entries become query string on GET/DELETE or JSON body on POST/PUT/PATCH.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "endpoint_id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "fedex_search",
+      "description": "Search the fedex API for endpoints matching a natural-language query. Returns a ranked list of {endpoint_id, method, path, summary} entries. Call this first to find the endpoint to execute.",
+      "parameters": {
+        "properties": {
+          "limit": {
+            "description": "Max endpoints to return (default 10).",
+            "type": "number"
+          },
+          "query": {
+            "description": "Natural-language description of what you want to do.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "import",
+      "description": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.",
+      "parameters": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "args": {
+            "description": "Additional positional arguments or raw CLI flags to append to the command.",
+            "type": "string"
+          },
+          "batch-size": {
+            "description": "Records per batch (future: batch API support) (default: 1)",
+            "type": "number"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Preview import without sending requests (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "input": {
+            "description": "Input JSONL file path (use - for stdin)",
+            "type": "string"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'fedex-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "input"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "manifest",
+      "description": "Builds a markdown manifest of every shipment created on the given day from the local\narchive. The text/markdown report has the same content a PDF would; PDF generation\nrequires external tooling and is not bundled. With --close, also calls the FedEx\nend-of-day endpoint to formally close the manifest.",
+      "parameters": {
+        "properties": {
+          "account": {
+            "description": "Restrict to one account",
+            "type": "string"
+          },
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "close": {
+            "description": "Also call /ship/v1/endofday/ to close the manifest (default: false)",
+            "type": "boolean"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "date": {
+            "description": "Day to summarize (YYYY-MM-DD or today) (default: today)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "output": {
+            "description": "Write the manifest to this path (default stdout)",
+            "type": "string"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'fedex-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "rate_shop",
+      "description": "Quote rates across every applicable service type for a single shipment, persist\neach quote to the local rate_quotes ledger, and rank by net cost or transit days.\nThe selected (cheapest, when ranking by cost) quote is marked selected=1 in the\nledger so spend/lane reports can attribute follow-on shipments back to the chosen rate.",
+      "parameters": {
+        "properties": {
+          "account": {
+            "description": "FedEx account number (defaults to env FEDEX_ACCOUNT_NUMBER)",
+            "type": "string"
+          },
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "from": {
+            "description": "Origin postal code",
+            "type": "string"
+          },
+          "from-country": {
+            "description": "Origin country code (default: US)",
+            "type": "string"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'fedex-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rank-by": {
+            "description": "Ranking field: cost or transit (default: cost)",
+            "type": "string"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "services": {
+            "description": "Comma-separated service types to consider when ranking (default: FEDEX_GROUND,FEDEX_2_DAY,STANDARD_OVERNIGHT,PRIORITY_OVERNIGHT,FEDEX_EXPRESS_SAVER,GROUND_HOME_DELIVERY)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "to": {
+            "description": "Destination postal code",
+            "type": "string"
+          },
+          "to-country": {
+            "description": "Destination country code (default: US)",
+            "type": "string"
+          },
+          "units": {
+            "description": "Weight units (LB or KG) (default: LB)",
+            "type": "string"
+          },
+          "weight": {
+            "description": "Package weight (e.g. 5, 5lb, 2.5kg). When the value carries a unit suffix it overrides --units.",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "return_create",
+      "description": "Create a Ground Call Tag (return label) referencing an existing shipment",
+      "parameters": {
+        "properties": {
+          "account": {
+            "description": "FedEx account number (defaults to env FEDEX_ACCOUNT_NUMBER)",
+            "type": "string"
+          },
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "email": {
+            "description": "Notification email for the recipient",
+            "type": "string"
+          },
+          "from-saved": {
+            "description": "Pull pickup address from address book by name",
+            "type": "string"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "pickup-city": {
+            "description": "Pickup city",
+            "type": "string"
+          },
+          "pickup-country": {
+            "description": "Pickup country code (default: US)",
+            "type": "string"
+          },
+          "pickup-name": {
+            "description": "Pickup contact name",
+            "type": "string"
+          },
+          "pickup-postal": {
+            "description": "Pickup postal",
+            "type": "string"
+          },
+          "pickup-state": {
+            "description": "Pickup state code",
+            "type": "string"
+          },
+          "pickup-street": {
+            "description": "Pickup street",
+            "type": "string"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'fedex-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "reason": {
+            "description": "Return reason note",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "tracking": {
+            "description": "Original tracking number to reference",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "ship_bulk",
+      "description": "Read a CSV of orders, ship each row through FedEx, write per-row results to a ledger\nCSV (PASS/FAIL plus tracking number and net charge), and persist successful shipments\nto the local archive. Optionally save labels as PDFs. Resumable via --resume which skips\nrows whose order_id is already in the archive (matched on the reference column).",
+      "parameters": {
+        "properties": {
+          "account": {
+            "description": "FedEx account number (defaults to env FEDEX_ACCOUNT_NUMBER)",
+            "type": "string"
+          },
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "concurrency": {
+            "description": "Parallel ship calls (1-5) (default: 1)",
+            "type": "number"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Path to orders CSV",
+            "type": "string"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "from-city": {
+            "description": "Shipper city (defaults to env FEDEX_SHIPPER_CITY)",
+            "type": "string"
+          },
+          "from-country": {
+            "description": "Shipper country code (defaults to env FEDEX_SHIPPER_COUNTRY or US)",
+            "type": "string"
+          },
+          "from-name": {
+            "description": "Shipper contact name (defaults to env FEDEX_SHIPPER_NAME)",
+            "type": "string"
+          },
+          "from-phone": {
+            "description": "Shipper phone (defaults to env FEDEX_SHIPPER_PHONE)",
+            "type": "string"
+          },
+          "from-postal": {
+            "description": "Shipper postal (defaults to env FEDEX_SHIPPER_POSTAL)",
+            "type": "string"
+          },
+          "from-state": {
+            "description": "Shipper state code (defaults to env FEDEX_SHIPPER_STATE)",
+            "type": "string"
+          },
+          "from-street": {
+            "description": "Shipper street (defaults to env FEDEX_SHIPPER_STREET)",
+            "type": "string"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "ledger": {
+            "description": "Per-row PASS/FAIL ledger CSV (default <csv-basename>.results.csv)",
+            "type": "string"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "output": {
+            "description": "Directory to write label PDFs (none if empty)",
+            "type": "string"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'fedex-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "resume": {
+            "description": "Skip rows already shipped (matched by reference) (default: false)",
+            "type": "boolean"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "service": {
+            "description": "Default service type when row's service_type is empty (default: FEDEX_GROUND)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "ship_etd",
+      "description": "Single-command Electronic Trade Documents shipping. Reads a commercial-invoice PDF\nfrom disk, base64-encodes it into the shipment request as an embedded ETD document,\nand creates the international shipment in one call. Note: this is the simplified flow \u2014\nthe upstream FedEx documents/upload endpoint is not bundled in this spec, so the invoice\nis embedded inline rather than uploaded separately.",
+      "parameters": {
+        "properties": {
+          "account": {
+            "description": "FedEx account (defaults to env FEDEX_ACCOUNT_NUMBER)",
+            "type": "string"
+          },
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "currency": {
+            "description": "Currency for customs and unit price (default: USD)",
+            "type": "string"
+          },
+          "customs-value": {
+            "description": "Customs declared value (default: 0)",
+            "type": "number"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dest": {
+            "description": "Destination country code (ISO)",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "invoice": {
+            "description": "Commercial invoice PDF path",
+            "type": "string"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "orig": {
+            "description": "Origin country code (ISO)",
+            "type": "string"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'fedex-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "recipient-city": {
+            "description": "Recipient city",
+            "type": "string"
+          },
+          "recipient-name": {
+            "description": "Recipient contact name",
+            "type": "string"
+          },
+          "recipient-postal": {
+            "description": "Recipient postal",
+            "type": "string"
+          },
+          "recipient-state": {
+            "description": "Recipient state code",
+            "type": "string"
+          },
+          "recipient-street": {
+            "description": "Recipient street",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "service": {
+            "description": "Service type (default: FEDEX_INTERNATIONAL_PRIORITY)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "units": {
+            "description": "Weight units (default: KG)",
+            "type": "string"
+          },
+          "weight": {
+            "description": "Package weight (e.g. 2, 2kg, 5lb). When the value carries a unit suffix it overrides --units.",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "spend_report",
+      "description": "Aggregate net charges from the local archive",
+      "parameters": {
+        "properties": {
+          "account": {
+            "description": "Restrict to one account",
+            "type": "string"
+          },
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "by": {
+            "description": "Group by: service, account, lane, day (default: service)",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'fedex-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "since": {
+            "description": "Window to aggregate over (default 30d) (default: 720h)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "tail",
+      "description": "Tail streams live data changes by polling the API at configurable intervals.\nEvents are emitted as NDJSON to stdout for piping to other tools.\nGracefully shuts down on SIGTERM/SIGINT.\n\nNote: For APIs with WebSocket or SSE support, a future version will use\nnative streaming instead of polling.",
+      "parameters": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "args": {
+            "description": "Additional positional arguments or raw CLI flags to append to the command.",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "follow": {
+            "description": "Keep running (set --follow=false for single poll) (default: true)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "interval": {
+            "description": "Poll interval (default: 10s)",
+            "type": "string"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'fedex-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "resource": {
+            "description": "Resource type to tail",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "track_diff",
+      "description": "Poll tracking numbers and emit only events newly seen since the last poll",
+      "parameters": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "args": {
+            "description": "Additional positional arguments or raw CLI flags to append to the command.",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Max shipments to poll when no positional given (default: 100)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'fedex-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "since": {
+            "description": "When no positional given, poll shipments created within this duration (default 7d) (default: 168h)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "track_watch",
+      "description": "Long-poll a set of tracking numbers and emit new scan events as they appear",
+      "parameters": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "interval": {
+            "description": "Poll interval (default: 10m0s)",
+            "type": "string"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "max-iterations": {
+            "description": "Stop after N polls (0 = unlimited) (default: 0)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "output": {
+            "description": "Append new events as JSONL to this file",
+            "type": "string"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'fedex-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "tracking": {
+            "description": "Tracking numbers to watch (repeatable)",
+            "type": "string"
+          },
+          "webhook": {
+            "description": "POST new events as JSON to this URL",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    }
+  ]
+}

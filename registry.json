@@ -200,6 +200,26 @@
       }
     },
     {
+      "name": "fedex",
+      "category": "commerce",
+      "api": "FedEx",
+      "description": "Ship, rate, and track FedEx packages from the terminal \u2014 built for small business shippers.",
+      "path": "library/commerce/fedex",
+      "mcp": {
+        "binary": "fedex-pp-mcp",
+        "transport": "stdio",
+        "tool_count": 19,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "FEDEX_API_KEY",
+          "FEDEX_SECRET_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "flightgoat",
       "category": "travel",
       "api": "flightgoat",
