@@ -250,7 +250,14 @@ func newMCPClient() (*client.Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
-	return client.New(cfg, 30*time.Second, 2), nil
+	c := client.New(cfg, 30*time.Second, 2)
+	// Agents calling through MCP need fresh data every call. The on-disk
+	// response cache survives across MCP server invocations, so a DELETE/PATCH
+	// followed by a GET would otherwise return the pre-mutation snapshot for up
+	// to the cache TTL. Skip the cache for the MCP path; the interactive CLI
+	// constructs its own client and is unaffected.
+	c.NoCache = true
+	return c, nil
 }
 
 func dbPath() string {
