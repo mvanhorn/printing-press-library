@@ -3,7 +3,7 @@ name: pp-agent-capture
 description: "macOS screen capture, window recording, GIF conversion, and agent evidence bundles from the terminal. Built on ScreenCaptureKit for window-level targeting ffmpeg cannot do. Use when the user wants a screenshot of a specific window or app, a screen recording, a GIF conversion, a before/after diff, an evidence bundle for a PR, OCR text from a window, a terminal VHS recording, a Remotion render, or wants to watch a UI for changes. Requires macOS Screen Recording permission on first run."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["agent-capture"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/developer-tools/agent-capture/cmd/agent-capture@latest","bins":["agent-capture"],"label":"Install via go install"}]}}'
+metadata: '{"openclaw":{"requires":{"bins":["agent-capture"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/developer-tools/agent-capture/cmd/agent-capture-pp-cli@latest","bins":["agent-capture"],"label":"Install via go install"}]}}'
 ---
 
 # Agent Capture - Printing Press CLI
@@ -43,13 +43,13 @@ Parse `$ARGUMENTS`:
 1. Check Go is installed: `go version` (requires Go 1.23+).
 2. Install:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/developer-tools/agent-capture/cmd/agent-capture@latest
+   go install github.com/mvanhorn/printing-press-library/library/developer-tools/agent-capture/cmd/agent-capture-pp-cli@latest
    ```
 
    If `@latest` installs a stale build (Go module proxy cache lag):
    ```bash
    GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
-     go install github.com/mvanhorn/printing-press-library/library/developer-tools/agent-capture/cmd/agent-capture@main
+     go install github.com/mvanhorn/printing-press-library/library/developer-tools/agent-capture/cmd/agent-capture-pp-cli@main
    ```
 3. Verify: `agent-capture --version`.
 4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
