@@ -42,23 +42,58 @@ func ByName(name string) Backend {
 	return AutoSelect()
 }
 
+// AutoSelect returns the highest-priority Backend available given env
+// configuration. Use Select for the full fallback chain so a paid backend
+// failing or returning zero results still produces an answer via DDG.
 func AutoSelect() Backend {
-	switch {
-	case os.Getenv("PARALLEL_API_KEY") != "":
-		return ByName("parallel")
-	case os.Getenv("BRAVE_SEARCH_API_KEY") != "":
-		return ByName("brave")
-	case os.Getenv("TAVILY_API_KEY") != "":
-		return ByName("tavily")
-	default:
-		if f := registry["ddg"]; f != nil {
-			return f()
-		}
-		for _, f := range registry {
-			return f()
-		}
+	chain := Select("")
+	if len(chain) == 0 {
 		return unsupportedBackend{}
 	}
+	return chain[0]
+}
+
+// Select returns an ordered fallback chain of available Backend instances.
+// The user's explicit --search-backend choice takes precedence, then any
+// env-configured paid backend (parallel, brave, tavily), then ddg. Callers
+// should iterate the chain and accept the first non-empty result, surfacing
+// fallback events in their response envelopes.
+//
+// The DDG backend is appended last whenever it is registered, so a paid
+// backend with a stale or rate-limited key falls through to a working
+// scrape instead of producing an empty candidate set.
+func Select(preferred string) []Backend {
+	seen := map[string]bool{}
+	add := func(out []Backend, name string) []Backend {
+		key := strings.ToLower(name)
+		if key == "" || seen[key] {
+			return out
+		}
+		f, ok := registry[key]
+		if !ok {
+			return out
+		}
+		seen[key] = true
+		return append(out, f())
+	}
+	var chain []Backend
+	chain = add(chain, preferred)
+	if os.Getenv("PARALLEL_API_KEY") != "" {
+		chain = add(chain, "parallel")
+	}
+	if os.Getenv("BRAVE_SEARCH_API_KEY") != "" {
+		chain = add(chain, "brave")
+	}
+	if os.Getenv("TAVILY_API_KEY") != "" {
+		chain = add(chain, "tavily")
+	}
+	chain = add(chain, "ddg")
+	if len(chain) == 0 {
+		for _, f := range registry {
+			chain = append(chain, f())
+		}
+	}
+	return chain
 }
 
 type unsupportedBackend struct{}

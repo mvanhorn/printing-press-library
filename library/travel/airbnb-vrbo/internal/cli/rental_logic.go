@@ -43,6 +43,7 @@ type cheapestOutput struct {
 	Options  []any          `json:"options"`
 	Cheapest any            `json:"cheapest,omitempty"`
 	Method   string         `json:"method,omitempty"`
+	Meta     map[string]any `json:"meta,omitempty"`
 }
 
 type directCandidate struct {
@@ -121,8 +122,11 @@ func computeCheapest(ctx context.Context, rawURL string, p cheapestParams) (*che
 	} else {
 		out.Options = append(out.Options, map[string]any{"source": "airbnb", "url": "", "total": nil, "note": "not searched (single-platform mode)"})
 	}
-	candidates, _ := directCandidates(ctx, host, fmt.Sprint(out.Listing["title"]), fmt.Sprint(out.Listing["city"]), p)
+	candidates, meta, _ := directCandidates(ctx, host, fmt.Sprint(out.Listing["title"]), fmt.Sprint(out.Listing["city"]), p)
 	out.Options = append(out.Options, map[string]any{"source": "direct", "candidates": candidates})
+	if meta != nil {
+		out.Meta = meta
+	}
 	platformTotal := valueAsFloat(platformOption["total"])
 	var best *directCandidate
 	for i := range candidates {
@@ -144,7 +148,7 @@ func computeCheapest(ctx context.Context, rawURL string, p cheapestParams) (*che
 
 const airbnbPricingUnavailableNote = "pricing not available in SSR; try 'auth login --chrome' or different dates"
 
-func directCandidates(ctx context.Context, host *hostextract.HostInfo, listingTitle, city string, p cheapestParams) ([]directCandidate, error) {
+func directCandidates(ctx context.Context, host *hostextract.HostInfo, listingTitle, city string, p cheapestParams) ([]directCandidate, map[string]any, error) {
 	name := ""
 	if host != nil {
 		name = host.Brand
@@ -153,20 +157,55 @@ func directCandidates(ctx context.Context, host *hostextract.HostInfo, listingTi
 		}
 	}
 	if name == "" {
-		return nil, nil
+		return nil, nil, nil
 	}
 	if p.MaxDirectResults <= 0 {
 		p.MaxDirectResults = 5
 	}
-	backend := searchbackend.ByName(p.SearchBackend)
+	chain := searchbackend.Select(p.SearchBackend)
 	query := directSearchQuery(listingTitle, name, city)
 	searchLimit := p.MaxDirectResults * 3
 	if searchLimit < 10 {
 		searchLimit = 10
 	}
-	results, err := backend.Search(ctx, query, searchbackend.SearchOpts{Limit: searchLimit})
-	if err != nil {
-		return nil, err
+	var (
+		results          []searchbackend.Result
+		activeBackend    string
+		attemptedNames   []string
+		backendErrors    []string
+		usedFallback     bool
+	)
+	for i, backend := range chain {
+		attemptedNames = append(attemptedNames, backend.Name())
+		r, err := backend.Search(ctx, query, searchbackend.SearchOpts{Limit: searchLimit})
+		if err != nil {
+			backendErrors = append(backendErrors, backend.Name()+": "+err.Error())
+			continue
+		}
+		if len(r) == 0 {
+			backendErrors = append(backendErrors, backend.Name()+": no results")
+			continue
+		}
+		results = r
+		activeBackend = backend.Name()
+		usedFallback = i > 0
+		break
+	}
+	meta := map[string]any{
+		"search_backend": activeBackend,
+		"attempted":      attemptedNames,
+	}
+	if usedFallback {
+		meta["fallback"] = true
+		meta["fallback_reasons"] = backendErrors
+	}
+	if results == nil {
+		if len(backendErrors) > 0 {
+			meta["reason"] = backendErrors[len(backendErrors)-1]
+		} else {
+			meta["reason"] = "no_results"
+		}
+		return nil, meta, nil
 	}
 	var sources []searchbackend.Result
 	for _, r := range results {
@@ -197,7 +236,7 @@ func directCandidates(ctx context.Context, host *hostextract.HostInfo, listingTi
 	for _, r := range fanout {
 		out = append(out, r.Value)
 	}
-	return out, nil
+	return out, meta, nil
 }
 
 func isOTADomain(domain string) bool {
