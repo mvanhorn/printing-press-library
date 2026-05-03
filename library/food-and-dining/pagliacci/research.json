@@ -1,0 +1,240 @@
+{
+  "api_name": "pagliacci",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-03T07:25:00Z",
+  "novel_features": [
+    {
+      "name": "Today's slices across all stores",
+      "command": "slices today",
+      "description": "See which Pagliacci slices are available right now at every Seattle store, sorted by proximity to your saved address.",
+      "rationale": "Requires syncing MenuSlices for all 8+ stores into the local store and joining by location. Pagliacci's web UI shows slices one store at a time.",
+      "example": "pagliacci-pp-cli slices today --agent",
+      "why_it_matters": "When the family asks 'what slices can we order tonight?', this returns a single comparable list — no per-store iteration needed.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Open stores tonight",
+      "command": "store tonight",
+      "description": "List stores that are still open and can deliver to your saved address right now, sorted by ETA.",
+      "rationale": "Requires real-time TimeWindowDays + Store.OpenHour + delivery-zone resolution. Pagliacci's UI lists all stores regardless of cutoff.",
+      "example": "pagliacci-pp-cli store tonight --address-label home --agent",
+      "why_it_matters": "Last-minute family dinner: only surface stores that will actually take the order tonight.",
+      "group": "Time-aware composed lookups"
+    },
+    {
+      "name": "Stack discounts to maximize savings",
+      "command": "rewards stack",
+      "description": "Compute the best application of stored coupons, reward redemption, and account credit for a given order total. Defaults to single-best-coupon + credit; multi-coupon stacking is flagged --experimental.",
+      "rationale": "Requires joining StoredCoupons + RewardCard + StoredCredit and applying optimal-application logic. The site applies coupons one at a time at checkout.",
+      "example": "pagliacci-pp-cli rewards stack --order-total 55.00 --agent",
+      "why_it_matters": "Family-size orders ($40+) hit reward thresholds where stacking actually saves real money — agents pick the optimal discount, not just the first valid coupon.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Reorder the family favorite",
+      "command": "orders reorder",
+      "description": "Re-create a past order as a fresh cart, with price revalidation since prices change. Add --send to also submit.",
+      "rationale": "Composes OrderListItem + OrderClone + OrderPrice. The site has a one-click reorder but exposes no batch mode.",
+      "example": "pagliacci-pp-cli orders reorder --last --dry-run",
+      "why_it_matters": "Households have a usual order — replay it without rebuilding the cart line by line.",
+      "group": "Order workflows"
+    },
+    {
+      "name": "Address-aware delivery time picker",
+      "command": "address best-time",
+      "description": "Resolve a saved address label to the next available delivery slot in one call.",
+      "rationale": "Joins AddressName + AddressInfo zone resolution + TimeWindows lookup.",
+      "example": "pagliacci-pp-cli address best-time --label home --agent",
+      "why_it_matters": "Schedule delivery to land at family dinner time — no separate zone lookup or slot search.",
+      "group": "Time-aware composed lookups"
+    },
+    {
+      "name": "Household ordering rhythm",
+      "command": "orders summary",
+      "description": "Aggregate orders over a time range with top items, store breakdown, and order frequency.",
+      "rationale": "Aggregates OrderListItem locally. The site lets you browse history one order at a time; we roll it up.",
+      "example": "pagliacci-pp-cli orders summary --since 90d --agent",
+      "why_it_matters": "See the household's pizza pattern — what we order most, which store, how often — for budgeting or just fun.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Half-and-half pizza builder",
+      "command": "menu half-half",
+      "description": "Build a half-and-half pizza in one command, with each side's toppings validated against the menu and priced via ProductPrice.",
+      "rationale": "Composes MenuCache lookups + ProductPrice validation. Pagliacci's web UI supports half-and-half but the raw API requires multi-step toppings/region modeling that agents otherwise have to assemble themselves.",
+      "example": "pagliacci-pp-cli menu half-half --left pepperoni --right cheese --size large --json",
+      "why_it_matters": "Families with picky kids order half-and-half pies as the default. One command produces a sendable cart entry for the most common household pizza shape.",
+      "group": "Order workflows"
+    },
+    {
+      "name": "Small-party order planner",
+      "command": "orders plan",
+      "description": "Given the number of people and a saved address, suggest a complete order plan: best store, delivery slot, sized cart contents, and the optimal discount stack.",
+      "rationale": "Composes Store/QuoteStore + TimeWindows + MenuTop + RewardCard/StoredCoupons/StoredCredit. Each component is its own API call; the value is the composition into a single recommendation.",
+      "example": "pagliacci-pp-cli orders plan --people 6 --address-label home --json",
+      "why_it_matters": "Hosting 4–8 people: one command gives the agent everything it needs to confirm an order — no chained tool calls, no manual compose.",
+      "group": "Order workflows"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Today's slices across all stores",
+      "command": "slices today",
+      "description": "See which Pagliacci slices are available right now at every Seattle store, sorted by proximity to your saved address.",
+      "rationale": "Requires syncing MenuSlices for all 8+ stores into the local store and joining by location. Pagliacci's web UI shows slices one store at a time.",
+      "example": "pagliacci-pp-cli slices today --agent",
+      "why_it_matters": "When the family asks 'what slices can we order tonight?', this returns a single comparable list — no per-store iteration needed.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Open stores tonight",
+      "command": "store tonight",
+      "description": "List stores that are still open and can deliver to your saved address right now, sorted by ETA.",
+      "rationale": "Requires real-time TimeWindowDays + Store.OpenHour + delivery-zone resolution. Pagliacci's UI lists all stores regardless of cutoff.",
+      "example": "pagliacci-pp-cli store tonight --address-label home --agent",
+      "why_it_matters": "Last-minute family dinner: only surface stores that will actually take the order tonight.",
+      "group": "Time-aware composed lookups"
+    },
+    {
+      "name": "Stack discounts to maximize savings",
+      "command": "rewards stack",
+      "description": "Compute the best application of stored coupons, reward redemption, and account credit for a given order total. Defaults to single-best-coupon + credit; multi-coupon stacking is flagged --experimental.",
+      "rationale": "Requires joining StoredCoupons + RewardCard + StoredCredit and applying optimal-application logic. The site applies coupons one at a time at checkout.",
+      "example": "pagliacci-pp-cli rewards stack --order-total 55.00 --agent",
+      "why_it_matters": "Family-size orders ($40+) hit reward thresholds where stacking actually saves real money — agents pick the optimal discount, not just the first valid coupon.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Reorder the family favorite",
+      "command": "orders reorder",
+      "description": "Re-create a past order as a fresh cart, with price revalidation since prices change. Add --send to also submit.",
+      "rationale": "Composes OrderListItem + OrderClone + OrderPrice. The site has a one-click reorder but exposes no batch mode.",
+      "example": "pagliacci-pp-cli orders reorder --last --dry-run",
+      "why_it_matters": "Households have a usual order — replay it without rebuilding the cart line by line.",
+      "group": "Order workflows"
+    },
+    {
+      "name": "Address-aware delivery time picker",
+      "command": "address best-time",
+      "description": "Resolve a saved address label to the next available delivery slot in one call.",
+      "rationale": "Joins AddressName + AddressInfo zone resolution + TimeWindows lookup.",
+      "example": "pagliacci-pp-cli address best-time --label home --agent",
+      "why_it_matters": "Schedule delivery to land at family dinner time — no separate zone lookup or slot search.",
+      "group": "Time-aware composed lookups"
+    },
+    {
+      "name": "Household ordering rhythm",
+      "command": "orders summary",
+      "description": "Aggregate orders over a time range with top items, store breakdown, and order frequency.",
+      "rationale": "Aggregates OrderListItem locally. The site lets you browse history one order at a time; we roll it up.",
+      "example": "pagliacci-pp-cli orders summary --since 90d --agent",
+      "why_it_matters": "See the household's pizza pattern — what we order most, which store, how often — for budgeting or just fun.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Half-and-half pizza builder",
+      "command": "menu half-half",
+      "description": "Build a half-and-half pizza in one command, with each side's toppings validated against the menu and priced via ProductPrice.",
+      "rationale": "Composes MenuCache lookups + ProductPrice validation. Pagliacci's web UI supports half-and-half but the raw API requires multi-step toppings/region modeling that agents otherwise have to assemble themselves.",
+      "example": "pagliacci-pp-cli menu half-half --left pepperoni --right cheese --size large --json",
+      "why_it_matters": "Families with picky kids order half-and-half pies as the default. One command produces a sendable cart entry for the most common household pizza shape.",
+      "group": "Order workflows"
+    },
+    {
+      "name": "Small-party order planner",
+      "command": "orders plan",
+      "description": "Given the number of people and a saved address, suggest a complete order plan: best store, delivery slot, sized cart contents, and the optimal discount stack.",
+      "rationale": "Composes Store/QuoteStore + TimeWindows + MenuTop + RewardCard/StoredCoupons/StoredCredit. Each component is its own API call; the value is the composition into a single recommendation.",
+      "example": "pagliacci-pp-cli orders plan --people 6 --address-label home --json",
+      "why_it_matters": "Hosting 4–8 people: one command gives the agent everything it needs to confirm an order — no chained tool calls, no manual compose.",
+      "group": "Order workflows"
+    }
+  ],
+  "narrative": {
+    "display_name": "Pagliacci Pizza",
+    "headline": "Order Seattle's favorite pizza from the terminal — every endpoint, plus discount stacking, slice rotation across stores, half-and-half pies, and a small-party planner nobody else has.",
+    "value_prop": "First and only CLI for the Pagliacci API. Browse menus and slice availability across all Seattle stores, build half-and-half pizzas, plan a small-party order, manage rewards and stored coupons, and replay past orders — all with offline search, agent-native output, and Chrome-cookie login (no manual token paste).",
+    "auth_narrative": "Pagliacci has no public API and uses a custom composed `PagliacciAuth {customerId}|{authToken}` header constructed from cookies. Run `pagliacci-pp-cli auth login --chrome` while logged into pagliacci.com in Chrome — the CLI reads the auth cookies and constructs the header for you. Public commands (menu, stores, slices, time-windows) work without login; authenticated commands (order history, rewards, saved addresses) require the Chrome session.",
+    "quickstart": [
+      {
+        "command": "pagliacci-pp-cli auth login --chrome",
+        "comment": "Log in by reading cookies from your active Chrome session"
+      },
+      {
+        "command": "pagliacci-pp-cli sync --full",
+        "comment": "Sync stores, menu, slices, orders, rewards into the local SQLite store"
+      },
+      {
+        "command": "pagliacci-pp-cli slices today --agent",
+        "comment": "See what slices are available right now across every Seattle store"
+      },
+      {
+        "command": "pagliacci-pp-cli orders plan --people 6 --address-label home --json",
+        "comment": "Plan a small-party order: store, time slot, cart contents, best discount"
+      },
+      {
+        "command": "pagliacci-pp-cli orders reorder --last --dry-run",
+        "comment": "Re-create the household's last order as a priced cart, without sending"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "auth login --chrome reports 'no auth cookies found'",
+        "fix": "Open pagliacci.com in Chrome and log in. The CLI reads customerId and authToken cookies from the cookie store; if they're missing the session has expired."
+      },
+      {
+        "symptom": "401 Unauthorized on authenticated commands",
+        "fix": "Run `pagliacci-pp-cli auth status`. If cookies are stale, log in again at pagliacci.com and re-run `auth login --chrome`."
+      },
+      {
+        "symptom": "Empty MenuSlices result during the day",
+        "fix": "Slices rotate daily and may be sold out before close. The endpoint reflects current availability at request time."
+      },
+      {
+        "symptom": "stores tonight returns no rows",
+        "fix": "Stores have closed for the night. Use `stores list` for the next-day delivery scope or check `scheduling time-window-days \u003cstoreId\u003e DEL` for upcoming windows."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or user wants to interact with Pagliacci Pizza programmatically: browsing the menu, finding a store and time slot, building a half-and-half pizza, planning a small-party order, checking rewards balance, or replaying a past order. The CLI is built for households ordering for family or small parties.",
+    "recipes": [
+      {
+        "title": "What can we eat tonight?",
+        "command": "pagliacci-pp-cli slices today --agent --select store,slice,price",
+        "explanation": "Returns today's available slices across all stores with just the high-gravity fields for fast agent decision making."
+      },
+      {
+        "title": "Plan a small-party order for 6",
+        "command": "pagliacci-pp-cli orders plan --people 6 --address-label home --json",
+        "explanation": "Composes store proximity, delivery slot, sized cart, and discount stack into one recommendation."
+      },
+      {
+        "title": "Build a half-and-half family pizza",
+        "command": "pagliacci-pp-cli menu half-half --left pepperoni --right cheese --size large --json",
+        "explanation": "Validates both halves against the menu and returns a priced, sendable cart entry."
+      },
+      {
+        "title": "Replay last order",
+        "command": "pagliacci-pp-cli orders reorder --last --dry-run --json",
+        "explanation": "Pulls the most recent OrderListItem, transforms via OrderClone, re-prices, and returns a sendable cart without submitting."
+      },
+      {
+        "title": "Maximize discount before checkout",
+        "command": "pagliacci-pp-cli rewards stack --order-total 55.00 --agent",
+        "explanation": "Computes the best application of saved coupons, reward redemption, and account credit for a given order total."
+      }
+    ],
+    "trigger_phrases": [
+      "order from pagliacci",
+      "what pagliacci slices are available",
+      "plan a pagliacci order for the family",
+      "build a half-and-half pagliacci pizza",
+      "pagliacci rewards balance",
+      "use pagliacci",
+      "run pagliacci"
+    ]
+  }
+}

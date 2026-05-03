@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-03T06:03:12.15145Z",
+  "printing_press_version": "3.6.1",
+  "api_name": "airbnb",
+  "display_name": "Airbnb Vrbo",
+  "cli_name": "airbnb-pp-cli",
+  "owner": "matt-van-horn",
+  "spec_path": "/Users/mvanhorn/printing-press/.runstate/mvanhorn-eb6a05f2/runs/20260502-210359/discovery/airbnb-vrbo-synthetic-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:50d48d1dd906565680c69eb5cffda6d7d605d751410e83368790efcca48bae04",
+  "description": "Search Airbnb and VRBO, find the host's direct booking site, and report the cheapest of three sources side-by-side.",
+  "mcp_binary": "airbnb-pp-mcp",
+  "mcp_tool_count": 8,
+  "mcp_public_tool_count": 6,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Triple-source price arbitrage",
+      "command": "cheapest",
+      "description": "Given an Airbnb or VRBO listing URL, find the host's direct booking site and report the cheapest of three sources."
+    },
+    {
+      "name": "Plan a trip composite",
+      "command": "plan",
+      "description": "Search Airbnb and VRBO in parallel for a city/dates/budget, then run cheapest on the top results, return a ranked-by-savings list."
+    },
+    {
+      "name": "Fee-breakdown comparison",
+      "command": "compare",
+      "description": "Side-by-side: OTA total (with cleaning + service + tax fees) vs direct booking total, with dollar and percent savings."
+    },
+    {
+      "name": "Cross-platform same-property match",
+      "command": "match",
+      "description": "Given a listing on Airbnb (or VRBO), find the same property on the other platform via geocode + amenities + photo signal."
+    },
+    {
+      "name": "Price-drop watchlist",
+      "command": "watch",
+      "description": "Add saved listings to a watchlist with target prices; daily sync checks for drops; cron-friendly exit codes signal hits."
+    },
+    {
+      "name": "Host portfolio analysis",
+      "command": "host portfolio",
+      "description": "Given a host or property management company name, list every known listing under them across Airbnb and VRBO."
+    },
+    {
+      "name": "Wishlist diff over time",
+      "command": "wishlist diff",
+      "description": "Track price changes on Airbnb wishlists over time; report which saved listings dropped, by how much, and over what window."
+    },
+    {
+      "name": "Reverse-image listing twin",
+      "command": "find-twin",
+      "description": "Reverse image search a listing's photos to find the same property on direct booking sites or alternate platforms."
+    },
+    {
+      "name": "Listing fingerprint",
+      "command": "fingerprint",
+      "description": "Stable hash from photos + amenities + host + city; used by match for dedupe; exposed for power-user export workflows."
+    }
+  ]
+}

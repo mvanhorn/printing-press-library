@@ -98,6 +98,7 @@ Tools grouped by category, sourced from [`registry.json`](registry.json). Each r
 | Name | Skill | Auth | MCP | Slash install | What it does |
 |------|-------|------|-----|---------------|--------------|
 | [`agent-capture`](library/developer-tools/agent-capture/) | [`/pp-agent-capture`](cli-skills/pp-agent-capture/SKILL.md) | local only | no | `/ppl install agent-capture cli` | Record, screenshot, and convert macOS windows and screens for agent evidence. |
+| [`airbnb`](library/travel/airbnb/) | [`/pp-airbnb`](cli-skills/pp-airbnb/SKILL.md) | cookie (optional) | partial | `/ppl install airbnb cli` | Search Airbnb listings and find the host's direct booking site. VRBO disabled (Akamai). |
 | [`archive-is`](library/media-and-entertainment/archive-is/) | [`/pp-archive-is`](cli-skills/pp-archive-is/SKILL.md) | none | full | `/ppl install archive-is cli` | Find and create Archive.today snapshots for URLs. |
 | [`cal-com`](library/productivity/cal-com/) | [`/pp-cal-com`](cli-skills/pp-cal-com/SKILL.md) | API key | full | `/ppl install cal-com cli` | Manage bookings, schedules, event types, and availability. |
 | [`contact-goat`](library/sales-and-crm/contact-goat/) | [`/pp-contact-goat`](cli-skills/pp-contact-goat/SKILL.md) | mixed | full | `/ppl install contact-goat cli` | Cross-source warm-intro graph across LinkedIn, Happenstance, and Deepline with a unified local store. |

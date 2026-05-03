@@ -1,8 +1,0 @@
-{
-  "dir": "/Users/tmchow/printing-press/.runstate/mellow-sprouting-sifakis-f6d9f64d/runs/20260425-235234/working/pagliacci-pizza-pp-cli",
-  "workflows": null,
-  "verdict": "workflow-pass",
-  "issues": [
-    "no workflow manifest found, skipping"
-  ]
-}

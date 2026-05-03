@@ -1,0 +1,3991 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://a0.muscache.com/airbnb/static/packages/web/en/e67b.b1e4978dd5.js",
+    "entry_count": 299,
+    "api_entry_count": 66,
+    "noise_entry_count": 233,
+    "host_distribution": {
+      "a0.muscache.com": 110,
+      "ad.doubleclick.net": 5,
+      "adservice.google.com": 5,
+      "analytics.google.com": 4,
+      "ct.pinterest.com": 2,
+      "d0a7e.airbnb.com": 2,
+      "d34r8q7sht0t9k.cloudfront.net": 2,
+      "data": 6,
+      "fonts.googleapis.com": 2,
+      "fonts.gstatic.com": 1,
+      "googleads.g.doubleclick.net": 12,
+      "insight.adsrvr.org": 6,
+      "ipv4.pdscrb.com": 2,
+      "js.adsrvr.org": 2,
+      "maps.googleapis.com": 20,
+      "maps.gstatic.com": 2,
+      "mapsresources-pa.googleapis.com": 1,
+      "tr.snapchat.com": 2,
+      "verifi.pdscrb.com": 2,
+      "www.airbnb.com": 71,
+      "www.facebook.com": 8,
+      "www.google.com": 17,
+      "www.googleadservices.com": 6,
+      "www.googletagmanager.com": 3
+    },
+    "time_start": "2026-05-03T04:29:19.038525184Z",
+    "time_end": "2026-05-03T04:31:28.822716928Z"
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.65,
+    "reasons": [
+      "no browser-only reachability signals observed"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "rpc_envelope",
+      "confidence": 0.8,
+      "evidence": [
+        {
+          "entry_index": 9,
+          "method": "POST",
+          "host": "maps.googleapis.com",
+          "path": "/$rpc/google.internal.maps.mapsjs.v1.MapsJsInternalService/GetViewportInfo",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "RPC envelope markers"
+        },
+        {
+          "entry_index": 10,
+          "method": "OPTIONS",
+          "host": "maps.googleapis.com",
+          "path": "/$rpc/google.internal.maps.mapsjs.v1.MapsJsInternalService/GetViewportInfo",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "RPC envelope markers"
+        }
+      ]
+    },
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 2,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps/api/mapsjs/mapConfigs:batchGet",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/MapViewportInfoQuery/aae2b4447f90adfd800a006f1afc80e2df9f98ddc8cd932628da179ebae10c79",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/PlacesMapTileLayersQuery/2801f85616c647da897107111266a31b9eb408f109250b54f442b9c6ca781b93",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 21,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 22,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/WishlistItemsAsyncQuery/c0f9d9474bb20eb7af2f94f8e022750a5ed9b7437613e1d9aa91aadea87e4467",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 30,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/api/v2/marketing_event_tracking",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 38,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/WishlistIndexPageQuery/b8b421d802c399b55fb6ac1111014807a454184ad38f198365beb7836c018c18",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 39,
+          "method": "GET",
+          "host": "ipv4.pdscrb.com",
+          "path": "/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 40,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 42,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 43,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 53,
+          "method": "GET",
+          "host": "www.googleadservices.com",
+          "path": "/pagead/conversion/1023009977/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 59,
+          "method": "GET",
+          "host": "www.googleadservices.com",
+          "path": "/pagead/conversion/788919195/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 60,
+          "method": "GET",
+          "host": "www.googleadservices.com",
+          "path": "/pagead/conversion/1023009977/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 65,
+          "method": "GET",
+          "host": "www.googleadservices.com",
+          "path": "/pagead/conversion/1023009977/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 68,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 106,
+          "method": "POST",
+          "host": "insight.adsrvr.org",
+          "path": "/track/realtimeconversion",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 107,
+          "method": "OPTIONS",
+          "host": "insight.adsrvr.org",
+          "path": "/track/realtimeconversion",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 110,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 112,
+          "method": "POST",
+          "host": "d0a7e.airbnb.com",
+          "path": "/js/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 113,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 116,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 120,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 125,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 126,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 127,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/NaviServerAnnouncementsQuery/04821a0da9bd8bc9390c03372dd53aff1e8eecf1f4ce62ff987765907cbf2296",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 128,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/StaysPdpBookItQuery/5560c774d764520fc721f6dffca10d9cff03b25e9907478ded8530caf679d716",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 133,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/GetThumbnailPicQuery/ab55c22df96bd74dfabf0f78b14f8172bf2cf52b7e2c29abc75ae65a59610d4b",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 134,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/IsHostQuery/ff889330f06ea6bb31cf107f0c0c50910d64669ab58a1671396857a2562af3c5",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 135,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/Header/bb590cf8c21b62e4b5122e1cd19969f1f1df72832040a335fd45af52597440e4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 137,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/GetConsentFlagsQuery/ea4ccdd0346dfc6f8e581e6686615cfd79d530e9cfb7df266e841f990ec6ff3e",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 151,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 163,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 164,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 165,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 170,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 171,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/StaysPdpSections/f6df77116e38de1d621bf5d92fa626d41da4829a1f09038f4a39f582e90a5cab",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 172,
+          "method": "GET",
+          "host": "a0.muscache.com",
+          "path": "/pictures/airbnb-platform-assets/AirbnbPlatformAssets-Tips/original/37da5952-38f8-4a2a-a040-44a405709035.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 178,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/api/v2/get-data-layer-variables",
+          "content_type": "application/octet-stream",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 182,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "content_type": "application/octet-stream",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 186,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "content_type": "application/octet-stream",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 196,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 197,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/api/v2/marketing_event_tracking",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 205,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/WishlistIndexPageQuery/b8b421d802c399b55fb6ac1111014807a454184ad38f198365beb7836c018c18",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 206,
+          "method": "GET",
+          "host": "ipv4.pdscrb.com",
+          "path": "/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 218,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 222,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 223,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/SimilarListingsCarouselQuery/bd4a24e13a5419167c7b9eaddfddcb888f10efeecfb03f49c913cc8e8d38defa",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 241,
+          "method": "GET",
+          "host": "www.googleadservices.com",
+          "path": "/pagead/conversion/1023009977/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 242,
+          "method": "GET",
+          "host": "www.googleadservices.com",
+          "path": "/pagead/conversion/788919195/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 259,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 270,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 271,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 281,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 287,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 288,
+          "method": "POST",
+          "host": "insight.adsrvr.org",
+          "path": "/track/realtimeconversion",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 289,
+          "method": "OPTIONS",
+          "host": "insight.adsrvr.org",
+          "path": "/track/realtimeconversion",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 293,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 294,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 297,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 298,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "type": "api_key",
+        "confidence": 0.85,
+        "header_names": [
+          "X-Airbnb-API-Key",
+          "X-Goog-Api-Key"
+        ],
+        "evidence": [
+          {
+            "entry_index": 6,
+            "method": "GET",
+            "host": "www.airbnb.com",
+            "path": "/api/v3/MapViewportInfoQuery/aae2b4447f90adfd800a006f1afc80e2df9f98ddc8cd932628da179ebae10c79",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 7,
+            "method": "GET",
+            "host": "www.airbnb.com",
+            "path": "/api/v3/PlacesMapTileLayersQuery/2801f85616c647da897107111266a31b9eb408f109250b54f442b9c6ca781b93",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 9,
+            "method": "POST",
+            "host": "maps.googleapis.com",
+            "path": "/$rpc/google.internal.maps.mapsjs.v1.MapsJsInternalService/GetViewportInfo",
+            "status": 200,
+            "content_type": "application/json+protobuf",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 22,
+            "method": "GET",
+            "host": "www.airbnb.com",
+            "path": "/api/v3/WishlistItemsAsyncQuery/c0f9d9474bb20eb7af2f94f8e022750a5ed9b7437613e1d9aa91aadea87e4467",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 30,
+            "method": "POST",
+            "host": "www.airbnb.com",
+            "path": "/api/v2/marketing_event_tracking",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 38,
+            "method": "GET",
+            "host": "www.airbnb.com",
+            "path": "/api/v3/WishlistIndexPageQuery/b8b421d802c399b55fb6ac1111014807a454184ad38f198365beb7836c018c18",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 127,
+            "method": "GET",
+            "host": "www.airbnb.com",
+            "path": "/api/v3/NaviServerAnnouncementsQuery/04821a0da9bd8bc9390c03372dd53aff1e8eecf1f4ce62ff987765907cbf2296",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 128,
+            "method": "GET",
+            "host": "www.airbnb.com",
+            "path": "/api/v3/StaysPdpBookItQuery/5560c774d764520fc721f6dffca10d9cff03b25e9907478ded8530caf679d716",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 133,
+            "method": "GET",
+            "host": "www.airbnb.com",
+            "path": "/api/v3/GetThumbnailPicQuery/ab55c22df96bd74dfabf0f78b14f8172bf2cf52b7e2c29abc75ae65a59610d4b",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 134,
+            "method": "GET",
+            "host": "www.airbnb.com",
+            "path": "/api/v3/IsHostQuery/ff889330f06ea6bb31cf107f0c0c50910d64669ab58a1671396857a2562af3c5",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 135,
+            "method": "GET",
+            "host": "www.airbnb.com",
+            "path": "/api/v3/Header/bb590cf8c21b62e4b5122e1cd19969f1f1df72832040a335fd45af52597440e4",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 137,
+            "method": "GET",
+            "host": "www.airbnb.com",
+            "path": "/api/v3/GetConsentFlagsQuery/ea4ccdd0346dfc6f8e581e6686615cfd79d530e9cfb7df266e841f990ec6ff3e",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 171,
+            "method": "POST",
+            "host": "www.airbnb.com",
+            "path": "/api/v3/StaysPdpSections/f6df77116e38de1d621bf5d92fa626d41da4829a1f09038f4a39f582e90a5cab",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 178,
+            "method": "POST",
+            "host": "www.airbnb.com",
+            "path": "/api/v2/get-data-layer-variables",
+            "content_type": "application/octet-stream",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 197,
+            "method": "POST",
+            "host": "www.airbnb.com",
+            "path": "/api/v2/marketing_event_tracking",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 205,
+            "method": "GET",
+            "host": "www.airbnb.com",
+            "path": "/api/v3/WishlistIndexPageQuery/b8b421d802c399b55fb6ac1111014807a454184ad38f198365beb7836c018c18",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          },
+          {
+            "entry_index": 223,
+            "method": "GET",
+            "host": "www.airbnb.com",
+            "path": "/api/v3/SimilarListingsCarouselQuery/bd4a24e13a5419167c7b9eaddfddcb888f10efeecfb03f49c913cc8e8d38defa",
+            "status": 200,
+            "content_type": "application/json",
+            "reason": "API key-like header"
+          }
+        ]
+      }
+    ]
+  },
+  "endpoint_clusters": [
+    {
+      "host": "a0.muscache.com",
+      "method": "GET",
+      "path": "/pictures/airbnb-platform-assets/AirbnbPlatformAssets-Tips/original/37da5952-38f8-4a2a-a040-44a405709035.json",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 172,
+          "method": "GET",
+          "host": "a0.muscache.com",
+          "path": "/pictures/airbnb-platform-assets/AirbnbPlatformAssets-Tips/original/37da5952-38f8-4a2a-a040-44a405709035.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "d0a7e.airbnb.com",
+      "method": "POST",
+      "path": "/js/",
+      "count": 2,
+      "statuses": [
+        0,
+        200
+      ],
+      "content_types": [
+        "application/json",
+        "application/octet-stream"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "Referer",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "cid",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "ddk",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "ddv",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "eventCounters",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "jsType",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "jspl",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "request",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "responsePage",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 112,
+          "method": "POST",
+          "host": "d0a7e.airbnb.com",
+          "path": "/js/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 124,
+          "method": "POST",
+          "host": "d0a7e.airbnb.com",
+          "path": "/js/",
+          "content_type": "application/octet-stream",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "insight.adsrvr.org",
+      "method": "OPTIONS",
+      "path": "/track/realtimeconversion",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 107,
+          "method": "OPTIONS",
+          "host": "insight.adsrvr.org",
+          "path": "/track/realtimeconversion",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 289,
+          "method": "OPTIONS",
+          "host": "insight.adsrvr.org",
+          "path": "/track/realtimeconversion",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "insight.adsrvr.org",
+      "method": "POST",
+      "path": "/track/realtimeconversion",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "data",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 106,
+          "method": "POST",
+          "host": "insight.adsrvr.org",
+          "path": "/track/realtimeconversion",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 288,
+          "method": "POST",
+          "host": "insight.adsrvr.org",
+          "path": "/track/realtimeconversion",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "ipv4.pdscrb.com",
+      "method": "GET",
+      "path": "/",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 39,
+          "method": "GET",
+          "host": "ipv4.pdscrb.com",
+          "path": "/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 206,
+          "method": "GET",
+          "host": "ipv4.pdscrb.com",
+          "path": "/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "maps.googleapis.com",
+      "method": "POST",
+      "path": "/$rpc/google.internal.maps.mapsjs.v1.MapsJsInternalService/GetViewportInfo",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json+protobuf"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "unknown"
+      },
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 9,
+          "method": "POST",
+          "host": "maps.googleapis.com",
+          "path": "/$rpc/google.internal.maps.mapsjs.v1.MapsJsInternalService/GetViewportInfo",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "maps.googleapis.com",
+      "method": "GET",
+      "path": "/maps/api/mapsjs/mapConfigs:batchGet",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json+protobuf"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps/api/mapsjs/mapConfigs:batchGet",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "mapsresources-pa.googleapis.com",
+      "method": "GET",
+      "path": "/v1/styleTables/1b8e074336cb4c1ff83183d1",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/vnd.google.octet-stream-compressible"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 29,
+          "method": "GET",
+          "host": "mapsresources-pa.googleapis.com",
+          "path": "/v1/styleTables/1b8e074336cb4c1ff83183d1",
+          "status": 200,
+          "content_type": "application/vnd.google.octet-stream-compressible",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.airbnb.com",
+      "method": "POST",
+      "path": "/api/v2/get-data-layer-variables",
+      "count": 1,
+      "statuses": [
+        0
+      ],
+      "content_types": [
+        "application/octet-stream"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "bevId",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "listingId",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "userId",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 178,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/api/v2/get-data-layer-variables",
+          "content_type": "application/octet-stream",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.airbnb.com",
+      "method": "POST",
+      "path": "/api/v2/marketing_event_tracking",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "event_data",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "event_type",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 30,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/api/v2/marketing_event_tracking",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 197,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/api/v2/marketing_event_tracking",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.airbnb.com",
+      "method": "GET",
+      "path": "/api/v3/GetConsentFlagsQuery/{hash}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 137,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/GetConsentFlagsQuery/ea4ccdd0346dfc6f8e581e6686615cfd79d530e9cfb7df266e841f990ec6ff3e",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.airbnb.com",
+      "method": "GET",
+      "path": "/api/v3/GetThumbnailPicQuery/{hash}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 133,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/GetThumbnailPicQuery/ab55c22df96bd74dfabf0f78b14f8172bf2cf52b7e2c29abc75ae65a59610d4b",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.airbnb.com",
+      "method": "GET",
+      "path": "/api/v3/Header/{hash}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 135,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/Header/bb590cf8c21b62e4b5122e1cd19969f1f1df72832040a335fd45af52597440e4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.airbnb.com",
+      "method": "GET",
+      "path": "/api/v3/IsHostQuery/{hash}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 134,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/IsHostQuery/ff889330f06ea6bb31cf107f0c0c50910d64669ab58a1671396857a2562af3c5",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.airbnb.com",
+      "method": "GET",
+      "path": "/api/v3/MapViewportInfoQuery/{hash}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/MapViewportInfoQuery/aae2b4447f90adfd800a006f1afc80e2df9f98ddc8cd932628da179ebae10c79",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.airbnb.com",
+      "method": "GET",
+      "path": "/api/v3/NaviServerAnnouncementsQuery/{hash}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 127,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/NaviServerAnnouncementsQuery/04821a0da9bd8bc9390c03372dd53aff1e8eecf1f4ce62ff987765907cbf2296",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.airbnb.com",
+      "method": "GET",
+      "path": "/api/v3/PlacesMapTileLayersQuery/{hash}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/PlacesMapTileLayersQuery/2801f85616c647da897107111266a31b9eb408f109250b54f442b9c6ca781b93",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.airbnb.com",
+      "method": "GET",
+      "path": "/api/v3/SimilarListingsCarouselQuery/{hash}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 223,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/SimilarListingsCarouselQuery/bd4a24e13a5419167c7b9eaddfddcb888f10efeecfb03f49c913cc8e8d38defa",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.airbnb.com",
+      "method": "GET",
+      "path": "/api/v3/StaysPdpBookItQuery/{hash}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 128,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/StaysPdpBookItQuery/5560c774d764520fc721f6dffca10d9cff03b25e9907478ded8530caf679d716",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.airbnb.com",
+      "method": "POST",
+      "path": "/api/v3/StaysPdpSections/{hash}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "extensions",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "operationName",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "variables",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 171,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/StaysPdpSections/f6df77116e38de1d621bf5d92fa626d41da4829a1f09038f4a39f582e90a5cab",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.airbnb.com",
+      "method": "GET",
+      "path": "/api/v3/WishlistIndexPageQuery/{hash}",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 38,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/WishlistIndexPageQuery/b8b421d802c399b55fb6ac1111014807a454184ad38f198365beb7836c018c18",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 205,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/WishlistIndexPageQuery/b8b421d802c399b55fb6ac1111014807a454184ad38f198365beb7836c018c18",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.airbnb.com",
+      "method": "GET",
+      "path": "/api/v3/WishlistItemsAsyncQuery/{hash}",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 22,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/WishlistItemsAsyncQuery/c0f9d9474bb20eb7af2f94f8e022750a5ed9b7437613e1d9aa91aadea87e4467",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.airbnb.com",
+      "method": "GET",
+      "path": "/manifest.json",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 120,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.airbnb.com",
+      "method": "POST",
+      "path": "/tracking/jitney/logging/messages",
+      "count": 31,
+      "statuses": [
+        0,
+        204
+      ],
+      "content_types": [
+        "application/octet-stream",
+        "text/plain"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "event_data",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "event_name",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "schema",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "trackingjs_logging_version",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "uuid",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          }
+        ]
+      },
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 2,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 21,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 40,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 42,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 43,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 68,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 110,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 113,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 116,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 125,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 126,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 151,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 163,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 164,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 165,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 170,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 182,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "content_type": "application/octet-stream",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 186,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "content_type": "application/octet-stream",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 196,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 218,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 222,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 259,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 270,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 271,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 281,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 287,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 293,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 294,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 297,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 298,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "www.googleadservices.com",
+      "method": "GET",
+      "path": "/pagead/conversion/{id}/",
+      "count": 6,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 53,
+          "method": "GET",
+          "host": "www.googleadservices.com",
+          "path": "/pagead/conversion/1023009977/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 59,
+          "method": "GET",
+          "host": "www.googleadservices.com",
+          "path": "/pagead/conversion/788919195/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 60,
+          "method": "GET",
+          "host": "www.googleadservices.com",
+          "path": "/pagead/conversion/1023009977/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 65,
+          "method": "GET",
+          "host": "www.googleadservices.com",
+          "path": "/pagead/conversion/1023009977/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 241,
+          "method": "GET",
+          "host": "www.googleadservices.com",
+          "path": "/pagead/conversion/1023009977/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 242,
+          "method": "GET",
+          "host": "www.googleadservices.com",
+          "path": "/pagead/conversion/788919195/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "request_sequences": [
+    {
+      "label": "observed_api_flow",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 2,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps/api/mapsjs/mapConfigs:batchGet",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/MapViewportInfoQuery/aae2b4447f90adfd800a006f1afc80e2df9f98ddc8cd932628da179ebae10c79",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/PlacesMapTileLayersQuery/2801f85616c647da897107111266a31b9eb408f109250b54f442b9c6ca781b93",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 9,
+          "method": "POST",
+          "host": "maps.googleapis.com",
+          "path": "/$rpc/google.internal.maps.mapsjs.v1.MapsJsInternalService/GetViewportInfo",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 21,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 22,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/WishlistItemsAsyncQuery/c0f9d9474bb20eb7af2f94f8e022750a5ed9b7437613e1d9aa91aadea87e4467",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 29,
+          "method": "GET",
+          "host": "mapsresources-pa.googleapis.com",
+          "path": "/v1/styleTables/1b8e074336cb4c1ff83183d1",
+          "status": 200,
+          "content_type": "application/vnd.google.octet-stream-compressible",
+          "reason": "observed API request order"
+        }
+      ],
+      "notes": [
+        "HAR timing available for at least one request."
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "create_GetViewportInfo",
+      "resource": "GetViewportInfo",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /$rpc/google.internal.maps.mapsjs.v1.MapsJsInternalService/GetViewportInfo traffic.",
+      "evidence": [
+        {
+          "entry_index": 9,
+          "method": "POST",
+          "host": "maps.googleapis.com",
+          "path": "/$rpc/google.internal.maps.mapsjs.v1.MapsJsInternalService/GetViewportInfo",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_StaysPdpSections",
+      "resource": "StaysPdpSections",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/v3/StaysPdpSections/{hash} traffic.",
+      "evidence": [
+        {
+          "entry_index": 171,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/StaysPdpSections/f6df77116e38de1d621bf5d92fa626d41da4829a1f09038f4a39f582e90a5cab",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_get_data_layer_variables",
+      "resource": "get_data_layer_variables",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/v2/get-data-layer-variables traffic.",
+      "evidence": [
+        {
+          "entry_index": 178,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/api/v2/get-data-layer-variables",
+          "content_type": "application/octet-stream",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_js",
+      "resource": "js",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /js/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 112,
+          "method": "POST",
+          "host": "d0a7e.airbnb.com",
+          "path": "/js/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 124,
+          "method": "POST",
+          "host": "d0a7e.airbnb.com",
+          "path": "/js/",
+          "content_type": "application/octet-stream",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_marketing_event_tracking",
+      "resource": "marketing_event_tracking",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/v2/marketing_event_tracking traffic.",
+      "evidence": [
+        {
+          "entry_index": 30,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/api/v2/marketing_event_tracking",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 197,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/api/v2/marketing_event_tracking",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_messages",
+      "resource": "messages",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /tracking/jitney/logging/messages traffic.",
+      "evidence": [
+        {
+          "entry_index": 2,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 21,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 40,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 42,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 43,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 52,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 68,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 110,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 113,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 116,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 125,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 126,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 151,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 163,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 164,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 165,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 170,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 182,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "content_type": "application/octet-stream",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 186,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "content_type": "application/octet-stream",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 196,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 218,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 222,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 259,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 270,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 271,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 281,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 287,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 293,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 294,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 297,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 298,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "status": 204,
+          "content_type": "text/plain",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_realtimeconversion",
+      "resource": "realtimeconversion",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /track/realtimeconversion traffic.",
+      "evidence": [
+        {
+          "entry_index": 106,
+          "method": "POST",
+          "host": "insight.adsrvr.org",
+          "path": "/track/realtimeconversion",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 288,
+          "method": "POST",
+          "host": "insight.adsrvr.org",
+          "path": "/track/realtimeconversion",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_GetConsentFlagsQuery",
+      "resource": "GetConsentFlagsQuery",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/v3/GetConsentFlagsQuery/{hash} traffic.",
+      "evidence": [
+        {
+          "entry_index": 137,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/GetConsentFlagsQuery/ea4ccdd0346dfc6f8e581e6686615cfd79d530e9cfb7df266e841f990ec6ff3e",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_GetThumbnailPicQuery",
+      "resource": "GetThumbnailPicQuery",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/v3/GetThumbnailPicQuery/{hash} traffic.",
+      "evidence": [
+        {
+          "entry_index": 133,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/GetThumbnailPicQuery/ab55c22df96bd74dfabf0f78b14f8172bf2cf52b7e2c29abc75ae65a59610d4b",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_Header",
+      "resource": "Header",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/v3/Header/{hash} traffic.",
+      "evidence": [
+        {
+          "entry_index": 135,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/Header/bb590cf8c21b62e4b5122e1cd19969f1f1df72832040a335fd45af52597440e4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_IsHostQuery",
+      "resource": "IsHostQuery",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/v3/IsHostQuery/{hash} traffic.",
+      "evidence": [
+        {
+          "entry_index": 134,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/IsHostQuery/ff889330f06ea6bb31cf107f0c0c50910d64669ab58a1671396857a2562af3c5",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_MapViewportInfoQuery",
+      "resource": "MapViewportInfoQuery",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/v3/MapViewportInfoQuery/{hash} traffic.",
+      "evidence": [
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/MapViewportInfoQuery/aae2b4447f90adfd800a006f1afc80e2df9f98ddc8cd932628da179ebae10c79",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_NaviServerAnnouncementsQuery",
+      "resource": "NaviServerAnnouncementsQuery",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/v3/NaviServerAnnouncementsQuery/{hash} traffic.",
+      "evidence": [
+        {
+          "entry_index": 127,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/NaviServerAnnouncementsQuery/04821a0da9bd8bc9390c03372dd53aff1e8eecf1f4ce62ff987765907cbf2296",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_PlacesMapTileLayersQuery",
+      "resource": "PlacesMapTileLayersQuery",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/v3/PlacesMapTileLayersQuery/{hash} traffic.",
+      "evidence": [
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/PlacesMapTileLayersQuery/2801f85616c647da897107111266a31b9eb408f109250b54f442b9c6ca781b93",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_SimilarListingsCarouselQuery",
+      "resource": "SimilarListingsCarouselQuery",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/v3/SimilarListingsCarouselQuery/{hash} traffic.",
+      "evidence": [
+        {
+          "entry_index": 223,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/SimilarListingsCarouselQuery/bd4a24e13a5419167c7b9eaddfddcb888f10efeecfb03f49c913cc8e8d38defa",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_StaysPdpBookItQuery",
+      "resource": "StaysPdpBookItQuery",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/v3/StaysPdpBookItQuery/{hash} traffic.",
+      "evidence": [
+        {
+          "entry_index": 128,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/StaysPdpBookItQuery/5560c774d764520fc721f6dffca10d9cff03b25e9907478ded8530caf679d716",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_WishlistIndexPageQuery",
+      "resource": "WishlistIndexPageQuery",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/v3/WishlistIndexPageQuery/{hash} traffic.",
+      "evidence": [
+        {
+          "entry_index": 38,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/WishlistIndexPageQuery/b8b421d802c399b55fb6ac1111014807a454184ad38f198365beb7836c018c18",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 205,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/WishlistIndexPageQuery/b8b421d802c399b55fb6ac1111014807a454184ad38f198365beb7836c018c18",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_WishlistItemsAsyncQuery",
+      "resource": "WishlistItemsAsyncQuery",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/v3/WishlistItemsAsyncQuery/{hash} traffic.",
+      "evidence": [
+        {
+          "entry_index": 22,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/WishlistItemsAsyncQuery/c0f9d9474bb20eb7af2f94f8e022750a5ed9b7437613e1d9aa91aadea87e4467",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_conversion",
+      "resource": "conversion",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /pagead/conversion/{id}/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 53,
+          "method": "GET",
+          "host": "www.googleadservices.com",
+          "path": "/pagead/conversion/1023009977/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 59,
+          "method": "GET",
+          "host": "www.googleadservices.com",
+          "path": "/pagead/conversion/788919195/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 60,
+          "method": "GET",
+          "host": "www.googleadservices.com",
+          "path": "/pagead/conversion/1023009977/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 65,
+          "method": "GET",
+          "host": "www.googleadservices.com",
+          "path": "/pagead/conversion/1023009977/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 241,
+          "method": "GET",
+          "host": "www.googleadservices.com",
+          "path": "/pagead/conversion/1023009977/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 242,
+          "method": "GET",
+          "host": "www.googleadservices.com",
+          "path": "/pagead/conversion/788919195/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_1b8e074336cb4c1ff83183d1",
+      "resource": "1b8e074336cb4c1ff83183d1",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /v1/styleTables/1b8e074336cb4c1ff83183d1 traffic.",
+      "evidence": [
+        {
+          "entry_index": 29,
+          "method": "GET",
+          "host": "mapsresources-pa.googleapis.com",
+          "path": "/v1/styleTables/1b8e074336cb4c1ff83183d1",
+          "status": 200,
+          "content_type": "application/vnd.google.octet-stream-compressible",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_37da5952_38f8_4a2a_a040_44a405709035.json",
+      "resource": "37da5952_38f8_4a2a_a040_44a405709035.json",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /pictures/airbnb-platform-assets/AirbnbPlatformAssets-Tips/original/37da5952-38f8-4a2a-a040-44a405709035.json traffic.",
+      "evidence": [
+        {
+          "entry_index": 172,
+          "method": "GET",
+          "host": "a0.muscache.com",
+          "path": "/pictures/airbnb-platform-assets/AirbnbPlatformAssets-Tips/original/37da5952-38f8-4a2a-a040-44a405709035.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_manifest.json",
+      "resource": "manifest.json",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /manifest.json traffic.",
+      "evidence": [
+        {
+          "entry_index": 120,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_mapConfigs:batchGet",
+      "resource": "mapConfigs:batchGet",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /maps/api/mapsjs/mapConfigs:batchGet traffic.",
+      "evidence": [
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps/api/mapsjs/mapConfigs:batchGet",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "options_realtimeconversion",
+      "resource": "realtimeconversion",
+      "confidence": 0.55,
+      "rationale": "Derived from observed OPTIONS /track/realtimeconversion traffic.",
+      "evidence": [
+        {
+          "entry_index": 107,
+          "method": "OPTIONS",
+          "host": "insight.adsrvr.org",
+          "path": "/track/realtimeconversion",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 289,
+          "method": "OPTIONS",
+          "host": "insight.adsrvr.org",
+          "path": "/track/realtimeconversion",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "generation_hints": [
+    "has_rpc_envelope",
+    "weak_schema_confidence"
+  ],
+  "warnings": [
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps-api-v3/api/js/63/14d/marker.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 127,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/NaviServerAnnouncementsQuery/04821a0da9bd8bc9390c03372dd53aff1e8eecf1f4ce62ff987765907cbf2296",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 128,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/StaysPdpBookItQuery/5560c774d764520fc721f6dffca10d9cff03b25e9907478ded8530caf679d716",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 133,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/GetThumbnailPicQuery/ab55c22df96bd74dfabf0f78b14f8172bf2cf52b7e2c29abc75ae65a59610d4b",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 134,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/IsHostQuery/ff889330f06ea6bb31cf107f0c0c50910d64669ab58a1671396857a2562af3c5",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 135,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/Header/bb590cf8c21b62e4b5122e1cd19969f1f1df72832040a335fd45af52597440e4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 137,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/GetConsentFlagsQuery/ea4ccdd0346dfc6f8e581e6686615cfd79d530e9cfb7df266e841f990ec6ff3e",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 171,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/StaysPdpSections/f6df77116e38de1d621bf5d92fa626d41da4829a1f09038f4a39f582e90a5cab",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 178,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/api/v2/get-data-layer-variables",
+          "content_type": "application/octet-stream",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 197,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/api/v2/marketing_event_tracking",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 202,
+          "method": "GET",
+          "host": "ct.pinterest.com",
+          "path": "/v3/",
+          "status": 200,
+          "content_type": "image/gif",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 205,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/WishlistIndexPageQuery/b8b421d802c399b55fb6ac1111014807a454184ad38f198365beb7836c018c18",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 20,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps-api-v3/api/js/63/14d/webgl.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 213,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/sgtm/_/service_worker/63b0/sw_iframe.html",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 223,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/SimilarListingsCarouselQuery/bd4a24e13a5419167c7b9eaddfddcb888f10efeecfb03f49c913cc8e8d38defa",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 22,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/WishlistItemsAsyncQuery/c0f9d9474bb20eb7af2f94f8e022750a5ed9b7437613e1d9aa91aadea87e4467",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 239,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/sgtm/_/set_cookie",
+          "status": 200,
+          "content_type": "image/gif",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 240,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/sgtm/_/set_cookie",
+          "status": 200,
+          "content_type": "image/gif",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 243,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/sgtm/_/set_cookie",
+          "status": 200,
+          "content_type": "image/gif",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 26,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps-api-v3/api/js/63/14d/onion.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 29,
+          "method": "GET",
+          "host": "mapsresources-pa.googleapis.com",
+          "path": "/v1/styleTables/1b8e074336cb4c1ff83183d1",
+          "status": 200,
+          "content_type": "application/vnd.google.octet-stream-compressible",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 30,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/api/v2/marketing_event_tracking",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 35,
+          "method": "GET",
+          "host": "ct.pinterest.com",
+          "path": "/v3/",
+          "status": 200,
+          "content_type": "image/gif",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 38,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/WishlistIndexPageQuery/b8b421d802c399b55fb6ac1111014807a454184ad38f198365beb7836c018c18",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps-api-v3/api/js/63/14d/log.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 50,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/sgtm/_/service_worker/63b0/sw_iframe.html",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps/api/mapsjs/mapConfigs:batchGet",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 6,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/MapViewportInfoQuery/aae2b4447f90adfd800a006f1afc80e2df9f98ddc8cd932628da179ebae10c79",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 7,
+          "method": "GET",
+          "host": "www.airbnb.com",
+          "path": "/api/v3/PlacesMapTileLayersQuery/2801f85616c647da897107111266a31b9eb408f109250b54f442b9c6ca781b93",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 83,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps-api-v3/api/js/63/14d/controls.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps-api-v3/api/js/63/14d/layers.js",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 121,
+          "method": "GET",
+          "path": "/64aafbed-7e61-4e7a-8942-ac20beb899d8",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 124,
+          "method": "POST",
+          "host": "d0a7e.airbnb.com",
+          "path": "/js/",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 153,
+          "method": "GET",
+          "host": "a0.muscache.com",
+          "path": "/airbnb/static/packages/web/common/673a.2fe6d9aad6.js",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 154,
+          "method": "GET",
+          "host": "a0.muscache.com",
+          "path": "/airbnb/static/packages/web/common/6030.ffae44eab8.js",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 155,
+          "method": "GET",
+          "host": "a0.muscache.com",
+          "path": "/airbnb/static/packages/web/common/ffec.20efc237e6.js",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 156,
+          "method": "GET",
+          "host": "a0.muscache.com",
+          "path": "/airbnb/static/packages/web/common/36dd.eb97dcce17.js",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 157,
+          "method": "GET",
+          "host": "a0.muscache.com",
+          "path": "/airbnb/static/packages/web/en/77f9.41e3bd6898.js",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 158,
+          "method": "GET",
+          "host": "a0.muscache.com",
+          "path": "/airbnb/static/packages/web/en/d11b.edf210886c.js",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 161,
+          "method": "GET",
+          "host": "a0.muscache.com",
+          "path": "/airbnb/static/packages/web/en/ff88.4fa8a354e6.js",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 178,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/api/v2/get-data-layer-variables",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 182,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 186,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/tracking/jitney/logging/messages",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 191,
+          "method": "GET",
+          "host": "a0.muscache.com",
+          "path": "/airbnb/static/packages/web/common/frontend/dls-icons/components/IcSystemCheckIn32.4bc5aaec1a.js",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 210,
+          "method": "POST",
+          "host": "www.airbnb.com",
+          "path": "/sgtm/g/collect",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 228,
+          "method": "GET",
+          "host": "a0.muscache.com",
+          "path": "/airbnb/static/packages/web/en/frontend/quickpay-sections/sections/ConfirmAndPay/ConfirmAndPayFCSection.4ff8c69e87.js",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 229,
+          "method": "GET",
+          "host": "a0.muscache.com",
+          "path": "/airbnb/static/packages/web/en/f3c2.d5b2b9c22e.js",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 231,
+          "method": "GET",
+          "host": "a0.muscache.com",
+          "path": "/airbnb/static/packages/web/en/4c7a.7a52834f85.js",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 232,
+          "method": "GET",
+          "host": "a0.muscache.com",
+          "path": "/airbnb/static/packages/web/en/f44b.0c2890ef35.js",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 235,
+          "method": "GET",
+          "host": "googleads.g.doubleclick.net",
+          "path": "/pagead/viewthroughconversion/788919195/",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 236,
+          "method": "GET",
+          "host": "googleads.g.doubleclick.net",
+          "path": "/pagead/viewthroughconversion/1023009977/",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 237,
+          "method": "GET",
+          "host": "ad.doubleclick.net",
+          "path": "/activity;src=4620401;type=gen;cat=airbn0;ord=1;num=1146885787;gtm=45j91e64t1v874143154z8551874z9894587894za20gzb551874zd551874;dc_pre=1;u21=booker;rcb=10;dma=0;npa=0;gcs=G111;gcd=13n3n3n3n5l1;uaa=arm;uab=64;uafvl=Chromium;147.0.7727.56|Not.A%2FBrand;8.0.0.0;uamb=0;uam=;uap=macOS;uapv=26.3.0;uaw=0;pscdl=noapi;auiddc=1816675401.1777781638;em=tv.1~em.925a72dd58fd2dd8614023886eb6fa35aab54e10c313f317fabd0d772df24744~pn.9d77dd56f74a05f8177da4c118b7eaad5a2e31f8ecd991e0eb98af30a25f01f5;tag_exp=0~115616986~115938466~115938469~116363097~117215455;_tu=DA;s3p=1;_is_sw=f15s0te;~oref=https://www.airbnb.com/rooms/37124493?adults=4\u0026check_in=2026-05-16\u0026check_out=2026-05-19\u0026search_mode=regular_search\u0026source_impression_id=p3_1777782558_P3dbnPYt6ly-aKFb\u0026previous_page_section_name=1000\u0026federated_search_id=bfce5958-fbcf-4e9a-9e61-b6129d749609",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 23,
+          "method": "GET",
+          "path": "/1f229391-8931-4bfb-b926-632e0302262d",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 244,
+          "method": "GET",
+          "host": "ad.doubleclick.net",
+          "path": "/activity;src=4620401;type=conve0;cat=p3pdp0;ord=1;num=1235722488;gtm=45j91e64t1v874143154z8551874z9894587894za20gzb551874zd551874;dc_pre=1;rcb=10;dma=0;npa=0;gcs=G111;gcd=13n3n3n3n5l1;uaa=arm;uab=64;uafvl=Chromium;147.0.7727.56|Not.A%2FBrand;8.0.0.0;uamb=0;uam=;uap=macOS;uapv=26.3.0;uaw=0;pscdl=noapi;auiddc=1816675401.1777781638;em=tv.1~em.925a72dd58fd2dd8614023886eb6fa35aab54e10c313f317fabd0d772df24744~pn.9d77dd56f74a05f8177da4c118b7eaad5a2e31f8ecd991e0eb98af30a25f01f5;tag_exp=0~115616986~115938466~115938469~116363097~117215455;_tu=DA;s3p=1;_is_sw=f15s0t19;~oref=https://www.airbnb.com/rooms/37124493?adults=4\u0026check_in=2026-05-16\u0026check_out=2026-05-19\u0026search_mode=regular_search\u0026source_impression_id=p3_1777782558_P3dbnPYt6ly-aKFb\u0026previous_page_section_name=1000\u0026federated_search_id=bfce5958-fbcf-4e9a-9e61-b6129d749609",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 246,
+          "method": "POST",
+          "host": "googleads.g.doubleclick.net",
+          "path": "/pagead/viewthroughconversion/1023009977/",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 247,
+          "method": "POST",
+          "host": "googleads.g.doubleclick.net",
+          "path": "/pagead/viewthroughconversion/788919195/",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 248,
+          "method": "POST",
+          "host": "googleads.g.doubleclick.net",
+          "path": "/pagead/viewthroughconversion/1023009977/",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 24,
+          "method": "GET",
+          "path": "/10ecd01d-92bd-4b18-bb7c-17394a239128",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 251,
+          "method": "POST",
+          "host": "googleads.g.doubleclick.net",
+          "path": "/pagead/viewthroughconversion/788919195/",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 25,
+          "method": "GET",
+          "path": "/b0182f8b-aac5-40ab-a76d-781875c3bf67",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 27,
+          "method": "GET",
+          "path": "/54395e61-9932-4e3b-b7c6-60c31fea9212",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 28,
+          "method": "GET",
+          "path": "/10ecd01d-92bd-4b18-bb7c-17394a239128",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 29,
+          "method": "GET",
+          "host": "mapsresources-pa.googleapis.com",
+          "path": "/v1/styleTables/1b8e074336cb4c1ff83183d1",
+          "status": 200,
+          "content_type": "application/vnd.google.octet-stream-compressible",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 44,
+          "method": "HEAD",
+          "host": "www.facebook.com",
+          "path": "/tr",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 55,
+          "method": "GET",
+          "host": "ad.doubleclick.net",
+          "path": "/activity;src=4620401;type=conve0;cat=airbn002;ord=1;num=518426491;gtm=45j91e64t1v874143154z8551874z9894587894za20gzb551874zd551874;dc_pre=1;rcb=16;dma=0;npa=0;gcs=G111;gcd=13n3n3n3n5l1;uaa=arm;uab=64;uafvl=Chromium;147.0.7727.56|Not.A%2FBrand;8.0.0.0;uamb=0;uam=;uap=macOS;uapv=26.3.0;uaw=0;pscdl=noapi;auiddc=1816675401.1777781638;em=tv.1~em.925a72dd58fd2dd8614023886eb6fa35aab54e10c313f317fabd0d772df24744~pn.9d77dd56f74a05f8177da4c118b7eaad5a2e31f8ecd991e0eb98af30a25f01f5;tag_exp=0~115938465~115938468~116363098~117549814~118128923;_tu=DA;s3p=1;_is_sw=f15s0t6;~oref=https://www.airbnb.com/s/Lake-Tahoe--CA/homes?checkin=2026-05-16\u0026checkout=2026-05-19\u0026adults=4",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 5,
+          "method": "GET",
+          "host": "maps.googleapis.com",
+          "path": "/maps/api/mapsjs/mapConfigs:batchGet",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 62,
+          "method": "GET",
+          "host": "googleads.g.doubleclick.net",
+          "path": "/pagead/viewthroughconversion/788919195/",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 63,
+          "method": "GET",
+          "host": "googleads.g.doubleclick.net",
+          "path": "/pagead/viewthroughconversion/1023009977/",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 64,
+          "method": "GET",
+          "host": "ad.doubleclick.net",
+          "path": "/activity;src=4620401;type=gen;cat=airbn0;ord=1;num=351849399;gtm=45j91e64t1v874143154z8551874z9894587894za20gzb551874zd551874;dc_pre=1;u21=booker;rcb=16;dma=0;npa=0;gcs=G111;gcd=13n3n3n3n5l1;uaa=arm;uab=64;uafvl=Chromium;147.0.7727.56|Not.A%2FBrand;8.0.0.0;uamb=0;uam=;uap=macOS;uapv=26.3.0;uaw=0;pscdl=noapi;auiddc=1816675401.1777781638;em=tv.1~em.925a72dd58fd2dd8614023886eb6fa35aab54e10c313f317fabd0d772df24744~pn.9d77dd56f74a05f8177da4c118b7eaad5a2e31f8ecd991e0eb98af30a25f01f5;tag_exp=0~115938465~115938468~116363098~118128923;_tu=DA;s3p=1;_is_sw=f15s0t1;~oref=https://www.airbnb.com/s/Lake-Tahoe--CA/homes?checkin=2026-05-16\u0026checkout=2026-05-19\u0026adults=4",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 67,
+          "method": "GET",
+          "host": "ad.doubleclick.net",
+          "path": "/activity;src=4620401;type=conve0;cat=airbn002;ord=1;num=761266498;gtm=45j91e64u0h2v874143154z8551874z9894587894za20gzb551874zd551874;dc_pre=1;rcb=16;dma=0;npa=0;gcs=G111;gcd=13n3n3n3n5l1;uaa=arm;uab=64;uafvl=Chromium;147.0.7727.56|Not.A%2FBrand;8.0.0.0;uamb=0;uam=;uap=macOS;uapv=26.3.0;uaw=0;pscdl=noapi;auiddc=1816675401.1777781638;em=tv.1~em.925a72dd58fd2dd8614023886eb6fa35aab54e10c313f317fabd0d772df24744~pn.9d77dd56f74a05f8177da4c118b7eaad5a2e31f8ecd991e0eb98af30a25f01f5;tag_exp=0~115938465~115938468~116363098~117549814~117884345~118032362~118128923;_tu=DA;s3p=1;_is_sw=f15s0t5;~oref=https://www.airbnb.com/s/Lake-Tahoe--CA/homes?checkin=2026-05-16\u0026checkout=2026-05-19\u0026adults=4",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 69,
+          "method": "POST",
+          "host": "googleads.g.doubleclick.net",
+          "path": "/pagead/viewthroughconversion/1023009977/",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 72,
+          "method": "POST",
+          "host": "googleads.g.doubleclick.net",
+          "path": "/pagead/viewthroughconversion/1023009977/",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 73,
+          "method": "POST",
+          "host": "googleads.g.doubleclick.net",
+          "path": "/pagead/viewthroughconversion/788919195/",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 74,
+          "method": "POST",
+          "host": "googleads.g.doubleclick.net",
+          "path": "/pagead/viewthroughconversion/1023009977/",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 96,
+          "method": "GET",
+          "host": "maps.gstatic.com",
+          "path": "/mapfiles/transparent.png",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 9,
+          "method": "POST",
+          "host": "maps.googleapis.com",
+          "path": "/$rpc/google.internal.maps.mapsjs.v1.MapsJsInternalService/GetViewportInfo",
+          "status": 200,
+          "content_type": "application/json+protobuf",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    }
+  ]
+}
