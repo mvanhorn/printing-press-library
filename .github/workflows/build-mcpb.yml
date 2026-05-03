@@ -229,7 +229,12 @@ jobs:
   release:
     name: Release ${{ matrix.target }}
     needs: [detect, bundle, build-cli]
-    if: needs.detect.outputs.count != '0'
+    # !cancelled() so a single CLI's bundle/build failure doesn't cascade-skip
+    # release for every other successful CLI in the same matrix run. Each
+    # release matrix entry is per-app (keyed on matrix.target) and downloads
+    # only its own slug's artifacts, so apps don't share fate. Per-app
+    # success is then enforced by the strict gate inside the release script.
+    if: ${{ !cancelled() && needs.detect.outputs.count != '0' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -262,7 +267,10 @@ jobs:
           path: ${{ runner.temp }}/dl
           pattern: cli-${{ steps.slug.outputs.slug }}-*
           merge-multiple: true
-      - name: List downloaded artifacts
+      - name: List downloaded artifacts and enforce per-app gate
+        env:
+          CLI_TARGET: ${{ matrix.target }}
+          SLUG: ${{ steps.slug.outputs.slug }}
         run: |
           ls -lh "${RUNNER_TEMP}/dl" || true
           mcpb_count=$(find "${RUNNER_TEMP}/dl" -name '*.mcpb' 2>/dev/null | wc -l | tr -d ' ')
@@ -270,8 +278,20 @@ jobs:
           all_count=$(find "${RUNNER_TEMP}/dl" -type f 2>/dev/null | wc -l | tr -d ' ')
           cli_count=$((all_count - mcpb_count))
           echo "Found ${mcpb_count} .mcpb file(s) and ${cli_count} CLI binary file(s)."
-          if [ "$all_count" = "0" ]; then
-            echo "::warning::No artifacts were produced for ${{ matrix.target }} — bundle and build-cli jobs may have all failed."
+          # Strict per-app gate: an app's release only publishes when both
+          # its CLI binaries AND (if it ships an MCPB) its bundles produced
+          # at least one artifact. A partial release (CLI without MCPB or
+          # vice versa) confuses users by hiding the upstream build failure
+          # behind a moving "-current" tag that looks healthy. The
+          # manifest.json existence check on the MCPB side is forward-
+          # compatibility for future CLI-only entries that legitimately
+          # ship without a bundle.
+          if [ "$cli_count" = "0" ]; then
+            echo "::warning::Skipping release for ${SLUG}: no CLI binaries produced (build-cli matrix failed for this app)."
+            exit 0
+          fi
+          if [ -f "library/${CLI_TARGET}/manifest.json" ] && [ "$mcpb_count" = "0" ]; then
+            echo "::warning::Skipping release for ${SLUG}: app declares manifest.json (expects MCPB) but no .mcpb produced (bundle matrix failed for this app)."
             exit 0
           fi
       - name: Verify release-write PAT
