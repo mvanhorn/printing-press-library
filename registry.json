@@ -28,11 +28,11 @@
       }
     },
     {
-      "name": "airbnb-pp",
+      "name": "airbnb",
       "category": "travel",
       "api": "Airbnb Vrbo",
       "description": "Search Airbnb and VRBO, find the host's direct booking site, and report the cheapest of three sources side-by-side.",
-      "path": "library/travel/airbnb-pp",
+      "path": "library/travel/airbnb",
       "mcp": {
         "binary": "airbnb-pp-mcp",
         "transport": "stdio",
