@@ -28,14 +28,14 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
-	{Command: "pantry", Description: "Score Allrecipes recipes against your pantry — see which ones you can actually cook tonight without a grocery run.", Group: "Local state that compounds", WhyItMatters: "When the user says 'what can I make with what I've got', this is the only command that knows the answer."},
-	{Command: "top-rated", Description: "Rank recipes by Bayesian-smoothed rating — proven popular wins over 1-review 5-star noise.", Group: "Ranking that beats the website", WhyItMatters: "Pick this over raw search when the agent wants proven recipes, not freshly-uploaded 5-star outliers."},
-	{Command: "with-ingredient", Description: "Find every cached recipe that uses a given ingredient — a SQL view across your local corpus.", Group: "Local state that compounds", WhyItMatters: "Use this when the user starts from an ingredient they want to use up, not a dish name."},
-	{Command: "quick", Description: "Top-rated recipes that fit a strict time cap — Allrecipes' UI cannot enforce one, but the local cache can.", Group: "Ranking that beats the website", WhyItMatters: "Use this when the user's constraint is time, not dish — 'what can I make in 25 minutes that's actually good'."},
-	{Command: "cookbook", Description: "Compile a top-rated category into a single markdown cookbook with TOC, ingredients, and instructions.", Group: "Agent-native plumbing", WhyItMatters: "When the user asks for a curated bundle (gifts, meal-plan packs), this builds it in one command."},
-	{Command: "grocery-list", Description: "Aggregate ingredients from many recipes into a deduped, agent-readable shopping list.", Group: "Agent-native plumbing", WhyItMatters: "Use this at the end of a meal plan — one call replaces five scrolls through ingredient lists."},
-	{Command: "dietary", Description: "Filter cached recipes by gluten-free / vegan / low-carb using JSON-LD keywords plus ingredient-name patterns.", Group: "Local state that compounds", WhyItMatters: "Use this when dietary restrictions are non-negotiable and the user wants more than what the site's diet category page surfaces."},
-	{Command: "doctor", Description: "Health check that names the Cloudflare 'Just a moment...' interstitial by inspecting the response body, then advises the browser-chrome transport.", Group: "Reachability mitigation", WhyItMatters: "When the CLI breaks because of bot detection, the agent gets a specific, actionable error rather than a generic timeout."},
+	{Command: "pantry", Description: "Find proven recipes you can actually cook tonight: matches what's in a pantry file against the cached recipe corpus and ranks by ingredient overlap.", Group: "Local store that compounds", WhyItMatters: "When the user knows what's in their kitchen and wants tonight's dinner, this is the only command that answers it without the user reading every recipe."},
+	{Command: "top-rated", Description: "Rank recipes by Bayesian-smoothed rating (prior 4.0, default C=200) so 1-review 5-star outliers can't win.", Group: "Local store that compounds", WhyItMatters: "Pick this over raw `search --sort rating` whenever quality bar matters; the ranking is reproducible and the math is transparent."},
+	{Command: "with-ingredient", Description: "Find recipes that use a specific ingredient — the inverse of 'recipe → ingredients'.", Group: "Local store that compounds", WhyItMatters: "Reach for this when the starting point is an ingredient (a tub of buttermilk, leftover chicken thighs) rather than a dish name."},
+	{Command: "quick", Description: "Top-rated recipes under a strict numeric time cap (`--max-minutes 30`).", Group: "Local store that compounds", WhyItMatters: "Use when the constraint is the clock (weeknights, post-work cooking) rather than the dish."},
+	{Command: "cookbook", Description: "Compile a top-N category or cuisine into a markdown cookbook with table of contents and per-recipe attribution.", Group: "Bundle outputs", WhyItMatters: "Use to package a themed collection (gift, holiday, regional, dietary) as a portable, attributed artifact."},
+	{Command: "dietary", Description: "Filter cached recipes by gluten-free / vegan / low-carb using JSON-LD keywords UNION an ingredient-name regex blocklist.", Group: "Local store that compounds", WhyItMatters: "Use when dietary restrictions must be strict and the site's own tagging cannot be trusted."},
+	{Command: "doctor", Description: "Probes a recipe URL and inspects the response; on Cloudflare's `cf-mitigated: challenge` header, prescribes `auth login --chrome` instead of failing opaquely.", Group: "Reachability mitigation", WhyItMatters: "Run first when any recipe-detail command starts failing; the JSON output names whether clearance, network, or cache is the problem."},
+	{Command: "grocery-list", Description: "Aggregate ingredients across multiple recipes and subtract what the pantry already has — output is the buy list, not the full ingredient list.", Group: "Bundle outputs", WhyItMatters: "Use after picking a meal plan when the user wants the literal shopping list, not a list of every ingredient they'll touch."},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.
@@ -138,6 +138,9 @@ func newWhichCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "which [query]",
 		Short: "Find the command that implements a capability",
+		Annotations: map[string]string{
+			"pp:typed-exit-codes": "0,2",
+		},
 		Long: `which resolves a natural-language capability query (for example, "search messages" or "stale tickets") to the best matching command from this CLI's curated feature index.
 
 Exit codes:
@@ -148,9 +151,6 @@ Exit codes:
   allrecipes-pp-cli which --limit 1 "send message"
   allrecipes-pp-cli which                                # list the full capability index`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if flags.dryRun {
-				return nil
-			}
 			if len(whichIndex) == 0 {
 				return usageErr(fmt.Errorf("this CLI has no curated capability index; run '--help' to see every command"))
 			}

@@ -16,10 +16,12 @@ import (
 )
 
 type htmlExtractionOptions struct {
-	Mode         string
-	BaseURL      string
-	LinkPrefixes []string
-	Limit        int
+	Mode           string
+	BaseURL        string
+	LinkPrefixes   []string
+	Limit          int
+	ScriptSelector string // for mode: embedded-json — selector "tag" or "tag#id"
+	JSONPath       string // for mode: embedded-json — dot-notation walk
 }
 
 type htmlExtractedPage struct {
@@ -31,14 +33,47 @@ type htmlExtractedPage struct {
 }
 
 type htmlLink struct {
-	Rank int    `json:"rank,omitempty"`
-	Name string `json:"name,omitempty"`
-	Text string `json:"text,omitempty"`
-	URL  string `json:"url,omitempty"`
-	Slug string `json:"slug,omitempty"`
+	Rank  int    `json:"rank,omitempty"`
+	Name  string `json:"name,omitempty"`
+	Text  string `json:"text,omitempty"`
+	Image string `json:"image,omitempty"`
+	URL   string `json:"url,omitempty"`
+	Slug  string `json:"slug,omitempty"`
+}
+
+// htmlRawTextTags lists the four HTML5 elements whose content is parsed as
+// raw text (not as nested elements) per the HTML spec. Walking these as if
+// they were normal element subtrees leaks raw markup -- e.g., a `<noscript>`
+// fallback containing `<img src="...">` produces literal `<img>` text in the
+// anchor's nodeText. This map is used to skip those subtrees during link-mode
+// text extraction and image discovery.
+var htmlRawTextTags = map[string]struct{}{
+	"noscript": {},
+	"script":   {},
+	"style":    {},
+	"template": {},
 }
 
 func extractHTMLResponse(raw []byte, opts htmlExtractionOptions) (json.RawMessage, error) {
+	// Dispatch on Mode at the top so each branch owns its own parsing
+	// path. embedded-json doesn't need DOM walking; running the page
+	// parse + walkHTML + looksLikeHTMLChallenge unconditionally would
+	// (a) waste work on every embedded-json call and (b) risk false
+	// "challenge page" rejection on Next.js / Nuxt pages with generic
+	// titles. Page and links share the page-mode parse.
+	mode := strings.ToLower(strings.TrimSpace(opts.Mode))
+	switch mode {
+	case "links", "page", "":
+		return extractHTMLPageOrLinks(raw, opts)
+	default:
+		return nil, fmt.Errorf("unsupported html_extract mode: %q", opts.Mode)
+	}
+}
+
+// extractHTMLPageOrLinks handles the page (default) and links modes.
+// Both require parsing the HTML and walking the DOM; the only difference
+// is what they return at the end.
+func extractHTMLPageOrLinks(raw []byte, opts htmlExtractionOptions) (json.RawMessage, error) {
 	doc, err := xhtml.Parse(strings.NewReader(string(raw)))
 	if err != nil {
 		return nil, fmt.Errorf("parsing HTML response: %w", err)
@@ -133,17 +168,25 @@ func extractHTMLLink(n *xhtml.Node, opts htmlExtractionOptions) (htmlLink, bool)
 		return htmlLink{}, false
 	}
 
-	text := cleanHTMLText(nodeText(n))
+	// Use the suppression-aware walker for anchor text. Sites like Allrecipes,
+	// Food Network, and other Dotdash/Meredith properties wrap above-the-fold
+	// images in <noscript> for non-JS users; the HTML parser preserves
+	// noscript content as raw TextNode children, and a naive walk leaks
+	// "<img src=...>" markup into the result. Suppressing noscript/script/
+	// style/template subtrees in nodeTextSuppressing returns clean text.
+	text := cleanHTMLText(nodeTextSuppressing(n))
 	rank, name := splitRankedHTMLLinkText(text)
 	if name == "" {
 		name = text
 	}
+	image := normalizeHTMLURL(firstImageSrc(n, opts.BaseURL), opts.BaseURL)
 	return htmlLink{
-		Rank: rank,
-		Name: name,
-		Text: text,
-		URL:  normalized,
-		Slug: htmlLinkSlug(parsed.Path, opts.LinkPrefixes),
+		Rank:  rank,
+		Name:  name,
+		Text:  text,
+		Image: image,
+		URL:   normalized,
+		Slug:  htmlLinkSlug(parsed.Path, opts.LinkPrefixes),
 	}, true
 }
 
@@ -251,6 +294,134 @@ func nodeText(n *xhtml.Node) string {
 		}
 	})
 	return strings.Join(parts, " ")
+}
+
+// nodeTextSuppressing walks n's descendants and concatenates TextNode content,
+// skipping subtrees rooted at noscript/script/style/template elements. The
+// HTML5 spec parses content of those four elements as raw text, so a normal
+// walk leaks their literal markup (e.g., the `<img src=...>` inside a
+// `<noscript>` fallback) into the output. Used by extractHTMLLink instead of
+// nodeText to keep result fields clean.
+func nodeTextSuppressing(n *xhtml.Node) string {
+	var parts []string
+	var walk func(*xhtml.Node)
+	walk = func(node *xhtml.Node) {
+		if node == nil {
+			return
+		}
+		if node.Type == xhtml.ElementNode {
+			if _, raw := htmlRawTextTags[strings.ToLower(node.Data)]; raw {
+				return
+			}
+		}
+		if node.Type == xhtml.TextNode {
+			parts = append(parts, node.Data)
+		}
+		for child := node.FirstChild; child != nil; child = child.NextSibling {
+			walk(child)
+		}
+	}
+	walk(n)
+	return strings.Join(parts, " ")
+}
+
+// firstImageSrc returns the URL of the first non-suppressed `<img>` inside
+// the given node's subtree, normalized against base.
+//
+// Source priority (highest first):
+//
+//  1. `data-src` — modern lazy-loading attribute; carries the real URL when
+//     `src` is a placeholder (1x1 pixel, base64 transparent gif). Most
+//     content-heavy sites that lazy-load (Pinterest, NYT Cooking, Food52)
+//     follow this pattern, so `data-src` beats `src` when both are present.
+//  2. `data-srcset` / `srcset` — first comma-separated URL. Responsive image
+//     hint lists; we take the first declared candidate for simplicity.
+//  3. `src` — final fallback for plain `<img>` tags without lazy-loading.
+//
+// Suppressed subtrees (noscript/script/style/template) are skipped, so an
+// `<img>` rendered for JS-disabled users does not get picked when an
+// above-the-fold rendered image exists.
+//
+// Limitation: returns the FIRST matching image in DOM order, with no quality
+// heuristic. Sites that put a small icon (badge, share button, profile pic)
+// before the hero image will have the icon URL surfaced. Acceptable for
+// recipe-card and product-card layouts where hero images come first;
+// document the limitation if a CLI's spec target uses an icon-first layout.
+//
+// Returns empty string when no image is found.
+func firstImageSrc(n *xhtml.Node, base string) string {
+	_ = base // base is used by the caller's normalizeHTMLURL wrapper, not here
+	if n == nil {
+		return ""
+	}
+	var found string
+	var walk func(*xhtml.Node)
+	walk = func(node *xhtml.Node) {
+		if found != "" || node == nil {
+			return
+		}
+		if node.Type == xhtml.ElementNode {
+			if _, raw := htmlRawTextTags[strings.ToLower(node.Data)]; raw {
+				return
+			}
+			if strings.EqualFold(node.Data, "img") {
+				// Priority 1: data-src (lazy-load real URL)
+				if src := strings.TrimSpace(attrValue(node, "data-src")); src != "" {
+					found = src
+					return
+				}
+				// Priority 2: data-srcset / srcset (first candidate)
+				if srcset := strings.TrimSpace(attrValue(node, "data-srcset")); srcset != "" {
+					if src := firstSrcsetURL(srcset); src != "" {
+						found = src
+						return
+					}
+				}
+				if srcset := strings.TrimSpace(attrValue(node, "srcset")); srcset != "" {
+					if src := firstSrcsetURL(srcset); src != "" {
+						found = src
+						return
+					}
+				}
+				// Priority 3: plain src (may be a placeholder, but the only
+				// signal available for non-lazy-loaded images)
+				if src := strings.TrimSpace(attrValue(node, "src")); src != "" {
+					found = src
+					return
+				}
+			}
+		}
+		for child := node.FirstChild; child != nil; child = child.NextSibling {
+			if found != "" {
+				return
+			}
+			walk(child)
+		}
+	}
+	walk(n)
+	return found
+}
+
+// firstSrcsetURL extracts the first URL from a srcset / data-srcset attribute.
+// Srcset format is comma-separated `URL DESCRIPTOR` pairs, e.g.:
+//
+//	"https://x.com/a.jpg 1x, https://x.com/a@2x.jpg 2x"
+//
+// We take the first URL (first whitespace-separated token of the first
+// comma-separated entry). Returns empty string if the value is malformed.
+func firstSrcsetURL(srcset string) string {
+	if srcset == "" {
+		return ""
+	}
+	first := srcset
+	if i := strings.IndexByte(first, ','); i >= 0 {
+		first = first[:i]
+	}
+	first = strings.TrimSpace(first)
+	if i := strings.IndexAny(first, " \t"); i >= 0 {
+		first = first[:i]
+	}
+	return strings.TrimSpace(first)
 }
 
 var htmlWhitespace = regexp.MustCompile(`\s+`)

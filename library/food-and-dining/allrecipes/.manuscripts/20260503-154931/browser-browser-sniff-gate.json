@@ -1,0 +1,11 @@
+{
+  "run_id": "20260503-154931",
+  "sources": [
+    {
+      "source_name": "allrecipes",
+      "decision": "approved",
+      "reason": "user-selected-chrome-clearance-runtime; prior browser-sniff discovery from run 20260426-230519 reused; Phase 1.7 probe shows browse/search are standard_http but recipe detail pages need browser_clearance_http; user opted for auth login --chrome runtime over a fresh capture",
+      "asked_at": "2026-05-03T22:49:31Z"
+    }
+  ]
+}

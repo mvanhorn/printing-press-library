@@ -14,7 +14,6 @@ import (
 func newCacheCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "cache",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Inspect, list, or clear the local recipe cache",
 	}
 	cmd.AddCommand(newCacheStatsCmd(flags))
@@ -25,10 +24,10 @@ func newCacheCmd(flags *rootFlags) *cobra.Command {
 
 func newCacheStatsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "stats",
+		Use:         "stats",
+		Short:       "Show summary stats for the local recipe cache (count, on-disk path)",
+		Example:     "  allrecipes-pp-cli cache stats --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "Show summary stats for the local recipe cache",
-		Example: "  allrecipes-pp-cli cache stats --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := openStoreForCommand()
 			if s == nil {
@@ -53,10 +52,10 @@ func newCacheListCmd(flags *rootFlags) *cobra.Command {
 	var flagLimit int
 	var flagOrder string
 	cmd := &cobra.Command{
-		Use:     "list",
+		Use:         "list",
+		Short:       "List cached recipes from the local store, sorted by recency, rating, review count, total time, or name",
+		Example:     "  allrecipes-pp-cli cache list --limit 50 --order rating --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "List cached recipes",
-		Example: "  allrecipes-pp-cli cache list --limit 50 --order rating --agent",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := openStoreForCommand()
 			if s == nil {

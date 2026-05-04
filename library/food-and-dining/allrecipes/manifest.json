@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "allrecipes-pp-mcp",
   "display_name": "Allrecipes",
-  "version": "2.3.9",
-  "description": "Allrecipes Pocket \u2014 every Allrecipes recipe in your terminal: cached as data, with pantry-aware search, Bayesian-smoothed ranking, multi-recipe grocery lists, and clean markdown export.",
+  "version": "3.8.0",
+  "description": "Search and fetch Allrecipes recipes as structured data, scale ingredients, build grocery lists, rank by Bayesian-smoothed popularity, and clear Cloudflare with a Chrome session cookie.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -13,7 +13,18 @@
     "entry_point": "bin/allrecipes-pp-mcp",
     "mcp_config": {
       "command": "${__dirname}/bin/allrecipes-pp-mcp",
-      "args": []
+      "args": [],
+      "env": {
+        "ALLRECIPES_COOKIES": "${user_config.allrecipes_cookies}"
+      }
+    }
+  },
+  "user_config": {
+    "allrecipes_cookies": {
+      "type": "string",
+      "title": "ALLRECIPES_COOKIES",
+      "description": "Optional. Sets ALLRECIPES_COOKIES for the Allrecipes MCP server.",
+      "sensitive": true
     }
   },
   "compatibility": {
@@ -23,6 +34,5 @@
       "linux",
       "win32"
     ]
-  },
-  "cli_binary": "allrecipes-pp-cli"
+  }
 }

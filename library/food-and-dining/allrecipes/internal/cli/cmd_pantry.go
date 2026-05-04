@@ -22,7 +22,6 @@ func newPantryCmd(flags *rootFlags) *cobra.Command {
 	var flagMaxMissing, flagLimit int
 	cmd := &cobra.Command{
 		Use:   "pantry",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Score cached recipes by overlap with a pantry of ingredients",
 		Long: `Reads --pantry-file (or --pantry as a comma-separated list of ingredients)
 and ranks cached recipes by how many of their ingredients you already have.
@@ -35,6 +34,7 @@ Overlap is computed by token-level matching: a recipe ingredient like
 score is len(have) / len(have+missing); --min-overlap filters by it.`,
 		Example: "  allrecipes-pp-cli pantry --pantry-file ~/pantry.txt --query brownies\n" +
 			"  allrecipes-pp-cli pantry --pantry chicken,lemon,rice --max-missing 2 --agent",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if flags.dryRun {
 				return nil
@@ -119,13 +119,13 @@ func newWithIngredientCmd(flags *rootFlags) *cobra.Command {
 	var flagMinRating float64
 	cmd := &cobra.Command{
 		Use:   "with-ingredient <name>",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Reverse index: cached recipes that use a given ingredient",
 		Long: `Searches the local recipe_ingredients_fts index for recipes containing the
 given ingredient name. Recipes only appear if their JSON-LD has been
 cached locally — run search/recipe to populate first.`,
 		Example: "  allrecipes-pp-cli with-ingredient buttermilk --top 10\n" +
 			"  allrecipes-pp-cli with-ingredient \"chicken thighs\" --max-minutes 45 --agent",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -180,7 +180,6 @@ func newDietaryCmd(flags *rootFlags) *cobra.Command {
 	var flagMaxMinutes int
 	cmd := &cobra.Command{
 		Use:   "dietary",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Filter cached recipes by gluten-free / vegan / low-carb / vegetarian / dairy-free",
 		Long: `Filters the local recipe cache by dietary heuristics:
   - gluten-free: excludes wheat, flour, bread, pasta, soy sauce, beer
@@ -194,6 +193,7 @@ Heuristics are not authoritative — for medical-grade dietary control,
 read the full ingredient list. The dietary tag is a starting point.`,
 		Example: "  allrecipes-pp-cli dietary --type gluten-free --top 20 --agent\n" +
 			"  allrecipes-pp-cli dietary --type vegan --max-minutes 30 --agent",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if flags.dryRun {
 				return nil

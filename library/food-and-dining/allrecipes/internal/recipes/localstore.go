@@ -474,6 +474,40 @@ func CountRecipes(s *store.Store) (int, error) {
 	return n, nil
 }
 
+// SearchCachedRecipes runs the FTS query against the generic resources table
+// scoped to recipes, returning raw JSON payloads. Replaces the prior
+// store.SearchRecipes method, kept here so we don't add files inside the
+// generator-owned internal/store package.
+func SearchCachedRecipes(s *store.Store, query string, limit int) ([]json.RawMessage, error) {
+	if s == nil {
+		return nil, fmt.Errorf("SearchCachedRecipes: nil store")
+	}
+	if limit <= 0 {
+		limit = 50
+	}
+	rows, err := s.DB().Query(
+		`SELECT r.data FROM resources r
+		 JOIN resources_fts f ON r.id = f.id
+		 WHERE resources_fts MATCH ? AND r.type = 'recipes'
+		 ORDER BY rank
+		 LIMIT ?`,
+		query, limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var results []json.RawMessage
+	for rows.Next() {
+		var data string
+		if err := rows.Scan(&data); err != nil {
+			return nil, err
+		}
+		results = append(results, json.RawMessage(data))
+	}
+	return results, rows.Err()
+}
+
 // ClearCache wipes the local recipe cache (recipe_index, recipe_ingredients,
 // recipe_ingredients_fts, and the generic resources rows for recipes).
 func ClearCache(s *store.Store) error {

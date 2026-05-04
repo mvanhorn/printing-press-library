@@ -1,16 +1,25 @@
 name: allrecipes
-description: "Allrecipes Pocket — every Allrecipes recipe in your terminal: cached as data, with pantry-aware search, Bayesian-smoothed ranking, multi-recipe grocery lists, and clean markdown export."
-version: "0.1.0"
+description: "Allrecipes Pocket — every Allrecipes recipe in your terminal: cached as data, with pantry-aware search, Bayesian-smoothed ranking, multi-recipe grocery lists, strict dietary filtering, and clean markdown export. Recipe detail pages clear Cloudflare via a one-time `auth login --chrome` cookie capture."
+version: "0.2.0"
 kind: synthetic
 spec_source: community
-http_transport: browser-chrome
+http_transport: browser-chrome-h3
 website_url: "https://www.allrecipes.com"
 category: food-and-dining
 base_url: "https://www.allrecipes.com"
-cli_description: "Search and fetch Allrecipes recipes as structured data, scale ingredients, build grocery lists, and rank by Bayesian-smoothed popularity."
+cli_description: "Search and fetch Allrecipes recipes as structured data, scale ingredients, build grocery lists, rank by Bayesian-smoothed popularity, and clear Cloudflare with a Chrome session cookie."
 
 auth:
-  type: none
+  type: cookie
+  header: Cookie
+  in: cookie
+  cookie_domain: ".allrecipes.com"
+  env_vars:
+    - ALLRECIPES_COOKIES
+  requires_browser_session: true
+  browser_session_reason: "Allrecipes recipe detail pages are walled by Cloudflare (cf-mitigated: challenge). Capture a clearance cookie via `auth login --chrome` once; browse and search work without it."
+  browser_session_validation_path: "/recipe/9599/quick-and-easy-brownies/"
+  browser_session_validation_method: GET
 
 config:
   format: toml
@@ -19,6 +28,9 @@ config:
 cache:
   enabled: true
 
+mcp:
+  transport: [stdio, http]
+
 resources:
   recipes:
     description: "Public Allrecipes recipe pages with Schema.org Recipe JSON-LD markup"
@@ -26,7 +38,8 @@ resources:
       search:
         method: GET
         path: "/search"
-        description: "Search Allrecipes for recipes matching a query"
+        description: "Search Allrecipes for recipes matching a query (no Cloudflare clearance required)."
+        no_auth: true
         response_format: html
         html_extract:
           mode: links
@@ -49,7 +62,7 @@ resources:
       get:
         method: GET
         path: "/recipe/{recipe_id}/{slug}/"
-        description: "Fetch a recipe by ID + slug; returns parsed JSON-LD Recipe"
+        description: "Fetch a recipe by ID + slug; returns parsed JSON-LD Recipe. Requires Cloudflare clearance cookie via `auth login --chrome`."
         response_format: html
         html_extract:
           mode: page
@@ -77,7 +90,7 @@ extra_commands:
     description: "Search Allrecipes for recipes (live + cache)"
   - name: top-rated
     args: "<query>"
-    description: "Search and rank by Bayesian-smoothed rating"
+    description: "Search and rank by Bayesian-smoothed rating (prior 4.0, default C=200)"
   - name: quick
     description: "Recipes from cache that fit a strict time cap and are top-rated"
   - name: pantry
@@ -86,12 +99,12 @@ extra_commands:
     args: "<ingredient>"
     description: "Reverse index: cached recipes that use a given ingredient"
   - name: dietary
-    description: "Filter cached recipes by gluten-free / vegan / low-carb"
+    description: "Filter cached recipes by gluten-free / vegan / low-carb (strict ingredient blocklist)"
   - name: cookbook
-    description: "Compile a top-rated category into a markdown cookbook"
+    description: "Compile a top-rated category or cuisine into a markdown cookbook"
   - name: grocery-list
     args: "<urls...>"
-    description: "Aggregate ingredients from many recipes into a deduped shopping list"
+    description: "Aggregate ingredients across many recipes into a deduped shopping list (subtract --pantry-file if given)"
   - name: scale
     args: "<url>"
     description: "Rescale a recipe to a target serving count"
@@ -136,4 +149,4 @@ extra_commands:
   - name: cache
     description: "Inspect, list, or clear the local recipe cache"
   - name: doctor
-    description: "Diagnose connectivity, Cloudflare detection, and cache health"
+    description: "Diagnose connectivity, Cloudflare clearance state, and cache health"

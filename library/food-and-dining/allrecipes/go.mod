@@ -3,7 +3,7 @@ module github.com/mvanhorn/printing-press-library/library/food-and-dining/allrec
 go 1.25.0
 
 require (
-	github.com/enetx/surf v1.0.198
+	github.com/enetx/surf v1.0.199
 	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/spf13/cobra v1.9.1
 	golang.org/x/net v0.43.0
@@ -17,9 +17,9 @@ require (
 )
 
 require (
-	github.com/andybalholm/brotli v1.2.0 // indirect
+	github.com/andybalholm/brotli v1.2.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/enetx/g v1.0.223 // indirect
+	github.com/enetx/g v1.0.224 // indirect
 	github.com/enetx/http v1.0.28 // indirect
 	github.com/enetx/http2 v1.0.26 // indirect
 	github.com/enetx/http3 v1.0.7 // indirect

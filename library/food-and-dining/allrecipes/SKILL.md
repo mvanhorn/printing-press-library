@@ -1,6 +1,6 @@
 ---
 name: pp-allrecipes
-description: "Every Allrecipes recipe in your terminal — cached as data, with pantry-aware search, Bayesian-smoothed ranking, and one-line grocery lists. Trigger phrases: `search Allrecipes for X`, `find a brownies recipe`, `scale this Allrecipes recipe`, `build a grocery list from these recipes`, `what can I cook with what I have`, `use allrecipes-pp-cli`, `run allrecipes-pp-cli`."
+description: "Every Allrecipes recipe in your terminal — cached as data, with pantry-aware search, Bayesian-smoothed ranking, one-line grocery lists, and Cloudflare clearance. Trigger phrases: `search Allrecipes for X`, `find a recipe for brownies`, `scale this Allrecipes recipe`, `build a grocery list from these recipes`, `what can I cook with what I have`, `use allrecipes-pp-cli`, `run allrecipes`."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata: '{"openclaw":{"requires":{"bins":["allrecipes-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/cmd/allrecipes-pp-cli@latest","bins":["allrecipes-pp-cli"],"label":"Install via go install"}]}}'
@@ -8,11 +8,11 @@ metadata: '{"openclaw":{"requires":{"bins":["allrecipes-pp-cli"]},"install":[{"i
 
 # Allrecipes — Printing Press CLI
 
-Search Allrecipes' 250k-recipe corpus from the command line, fetch a full recipe as parsed JSON-LD (ingredients with quantity+unit+name, instructions, nutrition, ratings, Made-It count), aggregate grocery lists from a meal plan, scale recipes, and export to clean markdown. Every recipe you fetch lands in a local SQLite store, which unlocks `pantry` (which recipes can I cook with what I have), `with-ingredient` (reverse index), `top-rated` with Bayesian smoothing (no more 1-review 5-star noise), and `cookbook` (export a category as a personal cookbook). Ships with a Chrome-impersonated TLS transport that walks past Cloudflare.
+Search Allrecipes' 250k-recipe corpus from the command line, fetch a full recipe as parsed JSON-LD (ingredients with quantity+unit+name, instructions, nutrition, ratings, Made-It count), aggregate grocery lists from a meal plan, scale recipes, and export to clean markdown. Every recipe you fetch lands in a local SQLite store, which unlocks `pantry` (which recipes can I cook with what I have), `with-ingredient` (reverse index), `top-rated` with Bayesian smoothing (no more 1-review 5-star noise), and `cookbook` (export a category as a personal cookbook). Recipe detail pages are walled by Cloudflare; one-time `auth login --chrome` captures a clearance cookie from your browser — no Allrecipes account needed.
 
 ## When to Use This CLI
 
-Reach for this CLI when an agent or user needs Allrecipes data as data, not as a webpage: searching for proven recipes, fetching ingredient lists in structured form, building grocery lists across multiple recipes, scaling for different serving counts, or filtering by what's in the pantry. The local SQLite cache makes iterative meal-planning workflows fast — every recipe fetched is queryable forever. Skip this CLI when the user wants a multi-site comparison (use `recipe-goat` instead) or when they need authenticated features like saved recipes or meal plans (those are intentionally not supported).
+Reach for this CLI when an agent or user needs Allrecipes data as data, not as a webpage: searching for proven recipes, fetching ingredient lists in structured form, building grocery lists across multiple recipes, scaling for different serving counts, or filtering by what's in the pantry. The local SQLite cache makes iterative meal-planning workflows fast — every recipe fetched is queryable forever via `pantry`, `with-ingredient`, `top-rated`, and `dietary`. Skip this CLI when the user wants a multi-site comparison (different tool) or when they need authenticated features like saved recipes or meal plans (intentionally not supported).
 
 ## When Not to Use This CLI
 
@@ -23,7 +23,6 @@ Do not activate this CLI for requests that require creating, updating, deleting,
 These capabilities aren't available in any other tool for this API.
 
 ### Local state that compounds
-
 - **`pantry`** — Score Allrecipes recipes against your pantry — see which ones you can actually cook tonight without a grocery run.
 
   _When the user says 'what can I make with what I've got', this is the only command that knows the answer._
@@ -47,13 +46,12 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Ranking that beats the website
-
 - **`top-rated`** — Rank recipes by Bayesian-smoothed rating — proven popular wins over 1-review 5-star noise.
 
   _Pick this over raw search when the agent wants proven recipes, not freshly-uploaded 5-star outliers._
 
   ```bash
-  allrecipes-pp-cli top-rated brownies --enrich --smooth-c 200 --limit 10 --agent
+  allrecipes-pp-cli top-rated brownies --smooth-c 200 --limit 10 --agent
   ```
 - **`quick`** — Top-rated recipes that fit a strict time cap — Allrecipes' UI cannot enforce one, but the local cache can.
 
@@ -64,7 +62,6 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Agent-native plumbing
-
 - **`cookbook`** — Compile a top-rated category into a single markdown cookbook with TOC, ingredients, and instructions.
 
   _When the user asks for a curated bundle (gifts, meal-plan packs), this builds it in one command._
@@ -81,7 +78,6 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Reachability mitigation
-
 - **`doctor`** — Health check that names the Cloudflare 'Just a moment...' interstitial by inspecting the response body, then advises the browser-chrome transport.
 
   _When the CLI breaks because of bot detection, the agent gets a specific, actionable error rather than a generic timeout._
@@ -92,39 +88,43 @@ These capabilities aren't available in any other tool for this API.
 
 ## HTTP Transport
 
-This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It does not require a resident browser process for normal API calls.
+This CLI uses Chrome-compatible HTTP transport over HTTP/3 for browser-facing endpoints. It does not require a resident browser process for normal API calls.
 
 ## Command Reference
 
 **recipes** — Public Allrecipes recipe pages with Schema.org Recipe JSON-LD markup
 
-- `allrecipes-pp-cli recipes get` — Fetch a recipe by ID + slug; returns parsed JSON-LD Recipe
-- `allrecipes-pp-cli recipes search` — Search Allrecipes for recipes matching a query
+- `allrecipes-pp-cli recipes get` — Fetch a recipe by ID + slug; returns parsed JSON-LD Recipe. Requires Cloudflare clearance cookie via `auth login...
+- `allrecipes-pp-cli recipes search` — Search Allrecipes for recipes matching a query (no Cloudflare clearance required).
 
 
 **Hand-written commands**
 
 - `allrecipes-pp-cli recipe <url-or-id>` — Fetch and render a single recipe by URL or ID
 - `allrecipes-pp-cli search <query>` — Search Allrecipes for recipes (live + cache)
-- `allrecipes-pp-cli top-rated <query>` — Search and rank by Bayesian-smoothed rating
+- `allrecipes-pp-cli top-rated <query>` — Search and rank by Bayesian-smoothed rating (prior 4.0, default C=200)
 - `allrecipes-pp-cli quick` — Recipes from cache that fit a strict time cap and are top-rated
 - `allrecipes-pp-cli pantry` — Score cached recipes by overlap with a pantry file
 - `allrecipes-pp-cli with-ingredient <ingredient>` — Reverse index: cached recipes that use a given ingredient
-- `allrecipes-pp-cli dietary` — Filter cached recipes by gluten-free / vegan / low-carb
-- `allrecipes-pp-cli cookbook` — Compile a top-rated category into a markdown cookbook
-- `allrecipes-pp-cli grocery-list <urls...>` — Aggregate ingredients from many recipes into a deduped shopping list
+- `allrecipes-pp-cli dietary` — Filter cached recipes by gluten-free / vegan / low-carb (strict ingredient blocklist)
+- `allrecipes-pp-cli cookbook` — Compile a top-rated category or cuisine into a markdown cookbook
+- `allrecipes-pp-cli grocery-list <urls...>` — Aggregate ingredients across many recipes into a deduped shopping list (subtract --pantry-file if given)
 - `allrecipes-pp-cli scale <url>` — Rescale a recipe to a target serving count
 - `allrecipes-pp-cli nutrition <url>` — Show nutrition for a recipe (per serving and total)
 - `allrecipes-pp-cli ingredients <url>` — Show parsed ingredients for a recipe
 - `allrecipes-pp-cli instructions <url>` — Show numbered instructions for a recipe
 - `allrecipes-pp-cli reviews <url>` — Show review summary for a recipe
+- `allrecipes-pp-cli category <slug>` — Browse recipes in a category (e.g. dessert, weeknight)
+- `allrecipes-pp-cli cuisine <slug>` — Browse recipes by cuisine
+- `allrecipes-pp-cli ingredient <name>` — Browse recipes featuring a primary ingredient
+- `allrecipes-pp-cli occasion <slug>` — Browse recipes by occasion (holiday, weeknight, party)
 - `allrecipes-pp-cli article <url>` — Extract the body of an Allrecipes article page
 - `allrecipes-pp-cli gallery <url>` — Extract recipe links from an Allrecipes round-up gallery
 - `allrecipes-pp-cli cook <slug>` — Show a cook profile and their recipes
 - `allrecipes-pp-cli export <url>` — Export a recipe as markdown
 - `allrecipes-pp-cli sync` — Refresh cached recipes that are stale
 - `allrecipes-pp-cli cache` — Inspect, list, or clear the local recipe cache
-- `allrecipes-pp-cli doctor` — Diagnose connectivity, Cloudflare detection, and cache health
+- `allrecipes-pp-cli doctor` — Diagnose connectivity, Cloudflare clearance state, and cache health
 
 
 ## Freshness Contract
@@ -146,10 +146,10 @@ allrecipes-pp-cli which "<capability in your own words>"
 ## Recipes
 
 
-### Top 5 brownies, narrowed to ratings only
+### Top 5 brownies, narrowed to ranking fields only
 
 ```bash
-allrecipes-pp-cli top-rated brownies --enrich --limit 5 --agent --select rank,title,url,rating,reviewCount,smoothedScore
+allrecipes-pp-cli top-rated brownies --limit 5 --agent --select rank,title,url,rating,reviewCount,madeItCount
 ```
 
 Bayesian smoothing kills 1-review 5-star outliers; --select trims the payload to fields agents actually use.
@@ -157,10 +157,10 @@ Bayesian smoothing kills 1-review 5-star outliers; --select trims the payload to
 ### Plan three weeknight dinners and one grocery list
 
 ```bash
-allrecipes-pp-cli quick --max-minutes 30 --query chicken --limit 3 --agent | jq -r '.[].url' | xargs allrecipes-pp-cli grocery-list --agent
+allrecipes-pp-cli quick --max-minutes 30 --query chicken --limit 3 --agent | xargs allrecipes-pp-cli grocery-list --pantry-file ~/pantry.txt --agent
 ```
 
-Compose two commands: quick weeknight selection feeds straight into grocery aggregation.
+Compose two commands: quick weeknight selection feeds straight into pantry-aware grocery aggregation.
 
 ### Compile a personal Italian cookbook
 
@@ -178,17 +178,17 @@ allrecipes-pp-cli pantry --pantry-file ~/pantry.txt --max-missing 2 --agent --se
 
 Local index ranks cached recipes by ingredient overlap; --max-missing 2 keeps recipes that need at most two extra ingredients.
 
-### What's used buttermilk recently?
+### Strict gluten-free with field narrowing
 
 ```bash
-allrecipes-pp-cli with-ingredient buttermilk --top 10 --agent
+allrecipes-pp-cli dietary --type gluten-free --top 20 --agent --select title,url,rating,recipeIngredient
 ```
 
-Reverse-index lookup over the local store; useful when starting from an ingredient instead of a dish name.
+Strict ingredient blocklist + JSON-LD tag filter; --select pulls only the title, url, rating, and ingredients for agent verification.
 
 ## Auth Setup
 
-No authentication required.
+Browse and search work without any auth. Recipe detail pages need a Cloudflare clearance cookie — run `allrecipes-pp-cli auth login --chrome` once to capture one from your browser. This is bot-protection clearance, not an Allrecipes account login: no username, no password, no token tied to a user. The CLI does not support saved-recipes / meal-plan / profile features that require an actual Allrecipes account.
 
 Run `allrecipes-pp-cli doctor` to verify setup.
 
@@ -200,7 +200,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
 
   ```bash
-  allrecipes-pp-cli recipes get 9599 quick-and-easy-brownies --agent --select name,recipeIngredient,totalTime
+  allrecipes-pp-cli recipes get mock-value mock-value --agent --select id,name,status
   ```
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
@@ -252,7 +252,7 @@ A profile is a saved set of flag values, reused across invocations. Use it when 
 
 ```
 allrecipes-pp-cli profile save briefing --json
-allrecipes-pp-cli --profile briefing recipes get
+allrecipes-pp-cli --profile briefing recipes get mock-value mock-value
 allrecipes-pp-cli profile list --json
 allrecipes-pp-cli profile show briefing
 allrecipes-pp-cli profile delete briefing --yes
@@ -267,6 +267,7 @@ Explicit flags always win over profile values; profile values win over defaults.
 | 0 | Success |
 | 2 | Usage error (wrong arguments) |
 | 3 | Resource not found |
+| 4 | Authentication required |
 | 5 | API error (upstream issue) |
 | 7 | Rate limited (wait and retry) |
 | 10 | Config error |

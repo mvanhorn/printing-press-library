@@ -1,0 +1,10 @@
+{
+  "api_name": "allrecipes",
+  "working_dir": "/Users/tmchow/printing-press/.runstate/cli-printing-press-8bdedb85/runs/20260503-154931/working/allrecipes-pp-cli",
+  "output_dir": "/Users/tmchow/printing-press/.runstate/cli-printing-press-8bdedb85/runs/20260503-154931/working/allrecipes-pp-cli",
+  "spec_path": "/Users/tmchow/printing-press/.runstate/cli-printing-press-8bdedb85/runs/20260503-154931/research/allrecipes-spec.yaml",
+  "run_id": "20260503-154931",
+  "prior_run_reused": "20260426-230519",
+  "binary_version": "3.7.0",
+  "prior_binary_version": "2.3.9"
+}

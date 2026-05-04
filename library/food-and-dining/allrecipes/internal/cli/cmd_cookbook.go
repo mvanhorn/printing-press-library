@@ -19,7 +19,6 @@ func newCookbookCmd(flags *rootFlags) *cobra.Command {
 	var flagTop int
 	cmd := &cobra.Command{
 		Use:   "cookbook",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Compile top-rated cached recipes into a markdown cookbook",
 		Long: "Reads the local cache, picks the top-N recipes (by Bayesian-smoothed rating)\n" +
 			"in a category or cuisine, and writes a single markdown file with TOC,\n" +
@@ -119,17 +118,21 @@ func newCookbookCmd(flags *rootFlags) *cobra.Command {
 }
 
 func newGroceryListCmd(flags *rootFlags) *cobra.Command {
-	var flagOutput string
+	var flagOutput, flagPantryFile, flagPantryArg string
 	cmd := &cobra.Command{
 		Use:   "grocery-list <url> [<url>...]",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Aggregate ingredients from many recipes into a deduped shopping list",
 		Long: "Fetches each recipe URL (from cache when available, live otherwise),\n" +
 			"parses ingredient lines into qty+unit+name, sums quantities for matching\n" +
 			"items, and emits a deduped shopping list. Items with mismatched units\n" +
-			"stay separate (we don't lie about converting cups to grams).",
+			"stay separate (we don't lie about converting cups to grams).\n\n" +
+			"Pass --pantry-file (or --pantry as a comma-separated list) to subtract\n" +
+			"what you already have. Output becomes the buy list, not the full ingredient\n" +
+			"list — the same token-overlap match used by the `pantry` command.",
 		Example: "  allrecipes-pp-cli grocery-list https://www.allrecipes.com/recipe/9599/quick-and-easy-brownies/ https://www.allrecipes.com/recipe/16354/easy-meatloaf/\n" +
-			"  allrecipes-pp-cli grocery-list 9599 16354 --agent",
+			"  allrecipes-pp-cli grocery-list 9599 16354 --agent\n" +
+			"  allrecipes-pp-cli grocery-list 9599 16354 --pantry-file ~/pantry.txt --agent",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -159,10 +162,48 @@ func newGroceryListCmd(flags *rootFlags) *cobra.Command {
 			}
 			agg := recipes.AggregateGrocery(perRecipe)
 
+			// Pantry subtraction: drop ingredients whose name shares a
+			// token with any pantry item.
+			haveSet := map[string]bool{}
+			if flagPantryFile != "" || flagPantryArg != "" {
+				pantry, err := loadPantry(flagPantryFile, flagPantryArg)
+				if err != nil {
+					return err
+				}
+				for _, p := range pantry {
+					for _, tok := range strings.Fields(strings.ToLower(p)) {
+						haveSet[tok] = true
+					}
+				}
+			}
+			toBuy := agg
+			alreadyHave := []recipes.ParsedIngredient{}
+			if len(haveSet) > 0 {
+				toBuy = toBuy[:0]
+				for _, ing := range agg {
+					matched := false
+					for _, tok := range strings.Fields(strings.ToLower(ing.Name)) {
+						if haveSet[tok] {
+							matched = true
+							break
+						}
+					}
+					if matched {
+						alreadyHave = append(alreadyHave, ing)
+					} else {
+						toBuy = append(toBuy, ing)
+					}
+				}
+			}
+
 			out := map[string]any{
 				"recipes":     titles,
 				"recipeCount": len(titles),
-				"ingredients": agg,
+				"ingredients": toBuy,
+			}
+			if len(haveSet) > 0 {
+				out["alreadyHave"] = alreadyHave
+				out["pantryApplied"] = true
 			}
 
 			if flagOutput == "markdown" {
@@ -172,9 +213,15 @@ func newGroceryListCmd(flags *rootFlags) *cobra.Command {
 				for _, t := range titles {
 					fmt.Fprintf(&b, "- %s\n", t)
 				}
-				b.WriteString("\n## Ingredients\n\n")
-				for _, ing := range agg {
+				b.WriteString("\n## To Buy\n\n")
+				for _, ing := range toBuy {
 					fmt.Fprintf(&b, "- %s\n", ing.Raw)
+				}
+				if len(alreadyHave) > 0 {
+					b.WriteString("\n## Already Have (from pantry)\n\n")
+					for _, ing := range alreadyHave {
+						fmt.Fprintf(&b, "- %s\n", ing.Raw)
+					}
 				}
 				_, err := fmt.Fprint(cmd.OutOrStdout(), b.String())
 				return err
@@ -187,6 +234,8 @@ func newGroceryListCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagOutput, "output", "", "Output format: 'markdown' for a human-readable list (default: JSON)")
+	cmd.Flags().StringVar(&flagPantryFile, "pantry-file", "", "Path to a pantry file (one ingredient per line; '#' starts a comment); items found are subtracted from the grocery list")
+	cmd.Flags().StringVar(&flagPantryArg, "pantry", "", "Comma-separated pantry ingredients (alternative to --pantry-file)")
 	return cmd
 }
 

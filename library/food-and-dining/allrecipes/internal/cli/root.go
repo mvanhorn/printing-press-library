@@ -46,24 +46,53 @@ type rootFlags struct {
 	deliverSink DeliverSink
 }
 
+// RootCmd returns the Cobra command tree without executing it. The MCP server
+// uses this to mirror every user-facing command as an agent tool.
+func RootCmd() *cobra.Command {
+	var flags rootFlags
+	return newRootCmd(&flags)
+}
+
 // Execute runs the CLI in non-interactive mode: never prompts, all values via flags or stdin.
 func Execute() error {
 	var flags rootFlags
+	rootCmd := newRootCmd(&flags)
 
+	err := rootCmd.Execute()
+	if err != nil && strings.Contains(err.Error(), "unknown flag") {
+		msg := err.Error()
+		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
+		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
+			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
+			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
+				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
+			}
+		}
+	}
+	if err == nil && flags.deliverBuf != nil {
+		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
+			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
+			return derr
+		}
+	}
+	return err
+}
+
+func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "allrecipes-pp-cli",
-		Short: `Search and fetch Allrecipes recipes as structured data, scale ingredients, build grocery lists, and rank by Bayesian-smoothed popularity.`,
-		Long: `Search and fetch Allrecipes recipes as structured data, scale ingredients, build grocery lists, and rank by Bayesian-smoothed popularity.
+		Short: `Search and fetch Allrecipes recipes as structured data, scale ingredients, build grocery lists, rank by Bayesian-smoothed popularity, and clear Cloudflare with a Chrome session cookie.`,
+		Long: `Search and fetch Allrecipes recipes as structured data, scale ingredients, build grocery lists, rank by Bayesian-smoothed popularity, and clear Cloudflare with a Chrome session cookie.
 
 Highlights (not in the official API docs):
-  • pantry   Score Allrecipes recipes against your pantry — see which ones you can actually …
-  • top-rated   Rank recipes by Bayesian-smoothed rating — proven popular wins over 1-review 5-…
-  • with-ingredient   Find every cached recipe that uses a given ingredient — a SQL view across your …
-  • quick   Top-rated recipes that fit a strict time cap — Allrecipes' UI cannot enforce on…
-  • cookbook   Compile a top-rated category into a single markdown cookbook with TOC, ingredie…
-  • grocery-list   Aggregate ingredients from many recipes into a deduped, agent-readable shopping…
-  • dietary   Filter cached recipes by gluten-free / vegan / low-carb using JSON-LD keywords …
-  • doctor   Health check that names the Cloudflare 'Just a moment...' interstitial by inspe…
+  • pantry   Find proven recipes you can actually cook tonight: matches what's in a pantry file against the cached recipe corpus and ranks by ingredient overlap.
+  • top-rated   Rank recipes by Bayesian-smoothed rating (prior 4.0, default C=200) so 1-review 5-star outliers can't win.
+  • with-ingredient   Find recipes that use a specific ingredient — the inverse of 'recipe → ingredients'.
+  • quick   Top-rated recipes under a strict numeric time cap ('--max-minutes 30').
+  • cookbook   Compile a top-N category or cuisine into a markdown cookbook with table of contents and per-recipe attribution.
+  • dietary   Filter cached recipes by gluten-free / vegan / low-carb using JSON-LD keywords UNION an ingredient-name regex blocklist.
+  • doctor   Probes a recipe URL and inspects the response; on Cloudflare's 'cf-mitigated: challenge' header, prescribes 'auth login --chrome' instead of failing opaquely.
+  • grocery-list   Aggregate ingredients across multiple recipes and subtract what the pantry already has — output is the buy list, not the full ingredient list.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'allrecipes-pp-cli doctor' to verify auth and connectivity.
@@ -150,68 +179,51 @@ See README.md or the bundled SKILL.md for recipes.`,
 		// runs a bounded API refresh. Failures become stderr warnings;
 		// the command proceeds with the stale cache either way.
 		if resources, isRead := readCommandResources[cmd.CommandPath()]; isRead {
-			flags.freshnessMeta = autoRefreshIfStale(cmd.Context(), &flags, resources)
+			flags.freshnessMeta = autoRefreshIfStale(cmd.Context(), flags, resources)
 		}
 		return nil
 	}
-	rootCmd.AddCommand(newRecipesCmd(&flags))
-	rootCmd.AddCommand(newDoctorCmd(&flags))
-	// Auth deliberately omitted — Allrecipes is a public surface; the CLI has
-	// no credentials to manage.
+	rootCmd.AddCommand(newRecipesCmd(flags))
+	rootCmd.AddCommand(newDoctorCmd(flags))
+	rootCmd.AddCommand(newAuthCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
-	rootCmd.AddCommand(newProfileCmd(&flags))
-	rootCmd.AddCommand(newFeedbackCmd(&flags))
-	rootCmd.AddCommand(newWhichCmd(&flags))
-	rootCmd.AddCommand(newExportCmd(&flags))
-	rootCmd.AddCommand(newImportCmd(&flags))
-	rootCmd.AddCommand(newSyncCmd(&flags))
-	rootCmd.AddCommand(newWorkflowCmd(&flags))
+	rootCmd.AddCommand(newProfileCmd(flags))
+	rootCmd.AddCommand(newFeedbackCmd(flags))
+	rootCmd.AddCommand(newWhichCmd(flags))
+	rootCmd.AddCommand(newExportCmd(flags))
+	rootCmd.AddCommand(newImportCmd(flags))
+	rootCmd.AddCommand(newSyncCmd(flags))
+	rootCmd.AddCommand(newWorkflowCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
-	// Allrecipes top-level commands (hand-written; the spec resources only
-	// generate `recipes search/get`).
-	rootCmd.AddCommand(newRecipeTopCmd(&flags))
-	rootCmd.AddCommand(newSearchTopCmd(&flags))
-	rootCmd.AddCommand(newTopRatedCmd(&flags))
-	rootCmd.AddCommand(newQuickCmd(&flags))
-	rootCmd.AddCommand(newPantryCmd(&flags))
-	rootCmd.AddCommand(newWithIngredientCmd(&flags))
-	rootCmd.AddCommand(newDietaryCmd(&flags))
-	rootCmd.AddCommand(newCookbookCmd(&flags))
-	rootCmd.AddCommand(newGroceryListCmd(&flags))
-	rootCmd.AddCommand(newScaleCmd(&flags))
-	rootCmd.AddCommand(newNutritionCmd(&flags))
-	rootCmd.AddCommand(newIngredientsCmd(&flags))
-	rootCmd.AddCommand(newInstructionsCmd(&flags))
-	rootCmd.AddCommand(newReviewsCmd(&flags))
-	rootCmd.AddCommand(newCategoryCmd(&flags))
-	rootCmd.AddCommand(newCuisineCmd(&flags))
-	rootCmd.AddCommand(newIngredientBrowseCmd(&flags))
-	rootCmd.AddCommand(newOccasionCmd(&flags))
-	rootCmd.AddCommand(newArticleCmd(&flags))
-	rootCmd.AddCommand(newGalleryCmd(&flags))
-	rootCmd.AddCommand(newCookCmd(&flags))
-	rootCmd.AddCommand(newExportCmdAlias(&flags))
-	rootCmd.AddCommand(newCacheCmd(&flags))
+	// Hand-written novel and absorbed commands ported from prior allrecipes
+	// CLI (v2.3.9 → v3.7.0). See the absorb manifest at
+	// $RESEARCH_DIR/.../absorb-manifest.md for the per-command rationale.
+	rootCmd.AddCommand(newRecipeTopCmd(flags))
+	rootCmd.AddCommand(newSearchTopCmd(flags))
+	rootCmd.AddCommand(newTopRatedCmd(flags))
+	rootCmd.AddCommand(newQuickCmd(flags))
+	rootCmd.AddCommand(newPantryCmd(flags))
+	rootCmd.AddCommand(newWithIngredientCmd(flags))
+	rootCmd.AddCommand(newDietaryCmd(flags))
+	rootCmd.AddCommand(newCookbookCmd(flags))
+	rootCmd.AddCommand(newGroceryListCmd(flags))
+	rootCmd.AddCommand(newScaleCmd(flags))
+	rootCmd.AddCommand(newNutritionCmd(flags))
+	rootCmd.AddCommand(newIngredientsCmd(flags))
+	rootCmd.AddCommand(newInstructionsCmd(flags))
+	rootCmd.AddCommand(newReviewsCmd(flags))
+	rootCmd.AddCommand(newCategoryCmd(flags))
+	rootCmd.AddCommand(newCuisineCmd(flags))
+	rootCmd.AddCommand(newIngredientBrowseCmd(flags))
+	rootCmd.AddCommand(newOccasionCmd(flags))
+	rootCmd.AddCommand(newArticleCmd(flags))
+	rootCmd.AddCommand(newGalleryCmd(flags))
+	rootCmd.AddCommand(newCookCmd(flags))
+	rootCmd.AddCommand(newExportCmdAlias(flags))
+	rootCmd.AddCommand(newCacheCmd(flags))
 
-	err := rootCmd.Execute()
-	if err != nil && strings.Contains(err.Error(), "unknown flag") {
-		msg := err.Error()
-		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
-		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
-			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
-			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
-				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
-			}
-		}
-	}
-	if err == nil && flags.deliverBuf != nil {
-		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
-			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
-			return derr
-		}
-	}
-	return err
+	return rootCmd
 }
 
 func ExitCode(err error) int {

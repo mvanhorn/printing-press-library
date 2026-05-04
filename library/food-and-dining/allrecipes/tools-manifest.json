@@ -1,41 +1,29 @@
 {
   "api_name": "allrecipes",
   "base_url": "https://www.allrecipes.com",
-  "description": "Allrecipes Pocket — every Allrecipes recipe in your terminal: cached as data, with pantry-aware search, Bayesian-smoothed ranking, multi-recipe grocery lists, and clean markdown export.",
-  "mcp_ready": "full",
-  "http_transport": "browser-chrome",
+  "description": "Allrecipes Pocket — every Allrecipes recipe in your terminal: cached as data, with pantry-aware search, Bayesian-smoothed ranking, multi-recipe grocery lists, strict dietary filtering, and clean markdown export. Recipe detail pages clear Cloudflare via a one-time `auth login --chrome` cookie capture.",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome-h3",
   "auth": {
-    "type": "none"
+    "type": "cookie",
+    "header": "Cookie",
+    "in": "cookie",
+    "env_vars": [
+      "ALLRECIPES_COOKIES"
+    ],
+    "cookie_domain": ".allrecipes.com",
+    "requires_browser_session": true,
+    "browser_session_validation_path": "/recipe/9599/quick-and-easy-brownies/",
+    "browser_session_validation_method": "GET"
   },
   "required_headers": [],
   "tools": [
     {
-      "name": "recipes_get",
-      "description": "Fetch a recipe by ID + slug; returns parsed JSON-LD Recipe",
-      "method": "GET",
-      "path": "/recipe/{recipe_id}/{slug}/",
-      "params": [
-        {
-          "name": "recipe_id",
-          "type": "string",
-          "location": "path",
-          "description": "Numeric recipe ID (e.g. 9599)",
-          "required": true
-        },
-        {
-          "name": "slug",
-          "type": "string",
-          "location": "path",
-          "description": "Recipe URL slug (e.g. quick-and-easy-brownies)",
-          "required": true
-        }
-      ]
-    },
-    {
       "name": "recipes_search",
-      "description": "Search Allrecipes for recipes matching a query",
+      "description": "Search Allrecipes for recipes matching a query (no Cloudflare clearance required). Required: q. Optional: page (default: 1). Returns array of SearchResult.",
       "method": "GET",
       "path": "/search",
+      "no_auth": true,
       "params": [
         {
           "name": "q",

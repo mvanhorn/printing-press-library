@@ -8,15 +8,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/internal/store"
 )
 
@@ -24,35 +26,33 @@ import (
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("recipes_get",
-			mcplib.WithDescription("Fetch a recipe by ID + slug; returns parsed JSON-LD Recipe Returns Recipe."),
+			mcplib.WithDescription("Fetch a recipe by ID + slug; returns parsed JSON-LD Recipe. Requires Cloudflare clearance cookie via `auth login --chrome`. Required: recipe_id, slug."),
 			mcplib.WithString("recipe_id", mcplib.Required(), mcplib.Description("Numeric recipe ID (e.g. 9599)")),
 			mcplib.WithString("slug", mcplib.Required(), mcplib.Description("Recipe URL slug (e.g. quick-and-easy-brownies)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/recipe/{recipe_id}/{slug}/", []string{"recipe_id", "slug"}),
+		makeAPIHandler("GET", "/recipe/{recipe_id}/{slug}/", []string{"recipe_id","slug", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("recipes_search",
-			mcplib.WithDescription("Search Allrecipes for recipes matching a query Returns array of SearchResult."),
+			mcplib.WithDescription("Search Allrecipes for recipes matching a query (no Cloudflare clearance required). Required: q. Optional: page (default: 1). Returns array of SearchResult."),
 			mcplib.WithString("q", mcplib.Required(), mcplib.Description("Search query (e.g. 'brownies')")),
 			mcplib.WithString("page", mcplib.Description("Result page (1-indexed; default 1)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/search", []string{}),
-	)
-	// Sync tool — populates local database for offline search and sql queries
-	s.AddTool(
-		mcplib.NewTool("sync",
-			mcplib.WithDescription("Sync API data to local SQLite database. Run this before using search or sql tools. Supports incremental sync."),
-			mcplib.WithString("resources", mcplib.Description("Comma-separated resource types to sync (omit for all)")),
-			mcplib.WithString("since", mcplib.Description("Incremental sync since duration (e.g. 7d, 24h, 1w)")),
-			mcplib.WithBoolean("full", mcplib.Description("Full resync ignoring checkpoints")),
-		),
-		handleSync,
+		makeAPIHandler("GET", "/search", []string{ }),
 	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
 			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT only). Tables match resource names.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleSQL,
 	)
@@ -62,9 +62,15 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("context",
 			mcplib.WithDescription("Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleContext,
 	)
+
+	// Runtime Cobra-tree mirror — exposes every user-facing command that is
+	// not already covered by a typed endpoint or framework MCP tool.
+	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
@@ -127,13 +133,20 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 			switch {
 			case strings.Contains(msg, "HTTP 409"):
 				return mcplib.NewToolResultText("already exists (no-op)"), nil
+			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
+				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
+					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
+					"\n      Set your API key: export ALLRECIPES_COOKIES=<your-key>" +
+					"\n      Run 'allrecipes-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
-				return mcplib.NewToolResultError("authentication failed: " + msg +
+				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your API credentials." +
+					"\n      Set it with: export ALLRECIPES_COOKIES=<your-key>" +
 					"\n      Run 'allrecipes-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
-				return mcplib.NewToolResultError("permission denied: " + msg +
+				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: your credentials are valid but lack access to this resource." +
+					"\n      Set it with: export ALLRECIPES_COOKIES=<your-key>" +
 					"\n      Run 'allrecipes-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
@@ -175,9 +188,9 @@ func newMCPClient() (*client.Client, error) {
 	}
 	c := client.New(cfg, 30*time.Second, 0)
 	// Agents calling through MCP need fresh data every call. The on-disk
-	// response cache survives across MCP server invocations, so a DELETE/PATCH
-	// followed by a GET would otherwise return the pre-mutation snapshot for up
-	// to the cache TTL. Skip the cache for the MCP path; the interactive CLI
+	// response cache survives across MCP server invocations, so a
+	// DELETE/PATCH followed by a GET would otherwise return the
+	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
 	// constructs its own client and is unaffected.
 	c.NoCache = true
 	return c, nil
@@ -187,13 +200,8 @@ func dbPath() string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", "allrecipes-pp-cli", "data.db")
 }
-
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
-
-func handleSync(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	return mcplib.NewToolResultText("sync not yet implemented via MCP - use the CLI: allrecipes-pp-cli sync"), nil
-}
 
 func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
@@ -210,7 +218,7 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		}
 	}
 
-	db, err := store.Open(dbPath())
+	db, err := store.OpenWithContext(ctx, dbPath())
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
@@ -244,17 +252,22 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
-		"api":          "allrecipes",
-		"description":  "Allrecipes Pocket — every Allrecipes recipe in your terminal: cached as data, with pantry-aware search,...",
-		"archetype":    "generic",
-		"tool_count":   2,
-		"tool_surface": "MCP exposes the endpoints listed under `resources` (plus sync/search/sql/context utilities when present). Items under `cli_only_capabilities` require running the companion allrecipes-pp-cli binary; the MCP cannot invoke them.",
+		"api":         "allrecipes",
+		"description": "Allrecipes Pocket — every Allrecipes recipe in your terminal: cached as data, with pantry-aware search,...",
+		"archetype":   "generic",
+		"tool_count":  2,
+		// tool_surface tells agents which surface a capability lives on.
+		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion allrecipes-pp-cli binary.",
+		"auth": map[string]any{
+			"type": "cookie",
+			"env_vars": []string{"ALLRECIPES_COOKIES",  },
+		},
 		"resources": []map[string]any{
 			{
-				"name":        "recipes",
+				"name": "recipes",
 				"description": "Public Allrecipes recipe pages with Schema.org Recipe JSON-LD markup",
-				"endpoints":   []string{"get", "search"},
-				"searchable":  true,
+				"endpoints": []string{"get", "search",  },
+				"searchable": true,
 			},
 		},
 		"query_tips": []string{
@@ -264,149 +277,36 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
 		},
-		"cli_only_capabilities": []map[string]string{
-			{"name": "Pantry match", "command": "pantry", "description": "Score Allrecipes recipes against your pantry — see which ones you can actually cook tonight without a grocery run.", "rationale": "Requires SQL join over the local recipe×ingredient index with token-overlap scoring; the website cannot answer...", "via": "cli"},
-			{"name": "Bayesian top-rated", "command": "top-rated", "description": "Rank recipes by Bayesian-smoothed rating — proven popular wins over 1-review 5-star noise.", "rationale": "Allrecipes 'sort by rating' floats single-review 5-star outliers; smoothing toward prior mean 4.0 with credibility...", "via": "cli"},
-			{"name": "Reverse ingredient index", "command": "with-ingredient", "description": "Find every cached recipe that uses a given ingredient — a SQL view across your local corpus.", "rationale": "Native Allrecipes search is title-only; reverse-index queries against the recipes×ingredients table only exist in...", "via": "cli"},
-			{"name": "Quick weeknight", "command": "quick", "description": "Top-rated recipes that fit a strict time cap — Allrecipes' UI cannot enforce one, but the local cache can.", "rationale": "Allrecipes lists 'quick & easy' but doesn't enforce a numeric cap; offline filter on cached total_time + Bayesian...", "via": "cli"},
-			{"name": "Personal cookbook export", "command": "cookbook", "description": "Compile a top-rated category into a single markdown cookbook with TOC, ingredients, and instructions.", "rationale": "Compounds category browse + Bayesian rating + markdown export — no existing tool produces a shareable cookbook...", "via": "cli"},
-			{"name": "Multi-recipe grocery list", "command": "grocery-list", "description": "Aggregate ingredients from many recipes into a deduped, agent-readable shopping list.", "rationale": "marcon29/CLI-dinner-finder-grocery-list does this interactively in Ruby; we ship it non-interactive, JSON-clean, and...", "via": "cli"},
-			{"name": "Dietary filter on cache", "command": "dietary", "description": "Filter cached recipes by gluten-free / vegan / low-carb using JSON-LD keywords plus ingredient-name patterns.", "rationale": "Allrecipes' on-site diet pages have spotty coverage; we union JSON-LD `keywords` with ingredient-string heuristics...", "via": "cli"},
-			{"name": "Doctor with Cloudflare diagnosis", "command": "doctor", "description": "Health check that names the Cloudflare 'Just a moment...' interstitial by inspecting the response body, then advises...", "rationale": "Allrecipes returns 403 with default UAs; a generic doctor would only say 'request failed'. Our diagnostic recognizes...", "via": "cli"},
+		// Command-mirror capabilities are exposed through MCP by shelling out
+		// to the companion CLI binary.
+		"command_mirror_capabilities": []map[string]string{
+			{"name": "Pantry match", "command": "pantry", "description": "Find proven recipes you can actually cook tonight: matches what's in a pantry file against the cached recipe corpus...", "rationale": "Requires a SQL join over local recipes × ingredients with token-overlap scoring — Allrecipes' search has no way...", "via": "mcp-command-mirror"},
+			{"name": "Bayesian top-rated", "command": "top-rated", "description": "Rank recipes by Bayesian-smoothed rating (prior 4.0, default C=200) so 1-review 5-star outliers can't win.", "rationale": "Allrecipes' raw rating sort surfaces 1-review 5-stars as 'best ever' — smoothing toward a community prior is pure...", "via": "mcp-command-mirror"},
+			{"name": "Reverse ingredient index", "command": "with-ingredient", "description": "Find recipes that use a specific ingredient — the inverse of 'recipe → ingredients'.", "rationale": "Allrecipes' native search is title-only; FTS5 over an ingredient table is a SQL feature only the local cache enables.", "via": "mcp-command-mirror"},
+			{"name": "Quick weeknight", "command": "quick", "description": "Top-rated recipes under a strict numeric time cap (`--max-minutes 30`).", "rationale": "Allrecipes' 'quick & easy' is a label, not a constraint; offline filter on cached `total_time` plus Bayesian rating...", "via": "mcp-command-mirror"},
+			{"name": "Personal cookbook export", "command": "cookbook", "description": "Compile a top-N category or cuisine into a markdown cookbook with table of contents and per-recipe attribution.", "rationale": "Composes category/cuisine browse + Bayesian rank + markdown export; no other tool produces a curated multi-recipe...", "via": "mcp-command-mirror"},
+			{"name": "Strict dietary filter", "command": "dietary", "description": "Filter cached recipes by gluten-free / vegan / low-carb using JSON-LD keywords UNION an ingredient-name regex blocklist.", "rationale": "Allrecipes' on-site diet pages have known false positives (a 'gluten-free' recipe with soy sauce); the blocklist...", "via": "mcp-command-mirror"},
+			{"name": "Doctor with clearance diagnosis", "command": "doctor", "description": "Probes a recipe URL and inspects the response; on Cloudflare's `cf-mitigated: challenge` header, prescribes `auth...", "rationale": "Generic doctor would say 'request failed'; this names the specific Cloudflare clearance failure mode and tells the...", "via": "mcp-command-mirror"},
+			{"name": "Pantry-aware grocery list", "command": "grocery-list", "description": "Aggregate ingredients across multiple recipes and subtract what the pantry already has — output is the buy list,...", "rationale": "Composes the absorbed multi-recipe grocery aggregator with the pantry-match index; differentiates from generic...", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Pantry match", "insight": "Requires SQL join over the local recipe×ingredient index with token-overlap scoring; the website cannot answer 'which recipes need only ingredients I already have'."},
-			{"topic": "Bayesian top-rated", "insight": "Allrecipes 'sort by rating' floats single-review 5-star outliers; smoothing toward prior mean 4.0 with credibility C=200 only ranks recipes whose stars are backed by review volume."},
-			{"topic": "Reverse ingredient index", "insight": "Native Allrecipes search is title-only; reverse-index queries against the recipes×ingredients table only exist in the local store."},
-			{"topic": "Quick weeknight", "insight": "Allrecipes lists 'quick & easy' but doesn't enforce a numeric cap; offline filter on cached total_time + Bayesian rating gives a precise time-bounded query."},
-			{"topic": "Personal cookbook export", "insight": "Compounds category browse + Bayesian rating + markdown export — no existing tool produces a shareable cookbook bundle from Allrecipes."},
-			{"topic": "Multi-recipe grocery list", "insight": "marcon29/CLI-dinner-finder-grocery-list does this interactively in Ruby; we ship it non-interactive, JSON-clean, and callable from an agent's plan-then-shop workflow."},
-			{"topic": "Dietary filter on cache", "insight": "Allrecipes' on-site diet pages have spotty coverage; we union JSON-LD `keywords` with ingredient-string heuristics across the local corpus for broader recall."},
-			{"topic": "Doctor with Cloudflare diagnosis", "insight": "Allrecipes returns 403 with default UAs; a generic doctor would only say 'request failed'. Our diagnostic recognizes the Cloudflare interstitial and points at the fix."},
+			{"topic": "Pantry match", "insight": "Requires a SQL join over local recipes × ingredients with token-overlap scoring — Allrecipes' search has no way to express 'what can I cook with these ingredients'."},
+			{"topic": "Bayesian top-rated", "insight": "Allrecipes' raw rating sort surfaces 1-review 5-stars as 'best ever' — smoothing toward a community prior is pure SQL over the local cache."},
+			{"topic": "Reverse ingredient index", "insight": "Allrecipes' native search is title-only; FTS5 over an ingredient table is a SQL feature only the local cache enables."},
+			{"topic": "Quick weeknight", "insight": "Allrecipes' 'quick & easy' is a label, not a constraint; offline filter on cached `total_time` plus Bayesian rating gives an enforceable cap."},
+			{"topic": "Personal cookbook export", "insight": "Composes category/cuisine browse + Bayesian rank + markdown export; no other tool produces a curated multi-recipe bundle."},
+			{"topic": "Strict dietary filter", "insight": "Allrecipes' on-site diet pages have known false positives (a 'gluten-free' recipe with soy sauce); the blocklist catches them mechanically with no LLM."},
+			{"topic": "Doctor with clearance diagnosis", "insight": "Generic doctor would say 'request failed'; this names the specific Cloudflare clearance failure mode and tells the user how to fix it."},
+			{"topic": "Pantry-aware grocery list", "insight": "Composes the absorbed multi-recipe grocery aggregator with the pantry-match index; differentiates from generic grocery lists by emitting only what to actually shop for."},
 		},
 	}
 	data, _ := json.MarshalIndent(ctx, "", "  ")
 	return mcplib.NewToolResultText(string(data)), nil
 }
 
-// RegisterNovelFeatureTools registers MCP tools that shell out to the
-// companion CLI binary. Empty body when the spec has no novel features.
+// RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP
+// mains. New generated mains call RegisterTools only; RegisterTools now
+// includes the runtime Cobra-tree mirror.
 func RegisterNovelFeatureTools(s *server.MCPServer) {
-	s.AddTool(
-		mcplib.NewTool("pantry",
-			mcplib.WithDescription("Score Allrecipes recipes against your pantry — see which ones you can actually cook tonight without a grocery run."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("pantry"),
-	)
-	s.AddTool(
-		mcplib.NewTool("top_rated",
-			mcplib.WithDescription("Rank recipes by Bayesian-smoothed rating — proven popular wins over 1-review 5-star noise."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("top-rated"),
-	)
-	s.AddTool(
-		mcplib.NewTool("with_ingredient",
-			mcplib.WithDescription("Find every cached recipe that uses a given ingredient — a SQL view across your local corpus."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("with-ingredient"),
-	)
-	s.AddTool(
-		mcplib.NewTool("quick",
-			mcplib.WithDescription("Top-rated recipes that fit a strict time cap — Allrecipes' UI cannot enforce one, but the local cache can."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("quick"),
-	)
-	s.AddTool(
-		mcplib.NewTool("cookbook",
-			mcplib.WithDescription("Compile a top-rated category into a single markdown cookbook with TOC, ingredients, and instructions."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("cookbook"),
-	)
-	s.AddTool(
-		mcplib.NewTool("grocery_list",
-			mcplib.WithDescription("Aggregate ingredients from many recipes into a deduped, agent-readable shopping list."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("grocery-list"),
-	)
-	s.AddTool(
-		mcplib.NewTool("dietary",
-			mcplib.WithDescription("Filter cached recipes by gluten-free / vegan / low-carb using JSON-LD keywords plus ingredient-name patterns."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("dietary"),
-	)
-	s.AddTool(
-		mcplib.NewTool("doctor",
-			mcplib.WithDescription("Health check that names the Cloudflare 'Just a moment...' interstitial by inspecting the response body, then advises the browser-chrome transport."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("doctor"),
-	)
-}
-
-// siblingCLIPath resolves the companion CLI via sibling-of-executable,
-// ALLRECIPES_CLI_PATH env var, then PATH.
-func siblingCLIPath() (string, error) {
-	const cliName = "allrecipes-pp-cli"
-	if exe, err := os.Executable(); err == nil {
-		candidate := filepath.Join(filepath.Dir(exe), cliName)
-		if _, err := os.Stat(candidate); err == nil {
-			return candidate, nil
-		}
-	}
-	if v := os.Getenv("ALLRECIPES_CLI_PATH"); v != "" {
-		return v, nil
-	}
-	return exec.LookPath(cliName)
-}
-
-// shellOutToCLI returns an MCP tool handler that runs commandSpec against
-// the companion CLI. Resolves the binary path and pre-splits commandSpec
-// at registration so the per-call work is just user-arg split + exec.
-func shellOutToCLI(commandSpec string) server.ToolHandlerFunc {
-	cliPath, lookupErr := siblingCLIPath()
-	prefixArgs := splitShellArgs(commandSpec)
-	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		if lookupErr != nil {
-			return mcplib.NewToolResultError(fmt.Sprintf("companion CLI binary not found: %v\nTried sibling lookup, ALLRECIPES_CLI_PATH env var, and PATH.", lookupErr)), nil
-		}
-		userArgs, _ := req.GetArguments()["args"].(string)
-		finalArgs := append(append([]string{}, prefixArgs...), splitShellArgs(userArgs)...)
-		cmd := exec.CommandContext(ctx, cliPath, finalArgs...)
-		out, err := cmd.CombinedOutput()
-		if err != nil {
-			return mcplib.NewToolResultError(string(out)), nil
-		}
-		return mcplib.NewToolResultText(string(out)), nil
-	}
-}
-
-// splitShellArgs whitespace-splits with double-quoted-token preservation.
-func splitShellArgs(s string) []string {
-	var tokens []string
-	var cur []rune
-	inQuote := false
-	for _, r := range s {
-		switch {
-		case r == '"':
-			inQuote = !inQuote
-		case (r == ' ' || r == '\t') && !inQuote:
-			if len(cur) > 0 {
-				tokens = append(tokens, string(cur))
-				cur = cur[:0]
-			}
-		default:
-			cur = append(cur, r)
-		}
-	}
-	if len(cur) > 0 {
-		tokens = append(tokens, string(cur))
-	}
-	return tokens
+	_ = s
 }

@@ -21,12 +21,12 @@ func newSearchTopCmd(flags *rootFlags) *cobra.Command {
 	var flagCacheOnly bool
 	cmd := &cobra.Command{
 		Use:   "search <query>",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Search Allrecipes for recipes (live + cache)",
 		Example: "  allrecipes-pp-cli search brownies\n" +
 			"  allrecipes-pp-cli search \"chicken thighs\" --limit 10 --agent\n" +
 			"  allrecipes-pp-cli search brownies --cache-only --limit 20",
-		Args: cobra.MinimumNArgs(1),
+		Args:        cobra.MinimumNArgs(1),
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			query := strings.Join(args, " ")
 			page := flagPage
@@ -87,7 +87,7 @@ func runCacheSearch(cmd *cobra.Command, flags *rootFlags, query string, limit in
 		return fmt.Errorf("no local cache available — run 'recipe' or 'search' first to populate it")
 	}
 	defer s.Close()
-	rows, err := s.SearchRecipes(query, limit)
+	rows, err := recipes.SearchCachedRecipes(s, query, limit)
 	if err != nil {
 		return fmt.Errorf("cache search failed: %w", err)
 	}
@@ -130,7 +130,6 @@ func newTopRatedCmd(flags *rootFlags) *cobra.Command {
 	var flagEnrich bool
 	cmd := &cobra.Command{
 		Use:   "top-rated <query>",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Search and rank by Bayesian-smoothed rating",
 		Long: "Ranks search results by a Bayesian-smoothed estimate of the true rating:\n\n" +
 			"\tsmoothed = (C * priorMean + reviewCount * rating) / (C + reviewCount)\n\n" +
@@ -145,7 +144,8 @@ func newTopRatedCmd(flags *rootFlags) *cobra.Command {
 			"but the score reflects real review data.",
 		Example: "  allrecipes-pp-cli top-rated brownies --limit 5 --enrich\n" +
 			"  allrecipes-pp-cli top-rated \"chocolate cake\" --enrich --smooth-c 200 --agent",
-		Args: cobra.MinimumNArgs(1),
+		Args:        cobra.MinimumNArgs(1),
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			query := strings.Join(args, " ")
 			c, err := flags.newClient()
@@ -244,7 +244,6 @@ func newQuickCmd(flags *rootFlags) *cobra.Command {
 	var flagMinRating float64
 	cmd := &cobra.Command{
 		Use:   "quick",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Top-rated recipes from cache that fit a strict time cap",
 		Long: "Reads the local recipe cache and returns recipes whose total cook+prep time\n" +
 			"is at or below --max-minutes, ranked by Bayesian-smoothed rating. Allrecipes'\n" +
@@ -255,6 +254,7 @@ func newQuickCmd(flags *rootFlags) *cobra.Command {
 			"populate the cache.",
 		Example: "  allrecipes-pp-cli quick --max-minutes 30\n" +
 			"  allrecipes-pp-cli quick --max-minutes 25 --query chicken --agent",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s := openStoreForCommand()
 			if s == nil {

@@ -74,7 +74,7 @@ func autoRefreshIfStale(ctx context.Context, flags *rootFlags, resources []strin
 		return meta
 	}
 	dbPath := defaultDBPath("allrecipes-pp-cli")
-	db, err := store.Open(dbPath)
+	db, err := store.OpenWithContext(ctx, dbPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "warning: auto-refresh skipped (open: %v)\n", err)
 		meta.Decision = "error"
@@ -113,8 +113,8 @@ func autoRefreshIfStale(ctx context.Context, flags *rootFlags, resources []strin
 
 // ensureFreshForResources lets hand-authored commands participate in the same
 // freshness hook as generated resource commands. Custom commands should call
-// this before reading from the store, then use wrapWithProvenance or
-// wrapResultsWithFreshness for JSON output if they want meta.freshness.
+// this before reading from the store, then use wrapWithProvenance for JSON
+// output if they want meta.freshness.
 func ensureFreshForResources(ctx context.Context, flags *rootFlags, resources ...string) cliutil.FreshnessMeta {
 	meta := autoRefreshIfStale(ctx, flags, resources)
 	flags.freshnessMeta = meta

@@ -14,15 +14,16 @@ import (
 )
 
 type Config struct {
-	BaseURL       string    `toml:"base_url"`
-	AuthHeaderVal string    `toml:"auth_header"`
-	AuthSource    string    `toml:"-"`
-	AccessToken   string    `toml:"access_token"`
-	RefreshToken  string    `toml:"refresh_token"`
-	TokenExpiry   time.Time `toml:"token_expiry"`
-	ClientID      string    `toml:"client_id"`
-	ClientSecret  string    `toml:"client_secret"`
-	Path          string    `toml:"-"`
+	BaseURL        string `toml:"base_url"`
+	AuthHeaderVal  string `toml:"auth_header"`
+	AuthSource     string `toml:"-"`
+	AccessToken    string `toml:"access_token"`
+	RefreshToken   string `toml:"refresh_token"`
+	TokenExpiry    time.Time `toml:"token_expiry"`
+	ClientID       string `toml:"client_id"`
+	ClientSecret   string `toml:"client_secret"`
+	Path           string `toml:"-"`
+	AllrecipesCookies string `toml:"cookies"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -50,6 +51,10 @@ func Load(configPath string) (*Config, error) {
 	}
 
 	// Env var overrides
+	if v := os.Getenv("ALLRECIPES_COOKIES"); v != "" {
+		cfg.AllrecipesCookies = v
+		cfg.AuthSource = "env:ALLRECIPES_COOKIES"
+	}
 
 	// Base URL override (used by printing-press verify to point at mock/test servers)
 	if v := os.Getenv("ALLRECIPES_BASE_URL"); v != "" {
@@ -61,6 +66,15 @@ func Load(configPath string) (*Config, error) {
 func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
+	}
+	// Env-var token wins over file-stored AccessToken (env > config convention).
+	if c.AllrecipesCookies != "" {
+		c.AuthSource = "env:ALLRECIPES_COOKIES"
+		return c.AllrecipesCookies
+	}
+	if c.AccessToken != "" {
+		c.AuthSource = "browser"
+		return c.AccessToken
 	}
 	return ""
 }

@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -43,10 +44,10 @@ func renderJSON(cmd *cobra.Command, flags *rootFlags, v any) error {
 }
 
 // openStoreForCommand opens the read+write store at the default path. Returns
-// (nil, nil) if the store cannot be opened — callers should treat that as
+// nil if the store cannot be opened — callers should treat that as
 // "no cache available" and proceed live-only.
 func openStoreForCommand() *store.Store {
-	s, err := openStoreForRead("allrecipes-pp-cli")
+	s, err := openStoreForRead(context.Background(), "allrecipes-pp-cli")
 	if err != nil || s == nil {
 		return nil
 	}
@@ -55,6 +56,22 @@ func openStoreForCommand() *store.Store {
 		return nil
 	}
 	return s
+}
+
+// persistRecipe is a best-effort cache write. Failures do not fail the command
+// because the user already has the data they asked for; what we lose is the
+// next call's offline path.
+func persistRecipe(r *recipes.Recipe) {
+	if r == nil {
+		return
+	}
+	s, err := openStoreForRead(context.Background(), "allrecipes-pp-cli")
+	if err != nil || s == nil {
+		return
+	}
+	defer s.Close()
+	_ = recipes.EnsureSchema(s)
+	_ = recipes.SaveRecipe(s, r)
 }
 
 // recipeMarkdown renders a Recipe as a clean markdown document. Used by `export`

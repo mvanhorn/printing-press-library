@@ -209,10 +209,10 @@ func TestEnsureFresh_MissingSyncStateTableIsNoStore(t *testing.T) {
 
 func TestDecision_StringStableTags(t *testing.T) {
 	cases := map[Decision]string{
-		DecisionFresh:      "fresh",
-		DecisionStaleAPI:   "stale-api",
-		DecisionStaleShare: "stale-share",
-		DecisionNoStore:    "no-store",
+		DecisionFresh:       "fresh",
+		DecisionStaleAPI:    "stale-api",
+		DecisionStaleShare:  "stale-share",
+		DecisionNoStore:     "no-store",
 	}
 	for d, want := range cases {
 		if d.String() != want {

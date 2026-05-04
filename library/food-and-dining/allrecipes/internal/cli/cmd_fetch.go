@@ -19,7 +19,6 @@ import (
 func newArticleCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "article <url>",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Extract metadata from an Allrecipes article page",
 		Long: "Returns the article title, description, canonical URL, and any recipe\n" +
 			"links the article references. Article body text extraction is best-effort\n" +
@@ -27,7 +26,8 @@ func newArticleCmd(flags *rootFlags) *cobra.Command {
 			"fetch the page directly and parse it yourself.",
 		Example: "  allrecipes-pp-cli article https://www.allrecipes.com/article/some-slug/\n" +
 			"  allrecipes-pp-cli article https://www.allrecipes.com/article/some-slug/ --agent",
-		Args: cobra.MinimumNArgs(1),
+		Args:        cobra.MinimumNArgs(1),
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -59,11 +59,11 @@ func newArticleCmd(flags *rootFlags) *cobra.Command {
 
 func newGalleryCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "gallery <url>",
+		Use:         "gallery <url>",
+		Short:       "Extract recipe links from an Allrecipes round-up gallery",
+		Example:     "  allrecipes-pp-cli gallery https://www.allrecipes.com/gallery/best-summer-salads/ --agent",
+		Args:        cobra.MinimumNArgs(1),
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "Extract recipe links from an Allrecipes round-up gallery",
-		Example: "  allrecipes-pp-cli gallery https://www.allrecipes.com/gallery/best-summer-salads/ --agent",
-		Args:    cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -94,11 +94,11 @@ func newGalleryCmd(flags *rootFlags) *cobra.Command {
 
 func newCookCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "cook <slug>",
+		Use:         "cook <slug>",
+		Short:       "Show a cook profile and the recipes they've published",
+		Example:     "  allrecipes-pp-cli cook john-mitzewich --agent",
+		Args:        cobra.MinimumNArgs(1),
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "Show a cook profile and the recipes they've published",
-		Example: "  allrecipes-pp-cli cook john-mitzewich --agent",
-		Args:    cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			slug := args[0]
 			path := slug

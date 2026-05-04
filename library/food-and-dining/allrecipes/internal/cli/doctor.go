@@ -4,45 +4,68 @@
 package cli
 
 import (
+	"context"
+	"crypto/sha256"
 	"database/sql"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/internal/store"
 	"github.com/spf13/cobra"
 )
 
-// looksLikeCloudflareInterstitial returns true if the body bytes match the
-// signature of Cloudflare's "Just a moment..." JavaScript challenge page.
-// Allrecipes is fronted by Cloudflare; a default-UA HTTP client is sent to
-// this page, while a Surf-impersonated client gets the real content. If
-// the doctor sees this body, the browser-chrome transport isn't enough on
-// the current network — the user needs to wait, switch networks, or accept
-// that some endpoints are blocked.
-func looksLikeCloudflareInterstitial(body []byte) bool {
+// looksLikeDoctorInterstitial reports whether the response body matches a known
+// bot-detection challenge page (Cloudflare, Akamai, Vercel, AWS WAF, DataDome,
+// PerimeterX). Only fires on the doctor probe — used to distinguish "transport
+// reached the wall" from "transport failed entirely." Returns the vendor name
+// when matched, or empty string when no match.
+//
+// Markers are anchored to <title> or vendor-specific strings to avoid
+// false-positives on benign content. For example, a recipe titled "Just A
+// Moment of Pause Cookies" must NOT match the Cloudflare challenge marker;
+// only "<title>just a moment" (the actual interstitial title) does.
+func looksLikeDoctorInterstitial(body []byte) string {
 	if len(body) == 0 {
-		return false
+		return ""
 	}
-	// Cap inspection to the first 8 KB — challenge pages are < 4 KB typically.
-	max := len(body)
-	if max > 8192 {
-		max = 8192
+	limit := len(body)
+	if limit > 8192 {
+		limit = 8192
 	}
-	prefix := strings.ToLower(string(body[:max]))
-	if !strings.Contains(prefix, "<title>") {
-		return false
+	prefix := strings.ToLower(string(body[:limit]))
+	if !strings.Contains(prefix, "<title") {
+		// Every bot interstitial we recognize sets a <title>; bodies without
+		// one are body-only API responses, not challenge pages.
+		return ""
 	}
-	if strings.Contains(prefix, "just a moment") || strings.Contains(prefix, "challenges.cloudflare.com") {
-		return true
+	switch {
+	case strings.Contains(prefix, "<title>just a moment") || // CF JS challenge
+		strings.Contains(prefix, "challenges.cloudflare.com") || // CF Turnstile
+		(strings.Contains(prefix, "attention required") && strings.Contains(prefix, "cloudflare")):
+		return "Cloudflare"
+	case strings.Contains(prefix, "akamai") && (strings.Contains(prefix, "request unsuccessful") || strings.Contains(prefix, "access denied")):
+		return "Akamai"
+	case strings.Contains(prefix, "x-vercel-mitigated") || strings.Contains(prefix, "x-vercel-challenge-token") ||
+		(strings.Contains(prefix, "vercel") && strings.Contains(prefix, "challenge")):
+		return "Vercel"
+	case strings.Contains(prefix, "request blocked") && strings.Contains(prefix, "aws waf"):
+		return "AWS WAF"
+	case strings.Contains(prefix, "datadome") && (strings.Contains(prefix, "blocked") || strings.Contains(prefix, "captcha") || strings.Contains(prefix, "challenge")):
+		return "DataDome"
+	case strings.Contains(prefix, "perimeterx") || strings.Contains(prefix, "px-captcha"):
+		return "PerimeterX"
 	}
-	if strings.Contains(prefix, "attention required") && strings.Contains(prefix, "cloudflare") {
-		return true
-	}
-	return false
+	return ""
 }
 
 func newDoctorCmd(flags *rootFlags) *cobra.Command {
@@ -64,42 +87,112 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			// Check auth
-			report["auth"] = "not required"
-
-			// Check auth environment variables
-
-			// Check API connectivity using the Surf transport — the same TLS
-			// fingerprint the CLI's actual commands use. A plain stdlib client
-			// gets a Cloudflare 403 on Allrecipes; this would mislead the user
-			// into thinking the CLI is broken when the real commands work fine.
-			if cfg != nil && cfg.BaseURL != "" {
-				c, cerr := flags.newClient()
-				if cerr != nil {
-					report["api"] = fmt.Sprintf("client init error: %s", cerr)
+			if cfg != nil {
+				header := cfg.AuthHeader()
+				if header == "" {
+					report["auth"] = "not configured"
+					report["auth_hint"] = "allrecipes-pp-cli auth login --chrome"
 				} else {
-					// Probe a known-public path via Surf. We use `/search?q=cookie`
-					// because (a) it always returns HTML, (b) it isn't paginated
-					// or auth-gated, and (c) the response shape is stable.
-					body, err := c.Get("/search", map[string]string{"q": "cookie"})
-					switch {
-					case err != nil:
-						msg := err.Error()
-						if strings.Contains(strings.ToLower(msg), "challenge") || strings.Contains(strings.ToLower(msg), "just a moment") {
-							report["api"] = fmt.Sprintf("blocked by Cloudflare interstitial — your network may be on a flagged IP, or the binary is missing the browser-chrome transport. Error: %s", msg)
-						} else {
-							report["api"] = fmt.Sprintf("unreachable: %s", msg)
-						}
-					case looksLikeCloudflareInterstitial(body):
-						report["api"] = "blocked by Cloudflare 'Just a moment...' interstitial — the browser-chrome transport is reaching the wall. Try a different network or wait for the IP-level rate limit to clear."
-					case len(body) < 1024:
-						report["api"] = fmt.Sprintf("reachable but body suspiciously small (%d bytes) — site may be returning an error page", len(body))
-					default:
-						report["api"] = "reachable (via browser-chrome transport)"
+					report["auth"] = "configured (browser session)"
+					report["auth_source"] = cfg.AuthSource
+					report["auth_domain"] = ".allrecipes.com"
+					if proofOK, proofDetail := browserSessionProofStatus(cfg, header); proofOK {
+						report["browser_session_proof"] = "valid"
+						report["browser_session_proof_detail"] = proofDetail
+					} else {
+						report["browser_session_proof"] = "missing or stale"
+						report["browser_session_proof_detail"] = proofDetail
 					}
 				}
+			}
+			// Check cookie tool availability
+			cookieToolFound := false
+			for _, check := range [][]string{
+				{"python3", "-c", "import pycookiecheat"},
+				{"cookies", "--help"},
+				{"cookie-scoop", "--help"},
+			} {
+				if err := exec.Command(check[0], check[1:]...).Run(); err == nil {
+					cookieToolFound = true
+					report["cookie_tool"] = check[0]
+					break
+				}
+			}
+			if !cookieToolFound {
+				report["cookie_tool"] = "not found (install: pip install pycookiecheat)"
+			}
 
-				// Allrecipes is a no-auth public surface — credential validation
-				// would be meaningless. Skipped intentionally.
+			// Check auth environment variables
+			authEnvChecked := 0
+			authEnvSet := 0
+			authEnvChecked++
+			if os.Getenv("ALLRECIPES_COOKIES") != "" {
+				authEnvSet++
+			}
+			if authEnvSet == 0 {
+				report["env_vars"] = fmt.Sprintf("none set (checked %d)", authEnvChecked)
+			} else {
+				report["env_vars"] = fmt.Sprintf("%d/%d set", authEnvSet, authEnvChecked)
+			}
+
+			// Check API connectivity and validate credentials.
+			//
+			// The doctor uses the same client every other command uses --
+			// flags.newClient() returns a *client.Client wrapping whatever
+			// transport the spec declared (Surf for browser-chrome, stdlib
+			// for standard). A separate stdlib http.Client would silently
+			// bypass that choice and report false negatives against
+			// Cloudflare-fronted, Akamai-fronted, or otherwise bot-detected
+			// sites. By going through flags.newClient(), the doctor's
+			// reachability verdict matches what real commands experience.
+			if cfg != nil && cfg.BaseURL != "" {
+				c, clientErr := flags.newClient()
+				if clientErr != nil {
+					report["api"] = fmt.Sprintf("client init error: %s", clientErr)
+				} else {
+					// Step 1: Basic reachability via the configured transport.
+					reachBody, reachErr := c.Get("/", nil)
+					var reachAPIErr *client.APIError
+					switch {
+					case reachErr == nil:
+						// 2xx response — clearly reachable. Still inspect the
+						// body for a known interstitial; some bot walls return
+						// 200 with a JS challenge page.
+						if vendor := looksLikeDoctorInterstitial(reachBody); vendor != "" {
+							report["api"] = fmt.Sprintf("blocked by %s interstitial — the configured transport reached the wall. Try a different network, wait for the IP-level rate limit to clear, or check that the browser-chrome transport is bound correctly.", vendor)
+						} else {
+							report["api"] = "reachable"
+						}
+					case errors.As(reachErr, &reachAPIErr):
+						// Non-2xx from the server. The network reached, the
+						// server responded — that's "reachable" for our
+						// purposes. Inspect the response body for a known
+						// interstitial first; otherwise note the status.
+						status := reachAPIErr.StatusCode
+						if vendor := looksLikeDoctorInterstitial([]byte(reachAPIErr.Body)); vendor != "" {
+							report["api"] = fmt.Sprintf("blocked by %s interstitial (HTTP %d) — the configured transport reached the wall.", vendor, status)
+						} else {
+							report["api"] = fmt.Sprintf("reachable (HTTP %d at /)", status)
+						}
+					default:
+						// Network-level failure: DNS, connection refused, TLS,
+						// transport init, etc. The transport itself didn't
+						// connect.
+						report["api"] = fmt.Sprintf("unreachable: %s", reachErr)
+					}
+
+					// Step 2: Validate credentials with an authenticated probe.
+					authHeader := cfg.AuthHeader()
+					if authHeader == "" {
+						// No auth configured — skip credential validation
+					} else if proofOK, proofDetail := browserSessionProofStatus(cfg, authHeader); proofOK {
+						report["credentials"] = "valid"
+						report["credentials_detail"] = proofDetail
+					} else {
+						report["credentials"] = "invalid (browser-session proof missing or stale)"
+						report["credentials_detail"] = proofDetail
+					}
+				}
 			} else if cfg != nil && cfg.BaseURL == "" {
 				report["api"] = "not configured (set base_url in config file)"
 			}
@@ -107,12 +200,12 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			// Surfaces rows + last_synced_at per resource, schema version,
 			// and a fresh/stale/unknown verdict so agents can introspect
 			// whether to trust the cached data before issuing queries.
-			report["cache"] = collectCacheReport("")
+			report["cache"] = collectCacheReport(cmd.Context(), "")
 
 			report["version"] = version
 
 			if flags.asJSON {
-				if err := flags.printJSON(cmd, report); err != nil {
+				if err := printJSONFiltered(cmd.OutOrStdout(), report, flags); err != nil {
 					return err
 				}
 				return doctorExitForFailOn(failOn, report)
@@ -123,6 +216,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			checkKeys := []struct{ key, label string }{
 				{"config", "Config"},
 				{"auth", "Auth"},
+				{"browser_session_proof", "Browser Session Proof"},
 				{"api", "API"},
 				{"credentials", "Credentials"},
 			}
@@ -160,6 +254,9 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			// Print auth setup hints (indented under Auth line)
+			if hint, ok := report["auth_hint"]; ok {
+				fmt.Fprintf(w, "  hint: %v\n", hint)
+			}
 			// Cache section: render after the primary health block so it
 			// sits next to version info, mirroring the JSON report layout.
 			if cacheAny, ok := report["cache"]; ok {
@@ -172,6 +269,53 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&failOn, "fail-on", "", "Exit non-zero when a health level is reached: stale, error. Default is never.")
 	return cmd
+}
+
+type doctorBrowserSessionProof struct {
+	APIName               string `json:"api_name"`
+	CookieDomain          string `json:"cookie_domain"`
+	ValidationMethod      string `json:"validation_method"`
+	ValidationPath        string `json:"validation_path"`
+	StatusCode            int    `json:"status_code"`
+	AuthSource            string `json:"auth_source"`
+	CredentialFingerprint string `json:"credential_fingerprint"`
+	VerifiedAt            string `json:"verified_at"`
+}
+
+func browserSessionProofStatus(cfg *config.Config, authHeader string) (bool, string) {
+	if authHeader == "" {
+		return false, "no browser session credentials configured"
+	}
+	proofPath := filepath.Join(filepath.Dir(cfg.Path), "browser-session-proof.json")
+	data, err := os.ReadFile(proofPath)
+	if err != nil {
+		return false, "proof not found; run allrecipes-pp-cli auth login --chrome"
+	}
+	var proof doctorBrowserSessionProof
+	if err := json.Unmarshal(data, &proof); err != nil {
+		return false, "proof is not valid JSON; re-run allrecipes-pp-cli auth login --chrome"
+	}
+	if proof.APIName != "allrecipes" {
+		return false, "proof belongs to a different CLI"
+	}
+	if proof.CookieDomain != ".allrecipes.com" {
+		return false, "proof belongs to a different cookie domain"
+	}
+	if proof.ValidationPath != "/recipe/9599/quick-and-easy-brownies/" {
+		return false, "proof was captured for a different validation endpoint"
+	}
+	if authHeader != "" && proof.CredentialFingerprint != doctorFingerprintCredential(authHeader) {
+		return false, "proof does not match the currently configured browser session"
+	}
+	if proof.StatusCode < 200 || proof.StatusCode >= 300 {
+		return false, fmt.Sprintf("proof recorded HTTP %d", proof.StatusCode)
+	}
+	return true, fmt.Sprintf("%s %s verified at %s", proof.ValidationMethod, proof.ValidationPath, proof.VerifiedAt)
+}
+
+func doctorFingerprintCredential(value string) string {
+	sum := sha256.Sum256([]byte(value))
+	return hex.EncodeToString(sum[:8])
 }
 
 // doctorExitForFailOn returns a non-nil error when the report's worst
@@ -222,7 +366,7 @@ func doctorExitForFailOn(failOn string, report map[string]any) error {
 // staleAfterSpec is the CLI's configured threshold (e.g. "6h"); empty means
 // use the runtime default. The default is deliberately conservative (6h)
 // because the alternative is no freshness story at all.
-func collectCacheReport(staleAfterSpec string) map[string]any {
+func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]any {
 	report := map[string]any{}
 	dbPath := defaultDBPath("allrecipes-pp-cli")
 	report["db_path"] = dbPath
@@ -240,7 +384,7 @@ func collectCacheReport(staleAfterSpec string) map[string]any {
 	}
 	report["db_bytes"] = fi.Size()
 
-	s, err := store.Open(dbPath)
+	s, err := store.OpenWithContext(ctx, dbPath)
 	if err != nil {
 		report["status"] = "error"
 		report["error"] = err.Error()

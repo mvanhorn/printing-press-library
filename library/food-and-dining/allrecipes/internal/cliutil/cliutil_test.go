@@ -82,6 +82,20 @@ func TestParseStoredTime(t *testing.T) {
 	}
 }
 
+func TestAuthErrorHelpers(t *testing.T) {
+	if !LooksLikeAuthError("HTTP 400: missing api_key") {
+		t.Fatal("expected missing api_key to look like an auth error")
+	}
+	if LooksLikeAuthError("HTTP 400: malformed page number") {
+		t.Fatal("unexpected auth classification for non-auth message")
+	}
+
+	got := SanitizeErrorBody("token sk-abcdefghi Bearer abc.def key=secretvalue")
+	if got != "token [REDACTED] [REDACTED] [REDACTED]" {
+		t.Fatalf("SanitizeErrorBody redaction = %q", got)
+	}
+}
+
 // ---- FanoutRun ----
 
 func TestFanoutRunAllSucceed(t *testing.T) {
@@ -607,5 +621,192 @@ func TestProbeReachable_SendsRangeHeader(t *testing.T) {
 	}
 	if receivedRange != "bytes=0-1023" {
 		t.Errorf("Range header: want %q, got %q", "bytes=0-1023", receivedRange)
+	}
+}
+
+// ---- AdaptiveLimiter / RateLimitError / RetryAfter / Backoff ----
+
+func TestAdaptiveLimiter_NewNilOnNonPositive(t *testing.T) {
+	if NewAdaptiveLimiter(0) != nil {
+		t.Fatal("NewAdaptiveLimiter(0) should return nil")
+	}
+	if NewAdaptiveLimiter(-1) != nil {
+		t.Fatal("NewAdaptiveLimiter(-1) should return nil")
+	}
+}
+
+func TestAdaptiveLimiter_NilSafeMethods(t *testing.T) {
+	var l *AdaptiveLimiter
+	l.Wait()
+	l.OnSuccess()
+	l.OnRateLimit()
+	if got := l.Rate(); got != 0 {
+		t.Errorf("nil limiter Rate() = %v, want 0", got)
+	}
+}
+
+func TestAdaptiveLimiter_RampsUpAfterSuccesses(t *testing.T) {
+	l := NewAdaptiveLimiter(2.0)
+	startRate := l.Rate()
+	for i := 0; i < l.rampAfter; i++ {
+		l.OnSuccess()
+	}
+	if got := l.Rate(); got <= startRate {
+		t.Errorf("Rate() after rampAfter successes = %v, want > %v", got, startRate)
+	}
+}
+
+func TestAdaptiveLimiter_HalvesOnRateLimit(t *testing.T) {
+	l := NewAdaptiveLimiter(8.0)
+	startRate := l.Rate()
+	l.OnRateLimit()
+	got := l.Rate()
+	if got != startRate/2 {
+		t.Errorf("Rate() after OnRateLimit = %v, want %v", got, startRate/2)
+	}
+}
+
+func TestAdaptiveLimiter_FloorsAtHalfRPS(t *testing.T) {
+	l := NewAdaptiveLimiter(2.0)
+	for i := 0; i < 10; i++ {
+		l.OnRateLimit()
+	}
+	if got := l.Rate(); got < 0.5 {
+		t.Errorf("Rate() after many OnRateLimit = %v, want >= 0.5", got)
+	}
+}
+
+func TestAdaptiveLimiter_WaitEnforcesPacing(t *testing.T) {
+	l := NewAdaptiveLimiter(10.0)
+	l.Wait()
+	start := time.Now()
+	l.Wait()
+	elapsed := time.Since(start)
+	if elapsed < 80*time.Millisecond {
+		t.Errorf("second Wait() took %v, want >= 80ms", elapsed)
+	}
+}
+
+func TestRateLimitError_ErrorMessage(t *testing.T) {
+	cases := []struct {
+		name string
+		err  *RateLimitError
+		want string
+	}{
+		{
+			name: "with retry-after and body",
+			err:  &RateLimitError{URL: "https://api.example.com/x", RetryAfter: 5 * time.Second, Body: "slow down"},
+			want: "rate limited: HTTP 429 for https://api.example.com/x; retry after 5s: slow down",
+		},
+		{
+			name: "with retry-after no body",
+			err:  &RateLimitError{URL: "https://api.example.com/x", RetryAfter: 2 * time.Second},
+			want: "rate limited: HTTP 429 for https://api.example.com/x; retry after 2s",
+		},
+		{
+			name: "no retry-after with body",
+			err:  &RateLimitError{URL: "https://api.example.com/x", Body: "later"},
+			want: "rate limited: HTTP 429 for https://api.example.com/x: later",
+		},
+		{
+			name: "no retry-after no body",
+			err:  &RateLimitError{URL: "https://api.example.com/x"},
+			want: "rate limited: HTTP 429 for https://api.example.com/x",
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := tc.err.Error(); got != tc.want {
+				t.Errorf("Error() = %q, want %q", got, tc.want)
+			}
+		})
+	}
+}
+
+func TestRateLimitError_ErrorsAs(t *testing.T) {
+	var err error = &RateLimitError{URL: "https://x", RetryAfter: time.Second}
+	var target *RateLimitError
+	if !errors.As(err, &target) {
+		t.Fatal("errors.As should match *RateLimitError")
+	}
+	if target.URL != "https://x" {
+		t.Errorf("target.URL = %q, want %q", target.URL, "https://x")
+	}
+}
+
+func TestRetryAfter_Seconds(t *testing.T) {
+	resp := &http.Response{Header: http.Header{}}
+	resp.Header.Set("Retry-After", "10")
+	if got := RetryAfter(resp); got != 10*time.Second {
+		t.Errorf("RetryAfter(10) = %v, want 10s", got)
+	}
+}
+
+func TestRetryAfter_HTTPDate(t *testing.T) {
+	future := time.Now().Add(7 * time.Second).UTC().Format(http.TimeFormat)
+	resp := &http.Response{Header: http.Header{}}
+	resp.Header.Set("Retry-After", future)
+	got := RetryAfter(resp)
+	if got < 5*time.Second || got > 8*time.Second {
+		t.Errorf("RetryAfter(http-date 7s ahead) = %v, want ~7s", got)
+	}
+}
+
+func TestRetryAfter_Cap(t *testing.T) {
+	resp := &http.Response{Header: http.Header{}}
+	resp.Header.Set("Retry-After", "600")
+	if got := RetryAfter(resp); got != MaxRetryWait {
+		t.Errorf("RetryAfter(600) = %v, want capped at %v", got, MaxRetryWait)
+	}
+}
+
+func TestRetryAfter_Missing(t *testing.T) {
+	resp := &http.Response{Header: http.Header{}}
+	if got := RetryAfter(resp); got != 5*time.Second {
+		t.Errorf("RetryAfter(missing) = %v, want 5s default", got)
+	}
+}
+
+func TestRetryAfter_MalformedFallsBackToDefault(t *testing.T) {
+	resp := &http.Response{Header: http.Header{}}
+	resp.Header.Set("Retry-After", "not-a-number")
+	if got := RetryAfter(resp); got != 5*time.Second {
+		t.Errorf("RetryAfter(garbage) = %v, want 5s default", got)
+	}
+}
+
+func TestRetryAfter_NilResp(t *testing.T) {
+	if got := RetryAfter(nil); got != 5*time.Second {
+		t.Errorf("RetryAfter(nil) = %v, want 5s default", got)
+	}
+}
+
+func TestBackoff_DoublesPerAttempt(t *testing.T) {
+	cases := []struct {
+		attempt int
+		want    time.Duration
+	}{
+		{0, 1 * time.Second},
+		{1, 2 * time.Second},
+		{2, 4 * time.Second},
+		{3, 8 * time.Second},
+		{4, 16 * time.Second},
+	}
+	for _, tc := range cases {
+		if got := Backoff(tc.attempt); got != tc.want {
+			t.Errorf("Backoff(%d) = %v, want %v", tc.attempt, got, tc.want)
+		}
+	}
+}
+
+func TestBackoff_CapsAtMax(t *testing.T) {
+	if got := Backoff(20); got != MaxBackoff {
+		t.Errorf("Backoff(20) = %v, want capped at %v", got, MaxBackoff)
+	}
+}
+
+func TestBackoff_NegativeAttemptClampsToZero(t *testing.T) {
+	if got := Backoff(-3); got != 1*time.Second {
+		t.Errorf("Backoff(-3) = %v, want 1s (clamped to 0)", got)
 	}
 }

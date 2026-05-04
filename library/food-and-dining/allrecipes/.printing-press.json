@@ -1,37 +1,41 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-04-27T07:07:55.113412Z",
-  "printing_press_version": "2.3.9",
+  "generated_at": "2026-05-03T23:48:03.410722Z",
+  "printing_press_version": "3.8.0",
   "api_name": "allrecipes",
+  "display_name": "Allrecipes",
   "cli_name": "allrecipes-pp-cli",
-  "spec_path": "/Users/tmchow/printing-press/.runstate/toasty-baking-tome-009c7c2d/runs/20260426-230519/research/allrecipes-spec.yaml",
   "spec_format": "internal",
-  "spec_checksum": "sha256:2a85a69707a2170b596052db24d531fc0b39ba266299a850bfc19abb3f6fb038",
-  "run_id": "20260426-230519",
+  "spec_checksum": "sha256:6fe5f749adf60b8f8a16c426255d8df4e709a09084bd8992ff81350b82b67f21",
+  "description": "Search and fetch Allrecipes recipes as structured data, scale ingredients, build grocery lists, rank by Bayesian-smoothed popularity, and clear Cloudflare with a Chrome session cookie.",
   "mcp_binary": "allrecipes-pp-mcp",
   "mcp_tool_count": 2,
-  "mcp_ready": "full",
-  "auth_type": "none",
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "partial",
+  "auth_type": "cookie",
+  "auth_env_vars": [
+    "ALLRECIPES_COOKIES"
+  ],
   "novel_features": [
     {
       "name": "Pantry match",
       "command": "pantry",
-      "description": "Score Allrecipes recipes against your pantry \u2014 see which ones you can actually cook tonight without a grocery run."
+      "description": "Score Allrecipes recipes against your pantry — see which ones you can actually cook tonight without a grocery run."
     },
     {
       "name": "Bayesian top-rated",
       "command": "top-rated",
-      "description": "Rank recipes by Bayesian-smoothed rating \u2014 proven popular wins over 1-review 5-star noise."
+      "description": "Rank recipes by Bayesian-smoothed rating — proven popular wins over 1-review 5-star noise."
     },
     {
       "name": "Reverse ingredient index",
       "command": "with-ingredient",
-      "description": "Find every cached recipe that uses a given ingredient \u2014 a SQL view across your local corpus."
+      "description": "Find every cached recipe that uses a given ingredient — a SQL view across your local corpus."
     },
     {
       "name": "Quick weeknight",
       "command": "quick",
-      "description": "Top-rated recipes that fit a strict time cap \u2014 Allrecipes' UI cannot enforce one, but the local cache can."
+      "description": "Top-rated recipes that fit a strict time cap — Allrecipes' UI cannot enforce one, but the local cache can."
     },
     {
       "name": "Personal cookbook export",

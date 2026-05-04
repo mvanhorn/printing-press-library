@@ -45,7 +45,7 @@ brews:
       owner: trevin-chow
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Allrecipes Pocket — every Allrecipes recipe in your terminal: cached as data, with pantry-aware search, Bayesian-smoothed ranking, multi-recipe grocery lists, and clean markdown export."
+    description: "Allrecipes Pocket — every Allrecipes recipe in your terminal: cached as data, with pantry-aware search, Bayesian-smoothed ranking, multi-recipe grocery lists, strict dietary filtering, and clean markdown export. Recipe detail pages clear Cloudflare via a one-time `auth login --chrome` cookie capture."
     install: |
       bin.install "allrecipes-pp-cli"
       bin.install "allrecipes-pp-mcp"
