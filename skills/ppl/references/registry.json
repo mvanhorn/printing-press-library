@@ -48,16 +48,18 @@
       "name": "allrecipes",
       "category": "food-and-dining",
       "api": "Allrecipes",
-      "description": "Allrecipes Pocket — every Allrecipes recipe in your terminal: cached as data, with pantry-aware search, Bayesian-smoothed ranking, multi-recipe grocery lists, and clean markdown export.",
+      "description": "Search and fetch Allrecipes recipes as structured data, scale ingredients, build grocery lists, rank by Bayesian-smoothed popularity, and clear Cloudflare with a Chrome session cookie.",
       "path": "library/food-and-dining/allrecipes",
       "mcp": {
         "binary": "allrecipes-pp-mcp",
         "transport": "stdio",
         "tool_count": 2,
-        "public_tool_count": 2,
-        "auth_type": "none",
-        "env_vars": [],
-        "mcp_ready": "full",
+        "public_tool_count": 1,
+        "auth_type": "cookie",
+        "env_vars": [
+          "ALLRECIPES_COOKIES"
+        ],
+        "mcp_ready": "partial",
         "spec_format": "internal"
       }
     },

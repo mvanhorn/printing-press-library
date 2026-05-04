@@ -1,15 +1,24 @@
-name: Regenerate registry.json
+name: Regenerate registry.json and README catalog
 
-# Regenerates registry.json from each CLI's .printing-press.json + manifest.json
-# whenever a library/** change lands on main. Mirrors registry.json into
-# skills/ppl/references/registry.json (where the ppl skill reads it from)
-# and commits both with [skip ci].
+# Regenerates registry.json from each CLI's .printing-press.json +
+# manifest.json whenever a library/** change lands on main. Also
+# regenerates the README catalog table and count callout (sentinel
+# regions) from the same entries slice, mirrors registry.json into
+# skills/ppl/references/registry.json (where the ppl skill reads it
+# from), and commits all three with [skip ci].
 #
-# This is the same generated-artifact pattern this repo already uses for
-# cli-skills/ — PRs don't touch registry.json directly, the post-merge
-# regen does, eliminating the merge-conflict-hell that plagued hand-
-# maintained registry.json updates when multiple PRs landed in the same
-# window.
+# This is the same generated-artifact pattern this repo already uses
+# for cli-skills/ — PRs don't touch the generated outputs directly, the
+# post-merge regen does, eliminating the merge-conflict-hell that
+# plagued hand-maintained registry.json and README updates when
+# multiple PRs landed in the same window.
+#
+# README.md and registry.json are also in the trigger path: the README
+# catalog cells depend on curated `description` values stored in
+# registry.json, so editing a description in registry.json should
+# reflect into README on the next regen. Including README.md catches
+# the case where someone hand-edits the catalog sentinel region; the
+# regen overwrites it back to truth.
 #
 # Source of truth: tools/generate-registry/main.go. See its package doc
 # for the field derivation rules.
@@ -21,6 +30,8 @@ on:
       - 'library/**/.printing-press.json'
       - 'library/**/manifest.json'
       - 'library/**/.goreleaser.yaml'
+      - 'registry.json'
+      - 'README.md'
       - 'tools/generate-registry/**'
       - '.github/workflows/generate-registry.yml'
   workflow_dispatch:
@@ -53,15 +64,18 @@ jobs:
       - name: Commit if changed
         run: |
           set -euo pipefail
-          if git diff --quiet -- registry.json skills/ppl/references/registry.json; then
-            echo "No registry.json changes; nothing to commit."
+          if git diff --quiet -- registry.json skills/ppl/references/registry.json README.md; then
+            echo "No generated-artifact changes; nothing to commit."
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add registry.json skills/ppl/references/registry.json
+          git add registry.json skills/ppl/references/registry.json README.md
           # [skip ci] suppresses the chained workflow run on the
           # generated commit. Without it, the regen commit would
           # re-trigger this workflow, producing a noop commit chain.
+          # Note: README.md is in the trigger path so a hand-edit to
+          # the sentinel region would normally re-trigger; this commit
+          # itself is suppressed by [skip ci] so we don't loop.
           git commit -m "chore(registry): regenerate from library/ [skip ci]"
           git push

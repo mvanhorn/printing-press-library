@@ -37,8 +37,23 @@ const (
 	libraryDir       = "library"
 	registryPath     = "registry.json"
 	mirrorPath       = "skills/ppl/references/registry.json"
+	readmePath       = "README.md"
 	schemaVersion    = 1
 	defaultTransport = "stdio"
+
+	// README sentinel markers. The generator only rewrites bytes
+	// between matching begin/end markers; surrounding prose stays
+	// hand-editable. Same drift-prevention pattern applied to the
+	// catalog table that registry.json regen applies to itself.
+	catalogTableBegin  = "<!-- catalog:begin -->"
+	catalogTableEnd    = "<!-- catalog:end -->"
+	catalogCountsBegin = "<!-- catalog-counts:begin -->"
+	catalogCountsEnd   = "<!-- catalog-counts:end -->"
+
+	// Per-CLI release tags follow `<entry-name>-current`. Confirmed
+	// against the live release list (espn-current, dominos-current,
+	// tiktok-shop-current, agent-capture-current, etc.).
+	releaseTagURLBase = "https://github.com/mvanhorn/printing-press-library/releases/tag/"
 )
 
 type Registry struct {
@@ -104,7 +119,7 @@ type printingPressManifest struct {
 var brewsDescriptionRE = regexp.MustCompile(`^\s+description:\s*"?(.*?)"?\s*$`)
 
 func main() {
-	check := flag.Bool("check", false, "exit non-zero if generated registry differs from on-disk registry.json")
+	check := flag.Bool("check", false, "exit non-zero if generated outputs differ from on-disk registry.json or README.md sentinel regions")
 	printOnly := flag.Bool("print", false, "print generated registry to stdout instead of writing")
 	flag.Parse()
 
@@ -120,39 +135,56 @@ func main() {
 		Entries:       entries,
 	}
 
-	out, err := marshalRegistry(registry)
+	registryOut, err := marshalRegistry(registry)
 	if err != nil {
 		log.Fatalf("marshaling registry: %v", err)
 	}
 
 	if *printOnly {
-		os.Stdout.Write(out)
+		os.Stdout.Write(registryOut)
 		return
+	}
+
+	currentReadme, err := os.ReadFile(readmePath)
+	if err != nil {
+		log.Fatalf("reading %s: %v", readmePath, err)
+	}
+	newReadme, err := updateReadme(currentReadme, entries)
+	if err != nil {
+		log.Fatalf("updating %s: %v", readmePath, err)
 	}
 
 	if *check {
-		current, err := os.ReadFile(registryPath)
-		if err != nil {
+		var drift []string
+		if currentRegistry, err := os.ReadFile(registryPath); err != nil {
 			log.Fatalf("reading %s for check: %v", registryPath, err)
+		} else if !bytes.Equal(currentRegistry, registryOut) {
+			drift = append(drift, registryPath)
 		}
-		if !bytes.Equal(current, out) {
-			fmt.Fprintf(os.Stderr, "registry.json drift detected. Run `go run ./tools/generate-registry` and commit the result.\n")
+		if !bytes.Equal(currentReadme, newReadme) {
+			drift = append(drift, readmePath)
+		}
+		if len(drift) > 0 {
+			fmt.Fprintf(os.Stderr, "drift detected in: %s\nRun `go run ./tools/generate-registry` and commit the result.\n", strings.Join(drift, ", "))
 			os.Exit(1)
 		}
-		fmt.Fprintln(os.Stderr, "registry.json is in sync with library/")
+		fmt.Fprintln(os.Stderr, "registry.json and README.md are in sync with library/")
 		return
 	}
 
-	if err := os.WriteFile(registryPath, out, 0o644); err != nil {
+	if err := os.WriteFile(registryPath, registryOut, 0o644); err != nil {
 		log.Fatalf("writing %s: %v", registryPath, err)
 	}
 	if err := os.MkdirAll(filepath.Dir(mirrorPath), 0o755); err != nil {
 		log.Fatalf("creating mirror dir: %v", err)
 	}
-	if err := os.WriteFile(mirrorPath, out, 0o644); err != nil {
+	if err := os.WriteFile(mirrorPath, registryOut, 0o644); err != nil {
 		log.Fatalf("writing %s: %v", mirrorPath, err)
 	}
-	fmt.Fprintf(os.Stderr, "wrote %s and %s (%d entries)\n", registryPath, mirrorPath, len(entries))
+	if err := os.WriteFile(readmePath, newReadme, 0o644); err != nil {
+		log.Fatalf("writing %s: %v", readmePath, err)
+	}
+	fmt.Fprintf(os.Stderr, "wrote %s, %s, and %s (%d entries)\n", registryPath, mirrorPath, readmePath, len(entries))
 }
 
 // loadExistingEntries reads the current registry.json and returns a
@@ -419,4 +451,125 @@ func marshalRegistry(r Registry) ([]byte, error) {
 		return nil, err
 	}
 	return buf.Bytes(), nil
+}
+
+// updateReadme returns README bytes with the catalog table and count
+// callout sentinel regions replaced by freshly-rendered content. The
+// rest of the document is byte-preserved. Errors when either pair of
+// sentinels is missing — the README is expected to opt in by adding
+// the markers, and silently no-oping would let drift sneak back.
+func updateReadme(readme []byte, entries []RegistryEntry) ([]byte, error) {
+	updated, err := replaceSentinelRegion(readme, catalogTableBegin, catalogTableEnd, renderCatalogTable(entries))
+	if err != nil {
+		return nil, fmt.Errorf("catalog table: %w", err)
+	}
+	updated, err = replaceSentinelRegion(updated, catalogCountsBegin, catalogCountsEnd, renderCatalogCounts(entries))
+	if err != nil {
+		return nil, fmt.Errorf("catalog counts: %w", err)
+	}
+	return updated, nil
+}
+
+// replaceSentinelRegion finds a single begin/end marker pair in src
+// and replaces the bytes between them (markers preserved) with body.
+// body is rendered as a standalone block: the markers stay on their
+// own lines and body sits between them, so the structure on disk is:
+//
+//	<begin>
+//	<body...>
+//	<end>
+//
+// Errors if the markers are missing or out of order so callers can
+// surface "README needs to opt in" cleanly.
+func replaceSentinelRegion(src []byte, begin, end, body string) ([]byte, error) {
+	beginIdx := bytes.Index(src, []byte(begin))
+	if beginIdx < 0 {
+		return nil, fmt.Errorf("missing begin sentinel %q", begin)
+	}
+	endIdx := bytes.Index(src, []byte(end))
+	if endIdx < 0 {
+		return nil, fmt.Errorf("missing end sentinel %q", end)
+	}
+	if endIdx < beginIdx {
+		return nil, fmt.Errorf("end sentinel %q precedes begin sentinel %q", end, begin)
+	}
+	beforeEnd := beginIdx + len(begin)
+	var buf bytes.Buffer
+	buf.Write(src[:beforeEnd])
+	buf.WriteByte('\n')
+	if body != "" {
+		buf.WriteString(body)
+		if !strings.HasSuffix(body, "\n") {
+			buf.WriteByte('\n')
+		}
+	}
+	buf.Write(src[endIdx:])
+	return buf.Bytes(), nil
+}
+
+// renderCatalogTable returns the README catalog table body that goes
+// between the catalog:begin and catalog:end sentinels. Format matches
+// what was previously hand-edited:
+//
+//	| Name | Skill | Release | What it does |
+//	|------|-------|---------|--------------|
+//	| [`name`](path/) | [`/pp-name`](cli-skills/pp-name/SKILL.md) | [latest](release-url) | description. |
+//
+// The descriptive note about generation lives just inside the begin
+// marker so anyone viewing rendered markdown sees it before the table.
+func renderCatalogTable(entries []RegistryEntry) string {
+	var buf strings.Builder
+	buf.WriteString("<!-- this section is generated by tools/generate-registry; do not hand-edit -->\n")
+	buf.WriteString("| Name | Skill | Release | What it does |\n")
+	buf.WriteString("|------|-------|---------|--------------|\n")
+	for _, e := range entries {
+		fmt.Fprintf(&buf,
+			"| [`%s`](%s/) | [`/pp-%s`](cli-skills/pp-%s/SKILL.md) | [latest](%s%s-current) | %s |\n",
+			e.Name, e.Path, e.Name, e.Name, releaseTagURLBase, e.Name, formatDescription(e.Description),
+		)
+	}
+	return buf.String()
+}
+
+// renderCatalogCounts returns the "N CLIs across M categories." line
+// that goes between catalog-counts:begin and catalog-counts:end.
+// Pluralization handled for the degenerate single-CLI / single-category
+// cases so the rendered prose reads correctly at any size.
+func renderCatalogCounts(entries []RegistryEntry) string {
+	cats := make(map[string]struct{}, len(entries))
+	for _, e := range entries {
+		cats[e.Category] = struct{}{}
+	}
+	cliWord := "CLIs"
+	if len(entries) == 1 {
+		cliWord = "CLI"
+	}
+	catWord := "categories"
+	if len(cats) == 1 {
+		catWord = "category"
+	}
+	return fmt.Sprintf("<!-- this line is generated by tools/generate-registry; do not hand-edit -->\n%d %s across %d %s.",
+		len(entries), cliWord, len(cats), catWord)
+}
+
+// formatDescription normalizes a description for the table cell:
+// trims whitespace, collapses internal newlines (a description can't
+// span multiple table rows), and ensures it ends with a period to
+// match the historical hand-edited shape of the README catalog.
+//
+// The newline collapse is deliberately conservative: registry.json
+// descriptions today are single lines, but any CLI whose description
+// gets a stray newline (e.g., from a multiline YAML scalar in a
+// goreleaser brews block) shouldn't break table rendering.
+func formatDescription(d string) string {
+	d = strings.TrimSpace(d)
+	d = strings.ReplaceAll(d, "\r\n", " ")
+	d = strings.ReplaceAll(d, "\n", " ")
+	if d == "" {
+		return ""
+	}
+	if !strings.HasSuffix(d, ".") && !strings.HasSuffix(d, "!") && !strings.HasSuffix(d, "?") {
+		d += "."
+	}
+	return d
 }
