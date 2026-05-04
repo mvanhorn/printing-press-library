@@ -13,8 +13,9 @@ import (
 
 func newAPICmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "api [interface]",
-		Short: "Browse all API endpoints by interface name",
+		Use:         "api [interface]",
+		Short:       "Browse all API endpoints by interface name",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Long: `Browse and call any API endpoint using the raw interface names.
 
 The friendly top-level commands cover the most common operations.
@@ -29,10 +30,6 @@ Run 'api <interface>' to see that interface's methods.`,
   # Show methods for a specific interface
   movie-goat-pp-cli api <interface-name>`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if flags.dryRun {
-				fmt.Fprintln(cmd.OutOrStdout(), "GET /api (browse interfaces)")
-				return nil
-			}
 			root := cmd.Root()
 
 			if len(args) > 0 {
@@ -40,6 +37,20 @@ Run 'api <interface>' to see that interface's methods.`,
 				for _, child := range root.Commands() {
 					if child.Hidden && strings.ToLower(child.Name()) == target {
 						methods := child.Commands()
+						if flags.asJSON {
+							methodList := make([]map[string]any, 0, len(methods))
+							for _, method := range methods {
+								methodList = append(methodList, map[string]any{
+									"name":  method.Name(),
+									"short": method.Short,
+								})
+							}
+							return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+								"interface": child.Name(),
+								"short":     child.Short,
+								"methods":   methodList,
+							}, flags)
+						}
 						if len(methods) == 0 {
 							return child.Help()
 						}
@@ -47,20 +58,36 @@ Run 'api <interface>' to see that interface's methods.`,
 						for _, method := range methods {
 							fmt.Fprintf(cmd.OutOrStdout(), "  %-50s %s\n", child.Name()+" "+method.Name(), method.Short)
 						}
-						fmt.Fprintf(cmd.OutOrStdout(), "\nUse '%s-pp-cli %s <method> --help' for details.\n", "movie", child.Name())
+						fmt.Fprintf(cmd.OutOrStdout(), "\nUse '%s-pp-cli %s <method> --help' for details.\n", "movie-goat", child.Name())
 						return nil
 					}
 				}
-				return fmt.Errorf("interface %q not found. Run '%s-pp-cli api' to list all interfaces", args[0], "movie")
+				return fmt.Errorf("interface %q not found. Run '%s-pp-cli api' to list all interfaces", args[0], "movie-goat")
 			}
 
+			type ifaceEntry struct {
+				Name  string `json:"name"`
+				Short string `json:"short"`
+			}
+			var ifaces []ifaceEntry
 			var interfaces []string
 			for _, child := range root.Commands() {
 				if child.Hidden {
+					ifaces = append(ifaces, ifaceEntry{Name: child.Name(), Short: child.Short})
 					interfaces = append(interfaces, fmt.Sprintf("  %-45s %s", child.Name(), child.Short))
 				}
 			}
 			sort.Strings(interfaces)
+			sort.Slice(ifaces, func(i, j int) bool { return ifaces[i].Name < ifaces[j].Name })
+
+			if flags.asJSON {
+				out := map[string]any{"interfaces": ifaces}
+				if len(ifaces) == 0 {
+					out["interfaces"] = []ifaceEntry{}
+					out["note"] = "No hidden API interfaces found."
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+			}
 
 			if len(interfaces) == 0 {
 				fmt.Fprintln(cmd.OutOrStdout(), "No hidden API interfaces found.")
@@ -71,7 +98,7 @@ Run 'api <interface>' to see that interface's methods.`,
 			for _, line := range interfaces {
 				fmt.Fprintln(cmd.OutOrStdout(), line)
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "\nUse '%s-pp-cli api <interface>' to see methods.\n", "movie")
+			fmt.Fprintf(cmd.OutOrStdout(), "\nUse '%s-pp-cli api <interface>' to see methods.\n", "movie-goat")
 			return nil
 		},
 	}

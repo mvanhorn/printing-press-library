@@ -20,8 +20,9 @@ func newTailCmd(flags *rootFlags) *cobra.Command {
 	var follow bool
 
 	cmd := &cobra.Command{
-		Use:   "tail [resource]",
-		Short: "Stream live changes by polling the API at regular intervals",
+		Use:         "tail [resource]",
+		Short:       "Stream live changes by polling the API at regular intervals",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Long: `Tail streams live data changes by polling the API at configurable intervals.
 Events are emitted as NDJSON to stdout for piping to other tools.
 Gracefully shuts down on SIGTERM/SIGINT.
@@ -40,22 +41,25 @@ native streaming instead of polling.`,
 			if len(args) > 0 {
 				resource = args[0]
 			}
-			if flags.dryRun {
-				if resource == "" {
-					resource = "<resource>"
+			if resource == "" && flags.asJSON {
+				resources := defaultSyncResources()
+				if resources == nil {
+					resources = []string{}
 				}
-				fmt.Fprintf(cmd.OutOrStdout(), "GET /%s (poll every %s)\n", resource, interval)
-				return nil
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"resources": resources,
+					"note":      "tail requires a resource name; pass one of the listed names",
+				}, flags)
 			}
+			if resource == "" {
+				return fmt.Errorf("resource name required (e.g., 'tail messages')")
+			}
+
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 			c.NoCache = true
-
-			if resource == "" {
-				return fmt.Errorf("resource name required (e.g., 'tail messages')")
-			}
 
 			path := "/" + resource
 

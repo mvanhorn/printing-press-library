@@ -20,12 +20,13 @@ func newDiscoverTvCmd(flags *rootFlags) *cobra.Command {
 	var flagWithWatchProviders string
 	var flagWatchRegion string
 	var flagWithNetworks string
-	var flagPage int
+	var flagPage string
 
 	cmd := &cobra.Command{
-		Use:     "tv",
-		Short:   "Discover TV shows by genre, year, rating, network, and streaming provider",
-		Example: "  movie-goat-pp-cli discover tv",
+		Use:         "tv",
+		Short:       "Discover TV shows by genre, year, rating, network, and streaming provider",
+		Example:     "  movie-goat-pp-cli discover tv",
+		Annotations: map[string]string{"pp:endpoint": "discover.tv", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -58,10 +59,10 @@ func newDiscoverTvCmd(flags *rootFlags) *cobra.Command {
 			if flagWithNetworks != "" {
 				params["with_networks"] = fmt.Sprintf("%v", flagWithNetworks)
 			}
-			if flagPage != 0 {
+			if flagPage != "" {
 				params["page"] = fmt.Sprintf("%v", flagPage)
 			}
-			data, prov, err := resolveRead(c, flags, "discover", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "discover", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -71,14 +72,15 @@ func newDiscoverTvCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -110,7 +112,7 @@ func newDiscoverTvCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagWithWatchProviders, "with-watch-providers", "", "Watch provider IDs")
 	cmd.Flags().StringVar(&flagWatchRegion, "watch-region", "", "Region for watch providers")
 	cmd.Flags().StringVar(&flagWithNetworks, "with-networks", "", "Network IDs (e.g. Netflix, HBO)")
-	cmd.Flags().IntVar(&flagPage, "page", 0, "Page number")
+	cmd.Flags().StringVar(&flagPage, "page", "", "Page number")
 
 	return cmd
 }

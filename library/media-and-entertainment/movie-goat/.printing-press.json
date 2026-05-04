@@ -1,14 +1,62 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-04-11T07:55:25.270461Z",
-  "printing_press_version": "1.3.2-0.20260411051745-33d1ba11eb8c+dirty",
+  "generated_at": "2026-05-04T15:29:33.169171Z",
+  "printing_press_version": "3.8.0",
   "api_name": "movie-goat",
+  "display_name": "Movie Goat",
   "cli_name": "movie-goat-pp-cli",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:968d04f13cef942f404e0dcd7f9d5a4c5fe70858be8fdecad480a12e93a84198",
+  "run_id": "20260504-004256",
   "mcp_binary": "movie-goat-pp-mcp",
   "mcp_tool_count": 25,
   "mcp_ready": "full",
-  "auth_type": "bearer_token",
+  "auth_type": "api_key",
   "auth_env_vars": [
     "TMDB_API_KEY"
+  ],
+  "auth_key_url": "https://www.themoviedb.org/settings/api",
+  "auth_title": "TMDb v3 API Key (32-char hex; sent as ?api_key=… query param, not Bearer header)",
+  "novel_features": [
+    {
+      "name": "Tonight Picker",
+      "command": "tonight",
+      "description": "Pick what to watch tonight from trending titles actually streaming on your services."
+    },
+    {
+      "name": "Multi-Source Ratings Card",
+      "command": "ratings",
+      "description": "TMDb + IMDb + Rotten Tomatoes + Metacritic ratings for any title in one card."
+    },
+    {
+      "name": "Marathon Planner",
+      "command": "marathon",
+      "description": "Plan a franchise marathon with watch order, total runtime, and suggested breaks."
+    },
+    {
+      "name": "Career Timeline",
+      "command": "career",
+      "description": "Explore any actor or director's full filmography with ratings and chronology."
+    },
+    {
+      "name": "Watchlist",
+      "command": "watchlist list",
+      "description": "Local SQLite watchlist; flag rows that are streamable on your services."
+    },
+    {
+      "name": "Head-to-Head Versus",
+      "command": "versus",
+      "description": "Compare two movies or shows side-by-side across ratings, cast, runtime, and streaming."
+    },
+    {
+      "name": "Recommendation Queue",
+      "command": "queue",
+      "description": "Suggest next-watch picks derived from your watchlist's recommendations and similars."
+    },
+    {
+      "name": "Recurring Collaborators",
+      "command": "collaborators",
+      "description": "List people who appear in 2+ of a person's credits, with count and titles."
+    }
   ]
 }

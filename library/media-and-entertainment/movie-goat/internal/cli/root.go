@@ -4,52 +4,99 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"os"
 	"strings"
 	"text/tabwriter"
 	"time"
 
-	"bytes"
-	"io"
-	"os"
-
+	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/internal/config"
-	"github.com/spf13/cobra"
 )
 
-var version = "1.1.0"
+var version = "1.0.0"
 
 type rootFlags struct {
-	asJSON       bool
-	compact      bool
-	csv          bool
-	plain        bool
-	quiet        bool
-	dryRun       bool
-	noCache      bool
-	noInput      bool
-	yes          bool
-	agent        bool
-	selectFields string
-	configPath   string
-	timeout      time.Duration
-	rateLimit    float64
-	dataSource   string
-	profileName  string
-	deliverSpec  string
-	deliverBuf   *bytes.Buffer
-	deliverSink  DeliverSink
+	asJSON        bool
+	compact       bool
+	csv           bool
+	plain         bool
+	quiet         bool
+	dryRun        bool
+	noCache       bool
+	noInput       bool
+	yes           bool
+	agent         bool
+	selectFields  string
+	configPath    string
+	profileName   string
+	deliverSpec   string
+	timeout       time.Duration
+	rateLimit     float64
+	dataSource    string
+	freshnessMeta any
+
+	// deliverBuf captures command output when --deliver is set to a
+	// non-stdout sink. Flushed to the sink after Execute returns.
+	deliverBuf  *bytes.Buffer
+	deliverSink DeliverSink
+}
+
+// RootCmd returns the Cobra command tree without executing it. The MCP server
+// uses this to mirror every user-facing command as an agent tool.
+func RootCmd() *cobra.Command {
+	var flags rootFlags
+	return newRootCmd(&flags)
 }
 
 // Execute runs the CLI in non-interactive mode: never prompts, all values via flags or stdin.
 func Execute() error {
 	var flags rootFlags
+	rootCmd := newRootCmd(&flags)
 
+	err := rootCmd.Execute()
+	if err != nil && strings.Contains(err.Error(), "unknown flag") {
+		msg := err.Error()
+		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
+		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
+			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
+			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
+				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
+			}
+		}
+	}
+	if err == nil && flags.deliverBuf != nil {
+		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
+			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
+			return derr
+		}
+	}
+	return err
+}
+
+func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:          "movie-goat-pp-cli",
-		Short:        "Multi-source movie ratings (TMDb + OMDb), streaming availability, and cross-taste recommendations",
+		Use:   "movie-goat-pp-cli",
+		Short: `Movie Goat CLI — The movie CLI that combines TMDb's discovery engine with OMDb's multi-source ratings — and ships a SQLite watchlist tha…`,
+		Long: `Movie Goat CLI — The movie CLI that combines TMDb's discovery engine with OMDb's multi-source ratings — and ships a SQLite watchlist tha…
+
+Highlights (not in the official API docs):
+  • tonight   Pick what to watch tonight from trending titles actually streaming on your services.
+  • ratings   TMDb + IMDb + Rotten Tomatoes + Metacritic ratings for any title in one card.
+  • marathon   Plan a franchise marathon with watch order, total runtime, and suggested breaks.
+  • career   Explore any actor or director's full filmography with ratings and chronology.
+  • watchlist list   Local SQLite watchlist; flag rows that are streamable on your services.
+  • versus   Compare two movies or shows side-by-side across ratings, cast, runtime, and streaming.
+  • queue   Suggest next-watch picks derived from your watchlist's recommendations and similars.
+  • collaborators   List people who appear in 2+ of a person's credits, with count and titles.
+
+Agent mode: add --agent to any command for JSON output + non-interactive mode.
+Health check: run 'movie-goat-pp-cli doctor' to verify auth and connectivity.
+See README.md or the bundled SKILL.md for recipes.`,
 		SilenceUsage: true,
 		Version:      version,
 	}
@@ -71,10 +118,9 @@ func Execute() error {
 	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
 	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
-	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
-
-	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile")
+	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'movie-goat-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
+	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		if flags.deliverSpec != "" {
@@ -94,7 +140,11 @@ func Execute() error {
 				return err
 			}
 			if profile == nil {
-				return fmt.Errorf("profile %q not found", flags.profileName)
+				available := ListProfileNames()
+				if len(available) == 0 {
+					return fmt.Errorf("profile %q not found (no profiles saved yet; run '%s profile save <name> --<flag> <value>')", flags.profileName, cmd.Root().Name())
+				}
+				return fmt.Errorf("profile %q not found; available: %s", flags.profileName, strings.Join(available, ", "))
 			}
 			if err := ApplyProfileToFlags(cmd, profile); err != nil {
 				return err
@@ -125,52 +175,40 @@ func Execute() error {
 		}
 		return nil
 	}
-	rootCmd.AddCommand(newDoctorCmd(&flags))
-	rootCmd.AddCommand(newAuthCmd(&flags))
-	rootCmd.AddCommand(newExportCmd(&flags))
-	rootCmd.AddCommand(newImportCmd(&flags))
-	rootCmd.AddCommand(newSearchCmd(&flags))
-	rootCmd.AddCommand(newSyncCmd(&flags))
-	rootCmd.AddCommand(newTailCmd(&flags))
-	rootCmd.AddCommand(newAnalyticsCmd(&flags))
-	rootCmd.AddCommand(newWorkflowCmd(&flags))
-	rootCmd.AddCommand(newAPICmd(&flags))
-	rootCmd.AddCommand(newPeoplePromotedCmd(&flags))
-	rootCmd.AddCommand(newDiscoverPromotedCmd(&flags))
-	rootCmd.AddCommand(newTrendingPromotedCmd(&flags))
-	rootCmd.AddCommand(newGenresPromotedCmd(&flags))
-	rootCmd.AddCommand(newMoviesPromotedCmd(&flags))
-	rootCmd.AddCommand(newTvPromotedCmd(&flags))
+	rootCmd.AddCommand(newDiscoverCmd(flags))
+	rootCmd.AddCommand(newGenresCmd(flags))
+	rootCmd.AddCommand(newMoviesCmd(flags))
+	rootCmd.AddCommand(newPeopleCmd(flags))
+	rootCmd.AddCommand(newTrendingCmd(flags))
+	rootCmd.AddCommand(newTvCmd(flags))
+	rootCmd.AddCommand(newDoctorCmd(flags))
+	rootCmd.AddCommand(newAuthCmd(flags))
+	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
+	rootCmd.AddCommand(newProfileCmd(flags))
+	rootCmd.AddCommand(newFeedbackCmd(flags))
+	rootCmd.AddCommand(newWhichCmd(flags))
+	rootCmd.AddCommand(newExportCmd(flags))
+	rootCmd.AddCommand(newImportCmd(flags))
+	rootCmd.AddCommand(newSearchCmd(flags))
+	rootCmd.AddCommand(newSyncCmd(flags))
+	rootCmd.AddCommand(newTailCmd(flags))
+	rootCmd.AddCommand(newAnalyticsCmd(flags))
+	rootCmd.AddCommand(newWorkflowCmd(flags))
+	rootCmd.AddCommand(newAPICmd(flags))
+	rootCmd.AddCommand(newMultiPromotedCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
-	rootCmd.AddCommand(newWatchCmd(&flags))
-	rootCmd.AddCommand(newRecommendForMeCmd(&flags))
-	rootCmd.AddCommand(newCareerCmd(&flags))
-	rootCmd.AddCommand(newVersusCmd(&flags))
-	rootCmd.AddCommand(newBlindCmd(&flags))
-	rootCmd.AddCommand(newTonightCmd(&flags))
-	rootCmd.AddCommand(newMarathonCmd(&flags))
 
-	rootCmd.AddCommand(newProfileCmd(&flags))
-	rootCmd.AddCommand(newFeedbackCmd(&flags))
+	// Novel commands (Phase 3 hand-built features).
+	rootCmd.AddCommand(newTonightCmd(flags))
+	rootCmd.AddCommand(newRatingsCmd(flags))
+	rootCmd.AddCommand(newMarathonCmd(flags))
+	rootCmd.AddCommand(newCareerCmd(flags))
+	rootCmd.AddCommand(newVersusCmd(flags))
+	rootCmd.AddCommand(newWatchlistCmd(flags))
+	rootCmd.AddCommand(newQueueCmd(flags))
+	rootCmd.AddCommand(newCollaboratorsCmd(flags))
 
-	err := rootCmd.Execute()
-	if err != nil && strings.Contains(err.Error(), "unknown flag") {
-		msg := err.Error()
-		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
-		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
-			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
-			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
-				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
-			}
-		}
-	}
-	if err == nil && flags.deliverBuf != nil {
-		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
-			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
-			return derr
-		}
-	}
-	return err
+	return rootCmd
 }
 
 func ExitCode(err error) int {

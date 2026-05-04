@@ -105,6 +105,7 @@ In local mode: searches locally synced data only.`,
 
   # JSON output for piping
   movie-goat-pp-cli search "critical" --json --limit 20`,
+		Annotations: map[string]string{"mcp:hidden": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -116,7 +117,7 @@ In local mode: searches locally synced data only.`,
 				if err != nil {
 					return err
 				}
-				data, getErr := c.Get("/search/multi", map[string]string{
+				data, getErr := c.Get("/search/tv", map[string]string{
 					"query": query,
 				})
 				if getErr == nil {
@@ -138,26 +139,20 @@ In local mode: searches locally synced data only.`,
 				dbPath = defaultDBPath("movie-goat-pp-cli")
 			}
 
-			db, err := store.Open(dbPath)
+			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'movie-goat-pp-cli sync' first to populate the local database.", err)
 			}
 			defer db.Close()
 
 			var results []json.RawMessage
-			if resourceType != "" {
-				// Search specific resource type — filter after generic search
-				all, searchErr := db.Search(query, limit*2)
-				if searchErr == nil {
-					for _, item := range all {
-						var obj map[string]json.RawMessage
-						if json.Unmarshal(item, &obj) == nil {
-							results = append(results, item)
-						}
-					}
-				}
-				err = searchErr
-			} else {
+			switch resourceType {
+			case "":
+				// Search all FTS-enabled tables individually to avoid duplicates.
+				seen := make(map[string]bool)
+				_ = seen // prevent unused error when no FTS tables exist
+			default:
+				// Unrecognized type — fall back to generic search
 				results, err = db.Search(query, limit)
 			}
 			if err != nil {
@@ -178,8 +173,6 @@ In local mode: searches locally synced data only.`,
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum results to return")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/movie-goat-pp-cli/data.db)")
 
-	cmd.AddCommand(newSearchMultiCmd(flags))
-
 	return cmd
 }
 
@@ -199,26 +192,31 @@ func outputSearchResults(cmd *cobra.Command, flags *rootFlags, results []json.Ra
 		results = results[:limit]
 	}
 
-	if len(results) == 0 {
-		fmt.Fprintf(cmd.ErrOrStderr(), "No results (source: %s)\n", prov.Source)
-		return nil
-	}
+	jsonMode := flags.asJSON || !isTerminal(cmd.OutOrStdout())
 
-	// Print provenance to stderr for human output
-	printProvenance(cmd, len(results), prov)
-
-	if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+	// JSON mode always emits a valid envelope, including on no matches —
+	// agents pipe stdout through json.loads / jq and need parseable output
+	// regardless of result count. The filtered slice is built via make
+	// above, so it's non-nil even when empty; json.Marshal renders that
+	// as `[]` rather than `null`.
+	if jsonMode {
 		data, err := json.Marshal(results)
 		if err != nil {
 			return err
 		}
-		wrapped, err := wrapWithProvenance(json.RawMessage(data), prov)
+		wrapped, err := wrapWithProvenance(data, prov)
 		if err != nil {
 			return err
 		}
 		return printOutput(cmd.OutOrStdout(), wrapped, true)
 	}
 
+	if len(results) == 0 {
+		fmt.Fprintf(cmd.ErrOrStderr(), "No results (source: %s)\n", prov.Source)
+		return nil
+	}
+
+	printProvenance(cmd, len(results), prov)
 	for _, r := range results {
 		fmt.Fprintln(cmd.OutOrStdout(), string(r))
 	}

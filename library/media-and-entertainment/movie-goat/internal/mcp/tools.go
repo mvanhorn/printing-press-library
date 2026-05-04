@@ -9,54 +9,24 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/internal/store"
 )
-
-// looksLikeAuthError checks if an error message body contains auth-related keywords.
-func looksLikeAuthError(msg string) bool {
-	lower := strings.ToLower(msg)
-	patterns := []string{
-		`\bkey\b`,
-		`\btoken\b`,
-		`\bunauthorized\b`,
-		`\bapi_key\b`,
-		`missing.{0,20}key`,
-		`required.{0,20}key`,
-		`\bforbidden\b`,
-		`\bauthenticat`,
-		`\bcredential`,
-	}
-	for _, p := range patterns {
-		if matched, _ := regexp.MatchString(p, lower); matched {
-			return true
-		}
-	}
-	return false
-}
-
-// sanitizeErrorBody truncates and strips credential-shaped strings from error output.
-func sanitizeErrorBody(msg string) string {
-	if len(msg) > 200 {
-		msg = msg[:200] + "..."
-	}
-	credPatterns := regexp.MustCompile(`(?i)(sk-[a-zA-Z0-9]{8,}|sk_live_[a-zA-Z0-9]+|Bearer\s+[a-zA-Z0-9._\-]+|key=[a-zA-Z0-9._\-]+)`)
-	msg = credPatterns.ReplaceAllString(msg, "[REDACTED]")
-	return msg
-}
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("discover_movies",
-			mcplib.WithDescription("Discover movies by genre, year, rating, certification, cast, crew, streaming provider, and more Returns array of Movie."),
+			mcplib.WithDescription("Discover movies by genre, year, rating, certification, cast, crew, streaming provider, and more. Optional: with_genres, primary_release_year, primary_release_date.gte (plus 13 more). Returns array of Movie."),
 			mcplib.WithString("with_genres", mcplib.Description("Genre IDs (comma-separated, e.g. 28,12 for Action,Adventure)")),
 			mcplib.WithString("primary_release_year", mcplib.Description("Exact release year")),
 			mcplib.WithString("primary_release_date.gte", mcplib.Description("Release date from (YYYY-MM-DD)")),
@@ -73,12 +43,15 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("certification", mcplib.Description("Certification rating (G, PG, PG-13, R)")),
 			mcplib.WithString("certification_country", mcplib.Description("Country for certification")),
 			mcplib.WithString("page", mcplib.Description("Page number")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/discover/movie", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("discover_tv",
-			mcplib.WithDescription("Discover TV shows by genre, year, rating, network, and streaming provider Returns array of TVShow."),
+			mcplib.WithDescription("Discover TV shows by genre, year, rating, network, and streaming provider. Optional: with_genres, first_air_date_year, vote_average.gte (plus 6 more). Returns array of TVShow."),
 			mcplib.WithString("with_genres", mcplib.Description("Genre IDs (comma-separated)")),
 			mcplib.WithString("first_air_date_year", mcplib.Description("First air date year")),
 			mcplib.WithString("vote_average.gte", mcplib.Description("Minimum rating")),
@@ -88,199 +61,261 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("watch_region", mcplib.Description("Region for watch providers")),
 			mcplib.WithString("with_networks", mcplib.Description("Network IDs (e.g. Netflix, HBO)")),
 			mcplib.WithString("page", mcplib.Description("Page number")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/discover/tv", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("genres_movies",
-			mcplib.WithDescription("Get the list of movie genres Returns array of Genre."),
+			mcplib.WithDescription("Get the list of movie genres. Returns array of Genre."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/genre/movie/list", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("genres_tv",
-			mcplib.WithDescription("Get the list of TV genres Returns array of Genre."),
+			mcplib.WithDescription("Get the list of TV genres. Returns array of Genre."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/genre/tv/list", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("movies_get",
-			mcplib.WithDescription("Get detailed info about a movie including cast, ratings, and streaming availability Returns MovieDetail."),
+			mcplib.WithDescription("Get detailed info about a movie including cast, ratings, and streaming availability. Required: movieId. Optional: append_to_response. Returns the MovieDetail."),
 			mcplib.WithString("movieId", mcplib.Required(), mcplib.Description("TMDb movie ID or IMDb ID (tt...)")),
 			mcplib.WithString("append_to_response", mcplib.Description("Additional data to include (credits,watch/providers,videos,recommendations,similar,external_ids)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/movie/{movieId}", []string{"movieId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("movies_now-playing",
-			mcplib.WithDescription("Get movies currently in theaters Returns array of Movie."),
+			mcplib.WithDescription("Get movies currently in theaters. Optional: page, language, region. Returns array of Movie."),
 			mcplib.WithString("page", mcplib.Description("Page number")),
 			mcplib.WithString("language", mcplib.Description("Language code")),
 			mcplib.WithString("region", mcplib.Description("ISO 3166-1 country code")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/movie/now_playing", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("movies_popular",
-			mcplib.WithDescription("Get current popular movies Returns array of Movie."),
+			mcplib.WithDescription("Get current popular movies. Optional: page, language, region. Returns array of Movie."),
 			mcplib.WithString("page", mcplib.Description("Page number")),
 			mcplib.WithString("language", mcplib.Description("Language code")),
 			mcplib.WithString("region", mcplib.Description("ISO 3166-1 country code")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/movie/popular", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("movies_search",
-			mcplib.WithDescription("Search for movies by title Returns array of Movie."),
+			mcplib.WithDescription("Search for movies by title. Required: query. Optional: year, page, language. Returns array of Movie."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Movie title to search for")),
 			mcplib.WithString("year", mcplib.Description("Filter by release year")),
 			mcplib.WithString("page", mcplib.Description("Page number (default 1)")),
 			mcplib.WithString("language", mcplib.Description("Language code (e.g. en-US)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/search/movie", []string{"query"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("movies_top-rated",
-			mcplib.WithDescription("Get the highest rated movies Returns array of Movie."),
+			mcplib.WithDescription("Get the highest rated movies. Optional: page, language, region. Returns array of Movie."),
 			mcplib.WithString("page", mcplib.Description("Page number")),
 			mcplib.WithString("language", mcplib.Description("Language code")),
 			mcplib.WithString("region", mcplib.Description("ISO 3166-1 country code")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/movie/top_rated", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("movies_upcoming",
-			mcplib.WithDescription("Get movies coming soon to theaters Returns array of Movie."),
+			mcplib.WithDescription("Get movies coming soon to theaters. Optional: page, language, region. Returns array of Movie."),
 			mcplib.WithString("page", mcplib.Description("Page number")),
 			mcplib.WithString("language", mcplib.Description("Language code")),
 			mcplib.WithString("region", mcplib.Description("ISO 3166-1 country code")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/movie/upcoming", []string{}),
 	)
 	s.AddTool(
+		mcplib.NewTool("multi_search",
+			mcplib.WithDescription("Search for movies, TV shows, and people in a single query. Required: query. Optional: page. Returns array of SearchResult."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query")),
+			mcplib.WithString("page", mcplib.Description("Page number")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/search/multi", []string{"query"}),
+	)
+	s.AddTool(
 		mcplib.NewTool("people_get",
-			mcplib.WithDescription("Get detailed info about a person including their filmography Returns PersonDetail."),
+			mcplib.WithDescription("Get detailed info about a person including their filmography. Required: personId. Optional: append_to_response (default: combined_credits,external_ids). Returns the PersonDetail."),
 			mcplib.WithString("personId", mcplib.Required(), mcplib.Description("TMDb person ID")),
 			mcplib.WithString("append_to_response", mcplib.Description("Additional data to include")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/person/{personId}", []string{"personId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("people_popular",
-			mcplib.WithDescription("Get popular people in entertainment Returns array of Person."),
+			mcplib.WithDescription("Get popular people in entertainment. Optional: page. Returns array of Person."),
 			mcplib.WithString("page", mcplib.Description("Page number")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/person/popular", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("people_search",
-			mcplib.WithDescription("Search for people by name Returns array of Person."),
+			mcplib.WithDescription("Search for people by name. Required: query. Optional: page. Returns array of Person."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Person name to search for")),
 			mcplib.WithString("page", mcplib.Description("Page number")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/search/person", []string{"query"}),
 	)
 	s.AddTool(
-		mcplib.NewTool("search_multi",
-			mcplib.WithDescription("Search for movies, TV shows, and people in a single query Returns array of SearchResult."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query")),
-			mcplib.WithString("page", mcplib.Description("Page number")),
-		),
-		makeAPIHandler("GET", "/search/multi", []string{"query"}),
-	)
-	s.AddTool(
 		mcplib.NewTool("trending_all",
-			mcplib.WithDescription("Get trending movies, TV, and people Returns array of TrendingItem."),
+			mcplib.WithDescription("Get trending movies, TV, and people. Required: timeWindow (default: day). Optional: page. Returns array of TrendingItem."),
 			mcplib.WithString("timeWindow", mcplib.Required(), mcplib.Description("Time window: day or week")),
 			mcplib.WithString("page", mcplib.Description("Page number")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/trending/all/{timeWindow}", []string{"timeWindow"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("trending_movies",
-			mcplib.WithDescription("Get trending movies Returns array of Movie."),
+			mcplib.WithDescription("Get trending movies. Required: timeWindow (default: day). Optional: page. Returns array of Movie."),
 			mcplib.WithString("timeWindow", mcplib.Required(), mcplib.Description("Time window: day or week")),
 			mcplib.WithString("page", mcplib.Description("Page number")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/trending/movie/{timeWindow}", []string{"timeWindow"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("trending_people",
-			mcplib.WithDescription("Get trending people Returns array of Person."),
+			mcplib.WithDescription("Get trending people. Required: timeWindow (default: day). Returns array of Person."),
 			mcplib.WithString("timeWindow", mcplib.Required(), mcplib.Description("Time window: day or week")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/trending/person/{timeWindow}", []string{"timeWindow"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("trending_tv",
-			mcplib.WithDescription("Get trending TV shows Returns array of TVShow."),
+			mcplib.WithDescription("Get trending TV shows. Required: timeWindow (default: day). Optional: page. Returns array of TVShow."),
 			mcplib.WithString("timeWindow", mcplib.Required(), mcplib.Description("Time window: day or week")),
 			mcplib.WithString("page", mcplib.Description("Page number")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/trending/tv/{timeWindow}", []string{"timeWindow"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tv_airing-today",
-			mcplib.WithDescription("Get TV shows with episodes airing today Returns array of TVShow."),
+			mcplib.WithDescription("Get TV shows with episodes airing today. Optional: page. Returns array of TVShow."),
 			mcplib.WithString("page", mcplib.Description("Page number")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/tv/airing_today", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tv_get",
-			mcplib.WithDescription("Get detailed info about a TV show Returns TVShowDetail."),
+			mcplib.WithDescription("Get detailed info about a TV show. Required: seriesId. Optional: append_to_response. Returns the TVShowDetail."),
 			mcplib.WithString("seriesId", mcplib.Required(), mcplib.Description("TMDb TV show ID")),
 			mcplib.WithString("append_to_response", mcplib.Description("Additional data to include")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/tv/{seriesId}", []string{"seriesId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tv_on-the-air",
-			mcplib.WithDescription("Get TV shows currently on the air Returns array of TVShow."),
+			mcplib.WithDescription("Get TV shows currently on the air. Optional: page. Returns array of TVShow."),
 			mcplib.WithString("page", mcplib.Description("Page number")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/tv/on_the_air", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tv_popular",
-			mcplib.WithDescription("Get current popular TV shows Returns array of TVShow."),
+			mcplib.WithDescription("Get current popular TV shows. Optional: page. Returns array of TVShow."),
 			mcplib.WithString("page", mcplib.Description("Page number")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/tv/popular", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tv_search",
-			mcplib.WithDescription("Search for TV shows by title Returns array of TVShow."),
+			mcplib.WithDescription("Search for TV shows by title. Required: query. Optional: year, page. Returns array of TVShow."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("TV show title to search for")),
 			mcplib.WithString("year", mcplib.Description("Filter by first air date year")),
 			mcplib.WithString("page", mcplib.Description("Page number")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/search/tv", []string{"query"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tv_top-rated",
-			mcplib.WithDescription("Get the highest rated TV shows Returns array of TVShow."),
+			mcplib.WithDescription("Get the highest rated TV shows. Optional: page. Returns array of TVShow."),
 			mcplib.WithString("page", mcplib.Description("Page number")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/tv/top_rated", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tv_seasons_get",
-			mcplib.WithDescription("Get details for a specific season including all episodes Returns Season."),
+			mcplib.WithDescription("Get details for a specific season including all episodes. Required: seriesId, seasonNumber. Returns the Season."),
 			mcplib.WithString("seriesId", mcplib.Required(), mcplib.Description("TMDb TV show ID")),
 			mcplib.WithString("seasonNumber", mcplib.Required(), mcplib.Description("Season number")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/tv/{seriesId}/season/{seasonNumber}", []string{"seriesId", "seasonNumber"}),
-	)
-	// Sync tool — populates local database for offline search and sql queries
-	s.AddTool(
-		mcplib.NewTool("sync",
-			mcplib.WithDescription("Sync API data to local SQLite database. Run this before using search or sql tools. Supports incremental sync."),
-			mcplib.WithString("resources", mcplib.Description("Comma-separated resource types to sync (omit for all)")),
-			mcplib.WithString("since", mcplib.Description("Incremental sync since duration (e.g. 7d, 24h, 1w)")),
-			mcplib.WithBoolean("full", mcplib.Description("Full resync ignoring checkpoints")),
-		),
-		handleSync,
 	)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
@@ -288,6 +323,8 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDescription("Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)")),
 			mcplib.WithNumber("limit", mcplib.Description("Max results (default 25)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleSearch,
 	)
@@ -296,6 +333,8 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("sql",
 			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT only). Tables match resource names.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleSQL,
 	)
@@ -305,9 +344,15 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("context",
 			mcplib.WithDescription("Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleContext,
 	)
+
+	// Runtime Cobra-tree mirror — exposes every user-facing command that is
+	// not already covered by a typed endpoint or framework MCP tool.
+	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
@@ -318,17 +363,22 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 			return mcplib.NewToolResultError(err.Error()), nil
 		}
 
+		// mcp-go v0.47+ made CallToolParams.Arguments an `any` to support
+		// non-map payloads; GetArguments() returns the map[string]any shape
+		// we rely on here (or an empty map when the payload is something else).
+		args := req.GetArguments()
+
 		// Build path by substituting positional params
 		path := pathTemplate
 		for _, p := range positionalParams {
-			if v, ok := req.Params.Arguments[p]; ok {
+			if v, ok := args[p]; ok {
 				path = strings.Replace(path, "{"+p+"}", fmt.Sprintf("%v", v), 1)
 			}
 		}
 
 		// Collect non-positional params as query params
 		params := make(map[string]string)
-		for k, v := range req.Params.Arguments {
+		for k, v := range args {
 			isPositional := false
 			for _, p := range positionalParams {
 				if k == p {
@@ -346,13 +396,13 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 		case "GET":
 			data, err = c.Get(path, params)
 		case "POST":
-			body, _ := json.Marshal(req.Params.Arguments)
+			body, _ := json.Marshal(args)
 			data, _, err = c.Post(path, body)
 		case "PUT":
-			body, _ := json.Marshal(req.Params.Arguments)
+			body, _ := json.Marshal(args)
 			data, _, err = c.Put(path, body)
 		case "PATCH":
-			body, _ := json.Marshal(req.Params.Arguments)
+			body, _ := json.Marshal(args)
 			data, _, err = c.Patch(path, body)
 		case "DELETE":
 			data, _, err = c.Delete(path)
@@ -365,20 +415,20 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 			switch {
 			case strings.Contains(msg, "HTTP 409"):
 				return mcplib.NewToolResultText("already exists (no-op)"), nil
-			case strings.Contains(msg, "HTTP 400") && looksLikeAuthError(msg):
-				return mcplib.NewToolResultError("authentication error: " + sanitizeErrorBody(msg) +
+			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
+				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
 					"\n      Set your API key: export TMDB_API_KEY=<your-key>" +
 					"\n      Get a key at: https://www.themoviedb.org/settings/api" +
 					"\n      Run 'movie-goat-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
-				return mcplib.NewToolResultError("authentication failed: " + sanitizeErrorBody(msg) +
-					"\nhint: check your token." +
+				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
+					"\nhint: check your API key." +
 					"\n      Set it with: export TMDB_API_KEY=<your-key>" +
 					"\n      Get a key at: https://www.themoviedb.org/settings/api" +
 					"\n      Run 'movie-goat-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
-				return mcplib.NewToolResultError("permission denied: " + sanitizeErrorBody(msg) +
+				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: your credentials are valid but lack access to this resource." +
 					"\n      Set it with: export TMDB_API_KEY=<your-key>" +
 					"\n      Get a key at: https://www.themoviedb.org/settings/api" +
@@ -423,9 +473,9 @@ func newMCPClient() (*client.Client, error) {
 	}
 	c := client.New(cfg, 30*time.Second, 0)
 	// Agents calling through MCP need fresh data every call. The on-disk
-	// response cache survives across MCP server invocations, so a DELETE/PATCH
-	// followed by a GET would otherwise return the pre-mutation snapshot for up
-	// to the cache TTL. Skip the cache for the MCP path; the interactive CLI
+	// response cache survives across MCP server invocations, so a
+	// DELETE/PATCH followed by a GET would otherwise return the
+	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
 	// constructs its own client and is unaffected.
 	c.NoCache = true
 	return c, nil
@@ -439,22 +489,19 @@ func dbPath() string {
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
 
-func handleSync(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	return mcplib.NewToolResultText("sync not yet implemented via MCP - use the CLI: movie-goat-pp-cli sync"), nil
-}
-
 func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	query, ok := req.Params.Arguments["query"].(string)
+	args := req.GetArguments()
+	query, ok := args["query"].(string)
 	if !ok || query == "" {
 		return mcplib.NewToolResultError("query is required"), nil
 	}
 
 	limit := 25
-	if v, ok := req.Params.Arguments["limit"].(float64); ok && v > 0 {
+	if v, ok := args["limit"].(float64); ok && v > 0 {
 		limit = int(v)
 	}
 
-	db, err := store.Open(dbPath())
+	db, err := store.OpenWithContext(ctx, dbPath())
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
@@ -470,7 +517,8 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 }
 
 func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	query, ok := req.Params.Arguments["query"].(string)
+	args := req.GetArguments()
+	query, ok := args["query"].(string)
 	if !ok || query == "" {
 		return mcplib.NewToolResultError("query is required"), nil
 	}
@@ -483,7 +531,7 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		}
 	}
 
-	db, err := store.Open(dbPath())
+	db, err := store.OpenWithContext(ctx, dbPath())
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
@@ -517,13 +565,14 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
-		"api":          "movie",
-		"description":  "The movie goat CLI — search, discover, and track movies and TV shows using TMDb and OMDb",
-		"archetype":    "generic",
-		"tool_count":   25,
-		"tool_surface": "MCP exposes the endpoints listed under `resources` (plus sync/search/sql/context utilities when present). Items under `cli_only_capabilities` require running the companion movie-goat-pp-cli binary; the MCP cannot invoke them.",
+		"api":         "movie-goat",
+		"description": "The movie goat CLI — search, discover, and track movies and TV shows using TMDb and OMDb",
+		"archetype":   "generic",
+		"tool_count":  25,
+		// tool_surface tells agents which surface a capability lives on.
+		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion movie-goat-pp-cli binary.",
 		"auth": map[string]any{
-			"type":     "bearer_token",
+			"type":     "api_key",
 			"env_vars": []string{"TMDB_API_KEY"},
 			"key_url":  "https://www.themoviedb.org/settings/api",
 		},
@@ -549,16 +598,16 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"searchable":  true,
 			},
 			{
-				"name":        "people",
-				"description": "Search and browse people (actors, directors, crew)",
-				"endpoints":   []string{"get", "popular", "search"},
+				"name":        "multi",
+				"description": "Multi-search across movies, TV shows, and people",
+				"endpoints":   []string{"search"},
 				"syncable":    true,
 				"searchable":  true,
 			},
 			{
-				"name":        "search",
-				"description": "Multi-search across movies, TV shows, and people",
-				"endpoints":   []string{"multi"},
+				"name":        "people",
+				"description": "Search and browse people (actors, directors, crew)",
+				"endpoints":   []string{"get", "popular", "search"},
 				"syncable":    true,
 				"searchable":  true,
 			},
@@ -583,28 +632,36 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
 		},
-		"cli_only_capabilities": []map[string]string{
-			{"name": "Multi-Source Ratings Dashboard", "command": "get", "description": "See TMDb, IMDb, Rotten Tomatoes, and Metacritic ratings for any movie in one view", "rationale": "Requires combining TMDb API details with OMDb enrichment — no single API provides all four rating sources", "via": "cli"},
-			{"name": "Where to Watch", "command": "watch", "description": "Find every streaming platform, rental option, and purchase option for any movie or show", "rationale": "TMDb provides watch provider data that no existing CLI surfaces in a usable format", "via": "cli"},
-			{"name": "Career Timeline", "command": "career", "description": "Explore any actor or director's complete filmography with ratings and career trajectory", "rationale": "Requires combining person credits with per-title details across TMDb + OMDb ratings", "via": "cli"},
-			{"name": "Tonight Picker", "command": "tonight", "description": "Get a smart recommendation for what to watch tonight based on trending and your streaming services", "rationale": "Combines trending data, discover filters, and watch provider availability in a single decision flow", "via": "cli"},
-			{"name": "Head-to-Head Compare", "command": "versus", "description": "Compare two movies or shows side-by-side across every metric: ratings, cast, box office, streaming", "rationale": "No single API call compares titles — requires fetching and aligning details from both TMDb and OMDb", "via": "cli"},
-			{"name": "Marathon Planner", "command": "marathon", "description": "Plan a franchise movie marathon with watch order, total runtime, and suggested breaks", "rationale": "Requires fetching TMDb collection data and computing cumulative runtime across all entries", "via": "cli"},
+		// Command-mirror capabilities are exposed through MCP by shelling out
+		// to the companion CLI binary.
+		"command_mirror_capabilities": []map[string]string{
+			{"name": "Tonight Picker", "command": "tonight", "description": "Pick what to watch tonight from trending titles actually streaming on your services.", "rationale": "Joins TMDb trending + discover with per-title watch providers filtered to your --providers set in your --region —...", "via": "mcp-command-mirror"},
+			{"name": "Multi-Source Ratings Card", "command": "ratings", "description": "TMDb + IMDb + Rotten Tomatoes + Metacritic ratings for any title in one card.", "rationale": "Cross-source aggregation: TMDb has streaming and cast; OMDb has RT/Metacritic. Joined via IMDb ID — no single...", "via": "mcp-command-mirror"},
+			{"name": "Marathon Planner", "command": "marathon", "description": "Plan a franchise marathon with watch order, total runtime, and suggested breaks.", "rationale": "Resolves title → belongs_to_collection → /collection/{id}, normalizes order, sums runtimes, inserts breakpoints....", "via": "mcp-command-mirror"},
+			{"name": "Career Timeline", "command": "career", "description": "Explore any actor or director's full filmography with ratings and chronology.", "rationale": "Person credits + per-title detail fan-out + OMDb ratings; sorted chronologically with role/year/runtime/rating.", "via": "mcp-command-mirror"},
+			{"name": "Watchlist", "command": "watchlist list", "description": "Local SQLite watchlist; flag rows that are streamable on your services.", "rationale": "Local store + per-row /watch/providers fan-out + filter against user --providers set. No public CLI tells you what...", "via": "mcp-command-mirror"},
+			{"name": "Head-to-Head Versus", "command": "versus", "description": "Compare two movies or shows side-by-side across ratings, cast, runtime, and streaming.", "rationale": "Composes Multi-Source Ratings Card across two titles + cast intersection + provider lists per region; aligned...", "via": "mcp-command-mirror"},
+			{"name": "Recommendation Queue", "command": "queue", "description": "Suggest next-watch picks derived from your watchlist's recommendations and similars.", "rationale": "For every row in local watchlist: union /recommendations + /similar, dedupe, rank by vote_average × log(vote_count).", "via": "mcp-command-mirror"},
+			{"name": "Recurring Collaborators", "command": "collaborators", "description": "List people who appear in 2+ of a person's credits, with count and titles.", "rationale": "Person combined_credits + per-title /credits, group-by name + count. No single endpoint surfaces this.", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Multi-Source Ratings Dashboard", "insight": "Requires combining TMDb API details with OMDb enrichment — no single API provides all four rating sources"},
-			{"topic": "Where to Watch", "insight": "TMDb provides watch provider data that no existing CLI surfaces in a usable format"},
-			{"topic": "Career Timeline", "insight": "Requires combining person credits with per-title details across TMDb + OMDb ratings"},
-			{"topic": "Tonight Picker", "insight": "Combines trending data, discover filters, and watch provider availability in a single decision flow"},
-			{"topic": "Head-to-Head Compare", "insight": "No single API call compares titles — requires fetching and aligning details from both TMDb and OMDb"},
-			{"topic": "Marathon Planner", "insight": "Requires fetching TMDb collection data and computing cumulative runtime across all entries"},
+			{"topic": "Tonight Picker", "insight": "Joins TMDb trending + discover with per-title watch providers filtered to your --providers set in your --region — no existing CLI does the streaming-availability filter."},
+			{"topic": "Multi-Source Ratings Card", "insight": "Cross-source aggregation: TMDb has streaming and cast; OMDb has RT/Metacritic. Joined via IMDb ID — no single endpoint exposes all four."},
+			{"topic": "Marathon Planner", "insight": "Resolves title → belongs_to_collection → /collection/{id}, normalizes order, sums runtimes, inserts breakpoints. No single API call returns a planned marathon."},
+			{"topic": "Career Timeline", "insight": "Person credits + per-title detail fan-out + OMDb ratings; sorted chronologically with role/year/runtime/rating."},
+			{"topic": "Watchlist", "insight": "Local store + per-row /watch/providers fan-out + filter against user --providers set. No public CLI tells you what on your watchlist is streamable now."},
+			{"topic": "Head-to-Head Versus", "insight": "Composes Multi-Source Ratings Card across two titles + cast intersection + provider lists per region; aligned columnar output."},
+			{"topic": "Recommendation Queue", "insight": "For every row in local watchlist: union /recommendations + /similar, dedupe, rank by vote_average × log(vote_count)."},
+			{"topic": "Recurring Collaborators", "insight": "Person combined_credits + per-title /credits, group-by name + count. No single endpoint surfaces this."},
 		},
 	}
 	data, _ := json.MarshalIndent(ctx, "", "  ")
 	return mcplib.NewToolResultText(string(data)), nil
 }
 
-// RegisterNovelFeatureTools registers MCP tools that shell out to the
-// companion CLI binary. Empty body when the spec has no novel features.
+// RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP
+// mains. New generated mains call RegisterTools only; RegisterTools now
+// includes the runtime Cobra-tree mirror.
 func RegisterNovelFeatureTools(s *server.MCPServer) {
+	_ = s
 }

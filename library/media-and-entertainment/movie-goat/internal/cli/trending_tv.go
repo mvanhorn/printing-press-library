@@ -13,25 +13,39 @@ import (
 
 func newTrendingTvCmd(flags *rootFlags) *cobra.Command {
 	var flagTimeWindow string
-	var flagPage int
+	var flagPage string
 
 	cmd := &cobra.Command{
-		Use:     "tv",
-		Short:   "Get trending TV shows",
-		Example: "  movie-goat-pp-cli trending tv",
+		Use:         "tv",
+		Short:       "Get trending TV shows",
+		Example:     "  movie-goat-pp-cli trending tv",
+		Annotations: map[string]string{"pp:endpoint": "trending.tv", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			_ = cmd // time-window has a default of "day"
+			if cmd.Flags().Changed("time-window") {
+				allowedTimeWindow := []string{"day", "week"}
+				validTimeWindow := false
+				for _, v := range allowedTimeWindow {
+					if flagTimeWindow == v {
+						validTimeWindow = true
+						break
+					}
+				}
+				if !validTimeWindow {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "time-window", flagTimeWindow, allowedTimeWindow)
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/trending/tv/" + flagTimeWindow
+			path := "/trending/tv/{timeWindow}"
+			path = replacePathParam(path, "timeWindow", fmt.Sprintf("%v", flagTimeWindow))
 			params := map[string]string{}
-			if flagPage != 0 {
+			if flagPage != "" {
 				params["page"] = fmt.Sprintf("%v", flagPage)
 			}
-			data, prov, err := resolveRead(c, flags, "trending", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "trending", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -41,14 +55,15 @@ func newTrendingTvCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -72,8 +87,8 @@ func newTrendingTvCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagTimeWindow, "time-window", "day", "Time window: day or week")
-	cmd.Flags().IntVar(&flagPage, "page", 0, "Page number")
+	cmd.Flags().StringVar(&flagTimeWindow, "time-window", "day", "Time window: day or week (one of: day, week)")
+	cmd.Flags().StringVar(&flagPage, "page", "", "Page number")
 
 	return cmd
 }

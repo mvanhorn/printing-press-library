@@ -3,240 +3,299 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/internal/config"
+
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/internal/omdb"
 )
 
+// versusTitle is one half of the comparison. It carries the canonical TMDb
+// fields and a subset of OMDb-derived fields so --select queries against the
+// JSON output have stable paths.
+type versusTitle struct {
+	ID          int           `json:"id"`
+	Kind        string        `json:"kind"`
+	Title       string        `json:"title"`
+	Year        string        `json:"year"`
+	Runtime     int           `json:"runtime,omitempty"`
+	VoteAverage float64       `json:"vote_average"`
+	VoteCount   int           `json:"vote_count"`
+	Genres      string        `json:"genres,omitempty"`
+	IMDbID      string        `json:"imdb_id,omitempty"`
+	Ratings     ratingsValues `json:"ratings"`
+	Awards      string        `json:"awards,omitempty"`
+	Providers   []tonightProv `json:"providers,omitempty"`
+}
+
+type versusOverlap struct {
+	ID      int    `json:"id"`
+	Name    string `json:"name"`
+	RoleInA string `json:"role_in_a,omitempty"`
+	RoleInB string `json:"role_in_b,omitempty"`
+}
+
+type versusOutput struct {
+	A           versusTitle     `json:"a"`
+	B           versusTitle     `json:"b"`
+	CastOverlap []versusOverlap `json:"cast_overlap"`
+}
+
 func newVersusCmd(flags *rootFlags) *cobra.Command {
+	var flagRegion string
+	var flagType string
+
 	cmd := &cobra.Command{
-		Use:   "versus <title1> <title2>",
+		Use:         "versus <id-or-title-a> <id-or-title-b>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Compare two movies side-by-side: ratings, box office, cast, streaming",
-		Long: `Compare two movies head-to-head across all dimensions: ratings (TMDb, IMDb,
-Rotten Tomatoes, Metacritic), runtime, budget, revenue, genres, streaming
-availability, and cast overlap.`,
-		Example: `  movie-goat-pp-cli versus "The Dark Knight" "Inception"
-  movie-goat-pp-cli versus "Alien" "Aliens"
-  movie-goat-pp-cli versus "Barbie" "Oppenheimer" --json`,
+		Short:       "Compare two titles head-to-head: ratings, runtime, cast overlap",
+		Long: `Resolve two ids or titles, fetch detail with credits, external_ids, and
+watch/providers appended, overlay OMDb (IMDb / Rotten Tomatoes / Metacritic)
+when OMDB_API_KEY is set, and emit the side-by-side comparison plus the
+top-billed cast overlap (people credited as cast on both titles).`,
+		Example: `  movie-goat-pp-cli versus 550 27205
+  movie-goat-pp-cli versus "The Dark Knight" "Inception"
+  movie-goat-pp-cli versus 1396 60625 --type tv --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if flags.dryRun {
-				if len(args) >= 2 {
-					fmt.Fprintf(cmd.OutOrStdout(), "GET /search/movie?query=%s\nGET /search/movie?query=%s\nGET /movie/<id1>?append_to_response=credits,watch/providers,external_ids\nGET /movie/<id2>?append_to_response=credits,watch/providers,external_ids\n", args[0], args[1])
-				} else {
-					fmt.Fprintln(cmd.OutOrStdout(), "GET /search/movie (resolve both titles)\nGET /movie/<id1>?append_to_response=credits,watch/providers,external_ids\nGET /movie/<id2>?append_to_response=credits,watch/providers,external_ids")
-				}
+			if dryRunOK(flags) {
 				return nil
 			}
 			if len(args) < 2 {
-				return fmt.Errorf("requires exactly 2 movie titles or IDs\n\nUsage: movie-goat-pp-cli versus <title1> <title2>")
+				return usageErr(fmt.Errorf("versus requires two titles or ids"))
 			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
+			kind := strings.ToLower(strings.TrimSpace(flagType))
+			if kind == "" {
+				kind = "movie"
+			}
+			if kind != "movie" && kind != "tv" {
+				return usageErr(fmt.Errorf("--type must be \"movie\" or \"tv\", got %q", flagType))
+			}
+			region := strings.ToUpper(strings.TrimSpace(flagRegion))
+			if region == "" {
+				region = "US"
+			}
+			omdbKey := strings.TrimSpace(os.Getenv("OMDB_API_KEY"))
 
-			// Resolve both movies
-			id1, title1, err := resolveMovieID(c, args[0])
+			loadOne := func(arg string) (versusTitle, *tmdbCredits, error) {
+				vt := versusTitle{Kind: kind}
+				appendStr := "credits,external_ids,watch/providers"
+				switch kind {
+				case "movie":
+					id, _, rerr := resolveMovieID(c, arg)
+					if rerr != nil {
+						return vt, nil, classifyAPIError(rerr)
+					}
+					detail, _, derr := getMovieDetail(c, id, appendStr)
+					if derr != nil {
+						return vt, nil, classifyAPIError(derr)
+					}
+					vt.ID = detail.ID
+					vt.Title = detail.Title
+					if len(detail.ReleaseDate) >= 4 {
+						vt.Year = detail.ReleaseDate[:4]
+					}
+					vt.Runtime = detail.Runtime
+					vt.VoteAverage = detail.VoteAverage
+					vt.VoteCount = detail.VoteCount
+					vt.Genres = genreNames(detail)
+					vt.IMDbID = detail.ImdbID
+					if detail.ExternalIDs != nil && vt.IMDbID == "" {
+						vt.IMDbID = detail.ExternalIDs.IMDbID
+					}
+					if detail.VoteAverage > 0 {
+						vt.Ratings.TMDB = fmt.Sprintf("%.1f", detail.VoteAverage)
+					}
+					vt.Providers, _, _ = parseAppendedProviders(detail.WatchProviders, region)
+					return vt, detail.Credits, nil
+				case "tv":
+					id, _, rerr := resolveTVID(c, arg)
+					if rerr != nil {
+						return vt, nil, classifyAPIError(rerr)
+					}
+					detail, _, derr := getTVDetail(c, id, appendStr)
+					if derr != nil {
+						return vt, nil, classifyAPIError(derr)
+					}
+					vt.ID = detail.ID
+					vt.Title = detail.Name
+					if len(detail.FirstAirDate) >= 4 {
+						vt.Year = detail.FirstAirDate[:4]
+					}
+					if len(detail.EpisodeRunTime) > 0 {
+						vt.Runtime = detail.EpisodeRunTime[0]
+					}
+					vt.VoteAverage = detail.VoteAverage
+					vt.VoteCount = detail.VoteCount
+					if len(detail.Genres) > 0 {
+						names := make([]string, 0, len(detail.Genres))
+						for _, g := range detail.Genres {
+							names = append(names, g.Name)
+						}
+						vt.Genres = strings.Join(names, ", ")
+					}
+					if detail.ExternalIDs != nil {
+						vt.IMDbID = detail.ExternalIDs.IMDbID
+					}
+					if detail.VoteAverage > 0 {
+						vt.Ratings.TMDB = fmt.Sprintf("%.1f", detail.VoteAverage)
+					}
+					vt.Providers, _, _ = parseAppendedProviders(detail.WatchProviders, region)
+					return vt, detail.Credits, nil
+				}
+				return vt, nil, fmt.Errorf("unsupported kind %q", kind)
+			}
+
+			a, creditsA, err := loadOne(args[0])
 			if err != nil {
-				return classifyAPIError(err)
+				return err
 			}
-			id2, title2, err := resolveMovieID(c, args[1])
+			b, creditsB, err := loadOne(args[1])
 			if err != nil {
-				return classifyAPIError(err)
+				return err
 			}
 
-			// Fetch full details for both
-			appendFields := "credits,watch/providers,external_ids"
-			detail1, raw1, err := getMovieDetail(c, id1, appendFields)
-			if err != nil {
-				return classifyAPIError(err)
-			}
-			detail2, raw2, err := getMovieDetail(c, id2, appendFields)
-			if err != nil {
-				return classifyAPIError(err)
-			}
-
-			if title1 == "" {
-				title1 = detail1.Title
-			}
-			if title2 == "" {
-				title2 = detail2.Title
-			}
-
-			// OMDb enrichment
-			cfg, _ := config.Load(flags.configPath)
-			omdbKey := ""
-			if cfg != nil {
-				omdbKey = cfg.OmdbApiKey
-			}
-
-			var omdb1, omdb2 *omdb.Result
+			// OMDb enrichment for both titles when key present.
 			if omdbKey != "" {
-				if detail1.ImdbID != "" {
-					omdb1, _ = omdb.Fetch(detail1.ImdbID, omdbKey)
+				if a.IMDbID != "" {
+					if r, oerr := omdb.Fetch(a.IMDbID, omdbKey); oerr == nil && r != nil {
+						populateOMDbRatings(&a, r)
+					} else if oerr != nil && omdb.IsRateLimit(oerr) {
+						return rateLimitErr(oerr)
+					}
 				}
-				if detail2.ImdbID != "" {
-					omdb2, _ = omdb.Fetch(detail2.ImdbID, omdbKey)
-				}
-			}
-
-			// Find cast overlap
-			var castOverlap []string
-			if detail1.Credits != nil && detail2.Credits != nil {
-				cast1 := make(map[int]string)
-				for _, m := range detail1.Credits.Cast {
-					cast1[m.ID] = m.Name
-				}
-				for _, m := range detail2.Credits.Cast {
-					if name, ok := cast1[m.ID]; ok {
-						castOverlap = append(castOverlap, name)
+				if b.IMDbID != "" {
+					if r, oerr := omdb.Fetch(b.IMDbID, omdbKey); oerr == nil && r != nil {
+						populateOMDbRatings(&b, r)
+					} else if oerr != nil && omdb.IsRateLimit(oerr) {
+						return rateLimitErr(oerr)
 					}
 				}
 			}
 
-			// JSON output
+			overlap := computeCastOverlap(creditsA, creditsB)
+
+			out := versusOutput{A: a, B: b, CastOverlap: overlap}
+
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
-				output := map[string]any{
-					"movie_1":      buildComparisonJSON(detail1, raw1, omdb1),
-					"movie_2":      buildComparisonJSON(detail2, raw2, omdb2),
-					"cast_overlap": castOverlap,
-				}
-				outData, _ := json.Marshal(output)
-				if flags.compact {
-					outData = compactFields(json.RawMessage(outData))
-				}
-				if flags.selectFields != "" {
-					outData = filterFields(json.RawMessage(outData), flags.selectFields)
-				}
-				return printOutput(cmd.OutOrStdout(), json.RawMessage(outData), true)
+				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 			}
 
-			// Human-readable side-by-side comparison
 			w := cmd.OutOrStdout()
-
-			// Header
-			col1 := truncate(title1, 30)
-			col2 := truncate(title2, 30)
-			fmt.Fprintf(w, "%-20s  %-30s  vs  %-30s\n", "", col1, col2)
-			fmt.Fprintf(w, "%s\n", strings.Repeat("-", 86))
-
-			// Basic info
-			printVersusRow(w, "Release Date", detail1.ReleaseDate, detail2.ReleaseDate)
-			printVersusRow(w, "Runtime", fmtRuntime(detail1.Runtime), fmtRuntime(detail2.Runtime))
-			printVersusRow(w, "Genres", genreNames(detail1), genreNames(detail2))
-			printVersusRow(w, "Status", detail1.Status, detail2.Status)
-
-			// Ratings
-			fmt.Fprintf(w, "\n%-20s  %-30s  vs  %-30s\n", "RATINGS", "", "")
-			printVersusRow(w, "TMDb", fmt.Sprintf("%.1f/10 (%d votes)", detail1.VoteAverage, detail1.VoteCount),
-				fmt.Sprintf("%.1f/10 (%d votes)", detail2.VoteAverage, detail2.VoteCount))
-
-			if omdb1 != nil || omdb2 != nil {
-				imdb1, imdb2 := "N/A", "N/A"
-				rt1, rt2 := "N/A", "N/A"
-				mc1, mc2 := "N/A", "N/A"
-				if omdb1 != nil {
-					if omdb1.ImdbRating != "" && omdb1.ImdbRating != "N/A" {
-						imdb1 = omdb1.ImdbRating + "/10"
-					}
-					if v := omdb1.RatingBySource("Rotten Tomatoes"); v != "" {
-						rt1 = v
-					}
-					if v := omdb1.RatingBySource("Metacritic"); v != "" {
-						mc1 = v
-					}
+			col1 := truncate(a.Title, 30)
+			col2 := truncate(b.Title, 30)
+			fmt.Fprintf(w, "%-22s  %-30s  vs  %-30s\n", "", col1, col2)
+			fmt.Fprintln(w, strings.Repeat("-", 90))
+			versusRow(w, "Year", a.Year, b.Year)
+			versusRow(w, "Runtime", formatRuntimeMinutes(a.Runtime), formatRuntimeMinutes(b.Runtime))
+			versusRow(w, "Genres", a.Genres, b.Genres)
+			versusRow(w, "TMDb", a.Ratings.TMDB, b.Ratings.TMDB)
+			versusRow(w, "IMDb", naIfEmpty(a.Ratings.IMDb), naIfEmpty(b.Ratings.IMDb))
+			versusRow(w, "Rotten Tomatoes", naIfEmpty(a.Ratings.RottenTomatoes), naIfEmpty(b.Ratings.RottenTomatoes))
+			versusRow(w, "Metacritic", naIfEmpty(a.Ratings.Metacritic), naIfEmpty(b.Ratings.Metacritic))
+			versusRow(w, "Awards", truncate(naIfEmpty(a.Awards), 30), truncate(naIfEmpty(b.Awards), 30))
+			if len(overlap) > 0 {
+				fmt.Fprintln(w)
+				fmt.Fprintln(w, "Cast overlap:")
+				for _, p := range overlap {
+					fmt.Fprintf(w, "  %s — %s / %s\n", p.Name, orDash(p.RoleInA), orDash(p.RoleInB))
 				}
-				if omdb2 != nil {
-					if omdb2.ImdbRating != "" && omdb2.ImdbRating != "N/A" {
-						imdb2 = omdb2.ImdbRating + "/10"
-					}
-					if v := omdb2.RatingBySource("Rotten Tomatoes"); v != "" {
-						rt2 = v
-					}
-					if v := omdb2.RatingBySource("Metacritic"); v != "" {
-						mc2 = v
-					}
-				}
-				printVersusRow(w, "IMDb", imdb1, imdb2)
-				printVersusRow(w, "Rotten Tomatoes", rt1, rt2)
-				printVersusRow(w, "Metacritic", mc1, mc2)
 			}
-
-			// Financials
-			fmt.Fprintf(w, "\n%-20s  %-30s  vs  %-30s\n", "FINANCIALS", "", "")
-			printVersusRow(w, "Budget", formatMoney(detail1.Budget), formatMoney(detail2.Budget))
-			printVersusRow(w, "Revenue", formatMoney(detail1.Revenue), formatMoney(detail2.Revenue))
-
-			if omdb1 != nil || omdb2 != nil {
-				bo1, bo2 := "N/A", "N/A"
-				if omdb1 != nil && omdb1.BoxOffice != "" && omdb1.BoxOffice != "N/A" {
-					bo1 = omdb1.BoxOffice
-				}
-				if omdb2 != nil && omdb2.BoxOffice != "" && omdb2.BoxOffice != "N/A" {
-					bo2 = omdb2.BoxOffice
-				}
-				printVersusRow(w, "Box Office", bo1, bo2)
-			}
-
-			// Awards
-			if omdb1 != nil || omdb2 != nil {
-				a1, a2 := "N/A", "N/A"
-				if omdb1 != nil && omdb1.Awards != "" && omdb1.Awards != "N/A" {
-					a1 = truncate(omdb1.Awards, 30)
-				}
-				if omdb2 != nil && omdb2.Awards != "" && omdb2.Awards != "N/A" {
-					a2 = truncate(omdb2.Awards, 30)
-				}
-				printVersusRow(w, "Awards", a1, a2)
-			}
-
-			// Cast overlap
-			if len(castOverlap) > 0 {
-				fmt.Fprintf(w, "\nCast Overlap: %s\n", strings.Join(castOverlap, ", "))
-			}
-
 			return nil
 		},
 	}
 
+	cmd.Flags().StringVar(&flagRegion, "region", "US", "Region for /watch/providers lookup")
+	cmd.Flags().StringVar(&flagType, "type", "movie", "Media type: movie or tv")
 	return cmd
 }
 
-func printVersusRow(w interface{ Write([]byte) (int, error) }, label, val1, val2 string) {
-	fmt.Fprintf(w, "%-20s  %-30s  vs  %-30s\n", label, truncate(val1, 30), truncate(val2, 30))
+func versusRow(w interface{ Write([]byte) (int, error) }, label, lhs, rhs string) {
+	fmt.Fprintf(w, "%-22s  %-30s  vs  %-30s\n", label, truncate(lhs, 30), truncate(rhs, 30))
 }
 
-func fmtRuntime(minutes int) string {
-	if minutes == 0 {
-		return "N/A"
+func populateOMDbRatings(vt *versusTitle, r *omdb.Result) {
+	if r == nil {
+		return
 	}
-	h := minutes / 60
-	m := minutes % 60
-	if h > 0 {
-		return fmt.Sprintf("%dh %dm (%d min)", h, m, minutes)
+	if v := r.ImdbRating; v != "" && v != "N/A" {
+		vt.Ratings.IMDb = v
 	}
-	return fmt.Sprintf("%d min", minutes)
+	if v := r.RatingBySource("Rotten Tomatoes"); v != "" {
+		vt.Ratings.RottenTomatoes = v
+	}
+	if v := r.RatingBySource("Metacritic"); v != "" {
+		vt.Ratings.Metacritic = v
+	} else if r.Metascore != "" && r.Metascore != "N/A" {
+		vt.Ratings.Metacritic = r.Metascore + "/100"
+	}
+	if r.Awards != "" && r.Awards != "N/A" {
+		vt.Awards = r.Awards
+	}
 }
 
-func buildComparisonJSON(detail *tmdbMovieDetail, raw json.RawMessage, omdbData *omdb.Result) map[string]any {
-	result := map[string]any{
-		"id":           detail.ID,
-		"title":        detail.Title,
-		"release_date": detail.ReleaseDate,
-		"runtime":      detail.Runtime,
-		"vote_average": detail.VoteAverage,
-		"vote_count":   detail.VoteCount,
-		"budget":       detail.Budget,
-		"revenue":      detail.Revenue,
-		"genres":       genreNames(detail),
-		"tagline":      detail.Tagline,
-		"imdb_id":      detail.ImdbID,
+// computeCastOverlap intersects top-billed cast lists between the two titles.
+// Order in detailA is preserved so the output stays deterministic.
+func computeCastOverlap(a, b *tmdbCredits) []versusOverlap {
+	if a == nil || b == nil {
+		return nil
 	}
-	if omdbData != nil {
-		result["omdb"] = omdbData
+	bByID := make(map[int]string, len(b.Cast))
+	for _, m := range b.Cast {
+		bByID[m.ID] = m.Character
 	}
-	return result
+	var out []versusOverlap
+	seen := map[int]bool{}
+	for _, m := range a.Cast {
+		if charB, ok := bByID[m.ID]; ok && !seen[m.ID] {
+			seen[m.ID] = true
+			out = append(out, versusOverlap{
+				ID:      m.ID,
+				Name:    m.Name,
+				RoleInA: m.Character,
+				RoleInB: charB,
+			})
+		}
+	}
+	return out
+}
+
+// parseAppendedProviders extracts provider rows from an appended watch/providers
+// payload for one region. Returns the provider list, whether the region had
+// any flatrate row, and any parse error (callers can ignore on best-effort).
+func parseAppendedProviders(raw []byte, region string) ([]tonightProv, bool, error) {
+	if len(raw) == 0 {
+		return nil, false, nil
+	}
+	var resp tmdbWatchProviders
+	if err := json.Unmarshal(raw, &resp); err != nil {
+		return nil, false, err
+	}
+	r, ok := resp.Results[region]
+	if !ok {
+		return nil, false, nil
+	}
+	var rows []tonightProv
+	hasFlatrate := false
+	for _, p := range r.Flatrate {
+		hasFlatrate = true
+		rows = append(rows, tonightProv{Name: p.ProviderName, Kind: "flatrate"})
+	}
+	for _, p := range r.Rent {
+		rows = append(rows, tonightProv{Name: p.ProviderName, Kind: "rent"})
+	}
+	for _, p := range r.Buy {
+		rows = append(rows, tonightProv{Name: p.ProviderName, Kind: "buy"})
+	}
+	for _, p := range r.Free {
+		rows = append(rows, tonightProv{Name: p.ProviderName, Kind: "free"})
+	}
+	for _, p := range r.Ads {
+		rows = append(rows, tonightProv{Name: p.ProviderName, Kind: "ads"})
+	}
+	return rows, hasFlatrate, nil
 }

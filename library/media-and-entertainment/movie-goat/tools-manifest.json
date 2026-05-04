@@ -1,0 +1,638 @@
+{
+  "api_name": "movie-goat",
+  "base_url": "https://api.themoviedb.org/3",
+  "description": "The movie goat CLI — search, discover, and track movies and TV shows using TMDb and OMDb",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "api_key",
+    "in": "query",
+    "env_vars": [
+      "TMDB_API_KEY"
+    ],
+    "key_url": "https://www.themoviedb.org/settings/api"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "discover_movies",
+      "description": "Discover movies by genre, year, rating, certification, cast, crew, streaming provider, and more. Optional: with_genres, primary_release_year, primary_release_date.gte (plus 13 more). Returns array of Movie.",
+      "method": "GET",
+      "path": "/discover/movie",
+      "params": [
+        {
+          "name": "with_genres",
+          "type": "string",
+          "location": "query",
+          "description": "Genre IDs (comma-separated, e.g. 28,12 for Action,Adventure)"
+        },
+        {
+          "name": "primary_release_year",
+          "type": "int",
+          "location": "query",
+          "description": "Exact release year"
+        },
+        {
+          "name": "primary_release_date.gte",
+          "type": "string",
+          "location": "query",
+          "description": "Release date from (YYYY-MM-DD)"
+        },
+        {
+          "name": "primary_release_date.lte",
+          "type": "string",
+          "location": "query",
+          "description": "Release date to (YYYY-MM-DD)"
+        },
+        {
+          "name": "vote_average.gte",
+          "type": "float",
+          "location": "query",
+          "description": "Minimum rating (0-10)"
+        },
+        {
+          "name": "vote_average.lte",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum rating"
+        },
+        {
+          "name": "vote_count.gte",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum number of votes"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order (popularity.desc, vote_average.desc, release_date.desc, revenue.desc)"
+        },
+        {
+          "name": "with_watch_providers",
+          "type": "string",
+          "location": "query",
+          "description": "Watch provider IDs (comma-separated)"
+        },
+        {
+          "name": "watch_region",
+          "type": "string",
+          "location": "query",
+          "description": "Region for watch providers (ISO 3166-1, e.g. US)"
+        },
+        {
+          "name": "with_cast",
+          "type": "string",
+          "location": "query",
+          "description": "Person IDs to filter by cast"
+        },
+        {
+          "name": "with_crew",
+          "type": "string",
+          "location": "query",
+          "description": "Person IDs to filter by crew"
+        },
+        {
+          "name": "with_keywords",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword IDs"
+        },
+        {
+          "name": "certification",
+          "type": "string",
+          "location": "query",
+          "description": "Certification rating (G, PG, PG-13, R)"
+        },
+        {
+          "name": "certification_country",
+          "type": "string",
+          "location": "query",
+          "description": "Country for certification"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "discover_tv",
+      "description": "Discover TV shows by genre, year, rating, network, and streaming provider. Optional: with_genres, first_air_date_year, vote_average.gte (plus 6 more). Returns array of TVShow.",
+      "method": "GET",
+      "path": "/discover/tv",
+      "params": [
+        {
+          "name": "with_genres",
+          "type": "string",
+          "location": "query",
+          "description": "Genre IDs (comma-separated)"
+        },
+        {
+          "name": "first_air_date_year",
+          "type": "int",
+          "location": "query",
+          "description": "First air date year"
+        },
+        {
+          "name": "vote_average.gte",
+          "type": "float",
+          "location": "query",
+          "description": "Minimum rating"
+        },
+        {
+          "name": "vote_count.gte",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum number of votes"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "with_watch_providers",
+          "type": "string",
+          "location": "query",
+          "description": "Watch provider IDs"
+        },
+        {
+          "name": "watch_region",
+          "type": "string",
+          "location": "query",
+          "description": "Region for watch providers"
+        },
+        {
+          "name": "with_networks",
+          "type": "string",
+          "location": "query",
+          "description": "Network IDs (e.g. Netflix, HBO)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "genres_movies",
+      "description": "Get the list of movie genres. Returns array of Genre.",
+      "method": "GET",
+      "path": "/genre/movie/list",
+      "params": []
+    },
+    {
+      "name": "genres_tv",
+      "description": "Get the list of TV genres. Returns array of Genre.",
+      "method": "GET",
+      "path": "/genre/tv/list",
+      "params": []
+    },
+    {
+      "name": "movies_get",
+      "description": "Get detailed info about a movie including cast, ratings, and streaming availability. Required: movieId. Optional: append_to_response. Returns the MovieDetail.",
+      "method": "GET",
+      "path": "/movie/{movieId}",
+      "params": [
+        {
+          "name": "movieId",
+          "type": "string",
+          "location": "path",
+          "description": "TMDb movie ID or IMDb ID (tt...)",
+          "required": true
+        },
+        {
+          "name": "append_to_response",
+          "type": "string",
+          "location": "query",
+          "description": "Additional data to include (credits,watch/providers,videos,recommendations,similar,external_ids)"
+        }
+      ]
+    },
+    {
+      "name": "movies_now-playing",
+      "description": "Get movies currently in theaters. Optional: page, language, region. Returns array of Movie.",
+      "method": "GET",
+      "path": "/movie/now_playing",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language code"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 3166-1 country code"
+        }
+      ]
+    },
+    {
+      "name": "movies_popular",
+      "description": "Get current popular movies. Optional: page, language, region. Returns array of Movie.",
+      "method": "GET",
+      "path": "/movie/popular",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language code"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 3166-1 country code"
+        }
+      ]
+    },
+    {
+      "name": "movies_search",
+      "description": "Search for movies by title. Required: query. Optional: year, page, language. Returns array of Movie.",
+      "method": "GET",
+      "path": "/search/movie",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "path",
+          "description": "Movie title to search for",
+          "required": true
+        },
+        {
+          "name": "year",
+          "type": "int",
+          "location": "query",
+          "description": "Filter by release year"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (default 1)"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language code (e.g. en-US)"
+        }
+      ]
+    },
+    {
+      "name": "movies_top-rated",
+      "description": "Get the highest rated movies. Optional: page, language, region. Returns array of Movie.",
+      "method": "GET",
+      "path": "/movie/top_rated",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language code"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 3166-1 country code"
+        }
+      ]
+    },
+    {
+      "name": "movies_upcoming",
+      "description": "Get movies coming soon to theaters. Optional: page, language, region. Returns array of Movie.",
+      "method": "GET",
+      "path": "/movie/upcoming",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Language code"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 3166-1 country code"
+        }
+      ]
+    },
+    {
+      "name": "multi_search",
+      "description": "Search for movies, TV shows, and people in a single query. Required: query. Optional: page. Returns array of SearchResult.",
+      "method": "GET",
+      "path": "/search/multi",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "path",
+          "description": "Search query",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "people_get",
+      "description": "Get detailed info about a person including their filmography. Required: personId. Optional: append_to_response (default: combined_credits,external_ids). Returns the PersonDetail.",
+      "method": "GET",
+      "path": "/person/{personId}",
+      "params": [
+        {
+          "name": "personId",
+          "type": "string",
+          "location": "path",
+          "description": "TMDb person ID",
+          "required": true
+        },
+        {
+          "name": "append_to_response",
+          "type": "string",
+          "location": "query",
+          "description": "Additional data to include"
+        }
+      ]
+    },
+    {
+      "name": "people_popular",
+      "description": "Get popular people in entertainment. Optional: page. Returns array of Person.",
+      "method": "GET",
+      "path": "/person/popular",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "people_search",
+      "description": "Search for people by name. Required: query. Optional: page. Returns array of Person.",
+      "method": "GET",
+      "path": "/search/person",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "path",
+          "description": "Person name to search for",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "trending_all",
+      "description": "Get trending movies, TV, and people. Required: timeWindow (default: day). Optional: page. Returns array of TrendingItem.",
+      "method": "GET",
+      "path": "/trending/all/{timeWindow}",
+      "params": [
+        {
+          "name": "timeWindow",
+          "type": "string",
+          "location": "path",
+          "description": "Time window: day or week",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "trending_movies",
+      "description": "Get trending movies. Required: timeWindow (default: day). Optional: page. Returns array of Movie.",
+      "method": "GET",
+      "path": "/trending/movie/{timeWindow}",
+      "params": [
+        {
+          "name": "timeWindow",
+          "type": "string",
+          "location": "path",
+          "description": "Time window: day or week",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "trending_people",
+      "description": "Get trending people. Required: timeWindow (default: day). Returns array of Person.",
+      "method": "GET",
+      "path": "/trending/person/{timeWindow}",
+      "params": [
+        {
+          "name": "timeWindow",
+          "type": "string",
+          "location": "path",
+          "description": "Time window: day or week",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "trending_tv",
+      "description": "Get trending TV shows. Required: timeWindow (default: day). Optional: page. Returns array of TVShow.",
+      "method": "GET",
+      "path": "/trending/tv/{timeWindow}",
+      "params": [
+        {
+          "name": "timeWindow",
+          "type": "string",
+          "location": "path",
+          "description": "Time window: day or week",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "tv_airing-today",
+      "description": "Get TV shows with episodes airing today. Optional: page. Returns array of TVShow.",
+      "method": "GET",
+      "path": "/tv/airing_today",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "tv_get",
+      "description": "Get detailed info about a TV show. Required: seriesId. Optional: append_to_response. Returns the TVShowDetail.",
+      "method": "GET",
+      "path": "/tv/{seriesId}",
+      "params": [
+        {
+          "name": "seriesId",
+          "type": "string",
+          "location": "path",
+          "description": "TMDb TV show ID",
+          "required": true
+        },
+        {
+          "name": "append_to_response",
+          "type": "string",
+          "location": "query",
+          "description": "Additional data to include"
+        }
+      ]
+    },
+    {
+      "name": "tv_on-the-air",
+      "description": "Get TV shows currently on the air. Optional: page. Returns array of TVShow.",
+      "method": "GET",
+      "path": "/tv/on_the_air",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "tv_popular",
+      "description": "Get current popular TV shows. Optional: page. Returns array of TVShow.",
+      "method": "GET",
+      "path": "/tv/popular",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "tv_search",
+      "description": "Search for TV shows by title. Required: query. Optional: year, page. Returns array of TVShow.",
+      "method": "GET",
+      "path": "/search/tv",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "path",
+          "description": "TV show title to search for",
+          "required": true
+        },
+        {
+          "name": "year",
+          "type": "int",
+          "location": "query",
+          "description": "Filter by first air date year"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "tv_top-rated",
+      "description": "Get the highest rated TV shows. Optional: page. Returns array of TVShow.",
+      "method": "GET",
+      "path": "/tv/top_rated",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "tv_seasons_get",
+      "description": "Get details for a specific season including all episodes. Required: seriesId, seasonNumber. Returns the Season.",
+      "method": "GET",
+      "path": "/tv/{seriesId}/season/{seasonNumber}",
+      "params": [
+        {
+          "name": "seriesId",
+          "type": "string",
+          "location": "path",
+          "description": "TMDb TV show ID",
+          "required": true
+        },
+        {
+          "name": "seasonNumber",
+          "type": "int",
+          "location": "path",
+          "description": "Season number",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

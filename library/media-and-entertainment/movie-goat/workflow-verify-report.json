@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/tmchow/printing-press/.runstate/squishy-prancing-thimble-5410e08b/runs/20260504-004256/working/movie-goat-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

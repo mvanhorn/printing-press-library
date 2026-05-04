@@ -15,9 +15,10 @@ func newPeopleGetCmd(flags *rootFlags) *cobra.Command {
 	var flagAppendToResponse string
 
 	cmd := &cobra.Command{
-		Use:     "get <personId>",
-		Short:   "Get detailed info about a person including their filmography",
-		Example: "  movie-goat-pp-cli people get 287",
+		Use:         "get <personId>",
+		Short:       "Get detailed info about a person including their filmography",
+		Example:     "  movie-goat-pp-cli people get example-value",
+		Annotations: map[string]string{"pp:endpoint": "people.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -33,7 +34,7 @@ func newPeopleGetCmd(flags *rootFlags) *cobra.Command {
 			if flagAppendToResponse != "" {
 				params["append_to_response"] = fmt.Sprintf("%v", flagAppendToResponse)
 			}
-			data, prov, err := resolveRead(c, flags, "people", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "people", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -43,14 +44,15 @@ func newPeopleGetCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

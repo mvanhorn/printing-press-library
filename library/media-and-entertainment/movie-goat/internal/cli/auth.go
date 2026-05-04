@@ -14,7 +14,7 @@ import (
 func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "auth",
-		Short: "Manage authentication tokens",
+		Short: "Manage TMDB_API_KEY credentials",
 	}
 
 	cmd.AddCommand(newAuthStatusCmd(flags))
@@ -37,7 +37,22 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 			w := cmd.OutOrStdout()
 			header := cfg.AuthHeader()
-			if header == "" {
+			authed := header != ""
+			if flags.asJSON {
+				out := map[string]any{
+					"authenticated": authed,
+					"source":        cfg.AuthSource,
+					"config":        cfg.Path,
+				}
+				if printErr := printJSONFiltered(w, out, flags); printErr != nil {
+					return printErr
+				}
+				if !authed {
+					return authErr(fmt.Errorf("no credentials configured"))
+				}
+				return nil
+			}
+			if !authed {
 				fmt.Fprintln(w, red("Not authenticated"))
 				fmt.Fprintln(w, "")
 				fmt.Fprintln(w, "Set your token:")
@@ -58,7 +73,7 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:     "set-token <token>",
 		Short:   "Save an API token to the config file",
-		Example: "  movie-goat-pp-cli auth set-token eyJhbGciOiJIUzI1NiJ9...",
+		Example: "  movie-goat-pp-cli auth set-token sk_live_abc123",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(flags.configPath)
@@ -66,11 +81,25 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 				return configErr(err)
 			}
 
+			// Clear any legacy auth_header so AuthHeader() falls through to
+			// "Bearer " + AccessToken with the new token. Without this, a
+			// pre-existing auth_header value (common after regenerate) shadows
+			// the newly-saved access_token and set-token silently has no effect.
+			// Silent clear (no log line): a masked-tail variant could leak
+			// token bytes through scripted dogfood that captures stderr.
+			cfg.AuthHeaderVal = ""
+
 			// Save the token directly via the config's save mechanism
 			if err := cfg.SaveTokens("", "", args[0], "", cfg.TokenExpiry); err != nil {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}
 
+			if flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"saved":       true,
+					"config_path": cfg.Path,
+				}, flags)
+			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Token saved to %s\n", cfg.Path)
 			return nil
 		},
@@ -92,8 +121,17 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 				return configErr(fmt.Errorf("clearing tokens: %w", err))
 			}
 
+			envStillSet := os.Getenv("TMDB_API_KEY") != ""
+			if flags.asJSON {
+				out := map[string]any{"cleared": true}
+				if envStillSet {
+					out["note"] = "TMDB_API_KEY env var is still set"
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+			}
+
 			// Warn if env vars still set
-			if os.Getenv("TMDB_API_KEY") != "" {
+			if envStillSet {
 				fmt.Fprintf(cmd.OutOrStdout(), "Config cleared. Note: TMDB_API_KEY env var is still set.\n")
 				return nil
 			}

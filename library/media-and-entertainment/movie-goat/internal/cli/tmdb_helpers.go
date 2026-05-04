@@ -17,6 +17,7 @@ type tmdbSearchResult struct {
 	ReleaseDate   string  `json:"release_date"`
 	FirstAirDate  string  `json:"first_air_date"`
 	VoteAverage   float64 `json:"vote_average"`
+	VoteCount     int     `json:"vote_count"`
 	Overview      string  `json:"overview"`
 	MediaType     string  `json:"media_type"`
 	Popularity    float64 `json:"popularity"`
@@ -77,11 +78,55 @@ type tmdbMovieDetail struct {
 	ProductionCompanies []struct {
 		Name string `json:"name"`
 	} `json:"production_companies"`
-	ExternalIDs     json.RawMessage     `json:"external_ids"`
+	BelongsToCollection *struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+	} `json:"belongs_to_collection"`
+	ExternalIDs     *tmdbExternalIDs    `json:"external_ids"`
 	Credits         *tmdbCredits        `json:"credits"`
 	WatchProviders  json.RawMessage     `json:"watch/providers"`
 	Videos          json.RawMessage     `json:"videos"`
 	Recommendations *tmdbSearchResponse `json:"recommendations"`
+}
+
+// tmdbExternalIDs is the append_to_response=external_ids payload for movies and TV.
+type tmdbExternalIDs struct {
+	IMDbID      string `json:"imdb_id"`
+	TVDbID      int    `json:"tvdb_id"`
+	WikidataID  string `json:"wikidata_id"`
+	FacebookID  string `json:"facebook_id"`
+	InstagramID string `json:"instagram_id"`
+	TwitterID   string `json:"twitter_id"`
+}
+
+// tmdbTVDetail represents a detailed TV show response from TMDb /tv/{id}.
+type tmdbTVDetail struct {
+	ID               int     `json:"id"`
+	Name             string  `json:"name"`
+	OriginalName     string  `json:"original_name"`
+	Overview         string  `json:"overview"`
+	FirstAirDate     string  `json:"first_air_date"`
+	LastAirDate      string  `json:"last_air_date"`
+	VoteAverage      float64 `json:"vote_average"`
+	VoteCount        int     `json:"vote_count"`
+	Popularity       float64 `json:"popularity"`
+	Tagline          string  `json:"tagline"`
+	Status           string  `json:"status"`
+	Type             string  `json:"type"`
+	NumberOfSeasons  int     `json:"number_of_seasons"`
+	NumberOfEpisodes int     `json:"number_of_episodes"`
+	EpisodeRunTime   []int   `json:"episode_run_time"`
+	PosterPath       string  `json:"poster_path"`
+	Genres           []struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+	} `json:"genres"`
+	ExternalIDs    *tmdbExternalIDs `json:"external_ids"`
+	Credits        *tmdbCredits     `json:"credits"`
+	WatchProviders json.RawMessage  `json:"watch/providers"`
+	// IMDbID is set by getTVDetail when external_ids is appended; it mirrors
+	// ExternalIDs.IMDbID for callers that don't want to dereference.
+	IMDbID string `json:"-"`
 }
 
 // tmdbCredits represents the credits response.
@@ -193,7 +238,6 @@ type tmdbProvider struct {
 }
 
 // searchMovieByTitle searches TMDb for a movie by title and returns the top result's ID.
-// Returns 0 and an error if no results found.
 func searchMovieByTitle(c *client.Client, title string) (int, string, error) {
 	data, err := c.Get("/search/movie", map[string]string{"query": title})
 	if err != nil {
@@ -205,6 +249,23 @@ func searchMovieByTitle(c *client.Client, title string) (int, string, error) {
 	}
 	if len(resp.Results) == 0 {
 		return 0, "", fmt.Errorf("no movies found for %q", title)
+	}
+	r := resp.Results[0]
+	return r.ID, r.DisplayTitle(), nil
+}
+
+// searchTVByTitle searches TMDb for a TV show by title and returns the top result.
+func searchTVByTitle(c *client.Client, title string) (int, string, error) {
+	data, err := c.Get("/search/tv", map[string]string{"query": title})
+	if err != nil {
+		return 0, "", fmt.Errorf("searching for %q: %w", title, err)
+	}
+	var resp tmdbSearchResponse
+	if err := json.Unmarshal(data, &resp); err != nil {
+		return 0, "", fmt.Errorf("parsing tv search results: %w", err)
+	}
+	if len(resp.Results) == 0 {
+		return 0, "", fmt.Errorf("no TV shows found for %q", title)
 	}
 	r := resp.Results[0]
 	return r.ID, r.DisplayTitle(), nil
@@ -226,8 +287,8 @@ func searchPersonByName(c *client.Client, name string) (*tmdbSearchResult, error
 	return &resp.Results[0], nil
 }
 
-// resolveMovieID resolves a string argument to a TMDb movie ID.
-// If the argument is numeric, returns it directly. Otherwise searches by title.
+// resolveMovieID resolves a string argument to a TMDb movie ID. If the
+// argument is numeric, returns it directly; otherwise searches by title.
 func resolveMovieID(c *client.Client, arg string) (int, string, error) {
 	if id, err := strconv.Atoi(arg); err == nil {
 		return id, "", nil
@@ -235,7 +296,17 @@ func resolveMovieID(c *client.Client, arg string) (int, string, error) {
 	return searchMovieByTitle(c, arg)
 }
 
-// getMovieDetail fetches full movie details from TMDb.
+// resolveTVID resolves a string argument to a TMDb TV ID.
+func resolveTVID(c *client.Client, arg string) (int, string, error) {
+	if id, err := strconv.Atoi(arg); err == nil {
+		return id, "", nil
+	}
+	return searchTVByTitle(c, arg)
+}
+
+// getMovieDetail fetches full movie details from TMDb. The raw bytes are also
+// returned so callers needing access to fields not modeled in tmdbMovieDetail
+// (e.g. raw watch/providers payload) can re-parse the relevant subtree.
 func getMovieDetail(c *client.Client, movieID int, appendToResponse string) (*tmdbMovieDetail, json.RawMessage, error) {
 	path := fmt.Sprintf("/movie/%d", movieID)
 	params := map[string]string{}
@@ -250,11 +321,41 @@ func getMovieDetail(c *client.Client, movieID int, appendToResponse string) (*tm
 	if err := json.Unmarshal(data, &detail); err != nil {
 		return nil, data, fmt.Errorf("parsing movie detail: %w", err)
 	}
+	// When external_ids was appended but the response shape doesn't decode
+	// into ExternalIDs (TMDb sometimes returns it embedded vs flat), fall back
+	// to the imdb_id field at the top level — that's always populated.
+	if detail.ExternalIDs == nil && detail.ImdbID != "" {
+		detail.ExternalIDs = &tmdbExternalIDs{IMDbID: detail.ImdbID}
+	}
 	return &detail, data, nil
 }
 
-// genreNames returns a comma-separated string of genre names.
+// getTVDetail fetches full TV show details. mirrors getMovieDetail.
+func getTVDetail(c *client.Client, tvID int, appendToResponse string) (*tmdbTVDetail, json.RawMessage, error) {
+	path := fmt.Sprintf("/tv/%d", tvID)
+	params := map[string]string{}
+	if appendToResponse != "" {
+		params["append_to_response"] = appendToResponse
+	}
+	data, err := c.Get(path, params)
+	if err != nil {
+		return nil, nil, err
+	}
+	var detail tmdbTVDetail
+	if err := json.Unmarshal(data, &detail); err != nil {
+		return nil, data, fmt.Errorf("parsing tv detail: %w", err)
+	}
+	if detail.ExternalIDs != nil {
+		detail.IMDbID = detail.ExternalIDs.IMDbID
+	}
+	return &detail, data, nil
+}
+
+// genreNames returns a comma-separated string of genre names from a movie detail.
 func genreNames(detail *tmdbMovieDetail) string {
+	if detail == nil {
+		return ""
+	}
 	names := make([]string, 0, len(detail.Genres))
 	for _, g := range detail.Genres {
 		names = append(names, g.Name)
@@ -268,7 +369,6 @@ func formatMoney(amount int64) string {
 		return "N/A"
 	}
 	s := fmt.Sprintf("%d", amount)
-	// Insert commas
 	n := len(s)
 	if n <= 3 {
 		return "$" + s
@@ -282,4 +382,47 @@ func formatMoney(amount int64) string {
 		result.WriteRune(c)
 	}
 	return result.String()
+}
+
+// formatRuntimeMinutes returns a humanized runtime string ("1h 42m" for 102).
+// Returns "N/A" for zero/negative values.
+func formatRuntimeMinutes(mins int) string {
+	if mins <= 0 {
+		return "N/A"
+	}
+	h := mins / 60
+	m := mins % 60
+	if h == 0 {
+		return fmt.Sprintf("%dm", m)
+	}
+	if m == 0 {
+		return fmt.Sprintf("%dh", h)
+	}
+	return fmt.Sprintf("%dh %dm", h, m)
+}
+
+// resolveGenreIDByName resolves a genre name (case-insensitive) to a TMDb genre ID
+// for the given mediaType ("movie" or "tv"). Returns 0 and an error if not found.
+func resolveGenreIDByName(c *client.Client, mediaType, name string) (int, error) {
+	path := fmt.Sprintf("/genre/%s/list", mediaType)
+	data, err := c.Get(path, map[string]string{})
+	if err != nil {
+		return 0, err
+	}
+	var resp struct {
+		Genres []struct {
+			ID   int    `json:"id"`
+			Name string `json:"name"`
+		} `json:"genres"`
+	}
+	if err := json.Unmarshal(data, &resp); err != nil {
+		return 0, fmt.Errorf("parsing genre list: %w", err)
+	}
+	want := strings.ToLower(name)
+	for _, g := range resp.Genres {
+		if strings.ToLower(g.Name) == want {
+			return g.ID, nil
+		}
+	}
+	return 0, fmt.Errorf("genre %q not found in TMDb %s genre list", name, mediaType)
 }

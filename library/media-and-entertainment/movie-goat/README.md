@@ -1,348 +1,311 @@
 # Movie Goat CLI
 
-**Find the best thing to watch with one CLI for multi-source ratings, streaming availability, franchise planning, and taste-bridging recommendations.**
+**The movie CLI that combines TMDb's discovery engine with OMDb's multi-source ratings — and ships a SQLite watchlist that flags what's streaming on your services right now.**
 
-Movie GOAT combines TMDb discovery, search, credits, collections, and watch-provider data with optional OMDb enrichment so one tool can answer practical movie-night questions fast:
+Movie Goat unifies the workflows that today require four browser tabs: discovery (TMDb), multi-source ratings (TMDb + IMDb + RT + Metacritic via OMDb), where-to-watch (TMDb watch providers), and a local watchlist that knows your streaming services. Flagship transcendence: `tonight` picks something well-rated that's actually streaming on your services; `ratings` shows the four canonical scores for any title; `marathon` totals runtime across a franchise.
 
-- "What should I watch tonight?"
-- "Which movie actually wins when I compare them side by side?"
-- "Where can I stream this in the US or another region?"
-- "What bridges the gap between my partner's taste and mine?"
-- "How long would a full franchise marathon take?"
-
-It also keeps a local SQLite archive for offline search and analytics, so the CLI is useful both as an interactive tool and as a reusable data source for scripts and agents.
+Learn more at [Movie Goat](https://www.themoviedb.org).
 
 ## Install
 
+### Binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/movie-goat-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
+
 ### Go
 
-```bash
+```
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/cmd/movie-goat-pp-cli@latest
 ```
 
-### Binary
+## Authentication
 
-Download from [Releases](https://github.com/mvanhorn/printing-press-library/releases).
-
-## Required: TMDb API key
-
-**All core commands require TMDb credentials.**
-
-### What the key unlocks
-
-TMDb powers the main CLI experience:
-
-- `movies get`, `movies search`, `tv get`, `tv search`
-- `watch` for region-specific streaming, rental, and purchase options
-- `tonight`, `blind`, `discover`, and `trending`
-- `recommend-for-me`, `versus`, `career`, and `marathon`
-- `sync`, `search`, and `analytics` against a local archive
-
-### Get a key
-
-1. Create a free account at https://www.themoviedb.org/.
-2. Request an API key or read token at https://www.themoviedb.org/settings/api.
-3. Export it:
-
-```bash
-export TMDB_API_KEY="<your-key>"
-```
-
-Or persist credentials in the CLI config:
-
-```bash
-movie-goat-pp-cli auth set-token <your-key>
-```
-
-Verify with:
-
-```bash
-movie-goat-pp-cli doctor
-```
-
-`Auth` should move from `not configured` to `configured`.
-
-## Optional: OMDb API key
-
-**Movie GOAT works without OMDb.** OMDb adds the extra ratings and metadata that TMDb does not provide directly.
-
-### What the key unlocks
-
-When `OMDB_API_KEY` is set, Movie GOAT can enrich results with:
-
-- IMDb rating
-- Rotten Tomatoes score
-- Metacritic score
-- awards
-- box office
-
-This matters most for:
-
-- `movies get`
-- `blind`
-- `versus`
-
-### Get a key
-
-Get a free key at http://www.omdbapi.com/apikey.aspx.
-
-```bash
-export OMDB_API_KEY="<your-omdb-key>"
-```
-
-If you do not set it, the CLI still works. You just get TMDb-only results where OMDb enrichment would otherwise appear.
+TMDb v3 API key (free, https://www.themoviedb.org/settings/api) is required and goes in `TMDB_API_KEY` — used as a query parameter, not a Bearer header. OMDb key (free, http://www.omdbapi.com/apikey.aspx) is optional and goes in `OMDB_API_KEY`; without it, `ratings` and `versus` show TMDb-only and gracefully omit the IMDb/RT/Metacritic columns.
 
 ## Quick Start
 
 ```bash
-# Check config, auth, and API reachability
-movie-goat-pp-cli doctor
+# The fastest path to the value: a streaming-filtered, well-rated shortlist for tonight.
+movie-goat-pp-cli tonight --providers "Netflix,Max" --region US
 
-# What should I watch tonight?
-movie-goat-pp-cli tonight
 
-# Random sci-fi pick above 7.5/10
-movie-goat-pp-cli blind --genre 878 --min-rating 7.5
+# Multi-type search across movies, TV, and people.
+movie-goat-pp-cli multi "the bear"
 
-# Compare two movies head-to-head
-movie-goat-pp-cli versus "The Dark Knight" "Inception"
 
-# Find where to stream a show
-movie-goat-pp-cli watch "Breaking Bad" --type tv --region US
+# Cross-source rating card for Fight Club (TMDb id 550).
+movie-goat-pp-cli ratings 550
 
-# Get recommendations from multiple taste anchors
-movie-goat-pp-cli recommend-for-me "Parasite" "Oldboy" "The Handmaiden"
 
-# Plan a franchise marathon
-movie-goat-pp-cli marathon "Lord of the Rings"
+# Add Inception to the local SQLite watchlist.
+movie-goat-pp-cli watchlist add 27205 --kind movie
 
-# Build a local archive for offline search
-movie-goat-pp-cli sync
-movie-goat-pp-cli search "time travel" --data-source local
+
+# Show which saved titles are streamable on your services right now.
+movie-goat-pp-cli watchlist list --available --providers netflix,max --region US
+
+
+# Plan a franchise marathon with totalled runtime.
+movie-goat-pp-cli marathon "The Avengers" --order release
+
 ```
 
 ## Unique Features
 
-These are the workflows that make Movie GOAT more useful than a thin TMDb wrapper.
+These capabilities aren't available in any other tool for this API.
 
-### `movies get`
+### Cinephile rituals
+- **`tonight`** — Pick what to watch tonight from trending titles actually streaming on your services.
 
-Get a movie's core record plus appended credits, videos, recommendations, watch providers, and external IDs. With OMDb configured, the command can also attach IMDb, Rotten Tomatoes, and Metacritic ratings in the same result.
+  _Use this when an agent needs a streaming-filtered shortlist; one call replaces tab-bouncing across TMDb/RT/JustWatch._
 
-_Use this when you need one canonical view of a movie instead of checking TMDb, IMDb, and streaming apps separately._
+  ```bash
+  movie-goat-pp-cli tonight --mood thriller --max-runtime 120 --providers netflix,max --region US --json
+  ```
+- **`ratings`** — TMDb + IMDb + Rotten Tomatoes + Metacritic ratings for any title in one card.
 
-```bash
-movie-goat-pp-cli movies get 550
-movie-goat-pp-cli movies get 550 --json
-```
+  _Use when an agent needs the canonical multi-source rating for a title; degrades gracefully to TMDb-only if OMDB_API_KEY is unset._
 
-### `watch`
+  ```bash
+  movie-goat-pp-cli ratings 550 --json
+  ```
+- **`marathon`** — Plan a franchise marathon with watch order, total runtime, and suggested breaks.
 
-Look up where a movie or TV show is available to stream, rent, buy, or watch free with ads in a specific region.
+  _Use when planning an event watch; agent can dump the schedule to share with a group._
 
-_Useful when the real question is not "is this good?" but "can I actually watch it tonight in my country?"_
+  ```bash
+  movie-goat-pp-cli marathon "The Avengers" --order release --breaks-every 240 --json
+  ```
+- **`career`** — Explore any actor or director's full filmography with ratings and chronology.
 
-```bash
-movie-goat-pp-cli watch "Inception" --region US
-movie-goat-pp-cli watch "Breaking Bad" --type tv --region GB
-```
+  _Use when an agent needs a rated chronological filmography; replaces flat IMDb lists with cross-source ratings._
 
-### `recommend-for-me`
+  ```bash
+  movie-goat-pp-cli career "Christopher Nolan" --since 2010 --role director --json
+  ```
+- **`versus`** — Compare two movies or shows side-by-side across ratings, cast, runtime, and streaming.
 
-Takes two or more movies you already love, fetches recommendations and similars for each, then scores candidates by how well they bridge the input tastes.
+  _Use when an agent has to pick between two finalists; one command shows where they differ on every axis._
 
-_This is stronger than "more like this" because it tries to find overlap across multiple taste anchors instead of extending a single seed._
+  ```bash
+  movie-goat-pp-cli versus 550 27205 --region US --json
+  ```
+- **`collaborators`** — List people who appear in 2+ of a person's credits, with count and titles.
 
-```bash
-movie-goat-pp-cli recommend-for-me "The Matrix" "Mad Max: Fury Road" "Arrival"
-```
+  _Use when an agent is researching a filmmaker's circle; surfaces recurring DPs/composers/actors mechanically._
 
-### `versus`
+  ```bash
+  movie-goat-pp-cli collaborators "Christopher Nolan" --min-count 3 --role crew --json
+  ```
 
-Compares two movies side by side across ratings, runtime, genres, streaming, and, when OMDb is configured, additional review-score and box-office context.
+### Local state that compounds
+- **`watchlist list`** — Local SQLite watchlist; flag rows that are streamable on your services.
 
-_Use this when you are deciding between two options and want a direct answer, not two disconnected pages._
+  _Use weekly to surface streamable items from a saved list; eliminates ad-hoc JustWatch checks per title._
 
-```bash
-movie-goat-pp-cli versus "Barbie" "Oppenheimer"
-```
+  ```bash
+  movie-goat-pp-cli watchlist list --available --providers netflix,max --region US --json
+  ```
+- **`queue`** — Suggest next-watch picks derived from your watchlist's recommendations and similars.
 
-### `blind`
+  _Use when an agent needs a fresh queue derived from saved interests; combines local state with API recommendations._
 
-The "surprise me" command. It discovers a random well-rated movie using filters for genre, decade, minimum rating, and streaming provider.
-
-_Good when the bottleneck is decision fatigue, not lack of options._
-
-```bash
-movie-goat-pp-cli blind --genre 35 --decade 1990s --min-rating 7.0
-```
-
-### `tonight`
-
-Builds a short ranked list from trending and popular titles, then sorts by a weighted popularity and rating score.
-
-_This is the fast answer to "just give me a few strong picks right now."_
-
-```bash
-movie-goat-pp-cli tonight
-movie-goat-pp-cli tonight --type tv
-movie-goat-pp-cli tonight --genre 28
-```
-
-### `career`
-
-Looks up a person's combined credits and turns them into a sortable filmography with summary stats.
-
-_Useful for questions like "what are this director's best-rated works?" or "what was their busiest period?"_
-
-```bash
-movie-goat-pp-cli career "Denis Villeneuve" --sort rating
-```
-
-### `marathon`
-
-Finds a TMDb collection, orders the films by release date, totals runtime, and suggests break points.
-
-_Great for franchise planning because it turns "should we do this?" into a concrete time commitment._
-
-```bash
-movie-goat-pp-cli marathon "Harry Potter"
-```
-
-### `sync` + `search` + `analytics`
-
-Movie GOAT can archive TMDb data locally into SQLite, then search it with FTS and run simple analytics on top.
-
-_This is what turns the CLI from a one-shot API client into a reusable local movie dataset._
-
-```bash
-movie-goat-pp-cli sync
-movie-goat-pp-cli search "time travel" --data-source local
-movie-goat-pp-cli analytics --json
-```
+  ```bash
+  movie-goat-pp-cli queue --limit 20 --providers netflix,max --region US --json
+  ```
 
 ## Usage
 
-Run `movie-goat-pp-cli --help` for the full command tree and all flags.
+Run `movie-goat-pp-cli --help` for the full command reference and flag list.
 
 ## Commands
 
-### Discovery and recommendations
+### discover
 
-| Command | Description |
-| --- | --- |
-| `tonight` | Shortlist strong picks for tonight |
-| `blind` | Random high-quality movie pick with filters |
-| `recommend-for-me` | Blend multiple favorites into one recommendation set |
-| `discover` | Discover movies with genre, year, rating, certification, and provider filters |
-| `discover tv` | Discover TV shows with TV-specific filters |
-| `trending` | Trending movies, TV, and people |
+Discover movies and TV shows with rich filters
 
-### Title and person lookup
+- **`movie-goat-pp-cli discover movies`** - Discover movies by genre, year, rating, certification, cast, crew, streaming provider, and more
+- **`movie-goat-pp-cli discover tv`** - Discover TV shows by genre, year, rating, network, and streaming provider
 
-| Command | Description |
-| --- | --- |
-| `movies get <id>` | Detailed movie record with appended context |
-| `movies search <query>` | Search movies by title |
-| `movies now-playing` | Movies in theaters now |
-| `movies upcoming` | Upcoming movies |
-| `movies top-rated` | Top-rated movies |
-| `tv get <id>` | Detailed TV show record |
-| `tv search <query>` | Search TV shows by title |
-| `tv airing-today` | Shows airing today |
-| `tv on-the-air` | Shows currently on the air |
-| `tv top-rated` | Top-rated TV shows |
-| `people` | Popular people |
-| `people get <id>` | Person detail |
-| `people search <query>` | Search people by name |
-| `career <name-or-id>` | Full career summary and filmography |
+### genres
 
-### Planning and comparison
+Get genre lists for movies and TV
 
-| Command | Description |
-| --- | --- |
-| `watch <title-or-id>` | Watch providers by region |
-| `versus <title1> <title2>` | Side-by-side movie comparison |
-| `marathon <collection>` | Franchise marathon planner |
+- **`movie-goat-pp-cli genres movies`** - Get the list of movie genres
+- **`movie-goat-pp-cli genres tv`** - Get the list of TV genres
 
-### Local archive and power-user tools
+### movies
 
-| Command | Description |
-| --- | --- |
-| `sync` | Archive API data to local SQLite |
-| `search <query>` | Search live API or local archive |
-| `analytics` | Summaries over synced local data |
-| `workflow archive` | Sync all resources for offline access |
-| `workflow status` | Show local archive status |
-| `export` | Export API data to JSONL or JSON |
-| `import` | Import JSONL via API create/upsert calls |
-| `tail <resource>` | Poll a resource and emit NDJSON events |
-| `api` | Browse raw interface coverage |
-| `doctor` | Check config, auth, and API reachability |
-| `auth` | Show, set, or clear credentials |
+Search and browse movies
+
+- **`movie-goat-pp-cli movies get`** - Get detailed info about a movie including cast, ratings, and streaming availability
+- **`movie-goat-pp-cli movies now-playing`** - Get movies currently in theaters
+- **`movie-goat-pp-cli movies popular`** - Get current popular movies
+- **`movie-goat-pp-cli movies search`** - Search for movies by title
+- **`movie-goat-pp-cli movies top-rated`** - Get the highest rated movies
+- **`movie-goat-pp-cli movies upcoming`** - Get movies coming soon to theaters
+
+### multi
+
+Multi-search across movies, TV shows, and people
+
+- **`movie-goat-pp-cli multi search`** - Search for movies, TV shows, and people in a single query
+
+### people
+
+Search and browse people (actors, directors, crew)
+
+- **`movie-goat-pp-cli people get`** - Get detailed info about a person including their filmography
+- **`movie-goat-pp-cli people popular`** - Get popular people in entertainment
+- **`movie-goat-pp-cli people search`** - Search for people by name
+
+### trending
+
+Get trending movies, TV shows, and people
+
+- **`movie-goat-pp-cli trending all`** - Get trending movies, TV, and people
+- **`movie-goat-pp-cli trending movies`** - Get trending movies
+- **`movie-goat-pp-cli trending people`** - Get trending people
+- **`movie-goat-pp-cli trending tv`** - Get trending TV shows
+
+### tv
+
+Search and browse TV shows
+
+- **`movie-goat-pp-cli tv airing-today`** - Get TV shows with episodes airing today
+- **`movie-goat-pp-cli tv get`** - Get detailed info about a TV show
+- **`movie-goat-pp-cli tv on-the-air`** - Get TV shows currently on the air
+- **`movie-goat-pp-cli tv popular`** - Get current popular TV shows
+- **`movie-goat-pp-cli tv search`** - Search for TV shows by title
+- **`movie-goat-pp-cli tv top-rated`** - Get the highest rated TV shows
+
+
+## Cookbook
+
+Real-world recipes using verified flag names. Pipe `--json` and chain with
+`jq` for scripting; pair with `--select` to keep only the fields you need.
+
+```bash
+# 1. Movie-night picker: thrillers under 2h that are streaming on your services tonight.
+movie-goat-pp-cli tonight --mood thriller --max-runtime 120 --providers netflix,max --region US
+
+# 2. Multi-source ratings card for any title (TMDb, IMDb, RT, Metacritic).
+movie-goat-pp-cli ratings 550
+
+# 3. Plan a marathon, skipping unreleased entries (default), with a break every ~3.5 hrs.
+movie-goat-pp-cli marathon "The Lord of the Rings" --order release --breaks-every 210
+
+# 4. Compare two finalists side-by-side before committing.
+movie-goat-pp-cli versus "Fight Club" "Inception" --region US --json
+
+# 5. Filmmaker's recurring crew — useful for casting/producer research.
+movie-goat-pp-cli collaborators "Christopher Nolan" --role crew --min-count 3
+
+# 6. Director's filmography since 2010, sorted chronologically.
+movie-goat-pp-cli career "Christopher Nolan" --since 2010 --role director
+
+# 7. Save a watchlist locally and check what's streamable now.
+movie-goat-pp-cli watchlist add 27205 --kind movie
+movie-goat-pp-cli watchlist list --available --providers netflix,max --region US
+
+# 8. Discover trending titles, JSON-only, top 5 fields.
+movie-goat-pp-cli trending all --json --select results.title,results.popularity | jq '.results[:5]'
+
+# 9. Search and pipe straight into `jq` for the top result.
+movie-goat-pp-cli movies search "Dune" --json | jq '.results[0] | {id, title, year: .release_date[0:4]}'
+
+# 10. Get a movie by id with credits + watch providers in one call.
+movie-goat-pp-cli movies get 550 --append-to-response credits,watch/providers,videos
+
+# 11. Discover-by-filter: action thrillers from 2020 onwards, sorted by vote count.
+movie-goat-pp-cli discover movies --with-genres 28,53 --primary-release-date-gte 2020-01-01 --vote-count-gte 1000 --sort-by vote_average.desc
+
+# 12. Recommendation queue from your watchlist (suggests next-watch picks).
+movie-goat-pp-cli queue --providers netflix,max --region US --limit 10
+```
 
 ## Output Formats
 
 ```bash
-# Human-readable output in a terminal
-movie-goat-pp-cli trending movies
+# Human-readable table (default in terminal, JSON when piped)
+movie-goat-pp-cli movies search "Inception"
 
 # JSON for scripting and agents
-movie-goat-pp-cli trending movies --json
+movie-goat-pp-cli movies search "Inception" --json
 
-# Select only the fields you need
-movie-goat-pp-cli trending movies --json --select id,title,vote_average
+# Filter to specific fields
+movie-goat-pp-cli movies get 27205 --json --select id,title,runtime
 
-# CSV output
-movie-goat-pp-cli trending movies --csv
+# Dry run — show the request without sending
+movie-goat-pp-cli movies get 27205 --dry-run
 
-# Plain tab-separated text
-movie-goat-pp-cli trending movies --plain
-
-# Compact output for lower token usage
-movie-goat-pp-cli trending movies --compact
-
-# Show the request without sending it
-movie-goat-pp-cli movies get 550 --dry-run
-
-# Force local or live reads
-movie-goat-pp-cli search "noir" --data-source local
-movie-goat-pp-cli search "noir" --data-source live
-
-# Agent mode = --json --compact --no-input --no-color --yes
-movie-goat-pp-cli tonight --agent
+# Agent mode — JSON + compact + no prompts in one flag
+movie-goat-pp-cli movies get 27205 --agent
 ```
 
 ## Agent Usage
 
-This CLI is designed to behave well in scripts, MCP clients, and non-interactive agent runs:
+This CLI is designed for AI agent consumption:
 
-- Non-interactive: every input can be provided via args, flags, or stdin
-- Pipeable: data goes to stdout, operational messages go to stderr
-- Filterable: `--select` reduces payload size
-- Compactable: `--compact` keeps only key fields
-- Previewable: `--dry-run` shows the request shape without sending it
-- Cacheable: GET requests are cached unless `--no-cache` is set
-- Source-aware: `--data-source auto|live|local` makes live/local behavior explicit
-- Agent mode: `--agent` bundles the sane defaults for machine consumption
+- **Non-interactive** - never prompts, every input is a flag
+- **Pipeable** - `--json` output to stdout, errors to stderr
+- **Filterable** - `--select id,name` returns only fields you need
+- **Previewable** - `--dry-run` shows the request without sending
+- **Read-only by default** - this CLI does not create, update, delete, publish, send, or mutate remote resources
+- **Offline-friendly** - sync/search commands can use the local SQLite store when available
+- **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
 
-## Use as MCP Server
+## Use with Claude Code
 
-This project also ships a companion MCP server.
+Install the focused skill — it auto-installs the CLI on first invocation:
 
-### Claude Code
+```bash
+npx skills add mvanhorn/printing-press-library/cli-skills/pp-movie-goat -g
+```
+
+Then invoke `/pp-movie-goat <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
+
+<details>
+<summary>Use as an MCP server in Claude Code (advanced)</summary>
+
+If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/cmd/movie-goat-pp-mcp@latest
+```
+
+Then register it:
 
 ```bash
 claude mcp add movie-goat movie-goat-pp-mcp -e TMDB_API_KEY=<your-key>
 ```
 
-If you want OMDb enrichment there too, add `-e OMDB_API_KEY=<your-omdb-key>` as well.
+</details>
 
-### Claude Desktop
+## Use with Claude Desktop
 
-Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/movie-goat-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `TMDB_API_KEY` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/cmd/movie-goat-pp-mcp@latest
+```
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 
 ```json
 {
@@ -350,13 +313,14 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
     "movie-goat": {
       "command": "movie-goat-pp-mcp",
       "env": {
-        "TMDB_API_KEY": "<your-key>",
-        "OMDB_API_KEY": "<optional-omdb-key>"
+        "TMDB_API_KEY": "<your-key>"
       }
     }
   }
 }
 ```
+
+</details>
 
 ## Health Check
 
@@ -364,75 +328,41 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 movie-goat-pp-cli doctor
 ```
 
-This verifies:
-
-- config loading
-- auth presence
-- API reachability
-- version
+Verifies configuration, credentials, and connectivity to the API.
 
 ## Configuration
 
-Config file:
-
-```text
-~/.config/movie-goat-pp-cli/config.toml
-```
-
-Local archive database:
-
-```text
-~/.local/share/movie-goat-pp-cli/data.db
-```
+Config file: `~/.config/movie-goat-pp-cli/config.toml`
 
 Environment variables:
-
 - `TMDB_API_KEY`
-- `OMDB_API_KEY`
-- `MOVIE_GOAT_CONFIG`
-- `MOVIE_GOAT_BASE_URL`
 
 ## Troubleshooting
+**Authentication errors (exit code 4)**
+- Run `movie-goat-pp-cli doctor` to check credentials
+- Verify the environment variable is set: `echo $TMDB_API_KEY`
+**Not found errors (exit code 3)**
+- Check the resource ID is correct
+- Run the `list` command to see available items
 
-**`doctor` says auth is not configured**
+### API-specific
 
-- Export `TMDB_API_KEY`
-- Or run `movie-goat-pp-cli auth set-token <your-key>`
-- Re-run `movie-goat-pp-cli doctor`
+- **401 Unauthorized: "Invalid API key: You must be granted a valid key."** — TMDb v3 keys (32-char hex) must be sent as a query parameter, not as a Bearer header. The CLI does this automatically — re-check that TMDB_API_KEY is set to the v3 key from https://www.themoviedb.org/settings/api, not a v4 read access token.
+- **`ratings` shows only the TMDb score and skips IMDb/RT/Metacritic columns.** — Set OMDB_API_KEY to a free key from http://www.omdbapi.com/apikey.aspx. Without it the CLI degrades to TMDb-only by design.
+- **`watchlist list --available` returns rows but every row says `not available`.** — Pass `--region` (e.g. `--region US`) and confirm `--providers` matches TMDb's canonical provider names exactly (e.g. `"Netflix"`, `"Max"`, `"Amazon Prime Video"`). Use `movie-goat-pp-cli movies get <id> --select watch_providers` to see the canonical names for any title.
+- **429 Too Many Requests when running `career` or `marathon` on long filmographies/collections.** — TMDb's rate limit is ~40 req/10s. The CLI's adaptive limiter ramps down on 429 automatically; rerun, and the ceiling will be discovered. For very long careers, use `--since YEAR` to scope the fan-out.
 
-**I only see TMDb ratings**
+---
 
-- Set `OMDB_API_KEY`
-- Re-run `movies get`, `blind`, or `versus`
-- If the title has no IMDb mapping, OMDb enrichment may still be unavailable
+## Sources & Inspiration
 
-**`watch` returns no providers for my region**
+This CLI was built by studying these projects and resources:
 
-- Try another region with `--region`, for example `US`, `GB`, or `DE`
-- Some titles have provider data only for a subset of regions
+- [**tmdb-mcp**](https://github.com/xdwanj/tmdb-mcp) — Go
+- [**imdb-mcp-server**](https://github.com/uzaysozen/imdb-mcp-server) — Python
+- [**tmdb-cli (degerahmet)**](https://github.com/degerahmet/tmdb-cli) — Go
+- [**TMDB_CLI (illegalbyte)**](https://github.com/illegalbyte/TMDB_CLI) — Python
+- [**mediascore**](https://github.com/dkorunic/mediascore) — Go
+- [**tmdbv3api**](https://github.com/AnthonyBloomer/tmdbv3api) — Python
 
-**Local search fails**
-
-- Run `movie-goat-pp-cli sync` first
-- Then search with `--data-source local`
-- Confirm the DB exists at `~/.local/share/movie-goat-pp-cli/data.db`
-
-**Search results are inconsistent**
-
-- `--data-source auto` prefers live API search and falls back to local on network failure
-- Use `--data-source live` or `--data-source local` when you need deterministic behavior
-
-**You are hitting API limits or repeated network failures**
-
-- Reduce request volume
-- Use the built-in cache instead of `--no-cache`
-- Use `--rate-limit` for gentler scripted runs
-
-<!-- pr-218-features -->
-## Agent workflow features
-
-This CLI was patched to add these agent-workflow capabilities (see [`printing-press patch`](https://github.com/mvanhorn/cli-printing-press/pull/221)):
-
-- **Named profiles** — save a set of flags under a name and reuse them: `movie-goat-pp-cli profile save <name> --<flag> <value>`, then `movie-goat-pp-cli --profile <name> <command>`. Flag precedence: explicit flag > env var > profile > default.
-- **`--deliver`** — route command output to a sink other than stdout. Values: `file:<path>` writes atomically via tmp+rename; `webhook:<url>` POSTs as JSON (or NDJSON with `--compact`).
-- **`feedback`** — record in-band feedback about the CLI. Entries append as JSON lines to `~/.movie-goat-pp-cli/feedback.jsonl`. When `MOVIE_GOAT_FEEDBACK_ENDPOINT` is set and either `--send` is passed or `MOVIE_GOAT_FEEDBACK_AUTO_SEND=true`, the entry is also POSTed upstream.
+Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)

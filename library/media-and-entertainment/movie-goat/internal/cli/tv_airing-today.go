@@ -12,12 +12,13 @@ import (
 )
 
 func newTvAiringTodayCmd(flags *rootFlags) *cobra.Command {
-	var flagPage int
+	var flagPage string
 
 	cmd := &cobra.Command{
-		Use:     "airing-today",
-		Short:   "Get TV shows with episodes airing today",
-		Example: "  movie-goat-pp-cli tv airing-today",
+		Use:         "airing-today",
+		Short:       "Get TV shows with episodes airing today",
+		Example:     "  movie-goat-pp-cli tv airing-today",
+		Annotations: map[string]string{"pp:endpoint": "tv.airing-today", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -26,10 +27,10 @@ func newTvAiringTodayCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/tv/airing_today"
 			params := map[string]string{}
-			if flagPage != 0 {
+			if flagPage != "" {
 				params["page"] = fmt.Sprintf("%v", flagPage)
 			}
-			data, prov, err := resolveRead(c, flags, "tv", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "tv", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -39,14 +40,15 @@ func newTvAiringTodayCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -70,7 +72,7 @@ func newTvAiringTodayCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().IntVar(&flagPage, "page", 0, "Page number")
+	cmd.Flags().StringVar(&flagPage, "page", "", "Page number")
 
 	return cmd
 }

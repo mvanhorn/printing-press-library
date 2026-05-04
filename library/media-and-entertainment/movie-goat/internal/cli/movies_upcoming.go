@@ -12,14 +12,15 @@ import (
 )
 
 func newMoviesUpcomingCmd(flags *rootFlags) *cobra.Command {
-	var flagPage int
+	var flagPage string
 	var flagLanguage string
 	var flagRegion string
 
 	cmd := &cobra.Command{
-		Use:     "upcoming",
-		Short:   "Get movies coming soon to theaters",
-		Example: "  movie-goat-pp-cli movies upcoming",
+		Use:         "upcoming",
+		Short:       "Get movies coming soon to theaters",
+		Example:     "  movie-goat-pp-cli movies upcoming",
+		Annotations: map[string]string{"pp:endpoint": "movies.upcoming", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -28,7 +29,7 @@ func newMoviesUpcomingCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/movie/upcoming"
 			params := map[string]string{}
-			if flagPage != 0 {
+			if flagPage != "" {
 				params["page"] = fmt.Sprintf("%v", flagPage)
 			}
 			if flagLanguage != "" {
@@ -37,7 +38,7 @@ func newMoviesUpcomingCmd(flags *rootFlags) *cobra.Command {
 			if flagRegion != "" {
 				params["region"] = fmt.Sprintf("%v", flagRegion)
 			}
-			data, prov, err := resolveRead(c, flags, "movies", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "movies", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -47,14 +48,15 @@ func newMoviesUpcomingCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -78,7 +80,7 @@ func newMoviesUpcomingCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().IntVar(&flagPage, "page", 0, "Page number")
+	cmd.Flags().StringVar(&flagPage, "page", "", "Page number")
 	cmd.Flags().StringVar(&flagLanguage, "language", "", "Language code")
 	cmd.Flags().StringVar(&flagRegion, "region", "", "ISO 3166-1 country code")
 

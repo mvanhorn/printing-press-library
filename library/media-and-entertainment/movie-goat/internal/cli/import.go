@@ -87,6 +87,13 @@ but do not stop the import.`,
 				return fmt.Errorf("reading input: %w", err)
 			}
 
+			if flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"succeeded": success,
+					"failed":    failed,
+					"skipped":   skipped,
+				}, flags)
+			}
 			fmt.Fprintf(os.Stderr, "Import complete: %d succeeded, %d failed, %d skipped\n", success, failed, skipped)
 			return nil
 		},

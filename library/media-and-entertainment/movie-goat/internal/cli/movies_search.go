@@ -13,14 +13,15 @@ import (
 
 func newMoviesSearchCmd(flags *rootFlags) *cobra.Command {
 	var flagYear int
-	var flagPage int
+	var flagPage string
 	var flagLanguage string
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "search <query>",
-		Short:   "Search for movies by title",
-		Example: "  movie-goat-pp-cli movies search \"The Godfather\"",
+		Use:         "search <query>",
+		Short:       "Search for movies by title",
+		Example:     "  movie-goat-pp-cli movies search example-value",
+		Annotations: map[string]string{"pp:endpoint": "movies.search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -31,17 +32,12 @@ func newMoviesSearchCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/search/movie"
-			params := map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "movies", path, map[string]string{
 				"query":    args[0],
-				"language": flagLanguage,
-			}
-			if flagYear != 0 {
-				params["year"] = fmt.Sprintf("%d", flagYear)
-			}
-			if flagPage != 0 {
-				params["page"] = fmt.Sprintf("%d", flagPage)
-			}
-			data, prov, err := resolvePaginatedRead(c, flags, "movies", path, params, flagAll, "page", "", "")
+				"year":     fmt.Sprintf("%v", flagYear),
+				"page":     fmt.Sprintf("%v", flagPage),
+				"language": fmt.Sprintf("%v", flagLanguage),
+			}, nil, flagAll, "page", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -51,14 +47,15 @@ func newMoviesSearchCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -83,7 +80,7 @@ func newMoviesSearchCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().IntVar(&flagYear, "year", 0, "Filter by release year")
-	cmd.Flags().IntVar(&flagPage, "page", 0, "Page number (default 1)")
+	cmd.Flags().StringVar(&flagPage, "page", "", "Page number (default 1)")
 	cmd.Flags().StringVar(&flagLanguage, "language", "", "Language code (e.g. en-US)")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 

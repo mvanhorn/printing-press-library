@@ -15,19 +15,33 @@ func newTrendingPeopleCmd(flags *rootFlags) *cobra.Command {
 	var flagTimeWindow string
 
 	cmd := &cobra.Command{
-		Use:     "people",
-		Short:   "Get trending people",
-		Example: "  movie-goat-pp-cli trending people",
+		Use:         "people",
+		Short:       "Get trending people",
+		Example:     "  movie-goat-pp-cli trending people",
+		Annotations: map[string]string{"pp:endpoint": "trending.people", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			_ = cmd // time-window has a default of "day"
+			if cmd.Flags().Changed("time-window") {
+				allowedTimeWindow := []string{"day", "week"}
+				validTimeWindow := false
+				for _, v := range allowedTimeWindow {
+					if flagTimeWindow == v {
+						validTimeWindow = true
+						break
+					}
+				}
+				if !validTimeWindow {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "time-window", flagTimeWindow, allowedTimeWindow)
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/trending/person/" + flagTimeWindow
+			path := "/trending/person/{timeWindow}"
+			path = replacePathParam(path, "timeWindow", fmt.Sprintf("%v", flagTimeWindow))
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "trending", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "trending", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -37,14 +51,15 @@ func newTrendingPeopleCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -68,7 +83,7 @@ func newTrendingPeopleCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagTimeWindow, "time-window", "day", "Time window: day or week")
+	cmd.Flags().StringVar(&flagTimeWindow, "time-window", "day", "Time window: day or week (one of: day, week)")
 
 	return cmd
 }

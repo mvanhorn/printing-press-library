@@ -1,38 +1,83 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
+
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/internal/omdb"
 )
 
+// careerCredit is one row in the filmography table.
+type careerCredit struct {
+	ID         int     `json:"id"`
+	Kind       string  `json:"kind"` // movie | tv
+	Title      string  `json:"title"`
+	Year       string  `json:"year"`
+	Role       string  `json:"role"` // "actor" | job string for crew
+	Character  string  `json:"character,omitempty"`
+	Job        string  `json:"job,omitempty"`
+	RatingTMDB float64 `json:"rating_tmdb"`
+	RatingIMDb string  `json:"rating_imdb,omitempty"`
+	RatingRT   string  `json:"rating_rt,omitempty"`
+	Runtime    string  `json:"runtime,omitempty"`
+}
+
+type careerOutput struct {
+	Person  careerPerson   `json:"person"`
+	Credits []careerCredit `json:"credits"`
+}
+
+type careerPerson struct {
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	Birthday string `json:"birthday,omitempty"`
+	KnownFor string `json:"known_for,omitempty"`
+}
+
+const careerOMDBCap = 50
+
 func newCareerCmd(flags *rootFlags) *cobra.Command {
-	var flagSort string
-	var flagLimit int
+	var flagSince int
+	var flagRole string
 
 	cmd := &cobra.Command{
-		Use:   "career <person-name-or-id>",
+		Use:         "career <person-id-or-name>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Explore a person's complete filmography with stats and highlights",
-		Long: `Look up an actor, director, or crew member's full career across movies and TV.
-Shows a filmography table sorted by year, rating, or popularity, plus career summary stats.`,
-		Example: `  movie-goat-pp-cli career "Christopher Nolan"
-  movie-goat-pp-cli career "Cate Blanchett" --sort rating
-  movie-goat-pp-cli career 17419 --sort popularity
-  movie-goat-pp-cli career "Denis Villeneuve" --json`,
+		Short:       "Explore a person's filmography with optional OMDb rating overlay",
+		Long: `Resolve a TMDb person id (numeric) or name (search), pull combined_credits,
+filter by role and --since year, then optionally enrich the first --limit
+credits with OMDb's IMDb / Rotten Tomatoes ratings.
+
+Roles:
+  actor    cast credits
+  director crew where job = "Director"
+  dp       crew where job in {"Director of Photography", "Cinematography"}
+  writer   crew where department = "Writing"
+  crew     all crew credits
+  (default) cast + crew
+
+Set OMDB_API_KEY to enable IMDb / Rotten Tomatoes enrichment. To respect
+OMDb's per-day quota, no more than 50 credits are enriched per call.`,
+		Example: `  movie-goat-pp-cli career 525
+  movie-goat-pp-cli career "Greta Gerwig" --role director --since 2010
+  movie-goat-pp-cli career "Roger Deakins" --role dp --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				if flags.dryRun {
+				if dryRunOK(flags) {
 					return nil
 				}
 				return cmd.Help()
 			}
-			if flags.dryRun {
-				fmt.Fprintf(cmd.OutOrStdout(), "GET /search/person?query=%s\nGET /person/<id>?append_to_response=combined_credits\n", strings.Join(args, " "))
+			if dryRunOK(flags) {
 				return nil
 			}
 			c, err := flags.newClient()
@@ -41,236 +86,272 @@ Shows a filmography table sorted by year, rating, or popularity, plus career sum
 			}
 
 			query := strings.Join(args, " ")
-			var personID int
-			var personName string
-
-			// Check if numeric ID
-			if id, err := strconv.Atoi(query); err == nil {
-				personID = id
-			} else {
-				// Search for person
-				result, err := searchPersonByName(c, query)
-				if err != nil {
-					return classifyAPIError(fmt.Errorf("searching for %q: %w", query, err))
-				}
-				personID = result.ID
-				personName = result.DisplayTitle()
+			role := strings.ToLower(strings.TrimSpace(flagRole))
+			switch role {
+			case "", "actor", "director", "dp", "writer", "crew":
+			default:
+				return usageErr(fmt.Errorf("--role must be one of actor|director|dp|writer|crew, got %q", flagRole))
 			}
 
-			// Fetch person details with combined credits
+			// 1. Resolve person id.
+			var personID int
+			var personName string
+			if id, perr := strconv.Atoi(query); perr == nil {
+				personID = id
+			} else {
+				p, err := searchPersonByName(c, query)
+				if err != nil {
+					return classifyAPIError(err)
+				}
+				personID = p.ID
+				personName = p.DisplayTitle()
+			}
+
+			// 2. Fetch combined credits (single call via append_to_response).
 			path := fmt.Sprintf("/person/%d", personID)
-			data, err := c.Get(path, map[string]string{
-				"append_to_response": "combined_credits",
-			})
+			data, err := c.Get(path, map[string]string{"append_to_response": "combined_credits"})
 			if err != nil {
 				return classifyAPIError(err)
 			}
-
 			var person tmdbPersonDetail
 			if err := json.Unmarshal(data, &person); err != nil {
-				return fmt.Errorf("parsing person details: %w", err)
+				return fmt.Errorf("parsing person: %w", err)
 			}
 			if personName == "" {
 				personName = person.Name
 			}
 
-			// Build filmography from cast + crew credits
-			type filmEntry struct {
-				ID         int     `json:"id"`
-				Title      string  `json:"title"`
-				Year       string  `json:"year"`
-				Role       string  `json:"role"`
-				Rating     float64 `json:"vote_average"`
-				VoteCount  int     `json:"vote_count"`
-				MediaType  string  `json:"media_type"`
-				Popularity float64 `json:"popularity"`
+			// 3. Filter by role and assemble credits.
+			credits := assembleCareerCredits(person.CombinedCredits, role)
+
+			// 4. --since filter.
+			if flagSince > 0 {
+				kept := credits[:0]
+				for _, cr := range credits {
+					y, _ := strconv.Atoi(cr.Year)
+					if y >= flagSince {
+						kept = append(kept, cr)
+					}
+				}
+				credits = kept
 			}
 
-			var filmography []filmEntry
-			seen := make(map[string]bool) // dedup by id+mediatype+role
-
-			if person.CombinedCredits != nil {
-				for _, credit := range person.CombinedCredits.Cast {
-					key := fmt.Sprintf("%d-%s-cast", credit.ID, credit.MediaType)
-					if seen[key] {
+			// 5. Optional OMDb enrichment, capped at careerOMDBCap.
+			omdbKey := strings.TrimSpace(os.Getenv("OMDB_API_KEY"))
+			if omdbKey != "" {
+				cap := len(credits)
+				if cap > careerOMDBCap {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warn: enriching only first %d of %d credits with OMDb to respect rate limits\n", careerOMDBCap, cap)
+					cap = careerOMDBCap
+				}
+				ctx, cancel := context.WithTimeout(cmd.Context(), 90*time.Second)
+				defer cancel()
+				type imdbInfo struct {
+					id         int
+					kind       string
+					imdbID     string
+					ratingIMDb string
+					ratingRT   string
+					runtime    string
+				}
+				// First pass: resolve external_ids for each enriched credit.
+				toFetch := credits[:cap]
+				results, errs := cliutil.FanoutRun(ctx, toFetch,
+					func(cr careerCredit) string { return cr.Title },
+					func(_ context.Context, cr careerCredit) (imdbInfo, error) {
+						info := imdbInfo{id: cr.ID, kind: cr.Kind}
+						switch cr.Kind {
+						case "movie":
+							d, _, derr := getMovieDetail(c, cr.ID, "external_ids")
+							if derr != nil {
+								return info, derr
+							}
+							info.imdbID = d.ImdbID
+							if d.ExternalIDs != nil && info.imdbID == "" {
+								info.imdbID = d.ExternalIDs.IMDbID
+							}
+							if d.Runtime > 0 {
+								info.runtime = formatRuntimeMinutes(d.Runtime)
+							}
+						case "tv":
+							d, _, derr := getTVDetail(c, cr.ID, "external_ids")
+							if derr != nil {
+								return info, derr
+							}
+							if d.ExternalIDs != nil {
+								info.imdbID = d.ExternalIDs.IMDbID
+							}
+							if len(d.EpisodeRunTime) > 0 {
+								info.runtime = formatRuntimeMinutes(d.EpisodeRunTime[0])
+							}
+						}
+						if info.imdbID == "" {
+							return info, nil
+						}
+						res, oerr := omdb.Fetch(info.imdbID, omdbKey)
+						if oerr != nil && omdb.IsRateLimit(oerr) {
+							return info, oerr
+						}
+						if oerr != nil {
+							return info, nil
+						}
+						if res != nil {
+							if v := res.ImdbRating; v != "" && v != "N/A" {
+								info.ratingIMDb = v
+							}
+							if v := res.RatingBySource("Rotten Tomatoes"); v != "" {
+								info.ratingRT = v
+							}
+						}
+						return info, nil
+					})
+				cliutil.FanoutReportErrors(cmd.ErrOrStderr(), errs)
+				byID := make(map[string]imdbInfo, len(results))
+				for _, r := range results {
+					byID[fmt.Sprintf("%s-%d", r.Value.kind, r.Value.id)] = r.Value
+				}
+				for i := range credits[:cap] {
+					info, ok := byID[fmt.Sprintf("%s-%d", credits[i].Kind, credits[i].ID)]
+					if !ok {
 						continue
 					}
-					seen[key] = true
-					filmography = append(filmography, filmEntry{
-						ID:         credit.ID,
-						Title:      credit.DisplayTitle(),
-						Year:       credit.Year(),
-						Role:       credit.Character,
-						Rating:     credit.VoteAverage,
-						VoteCount:  credit.VoteCount,
-						MediaType:  credit.MediaType,
-						Popularity: credit.Popularity,
-					})
-				}
-				for _, credit := range person.CombinedCredits.Crew {
-					key := fmt.Sprintf("%d-%s-%s", credit.ID, credit.MediaType, credit.Job)
-					if seen[key] {
-						continue
-					}
-					seen[key] = true
-					filmography = append(filmography, filmEntry{
-						ID:         credit.ID,
-						Title:      credit.DisplayTitle(),
-						Year:       credit.Year(),
-						Role:       credit.Job,
-						Rating:     credit.VoteAverage,
-						VoteCount:  credit.VoteCount,
-						MediaType:  credit.MediaType,
-						Popularity: credit.Popularity,
-					})
+					credits[i].RatingIMDb = info.ratingIMDb
+					credits[i].RatingRT = info.ratingRT
+					credits[i].Runtime = info.runtime
 				}
 			}
 
-			// Sort filmography
-			switch flagSort {
-			case "rating":
-				sort.Slice(filmography, func(i, j int) bool {
-					return filmography[i].Rating > filmography[j].Rating
-				})
-			case "popularity":
-				sort.Slice(filmography, func(i, j int) bool {
-					return filmography[i].Popularity > filmography[j].Popularity
-				})
-			default: // "year" — most recent first
-				sort.Slice(filmography, func(i, j int) bool {
-					if filmography[i].Year == filmography[j].Year {
-						return filmography[i].Popularity > filmography[j].Popularity
-					}
-					return filmography[i].Year > filmography[j].Year
-				})
+			// 6. Sort by year desc.
+			sort.SliceStable(credits, func(i, j int) bool {
+				return credits[i].Year > credits[j].Year
+			})
+
+			out := careerOutput{
+				Person: careerPerson{
+					ID:       personID,
+					Name:     personName,
+					Birthday: person.Birthday,
+					KnownFor: person.KnownFor,
+				},
+				Credits: credits,
 			}
 
-			// Apply limit
-			if flagLimit > 0 && len(filmography) > flagLimit {
-				filmography = filmography[:flagLimit]
-			}
-
-			// Compute summary stats
-			totalCredits := len(filmography)
-			var totalRating float64
-			ratedCount := 0
-			yearCredits := make(map[string]int)
-			var topRated filmEntry
-
-			for _, f := range filmography {
-				if f.Rating > 0 && f.VoteCount >= 10 {
-					totalRating += f.Rating
-					ratedCount++
-					if f.Rating > topRated.Rating {
-						topRated = f
-					}
-				}
-				if f.Year != "" {
-					yearCredits[f.Year]++
-				}
-			}
-
-			avgRating := 0.0
-			if ratedCount > 0 {
-				avgRating = totalRating / float64(ratedCount)
-			}
-
-			peakYear := ""
-			peakCount := 0
-			for y, cnt := range yearCredits {
-				if cnt > peakCount {
-					peakCount = cnt
-					peakYear = y
-				}
-			}
-
-			// JSON output
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
-				output := map[string]any{
-					"person_id":      personID,
-					"name":           personName,
-					"biography":      person.Biography,
-					"birthday":       person.Birthday,
-					"deathday":       person.Deathday,
-					"place_of_birth": person.PlaceOfBirth,
-					"known_for":      person.KnownFor,
-					"filmography":    filmography,
-					"summary": map[string]any{
-						"total_credits":     totalCredits,
-						"average_rating":    fmt.Sprintf("%.1f", avgRating),
-						"peak_year":         peakYear,
-						"peak_year_credits": peakCount,
-						"top_rated":         topRated.Title,
-						"top_rating":        topRated.Rating,
-					},
-				}
-				outData, _ := json.Marshal(output)
-				if flags.compact {
-					outData = compactFields(json.RawMessage(outData))
-				}
-				if flags.selectFields != "" {
-					outData = filterFields(json.RawMessage(outData), flags.selectFields)
-				}
-				return printOutput(cmd.OutOrStdout(), json.RawMessage(outData), true)
+				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 			}
 
-			// Human-readable output
 			w := cmd.OutOrStdout()
-			fmt.Fprintf(w, "%s\n", personName)
-			fmt.Fprintf(w, "%s\n", strings.Repeat("=", len(personName)))
+			fmt.Fprintln(w, personName)
+			fmt.Fprintln(w, strings.Repeat("=", len(personName)))
 			if person.KnownFor != "" {
 				fmt.Fprintf(w, "Known for: %s\n", person.KnownFor)
 			}
 			if person.Birthday != "" {
-				bday := person.Birthday
-				if person.Deathday != "" {
-					bday += " - " + person.Deathday
-				}
-				fmt.Fprintf(w, "Born: %s\n", bday)
-			}
-			if person.PlaceOfBirth != "" {
-				fmt.Fprintf(w, "From: %s\n", person.PlaceOfBirth)
+				fmt.Fprintf(w, "Born: %s\n", person.Birthday)
 			}
 			fmt.Fprintln(w)
-
-			// Summary
-			fmt.Fprintln(w, "Career Summary:")
-			fmt.Fprintf(w, "  Total credits:  %d\n", totalCredits)
-			if ratedCount > 0 {
-				fmt.Fprintf(w, "  Average rating: %.1f/10\n", avgRating)
-			}
-			if peakYear != "" {
-				fmt.Fprintf(w, "  Peak year:      %s (%d credits)\n", peakYear, peakCount)
-			}
-			if topRated.Title != "" {
-				fmt.Fprintf(w, "  Top rated:      %s (%.1f)\n", topRated.Title, topRated.Rating)
-			}
-			fmt.Fprintln(w)
-
-			// Filmography table
-			fmt.Fprintln(w, "Filmography:")
 			tw := newTabWriter(w)
-			fmt.Fprintln(tw, "Year\tTitle\tRole\tRating\tType")
-			for _, f := range filmography {
-				year := f.Year
-				if year == "" {
-					year = "TBA"
-				}
-				mtype := "Movie"
-				if f.MediaType == "tv" {
-					mtype = "TV"
-				}
-				fmt.Fprintf(tw, "%s\t%s\t%s\t%.1f\t%s\n",
-					year, truncate(f.Title, 35), truncate(f.Role, 25), f.Rating, mtype)
+			fmt.Fprintln(tw, "Year\tTitle\tRole\tTMDb\tIMDb\tRT\tRuntime")
+			for _, cr := range credits {
+				fmt.Fprintf(tw, "%s\t%s\t%s\t%.1f\t%s\t%s\t%s\n",
+					orDash(cr.Year),
+					truncate(cr.Title, 40),
+					truncate(cr.displayRole(), 30),
+					cr.RatingTMDB,
+					orDash(cr.RatingIMDb),
+					orDash(cr.RatingRT),
+					orDash(cr.Runtime))
 			}
 			tw.Flush()
-
 			return nil
 		},
 	}
-
-	cmd.Flags().StringVar(&flagSort, "sort", "year", "Sort filmography by: year, rating, or popularity")
-	cmd.Flags().IntVar(&flagLimit, "limit", 0, "Limit number of entries shown (0 = all)")
-
+	cmd.Flags().IntVar(&flagSince, "since", 0, "Drop credits before this year")
+	cmd.Flags().StringVar(&flagRole, "role", "", "Filter by role: actor | director | dp | writer | crew")
 	return cmd
+}
+
+func (c careerCredit) displayRole() string {
+	if c.Job != "" {
+		return c.Job
+	}
+	if c.Character != "" {
+		return c.Character
+	}
+	return c.Role
+}
+
+func orDash(s string) string {
+	if s == "" {
+		return "-"
+	}
+	return s
+}
+
+// assembleCareerCredits walks combined_credits and emits one careerCredit per
+// (id, kind, role-bucket) tuple. role determines which buckets to read; the
+// default ("") means cast + crew, dedup'd by (id, kind, job/character).
+func assembleCareerCredits(cc *tmdbCombinedCredits, role string) []careerCredit {
+	if cc == nil {
+		return nil
+	}
+	seen := map[string]bool{}
+	var out []careerCredit
+
+	addRow := func(cr careerCredit, dedupKey string) {
+		if seen[dedupKey] {
+			return
+		}
+		seen[dedupKey] = true
+		out = append(out, cr)
+	}
+
+	// Cast bucket (actor)
+	if role == "" || role == "actor" {
+		for _, e := range cc.Cast {
+			cr := careerCredit{
+				ID:         e.ID,
+				Kind:       e.MediaType,
+				Title:      e.DisplayTitle(),
+				Year:       e.Year(),
+				Role:       "actor",
+				Character:  e.Character,
+				RatingTMDB: e.VoteAverage,
+			}
+			addRow(cr, fmt.Sprintf("cast-%s-%d", cr.Kind, cr.ID))
+		}
+	}
+	// Crew bucket — applies to director, dp, writer, crew, and default.
+	if role != "actor" {
+		for _, e := range cc.Crew {
+			match := false
+			switch role {
+			case "director":
+				match = e.Job == "Director"
+			case "dp":
+				match = e.Job == "Director of Photography" || e.Job == "Cinematography"
+			case "writer":
+				match = e.Department == "Writing"
+			case "crew", "":
+				match = true
+			}
+			if !match {
+				continue
+			}
+			cr := careerCredit{
+				ID:         e.ID,
+				Kind:       e.MediaType,
+				Title:      e.DisplayTitle(),
+				Year:       e.Year(),
+				Role:       strings.ToLower(strings.TrimSpace(e.Department)),
+				Job:        e.Job,
+				RatingTMDB: e.VoteAverage,
+			}
+			if cr.Role == "" {
+				cr.Role = "crew"
+			}
+			addRow(cr, fmt.Sprintf("crew-%s-%d-%s", cr.Kind, cr.ID, e.Job))
+		}
+	}
+	return out
 }

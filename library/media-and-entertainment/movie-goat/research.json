@@ -1,0 +1,312 @@
+{
+  "api_name": "movie",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "tmdb-mcp",
+      "url": "https://github.com/xdwanj/tmdb-mcp",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "imdb-mcp-server",
+      "url": "https://github.com/uzaysozen/imdb-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tmdb-cli (degerahmet)",
+      "url": "https://github.com/degerahmet/tmdb-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "TMDB_CLI (illegalbyte)",
+      "url": "https://github.com/illegalbyte/TMDB_CLI",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mediascore",
+      "url": "https://github.com/dkorunic/mediascore",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tmdbv3api",
+      "url": "https://github.com/AnthonyBloomer/tmdbv3api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-04T07:46:00Z",
+  "novel_features": [
+    {
+      "name": "Tonight Picker",
+      "command": "tonight",
+      "description": "Pick what to watch tonight from trending titles actually streaming on your services.",
+      "rationale": "Joins TMDb trending + discover with per-title watch providers filtered to your --providers set in your --region — no existing CLI does the streaming-availability filter.",
+      "example": "movie-goat-pp-cli tonight --mood thriller --max-runtime 120 --providers netflix,max --region US --json",
+      "why_it_matters": "Use this when an agent needs a streaming-filtered shortlist; one call replaces tab-bouncing across TMDb/RT/JustWatch.",
+      "group": "Cinephile rituals"
+    },
+    {
+      "name": "Multi-Source Ratings Card",
+      "command": "ratings",
+      "description": "TMDb + IMDb + Rotten Tomatoes + Metacritic ratings for any title in one card.",
+      "rationale": "Cross-source aggregation: TMDb has streaming and cast; OMDb has RT/Metacritic. Joined via IMDb ID — no single endpoint exposes all four.",
+      "example": "movie-goat-pp-cli ratings 550 --json",
+      "why_it_matters": "Use when an agent needs the canonical multi-source rating for a title; degrades gracefully to TMDb-only if OMDB_API_KEY is unset.",
+      "group": "Cinephile rituals"
+    },
+    {
+      "name": "Marathon Planner",
+      "command": "marathon",
+      "description": "Plan a franchise marathon with watch order, total runtime, and suggested breaks.",
+      "rationale": "Resolves title → belongs_to_collection → /collection/{id}, normalizes order, sums runtimes, inserts breakpoints. No single API call returns a planned marathon.",
+      "example": "movie-goat-pp-cli marathon \"The Avengers\" --order release --breaks-every 240 --json",
+      "why_it_matters": "Use when planning an event watch; agent can dump the schedule to share with a group.",
+      "group": "Cinephile rituals"
+    },
+    {
+      "name": "Career Timeline",
+      "command": "career",
+      "description": "Explore any actor or director's full filmography with ratings and chronology.",
+      "rationale": "Person credits + per-title detail fan-out + OMDb ratings; sorted chronologically with role/year/runtime/rating.",
+      "example": "movie-goat-pp-cli career \"Christopher Nolan\" --since 2010 --role director --json",
+      "why_it_matters": "Use when an agent needs a rated chronological filmography; replaces flat IMDb lists with cross-source ratings.",
+      "group": "Cinephile rituals"
+    },
+    {
+      "name": "Watchlist",
+      "command": "watchlist list",
+      "description": "Local SQLite watchlist; flag rows that are streamable on your services.",
+      "rationale": "Local store + per-row /watch/providers fan-out + filter against user --providers set. No public CLI tells you what on your watchlist is streamable now.",
+      "example": "movie-goat-pp-cli watchlist list --available --providers netflix,max --region US --json",
+      "why_it_matters": "Use weekly to surface streamable items from a saved list; eliminates ad-hoc JustWatch checks per title.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Head-to-Head Versus",
+      "command": "versus",
+      "description": "Compare two movies or shows side-by-side across ratings, cast, runtime, and streaming.",
+      "rationale": "Composes Multi-Source Ratings Card across two titles + cast intersection + provider lists per region; aligned columnar output.",
+      "example": "movie-goat-pp-cli versus 550 27205 --region US --json",
+      "why_it_matters": "Use when an agent has to pick between two finalists; one command shows where they differ on every axis.",
+      "group": "Cinephile rituals"
+    },
+    {
+      "name": "Recommendation Queue",
+      "command": "queue",
+      "description": "Suggest next-watch picks derived from your watchlist's recommendations and similars.",
+      "rationale": "For every row in local watchlist: union /recommendations + /similar, dedupe, rank by vote_average × log(vote_count).",
+      "example": "movie-goat-pp-cli queue --limit 20 --providers netflix,max --region US --json",
+      "why_it_matters": "Use when an agent needs a fresh queue derived from saved interests; combines local state with API recommendations.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Recurring Collaborators",
+      "command": "collaborators",
+      "description": "List people who appear in 2+ of a person's credits, with count and titles.",
+      "rationale": "Person combined_credits + per-title /credits, group-by name + count. No single endpoint surfaces this.",
+      "example": "movie-goat-pp-cli collaborators \"Christopher Nolan\" --min-count 3 --role crew --json",
+      "why_it_matters": "Use when an agent is researching a filmmaker's circle; surfaces recurring DPs/composers/actors mechanically.",
+      "group": "Cinephile rituals"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Tonight Picker",
+      "command": "tonight",
+      "description": "Pick what to watch tonight from trending titles actually streaming on your services.",
+      "rationale": "Joins TMDb trending + discover with per-title watch providers filtered to your --providers set in your --region — no existing CLI does the streaming-availability filter.",
+      "example": "movie-goat-pp-cli tonight --mood thriller --max-runtime 120 --providers netflix,max --region US --json",
+      "why_it_matters": "Use this when an agent needs a streaming-filtered shortlist; one call replaces tab-bouncing across TMDb/RT/JustWatch.",
+      "group": "Cinephile rituals"
+    },
+    {
+      "name": "Multi-Source Ratings Card",
+      "command": "ratings",
+      "description": "TMDb + IMDb + Rotten Tomatoes + Metacritic ratings for any title in one card.",
+      "rationale": "Cross-source aggregation: TMDb has streaming and cast; OMDb has RT/Metacritic. Joined via IMDb ID — no single endpoint exposes all four.",
+      "example": "movie-goat-pp-cli ratings 550 --json",
+      "why_it_matters": "Use when an agent needs the canonical multi-source rating for a title; degrades gracefully to TMDb-only if OMDB_API_KEY is unset.",
+      "group": "Cinephile rituals"
+    },
+    {
+      "name": "Marathon Planner",
+      "command": "marathon",
+      "description": "Plan a franchise marathon with watch order, total runtime, and suggested breaks.",
+      "rationale": "Resolves title → belongs_to_collection → /collection/{id}, normalizes order, sums runtimes, inserts breakpoints. No single API call returns a planned marathon.",
+      "example": "movie-goat-pp-cli marathon \"The Avengers\" --order release --breaks-every 240 --json",
+      "why_it_matters": "Use when planning an event watch; agent can dump the schedule to share with a group.",
+      "group": "Cinephile rituals"
+    },
+    {
+      "name": "Career Timeline",
+      "command": "career",
+      "description": "Explore any actor or director's full filmography with ratings and chronology.",
+      "rationale": "Person credits + per-title detail fan-out + OMDb ratings; sorted chronologically with role/year/runtime/rating.",
+      "example": "movie-goat-pp-cli career \"Christopher Nolan\" --since 2010 --role director --json",
+      "why_it_matters": "Use when an agent needs a rated chronological filmography; replaces flat IMDb lists with cross-source ratings.",
+      "group": "Cinephile rituals"
+    },
+    {
+      "name": "Watchlist",
+      "command": "watchlist list",
+      "description": "Local SQLite watchlist; flag rows that are streamable on your services.",
+      "rationale": "Local store + per-row /watch/providers fan-out + filter against user --providers set. No public CLI tells you what on your watchlist is streamable now.",
+      "example": "movie-goat-pp-cli watchlist list --available --providers netflix,max --region US --json",
+      "why_it_matters": "Use weekly to surface streamable items from a saved list; eliminates ad-hoc JustWatch checks per title.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Head-to-Head Versus",
+      "command": "versus",
+      "description": "Compare two movies or shows side-by-side across ratings, cast, runtime, and streaming.",
+      "rationale": "Composes Multi-Source Ratings Card across two titles + cast intersection + provider lists per region; aligned columnar output.",
+      "example": "movie-goat-pp-cli versus 550 27205 --region US --json",
+      "why_it_matters": "Use when an agent has to pick between two finalists; one command shows where they differ on every axis.",
+      "group": "Cinephile rituals"
+    },
+    {
+      "name": "Recommendation Queue",
+      "command": "queue",
+      "description": "Suggest next-watch picks derived from your watchlist's recommendations and similars.",
+      "rationale": "For every row in local watchlist: union /recommendations + /similar, dedupe, rank by vote_average × log(vote_count).",
+      "example": "movie-goat-pp-cli queue --limit 20 --providers netflix,max --region US --json",
+      "why_it_matters": "Use when an agent needs a fresh queue derived from saved interests; combines local state with API recommendations.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Recurring Collaborators",
+      "command": "collaborators",
+      "description": "List people who appear in 2+ of a person's credits, with count and titles.",
+      "rationale": "Person combined_credits + per-title /credits, group-by name + count. No single endpoint surfaces this.",
+      "example": "movie-goat-pp-cli collaborators \"Christopher Nolan\" --min-count 3 --role crew --json",
+      "why_it_matters": "Use when an agent is researching a filmmaker's circle; surfaces recurring DPs/composers/actors mechanically.",
+      "group": "Cinephile rituals"
+    }
+  ],
+  "narrative": {
+    "display_name": "Movie Goat",
+    "headline": "The movie CLI that combines TMDb's discovery engine with OMDb's multi-source ratings — and ships a SQLite watchlist that flags what's streaming on your services right now.",
+    "value_prop": "Movie Goat unifies the workflows that today require four browser tabs: discovery (TMDb), multi-source ratings (TMDb + IMDb + RT + Metacritic via OMDb), where-to-watch (TMDb watch providers), and a local watchlist that knows your streaming services. Flagship transcendence: `tonight` picks something well-rated that's actually streaming on your services; `ratings` shows the four canonical scores for any title; `marathon` totals runtime across a franchise.",
+    "auth_narrative": "TMDb v3 API key (free, https://www.themoviedb.org/settings/api) is required and goes in `TMDB_API_KEY` — used as a query parameter, not a Bearer header. OMDb key (free, http://www.omdbapi.com/apikey.aspx) is optional and goes in `OMDB_API_KEY`; without it, `ratings` and `versus` show TMDb-only and gracefully omit the IMDb/RT/Metacritic columns.",
+    "quickstart": [
+      {
+        "command": "movie-goat-pp-cli tonight --providers netflix,max --region US",
+        "comment": "The fastest path to the value: a streaming-filtered, well-rated shortlist for tonight."
+      },
+      {
+        "command": "movie-goat-pp-cli search \"the bear\"",
+        "comment": "Multi-type search across movies, TV, and people."
+      },
+      {
+        "command": "movie-goat-pp-cli ratings 550",
+        "comment": "Cross-source rating card for Fight Club (TMDb id 550)."
+      },
+      {
+        "command": "movie-goat-pp-cli watchlist add 27205 --kind movie",
+        "comment": "Add Inception to the local SQLite watchlist."
+      },
+      {
+        "command": "movie-goat-pp-cli watchlist list --available --providers netflix,max --region US",
+        "comment": "Show which saved titles are streamable on your services right now."
+      },
+      {
+        "command": "movie-goat-pp-cli marathon \"The Avengers\" --order release",
+        "comment": "Plan a franchise marathon with totalled runtime."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized: \"Invalid API key: You must be granted a valid key.\"",
+        "fix": "TMDb v3 keys (32-char hex) must be sent as a query parameter, not as a Bearer header. The CLI does this automatically — re-check that TMDB_API_KEY is set to the v3 key from https://www.themoviedb.org/settings/api, not a v4 read access token."
+      },
+      {
+        "symptom": "`ratings` shows only the TMDb score and skips IMDb/RT/Metacritic columns.",
+        "fix": "Set OMDB_API_KEY to a free key from http://www.omdbapi.com/apikey.aspx. Without it the CLI degrades to TMDb-only by design."
+      },
+      {
+        "symptom": "`watchlist list --available` returns rows but every row says `not available`.",
+        "fix": "Pass `--region` (e.g. `--region US`) and confirm `--providers` matches TMDb's provider names — run `movie-goat-pp-cli providers` to see the canonical list for your region."
+      },
+      {
+        "symptom": "429 Too Many Requests when running `career` or `marathon` on long filmographies/collections.",
+        "fix": "TMDb's rate limit is ~40 req/10s. The CLI's adaptive limiter ramps down on 429 automatically; rerun, and the ceiling will be discovered. For very long careers, use `--since YEAR` to scope the fan-out."
+      }
+    ],
+    "when_to_use": "Use Movie Goat when an agent needs to answer cinephile questions that require combining streaming availability with multi-source ratings. It is the right choice for tonight-picker scenarios, franchise marathon planning, and rated career timelines. It is not the right choice for box-office tracking, review sentiment analysis, or any workflow that needs LLM-style summaries of plot or reviews.",
+    "recipes": [
+      {
+        "title": "Tonight, well-rated, on my services",
+        "command": "movie-goat-pp-cli tonight --mood drama --max-runtime 130 --providers netflix,max,prime --region US --agent --select \"results.title,results.year,results.rating,results.providers\"",
+        "explanation": "Streaming-filtered shortlist with only the high-gravity fields an agent needs to decide."
+      },
+      {
+        "title": "Watchlist sweep",
+        "command": "movie-goat-pp-cli watchlist list --available --providers netflix,max --region US --agent",
+        "explanation": "Weekly check: which saved titles became streamable on services I have."
+      },
+      {
+        "title": "Rated career deep dive",
+        "command": "movie-goat-pp-cli career \"Lynne Ramsay\" --role director --agent --select \"credits.title,credits.year,credits.rating_imdb,credits.rating_rt\"",
+        "explanation": "Agent-bounded chronological filmography with the cross-source rating columns that matter."
+      },
+      {
+        "title": "Pick between two finalists",
+        "command": "movie-goat-pp-cli versus 27205 87108 --region US --agent",
+        "explanation": "Aligned compare card for Inception vs. Tenet; ratings, runtime, cast overlap, providers."
+      },
+      {
+        "title": "Plan a franchise night",
+        "command": "movie-goat-pp-cli marathon \"Mission: Impossible\" --order release --breaks-every 240 --agent",
+        "explanation": "Ordered watchlist with total runtime and break suggestions."
+      }
+    ],
+    "trigger_phrases": [
+      "what should I watch tonight",
+      "where can I stream \u003ctitle\u003e",
+      "rate \u003ctitle\u003e",
+      "compare \u003ctitle\u003e and \u003ctitle\u003e",
+      "what's \u003cperson\u003e's filmography",
+      "plan a \u003cfranchise\u003e marathon",
+      "use movie-goat",
+      "run movie-goat"
+    ]
+  }
+}

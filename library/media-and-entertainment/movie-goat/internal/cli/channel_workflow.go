@@ -16,11 +16,6 @@ func newWorkflowCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "workflow",
 		Short: "Compound workflows that combine multiple API operations",
-		Example: `  # Archive all resources for offline access
-  movie-goat-pp-cli workflow archive
-
-  # Check archive status
-  movie-goat-pp-cli workflow status`,
 	}
 
 	cmd.AddCommand(newWorkflowArchiveCmd(flags))
@@ -54,13 +49,13 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			if dbPath == "" {
 				dbPath = defaultDBPath("movie-goat-pp-cli")
 			}
-			s, err := store.Open(dbPath)
+			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
 			}
 			defer s.Close()
 
-			resources := []string{"discover", "genres", "movies", "people", "search", "tv"}
+			resources := []string{"discover", "genres", "movies", "multi", "people", "tv"}
 			totalSynced := 0
 
 			for _, resource := range resources {
@@ -152,8 +147,9 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 
 	cmd := &cobra.Command{
-		Use:   "status",
-		Short: "Show local archive status and sync state for all resources",
+		Use:         "status",
+		Short:       "Show local archive status and sync state for all resources",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Example: `  # Show archive status
   movie-goat-pp-cli workflow status
 
@@ -163,7 +159,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 			if dbPath == "" {
 				dbPath = defaultDBPath("movie-goat-pp-cli")
 			}
-			s, err := store.Open(dbPath)
+			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
 			}

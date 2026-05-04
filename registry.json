@@ -434,15 +434,15 @@
     {
       "name": "movie-goat",
       "category": "media-and-entertainment",
-      "api": "TMDb + OMDb",
-      "description": "Multi-source movie ratings (TMDb + OMDb), streaming availability, and cross-taste recommendations",
+      "api": "Movie Goat",
+      "description": "The movie CLI that combines TMDb's discovery engine with OMDb's multi-source ratings — and ships a SQLite watchlist that flags what's streaming on your services right now.",
       "path": "library/media-and-entertainment/movie-goat",
       "mcp": {
         "binary": "movie-goat-pp-mcp",
         "transport": "stdio",
         "tool_count": 25,
         "public_tool_count": 0,
-        "auth_type": "bearer_token",
+        "auth_type": "api_key",
         "env_vars": [
           "TMDB_API_KEY"
         ],
