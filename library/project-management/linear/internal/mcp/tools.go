@@ -389,23 +389,22 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 
 		// Build path by substituting positional params
 		path := pathTemplate
+		pathParams := make(map[string]bool, len(positionalParams))
 		for _, p := range positionalParams {
+			placeholder := "{" + p + "}"
+			if !strings.Contains(pathTemplate, placeholder) {
+				continue
+			}
+			pathParams[p] = true
 			if v, ok := req.Params.Arguments[p]; ok {
-				path = strings.Replace(path, "{"+p+"}", fmt.Sprintf("%v", v), 1)
+				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
 			}
 		}
 
-		// Collect non-positional params as query params
+		// Collect non-path params as query params
 		params := make(map[string]string)
 		for k, v := range req.Params.Arguments {
-			isPositional := false
-			for _, p := range positionalParams {
-				if k == p {
-					isPositional = true
-					break
-				}
-			}
-			if !isPositional {
+			if !pathParams[k] {
 				params[k] = fmt.Sprintf("%v", v)
 			}
 		}
