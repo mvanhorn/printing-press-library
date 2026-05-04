@@ -1,0 +1,50 @@
+{
+  "api_name": "apartments",
+  "base_url": "https://www.apartments.com",
+  "description": "Search Apartments.com listings, sync results to a local SQLite store, and run workflows the website never built — diff saved searches, rank by $/sqft, compare shortlists, and surface price drops or phantom listings.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "listing_get",
+      "description": "Fetch one Apartments.com listing detail page and parse schema.org microdata. Required: property_id (default: example-property).",
+      "method": "GET",
+      "path": "/{property_id}/",
+      "params": [
+        {
+          "name": "property_id",
+          "type": "string",
+          "location": "path",
+          "description": "Apartments.com listing URL slug (e.g. 'the-domain-austin-tx-1234').",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rentals_find",
+      "description": "Run a path-slug search at apartments.com and return listing placards parsed from the HTML response. Required: city (default: austin), state (default: tx).",
+      "method": "GET",
+      "path": "/{city}-{state}/",
+      "params": [
+        {
+          "name": "city",
+          "type": "string",
+          "location": "path",
+          "description": "City slug (lowercase, hyphenated). Example: austin, new-york, san-francisco.",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "path",
+          "description": "Two-letter state abbreviation (lowercase). Example: tx, ny, ca.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

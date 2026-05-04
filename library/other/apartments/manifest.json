@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "apartments-pp-mcp",
+  "display_name": "Apartments",
+  "version": "3.8.0",
+  "description": "Search Apartments.com rentals from the terminal with offline sync, ranking, diff, and shortlist workflows.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/apartments-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/apartments-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

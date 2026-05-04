@@ -1,0 +1,407 @@
+{
+  "api_name": "apartments",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "adinutzyc21/apartments-scraper",
+      "url": "https://github.com/adinutzyc21/apartments-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "johnludwigm/PyApartments",
+      "url": "https://github.com/johnludwigm/PyApartments",
+      "language": "Python",
+      "install_method": "",
+      "stars": 12,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "shilongdai/Apartment_Scraper",
+      "url": "https://github.com/shilongdai/Apartment_Scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "cccdenhart/apartments-scraper",
+      "url": "https://github.com/cccdenhart/apartments-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "davidhuang620/Apartments.com-web-Scrapping",
+      "url": "https://github.com/davidhuang620/Apartments.com-web-Scrapping",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-04T02:50:00Z",
+  "novel_features": [
+    {
+      "name": "Watch saved searches with diff",
+      "command": "watch",
+      "description": "Re-run a stored search and surface what's NEW, REMOVED, or PRICE-CHANGED since the last sync.",
+      "rationale": "apartments.com email alerts only cover new listings — there is no removal alert, no price-drop alert, and no per-listing history. Diffing requires the snapshot history table only this CLI keeps.",
+      "example": "apartments-pp-cli watch austin-2br --json --since 7d",
+      "why_it_matters": "Pick this when an agent is tracking a relocation over time and needs a reproducible 'what changed since last week' digest, not a fresh search.",
+      "group": "Time-series intelligence"
+    },
+    {
+      "name": "Multi-slug union ranking",
+      "command": "nearby",
+      "description": "Fan out a search across multiple cities, zips, or neighborhoods and return one ranked, deduped list.",
+      "rationale": "apartments.com URL is single-slug per query — three target neighborhoods means three browser tabs. Fan-out plus listing-URL dedupe lives only in the local store.",
+      "example": "apartments-pp-cli nearby austin-tx round-rock-tx pflugerville-tx --beds 2 --price-max 2500 --rank sqft --agent",
+      "why_it_matters": "Pick this when an agent needs a single ranked feed across multiple search slugs without writing a fan-out loop.",
+      "group": "Cross-market joins"
+    },
+    {
+      "name": "Total-cost-of-occupancy ranking",
+      "command": "value",
+      "description": "Rank synced listings by 12-month total cost (rent + pet rent + pet deposit + pet fee), filtered to your hard budget.",
+      "rationale": "apartments.com sort options ignore pet fees entirely. The cost arithmetic happens in local SQL over the synced pet_policy struct.",
+      "example": "apartments-pp-cli value --budget 2800 --pet dog --months 12 --json --select rank,url,total_cost",
+      "why_it_matters": "Pick this when budget is binding and pet fees might push a listing over the line.",
+      "group": "Local-store math"
+    },
+    {
+      "name": "$/sqft and $/bed ranking",
+      "command": "rank",
+      "description": "Rank synced listings by ratio metrics — price per square foot or price per bedroom.",
+      "rationale": "apartments.com sort omits ratio metrics. Dividing maxrent by sqft or beds in local SQL is one line.",
+      "example": "apartments-pp-cli rank --by sqft --beds 2 --price-max 2500 --json --limit 10",
+      "why_it_matters": "Pick this when value-per-dollar is the goal, not 'best match' or 'lowest price'.",
+      "group": "Local-store math"
+    },
+    {
+      "name": "Side-by-side compare",
+      "command": "compare",
+      "description": "Pivot 2–8 listings into a wide table — one column per listing — with computed $/sqft and amenity overlap.",
+      "rationale": "apartments.com has no compare view. Local-store pivot lets agents emit a structured wide-table response.",
+      "example": "apartments-pp-cli compare austin-arboretum-1 austin-arboretum-2 austin-arboretum-3 --json",
+      "why_it_matters": "Pick this when narrowing a shortlist; the wide table makes amenity-overlap deltas obvious.",
+      "group": "Shortlist workflows"
+    },
+    {
+      "name": "Price-drop alerts",
+      "command": "drops",
+      "description": "List listings whose max-rent dropped by ≥N% within a time window.",
+      "rationale": "apartments.com offers no price-drop view — only new-listing emails. Time-window aggregation needs the snapshot history table.",
+      "example": "apartments-pp-cli drops --since 14d --min-pct 5 --json",
+      "why_it_matters": "Pick this when timing the market or watching for distressed listings.",
+      "group": "Time-series intelligence"
+    },
+    {
+      "name": "Stale-listing flag",
+      "command": "stale",
+      "description": "Flag listings whose price and availability haven't changed in N days — often phantom or stuck.",
+      "rationale": "Stuck-listing detection needs the snapshot table — apartments.com has no UI for it.",
+      "example": "apartments-pp-cli stale --days 30 --json --select url,maxrent,unchanged_days",
+      "why_it_matters": "Pick this when a listing seems too good to be true; stale ones often are.",
+      "group": "Time-series intelligence"
+    },
+    {
+      "name": "Phantom-listing detector",
+      "command": "phantoms",
+      "description": "Surface listings flagged by a three-signal join: 404 on re-fetch, dropped from saved-search results, or stale ≥45 days.",
+      "rationale": "No single page exposes 'this listing is probably already leased.' Union of three local-store predicates does.",
+      "example": "apartments-pp-cli phantoms --json",
+      "why_it_matters": "Pick this when prepping a shortlist for tour scheduling — phantoms waste tour slots.",
+      "group": "Time-series intelligence"
+    },
+    {
+      "name": "Neighborhood market summary",
+      "command": "market",
+      "description": "Median, p10, p90 of rent and rent/sqft, pet-friendly share, by city/state and bed count.",
+      "rationale": "apartments.com shows zero distributional stats. Aggregation SQL over the local store does.",
+      "example": "apartments-pp-cli market austin-tx --beds 2 --json",
+      "why_it_matters": "Pick this when an agent needs to anchor 'is this a fair price' against the local distribution.",
+      "group": "Aggregations"
+    },
+    {
+      "name": "Listing history",
+      "command": "history",
+      "description": "Time-series of every observation of one listing — rent, availability, status.",
+      "rationale": "Per-listing audit trail comes from the snapshot table only this CLI keeps.",
+      "example": "apartments-pp-cli history https://www.apartments.com/example-property-1234 --json",
+      "why_it_matters": "Pick this when reasoning about a single listing's price trajectory.",
+      "group": "Time-series intelligence"
+    },
+    {
+      "name": "Weekly digest",
+      "command": "digest",
+      "description": "Single-shot composer: new + removed + price-drops + top-5 by $/sqft + stale + phantom flags for one saved search over N days.",
+      "rationale": "Composes the time-series and ranking commands into the actual weekly ritual that exists in user workflows.",
+      "example": "apartments-pp-cli digest --saved-search austin-2br --since 7d --format md",
+      "why_it_matters": "Pick this when an agent needs a Monday-morning summary in one call.",
+      "group": "Shortlist workflows"
+    },
+    {
+      "name": "Floor-plan-level value report",
+      "command": "floorplans",
+      "description": "Rank per-floor-plan rent/sqft across synced listings — same building can yield 4 plans at different ratios.",
+      "rationale": "Building-level rent hides plan-level variance. Joining to the floor_plans child table exposes it.",
+      "example": "apartments-pp-cli floorplans --rank price-per-sqft --beds 2 --json --limit 10",
+      "why_it_matters": "Pick this when a building has multiple floor plans and you want the cheap one specifically.",
+      "group": "Local-store math"
+    },
+    {
+      "name": "Amenity must-have intersect",
+      "command": "must-have",
+      "description": "Filter synced listings to those whose amenities array contains ALL listed terms via FTS5.",
+      "rationale": "apartments.com amenity filter is a fixed curated list — 'natural light' or 'in-unit washer' aren't in it. FTS5 AND-join is.",
+      "example": "apartments-pp-cli must-have \"in-unit washer\" \"covered parking\" \"dishwasher\" --json",
+      "why_it_matters": "Pick this when the must-haves are free-text, not in apartments.com's amenity dropdown.",
+      "group": "Local-store math"
+    },
+    {
+      "name": "Local shortlist",
+      "command": "shortlist",
+      "description": "Tag-based local shortlist table; add/show/remove listings with notes and tags.",
+      "rationale": "Replaces the user's spreadsheet workflow with a queryable table that joins to listings for compare and digest.",
+      "example": "apartments-pp-cli shortlist add https://www.apartments.com/example-1234 --tag austin --note \"liked the kitchen\"",
+      "why_it_matters": "Pick this when an agent or user is curating a shortlist; downstream commands like `compare` read from it.",
+      "group": "Shortlist workflows"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Watch saved searches with diff",
+      "command": "watch",
+      "description": "Re-run a stored search and surface what's NEW, REMOVED, or PRICE-CHANGED since the last sync.",
+      "rationale": "apartments.com email alerts only cover new listings — there is no removal alert, no price-drop alert, and no per-listing history. Diffing requires the snapshot history table only this CLI keeps.",
+      "example": "apartments-pp-cli watch austin-2br --json --since 7d",
+      "why_it_matters": "Pick this when an agent is tracking a relocation over time and needs a reproducible 'what changed since last week' digest, not a fresh search.",
+      "group": "Time-series intelligence"
+    },
+    {
+      "name": "Multi-slug union ranking",
+      "command": "nearby",
+      "description": "Fan out a search across multiple cities, zips, or neighborhoods and return one ranked, deduped list.",
+      "rationale": "apartments.com URL is single-slug per query — three target neighborhoods means three browser tabs. Fan-out plus listing-URL dedupe lives only in the local store.",
+      "example": "apartments-pp-cli nearby austin-tx round-rock-tx pflugerville-tx --beds 2 --price-max 2500 --rank sqft --agent",
+      "why_it_matters": "Pick this when an agent needs a single ranked feed across multiple search slugs without writing a fan-out loop.",
+      "group": "Cross-market joins"
+    },
+    {
+      "name": "Total-cost-of-occupancy ranking",
+      "command": "value",
+      "description": "Rank synced listings by 12-month total cost (rent + pet rent + pet deposit + pet fee), filtered to your hard budget.",
+      "rationale": "apartments.com sort options ignore pet fees entirely. The cost arithmetic happens in local SQL over the synced pet_policy struct.",
+      "example": "apartments-pp-cli value --budget 2800 --pet dog --months 12 --json --select rank,url,total_cost",
+      "why_it_matters": "Pick this when budget is binding and pet fees might push a listing over the line.",
+      "group": "Local-store math"
+    },
+    {
+      "name": "$/sqft and $/bed ranking",
+      "command": "rank",
+      "description": "Rank synced listings by ratio metrics — price per square foot or price per bedroom.",
+      "rationale": "apartments.com sort omits ratio metrics. Dividing maxrent by sqft or beds in local SQL is one line.",
+      "example": "apartments-pp-cli rank --by sqft --beds 2 --price-max 2500 --json --limit 10",
+      "why_it_matters": "Pick this when value-per-dollar is the goal, not 'best match' or 'lowest price'.",
+      "group": "Local-store math"
+    },
+    {
+      "name": "Side-by-side compare",
+      "command": "compare",
+      "description": "Pivot 2–8 listings into a wide table — one column per listing — with computed $/sqft and amenity overlap.",
+      "rationale": "apartments.com has no compare view. Local-store pivot lets agents emit a structured wide-table response.",
+      "example": "apartments-pp-cli compare austin-arboretum-1 austin-arboretum-2 austin-arboretum-3 --json",
+      "why_it_matters": "Pick this when narrowing a shortlist; the wide table makes amenity-overlap deltas obvious.",
+      "group": "Shortlist workflows"
+    },
+    {
+      "name": "Price-drop alerts",
+      "command": "drops",
+      "description": "List listings whose max-rent dropped by ≥N% within a time window.",
+      "rationale": "apartments.com offers no price-drop view — only new-listing emails. Time-window aggregation needs the snapshot history table.",
+      "example": "apartments-pp-cli drops --since 14d --min-pct 5 --json",
+      "why_it_matters": "Pick this when timing the market or watching for distressed listings.",
+      "group": "Time-series intelligence"
+    },
+    {
+      "name": "Stale-listing flag",
+      "command": "stale",
+      "description": "Flag listings whose price and availability haven't changed in N days — often phantom or stuck.",
+      "rationale": "Stuck-listing detection needs the snapshot table — apartments.com has no UI for it.",
+      "example": "apartments-pp-cli stale --days 30 --json --select url,maxrent,unchanged_days",
+      "why_it_matters": "Pick this when a listing seems too good to be true; stale ones often are.",
+      "group": "Time-series intelligence"
+    },
+    {
+      "name": "Phantom-listing detector",
+      "command": "phantoms",
+      "description": "Surface listings flagged by a three-signal join: 404 on re-fetch, dropped from saved-search results, or stale ≥45 days.",
+      "rationale": "No single page exposes 'this listing is probably already leased.' Union of three local-store predicates does.",
+      "example": "apartments-pp-cli phantoms --json",
+      "why_it_matters": "Pick this when prepping a shortlist for tour scheduling — phantoms waste tour slots.",
+      "group": "Time-series intelligence"
+    },
+    {
+      "name": "Neighborhood market summary",
+      "command": "market",
+      "description": "Median, p10, p90 of rent and rent/sqft, pet-friendly share, by city/state and bed count.",
+      "rationale": "apartments.com shows zero distributional stats. Aggregation SQL over the local store does.",
+      "example": "apartments-pp-cli market austin-tx --beds 2 --json",
+      "why_it_matters": "Pick this when an agent needs to anchor 'is this a fair price' against the local distribution.",
+      "group": "Aggregations"
+    },
+    {
+      "name": "Listing history",
+      "command": "history",
+      "description": "Time-series of every observation of one listing — rent, availability, status.",
+      "rationale": "Per-listing audit trail comes from the snapshot table only this CLI keeps.",
+      "example": "apartments-pp-cli history https://www.apartments.com/example-property-1234 --json",
+      "why_it_matters": "Pick this when reasoning about a single listing's price trajectory.",
+      "group": "Time-series intelligence"
+    },
+    {
+      "name": "Weekly digest",
+      "command": "digest",
+      "description": "Single-shot composer: new + removed + price-drops + top-5 by $/sqft + stale + phantom flags for one saved search over N days.",
+      "rationale": "Composes the time-series and ranking commands into the actual weekly ritual that exists in user workflows.",
+      "example": "apartments-pp-cli digest --saved-search austin-2br --since 7d --format md",
+      "why_it_matters": "Pick this when an agent needs a Monday-morning summary in one call.",
+      "group": "Shortlist workflows"
+    },
+    {
+      "name": "Floor-plan-level value report",
+      "command": "floorplans",
+      "description": "Rank per-floor-plan rent/sqft across synced listings — same building can yield 4 plans at different ratios.",
+      "rationale": "Building-level rent hides plan-level variance. Joining to the floor_plans child table exposes it.",
+      "example": "apartments-pp-cli floorplans --rank price-per-sqft --beds 2 --json --limit 10",
+      "why_it_matters": "Pick this when a building has multiple floor plans and you want the cheap one specifically.",
+      "group": "Local-store math"
+    },
+    {
+      "name": "Amenity must-have intersect",
+      "command": "must-have",
+      "description": "Filter synced listings to those whose amenities array contains ALL listed terms via FTS5.",
+      "rationale": "apartments.com amenity filter is a fixed curated list — 'natural light' or 'in-unit washer' aren't in it. FTS5 AND-join is.",
+      "example": "apartments-pp-cli must-have \"in-unit washer\" \"covered parking\" \"dishwasher\" --json",
+      "why_it_matters": "Pick this when the must-haves are free-text, not in apartments.com's amenity dropdown.",
+      "group": "Local-store math"
+    },
+    {
+      "name": "Local shortlist",
+      "command": "shortlist",
+      "description": "Tag-based local shortlist table; add/show/remove listings with notes and tags.",
+      "rationale": "Replaces the user's spreadsheet workflow with a queryable table that joins to listings for compare and digest.",
+      "example": "apartments-pp-cli shortlist add https://www.apartments.com/example-1234 --tag austin --note \"liked the kitchen\"",
+      "why_it_matters": "Pick this when an agent or user is curating a shortlist; downstream commands like `compare` read from it.",
+      "group": "Shortlist workflows"
+    }
+  ],
+  "narrative": {
+    "display_name": "Apartments.com",
+    "headline": "The apartment-hunt CLI that actually works in 2026 — Surf-cleared bot protection plus a local SQLite store the website itself doesn't have.",
+    "value_prop": "Search every Apartments.com listing path-slug from the terminal, sync results to a local SQLite store, and run the workflows the website never built: diff a saved search week-over-week with `watch`, rank by $/sqft net of pet fees with `value`, compare a shortlist side-by-side with `compare`, and surface price drops or phantom listings with `drops`, `stale`, and `phantoms`. Every command is `--json`/`--select`-shaped so an agent can pipe the output without burning context.",
+    "auth_narrative": "No authentication required. Apartments.com's anonymous search and listing pages are the entire API surface this CLI uses; saved-search login (cookie session) is intentionally out of scope. Surf with Chrome TLS fingerprint clears the Akamai-style protection at runtime — no clearance cookie capture, no resident browser.",
+    "quickstart": [
+      {
+        "command": "apartments-pp-cli rentals --city austin --state TX --beds 2 --price-max 2500 --pets dog --json",
+        "comment": "First search — verifies Surf transport clears protection and JSON output is well-formed."
+      },
+      {
+        "command": "apartments-pp-cli sync-search austin-2br --city austin --state TX --beds 2 --price-max 2500 --pets dog",
+        "comment": "Persist that search to the local store under the slug 'austin-2br' so transcendence commands can read it."
+      },
+      {
+        "command": "apartments-pp-cli rank --by sqft --beds 2 --price-max 2500 --json --limit 10",
+        "comment": "Rank the synced listings by $/sqft — the ratio metric apartments.com's sort omits."
+      },
+      {
+        "command": "apartments-pp-cli watch austin-2br --since 7d --json",
+        "comment": "After a few days, run this — `watch` diffs against the previous sync and emits NEW / REMOVED / PRICE-CHANGED sets."
+      },
+      {
+        "command": "apartments-pp-cli digest --saved-search austin-2br --since 7d --format md",
+        "comment": "The Monday-morning digest: new + removed + price drops + top-by-$/sqft + stale + phantoms in one structured output."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "search returns 0 listings or HTTP 403",
+        "fix": "Run `apartments-pp-cli doctor` to verify Surf transport is active. If 403 persists, the Chrome TLS fingerprint may need refresh — file an issue with the doctor output."
+      },
+      {
+        "symptom": "watch reports no changes when you know listings changed",
+        "fix": "Confirm a previous `sync` exists: `apartments-pp-cli sql \"SELECT MAX(observed_at) FROM listing_snapshots WHERE saved_search = 'austin-2br'\"`. If empty, run sync first."
+      },
+      {
+        "symptom": "value or rank command returns empty",
+        "fix": "These read from the local store. Run `sync` first. Check with `apartments-pp-cli sql \"SELECT COUNT(*) FROM listings\"`."
+      },
+      {
+        "symptom": "amenity must-have intersect returns no rows",
+        "fix": "FTS5 needs amenities populated; some listings have empty amenity arrays. Try `apartments-pp-cli sql \"SELECT url, length(amenities) FROM listings ORDER BY length(amenities) DESC LIMIT 5\"` to confirm."
+      },
+      {
+        "symptom": "rate limited or repeated 429s during sync",
+        "fix": "Sync uses adaptive pacing automatically. If you hit a wall, pause for 30 seconds and re-run; cliutil.AdaptiveLimiter will back off."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or human needs structured Apartments.com data and needs the workflows the website itself doesn't expose: cross-search diffs over time, $/sqft and total-cost-of-occupancy rankings, multi-slug union queries, side-by-side comparison, and digest-style summaries. Reach for it for relocation tracking, value-per-dollar screens across shortlists, leasing-agent weekly digests, and any rental-search scenario that needs JSON + offline composition. Skip it for one-off browsing — the apartments.com website is fine for that.",
+    "recipes": [
+      {
+        "title": "Three-neighborhood relocation hunt",
+        "command": "apartments-pp-cli nearby austin-tx round-rock-tx pflugerville-tx --beds 2 --price-max 2500 --pets dog --rank sqft --json --select url,addressLocality,maxrent,sqft,price_per_sqft",
+        "explanation": "Single ranked feed across three target neighborhoods, deduped by listing URL, with `--select` keeping only the columns the agent needs."
+      },
+      {
+        "title": "Weekly leasing-agent digest",
+        "command": "apartments-pp-cli digest --saved-search client-rachel --since 7d --format md",
+        "explanation": "Composes new / removed / price-drops / top-5-by-sqft / stale / phantom flags for a single client search into a markdown report ready to paste into email."
+      },
+      {
+        "title": "Total-cost screen with hard budget",
+        "command": "apartments-pp-cli value --budget 2800 --pet dog --months 12 --json --select rank,url,maxrent,pet_rent,total_cost,price_per_sqft",
+        "explanation": "Ranks the synced listings by 12-month total cost (rent + pet rent + pet deposit + pet fee), filtered to under-budget rows only."
+      },
+      {
+        "title": "Phantom-detection sweep before tour scheduling",
+        "command": "apartments-pp-cli phantoms --json --select url,reason,unchanged_days",
+        "explanation": "Three-signal union — 404, dropped from saved search, stale ≥45 days. Filter your shortlist before booking tours so you don't drive across town to a leased unit."
+      },
+      {
+        "title": "Offline FTS amenity intersect",
+        "command": "apartments-pp-cli must-have \"in-unit washer\" \"covered parking\" \"dishwasher\" --json --select url,addressLocality,maxrent,amenities",
+        "explanation": "Path filter for amenities apartments.com's filter dropdown doesn't expose. FTS5 AND-join over the synced amenities array."
+      }
+    ],
+    "trigger_phrases": [
+      "find apartments in \u003ccity\u003e",
+      "watch apartment listings for \u003carea\u003e",
+      "rank rentals by price per square foot",
+      "compare these apartments",
+      "use apartments-pp-cli",
+      "run apartments"
+    ]
+  }
+}

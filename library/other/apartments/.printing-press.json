@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-04T04:19:56.209681Z",
+  "printing_press_version": "3.8.0",
+  "api_name": "apartments",
+  "display_name": "Apartments",
+  "cli_name": "apartments-pp-cli",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:b9a554bf8d6f2b53d86037a9df8e29e3b04af01b0bd83a4f51599b6c5c2e12cf",
+  "run_id": "20260503-193955",
+  "description": "Search Apartments.com rentals from the terminal with offline sync, ranking, diff, and shortlist workflows.",
+  "mcp_binary": "apartments-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_ready": "full",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Watch saved searches with diff",
+      "command": "watch",
+      "description": "Re-run a stored search and surface what's NEW, REMOVED, or PRICE-CHANGED since the last sync."
+    },
+    {
+      "name": "Multi-slug union ranking",
+      "command": "nearby",
+      "description": "Fan out a search across multiple cities, zips, or neighborhoods and return one ranked, deduped list."
+    },
+    {
+      "name": "Total-cost-of-occupancy ranking",
+      "command": "value",
+      "description": "Rank synced listings by 12-month total cost (rent + pet rent + pet deposit + pet fee), filtered to your hard budget."
+    },
+    {
+      "name": "$/sqft and $/bed ranking",
+      "command": "rank",
+      "description": "Rank synced listings by ratio metrics — price per square foot or price per bedroom."
+    },
+    {
+      "name": "Side-by-side compare",
+      "command": "compare",
+      "description": "Pivot 2–8 listings into a wide table — one column per listing — with computed $/sqft and amenity overlap."
+    },
+    {
+      "name": "Price-drop alerts",
+      "command": "drops",
+      "description": "List listings whose max-rent dropped by ≥N% within a time window."
+    },
+    {
+      "name": "Stale-listing flag",
+      "command": "stale",
+      "description": "Flag listings whose price and availability haven't changed in N days — often phantom or stuck."
+    },
+    {
+      "name": "Phantom-listing detector",
+      "command": "phantoms",
+      "description": "Surface listings flagged by a three-signal join: 404 on re-fetch, dropped from saved-search results, or stale ≥45 days."
+    },
+    {
+      "name": "Neighborhood market summary",
+      "command": "market",
+      "description": "Median, p10, p90 of rent and rent/sqft, pet-friendly share, by city/state and bed count."
+    },
+    {
+      "name": "Listing history",
+      "command": "history",
+      "description": "Time-series of every observation of one listing — rent, availability, status."
+    },
+    {
+      "name": "Weekly digest",
+      "command": "digest",
+      "description": "Single-shot composer: new + removed + price-drops + top-5 by $/sqft + stale + phantom flags for one saved search over N days."
+    },
+    {
+      "name": "Floor-plan-level value report",
+      "command": "floorplans",
+      "description": "Rank per-floor-plan rent/sqft across synced listings — same building can yield 4 plans at different ratios."
+    },
+    {
+      "name": "Amenity must-have intersect",
+      "command": "must-have",
+      "description": "Filter synced listings to those whose amenities array contains ALL listed terms via FTS5."
+    },
+    {
+      "name": "Local shortlist",
+      "command": "shortlist",
+      "description": "Tag-based local shortlist table; add/show/remove listings with notes and tags."
+    }
+  ]
+}

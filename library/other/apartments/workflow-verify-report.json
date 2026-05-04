@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/toriniku/printing-press/.runstate/printing-press-6b26f844/runs/20260503-193955/working/apartments-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

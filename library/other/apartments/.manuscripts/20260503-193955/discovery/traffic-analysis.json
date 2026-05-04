@@ -1,0 +1,95 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://www.apartments.com",
+    "captured_at": "2026-05-04T02:50:00Z",
+    "entry_count": 0,
+    "api_entry_count": 0,
+    "noise_entry_count": 0
+  },
+  "reachability": {
+    "mode": "browser_http",
+    "confidence": 0.85,
+    "reasons": [
+      "stdlib HTTP returns 403 with HTML access-denied (Akamai-style bot rejection)",
+      "Surf with Chrome TLS fingerprint clears protection (HTTP 200, text/html; charset=utf-8)"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "html-ssr",
+      "confidence": 0.95,
+      "details": {
+        "rendering": "server-side",
+        "extraction": "schema.org microdata + data-* attributes"
+      }
+    }
+  ],
+  "auth": {
+    "candidates": []
+  },
+  "protections": [
+    {
+      "label": "akamai-bot-manager",
+      "confidence": 0.85,
+      "notes": [
+        "stdlib HTTP user agents return 403 with 'Access Denied' HTML",
+        "Surf Chrome TLS fingerprint clears at runtime (probe-reachability mode: browser_http)"
+      ]
+    }
+  ],
+  "endpoint_clusters": [
+    {
+      "host": "www.apartments.com",
+      "method": "GET",
+      "path": "/{city}-{state}/",
+      "count": 1,
+      "statuses": [200],
+      "content_types": ["text/html"],
+      "size_class": "html-ssr"
+    },
+    {
+      "host": "www.apartments.com",
+      "method": "GET",
+      "path": "/{property-slug}/",
+      "count": 1,
+      "statuses": [200],
+      "content_types": ["text/html"],
+      "size_class": "html-ssr"
+    }
+  ],
+  "pagination": [
+    {
+      "location": "path",
+      "name": "page",
+      "confidence": 0.9
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "search",
+      "resource": "search",
+      "confidence": 0.95,
+      "rationale": "Path-slug search is the primary entry point at apartments.com"
+    },
+    {
+      "name": "get",
+      "resource": "listing",
+      "confidence": 0.95,
+      "rationale": "Listing detail page extracts schema.org microdata"
+    }
+  ],
+  "generation_hints": [
+    "use Surf with Chrome TLS fingerprint at runtime (UsesBrowserHTTPTransport)",
+    "all responses are HTML/SSR — extract via html_extract mode: page",
+    "no clearance cookie capture; no resident browser sidecar",
+    "schema.org microdata (meta itemprop=streetAddress|addressLocality|addressRegion|postalCode) plus data-beds / data-baths / data-maxrent attributes are the primary extraction targets"
+  ],
+  "warnings": [
+    {
+      "type": "protection-active",
+      "message": "Apartments.com (CoStar) employs Akamai-style bot detection. stdlib HTTP returns 403; Surf with Chrome TLS fingerprint clears it. Watch for protection escalation that might require Chrome-clearance cookie import or full-browser fallback in future versions.",
+      "confidence": 0.7
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+name: apartments
+description: Search Apartments.com listings, sync results to a local SQLite store, and run workflows the website never built — diff saved searches, rank by $/sqft, compare shortlists, and surface price drops or phantom listings.
+cli_description: "Search Apartments.com rentals from the terminal with offline sync, ranking, diff, and shortlist workflows."
+version: "0.1.0"
+kind: synthetic
+spec_source: sniffed
+http_transport: browser-chrome
+website_url: "https://www.apartments.com"
+category: other
+base_url: "https://www.apartments.com"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/apartments-pp-cli/config.toml"
+
+cache:
+  enabled: true
+
+resources:
+  rentals:
+    description: "Search Apartments.com rental listings by city, beds, baths, price, and pet policy. Returns parsed listing placards."
+    endpoints:
+      find:
+        method: GET
+        path: "/{city}-{state}/"
+        description: "Run a path-slug search at apartments.com and return listing placards parsed from the HTML response."
+        params:
+          - name: city
+            type: string
+            required: true
+            positional: false
+            path_param: true
+            description: "City slug (lowercase, hyphenated). Example: austin, new-york, san-francisco."
+            default: "austin"
+          - name: state
+            type: string
+            required: true
+            positional: false
+            path_param: true
+            description: "Two-letter state abbreviation (lowercase). Example: tx, ny, ca."
+            enum: [al, ak, az, ar, ca, co, ct, de, fl, ga, hi, id, il, in, ia, ks, ky, la, me, md, ma, mi, mn, ms, mo, mt, ne, nv, nh, nj, nm, ny, nc, nd, oh, ok, or, pa, ri, sc, sd, tn, tx, ut, vt, va, wa, wv, wi, wy, dc]
+            default: "tx"
+        response:
+          type: text
+          item: string
+        response_format: html
+        html_extract:
+          mode: page
+  listing:
+    description: "Fetch a single Apartments.com listing detail page by URL or property ID, parsing rent, beds/baths, address, amenities, and pet policy."
+    endpoints:
+      get:
+        method: GET
+        path: "/{property_id}/"
+        description: "Fetch one Apartments.com listing detail page and parse schema.org microdata."
+        params:
+          - name: property_id
+            type: string
+            required: true
+            positional: true
+            path_param: true
+            description: "Apartments.com listing URL slug (e.g. 'the-domain-austin-tx-1234')."
+            default: "example-property"
+        response:
+          type: text
+          item: string
+        response_format: html
+        html_extract:
+          mode: page
+
+extra_commands:
+  - name: search
+    description: "Search Apartments.com listings by city, state, beds, baths, price, pets, and property type."
+  - name: get
+    args: "<url-or-id>"
+    description: "Fetch a single listing detail page (rent, beds/baths, amenities, pet policy)."
+  - name: sync
+    args: "<saved-search>"
+    description: "Run a saved search against apartments.com and snapshot placards into the local store."
+  - name: watch
+    args: "<saved-search>"
+    description: "Diff the latest sync of a saved search against the previous; emit NEW / REMOVED / PRICE-CHANGED listings."
+  - name: nearby
+    args: "<slug...>"
+    description: "Fan out a search across multiple city/zip/neighborhood slugs and return one ranked, deduped list."
+  - name: value
+    description: "Rank synced listings by 12-month total cost of occupancy (rent + pet rent + pet deposit + pet fee)."
+  - name: rank
+    description: "Rank synced listings by ratio metrics — $/sqft or $/bed."
+  - name: compare
+    args: "<url-or-id...>"
+    description: "Pivot 2–8 listings into a wide table — one column per listing — with computed $/sqft and amenity overlap."
+  - name: drops
+    description: "List listings whose max-rent dropped by ≥N% within a time window."
+  - name: stale
+    description: "Flag listings whose price and availability have not changed in N days — phantom or stuck signal."
+  - name: phantoms
+    description: "Surface listings flagged by a three-signal union: 404 on re-fetch, dropped from saved-search results, or stale ≥45 days."
+  - name: market
+    args: "<city-state>"
+    description: "Aggregate synced listings: median, p10, p90 of rent and rent/sqft, plus pet-friendly share."
+  - name: history
+    args: "<url-or-id>"
+    description: "Time-series of every observation of one listing — rent, availability, status."
+  - name: digest
+    description: "Weekly digest composer: new + removed + price-drops + top-by-sqft + stale + phantoms in one structured output."
+  - name: floorplans
+    description: "Rank per-floor-plan rent/sqft across synced listings."
+  - name: must-have
+    args: "<term...>"
+    description: "Filter synced listings to those whose amenities array contains ALL listed terms via FTS5."
+  - name: shortlist
+    description: "Local shortlist table — add / show / remove listings with notes and tags."
