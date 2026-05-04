@@ -43,12 +43,13 @@ jobs:
   regenerate:
     name: Regenerate and commit
     runs-on: ubuntu-latest
-    # Cancel an in-flight run when a newer commit lands. The newer
-    # source supersedes ours; finishing the older regen would just
-    # produce output we'd overwrite seconds later.
+    # Share one push lane with generate-skills.yml. Both workflows
+    # commit generated artifacts back to main after the same source
+    # changes, so letting them run concurrently causes non-fast-forward
+    # push failures when one generated commit lands first.
     concurrency:
-      group: regenerate-registry
-      cancel-in-progress: true
+      group: generated-artifact-push-main
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v6
         with:

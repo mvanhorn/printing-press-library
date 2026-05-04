@@ -13,9 +13,18 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    # Share one push lane with generate-registry.yml. Both workflows
+    # commit generated artifacts back to main after library metadata
+    # changes, so queue them and check out main only after the lane is
+    # acquired.
+    concurrency:
+      group: generated-artifact-push-main
+      cancel-in-progress: false
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: main
 
       - uses: actions/setup-go@v6
         with:
