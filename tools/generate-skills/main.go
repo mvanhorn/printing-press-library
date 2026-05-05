@@ -285,9 +285,12 @@ func injectStaleBuildFallback(data []byte) []byte {
 		return data
 	}
 	// Pattern: a line ending in `cmd/<binary>@latest` that is NOT inside
-	// the metadata JSON (metadata is always on line 6 of the frontmatter
-	// and uses a different quoting shape — we filter by the leading whitespace
-	// plus the `go install` prefix, which metadata does not have).
+	// the metadata block. Post-migration, metadata is a multi-line nested
+	// YAML block whose `module:` lines carry bare module paths (no
+	// `go install ` prefix), so the `^(\s*)go install ` anchor naturally
+	// excludes them. The regex still matches the install-instruction
+	// lines in the body sections (CLI Installation + MCP Server
+	// Installation), which is what we want.
 	goInstallRE := regexp.MustCompile(
 		`(?m)^(\s*)(go install github\.com/mvanhorn/printing-press-library/library/[^\s@]+@latest)\s*$`)
 	fallbackBlock := func(indent, installCmd string) string {
@@ -462,63 +465,47 @@ func buildEnrichedDescription(entry RegistryEntry, domainCommands []DomainComman
 	return desc
 }
 
-// buildOpenClawMetadata constructs the single-line JSON for the metadata frontmatter field.
-// This gives OpenClaw dependency gating, auto-install, and API key prompting.
+// buildOpenClawMetadata returns the full nested-YAML metadata block
+// (including the leading `metadata:` line and a trailing newline) for the
+// SKILL.md frontmatter. The block conforms to ClawHub's SkillInstallSpec
+// schema: kind ∈ {brew,node,go,uv}; the install entry uses kind: go +
+// module: rather than the legacy kind: shell + command: pair.
+//
+// The byte-shape here must match exactly what cli-printing-press's
+// internal/generator/templates/skill.md.tmpl emits and what the
+// tools/migrate-skill-metadata/ script writes when migrating legacy
+// JSON-string entries. If the three diverge, generate-skills.yml will
+// produce a regen commit overwriting the migrated cli-skills with this
+// generator's output. Keep them in sync.
 func buildOpenClawMetadata(ctx SkillContext) string {
-	type installBlock struct {
-		ID      string   `json:"id"`
-		Kind    string   `json:"kind"`
-		Command string   `json:"command"`
-		Bins    []string `json:"bins"`
-		Label   string   `json:"label"`
-	}
+	module := fmt.Sprintf("github.com/mvanhorn/printing-press-library/%s/cmd/%s", ctx.InstallPath, ctx.CLIBinary)
 
-	type requires struct {
-		Bins []string `json:"bins"`
-		Env  []string `json:"env,omitempty"`
-	}
-
-	type openclawBlock struct {
-		Requires   requires       `json:"requires"`
-		PrimaryEnv string         `json:"primaryEnv,omitempty"`
-		Install    []installBlock `json:"install"`
-	}
-
-	type metadataWrapper struct {
-		OpenClaw openclawBlock `json:"openclaw"`
-	}
-
-	goInstallCmd := fmt.Sprintf("go install github.com/mvanhorn/printing-press-library/%s/cmd/%s@latest", ctx.InstallPath, ctx.CLIBinary)
-
-	req := requires{
-		Bins: []string{ctx.CLIBinary},
-	}
+	var b strings.Builder
+	b.WriteString("metadata:\n")
+	b.WriteString("  openclaw:\n")
+	b.WriteString("    requires:\n")
+	b.WriteString("      bins:\n")
+	b.WriteString("        - ")
+	b.WriteString(ctx.CLIBinary)
+	b.WriteString("\n")
 	if len(ctx.EnvVars) > 0 && ctx.AuthType == "api_key" {
-		req.Env = ctx.EnvVars
+		b.WriteString("      env:\n")
+		for _, env := range ctx.EnvVars {
+			b.WriteString("        - ")
+			b.WriteString(env)
+			b.WriteString("\n")
+		}
+		b.WriteString("    primaryEnv: ")
+		b.WriteString(ctx.EnvVars[0])
+		b.WriteString("\n")
 	}
-
-	oc := openclawBlock{
-		Requires: req,
-		Install: []installBlock{
-			{
-				ID:      "go",
-				Kind:    "shell",
-				Command: goInstallCmd,
-				Bins:    []string{ctx.CLIBinary},
-				Label:   "Install via go install",
-			},
-		},
-	}
-
-	if len(ctx.EnvVars) > 0 && ctx.AuthType == "api_key" {
-		oc.PrimaryEnv = ctx.EnvVars[0]
-	}
-
-	wrapper := metadataWrapper{OpenClaw: oc}
-	data, err := json.Marshal(wrapper)
-	if err != nil {
-		log.Printf("Warning: could not marshal OpenClaw metadata for %s: %v", ctx.SkillName, err)
-		return ""
-	}
-	return string(data)
+	b.WriteString("    install:\n")
+	b.WriteString("      - kind: go\n")
+	b.WriteString("        bins: [")
+	b.WriteString(ctx.CLIBinary)
+	b.WriteString("]\n")
+	b.WriteString("        module: ")
+	b.WriteString(module)
+	b.WriteString("\n")
+	return b.String()
 }

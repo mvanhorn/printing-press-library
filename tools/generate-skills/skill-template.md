@@ -4,7 +4,7 @@ description: "{{.EnrichedDesc}}"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 {{- if .OpenClawMeta}}
-metadata: '{{.OpenClawMeta}}'
+{{.OpenClawMeta -}}
 {{- end}}
 ---
 

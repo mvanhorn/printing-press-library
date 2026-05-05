@@ -359,3 +359,100 @@ func TestIntegration_UpstreamOverwritesStaleSynthesis(t *testing.T) {
 		t.Errorf("upstream should overwrite stale synthesis\nwant: %q\ngot:  %q", upstreamContent, got)
 	}
 }
+
+// TestBuildOpenClawMetadata_NoAuth locks in the canonical multi-line YAML
+// shape for a CLI without auth env vars. The byte-shape here must match
+// what cli-printing-press's tools/migrate-skill-metadata/ emits — see
+// the migration tool's emitMetadataBlock for the source of truth.
+func TestBuildOpenClawMetadata_NoAuth(t *testing.T) {
+	ctx := SkillContext{
+		CLIBinary:   "dub-pp-cli",
+		InstallPath: "library/marketing/dub",
+	}
+	want := "metadata:\n" +
+		"  openclaw:\n" +
+		"    requires:\n" +
+		"      bins:\n" +
+		"        - dub-pp-cli\n" +
+		"    install:\n" +
+		"      - kind: go\n" +
+		"        bins: [dub-pp-cli]\n" +
+		"        module: github.com/mvanhorn/printing-press-library/library/marketing/dub/cmd/dub-pp-cli\n"
+	got := buildOpenClawMetadata(ctx)
+	if got != want {
+		t.Errorf("byte-shape mismatch:\nwant:\n%s\ngot:\n%s", want, got)
+	}
+}
+
+// TestBuildOpenClawMetadata_ApiKey locks in the env+primaryEnv shape for
+// api_key auth flavor.
+func TestBuildOpenClawMetadata_ApiKey(t *testing.T) {
+	ctx := SkillContext{
+		CLIBinary:   "kalshi-pp-cli",
+		InstallPath: "library/payments/kalshi",
+		AuthType:    "api_key",
+		EnvVars:     []string{"KALSHI_API_KEY", "KALSHI_PRIVATE_KEY_PATH"},
+	}
+	want := "metadata:\n" +
+		"  openclaw:\n" +
+		"    requires:\n" +
+		"      bins:\n" +
+		"        - kalshi-pp-cli\n" +
+		"      env:\n" +
+		"        - KALSHI_API_KEY\n" +
+		"        - KALSHI_PRIVATE_KEY_PATH\n" +
+		"    primaryEnv: KALSHI_API_KEY\n" +
+		"    install:\n" +
+		"      - kind: go\n" +
+		"        bins: [kalshi-pp-cli]\n" +
+		"        module: github.com/mvanhorn/printing-press-library/library/payments/kalshi/cmd/kalshi-pp-cli\n"
+	got := buildOpenClawMetadata(ctx)
+	if got != want {
+		t.Errorf("byte-shape mismatch:\nwant:\n%s\ngot:\n%s", want, got)
+	}
+}
+
+// TestBuildOpenClawMetadata_AgentCaptureBareName confirms the bare-name
+// install convention (cli_name without the -pp-cli suffix) is preserved.
+func TestBuildOpenClawMetadata_AgentCaptureBareName(t *testing.T) {
+	ctx := SkillContext{
+		CLIBinary:   "agent-capture",
+		InstallPath: "library/developer-tools/agent-capture",
+	}
+	got := buildOpenClawMetadata(ctx)
+	if !strings.Contains(got, "        - agent-capture\n") {
+		t.Error("requires.bins should contain bare name")
+	}
+	if !strings.Contains(got, "        bins: [agent-capture]\n") {
+		t.Error("install[].bins should contain bare name")
+	}
+	if !strings.Contains(got, "/cmd/agent-capture\n") {
+		t.Error("module should end with bare-name cmd path")
+	}
+}
+
+// TestBuildOpenClawMetadata_NeverEmitsLegacyShape locks out the old
+// JSON-string-blob and kind: shell shape in case future maintainers
+// accidentally regress the function.
+func TestBuildOpenClawMetadata_NeverEmitsLegacyShape(t *testing.T) {
+	ctx := SkillContext{
+		CLIBinary:   "x-pp-cli",
+		InstallPath: "library/other/x",
+	}
+	got := buildOpenClawMetadata(ctx)
+	if strings.Contains(got, `'{"openclaw"`) {
+		t.Error("must not emit JSON-string blob")
+	}
+	if strings.Contains(got, `kind: shell`) {
+		t.Error("must not emit kind: shell")
+	}
+	if strings.Contains(got, "command:") {
+		t.Error("must not emit command: field")
+	}
+	if strings.Contains(got, "id:") {
+		t.Error("must not emit id: field")
+	}
+	if strings.Contains(got, "label:") {
+		t.Error("must not emit label: field")
+	}
+}
