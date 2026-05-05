@@ -12,13 +12,13 @@ import (
 	"strings"
 	"time"
 
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/other/apartments/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/other/apartments/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/other/apartments/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/other/apartments/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/other/apartments/internal/store"
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterTools registers all API operations as MCP tools.
@@ -31,7 +31,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/{property_id}/", []string{"property_id", }),
+		makeAPIHandler("GET", "/{property_id}/", []string{"property_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("rentals_find",
@@ -42,7 +42,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/{city}-{state}/", []string{"city","state", }),
+		makeAPIHandler("GET", "/{city}-{state}/", []string{"city", "state"}),
 	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
@@ -192,6 +192,7 @@ func dbPath() string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", "apartments-pp-cli", "data.db")
 }
+
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
 
@@ -252,16 +253,16 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion apartments-pp-cli binary.",
 		"resources": []map[string]any{
 			{
-				"name": "listing",
+				"name":        "listing",
 				"description": "Fetch a single Apartments.com listing detail page by URL or property ID, parsing rent, beds/baths, address,...",
-				"endpoints": []string{"get",  },
-				"searchable": true,
+				"endpoints":   []string{"get"},
+				"searchable":  true,
 			},
 			{
-				"name": "rentals",
+				"name":        "rentals",
 				"description": "Search Apartments.com rental listings by city, beds, baths, price, and pet policy. Returns parsed listing placards.",
-				"endpoints": []string{"find",  },
-				"searchable": true,
+				"endpoints":   []string{"find"},
+				"searchable":  true,
 			},
 		},
 		"query_tips": []string{

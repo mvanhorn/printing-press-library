@@ -1,5 +1,9 @@
 {
-  "timestamp": "2026-05-04T04:18:58.588949Z",
-  "cli_dir": "/Users/toriniku/printing-press/.runstate/printing-press-6b26f844/runs/20260503-193955/working/apartments-pp-cli",
-  "findings": null
+  "timestamp": "2026-05-05T19:14:41.344121Z",
+  "cli_dir": "/Users/toriniku/printing-press/library/apartments",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-05T19:08:28.514383Z"
+  }
 }

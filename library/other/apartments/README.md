@@ -164,18 +164,118 @@ Run `apartments-pp-cli --help` for the full command reference and flag list.
 
 ## Commands
 
-### listing
+### Search & Fetch (live)
 
-Fetch a single Apartments.com listing detail page by URL or property ID, parsing rent, beds/baths, address, amenities, and pet policy.
+| Command | What it does |
+|---|---|
+| `rentals` | Path-slug search by city/state/zip, beds, price, pets, type. Returns parsed placards. |
+| `listing <url-or-id>` | Fetch one detail page; falls back to the most recent placard snapshot when the live fetch is rate-gated. |
+| `nearby <slug...>` | Fan out across multiple city-state slugs; returns one ranked, deduped list. |
 
-- **`apartments-pp-cli listing get`** - Fetch one Apartments.com listing detail page and parse schema.org microdata.
+### Persist (local SQLite store)
 
-### rentals
+| Command | What it does |
+|---|---|
+| `sync-search <slug>` | Run a saved search and append placards to `listing_snapshots` under the slug. |
+| `sync` | Generic sync helper for the synced-data layer. |
+| `import` / `export` | Round-trip the local store via JSONL/JSON for backup or migration. |
 
-Search Apartments.com rental listings by city, beds, baths, price, and pet policy. Returns parsed listing placards.
+### Time-series & change detection
 
-- **`apartments-pp-cli rentals find`** - Run a path-slug search at apartments.com and return listing placards parsed from the HTML response.
+| Command | What it does |
+|---|---|
+| `watch <slug>` | Diff the latest two syncs of a saved search: NEW / REMOVED / PRICE_CHANGED. |
+| `drops` | Listings whose max-rent dropped by ≥N% within a `--since` window. |
+| `stale` | Listings whose price and availability have not changed in N days. |
+| `phantoms` | Listings flagged by 404 on re-fetch, dropped from saved-search results, or stale ≥`--days`. |
+| `history <url-or-id>` | Time-series of every observation of one listing — rent, availability, status. |
+| `digest` | One-shot composer: new + removed + price drops + top-by-$/sqft + stale + phantoms for one saved search. |
 
+### Ranking & analysis (on synced data)
+
+| Command | What it does |
+|---|---|
+| `rank` | Rank by ratio metrics: `--by sqft\|bed\|rent`. |
+| `value` | Rank by 12-month total cost (rent + pet fees), filtered by `--budget`. |
+| `floorplans` | Rank per-floor-plan rent/sqft — same building can yield 4 plans at different ratios. |
+| `market <city-state>` | Median, p10, p90 of rent and rent/sqft, pet-friendly share, by bed count. |
+| `must-have <term...>` | Filter to listings whose amenities array contains ALL listed terms. |
+| `compare <id...>` | Pivot 2–8 listings into a wide table — one column per listing — with computed $/sqft and amenity overlap. |
+
+### Shortlist & profiles
+
+| Command | What it does |
+|---|---|
+| `shortlist add\|show\|remove` | Tag-based local shortlist with notes; downstream commands like `compare` read from it. |
+| `profile` | Save / list / apply named flag sets for reuse. |
+
+### Utilities
+
+| Command | What it does |
+|---|---|
+| `doctor` | Verify config, transport, and connectivity. |
+| `agent-context` | Emit structured JSON describing this CLI for agents. |
+| `which` | Find the command that implements a capability. |
+| `api` | Browse all API endpoints by interface name. |
+| `workflow` | Compound workflows that combine multiple operations. |
+| `feedback` | Record feedback about this CLI (local by default; upstream opt-in). |
+| `version` | Print version. |
+
+
+## Cookbook
+
+Recipes use verified flag names and the local store. Run `apartments-pp-cli sync-search <slug> --city <city> --state <st>` once before any "synced data" recipe.
+
+```bash
+# 1. Cheapest 2BRs in Austin under $2,500 with dog policy, ranked by $/sqft.
+apartments-pp-cli rentals --city austin --state tx --beds 2 --price-max 2500 --pets dog --json \
+  | jq '.[] | select(.sqft > 0) | {url, rent: .max_rent, sqft, ppsqft: (.max_rent / .sqft)}'
+
+# 2. Persist a saved-search so transcendence commands can read it.
+apartments-pp-cli sync-search austin-2br --city austin --state tx --beds 2 --price-max 2500 --pets dog
+
+# 3. Weekly diff on the saved-search — what's new, removed, or repriced since the last sync.
+apartments-pp-cli watch austin-2br --since 7d --json
+
+# 4. Monday-morning digest as Markdown for an email or PR description.
+apartments-pp-cli digest --saved-search austin-2br --since 7d --format md
+
+# 5. Rank synced listings by 12-month total cost net of pet fees, capped at $2,800/mo.
+apartments-pp-cli value --budget 2800 --pet dog --months 12 --json --select rank,url,total_cost
+
+# 6. Ranked $/sqft across multiple metro slugs — one feed.
+apartments-pp-cli nearby austin-tx round-rock-tx pflugerville-tx --beds 2 --price-max 2500 --rank sqft --agent
+
+# 7. Surface listings whose price has dropped 10%+ in the last 14 days.
+apartments-pp-cli drops --since 14d --min-pct 10 --json --limit 50
+
+# 8. Flag stuck or phantom listings before booking tours.
+apartments-pp-cli phantoms --days 45 --json
+apartments-pp-cli stale --days 30 --json --limit 25
+
+# 9. Rank floor plans within the same building (same building, different price ratios).
+apartments-pp-cli floorplans --rank price-per-sqft --beds 2 --json --limit 10
+
+# 10. Anchor "is this a fair price" against the local distribution.
+apartments-pp-cli market austin-tx --beds 2 --json
+
+# 11. Filter to listings that have ALL of these amenities (FTS5 intersect).
+apartments-pp-cli must-have "in-unit washer" "covered parking" "dishwasher" --json
+
+# 12. Side-by-side compare a shortlist of 2–8 listings.
+apartments-pp-cli compare the-domain-austin-tx the-grove-austin-tx austin-arboretum --json
+
+# 13. Build a tagged shortlist as you research.
+apartments-pp-cli shortlist add https://www.apartments.com/the-domain-austin-tx/abc123/ --tag favorite --note "rooftop pool"
+apartments-pp-cli shortlist show --tag favorite --json
+
+# 14. Time-series of one listing's rent and availability.
+apartments-pp-cli history https://www.apartments.com/the-domain-austin-tx/abc123/ --json
+
+# 15. Save common output flags as a reusable profile, then apply them to any command.
+apartments-pp-cli profile save agent-defaults --json --compact --no-color
+apartments-pp-cli rentals --profile agent-defaults --city austin --state tx --beds 2
+```
 
 ## Output Formats
 

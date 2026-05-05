@@ -44,8 +44,12 @@ func newMustHaveCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			var matched []apt.Listing
+			var withAmenities int
 			for _, r := range rows {
 				li := r.Data
+				if len(li.Amenities) > 0 {
+					withAmenities++
+				}
 				lowered := make([]string, len(li.Amenities))
 				for i, a := range li.Amenities {
 					lowered[i] = strings.ToLower(a)
@@ -70,6 +74,25 @@ func newMustHaveCmd(flags *rootFlags) *cobra.Command {
 			}
 			if matched == nil {
 				matched = []apt.Listing{}
+			}
+			// Empty-result envelope: when no listings match, surface why.
+			// This prevents an agent from pivoting on '[]' alone.
+			if len(matched) == 0 {
+				out := map[string]any{
+					"terms":                 terms,
+					"matches":               matched,
+					"cached_listings":       len(rows),
+					"cached_with_amenities": withAmenities,
+				}
+				switch {
+				case len(rows) == 0:
+					out["hint"] = "no listings cached locally — run 'apartments-pp-cli sync-search <slug> --city <city> --state <st>' first"
+				case withAmenities == 0:
+					out["hint"] = "cached listings have no amenities populated — apartments.com listing detail pages 403-block; amenities are populated only when 'listing get' succeeds for individual URLs"
+				default:
+					out["hint"] = "no cached listing has all of these terms in its amenities array; try fewer terms or different wording"
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), matched, flags)
 		},
