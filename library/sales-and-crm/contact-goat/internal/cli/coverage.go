@@ -23,37 +23,80 @@ func newCoverageCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	var sourceFlag string
 	var pollTimeoutSec int
+	var location string
 
 	cmd := &cobra.Command{
-		Use:   "coverage <company>",
+		Use:   "coverage [<company>]",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Show who you know at a company (LinkedIn + Happenstance)",
+		Short: "Show who you know at a company or in a location (LinkedIn + Happenstance)",
 		Long: `Cross-source "who do I know at X" query.
 
-Runs the following in parallel (source flag permitting):
+Scope: <company> positional OR --location <city>, not both. Company mode
+runs LinkedIn + Happenstance; location mode runs Happenstance bearer only
+(LinkedIn has no city-search semantic, and the cookie surface has no
+geographic primitive distinct from the keyword search the bearer surface
+already runs).
+
+Runs the following (in parallel where supported):
 
   1. Happenstance graph-search (/api/search + /api/dynamo): the real
      people-search the web app uses. Surfaces your 1st-degree (synced
      LinkedIn / Gmail contacts) and 2nd-degree (your friends' networks)
-     hits at the target company, with referrer rationale.
+     hits at the target, with referrer rationale.
   2. LinkedIn search_people scoped to the company name: a name-match
      fallback that catches people Happenstance doesn't have synced.
+     SKIPPED in --location mode.
 
 Results are deduped across sources and ranked:
   Happenstance 1st-degree  >  Happenstance 2nd-degree  >  LinkedIn 1st-degree  >  LinkedIn search hit.
 
-Use --source hp or --source li to isolate one side. JSON output gains a
-"source_errors" block whenever any upstream call errored, so callers can
-distinguish "empty because nobody is there" from "empty because the call
-failed".`,
+Use --source hp or --source li to isolate one side (company mode only).
+JSON output gains a "source_errors" block whenever any upstream call
+errored, so callers can distinguish "empty because nobody is there" from
+"empty because the call failed".`,
 		Example: `  contact-goat-pp-cli coverage stripe
   contact-goat-pp-cli coverage "OpenAI" --limit 10 --json
   contact-goat-pp-cli coverage airbnb --source hp
+  contact-goat-pp-cli coverage --location "San Francisco" --json
   contact-goat-pp-cli coverage disney --poll-timeout 300`,
-		Args: cobra.ExactArgs(1),
+		Args: cobra.MaximumNArgs(1),
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			hasPositional := len(args) == 1 && strings.TrimSpace(args[0]) != ""
+			loc := strings.TrimSpace(location)
+			if hasPositional && loc != "" {
+				return usageErr(fmt.Errorf("coverage: specify a company positional OR --location <city>, not both"))
+			}
+			if !hasPositional && loc == "" {
+				return usageErr(fmt.Errorf("coverage: specify a company positional or --location <city>"))
+			}
+			if loc != "" {
+				switch sourceFlag {
+				case SourceFlagAuto, SourceFlagAPI, SourceFlagBoth, "":
+					// ok - location mode silently routes to bearer-only.
+				case SourceFlagCookie:
+					return usageErr(fmt.Errorf("coverage --location: --source hp not supported (cookie surface has no city-search); use --source api or omit --source"))
+				case SourceFlagLI:
+					return usageErr(fmt.Errorf("coverage --location: --source li not supported (LinkedIn has no city-search); use --source api or omit --source"))
+				}
+			}
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			company := args[0]
-			sources := parseSourceFlag(sourceFlag)
+			var company, locationQuery string
+			if loc := strings.TrimSpace(location); loc != "" {
+				locationQuery = loc
+			} else {
+				company = args[0]
+			}
+			isLocation := locationQuery != ""
+
+			effectiveSourceFlag := sourceFlag
+			if isLocation {
+				// Location mode: force bearer-only regardless of what the
+				// user passed (PreRunE already rejected hp / li).
+				effectiveSourceFlag = SourceFlagAPI
+			}
+			sources := parseSourceFlag(effectiveSourceFlag)
 			ctx, cancel := signalCtx(cmd.Context())
 			defer cancel()
 
@@ -68,7 +111,11 @@ failed".`,
 			// respective surface; --source both fans out cookie+LinkedIn
 			// with bearer used only on cookie 429.
 			if sources[SourceFlagCookie] || sources[SourceFlagAPI] {
-				graphPeople, hpErrs := runCoverageHappenstance(cmd, flags, company, pollTimeoutSec, sources)
+				bearerQuery := "people at " + company
+				if isLocation {
+					bearerQuery = "my connections in " + locationQuery
+				}
+				graphPeople, hpErrs := runCoverageHappenstance(cmd, flags, company, bearerQuery, pollTimeoutSec, sources)
 				for k, v := range hpErrs {
 					sourceErrors[k] = v
 				}
@@ -147,14 +194,26 @@ failed".`,
 
 			persistPeople(results)
 
+			scope := company
+			scopeKind := "company"
+			if isLocation {
+				scope = locationQuery
+				scopeKind = "location"
+			}
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				out := map[string]any{
-					"company":   company,
 					"results":   results,
 					"count":     len(results),
 					"sources":   sourcesSummary(sources),
 					"timestamp": nowISO(),
 				}
+				if isLocation {
+					out["location"] = locationQuery
+				} else {
+					out["company"] = company
+				}
+				out["scope"] = scope
+				out["scope_kind"] = scopeKind
 				if len(sourceErrors) > 0 {
 					out["source_errors"] = sourceErrors
 				}
@@ -169,14 +228,15 @@ failed".`,
 				}
 				fmt.Fprintln(cmd.ErrOrStderr())
 			}
-			return printCoverageTable(cmd, company, results)
+			return printCoverageTable(cmd, scope, results)
 		},
 	}
 	cmd.Flags().IntVar(&limit, "limit", 25, "Max people to return")
-	cmd.Flags().StringVar(&sourceFlag, "source", "both", "Sources: li | hp | api | both. hp = cookie/free quota; api = bearer/paid credits; both = LinkedIn + auto-routed Happenstance")
+	cmd.Flags().StringVar(&sourceFlag, "source", "both", "Sources: li | hp | api | both. hp = cookie/free quota; api = bearer/paid credits; both = LinkedIn + auto-routed Happenstance. Forced to api in --location mode.")
 	cmd.Flags().IntVar(&pollTimeoutSec, "poll-timeout", 0,
 		fmt.Sprintf("Seconds to wait for Happenstance graph-search (0 = use default %ds)",
 			int(client.DefaultPollTimeout.Seconds())))
+	cmd.Flags().StringVar(&location, "location", "", "Search by location instead of company; routes to bearer-only (--source api). Mutually exclusive with the company positional.")
 	return cmd
 }
 
@@ -194,7 +254,7 @@ failed".`,
 // The function takes a *cobra.Command for stderr-routed warnings (so
 // output stays consistent with the rest of coverage) and the parsed
 // sources map to honor the explicit --source api / --source hp overrides.
-func runCoverageHappenstance(cmd *cobra.Command, flags *rootFlags, company string, pollTimeoutSec int, sources map[string]bool) ([]flagshipPerson, map[string]string) {
+func runCoverageHappenstance(cmd *cobra.Command, flags *rootFlags, company, bearerQuery string, pollTimeoutSec int, sources map[string]bool) ([]flagshipPerson, map[string]string) {
 	errs := map[string]string{}
 
 	// Translate the parsed source flag into the explicit-source string
@@ -236,9 +296,14 @@ func runCoverageHappenstance(cmd *cobra.Command, flags *rootFlags, company strin
 	// Cookie runner reuses the existing SearchPeopleByCompanyWithOptions
 	// path so the rich /api/dynamo schema (referrers, current user uuid)
 	// keeps flowing through downstream renderers unchanged.
+	//
+	// In --location mode, sources[SourceFlagCookie] is false (PreRunE
+	// rejects --source hp with --location, and the explicit auto-route
+	// forces SourceFlagAPI), so cookieRun stays nil and only bearer is
+	// invoked. The bearer query carries the location-style text.
 	currentUUID := ""
 	cookieRun := CookieRunner(nil)
-	if cookieAvailable {
+	if cookieAvailable && company != "" {
 		currentUUID, _ = fetchCurrentUserUUID(cookieClient)
 		var hpOpts *client.SearchPeopleOptions
 		if pollTimeoutSec > 0 {
@@ -251,6 +316,10 @@ func runCoverageHappenstance(cmd *cobra.Command, flags *rootFlags, company strin
 		cookieRun = func() (*client.PeopleSearchResult, error) {
 			return cookieClient.SearchPeopleByCompanyWithOptions(company, hpOpts)
 		}
+	} else if cookieAvailable {
+		// Location mode: keep currentUUID for bearer retag even though
+		// cookieRun stays nil.
+		currentUUID, _ = fetchCurrentUserUUID(cookieClient)
 	}
 
 	// Bearer runner is constructed only when a key is configured.
@@ -261,7 +330,7 @@ func runCoverageHappenstance(cmd *cobra.Command, flags *rootFlags, company strin
 	var bearerRun BearerRunner
 	if bc, berr := flags.newHappenstanceAPIClient(); berr == nil {
 		bearerRun = func() (*client.PeopleSearchResult, error) {
-			return BearerSearchAdapter(cmd.Context(), bc, "people at "+company, currentUUID, nil)
+			return BearerSearchAdapter(cmd.Context(), bc, bearerQuery, currentUUID, nil)
 		}
 	}
 
