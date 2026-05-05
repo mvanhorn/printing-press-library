@@ -22,13 +22,13 @@ const agentContextSchemaVersion = "2"
 // (2026-04-13 Wrangler post): agents can introspect the live CLI without
 // parsing --help or reading source.
 type agentContext struct {
-	SchemaVersion               string                `json:"schema_version"`
-	CLI                         agentContextCLI       `json:"cli"`
-	Auth                        agentContextAuth      `json:"auth"`
-	Discovery                   *agentContextDiscovery `json:"discovery,omitempty"`
-	Commands                    []agentContextCommand `json:"commands"`
-	AvailableProfiles           []string              `json:"available_profiles"`
-	FeedbackEndpointConfigured  bool                  `json:"feedback_endpoint_configured"`
+	SchemaVersion              string                 `json:"schema_version"`
+	CLI                        agentContextCLI        `json:"cli"`
+	Auth                       agentContextAuth       `json:"auth"`
+	Discovery                  *agentContextDiscovery `json:"discovery,omitempty"`
+	Commands                   []agentContextCommand  `json:"commands"`
+	AvailableProfiles          []string               `json:"available_profiles"`
+	FeedbackEndpointConfigured bool                   `json:"feedback_endpoint_configured"`
 }
 
 type agentContextCLI struct {
@@ -60,6 +60,7 @@ type agentContextCommand struct {
 	Name        string                `json:"name"`
 	Use         string                `json:"use,omitempty"`
 	Short       string                `json:"short,omitempty"`
+	Annotations map[string]string     `json:"annotations,omitempty"`
 	Flags       []agentContextFlag    `json:"flags,omitempty"`
 	Subcommands []agentContextCommand `json:"subcommands,omitempty"`
 }
@@ -94,8 +95,7 @@ reading source. Schema is versioned via schema_version.`,
 }
 
 func buildAgentContext(rootCmd *cobra.Command) agentContext {
-	envVars := []string{
-	}
+	envVars := []string{}
 	authMode := "none"
 	if authMode == "" {
 		authMode = "none"
@@ -145,8 +145,7 @@ func buildAgentDiscoveryContext() *agentContextDiscovery {
 			"no_auth_required",
 			"skip_clearance_cookie",
 		},
-		Warnings: []string{
-		},
+		Warnings: []string{},
 		CandidateCommands: []string{
 			"browse",
 			"get",
@@ -178,6 +177,16 @@ func collectAgentCommands(c *cobra.Command) []agentContextCommand {
 			Name:  sub.Name(),
 			Use:   sub.Use,
 			Short: sub.Short,
+		}
+		// Surface Cobra annotations (e.g., pp:endpoint, mcp:read-only) so
+		// agents and the live-dogfood classifier can detect destructive-at-auth
+		// endpoints without parsing source. Empty maps are stripped via
+		// omitempty in the struct tag.
+		if len(sub.Annotations) > 0 {
+			entry.Annotations = make(map[string]string, len(sub.Annotations))
+			for k, v := range sub.Annotations {
+				entry.Annotations[k] = v
+			}
 		}
 		sub.Flags().VisitAll(func(f *pflag.Flag) {
 			entry.Flags = append(entry.Flags, agentContextFlag{
