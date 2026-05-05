@@ -220,8 +220,10 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newBookCmd(flags))
 	rootCmd.AddCommand(newConflictsCmd(flags))
 	rootCmd.AddCommand(newGapsCmd(flags))
-	rootCmd.AddCommand(newWorkloadCmd(flags))
+	rootCmd.AddCommand(newLinkCmd(flags))
+	rootCmd.AddCommand(newOooCmd(flags))
 	rootCmd.AddCommand(newRescheduleCmd(flags))
+	rootCmd.AddCommand(newWorkloadCmd(flags))
 
 	return rootCmd
 }

@@ -84,6 +84,19 @@ mcp:
 
 The spec enrichment lives at the source level so all generated artifacts (server, manifest, README) emit the right surface from the start.
 
+## Follow-up additions (post-publish, on top of PR #237)
+
+After the initial 10-feature transcendence pack shipped, a product-shape review surfaced that `book` was misaligned with the host persona that actually holds the API key — an attendee schedules themselves through the booking link; the host doesn't normally script others into their calendar. The absorb manifest's persona analysis was correct but missed pressure-testing whether the included features actually serve those personas day-to-day. Four additions land the host's primary creative + scheduling-control surface, and `book` was reframed to make its scripting-an-attendee-onto-my-calendar use case explicit:
+
+| # | Feature | Command | Persona | Why we added it |
+|---|---------|---------|---------|-----------------|
+| 11 | Bookable link create | `link create` | host (operator, team lead) | The host's primary creative act on Cal.com. "How do I create a booking link" is the natural host question; it should resolve to a command literally named `link create`. Wraps POST /v2/event-types with sensible defaults + URL render via /v2/me. |
+| 12 | Bookable link list | `link list` | host | Companion to create: see what links you've published with full URLs pre-rendered for copy-share. |
+| 13 | Out-of-office set | `ooo set` | host | Endpoint mirror exposes this as `me user-ooocontroller-create-my-ooo` — unergonomic for what is a primary host scheduling-control workflow. Wraps POST /v2/me/ooo with natural-language times and reason enum. |
+| 14 | Out-of-office list | `ooo list` | host | Confirm OOO entries are recorded; find the IDs to cancel. (`ooo delete` exists too but isn't promoted as a novel feature.) |
+
+`book` was also reframed (Short + Long) to clarify it's the host scripting an attendee onto their calendar (admin onboarding, recruiter pre-fill, test fixtures) — not the create-a-link workflow that `link create` now serves.
+
 ## Stubs
 
 None. Every transcendence row is shipping-scope.

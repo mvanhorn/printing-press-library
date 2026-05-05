@@ -171,9 +171,45 @@
       "command": "reschedule next",
       "description": "Move an existing booking to the next available slot for the same event type, after a cutoff.",
       "rationale": "Composes /v2/bookings/{uid} + /v2/slots + /v2/bookings/{uid}/reschedule; no prior tool composes this.",
-      "example": "cal-com-pp-cli reschedule next --uid \u003cbooking-uid\u003e --after tomorrow --dry-run",
+      "example": "cal-com-pp-cli reschedule next --uid <booking-uid> --after tomorrow --dry-run",
       "why_it_matters": "Use this for last-minute bumps — one command instead of three, with dry-run safety.",
       "group": "Composed booking flows"
+    },
+    {
+      "name": "Bookable link create",
+      "command": "link create",
+      "description": "Create a new bookable link (event type) on your Cal.com account; prints the cal.com/<your-username>/<slug> URL ready to share.",
+      "rationale": "Creating bookable links is the host's primary creative act on Cal.com. Wraps POST /v2/event-types with sensible defaults (auto-derived title) and renders the bookable URL via /v2/me lookup so the host can copy-share without composing the URL by hand.",
+      "example": "cal-com-pp-cli link create --slug 30min --length 30 --title \"30 Min Meeting\"",
+      "why_it_matters": "Reach for this whenever you need a new bookable URL — it's the host's primary creative act and the natural answer to 'how do I create a booking link'.",
+      "group": "Host control surface"
+    },
+    {
+      "name": "Bookable link list",
+      "command": "link list",
+      "description": "List every bookable link you own with the full cal.com/<your-username>/<slug> URL pre-rendered for copy-share.",
+      "rationale": "GET /v2/event-types returns event-type-groups but not the bookable URL; we resolve the username via /v2/me and synthesize the URL on each entry so users don't have to compose it.",
+      "example": "cal-com-pp-cli link list --json --select links.slug,links.bookable_url",
+      "why_it_matters": "Use this to see what links you've published and grab their URLs without hand-composing cal.com/<user>/<slug>.",
+      "group": "Host control surface"
+    },
+    {
+      "name": "Out-of-office set",
+      "command": "ooo set",
+      "description": "Mark yourself out-of-office for a date range so Cal.com excludes the period from slot search; supports redirect-to-teammate for round-robin event types.",
+      "rationale": "Wraps POST /v2/me/ooo with natural-language time parsing ('today', 'tomorrow') and reason enum validation. Endpoint mirror exposes this as 'me user-ooocontroller-create-my-ooo' which is unergonomic.",
+      "example": "cal-com-pp-cli ooo set --start 2026-05-12 --end 2026-05-18 --reason vacation --notes \"Hawaii trip\"",
+      "why_it_matters": "Going on vacation? Sick? Run this once and stop getting booked — primary host scheduling-control workflow.",
+      "group": "Host control surface"
+    },
+    {
+      "name": "Out-of-office list",
+      "command": "ooo list",
+      "description": "List your active and upcoming out-of-office entries, sorted by start time.",
+      "rationale": "Wraps GET /v2/me/ooo with the verbose endpoint-mirror command 'me user-ooocontroller-get-my-ooo' collapsed into a clean ooo-prefixed call.",
+      "example": "cal-com-pp-cli ooo list --json",
+      "why_it_matters": "Confirm your OOO entries are recorded before you head out — and find the IDs you'd need to cancel one with 'ooo delete'.",
+      "group": "Host control surface"
     }
   ],
   "novel_features_built": [
@@ -263,9 +299,45 @@
       "command": "reschedule next",
       "description": "Move an existing booking to the next available slot for the same event type, after a cutoff.",
       "rationale": "Composes /v2/bookings/{uid} + /v2/slots + /v2/bookings/{uid}/reschedule; no prior tool composes this.",
-      "example": "cal-com-pp-cli reschedule next --uid \u003cbooking-uid\u003e --after tomorrow --dry-run",
+      "example": "cal-com-pp-cli reschedule next --uid <booking-uid> --after tomorrow --dry-run",
       "why_it_matters": "Use this for last-minute bumps — one command instead of three, with dry-run safety.",
       "group": "Composed booking flows"
+    },
+    {
+      "name": "Bookable link create",
+      "command": "link create",
+      "description": "Create a new bookable link (event type) on your Cal.com account; prints the cal.com/<your-username>/<slug> URL ready to share.",
+      "rationale": "Creating bookable links is the host's primary creative act on Cal.com. Wraps POST /v2/event-types with sensible defaults (auto-derived title) and renders the bookable URL via /v2/me lookup so the host can copy-share without composing the URL by hand.",
+      "example": "cal-com-pp-cli link create --slug 30min --length 30 --title \"30 Min Meeting\"",
+      "why_it_matters": "Reach for this whenever you need a new bookable URL — it's the host's primary creative act and the natural answer to 'how do I create a booking link'.",
+      "group": "Host control surface"
+    },
+    {
+      "name": "Bookable link list",
+      "command": "link list",
+      "description": "List every bookable link you own with the full cal.com/<your-username>/<slug> URL pre-rendered for copy-share.",
+      "rationale": "GET /v2/event-types returns event-type-groups but not the bookable URL; we resolve the username via /v2/me and synthesize the URL on each entry so users don't have to compose it.",
+      "example": "cal-com-pp-cli link list --json --select links.slug,links.bookable_url",
+      "why_it_matters": "Use this to see what links you've published and grab their URLs without hand-composing cal.com/<user>/<slug>.",
+      "group": "Host control surface"
+    },
+    {
+      "name": "Out-of-office set",
+      "command": "ooo set",
+      "description": "Mark yourself out-of-office for a date range so Cal.com excludes the period from slot search; supports redirect-to-teammate for round-robin event types.",
+      "rationale": "Wraps POST /v2/me/ooo with natural-language time parsing ('today', 'tomorrow') and reason enum validation. Endpoint mirror exposes this as 'me user-ooocontroller-create-my-ooo' which is unergonomic.",
+      "example": "cal-com-pp-cli ooo set --start 2026-05-12 --end 2026-05-18 --reason vacation --notes \"Hawaii trip\"",
+      "why_it_matters": "Going on vacation? Sick? Run this once and stop getting booked — primary host scheduling-control workflow.",
+      "group": "Host control surface"
+    },
+    {
+      "name": "Out-of-office list",
+      "command": "ooo list",
+      "description": "List your active and upcoming out-of-office entries, sorted by start time.",
+      "rationale": "Wraps GET /v2/me/ooo with the verbose endpoint-mirror command 'me user-ooocontroller-get-my-ooo' collapsed into a clean ooo-prefixed call.",
+      "example": "cal-com-pp-cli ooo list --json",
+      "why_it_matters": "Confirm your OOO entries are recorded before you head out — and find the IDs you'd need to cancel one with 'ooo delete'.",
+      "group": "Host control surface"
     }
   ],
   "narrative": {
@@ -276,7 +348,7 @@
     "quickstart": [
       {
         "command": "cal-com-pp-cli auth status",
-        "comment": "Confirm CAL_COM_TOKEN is loaded; use auth set-token \u003ctoken\u003e to save one to the config"
+        "comment": "Confirm CAL_COM_TOKEN is loaded; use auth set-token <token> to save one to the config"
       },
       {
         "command": "cal-com-pp-cli doctor",
@@ -324,6 +396,16 @@
     "when_to_use": "Reach for cal-com-pp-cli whenever an agent needs to read or mutate a Cal.com calendar without burning context on the multi-call dance the API requires for booking and rescheduling. The local store makes 'what's on my calendar', 'when am I free', 'who is overloaded', and 'where are my conflicts' near-instant offline answers. The composed `book` and `reschedule next` commands are the right tools for transactional bookings; the endpoint-mirror coverage is there for everything else.",
     "recipes": [
       {
+        "title": "Create a bookable link and grab its URL",
+        "command": "cal-com-pp-cli link create --slug 30min --length 30 --title \"30 Min Meeting\"",
+        "explanation": "The host's primary creative act. Returns the bookable cal.com/<username>/<slug> URL pre-rendered."
+      },
+      {
+        "title": "Mark yourself out-of-office",
+        "command": "cal-com-pp-cli ooo set --start 2026-05-12 --end 2026-05-18 --reason vacation --notes \"Hawaii trip\"",
+        "explanation": "While the OOO entry is active, Cal.com excludes the period from slot search so you don't get booked."
+      },
+      {
         "title": "Today's agenda from the local store",
         "command": "cal-com-pp-cli agenda --window today --json --select bookings.uid,bookings.title,bookings.start,bookings.attendees",
         "explanation": "Returns just the four fields an agent needs from the agenda envelope — keeps context tight against deeply-nested booking payloads."
@@ -345,7 +427,7 @@
       },
       {
         "title": "Reschedule a booking to the next free slot",
-        "command": "cal-com-pp-cli reschedule next --uid \u003cbooking-uid\u003e --after tomorrow --dry-run",
+        "command": "cal-com-pp-cli reschedule next --uid <booking-uid> --after tomorrow --dry-run",
         "explanation": "One composed command replaces three; --dry-run prints the planned move without committing."
       }
     ],
@@ -356,7 +438,10 @@
       "reschedule my next booking",
       "audit my cal.com webhooks",
       "use cal-com",
-      "run cal-com-pp-cli"
+      "run cal-com-pp-cli",
+      "create a booking link on cal.com",
+      "mark me out of office on cal.com",
+      "make a 30 minute cal.com link"
     ]
   }
 }

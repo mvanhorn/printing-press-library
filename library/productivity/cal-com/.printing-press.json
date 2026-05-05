@@ -69,6 +69,26 @@
       "name": "Reschedule to next open slot",
       "command": "reschedule next",
       "description": "Move an existing booking to the next available slot for the same event type, after a cutoff."
+    },
+    {
+      "name": "Bookable link create",
+      "command": "link create",
+      "description": "Create a new bookable link (event type) on your Cal.com account; prints the cal.com/<your-username>/<slug> URL ready to share."
+    },
+    {
+      "name": "Bookable link list",
+      "command": "link list",
+      "description": "List every bookable link you own with the full cal.com/<your-username>/<slug> URL pre-rendered for copy-share."
+    },
+    {
+      "name": "Out-of-office set",
+      "command": "ooo set",
+      "description": "Mark yourself out-of-office for a date range so Cal.com excludes the period from slot search; supports redirect-to-teammate for round-robin event types."
+    },
+    {
+      "name": "Out-of-office list",
+      "command": "ooo list",
+      "description": "List your active and upcoming out-of-office entries, sorted by start time."
     }
   ]
 }

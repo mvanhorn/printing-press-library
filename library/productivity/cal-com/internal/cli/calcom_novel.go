@@ -311,8 +311,15 @@ func newBookCmd(flags *rootFlags) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:   "book",
-		Short: "Find a slot and create a booking in one composed command",
-		Long: `Compose the full Cal.com booking lifecycle into one safe call:
+		Short: "Schedule an attendee onto your calendar without making them visit the booking link",
+		Long: `Schedule an attendee onto one of YOUR event types in a single composed call.
+Use this when you (the host, who owns the API key) want to script a booking on
+the attendee's behalf — admin onboarding, recruiter pre-filling slots after a
+phone screen, test fixture creation, or "I told them tomorrow at 2pm, just put
+it on my calendar." For the normal flow where the attendee picks their own
+slot, share your bookable link from 'cal-com-pp-cli link list' instead.
+
+The composed call wraps four API requests:
   1. Confirm the requested slot is available (skip with --skip-slot-check)
   2. Optionally reserve the slot (--reserve)
   3. Create the booking
@@ -1645,6 +1652,432 @@ the user passes --dry-run on a search that finds nothing.`,
 	cmd.Flags().StringVar(&reason, "reason", "", "Optional rescheduling reason recorded on the booking")
 	cmd.Flags().StringVar(&tzName, "tz", "UTC", "Timezone for natural-language times")
 	cmd.Flags().IntVar(&eventTypeIDF, "event-type-id", 0, "Override event-type ID (defaults to the original booking's)")
+	return cmd
+}
+
+// -----------------------------------------------------------------------------
+// link — host's primary creative surface: bookable Cal.com event-type links
+// -----------------------------------------------------------------------------
+//
+// On Cal.com, "booking link" and "event type" mean the same thing — the
+// reusable URL (cal.com/<username>/<slug>) someone shares to let attendees
+// book time. Endpoint mirror exposes /v2/event-types CRUD under
+// `event-types ...`; `link` is the host-shaped alias that:
+//   1. uses sensible defaults (auto-derives title from length when omitted),
+//   2. resolves the host's username via /v2/me, and
+//   3. prints the cal.com/<username>/<slug> URL ready to copy-share.
+
+func newLinkCmd(flags *rootFlags) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "link",
+		Short: "Create and list your bookable Cal.com event-type links (with full URLs pre-rendered)",
+		Long: `Manage the public booking links you share with attendees. On Cal.com,
+booking links are also called "event types" — the cal.com/<your-username>/<slug>
+URL someone visits to book time with you. This command wraps /v2/event-types
+with sensible defaults plus a print of the resulting URL so you can copy-share
+without composing it by hand.
+
+Subcommands:
+  link create  — create a new bookable link
+  link list    — list every bookable link you own (with URLs)`,
+	}
+	cmd.AddCommand(newLinkCreateCmd(flags))
+	cmd.AddCommand(newLinkListCmd(flags))
+	return cmd
+}
+
+func newLinkCreateCmd(flags *rootFlags) *cobra.Command {
+	var (
+		slug, title, description string
+		length                   int
+		hidden                   bool
+	)
+	cmd := &cobra.Command{
+		Use:   "create",
+		Short: "Create a new bookable link (event type) on your Cal.com account",
+		Long: `Creates a new event type via POST /v2/event-types and prints the bookable URL
+(cal.com/<your-username>/<slug>) ready to share.
+
+--slug becomes the URL segment. --length sets the meeting duration in minutes.
+--title defaults to "<length> Min Meeting" if omitted.
+
+Hidden links don't appear on your public profile but stay bookable via direct URL.`,
+		Example: `  # 30-minute meeting link with default title "30 Min Meeting"
+  cal-com-pp-cli link create --slug 30min --length 30
+
+  # Custom title and description
+  cal-com-pp-cli link create --slug intro --length 15 --title "Quick Intro" --description "A 15 minute chat to say hi" --json
+
+  # Hidden link (URL-only, not on public profile)
+  cal-com-pp-cli link create --slug priority --length 60 --hidden --json
+
+  # Preview without creating
+  cal-com-pp-cli link create --slug 45min --length 45 --dry-run`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if slug == "" && length == 0 && title == "" {
+				return cmd.Help()
+			}
+			if slug == "" {
+				return fmt.Errorf("--slug is required (URL segment, e.g. '15min')")
+			}
+			if length == 0 {
+				return fmt.Errorf("--length is required (meeting duration in minutes)")
+			}
+			if title == "" {
+				title = fmt.Sprintf("%d Min Meeting", length)
+			}
+
+			body := map[string]any{
+				"slug":            slug,
+				"lengthInMinutes": length,
+				"title":           title,
+			}
+			if description != "" {
+				body["description"] = description
+			}
+			if hidden {
+				body["hidden"] = true
+			}
+
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+
+			steps := []map[string]any{}
+			var createdID any
+			if flags.dryRun {
+				steps = append(steps, map[string]any{"step": "create-event-type", "dry_run": true, "body": body})
+			} else {
+				raw, _, err := c.PostWithHeaders("/v2/event-types", body, map[string]string{"cal-api-version": "2024-06-14"})
+				if err != nil {
+					return fmt.Errorf("create event type: %w", err)
+				}
+				var env struct {
+					Status string         `json:"status"`
+					Data   map[string]any `json:"data"`
+				}
+				if err := json.Unmarshal(raw, &env); err != nil {
+					return fmt.Errorf("parse response: %w", err)
+				}
+				if env.Data != nil {
+					createdID = env.Data["id"]
+				}
+				steps = append(steps, map[string]any{"step": "create-event-type", "response": json.RawMessage(raw)})
+			}
+
+			username := lookupUsername(c, flags.dryRun)
+			url := ""
+			if username != "" {
+				url = fmt.Sprintf("https://cal.com/%s/%s", username, slug)
+			}
+
+			result := map[string]any{
+				"command":      "link create",
+				"slug":         slug,
+				"title":        title,
+				"length":       length,
+				"hidden":       hidden,
+				"steps":        steps,
+				"dry_run":      flags.dryRun,
+				"username":     username,
+				"bookable_url": url,
+			}
+			if createdID != nil {
+				result["id"] = createdID
+			}
+			return emitNovelJSON(cmd, flags, result)
+		},
+	}
+	cmd.Flags().StringVar(&slug, "slug", "", "URL slug (required, e.g. '15min'; renders as cal.com/<username>/<slug>)")
+	cmd.Flags().IntVar(&length, "length", 0, "Meeting duration in minutes (required, e.g. 15)")
+	cmd.Flags().StringVar(&title, "title", "", "Display title (default: '<length> Min Meeting')")
+	cmd.Flags().StringVar(&description, "description", "", "Description shown to attendees on the booking page")
+	cmd.Flags().BoolVar(&hidden, "hidden", false, "Hide from your public profile (still bookable via direct URL)")
+	return cmd
+}
+
+func newLinkListCmd(flags *rootFlags) *cobra.Command {
+	var hiddenOnly, visibleOnly bool
+	cmd := &cobra.Command{
+		Use:         "list",
+		Short:       "List your bookable links with their full URLs",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		Long: `Returns every event type you own, with the bookable URL pre-rendered.
+Adds 'cal.com/<your-username>/<slug>' to each entry so you can copy-share
+without composing the URL by hand.`,
+		Example: `  cal-com-pp-cli link list --json
+  cal-com-pp-cli link list --visible-only
+  cal-com-pp-cli link list --json --select links.slug,links.bookable_url`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if hiddenOnly && visibleOnly {
+				return fmt.Errorf("--hidden-only and --visible-only are mutually exclusive")
+			}
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+
+			username := lookupUsername(c, false)
+
+			etRaw, err := c.Get("/v2/event-types", nil)
+			if err != nil {
+				return err
+			}
+			ets := extractEventTypes(etRaw)
+
+			links := make([]map[string]any, 0, len(ets))
+			for _, et := range ets {
+				isHidden, _ := et["hidden"].(bool)
+				if hiddenOnly && !isHidden {
+					continue
+				}
+				if visibleOnly && isHidden {
+					continue
+				}
+				slug, _ := et["slug"].(string)
+				url := ""
+				if username != "" && slug != "" {
+					url = fmt.Sprintf("https://cal.com/%s/%s", username, slug)
+				}
+				links = append(links, map[string]any{
+					"id":             et["id"],
+					"slug":           slug,
+					"title":          et["title"],
+					"length_minutes": et["lengthInMinutes"],
+					"hidden":         isHidden,
+					"bookable_url":   url,
+				})
+			}
+
+			return emitNovelJSON(cmd, flags, map[string]any{
+				"command":  "link list",
+				"username": username,
+				"count":    len(links),
+				"links":    links,
+			})
+		},
+	}
+	cmd.Flags().BoolVar(&hiddenOnly, "hidden-only", false, "Show only hidden links")
+	cmd.Flags().BoolVar(&visibleOnly, "visible-only", false, "Show only links visible on your public profile")
+	return cmd
+}
+
+// lookupUsername fetches /v2/me and returns the user's username for URL
+// rendering. Best-effort — returns empty string on any failure (the caller
+// should fall through to a URL-less envelope rather than fail). Skipped
+// entirely under --dry-run since it's only useful for the printed URL.
+func lookupUsername(c *client.Client, skip bool) string {
+	if skip || c == nil {
+		return ""
+	}
+	raw, err := c.Get("/v2/me", nil)
+	if err != nil {
+		return ""
+	}
+	var env struct {
+		Data struct {
+			Username string `json:"username"`
+		} `json:"data"`
+	}
+	if err := json.Unmarshal(raw, &env); err != nil {
+		return ""
+	}
+	return env.Data.Username
+}
+
+// -----------------------------------------------------------------------------
+// ooo — host scheduling control: mark yourself out-of-office
+// -----------------------------------------------------------------------------
+//
+// While an OOO entry is active, Cal.com excludes the period from slot search
+// so you don't get booked. Wraps /v2/me/ooo with the verbose endpoint mirror
+// (`me user-ooocontroller-create-my-ooo`) collapsed into ergonomic
+// host-shaped commands.
+
+func newOooCmd(flags *rootFlags) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "ooo",
+		Short: "Mark yourself out-of-office (vacation, sick day, travel)",
+		Long: `Manage your out-of-office (OOO) entries on Cal.com. While an OOO entry is
+active, Cal.com excludes the period from slot search so you don't get booked.
+Optionally redirect bookings to a teammate (round-robin event types only).
+
+Subcommands:
+  ooo set     — mark yourself OOO for a date range
+  ooo list    — list your active and upcoming OOO entries
+  ooo delete  — cancel an OOO entry by ID`,
+	}
+	cmd.AddCommand(newOooSetCmd(flags))
+	cmd.AddCommand(newOooListCmd(flags))
+	cmd.AddCommand(newOooDeleteCmd(flags))
+	return cmd
+}
+
+func newOooSetCmd(flags *rootFlags) *cobra.Command {
+	var (
+		startStr, endStr string
+		reason, notes    string
+		toUserID         int
+		tzName           string
+	)
+	cmd := &cobra.Command{
+		Use:   "set",
+		Short: "Mark yourself out-of-office for a date range",
+		Long: `Creates an OOO entry on your account. While the entry is active, Cal.com
+excludes the range from slot search so you don't get booked.
+
+Reason values: vacation, travel, sick, public_holiday, unspecified.
+
+Use --redirect-to-user to forward bookings during OOO to a teammate's user ID
+(round-robin event types only).`,
+		Example: `  # Mark next week as vacation
+  cal-com-pp-cli ooo set --start 2026-05-12 --end 2026-05-18 --reason vacation --notes "Hawaii trip"
+
+  # Sick day with handoff
+  cal-com-pp-cli ooo set --start today --end tomorrow --reason sick --redirect-to-user 42
+
+  # Preview without creating
+  cal-com-pp-cli ooo set --start 2026-12-23 --end 2026-12-27 --reason public_holiday --dry-run`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if startStr == "" && endStr == "" && reason == "" {
+				return cmd.Help()
+			}
+			if startStr == "" || endStr == "" {
+				return fmt.Errorf("--start and --end are required")
+			}
+			start, err := parseTimeFlexible(startStr, tzName)
+			if err != nil {
+				return fmt.Errorf("--start: %w", err)
+			}
+			end, err := parseTimeFlexible(endStr, tzName)
+			if err != nil {
+				return fmt.Errorf("--end: %w", err)
+			}
+			if !end.After(start) {
+				return fmt.Errorf("--end (%s) must be after --start (%s)", end.UTC().Format(time.RFC3339), start.UTC().Format(time.RFC3339))
+			}
+
+			body := map[string]any{
+				"start": start.UTC().Format(time.RFC3339),
+				"end":   end.UTC().Format(time.RFC3339),
+			}
+			if reason != "" {
+				body["reason"] = reason
+			}
+			if notes != "" {
+				body["notes"] = notes
+			}
+			if toUserID > 0 {
+				body["toUserId"] = toUserID
+			}
+
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+
+			steps := []map[string]any{}
+			if flags.dryRun {
+				steps = append(steps, map[string]any{"step": "set-ooo", "dry_run": true, "body": body})
+			} else {
+				raw, _, err := c.PostWithHeaders("/v2/me/ooo", body, nil)
+				if err != nil {
+					return fmt.Errorf("set OOO: %w", err)
+				}
+				steps = append(steps, map[string]any{"step": "set-ooo", "response": json.RawMessage(raw)})
+			}
+
+			return emitNovelJSON(cmd, flags, map[string]any{
+				"command": "ooo set",
+				"start":   start.UTC().Format(time.RFC3339),
+				"end":     end.UTC().Format(time.RFC3339),
+				"reason":  reason,
+				"steps":   steps,
+				"dry_run": flags.dryRun,
+			})
+		},
+	}
+	cmd.Flags().StringVar(&startStr, "start", "", "Start time (RFC3339, YYYY-MM-DD, 'today', 'tomorrow') — required")
+	cmd.Flags().StringVar(&endStr, "end", "", "End time (RFC3339, YYYY-MM-DD, 'today', 'tomorrow') — required")
+	cmd.Flags().StringVar(&reason, "reason", "vacation", "Reason: vacation, travel, sick, public_holiday, unspecified")
+	cmd.Flags().StringVar(&notes, "notes", "", "Optional notes (e.g. 'Hawaii trip')")
+	cmd.Flags().IntVar(&toUserID, "redirect-to-user", 0, "Forward bookings to this user ID during OOO (round-robin only)")
+	cmd.Flags().StringVar(&tzName, "tz", "UTC", "Timezone for natural-language times")
+	return cmd
+}
+
+func newOooListCmd(flags *rootFlags) *cobra.Command {
+	var take int
+	cmd := &cobra.Command{
+		Use:         "list",
+		Short:       "List your active and upcoming out-of-office entries",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		Example:     `  cal-com-pp-cli ooo list --json`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			params := map[string]string{"sortStart": "asc"}
+			if take > 0 {
+				params["take"] = strconv.Itoa(take)
+			}
+			raw, err := c.Get("/v2/me/ooo", params)
+			if err != nil {
+				return err
+			}
+			var env struct {
+				Data []map[string]any `json:"data"`
+			}
+			if err := json.Unmarshal(raw, &env); err != nil {
+				return fmt.Errorf("parse: %w", err)
+			}
+			return emitNovelJSON(cmd, flags, map[string]any{
+				"command": "ooo list",
+				"count":   len(env.Data),
+				"entries": env.Data,
+			})
+		},
+	}
+	cmd.Flags().IntVar(&take, "take", 50, "Max entries to return")
+	return cmd
+}
+
+func newOooDeleteCmd(flags *rootFlags) *cobra.Command {
+	var oooID int
+	cmd := &cobra.Command{
+		Use:     "delete",
+		Short:   "Cancel an OOO entry by ID",
+		Example: `  cal-com-pp-cli ooo delete --id 42 --dry-run`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if oooID == 0 {
+				return cmd.Help()
+			}
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			path := fmt.Sprintf("/v2/me/ooo/%d", oooID)
+			steps := []map[string]any{}
+			if flags.dryRun {
+				steps = append(steps, map[string]any{"step": "delete-ooo", "dry_run": true, "path": path})
+			} else {
+				raw, _, err := c.Delete(path)
+				if err != nil {
+					return fmt.Errorf("delete OOO %d: %w", oooID, err)
+				}
+				steps = append(steps, map[string]any{"step": "delete-ooo", "response": json.RawMessage(raw)})
+			}
+			return emitNovelJSON(cmd, flags, map[string]any{
+				"command": "ooo delete",
+				"id":      oooID,
+				"steps":   steps,
+				"dry_run": flags.dryRun,
+			})
+		},
+	}
+	cmd.Flags().IntVar(&oooID, "id", 0, "OOO entry ID (find via 'cal-com-pp-cli ooo list')")
 	return cmd
 }
 

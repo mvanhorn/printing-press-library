@@ -85,6 +85,34 @@ These capabilities aren't available in any other tool for this API.
   cal-com-pp-cli event-types stale --days 90 --json
   ```
 
+### Host control surface
+- **`link create`** — Create a new bookable link (event type) on your Cal.com account; prints the cal.com/<your-username>/<slug> URL ready to share.
+
+  _The host's primary creative act. Bookable links are how attendees book time; this is the command to make one._
+
+  ```bash
+  cal-com-pp-cli link create --slug 30min --length 30 --title "30 Min Meeting"
+  ```
+- **`link list`** — List every bookable link you own with the full URL pre-rendered for copy-share.
+
+  _Use this to see what links you have and grab their URLs without hand-composing cal.com/<user>/<slug>._
+
+  ```bash
+  cal-com-pp-cli link list --json
+  ```
+- **`ooo set`** — Mark yourself out-of-office for a date range so Cal.com excludes the period from slot search.
+
+  _Going on vacation? Sick? Run this once and stop getting booked. Optional --redirect-to-user forwards bookings to a teammate (round-robin only)._
+
+  ```bash
+  cal-com-pp-cli ooo set --start 2026-05-12 --end 2026-05-18 --reason vacation --notes "Hawaii trip"
+  ```
+- **`ooo list`** — List your active and upcoming OOO entries.
+
+  ```bash
+  cal-com-pp-cli ooo list --json
+  ```
+
 ### Agent-native plumbing
 - **`webhooks coverage`** — Audits registered webhook triggers against the canonical set and reports lifecycle events with no subscriber.
 
@@ -246,6 +274,24 @@ cal-com-pp-cli which "<capability in your own words>"
 
 ## Recipes
 
+
+### Create a bookable link and share its URL
+
+```bash
+cal-com-pp-cli link create --slug 30min --length 30 --title "30 Min Meeting"
+cal-com-pp-cli link list --json --select links.slug,links.bookable_url
+```
+
+`link create` returns the bookable URL pre-rendered (cal.com/<your-username>/<slug>); `link list` is the host's view of every link they've published.
+
+### Mark yourself out-of-office
+
+```bash
+cal-com-pp-cli ooo set --start 2026-05-12 --end 2026-05-18 --reason vacation --notes "Hawaii trip"
+cal-com-pp-cli ooo list --json
+```
+
+While the OOO entry is active, Cal.com excludes the range from slot search so you don't get booked.
 
 ### Today's agenda from the local store
 

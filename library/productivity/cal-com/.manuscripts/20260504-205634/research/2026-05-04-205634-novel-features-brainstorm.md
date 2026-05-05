@@ -82,3 +82,30 @@ Across all four, the unifying need is **answers the API can't give in a single c
 | 12 | Webhook trigger catalog | `webhooks triggers` | **Drop** | Static constant table; inline into `webhooks coverage` |
 
 **One new feature:** `reschedule next` — composed reschedule-to-next-open-slot, third "composed intent" alongside `book` and `slots find`. Targets the operator persona's most common under-pressure scenario (last-minute bump).
+
+---
+
+## Post-publish additions (on top of PR #237)
+
+A product-shape review after the initial 10 features shipped surfaced that the brainstorm's persona analysis was correct (host-shaped: operator, team lead, integrator, agent) but missed pressure-testing whether each included feature actually serves the host day-to-day. Specifically:
+
+- **`book` was misaligned.** The bearer token authenticates the HOST. The host doesn't normally script attendees onto their own calendar — attendees schedule themselves through the bookable link. `book`'s real use cases (admin onboarding, recruiter pre-fill, test fixtures) are real but rare. Action: keep `book` for the rare scripting use case, but reframe its Short/Long to set expectations correctly, and add the headline-host commands that were missing.
+
+- **The host's primary creative act was missing.** Creating bookable links (event types) IS the host's main creative move on Cal.com. Endpoint mirror exposed this as `event-types create`, which leaks the API's noun-vocabulary into the user's surface. Action: add `link create` and `link list` as the host-shaped alias with the bookable URL pre-rendered.
+
+- **OOO is a primary host scheduling-control workflow** that the endpoint mirror exposes only via `me user-ooocontroller-create-my-ooo` (auto-derived from Cal.com's NestJS controller class names — not human-friendly). Action: add `ooo set` / `ooo list` / `ooo delete` as ergonomic wrappers.
+
+### Final survivor count after follow-up: 14
+
+| # | Feature | Command | Persona | Source |
+|---|---------|---------|---------|--------|
+| 11 | Bookable link create | `link create` | host | new (post-publish) |
+| 12 | Bookable link list | `link list` | host | new (post-publish) |
+| 13 | Out-of-office set | `ooo set` | host | new (post-publish, ergonomic alias for verbose endpoint mirror) |
+| 14 | Out-of-office list | `ooo list` | host | new (post-publish, ergonomic alias) |
+
+`ooo delete` ships as a child of the `ooo` parent but isn't promoted as a novel feature in its own right (follows obvious pattern from `set`).
+
+### Lesson for next reprint
+
+The persona-driven brainstorm correctly identified host as the dominant persona, but didn't ask the secondary question: "for each feature in the survivor list, does the named persona actually run this weekly?" `book`'s answer is "rarely" once you separate scripting from the natural attendee-driven booking flow. The pre-publish triage should add a "weekly use" sanity check that's specifically about whoever holds the API key — not an abstract "is this a real use case."
