@@ -14,7 +14,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-
 	"github.com/mvanhorn/printing-press-library/library/other/apartments/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -200,16 +199,17 @@ Exit codes & warnings:
 
 			elapsed := time.Since(started)
 			totalResources := successCount + warnCount + errCount
-			if !humanFriendly {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_summary","total_records":%d,"resources":%d,"success":%d,"warned":%d,"errored":%d,"duration_ms":%d}`+"\n",
-					totalSynced, totalResources, successCount, warnCount, errCount, elapsed.Milliseconds())
-			}
-			if warnCount > 0 {
-				fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%d warned, %.1fs)\n",
-					totalSynced, totalResources, warnCount, elapsed.Seconds())
+			if humanFriendly {
+				if warnCount > 0 {
+					fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%d warned, %.1fs)\n",
+						totalSynced, totalResources, warnCount, elapsed.Seconds())
+				} else {
+					fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%.1fs)\n",
+						totalSynced, totalResources, elapsed.Seconds())
+				}
 			} else {
-				fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%.1fs)\n",
-					totalSynced, totalResources, elapsed.Seconds())
+				fmt.Fprintf(os.Stdout, `{"event":"sync_summary","total_records":%d,"resources":%d,"success":%d,"warned":%d,"errored":%d,"duration_ms":%d}`+"\n",
+					totalSynced, totalResources, successCount, warnCount, errCount, elapsed.Milliseconds())
 			}
 
 			// Exit-code policy:
@@ -238,7 +238,7 @@ Exit codes & warnings:
 			if errCount > 0 && !strict && criticalErrCount == 0 && successCount > 0 {
 				if !humanFriendly {
 					msg := fmt.Sprintf("%d resource(s) failed but exit code is 0 because the new default treats non-critical failures as warnings. Pass --strict to restore the old behavior, or annotate critical resources with x-critical: true. See CHANGELOG.", errCount)
-					fmt.Fprintf(os.Stderr, `{"event":"sync_warning","reason":"exit_policy_default_changed","errored":%d,"message":"%s"}`+"\n",
+					fmt.Fprintf(os.Stdout, `{"event":"sync_warning","reason":"exit_policy_default_changed","errored":%d,"message":"%s"}`+"\n",
 						errCount, strings.ReplaceAll(msg, `"`, `\"`))
 				} else {
 					fmt.Fprintf(os.Stderr, "warning: %d resource(s) failed but exit code is 0 because the new default treats non-critical failures as warnings. Pass --strict to restore the old behavior, or annotate critical resources with x-critical: true.\n", errCount)
@@ -269,10 +269,13 @@ func syncResource(c interface {
 	started := time.Now()
 
 	if !humanFriendly {
-		fmt.Fprintf(os.Stderr, `{"event":"sync_start","resource":"%s"}`+"\n", resource)
+		fmt.Fprintf(os.Stdout, `{"event":"sync_start","resource":"%s"}`+"\n", resource)
 	}
 
-	path := syncResourcePath(resource)
+	path, err := syncResourcePath(resource)
+	if err != nil {
+		return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
+	}
 	var totalCount int
 
 	// Resume cursor from sync_state (unless --full cleared it)
@@ -325,13 +328,13 @@ func syncResource(c interface {
 		if err != nil {
 			if w, ok := isSyncAccessWarning(err); ok {
 				if !humanFriendly {
-					fmt.Fprintf(os.Stderr, `{"event":"sync_warning","resource":"%s","status":%d,"reason":"%s","message":"%s"}`+"\n",
+					fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","status":%d,"reason":"%s","message":"%s"}`+"\n",
 						resource, w.Status, w.Reason, strings.ReplaceAll(w.Message, `"`, `\"`))
 				}
 				return syncResult{Resource: resource, Count: totalCount, Warn: fmt.Errorf("skipped %s: %s", resource, w.Reason), Duration: time.Since(started)}
 			}
 			if !humanFriendly {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
+				fmt.Fprintf(os.Stdout, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
 			}
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("fetching %s: %w", resource, err), Duration: time.Since(started)}
 		}
@@ -344,7 +347,7 @@ func syncResource(c interface {
 			// Single object response - try to store as-is
 			if err := upsertSingleObject(db, resource, data); err != nil {
 				if !humanFriendly {
-					fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
+					fmt.Fprintf(os.Stdout, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
 				}
 				return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
 			}
@@ -366,7 +369,7 @@ func syncResource(c interface {
 		stored, extractFailures, err := upsertResourceBatch(db, resource, items)
 		if err != nil {
 			if !humanFriendly {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
+				fmt.Fprintf(os.Stdout, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
 			}
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("upserting batch for %s: %w", resource, err), Duration: time.Since(started)}
 		}
@@ -383,7 +386,7 @@ func syncResource(c interface {
 			if humanFriendly {
 				fmt.Fprintf(os.Stderr, "warning: %s returned %d items but stored 0 — the local store will be empty for this resource. Likely cause: scalar item shape rather than objects with extractable IDs.\n", resource, len(items))
 			} else {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"reason":"all_items_failed_id_extraction"}`+"\n", resource, len(items))
+				fmt.Fprintf(os.Stdout, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"reason":"all_items_failed_id_extraction"}`+"\n", resource, len(items))
 			}
 			anomalyEmitted = true
 		} else if extractFailures > 0 && !anomalyEmitted {
@@ -394,7 +397,7 @@ func syncResource(c interface {
 			if humanFriendly {
 				fmt.Fprintf(os.Stderr, "\nwarning: %s had %d item(s) on this page with no extractable primary key — those rows were dropped silently. Annotate the spec with x-resource-id to fix.\n", resource, extractFailures)
 			} else {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":%d,"count":%d,"reason":"primary_key_unresolved"}`+"\n", resource, len(items), stored, extractFailures)
+				fmt.Fprintf(os.Stdout, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":%d,"count":%d,"reason":"primary_key_unresolved"}`+"\n", resource, len(items), stored, extractFailures)
 			}
 			anomalyEmitted = true
 		}
@@ -412,9 +415,9 @@ func syncResource(c interface {
 			}
 		} else {
 			if currentRate > 0 {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_progress","resource":"%s","fetched":%d,"rate_rps":%.1f}`+"\n", resource, atomic.LoadInt64(&progressCount), currentRate)
+				fmt.Fprintf(os.Stdout, `{"event":"sync_progress","resource":"%s","fetched":%d,"rate_rps":%.1f}`+"\n", resource, atomic.LoadInt64(&progressCount), currentRate)
 			} else {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_progress","resource":"%s","fetched":%d}`+"\n", resource, atomic.LoadInt64(&progressCount))
+				fmt.Fprintf(os.Stdout, `{"event":"sync_progress","resource":"%s","fetched":%d}`+"\n", resource, atomic.LoadInt64(&progressCount))
 			}
 		}
 
@@ -431,7 +434,7 @@ func syncResource(c interface {
 			if humanFriendly {
 				fmt.Fprintf(os.Stderr, "\n  %s: reached --max-pages limit (%d pages, %d items)\n", resource, maxPages, totalCount)
 			} else {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_warning","resource":"%s","reason":"max_pages_cap_hit","message":"reached --max-pages cap of %d; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify."}`+"\n", resource, maxPages)
+				fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","reason":"max_pages_cap_hit","message":"reached --max-pages cap of %d; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify."}`+"\n", resource, maxPages)
 			}
 			break
 		}
@@ -446,7 +449,7 @@ func syncResource(c interface {
 			if humanFriendly {
 				fmt.Fprintf(os.Stderr, "\n  %s: API returned the same next cursor across two pages; aborting to prevent budget waste.\n", resource)
 			} else {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_warning","resource":"%s","reason":"stuck_pagination","message":"API returned the same next cursor across two pages for resource %s; aborting to prevent budget waste."}`+"\n", resource, resource)
+				fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","reason":"stuck_pagination","message":"API returned the same next cursor across two pages for resource %s; aborting to prevent budget waste."}`+"\n", resource, resource)
 			}
 			break
 		}
@@ -474,12 +477,12 @@ func syncResource(c interface {
 		if humanFriendly {
 			fmt.Fprintf(os.Stderr, "\nwarning: %s consumed %d items, extracted %d primary keys, but stored 0 rows — extraction succeeded yet nothing landed. Investigate FTS triggers / transaction rollback / encoding.\n", resource, consumedTotal, consumedTotal-extractFailureTotal)
 		} else {
-			fmt.Fprintf(os.Stderr, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"extract_failures":%d,"reason":"stored_count_zero_after_extraction"}`+"\n", resource, consumedTotal, extractFailureTotal)
+			fmt.Fprintf(os.Stdout, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"extract_failures":%d,"reason":"stored_count_zero_after_extraction"}`+"\n", resource, consumedTotal, extractFailureTotal)
 		}
 	}
 
 	if !humanFriendly {
-		fmt.Fprintf(os.Stderr, `{"event":"sync_complete","resource":"%s","total":%d,"duration_ms":%d}`+"\n", resource, totalCount, time.Since(started).Milliseconds())
+		fmt.Fprintf(os.Stdout, `{"event":"sync_complete","resource":"%s","total":%d,"duration_ms":%d}`+"\n", resource, totalCount, time.Since(started).Milliseconds())
 	}
 
 	return syncResult{Resource: resource, Count: totalCount, Duration: time.Since(started)}
@@ -686,7 +689,8 @@ type discriminatorDispatch struct {
 	Values map[string]string
 }
 
-var discriminatorDispatchers = map[string]discriminatorDispatch{}
+var discriminatorDispatchers = map[string]discriminatorDispatch{
+}
 
 func upsertResourceBatch(db *store.Store, resource string, items []json.RawMessage) (int, int, error) {
 	if _, ok := discriminatorDispatchers[resource]; !ok {
@@ -787,18 +791,20 @@ func parseSinceDuration(s string) (time.Time, error) {
 }
 
 func defaultSyncResources() []string {
-	return []string{}
+	return []string{
+	}
 }
 
 // syncResourcePath maps resource names to their actual API endpoint paths.
 // For REST APIs this is typically "/<resource>". For non-REST APIs (e.g., Steam)
 // this preserves the actual endpoint path like "/ISteamApps/GetAppList/v2".
-func syncResourcePath(resource string) string {
-	paths := map[string]string{}
-	if p, ok := paths[resource]; ok {
-		return p
+func syncResourcePath(resource string) (string, error) {
+	paths := map[string]string{
 	}
-	return "/" + resource
+	if p, ok := paths[resource]; ok {
+		return p, nil
+	}
+	return "", fmt.Errorf("unknown sync resource %q", resource)
 }
 
 // resourceIDFieldOverrides projects per-resource IDField (set by the profiler
@@ -810,7 +816,8 @@ func syncResourcePath(resource string) string {
 // Includes both flat resources and dependent (parent-child) resources so
 // annotations on a child path-item are honored at runtime, not just on
 // flat paths.
-var resourceIDFieldOverrides = map[string]string{}
+var resourceIDFieldOverrides = map[string]string{
+}
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
 // NOT receive a templated IDField. API-specific names belong in spec
@@ -825,7 +832,8 @@ var genericIDFieldFallbacks = []string{"id", "ID", "name", "uuid", "slug", "key"
 // Includes both flat resources and dependent (parent-child) resources so a
 // failed child sync flagged x-critical: true exits non-zero just like a
 // flat-resource critical failure.
-var criticalResources = map[string]bool{}
+var criticalResources = map[string]bool{
+}
 
 // extractID resolves an item's primary-key field. It consults the
 // per-resource templated override first; on miss, it falls through to the

@@ -74,10 +74,10 @@ type FreshnessMeta struct {
 // the data is stale, the decision is DecisionStaleShare so the caller
 // prefers a git pull over an API refresh.
 type Policy struct {
-	StaleAfter   time.Duration
-	PerResource  map[string]time.Duration
-	EnvOptOut    string
-	ShareEnabled bool
+	StaleAfter     time.Duration
+	PerResource    map[string]time.Duration
+	EnvOptOut      string
+	ShareEnabled   bool
 }
 
 // EnsureFresh inspects sync_state for the requested resources and returns

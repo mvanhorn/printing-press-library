@@ -184,6 +184,9 @@ func newFeedbackListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List recent feedback entries",
+		Example: `  apartments-pp-cli feedback list
+  apartments-pp-cli feedback list --limit 5
+  apartments-pp-cli feedback list --json`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			p, err := feedbackFilePath()
 			if err != nil {

@@ -111,7 +111,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().BoolVar(&flags.asJSON, "json", false, "Output as JSON")
 	rootCmd.PersistentFlags().BoolVar(&flags.compact, "compact", false, "Return only key fields (id, name, status, timestamps) for minimal token usage")
 	rootCmd.PersistentFlags().BoolVar(&flags.csv, "csv", false, "Output as CSV (table and array responses)")
-	rootCmd.PersistentFlags().BoolVar(&flags.plain, "plain", false, "Output as plain tab-separated values (TSV) — pipe-friendly")
+	rootCmd.PersistentFlags().BoolVar(&flags.plain, "plain", false, "Output as plain tab-separated text")
 	rootCmd.PersistentFlags().BoolVar(&flags.quiet, "quiet", false, "Bare output, one value per line")
 	rootCmd.PersistentFlags().StringVar(&flags.configPath, "config", "", "Config file path")
 	rootCmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 30*time.Second, "Request timeout")
@@ -199,6 +199,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newSyncCmd(flags))
 	rootCmd.AddCommand(newWorkflowCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))
+	rootCmd.AddCommand(newVersionCliCmd())
+
 	rootCmd.AddCommand(newListingCmd(flags))
 	rootCmd.AddCommand(newRentalsCmd(flags))
 	rootCmd.AddCommand(newAptSyncCmd(flags))
@@ -216,7 +218,6 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newFloorplansCmd(flags))
 	rootCmd.AddCommand(newMustHaveCmd(flags))
 	rootCmd.AddCommand(newShortlistCmd(flags))
-	rootCmd.AddCommand(newVersionCliCmd())
 
 	return rootCmd
 }

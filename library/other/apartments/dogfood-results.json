@@ -1,6 +1,6 @@
 {
-  "dir": "/Users/toriniku/printing-press/.runstate/printing-press-6b26f844/runs/20260503-193955/working/apartments-pp-cli",
-  "spec_path": "/Users/toriniku/printing-press/.runstate/printing-press-6b26f844/runs/20260503-193955/research/apartments-spec.yaml",
+  "dir": "/Users/toriniku/printing-press/library/apartments",
+  "spec_path": "/Users/toriniku/printing-press/manuscripts/apartments/20260503-193955/research/apartments-spec.yaml",
   "verdict": "PASS",
   "path_check": {
     "tested": 0,

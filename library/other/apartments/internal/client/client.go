@@ -9,7 +9,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/enetx/surf"
 	"io"
 	"math"
 	"net/http"
@@ -19,6 +18,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"github.com/enetx/surf"
 
 	"github.com/mvanhorn/printing-press-library/library/other/apartments/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/other/apartments/internal/config"
@@ -33,6 +33,8 @@ type Client struct {
 	cacheDir   string
 	limiter    *cliutil.AdaptiveLimiter
 }
+
+
 
 // APIError carries HTTP status information for structured exit codes.
 type APIError struct {
@@ -131,6 +133,16 @@ func (c *Client) writeCache(path string, params map[string]string, data json.Raw
 	os.MkdirAll(c.cacheDir, 0o755)
 	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
 	os.WriteFile(cacheFile, []byte(data), 0o644)
+}
+
+// invalidateCache wholesale-removes the cache directory so the next read
+// after a mutation cannot return a stale snapshot. Selective per-resource
+// invalidation rejected: cache keys are opaque sha256 hashes.
+func (c *Client) invalidateCache() {
+	if c.cacheDir == "" {
+		return
+	}
+	_ = os.RemoveAll(c.cacheDir)
 }
 
 func (c *Client) Post(path string, body any) (json.RawMessage, int, error) {
@@ -246,6 +258,9 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		// Success
 		if resp.StatusCode < 400 {
 			c.limiter.OnSuccess()
+			if method != http.MethodGet && !c.DryRun {
+				c.invalidateCache()
+			}
 			return json.RawMessage(respBody), resp.StatusCode, nil
 		}
 
@@ -427,6 +442,7 @@ func sanitizeJSONResponse(body []byte) []byte {
 	}
 	return body
 }
+
 
 // maskToken redacts all but the last 4 characters of a token for safe display.
 func maskToken(token string) string {

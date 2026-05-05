@@ -19,7 +19,8 @@ import (
 // map to decide whether to refresh the local cache before serving.
 // Populated from generated syncable resource commands and any custom
 // command-path coverage declared in spec.Cache.Commands.
-var readCommandResources = map[string][]string{}
+var readCommandResources = map[string][]string{
+}
 
 // cachePolicy returns the cache freshness policy assembled from spec
 // configuration. Defaults: 6h global stale-after, env opt-out named after
