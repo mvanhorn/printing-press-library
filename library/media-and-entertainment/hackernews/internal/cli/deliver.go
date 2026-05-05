@@ -21,10 +21,9 @@ type DeliverSink struct {
 }
 
 // ParseDeliverSink parses a --deliver value. Supported schemes:
-//
-//	stdout          -> default, no redirection
-//	file:<path>     -> write output atomically to <path>
-//	webhook:<url>   -> POST output body to <url>
+//   stdout          -> default, no redirection
+//   file:<path>     -> write output atomically to <path>
+//   webhook:<url>   -> POST output body to <url>
 //
 // Returns an error for unknown schemes with a message naming the
 // supported set, so agents see a structured refusal rather than a

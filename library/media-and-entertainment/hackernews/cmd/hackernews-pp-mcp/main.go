@@ -25,13 +25,12 @@ const (
 
 func main() {
 	s := server.NewMCPServer(
-		"Hacker News",
+		"Hackernews",
 		"1.0.0",
 		server.WithToolCapabilities(false),
 	)
 
 	mcptools.RegisterTools(s)
-	mcptools.RegisterNovelFeatureTools(s)
 
 	transport := flag.String("transport", defaultTransport(), "MCP transport: stdio | http")
 	addr := flag.String("addr", defaultHTTPAddr, "bind address for http transport (host:port or :port)")

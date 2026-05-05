@@ -12,7 +12,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/internal/algolia"
 )
 
-func newCommentsCmd(flags *rootFlags) *cobra.Command {
+func newItemsThreadCmd(flags *rootFlags) *cobra.Command {
 	var depth int
 	var flat bool
 	var author string
@@ -20,8 +20,7 @@ func newCommentsCmd(flags *rootFlags) *cobra.Command {
 	var since string
 
 	cmd := &cobra.Command{
-		Use:   "comments <id>",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Use:   "thread <id>",
 		Short: "Print a thread's comment tree using Algolia's one-shot fetch",
 		Long: `Print a Hacker News thread's full comment tree in a single Algolia call.
 
@@ -30,19 +29,19 @@ the entire thread without recursive Firebase walks. By default the tree
 is rendered as nested replies; --flat prints one comment per line.`,
 		Example: strings.Trim(`
   # Tree view (default)
-  hackernews-pp-cli comments 12345678
+  hackernews-pp-cli items thread 12345678
 
   # Flat list, easier to grep
-  hackernews-pp-cli comments 12345678 --flat
+  hackernews-pp-cli items thread 12345678 --flat
 
   # Cap to depth 2 for huge threads
-  hackernews-pp-cli comments 12345678 --depth 2
+  hackernews-pp-cli items thread 12345678 --depth 2
 
   # Filter by author and time
-  hackernews-pp-cli comments 12345678 --author dang --since 24h
+  hackernews-pp-cli items thread 12345678 --author dang --since 24h
 
   # JSON for piping into jq
-  hackernews-pp-cli comments 12345678 --json
+  hackernews-pp-cli items thread 12345678 --json
 `, "\n"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

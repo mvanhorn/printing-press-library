@@ -1,0 +1,1361 @@
+{
+  "dir": "/Users/tmchow/printing-press/.runstate/drifting-hugging-phoenix-78b7f75a/runs/20260504-190931/working/hackernews-pp-cli",
+  "binary": "/Users/tmchow/printing-press/.runstate/drifting-hugging-phoenix-78b7f75a/runs/20260504-190931/working/hackernews-pp-cli/hackernews-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 88,
+  "passed": 88,
+  "failed": 0,
+  "skipped": 52,
+  "commands": [
+    "api",
+    "controversial",
+    "doctor",
+    "export",
+    "feedback list",
+    "freelance filter",
+    "hiring companies",
+    "hiring filter",
+    "hiring stats",
+    "import",
+    "items open",
+    "items thread",
+    "maxitem",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "pulse",
+    "repost",
+    "search local",
+    "since",
+    "stories ask",
+    "stories best",
+    "stories job",
+    "stories new",
+    "stories show",
+    "stories top",
+    "sync",
+    "updates",
+    "users stats",
+    "velocity",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  hackernews-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  hackernews-pp-cli api\n\n  # Show methods for a specific interface\n  hackernews-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'hackernews-pp-cli api' to list all interfaces\ninterface \"__printing_press_invalid__\" not found. Run 'hackernews-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "controversial",
+      "kind": "help",
+      "args": [
+        "controversial",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Rank locally synced stories by descendants/score.\n\nA high ratio implies many comments relative to upvotes — usually a\ncontentious topic. The default floor of 25 comments and 10 points\nfilters out drive-by submissions; lower or raise as needed.\n\nUse --window to limit to recently-posted stories (e.g. --window 7d skips\nitems older than 7 days).\n\nUsage:\n  hackernews-pp-cli controversial [flags]\n\nExamples:\n  hackernews-pp-cli controversial --limit 10\n  hackernews-pp-cli controversial --min-comments 100 --json\n  hackernews-pp-cli controversial --window 7d --json\n\nFlags:\n  -h, --help               help for controversial\n      --limit int          Maximum results to return (default 10)\n      --min-comments int   Floor on descendants count to avoid drive-by submissions (default 25)\n      --min-score int      Floor on points to avoid divide-by-zero noise (default 10)\n      --window string      Only include stories from this recent duration (e.g., 7d, 24h, 12h, 30d)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "controversial",
+      "kind": "happy_path",
+      "args": [
+        "controversial",
+        "--limit",
+        "10"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"id\": \"48010266\",\n    \"title\": \"Sierra Raises $950M at $15B Valuation\",\n    \"url\": \"https://sierra.ai/blog/better-customer-experiences-built-on-sierra\",\n    \"score\": 97,\n    \"descendants\": 123,\n    \"ratio\": 1.268041237113402\n  },\n  {\n    \"id\": \"47997486\",\n    \"title\": \"Security through obscurity is not bad\",\n    \"url\": \"https://mobeigi.com/blog/security/security-through-obscurity-is-not-bad/\",\n    \"score\": 197,\n    \"descendants\": 211,\n    \"ratio\": 1.0710659898477157\n  },\n  {\n    \"id\": \"48015218\",\n    \"title\": \"'Point of no return': New Orleans relocation must start now due to sea level\",\n    \"url\": \"https://www.theguardian.com/us-news/2026/may/04/new-orleans-sea-levels-relocation-climate-crisis\",\n    \"score\": 111,\n    \"descendants\": 118,\n    \"ratio\": 1.063063063063063\n  },\n  {\n    \"id\": \"48000028\",\n    \"title\": \"Why TUIs are back\",\n    \"url\": \"https://wiki.alcidesfonseca.com/blog/why-tuis-are-back/\",\n    \"score\": 405,\n    \"descendants\": 410,\n    \"ratio\": 1.0123456790123457\n  },\n  {\n    \"id\": \"47985589\",\n    \"title\": \"From CVS to Git, thirty years of source control\",\n    \"url\": \"https://evilgeniuslabs.ca/blog/from-cvs-to-git-thirty-years-of-source-control\",\n    \"score\": 64,\n    \"descendants\": 64,\n    \"ratio\": 1\n  },\n  {\n    \"id\": \"48000152\",\n    \"title\": \"New statue in London, attributed to Banksy, of a suited man, blinded by a flag\",\n    \"url\": \"https://www.smithsonianmag.com/smart-news/attributed-to-banksy-a-new-statue-of-a-suited-man-blinded-by-a-flag-and-walking-off-a-ledge-appeared-in-central-london-180988662/\",\n    \"score\": 550,\n    \"descendants\": 533,\n    \"ratio\": 0.9690909090909091\n  },\n  {\n    \"id\": \"48009983\",\n    \"title\": \"Does Employment Slow Cognitive Decline? Evidence from Labor Market Shocks\",\n    \"url\": \"https://www.nber.org/papers/w35117\",\n    \"score\": 228,\n    \"descendants\": 218,\n    \"ratio\": 0.956140350877193\n  },\n  {\n    \"id\": \"48006402\",\n    \"title\": \"GameStop makes $55.5B takeover offer for eBay\",\n    \"url\": \"https://www.bbc.co.uk/news/articles/cn0p8yled1do\",\n    \"score\": 650,\n    \"descendants\": 618,\n    \"ratio\": 0.9507692307692308\n  },\n  {\n    \"id\": \"48002777\",\n    \"title\": \"Let's Buy Spirit Air\",\n    \"url\": \"https://letsbuyspiritair.com/\",\n    \"score\": 577,\n    \"descendants\": 547,\n    \"ratio\": 0.9480069324090121\n  },\n  {\n    \"id\": \"48008074\",\n    \"title\": \"Newton's law of gravity passes its biggest test\",\n    \"url\": \"https://www.science.org/content/article/newton-s-law-gravity-passes-its-biggest-test-ever\",\n    \"score\": 140,\n    \"descendants\": 131,\n    \"ratio\": 0.9357142857142857\n  }\n]\n"
+    },
+    {
+      "command": "controversial",
+      "kind": "json_fidelity",
+      "args": [
+        "controversial",
+        "--limit",
+        "10",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"id\": \"48010266\",\n    \"title\": \"Sierra Raises $950M at $15B Valuation\",\n    \"url\": \"https://sierra.ai/blog/better-customer-experiences-built-on-sierra\",\n    \"score\": 97,\n    \"descendants\": 123,\n    \"ratio\": 1.268041237113402\n  },\n  {\n    \"id\": \"47997486\",\n    \"title\": \"Security through obscurity is not bad\",\n    \"url\": \"https://mobeigi.com/blog/security/security-through-obscurity-is-not-bad/\",\n    \"score\": 197,\n    \"descendants\": 211,\n    \"ratio\": 1.0710659898477157\n  },\n  {\n    \"id\": \"48015218\",\n    \"title\": \"'Point of no return': New Orleans relocation must start now due to sea level\",\n    \"url\": \"https://www.theguardian.com/us-news/2026/may/04/new-orleans-sea-levels-relocation-climate-crisis\",\n    \"score\": 111,\n    \"descendants\": 118,\n    \"ratio\": 1.063063063063063\n  },\n  {\n    \"id\": \"48000028\",\n    \"title\": \"Why TUIs are back\",\n    \"url\": \"https://wiki.alcidesfonseca.com/blog/why-tuis-are-back/\",\n    \"score\": 405,\n    \"descendants\": 410,\n    \"ratio\": 1.0123456790123457\n  },\n  {\n    \"id\": \"47985589\",\n    \"title\": \"From CVS to Git, thirty years of source control\",\n    \"url\": \"https://evilgeniuslabs.ca/blog/from-cvs-to-git-thirty-years-of-source-control\",\n    \"score\": 64,\n    \"descendants\": 64,\n    \"ratio\": 1\n  },\n  {\n    \"id\": \"48000152\",\n    \"title\": \"New statue in London, attributed to Banksy, of a suited man, blinded by a flag\",\n    \"url\": \"https://www.smithsonianmag.com/smart-news/attributed-to-banksy-a-new-statue-of-a-suited-man-blinded-by-a-flag-and-walking-off-a-ledge-appeared-in-central-london-180988662/\",\n    \"score\": 550,\n    \"descendants\": 533,\n    \"ratio\": 0.9690909090909091\n  },\n  {\n    \"id\": \"48009983\",\n    \"title\": \"Does Employment Slow Cognitive Decline? Evidence from Labor Market Shocks\",\n    \"url\": \"https://www.nber.org/papers/w35117\",\n    \"score\": 228,\n    \"descendants\": 218,\n    \"ratio\": 0.956140350877193\n  },\n  {\n    \"id\": \"48006402\",\n    \"title\": \"GameStop makes $55.5B takeover offer for eBay\",\n    \"url\": \"https://www.bbc.co.uk/news/articles/cn0p8yled1do\",\n    \"score\": 650,\n    \"descendants\": 618,\n    \"ratio\": 0.9507692307692308\n  },\n  {\n    \"id\": \"48002777\",\n    \"title\": \"Let's Buy Spirit Air\",\n    \"url\": \"https://letsbuyspiritair.com/\",\n    \"score\": 577,\n    \"descendants\": 547,\n    \"ratio\": 0.9480069324090121\n  },\n  {\n    \"id\": \"48008074\",\n    \"title\": \"Newton's law of gravity passes its biggest test\",\n    \"url\": \"https://www.science.org/content/article/newton-s-law-gravity-passes-its-biggest-test-ever\",\n    \"score\": 140,\n    \"descendants\": 131,\n    \"ratio\": 0.9357142857142857\n  }\n]\n"
+    },
+    {
+      "command": "controversial",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  hackernews-pp-cli doctor [flags]\n\nExamples:\n  hackernews-pp-cli doctor\n  hackernews-pp-cli doctor --json\n  hackernews-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK API: reachable\n  config_path: /Users/tmchow/.config/hackernews-pp-cli/config.toml\n  base_url: https://hacker-news.firebaseio.com/v0\n  version: 1.0.0\n  OK Cache: fresh\n    db_path: /Users/tmchow/.local/share/hackernews-pp-cli/data.db\n    schema_version: 1\n    db_bytes: 8261632\n    stale_after: 6h0m0s\n    resources:\n      - stories: 0 rows, 1m0s\n      - updates: 0 rows, 0s\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://hacker-news.firebaseio.com/v0\",\n  \"cache\": {\n    \"db_bytes\": 8261632,\n    \"db_path\": \"/Users/tmchow/.local/share/hackernews-pp-cli/data.db\",\n    \"resources\": [\n      {\n        \"last_synced_at\": \"2026-05-05T03:25:11Z\",\n        \"rows\": 0,\n        \"staleness\": \"1m0s\",\n        \"type\": \"stories\"\n      },\n      {\n        \"last_synced_at\": \"2026-05-05T03:26:37Z\",\n        \"rows\": 0,\n        \"staleness\": \"0s\",\n        \"type\": \"updates\"\n      }\n    ],\n    \"schema_version\": 1,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"fresh\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/Users/tmchow/.config/hackernews-pp-cli/config.toml\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "export",
+      "kind": "help",
+      "args": [
+        "export",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Export paginated API data to a local file. Supports JSONL (one JSON object\nper line, streaming-friendly) and JSON (array). JSONL is recommended for\nlarge datasets as it has no memory pressure.\n\nUsage:\n  hackernews-pp-cli export \u003cresource\u003e [id] [flags]\n\nExamples:\n  # Export all items as JSONL (streaming, recommended for large datasets)\n  hackernews-pp-cli export \u003cresource\u003e --format jsonl --output data.jsonl\n\n  # Export with limit\n  hackernews-pp-cli export \u003cresource\u003e --format jsonl --limit 1000\n\n  # Pipe to another tool\n  hackernews-pp-cli export \u003cresource\u003e --format jsonl | jq '.id'\n\nFlags:\n      --format string   Output format: jsonl or json (default \"jsonl\")\n  -h, --help            help for export\n      --limit int       Maximum records to export (0 = unlimited)\n      --no-cache        Bypass response cache for fresh data\n  -o, --output string   Output file path (default: stdout)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "export",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "error_path",
+      "args": [
+        "export",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: unknown resource \"__printing_press_invalid__\" for hackernews; valid: stories, items, users, updates, maxitem\nunknown resource \"__printing_press_invalid__\" for hackernews; valid: stories, items, users, updates, maxitem\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  hackernews-pp-cli feedback list [flags]\n\nExamples:\n  hackernews-pp-cli feedback list\n  hackernews-pp-cli feedback list --limit 5\n  hackernews-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:39:02.671177Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:39:02.678639Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:39:45.747136Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:39:45.756179Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:40:06.522402Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:40:06.530975Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:40:18.37905Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:40:18.388169Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:40:31.335035Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:40:31.343185Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:46:35.417738Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:46:35.426276Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:56:23.04339Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:56:23.05297Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T20:01:10.618051Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T20:01:10.626463Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-05T02:43:14.697788Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-05T02:43:14.708057Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-05T02:45:10.515724Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-05T02:45:10.524655Z\"\n  }\n]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:39:02.671177Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:39:02.678639Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:39:45.747136Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:39:45.756179Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:40:06.522402Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:40:06.530975Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:40:18.37905Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:40:18.388169Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:40:31.335035Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:40:31.343185Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:46:35.417738Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:46:35.426276Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:56:23.04339Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T19:56:23.05297Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T20:01:10.618051Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-04-27T20:01:10.626463Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-05T02:43:14.697788Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-05T02:43:14.708057Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-05T02:45:10.515724Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"hackernews-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-05T02:45:10.524655Z\"\n  }\n]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "freelance filter",
+      "kind": "help",
+      "args": [
+        "freelance",
+        "filter",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Filter the latest 'Freelancer? Seeking freelancer?' thread by regex\n\nUsage:\n  hackernews-pp-cli freelance filter [regex] [flags]\n\nExamples:\n  # Show every post in the latest freelance thread\n  hackernews-pp-cli freelance filter\n\n  # Filter for React Native\n  hackernews-pp-cli freelance filter 'react native'\n\n  # JSON\n  hackernews-pp-cli freelance filter --json\n\nFlags:\n  -h, --help   help for filter\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "freelance filter",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"regex\" at depth 0"
+    },
+    {
+      "command": "freelance filter",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"regex\" at depth 0"
+    },
+    {
+      "command": "freelance filter",
+      "kind": "error_path",
+      "args": [
+        "freelance",
+        "filter",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: regex \"__printing_press_invalid__\" looks like a placeholder; supply a real pattern\nregex \"__printing_press_invalid__\" looks like a placeholder; supply a real pattern\n"
+    },
+    {
+      "command": "hiring companies",
+      "kind": "help",
+      "args": [
+        "hiring",
+        "companies",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Walk the most recent N 'Who is hiring?' threads on HN and join post-level\ncompany mentions across months.\n\nOutput rows are companies that appear in at least --min-posts of the scanned\nmonths. Each row reports months_posted (how many of the scanned months had a\npost from this company), first_seen (earliest YYYY-MM), and last_seen (latest\nYYYY-MM). Useful for sourcing — persistent hirers vs one-off posters.\n\nHeuristic: same Acme Corp | Engineer | ... header regex as 'hiring stats'.\nWe deduplicate per month to avoid one company posting twice in the same\nthread inflating its count.\n\nUsage:\n  hackernews-pp-cli hiring companies [flags]\n\nExamples:\n  hackernews-pp-cli hiring companies --months 6\n  hackernews-pp-cli hiring companies --months 6 --min-posts 3 --json\n  hackernews-pp-cli hiring companies --months 12 --min-posts 6 --agent\n\nFlags:\n  -h, --help            help for companies\n      --min-posts int   Only show companies that posted in at least this many of the scanned months (default 1)\n      --months int      Number of recent monthly hiring threads to scan (1-12) (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "hiring companies",
+      "kind": "happy_path",
+      "args": [
+        "hiring",
+        "companies",
+        "--months",
+        "6"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"months_scanned\": 6,\n  \"threads_scanned\": 6,\n  \"posts_scanned\": 2008,\n  \"unique_companies\": 916,\n  \"min_posts_filter\": 1,\n  \"companies\": [\n    {\n      \"name\": \"Aqora\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Baton\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Beautiful.ai\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Better Stack\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Category Labs\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"CrazyGames\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"DuckDuckGo\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Findigs\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Foxglove\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Lantern\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"MONUMENTAL\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Neon Health\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"OpenRent\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"PlantingSpace\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"PostHog\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"RINSE\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Radar Labs\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Spacelift\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Starbridge\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Stellar Science\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Temporal Technologies\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Uncountable\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Arcol\",\n      \"months_posted\": 5,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-04\"\n    },\n    {\n      \"name\": \"Atomic Tessellator\",\n      \"months_posted\": 5,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-04\"\n    },\n    {\n      \"name\": \"Beacon AI\",\n      \"months_posted\": 5,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Blackshark AI\",\n      \"months_posted\": 5,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-04\"\n    },\n    {\n      \"name\": \"ChainSecurity\",\n      \"months_posted\": 5,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-04\"\n    },\n    {\n      \"name\": \"Charge Robotics\",\n      \"months_posted\": 5,\n      \"first_seen\": \"2026-01\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Coder\",\n      \"months_posted\": 5,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-04\"\n    },\n    {\n      \"name\": \"Comulate\",\n      \"months_posted\": 5,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-04\"\n    },\n    {\n      \"name\": \"Estuary\",\n      \"months_posted\": 5,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-04\"\n    },\n    {\n      \"n…[truncated]"
+    },
+    {
+      "command": "hiring companies",
+      "kind": "json_fidelity",
+      "args": [
+        "hiring",
+        "companies",
+        "--months",
+        "6",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"months_scanned\": 6,\n  \"threads_scanned\": 6,\n  \"posts_scanned\": 2008,\n  \"unique_companies\": 916,\n  \"min_posts_filter\": 1,\n  \"companies\": [\n    {\n      \"name\": \"Aqora\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Baton\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Beautiful.ai\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Better Stack\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Category Labs\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"CrazyGames\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"DuckDuckGo\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Findigs\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Foxglove\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Lantern\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"MONUMENTAL\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Neon Health\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"OpenRent\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"PlantingSpace\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"PostHog\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"RINSE\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Radar Labs\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Spacelift\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Starbridge\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Stellar Science\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Temporal Technologies\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Uncountable\",\n      \"months_posted\": 6,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Arcol\",\n      \"months_posted\": 5,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-04\"\n    },\n    {\n      \"name\": \"Atomic Tessellator\",\n      \"months_posted\": 5,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-04\"\n    },\n    {\n      \"name\": \"Beacon AI\",\n      \"months_posted\": 5,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Blackshark AI\",\n      \"months_posted\": 5,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-04\"\n    },\n    {\n      \"name\": \"ChainSecurity\",\n      \"months_posted\": 5,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-04\"\n    },\n    {\n      \"name\": \"Charge Robotics\",\n      \"months_posted\": 5,\n      \"first_seen\": \"2026-01\",\n      \"last_seen\": \"2026-05\"\n    },\n    {\n      \"name\": \"Coder\",\n      \"months_posted\": 5,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-04\"\n    },\n    {\n      \"name\": \"Comulate\",\n      \"months_posted\": 5,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-04\"\n    },\n    {\n      \"name\": \"Estuary\",\n      \"months_posted\": 5,\n      \"first_seen\": \"2025-12\",\n      \"last_seen\": \"2026-04\"\n    },\n    {\n      \"n…[truncated]"
+    },
+    {
+      "command": "hiring companies",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "hiring filter",
+      "kind": "help",
+      "args": [
+        "hiring",
+        "filter",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Find the latest 'Ask HN: Who is hiring?' thread on HN and filter the\ntop-level posts with a case-insensitive regex.\n\nEach post is emitted with author, created date, body, and HN URL.\n\nUsage:\n  hackernews-pp-cli hiring filter [regex] [flags]\n\nExamples:\n  # Show every post in the latest thread (no filter)\n  hackernews-pp-cli hiring filter\n\n  # Remote Go positions\n  hackernews-pp-cli hiring filter '(remote|REMOTE).*\\bGo\\b'\n\n  # JSON\n  hackernews-pp-cli hiring filter 'rust' --json\n\nFlags:\n  -h, --help   help for filter\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "hiring filter",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"regex\" at depth 0"
+    },
+    {
+      "command": "hiring filter",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"regex\" at depth 0"
+    },
+    {
+      "command": "hiring filter",
+      "kind": "error_path",
+      "args": [
+        "hiring",
+        "filter",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: regex \"__printing_press_invalid__\" looks like a placeholder; supply a real pattern\nregex \"__printing_press_invalid__\" looks like a placeholder; supply a real pattern\n"
+    },
+    {
+      "command": "hiring stats",
+      "kind": "help",
+      "args": [
+        "hiring",
+        "stats",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Walk the most recent N 'Who is hiring?' threads on HN and compute aggregate stats.\n\nHeuristics: we look for whole-word language names, count posts mentioning\n'remote' (or 'on-site'), and try to extract the company name from the\ncommon '| Engineer | …' header format hiring posts use. This is\na best-effort summary, not a hiring-data product.\n\nUsage:\n  hackernews-pp-cli hiring stats [flags]\n\nExamples:\n  hackernews-pp-cli hiring stats --months 1\n  hackernews-pp-cli hiring stats --months 6 --json\n\nFlags:\n  -h, --help         help for stats\n      --months int   Number of recent monthly threads to scan (1-12) (default 1)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "hiring stats",
+      "kind": "happy_path",
+      "args": [
+        "hiring",
+        "stats",
+        "--months",
+        "1"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"months_scanned\": 1,\n  \"threads_scanned\": 1,\n  \"posts_scanned\": 273,\n  \"languages\": {\n    \"C#\": 6,\n    \"C++\": 9,\n    \"Elixir\": 5,\n    \"Go\": 30,\n    \"Golang\": 7,\n    \"Haskell\": 1,\n    \"Java\": 9,\n    \"JavaScript\": 13,\n    \"Kotlin\": 5,\n    \"PHP\": 7,\n    \"Python\": 77,\n    \"Ruby\": 10,\n    \"Rust\": 25,\n    \"Scala\": 5,\n    \"Swift\": 3,\n    \"TypeScript\": 63,\n    \"Zig\": 1\n  },\n  \"remote_percent\": 58.2,\n  \"onsite_percent\": 31.8,\n  \"top_companies\": [\n    {\n      \"name\": \"MongoDB\",\n      \"count\": 2\n    },\n    {\n      \"name\": \"Fullstory\",\n      \"count\": 1\n    },\n    {\n      \"name\": \"Engineering Square\",\n      \"count\": 1\n    },\n    {\n      \"name\": \"Giftster\",\n      \"count\": 1\n    },\n    {\n      \"name\": \"EaseCloud\",\n      \"count\": 1\n    },\n    {\n      \"name\": \"Youth Inc\",\n      \"count\": 1\n    },\n    {\n      \"name\": \"General Fusion\",\n      \"count\": 1\n    },\n    {\n      \"name\": \"RINSE\",\n      \"count\": 1\n    },\n    {\n      \"name\": \"Cloudpepper\",\n      \"count\": 1\n    },\n    {\n      \"name\": \"Railtown AI\",\n      \"count\": 1\n    }\n  ],\n  \"posts_offering_visa_or_h1b\": 17\n}\n"
+    },
+    {
+      "command": "hiring stats",
+      "kind": "json_fidelity",
+      "args": [
+        "hiring",
+        "stats",
+        "--months",
+        "1",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"months_scanned\": 1,\n  \"threads_scanned\": 1,\n  \"posts_scanned\": 273,\n  \"languages\": {\n    \"C#\": 6,\n    \"C++\": 9,\n    \"Elixir\": 5,\n    \"Go\": 30,\n    \"Golang\": 7,\n    \"Haskell\": 1,\n    \"Java\": 9,\n    \"JavaScript\": 13,\n    \"Kotlin\": 5,\n    \"PHP\": 7,\n    \"Python\": 77,\n    \"Ruby\": 10,\n    \"Rust\": 25,\n    \"Scala\": 5,\n    \"Swift\": 3,\n    \"TypeScript\": 63,\n    \"Zig\": 1\n  },\n  \"remote_percent\": 58.2,\n  \"onsite_percent\": 31.8,\n  \"top_companies\": [\n    {\n      \"name\": \"MongoDB\",\n      \"count\": 2\n    },\n    {\n      \"name\": \"Shepherd\",\n      \"count\": 1\n    },\n    {\n      \"name\": \"CodeWeavers\",\n      \"count\": 1\n    },\n    {\n      \"name\": \"Lantern\",\n      \"count\": 1\n    },\n    {\n      \"name\": \"Vantage\",\n      \"count\": 1\n    },\n    {\n      \"name\": \"Proven Software\",\n      \"count\": 1\n    },\n    {\n      \"name\": \"CivAI\",\n      \"count\": 1\n    },\n    {\n      \"name\": \"Hyperspell\",\n      \"count\": 1\n    },\n    {\n      \"name\": \"AveryIQ\",\n      \"count\": 1\n    },\n    {\n      \"name\": \"Eve\",\n      \"count\": 1\n    }\n  ],\n  \"posts_offering_visa_or_h1b\": 17\n}\n"
+    },
+    {
+      "command": "hiring stats",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  hackernews-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  hackernews-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  hackernews-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | hackernews-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: required flag(s) \"input\" not set\nrequired flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "items open",
+      "kind": "help",
+      "args": [
+        "items",
+        "open",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show the URL associated with a Hacker News item, or launch it in the browser.\n\nBy default the URL is printed to stdout — useful for piping into a\nselector or another tool. Pass --launch to open it in your default\nbrowser. Pass --hn to choose the HN thread URL instead of the story\nURL when both exist.\n\nUsage:\n  hackernews-pp-cli items open \u003cid\u003e [flags]\n\nExamples:\n  # Just print the URL\n  hackernews-pp-cli items open 12345678\n\n  # Open the story link in the browser\n  hackernews-pp-cli items open 12345678 --launch\n\n  # Open the HN thread instead of the article\n  hackernews-pp-cli items open 12345678 --hn --launch\n\nFlags:\n  -h, --help     help for open\n      --hn       Use the HN thread URL even when the story has its own URL\n      --launch   Actually open the URL in the default browser instead of just printing it\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "items open",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"id\""
+    },
+    {
+      "command": "items open",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"id\""
+    },
+    {
+      "command": "items open",
+      "kind": "error_path",
+      "args": [
+        "items",
+        "open",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: item id must be numeric (got \"__printing_press_invalid__\")\nitem id must be numeric (got \"__printing_press_invalid__\")\n"
+    },
+    {
+      "command": "items thread",
+      "kind": "help",
+      "args": [
+        "items",
+        "thread",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print a Hacker News thread's full comment tree in a single Algolia call.\n\nThe comment tree is fetched from Algolia's /items endpoint, which returns\nthe entire thread without recursive Firebase walks. By default the tree\nis rendered as nested replies; --flat prints one comment per line.\n\nUsage:\n  hackernews-pp-cli items thread \u003cid\u003e [flags]\n\nExamples:\n  # Tree view (default)\n  hackernews-pp-cli items thread 12345678\n\n  # Flat list, easier to grep\n  hackernews-pp-cli items thread 12345678 --flat\n\n  # Cap to depth 2 for huge threads\n  hackernews-pp-cli items thread 12345678 --depth 2\n\n  # Filter by author and time\n  hackernews-pp-cli items thread 12345678 --author dang --since 24h\n\n  # JSON for piping into jq\n  hackernews-pp-cli items thread 12345678 --json\n\nFlags:\n      --author string   Only include comments by this username\n      --depth int       Maximum depth of replies to include (0 = no limit)\n      --flat            Render comments as a flat list instead of a tree\n  -h, --help            help for thread\n      --match string    Only include comments whose text matches this regex\n      --since string    Only include comments newer than this duration (e.g., 24h, 7d)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "items thread",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"id\""
+    },
+    {
+      "command": "items thread",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"id\""
+    },
+    {
+      "command": "items thread",
+      "kind": "error_path",
+      "args": [
+        "items",
+        "thread",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: item __printing_press_invalid__ not found\nitem __printing_press_invalid__ not found\n"
+    },
+    {
+      "command": "maxitem",
+      "kind": "help",
+      "args": [
+        "maxitem",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'maxitem get'. Returns the largest item ID currently assigned by Hacker News\n\nUsage:\n  hackernews-pp-cli maxitem [flags]\n\nExamples:\n  hackernews-pp-cli maxitem\n\nFlags:\n  -h, --help   help for maxitem\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "maxitem",
+      "kind": "happy_path",
+      "args": [
+        "maxitem"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": 48017715\n}\n"
+    },
+    {
+      "command": "maxitem",
+      "kind": "json_fidelity",
+      "args": [
+        "maxitem",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": 48017715\n}\n"
+    },
+    {
+      "command": "maxitem",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  hackernews-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  hackernews-pp-cli profile delete my-defaults --yes\n  hackernews-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "delete",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\nprofile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  hackernews-pp-cli profile list [flags]\n\nExamples:\n  hackernews-pp-cli profile list\n  hackernews-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  hackernews-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  hackernews-pp-cli profile save my-defaults --json --compact\n  hackernews-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\nno non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  hackernews-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  hackernews-pp-cli profile show my-defaults\n  hackernews-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\nprofile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  hackernews-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  hackernews-pp-cli profile use my-defaults\n  hackernews-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\nprofile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "pulse",
+      "kind": "help",
+      "args": [
+        "pulse",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Run an Algolia query for a topic, scoped to the last N days, and bucket\nhits by UTC date.\n\nOutput shows mentions per day, summed points, and the top 5 stories\n(by points) in the window. Useful for tracking topic velocity without\nclicking through paginated search results.\n\nUsage:\n  hackernews-pp-cli pulse \u003ctopic\u003e [flags]\n\nExamples:\n  hackernews-pp-cli pulse rust --days 7\n  hackernews-pp-cli pulse openai --days 30 --json\n\nFlags:\n      --days int            Window in days (1-180) (default 7)\n  -h, --help                help for pulse\n      --hits-per-page int   Max hits to fetch (capped at 1000 by Algolia) (default 100)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "pulse",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [pulse] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "pulse",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [pulse] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "pulse",
+      "kind": "error_path",
+      "args": [
+        "pulse",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: topic \"__printing_press_invalid__\" looks like a placeholder; supply a real query string\ntopic \"__printing_press_invalid__\" looks like a placeholder; supply a real query string\n"
+    },
+    {
+      "command": "repost",
+      "kind": "help",
+      "args": [
+        "repost",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search Algolia for prior submissions of a URL.\n\nAlgolia's URL field is the canonical story URL — the same URL won't\nmatch if a prior submission used a slightly different path or query.\nPre-flight check before posting; works on partial URLs too.\n\nUsage:\n  hackernews-pp-cli repost \u003curl\u003e [flags]\n\nExamples:\n  hackernews-pp-cli repost https://example.com/article\n  hackernews-pp-cli repost https://example.com/article --json\n\nFlags:\n  -h, --help               help for repost\n      --include-comments   Also search comments for the URL (broader, noisier)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "repost",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [repost] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "repost",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [repost] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "repost",
+      "kind": "error_path",
+      "args": [
+        "repost",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: argument must be an http(s) URL (got \"__printing_press_invalid__\")\nargument must be an http(s) URL (got \"__printing_press_invalid__\")\n"
+    },
+    {
+      "command": "search local",
+      "kind": "help",
+      "args": [
+        "search",
+        "local",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search locally synced HN data with SQLite FTS5.\n\nLive API search hits Algolia, which works great for relevance but loses\nsome long-tail history and requires a network round-trip. local-search\nruns offline against everything you've synced. Pair with sync to grow\nthe searchable corpus over time.\n\nUsage:\n  hackernews-pp-cli search local \u003cquery\u003e [flags]\n\nExamples:\n  # Plain query\n  hackernews-pp-cli search local \"rust async\"\n\n  # Limit results, scope to one resource type\n  hackernews-pp-cli search local \"openai\" --limit 5 --type stories\n\n  # JSON output, pipe-friendly\n  hackernews-pp-cli search local \"kubernetes\" --json\n\nFlags:\n  -h, --help          help for local\n      --limit int     Maximum results to return (default 20)\n      --type string   Filter results to one resource type (stories, ask, show, jobs, users)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search local",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "search local",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "search local",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "local",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "since",
+      "kind": "help",
+      "args": [
+        "since",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Diff the most recent two front-page snapshots taken by sync.\n\nIf you only have one snapshot, the command reports that and lists the\ncurrent ranking; otherwise it returns three sets — stories that\nappeared on the front page, stories that fell off, and stories that\nmoved more than one rank in either direction.\n\nUsage:\n  hackernews-pp-cli since [flags]\n\nExamples:\n  # Run once after a fresh sync\n  hackernews-pp-cli sync\n  hackernews-pp-cli since\n\n  # Diff \"best\" instead of \"top\"\n  hackernews-pp-cli since --list best --json\n\nFlags:\n  -h, --help          help for since\n      --list string   Front-page list to diff (topstories, beststories, newstories) (default \"topstories\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "since",
+      "kind": "happy_path",
+      "args": [
+        "since"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"list\": \"topstories\",\n  \"current_taken_at\": \"2026-05-05T03:26:49.889896Z\",\n  \"previous_taken_at\": \"2026-05-05T03:25:03.06066Z\",\n  \"added\": [],\n  \"removed\": [],\n  \"moved\": null,\n  \"unchanged_count\": 30\n}\n"
+    },
+    {
+      "command": "since",
+      "kind": "json_fidelity",
+      "args": [
+        "since",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"list\": \"topstories\",\n  \"current_taken_at\": \"2026-05-05T03:26:49.902972Z\",\n  \"previous_taken_at\": \"2026-05-05T03:26:49.889896Z\",\n  \"added\": [],\n  \"removed\": [],\n  \"moved\": null,\n  \"unchanged_count\": 30\n}\n"
+    },
+    {
+      "command": "since",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "stories ask",
+      "kind": "help",
+      "args": [
+        "stories",
+        "ask",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get the latest Ask HN posts\n\nUsage:\n  hackernews-pp-cli stories ask [flags]\n\nExamples:\n  hackernews-pp-cli stories ask\n\nFlags:\n  -h, --help        help for ask\n      --limit int   Maximum number of story IDs to return (max 200) (default 30)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "stories ask",
+      "kind": "happy_path",
+      "args": [
+        "stories",
+        "ask"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    47975676,\n    48016031,\n    48014837,\n    47975570,\n    48013758,\n    48009180,\n    47975571,\n    48010505,\n    47988268,\n    47945522,\n    47998643,\n    47906253,\n    48001803,\n    48008867,\n    47976644,\n    47993748,\n    47966935,\n    47971921\n  ]\n}\n"
+    },
+    {
+      "command": "stories ask",
+      "kind": "json_fidelity",
+      "args": [
+        "stories",
+        "ask",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    47975676,\n    48016031,\n    48014837,\n    47975570,\n    48013758,\n    48009180,\n    47975571,\n    48010505,\n    47988268,\n    47945522,\n    47998643,\n    47906253,\n    48001803,\n    48008867,\n    47976644,\n    47993748,\n    47966935,\n    47971921\n  ]\n}\n"
+    },
+    {
+      "command": "stories ask",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "stories best",
+      "kind": "help",
+      "args": [
+        "stories",
+        "best",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get the highest-voted stories on Hacker News\n\nUsage:\n  hackernews-pp-cli stories best [flags]\n\nExamples:\n  hackernews-pp-cli stories best\n\nFlags:\n  -h, --help        help for best\n      --limit int   Maximum number of story IDs to return (max 200) (default 30)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "stories best",
+      "kind": "happy_path",
+      "args": [
+        "stories",
+        "best"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    48007438,\n    47997418,\n    48002136,\n    48006402,\n    48006445,\n    48002777,\n    48009697,\n    48000152,\n    47999636,\n    48012735,\n    48011689,\n    48011184,\n    47997947,\n    48002442,\n    48010301,\n    48000028,\n    47993235,\n    48012022,\n    47998946,\n    48013919,\n    47998790,\n    48002938,\n    47994012,\n    48009020,\n    48009172,\n    48008083,\n    48011603,\n    48009983,\n    47997358,\n    47998225\n  ]\n}\n"
+    },
+    {
+      "command": "stories best",
+      "kind": "json_fidelity",
+      "args": [
+        "stories",
+        "best",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    48007438,\n    47997418,\n    48002136,\n    48006402,\n    48006445,\n    48002777,\n    48009697,\n    48000152,\n    47999636,\n    48012735,\n    48011689,\n    48011184,\n    47997947,\n    48002442,\n    48010301,\n    48000028,\n    47993235,\n    48012022,\n    47998946,\n    48013919,\n    47998790,\n    48002938,\n    47994012,\n    48009020,\n    48009172,\n    48008083,\n    48011603,\n    48009983,\n    47997358,\n    47998225\n  ]\n}\n"
+    },
+    {
+      "command": "stories best",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "stories job",
+      "kind": "help",
+      "args": [
+        "stories",
+        "job",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get the latest Hacker News job postings\n\nUsage:\n  hackernews-pp-cli stories job [flags]\n\nExamples:\n  hackernews-pp-cli stories job\n\nFlags:\n  -h, --help        help for job\n      --limit int   Maximum number of story IDs to return (max 200) (default 30)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "stories job",
+      "kind": "happy_path",
+      "args": [
+        "stories",
+        "job"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    47983385,\n    47955226,\n    47947125,\n    47937203,\n    47908047,\n    47874734,\n    47851456,\n    47837176,\n    47817473,\n    47810507,\n    47808047,\n    47802016,\n    47789607,\n    47781912,\n    47777902,\n    47775606,\n    47741953,\n    47720918,\n    47713744,\n    47675302,\n    47667011,\n    47660343,\n    47648499,\n    47638270,\n    47632460,\n    47620857,\n    47618602,\n    47611044,\n    47606495,\n    47599673\n  ]\n}\n"
+    },
+    {
+      "command": "stories job",
+      "kind": "json_fidelity",
+      "args": [
+        "stories",
+        "job",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    47983385,\n    47955226,\n    47947125,\n    47937203,\n    47908047,\n    47874734,\n    47851456,\n    47837176,\n    47817473,\n    47810507,\n    47808047,\n    47802016,\n    47789607,\n    47781912,\n    47777902,\n    47775606,\n    47741953,\n    47720918,\n    47713744,\n    47675302,\n    47667011,\n    47660343,\n    47648499,\n    47638270,\n    47632460,\n    47620857,\n    47618602,\n    47611044,\n    47606495,\n    47599673\n  ]\n}\n"
+    },
+    {
+      "command": "stories job",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "stories new",
+      "kind": "help",
+      "args": [
+        "stories",
+        "new",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get the newest stories on Hacker News\n\nUsage:\n  hackernews-pp-cli stories new [flags]\n\nExamples:\n  hackernews-pp-cli stories new\n\nFlags:\n  -h, --help        help for new\n      --limit int   Maximum number of story IDs to return (max 500) (default 30)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "stories new",
+      "kind": "happy_path",
+      "args": [
+        "stories",
+        "new"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    48017711,\n    48017671,\n    48017668,\n    48017641,\n    48017631,\n    48017629,\n    48017625,\n    48017623,\n    48017602,\n    48017596,\n    48017578,\n    48017576,\n    48017553,\n    48017526,\n    48017518,\n    48017492,\n    48017477,\n    48017472,\n    48017399,\n    48017386,\n    48017366,\n    48017313,\n    48017307,\n    48017298,\n    48017277,\n    48017251,\n    48017244,\n    48017242,\n    48017233,\n    48017231\n  ]\n}\n"
+    },
+    {
+      "command": "stories new",
+      "kind": "json_fidelity",
+      "args": [
+        "stories",
+        "new",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    48017711,\n    48017671,\n    48017668,\n    48017641,\n    48017631,\n    48017629,\n    48017625,\n    48017623,\n    48017602,\n    48017596,\n    48017578,\n    48017576,\n    48017553,\n    48017526,\n    48017518,\n    48017492,\n    48017477,\n    48017472,\n    48017399,\n    48017386,\n    48017366,\n    48017313,\n    48017307,\n    48017298,\n    48017277,\n    48017251,\n    48017244,\n    48017242,\n    48017233,\n    48017231\n  ]\n}\n"
+    },
+    {
+      "command": "stories new",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "stories show",
+      "kind": "help",
+      "args": [
+        "stories",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get the latest Show HN posts\n\nUsage:\n  hackernews-pp-cli stories show [flags]\n\nExamples:\n  hackernews-pp-cli stories show\n\nFlags:\n  -h, --help        help for show\n      --limit int   Maximum number of story IDs to return (max 200) (default 30)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "stories show",
+      "kind": "happy_path",
+      "args": [
+        "stories",
+        "show"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    47990528,\n    47985958,\n    48017118,\n    48016525,\n    48016429,\n    47995037,\n    48015876,\n    47999656,\n    48015655,\n    48014251,\n    47990708,\n    47961935,\n    47996055,\n    47949066,\n    48011116,\n    48010204,\n    47998570,\n    48009045,\n    47996331,\n    48008906,\n    48008836,\n    47972511,\n    47985077,\n    47977694,\n    47984734,\n    47985210,\n    47984675,\n    47984614,\n    47973559,\n    47983485\n  ]\n}\n"
+    },
+    {
+      "command": "stories show",
+      "kind": "json_fidelity",
+      "args": [
+        "stories",
+        "show",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    47990528,\n    47985958,\n    48017118,\n    48016525,\n    48016429,\n    47995037,\n    48015876,\n    47999656,\n    48015655,\n    48014251,\n    47990708,\n    47961935,\n    47996055,\n    47949066,\n    48011116,\n    48010204,\n    47998570,\n    48009045,\n    47996331,\n    48008906,\n    48008836,\n    47972511,\n    47985077,\n    47977694,\n    47984734,\n    47985210,\n    47984675,\n    47984614,\n    47973559,\n    47983485\n  ]\n}\n"
+    },
+    {
+      "command": "stories show",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "stories top",
+      "kind": "help",
+      "args": [
+        "stories",
+        "top",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get the current top stories on Hacker News\n\nUsage:\n  hackernews-pp-cli stories top [flags]\n\nExamples:\n  hackernews-pp-cli stories top\n\nFlags:\n  -h, --help        help for top\n      --limit int   Maximum number of story IDs to return (max 500) (default 30)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "stories top",
+      "kind": "happy_path",
+      "args": [
+        "stories",
+        "top"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    48016880,\n    48017298,\n    48013919,\n    48007438,\n    48015397,\n    48017399,\n    48014868,\n    48012162,\n    47998158,\n    48009983,\n    48009172,\n    48016534,\n    48012735,\n    48009840,\n    48011184,\n    48009020,\n    48008083,\n    48009441,\n    48009747,\n    48014325,\n    47990528,\n    48014197,\n    48006402,\n    47988439,\n    48011689,\n    48010266,\n    47991645,\n    47985958,\n    48011603,\n    48011440\n  ]\n}\n"
+    },
+    {
+      "command": "stories top",
+      "kind": "json_fidelity",
+      "args": [
+        "stories",
+        "top",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    48016880,\n    48017298,\n    48013919,\n    48007438,\n    48015397,\n    48017399,\n    48014868,\n    48012162,\n    47998158,\n    48009983,\n    48009172,\n    48016534,\n    48012735,\n    48009840,\n    48011184,\n    48009020,\n    48008083,\n    48009441,\n    48009747,\n    48014325,\n    47990528,\n    48014197,\n    48006402,\n    47988439,\n    48011689,\n    48010266,\n    47991645,\n    47985958,\n    48011603,\n    48011440\n  ]\n}\n"
+    },
+    {
+      "command": "stories top",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nUsage:\n  hackernews-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  hackernews-pp-cli sync\n\n  # Sync specific resources only\n  hackernews-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  hackernews-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  hackernews-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  hackernews-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  hackernews-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int     Number of parallel sync workers (default 4)\n      --db string           Database path (default: ~/.local/share/hackernews-pp-cli/data.db)\n      --full                Full resync (ignore previous checkpoint)\n  -h, --help                help for sync\n      --latest-only         Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int       Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event) (default 100)\n      --resources strings   Comma-separated resource types to sync\n      --since string        Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict              Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":2,\"success\":2,\"warned\":0,\"errored\":0,\"duration_ms\":215}\n{\"event\":\"sync_start\",\"resource\":\"stories\"}\n{\"event\":\"sync_start\",\"resource\":\"updates\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"updates\",\"consumed\":39,\"stored\":0,\"reason\":\"all_items_failed_id_extraction\"}\n{\"event\":\"sync_progress\",\"resource\":\"updates\",\"fetched\":0}\n{\"event\":\"sync_anomaly\",\"resource\":\"updates\",\"consumed\":39,\"stored\":0,\"extract_failures\":0,\"reason\":\"stored_count_zero_after_extraction\"}\n{\"event\":\"sync_complete\",\"resource\":\"updates\",\"total\":0,\"duration_ms\":213}\n{\"event\":\"sync_anomaly\",\"resource\":\"stories\",\"consumed\":31,\"stored\":0,\"reason\":\"all_items_failed_id_extraction\"}\n{\"event\":\"sync_progress\",\"resource\":\"stories\",\"fetched\":0}\n{\"event\":\"sync_anomaly\",\"resource\":\"stories\",\"consumed\":31,\"stored\":0,\"extract_failures\":0,\"reason\":\"stored_count_zero_after_extraction\"}\n{\"event\":\"sync_complete\",\"resource\":\"stories\",\"total\":0,\"duration_ms\":215}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":2,\"success\":2,\"warned\":0,\"errored\":0,\"duration_ms\":139}\n{\"event\":\"sync_start\",\"resource\":\"stories\"}\n{\"event\":\"sync_start\",\"resource\":\"updates\"}\n{\"event\":\"sync_anomaly\",\"resource\":\"updates\",\"consumed\":39,\"stored\":0,\"reason\":\"all_items_failed_id_extraction\"}\n{\"event\":\"sync_progress\",\"resource\":\"updates\",\"fetched\":0}\n{\"event\":\"sync_anomaly\",\"resource\":\"updates\",\"consumed\":39,\"stored\":0,\"extract_failures\":0,\"reason\":\"stored_count_zero_after_extraction\"}\n{\"event\":\"sync_complete\",\"resource\":\"updates\",\"total\":0,\"duration_ms\":119}\n{\"event\":\"sync_anomaly\",\"resource\":\"stories\",\"consumed\":31,\"stored\":0,\"reason\":\"all_items_failed_id_extraction\"}\n{\"event\":\"sync_progress\",\"resource\":\"stories\",\"fetched\":0}\n{\"event\":\"sync_anomaly\",\"resource\":\"stories\",\"consumed\":31,\"stored\":0,\"extract_failures\":0,\"reason\":\"stored_count_zero_after_extraction\"}\n{\"event\":\"sync_complete\",\"resource\":\"stories\",\"total\":0,\"duration_ms\":139}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "updates",
+      "kind": "help",
+      "args": [
+        "updates",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'updates list'. Items and user profiles that have changed recently\n\nUsage:\n  hackernews-pp-cli updates [flags]\n\nExamples:\n  hackernews-pp-cli updates\n\nFlags:\n  -h, --help   help for updates\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "updates",
+      "kind": "happy_path",
+      "args": [
+        "updates"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"freshness\": {\n      \"decision\": \"fresh\",\n      \"ran\": false,\n      \"reason\": \"fresh\",\n      \"resources\": [\n        \"updates\"\n      ],\n      \"elapsed_ms\": 1,\n      \"source\": \"auto\"\n    },\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"items\": [\n      48013381,\n      48013290,\n      48013242,\n      48003622,\n      48017529,\n      48017680,\n      47943522,\n      48014893,\n      48017514,\n      48017593,\n      48017348,\n      48017713,\n      48017558,\n      48016000,\n      48017582,\n      48017219,\n      48010725,\n      48017005,\n      48015368,\n      48017714,\n      48017634,\n      47020766,\n      48012827,\n      48010650,\n      48017715,\n      48015596,\n      48016244,\n      48014020,\n      47784690,\n      48009747,\n      48012735,\n      47992859,\n      47940789,\n      48016880,\n      48012162,\n      48017298,\n      48014325,\n      48012022,\n      47978324,\n      48015397,\n      48017711,\n      48017553,\n      48015218,\n      47975570,\n      48007438,\n      48017399,\n      48013673,\n      47005856,\n      48009020,\n      47759420\n    ],\n    \"profiles\": [\n      \"WolfeReader\",\n      \"turtlebits\",\n      \"ValdikSS\",\n      \"noveltyaccount\",\n      \"r00k\",\n      \"nailer\",\n      \"hibikir\",\n      \"otolock\",\n      \"madrox\",\n      \"saadchaudry\",\n      \"ash_parlaytix\",\n      \"_sharp\",\n      \"jay_kyburz\",\n      \"simonw\",\n      \"sandworm101\",\n      \"ai_fry_ur_brain\",\n      \"SergeAx\"\n    ]\n  }\n}\n"
+    },
+    {
+      "command": "updates",
+      "kind": "json_fidelity",
+      "args": [
+        "updates",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"freshness\": {\n      \"decision\": \"fresh\",\n      \"ran\": false,\n      \"reason\": \"fresh\",\n      \"resources\": [\n        \"updates\"\n      ],\n      \"elapsed_ms\": 1,\n      \"source\": \"auto\"\n    },\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"items\": [\n      48013381,\n      48013290,\n      48013242,\n      48003622,\n      48017529,\n      48017680,\n      47943522,\n      48014893,\n      48017514,\n      48017593,\n      48017348,\n      48017713,\n      48017558,\n      48016000,\n      48017582,\n      48017219,\n      48010725,\n      48017005,\n      48015368,\n      48017714,\n      48017634,\n      47020766,\n      48012827,\n      48010650,\n      48017715,\n      48015596,\n      48016244,\n      48014020,\n      47784690,\n      48009747,\n      48012735,\n      47992859,\n      47940789,\n      48016880,\n      48012162,\n      48017298,\n      48014325,\n      48012022,\n      47978324,\n      48015397,\n      48017711,\n      48017553,\n      48015218,\n      47975570,\n      48007438,\n      48017399,\n      48013673,\n      47005856,\n      48009020,\n      47759420\n    ],\n    \"profiles\": [\n      \"WolfeReader\",\n      \"turtlebits\",\n      \"ValdikSS\",\n      \"noveltyaccount\",\n      \"r00k\",\n      \"nailer\",\n      \"hibikir\",\n      \"otolock\",\n      \"madrox\",\n      \"saadchaudry\",\n      \"ash_parlaytix\",\n      \"_sharp\",\n      \"jay_kyburz\",\n      \"simonw\",\n      \"sandworm101\",\n      \"ai_fry_ur_brain\",\n      \"SergeAx\"\n    ]\n  }\n}\n"
+    },
+    {
+      "command": "updates",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "users stats",
+      "kind": "help",
+      "args": [
+        "users",
+        "stats",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Pull a user's recent submissions from Algolia and compute structured stats.\n\nThis is read-only — works against any HN username, no auth needed.\nUseful for profiling contributors or checking your own posting timing.\n\nUsage:\n  hackernews-pp-cli users stats \u003cusername\u003e [flags]\n\nExamples:\n  hackernews-pp-cli users stats pg\n  hackernews-pp-cli users stats dang --limit 200 --json\n\nFlags:\n  -h, --help        help for stats\n      --limit int   Max submissions to consider (capped at 1000) (default 50)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "users stats",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"username\" at depth 0"
+    },
+    {
+      "command": "users stats",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"username\" at depth 0"
+    },
+    {
+      "command": "users stats",
+      "kind": "error_path",
+      "args": [
+        "users",
+        "stats",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: username \"__printing_press_invalid__\" looks like a placeholder; supply a real HN username\nusername \"__printing_press_invalid__\" looks like a placeholder; supply a real HN username\n"
+    },
+    {
+      "command": "velocity",
+      "kind": "help",
+      "args": [
+        "velocity",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Read every front-page snapshot that contains the given item and\nemit (taken_at, list, rank) rows.\n\nThe list of snapshots grows whenever you sync; one sync per hour is\nplenty to see how a story climbs and falls. Empty output means the\nitem was never on a synced front page during the snapshot window.\n\nUsage:\n  hackernews-pp-cli velocity \u003cid\u003e [flags]\n\nExamples:\n  hackernews-pp-cli velocity 12345678\n  hackernews-pp-cli velocity 12345678 --json\n\nFlags:\n  -h, --help   help for velocity\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "velocity",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [velocity] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "velocity",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [velocity] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "velocity",
+      "kind": "error_path",
+      "args": [
+        "velocity",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: item id must be numeric (got \"__printing_press_invalid__\")\nitem id must be numeric (got \"__printing_press_invalid__\")\n"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  hackernews-pp-cli which [query] [flags]\n\nExamples:\n  hackernews-pp-cli which \"stale tickets\"\n  hackernews-pp-cli which \"bottleneck\"\n  hackernews-pp-cli which --limit 1 \"send message\"\n  hackernews-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  hackernews-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  hackernews-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  hackernews-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/hackernews-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "Archived 2 items across 2 resources to /Users/tmchow/.local/share/hackernews-pp-cli/data.db\nSyncing stories...\n  stories: 1 items\nSyncing updates...\n  updates: 1 items\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 2,\n  \"store_path\": \"/Users/tmchow/.local/share/hackernews-pp-cli/data.db\",\n  \"timestamp\": \"2026-05-05T03:26:53Z\",\n  \"total_items\": 2\n}\nSyncing stories...\n  stories: 1 items\nSyncing updates...\n  updates: 1 items\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  hackernews-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  hackernews-pp-cli workflow status\n\n  # Show status as JSON\n  hackernews-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'hackernews-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  stories                        1 items\n  updates                        2 items\n  users                          1 items\n\n  Total: 4 items\n  Store: /Users/tmchow/.local/share/hackernews-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"stories\": 1,\n  \"updates\": 2,\n  \"users\": 1\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-05-05T03:26:38.008548Z"
+}

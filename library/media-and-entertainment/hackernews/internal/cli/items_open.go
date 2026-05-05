@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os/exec"
 	"runtime"
+	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -15,13 +16,12 @@ import (
 // item or its associated URL in the user's browser. It follows the
 // side-effect convention: print by default, --launch to act, and
 // short-circuit when running under verify (PRINTING_PRESS_VERIFY=1).
-func newOpenCmd(flags *rootFlags) *cobra.Command {
+func newItemsOpenCmd(flags *rootFlags) *cobra.Command {
 	var hn bool
 	var launch bool
 
 	cmd := &cobra.Command{
 		Use:   "open <id>",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Print or launch a story URL or HN thread (--launch to open in browser)",
 		Long: `Show the URL associated with a Hacker News item, or launch it in the browser.
 
@@ -31,13 +31,13 @@ browser. Pass --hn to choose the HN thread URL instead of the story
 URL when both exist.`,
 		Example: strings.Trim(`
   # Just print the URL
-  hackernews-pp-cli open 12345678
+  hackernews-pp-cli items open 12345678
 
   # Open the story link in the browser
-  hackernews-pp-cli open 12345678 --launch
+  hackernews-pp-cli items open 12345678 --launch
 
   # Open the HN thread instead of the article
-  hackernews-pp-cli open 12345678 --hn --launch
+  hackernews-pp-cli items open 12345678 --hn --launch
 `, "\n"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -47,6 +47,9 @@ URL when both exist.`,
 				return nil
 			}
 			id := args[0]
+			if _, perr := strconv.ParseInt(id, 10, 64); perr != nil {
+				return usageErr(fmt.Errorf("item id must be numeric (got %q)", id))
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err

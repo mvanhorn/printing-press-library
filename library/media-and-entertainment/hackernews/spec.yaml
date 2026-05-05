@@ -1,5 +1,4 @@
 name: hackernews
-display_name: Hacker News
 description: "Hacker News from your terminal — with a local store, full-text search, and agent-native output no other HN tool has"
 cli_description: "Read, search, and analyze Hacker News with a local SQLite store, offline full-text search, and agent-native output"
 version: "1.0.0"
@@ -69,25 +68,7 @@ resources:
           item: StoryID
         no_auth: true
 
-      get:
-        method: GET
-        path: "/item/{itemId}.json"
-        description: "Get details for a specific story, comment, job, or poll"
-        params:
-          - name: itemId
-            type: string
-            required: true
-            positional: true
-            description: "Hacker News item ID (e.g., 12345678)"
-        response:
-          type: object
-          item: Item
-        no_auth: true
-
-  ask:
-    description: "Browse Ask HN questions"
-    endpoints:
-      list:
+      ask:
         method: GET
         path: "/askstories.json"
         description: "Get the latest Ask HN posts"
@@ -101,10 +82,7 @@ resources:
           item: StoryID
         no_auth: true
 
-  show:
-    description: "Browse Show HN launches"
-    endpoints:
-      list:
+      show:
         method: GET
         path: "/showstories.json"
         description: "Get the latest Show HN posts"
@@ -118,10 +96,7 @@ resources:
           item: StoryID
         no_auth: true
 
-  jobs:
-    description: "Browse Hacker News job postings"
-    endpoints:
-      list:
+      job:
         method: GET
         path: "/jobstories.json"
         description: "Get the latest Hacker News job postings"
@@ -133,6 +108,24 @@ resources:
         response:
           type: array
           item: StoryID
+        no_auth: true
+
+  items:
+    description: "Fetch any HN item (story, comment, job, poll) by ID"
+    endpoints:
+      get:
+        method: GET
+        path: "/item/{itemId}.json"
+        description: "Get details for a specific story, comment, job, or poll"
+        params:
+          - name: itemId
+            type: string
+            required: true
+            positional: true
+            description: "Hacker News item ID (e.g., 12345678)"
+        response:
+          type: object
+          item: Item
         no_auth: true
 
   users:
@@ -179,34 +172,19 @@ resources:
 
 extra_commands:
   - name: sync
-    description: "Pull top, best, and new story lists into the local SQLite store for offline use"
+    description: "Pull top/new/best/show/ask/job lists and recent items into the local SQLite store"
   - name: search
-    description: "Full-text search Hacker News stories and comments via Algolia"
+    description: "Full-text search Hacker News stories and comments via Algolia (use 'search local' for offline FTS)"
     args: "<query>"
-  - name: comments
-    description: "Print a thread's comment tree using Algolia's one-shot fetch"
-    args: "<id>"
   - name: hiring
-    description: "Filter the latest 'Ask HN: Who is hiring' thread by regex"
-    args: "<regex>"
+    description: "Mine 'Ask HN: Who is hiring' threads (filter, stats, companies)"
   - name: freelance
-    description: "Filter the latest 'Ask HN: Freelancer? Seeking freelancer?' thread by regex"
-    args: "<regex>"
-  - name: open
-    description: "Print or launch a story URL or HN thread (--launch to open in browser)"
-    args: "<id>"
-  - name: bookmark
-    description: "Manage local bookmarks (add, list, rm)"
+    description: "Mine 'Ask HN: Freelancer? Seeking freelancer?' threads (filter)"
   - name: since
     description: "Show what changed on the front page since the last sync (added, removed, moved stories)"
   - name: pulse
-    description: "Show what HN is saying about a topic this week — day-by-day score and comment volume"
+    description: "Show what HN is saying about a topic — per-day mentions, score, and comment volume"
     args: "<topic>"
-  - name: my
-    description: "Track a user's submission history with score buckets and best posting time"
-    args: "<username>"
-  - name: hiring-stats
-    description: "Aggregate Who's Hiring threads across N months — top languages, remote ratio, top companies"
   - name: controversial
     description: "Find stories with the highest comment-to-point ratio (polarizing discussions)"
   - name: repost
@@ -215,12 +193,6 @@ extra_commands:
   - name: velocity
     description: "Show a story's rank trajectory across local snapshots"
     args: "<id>"
-  - name: tldr
-    description: "Print a deterministic thread digest (top authors, reply ratio, heat metric)"
-    args: "<id>"
-  - name: local-search
-    description: "Full-text search across the local SQLite store of synced stories and comments"
-    args: "<query>"
   - name: doctor
     description: "Run a self-diagnostic: API reachability, store writability, config sanity"
 

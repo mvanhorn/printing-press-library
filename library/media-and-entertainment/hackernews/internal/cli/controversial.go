@@ -35,19 +35,23 @@ func newControversialCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	var minComments int
 	var minScore int
+	var window string
 
 	cmd := &cobra.Command{
 		Use:   "controversial",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find stories with the highest comment-to-point ratio (polarizing discussions)",
 		Long: `Rank locally synced stories by descendants/score.
 
 A high ratio implies many comments relative to upvotes — usually a
 contentious topic. The default floor of 25 comments and 10 points
-filters out drive-by submissions; lower or raise as needed.`,
+filters out drive-by submissions; lower or raise as needed.
+
+Use --window to limit to recently-posted stories (e.g. --window 7d skips
+items older than 7 days).`,
 		Example: strings.Trim(`
   hackernews-pp-cli controversial --limit 10
   hackernews-pp-cli controversial --min-comments 100 --json
+  hackernews-pp-cli controversial --window 7d --json
 `, "\n"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
@@ -81,6 +85,16 @@ filters out drive-by submissions; lower or raise as needed.`,
 				cliutil.WithConcurrency(8),
 			)
 
+			// Optional --window cutoff: skip items older than the duration.
+			var minTime int64 = 0
+			if window != "" {
+				cutoff, derr := parseSinceDuration(window)
+				if derr != nil {
+					return fmt.Errorf("invalid --window %q: %w", window, derr)
+				}
+				minTime = cutoff.Unix()
+			}
+
 			out := []controversialRow{}
 			for _, r := range results {
 				obj := map[string]any{}
@@ -91,6 +105,12 @@ filters out drive-by submissions; lower or raise as needed.`,
 				desc, _ := obj["descendants"].(float64)
 				if int(score) < minScore || int(desc) < minComments {
 					continue
+				}
+				if minTime > 0 {
+					t, _ := obj["time"].(float64)
+					if int64(t) < minTime {
+						continue
+					}
 				}
 				ratio := 0.0
 				if score > 0 {
@@ -135,5 +155,6 @@ filters out drive-by submissions; lower or raise as needed.`,
 	cmd.Flags().IntVar(&limit, "limit", 10, "Maximum results to return")
 	cmd.Flags().IntVar(&minComments, "min-comments", 25, "Floor on descendants count to avoid drive-by submissions")
 	cmd.Flags().IntVar(&minScore, "min-score", 10, "Floor on points to avoid divide-by-zero noise")
+	cmd.Flags().StringVar(&window, "window", "", "Only include stories from this recent duration (e.g., 7d, 24h, 12h, 30d)")
 	return cmd
 }

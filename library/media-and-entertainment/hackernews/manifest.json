@@ -1,9 +1,9 @@
 {
   "manifest_version": "0.3",
   "name": "hackernews-pp-mcp",
-  "display_name": "Hacker News",
-  "version": "2.3.9",
-  "description": "Hacker News from your terminal \u2014 with a local store, full-text search, and agent-native output no other HN tool has",
+  "display_name": "Hackernews",
+  "version": "3.9.0",
+  "description": "Read, search, and analyze Hacker News with a local SQLite store, offline full-text search, and agent-native output",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -23,6 +23,5 @@
       "linux",
       "win32"
     ]
-  },
-  "cli_binary": "hackernews-pp-cli"
+  }
 }

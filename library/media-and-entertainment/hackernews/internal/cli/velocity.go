@@ -3,6 +3,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -23,7 +24,6 @@ type velocityRow struct {
 func newVelocityCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "velocity <id>",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show a story's rank trajectory across local snapshots",
 		Long: `Read every front-page snapshot that contains the given item and
 emit (taken_at, list, rank) rows.
@@ -45,6 +45,9 @@ item was never on a synced front page during the snapshot window.`,
 			id := strings.TrimSpace(args[0])
 			if id == "" {
 				return usageErr(fmt.Errorf("item id is required and must be non-empty"))
+			}
+			if _, perr := strconv.ParseInt(id, 10, 64); perr != nil {
+				return usageErr(fmt.Errorf("item id must be numeric (got %q)", id))
 			}
 			db, err := store.Open(defaultDBPath("hackernews-pp-cli"))
 			if err != nil {

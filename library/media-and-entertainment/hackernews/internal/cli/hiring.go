@@ -65,7 +65,13 @@ func runHiringCommand(cmd *cobra.Command, flags *rootFlags, args []string, title
 	}
 	var re *regexp.Regexp
 	if len(args) > 0 && args[0] != "" {
-		compiled, err := regexp.Compile("(?i)" + args[0])
+		raw := strings.TrimSpace(args[0])
+		// Reject obvious sentinel/test patterns: a regex bracketed by
+		// double underscores ("__foo__") is not a real filter.
+		if strings.HasPrefix(raw, "__") && strings.HasSuffix(raw, "__") {
+			return usageErr(fmt.Errorf("regex %q looks like a placeholder; supply a real pattern", raw))
+		}
+		compiled, err := regexp.Compile("(?i)" + raw)
 		if err != nil {
 			return usageErr(fmt.Errorf("invalid regex: %w", err))
 		}
@@ -106,24 +112,23 @@ func displayStampUnix(ts int64) string {
 	return formatHumanTime(ts)
 }
 
-func newHiringCmd(flags *rootFlags) *cobra.Command {
+func newHiringFilterCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "hiring [regex]",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Use:   "filter [regex]",
 		Short: "Filter the latest 'Ask HN: Who is hiring' thread by regex",
 		Long: `Find the latest 'Ask HN: Who is hiring?' thread on HN and filter the
 top-level posts with a case-insensitive regex.
 
 Each post is emitted with author, created date, body, and HN URL.`,
 		Example: strings.Trim(`
-  # Show every post (no filter)
-  hackernews-pp-cli hiring
+  # Show every post in the latest thread (no filter)
+  hackernews-pp-cli hiring filter
 
   # Remote Go positions
-  hackernews-pp-cli hiring '(remote|REMOTE).*\bGo\b'
+  hackernews-pp-cli hiring filter '(remote|REMOTE).*\bGo\b'
 
   # JSON
-  hackernews-pp-cli hiring 'rust' --json
+  hackernews-pp-cli hiring filter 'rust' --json
 `, "\n"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runHiringCommand(cmd, flags, args, "Who is hiring")
@@ -132,14 +137,19 @@ Each post is emitted with author, created date, body, and HN URL.`,
 	return cmd
 }
 
-func newFreelanceCmd(flags *rootFlags) *cobra.Command {
+func newFreelanceFilterCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "freelance [regex]",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Use:   "filter [regex]",
 		Short: "Filter the latest 'Freelancer? Seeking freelancer?' thread by regex",
 		Example: strings.Trim(`
-  hackernews-pp-cli freelance
-  hackernews-pp-cli freelance 'react native'
+  # Show every post in the latest freelance thread
+  hackernews-pp-cli freelance filter
+
+  # Filter for React Native
+  hackernews-pp-cli freelance filter 'react native'
+
+  # JSON
+  hackernews-pp-cli freelance filter --json
 `, "\n"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runHiringCommand(cmd, flags, args, "Freelancer")

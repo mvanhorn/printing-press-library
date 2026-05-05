@@ -4,7 +4,6 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -28,16 +27,16 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
-	{Command: "since", Description: "Show what changed on the front page since last check — stories that appeared, disappeared, or moved.", Group: "Local state that compounds", WhyItMatters: "Agents tracking HN signal need delta-mode, not full re-fetch."},
-	{Command: "pulse", Description: "What HN is saying about a topic this week — score, comment, frequency by day.", Group: "Compound queries", WhyItMatters: "One call replaces N Algolia paginations and the math an agent would otherwise do."},
-	{Command: "my", Description: "Track a user's submissions with score buckets, traction rate, and best posting time hints.", Group: "Compound queries", WhyItMatters: "Replaces manual per-id fetches when an agent profiles a contributor."},
-	{Command: "hiring-stats", Description: "Aggregate Who's Hiring across recent months: languages, remote ratio, top companies.", Group: "Compound queries", WhyItMatters: "Agents matching jobs to a profile get the breakdown without scraping the threads themselves."},
-	{Command: "controversial", Description: "Find stories with the highest comment-to-point ratio — the polarizing discussions.", Group: "Local state that compounds", WhyItMatters: "Surfaces dissent, not just consensus, which the homepage hides."},
-	{Command: "repost", Description: "Has this URL been posted on HN before? Lists prior submissions with scores and dates.", Group: "Compound queries", WhyItMatters: "Pre-flight check before posting; avoids dupe submissions."},
-	{Command: "velocity", Description: "Show a story's rank trajectory from local snapshots (climb, fall, stalled).", Group: "Local state that compounds", WhyItMatters: "Agents asking 'is this gaining traction' get a trend, not a moment-in-time score."},
-	{Command: "tldr", Description: "Deterministic thread digest: top authors by reply count, root vs reply ratio, comment heat metric.", Group: "Agent-native plumbing", WhyItMatters: "Agents skimming a 500-comment thread get measurable signals, not opinion."},
-	{Command: "local-search", Description: "Offline FTS5 search across every story and comment you've touched.", Group: "Local state that compounds", WhyItMatters: "Agents replaying past investigations don't re-hit Algolia."},
-	{Command: "sync", Description: "Pull top/best/new lists into local SQLite for offline use and snapshot history.", Group: "Local state that compounds", WhyItMatters: "First run makes the rest cheap; agents call once and read locally."},
+	{Command: "since", Description: "See exactly what climbed, fell, appeared, or dropped off the front page since your last sync.", Group: "Local snapshots that compound", WhyItMatters: "Reach for this when an agent wakes up daily and needs to know what shifted on HN since yesterday — without re-fetching 500 items every poll."},
+	{Command: "pulse", Description: "See per-day mentions, average score, and comment volume for any topic over the last N days.", Group: "Algolia leverage", WhyItMatters: "Reach for this when the question is 'is this topic heating up or cooling down' rather than 'what's the top story right now'."},
+	{Command: "hiring stats", Description: "Aggregate the last N monthly Who-is-Hiring threads: top languages, remote ratio, top companies, location distribution.", Group: "Hiring-thread mining", WhyItMatters: "Reach for this when you need quarterly or seasonal hiring trends — language popularity, remote-share shifts, location density — not just this month's listings."},
+	{Command: "hiring companies", Description: "Companies that posted in M of the last N hiring threads, with first-seen, last-seen, and months-posted count.", Group: "Hiring-thread mining", WhyItMatters: "Reach for this when sourcing or trend-tracking — which companies are persistent hirers vs one-off posters — without scraping HNHIRING.com."},
+	{Command: "controversial", Description: "Stories ranked by the highest comment-to-point ratio over a recent window — the discussions everyone is arguing about.", Group: "Local snapshots that compound", WhyItMatters: "Reach for this when you want stories with high engagement-to-approval — heated debate signal — instead of just popularity."},
+	{Command: "repost", Description: "Has this URL been posted before? Lists every prior submission, with score, comments, and date.", Group: "Algolia leverage", WhyItMatters: "Reach for this before submitting a Show HN — duplicate URLs flame out instantly; you want to know how a prior post did first."},
+	{Command: "velocity", Description: "Show a story's rank trajectory over time from local snapshots — climb, plateau, or fall.", Group: "Local snapshots that compound", WhyItMatters: "Reach for this when an agent asks 'is this story still gaining traction or already cresting' — only meaningful answer comes from snapshots."},
+	{Command: "users stats", Description: "Median and p90 score across a user's submissions, plus traction buckets and hour-of-day score distribution.", Group: "Cross-entity local queries", WhyItMatters: "Reach for this before posting your own work to learn your traction patterns, or when sizing up a poster's history before engaging."},
+	{Command: "search local", Description: "Offline full-text search over every story and comment you have ever synced — corpus grows with use.", Group: "Algolia leverage", WhyItMatters: "Reach for this when investigating long-tail topics or replaying last quarter's research — Algolia might rank it down or drop it; your local corpus will not."},
+	{Command: "sync", Description: "Pull top/new/best/show/ask/job lists and recently-changed items into local SQLite for offline use and snapshot history.", Group: "Local snapshots that compound", WhyItMatters: "Run this once per day (or per hour for agents) — it is the foundation that turns since/velocity/controversial/users-stats from impossible into one SQL query."},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.
@@ -140,6 +139,9 @@ func newWhichCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "which [query]",
 		Short: "Find the command that implements a capability",
+		Annotations: map[string]string{
+			"pp:typed-exit-codes": "0,2",
+		},
 		Long: `which resolves a natural-language capability query (for example, "search messages" or "stale tickets") to the best matching command from this CLI's curated feature index.
 
 Exit codes:
@@ -153,9 +155,6 @@ Exit codes:
 			if len(whichIndex) == 0 {
 				return usageErr(fmt.Errorf("this CLI has no curated capability index; run '--help' to see every command"))
 			}
-			if dryRunOK(flags) {
-				return nil
-			}
 			query := strings.Join(args, " ")
 			matches := rankWhich(whichIndex, query, limit)
 
@@ -165,6 +164,15 @@ Exit codes:
 			}
 
 			if len(matches) == 0 {
+				// Under --json, return an empty matches envelope at exit 0
+				// so agents can branch on `matches.length == 0` instead of
+				// parsing a usage error message. Non-JSON keeps the typed
+				// exit-2 path so terminal users see the help hint.
+				if flags.asJSON {
+					return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"matches": []whichMatch{},
+					}, flags)
+				}
 				return usageErr(fmt.Errorf("no match for %q; try '%s --help' for the full command list", query, cmd.Root().Name()))
 			}
 			return renderWhich(cmd, flags, matches)
@@ -195,9 +203,15 @@ func renderWhich(cmd *cobra.Command, flags *rootFlags, matches []whichMatch) err
 		asJSON = true
 	}
 	if asJSON {
-		enc := json.NewEncoder(w)
-		enc.SetIndent("", "  ")
-		return enc.Encode(matches)
+		// JSON envelope: {matches: [...]}. The wrap is critical:
+		// printJSONFiltered's --compact path uses compactListFields
+		// (allowlist) for top-level arrays, which would strip
+		// entry/score keys; routing through compactObjectFields
+		// (blocklist) via an object envelope preserves them.
+		if matches == nil {
+			matches = []whichMatch{}
+		}
+		return printJSONFiltered(w, map[string]any{"matches": matches}, flags)
 	}
 	fmt.Fprintf(w, "%-24s  %-8s  %s\n", "COMMAND", "SCORE", "DESCRIPTION")
 	for _, m := range matches {

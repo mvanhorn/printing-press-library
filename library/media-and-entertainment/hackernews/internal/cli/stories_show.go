@@ -11,28 +11,36 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newStoriesGetCmd(flags *rootFlags) *cobra.Command {
+func newStoriesShowCmd(flags *rootFlags) *cobra.Command {
+	var flagLimit int
 
 	cmd := &cobra.Command{
-		Use:     "get <itemId>",
-		Short:   "Get details for a specific story, comment, job, or poll",
-		Example: "  hackernews-pp-cli stories get example-value",
+		Use:   "show",
+		Short: "Get the latest Show HN posts",
+		Example: "  hackernews-pp-cli stories show",
+		Annotations: map[string]string{"pp:endpoint": "stories.show", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
-				return cmd.Help()
-			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/item/{itemId}.json"
-			path = replacePathParam(path, "itemId", args[0])
+			path := "/showstories.json"
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "stories", false, path, params, nil)
+			if flagLimit != 0 {
+				params["limit"] = fmt.Sprintf("%v", flagLimit)
+			}
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "stories", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
+			// The API doesn't declare a paginator but accepts a limit
+			// query param. Some APIs (Firebase, file-backed JSON dumps,
+			// RSS feeds) silently ignore ?limit=N and return the full
+			// collection — truncate client-side so --limit N is
+			// honored regardless. Idempotent when the API already
+			// returned <= N items.
+			data = truncateJSONArray(data, flagLimit)
 			// Print provenance to stderr for human-facing output
 			{
 				var countItems []json.RawMessage
@@ -71,6 +79,7 @@ func newStoriesGetCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
+	cmd.Flags().IntVar(&flagLimit, "limit", 30, "Maximum number of story IDs to return (max 200)")
 
 	return cmd
 }

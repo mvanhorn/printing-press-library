@@ -1,13 +1,15 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-04-27T20:02:54.501183Z",
-  "printing_press_version": "2.3.9",
+  "generated_at": "2026-05-05T03:36:39.12504Z",
+  "printing_press_version": "3.9.0",
   "api_name": "hackernews",
+  "display_name": "Hackernews",
   "cli_name": "hackernews-pp-cli",
-  "spec_path": "/Users/tmchow/printing-press/.runstate/idempotent-giggling-fairy-4f395726/runs/20260427-120911/research/hackernews-spec.yaml",
+  "spec_path": "/Users/tmchow/printing-press/.runstate/drifting-hugging-phoenix-78b7f75a/runs/20260504-190931/research/hackernews-spec.yaml",
   "spec_format": "internal",
-  "spec_checksum": "sha256:9e9065c7f4b6860ad448e09c65c0512257a680b18a9ade4ef4fb61170e868021",
-  "run_id": "20260427-120911",
+  "spec_checksum": "sha256:189a4a6421c32058b7fff4c42aede5242981d42faee67433ed8a298ebbf21d95",
+  "run_id": "20260504-190931",
+  "description": "Read, search, and analyze Hacker News with a local SQLite store, offline full-text search, and agent-native output",
   "mcp_binary": "hackernews-pp-mcp",
   "mcp_tool_count": 10,
   "mcp_public_tool_count": 10,
@@ -17,52 +19,52 @@
     {
       "name": "Front-page diff",
       "command": "since",
-      "description": "Show what changed on the front page since last check — stories that appeared, disappeared, or moved."
+      "description": "See exactly what climbed, fell, appeared, or dropped off the front page since your last sync."
     },
     {
       "name": "Topic pulse",
       "command": "pulse",
-      "description": "What HN is saying about a topic this week — score, comment, frequency by day."
+      "description": "See per-day mentions, average score, and comment volume for any topic over the last N days."
     },
     {
-      "name": "Submission tracker",
-      "command": "my",
-      "description": "Track a user's submissions with score buckets, traction rate, and best posting time hints."
+      "name": "Hiring thread aggregator",
+      "command": "hiring stats",
+      "description": "Aggregate the last N monthly Who-is-Hiring threads: top languages, remote ratio, top companies, location distribution."
     },
     {
-      "name": "Hiring stats",
-      "command": "hiring-stats",
-      "description": "Aggregate Who's Hiring across recent months: languages, remote ratio, top companies."
+      "name": "Hiring company tracker",
+      "command": "hiring companies",
+      "description": "Companies that posted in M of the last N hiring threads, with first-seen, last-seen, and months-posted count."
     },
     {
       "name": "Controversial",
       "command": "controversial",
-      "description": "Find stories with the highest comment-to-point ratio — the polarizing discussions."
+      "description": "Stories ranked by the highest comment-to-point ratio over a recent window — the discussions everyone is arguing about."
     },
     {
       "name": "Repost finder",
       "command": "repost",
-      "description": "Has this URL been posted on HN before? Lists prior submissions with scores and dates."
+      "description": "Has this URL been posted before? Lists every prior submission, with score, comments, and date."
     },
     {
       "name": "Story velocity",
       "command": "velocity",
-      "description": "Show a story's rank trajectory from local snapshots (climb, fall, stalled)."
+      "description": "Show a story's rank trajectory over time from local snapshots — climb, plateau, or fall."
     },
     {
-      "name": "Thread tldr (structured)",
-      "command": "tldr",
-      "description": "Deterministic thread digest: top authors by reply count, root vs reply ratio, comment heat metric."
+      "name": "User stats",
+      "command": "users stats",
+      "description": "Median and p90 score across a user's submissions, plus traction buckets and hour-of-day score distribution."
     },
     {
       "name": "Local FTS search",
-      "command": "local-search",
-      "description": "Offline FTS5 search across every story and comment you've touched."
+      "command": "search local",
+      "description": "Offline full-text search over every story and comment you have ever synced — corpus grows with use."
     },
     {
       "name": "Sync foundation",
       "command": "sync",
-      "description": "Pull top/best/new lists into local SQLite for offline use and snapshot history."
+      "description": "Pull top/new/best/show/ask/job lists and recently-changed items into local SQLite for offline use and snapshot history."
     }
   ]
 }

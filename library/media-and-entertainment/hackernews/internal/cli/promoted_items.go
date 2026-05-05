@@ -11,30 +11,40 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newShowPromotedCmd(flags *rootFlags) *cobra.Command {
-	var flagLimit int
+func newItemsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "show",
-		Short:   "Get the latest Show HN posts",
-		Long:    "Shortcut for 'show list'. Get the latest Show HN posts",
-		Example: "  hackernews-pp-cli show",
+		Use:   "items <itemId>",
+		Short: "Get details for a specific story, comment, job, or poll",
+		Long:  "Shortcut for 'items get'. Get details for a specific story, comment, job, or poll",
+		Example: "  hackernews-pp-cli items",
+		Annotations: map[string]string{"pp:endpoint": "items.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/showstories.json"
-			params := map[string]string{}
-			if flagLimit != 0 {
-				params["limit"] = fmt.Sprintf("%v", flagLimit)
+			path := "/item/{itemId}.json"
+			if len(args) < 1 {
+				// JSON envelope: {error, usage}. Written first; the
+				// usageErr return preserves exit code 2 across modes.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "itemId is required",
+						"usage": fmt.Sprintf("%s <%s>", cmd.CommandPath(), "itemId"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("itemId is required\nUsage: %s <%s>", cmd.CommandPath(), "itemId"))
 			}
-			data, prov, err := resolveRead(c, flags, "show", false, path, params, nil)
+			path = replacePathParam(path, "itemId", args[0])
+			params := map[string]string{}
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "items", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
-			data = truncateJSONArray(data, flagLimit)
 			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
 			// so output helpers see the inner data, not the wrapper.
 			data = extractResponseData(data)
@@ -83,7 +93,6 @@ func newShowPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().IntVar(&flagLimit, "limit", 30, "Maximum number of story IDs to return (max 200)")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

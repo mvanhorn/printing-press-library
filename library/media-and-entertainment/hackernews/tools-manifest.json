@@ -10,76 +10,8 @@
   "required_headers": [],
   "tools": [
     {
-      "name": "ask_list",
-      "description": "Get the latest Ask HN posts",
-      "method": "GET",
-      "path": "/askstories.json",
-      "no_auth": true,
-      "params": [
-        {
-          "name": "limit",
-          "type": "int",
-          "location": "query",
-          "description": "Maximum number of story IDs to return (max 200)"
-        }
-      ]
-    },
-    {
-      "name": "jobs_list",
-      "description": "Get the latest Hacker News job postings",
-      "method": "GET",
-      "path": "/jobstories.json",
-      "no_auth": true,
-      "params": [
-        {
-          "name": "limit",
-          "type": "int",
-          "location": "query",
-          "description": "Maximum number of story IDs to return (max 200)"
-        }
-      ]
-    },
-    {
-      "name": "maxitem_get",
-      "description": "Returns the largest item ID currently assigned by Hacker News",
-      "method": "GET",
-      "path": "/maxitem.json",
-      "no_auth": true,
-      "params": []
-    },
-    {
-      "name": "show_list",
-      "description": "Get the latest Show HN posts",
-      "method": "GET",
-      "path": "/showstories.json",
-      "no_auth": true,
-      "params": [
-        {
-          "name": "limit",
-          "type": "int",
-          "location": "query",
-          "description": "Maximum number of story IDs to return (max 200)"
-        }
-      ]
-    },
-    {
-      "name": "stories_best",
-      "description": "Get the highest-voted stories on Hacker News",
-      "method": "GET",
-      "path": "/beststories.json",
-      "no_auth": true,
-      "params": [
-        {
-          "name": "limit",
-          "type": "int",
-          "location": "query",
-          "description": "Maximum number of story IDs to return (max 200)"
-        }
-      ]
-    },
-    {
-      "name": "stories_get",
-      "description": "Get details for a specific story, comment, job, or poll",
+      "name": "items_get",
+      "description": "Get details for a specific story, comment, job, or poll. Required: itemId. Returns the Item.",
       "method": "GET",
       "path": "/item/{itemId}.json",
       "no_auth": true,
@@ -94,8 +26,61 @@
       ]
     },
     {
+      "name": "maxitem_get",
+      "description": "Returns the largest item ID currently assigned by Hacker News.",
+      "method": "GET",
+      "path": "/maxitem.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "stories_ask",
+      "description": "Get the latest Ask HN posts. Optional: limit (default: 30). Returns array of StoryID.",
+      "method": "GET",
+      "path": "/askstories.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of story IDs to return (max 200)"
+        }
+      ]
+    },
+    {
+      "name": "stories_best",
+      "description": "Get the highest-voted stories on Hacker News. Optional: limit (default: 30). Returns array of StoryID.",
+      "method": "GET",
+      "path": "/beststories.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of story IDs to return (max 200)"
+        }
+      ]
+    },
+    {
+      "name": "stories_job",
+      "description": "Get the latest Hacker News job postings. Optional: limit (default: 30). Returns array of StoryID.",
+      "method": "GET",
+      "path": "/jobstories.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of story IDs to return (max 200)"
+        }
+      ]
+    },
+    {
       "name": "stories_new",
-      "description": "Get the newest stories on Hacker News",
+      "description": "Get the newest stories on Hacker News. Optional: limit (default: 30). Returns array of StoryID.",
       "method": "GET",
       "path": "/newstories.json",
       "no_auth": true,
@@ -109,8 +94,23 @@
       ]
     },
     {
+      "name": "stories_show",
+      "description": "Get the latest Show HN posts. Optional: limit (default: 30). Returns array of StoryID.",
+      "method": "GET",
+      "path": "/showstories.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of story IDs to return (max 200)"
+        }
+      ]
+    },
+    {
       "name": "stories_top",
-      "description": "Get the current top stories on Hacker News",
+      "description": "Get the current top stories on Hacker News. Optional: limit (default: 30). Returns array of StoryID.",
       "method": "GET",
       "path": "/topstories.json",
       "no_auth": true,
@@ -125,7 +125,7 @@
     },
     {
       "name": "updates_list",
-      "description": "Items and user profiles that have changed recently",
+      "description": "Items and user profiles that have changed recently. Returns the Updates.",
       "method": "GET",
       "path": "/updates.json",
       "no_auth": true,
@@ -133,7 +133,7 @@
     },
     {
       "name": "users_get",
-      "description": "Get a user's profile including karma and submission history",
+      "description": "Get a user's profile including karma and submission history. Required: userId. Returns the User.",
       "method": "GET",
       "path": "/user/{userId}.json",
       "no_auth": true,

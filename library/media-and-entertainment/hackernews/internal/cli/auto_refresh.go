@@ -20,18 +20,6 @@ import (
 // Populated from generated syncable resource commands and any custom
 // command-path coverage declared in spec.Cache.Commands.
 var readCommandResources = map[string][]string{
-	"hackernews-pp-cli ask":            {"ask"},
-	"hackernews-pp-cli ask list":       {"ask"},
-	"hackernews-pp-cli ask get":        {"ask"},
-	"hackernews-pp-cli ask search":     {"ask"},
-	"hackernews-pp-cli jobs":           {"jobs"},
-	"hackernews-pp-cli jobs list":      {"jobs"},
-	"hackernews-pp-cli jobs get":       {"jobs"},
-	"hackernews-pp-cli jobs search":    {"jobs"},
-	"hackernews-pp-cli show":           {"show"},
-	"hackernews-pp-cli show list":      {"show"},
-	"hackernews-pp-cli show get":       {"show"},
-	"hackernews-pp-cli show search":    {"show"},
 	"hackernews-pp-cli stories":        {"stories"},
 	"hackernews-pp-cli stories list":   {"stories"},
 	"hackernews-pp-cli stories get":    {"stories"},
@@ -95,7 +83,7 @@ func autoRefreshIfStale(ctx context.Context, flags *rootFlags, resources []strin
 		return meta
 	}
 	dbPath := defaultDBPath("hackernews-pp-cli")
-	db, err := store.Open(dbPath)
+	db, err := store.OpenWithContext(ctx, dbPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "warning: auto-refresh skipped (open: %v)\n", err)
 		meta.Decision = "error"

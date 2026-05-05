@@ -15,9 +15,10 @@ func newStoriesNewCmd(flags *rootFlags) *cobra.Command {
 	var flagLimit int
 
 	cmd := &cobra.Command{
-		Use:     "new",
-		Short:   "Get the newest stories on Hacker News",
+		Use:   "new",
+		Short: "Get the newest stories on Hacker News",
 		Example: "  hackernews-pp-cli stories new",
+		Annotations: map[string]string{"pp:endpoint": "stories.new", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -29,10 +30,16 @@ func newStoriesNewCmd(flags *rootFlags) *cobra.Command {
 			if flagLimit != 0 {
 				params["limit"] = fmt.Sprintf("%v", flagLimit)
 			}
-			data, prov, err := resolveRead(c, flags, "stories", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "stories", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
+			// The API doesn't declare a paginator but accepts a limit
+			// query param. Some APIs (Firebase, file-backed JSON dumps,
+			// RSS feeds) silently ignore ?limit=N and return the full
+			// collection — truncate client-side so --limit N is
+			// honored regardless. Idempotent when the API already
+			// returned <= N items.
 			data = truncateJSONArray(data, flagLimit)
 			// Print provenance to stderr for human-facing output
 			{

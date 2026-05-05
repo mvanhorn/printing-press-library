@@ -33,19 +33,19 @@ type submissionsResult struct {
 	BestHour    int              `json:"best_hour_utc"`
 }
 
-func newMyCmd(flags *rootFlags) *cobra.Command {
+func newUsersStatsCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	cmd := &cobra.Command{
-		Use:   "my <username>",
+		Use:         "stats <username>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Track a user's submission history with score buckets, traction rate, and best posting time",
+		Short:       "Submission stats for a user: score buckets, traction rate, hour-of-day distribution",
 		Long: `Pull a user's recent submissions from Algolia and compute structured stats.
 
 This is read-only — works against any HN username, no auth needed.
 Useful for profiling contributors or checking your own posting timing.`,
 		Example: strings.Trim(`
-  hackernews-pp-cli my pg
-  hackernews-pp-cli my dang --limit 200 --json
+  hackernews-pp-cli users stats pg
+  hackernews-pp-cli users stats dang --limit 200 --json
 `, "\n"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -54,7 +54,13 @@ Useful for profiling contributors or checking your own posting timing.`,
 			if dryRunOK(flags) {
 				return nil
 			}
-			user := args[0]
+			user := strings.TrimSpace(args[0])
+			if user == "" {
+				return usageErr(fmt.Errorf("username is required and must be non-empty"))
+			}
+			if strings.HasPrefix(user, "__") && strings.HasSuffix(user, "__") {
+				return usageErr(fmt.Errorf("username %q looks like a placeholder; supply a real HN username", user))
+			}
 			if limit <= 0 {
 				limit = 50
 			}

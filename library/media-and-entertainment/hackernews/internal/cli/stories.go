@@ -13,9 +13,11 @@ func newStoriesCmd(flags *rootFlags) *cobra.Command {
 		Short: "Browse top, new, and best Hacker News stories",
 	}
 
+	cmd.AddCommand(newStoriesAskCmd(flags))
 	cmd.AddCommand(newStoriesBestCmd(flags))
-	cmd.AddCommand(newStoriesGetCmd(flags))
+	cmd.AddCommand(newStoriesJobCmd(flags))
 	cmd.AddCommand(newStoriesNewCmd(flags))
+	cmd.AddCommand(newStoriesShowCmd(flags))
 	cmd.AddCommand(newStoriesTopCmd(flags))
 	return cmd
 }

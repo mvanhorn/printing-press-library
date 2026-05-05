@@ -1,11 +1,13 @@
 {
-  "dir": "/Users/tmchow/printing-press/.runstate/idempotent-giggling-fairy-4f395726/runs/20260427-120911/working/hackernews-pp-cli",
-  "spec_path": "/Users/tmchow/printing-press/.runstate/idempotent-giggling-fairy-4f395726/runs/20260427-120911/research/hackernews-spec.yaml",
+  "dir": "/Users/tmchow/printing-press/.runstate/drifting-hugging-phoenix-78b7f75a/runs/20260504-190931/working/hackernews-pp-cli",
+  "spec_path": "/Users/tmchow/printing-press/.runstate/drifting-hugging-phoenix-78b7f75a/runs/20260504-190931/research/hackernews-spec.yaml",
   "verdict": "PASS",
   "path_check": {
     "tested": 0,
     "valid": 0,
-    "valid_pct": 0
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
   },
   "auth_check": {
     "spec_scheme": "",
@@ -23,7 +25,7 @@
     "dead": 0
   },
   "dead_functions": {
-    "total": 47,
+    "total": 49,
     "dead": 0
   },
   "pipeline_check": {
@@ -40,8 +42,8 @@
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 49,
-      "registered": 49
+      "defined": 46,
+      "registered": 46
     },
     "config_consistency": {
       "consistent": true
@@ -54,20 +56,29 @@
     }
   },
   "novel_features_check": {
-    "planned": 0,
-    "found": 0,
-    "skipped": true
+    "planned": 10,
+    "found": 10
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
   },
   "reimplementation_check": {
-    "checked": 0,
-    "exempted_via_store": 0,
-    "skipped": true
+    "checked": 10,
+    "exempted_via_store": 4
+  },
+  "source_client_check": {
+    "checked": 1
+  },
+  "print_json_filtered_check": {
+    "checked": 41
   },
   "test_presence": {
     "checked": 1
   },
   "naming_check": {
-    "checked": 42
+    "checked": 41
   },
   "issues": null
 }

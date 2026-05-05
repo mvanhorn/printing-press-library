@@ -13,31 +13,31 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/internal/config"
+	"github.com/spf13/cobra"
 )
 
 var version = "1.0.0"
 
 type rootFlags struct {
-	asJSON        bool
-	compact       bool
-	csv           bool
-	plain         bool
-	quiet         bool
-	dryRun        bool
-	noCache       bool
-	noInput       bool
-	yes           bool
-	agent         bool
-	selectFields  string
-	configPath    string
-	profileName   string
-	deliverSpec   string
-	timeout       time.Duration
-	rateLimit     float64
-	dataSource    string
+	asJSON       bool
+	compact      bool
+	csv          bool
+	plain        bool
+	quiet        bool
+	dryRun       bool
+	noCache      bool
+	noInput      bool
+	yes          bool
+	agent        bool
+	selectFields string
+	configPath   string
+	profileName  string
+	deliverSpec  string
+	timeout      time.Duration
+	rateLimit    float64
+	dataSource   string
 	freshnessMeta any
 
 	// deliverBuf captures command output when --deliver is set to a
@@ -46,26 +46,55 @@ type rootFlags struct {
 	deliverSink DeliverSink
 }
 
+// RootCmd returns the Cobra command tree without executing it. The MCP server
+// uses this to mirror every user-facing command as an agent tool.
+func RootCmd() *cobra.Command {
+	var flags rootFlags
+	return newRootCmd(&flags)
+}
+
 // Execute runs the CLI in non-interactive mode: never prompts, all values via flags or stdin.
 func Execute() error {
 	var flags rootFlags
+	rootCmd := newRootCmd(&flags)
 
+	err := rootCmd.Execute()
+	if err != nil && strings.Contains(err.Error(), "unknown flag") {
+		msg := err.Error()
+		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
+		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
+			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
+			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
+				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
+			}
+		}
+	}
+	if err == nil && flags.deliverBuf != nil {
+		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
+			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
+			return derr
+		}
+	}
+	return err
+}
+
+func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "hackernews-pp-cli",
 		Short: `Read, search, and analyze Hacker News with a local SQLite store, offline full-text search, and agent-native output`,
 		Long: `Read, search, and analyze Hacker News with a local SQLite store, offline full-text search, and agent-native output
 
 Highlights (not in the official API docs):
-  • since   Show what changed on the front page since last check — stories that appeared, d…
-  • pulse   What HN is saying about a topic this week — score, comment, frequency by day.
-  • my   Track a user's submissions with score buckets, traction rate, and best posting …
-  • hiring-stats   Aggregate Who's Hiring across recent months: languages, remote ratio, top compa…
-  • controversial   Find stories with the highest comment-to-point ratio — the polarizing discussio…
-  • repost   Has this URL been posted on HN before? Lists prior submissions with scores and …
-  • velocity   Show a story's rank trajectory from local snapshots (climb, fall, stalled).
-  • tldr   Deterministic thread digest: top authors by reply count, root vs reply ratio, c…
-  • local-search   Offline FTS5 search across every story and comment you've touched.
-  • sync   Pull top/best/new lists into local SQLite for offline use and snapshot history.
+  • since   See exactly what climbed, fell, appeared, or dropped off the front page since your last sync.
+  • pulse   See per-day mentions, average score, and comment volume for any topic over the last N days.
+  • hiring stats   Aggregate the last N monthly Who-is-Hiring threads: top languages, remote ratio, top companies, location distribution.
+  • hiring companies   Companies that posted in M of the last N hiring threads, with first-seen, last-seen, and months-posted count.
+  • controversial   Stories ranked by the highest comment-to-point ratio over a recent window — the discussions everyone is arguing about.
+  • repost   Has this URL been posted before? Lists every prior submission, with score, comments, and date.
+  • velocity   Show a story's rank trajectory over time from local snapshots — climb, plateau, or fall.
+  • users stats   Median and p90 score across a user's submissions, plus traction buckets and hour-of-day score distribution.
+  • search local   Offline full-text search over every story and comment you have ever synced — corpus grows with use.
+  • sync   Pull top/new/best/show/ask/job lists and recently-changed items into local SQLite for offline use and snapshot history.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'hackernews-pp-cli doctor' to verify auth and connectivity.
@@ -152,65 +181,53 @@ See README.md or the bundled SKILL.md for recipes.`,
 		// runs a bounded API refresh. Failures become stderr warnings;
 		// the command proceeds with the stale cache either way.
 		if resources, isRead := readCommandResources[cmd.CommandPath()]; isRead {
-			flags.freshnessMeta = autoRefreshIfStale(cmd.Context(), &flags, resources)
+			flags.freshnessMeta = autoRefreshIfStale(cmd.Context(), flags, resources)
 		}
 		return nil
 	}
-	rootCmd.AddCommand(newStoriesCmd(&flags))
-	rootCmd.AddCommand(newDoctorCmd(&flags))
+	rootCmd.AddCommand(newStoriesCmd(flags))
+	rootCmd.AddCommand(newDoctorCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
-	rootCmd.AddCommand(newProfileCmd(&flags))
-	rootCmd.AddCommand(newFeedbackCmd(&flags))
-	rootCmd.AddCommand(newWhichCmd(&flags))
-	rootCmd.AddCommand(newExportCmd(&flags))
-	rootCmd.AddCommand(newImportCmd(&flags))
-	rootCmd.AddCommand(newSearchCmd(&flags))
-	rootCmd.AddCommand(newSyncCmd(&flags))
-	rootCmd.AddCommand(newWorkflowCmd(&flags))
-	rootCmd.AddCommand(newAPICmd(&flags))
-	rootCmd.AddCommand(newAskPromotedCmd(&flags))
-	rootCmd.AddCommand(newJobsPromotedCmd(&flags))
-	rootCmd.AddCommand(newMaxitemPromotedCmd(&flags))
-	rootCmd.AddCommand(newShowPromotedCmd(&flags))
-	rootCmd.AddCommand(newUpdatesPromotedCmd(&flags))
-	rootCmd.AddCommand(newUsersPromotedCmd(&flags))
+	rootCmd.AddCommand(newProfileCmd(flags))
+	rootCmd.AddCommand(newFeedbackCmd(flags))
+	rootCmd.AddCommand(newWhichCmd(flags))
+	rootCmd.AddCommand(newExportCmd(flags))
+	rootCmd.AddCommand(newImportCmd(flags))
+	rootCmd.AddCommand(newSyncCmd(flags))
+	rootCmd.AddCommand(newWorkflowCmd(flags))
+	rootCmd.AddCommand(newAPICmd(flags))
+
+	// items: promoted shortcut + thread/open subcommands.
+	itemsCmd := newItemsPromotedCmd(flags)
+	itemsCmd.AddCommand(newItemsThreadCmd(flags))
+	itemsCmd.AddCommand(newItemsOpenCmd(flags))
+	rootCmd.AddCommand(itemsCmd)
+
+	rootCmd.AddCommand(newMaxitemPromotedCmd(flags))
+	rootCmd.AddCommand(newUpdatesPromotedCmd(flags))
+
+	// users: promoted shortcut + stats subcommand.
+	usersCmd := newUsersPromotedCmd(flags)
+	usersCmd.AddCommand(newUsersStatsCmd(flags))
+	rootCmd.AddCommand(usersCmd)
+
 	rootCmd.AddCommand(newVersionCliCmd())
 
-	// Hand-built novel commands.
-	rootCmd.AddCommand(newCommentsCmd(&flags))
-	rootCmd.AddCommand(newLiveSearchCmd(&flags))
-	rootCmd.AddCommand(newLocalSearchCmd(&flags))
-	rootCmd.AddCommand(newSinceCmd(&flags))
-	rootCmd.AddCommand(newPulseCmd(&flags))
-	rootCmd.AddCommand(newRepostCmd(&flags))
-	rootCmd.AddCommand(newMyCmd(&flags))
-	rootCmd.AddCommand(newHiringCmd(&flags))
-	rootCmd.AddCommand(newFreelanceCmd(&flags))
-	rootCmd.AddCommand(newHiringStatsCmd(&flags))
-	rootCmd.AddCommand(newControversialCmd(&flags))
-	rootCmd.AddCommand(newVelocityCmd(&flags))
-	rootCmd.AddCommand(newTldrCmd(&flags))
-	rootCmd.AddCommand(newOpenCmd(&flags))
-	rootCmd.AddCommand(newBookmarkCmd(&flags))
+	// Hand-built novel commands (Phase 3).
+	// search: top-level Algolia full-text search + 'local' subcommand for FTS5.
+	searchCmd := newSearchCmd(flags)
+	searchCmd.AddCommand(newSearchLocalCmd(flags))
+	rootCmd.AddCommand(searchCmd)
 
-	err := rootCmd.Execute()
-	if err != nil && strings.Contains(err.Error(), "unknown flag") {
-		msg := err.Error()
-		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
-		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
-			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
-			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
-				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
-			}
-		}
-	}
-	if err == nil && flags.deliverBuf != nil {
-		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
-			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
-			return derr
-		}
-	}
-	return err
+	rootCmd.AddCommand(newHiringCmd(flags))
+	rootCmd.AddCommand(newFreelanceCmd(flags))
+	rootCmd.AddCommand(newSinceCmd(flags))
+	rootCmd.AddCommand(newPulseCmd(flags))
+	rootCmd.AddCommand(newControversialCmd(flags))
+	rootCmd.AddCommand(newRepostCmd(flags))
+	rootCmd.AddCommand(newVelocityCmd(flags))
+
+	return rootCmd
 }
 
 func ExitCode(err error) int {

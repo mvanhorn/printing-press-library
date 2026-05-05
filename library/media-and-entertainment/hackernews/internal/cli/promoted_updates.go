@@ -14,10 +14,11 @@ import (
 func newUpdatesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "updates",
-		Short:   "Items and user profiles that have changed recently",
-		Long:    "Shortcut for 'updates list'. Items and user profiles that have changed recently",
+		Use:   "updates",
+		Short: "Items and user profiles that have changed recently",
+		Long:  "Shortcut for 'updates list'. Items and user profiles that have changed recently",
 		Example: "  hackernews-pp-cli updates",
+		Annotations: map[string]string{"pp:endpoint": "updates.list", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -26,7 +27,7 @@ func newUpdatesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/updates.json"
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "updates", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "updates", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}

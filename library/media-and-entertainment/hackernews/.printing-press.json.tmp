@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-05T02:35:00.384095Z",
+  "printing_press_version": "3.9.0",
+  "api_name": "hackernews",
+  "display_name": "Hackernews",
+  "cli_name": "hackernews-pp-cli",
+  "owner": "trevin-chow",
+  "spec_path": "/Users/tmchow/printing-press/.runstate/drifting-hugging-phoenix-78b7f75a/runs/20260504-190931/research/hackernews-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:189a4a6421c32058b7fff4c42aede5242981d42faee67433ed8a298ebbf21d95",
+  "description": "Read, search, and analyze Hacker News with a local SQLite store, offline full-text search, and agent-native output",
+  "mcp_binary": "hackernews-pp-mcp",
+  "mcp_tool_count": 10,
+  "mcp_public_tool_count": 10,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Front-page diff",
+      "command": "since",
+      "description": "See exactly what climbed, fell, appeared, or dropped off the front page since your last sync."
+    },
+    {
+      "name": "Topic pulse",
+      "command": "pulse",
+      "description": "See per-day mentions, average score, and comment volume for any topic over the last N days."
+    },
+    {
+      "name": "Hiring thread aggregator",
+      "command": "hiring stats",
+      "description": "Aggregate the last N monthly Who-is-Hiring threads: top languages, remote ratio, top companies, location distribution."
+    },
+    {
+      "name": "Hiring company tracker",
+      "command": "hiring companies",
+      "description": "Companies that posted in M of the last N hiring threads, with first-seen, last-seen, and months-posted count."
+    },
+    {
+      "name": "Controversial",
+      "command": "controversial",
+      "description": "Stories ranked by the highest comment-to-point ratio over a recent window — the discussions everyone is arguing about."
+    },
+    {
+      "name": "Repost finder",
+      "command": "repost",
+      "description": "Has this URL been posted before? Lists every prior submission, with score, comments, and date."
+    },
+    {
+      "name": "Story velocity",
+      "command": "velocity",
+      "description": "Show a story's rank trajectory over time from local snapshots — climb, plateau, or fall."
+    },
+    {
+      "name": "User stats",
+      "command": "users stats",
+      "description": "Median and p90 score across a user's submissions, plus traction buckets and hour-of-day score distribution."
+    },
+    {
+      "name": "Local FTS search",
+      "command": "search local",
+      "description": "Offline full-text search over every story and comment you have ever synced — corpus grows with use."
+    },
+    {
+      "name": "Sync foundation",
+      "command": "sync",
+      "description": "Pull top/new/best/show/ask/job lists and recently-changed items into local SQLite for offline use and snapshot history."
+    }
+  ],
+  "run_id": "20260504-190931"
+}

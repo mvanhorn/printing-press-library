@@ -7,8 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 	"io"
 	"os"
 	"path/filepath"
@@ -17,6 +15,8 @@ import (
 	"text/tabwriter"
 	"time"
 	"unicode"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 var As = errors.As
@@ -90,11 +90,11 @@ type cliError struct {
 func (e *cliError) Error() string { return e.err.Error() }
 func (e *cliError) Unwrap() error { return e.err }
 
-func usageErr(err error) error     { return &cliError{code: 2, err: err} }
-func notFoundErr(err error) error  { return &cliError{code: 3, err: err} }
-func authErr(err error) error      { return &cliError{code: 4, err: err} }
-func apiErr(err error) error       { return &cliError{code: 5, err: err} }
-func configErr(err error) error    { return &cliError{code: 10, err: err} }
+func usageErr(err error) error    { return &cliError{code: 2, err: err} }
+func notFoundErr(err error) error { return &cliError{code: 3, err: err} }
+func authErr(err error) error     { return &cliError{code: 4, err: err} }
+func apiErr(err error) error      { return &cliError{code: 5, err: err} }
+func configErr(err error) error   { return &cliError{code: 10, err: err} }
 func rateLimitErr(err error) error { return &cliError{code: 7, err: err} }
 
 // dryRunOK reports whether the command should short-circuit without doing any
@@ -265,6 +265,18 @@ func paginatedGet(c interface {
 	}
 	result, _ := json.Marshal(allItems)
 	return json.RawMessage(result), nil
+}
+
+// printJSONFiltered marshals a Go-typed value through the same output
+// pipeline endpoint-mirror commands use. Hand-written novel commands that
+// build a typed slice/struct call this so --select, --compact, --csv, and
+// --quiet all behave the same way as on generator-emitted commands.
+func printJSONFiltered(w io.Writer, v any, flags *rootFlags) error {
+	raw, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	return printOutputWithFlags(w, json.RawMessage(raw), flags)
 }
 
 // filterFields keeps only the specified fields (comma-separated) from JSON objects/arrays.
@@ -1016,13 +1028,12 @@ func findField(obj map[string]any, names ...string) string {
 	}
 	return ""
 }
-
 // DataProvenance describes where data came from and when it was last synced.
 type DataProvenance struct {
 	Source       string     `json:"source"`                  // "live" or "local"
-	SyncedAt     *time.Time `json:"synced_at,omitempty"`     // when local data was last synced
-	Reason       string     `json:"reason,omitempty"`        // why local was used: "user_requested", "api_unreachable", "no_search_endpoint"
-	ResourceType string     `json:"resource_type,omitempty"` // which resource type was queried
+	SyncedAt    *time.Time `json:"synced_at,omitempty"`     // when local data was last synced
+	Reason      string     `json:"reason,omitempty"`        // why local was used: "user_requested", "api_unreachable", "no_search_endpoint"
+	ResourceType string    `json:"resource_type,omitempty"` // which resource type was queried
 	Freshness    any        `json:"freshness,omitempty"`     // optional machine-owned freshness metadata for covered command paths
 }
 
@@ -1059,7 +1070,12 @@ func printProvenance(cmd *cobra.Command, count int, prov DataProvenance) {
 	fmt.Fprintf(cmd.ErrOrStderr(), "%s%d results (cached, synced %s)\n", prefix, count, age)
 }
 
-// wrapWithProvenance wraps JSON data in a provenance envelope: {"results": ..., "meta": {...}}.
+// wrapWithProvenance wraps response data in a provenance envelope:
+// {"results": ..., "meta": {...}}. When data is valid JSON, it embeds as
+// the parsed shape; when data is non-JSON (e.g., XML/RSS responses, plain
+// text), it embeds as a JSON string so json.Marshal doesn't choke on
+// "invalid character '<'" while still passing the raw payload through to
+// the consumer.
 func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMessage, error) {
 	meta := map[string]any{"source": prov.Source}
 	if prov.SyncedAt != nil {
@@ -1074,11 +1090,44 @@ func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMess
 	if prov.Freshness != nil {
 		meta["freshness"] = prov.Freshness
 	}
+	var results any = json.RawMessage(data)
+	if !json.Valid(data) {
+		results = string(data)
+	}
 	envelope := map[string]any{
-		"results": json.RawMessage(data),
+		"results": results,
 		"meta":    meta,
 	}
 	return json.Marshal(envelope)
+}
+
+// truncateJSONArray returns a JSON array containing at most n elements
+// from the input. When n <= 0, when the input isn't a JSON array, or
+// when the array is already at-or-below the limit, the input is
+// returned unchanged.
+//
+// Used by list-endpoint commands whose API ignores the ?limit=N query
+// param (e.g. Firebase-style endpoints that return the full collection
+// regardless of the param). The truncation is idempotent — calling it
+// when the API already honored the limit is a no-op. The generator
+// only emits the call when the spec declares a `limit` param without a
+// Pagination block, so paginated APIs are unaffected.
+func truncateJSONArray(data json.RawMessage, n int) json.RawMessage {
+	if n <= 0 {
+		return data
+	}
+	var arr []json.RawMessage
+	if err := json.Unmarshal(data, &arr); err != nil {
+		return data
+	}
+	if len(arr) <= n {
+		return data
+	}
+	out, err := json.Marshal(arr[:n])
+	if err != nil {
+		return data
+	}
+	return out
 }
 
 // defaultDBPath returns the canonical path for the local SQLite database.

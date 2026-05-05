@@ -45,7 +45,6 @@ func newPulseCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "pulse <topic>",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Show what HN is saying about a topic this week — score, comment, frequency by day",
 		Long: `Run an Algolia query for a topic, scoped to the last N days, and bucket
 hits by UTC date.
@@ -64,7 +63,15 @@ clicking through paginated search results.`,
 			if dryRunOK(flags) {
 				return nil
 			}
-			topic := args[0]
+			topic := strings.TrimSpace(args[0])
+			if topic == "" {
+				return usageErr(fmt.Errorf("topic is required and must be non-empty"))
+			}
+			// Reject obvious sentinel/test patterns: a topic surrounded by
+			// double underscores ("__foo__") is not real HN search input.
+			if strings.HasPrefix(topic, "__") && strings.HasSuffix(topic, "__") {
+				return usageErr(fmt.Errorf("topic %q looks like a placeholder; supply a real query string", topic))
+			}
 			if days <= 0 {
 				days = 7
 			}

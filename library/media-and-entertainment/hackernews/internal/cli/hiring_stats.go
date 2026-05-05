@@ -47,9 +47,9 @@ var visaRE = regexp.MustCompile(`(?i)(VISA|H[\-]?1B|sponsorship)`)
 func newHiringStatsCmd(flags *rootFlags) *cobra.Command {
 	var months int
 	cmd := &cobra.Command{
-		Use:   "hiring-stats",
+		Use:         "stats",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Aggregate Who's Hiring threads across N months — top languages, remote ratio, top companies",
+		Short:       "Aggregate Who's Hiring threads across N months — top languages, remote ratio, top companies",
 		Long: `Walk the most recent N 'Who is hiring?' threads on HN and compute aggregate stats.
 
 Heuristics: we look for whole-word language names, count posts mentioning
@@ -57,8 +57,8 @@ Heuristics: we look for whole-word language names, count posts mentioning
 common '| Engineer | …' header format hiring posts use. This is
 a best-effort summary, not a hiring-data product.`,
 		Example: strings.Trim(`
-  hackernews-pp-cli hiring-stats --months 1
-  hackernews-pp-cli hiring-stats --months 6 --json
+  hackernews-pp-cli hiring stats --months 1
+  hackernews-pp-cli hiring stats --months 6 --json
 `, "\n"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {

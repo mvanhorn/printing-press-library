@@ -11,50 +11,45 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newAskPromotedCmd(flags *rootFlags) *cobra.Command {
+func newStoriesJobCmd(flags *rootFlags) *cobra.Command {
 	var flagLimit int
 
 	cmd := &cobra.Command{
-		Use:     "ask",
-		Short:   "Get the latest Ask HN posts",
-		Long:    "Shortcut for 'ask list'. Get the latest Ask HN posts",
-		Example: "  hackernews-pp-cli ask",
+		Use:   "job",
+		Short: "Get the latest Hacker News job postings",
+		Example: "  hackernews-pp-cli stories job",
+		Annotations: map[string]string{"pp:endpoint": "stories.job", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/askstories.json"
+			path := "/jobstories.json"
 			params := map[string]string{}
 			if flagLimit != 0 {
 				params["limit"] = fmt.Sprintf("%v", flagLimit)
 			}
-			data, prov, err := resolveRead(c, flags, "ask", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "stories", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
+			// The API doesn't declare a paginator but accepts a limit
+			// query param. Some APIs (Firebase, file-backed JSON dumps,
+			// RSS feeds) silently ignore ?limit=N and return the full
+			// collection — truncate client-side so --limit N is
+			// honored regardless. Idempotent when the API already
+			// returned <= N items.
 			data = truncateJSONArray(data, flagLimit)
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
-			// Print provenance to stderr
+			// Print provenance to stderr for human-facing output
 			{
 				var countItems []json.RawMessage
-				if json.Unmarshal(data, &countItems) != nil {
-					// Single object, not an array
-					countItems = []json.RawMessage{data}
-				}
+				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// CSV bypasses JSON pipe path so --csv works when piped
-			if flags.csv {
-				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
-			}
-			// For JSON output, wrap with provenance envelope. --select wins over
-			// --compact when both are set; --compact only runs when no explicit
-			// fields were requested.
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
 				if flags.selectFields != "" {
@@ -68,6 +63,7 @@ func newAskPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
+			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
 				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
@@ -84,8 +80,6 @@ func newAskPromotedCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().IntVar(&flagLimit, "limit", 30, "Maximum number of story IDs to return (max 200)")
-
-	// Wire sibling endpoints and sub-resources as subcommands
 
 	return cmd
 }

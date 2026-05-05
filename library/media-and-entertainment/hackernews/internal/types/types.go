@@ -3,20 +3,21 @@
 
 package types
 
+
 type Item struct {
-	Id          int    `json:"id"`
-	Type        string `json:"type"`
-	By          string `json:"by"`
-	Time        int    `json:"time"`
-	Title       string `json:"title"`
-	Url         string `json:"url"`
-	Score       int    `json:"score"`
-	Descendants int    `json:"descendants"`
-	Text        string `json:"text"`
-	Parent      int    `json:"parent"`
-	Dead        bool   `json:"dead"`
-	Deleted     bool   `json:"deleted"`
-	Kids        string `json:"kids"`
+	Id int `json:"id"`
+	Type string `json:"type"`
+	By string `json:"by"`
+	Time int `json:"time"`
+	Title string `json:"title"`
+	Url string `json:"url"`
+	Score int `json:"score"`
+	Descendants int `json:"descendants"`
+	Text string `json:"text"`
+	Parent int `json:"parent"`
+	Dead bool `json:"dead"`
+	Deleted bool `json:"deleted"`
+	Kids string `json:"kids"`
 }
 
 type MaxItem struct {
@@ -28,14 +29,15 @@ type StoryID struct {
 }
 
 type Updates struct {
-	Items    string `json:"items"`
+	Items string `json:"items"`
 	Profiles string `json:"profiles"`
 }
 
 type User struct {
-	Id        string `json:"id"`
-	Karma     int    `json:"karma"`
-	About     string `json:"about"`
-	Created   int    `json:"created"`
+	Id string `json:"id"`
+	Karma int `json:"karma"`
+	About string `json:"about"`
+	Created int `json:"created"`
 	Submitted string `json:"submitted"`
 }
+

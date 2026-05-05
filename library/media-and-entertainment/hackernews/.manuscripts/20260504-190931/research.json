@@ -1,0 +1,368 @@
+{
+  "api_name": "hackernews",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "haxor-news",
+      "url": "https://github.com/donnemartin/haxor-news",
+      "language": "Python",
+      "install_method": "",
+      "stars": 3900,
+      "last_updated": "",
+      "command_count": 16,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "circumflex",
+      "url": "https://github.com/bensadeh/circumflex",
+      "language": "Go",
+      "install_method": "",
+      "stars": 2300,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hacker-feeds-cli",
+      "url": "https://github.com/Mayandev/hacker-feeds-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 700,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hn-cli",
+      "url": "https://github.com/rafaelrinaldi/hn-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 400,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "cyanheads/hacker-news-mcp-server",
+      "url": "https://github.com/cyanheads/hacker-news-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "GeorgeNance/hackernews-mcp",
+      "url": "https://github.com/GeorgeNance/hackernews-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "node-hn-api",
+      "url": "https://github.com/heychazza/node-hn-api",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pyhn",
+      "url": "https://github.com/toxinu/pyhn",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-04T19:14:00Z",
+  "novel_features": [
+    {
+      "name": "Front-page diff",
+      "command": "since",
+      "description": "See exactly what climbed, fell, appeared, or dropped off the front page since your last sync.",
+      "rationale": "Diffs require two list snapshots side by side; the live API cannot tell you what just changed because there is no rank-over-time endpoint.",
+      "example": "hackernews-pp-cli since --json",
+      "why_it_matters": "Reach for this when an agent wakes up daily and needs to know what shifted on HN since yesterday — without re-fetching 500 items every poll.",
+      "group": "Local snapshots that compound"
+    },
+    {
+      "name": "Topic pulse",
+      "command": "pulse",
+      "description": "See per-day mentions, average score, and comment volume for any topic over the last N days.",
+      "rationale": "Algolia returns hits, never aggregations. Bucketing across day windows requires fan-out plus local reduction.",
+      "example": "hackernews-pp-cli pulse rust --days 7 --agent",
+      "why_it_matters": "Reach for this when the question is 'is this topic heating up or cooling down' rather than 'what's the top story right now'.",
+      "group": "Algolia leverage"
+    },
+    {
+      "name": "Hiring thread aggregator",
+      "command": "hiring stats",
+      "description": "Aggregate the last N monthly Who-is-Hiring threads: top languages, remote ratio, top companies, location distribution.",
+      "rationale": "Single-month filtering already exists in haxor-news; what is impossible without a local store is comparing across months. Fetching whoishiring's submitted IDs plus tokenizing posts produces the cross-month view.",
+      "example": "hackernews-pp-cli hiring stats --months 3 --agent",
+      "why_it_matters": "Reach for this when you need quarterly or seasonal hiring trends — language popularity, remote-share shifts, location density — not just this month's listings.",
+      "group": "Hiring-thread mining"
+    },
+    {
+      "name": "Hiring company tracker",
+      "command": "hiring companies",
+      "description": "Companies that posted in M of the last N hiring threads, with first-seen, last-seen, and months-posted count.",
+      "rationale": "Cross-month joins on a normalized company token are impossible from a single API call. The local store keeps the canonical text; mechanical normalization handles capitalization and punctuation drift.",
+      "example": "hackernews-pp-cli hiring companies --months 6 --min-posts 3 --agent",
+      "why_it_matters": "Reach for this when sourcing or trend-tracking — which companies are persistent hirers vs one-off posters — without scraping HNHIRING.com.",
+      "group": "Hiring-thread mining"
+    },
+    {
+      "name": "Controversial",
+      "command": "controversial",
+      "description": "Stories ranked by the highest comment-to-point ratio over a recent window — the discussions everyone is arguing about.",
+      "rationale": "No Algolia or Firebase endpoint surfaces this metric. It is one SQL line over the synced items table, but only with the items table.",
+      "example": "hackernews-pp-cli controversial --window 7d --json",
+      "why_it_matters": "Reach for this when you want stories with high engagement-to-approval — heated debate signal — instead of just popularity.",
+      "group": "Local snapshots that compound"
+    },
+    {
+      "name": "Repost finder",
+      "command": "repost",
+      "description": "Has this URL been posted before? Lists every prior submission, with score, comments, and date.",
+      "rationale": "Algolia search restricted to the URL attribute; rank by points; one round-trip — but the convenience matters when the alternative is opening a browser tab and pasting.",
+      "example": "hackernews-pp-cli repost https://example.com/article",
+      "why_it_matters": "Reach for this before submitting a Show HN — duplicate URLs flame out instantly; you want to know how a prior post did first.",
+      "group": "Algolia leverage"
+    },
+    {
+      "name": "Story velocity",
+      "command": "velocity",
+      "description": "Show a story's rank trajectory over time from local snapshots — climb, plateau, or fall.",
+      "rationale": "Rank-over-time has no API surface. Sync's snapshot history is the only way to reconstruct the curve.",
+      "example": "hackernews-pp-cli velocity 47998158 --json",
+      "why_it_matters": "Reach for this when an agent asks 'is this story still gaining traction or already cresting' — only meaningful answer comes from snapshots.",
+      "group": "Local snapshots that compound"
+    },
+    {
+      "name": "User stats",
+      "command": "users stats",
+      "description": "Median and p90 score across a user's submissions, plus traction buckets and hour-of-day score distribution.",
+      "rationale": "HN's profile page lists submitted IDs but no traction summary. Joining users.submitted with synced items computes the view from primitives the API already returns.",
+      "example": "hackernews-pp-cli users stats pg --json",
+      "why_it_matters": "Reach for this before posting your own work to learn your traction patterns, or when sizing up a poster's history before engaging.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Local FTS search",
+      "command": "search local",
+      "description": "Offline full-text search over every story and comment you have ever synced — corpus grows with use.",
+      "rationale": "Algolia drops/reindexes history and is online-only. SQLite FTS5 over title+text gives you a personal corpus that compounds.",
+      "example": "hackernews-pp-cli search local \"vector database\" --limit 20 --json",
+      "why_it_matters": "Reach for this when investigating long-tail topics or replaying last quarter's research — Algolia might rank it down or drop it; your local corpus will not.",
+      "group": "Algolia leverage"
+    },
+    {
+      "name": "Sync foundation",
+      "command": "sync",
+      "description": "Pull top/new/best/show/ask/job lists and recently-changed items into local SQLite for offline use and snapshot history.",
+      "rationale": "Every other novel command reads from the store this populates. Firebase /maxitem + /updates supports incremental sync without re-fetching.",
+      "example": "hackernews-pp-cli sync --resources updates --agent",
+      "why_it_matters": "Run this once per day (or per hour for agents) — it is the foundation that turns since/velocity/controversial/users-stats from impossible into one SQL query.",
+      "group": "Local snapshots that compound"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Front-page diff",
+      "command": "since",
+      "description": "See exactly what climbed, fell, appeared, or dropped off the front page since your last sync.",
+      "rationale": "Diffs require two list snapshots side by side; the live API cannot tell you what just changed because there is no rank-over-time endpoint.",
+      "example": "hackernews-pp-cli since --json",
+      "why_it_matters": "Reach for this when an agent wakes up daily and needs to know what shifted on HN since yesterday — without re-fetching 500 items every poll.",
+      "group": "Local snapshots that compound"
+    },
+    {
+      "name": "Topic pulse",
+      "command": "pulse",
+      "description": "See per-day mentions, average score, and comment volume for any topic over the last N days.",
+      "rationale": "Algolia returns hits, never aggregations. Bucketing across day windows requires fan-out plus local reduction.",
+      "example": "hackernews-pp-cli pulse rust --days 7 --agent",
+      "why_it_matters": "Reach for this when the question is 'is this topic heating up or cooling down' rather than 'what's the top story right now'.",
+      "group": "Algolia leverage"
+    },
+    {
+      "name": "Hiring thread aggregator",
+      "command": "hiring stats",
+      "description": "Aggregate the last N monthly Who-is-Hiring threads: top languages, remote ratio, top companies, location distribution.",
+      "rationale": "Single-month filtering already exists in haxor-news; what is impossible without a local store is comparing across months. Fetching whoishiring's submitted IDs plus tokenizing posts produces the cross-month view.",
+      "example": "hackernews-pp-cli hiring stats --months 3 --agent",
+      "why_it_matters": "Reach for this when you need quarterly or seasonal hiring trends — language popularity, remote-share shifts, location density — not just this month's listings.",
+      "group": "Hiring-thread mining"
+    },
+    {
+      "name": "Hiring company tracker",
+      "command": "hiring companies",
+      "description": "Companies that posted in M of the last N hiring threads, with first-seen, last-seen, and months-posted count.",
+      "rationale": "Cross-month joins on a normalized company token are impossible from a single API call. The local store keeps the canonical text; mechanical normalization handles capitalization and punctuation drift.",
+      "example": "hackernews-pp-cli hiring companies --months 6 --min-posts 3 --agent",
+      "why_it_matters": "Reach for this when sourcing or trend-tracking — which companies are persistent hirers vs one-off posters — without scraping HNHIRING.com.",
+      "group": "Hiring-thread mining"
+    },
+    {
+      "name": "Controversial",
+      "command": "controversial",
+      "description": "Stories ranked by the highest comment-to-point ratio over a recent window — the discussions everyone is arguing about.",
+      "rationale": "No Algolia or Firebase endpoint surfaces this metric. It is one SQL line over the synced items table, but only with the items table.",
+      "example": "hackernews-pp-cli controversial --window 7d --json",
+      "why_it_matters": "Reach for this when you want stories with high engagement-to-approval — heated debate signal — instead of just popularity.",
+      "group": "Local snapshots that compound"
+    },
+    {
+      "name": "Repost finder",
+      "command": "repost",
+      "description": "Has this URL been posted before? Lists every prior submission, with score, comments, and date.",
+      "rationale": "Algolia search restricted to the URL attribute; rank by points; one round-trip — but the convenience matters when the alternative is opening a browser tab and pasting.",
+      "example": "hackernews-pp-cli repost https://example.com/article",
+      "why_it_matters": "Reach for this before submitting a Show HN — duplicate URLs flame out instantly; you want to know how a prior post did first.",
+      "group": "Algolia leverage"
+    },
+    {
+      "name": "Story velocity",
+      "command": "velocity",
+      "description": "Show a story's rank trajectory over time from local snapshots — climb, plateau, or fall.",
+      "rationale": "Rank-over-time has no API surface. Sync's snapshot history is the only way to reconstruct the curve.",
+      "example": "hackernews-pp-cli velocity 47998158 --json",
+      "why_it_matters": "Reach for this when an agent asks 'is this story still gaining traction or already cresting' — only meaningful answer comes from snapshots.",
+      "group": "Local snapshots that compound"
+    },
+    {
+      "name": "User stats",
+      "command": "users stats",
+      "description": "Median and p90 score across a user's submissions, plus traction buckets and hour-of-day score distribution.",
+      "rationale": "HN's profile page lists submitted IDs but no traction summary. Joining users.submitted with synced items computes the view from primitives the API already returns.",
+      "example": "hackernews-pp-cli users stats pg --json",
+      "why_it_matters": "Reach for this before posting your own work to learn your traction patterns, or when sizing up a poster's history before engaging.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Local FTS search",
+      "command": "search local",
+      "description": "Offline full-text search over every story and comment you have ever synced — corpus grows with use.",
+      "rationale": "Algolia drops/reindexes history and is online-only. SQLite FTS5 over title+text gives you a personal corpus that compounds.",
+      "example": "hackernews-pp-cli search local \"vector database\" --limit 20 --json",
+      "why_it_matters": "Reach for this when investigating long-tail topics or replaying last quarter's research — Algolia might rank it down or drop it; your local corpus will not.",
+      "group": "Algolia leverage"
+    },
+    {
+      "name": "Sync foundation",
+      "command": "sync",
+      "description": "Pull top/new/best/show/ask/job lists and recently-changed items into local SQLite for offline use and snapshot history.",
+      "rationale": "Every other novel command reads from the store this populates. Firebase /maxitem + /updates supports incremental sync without re-fetching.",
+      "example": "hackernews-pp-cli sync --resources updates --agent",
+      "why_it_matters": "Run this once per day (or per hour for agents) — it is the foundation that turns since/velocity/controversial/users-stats from impossible into one SQL query.",
+      "group": "Local snapshots that compound"
+    }
+  ],
+  "narrative": {
+    "display_name": "Hacker News",
+    "headline": "Hacker News from your terminal — with a local SQLite store, snapshot history, and agent-native output no other HN tool has.",
+    "value_prop": "Combines the Firebase real-time API and the Algolia search API in one CLI. Sync once and run cross-month hiring digests, topic pulses, repost lookups, and rank-over-time queries against a local store — offline, scriptable, MCP-ready. Every command supports --json and --select; the API itself is read-only, so this CLI is too.",
+    "auth_narrative": "No authentication needed — both the Firebase and Algolia HN APIs are free and public.",
+    "quickstart": [
+      {
+        "command": "hackernews-pp-cli sync",
+        "comment": "Pull current top/new/best/show/ask/job lists plus recent items into the local store"
+      },
+      {
+        "command": "hackernews-pp-cli stories top --limit 10",
+        "comment": "Browse the freshest top stories"
+      },
+      {
+        "command": "hackernews-pp-cli pulse rust --days 7 --agent",
+        "comment": "Track a topic's per-day mentions, score, and comment volume"
+      },
+      {
+        "command": "hackernews-pp-cli since --json",
+        "comment": "See exactly what changed on the front page since the last sync"
+      },
+      {
+        "command": "hackernews-pp-cli hiring stats --months 3 --agent",
+        "comment": "Aggregate the last 3 months of Who-is-Hiring — languages, remote ratio, top companies"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Empty results after sync",
+        "fix": "Confirm both APIs respond: hackernews-pp-cli doctor"
+      },
+      {
+        "symptom": "search returns no recent items",
+        "fix": "Algolia indexes lag a few minutes; use stories top for the freshest list"
+      },
+      {
+        "symptom": "items thread \u003cid\u003e times out on huge threads",
+        "fix": "Use --depth 2 to cap tree depth, or --flat for a linear view"
+      },
+      {
+        "symptom": "since returns nothing",
+        "fix": "Run sync at least twice with a delay; since needs at least two snapshots in the lists table"
+      }
+    ],
+    "when_to_use": "Reach for hackernews-pp-cli when you need to monitor or analyze HN signal programmatically: agent-driven daily diffs, topic pulses, hiring-thread aggregation, repost checks before submitting, structured thread digests for context windows. The local store makes follow-up queries cheap and offline-friendly.",
+    "recipes": [
+      {
+        "title": "Daily front-page diff for an agent",
+        "command": "hackernews-pp-cli sync \u0026\u0026 hackernews-pp-cli since --json --select added,removed,moved",
+        "explanation": "Sync, then diff. The --select narrows the payload to just the change deltas — agents process kilobytes instead of megabytes."
+      },
+      {
+        "title": "Topic monitoring with selected fields",
+        "command": "hackernews-pp-cli pulse openai --days 7 --agent --select buckets.day,buckets.hits,buckets.avg_score",
+        "explanation": "Per-day breakdown of mentions, average score, and comment volume — using --select to pull only the trend axes from the deeply-nested response."
+      },
+      {
+        "title": "Pre-submit dupe check",
+        "command": "hackernews-pp-cli repost https://example.com/article --json",
+        "explanation": "Lists every prior submission of that URL with score, comments, and date — answers the 'has this been posted' question in one round-trip."
+      },
+      {
+        "title": "Filter Who's Hiring for remote Go roles",
+        "command": "hackernews-pp-cli hiring filter \"(remote|REMOTE).*\\\\bGo\\\\b\" --json",
+        "explanation": "Regex against the latest monthly thread. The double-escaped \\\\b is a real regex word boundary; --json gives you structured rows instead of one big match dump."
+      },
+      {
+        "title": "Quarterly hiring trend",
+        "command": "hackernews-pp-cli hiring companies --months 6 --min-posts 3 --agent",
+        "explanation": "Companies posting in 3+ of the last 6 monthly threads — first-seen, last-seen, total months. Cross-month queries you cannot do without a local store."
+      }
+    ],
+    "trigger_phrases": [
+      "check hacker news",
+      "search hn",
+      "what is hn saying about",
+      "diff the hn front page",
+      "pulse on hn",
+      "look up hn user",
+      "hn who is hiring",
+      "hn top stories",
+      "use hackernews",
+      "run hackernews"
+    ]
+  }
+}

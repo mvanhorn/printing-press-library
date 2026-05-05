@@ -31,7 +31,6 @@ func newRepostCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "repost <url>",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Has this URL been posted on HN before? Lists prior submissions with scores and dates",
 		Long: `Search Algolia for prior submissions of a URL.
 
@@ -49,7 +48,10 @@ Pre-flight check before posting; works on partial URLs too.`,
 			if dryRunOK(flags) {
 				return nil
 			}
-			query := args[0]
+			query := strings.TrimSpace(args[0])
+			if !strings.HasPrefix(query, "http://") && !strings.HasPrefix(query, "https://") {
+				return usageErr(fmt.Errorf("argument must be an http(s) URL (got %q)", query))
+			}
 			ac := algolia.New(flags.timeout)
 			tags := "story"
 			if includeComments {

@@ -129,9 +129,9 @@ type moveEvent struct {
 func newSinceCmd(flags *rootFlags) *cobra.Command {
 	var list string
 	cmd := &cobra.Command{
-		Use:   "since",
+		Use:         "since",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Show what changed on the front page since last sync (added, removed, moved stories)",
+		Short:       "Show what changed on the front page since last sync (added, removed, moved stories)",
 		Long: `Diff the most recent two front-page snapshots taken by sync.
 
 If you only have one snapshot, the command reports that and lists the

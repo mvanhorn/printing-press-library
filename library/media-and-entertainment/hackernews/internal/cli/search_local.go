@@ -14,13 +14,12 @@ import (
 // live) and `live-search` (also Algolia). This one never hits the
 // network and surfaces the corpus the user has already touched —
 // including items past Algolia's effective recency.
-func newLocalSearchCmd(flags *rootFlags) *cobra.Command {
+func newSearchLocalCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	var resourceType string
 
 	cmd := &cobra.Command{
-		Use:   "local-search <query>",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Use:   "local <query>",
 		Short: "Full-text search across the local SQLite store of synced stories and comments",
 		Long: `Search locally synced HN data with SQLite FTS5.
 
@@ -30,13 +29,13 @@ runs offline against everything you've synced. Pair with sync to grow
 the searchable corpus over time.`,
 		Example: strings.Trim(`
   # Plain query
-  hackernews-pp-cli local-search "rust async"
+  hackernews-pp-cli search local "rust async"
 
   # Limit results, scope to one resource type
-  hackernews-pp-cli local-search "openai" --limit 5 --type stories
+  hackernews-pp-cli search local "openai" --limit 5 --type stories
 
   # JSON output, pipe-friendly
-  hackernews-pp-cli local-search "kubernetes" --json
+  hackernews-pp-cli search local "kubernetes" --json
 `, "\n"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

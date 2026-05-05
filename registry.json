@@ -337,7 +337,7 @@
       "name": "hackernews",
       "category": "media-and-entertainment",
       "api": "Hacker News",
-      "description": "Hacker News from your terminal — with a local store, full-text search, and agent-native output no other HN tool has",
+      "description": "Hacker News from your terminal — with a local SQLite store, snapshot history, and agent-native output no other HN tool has.",
       "path": "library/media-and-entertainment/hackernews",
       "mcp": {
         "binary": "hackernews-pp-mcp",

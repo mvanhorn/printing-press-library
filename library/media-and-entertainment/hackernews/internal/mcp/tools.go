@@ -8,112 +8,126 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/internal/store"
 )
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
-		mcplib.NewTool("ask_list",
-			mcplib.WithDescription("Get the latest Ask HN posts Returns array of StoryID."),
-			mcplib.WithString("limit", mcplib.Description("Maximum number of story IDs to return (max 200)")),
+		mcplib.NewTool("items_get",
+			mcplib.WithDescription("Get details for a specific story, comment, job, or poll. Required: itemId. Returns the Item."),
+			mcplib.WithString("itemId", mcplib.Required(), mcplib.Description("Hacker News item ID (e.g., 12345678)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/askstories.json", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("jobs_list",
-			mcplib.WithDescription("Get the latest Hacker News job postings Returns array of StoryID."),
-			mcplib.WithString("limit", mcplib.Description("Maximum number of story IDs to return (max 200)")),
-		),
-		makeAPIHandler("GET", "/jobstories.json", []string{}),
+		makeAPIHandler("GET", "/item/{itemId}.json", []string{"itemId", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("maxitem_get",
-			mcplib.WithDescription("Returns the largest item ID currently assigned by Hacker News Returns MaxItem."),
+			mcplib.WithDescription("Returns the largest item ID currently assigned by Hacker News."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/maxitem.json", []string{}),
+		makeAPIHandler("GET", "/maxitem.json", []string{ }),
 	)
 	s.AddTool(
-		mcplib.NewTool("show_list",
-			mcplib.WithDescription("Get the latest Show HN posts Returns array of StoryID."),
+		mcplib.NewTool("stories_ask",
+			mcplib.WithDescription("Get the latest Ask HN posts. Optional: limit (default: 30). Returns array of StoryID."),
 			mcplib.WithString("limit", mcplib.Description("Maximum number of story IDs to return (max 200)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/showstories.json", []string{}),
+		makeAPIHandler("GET", "/askstories.json", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("stories_best",
-			mcplib.WithDescription("Get the highest-voted stories on Hacker News Returns array of StoryID."),
+			mcplib.WithDescription("Get the highest-voted stories on Hacker News. Optional: limit (default: 30). Returns array of StoryID."),
 			mcplib.WithString("limit", mcplib.Description("Maximum number of story IDs to return (max 200)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/beststories.json", []string{}),
+		makeAPIHandler("GET", "/beststories.json", []string{ }),
 	)
 	s.AddTool(
-		mcplib.NewTool("stories_get",
-			mcplib.WithDescription("Get details for a specific story, comment, job, or poll Returns Item."),
-			mcplib.WithString("itemId", mcplib.Required(), mcplib.Description("Hacker News item ID (e.g., 12345678)")),
+		mcplib.NewTool("stories_job",
+			mcplib.WithDescription("Get the latest Hacker News job postings. Optional: limit (default: 30). Returns array of StoryID."),
+			mcplib.WithString("limit", mcplib.Description("Maximum number of story IDs to return (max 200)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/item/{itemId}.json", []string{"itemId"}),
+		makeAPIHandler("GET", "/jobstories.json", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("stories_new",
-			mcplib.WithDescription("Get the newest stories on Hacker News Returns array of StoryID."),
+			mcplib.WithDescription("Get the newest stories on Hacker News. Optional: limit (default: 30). Returns array of StoryID."),
 			mcplib.WithString("limit", mcplib.Description("Maximum number of story IDs to return (max 500)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/newstories.json", []string{}),
+		makeAPIHandler("GET", "/newstories.json", []string{ }),
+	)
+	s.AddTool(
+		mcplib.NewTool("stories_show",
+			mcplib.WithDescription("Get the latest Show HN posts. Optional: limit (default: 30). Returns array of StoryID."),
+			mcplib.WithString("limit", mcplib.Description("Maximum number of story IDs to return (max 200)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/showstories.json", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("stories_top",
-			mcplib.WithDescription("Get the current top stories on Hacker News Returns array of StoryID."),
+			mcplib.WithDescription("Get the current top stories on Hacker News. Optional: limit (default: 30). Returns array of StoryID."),
 			mcplib.WithString("limit", mcplib.Description("Maximum number of story IDs to return (max 500)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/topstories.json", []string{}),
+		makeAPIHandler("GET", "/topstories.json", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("updates_list",
-			mcplib.WithDescription("Items and user profiles that have changed recently Returns Updates."),
+			mcplib.WithDescription("Items and user profiles that have changed recently. Returns the Updates."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/updates.json", []string{}),
+		makeAPIHandler("GET", "/updates.json", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("users_get",
-			mcplib.WithDescription("Get a user's profile including karma and submission history Returns User."),
+			mcplib.WithDescription("Get a user's profile including karma and submission history. Required: userId. Returns the User."),
 			mcplib.WithString("userId", mcplib.Required(), mcplib.Description("Hacker News username (case-sensitive, e.g., 'pg' or 'dang')")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/user/{userId}.json", []string{"userId"}),
-	)
-	// Sync tool — populates local database for offline search and sql queries
-	s.AddTool(
-		mcplib.NewTool("sync",
-			mcplib.WithDescription("Sync API data to local SQLite database. Run this before using search or sql tools. Supports incremental sync."),
-			mcplib.WithString("resources", mcplib.Description("Comma-separated resource types to sync (omit for all)")),
-			mcplib.WithString("since", mcplib.Description("Incremental sync since duration (e.g. 7d, 24h, 1w)")),
-			mcplib.WithBoolean("full", mcplib.Description("Full resync ignoring checkpoints")),
-		),
-		handleSync,
-	)
-	// Search tool — faster than iterating list endpoints for finding specific items
-	s.AddTool(
-		mcplib.NewTool("search",
-			mcplib.WithDescription("Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)")),
-			mcplib.WithNumber("limit", mcplib.Description("Max results (default 25)")),
-		),
-		handleSearch,
+		makeAPIHandler("GET", "/user/{userId}.json", []string{"userId", }),
 	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
 			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT only). Tables match resource names.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleSQL,
 	)
@@ -123,9 +137,15 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("context",
 			mcplib.WithDescription("Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleContext,
 	)
+
+	// Runtime Cobra-tree mirror — exposes every user-facing command that is
+	// not already covered by a typed endpoint or framework MCP tool.
+	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
@@ -141,27 +161,28 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 		// we rely on here (or an empty map when the payload is something else).
 		args := req.GetArguments()
 
-		// Build path by substituting positional params
+		// positionalParams mixes real URL path params with CLI positional
+		// args that map to query params (e.g. `search <query>` -> ?query=);
+		// the placeholder check below disambiguates them at runtime.
 		path := pathTemplate
+		pathParams := make(map[string]bool, len(positionalParams))
 		for _, p := range positionalParams {
+			placeholder := "{" + p + "}"
+			if !strings.Contains(pathTemplate, placeholder) {
+				continue
+			}
+			pathParams[p] = true
 			if v, ok := args[p]; ok {
-				path = strings.Replace(path, "{"+p+"}", fmt.Sprintf("%v", v), 1)
+				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
 			}
 		}
 
-		// Collect non-positional params as query params
 		params := make(map[string]string)
 		for k, v := range args {
-			isPositional := false
-			for _, p := range positionalParams {
-				if k == p {
-					isPositional = true
-					break
-				}
+			if pathParams[k] {
+				continue
 			}
-			if !isPositional {
-				params[k] = fmt.Sprintf("%v", v)
-			}
+			params[k] = fmt.Sprintf("%v", v)
 		}
 
 		var data json.RawMessage
@@ -236,9 +257,9 @@ func newMCPClient() (*client.Client, error) {
 	}
 	c := client.New(cfg, 30*time.Second, 0)
 	// Agents calling through MCP need fresh data every call. The on-disk
-	// response cache survives across MCP server invocations, so a DELETE/PATCH
-	// followed by a GET would otherwise return the pre-mutation snapshot for up
-	// to the cache TTL. Skip the cache for the MCP path; the interactive CLI
+	// response cache survives across MCP server invocations, so a
+	// DELETE/PATCH followed by a GET would otherwise return the
+	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
 	// constructs its own client and is unaffected.
 	c.NoCache = true
 	return c, nil
@@ -248,40 +269,8 @@ func dbPath() string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", "hackernews-pp-cli", "data.db")
 }
-
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
-
-func handleSync(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	return mcplib.NewToolResultText("sync not yet implemented via MCP - use the CLI: hackernews-pp-cli sync"), nil
-}
-
-func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	args := req.GetArguments()
-	query, ok := args["query"].(string)
-	if !ok || query == "" {
-		return mcplib.NewToolResultError("query is required"), nil
-	}
-
-	limit := 25
-	if v, ok := args["limit"].(float64); ok && v > 0 {
-		limit = int(v)
-	}
-
-	db, err := store.Open(dbPath())
-	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
-	}
-	defer db.Close()
-
-	results, err := db.Search(query, limit)
-	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("search failed: %v", err)), nil
-	}
-
-	data, _ := json.MarshalIndent(results, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
-}
 
 func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
@@ -298,7 +287,7 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		}
 	}
 
-	db, err := store.Open(dbPath())
+	db, err := store.OpenWithContext(ctx, dbPath())
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
@@ -332,53 +321,41 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
-		"api":          "hackernews",
-		"description":  "Hacker News from your terminal — with a local store, full-text search, and agent-native output no other HN tool has",
-		"archetype":    "generic",
-		"tool_count":   10,
-		"tool_surface": "MCP exposes the endpoints listed under `resources` (plus sync/search/sql/context utilities when present). Items under `cli_only_capabilities` require running the companion hackernews-pp-cli binary; the MCP cannot invoke them.",
+		"api":         "hackernews",
+		"description": "Hacker News from your terminal — with a local store, full-text search, and agent-native output no other HN tool has",
+		"archetype":   "generic",
+		"tool_count":  10,
+		// tool_surface tells agents which surface a capability lives on.
+		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion hackernews-pp-cli binary.",
 		"resources": []map[string]any{
 			{
-				"name":        "ask",
-				"description": "Browse Ask HN questions",
-				"endpoints":   []string{"list"},
-				"syncable":    true,
+				"name": "items",
+				"description": "Fetch any HN item (story, comment, job, poll) by ID",
+				"endpoints": []string{"get",  },
+				"searchable": true,
 			},
 			{
-				"name":        "jobs",
-				"description": "Browse Hacker News job postings",
-				"endpoints":   []string{"list"},
-				"syncable":    true,
-			},
-			{
-				"name":        "maxitem",
+				"name": "maxitem",
 				"description": "Current maximum item ID",
-				"endpoints":   []string{"get"},
+				"endpoints": []string{"get",  },
 			},
 			{
-				"name":        "show",
-				"description": "Browse Show HN launches",
-				"endpoints":   []string{"list"},
-				"syncable":    true,
-			},
-			{
-				"name":        "stories",
+				"name": "stories",
 				"description": "Browse top, new, and best Hacker News stories",
-				"endpoints":   []string{"best", "get", "new", "top"},
-				"syncable":    true,
-				"searchable":  true,
+				"endpoints": []string{"ask", "best", "job", "new", "show", "top",  },
+				"syncable": true,
 			},
 			{
-				"name":        "updates",
+				"name": "updates",
 				"description": "Recently changed items and profiles",
-				"endpoints":   []string{"list"},
-				"syncable":    true,
+				"endpoints": []string{"list",  },
+				"syncable": true,
 			},
 			{
-				"name":        "users",
+				"name": "users",
 				"description": "Look up Hacker News user profiles",
-				"endpoints":   []string{"get"},
-				"searchable":  true,
+				"endpoints": []string{"get",  },
+				"searchable": true,
 			},
 		},
 		"query_tips": []string{
@@ -388,167 +365,40 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
 		},
-		"cli_only_capabilities": []map[string]string{
-			{"name": "Front-page diff", "command": "since", "description": "Show what changed on the front page since last check — stories that appeared, disappeared, or moved.", "rationale": "Requires SQLite snapshots of prior front-page state. Live API has no concept of 'change'.", "via": "cli"},
-			{"name": "Topic pulse", "command": "pulse", "description": "What HN is saying about a topic this week — score, comment, frequency by day.", "rationale": "Aggregates Algolia date+tag results into a velocity table; the API returns hits, not aggregations.", "via": "cli"},
-			{"name": "Submission tracker", "command": "my", "description": "Track a user's submissions with score buckets, traction rate, and best posting time hints.", "rationale": "Joins user.submitted IDs with Algolia hit metadata; not a single endpoint.", "via": "cli"},
-			{"name": "Hiring stats", "command": "hiring-stats", "description": "Aggregate Who's Hiring across recent months: languages, remote ratio, top companies.", "rationale": "Requires fetching multiple monthly threads and parsing free-form posts. No single endpoint.", "via": "cli"},
-			{"name": "Controversial", "command": "controversial", "description": "Find stories with the highest comment-to-point ratio — the polarizing discussions.", "rationale": "Pure local SQL ranking from synced stories; no live equivalent.", "via": "cli"},
-			{"name": "Repost finder", "command": "repost", "description": "Has this URL been posted on HN before? Lists prior submissions with scores and dates.", "rationale": "Algolia URL search composed with a per-hit score lookup.", "via": "cli"},
-			{"name": "Story velocity", "command": "velocity", "description": "Show a story's rank trajectory from local snapshots (climb, fall, stalled).", "rationale": "Requires multiple sync snapshots; no live API surface for rank-over-time.", "via": "cli"},
-			{"name": "Thread tldr (structured)", "command": "tldr", "description": "Deterministic thread digest: top authors by reply count, root vs reply ratio, comment heat metric.", "rationale": "One-shot Algolia /items/{id} fetch + structured aggregation. No AI placeholder; computed metrics only.", "via": "cli"},
-			{"name": "Local FTS search", "command": "local-search", "description": "Offline FTS5 search across every story and comment you've touched.", "rationale": "Reads from SQLite store populated by sync + write-through cache. Algolia drops history.", "via": "cli"},
-			{"name": "Sync foundation", "command": "sync", "description": "Pull top/best/new lists into local SQLite for offline use and snapshot history.", "rationale": "Foundation enabling since/controversial/local-search/velocity. No competing CLI persists state.", "via": "cli"},
+		// Command-mirror capabilities are exposed through MCP by shelling out
+		// to the companion CLI binary.
+		"command_mirror_capabilities": []map[string]string{
+			{"name": "Front-page diff", "command": "since", "description": "See exactly what climbed, fell, appeared, or dropped off the front page since your last sync.", "rationale": "Diffs require two list snapshots side by side; the live API cannot tell you what just changed because there is no...", "via": "mcp-command-mirror"},
+			{"name": "Topic pulse", "command": "pulse", "description": "See per-day mentions, average score, and comment volume for any topic over the last N days.", "rationale": "Algolia returns hits, never aggregations. Bucketing across day windows requires fan-out plus local reduction.", "via": "mcp-command-mirror"},
+			{"name": "Hiring thread aggregator", "command": "hiring stats", "description": "Aggregate the last N monthly Who-is-Hiring threads: top languages, remote ratio, top companies, location distribution.", "rationale": "Single-month filtering already exists in haxor-news; what is impossible without a local store is comparing across...", "via": "mcp-command-mirror"},
+			{"name": "Hiring company tracker", "command": "hiring companies", "description": "Companies that posted in M of the last N hiring threads, with first-seen, last-seen, and months-posted count.", "rationale": "Cross-month joins on a normalized company token are impossible from a single API call. The local store keeps the...", "via": "mcp-command-mirror"},
+			{"name": "Controversial", "command": "controversial", "description": "Stories ranked by the highest comment-to-point ratio over a recent window — the discussions everyone is arguing about.", "rationale": "No Algolia or Firebase endpoint surfaces this metric. It is one SQL line over the synced items table, but only with...", "via": "mcp-command-mirror"},
+			{"name": "Repost finder", "command": "repost", "description": "Has this URL been posted before? Lists every prior submission, with score, comments, and date.", "rationale": "Algolia search restricted to the URL attribute; rank by points; one round-trip — but the convenience matters when...", "via": "mcp-command-mirror"},
+			{"name": "Story velocity", "command": "velocity", "description": "Show a story's rank trajectory over time from local snapshots — climb, plateau, or fall.", "rationale": "Rank-over-time has no API surface. Sync's snapshot history is the only way to reconstruct the curve.", "via": "mcp-command-mirror"},
+			{"name": "User stats", "command": "users stats", "description": "Median and p90 score across a user's submissions, plus traction buckets and hour-of-day score distribution.", "rationale": "HN's profile page lists submitted IDs but no traction summary. Joining users.submitted with synced items computes...", "via": "mcp-command-mirror"},
+			{"name": "Local FTS search", "command": "search local", "description": "Offline full-text search over every story and comment you have ever synced — corpus grows with use.", "rationale": "Algolia drops/reindexes history and is online-only. SQLite FTS5 over title+text gives you a personal corpus that...", "via": "mcp-command-mirror"},
+			{"name": "Sync foundation", "command": "sync", "description": "Pull top/new/best/show/ask/job lists and recently-changed items into local SQLite for offline use and snapshot history.", "rationale": "Every other novel command reads from the store this populates. Firebase /maxitem + /updates supports incremental...", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Front-page diff", "insight": "Requires SQLite snapshots of prior front-page state. Live API has no concept of 'change'."},
-			{"topic": "Topic pulse", "insight": "Aggregates Algolia date+tag results into a velocity table; the API returns hits, not aggregations."},
-			{"topic": "Submission tracker", "insight": "Joins user.submitted IDs with Algolia hit metadata; not a single endpoint."},
-			{"topic": "Hiring stats", "insight": "Requires fetching multiple monthly threads and parsing free-form posts. No single endpoint."},
-			{"topic": "Controversial", "insight": "Pure local SQL ranking from synced stories; no live equivalent."},
-			{"topic": "Repost finder", "insight": "Algolia URL search composed with a per-hit score lookup."},
-			{"topic": "Story velocity", "insight": "Requires multiple sync snapshots; no live API surface for rank-over-time."},
-			{"topic": "Thread tldr (structured)", "insight": "One-shot Algolia /items/{id} fetch + structured aggregation. No AI placeholder; computed metrics only."},
-			{"topic": "Local FTS search", "insight": "Reads from SQLite store populated by sync + write-through cache. Algolia drops history."},
-			{"topic": "Sync foundation", "insight": "Foundation enabling since/controversial/local-search/velocity. No competing CLI persists state."},
+			{"topic": "Front-page diff", "insight": "Diffs require two list snapshots side by side; the live API cannot tell you what just changed because there is no rank-over-time endpoint."},
+			{"topic": "Topic pulse", "insight": "Algolia returns hits, never aggregations. Bucketing across day windows requires fan-out plus local reduction."},
+			{"topic": "Hiring thread aggregator", "insight": "Single-month filtering already exists in haxor-news; what is impossible without a local store is comparing across months. Fetching whoishiring's submitted IDs plus tokenizing posts produces the cross-month view."},
+			{"topic": "Hiring company tracker", "insight": "Cross-month joins on a normalized company token are impossible from a single API call. The local store keeps the canonical text; mechanical normalization handles capitalization and punctuation drift."},
+			{"topic": "Controversial", "insight": "No Algolia or Firebase endpoint surfaces this metric. It is one SQL line over the synced items table, but only with the items table."},
+			{"topic": "Repost finder", "insight": "Algolia search restricted to the URL attribute; rank by points; one round-trip — but the convenience matters when the alternative is opening a browser tab and pasting."},
+			{"topic": "Story velocity", "insight": "Rank-over-time has no API surface. Sync's snapshot history is the only way to reconstruct the curve."},
+			{"topic": "User stats", "insight": "HN's profile page lists submitted IDs but no traction summary. Joining users.submitted with synced items computes the view from primitives the API already returns."},
+			{"topic": "Local FTS search", "insight": "Algolia drops/reindexes history and is online-only. SQLite FTS5 over title+text gives you a personal corpus that compounds."},
+			{"topic": "Sync foundation", "insight": "Every other novel command reads from the store this populates. Firebase /maxitem + /updates supports incremental sync without re-fetching."},
 		},
 	}
 	data, _ := json.MarshalIndent(ctx, "", "  ")
 	return mcplib.NewToolResultText(string(data)), nil
 }
 
-// RegisterNovelFeatureTools registers MCP tools that shell out to the
-// companion CLI binary. Empty body when the spec has no novel features.
+// RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP
+// mains. New generated mains call RegisterTools only; RegisterTools now
+// includes the runtime Cobra-tree mirror.
 func RegisterNovelFeatureTools(s *server.MCPServer) {
-	s.AddTool(
-		mcplib.NewTool("since",
-			mcplib.WithDescription("Show what changed on the front page since last check — stories that appeared, disappeared, or moved."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("since"),
-	)
-	s.AddTool(
-		mcplib.NewTool("pulse",
-			mcplib.WithDescription("What HN is saying about a topic this week — score, comment, frequency by day."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("pulse"),
-	)
-	s.AddTool(
-		mcplib.NewTool("my",
-			mcplib.WithDescription("Track a user's submissions with score buckets, traction rate, and best posting time hints."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("my"),
-	)
-	s.AddTool(
-		mcplib.NewTool("hiring_stats",
-			mcplib.WithDescription("Aggregate Who's Hiring across recent months: languages, remote ratio, top companies."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("hiring-stats"),
-	)
-	s.AddTool(
-		mcplib.NewTool("controversial",
-			mcplib.WithDescription("Find stories with the highest comment-to-point ratio — the polarizing discussions."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("controversial"),
-	)
-	s.AddTool(
-		mcplib.NewTool("repost",
-			mcplib.WithDescription("Has this URL been posted on HN before? Lists prior submissions with scores and dates."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("repost"),
-	)
-	s.AddTool(
-		mcplib.NewTool("velocity",
-			mcplib.WithDescription("Show a story's rank trajectory from local snapshots (climb, fall, stalled)."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("velocity"),
-	)
-	s.AddTool(
-		mcplib.NewTool("tldr",
-			mcplib.WithDescription("Deterministic thread digest: top authors by reply count, root vs reply ratio, comment heat metric."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("tldr"),
-	)
-	s.AddTool(
-		mcplib.NewTool("local_search",
-			mcplib.WithDescription("Offline FTS5 search across every story and comment you've touched."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("local-search"),
-	)
-	s.AddTool(
-		mcplib.NewTool("sync",
-			mcplib.WithDescription("Pull top/best/new lists into local SQLite for offline use and snapshot history."),
-			mcplib.WithString("args", mcplib.Description("Arguments to pass to the CLI command (e.g. \"--domain stripe.com --json\"). Empty string for no args.")),
-		),
-		shellOutToCLI("sync"),
-	)
-}
-
-// siblingCLIPath resolves the companion CLI via sibling-of-executable,
-// HACKERNEWS_CLI_PATH env var, then PATH.
-func siblingCLIPath() (string, error) {
-	const cliName = "hackernews-pp-cli"
-	if exe, err := os.Executable(); err == nil {
-		candidate := filepath.Join(filepath.Dir(exe), cliName)
-		if _, err := os.Stat(candidate); err == nil {
-			return candidate, nil
-		}
-	}
-	if v := os.Getenv("HACKERNEWS_CLI_PATH"); v != "" {
-		return v, nil
-	}
-	return exec.LookPath(cliName)
-}
-
-// shellOutToCLI returns an MCP tool handler that runs commandSpec against
-// the companion CLI. Resolves the binary path and pre-splits commandSpec
-// at registration so the per-call work is just user-arg split + exec.
-func shellOutToCLI(commandSpec string) server.ToolHandlerFunc {
-	cliPath, lookupErr := siblingCLIPath()
-	prefixArgs := splitShellArgs(commandSpec)
-	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		if lookupErr != nil {
-			return mcplib.NewToolResultError(fmt.Sprintf("companion CLI binary not found: %v\nTried sibling lookup, HACKERNEWS_CLI_PATH env var, and PATH.", lookupErr)), nil
-		}
-		userArgs, _ := req.GetArguments()["args"].(string)
-		finalArgs := append(append([]string{}, prefixArgs...), splitShellArgs(userArgs)...)
-		cmd := exec.CommandContext(ctx, cliPath, finalArgs...)
-		out, err := cmd.CombinedOutput()
-		if err != nil {
-			return mcplib.NewToolResultError(string(out)), nil
-		}
-		return mcplib.NewToolResultText(string(out)), nil
-	}
-}
-
-// splitShellArgs whitespace-splits with double-quoted-token preservation.
-func splitShellArgs(s string) []string {
-	var tokens []string
-	var cur []rune
-	inQuote := false
-	for _, r := range s {
-		switch {
-		case r == '"':
-			inQuote = !inQuote
-		case (r == ' ' || r == '\t') && !inQuote:
-			if len(cur) > 0 {
-				tokens = append(tokens, string(cur))
-				cur = cur[:0]
-			}
-		default:
-			cur = append(cur, r)
-		}
-	}
-	if len(cur) > 0 {
-		tokens = append(tokens, string(cur))
-	}
-	return tokens
+	_ = s
 }

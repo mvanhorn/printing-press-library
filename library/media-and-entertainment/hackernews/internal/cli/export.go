@@ -4,104 +4,52 @@
 package cli
 
 import (
-	"bufio"
-	"encoding/json"
 	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
 )
 
 func newExportCmd(flags *rootFlags) *cobra.Command {
-	var format string
-	var outputFile string
-	var limit int
-	var noCache bool
-
 	cmd := &cobra.Command{
 		Use:   "export <resource> [id]",
 		Short: "Export data to JSONL or JSON for backup, migration, or analysis",
 		Long: `Export paginated API data to a local file. Supports JSONL (one JSON object
 per line, streaming-friendly) and JSON (array). JSONL is recommended for
-large datasets as it has no memory pressure.`,
-		Example: `  # Export all items as JSONL (streaming, recommended for large datasets)
-  hackernews-pp-cli export <resource> --format jsonl --output data.jsonl
+large datasets as it has no memory pressure.
 
-  # Export with limit
-  hackernews-pp-cli export <resource> --format jsonl --limit 1000
+Note: Hacker News's APIs (Firebase + Algolia) do not expose /<resource>
+collection endpoints, so generic export is not applicable. Use 'sync' to
+populate the local store and 'stories <top|new|best|ask|show|job> --json'
+for snapshots, or 'search "<query>" --json' for live Algolia results.`,
+		Example: `  # Use sync + the local store instead
+  hackernews-pp-cli sync --resources updates --agent
 
-  # Pipe to another tool
-  hackernews-pp-cli export <resource> --format jsonl | jq '.id'`,
+  # Snapshot a list as JSON
+  hackernews-pp-cli stories top --limit 100 --json
+
+  # Live search via Algolia
+  hackernews-pp-cli search "rust async" --json`,
 		Args: cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := flags.newClient()
-			if err != nil {
-				return err
+			// Hacker News's APIs (Firebase + Algolia) do not expose
+			// /<resource> collection endpoints, so the generic export
+			// command's "/<resource>" URL pattern does not match
+			// anything real. Probing it lands on a redirect chain to a
+			// Google sign-in page, which is worse than a clear refusal.
+			// Direct users to the surfaces that actually exist.
+			validResources := map[string]bool{
+				"stories": true, "items": true, "users": true,
+				"updates": true, "maxitem": true,
 			}
-			if noCache {
-				c.NoCache = true
-			}
-
 			resource := args[0]
-			path := "/" + resource
-			if len(args) > 1 {
-				path += "/" + args[1]
+			if !validResources[resource] {
+				return usageErr(fmt.Errorf("unknown resource %q for hackernews; valid: stories, items, users, updates, maxitem", resource))
 			}
-
-			var writer *bufio.Writer
-			if outputFile != "" {
-				f, err := os.Create(outputFile)
-				if err != nil {
-					return fmt.Errorf("creating output file: %w", err)
-				}
-				defer f.Close()
-				writer = bufio.NewWriter(f)
-				defer writer.Flush()
-			} else {
-				writer = bufio.NewWriter(os.Stdout)
-				defer writer.Flush()
-			}
-
-			data, err := c.Get(path, nil)
-			if err != nil {
-				return classifyAPIError(err)
-			}
-
-			switch format {
-			case "jsonl":
-				var items []json.RawMessage
-				if err := json.Unmarshal(data, &items); err != nil {
-					fmt.Fprintln(writer, string(data))
-					return nil
-				}
-				count := 0
-				for _, item := range items {
-					if limit > 0 && count >= limit {
-						break
-					}
-					fmt.Fprintln(writer, string(item))
-					count++
-				}
-				if outputFile != "" {
-					fmt.Fprintf(os.Stderr, "Exported %d records to %s\n", count, outputFile)
-				}
-			default:
-				enc := json.NewEncoder(writer)
-				enc.SetIndent("", "  ")
-				var parsed any
-				if err := json.Unmarshal(data, &parsed); err != nil {
-					return err
-				}
-				return enc.Encode(parsed)
-			}
-			return nil
+			return usageErr(fmt.Errorf("export is not applicable to the Hacker News API: HN exposes per-list endpoints (e.g. /topstories.json) and per-item lookups (/item/<id>.json), not /<resource> collections. Use 'sync' to populate the local store and 'stories <top|new|best|ask|show|job> --json' for snapshots, or 'search \"<query>\" --json' for live Algolia results"))
 		},
 	}
 
-	cmd.Flags().StringVar(&format, "format", "jsonl", "Output format: jsonl or json")
-	cmd.Flags().StringVarP(&outputFile, "output", "o", "", "Output file path (default: stdout)")
-	cmd.Flags().IntVar(&limit, "limit", 0, "Maximum records to export (0 = unlimited)")
-	cmd.Flags().BoolVar(&noCache, "no-cache", false, "Bypass response cache for fresh data")
+	_ = flags
 
 	return cmd
 }

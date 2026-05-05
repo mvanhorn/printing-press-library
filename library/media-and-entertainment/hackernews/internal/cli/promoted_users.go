@@ -14,10 +14,11 @@ import (
 func newUsersPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "users <userId>",
-		Short:   "Get a user's profile including karma and submission history",
-		Long:    "Shortcut for 'users get'. Get a user's profile including karma and submission history",
+		Use:   "users <userId>",
+		Short: "Get a user's profile including karma and submission history",
+		Long:  "Shortcut for 'users get'. Get a user's profile including karma and submission history",
 		Example: "  hackernews-pp-cli users",
+		Annotations: map[string]string{"pp:endpoint": "users.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -26,11 +27,21 @@ func newUsersPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/user/{userId}.json"
 			if len(args) < 1 {
-				return usageErr(fmt.Errorf("userId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "userId"))
+				// JSON envelope: {error, usage}. Written first; the
+				// usageErr return preserves exit code 2 across modes.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "userId is required",
+						"usage": fmt.Sprintf("%s <%s>", cmd.CommandPath(), "userId"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("userId is required\nUsage: %s <%s>", cmd.CommandPath(), "userId"))
 			}
 			path = replacePathParam(path, "userId", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "users", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "users", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
