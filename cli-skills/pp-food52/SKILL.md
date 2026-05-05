@@ -3,7 +3,15 @@ name: pp-food52
 description: "Search, browse, and read Food52 from your terminal — with offline FTS, pantry matching, recipe scaling, and the editorial signals other tools throw away. Trigger phrases: `find me a food52 recipe for X`, `scale this food52 recipe to N servings`, `what can I cook from food52 with what's in my pantry`, `use food52`, `run food52`."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["food52-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/food-and-dining/food52/cmd/food52-pp-cli@latest","bins":["food52-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - food52-pp-cli
+    install:
+      - kind: go
+        bins: [food52-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/food-and-dining/food52/cmd/food52-pp-cli
 ---
 
 # Food52 — Printing Press CLI

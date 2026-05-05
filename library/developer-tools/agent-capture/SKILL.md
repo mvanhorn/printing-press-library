@@ -3,7 +3,15 @@ name: pp-agent-capture
 description: "macOS screen capture, window recording, GIF conversion, and agent evidence bundles from the terminal. Built on ScreenCaptureKit for window-level targeting ffmpeg cannot do. Use when the user wants a screenshot of a specific window or app, a screen recording, a GIF conversion, a before/after diff, an evidence bundle for a PR, OCR text from a window, a terminal VHS recording, a Remotion render, or wants to watch a UI for changes. Requires macOS Screen Recording permission on first run."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["agent-capture"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/developer-tools/agent-capture/cmd/agent-capture-pp-cli@latest","bins":["agent-capture"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - agent-capture-pp-cli
+    install:
+      - kind: go
+        bins: [agent-capture-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/developer-tools/agent-capture/cmd/agent-capture-pp-cli
 ---
 
 # Agent Capture - Printing Press CLI

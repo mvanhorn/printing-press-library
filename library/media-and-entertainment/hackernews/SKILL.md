@@ -3,7 +3,15 @@ name: pp-hackernews
 description: "Hacker News from your terminal — with a local SQLite store, snapshot history, and agent-native output no other HN tool has. Trigger phrases: `check hacker news`, `search hn`, `what is hn saying about`, `diff the hn front page`, `pulse on hn`, `look up hn user`, `hn who is hiring`, `hn top stories`, `use hackernews`, `run hackernews`."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["hackernews-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/cmd/hackernews-pp-cli@latest","bins":["hackernews-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - hackernews-pp-cli
+    install:
+      - kind: go
+        bins: [hackernews-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/cmd/hackernews-pp-cli
 ---
 
 # Hacker News — Printing Press CLI

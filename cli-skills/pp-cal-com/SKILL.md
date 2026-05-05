@@ -3,7 +3,15 @@ name: pp-cal-com
 description: "Every Cal.com feature, plus offline agendas, composed booking flows, and analytics no other Cal.com tool ships. Trigger phrases: `book a meeting on cal.com`, `what's on my calendar today`, `find an open slot`, `reschedule my next booking`, `audit my cal.com webhooks`, `use cal-com`, `run cal-com-pp-cli`."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["cal-com-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/productivity/cal-com/cmd/cal-com-pp-cli@latest","bins":["cal-com-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - cal-com-pp-cli
+    install:
+      - kind: go
+        bins: [cal-com-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/productivity/cal-com/cmd/cal-com-pp-cli
 ---
 
 # Cal.com — Printing Press CLI

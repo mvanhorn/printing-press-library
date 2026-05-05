@@ -3,7 +3,15 @@ name: pp-docker-hub
 description: "Printing Press CLI for Docker Hub. Docker Hub public API. Search container images, browse tags, check sizes, inspect Dockerfiles, and explore the..."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["docker-hub-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/other/docker-hub-pp-cli/cmd/docker-hub-pp-cli@latest","bins":["docker-hub-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - docker-hub-pp-cli
+    install:
+      - kind: go
+        bins: [docker-hub-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/developer-tools/docker-hub/cmd/docker-hub-pp-cli
 ---
 
 # Docker Hub — Printing Press CLI

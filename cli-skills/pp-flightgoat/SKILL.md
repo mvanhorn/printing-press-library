@@ -3,7 +3,15 @@ name: pp-flightgoat
 description: "Printing Press CLI for Flightgoat. # Introduction AeroAPI is a simple, query-based API that gives software developers access to a variety of..."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["flightgoat-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/other/flightgoat-pp-cli/cmd/flightgoat-pp-cli@latest","bins":["flightgoat-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - flightgoat-pp-cli
+    install:
+      - kind: go
+        bins: [flightgoat-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/travel/flightgoat/cmd/flightgoat-pp-cli
 ---
 
 # Flightgoat — Printing Press CLI

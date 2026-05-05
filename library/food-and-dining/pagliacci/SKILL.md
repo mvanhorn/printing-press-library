@@ -3,7 +3,15 @@ name: pp-pagliacci
 description: "Order Seattle's favorite pizza from the terminal — every endpoint, plus discount stacking, slice rotation across stores, half-and-half pies, and a small-party planner nobody else has. Trigger phrases: `order from pagliacci`, `what pagliacci slices are available`, `plan a pagliacci order for the family`, `build a half-and-half pagliacci pizza`, `pagliacci rewards balance`, `use pagliacci`, `run pagliacci`."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["pagliacci-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/food-and-dining/pagliacci/cmd/pagliacci-pp-cli@latest","bins":["pagliacci-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - pagliacci-pp-cli
+    install:
+      - kind: go
+        bins: [pagliacci-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/food-and-dining/pagliacci/cmd/pagliacci-pp-cli
 ---
 
 # Pagliacci Pizza — Printing Press CLI

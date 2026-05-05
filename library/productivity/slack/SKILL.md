@@ -3,7 +3,18 @@ name: pp-slack
 description: "Slack workspace CLI for the terminal. Send messages, search channels and DMs, list conversations, get user/bot/emoji info, analyze channel health, find stale threads, and sync the workspace locally for fast offline queries. Two auth surfaces coexist: SLACK_BOT_TOKEN (xoxb-, for workspace-wide read + post) and SLACK_USER_TOKEN (xoxp-, for user-scoped actions like DM history or search). Use when the user asks to send a Slack message, search Slack, check channel activity, summarize a digest, find who's on a team, find stale threads, analyze channel health, list users / emoji / reminders / pinned items, or wants offline-capable Slack queries."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["slack-pp-cli"],"env":["SLACK_BOT_TOKEN"]},"primaryEnv":"SLACK_BOT_TOKEN","install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/productivity/slack/cmd/slack-pp-cli@latest","bins":["slack-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - slack-pp-cli
+      env:
+        - SLACK_BOT_TOKEN
+    primaryEnv: SLACK_BOT_TOKEN
+    install:
+      - kind: go
+        bins: [slack-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/productivity/slack/cmd/slack-pp-cli
 ---
 
 # Slack - Printing Press CLI

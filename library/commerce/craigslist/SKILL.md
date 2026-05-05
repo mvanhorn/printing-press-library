@@ -3,7 +3,15 @@ name: pp-craigslist
 description: "The local-first Craigslist watcher and triage tool that knows what's a repost, what's a scam, and what just dropped in price. Trigger phrases: `watch craigslist for`, `find new listings on craigslist`, `craigslist deal alert`, `scan craigslist across cities`, `craigslist repost`, `craigslist scam check`, `use craigslist-pp-cli`, `run craigslist-pp`."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["craigslist-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/commerce/craigslist/cmd/craigslist-pp-cli@latest","bins":["craigslist-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - craigslist-pp-cli
+    install:
+      - kind: go
+        bins: [craigslist-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/commerce/craigslist/cmd/craigslist-pp-cli
 ---
 
 # Craigslist — Printing Press CLI

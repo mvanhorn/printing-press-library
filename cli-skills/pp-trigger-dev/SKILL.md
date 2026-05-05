@@ -3,7 +3,18 @@ name: pp-trigger-dev
 description: "Trigger.dev background-job monitoring and observability from the terminal. List runs, analyze failures, watch live for failures, inspect queues, schedules, deployments, batches, cost by task, and task health. Use when the user wants to check Trigger.dev status, find failing tasks, watch runs live, audit schedules, look up a specific run, compare cost across tasks or machine types, or debug a stuck batch. Offline search via local SQLite sync."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["trigger-dev-pp-cli"],"env":["TRIGGER_SECRET_KEY"]},"primaryEnv":"TRIGGER_SECRET_KEY","install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/developer-tools/trigger-dev/cmd/trigger-dev-pp-cli@latest","bins":["trigger-dev-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - trigger-dev-pp-cli
+      env:
+        - TRIGGER_SECRET_KEY
+    primaryEnv: TRIGGER_SECRET_KEY
+    install:
+      - kind: go
+        bins: [trigger-dev-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/developer-tools/trigger-dev/cmd/trigger-dev-pp-cli
 ---
 
 # Trigger.dev - Printing Press CLI

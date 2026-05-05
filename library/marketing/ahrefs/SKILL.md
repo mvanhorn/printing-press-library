@@ -3,7 +3,15 @@ name: pp-ahrefs
 description: "Printing Press CLI for Ahrefs. SEO and competitive intelligence API for backlinks, keywords, rank tracking, site audit, and SERP data."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["ahrefs-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/marketing/ahrefs/cmd/ahrefs-pp-cli@latest","bins":["ahrefs-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - ahrefs-pp-cli
+    install:
+      - kind: go
+        bins: [ahrefs-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/marketing/ahrefs/cmd/ahrefs-pp-cli
 ---
 
 # Ahrefs — Printing Press CLI

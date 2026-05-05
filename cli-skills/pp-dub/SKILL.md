@@ -3,7 +3,15 @@ name: pp-dub
 description: "Every Dub feature, plus offline search, agent-native output, and a local SQLite store no other Dub tool has. Trigger phrases: `shorten a link with Dub`, `audit my Dub links`, `find dormant Dub links`, `review Dub bounty submissions`, `Dub partner leaderboard`, `use dub-pp-cli`, `run dub-pp-cli`."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["dub-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/other/dub/cmd/dub-pp-cli@latest","bins":["dub-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - dub-pp-cli
+    install:
+      - kind: go
+        bins: [dub-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/marketing/dub/cmd/dub-pp-cli
 ---
 
 # Dub — Printing Press CLI

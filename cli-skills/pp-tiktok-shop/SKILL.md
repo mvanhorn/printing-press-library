@@ -3,7 +3,15 @@ name: pp-tiktok-shop
 description: "Printing Press CLI/MCP for confirmed TikTok Shop Seller APIs. Safe v1 supports auth readiness, token exchange/refresh, read-only shops/orders/products/inventory/package/warehouse commands, and defers risky mutations."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["tiktok-shop-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/commerce/tiktok-shop/cmd/tiktok-shop-pp-cli@latest","bins":["tiktok-shop-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - tiktok-shop-pp-cli
+    install:
+      - kind: go
+        bins: [tiktok-shop-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/commerce/tiktok-shop/cmd/tiktok-shop-pp-cli
 ---
 
 # TikTok Shop - Printing Press Safe v1

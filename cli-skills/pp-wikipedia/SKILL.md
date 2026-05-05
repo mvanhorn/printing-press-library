@@ -3,7 +3,15 @@ name: pp-wikipedia
 description: "Printing Press CLI for Wikipedia. Wikipedia REST API. Get article summaries, search, browse related topics, and access on-this-day events. No..."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["wikipedia-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/other/wikipedia-pp-cli/cmd/wikipedia-pp-cli@latest","bins":["wikipedia-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - wikipedia-pp-cli
+    install:
+      - kind: go
+        bins: [wikipedia-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/media-and-entertainment/wikipedia/cmd/wikipedia-pp-cli
 ---
 
 # Wikipedia — Printing Press CLI

@@ -3,7 +3,15 @@ name: pp-shopify
 description: "Printing Press CLI for Shopify. Ecommerce orders, products, customers, inventory, fulfillment orders, and bulk operations via the Shopify Admin..."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["shopify-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/commerce/shopify/cmd/shopify-pp-cli@latest","bins":["shopify-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - shopify-pp-cli
+    install:
+      - kind: go
+        bins: [shopify-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/commerce/shopify/cmd/shopify-pp-cli
 ---
 
 # Shopify — Printing Press CLI

@@ -3,7 +3,15 @@ name: pp-weather-goat
 description: "Use this skill whenever the user asks about weather, forecasts, temperature, rain, storms, severe weather alerts, air quality, pollen, UV, or wants an activity recommendation (can I walk / bike / hike / commute / drive given the weather). Weather CLI powered by Open-Meteo (global, no auth, unlimited) + NWS (US severe weather). No API key. Triggers on phrasings like 'what's the weather', 'is it going to rain today', 'any storms coming', 'should I bike to work', 'how's the air quality', 'compare NYC and LA weather this weekend', 'is this unusually hot for April'."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["weather-goat-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/other/weather-goat/cmd/weather-goat-pp-cli@latest","bins":["weather-goat-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - weather-goat-pp-cli
+    install:
+      - kind: go
+        bins: [weather-goat-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/other/weather-goat/cmd/weather-goat-pp-cli
 ---
 
 # Weather Goat — Printing Press CLI

@@ -3,7 +3,15 @@ name: pp-yahoo-finance
 description: "Use Yahoo Finance CLI for stock and ETF quotes, charts, fundamentals, options chains, symbol search, trending tickers, local watchlists, portfolio lots, and market digests. Use when the user asks about a ticker, portfolio performance, option filtering, market movers, or wants Yahoo Finance data in a terminal or agent-friendly format."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["yahoo-finance-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/cmd/yahoo-finance-pp-cli@latest","bins":["yahoo-finance-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - yahoo-finance-pp-cli
+    install:
+      - kind: go
+        bins: [yahoo-finance-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/cmd/yahoo-finance-pp-cli
 ---
 
 # Yahoo Finance — Printing Press CLI

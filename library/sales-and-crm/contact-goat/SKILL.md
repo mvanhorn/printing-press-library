@@ -3,7 +3,15 @@ name: pp-contact-goat
 description: "Super LinkedIn for the terminal. Search, enrich, and map warm-intro paths across LinkedIn (stickerdaniel/linkedin-mcp-server subprocess), Happenstance (cookie-first free quota with bearer-API fallback), and Deepline (paid enrichment). Two Happenstance auth surfaces coexist: Chrome cookie session (free monthly allocation) and HAPPENSTANCE_API_KEY bearer (paid credits, deeper schema). Use when the user asks who they know at a company, how to get a warm intro, who to prospect, or wants cross-source dossiers, network diffs, or waterfall enrichment."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["contact-goat-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/cmd/contact-goat-pp-cli@latest","bins":["contact-goat-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - contact-goat-pp-cli
+    install:
+      - kind: go
+        bins: [contact-goat-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/cmd/contact-goat-pp-cli
 ---
 
 # Contact Goat - Printing Press CLI

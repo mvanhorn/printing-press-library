@@ -3,7 +3,18 @@ name: pp-steam-web
 description: "Steam player and game lookup via the Steam Web API. Look up player profiles, owned games, recent playtime, achievements, stats, badges, friend lists, VAC/game ban status, and game schemas. Use when the user asks about their Steam library, a friend's achievements, who's playing a game, compare two players' stats, a player's Steam level or badges, VAC status, or wants to resolve a vanity URL to a Steam ID."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["steam-web-pp-cli"],"env":["STEAM_WEB_API_KEY"]},"primaryEnv":"STEAM_WEB_API_KEY","install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/steam-web/cmd/steam-web-pp-cli@latest","bins":["steam-web-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - steam-web-pp-cli
+      env:
+        - STEAM_WEB_API_KEY
+    primaryEnv: STEAM_WEB_API_KEY
+    install:
+      - kind: go
+        bins: [steam-web-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/media-and-entertainment/steam-web/cmd/steam-web-pp-cli
 ---
 
 # Steam Web - Printing Press CLI

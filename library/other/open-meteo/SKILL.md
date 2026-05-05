@@ -3,7 +3,15 @@ name: pp-open-meteo
 description: "Every Open-Meteo endpoint family in one CLI — forecast, archive, marine, air quality, flood, climate, ensemble, seasonal, geocoding, elevation. Trigger phrases: `what's the weather in`, `forecast for`, `is it going to rain`, `marine forecast`, `air quality in`, `historical weather`, `climate normal`, `use open-meteo`, `run open-meteo`."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["open-meteo-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/other/open-meteo/cmd/open-meteo-pp-cli@latest","bins":["open-meteo-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - open-meteo-pp-cli
+    install:
+      - kind: go
+        bins: [open-meteo-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/other/open-meteo/cmd/open-meteo-pp-cli
 ---
 
 # Open-Meteo — Printing Press CLI

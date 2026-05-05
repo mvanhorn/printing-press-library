@@ -3,7 +3,18 @@ name: pp-hubspot
 description: "Use this skill whenever the user asks about HubSpot CRM contacts, companies, deals, tickets, tasks, calls, emails, meetings, engagements, pipelines, deal velocity / stale deals / coverage, or wants to search across their CRM data. Also for creating / updating / deleting any HubSpot record or managing associations between objects. HubSpot CLI covering 15 HubSpot APIs with offline SQLite search and pipeline analytics. Requires a HubSpot access token. Triggers on phrasings like 'find contacts at Acme', 'show deals closing this month', 'which deals are stale', 'pipeline velocity this quarter', 'log a call for contact X', 'create a task for tomorrow'."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["hubspot-pp-cli"],"env":["HUBSPOT_ACCESS_TOKEN"]},"primaryEnv":"HUBSPOT_ACCESS_TOKEN","install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot/cmd/hubspot-pp-cli@latest","bins":["hubspot-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - hubspot-pp-cli
+      env:
+        - HUBSPOT_ACCESS_TOKEN
+    primaryEnv: HUBSPOT_ACCESS_TOKEN
+    install:
+      - kind: go
+        bins: [hubspot-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot/cmd/hubspot-pp-cli
 ---
 
 # HubSpot — Printing Press CLI

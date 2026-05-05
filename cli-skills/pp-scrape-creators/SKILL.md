@@ -3,7 +3,15 @@ name: pp-scrape-creators
 description: "Every Scrape Creators endpoint, plus offline search, cross-platform compounding, and a local store no other Scrape Creators tool ships with. Trigger phrases: `scrape creators`, `tiktok profile`, `instagram profile`, `youtube channel`, `facebook ad library`, `creator on every platform`, `social media transcript search`, `use scrape-creators`, `run scrape-creators`."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["scrape-creators-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/cmd/scrape-creators-pp-cli@latest","bins":["scrape-creators-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - scrape-creators-pp-cli
+    install:
+      - kind: go
+        bins: [scrape-creators-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/cmd/scrape-creators-pp-cli
 ---
 
 # Scrape Creators — Printing Press CLI

@@ -3,7 +3,15 @@ name: pp-dominos
 description: "Order pizza, browse menus, optimize deals, and track delivery from the terminal — with a local SQLite store that powers reorder, analytics, and price comparison no other Domino's tool offers. Trigger phrases: `order a pizza`, `find a domino's near me`, `track my pizza`, `what's my pizza usual`, `how much do i spend on pizza`, `compare pizza prices`, `use dominos`, `run dominos`."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["dominos-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/commerce/dominos/cmd/dominos-pp-cli@latest","bins":["dominos-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - dominos-pp-cli
+    install:
+      - kind: go
+        bins: [dominos-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/commerce/dominos/cmd/dominos-pp-cli
 ---
 
 # Dominos — Printing Press CLI

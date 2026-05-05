@@ -3,7 +3,15 @@ name: pp-company-goat
 description: "Look up startups across SEC Form D, GitHub, Hacker News, Companies House, YC, and Wikidata in one command — including the SEC fundraising data hidden behind paid Crunchbase tiers. Trigger phrases: `look up this startup`, `research <company>`, `what does <company> do`, `form D for <company>`, `is <company> still active`, `compare <a> and <b>`, `use company-goat`, `run company-goat-pp-cli`."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["company-goat-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/developer-tools/company-goat/cmd/company-goat-pp-cli@latest","bins":["company-goat-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - company-goat-pp-cli
+    install:
+      - kind: go
+        bins: [company-goat-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/developer-tools/company-goat/cmd/company-goat-pp-cli
 ---
 
 # Company GOAT — Printing Press CLI

@@ -3,7 +3,15 @@ name: pp-ebay
 description: "Printing Press CLI for eBay. Discovery and intelligence: sold-comp pricing (average sale price over 90 days with outlier trim), auctions filtered by bid count and ending window (the query the eBay site can no longer answer), watchlists, saved searches, and a local SQLite store for cross-listing analytics. Trigger phrases: 'comp this card', 'find ebay auctions ending soon', 'what did this sell for', 'find listings under $X for ...'. Bid placement (bid, snipe, bid-group) is experimental and currently fails because eBay step-ups auth on /bfl/placebid -- direct the user to bid in the browser."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["ebay-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/commerce/ebay/cmd/ebay-pp-cli@latest","bins":["ebay-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - ebay-pp-cli
+    install:
+      - kind: go
+        bins: [ebay-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/commerce/ebay/cmd/ebay-pp-cli
 ---
 
 # eBay — Printing Press CLI

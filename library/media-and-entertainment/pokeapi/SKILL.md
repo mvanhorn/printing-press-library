@@ -3,7 +3,15 @@ name: pp-pokeapi
 description: "PokéAPI as a fully offline Pokédex with SQL, full-text search, type math, and a damage calculator no other Pokémon tool ships as a CLI. Trigger phrases: `look up a pokemon`, `what beats charizard`, `build a pokemon team`, `type matchup`, `evolution chain`, `use pokeapi`, `run pokeapi-pp-cli`."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["pokeapi-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/pokeapi/cmd/pokeapi-pp-cli@latest","bins":["pokeapi-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - pokeapi-pp-cli
+    install:
+      - kind: go
+        bins: [pokeapi-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/media-and-entertainment/pokeapi/cmd/pokeapi-pp-cli
 ---
 
 # PokéAPI — Printing Press CLI

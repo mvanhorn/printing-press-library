@@ -3,7 +3,15 @@ name: pp-sentry
 description: "A broad Sentry API CLI with local search, SQL, export, and MCP surfaces for incident work. Trigger phrases: `check Sentry issues`, `list Sentry projects`, `debug a Sentry event`, `audit Sentry releases`, `search Sentry incidents`, `use Sentry`, `run Sentry`."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["sentry-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/monitoring/sentry/cmd/sentry-pp-cli@latest","bins":["sentry-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - sentry-pp-cli
+    install:
+      - kind: go
+        bins: [sentry-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/monitoring/sentry/cmd/sentry-pp-cli
 ---
 
 # Sentry — Printing Press CLI

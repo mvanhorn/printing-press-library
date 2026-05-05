@@ -3,7 +3,15 @@ name: pp-nvd
 description: "Printing Press CLI for Nvd. The NVD is the U.S. government repository of standards-based vulnerability management data. Search CVEs by keyword,..."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["nvd-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/other/nvd-pp-cli/cmd/nvd-pp-cli@latest","bins":["nvd-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - nvd-pp-cli
+    install:
+      - kind: go
+        bins: [nvd-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/developer-tools/nvd/cmd/nvd-pp-cli
 ---
 
 # Nvd — Printing Press CLI

@@ -3,7 +3,15 @@ name: pp-allrecipes
 description: "Every Allrecipes recipe in your terminal — cached as data, with pantry-aware search, Bayesian-smoothed ranking, one-line grocery lists, and Cloudflare clearance. Trigger phrases: `search Allrecipes for X`, `find a recipe for brownies`, `scale this Allrecipes recipe`, `build a grocery list from these recipes`, `what can I cook with what I have`, `use allrecipes-pp-cli`, `run allrecipes`."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["allrecipes-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/cmd/allrecipes-pp-cli@latest","bins":["allrecipes-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - allrecipes-pp-cli
+    install:
+      - kind: go
+        bins: [allrecipes-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/cmd/allrecipes-pp-cli
 ---
 
 # Allrecipes — Printing Press CLI

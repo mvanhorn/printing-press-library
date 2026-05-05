@@ -3,7 +3,15 @@ name: pp-fedex
 description: "REST-native FedEx CLI for small business shippers, with rate-shopping, bulk CSV labels, an address book, and a local SQLite ledger no other tool has. Trigger phrases: `ship a package via FedEx`, `rate-shop FedEx services`, `bulk-print FedEx labels from CSV`, `save a FedEx recipient`, `issue a FedEx return label`, `FedEx spend this month`, `track a FedEx shipment`, `use fedex-pp-cli`, `run fedex`."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["fedex-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/commerce/fedex/cmd/fedex-pp-cli@latest","bins":["fedex-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - fedex-pp-cli
+    install:
+      - kind: go
+        bins: [fedex-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/commerce/fedex/cmd/fedex-pp-cli
 ---
 
 # FedEx — Printing Press CLI

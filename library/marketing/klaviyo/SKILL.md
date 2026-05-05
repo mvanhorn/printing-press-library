@@ -3,7 +3,15 @@ name: pp-klaviyo
 description: "Klaviyo from the shell, with local customer-behavior analytics layered on top. Trigger phrases: `inspect a Klaviyo profile`, `deploy a Klaviyo campaign`, `check Klaviyo flow decay`, `reconcile Klaviyo campaign revenue`."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["klaviyo-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/cmd/klaviyo-pp-cli@latest","bins":["klaviyo-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - klaviyo-pp-cli
+    install:
+      - kind: go
+        bins: [klaviyo-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/marketing/klaviyo/cmd/klaviyo-pp-cli
 ---
 
 # Klaviyo — Printing Press CLI

@@ -3,6 +3,15 @@ name: pp-instacart
 description: "Printing Press CLI for Instacart. Natural-language Instacart CLI that talks directly to the web GraphQL API. Add items to your cart, search products, and manage carts across retailers without browser automation. Also caches your purchase history locally so 'add' resolves items you have bought before instead of guessing from live search. Trigger phrases: 'install instacart', 'use instacart', 'run instacart', 'add X to my Safeway cart', 'what did I buy last time', 'order the usual', 'add my regulars to Costco', 'backfill my instacart history', 'sync my instacart orders', 'download my order history', 'save my instacart history locally'."
 argument-hint: "<command> [args] | install cli|mcp | backfill"
 allowed-tools: "Read Bash WebFetch"
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - instacart-pp-cli
+    install:
+      - kind: go
+        bins: [instacart-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/commerce/instacart/cmd/instacart-pp-cli
 ---
 
 # Instacart - Printing Press CLI

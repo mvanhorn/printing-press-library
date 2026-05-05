@@ -3,7 +3,15 @@ name: pp-movie-goat
 description: "The movie CLI that combines TMDb's discovery engine with OMDb's multi-source ratings — and ships a SQLite watchlist that flags what's streaming on your services right now. Trigger phrases: `what should I watch tonight`, `where can I stream <title>`, `rate <title>`, `compare <title> and <title>`, `what's <person>'s filmography`, `plan a <franchise> marathon`, `use movie-goat`, `run movie-goat`."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["movie-goat-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/cmd/movie-goat-pp-cli@latest","bins":["movie-goat-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - movie-goat-pp-cli
+    install:
+      - kind: go
+        bins: [movie-goat-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/cmd/movie-goat-pp-cli
 ---
 
 # Movie Goat — Printing Press CLI

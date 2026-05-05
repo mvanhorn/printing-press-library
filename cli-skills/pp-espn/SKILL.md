@@ -3,7 +3,15 @@ name: pp-espn
 description: "Use this skill whenever the user asks about live sports scores, standings, team stats, game summaries (with box score, leaders, scoring plays, odds, and win probability), NFL / NBA / MLB / NHL / NCAA / MLS / EPL / WNBA games, team schedules, polls, or rankings. ESPN sports CLI with live scores across 10 leagues, offline search, head-to-head comparisons, and rich per-game summary payloads. No API key required. Triggers on natural phrasings like 'what's the score of the Lakers game', 'Patriots schedule this week', 'NFL standings', 'box score for tonight's Mavs game', 'Chiefs vs Eagles head to head', 'who's on top of the AP poll'."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["espn-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/cmd/espn-pp-cli@latest","bins":["espn-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - espn-pp-cli
+    install:
+      - kind: go
+        bins: [espn-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/cmd/espn-pp-cli
 ---
 
 # ESPN — Printing Press CLI

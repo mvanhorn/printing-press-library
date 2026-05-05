@@ -3,7 +3,18 @@ name: pp-linear
 description: "Linear project-management CLI for the terminal. Manage issues, projects, cycles, teams, initiatives, roadmaps, and customer records via the Linear GraphQL API with offline-capable SQLite sync. Use when the user asks about their Linear issues, wants today's queue, sprint velocity, team workload, bottlenecks, duplicate / stale / orphaned issues, release pipelines, or wants to create, update, or search Linear items from the terminal. Offline search and analytics work without an API round-trip after a one-time sync."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["linear-pp-cli"],"env":["LINEAR_API_KEY"]},"primaryEnv":"LINEAR_API_KEY","install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/project-management/linear/cmd/linear-pp-cli@latest","bins":["linear-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - linear-pp-cli
+      env:
+        - LINEAR_API_KEY
+    primaryEnv: LINEAR_API_KEY
+    install:
+      - kind: go
+        bins: [linear-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/project-management/linear/cmd/linear-pp-cli
 ---
 
 # Linear - Printing Press CLI

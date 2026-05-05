@@ -3,7 +3,15 @@ name: pp-archive-is
 description: "Use this skill whenever the user wants to archive a URL, bypass a paywall, look up an existing archive, view a cached version of a webpage, pull article text from archive.today or the Wayback Machine, or batch-archive a list of URLs. archive.today + Wayback Machine CLI with lookup-before-submit, automatic fallback when one backend is down, and agent-friendly output. No API key required. Triggers on phrasings like 'archive this article', 'bypass the paywall on this link', 'grab the cached text', 'save this url to archive.today', 'check if this was already archived', 'bulk archive these 20 URLs'."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["archive-is-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/archive-is/cmd/archive-is-pp-cli@latest","bins":["archive-is-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - archive-is-pp-cli
+    install:
+      - kind: go
+        bins: [archive-is-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/media-and-entertainment/archive-is/cmd/archive-is-pp-cli
 ---
 
 # archive.today — Printing Press CLI

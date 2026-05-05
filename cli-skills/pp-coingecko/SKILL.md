@@ -3,7 +3,15 @@ name: pp-coingecko
 description: "Printing Press CLI for Coingecko. CoinGecko public API for cryptocurrency data. Free tier, no API key required for basic endpoints."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["coingecko-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/payments/coingecko/cmd/coingecko-pp-cli@latest","bins":["coingecko-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - coingecko-pp-cli
+    install:
+      - kind: go
+        bins: [coingecko-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/payments/coingecko/cmd/coingecko-pp-cli
 ---
 
 # Coingecko — Printing Press CLI

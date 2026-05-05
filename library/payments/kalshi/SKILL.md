@@ -3,7 +3,15 @@ name: pp-kalshi
 description: "Trade prediction markets, persist tick data, and answer category-level P&L questions Kalshi.com cannot. Trigger phrases: `kalshi market price`, `track prediction market`, `kalshi portfolio P&L`, `kalshi correlate markets`, `use kalshi`, `run kalshi`."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["kalshi-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/other/kalshi/cmd/kalshi-pp-cli@latest","bins":["kalshi-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - kalshi-pp-cli
+    install:
+      - kind: go
+        bins: [kalshi-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/payments/kalshi/cmd/kalshi-pp-cli
 ---
 
 # Kalshi — Printing Press CLI

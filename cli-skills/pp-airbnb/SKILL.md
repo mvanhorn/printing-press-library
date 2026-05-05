@@ -3,7 +3,15 @@ name: pp-airbnb
 description: "Skip the Airbnb platform fee. Find the host's direct booking site for any Airbnb listing. Trigger phrases: `find the direct booking site`, `skip the airbnb fee`, `vacation rental cheapest`, `book direct`, `use airbnb-pp`, `run airbnb-pp`. NOTE: VRBO support is currently disabled — pending Akamai workaround."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["airbnb-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/travel/airbnb/cmd/airbnb-pp-cli@latest","bins":["airbnb-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - airbnb-pp-cli
+    install:
+      - kind: go
+        bins: [airbnb-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/travel/airbnb/cmd/airbnb-pp-cli
 ---
 
 # Airbnb — Printing Press CLI
