@@ -88,10 +88,10 @@
     {
       "name": "One-shot booking",
       "command": "book",
-      "description": "Find a slot and create a booking in one composed command — slot check, optional reservation, create, optional confirm.",
-      "rationale": "Cal.com forces a 4-call dance to book; we compose the chain transactionally with --dry-run support.",
+      "description": "Schedule an attendee onto one of your event types in a single composed call — slot check, optional reservation, create, optional confirm. For the rare scripting case (admin onboarding, recruiter pre-fill, test fixtures); for the normal flow where the attendee picks their own time, share a URL from link list.",
+      "rationale": "Cal.com forces a 4-call dance to create a booking; we compose the chain transactionally with --dry-run support. Bearer-token auth means the caller is the host, so this fits the rare host-scripts-an-attendee case — not the normal attendee-picks-time-from-link flow.",
       "example": "cal-com-pp-cli book --event-type-id 96531 --start 2026-05-06T17:00:00Z --attendee-name Guest --attendee-email guest@example.com --dry-run",
-      "why_it_matters": "Reach for this whenever you need to book a meeting; one call replaces four and is safe to dry-run.",
+      "why_it_matters": "Reach for this when you (the host) want to script a booking on the attendee's behalf rather than having them click your booking link. For the normal flow, share a `link list` URL.",
       "group": "Composed booking flows"
     },
     {
@@ -216,10 +216,10 @@
     {
       "name": "One-shot booking",
       "command": "book",
-      "description": "Find a slot and create a booking in one composed command — slot check, optional reservation, create, optional confirm.",
-      "rationale": "Cal.com forces a 4-call dance to book; we compose the chain transactionally with --dry-run support.",
+      "description": "Schedule an attendee onto one of your event types in a single composed call — slot check, optional reservation, create, optional confirm. For the rare scripting case (admin onboarding, recruiter pre-fill, test fixtures); for the normal flow where the attendee picks their own time, share a URL from link list.",
+      "rationale": "Cal.com forces a 4-call dance to create a booking; we compose the chain transactionally with --dry-run support. Bearer-token auth means the caller is the host, so this fits the rare host-scripts-an-attendee case — not the normal attendee-picks-time-from-link flow.",
       "example": "cal-com-pp-cli book --event-type-id 96531 --start 2026-05-06T17:00:00Z --attendee-name Guest --attendee-email guest@example.com --dry-run",
-      "why_it_matters": "Reach for this whenever you need to book a meeting; one call replaces four and is safe to dry-run.",
+      "why_it_matters": "Reach for this when you (the host) want to script a booking on the attendee's behalf rather than having them click your booking link. For the normal flow, share a `link list` URL.",
       "group": "Composed booking flows"
     },
     {

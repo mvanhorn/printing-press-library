@@ -19,9 +19,9 @@ Reach for cal-com-pp-cli whenever an agent needs to read or mutate a Cal.com cal
 These capabilities aren't available in any other tool for this API.
 
 ### Composed booking flows
-- **`book`** — Find a slot and create a booking in one composed command — slot check, optional reservation, create, optional confirm.
+- **`book`** — Schedule an attendee onto one of your event types in a single composed call — slot check, optional reservation, create, optional confirm.
 
-  _Reach for this whenever you need to book a meeting; one call replaces four and is safe to dry-run._
+  _For the host scripting an attendee onto their calendar (admin onboarding, recruiter pre-fill, test fixtures). For the normal flow where the attendee picks their own time, share a URL from `link list` instead._
 
   ```bash
   cal-com-pp-cli book --event-type-id 96531 --start 2026-05-06T17:00:00Z --attendee-name Guest --attendee-email guest@example.com --dry-run

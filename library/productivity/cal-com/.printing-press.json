@@ -23,7 +23,7 @@
     {
       "name": "One-shot booking",
       "command": "book",
-      "description": "Find a slot and create a booking in one composed command — slot check, optional reservation, create, optional confirm."
+      "description": "Schedule an attendee onto one of your event types in a single composed call — slot check, optional reservation, create, optional confirm. For the rare scripting case (admin onboarding, recruiter pre-fill, test fixtures); for the normal flow where the attendee picks their own time, share a URL from link list."
     },
     {
       "name": "Unified agenda",
