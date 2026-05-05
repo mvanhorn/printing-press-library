@@ -174,6 +174,16 @@ func (c *Client) writeCache(path string, params map[string]string, data json.Raw
 	os.WriteFile(cacheFile, []byte(data), 0o644)
 }
 
+// invalidateCache wholesale-removes the cache directory after a successful
+// non-GET request. Best-effort — ignores RemoveAll error per the design
+// pattern at https://github.com/mvanhorn/cli-printing-press/blob/main/docs/solutions/design-patterns/http-client-cache-invalidate-on-mutation-2026-05-05.md
+func (c *Client) invalidateCache() {
+	if c.cacheDir == "" {
+		return
+	}
+	_ = os.RemoveAll(c.cacheDir)
+}
+
 func (c *Client) Post(path string, body any) (json.RawMessage, int, error) {
 	return c.do("POST", path, nil, body, nil)
 }
@@ -304,6 +314,12 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		// Success
 		if resp.StatusCode < 400 {
 			c.limiter.OnSuccess()
+			// Cache-invalidate on successful non-GET requests. The !c.DryRun guard
+			// is structurally redundant (dry-run short-circuits before the retry
+			// loop) but defends against future refactors.
+			if method != http.MethodGet && !c.DryRun {
+				c.invalidateCache()
+			}
 			return json.RawMessage(respBody), resp.StatusCode, nil
 		}
 
