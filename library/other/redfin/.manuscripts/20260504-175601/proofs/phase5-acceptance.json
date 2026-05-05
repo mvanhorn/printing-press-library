@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "run_id": "20260504-175601",
+  "api_name": "redfin",
+  "cli_name": "redfin-pp-cli",
+  "level": "full",
+  "status": "pass",
+  "matrix_size": 50,
+  "tests_total": 50,
+  "tests_passed": 50,
+  "tests_failed": 0,
+  "completed_at": "2026-05-05T01:55:00Z",
+  "summary": "Stingray /api/gis returned 5 listings with structured fields (MLS#, lat/lng, sqft, year_built, DOM). aggregate-trends returned median list $500K, $/sqft $323, DOM 44, 2021 active. sync-search inserted 50 placards into listing_snapshots+homes. trends multi-region overlay works after parser rewrite. All 25 leaf commands --help exit 0 and dry-run cleanly."
+}

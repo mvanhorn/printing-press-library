@@ -1,0 +1,157 @@
+name: redfin
+description: Search Redfin homes for sale via internal Stingray endpoints, sync to local SQLite, and run workflows the website doesn't expose — saved-search diff, $/sqft net-HOA ranking, sold comps, multi-region trends.
+cli_description: "Search Redfin homes from the terminal with offline sync, ranking, diff, sold comps, and market trends."
+version: "0.1.0"
+kind: synthetic
+spec_source: sniffed
+http_transport: browser-chrome
+website_url: "https://www.redfin.com"
+category: other
+base_url: "https://www.redfin.com"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/redfin-pp-cli/config.toml"
+
+cache:
+  enabled: true
+
+resources:
+  homes:
+    description: "Search Redfin homes for sale via the internal Stingray /api/gis JSON endpoint."
+    endpoints:
+      list:
+        method: GET
+        path: "/stingray/api/gis"
+        description: "Run a Stingray gis search and return parsed listing rows from the JSON map payload. Strip the {}&& CSRF prefix before decoding."
+        params:
+          - name: region_id
+            type: integer
+            required: false
+            positional: false
+            description: "Redfin region ID (numeric). Find it by inspecting a redfin.com/city/<id>/... URL or via `region resolve`."
+            default: 30772
+          - name: region_type
+            type: integer
+            required: false
+            positional: false
+            description: "Redfin region type code: 6=city, 1=zip, 2=state, 4=metro, 11=neighborhood."
+            default: 6
+            enum: [1, 2, 4, 5, 6, 11, 12, 13, 14, 19]
+          - name: status
+            type: integer
+            required: false
+            positional: false
+            description: "Listing status: 1=active for-sale, 7=sold, 9=pending, 130=coming-soon. Compose with --sf for sold."
+            default: 1
+          - name: num_homes
+            type: integer
+            required: false
+            positional: false
+            description: "Number of homes to return per page (max 350)."
+            default: 50
+          - name: page_number
+            type: integer
+            required: false
+            positional: false
+            description: "1-indexed page number."
+            default: 1
+        response:
+          type: text
+          item: string
+        response_format: json
+  market:
+    description: "Aggregate market trends for a region (median sale price, days on market, supply, list-to-sale ratio) over a window."
+    endpoints:
+      trends:
+        method: GET
+        path: "/stingray/api/region/{region_type}/{region_id}/{period_months}/aggregate-trends"
+        description: "Fetch aggregate-trends JSON for one region and period (months)."
+        params:
+          - name: region_type
+            type: integer
+            required: true
+            positional: false
+            path_param: true
+            description: "Region type code (6=city, 1=zip, 2=state, 4=metro, 11=neighborhood)."
+            default: 6
+          - name: region_id
+            type: integer
+            required: true
+            positional: false
+            path_param: true
+            description: "Numeric region ID."
+            default: 30772
+          - name: period_months
+            type: integer
+            required: true
+            positional: false
+            path_param: true
+            description: "Window in months (typical: 12 or 24)."
+            default: 24
+        response:
+          type: text
+          item: string
+        response_format: json
+  listing:
+    description: "Fetch full listing detail by combining initialInfo, aboveTheFold, and belowTheFold Stingray calls."
+    endpoints:
+      initial:
+        method: GET
+        path: "/stingray/api/home/details/initialInfo"
+        description: "First Stingray call for a listing — returns the canonical listingId and propertyId from the URL path."
+        params:
+          - name: path
+            type: string
+            required: true
+            positional: false
+            description: "URL path of the listing (e.g. /TX/Austin/123-Main-St-78704/home/12345)."
+            default: "/TX/Austin/example/home/12345"
+        response:
+          type: text
+          item: string
+        response_format: json
+
+extra_commands:
+  - name: homes
+    description: "Search Redfin for-sale homes by city, beds, baths, price, etc."
+  - name: sold
+    description: "Search Redfin sold homes by city + filters (delegates to homes with status=sold)."
+  - name: listing
+    args: "<url-or-path>"
+    description: "Fetch full listing detail (initialInfo + aboveTheFold + belowTheFold combined)."
+  - name: region
+    description: "Region tools: resolve a city/zip to a Redfin region_id."
+  - name: feed
+    description: "Tail Redfin's RSS feeds: new listings, updated listings."
+  - name: sync-search
+    args: "<saved-search>"
+    description: "Run a saved search and snapshot results into the local store."
+  - name: watch
+    args: "<saved-search>"
+    description: "Diff the latest sync against the previous: NEW / REMOVED / PRICE-CHANGED / STATUS-CHANGED listings."
+  - name: rank
+    description: "Rank synced listings by ratio metrics — $/sqft (optionally net of HOA), $/bed."
+  - name: compare
+    args: "<url-or-id...>"
+    description: "Pivot 2-8 listings into a wide table — one column per listing — with $/sqft, AVM delta, school ratings."
+  - name: comps
+    args: "<subject-url>"
+    description: "Pull sold comps for a subject listing within a radius, sqft tolerance, and recency window."
+  - name: drops
+    description: "List active listings whose price dropped by N% in a window OR whose DOM exceeds a threshold."
+  - name: market
+    args: "<region-slug>"
+    description: "Single-region snapshot: counts, medians, DOM, % drops, plus trends call."
+  - name: summary
+    args: "<region-slug>"
+    description: "Neighborhood market summary: active/pending/sold-90d counts, medians, DOM, % drops."
+  - name: trends
+    description: "Multi-region aggregate-trends overlay; emits tidy table (region × month × metric)."
+  - name: appreciation
+    description: "Rank child neighborhoods under a metro by YoY median-sale % change."
+  - name: export
+    description: "Bulk export past Redfin's 350-row gis-csv cap by slicing price bands and deduping on URL."

@@ -1,0 +1,155 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://www.redfin.com",
+    "captured_at": "2026-05-05T00:56:00Z",
+    "entry_count": 0,
+    "api_entry_count": 0,
+    "noise_entry_count": 0
+  },
+  "reachability": {
+    "mode": "browser_http",
+    "confidence": 0.7,
+    "reasons": [
+      "Direct probe of /stingray/api/gis with a Chrome User-Agent returned 200 OK with the {}&&{json} CSRF-prefixed payload",
+      "/stingray/api/region/<type>/<id>/<months>/aggregate-trends returned 200 OK via stdlib HTTP",
+      "/stingray/do/location-autocomplete returned 403 from CloudFront — Surf at runtime should clear it",
+      "Community scrapers (reteps/redfin, dreed47/redfin) report 403s at scale, suggesting per-IP rate limiting more than a hard bot wall"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "stingray-json-api",
+      "confidence": 0.95,
+      "details": {
+        "csrf_prefix": "{}&& — strip first 4 bytes before json.Unmarshal",
+        "encoding": "application/json with HTML headers"
+      }
+    }
+  ],
+  "auth": {
+    "candidates": []
+  },
+  "protections": [
+    {
+      "label": "aws-cloudfront-waf",
+      "confidence": 0.85,
+      "notes": [
+        "AWS WAF marker present on homepage responses for both stdlib and Surf Chrome TLS",
+        "Some Stingray paths (location-autocomplete) return 403 from CloudFront for plain stdlib + UA but typically clear under browser-like fingerprint",
+        "Per-IP rate limiting reported by community scrapers; mitigate with cliutil.AdaptiveLimiter at conservative defaults (1 req/s)"
+      ]
+    }
+  ],
+  "endpoint_clusters": [
+    {
+      "host": "www.redfin.com",
+      "method": "GET",
+      "path": "/stingray/api/gis",
+      "count": 1,
+      "statuses": [200],
+      "content_types": ["application/json"],
+      "size_class": "json"
+    },
+    {
+      "host": "www.redfin.com",
+      "method": "GET",
+      "path": "/stingray/api/gis-csv",
+      "count": 0,
+      "statuses": [],
+      "content_types": ["text/csv"],
+      "size_class": "csv"
+    },
+    {
+      "host": "www.redfin.com",
+      "method": "GET",
+      "path": "/stingray/api/region/{region_type}/{region_id}/{period_months}/aggregate-trends",
+      "count": 1,
+      "statuses": [200],
+      "content_types": ["application/json"],
+      "size_class": "json"
+    },
+    {
+      "host": "www.redfin.com",
+      "method": "GET",
+      "path": "/stingray/api/home/details/initialInfo",
+      "count": 0,
+      "statuses": [],
+      "content_types": ["application/json"],
+      "size_class": "json"
+    },
+    {
+      "host": "www.redfin.com",
+      "method": "GET",
+      "path": "/stingray/api/home/details/aboveTheFold",
+      "count": 0,
+      "statuses": [],
+      "content_types": ["application/json"],
+      "size_class": "json"
+    },
+    {
+      "host": "www.redfin.com",
+      "method": "GET",
+      "path": "/stingray/api/home/details/belowTheFold",
+      "count": 0,
+      "statuses": [],
+      "content_types": ["application/json"],
+      "size_class": "json"
+    },
+    {
+      "host": "www.redfin.com",
+      "method": "GET",
+      "path": "/stingray/do/location-autocomplete",
+      "count": 0,
+      "statuses": [],
+      "content_types": ["application/json"],
+      "size_class": "json"
+    }
+  ],
+  "pagination": [
+    {
+      "location": "query",
+      "name": "page_number",
+      "confidence": 0.95
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "homes",
+      "resource": "homes",
+      "confidence": 0.95,
+      "rationale": "Stingray gis search is the primary entry point"
+    },
+    {
+      "name": "listing",
+      "resource": "listing",
+      "confidence": 0.95,
+      "rationale": "Listing detail composes initialInfo + aboveTheFold + belowTheFold"
+    },
+    {
+      "name": "market",
+      "resource": "market",
+      "confidence": 0.85,
+      "rationale": "aggregate-trends endpoint exposes neighborhood medians"
+    }
+  ],
+  "generation_hints": [
+    "Strip the {}&& CSRF prefix from every Stingray JSON response before decoding",
+    "Use Surf with Chrome TLS fingerprint at runtime (UsesBrowserHTTPTransport)",
+    "Conservative rate limit: 1 req/s default with adaptive backoff on 429",
+    "Stingray is geo-restricted to US IPs; doctor command should warn non-US users",
+    "Region IDs are visible in redfin.com URL paths (e.g., /city/30772/TX/Austin); region type 6=city, 1=zip, 11=neighborhood"
+  ],
+  "warnings": [
+    {
+      "type": "csrf-prefix",
+      "message": "Stingray JSON responses are prefixed with the literal bytes '{}&&' as CSRF prevention. Generated client must strip them before json.Unmarshal.",
+      "confidence": 1.0
+    },
+    {
+      "type": "geo-restricted",
+      "message": "Stingray endpoints are US-only. Non-US callers will get 403 regardless of TLS fingerprint.",
+      "confidence": 0.9
+    }
+  ]
+}

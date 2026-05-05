@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "redfin-pp-mcp",
+  "display_name": "Redfin",
+  "version": "3.8.0",
+  "description": "Search Redfin homes from the terminal with offline sync, ranking, diff, sold comps, and market trends.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/redfin-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/redfin-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

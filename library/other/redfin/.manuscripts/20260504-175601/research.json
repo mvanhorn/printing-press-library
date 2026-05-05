@@ -1,0 +1,333 @@
+{
+  "api_name": "redfin",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "reteps/redfin",
+      "url": "https://github.com/reteps/redfin",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "dreed47/redfin",
+      "url": "https://github.com/dreed47/redfin",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "wang-ye/redfin-scraper",
+      "url": "https://github.com/wang-ye/redfin-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "alientechsw/RedfinPlus",
+      "url": "https://github.com/alientechsw/RedfinPlus",
+      "language": "Documentation",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-05T00:56:00Z",
+  "novel_features": [
+    {
+      "name": "Saved-search watch with diff",
+      "command": "watch",
+      "description": "Re-run a saved gis search and surface what's NEW, REMOVED, PRICE-CHANGED, or STATUS-CHANGED since the last sync.",
+      "rationale": "Redfin's saved-search emails show only new listings — no removal alerts, no price-drop alerts, no status transitions. The diff requires snapshot history only this CLI keeps.",
+      "example": "redfin-pp-cli watch austin-3br --since 7d --json",
+      "why_it_matters": "Pick this when an agent is tracking a buyer's shortlist over time and needs a reproducible 'what changed' digest.",
+      "group": "Time-series intelligence"
+    },
+    {
+      "name": "$/sqft net-HOA ranking",
+      "command": "rank",
+      "description": "Rank synced listings by price-per-sqft, with optional HOA-fee subtraction over a 5-year horizon.",
+      "rationale": "Redfin's sort options are price-only; net-HOA $/sqft is the metric small-portfolio investors actually screen by, and no scraper or API exposes it.",
+      "example": "redfin-pp-cli rank --by price-per-sqft --net-hoa --region-id 30772 --region-type 6 --json --limit 25",
+      "why_it_matters": "Pick this when value-per-dollar is the goal and HOA-heavy condos must compete fairly against single-family.",
+      "group": "Local-store math"
+    },
+    {
+      "name": "Side-by-side compare",
+      "command": "compare",
+      "description": "Pull 2-8 listings through the combined Stingray detail endpoint and emit aligned columnar output (price, $/sqft, beds, baths, lot, year, schools, AVM delta, last sale, taxes).",
+      "rationale": "Redfin has no compare view. Aligning fields across listings lives only in the local-store pivot.",
+      "example": "redfin-pp-cli compare \u003cyour-listing-url\u003e \u003canother-listing-url\u003e --json",
+      "why_it_matters": "Pick this when narrowing a shortlist; the wide table makes school-rating and AVM-delta differences obvious.",
+      "group": "Shortlist workflows"
+    },
+    {
+      "name": "Sold-comp recipe",
+      "command": "comps",
+      "description": "For a subject listing, derive a circular polygon from --radius, run a sold-status search, filter by --sqft-tol and --bed-match, return the ranked comp set.",
+      "rationale": "Redfin's polygon tool is clumsy and resets between sessions. Saving a 'comp recipe' as flags lives only in a CLI.",
+      "example": "redfin-pp-cli comps \u003cyour-listing-url\u003e --radius 0.5 --sqft-tol 15 --months 6 --bed-match --json",
+      "why_it_matters": "Pick this when an agent needs to pull comparable sales for a buyer offer; collapses 20 minutes of polygon-clicking into one command.",
+      "group": "Shortlist workflows"
+    },
+    {
+      "name": "Stale + price-drop scan",
+      "command": "drops",
+      "description": "List active listings whose price dropped by N% in a window, OR whose days-on-market exceed a threshold.",
+      "rationale": "DOM is buried inside Redfin's listing pages and not exposed in search results; price-drop history is a per-listing lookup. Both are time-series queries against the local snapshot table.",
+      "example": "redfin-pp-cli drops --region-id 30772 --region-type 6 --since 7d --min-pct 3 --dom-min 30 --json",
+      "why_it_matters": "Pick this when timing the market or surfacing lowball candidates before tour scheduling.",
+      "group": "Time-series intelligence"
+    },
+    {
+      "name": "Multi-region union ranking",
+      "command": "rank",
+      "description": "Union synced listings across multiple region slugs and rank across the entire set, deduped by listing URL.",
+      "rationale": "Redfin's UI is single-region per query; cross-region union is the relocator and multi-zip investor view that the website cannot produce.",
+      "example": "redfin-pp-cli rank --regions 30772,30773,30774 --by price-per-sqft --beds-min 3 --price-max 600000 --json --limit 25",
+      "why_it_matters": "Pick this when an agent needs a single ranked feed across multiple metros without writing a fan-out loop.",
+      "group": "Cross-market joins"
+    },
+    {
+      "name": "Trends overlay across regions",
+      "command": "trends",
+      "description": "Pull aggregate-trends for N regions and emit one tidy long table (region × month × metric) over a window.",
+      "rationale": "Redfin's market-trends page shows one region at a time; cross-region overlay over the same N-month window requires joining N API calls into one tidy frame.",
+      "example": "redfin-pp-cli trends --regions 30743,18028,30739 --metric median-sale --period 24 --json",
+      "why_it_matters": "Pick this when a relocator is comparing cities and needs the medians overlaid on the same axis.",
+      "group": "Cross-market joins"
+    },
+    {
+      "name": "Bulk export past the 350 cap",
+      "command": "export",
+      "description": "Slice the price space into bands, page-walk gis-csv per band until each returns under 350 rows, dedupe on listing URL, emit one CSV/JSON.",
+      "rationale": "The 350-row gis-csv cap is the most-cited Redfin scraper limitation. Adaptive band-slicing fixes it; community scrapers reimplement this badly.",
+      "example": "redfin-pp-cli export --region-slug \"city/30772/TX/Austin\" --status sold --year 2024 --csv \u003e austin-sold-2024.csv",
+      "why_it_matters": "Pick this when you need every comp for a year, not the first 350 sorted by relevance.",
+      "group": "Bulk extraction"
+    },
+    {
+      "name": "Neighborhood market summary",
+      "command": "summary",
+      "description": "Single command: active count, pending count, sold-90d count, median list, median sold, median DOM, median $/sqft, % with price drops, plus a trends snapshot.",
+      "rationale": "Redfin spreads these stats across four pages; the join across local store and trends endpoint lives only in the CLI.",
+      "example": "redfin-pp-cli summary 30772:6 --json",
+      "why_it_matters": "Pick this when an agent needs the one-shot snapshot of a market for a buyer brief.",
+      "group": "Aggregations"
+    },
+    {
+      "name": "Region appreciation ranker",
+      "command": "appreciation",
+      "description": "For all child neighborhoods under a parent metro, call aggregate-trends and rank by YoY median-sale % change.",
+      "rationale": "Redfin shows trends per region but never ranks neighborhoods within a metro by appreciation.",
+      "example": "redfin-pp-cli appreciation --parent \"city/30772/TX/Austin\" --period 12 --json --limit 10",
+      "why_it_matters": "Pick this when a relocator or investor needs the 'where in this metro is hottest' answer.",
+      "group": "Aggregations"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Saved-search watch with diff",
+      "command": "watch",
+      "description": "Re-run a saved gis search and surface what's NEW, REMOVED, PRICE-CHANGED, or STATUS-CHANGED since the last sync.",
+      "rationale": "Redfin's saved-search emails show only new listings — no removal alerts, no price-drop alerts, no status transitions. The diff requires snapshot history only this CLI keeps.",
+      "example": "redfin-pp-cli watch austin-3br --since 7d --json",
+      "why_it_matters": "Pick this when an agent is tracking a buyer's shortlist over time and needs a reproducible 'what changed' digest.",
+      "group": "Time-series intelligence"
+    },
+    {
+      "name": "$/sqft net-HOA ranking",
+      "command": "rank",
+      "description": "Rank synced listings by price-per-sqft, with optional HOA-fee subtraction over a 5-year horizon.",
+      "rationale": "Redfin's sort options are price-only; net-HOA $/sqft is the metric small-portfolio investors actually screen by, and no scraper or API exposes it.",
+      "example": "redfin-pp-cli rank --by price-per-sqft --net-hoa --region-id 30772 --region-type 6 --json --limit 25",
+      "why_it_matters": "Pick this when value-per-dollar is the goal and HOA-heavy condos must compete fairly against single-family.",
+      "group": "Local-store math"
+    },
+    {
+      "name": "Side-by-side compare",
+      "command": "compare",
+      "description": "Pull 2-8 listings through the combined Stingray detail endpoint and emit aligned columnar output (price, $/sqft, beds, baths, lot, year, schools, AVM delta, last sale, taxes).",
+      "rationale": "Redfin has no compare view. Aligning fields across listings lives only in the local-store pivot.",
+      "example": "redfin-pp-cli compare \u003cyour-listing-url\u003e \u003canother-listing-url\u003e --json",
+      "why_it_matters": "Pick this when narrowing a shortlist; the wide table makes school-rating and AVM-delta differences obvious.",
+      "group": "Shortlist workflows"
+    },
+    {
+      "name": "Sold-comp recipe",
+      "command": "comps",
+      "description": "For a subject listing, derive a circular polygon from --radius, run a sold-status search, filter by --sqft-tol and --bed-match, return the ranked comp set.",
+      "rationale": "Redfin's polygon tool is clumsy and resets between sessions. Saving a 'comp recipe' as flags lives only in a CLI.",
+      "example": "redfin-pp-cli comps \u003cyour-listing-url\u003e --radius 0.5 --sqft-tol 15 --months 6 --bed-match --json",
+      "why_it_matters": "Pick this when an agent needs to pull comparable sales for a buyer offer; collapses 20 minutes of polygon-clicking into one command.",
+      "group": "Shortlist workflows"
+    },
+    {
+      "name": "Stale + price-drop scan",
+      "command": "drops",
+      "description": "List active listings whose price dropped by N% in a window, OR whose days-on-market exceed a threshold.",
+      "rationale": "DOM is buried inside Redfin's listing pages and not exposed in search results; price-drop history is a per-listing lookup. Both are time-series queries against the local snapshot table.",
+      "example": "redfin-pp-cli drops --region-id 30772 --region-type 6 --since 7d --min-pct 3 --dom-min 30 --json",
+      "why_it_matters": "Pick this when timing the market or surfacing lowball candidates before tour scheduling.",
+      "group": "Time-series intelligence"
+    },
+    {
+      "name": "Multi-region union ranking",
+      "command": "rank",
+      "description": "Union synced listings across multiple region slugs and rank across the entire set, deduped by listing URL.",
+      "rationale": "Redfin's UI is single-region per query; cross-region union is the relocator and multi-zip investor view that the website cannot produce.",
+      "example": "redfin-pp-cli rank --regions 30772,30773,30774 --by price-per-sqft --beds-min 3 --price-max 600000 --json --limit 25",
+      "why_it_matters": "Pick this when an agent needs a single ranked feed across multiple metros without writing a fan-out loop.",
+      "group": "Cross-market joins"
+    },
+    {
+      "name": "Trends overlay across regions",
+      "command": "trends",
+      "description": "Pull aggregate-trends for N regions and emit one tidy long table (region × month × metric) over a window.",
+      "rationale": "Redfin's market-trends page shows one region at a time; cross-region overlay over the same N-month window requires joining N API calls into one tidy frame.",
+      "example": "redfin-pp-cli trends --regions 30743,18028,30739 --metric median-sale --period 24 --json",
+      "why_it_matters": "Pick this when a relocator is comparing cities and needs the medians overlaid on the same axis.",
+      "group": "Cross-market joins"
+    },
+    {
+      "name": "Bulk export past the 350 cap",
+      "command": "export",
+      "description": "Slice the price space into bands, page-walk gis-csv per band until each returns under 350 rows, dedupe on listing URL, emit one CSV/JSON.",
+      "rationale": "The 350-row gis-csv cap is the most-cited Redfin scraper limitation. Adaptive band-slicing fixes it; community scrapers reimplement this badly.",
+      "example": "redfin-pp-cli export --region-slug \"city/30772/TX/Austin\" --status sold --year 2024 --csv \u003e austin-sold-2024.csv",
+      "why_it_matters": "Pick this when you need every comp for a year, not the first 350 sorted by relevance.",
+      "group": "Bulk extraction"
+    },
+    {
+      "name": "Neighborhood market summary",
+      "command": "summary",
+      "description": "Single command: active count, pending count, sold-90d count, median list, median sold, median DOM, median $/sqft, % with price drops, plus a trends snapshot.",
+      "rationale": "Redfin spreads these stats across four pages; the join across local store and trends endpoint lives only in the CLI.",
+      "example": "redfin-pp-cli summary 30772:6 --json",
+      "why_it_matters": "Pick this when an agent needs the one-shot snapshot of a market for a buyer brief.",
+      "group": "Aggregations"
+    },
+    {
+      "name": "Region appreciation ranker",
+      "command": "appreciation",
+      "description": "For all child neighborhoods under a parent metro, call aggregate-trends and rank by YoY median-sale % change.",
+      "rationale": "Redfin shows trends per region but never ranks neighborhoods within a metro by appreciation.",
+      "example": "redfin-pp-cli appreciation --parent \"city/30772/TX/Austin\" --period 12 --json --limit 10",
+      "why_it_matters": "Pick this when a relocator or investor needs the 'where in this metro is hottest' answer.",
+      "group": "Aggregations"
+    }
+  ],
+  "narrative": {
+    "display_name": "Redfin",
+    "headline": "Stingray-backed Redfin CLI with the workflows the website can't do — saved-search diff, sold-price trends, $/sqft ranking, and offline SQL.",
+    "value_prop": "Search homes for sale via Redfin's internal Stingray endpoints from the terminal, sync results to a local SQLite store, and run the workflows the website never built: diff a saved search week-over-week with `watch`, rank by $/sqft net of HOA with `rank`, pull sold comps for a subject property with `comps`, surface price drops or stale listings with `drops`, and overlay market trends across multiple cities with `trends`. Every command is `--json` / `--select`-shaped so an agent can pipe the output without burning context.",
+    "auth_narrative": "No authentication required. The Stingray endpoints are the same ones Redfin's web app uses, served unauthenticated to US IPs. Account-only features (saved homes, alerts, agent dashboard) are intentionally out of scope. Surf with Chrome TLS fingerprint clears AWS-WAF protection at runtime; cliutil.AdaptiveLimiter handles per-IP rate limits with exponential backoff.",
+    "quickstart": [
+      {
+        "command": "redfin-pp-cli region resolve \"Austin, TX\" --json",
+        "comment": "First — resolve the canonical region_id you need for every search."
+      },
+      {
+        "command": "redfin-pp-cli homes --region-id 30772 --region-type 6 --beds-min 3 --price-max 600000 --status for-sale --json --limit 10",
+        "comment": "Search — verifies Stingray endpoints respond and JSON output is well-formed."
+      },
+      {
+        "command": "redfin-pp-cli sync-search austin-3br --region-id 30772 --region-type 6 --beds-min 3 --price-max 600000 --status for-sale",
+        "comment": "Persist that search to the local store under slug 'austin-3br'."
+      },
+      {
+        "command": "redfin-pp-cli rank --by price-per-sqft --net-hoa --region-id 30772 --region-type 6 --json --limit 10",
+        "comment": "Rank synced listings by net-HOA $/sqft — the metric Redfin's sort never offers."
+      },
+      {
+        "command": "redfin-pp-cli watch austin-3br --since 7d --json",
+        "comment": "After a few days — diff against the previous sync and emit NEW / REMOVED / PRICE-CHANGED / STATUS-CHANGED."
+      },
+      {
+        "command": "redfin-pp-cli summary 30772:6 --json",
+        "comment": "One-shot market snapshot: active, pending, sold-90d, medians, % with price drops."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "homes / region returns HTTP 403 or 429",
+        "fix": "Surf cleared the homepage but Redfin rate-limits per IP. Run `redfin-pp-cli doctor` and wait 30-60 seconds before retrying; cliutil.AdaptiveLimiter will back off automatically."
+      },
+      {
+        "symptom": "All commands return 403 from non-US IPs",
+        "fix": "Stingray is geo-restricted to US IPs. Run from a US-based machine, or use a US VPN."
+      },
+      {
+        "symptom": "watch reports no changes when you know listings changed",
+        "fix": "Confirm a previous `sync-search` exists. Check with: `sqlite3 ~/.local/share/redfin-pp-cli/data.db \"SELECT MAX(observed_at) FROM listing_snapshots WHERE saved_search = 'austin-3br'\"`. If empty, run sync first."
+      },
+      {
+        "symptom": "rank or summary returns empty",
+        "fix": "These read from the local store. Run `sync-search` first. Check with: `sqlite3 ~/.local/share/redfin-pp-cli/data.db \"SELECT COUNT(*) FROM listing\"`."
+      },
+      {
+        "symptom": "export hits the 350-row cap on a single price band",
+        "fix": "The bulk exporter slices the price space automatically. If a band is still saturated, narrow `--status` or split by `--year`."
+      },
+      {
+        "symptom": "JSON parse error: unexpected token at offset 0",
+        "fix": "Stingray wraps responses in `{}\u0026\u0026{...}`. The CLI strips the prefix automatically; if you're calling the API directly, drop the first 4 bytes before parsing."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or human needs structured Redfin data and needs the workflows the website itself doesn't expose: cross-region diffs over time, $/sqft rankings net of HOA, sold-comp recipes for a subject property, market-trends overlays across cities, and digest-style summaries. Reach for it for buyer comparison-shopping, investor screening across multiple zips, relocator city comparisons, and buyer's-agent comp pulls. Skip it for one-off browsing — the redfin.com website is fine for that.",
+    "recipes": [
+      {
+        "title": "Three-metro relocator overlay",
+        "command": "redfin-pp-cli trends --regions 30743,18028,30739 --metric median-sale --period 24 --json --select rows.region,rows.month,rows.value",
+        "explanation": "Pulls aggregate-trends for all three metros over the same 24-month window, joins them into one tidy long table for export — the overlay Redfin's UI never produces."
+      },
+      {
+        "title": "Buyer's-agent comp pull in one command",
+        "command": "redfin-pp-cli comps \u003cyour-listing-url\u003e --radius 0.5 --sqft-tol 15 --months 6 --bed-match --json",
+        "explanation": "Resolves the subject listing, derives a 0.5-mile circle, pulls sold homes in the last 6 months matching beds and within 15% sqft, returns the ranked comp set ready for a buyer offer brief."
+      },
+      {
+        "title": "Investor screen across 5 zips",
+        "command": "redfin-pp-cli rank --regions 30772,30773,30774,30775,30776 --by price-per-sqft --net-hoa --beds-min 3 --price-max 600000 --status for-sale --json --limit 25",
+        "explanation": "Unions synced searches across 5 Austin zips and ranks the full union by net-HOA $/sqft. Filter narrows to investor screen criteria; result is a single ranked feed Redfin cannot produce."
+      },
+      {
+        "title": "Weekly diff for a saved search",
+        "command": "redfin-pp-cli watch austin-3br --since 7d --json --select new_listings.url,new_listings.price,price_changed.url,price_changed.delta_pct",
+        "explanation": "Composes the watch result with --select to emit only the columns the agent needs — agents can drop straight into a weekly buyer email without extra parsing."
+      },
+      {
+        "title": "Bulk pull sold homes for 2024",
+        "command": "redfin-pp-cli export --region-slug \"city/30772/TX/Austin\" --status sold --year 2024 --csv \u003e austin-sold-2024.csv",
+        "explanation": "Slices the price space into bands, page-walks gis-csv per band, dedupes on listing URL across bands, emits a single CSV that exceeds Redfin's 350-row cap."
+      }
+    ],
+    "trigger_phrases": [
+      "find homes for sale in \u003ccity\u003e",
+      "watch redfin listings for \u003carea\u003e",
+      "rank houses by price per square foot",
+      "pull sold comps for \u003caddress\u003e",
+      "compare these redfin listings",
+      "use redfin-pp-cli",
+      "run redfin"
+    ]
+  }
+}

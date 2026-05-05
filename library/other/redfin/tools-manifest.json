@@ -1,0 +1,95 @@
+{
+  "api_name": "redfin",
+  "base_url": "https://www.redfin.com",
+  "description": "Search Redfin homes for sale via internal Stingray endpoints, sync to local SQLite, and run workflows the website doesn't expose — saved-search diff, $/sqft net-HOA ranking, sold comps, multi-region trends.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "homes_list",
+      "description": "Run a Stingray gis search and return parsed listing rows from the JSON map payload. Strip the {}\u0026\u0026 CSRF prefix before decoding. Optional: region_id (default: 30772), region_type (default: 6), status (default: 1) (plus 2 more).",
+      "method": "GET",
+      "path": "/stingray/api/gis",
+      "params": [
+        {
+          "name": "region_id",
+          "type": "integer",
+          "location": "query",
+          "description": "Redfin region ID (numeric). Find it by inspecting a redfin.com/city/\u003cid\u003e/... URL or via `region resolve`."
+        },
+        {
+          "name": "region_type",
+          "type": "integer",
+          "location": "query",
+          "description": "Redfin region type code: 6=city, 1=zip, 2=state, 4=metro, 11=neighborhood."
+        },
+        {
+          "name": "status",
+          "type": "integer",
+          "location": "query",
+          "description": "Listing status: 1=active for-sale, 7=sold, 9=pending, 130=coming-soon. Compose with --sf for sold."
+        },
+        {
+          "name": "num_homes",
+          "type": "integer",
+          "location": "query",
+          "description": "Number of homes to return per page (max 350)."
+        },
+        {
+          "name": "page_number",
+          "type": "integer",
+          "location": "query",
+          "description": "1-indexed page number."
+        }
+      ]
+    },
+    {
+      "name": "listing_initial",
+      "description": "First Stingray call for a listing — returns the canonical listingId and propertyId from the URL path. Required: path (default: /TX/Austin/example/home/12345).",
+      "method": "GET",
+      "path": "/stingray/api/home/details/initialInfo",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "query",
+          "description": "URL path of the listing (e.g. /TX/Austin/123-Main-St-78704/home/12345).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "market_trends",
+      "description": "Fetch aggregate-trends JSON for one region and period (months). Required: region_type (default: 6), region_id (default: 30772), period_months (default: 24).",
+      "method": "GET",
+      "path": "/stingray/api/region/{region_type}/{region_id}/{period_months}/aggregate-trends",
+      "params": [
+        {
+          "name": "region_type",
+          "type": "integer",
+          "location": "path",
+          "description": "Region type code (6=city, 1=zip, 2=state, 4=metro, 11=neighborhood).",
+          "required": true
+        },
+        {
+          "name": "region_id",
+          "type": "integer",
+          "location": "path",
+          "description": "Numeric region ID.",
+          "required": true
+        },
+        {
+          "name": "period_months",
+          "type": "integer",
+          "location": "path",
+          "description": "Window in months (typical: 12 or 24).",
+          "required": true
+        }
+      ]
+    }
+  ]
+}
