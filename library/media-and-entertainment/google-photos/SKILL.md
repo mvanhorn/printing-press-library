@@ -1,0 +1,200 @@
+---
+name: pp-google-photos
+description: "Printing Press CLI for Google Photos. Google Photos Library and Picker APIs for app-created media, albums, uploads, and user-selected media."
+argument-hint: "<command> [args] | install cli|mcp"
+allowed-tools: "Read Bash"
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - google-photos-pp-cli
+    install:
+      - kind: go
+        bins: [google-photos-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/media-and-entertainment/google-photos/cmd/google-photos-pp-cli
+---
+
+# Google Photos — Printing Press CLI
+
+Google Photos Library and Picker APIs for app-created media, albums, uploads, and user-selected media.
+
+## Command Reference
+
+**albums** — Manage app-created Google Photos albums.
+
+- `google-photos-pp-cli albums add-enrichment` — Add text, location, or map enrichment to an app-created album.
+- `google-photos-pp-cli albums batch-add-media-items` — Add app-created media items to an app-created album.
+- `google-photos-pp-cli albums batch-remove-media-items` — Remove app-created media items from an app-created album.
+- `google-photos-pp-cli albums create` — Create an album in the user's Google Photos library.
+- `google-photos-pp-cli albums get` — Get an app-created album by ID.
+- `google-photos-pp-cli albums list` — List albums created by this app.
+- `google-photos-pp-cli albums patch` — Update title or cover photo on an app-created album.
+
+**media-items** — Manage app-created Google Photos media items.
+
+- `google-photos-pp-cli media-items batch-create` — Create media items from upload tokens.
+- `google-photos-pp-cli media-items batch-get` — Get multiple app-created media items by ID.
+- `google-photos-pp-cli media-items get` — Get an app-created media item by ID.
+- `google-photos-pp-cli media-items list` — List media items created by this app.
+- `google-photos-pp-cli media-items patch` — Update the description on an app-created media item.
+- `google-photos-pp-cli media-items search` — Search app-created media items by album or filters.
+
+**picker** — Create, poll, clean up, and read Google Photos Picker sessions.
+
+- `google-photos-pp-cli picker create-session` — Create a Picker session and return the picker URI.
+- `google-photos-pp-cli picker delete-session` — Delete a Picker session after selected media bytes have been retrieved.
+- `google-photos-pp-cli picker get-session` — Get Picker session status.
+- `google-photos-pp-cli picker list-media-items` — List media items picked by the user during a Picker session.
+
+
+**Hand-written commands**
+
+- `google-photos-pp-cli upload file <path>` — Upload raw photo or video bytes and print the upload token for media-items batch-create.
+- `google-photos-pp-cli picker wait <session-id>` — Poll a Picker session until selected media items are ready.
+
+## Google Photos Scope Limits
+
+Google Photos Library API read and edit scopes are limited to app-created albums and media. Use Library API commands here for app-created content, uploads, and album/media management. Use Picker commands when a user needs to select media from their broader Google Photos library.
+
+
+### Finding the right command
+
+When you know what you want to do but not which command does it, ask the CLI directly:
+
+```bash
+google-photos-pp-cli which "<capability in your own words>"
+```
+
+`which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
+
+## Auth Setup
+
+Authenticate via the browser:
+
+```bash
+google-photos-pp-cli auth login --client-id "$GOOGLE_PHOTOS_CLIENT_ID"
+```
+
+Tokens are stored locally and refreshed automatically.
+
+Run `google-photos-pp-cli doctor` to verify setup.
+
+## Agent Mode
+
+Add `--agent` to any command. Expands to: `--json --compact --no-input --no-color --yes`.
+
+- **Pipeable** — JSON on stdout, errors on stderr
+- **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
+
+  ```bash
+  google-photos-pp-cli albums list --agent --select id,name,status
+  ```
+- **Previewable** — `--dry-run` shows the request without sending
+- **Offline-friendly** — sync/search commands can use the local SQLite store when available
+- **Non-interactive** — never prompts, every input is a flag
+
+### Response envelope
+
+Commands that read from the local store or the API wrap output in a provenance envelope:
+
+```json
+{
+  "meta": {"source": "live" | "local", "synced_at": "...", "reason": "..."},
+  "results": <data>
+}
+```
+
+Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal — piped/agent consumers get pure JSON on stdout.
+
+## Agent Feedback
+
+When you (or the agent) notice something off about this CLI, record it:
+
+```
+google-photos-pp-cli feedback "the --since flag is inclusive but docs say exclusive"
+google-photos-pp-cli feedback --stdin < notes.txt
+google-photos-pp-cli feedback list --json --limit 10
+```
+
+Entries are stored locally at `~/.google-photos-pp-cli/feedback.jsonl`. They are never POSTed unless `GOOGLE_PHOTOS_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `GOOGLE_PHOTOS_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
+
+Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
+
+## Output Delivery
+
+Every command accepts `--deliver <sink>`. The output goes to the named sink in addition to (or instead of) stdout, so agents can route command results without hand-piping. Three sinks are supported:
+
+| Sink | Effect |
+|------|--------|
+| `stdout` | Default; write to stdout only |
+| `file:<path>` | Atomically write output to `<path>` (tmp + rename) |
+| `webhook:<url>` | POST the output body to the URL (`application/json` or `application/x-ndjson` when `--compact`) |
+
+Unknown schemes are refused with a structured error naming the supported set. Webhook failures return non-zero and log the URL + HTTP status on stderr.
+
+## Named Profiles
+
+A profile is a saved set of flag values, reused across invocations. Use it when a scheduled agent calls the same command every run with the same configuration - HeyGen's "Beacon" pattern.
+
+```
+google-photos-pp-cli profile save briefing --json
+google-photos-pp-cli --profile briefing albums list
+google-photos-pp-cli profile list --json
+google-photos-pp-cli profile show briefing
+google-photos-pp-cli profile delete briefing --yes
+```
+
+Explicit flags always win over profile values; profile values win over defaults. `agent-context` lists all available profiles under `available_profiles` so introspecting agents discover them at runtime.
+
+## Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | Success |
+| 2 | Usage error (wrong arguments) |
+| 3 | Resource not found |
+| 4 | Authentication required |
+| 5 | API error (upstream issue) |
+| 7 | Rate limited (wait and retry) |
+| 10 | Config error |
+
+## Argument Parsing
+
+Parse `$ARGUMENTS`:
+
+1. **Empty, `help`, or `--help`** → show `google-photos-pp-cli --help` output
+2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → CLI installation
+3. **Anything else** → Direct Use (execute as CLI command with `--agent`)
+
+## CLI Installation
+
+1. Check Go is installed: `go version` (requires Go 1.23+)
+2. Install:
+   ```bash
+   go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/google-photos/cmd/google-photos-pp-cli@latest
+   ```
+3. Verify: `google-photos-pp-cli --version`
+4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+## MCP Server Installation
+
+1. Install the MCP server:
+   ```bash
+   go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/google-photos/cmd/google-photos-pp-mcp@latest
+   ```
+2. Register with Claude Code:
+   ```bash
+   claude mcp add google-photos-pp-mcp -- google-photos-pp-mcp
+   ```
+3. Verify: `claude mcp list`
+
+## Direct Use
+
+1. Check if installed: `which google-photos-pp-cli`
+   If not found, offer to install (see CLI Installation above).
+2. Match the user query to the best command from the Unique Capabilities and Command Reference above.
+3. Execute with the `--agent` flag:
+   ```bash
+   google-photos-pp-cli <command> [subcommand] [args] --agent
+   ```
+4. If ambiguous, drill into subcommand help: `google-photos-pp-cli <command> --help`.

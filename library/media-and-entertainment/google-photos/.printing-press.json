@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-05T15:51:53.261677Z",
+  "printing_press_version": "3.9.1",
+  "api_name": "google-photos",
+  "display_name": "Google Photos",
+  "cli_name": "google-photos-pp-cli",
+  "run_id": "20260505-152800",
+  "owner": "user",
+  "spec_url": "https://developers.google.com/photos",
+  "spec_path": "catalog/specs/google-photos.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:8fb7897ad3903197db1f21eeed123558804474e212cb1a928adc4e70761a0454",
+  "description": "Manage Google Photos app-created albums and media, upload files, and work with Picker sessions from the terminal.",
+  "mcp_binary": "google-photos-pp-mcp",
+  "mcp_tool_count": 19,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "oauth2",
+  "auth_env_vars": [
+    "GOOGLE_PHOTOS_TOKEN"
+  ],
+  "auth_key_url": "https://console.cloud.google.com/apis/credentials",
+  "novel_features": [
+    {
+      "name": "Raw upload-token command",
+      "command": "upload file",
+      "description": "Upload photo or video bytes to Google Photos' raw upload endpoint and return the upload token needed by media-items batch-create."
+    },
+    {
+      "name": "Picker readiness waiter",
+      "command": "picker wait",
+      "description": "Poll Picker sessions until mediaItemsSet is true, using Google's returned polling interval and timeout guidance when present."
+    }
+  ]
+}

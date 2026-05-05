@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "google-photos",
+  "run_id": "20260505-152800",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 6,
+  "tests_passed": 6,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "oauth2",
+    "api_key_available": true
+  }
+}
