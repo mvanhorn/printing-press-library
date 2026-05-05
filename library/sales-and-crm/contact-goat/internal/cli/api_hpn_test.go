@@ -28,11 +28,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
+	"sync/atomic"
 	"testing"
 
 	"github.com/spf13/cobra"
@@ -714,5 +716,198 @@ func TestAPIHpnSearch_NegativeMinScoreUsageErr(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "--min-score") {
 		t.Errorf("error should mention --min-score, got: %v", err)
+	}
+}
+
+// --- 7. U2: --all auto-pagination + --max-results + budget gate ---
+
+// TestAPIHpnSearch_AllRequiresCap pins the safety guard: --all alone with
+// no --max-results AND no --budget is rejected as a usage error to prevent
+// unbounded credit spend.
+func TestAPIHpnSearch_AllRequiresCap(t *testing.T) {
+	flags := &rootFlags{dryRun: true, yes: true}
+	root := newAPIHpnRootCmd(t, flags)
+	_, _, err := runCmd(t, root, []string{"api", "hpn", "search", "--all", "test"})
+	if err == nil {
+		t.Fatal("want usage error for --all without --max-results or --budget")
+	}
+	if !strings.Contains(err.Error(), "--all requires") {
+		t.Errorf("error should mention --all requires bound, got: %v", err)
+	}
+}
+
+// TestAPIHpnSearch_MaxResultsWithoutAllUsageErr: --max-results only makes
+// sense in pagination mode.
+func TestAPIHpnSearch_MaxResultsWithoutAllUsageErr(t *testing.T) {
+	flags := &rootFlags{dryRun: true, yes: true}
+	root := newAPIHpnRootCmd(t, flags)
+	_, _, err := runCmd(t, root, []string{"api", "hpn", "search", "--max-results", "100", "test"})
+	if err == nil {
+		t.Fatal("want usage error for --max-results without --all")
+	}
+	if !strings.Contains(err.Error(), "--max-results requires --all") {
+		t.Errorf("error should mention --max-results requires --all, got: %v", err)
+	}
+}
+
+// newFakeBearerPaginatedServer stands up a multi-page fixture: each
+// page returns N rows with has_more=true until a configured page count
+// is reached. Tracks find-more invocations so tests can assert exact
+// pagination depth.
+type paginatedServer struct {
+	srv          *httptest.Server
+	findMoreHits *int32
+	pollHits     *int32
+}
+
+func newFakeBearerPaginatedServer(t *testing.T, pagesAvailable int, rowsPerPage int) *paginatedServer {
+	t.Helper()
+	var findMoreHits int32
+	var pollHits int32
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/search", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		_, _ = w.Write([]byte(`{"id":"srch_paginated","url":"https://h.ai/s/p"}`))
+	})
+	mux.HandleFunc("/search/", func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == http.MethodPost && strings.HasSuffix(r.URL.Path, "/find-more"):
+			n := atomic.AddInt32(&findMoreHits, 1)
+			pageID := fmt.Sprintf("page_%d", n)
+			_, _ = w.Write([]byte(fmt.Sprintf(`{"page_id":%q,"parent_search_id":"srch_paginated"}`, pageID)))
+		case r.Method == http.MethodGet:
+			n := atomic.AddInt32(&pollHits, 1)
+			pageID := r.URL.Query().Get("page_id")
+			pageNum := 1
+			if pageID != "" {
+				_, _ = fmt.Sscanf(pageID, "page_%d", &pageNum)
+				pageNum++ // page_1 is the second page
+			}
+			hasMore := pageNum < pagesAvailable
+			rows := make([]string, 0, rowsPerPage)
+			for i := 0; i < rowsPerPage; i++ {
+				rows = append(rows, fmt.Sprintf(`{"name":"P%d-R%d","weighted_traits_score":%d}`, pageNum, i+1, 50-i))
+			}
+			body := fmt.Sprintf(`{"id":"srch_paginated","status":"COMPLETED","results":[%s],"has_more":%v}`, strings.Join(rows, ","), hasMore)
+			_, _ = w.Write([]byte(body))
+			_ = n
+		default:
+			http.NotFound(w, r)
+		}
+	})
+	srv := httptest.NewServer(mux)
+	return &paginatedServer{srv: srv, findMoreHits: &findMoreHits, pollHits: &pollHits}
+}
+
+// TestRunHpnSearchAll_HappyPath: 3 pages × 5 rows, no cap, accumulates
+// all 15 rows.
+func TestRunHpnSearchAll_HappyPath(t *testing.T) {
+	ps := newFakeBearerPaginatedServer(t, 3, 5)
+	defer ps.srv.Close()
+	c := api.NewClient("hpn_live_personal_test", api.WithBaseURL(ps.srv.URL))
+	firstEnv, err := runHpnSearch(context.Background(), c, "test", &api.SearchOptions{}, &api.PollSearchOptions{})
+	if err != nil {
+		t.Fatalf("runHpnSearch: %v", err)
+	}
+	flags := &rootFlags{asJSON: true}
+	cmd := &cobra.Command{}
+	cmd.SetContext(context.Background())
+	var out, errBuf bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&errBuf)
+	if err := runHpnSearchAll(cmd, flags, c, firstEnv, "test", "", false, 0, 0, 100, &api.PollSearchOptions{}); err != nil {
+		t.Fatalf("runHpnSearchAll: %v", err)
+	}
+	got := decodeHpnEnvelope(t, &out)
+	if got.Count != 15 {
+		t.Errorf("count = %d, want 15 (3 pages * 5 rows)", got.Count)
+	}
+	if atomic.LoadInt32(ps.findMoreHits) != 2 {
+		t.Errorf("find-more hits = %d, want 2 (pages 2 and 3 only; page 1 was the initial POST)", atomic.LoadInt32(ps.findMoreHits))
+	}
+}
+
+// TestRunHpnSearchAll_MaxResultsCap: hits the cap mid-pagination, emits
+// the partial set, prints a "reached --max-results" notice on stderr.
+func TestRunHpnSearchAll_MaxResultsCap(t *testing.T) {
+	ps := newFakeBearerPaginatedServer(t, 5, 5)
+	defer ps.srv.Close()
+	c := api.NewClient("hpn_live_personal_test", api.WithBaseURL(ps.srv.URL))
+	firstEnv, _ := runHpnSearch(context.Background(), c, "test", &api.SearchOptions{}, &api.PollSearchOptions{})
+	flags := &rootFlags{asJSON: true}
+	cmd := &cobra.Command{}
+	cmd.SetContext(context.Background())
+	var out, errBuf bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&errBuf)
+	// Cap at 7: page 1 = 5 rows, page 2 brings total to 10 (>= 7), then
+	// loop checks the cap before fetching page 3.
+	if err := runHpnSearchAll(cmd, flags, c, firstEnv, "test", "", false, 0, 7, 0, &api.PollSearchOptions{}); err != nil {
+		t.Fatalf("runHpnSearchAll: %v", err)
+	}
+	got := decodeHpnEnvelope(t, &out)
+	if got.Count != 10 {
+		t.Errorf("count = %d, want 10 (page 1 + page 2; loop stops before page 3 since count >= cap)", got.Count)
+	}
+	if !strings.Contains(errBuf.String(), "reached --max-results 7") {
+		t.Errorf("stderr should report cap reached, got: %s", errBuf.String())
+	}
+}
+
+// TestRunHpnSearchAll_BudgetExhaustion: budget allows 1 find-more; the
+// loop bails before the second find-more.
+func TestRunHpnSearchAll_BudgetExhaustion(t *testing.T) {
+	ps := newFakeBearerPaginatedServer(t, 5, 5)
+	defer ps.srv.Close()
+	c := api.NewClient("hpn_live_personal_test", api.WithBaseURL(ps.srv.URL))
+	firstEnv, _ := runHpnSearch(context.Background(), c, "test", &api.SearchOptions{}, &api.PollSearchOptions{})
+	flags := &rootFlags{asJSON: true}
+	cmd := &cobra.Command{}
+	cmd.SetContext(context.Background())
+	var out, errBuf bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&errBuf)
+	// Budget 4: initial 2 + one find-more (2 more = 4). Next find-more
+	// would be 6, exceeding budget; loop bails.
+	if err := runHpnSearchAll(cmd, flags, c, firstEnv, "test", "", false, 0, 0, 4, &api.PollSearchOptions{}); err != nil {
+		t.Fatalf("runHpnSearchAll: %v", err)
+	}
+	got := decodeHpnEnvelope(t, &out)
+	if got.Count != 10 {
+		t.Errorf("count = %d, want 10 (page 1 + page 2 = 10 rows; budget=4 stops before page 3)", got.Count)
+	}
+	if !strings.Contains(errBuf.String(), "exceed --budget 4") {
+		t.Errorf("stderr should report budget exceeded, got: %s", errBuf.String())
+	}
+}
+
+// TestRunHpnSearchAll_HasMoreFalseStopsImmediately: when the initial
+// page already has has_more=false, no find-more calls are made.
+func TestRunHpnSearchAll_HasMoreFalseStopsImmediately(t *testing.T) {
+	ps := newFakeBearerPaginatedServer(t, 1, 5)
+	defer ps.srv.Close()
+	c := api.NewClient("hpn_live_personal_test", api.WithBaseURL(ps.srv.URL))
+	firstEnv, _ := runHpnSearch(context.Background(), c, "test", &api.SearchOptions{}, &api.PollSearchOptions{})
+	if firstEnv.HasMore {
+		t.Fatalf("fixture seeded for single page should have HasMore=false, got true")
+	}
+	flags := &rootFlags{asJSON: true}
+	cmd := &cobra.Command{}
+	cmd.SetContext(context.Background())
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	if err := runHpnSearchAll(cmd, flags, c, firstEnv, "test", "", false, 0, 100, 100, &api.PollSearchOptions{}); err != nil {
+		t.Fatalf("runHpnSearchAll: %v", err)
+	}
+	got := decodeHpnEnvelope(t, &out)
+	if got.Count != 5 {
+		t.Errorf("count = %d, want 5 (single page only)", got.Count)
+	}
+	if atomic.LoadInt32(ps.findMoreHits) != 0 {
+		t.Errorf("find-more hits = %d, want 0 (has_more=false stops loop)", atomic.LoadInt32(ps.findMoreHits))
 	}
 }

@@ -79,6 +79,8 @@ func newAPIHpnSearchCmd(flags *rootFlags) *cobra.Command {
 		budget                    int
 		pollTimeoutSec            int
 		pollIntervalSec           int
+		allPages                  bool
+		maxResults                int
 	)
 
 	cmd := &cobra.Command{
@@ -110,6 +112,15 @@ and ` + "`api hpn search get <id> [--page-id ID]`" + `.`,
 			}
 			if minScore < 0 {
 				return usageErr(fmt.Errorf("--min-score must be >= 0 (got %g)", minScore))
+			}
+			if maxResults < 0 {
+				return usageErr(fmt.Errorf("--max-results must be >= 0 (got %d)", maxResults))
+			}
+			if maxResults > 0 && !allPages {
+				return usageErr(fmt.Errorf("--max-results requires --all (it only caps the auto-pagination loop)"))
+			}
+			if allPages && maxResults == 0 && budget == 0 {
+				return usageErr(fmt.Errorf("--all requires at least one of --max-results N or --budget N to bound the credit spend"))
 			}
 
 			c, err := flags.newHappenstanceAPIClient()
@@ -152,7 +163,7 @@ and ` + "`api hpn search get <id> [--page-id ID]`" + `.`,
 			}
 			pollOpts := buildPollSearchOptions(pollTimeoutSec, pollIntervalSec, "")
 
-			env, err := runHpnSearch(cmd.Context(), c, text, opts, pollOpts)
+			firstEnv, err := runHpnSearch(cmd.Context(), c, text, opts, pollOpts)
 			if err != nil {
 				return classifyHpnError(err)
 			}
@@ -166,7 +177,10 @@ and ` + "`api hpn search get <id> [--page-id ID]`" + `.`,
 			// BridgeKindFriend, which matches today's behavior.
 			currentUUID := lookupCurrentUserUUID(flags)
 
-			return emitHpnSearchEnvelope(cmd, flags, env, text, currentUUID, firstDegreeOnly, minScore)
+			if !allPages {
+				return emitHpnSearchEnvelope(cmd, flags, firstEnv, text, currentUUID, firstDegreeOnly, minScore)
+			}
+			return runHpnSearchAll(cmd, flags, c, firstEnv, text, currentUUID, firstDegreeOnly, minScore, maxResults, budget, pollOpts)
 		},
 	}
 
@@ -174,6 +188,8 @@ and ` + "`api hpn search get <id> [--page-id ID]`" + `.`,
 	cmd.Flags().BoolVar(&includeMyConnections, "include-my-connections", false, "Include your own LinkedIn-synced connections (1st-degree)")
 	cmd.Flags().BoolVar(&firstDegreeOnly, "first-degree-only", false, "Keep only results where you have a 1st-degree (self_graph) bridge. Implies --include-my-connections.")
 	cmd.Flags().Float64Var(&minScore, "min-score", 0, "Drop results with score below this threshold. 0 (default) disables the filter; >= 5 typically drops weak-signal public-graph hits. See docs/scoring.md.")
+	cmd.Flags().BoolVar(&allPages, "all", false, "Auto-paginate via find-more until has_more=false, --max-results N, or --budget N. Each find-more spends 2 credits.")
+	cmd.Flags().IntVar(&maxResults, "max-results", 0, "Cap on raw results when --all is set. 0 (default) means unbounded; --all then requires --budget for safety.")
 	cmd.Flags().StringSliceVar(&groupIDs, "group-id", nil, "Group id to scope the search to (repeatable). Discover via 'api hpn groups list'")
 	cmd.Flags().IntVar(&budget, "budget", 0, "Max credits to spend per call. 0 disables the budget gate (default).")
 	cmd.Flags().IntVar(&pollTimeoutSec, "poll-timeout", int(api.DefaultPollTimeout.Seconds()), "Max seconds to wait for the async search to converge")
@@ -288,6 +304,81 @@ re-fetching after a find-more call to surface the additional results.`,
 	return cmd
 }
 
+// runHpnSearchAll wraps the single-page runHpnSearch + emit flow with an
+// auto-pagination loop. Each find-more call costs CreditCostPerFindMore
+// credits; the loop stops when has_more=false, the running raw-result
+// count reaches maxResults, the next call would exceed budget, or the
+// context is cancelled.
+//
+// Pre-conditions enforced upstream by RunE:
+//   - allPages is true
+//   - at least one of (maxResults > 0, budget > 0)
+//
+// On budget exhaustion or cap hit, accumulated results are still emitted
+// (rather than discarded) with a stderr notice explaining why pagination
+// stopped. Bearer 402 (out of credits) mid-loop bails the same way.
+func runHpnSearchAll(cmd *cobra.Command, flags *rootFlags, c *api.Client, firstEnv api.SearchEnvelope, query, currentUUID string, firstDegreeOnly bool, minScore float64, maxResults, budget int, pollOpts *api.PollSearchOptions) error {
+	allRows := normalizeHpnPage(firstEnv, currentUUID)
+	pagesFetched := 1
+	creditsSpent := CreditCostPerSearch
+
+	hasMore := firstEnv.HasMore
+	searchID := firstEnv.Id
+
+	for hasMore {
+		if maxResults > 0 && len(allRows) >= maxResults {
+			fmt.Fprintf(cmd.ErrOrStderr(),
+				"reached --max-results %d after %d pages (%d credits spent); stopping pagination\n",
+				maxResults, pagesFetched, creditsSpent,
+			)
+			break
+		}
+		if budget > 0 && creditsSpent+CreditCostPerFindMore > budget {
+			fmt.Fprintf(cmd.ErrOrStderr(),
+				"next find-more would exceed --budget %d (already spent %d); stopping pagination after %d pages\n",
+				budget, creditsSpent, pagesFetched,
+			)
+			break
+		}
+
+		fmEnv, fmErr := c.FindMore(cmd.Context(), searchID)
+		if fmErr != nil {
+			fmt.Fprintf(cmd.ErrOrStderr(),
+				"find-more failed after %d pages (%d credits spent), emitting accumulated results: %v\n",
+				pagesFetched, creditsSpent, fmErr,
+			)
+			break
+		}
+		creditsSpent += CreditCostPerFindMore
+		fmt.Fprintf(cmd.ErrOrStderr(),
+			"page %d: spent %d credits (%d total)\n",
+			pagesFetched+1, CreditCostPerFindMore, creditsSpent,
+		)
+
+		pageOpts := &api.PollSearchOptions{PageID: fmEnv.PageId}
+		if pollOpts != nil {
+			pageOpts.Timeout = pollOpts.Timeout
+			pageOpts.Interval = pollOpts.Interval
+		}
+		pageEnv, pollErr := c.PollSearch(cmd.Context(), searchID, pageOpts)
+		if pollErr != nil {
+			fmt.Fprintf(cmd.ErrOrStderr(),
+				"poll for page %d failed, emitting %d accumulated results: %v\n",
+				pagesFetched+1, len(allRows), pollErr,
+			)
+			break
+		}
+		allRows = append(allRows, normalizeHpnPage(pageEnv, currentUUID)...)
+		hasMore = pageEnv.HasMore
+		pagesFetched++
+	}
+
+	envMeta := firstEnv
+	envMeta.HasMore = hasMore
+	envMeta.NextPage = ""
+	return renderHpnEnvelope(cmd, flags, allRows, envMeta, query, firstDegreeOnly, minScore)
+}
+
 // runHpnSearch is the POST + poll loop, factored out so tests can drive
 // it directly against an httptest fixture without going through cobra.
 func runHpnSearch(ctx context.Context, c *api.Client, text string, opts *api.SearchOptions, pollOpts *api.PollSearchOptions) (api.SearchEnvelope, error) {
@@ -315,20 +406,12 @@ func runHpnSearch(ctx context.Context, c *api.Client, text string, opts *api.Sea
 	return final, nil
 }
 
-// emitHpnSearchEnvelope renders an api.SearchEnvelope to either a JSON
-// envelope (jq-friendly) or a human-readable table, honoring the
-// --json / --quiet / --compact root flags.
-//
-// currentUUID retags the user's own self-entry in envelope mutuals to
-// BridgeKindSelfGraph so renderers (and the --first-degree-only filter)
-// can distinguish 1st-degree from 2nd-degree. Pass "" to disable retag.
-//
-// firstDegreeOnly drops rows lacking any self_graph bridge after retag.
-// minScore drops rows with score < minScore (after bridge-affinity score
-// promotion). Both filters are post-fetch and cost no extra credits.
-func emitHpnSearchEnvelope(cmd *cobra.Command, flags *rootFlags, env api.SearchEnvelope, query string, currentUUID string, firstDegreeOnly bool, minScore float64) error {
-	results := make([]hpnSearchResult, 0, len(env.Results))
-	totalBeforeFilters := len(env.Results)
+// normalizeHpnPage projects one page's api.SearchResult rows into
+// hpnSearchResult rows. Bridge retag uses currentUUID; filters are NOT
+// applied here so the multi-page caller can accumulate raw rows then
+// filter once at emit time.
+func normalizeHpnPage(env api.SearchEnvelope, currentUUID string) []hpnSearchResult {
+	rows := make([]hpnSearchResult, 0, len(env.Results))
 	for _, r := range env.Results {
 		p := api.ToClientPersonWithBridges(r, env.Mutuals, currentUUID)
 		row := hpnSearchResult{
@@ -345,36 +428,85 @@ func emitHpnSearchEnvelope(cmd *cobra.Command, flags *rootFlags, env api.SearchE
 				row.Score = score
 			}
 		}
-		if firstDegreeOnly && !hasSelfGraphBridge(p.Bridges) {
-			continue
+		rows = append(rows, row)
+	}
+	return rows
+}
+
+// filterHpnRows applies --first-degree-only and --min-score to a row
+// slice, returning the surviving rows and the count dropped.
+func filterHpnRows(rows []hpnSearchResult, firstDegreeOnly bool, minScore float64) ([]hpnSearchResult, int) {
+	if !firstDegreeOnly && minScore <= 0 {
+		return rows, 0
+	}
+	out := make([]hpnSearchResult, 0, len(rows))
+	for _, row := range rows {
+		if firstDegreeOnly {
+			hasSelf := false
+			for _, b := range row.Bridges {
+				if b.Kind == "self_graph" {
+					hasSelf = true
+					break
+				}
+			}
+			if !hasSelf {
+				continue
+			}
 		}
 		if minScore > 0 && row.Score < minScore {
 			continue
 		}
-		results = append(results, row)
+		out = append(out, row)
 	}
-	if (firstDegreeOnly || minScore > 0) && len(results) < totalBeforeFilters {
+	return out, len(rows) - len(out)
+}
+
+// renderHpnEnvelope applies filters to a pre-normalized row slice and
+// writes the final JSON-or-table envelope. envMeta supplies envelope-level
+// metadata (search_id, status, has_more, etc.) since the caller may have
+// stitched multiple pages together.
+func renderHpnEnvelope(cmd *cobra.Command, flags *rootFlags, rows []hpnSearchResult, envMeta api.SearchEnvelope, query string, firstDegreeOnly bool, minScore float64) error {
+	totalBeforeFilters := len(rows)
+	filtered, dropped := filterHpnRows(rows, firstDegreeOnly, minScore)
+	if dropped > 0 {
 		fmt.Fprintf(cmd.ErrOrStderr(),
 			"filters dropped %d of %d results (--first-degree-only=%v, --min-score=%g)\n",
-			totalBeforeFilters-len(results), totalBeforeFilters, firstDegreeOnly, minScore,
+			dropped, totalBeforeFilters, firstDegreeOnly, minScore,
 		)
 	}
 	out := hpnSearchEnvelope{
-		SearchID:  env.Id,
-		URL:       env.URL,
+		SearchID:  envMeta.Id,
+		URL:       envMeta.URL,
 		Query:     query,
-		Status:    env.Status,
+		Status:    envMeta.Status,
 		Source:    "api",
-		Completed: env.Status == api.StatusCompleted,
-		Count:     len(results),
-		Results:   results,
-		HasMore:   env.HasMore,
-		NextPage:  env.NextPage,
+		Completed: envMeta.Status == api.StatusCompleted,
+		Count:     len(filtered),
+		Results:   filtered,
+		HasMore:   envMeta.HasMore,
+		NextPage:  envMeta.NextPage,
 	}
 	if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 		return flags.printJSON(cmd, out)
 	}
 	return printHpnSearchTable(cmd.OutOrStdout(), out)
+}
+
+// emitHpnSearchEnvelope renders an api.SearchEnvelope to either a JSON
+// envelope (jq-friendly) or a human-readable table, honoring the
+// --json / --quiet / --compact root flags. Single-page convenience that
+// composes normalizeHpnPage + renderHpnEnvelope.
+//
+// currentUUID retags the user's own self-entry in envelope mutuals to
+// BridgeKindSelfGraph so renderers (and the --first-degree-only filter)
+// can distinguish 1st-degree from 2nd-degree. Pass "" to disable retag.
+//
+// firstDegreeOnly drops rows lacking any self_graph bridge after retag.
+// minScore drops rows with score < minScore (after bridge-affinity score
+// promotion). Both filters are post-fetch and cost no extra credits.
+func emitHpnSearchEnvelope(cmd *cobra.Command, flags *rootFlags, env api.SearchEnvelope, query string, currentUUID string, firstDegreeOnly bool, minScore float64) error {
+	rows := normalizeHpnPage(env, currentUUID)
+	return renderHpnEnvelope(cmd, flags, rows, env, query, firstDegreeOnly, minScore)
 }
 
 // lookupCurrentUserUUID best-effort fetches the authenticated user's
