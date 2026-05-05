@@ -24,6 +24,7 @@ func newOrganizationsUsersOrganizationsCreateOrganizationCmd(flags *rootFlags) *
 	var bodyHideBranding bool
 	var bodyLocale string
 	var bodyOrganizationRole string
+	var bodySkipNotificationEmail bool
 	var bodyTheme string
 	var bodyTimeFormat float64
 	var bodyTimeZone string
@@ -32,10 +33,10 @@ func newOrganizationsUsersOrganizationsCreateOrganizationCmd(flags *rootFlags) *
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "organizations-create-organization <orgId>",
-		Aliases: []string{"create"},
-		Short: "Create a user",
-		Example: "  cal-com-pp-cli organizations users organizations-create-organization 42 --email user@example.com",
+		Use:         "organizations-create-organization <orgId>",
+		Aliases:     []string{"create"},
+		Short:       "Required membership role: `org admin`. PBAC permission: `organization.invite`. Learn more about API access control...",
+		Example:     "  cal-com-pp-cli organizations users organizations-create-organization 42 --email user@example.com",
 		Annotations: map[string]string{"pp:endpoint": "users.organizations-create-organization"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -99,6 +100,9 @@ func newOrganizationsUsersOrganizationsCreateOrganizationCmd(flags *rootFlags) *
 				if bodyOrganizationRole != "" {
 					body["organizationRole"] = bodyOrganizationRole
 				}
+				if bodySkipNotificationEmail != false {
+					body["skipNotificationEmail"] = bodySkipNotificationEmail
+				}
 				if bodyTheme != "" {
 					body["theme"] = bodyTheme
 				}
@@ -129,7 +133,9 @@ func newOrganizationsUsersOrganizationsCreateOrganizationCmd(flags *rootFlags) *
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
@@ -181,7 +187,7 @@ func newOrganizationsUsersOrganizationsCreateOrganizationCmd(flags *rootFlags) *
 		},
 	}
 	cmd.Flags().StringVar(&bodyAppTheme, "app-theme", "", "Application theme")
-	cmd.Flags().BoolVar(&bodyAutoAccept, "auto-accept", true, "Auto accept")
+	cmd.Flags().BoolVar(&bodyAutoAccept, "auto-accept", true, "Must be true to ensure the organization membership is created in accepted state. If false, the user will have a...")
 	cmd.Flags().StringVar(&bodyAvatarUrl, "avatar-url", "", "Avatar URL")
 	cmd.Flags().StringVar(&bodyBio, "bio", "", "Bio")
 	cmd.Flags().StringVar(&bodyBrandColor, "brand-color", "", "Brand color in HEX format")
@@ -191,6 +197,7 @@ func newOrganizationsUsersOrganizationsCreateOrganizationCmd(flags *rootFlags) *
 	cmd.Flags().BoolVar(&bodyHideBranding, "hide-branding", false, "Hide branding")
 	cmd.Flags().StringVar(&bodyLocale, "locale", "en", "Locale")
 	cmd.Flags().StringVar(&bodyOrganizationRole, "organization-role", "MEMBER", "Organization role")
+	cmd.Flags().BoolVar(&bodySkipNotificationEmail, "skip-notification-email", false, "If true, the signup notification email will not be sent to the new user.")
 	cmd.Flags().StringVar(&bodyTheme, "theme", "", "Theme")
 	cmd.Flags().Float64Var(&bodyTimeFormat, "time-format", 0.0, "Time format")
 	cmd.Flags().StringVar(&bodyTimeZone, "time-zone", "", "Time zone")

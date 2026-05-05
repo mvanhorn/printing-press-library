@@ -14,10 +14,10 @@ import (
 func newBookingsCalendarLinksBookingsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "bookings-get <bookingUid>",
-		Aliases: []string{"get"},
-		Short: "Retrieve calendar links for a booking that can be used to add the event to various calendar services. Returns links...",
-		Example: "  cal-com-pp-cli bookings calendar-links bookings-get example-value",
+		Use:         "bookings-get <bookingUid>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieve calendar links for a booking that can be used to add the event to various calendar services. Returns links...",
+		Example:     "  cal-com-pp-cli bookings calendar-links bookings-get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "calendar-links.bookings-get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

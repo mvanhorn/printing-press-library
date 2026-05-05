@@ -29,8 +29,8 @@ func newBookingsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newBookingsReassignCmd(flags))
 	cmd.AddCommand(newBookingsRecordingsCmd(flags))
 	cmd.AddCommand(newBookingsReferencesCmd(flags))
+	cmd.AddCommand(newBookingsRequestRescheduleCmd(flags))
 	cmd.AddCommand(newBookingsRescheduleCmd(flags))
 	cmd.AddCommand(newBookingsTranscriptsCmd(flags))
-	cmd.AddCommand(newBookingsPendingCmd(flags))
 	return cmd
 }

@@ -13,6 +13,8 @@ func newOrganizationsBookingsCmd(flags *rootFlags) *cobra.Command {
 		Short: "Manage bookings",
 	}
 
+	cmd.AddCommand(newOrganizationsBookingsOrganizationsBlockOrgCmd(flags))
 	cmd.AddCommand(newOrganizationsBookingsOrganizationsGetAllOrgTeamCmd(flags))
+	cmd.AddCommand(newOrganizationsBookingsOrganizationsReportOrgCmd(flags))
 	return cmd
 }

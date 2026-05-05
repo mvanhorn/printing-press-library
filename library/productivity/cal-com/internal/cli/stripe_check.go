@@ -14,10 +14,10 @@ import (
 func newStripeCheckCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "check",
-		Aliases: []string{"list"},
-		Short: "Check Stripe connection",
-		Example: "  cal-com-pp-cli stripe check",
+		Use:         "check",
+		Aliases:     []string{"list"},
+		Short:       "Check Stripe connection",
+		Example:     "  cal-com-pp-cli stripe check",
 		Annotations: map[string]string{"pp:endpoint": "stripe.check", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

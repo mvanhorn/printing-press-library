@@ -17,9 +17,9 @@ func newOrganizationsRolesOrganizationsPermissionsAddPermissionsCmd(flags *rootF
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "organizations-permissions-add-permissions <orgId> <roleId>",
-		Short: "Add permissions to an organization role (single or batch)",
-		Example: "  cal-com-pp-cli organizations roles organizations-permissions-add-permissions 42 example-value",
+		Use:         "organizations-permissions-add-permissions <orgId> <roleId>",
+		Short:       "Required membership role: `org admin`. PBAC permission: `role.update`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations roles organizations-permissions-add-permissions 42 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "roles.organizations-permissions-add-permissions"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -38,7 +38,7 @@ func newOrganizationsRolesOrganizationsPermissionsAddPermissionsCmd(flags *rootF
 			path := "/v2/organizations/{orgId}/roles/{roleId}/permissions"
 			path = replacePathParam(path, "orgId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("roleId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "roleId"))
+				return usageErr(fmt.Errorf("roleId is required\nUsage: %s <%s>", cmd.CommandPath(), "roleId"))
 			}
 			path = replacePathParam(path, "roleId", args[1])
 			var body map[string]any
@@ -76,7 +76,9 @@ func newOrganizationsRolesOrganizationsPermissionsAddPermissionsCmd(flags *rootF
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

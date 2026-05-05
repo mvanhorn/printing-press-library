@@ -14,9 +14,9 @@ import (
 func newBookingsAttendeesBookingGetBookingBookingsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "booking-get-booking-bookings <bookingUid> <attendeeId>",
-		Short: "Retrieve a specific attendee by their ID for a booking identified by its UID. <Note>The cal-api-version header is...",
-		Example: "  cal-com-pp-cli bookings attendees booking-get-booking-bookings example-value 42",
+		Use:         "booking-get-booking-bookings <bookingUid> <attendeeId>",
+		Short:       "Retrieve a specific attendee by their ID for a booking identified by its UID. <Note>The cal-api-version header is...",
+		Example:     "  cal-com-pp-cli bookings attendees booking-get-booking-bookings 550e8400-e29b-41d4-a716-446655440000 42",
 		Annotations: map[string]string{"pp:endpoint": "attendees.booking-get-booking-bookings", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -30,7 +30,7 @@ func newBookingsAttendeesBookingGetBookingBookingsCmd(flags *rootFlags) *cobra.C
 			path := "/v2/bookings/{bookingUid}/attendees/{attendeeId}"
 			path = replacePathParam(path, "bookingUid", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("attendeeId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "attendeeId"))
+				return usageErr(fmt.Errorf("attendeeId is required\nUsage: %s <%s>", cmd.CommandPath(), "attendeeId"))
 			}
 			path = replacePathParam(path, "attendeeId", args[1])
 			params := map[string]string{}

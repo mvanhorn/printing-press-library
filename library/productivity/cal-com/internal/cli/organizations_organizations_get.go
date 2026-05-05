@@ -19,9 +19,9 @@ func newOrganizationsOrganizationsGetCmd(flags *rootFlags) *cobra.Command {
 	var flagMetadataValue string
 
 	cmd := &cobra.Command{
-		Use:   "get <orgId>",
-		Short: "Requires the user to have at least the 'ORG_ADMIN' role within the organization. Additionally, for platform, the...",
-		Example: "  cal-com-pp-cli organizations organizations get 42",
+		Use:         "get <orgId>",
+		Short:       "For platform, the plan must be 'SCALE' or higher to access this endpoint. Required membership role: `org admin`....",
+		Example:     "  cal-com-pp-cli organizations organizations get 42",
 		Annotations: map[string]string{"pp:endpoint": "organizations.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

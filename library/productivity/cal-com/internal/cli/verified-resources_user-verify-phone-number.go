@@ -18,9 +18,9 @@ func newVerifiedResourcesUserVerifyPhoneNumberCmd(flags *rootFlags) *cobra.Comma
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "user-verify-phone-number",
-		Short: "Use code to verify a phone number",
-		Example: "  cal-com-pp-cli verified-resources user-verify-phone-number --code example-value",
+		Use:         "user-verify-phone-number",
+		Short:       "Use code to verify a phone number. If accessed using an OAuth access token, the `VERIFIED_RESOURCES_WRITE` scope is...",
+		Example:     "  cal-com-pp-cli verified-resources user-verify-phone-number --code example-value",
 		Annotations: map[string]string{"pp:endpoint": "verified-resources.user-verify-phone-number"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -71,7 +71,9 @@ func newVerifiedResourcesUserVerifyPhoneNumberCmd(flags *rootFlags) *cobra.Comma
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

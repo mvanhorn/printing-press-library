@@ -14,9 +14,9 @@ import (
 func newOrganizationsTeamsOrganizationWorkflowsGetWorkflowByIdCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "organization-workflows-get-workflow-by-id <teamId> <workflowId> <orgId>",
-		Short: "Get organization team workflow",
-		Example: "  cal-com-pp-cli organizations teams organization-workflows-get-workflow-by-id 42 42 42",
+		Use:         "organization-workflows-get-workflow-by-id <teamId> <workflowId> <orgId>",
+		Short:       "Required membership role: `team admin`. PBAC permission: `workflow.read`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations teams organization-workflows-get-workflow-by-id 42 42 42",
 		Annotations: map[string]string{"pp:endpoint": "teams.organization-workflows-get-workflow-by-id", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -30,11 +30,11 @@ func newOrganizationsTeamsOrganizationWorkflowsGetWorkflowByIdCmd(flags *rootFla
 			path := "/v2/organizations/{orgId}/teams/{teamId}/workflows/{workflowId}"
 			path = replacePathParam(path, "teamId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("workflowId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "workflowId"))
+				return usageErr(fmt.Errorf("workflowId is required\nUsage: %s <%s>", cmd.CommandPath(), "workflowId"))
 			}
 			path = replacePathParam(path, "workflowId", args[1])
 			if len(args) < 3 {
-				return usageErr(fmt.Errorf("orgId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "orgId"))
+				return usageErr(fmt.Errorf("orgId is required\nUsage: %s <%s>", cmd.CommandPath(), "orgId"))
 			}
 			path = replacePathParam(path, "orgId", args[2])
 			params := map[string]string{}

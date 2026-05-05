@@ -88,7 +88,7 @@
       "mcp": {
         "binary": "cal-com-pp-mcp",
         "transport": "stdio",
-        "tool_count": 285,
+        "tool_count": 291,
         "public_tool_count": 0,
         "auth_type": "bearer_token",
         "env_vars": [

@@ -14,10 +14,10 @@ import (
 func newSchedulesGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Aliases: []string{"list"},
-		Short: "Get all schedules of the authenticated user. <Note>Please make sure to pass in the cal-api-version header value as...",
-		Example: "  cal-com-pp-cli schedules get",
+		Use:         "get",
+		Aliases:     []string{"list"},
+		Short:       "Get all schedules of the authenticated user. <Note>Please make sure to pass in the cal-api-version header value as...",
+		Example:     "  cal-com-pp-cli schedules get",
 		Annotations: map[string]string{"pp:endpoint": "schedules.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

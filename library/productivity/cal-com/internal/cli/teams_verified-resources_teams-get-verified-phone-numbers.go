@@ -16,9 +16,9 @@ func newTeamsVerifiedResourcesTeamsGetVerifiedPhoneNumbersCmd(flags *rootFlags) 
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:   "teams-get-verified-phone-numbers <teamId>",
-		Short: "Get list of verified phone numbers of a team",
-		Example: "  cal-com-pp-cli teams verified-resources teams-get-verified-phone-numbers 42",
+		Use:         "teams-get-verified-phone-numbers <teamId>",
+		Short:       "If accessed using an OAuth access token, the `TEAM_VERIFIED_RESOURCES_READ` scope is required.",
+		Example:     "  cal-com-pp-cli teams verified-resources teams-get-verified-phone-numbers 42",
 		Annotations: map[string]string{"pp:endpoint": "verified-resources.teams-get-verified-phone-numbers", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

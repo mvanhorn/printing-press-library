@@ -13,7 +13,14 @@ func newMeCmd(flags *rootFlags) *cobra.Command {
 		Short: "Manage me",
 	}
 
+	cmd.AddCommand(newMeClearMyBookingLimitsCmd(flags))
 	cmd.AddCommand(newMeGetCmd(flags))
+	cmd.AddCommand(newMeGetMyBookingLimitsCmd(flags))
 	cmd.AddCommand(newMeUpdateCmd(flags))
+	cmd.AddCommand(newMeUpdateMyBookingLimitsCmd(flags))
+	cmd.AddCommand(newMeUserOoocontrollerCreateMyOooCmd(flags))
+	cmd.AddCommand(newMeUserOoocontrollerDeleteMyOooCmd(flags))
+	cmd.AddCommand(newMeUserOoocontrollerGetMyOooCmd(flags))
+	cmd.AddCommand(newMeUserOoocontrollerUpdateMyOooCmd(flags))
 	return cmd
 }

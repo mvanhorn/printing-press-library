@@ -5,6 +5,8 @@ package client
 
 import (
 	"bytes"
+	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/config"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -18,8 +20,6 @@ import (
 	"sort"
 	"strings"
 	"time"
-	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/config"
 )
 
 type Client struct {
@@ -31,8 +31,6 @@ type Client struct {
 	cacheDir   string
 	limiter    *cliutil.AdaptiveLimiter
 }
-
-
 
 // APIError carries HTTP status information for structured exit codes.
 type APIError struct {
@@ -211,17 +209,11 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		if authHeader != "" {
 			req.Header.Set("Authorization", authHeader)
 		}
-		// Per-path required headers (e.g., Cal.com per-endpoint cal-api-version
-		// from calcom_versions.go). Applied before caller overrides so the
-		// caller can still bump a version.
-		for k, v := range requiredHeadersForPath(path) {
-			req.Header.Set(k, v)
-		}
 		// Per-endpoint header overrides (e.g., different API version per resource)
 		for k, v := range headerOverrides {
 			req.Header.Set(k, v)
 		}
-		req.Header.Set("User-Agent", "github.com/mvanhorn/printing-press-library/library/productivity/cal-com/1.0.0")
+		req.Header.Set("User-Agent", "cal-com-pp-cli/1.0.0")
 
 		resp, err := c.HTTPClient.Do(req)
 		if err != nil {
@@ -420,7 +412,6 @@ func sanitizeJSONResponse(body []byte) []byte {
 	}
 	return body
 }
-
 
 // maskToken redacts all but the last 4 characters of a token for safe display.
 func maskToken(token string) string {

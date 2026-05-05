@@ -1,6 +1,6 @@
 ---
 name: pp-cal-com
-description: "Every Cal.com feature, plus offline agendas, composed booking flows, and analytics no other Cal.com tool ships. Trigger phrases: `book a meeting on cal.com`, `what's on my cal.com agenda today`, `cancel cal.com booking`, `find available slots cal.com`, `cal.com no-show analytics`, `use cal-com`, `run cal-com`."
+description: "Every Cal.com feature, plus offline agendas, composed booking flows, and analytics no other Cal.com tool ships. Trigger phrases: `book a meeting on cal.com`, `what's on my calendar today`, `find an open slot`, `reschedule my next booking`, `audit my cal.com webhooks`, `use cal-com`, `run cal-com-pp-cli`."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata: '{"openclaw":{"requires":{"bins":["cal-com-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/productivity/cal-com/cmd/cal-com-pp-cli@latest","bins":["cal-com-pp-cli"],"label":"Install via go install"}]}}'
@@ -8,186 +8,169 @@ metadata: '{"openclaw":{"requires":{"bins":["cal-com-pp-cli"]},"install":[{"id":
 
 # Cal.com — Printing Press CLI
 
-A Go single-binary CLI for Cal.com v2 with a local SQLite mirror that turns scheduling data into something queryable. Composed intents like `book` collapse slot-find / reserve / create / confirm into one safe call with `--dry-run`. The store powers `today`, `week`, `analytics`, and `conflicts` — views Cal.com's own API has no equivalent for.
+cal-com-pp-cli wraps the entire Cal.com v2 API and adds a local SQLite store of your bookings, event types, schedules, and team data. Composed intents like `book` and `reschedule next` collapse multi-call dances into one transactional command. Local-store analytics, conflict detection, and team workload land in milliseconds with no API call.
 
 ## When to Use This CLI
 
-Reach for cal-com-pp-cli when an agent needs Cal.com data for booking, agenda views, or analytics. The local store keeps repeated calls cheap, and composed intents like `book` and `slots find` collapse multi-step API chains into one operation. For raw API parity (any v2 endpoint at all) the absorbed surface matches the official MCP server. Skip this CLI for org-wide enterprise admin flows that require OAuth managed-user delegation — those are still better served via Cal.com's web UI today.
-
-### Do NOT use this CLI for
-
-- **Calendly bookings** — Calendly is a different scheduling service with a different API. Use a Calendly-specific tool.
-- **Google Calendar / Outlook event creation** — these are external calendar APIs. Use those vendors' SDKs/CLIs directly. (Cal.com can `connect` external calendars for availability, but the CLI does not write events to them.)
-- **Cal.com v1 API workflows** — v1 was deprecated April 8, 2026. This CLI targets `/v2` only.
-- **Cal.com web-app navigation** — there is no headless browser; everything goes through the public REST API. UI-only operations (dashboard customization, settings UI flows) cannot be automated here.
+Reach for cal-com-pp-cli whenever an agent needs to read or mutate a Cal.com calendar without burning context on the multi-call dance the API requires for booking and rescheduling. The local store makes 'what's on my calendar', 'when am I free', 'who is overloaded', and 'where are my conflicts' near-instant offline answers. The composed `book` and `reschedule next` commands are the right tools for transactional bookings; the endpoint-mirror coverage is there for everything else.
 
 ## Unique Capabilities
 
 These capabilities aren't available in any other tool for this API.
 
-### Composed intents
+### Composed booking flows
+- **`book`** — Find a slot and create a booking in one composed command — slot check, optional reservation, create, optional confirm.
 
-- **`book`** — Find a slot and book it in a single command — no slot/reserve/create/confirm chain.
-
-  _Reach for this when an agent or operator wants to book a meeting end-to-end without managing slot reservation state by hand._
+  _Reach for this whenever you need to book a meeting; one call replaces four and is safe to dry-run._
 
   ```bash
-  cal-com-pp-cli book --event-type-id 96531 --start "2026-05-01T14:00:00Z" --attendee-name "Jane Doe" --attendee-email "jane@example.com" --dry-run --json
+  cal-com-pp-cli book --event-type-id 96531 --start 2026-05-06T17:00:00Z --attendee-name Guest --attendee-email guest@example.com --dry-run
   ```
-- **`slots find`** — Find first available slot across multiple event types in one call, ranked by start time.
+- **`slots find`** — Find first available slots across multiple event-type IDs in one call, ranked by start time.
 
-  _Pick this when the agent doesn't care which meeting type — only when the next available slot is._
+  _Use this when you don't know which event type fits — let the caller pick from a ranked merged list._
 
   ```bash
-  cal-com-pp-cli slots find --event-type-ids 96531,96532,96533 --start "2026-05-01" --end "2026-05-08" --first-only --json
+  cal-com-pp-cli slots find --event-type-ids 96531 --start tomorrow --end "tomorrow 23:59" --json
   ```
-- **`bookings pending`** — Pending-confirmation bookings sorted by age, with default 24h max-age cutoff.
+- **`reschedule next`** — Move an existing booking to the next available slot for the same event type, after a cutoff.
 
-  _Use when sweeping the pending queue to confirm/decline before the SLA window closes._
+  _Use this for last-minute bumps — one command instead of three, with dry-run safety._
 
   ```bash
-  cal-com-pp-cli bookings pending --max-age 24h --json
+  cal-com-pp-cli reschedule next --uid <booking-uid> --after tomorrow --dry-run
   ```
 
 ### Local state that compounds
+- **`agenda`** — Upcoming bookings in a window — today, this week, or any duration — read from the local store.
 
-- **`today`** — Today's bookings with status, attendees, and meeting links — read from the local store, no API call needed.
-
-  _First-thing-in-the-morning view that works offline and stays cheap to call repeatedly._
+  _Use this whenever an agent needs 'what's on my calendar'; single command across any time window._
 
   ```bash
-  cal-com-pp-cli today --json
+  cal-com-pp-cli agenda --window today --json --select id,start,title,attendees
   ```
-- **`week`** — 7-day calendar view of upcoming bookings, with conflict highlighting and per-day rollup counts.
+- **`analytics no-show`** — No-show, cancellation, volume, and density metrics over a window. Sister subcommands under analytics: bookings (volume), cancellations, no-show, density. --by accepts event-type, attendee, or weekday on the rate commands; analytics density --unit hour adds hourly heatmaps.
 
-  _Use when you need a one-look view of the upcoming week without paging through API responses._
-
-  ```bash
-  cal-com-pp-cli week --start monday --json
-  ```
-- **`analytics bookings|cancellations|no-show|density`** — Booking analytics over a time window. Each subcommand is a different metric; group with `--by event-type|attendee|weekday|hour|status`.
-
-  _Reach for these when scoring a workflow's health, planning team capacity, or hunting cancellation patterns._
+  _Use this for capacity planning, no-show trend analysis, or attendee follow-up — answers no single API call provides._
 
   ```bash
-  cal-com-pp-cli analytics bookings --window 30d --by event-type --json
   cal-com-pp-cli analytics no-show --window 90d --by attendee --json
-  cal-com-pp-cli analytics density --unit hour --window 90d --json
   ```
-- **`conflicts`** — Detects overlaps between active Cal.com bookings and external calendar busy-times.
+- **`conflicts`** — Detects overlapping bookings within a time window — pairs whose time ranges intersect get reported. Reads the local store, no API call.
 
-  _Spot last-minute calendar additions that didn't propagate into Cal.com availability._
+  _Run before sending confirmations or after a bulk reschedule — surfaces double-bookings the API silently allows._
 
   ```bash
   cal-com-pp-cli conflicts --window 7d --json
   ```
 - **`gaps`** — Finds open windows in your schedule that are available but unbooked, filtered by minimum block size.
 
-  _Use when looking for capacity to take new meetings or to spot underused windows worth promoting._
+  _Use this for capacity planning — answers 'when can I take a meeting' rather than 'what's on my plate'._
 
   ```bash
-  cal-com-pp-cli gaps --window 7d --min-minutes 30 --json
+  cal-com-pp-cli gaps --window 7d --min-minutes 60 --json
   ```
 - **`workload`** — Booking distribution across team members over a window — surfaces overloaded vs underutilized hosts.
 
-  _Reach for this when tuning round-robin weights or planning team capacity._
+  _Use this for round-robin tuning or to spot host burnout before it shows up as no-shows._
 
   ```bash
   cal-com-pp-cli workload --team-id 42 --window 30d --json
   ```
 - **`event-types stale`** — Event types with zero bookings in the last N days — candidates for removal.
 
-  _Run during quarterly cleanups to retire dead booking links._
+  _Use this for quarterly cleanup — keeps your bookable surface from drifting._
 
   ```bash
-  cal-com-pp-cli event-types stale --days 30 --json
+  cal-com-pp-cli event-types stale --days 90 --json
   ```
 
-### Reachability mitigation
-
+### Agent-native plumbing
 - **`webhooks coverage`** — Audits registered webhook triggers against the canonical set and reports lifecycle events with no subscriber.
 
-  _Run before relying on webhooks in production to confirm every lifecycle stage has a handler._
+  _Run this whenever you add a new automation — surfaces missed triggers like BOOKING_NO_SHOW_UPDATED before they bite._
 
   ```bash
   cal-com-pp-cli webhooks coverage --json
   ```
 
-### Agent-native plumbing
-
-- **`webhooks triggers`** — Static reference of every valid Cal.com webhook trigger constant, grouped by lifecycle stage.
-
-  _Reach for this before writing webhook scaffolding, so trigger strings are exact._
-
-  ```bash
-  cal-com-pp-cli webhooks triggers --json
-  ```
-
 ## Command Reference
 
-**api-keys** — Refresh the active API key
+**api-keys** — Manage api keys
 
-- `cal-com-pp-cli api-keys` — Refresh API Key (promoted command; takes no args)
-
-**auth** — Manage CAL_COM_TOKEN credentials
-
-- `cal-com-pp-cli auth set-token <token>` — Save a Bearer token to the config file
-- `cal-com-pp-cli auth status` — Show the active credential source and config path
-- `cal-com-pp-cli auth logout` — Clear the stored token
+- `cal-com-pp-cli api-keys` — Generate a new API key and delete the current one. Provide API key to refresh as a Bearer token in the Authorization...
 
 **bookings** — Manage bookings
 
-- `cal-com-pp-cli bookings create` — Create a booking
-- `cal-com-pp-cli bookings get` — Get all bookings
-- `cal-com-pp-cli bookings get-bookinguid` — Get a booking
-- `cal-com-pp-cli bookings get-by-seat-uid` — Get a booking by seat UID
+- `cal-com-pp-cli bookings create` — POST /v2/bookings is used to create regular bookings, recurring bookings and instant bookings. The request bodies...
+- `cal-com-pp-cli bookings get` — <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing...
+- `cal-com-pp-cli bookings get-bookinguid` — `:bookingUid` can be 1. uid of a normal booking 2. uid of one of the recurring booking recurrences 3. uid of...
+- `cal-com-pp-cli bookings get-by-seat-uid` — Get a seated booking by its seat reference UID. This is useful when you have a seatUid from a seated booking and...
+
+**cal-com-auth** — Manage cal com auth
+
+- `cal-com-pp-cli cal-com-auth` — RFC 6749-compliant token endpoint. Pass client_id in the request body (Section 2.3.1). Use grant_type...
+
+**cal-com-auth-2** — Manage cal com auth 2
+
+- `cal-com-pp-cli cal-com-auth-2 <clientId>` — Returns the OAuth2 client information for the given client ID
 
 **calendars** — Manage calendars
 
-- `cal-com-pp-cli calendars cal-unified-create-connection-event` — Create event on a connection
-- `cal-com-pp-cli calendars cal-unified-delete-connection-event` — Delete event for a connection
-- `cal-com-pp-cli calendars cal-unified-get-connection-event` — Get event for a connection
-- `cal-com-pp-cli calendars cal-unified-get-connection-free-busy` — Get free/busy for a connection
-- `cal-com-pp-cli calendars cal-unified-list-connection-events` — List events for a connection
-- `cal-com-pp-cli calendars cal-unified-list-connections` — List calendar connections
-- `cal-com-pp-cli calendars cal-unified-update-connection-event` — Update event for a connection
-- `cal-com-pp-cli calendars check-ics-feed` — Check an ICS feed
-- `cal-com-pp-cli calendars create-ics-feed` — Save an ICS feed
-- `cal-com-pp-cli calendars get` — Get all calendars
-- `cal-com-pp-cli calendars get-busy-times` — Get busy times
+- `cal-com-pp-cli calendars check-ics-feed` — If accessed using an OAuth access token, the `APPS_READ` scope is required.
+- `cal-com-pp-cli calendars create-ics-feed` — If accessed using an OAuth access token, the `APPS_WRITE` scope is required.
+- `cal-com-pp-cli calendars get` — If accessed using an OAuth access token, the `APPS_READ` scope is required.
+- `cal-com-pp-cli calendars get-busy-times` — Get busy times from a calendar. Example request URL is `https://api.cal.com/v2/calendars/busy-times?timeZone=Europe%2...
 
 **conferencing** — Manage conferencing
 
-- `cal-com-pp-cli conferencing get-default` — Get your default conferencing application
-- `cal-com-pp-cli conferencing list-installed-apps` — List your conferencing applications
+- `cal-com-pp-cli conferencing get-default` — If accessed using an OAuth access token, the `APPS_READ` scope is required.
+- `cal-com-pp-cli conferencing list-installed-apps` — If accessed using an OAuth access token, the `APPS_READ` scope is required.
+
+**credits** — Manage credits
+
+- `cal-com-pp-cli credits charge` — Charge credits for a completed AI agent interaction. Uses externalRef for idempotency to prevent double-charging.
+- `cal-com-pp-cli credits get-available` — Check if the authenticated user (or their org/team) has available credits and return the current balance.
 
 **destination-calendars** — Manage destination calendars
 
-- `cal-com-pp-cli destination-calendars update` — Update destination calendars
+- `cal-com-pp-cli destination-calendars` — If accessed using an OAuth access token, the `APPS_WRITE` scope is required.
 
 **event-types** — Manage event types
 
-- `cal-com-pp-cli event-types create` — Create an event type
-- `cal-com-pp-cli event-types delete` — Delete an event type
-- `cal-com-pp-cli event-types get` — Get all event types
-- `cal-com-pp-cli event-types get-by-id` — Get an event type
-- `cal-com-pp-cli event-types update` — Update an event type
+- `cal-com-pp-cli event-types create` — <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing...
+- `cal-com-pp-cli event-types delete` — <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing...
+- `cal-com-pp-cli event-types get` — Hidden event types are returned only if authentication is provided and it belongs to the event type owner. Use the...
+- `cal-com-pp-cli event-types get-by-id` — <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing...
+- `cal-com-pp-cli event-types update` — <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing...
 
 **me** — Manage me
 
-- `cal-com-pp-cli me get` — Get my profile
-- `cal-com-pp-cli me update` — Update my profile
+- `cal-com-pp-cli me clear-my-booking-limits` — Removes all of the authenticated user's global booking limits. Only available to organization members — non-org...
+- `cal-com-pp-cli me get` — If accessed using an OAuth access token, the `PROFILE_READ` scope is required.
+- `cal-com-pp-cli me get-my-booking-limits` — Returns the authenticated user's global booking limits. Unset bounds are returned as null. Only available to...
+- `cal-com-pp-cli me update` — Updates the authenticated user's profile. Email changes require verification and the primary email stays unchanged...
+- `cal-com-pp-cli me update-my-booking-limits` — Partially updates the authenticated user's global booking limits. Only fields present in the request body are...
+- `cal-com-pp-cli me user-ooocontroller-create-my-ooo` — If accessed using an OAuth access token, the `SCHEDULE_WRITE` scope is required.
+- `cal-com-pp-cli me user-ooocontroller-delete-my-ooo` — If accessed using an OAuth access token, the `SCHEDULE_WRITE` scope is required.
+- `cal-com-pp-cli me user-ooocontroller-get-my-ooo` — If accessed using an OAuth access token, the `SCHEDULE_READ` scope is required.
+- `cal-com-pp-cli me user-ooocontroller-update-my-ooo` — If accessed using an OAuth access token, the `SCHEDULE_WRITE` scope is required.
+
+**notifications** — Manage notifications
+
+- `cal-com-pp-cli notifications subscriptions-register` — Register an app push subscription
+- `cal-com-pp-cli notifications subscriptions-remove` — Remove an app push subscription
 
 **oauth** — Manage oauth
 
 
 **oauth-clients** — Manage oauth clients
 
-- `cal-com-pp-cli oauth-clients create` — Create an OAuth client
-- `cal-com-pp-cli oauth-clients delete` — Delete an OAuth client
-- `cal-com-pp-cli oauth-clients get` — Get all OAuth clients
-- `cal-com-pp-cli oauth-clients get-by-id` — Get an OAuth client
-- `cal-com-pp-cli oauth-clients update` — Update an OAuth client
+- `cal-com-pp-cli oauth-clients create` — <Warning>These endpoints are deprecated and will be removed in the future.</Warning>
+- `cal-com-pp-cli oauth-clients delete` — <Warning>These endpoints are deprecated and will be removed in the future.</Warning>
+- `cal-com-pp-cli oauth-clients get` — <Warning>These endpoints are deprecated and will be removed in the future.</Warning>
+- `cal-com-pp-cli oauth-clients get-by-id` — <Warning>These endpoints are deprecated and will be removed in the future.</Warning>
+- `cal-com-pp-cli oauth-clients update` — <Warning>These endpoints are deprecated and will be removed in the future.</Warning>
 
 **organizations** — Manage organizations
 
@@ -197,25 +180,25 @@ These capabilities aren't available in any other tool for this API.
 
 **schedules** — Manage schedules
 
-- `cal-com-pp-cli schedules create` — Create a schedule
-- `cal-com-pp-cli schedules delete` — Delete a schedule
-- `cal-com-pp-cli schedules get` — Get all schedules
-- `cal-com-pp-cli schedules get-default` — Get default schedule
-- `cal-com-pp-cli schedules get-scheduleid` — Get a schedule
-- `cal-com-pp-cli schedules update` — Update a schedule
+- `cal-com-pp-cli schedules create` — Create a schedule for the authenticated user. The point of creating schedules is for event types to be available at...
+- `cal-com-pp-cli schedules delete` — <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing...
+- `cal-com-pp-cli schedules get` — Get all schedules of the authenticated user. <Note>Please make sure to pass in the cal-api-version header value as...
+- `cal-com-pp-cli schedules get-default` — Get the default schedule of the authenticated user. <Note>Please make sure to pass in the cal-api-version header...
+- `cal-com-pp-cli schedules get-scheduleid` — <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing...
+- `cal-com-pp-cli schedules update` — <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing...
 
 **selected-calendars** — Manage selected calendars
 
-- `cal-com-pp-cli selected-calendars add` — Add a selected calendar
-- `cal-com-pp-cli selected-calendars delete` — Delete a selected calendar
+- `cal-com-pp-cli selected-calendars add` — If accessed using an OAuth access token, the `APPS_WRITE` scope is required.
+- `cal-com-pp-cli selected-calendars delete` — If accessed using an OAuth access token, the `APPS_WRITE` scope is required.
 
 **slots** — Manage slots
 
-- `cal-com-pp-cli slots delete-reserved` — Delete a reserved slot
-- `cal-com-pp-cli slots get-available` — Get available time slots for an event type
-- `cal-com-pp-cli slots get-reserved` — Get reserved slot
-- `cal-com-pp-cli slots reserve` — Reserve a slot
-- `cal-com-pp-cli slots update-reserved` — Update a reserved slot
+- `cal-com-pp-cli slots delete-reserved` — <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing...
+- `cal-com-pp-cli slots get-available` — There are 4 ways to get available slots for event type of an individual user: 1. By event type id. Example...
+- `cal-com-pp-cli slots get-reserved` — <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing...
+- `cal-com-pp-cli slots reserve` — Make a slot not available for others to book for a certain period of time. If you authenticate using oAuth...
+- `cal-com-pp-cli slots update-reserved` — <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing...
 
 **stripe** — Manage stripe
 
@@ -225,30 +208,30 @@ These capabilities aren't available in any other tool for this API.
 
 **teams** — Manage teams
 
-- `cal-com-pp-cli teams create` — Create a team
-- `cal-com-pp-cli teams delete` — Delete a team
-- `cal-com-pp-cli teams get` — Get teams
-- `cal-com-pp-cli teams get-teamid` — Get a team
-- `cal-com-pp-cli teams update` — Update a team
+- `cal-com-pp-cli teams create` — If accessed using an OAuth access token, the `TEAM_PROFILE_WRITE` scope is required.
+- `cal-com-pp-cli teams delete` — If accessed using an OAuth access token, the `TEAM_PROFILE_WRITE` scope is required.
+- `cal-com-pp-cli teams get` — If accessed using an OAuth access token, the `TEAM_PROFILE_READ` scope is required.
+- `cal-com-pp-cli teams get-teamid` — If accessed using an OAuth access token, the `TEAM_PROFILE_READ` scope is required.
+- `cal-com-pp-cli teams update` — If accessed using an OAuth access token, the `TEAM_PROFILE_WRITE` scope is required.
 
 **verified-resources** — Manage verified resources
 
-- `cal-com-pp-cli verified-resources user-get-verified-email-by-id` — Get verified email by id
-- `cal-com-pp-cli verified-resources user-get-verified-emails` — Get list of verified emails
-- `cal-com-pp-cli verified-resources user-get-verified-phone-by-id` — Get verified phone number by id
-- `cal-com-pp-cli verified-resources user-get-verified-phone-numbers` — Get list of verified phone numbers
-- `cal-com-pp-cli verified-resources user-request-email-verification-code` — Request email verification code
-- `cal-com-pp-cli verified-resources user-request-phone-verification-code` — Request phone number verification code
-- `cal-com-pp-cli verified-resources user-verify-email` — Verify an email
-- `cal-com-pp-cli verified-resources user-verify-phone-number` — Verify a phone number
+- `cal-com-pp-cli verified-resources user-get-verified-email-by-id` — If accessed using an OAuth access token, the `VERIFIED_RESOURCES_READ` scope is required.
+- `cal-com-pp-cli verified-resources user-get-verified-emails` — If accessed using an OAuth access token, the `VERIFIED_RESOURCES_READ` scope is required.
+- `cal-com-pp-cli verified-resources user-get-verified-phone-by-id` — If accessed using an OAuth access token, the `VERIFIED_RESOURCES_READ` scope is required.
+- `cal-com-pp-cli verified-resources user-get-verified-phone-numbers` — If accessed using an OAuth access token, the `VERIFIED_RESOURCES_READ` scope is required.
+- `cal-com-pp-cli verified-resources user-request-email-verification-code` — Sends a verification code to the email. If accessed using an OAuth access token, the `VERIFIED_RESOURCES_WRITE`...
+- `cal-com-pp-cli verified-resources user-request-phone-verification-code` — Sends a verification code to the phone number. If accessed using an OAuth access token, the...
+- `cal-com-pp-cli verified-resources user-verify-email` — Use code to verify an email. If accessed using an OAuth access token, the `VERIFIED_RESOURCES_WRITE` scope is required.
+- `cal-com-pp-cli verified-resources user-verify-phone-number` — Use code to verify a phone number. If accessed using an OAuth access token, the `VERIFIED_RESOURCES_WRITE` scope is...
 
 **webhooks** — Manage webhooks
 
-- `cal-com-pp-cli webhooks create` — Create a webhook
-- `cal-com-pp-cli webhooks delete` — Delete a webhook
-- `cal-com-pp-cli webhooks get` — Get all webhooks
-- `cal-com-pp-cli webhooks get-webhookid` — Get a webhook
-- `cal-com-pp-cli webhooks update` — Update a webhook
+- `cal-com-pp-cli webhooks create` — If accessed using an OAuth access token, the `WEBHOOK_WRITE` scope is required.
+- `cal-com-pp-cli webhooks delete` — If accessed using an OAuth access token, the `WEBHOOK_WRITE` scope is required.
+- `cal-com-pp-cli webhooks get` — Gets a paginated list of webhooks for the authenticated user. If accessed using an OAuth access token, the...
+- `cal-com-pp-cli webhooks get-webhookid` — If accessed using an OAuth access token, the `WEBHOOK_READ` scope is required.
+- `cal-com-pp-cli webhooks update` — If accessed using an OAuth access token, the `WEBHOOK_WRITE` scope is required.
 
 
 ### Finding the right command
@@ -264,54 +247,49 @@ cal-com-pp-cli which "<capability in your own words>"
 ## Recipes
 
 
-### Book the next available 30-min meeting
+### Today's agenda from the local store
 
 ```bash
-cal-com-pp-cli slots find --event-type-ids 96532 --start "$(date +%Y-%m-%d)" --end "$(date -v+7d +%Y-%m-%d)" --first-only --json | jq -r '.slots[0].start' | xargs -I{} cal-com-pp-cli book --event-type-id 96532 --start {} --attendee-name "X" --attendee-email "x@y.com"
+cal-com-pp-cli agenda --window today --json --select bookings.uid,bookings.title,bookings.start,bookings.attendees
 ```
 
-Combine `slots find` and `book` to grab the first opening across the next week.
+Returns just the four fields an agent needs from the agenda envelope — keeps context tight against deeply-nested booking payloads.
 
-### Today's agenda with only the fields agents care about
+### Cross-event-type slot search ranked by start
 
 ```bash
-cal-com-pp-cli today --agent --select bookings.uid,bookings.title,bookings.start,bookings.attendees.email
+cal-com-pp-cli slots find --event-type-ids 96531 --start tomorrow --end "tomorrow 23:59" --json --first-only
 ```
 
-`--agent` produces a compact JSON shape; `--select` narrows it to four fields, keeping context cheap on deeply-nested booking responses.
+Fans out /v2/slots per event-type ID; returns only the earliest slot.
 
-### Find no-show patterns over the last quarter
+### No-show rate by attendee for capacity planning
 
 ```bash
-cal-com-pp-cli analytics no-show --window 90d --by attendee --json | jq '[.rows[] | select(.no_show_rate > 0.2)]'
+cal-com-pp-cli analytics no-show --window 90d --by attendee --json
 ```
 
-Identify attendees with chronic no-show problems before they damage team capacity.
+Local SQL aggregation over synced bookings; no API call.
 
-### Audit webhook coverage before going to production
+### Audit webhook coverage before adding automation
 
 ```bash
 cal-com-pp-cli webhooks coverage --json
 ```
 
-Lists registered triggers vs canonical set; flags lifecycle stages without a subscriber.
+Compares your registered triggers against the canonical Cal.com lifecycle set and surfaces missing subscribers.
 
-### Cancel a booking with a reason
-
-The cancel endpoint takes a body via stdin (Cal.com requires `cancellationReason`):
+### Reschedule a booking to the next free slot
 
 ```bash
-echo '{"cancellationReason":"Customer requested"}' | \
-  cal-com-pp-cli bookings cancel bookings-booking <uid> --stdin --dry-run
-echo '{"cancellationReason":"Customer requested"}' | \
-  cal-com-pp-cli bookings cancel bookings-booking <uid> --stdin --json
+cal-com-pp-cli reschedule next --uid <booking-uid> --after tomorrow --dry-run
 ```
 
-Dry-run shows the exact request body, then the same command executed for real.
+One composed command replaces three; --dry-run prints the planned move without committing.
 
 ## Auth Setup
 
-Cal.com uses Bearer API keys (the `cal_live_*` prefix from Settings → Developer → API Keys). Set `CAL_COM_TOKEN` in your environment, or run `cal-com-pp-cli auth set-token <token>` to save it. `doctor` will tell you which source is active and whether the key reaches `/v2/me`. Per-endpoint `cal-api-version` headers (Bookings 2024-08-13, Slots 2024-09-04, etc.) are handled automatically.
+Cal.com uses bearer tokens prefixed with `cal_live_` (live) or `cal_test_` (test). Set `CAL_COM_TOKEN` in your environment, or run `auth set-token` once. The CLI also accepts managed-user access tokens and OAuth access tokens through the same Authorization header. Per-resource API-version pinning via `cal-api-version` is handled automatically by the client.
 
 Run `cal-com-pp-cli doctor` to verify setup.
 

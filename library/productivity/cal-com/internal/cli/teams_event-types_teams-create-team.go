@@ -33,7 +33,6 @@ func newTeamsEventTypesTeamsCreateTeamCmd(flags *rootFlags) *cobra.Command {
 	var bodyHideOrganizerEmail bool
 	var bodyInterfaceLanguage string
 	var bodyLengthInMinutes float64
-	var bodyLengthInMinutesOptions string
 	var bodyLockTimeZoneToggleOnBookingPage bool
 	var bodyMinimumBookingNotice float64
 	var bodyOffsetStart float64
@@ -53,9 +52,9 @@ func newTeamsEventTypesTeamsCreateTeamCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "teams-create-team <teamId>",
-		Short: "Create an event type",
-		Example: "  cal-com-pp-cli teams event-types teams-create-team 42 --schedulingType example-value",
+		Use:         "teams-create-team <teamId>",
+		Short:       "If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_WRITE` scope is required.",
+		Example:     "  cal-com-pp-cli teams event-types teams-create-team 42 --schedulingType example-value",
 		Annotations: map[string]string{"pp:endpoint": "event-types.teams-create-team"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -155,13 +154,6 @@ func newTeamsEventTypesTeamsCreateTeamCmd(flags *rootFlags) *cobra.Command {
 				if bodyLengthInMinutes != 0.0 {
 					body["lengthInMinutes"] = bodyLengthInMinutes
 				}
-				if bodyLengthInMinutesOptions != "" {
-					var parsedLengthInMinutesOptions any
-					if err := json.Unmarshal([]byte(bodyLengthInMinutesOptions), &parsedLengthInMinutesOptions); err != nil {
-						return fmt.Errorf("parsing --length-in-minutes-options JSON: %w", err)
-					}
-					body["lengthInMinutesOptions"] = parsedLengthInMinutesOptions
-				}
 				if bodyLockTimeZoneToggleOnBookingPage != false {
 					body["lockTimeZoneToggleOnBookingPage"] = bodyLockTimeZoneToggleOnBookingPage
 				}
@@ -225,7 +217,9 @@ func newTeamsEventTypesTeamsCreateTeamCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
@@ -296,7 +290,6 @@ func newTeamsEventTypesTeamsCreateTeamCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&bodyHideOrganizerEmail, "hide-organizer-email", false, "Boolean to Hide organizer's email address from the booking screen, email notifications, and calendar events")
 	cmd.Flags().StringVar(&bodyInterfaceLanguage, "interface-language", "", "Set preferred language for the booking interface. Use empty string for visitor's browser language (default).")
 	cmd.Flags().Float64Var(&bodyLengthInMinutes, "length-in-minutes", 0.0, "Length in minutes")
-	cmd.Flags().StringVar(&bodyLengthInMinutesOptions, "length-in-minutes-options", "", "If you want that user can choose between different lengths of the event you can specify them here. Must include the...")
 	cmd.Flags().BoolVar(&bodyLockTimeZoneToggleOnBookingPage, "lock-time-zone-toggle-on-booking-page", false, "Lock time zone toggle on booking page")
 	cmd.Flags().Float64Var(&bodyMinimumBookingNotice, "minimum-booking-notice", 0.0, "Minimum number of minutes before the event that a booking can be made.")
 	cmd.Flags().Float64Var(&bodyOffsetStart, "offset-start", 0.0, "Offset timeslots shown to bookers by a specified number of minutes")

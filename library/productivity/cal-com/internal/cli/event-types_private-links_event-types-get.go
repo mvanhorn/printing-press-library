@@ -14,10 +14,10 @@ import (
 func newEventTypesPrivateLinksEventTypesGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "event-types-get <eventTypeId>",
-		Aliases: []string{"get"},
-		Short: "Get all private links for an event type",
-		Example: "  cal-com-pp-cli event-types private-links event-types-get 42",
+		Use:         "event-types-get <eventTypeId>",
+		Aliases:     []string{"get"},
+		Short:       "If accessed using an OAuth access token, the `EVENT_TYPE_READ` scope is required.",
+		Example:     "  cal-com-pp-cli event-types private-links event-types-get 42",
 		Annotations: map[string]string{"pp:endpoint": "private-links.event-types-get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

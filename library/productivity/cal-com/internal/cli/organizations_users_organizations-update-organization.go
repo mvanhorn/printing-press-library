@@ -13,12 +13,26 @@ import (
 )
 
 func newOrganizationsUsersOrganizationsUpdateOrganizationCmd(flags *rootFlags) *cobra.Command {
+	var bodyAppTheme string
+	var bodyAvatarUrl string
+	var bodyBio string
+	var bodyBrandColor string
+	var bodyDarkBrandColor string
+	var bodyDefaultScheduleId float64
+	var bodyEmail string
+	var bodyHideBranding bool
+	var bodyLocale string
+	var bodyTheme string
+	var bodyTimeFormat float64
+	var bodyTimeZone string
+	var bodyUsername string
+	var bodyWeekday string
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "organizations-update-organization <orgId> <userId>",
-		Short: "Update a user",
-		Example: "  cal-com-pp-cli organizations users organizations-update-organization 42 42",
+		Use:         "organizations-update-organization <orgId> <userId>",
+		Short:       "Required membership role: `org admin`. PBAC permission: `organization.editUsers`. Learn more about API access...",
+		Example:     "  cal-com-pp-cli organizations users organizations-update-organization 42 42",
 		Annotations: map[string]string{"pp:endpoint": "users.organizations-update-organization"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -34,7 +48,7 @@ func newOrganizationsUsersOrganizationsUpdateOrganizationCmd(flags *rootFlags) *
 			path := "/v2/organizations/{orgId}/users/{userId}"
 			path = replacePathParam(path, "orgId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("userId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "userId"))
+				return usageErr(fmt.Errorf("userId is required\nUsage: %s <%s>", cmd.CommandPath(), "userId"))
 			}
 			path = replacePathParam(path, "userId", args[1])
 			var body map[string]any
@@ -50,6 +64,48 @@ func newOrganizationsUsersOrganizationsUpdateOrganizationCmd(flags *rootFlags) *
 				body = jsonBody
 			} else {
 				body = map[string]any{}
+				if bodyAppTheme != "" {
+					body["appTheme"] = bodyAppTheme
+				}
+				if bodyAvatarUrl != "" {
+					body["avatarUrl"] = bodyAvatarUrl
+				}
+				if bodyBio != "" {
+					body["bio"] = bodyBio
+				}
+				if bodyBrandColor != "" {
+					body["brandColor"] = bodyBrandColor
+				}
+				if bodyDarkBrandColor != "" {
+					body["darkBrandColor"] = bodyDarkBrandColor
+				}
+				if bodyDefaultScheduleId != 0.0 {
+					body["defaultScheduleId"] = bodyDefaultScheduleId
+				}
+				if bodyEmail != "" {
+					body["email"] = bodyEmail
+				}
+				if bodyHideBranding != false {
+					body["hideBranding"] = bodyHideBranding
+				}
+				if bodyLocale != "" {
+					body["locale"] = bodyLocale
+				}
+				if bodyTheme != "" {
+					body["theme"] = bodyTheme
+				}
+				if bodyTimeFormat != 0.0 {
+					body["timeFormat"] = bodyTimeFormat
+				}
+				if bodyTimeZone != "" {
+					body["timeZone"] = bodyTimeZone
+				}
+				if bodyUsername != "" {
+					body["username"] = bodyUsername
+				}
+				if bodyWeekday != "" {
+					body["weekday"] = bodyWeekday
+				}
 			}
 			data, statusCode, err := c.Patch(path, body)
 			if err != nil {
@@ -65,7 +121,9 @@ func newOrganizationsUsersOrganizationsUpdateOrganizationCmd(flags *rootFlags) *
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
@@ -116,6 +174,20 @@ func newOrganizationsUsersOrganizationsUpdateOrganizationCmd(flags *rootFlags) *
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
+	cmd.Flags().StringVar(&bodyAppTheme, "app-theme", "", "Application theme")
+	cmd.Flags().StringVar(&bodyAvatarUrl, "avatar-url", "", "Avatar URL")
+	cmd.Flags().StringVar(&bodyBio, "bio", "", "Bio")
+	cmd.Flags().StringVar(&bodyBrandColor, "brand-color", "", "Brand color in HEX format")
+	cmd.Flags().StringVar(&bodyDarkBrandColor, "dark-brand-color", "", "Dark brand color in HEX format")
+	cmd.Flags().Float64Var(&bodyDefaultScheduleId, "default-schedule-id", 0.0, "Default schedule ID")
+	cmd.Flags().StringVar(&bodyEmail, "email", "", "User email address")
+	cmd.Flags().BoolVar(&bodyHideBranding, "hide-branding", false, "Hide branding")
+	cmd.Flags().StringVar(&bodyLocale, "locale", "en", "Locale")
+	cmd.Flags().StringVar(&bodyTheme, "theme", "", "Theme")
+	cmd.Flags().Float64Var(&bodyTimeFormat, "time-format", 0.0, "Time format")
+	cmd.Flags().StringVar(&bodyTimeZone, "time-zone", "", "Time zone")
+	cmd.Flags().StringVar(&bodyUsername, "username", "", "Username")
+	cmd.Flags().StringVar(&bodyWeekday, "weekday", "", "Preferred weekday")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

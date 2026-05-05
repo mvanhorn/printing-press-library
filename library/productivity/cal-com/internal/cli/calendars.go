@@ -13,13 +13,6 @@ func newCalendarsCmd(flags *rootFlags) *cobra.Command {
 		Short: "Manage calendars",
 	}
 
-	cmd.AddCommand(newCalendarsCalUnifiedCreateConnectionEventCmd(flags))
-	cmd.AddCommand(newCalendarsCalUnifiedDeleteConnectionEventCmd(flags))
-	cmd.AddCommand(newCalendarsCalUnifiedGetConnectionEventCmd(flags))
-	cmd.AddCommand(newCalendarsCalUnifiedGetConnectionFreeBusyCmd(flags))
-	cmd.AddCommand(newCalendarsCalUnifiedListConnectionEventsCmd(flags))
-	cmd.AddCommand(newCalendarsCalUnifiedListConnectionsCmd(flags))
-	cmd.AddCommand(newCalendarsCalUnifiedUpdateConnectionEventCmd(flags))
 	cmd.AddCommand(newCalendarsCheckIcsFeedCmd(flags))
 	cmd.AddCommand(newCalendarsCreateIcsFeedCmd(flags))
 	cmd.AddCommand(newCalendarsGetCmd(flags))
@@ -30,7 +23,6 @@ func newCalendarsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newCalendarsDisconnectCmd(flags))
 	cmd.AddCommand(newCalendarsEventCmd(flags))
 	cmd.AddCommand(newCalendarsEventsCmd(flags))
-	cmd.AddCommand(newCalendarsFreebusyCmd(flags))
 	cmd.AddCommand(newCalendarsSaveCmd(flags))
 	return cmd
 }

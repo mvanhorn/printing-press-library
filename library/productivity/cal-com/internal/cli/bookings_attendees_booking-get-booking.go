@@ -14,10 +14,10 @@ import (
 func newBookingsAttendeesBookingGetBookingCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "booking-get-booking <bookingUid>",
-		Aliases: []string{"get"},
-		Short: "Retrieve all attendees for a specific booking by its UID. <Note>The cal-api-version header is required for this...",
-		Example: "  cal-com-pp-cli bookings attendees booking-get-booking example-value",
+		Use:         "booking-get-booking <bookingUid>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieve all attendees for a specific booking by its UID. <Note>The cal-api-version header is required for this...",
+		Example:     "  cal-com-pp-cli bookings attendees booking-get-booking 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "attendees.booking-get-booking", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -14,10 +14,10 @@ import (
 func newEventTypesWebhooksEventTypeDeleteAllEventTypeCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "event-type-delete-all-event-type <eventTypeId>",
-		Aliases: []string{"delete"},
-		Short: "Delete all webhooks",
-		Example: "  cal-com-pp-cli event-types webhooks event-type-delete-all-event-type 42",
+		Use:         "event-type-delete-all-event-type <eventTypeId>",
+		Aliases:     []string{"delete"},
+		Short:       "If accessed using an OAuth access token, the `EVENT_TYPE_WRITE` scope is required.",
+		Example:     "  cal-com-pp-cli event-types webhooks event-type-delete-all-event-type 42",
 		Annotations: map[string]string{"pp:endpoint": "webhooks.event-type-delete-all-event-type"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -44,7 +44,9 @@ func newEventTypesWebhooksEventTypeDeleteAllEventTypeCmd(flags *rootFlags) *cobr
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

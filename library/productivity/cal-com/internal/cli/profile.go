@@ -173,6 +173,8 @@ entry is replaced.
 
 To avoid creating empty profiles, at least one non-default flag must be
 present (other than --profile and --config).`,
+		Example: `  cal-com-pp-cli profile save my-defaults --json --compact
+  cal-com-pp-cli profile save tonight-defaults --region US`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
@@ -215,7 +217,9 @@ func newProfileUseCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "use <name>",
 		Short: "Print the flag values a profile will apply (does not execute anything)",
-		Args:  cobra.ExactArgs(1),
+		Example: `  cal-com-pp-cli profile use my-defaults
+  cal-com-pp-cli profile use tonight-defaults --json`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			p, err := GetProfile(args[0])
 			if err != nil {
@@ -248,6 +252,8 @@ func newProfileListCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "list",
 		Short: "List saved profiles",
+		Example: `  cal-com-pp-cli profile list
+  cal-com-pp-cli profile list --json`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			s, err := loadProfileStore()
 			if err != nil {
@@ -285,7 +291,9 @@ func newProfileShowCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "show <name>",
 		Short: "Show a profile's values as JSON",
-		Args:  cobra.ExactArgs(1),
+		Example: `  cal-com-pp-cli profile show my-defaults
+  cal-com-pp-cli profile show tonight-defaults --json`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			p, err := GetProfile(args[0])
 			if err != nil {
@@ -303,7 +311,9 @@ func newProfileDeleteCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "delete <name>",
 		Short: "Remove a profile",
-		Args:  cobra.ExactArgs(1),
+		Example: `  cal-com-pp-cli profile delete my-defaults --yes
+  cal-com-pp-cli profile delete old-profile --yes --json`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 			s, err := loadProfileStore()
@@ -320,6 +330,12 @@ func newProfileDeleteCmd(flags *rootFlags) *cobra.Command {
 			delete(s.Profiles, name)
 			if err := saveProfileStore(s); err != nil {
 				return err
+			}
+			// JSON envelope: {deleted: name}.
+			if flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"deleted": name,
+				}, flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "deleted profile %q\n", name)
 			return nil

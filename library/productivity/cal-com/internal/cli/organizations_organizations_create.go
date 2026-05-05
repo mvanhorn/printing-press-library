@@ -20,9 +20,9 @@ func newOrganizationsOrganizationsCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create <orgId>",
-		Short: "Requires the user to have at least the 'ORG_ADMIN' role within the organization. Additionally, for platform, the...",
-		Example: "  cal-com-pp-cli organizations organizations create 42 --name example-resource",
+		Use:         "create <orgId>",
+		Short:       "For platform, the plan must be 'SCALE' or higher to access this endpoint. Required membership role: `org admin`....",
+		Example:     "  cal-com-pp-cli organizations organizations create 42 --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "organizations.create"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -80,7 +80,9 @@ func newOrganizationsOrganizationsCreateCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

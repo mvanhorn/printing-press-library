@@ -16,10 +16,10 @@ func newTeamsSchedulesTeamsGetTeamCmd(flags *rootFlags) *cobra.Command {
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:   "teams-get-team <teamId>",
-		Aliases: []string{"get"},
-		Short: "Get all team member schedules",
-		Example: "  cal-com-pp-cli teams schedules teams-get-team 42",
+		Use:         "teams-get-team <teamId>",
+		Aliases:     []string{"get"},
+		Short:       "If accessed using an OAuth access token, the `TEAM_SCHEDULE_READ` scope is required.",
+		Example:     "  cal-com-pp-cli teams schedules teams-get-team 42",
 		Annotations: map[string]string{"pp:endpoint": "schedules.teams-get-team", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

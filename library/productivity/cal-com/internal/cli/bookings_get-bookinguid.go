@@ -14,9 +14,9 @@ import (
 func newBookingsGetBookinguidCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-bookinguid <bookingUid>",
-		Short: "`:bookingUid` can be 1. uid of a normal booking 2. uid of one of the recurring booking recurrences 3. uid of...",
-		Example: "  cal-com-pp-cli bookings get-bookinguid example-value",
+		Use:         "get-bookinguid <bookingUid>",
+		Short:       "`:bookingUid` can be 1. uid of a normal booking 2. uid of one of the recurring booking recurrences 3. uid of...",
+		Example:     "  cal-com-pp-cli bookings get-bookinguid 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "bookings.get-bookinguid", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

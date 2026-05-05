@@ -15,17 +15,17 @@ func newBookingsReferencesBookingsGetBookingCmd(flags *rootFlags) *cobra.Command
 	var flagType string
 
 	cmd := &cobra.Command{
-		Use:   "bookings-get-booking <bookingUid>",
-		Aliases: []string{"get"},
-		Short: "<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing...",
-		Example: "  cal-com-pp-cli bookings references bookings-get-booking example-value",
+		Use:         "bookings-get-booking <bookingUid>",
+		Aliases:     []string{"get"},
+		Short:       "<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing...",
+		Example:     "  cal-com-pp-cli bookings references bookings-get-booking 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "references.bookings-get-booking", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("type") {
-				allowedType := []string{ "google_calendar", "office365_calendar", "daily_video", "google_video", "office365_video", "zoom_video" }
+				allowedType := []string{"google_calendar", "office365_calendar", "daily_video", "google_video", "office365_video", "zoom_video"}
 				validType := false
 				for _, v := range allowedType {
 					if flagType == v {

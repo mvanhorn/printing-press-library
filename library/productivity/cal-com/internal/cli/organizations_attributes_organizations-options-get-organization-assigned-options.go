@@ -18,9 +18,9 @@ func newOrganizationsAttributesOrganizationsOptionsGetOrganizationAssignedOption
 	var flagTeamIds string
 
 	cmd := &cobra.Command{
-		Use:   "organizations-options-get-organization-assigned-options <orgId> <attributeId>",
-		Short: "Get all assigned attribute options by attribute ID",
-		Example: "  cal-com-pp-cli organizations attributes organizations-options-get-organization-assigned-options 42 example-value",
+		Use:         "organizations-options-get-organization-assigned-options <orgId> <attributeId>",
+		Short:       "Required membership role: `org member`. PBAC permission: `organization.attributes.read`. Learn more about API access...",
+		Example:     "  cal-com-pp-cli organizations attributes organizations-options-get-organization-assigned-options 42 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "attributes.organizations-options-get-organization-assigned-options", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -34,7 +34,7 @@ func newOrganizationsAttributesOrganizationsOptionsGetOrganizationAssignedOption
 			path := "/v2/organizations/{orgId}/attributes/{attributeId}/options/assigned"
 			path = replacePathParam(path, "orgId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("attributeId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "attributeId"))
+				return usageErr(fmt.Errorf("attributeId is required\nUsage: %s <%s>", cmd.CommandPath(), "attributeId"))
 			}
 			path = replacePathParam(path, "attributeId", args[1])
 			params := map[string]string{}

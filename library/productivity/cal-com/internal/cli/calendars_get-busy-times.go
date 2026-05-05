@@ -16,20 +16,22 @@ func newCalendarsGetBusyTimesCmd(flags *rootFlags) *cobra.Command {
 	var flagTimeZone string
 	var flagDateFrom string
 	var flagDateTo string
-	var flagCredentialId float64
-	var flagExternalId string
+	var flagCalendarsToLoad string
 
 	cmd := &cobra.Command{
-		Use:   "get-busy-times",
-		Short: "Get busy times from a calendar. Example request URL is `https://api.cal.com/v2/calendars/busy-times?timeZone=Europe%2...",
-		Example: "  cal-com-pp-cli calendars get-busy-times",
+		Use:         "get-busy-times",
+		Short:       "Get busy times from a calendar. Example request URL is `https://api.cal.com/v2/calendars/busy-times?timeZone=Europe%2...",
+		Example:     "  cal-com-pp-cli calendars get-busy-times",
 		Annotations: map[string]string{"pp:endpoint": "calendars.get-busy-times", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !cmd.Flags().Changed("credential-id") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "credential-id")
+			if !cmd.Flags().Changed("date-from") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "date-from")
 			}
-			if !cmd.Flags().Changed("external-id") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "external-id")
+			if !cmd.Flags().Changed("date-to") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "date-to")
+			}
+			if !cmd.Flags().Changed("calendars-to-load") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "calendars-to-load")
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -50,11 +52,8 @@ func newCalendarsGetBusyTimesCmd(flags *rootFlags) *cobra.Command {
 			if flagDateTo != "" {
 				params["dateTo"] = fmt.Sprintf("%v", flagDateTo)
 			}
-			if flagCredentialId != 0.0 {
-				params["credentialId"] = fmt.Sprintf("%v", flagCredentialId)
-			}
-			if flagExternalId != "" {
-				params["externalId"] = fmt.Sprintf("%v", flagExternalId)
+			if flagCalendarsToLoad != "" {
+				params["calendarsToLoad"] = fmt.Sprintf("%v", flagCalendarsToLoad)
 			}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "calendars", false, path, params, nil)
 			if err != nil {
@@ -102,8 +101,7 @@ func newCalendarsGetBusyTimesCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagTimeZone, "time-zone", "", "The timezone for the busy times query represented as a string")
 	cmd.Flags().StringVar(&flagDateFrom, "date-from", "", "The starting date for the busy times query")
 	cmd.Flags().StringVar(&flagDateTo, "date-to", "", "The ending date for the busy times query")
-	cmd.Flags().Float64Var(&flagCredentialId, "credential-id", 0.0, "Credential id")
-	cmd.Flags().StringVar(&flagExternalId, "external-id", "", "External id")
+	cmd.Flags().StringVar(&flagCalendarsToLoad, "calendars-to-load", "", "An array of Calendar objects representing the calendars to be loaded. Use bracket notation in the URL, e.g.:...")
 
 	return cmd
 }

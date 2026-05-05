@@ -15,14 +15,14 @@ func newConferencingDisconnectConferencingCmd(flags *rootFlags) *cobra.Command {
 	var flagApp string
 
 	cmd := &cobra.Command{
-		Use:   "conferencing",
-		Aliases: []string{"delete"},
-		Short: "Disconnect your conferencing application",
-		Example: "  cal-com-pp-cli conferencing disconnect conferencing",
+		Use:         "conferencing",
+		Aliases:     []string{"delete"},
+		Short:       "If accessed using an OAuth access token, the `APPS_WRITE` scope is required.",
+		Example:     "  cal-com-pp-cli conferencing disconnect conferencing",
 		Annotations: map[string]string{"pp:endpoint": "disconnect.conferencing"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("app") {
-				allowedApp := []string{ "google-meet", "zoom", "msteams" }
+				allowedApp := []string{"google-meet", "zoom", "msteams"}
 				validApp := false
 				for _, v := range allowedApp {
 					if flagApp == v {
@@ -55,7 +55,9 @@ func newConferencingDisconnectConferencingCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

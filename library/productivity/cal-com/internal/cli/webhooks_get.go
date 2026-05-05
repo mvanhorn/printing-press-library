@@ -16,10 +16,10 @@ func newWebhooksGetCmd(flags *rootFlags) *cobra.Command {
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Aliases: []string{"list"},
-		Short: "Gets a paginated list of webhooks for the authenticated user.",
-		Example: "  cal-com-pp-cli webhooks get",
+		Use:         "get",
+		Aliases:     []string{"list"},
+		Short:       "Gets a paginated list of webhooks for the authenticated user. If accessed using an OAuth access token, the...",
+		Example:     "  cal-com-pp-cli webhooks get",
 		Annotations: map[string]string{"pp:endpoint": "webhooks.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

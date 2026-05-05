@@ -22,10 +22,10 @@ func newEventTypesWebhooksEventTypeCreateEventTypeCmd(flags *rootFlags) *cobra.C
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "event-type-create-event-type <eventTypeId>",
-		Aliases: []string{"create"},
-		Short: "Create a webhook",
-		Example: "  cal-com-pp-cli event-types webhooks event-type-create-event-type 42 --subscriberUrl https://example.com/resource",
+		Use:         "event-type-create-event-type <eventTypeId>",
+		Aliases:     []string{"create"},
+		Short:       "If accessed using an OAuth access token, the `EVENT_TYPE_WRITE` scope is required.",
+		Example:     "  cal-com-pp-cli event-types webhooks event-type-create-event-type 42 --subscriberUrl https://example.com/resource",
 		Annotations: map[string]string{"pp:endpoint": "webhooks.event-type-create-event-type"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -99,7 +99,9 @@ func newEventTypesWebhooksEventTypeCreateEventTypeCmd(flags *rootFlags) *cobra.C
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

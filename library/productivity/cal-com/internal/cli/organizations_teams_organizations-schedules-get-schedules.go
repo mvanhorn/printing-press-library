@@ -17,9 +17,9 @@ func newOrganizationsTeamsOrganizationsSchedulesGetSchedulesCmd(flags *rootFlags
 	var flagEventTypeId float64
 
 	cmd := &cobra.Command{
-		Use:   "organizations-schedules-get-schedules <orgId> <teamId>",
-		Short: "Get all team member schedules",
-		Example: "  cal-com-pp-cli organizations teams organizations-schedules-get-schedules 42 42",
+		Use:         "organizations-schedules-get-schedules <orgId> <teamId>",
+		Short:       "Required membership role: `team admin`. PBAC permission: `availability.read`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations teams organizations-schedules-get-schedules 42 42",
 		Annotations: map[string]string{"pp:endpoint": "teams.organizations-schedules-get-schedules", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -33,7 +33,7 @@ func newOrganizationsTeamsOrganizationsSchedulesGetSchedulesCmd(flags *rootFlags
 			path := "/v2/organizations/{orgId}/teams/{teamId}/schedules"
 			path = replacePathParam(path, "orgId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("teamId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "teamId"))
+				return usageErr(fmt.Errorf("teamId is required\nUsage: %s <%s>", cmd.CommandPath(), "teamId"))
 			}
 			path = replacePathParam(path, "teamId", args[1])
 			params := map[string]string{}

@@ -19,9 +19,9 @@ func newOrganizationsAttributesOrganizationsOptionsAssignOrganizationOptionToUse
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "organizations-options-assign-organization-option-to-user <orgId> <userId>",
-		Short: "Assign an attribute to a user",
-		Example: "  cal-com-pp-cli organizations attributes organizations-options-assign-organization-option-to-user 42 42 --attributeId example-value",
+		Use:         "organizations-options-assign-organization-option-to-user <orgId> <userId>",
+		Short:       "Required membership role: `org admin`. PBAC permission: `organization.attributes.editUsers`. Learn more about API...",
+		Example:     "  cal-com-pp-cli organizations attributes organizations-options-assign-organization-option-to-user 42 42 --attributeId 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "attributes.organizations-options-assign-organization-option-to-user"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -40,7 +40,7 @@ func newOrganizationsAttributesOrganizationsOptionsAssignOrganizationOptionToUse
 			path := "/v2/organizations/{orgId}/attributes/options/{userId}"
 			path = replacePathParam(path, "orgId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("userId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "userId"))
+				return usageErr(fmt.Errorf("userId is required\nUsage: %s <%s>", cmd.CommandPath(), "userId"))
 			}
 			path = replacePathParam(path, "userId", args[1])
 			var body map[string]any
@@ -80,7 +80,9 @@ func newOrganizationsAttributesOrganizationsOptionsAssignOrganizationOptionToUse
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

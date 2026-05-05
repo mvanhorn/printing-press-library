@@ -14,9 +14,9 @@ import (
 func newOrganizationsRolesOrganizationsPermissionsRemovePermissionCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "organizations-permissions-remove-permission <orgId> <roleId> <permission>",
-		Short: "Remove a permission from an organization role",
-		Example: "  cal-com-pp-cli organizations roles organizations-permissions-remove-permission 42 example-value example-value",
+		Use:         "organizations-permissions-remove-permission <orgId> <roleId> <permission>",
+		Short:       "Required membership role: `org admin`. PBAC permission: `role.update`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations roles organizations-permissions-remove-permission 42 550e8400-e29b-41d4-a716-446655440000 example-value",
 		Annotations: map[string]string{"pp:endpoint": "roles.organizations-permissions-remove-permission"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -30,11 +30,11 @@ func newOrganizationsRolesOrganizationsPermissionsRemovePermissionCmd(flags *roo
 			path := "/v2/organizations/{orgId}/roles/{roleId}/permissions/{permission}"
 			path = replacePathParam(path, "orgId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("roleId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "roleId"))
+				return usageErr(fmt.Errorf("roleId is required\nUsage: %s <%s>", cmd.CommandPath(), "roleId"))
 			}
 			path = replacePathParam(path, "roleId", args[1])
 			if len(args) < 3 {
-				return usageErr(fmt.Errorf("permission is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "permission"))
+				return usageErr(fmt.Errorf("permission is required\nUsage: %s <%s>", cmd.CommandPath(), "permission"))
 			}
 			path = replacePathParam(path, "permission", args[2])
 			data, statusCode, err := c.Delete(path)
@@ -51,7 +51,9 @@ func newOrganizationsRolesOrganizationsPermissionsRemovePermissionCmd(flags *roo
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

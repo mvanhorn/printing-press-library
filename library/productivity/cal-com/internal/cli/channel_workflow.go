@@ -55,7 +55,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 			defer s.Close()
 
-			resources := []string{"bookings", "calendars", "conferencing", "event-types", "me", "oauth-clients", "schedules", "stripe", "teams", "verified-resources", "webhooks",  }
+			resources := []string{"bookings", "calendars", "conferencing", "credits", "event-types", "me", "oauth-clients", "schedules", "stripe", "teams", "verified-resources", "webhooks"}
 			totalSynced := 0
 
 			for _, resource := range resources {
@@ -94,7 +94,9 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 						break
 					}
 					for _, item := range items {
-						var obj struct{ ID string `json:"id"` }
+						var obj struct {
+							ID string `json:"id"`
+						}
 						json.Unmarshal(item, &obj)
 						id := obj.ID
 						if id == "" {

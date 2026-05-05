@@ -18,9 +18,9 @@ func newOauthClientsUsersOauthClientGetManagedCmd(flags *rootFlags) *cobra.Comma
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "oauth-client-get-managed <clientId>",
-		Short: "<Warning>These endpoints are deprecated and will be removed in the future.</Warning>",
-		Example: "  cal-com-pp-cli oauth-clients users oauth-client-get-managed example-value",
+		Use:         "oauth-client-get-managed <clientId>",
+		Short:       "<Warning>These endpoints are deprecated and will be removed in the future.</Warning>",
+		Example:     "  cal-com-pp-cli oauth-clients users oauth-client-get-managed 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "users.oauth-client-get-managed", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -34,7 +34,7 @@ func newOauthClientsUsersOauthClientGetManagedCmd(flags *rootFlags) *cobra.Comma
 			path := "/v2/oauth-clients/{clientId}/users"
 			path = replacePathParam(path, "clientId", args[0])
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "users", path, map[string]string{
-				"limit": fmt.Sprintf("%v", flagLimit),
+				"limit":  fmt.Sprintf("%v", flagLimit),
 				"offset": fmt.Sprintf("%v", flagOffset),
 				"emails": fmt.Sprintf("%v", flagEmails),
 			}, nil, flagAll, "offset", "", "")

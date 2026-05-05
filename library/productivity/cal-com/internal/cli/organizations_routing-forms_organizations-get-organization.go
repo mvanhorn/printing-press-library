@@ -24,17 +24,17 @@ func newOrganizationsRoutingFormsOrganizationsGetOrganizationCmd(flags *rootFlag
 	var flagTeamIds string
 
 	cmd := &cobra.Command{
-		Use:   "organizations-get-organization <orgId>",
-		Aliases: []string{"get"},
-		Short: "Get organization routing forms",
-		Example: "  cal-com-pp-cli organizations routing-forms organizations-get-organization 42",
+		Use:         "organizations-get-organization <orgId>",
+		Aliases:     []string{"get"},
+		Short:       "Required membership role: `org admin`. PBAC permission: `routingForm.read`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations routing-forms organizations-get-organization 42",
 		Annotations: map[string]string{"pp:endpoint": "routing-forms.organizations-get-organization", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("sort-created-at") {
-				allowedSortCreatedAt := []string{ "asc", "desc" }
+				allowedSortCreatedAt := []string{"asc", "desc"}
 				validSortCreatedAt := false
 				for _, v := range allowedSortCreatedAt {
 					if flagSortCreatedAt == v {
@@ -47,7 +47,7 @@ func newOrganizationsRoutingFormsOrganizationsGetOrganizationCmd(flags *rootFlag
 				}
 			}
 			if cmd.Flags().Changed("sort-updated-at") {
-				allowedSortUpdatedAt := []string{ "asc", "desc" }
+				allowedSortUpdatedAt := []string{"asc", "desc"}
 				validSortUpdatedAt := false
 				for _, v := range allowedSortUpdatedAt {
 					if flagSortUpdatedAt == v {

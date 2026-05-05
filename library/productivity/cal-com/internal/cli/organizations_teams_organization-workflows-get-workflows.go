@@ -16,9 +16,9 @@ func newOrganizationsTeamsOrganizationWorkflowsGetWorkflowsCmd(flags *rootFlags)
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:   "organization-workflows-get-workflows <orgId> <teamId>",
-		Short: "Get organization team workflows",
-		Example: "  cal-com-pp-cli organizations teams organization-workflows-get-workflows 42 42",
+		Use:         "organization-workflows-get-workflows <orgId> <teamId>",
+		Short:       "Required membership role: `team admin`. PBAC permission: `workflow.read`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations teams organization-workflows-get-workflows 42 42",
 		Annotations: map[string]string{"pp:endpoint": "teams.organization-workflows-get-workflows", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -32,7 +32,7 @@ func newOrganizationsTeamsOrganizationWorkflowsGetWorkflowsCmd(flags *rootFlags)
 			path := "/v2/organizations/{orgId}/teams/{teamId}/workflows"
 			path = replacePathParam(path, "orgId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("teamId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "teamId"))
+				return usageErr(fmt.Errorf("teamId is required\nUsage: %s <%s>", cmd.CommandPath(), "teamId"))
 			}
 			path = replacePathParam(path, "teamId", args[1])
 			params := map[string]string{}

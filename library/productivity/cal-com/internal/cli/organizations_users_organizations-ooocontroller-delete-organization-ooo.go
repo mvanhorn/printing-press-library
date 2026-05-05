@@ -14,9 +14,9 @@ import (
 func newOrganizationsUsersOrganizationsOoocontrollerDeleteOrganizationOooCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "organizations-ooocontroller-delete-organization-ooo <oooId> <userId> <orgId>",
-		Short: "Delete an out-of-office entry for a user",
-		Example: "  cal-com-pp-cli organizations users organizations-ooocontroller-delete-organization-ooo 42 42 42",
+		Use:         "organizations-ooocontroller-delete-organization-ooo <oooId> <userId> <orgId>",
+		Short:       "If accessed using an OAuth access token, the `ORG_SCHEDULE_WRITE` scope is required.",
+		Example:     "  cal-com-pp-cli organizations users organizations-ooocontroller-delete-organization-ooo 42 42 42",
 		Annotations: map[string]string{"pp:endpoint": "users.organizations-ooocontroller-delete-organization-ooo"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -30,11 +30,11 @@ func newOrganizationsUsersOrganizationsOoocontrollerDeleteOrganizationOooCmd(fla
 			path := "/v2/organizations/{orgId}/users/{userId}/ooo/{oooId}"
 			path = replacePathParam(path, "oooId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("userId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "userId"))
+				return usageErr(fmt.Errorf("userId is required\nUsage: %s <%s>", cmd.CommandPath(), "userId"))
 			}
 			path = replacePathParam(path, "userId", args[1])
 			if len(args) < 3 {
-				return usageErr(fmt.Errorf("orgId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "orgId"))
+				return usageErr(fmt.Errorf("orgId is required\nUsage: %s <%s>", cmd.CommandPath(), "orgId"))
 			}
 			path = replacePathParam(path, "orgId", args[2])
 			data, statusCode, err := c.Delete(path)
@@ -51,7 +51,9 @@ func newOrganizationsUsersOrganizationsOoocontrollerDeleteOrganizationOooCmd(fla
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

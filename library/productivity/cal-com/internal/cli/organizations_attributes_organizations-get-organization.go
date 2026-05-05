@@ -16,10 +16,10 @@ func newOrganizationsAttributesOrganizationsGetOrganizationCmd(flags *rootFlags)
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:   "organizations-get-organization <orgId>",
-		Aliases: []string{"get"},
-		Short: "Get all attributes",
-		Example: "  cal-com-pp-cli organizations attributes organizations-get-organization 42",
+		Use:         "organizations-get-organization <orgId>",
+		Aliases:     []string{"get"},
+		Short:       "Required membership role: `org member`. PBAC permission: `organization.attributes.read`. Learn more about API access...",
+		Example:     "  cal-com-pp-cli organizations attributes organizations-get-organization 42",
 		Annotations: map[string]string{"pp:endpoint": "attributes.organizations-get-organization", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

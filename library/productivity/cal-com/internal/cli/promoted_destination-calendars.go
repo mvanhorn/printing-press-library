@@ -17,10 +17,10 @@ func newDestinationCalendarsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyIntegration string
 
 	cmd := &cobra.Command{
-		Use:   "destination-calendars",
-		Short: "Update destination calendars",
-		Long:  "Shortcut for 'destination-calendars update'. Update destination calendars",
-		Example: "  cal-com-pp-cli destination-calendars",
+		Use:         "destination-calendars",
+		Short:       "If accessed using an OAuth access token, the `APPS_WRITE` scope is required.",
+		Long:        "Shortcut for 'destination-calendars update'. If accessed using an OAuth access token, the `APPS_WRITE` scope is required.",
+		Example:     "  cal-com-pp-cli destination-calendars",
 		Annotations: map[string]string{"pp:endpoint": "destination-calendars.update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("external-id") && !flags.dryRun {

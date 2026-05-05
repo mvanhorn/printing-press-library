@@ -1,48 +1,49 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-04-27T07:23:04.158688Z",
-  "printing_press_version": "2.3.9",
+  "generated_at": "2026-05-05T05:30:07.353005Z",
+  "printing_press_version": "3.9.0",
   "api_name": "cal-com",
+  "display_name": "Cal.com",
   "cli_name": "cal-com-pp-cli",
+  "spec_path": "/Users/tmchow/printing-press/.runstate/calm-scribbling-glacier-fb2ca6fd/runs/20260504-205634/research/cal-com-openapi-enriched.json",
   "spec_format": "openapi3",
-  "spec_checksum": "sha256:585261b1c70ab21ef76004af6a4ea0cb52f2c64e6ef467c22e0f02484300a8f4",
+  "spec_checksum": "sha256:569c5b2d8a7bf1efa931662520f6153f0f0904528b2bc73e00cd4a1fe8240e22",
+  "run_id": "20260504-205634",
   "mcp_binary": "cal-com-pp-mcp",
-  "mcp_tool_count": 285,
+  "mcp_tool_count": 291,
   "mcp_ready": "full",
   "auth_type": "bearer_token",
   "auth_env_vars": [
     "CAL_COM_TOKEN"
   ],
+  "auth_key_url": "https://app.cal.com/settings/developer/api-keys",
+  "auth_title": "Cal.com API Key",
+  "auth_description": "Cal.com bearer token (cal_live_* or cal_test_*); managed-user access tokens and OAuth access tokens also accepted",
   "novel_features": [
     {
       "name": "One-shot booking",
       "command": "book",
-      "description": "Find a slot and book it in a single command \u2014 no slot/reserve/create/confirm chain."
+      "description": "Find a slot and create a booking in one composed command — slot check, optional reservation, create, optional confirm."
     },
     {
-      "name": "Today's agenda",
-      "command": "today",
-      "description": "Today's bookings with status, attendees, and meeting links \u2014 read from the local store, no API call needed."
-    },
-    {
-      "name": "Week view",
-      "command": "week",
-      "description": "7-day calendar view of upcoming bookings, with conflict highlighting and per-day rollup counts."
+      "name": "Unified agenda",
+      "command": "agenda",
+      "description": "Upcoming bookings in a window — today, this week, or any duration — read from the local store."
     },
     {
       "name": "Cross-event-type slot search",
       "command": "slots find",
-      "description": "Find first available slot across multiple event types in one call, ranked by start time."
+      "description": "Find first available slots across multiple event-type IDs in one call, ranked by start time."
     },
     {
       "name": "Booking analytics",
-      "command": "analytics",
-      "description": "Booking volume, density, no-show rate, and cancellation rate across a window, grouped by event type / attendee / weekday / hour."
+      "command": "analytics no-show",
+      "description": "No-show, cancellation, volume, and density metrics over a window. Sister subcommands under analytics: bookings (volume), cancellations, no-show, density. --by accepts event-type, attendee, or weekday on the rate commands; analytics density --unit hour adds hourly heatmaps."
     },
     {
       "name": "Conflict detection",
       "command": "conflicts",
-      "description": "Detects overlaps between active Cal.com bookings and external calendar busy-times."
+      "description": "Detects overlapping bookings within a time window — pairs whose time ranges intersect get reported. Reads the local store, no API call."
     },
     {
       "name": "Availability gap finder",
@@ -52,7 +53,7 @@
     {
       "name": "Team workload balance",
       "command": "workload",
-      "description": "Booking distribution across team members over a window \u2014 surfaces overloaded vs underutilized hosts."
+      "description": "Booking distribution across team members over a window — surfaces overloaded vs underutilized hosts."
     },
     {
       "name": "Webhook coverage",
@@ -62,18 +63,12 @@
     {
       "name": "Stale event types",
       "command": "event-types stale",
-      "description": "Event types with zero bookings in the last N days \u2014 candidates for removal."
+      "description": "Event types with zero bookings in the last N days — candidates for removal."
     },
     {
-      "name": "Pending review",
-      "command": "bookings pending",
-      "description": "Pending-confirmation bookings sorted by age, with default 24h max-age cutoff."
-    },
-    {
-      "name": "Webhook trigger catalog",
-      "command": "webhooks triggers",
-      "description": "Static reference of every valid Cal.com webhook trigger constant, grouped by lifecycle stage."
+      "name": "Reschedule to next open slot",
+      "command": "reschedule next",
+      "description": "Move an existing booking to the next available slot for the same event type, after a cutoff."
     }
-  ],
-  "run_id": "20260426-231315"
+  ]
 }

@@ -18,9 +18,9 @@ func newOrganizationsTeamsOrganizationWorkflowsCreateEventTypeWorkflowCmd(flags 
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "organization-workflows-create-event-type-workflow <teamId> <orgId>",
-		Short: "Create organization team workflow for event-types",
-		Example: "  cal-com-pp-cli organizations teams organization-workflows-create-event-type-workflow 42 42 --name example-resource",
+		Use:         "organization-workflows-create-event-type-workflow <teamId> <orgId>",
+		Short:       "Required membership role: `team admin`. PBAC permission: `workflow.create`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations teams organization-workflows-create-event-type-workflow 42 42 --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "teams.organization-workflows-create-event-type-workflow"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -42,7 +42,7 @@ func newOrganizationsTeamsOrganizationWorkflowsCreateEventTypeWorkflowCmd(flags 
 			path := "/v2/organizations/{orgId}/teams/{teamId}/workflows"
 			path = replacePathParam(path, "teamId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("orgId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "orgId"))
+				return usageErr(fmt.Errorf("orgId is required\nUsage: %s <%s>", cmd.CommandPath(), "orgId"))
 			}
 			path = replacePathParam(path, "orgId", args[1])
 			var body map[string]any
@@ -79,7 +79,9 @@ func newOrganizationsTeamsOrganizationWorkflowsCreateEventTypeWorkflowCmd(flags 
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

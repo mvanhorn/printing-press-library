@@ -14,10 +14,10 @@ import (
 func newTeamsVerifiedResourcesTeamsGetVerifiedEmailByIdCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "teams-get-verified-email-by-id <id> <teamId>",
-		Aliases: []string{"get"},
-		Short: "Get verified email of a team by id",
-		Example: "  cal-com-pp-cli teams verified-resources teams-get-verified-email-by-id 550e8400-e29b-41d4-a716-446655440000 42",
+		Use:         "teams-get-verified-email-by-id <id> <teamId>",
+		Aliases:     []string{"get"},
+		Short:       "If accessed using an OAuth access token, the `TEAM_VERIFIED_RESOURCES_READ` scope is required.",
+		Example:     "  cal-com-pp-cli teams verified-resources teams-get-verified-email-by-id 550e8400-e29b-41d4-a716-446655440000 42",
 		Annotations: map[string]string{"pp:endpoint": "verified-resources.teams-get-verified-email-by-id", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -31,7 +31,7 @@ func newTeamsVerifiedResourcesTeamsGetVerifiedEmailByIdCmd(flags *rootFlags) *co
 			path := "/v2/teams/{teamId}/verified-resources/emails/{id}"
 			path = replacePathParam(path, "id", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("teamId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "teamId"))
+				return usageErr(fmt.Errorf("teamId is required\nUsage: %s <%s>", cmd.CommandPath(), "teamId"))
 			}
 			path = replacePathParam(path, "teamId", args[1])
 			params := map[string]string{}

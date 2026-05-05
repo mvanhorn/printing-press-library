@@ -16,10 +16,10 @@ func newOrganizationsSchedulesOrganizationsGetOrganizationCmd(flags *rootFlags) 
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:   "organizations-get-organization <orgId>",
-		Aliases: []string{"get"},
-		Short: "Get all schedules",
-		Example: "  cal-com-pp-cli organizations schedules organizations-get-organization 42",
+		Use:         "organizations-get-organization <orgId>",
+		Aliases:     []string{"get"},
+		Short:       "Required membership role: `org admin`. PBAC permission: `availability.read`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations schedules organizations-get-organization 42",
 		Annotations: map[string]string{"pp:endpoint": "schedules.organizations-get-organization", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

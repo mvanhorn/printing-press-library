@@ -14,9 +14,9 @@ import (
 func newOauthClientsWebhooksOauthClientDeleteOauthClientCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "oauth-client-delete-oauth-client <webhookId> <clientId>",
-		Short: "<Warning>These endpoints are deprecated and will be removed in the future.</Warning>",
-		Example: "  cal-com-pp-cli oauth-clients webhooks oauth-client-delete-oauth-client example-value example-value",
+		Use:         "oauth-client-delete-oauth-client <webhookId> <clientId>",
+		Short:       "<Warning>These endpoints are deprecated and will be removed in the future.</Warning>",
+		Example:     "  cal-com-pp-cli oauth-clients webhooks oauth-client-delete-oauth-client 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "webhooks.oauth-client-delete-oauth-client"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -30,7 +30,7 @@ func newOauthClientsWebhooksOauthClientDeleteOauthClientCmd(flags *rootFlags) *c
 			path := "/v2/oauth-clients/{clientId}/webhooks/{webhookId}"
 			path = replacePathParam(path, "webhookId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("clientId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "clientId"))
+				return usageErr(fmt.Errorf("clientId is required\nUsage: %s <%s>", cmd.CommandPath(), "clientId"))
 			}
 			path = replacePathParam(path, "clientId", args[1])
 			data, statusCode, err := c.Delete(path)
@@ -47,7 +47,9 @@ func newOauthClientsWebhooksOauthClientDeleteOauthClientCmd(flags *rootFlags) *c
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

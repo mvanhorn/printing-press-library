@@ -14,9 +14,9 @@ import (
 func newTeamsVerifiedResourcesTeamsGetVerifiedPhoneByIdCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "teams-get-verified-phone-by-id <teamId> <id>",
-		Short: "Get verified phone number of a team by id",
-		Example: "  cal-com-pp-cli teams verified-resources teams-get-verified-phone-by-id 42 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "teams-get-verified-phone-by-id <teamId> <id>",
+		Short:       "If accessed using an OAuth access token, the `TEAM_VERIFIED_RESOURCES_READ` scope is required.",
+		Example:     "  cal-com-pp-cli teams verified-resources teams-get-verified-phone-by-id 42 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "verified-resources.teams-get-verified-phone-by-id", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -30,7 +30,7 @@ func newTeamsVerifiedResourcesTeamsGetVerifiedPhoneByIdCmd(flags *rootFlags) *co
 			path := "/v2/teams/{teamId}/verified-resources/phones/{id}"
 			path = replacePathParam(path, "teamId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("id is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "id"))
+				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
 			}
 			path = replacePathParam(path, "id", args[1])
 			params := map[string]string{}

@@ -22,10 +22,10 @@ func newRoutingFormsCalculateSlotsRoutingFormsBasedOnRoutingFormResponseCmd(flag
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "routing-forms-based-on-routing-form-response <routingFormId>",
-		Aliases: []string{"create"},
-		Short: "It will not actually save the response just return the routed event type and slots when it can be booked.",
-		Example: "  cal-com-pp-cli routing-forms calculate-slots routing-forms-based-on-routing-form-response example-value",
+		Use:         "routing-forms-based-on-routing-form-response <routingFormId>",
+		Aliases:     []string{"create"},
+		Short:       "It will not actually save the response just return the routed event type and slots when it can be booked.",
+		Example:     "  cal-com-pp-cli routing-forms calculate-slots routing-forms-based-on-routing-form-response 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "calculate-slots.routing-forms-based-on-routing-form-response"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -38,7 +38,7 @@ func newRoutingFormsCalculateSlotsRoutingFormsBasedOnRoutingFormResponseCmd(flag
 				return fmt.Errorf("required flag \"%s\" not set", "end")
 			}
 			if cmd.Flags().Changed("format") {
-				allowedFormat := []string{ "range", "time" }
+				allowedFormat := []string{"range", "time"}
 				validFormat := false
 				for _, v := range allowedFormat {
 					if flagFormat == v {
@@ -59,7 +59,7 @@ func newRoutingFormsCalculateSlotsRoutingFormsBasedOnRoutingFormResponseCmd(flag
 
 			path := "/v2/routing-forms/{routingFormId}/calculate-slots"
 			if len(args) < 7 {
-				return usageErr(fmt.Errorf("routingFormId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "routingFormId"))
+				return usageErr(fmt.Errorf("routingFormId is required\nUsage: %s <%s>", cmd.CommandPath(), "routingFormId"))
 			}
 			path = replacePathParam(path, "routingFormId", args[6])
 			var body map[string]any
@@ -90,7 +90,9 @@ func newRoutingFormsCalculateSlotsRoutingFormsBasedOnRoutingFormResponseCmd(flag
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

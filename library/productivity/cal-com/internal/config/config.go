@@ -14,16 +14,16 @@ import (
 )
 
 type Config struct {
-	BaseURL        string `toml:"base_url"`
-	AuthHeaderVal  string `toml:"auth_header"`
-	AuthSource     string `toml:"-"`
-	AccessToken    string `toml:"access_token"`
-	RefreshToken   string `toml:"refresh_token"`
-	TokenExpiry    time.Time `toml:"token_expiry"`
-	ClientID       string `toml:"client_id"`
-	ClientSecret   string `toml:"client_secret"`
-	Path           string `toml:"-"`
-	CalComToken string `toml:"com_token"`
+	BaseURL       string    `toml:"base_url"`
+	AuthHeaderVal string    `toml:"auth_header"`
+	AuthSource    string    `toml:"-"`
+	AccessToken   string    `toml:"access_token"`
+	RefreshToken  string    `toml:"refresh_token"`
+	TokenExpiry   time.Time `toml:"token_expiry"`
+	ClientID      string    `toml:"client_id"`
+	ClientSecret  string    `toml:"client_secret"`
+	Path          string    `toml:"-"`
+	CalComToken   string    `toml:"com_token"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -67,12 +67,14 @@ func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
 	}
+	// Env-var token wins over file-stored AccessToken (env > config convention).
+	if c.CalComToken != "" {
+		c.AuthSource = "env:CAL_COM_TOKEN"
+		return "Bearer " + c.CalComToken
+	}
 	if c.AccessToken != "" {
 		c.AuthSource = "oauth2"
 		return "Bearer " + c.AccessToken
-	}
-	if c.CalComToken != "" {
-		return "Bearer " + c.CalComToken
 	}
 	return ""
 }

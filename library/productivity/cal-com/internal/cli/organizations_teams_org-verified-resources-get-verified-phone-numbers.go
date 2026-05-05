@@ -16,9 +16,9 @@ func newOrganizationsTeamsOrgVerifiedResourcesGetVerifiedPhoneNumbersCmd(flags *
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:   "org-verified-resources-get-verified-phone-numbers <teamId> <orgId>",
-		Short: "Get list of verified phone numbers of an org team",
-		Example: "  cal-com-pp-cli organizations teams org-verified-resources-get-verified-phone-numbers 42 42",
+		Use:         "org-verified-resources-get-verified-phone-numbers <teamId> <orgId>",
+		Short:       "Required membership role: `team admin`. PBAC permission: `team.read`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations teams org-verified-resources-get-verified-phone-numbers 42 42",
 		Annotations: map[string]string{"pp:endpoint": "teams.org-verified-resources-get-verified-phone-numbers", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -32,7 +32,7 @@ func newOrganizationsTeamsOrgVerifiedResourcesGetVerifiedPhoneNumbersCmd(flags *
 			path := "/v2/organizations/{orgId}/teams/{teamId}/verified-resources/phones"
 			path = replacePathParam(path, "teamId", args[0])
 			if len(args) < 4 {
-				return usageErr(fmt.Errorf("orgId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "orgId"))
+				return usageErr(fmt.Errorf("orgId is required\nUsage: %s <%s>", cmd.CommandPath(), "orgId"))
 			}
 			path = replacePathParam(path, "orgId", args[3])
 			params := map[string]string{}

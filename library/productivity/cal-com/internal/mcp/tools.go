@@ -12,14 +12,14 @@ import (
 	"strings"
 	"time"
 
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/cli"
-	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/store"
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterTools registers all API operations as MCP tools.
@@ -30,7 +30,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/api-keys/refresh", []string{ }),
+		makeAPIHandler("POST", "/v2/api-keys/refresh", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bookings_create",
@@ -38,16 +38,16 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/bookings", []string{ }),
+		makeAPIHandler("POST", "/v2/bookings", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bookings_get",
-			mcplib.WithDescription("<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note>. Optional: status, attendeeEmail, attendeeName (plus 17 more). Returns array of GetItem."),
+			mcplib.WithDescription("<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note> If accessed using an OAuth access token, the `BOOKING_READ` scope is required. Optional: status, attendeeEmail, attendeeName (plus 17 more). Returns array of GetItem."),
 			mcplib.WithString("status", mcplib.Description("Filter bookings by status. If you want to filter by multiple statuses, separate them with a comma.")),
 			mcplib.WithString("attendeeEmail", mcplib.Description("Filter bookings by the attendee's email address.")),
 			mcplib.WithString("attendeeName", mcplib.Description("Filter bookings by the attendee's name.")),
 			mcplib.WithString("bookingUid", mcplib.Description("Filter bookings by the booking Uid.")),
-			mcplib.WithString("eventTypeIds", mcplib.Description("Filter bookings by event type ids belonging to the user. Event type ids must be separated by a comma.")),
+			mcplib.WithString("eventTypeIds", mcplib.Description("Filter bookings by event type ids belonging to the user.")),
 			mcplib.WithString("eventTypeId", mcplib.Description("Filter bookings by event type id belonging to the user.")),
 			mcplib.WithString("teamsIds", mcplib.Description("Filter bookings by team ids that user is part of. Team ids must be separated by a comma.")),
 			mcplib.WithString("teamId", mcplib.Description("Filter bookings by team id that user is part of")),
@@ -60,14 +60,14 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("sortStart", mcplib.Description("Sort results by their start time in ascending or descending order.")),
 			mcplib.WithString("sortEnd", mcplib.Description("Sort results by their end time in ascending or descending order.")),
 			mcplib.WithString("sortCreated", mcplib.Description("Sort results by their creation time (when booking was made) in ascending or descending order.")),
-			mcplib.WithString("sortUpdatedAt", mcplib.Description("Sort results by their updated time (for example when booking status changes) in ascending or descending order.")),
+			mcplib.WithString("sortUpdatedAt", mcplib.Description("Sort results by their updated time (for example when booking status changes) in ascending or...")),
 			mcplib.WithString("take", mcplib.Description("The number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("The number of items to skip")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/bookings", []string{ }),
+		makeAPIHandler("GET", "/v2/bookings", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bookings_get-bookinguid",
@@ -77,7 +77,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/bookings/{bookingUid}", []string{"bookingUid", }),
+		makeAPIHandler("GET", "/v2/bookings/{bookingUid}", []string{"bookingUid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bookings_get-by-seat-uid",
@@ -87,47 +87,47 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/bookings/by-seat/{seatUid}", []string{"seatUid", }),
+		makeAPIHandler("GET", "/v2/bookings/by-seat/{seatUid}", []string{"seatUid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bookings_attendees_booking-add",
-			mcplib.WithDescription("Add a new attendee to an existing booking by its UID. **Side effects:** - The booking's attendee list is updated in the database - The calendar event is updated on connected calendars (Google Calendar, Outlook, etc.) to include the new attendee - An email notification is sent to the new attendee with the booking details **Permissions:** - The authenticated user must be either the booking organizer, an existing attendee, or have the `booking.update` permission for the team <Note>The cal-api-version header is required for this endpoint. Without it, the request will fail with a 404 error.</Note>. Required: bookingUid, email, name, timeZone. Optional: language (default: en), phoneNumber. Returns the new AddAttendeeOutput20240813."),
+			mcplib.WithDescription("Add a new attendee to an existing booking by its UID. **Side effects:** - The booking's attendee list is updated in the database - The calendar event is updated on connected calendars (Google Calendar, Outlook, etc.) to include the new attendee - An email notification is sent to the new attendee with the booking details **Permissions:** - The authenticated user must be either the booking organizer, an existing attendee, or have the `booking.update` permission for the team <Note>The cal-api-version header is required for this endpoint. Without it, the request will fail with a 404 error.</Note> If accessed using an OAuth access token, the `BOOKING_WRITE` scope is required. Required: bookingUid, email, name, timeZone. Optional: language (default: en), phoneNumber. Returns the new AddAttendeeOutput20240813."),
 			mcplib.WithString("bookingUid", mcplib.Required(), mcplib.Description("Booking uid")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/bookings/{bookingUid}/attendees", []string{"bookingUid", }),
+		makeAPIHandler("POST", "/v2/bookings/{bookingUid}/attendees", []string{"bookingUid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bookings_attendees_booking-get-booking",
-			mcplib.WithDescription("Retrieve all attendees for a specific booking by its UID. <Note>The cal-api-version header is required for this endpoint. Without it, the request will fail with a 404 error.</Note>. Required: bookingUid. Returns array of BookingAttendeeWithId20240813."),
+			mcplib.WithDescription("Retrieve all attendees for a specific booking by its UID. <Note>The cal-api-version header is required for this endpoint. Without it, the request will fail with a 404 error.</Note> If accessed using an OAuth access token, the `BOOKING_READ` scope is required. Required: bookingUid. Returns array of BookingAttendeeWithId20240813."),
 			mcplib.WithString("bookingUid", mcplib.Required(), mcplib.Description("Booking uid")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/bookings/{bookingUid}/attendees", []string{"bookingUid", }),
+		makeAPIHandler("GET", "/v2/bookings/{bookingUid}/attendees", []string{"bookingUid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bookings_attendees_booking-get-booking-bookings",
-			mcplib.WithDescription("Retrieve a specific attendee by their ID for a booking identified by its UID. <Note>The cal-api-version header is required for this endpoint. Without it, the request will fail with a 404 error.</Note>. Required: bookingUid, attendeeId. Returns the GetBookingAttendeeOutput20240813."),
+			mcplib.WithDescription("Retrieve a specific attendee by their ID for a booking identified by its UID. <Note>The cal-api-version header is required for this endpoint. Without it, the request will fail with a 404 error.</Note> If accessed using an OAuth access token, the `BOOKING_READ` scope is required. Required: bookingUid, attendeeId. Returns the GetBookingAttendeeOutput20240813."),
 			mcplib.WithString("bookingUid", mcplib.Required(), mcplib.Description("Booking uid")),
 			mcplib.WithString("attendeeId", mcplib.Required(), mcplib.Description("Attendee id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/bookings/{bookingUid}/attendees/{attendeeId}", []string{"bookingUid","attendeeId", }),
+		makeAPIHandler("GET", "/v2/bookings/{bookingUid}/attendees/{attendeeId}", []string{"bookingUid", "attendeeId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bookings_calendar-links_bookings-get",
-			mcplib.WithDescription("Retrieve calendar links for a booking that can be used to add the event to various calendar services. Returns links for Google Calendar, Microsoft Office, Microsoft Outlook, and a downloadable ICS file. <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note>. Required: bookingUid."),
+			mcplib.WithDescription("Retrieve calendar links for a booking that can be used to add the event to various calendar services. Returns links for Google Calendar, Microsoft Office, Microsoft Outlook, and a downloadable ICS file. <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note> If accessed using an OAuth access token, the `BOOKING_READ` scope is required. Required: bookingUid."),
 			mcplib.WithString("bookingUid", mcplib.Required(), mcplib.Description("Booking uid")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/bookings/{bookingUid}/calendar-links", []string{"bookingUid", }),
+		makeAPIHandler("GET", "/v2/bookings/{bookingUid}/calendar-links", []string{"bookingUid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bookings_cancel_bookings-booking",
@@ -136,120 +136,129 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/bookings/{bookingUid}/cancel", []string{"bookingUid", }),
+		makeAPIHandler("POST", "/v2/bookings/{bookingUid}/cancel", []string{"bookingUid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bookings_conferencing-sessions_bookings-get-video-sessions",
-			mcplib.WithDescription("Requires authentication and proper authorization. Access is granted if you are the booking organizer, team admin or org admin/owner. <Note>cal-api-version: `2024-08-13` is required in the request header.</Note>. Required: bookingUid. Returns array of CalMeetingSession."),
+			mcplib.WithDescription("Requires authentication and proper authorization. Access is granted if you are the booking organizer, team admin or org admin/owner. <Note>cal-api-version: `2026-02-25` is required in the request header.</Note> <Note>This endpoint is rate-limited to 60 requests per minute per caller (per API key, access token, OAuth client, or IP). Exceeding the limit returns a 429 response and blocks further calls for 60 seconds.</Note> If accessed using an OAuth access token, the `BOOKING_READ` scope is required. Required: bookingUid."),
 			mcplib.WithString("bookingUid", mcplib.Required(), mcplib.Description("Booking uid")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/bookings/{bookingUid}/conferencing-sessions", []string{"bookingUid", }),
+		makeAPIHandler("GET", "/v2/bookings/{bookingUid}/conferencing-sessions", []string{"bookingUid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bookings_confirm_bookings-booking",
-			mcplib.WithDescription("The provided authorization header refers to the owner of the booking. <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note>. Required: bookingUid. Returns the new GetBookingOutput20240813."),
+			mcplib.WithDescription("The provided authorization header refers to the owner of the booking. <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note> If accessed using an OAuth access token, the `BOOKING_WRITE` scope is required. Required: bookingUid. Returns the new GetBookingOutput20240813."),
 			mcplib.WithString("bookingUid", mcplib.Required(), mcplib.Description("Booking uid")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/bookings/{bookingUid}/confirm", []string{"bookingUid", }),
+		makeAPIHandler("POST", "/v2/bookings/{bookingUid}/confirm", []string{"bookingUid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bookings_decline_bookings-booking",
-			mcplib.WithDescription("The provided authorization header refers to the owner of the booking. <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note>. Required: bookingUid. Optional: reason. Returns the new GetBookingOutput20240813."),
+			mcplib.WithDescription("The provided authorization header refers to the owner of the booking. <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note> If accessed using an OAuth access token, the `BOOKING_WRITE` scope is required. Required: bookingUid. Optional: reason. Returns the new GetBookingOutput20240813."),
 			mcplib.WithString("bookingUid", mcplib.Required(), mcplib.Description("Booking uid")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/bookings/{bookingUid}/decline", []string{"bookingUid", }),
+		makeAPIHandler("POST", "/v2/bookings/{bookingUid}/decline", []string{"bookingUid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bookings_guests_booking-add",
-			mcplib.WithDescription("Add one or more guests to an existing booking. Maximum 10 guests per request, with a limit of 30 total guests per booking. **Rate Limiting:** This endpoint is rate limited to 5 requests per minute to prevent abuse. **Email Notifications:** When guests are added, the following notifications are sent (unless disabled by event type settings): - **Organizer & Team Members:** Receive an 'Add Guests' notification email informing them that new guests have been added to the booking. - **New Guests:** Receive a 'Scheduled Event' email with full booking details and calendar invite. If they have a phone number, they also receive an SMS notification. - **Existing Guests:** Receive an 'Add Guests' notification email informing them that additional guests have been added to the booking. <Note>The cal-api-version header is required for this endpoint. Without it, the request will fail with a 404 error.</Note>. Required: bookingUid. Returns the new AddGuestsOutput20240813."),
+			mcplib.WithDescription("Add one or more guests to an existing booking. Maximum 10 guests per request, with a limit of 30 total guests per booking. **Rate Limiting:** This endpoint is rate limited to 5 requests per minute to prevent abuse. **Email Notifications:** When guests are added, the following notifications are sent (unless disabled by event type settings): - **Organizer & Team Members:** Receive an 'Add Guests' notification email informing them that new guests have been added to the booking. - **New Guests:** Receive a 'Scheduled Event' email with full booking details and calendar invite. If they have a phone number, they also receive an SMS notification. - **Existing Guests:** Receive an 'Add Guests' notification email informing them that additional guests have been added to the booking. <Note>The cal-api-version header is required for this endpoint. Without it, the request will fail with a 404 error.</Note> If accessed using an OAuth access token, the `BOOKING_WRITE` scope is required. Required: bookingUid. Returns the new AddGuestsOutput20240813."),
 			mcplib.WithString("bookingUid", mcplib.Required(), mcplib.Description("Booking uid")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/bookings/{bookingUid}/guests", []string{"bookingUid", }),
+		makeAPIHandler("POST", "/v2/bookings/{bookingUid}/guests", []string{"bookingUid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bookings_location_booking-update-booking",
-			mcplib.WithDescription("**Current Limitation:** Updating a booking location will update the location in Cal.com, but the corresponding Calendar event will not be updated automatically. The old location will persist in the Calendar event. This is a known limitation that will be addressed in a future update. <Note>The cal-api-version header is required for this endpoint. Without it, the request will fail with a 404 error.</Note>. Required: bookingUid. Optional: location. Returns the updated UpdateBookingLocationOutput20240813."),
+			mcplib.WithDescription("**Current Limitation:** Updating a booking location will update the location in Cal.com, but the corresponding Calendar event will not be updated automatically. The old location will persist in the Calendar event. This is a known limitation that will be addressed in a future update. <Note>The cal-api-version header is required for this endpoint. Without it, the request will fail with a 404 error.</Note> If accessed using an OAuth access token, the `BOOKING_WRITE` scope is required. Required: bookingUid. Optional: location. Returns the updated UpdateBookingLocationOutput20240813."),
 			mcplib.WithString("bookingUid", mcplib.Required(), mcplib.Description("Booking uid")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/bookings/{bookingUid}/location", []string{"bookingUid", }),
+		makeAPIHandler("PATCH", "/v2/bookings/{bookingUid}/location", []string{"bookingUid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bookings_mark-absent_bookings-mark-no-show",
-			mcplib.WithDescription("The provided authorization header refers to the owner of the booking. <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note>. Required: bookingUid. Optional: host. Returns the new MarkAbsentBookingOutput20240813."),
+			mcplib.WithDescription("The provided authorization header refers to the owner of the booking. <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note> If accessed using an OAuth access token, the `BOOKING_WRITE` scope is required. Required: bookingUid. Optional: host. Returns the new MarkAbsentBookingOutput20240813."),
 			mcplib.WithString("bookingUid", mcplib.Required(), mcplib.Description("Booking uid")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/bookings/{bookingUid}/mark-absent", []string{"bookingUid", }),
+		makeAPIHandler("POST", "/v2/bookings/{bookingUid}/mark-absent", []string{"bookingUid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bookings_reassign_bookings-booking",
-			mcplib.WithDescription("Currently only supports reassigning host for round robin bookings. The provided authorization header refers to the owner of the booking. <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note>. Required: bookingUid. Returns the new ReassignBookingOutput20240813."),
+			mcplib.WithDescription("Currently only supports reassigning host for round robin bookings. The provided authorization header refers to the owner of the booking. <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note> If accessed using an OAuth access token, the `BOOKING_WRITE` scope is required. Required: bookingUid. Returns the new ReassignBookingOutput20240813."),
 			mcplib.WithString("bookingUid", mcplib.Required(), mcplib.Description("Booking uid")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/bookings/{bookingUid}/reassign", []string{"bookingUid", }),
+		makeAPIHandler("POST", "/v2/bookings/{bookingUid}/reassign", []string{"bookingUid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bookings_reassign_bookings-booking-to-user",
-			mcplib.WithDescription("Currently only supports reassigning host for round robin bookings. The provided authorization header refers to the owner of the booking. <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note>. Required: bookingUid, userId. Optional: reason. Returns the new ReassignBookingOutput20240813."),
+			mcplib.WithDescription("Currently only supports reassigning host for round robin bookings. The provided authorization header refers to the owner of the booking. <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note> If accessed using an OAuth access token, the `BOOKING_WRITE` scope is required. Required: bookingUid, userId. Optional: reason. Returns the new ReassignBookingOutput20240813."),
 			mcplib.WithString("bookingUid", mcplib.Required(), mcplib.Description("Booking uid")),
 			mcplib.WithString("userId", mcplib.Required(), mcplib.Description("User id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/bookings/{bookingUid}/reassign/{userId}", []string{"bookingUid","userId", }),
+		makeAPIHandler("POST", "/v2/bookings/{bookingUid}/reassign/{userId}", []string{"bookingUid", "userId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bookings_recordings_bookings-get-booking",
-			mcplib.WithDescription("Fetches all the recordings for the booking `:bookingUid`. Requires authentication and proper authorization. Access is granted if you are the booking organizer, team admin or org admin/owner. <Note>cal-api-version: `2024-08-13` is required in the request header.</Note>. Required: bookingUid. Returns array of RecordingItem."),
+			mcplib.WithDescription("Fetches all the recordings for the booking `:bookingUid`. Requires authentication and proper authorization. Access is granted if you are the booking organizer, team admin or org admin/owner. <Note>cal-api-version: `2026-02-25` is required in the request header.</Note> If accessed using an OAuth access token, the `BOOKING_READ` scope is required. Required: bookingUid. Returns array of RecordingItem."),
 			mcplib.WithString("bookingUid", mcplib.Required(), mcplib.Description("Booking uid")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/bookings/{bookingUid}/recordings", []string{"bookingUid", }),
+		makeAPIHandler("GET", "/v2/bookings/{bookingUid}/recordings", []string{"bookingUid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bookings_references_bookings-get-booking",
-			mcplib.WithDescription("<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note>. Required: bookingUid. Optional: type. Returns array of BookingReference."),
+			mcplib.WithDescription("<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note> If accessed using an OAuth access token, the `BOOKING_READ` scope is required. Required: bookingUid. Optional: type. Returns array of BookingReference."),
 			mcplib.WithString("bookingUid", mcplib.Required(), mcplib.Description("Booking uid")),
 			mcplib.WithString("type", mcplib.Description("Filter booking references by type")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/bookings/{bookingUid}/references", []string{"bookingUid", }),
+		makeAPIHandler("GET", "/v2/bookings/{bookingUid}/references", []string{"bookingUid"}),
 	)
 	s.AddTool(
-		mcplib.NewTool("bookings_reschedule_bookings-booking",
-			mcplib.WithDescription("Reschedule a booking or seated booking <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note>. Required: bookingUid. Returns the new RescheduleBookingOutput20240813."),
+		mcplib.NewTool("bookings_request-reschedule_bookings",
+			mcplib.WithDescription("Request to reschedule a booking. The booking will be cancelled and the attendee will receive an email with a link to reschedule. <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note> If accessed using an OAuth access token, the `BOOKING_WRITE` scope is required. Required: bookingUid. Optional: rescheduleReason. Returns the new RequestRescheduleOutput20240813."),
 			mcplib.WithString("bookingUid", mcplib.Required(), mcplib.Description("Booking uid")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/bookings/{bookingUid}/reschedule", []string{"bookingUid", }),
+		makeAPIHandler("POST", "/v2/bookings/{bookingUid}/request-reschedule", []string{"bookingUid"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("bookings_reschedule_bookings-booking",
+			mcplib.WithDescription("Reschedule a booking or seated booking. Reschedulable booking statuses: - `accepted` — the confirmed booking is moved to the new start time. - `pending` — a booking awaiting host confirmation can be rescheduled. The new booking stays `pending` until the host confirms or declines it. Non-reschedulable booking statuses (endpoint responds with `400 Bad Request`): - `cancelled` — the booking has already been cancelled. If it was cancelled because it was previously rescheduled, the error message includes the UID of the booking it was rescheduled to. - `rejected` — the host declined the original confirmation-required request. Create a new booking instead. - `awaiting_host` — an instant meeting that is live and waiting for a host to join. Create a new booking instead. <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note>. Required: bookingUid. Returns the new RescheduleBookingOutput20240813."),
+			mcplib.WithString("bookingUid", mcplib.Required(), mcplib.Description("Booking uid")),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/v2/bookings/{bookingUid}/reschedule", []string{"bookingUid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bookings_transcripts_bookings-get-booking",
-			mcplib.WithDescription("Fetches all the transcript download links for the booking `:bookingUid` <Note> Transcripts are generated when clicking 'Transcribe' during a Cal Video meeting. Download links are valid for 1 hour only - make a new request to generate fresh links after expiration. Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint. </Note>. Required: bookingUid. Returns array of string."),
+			mcplib.WithDescription("Fetches all the transcript download links for the booking `:bookingUid` <Note> Transcripts are generated when clicking 'Transcribe' during a Cal Video meeting. Download links are valid for 1 hour only - make a new request to generate fresh links after expiration. Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint. </Note> If accessed using an OAuth access token, the `BOOKING_READ` scope is required. Required: bookingUid. Returns array of string."),
 			mcplib.WithString("bookingUid", mcplib.Required(), mcplib.Description("Booking uid")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/bookings/{bookingUid}/transcripts", []string{"bookingUid", }),
+		makeAPIHandler("GET", "/v2/bookings/{bookingUid}/transcripts", []string{"bookingUid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("cal-com-auth_oauth2-token",
@@ -257,7 +266,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/auth/oauth2/token", []string{ }),
+		makeAPIHandler("POST", "/v2/auth/oauth2/token", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("cal-com-auth-2_oauth2-get-client",
@@ -267,141 +276,61 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/auth/oauth2/clients/{clientId}", []string{"clientId", }),
-	)
-	s.AddTool(
-		mcplib.NewTool("calendars_cal-unified-create-connection-event",
-			mcplib.WithDescription("Create a new event on the specified calendar connection. Only supported for Google Calendar connections; other connection types return 400. Required: connectionId, title. Optional: calendarId, description. Returns the new GetUnifiedCalendarEventOutput."),
-			mcplib.WithString("connectionId", mcplib.Required(), mcplib.Description("Connection id")),
-			mcplib.WithString("calendarId", mcplib.Description("Calendar id")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/v2/calendars/connections/{connectionId}/events", []string{"connectionId", }),
-	)
-	s.AddTool(
-		mcplib.NewTool("calendars_cal-unified-delete-connection-event",
-			mcplib.WithDescription("Delete/cancel an event on the specified calendar connection. Only supported for Google Calendar connections; other connection types return 400. Required: connectionId, eventId. Optional: calendarId. Destructive."),
-			mcplib.WithString("connectionId", mcplib.Required(), mcplib.Description("Connection id")),
-			mcplib.WithString("eventId", mcplib.Required(), mcplib.Description("Event id")),
-			mcplib.WithString("calendarId", mcplib.Description("Calendar id")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/v2/calendars/connections/{connectionId}/events/{eventId}", []string{"connectionId","eventId", }),
-	)
-	s.AddTool(
-		mcplib.NewTool("calendars_cal-unified-get-connection-event",
-			mcplib.WithDescription("Get a single event by ID for the specified calendar connection. Only supported for Google Calendar connections; other connection types return 400. Required: connectionId, eventId. Optional: calendarId. Returns the GetUnifiedCalendarEventOutput."),
-			mcplib.WithString("connectionId", mcplib.Required(), mcplib.Description("Connection id")),
-			mcplib.WithString("eventId", mcplib.Required(), mcplib.Description("Event id")),
-			mcplib.WithString("calendarId", mcplib.Description("Calendar id")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v2/calendars/connections/{connectionId}/events/{eventId}", []string{"connectionId","eventId", }),
-	)
-	s.AddTool(
-		mcplib.NewTool("calendars_cal-unified-get-connection-free-busy",
-			mcplib.WithDescription("Get busy time slots for the specified calendar connection. Required: connectionId, from, to. Optional: timeZone. Returns array of BusyTimesOutput."),
-			mcplib.WithString("connectionId", mcplib.Required(), mcplib.Description("Connection id")),
-			mcplib.WithString("from", mcplib.Required(), mcplib.Description("Start of the date range (ISO 8601 date or date-time)")),
-			mcplib.WithString("to", mcplib.Required(), mcplib.Description("End of the date range (ISO 8601 date or date-time)")),
-			mcplib.WithString("timeZone", mcplib.Description("IANA time zone (e.g. America/New_York)")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v2/calendars/connections/{connectionId}/freebusy", []string{"connectionId", }),
-	)
-	s.AddTool(
-		mcplib.NewTool("calendars_cal-unified-list-connection-events",
-			mcplib.WithDescription("List events in a date range for a specific calendar connection. Only supported for Google Calendar connections; other connection types return 400. Required: connectionId, from, to. Optional: timeZone, calendarId (default: primary). Returns array of UnifiedCalendarEventOutput."),
-			mcplib.WithString("connectionId", mcplib.Required(), mcplib.Description("Calendar connection ID from GET /connections")),
-			mcplib.WithString("from", mcplib.Required(), mcplib.Description("Start of the date range (ISO 8601 date or date-time)")),
-			mcplib.WithString("to", mcplib.Required(), mcplib.Description("End of the date range (ISO 8601 date or date-time)")),
-			mcplib.WithString("timeZone", mcplib.Description("IANA time zone for the request (e.g. America/New_York)")),
-			mcplib.WithString("calendarId", mcplib.Description("Calendar ID. Use 'primary' for the user's primary calendar, or the external ID of a connected calendar.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v2/calendars/connections/{connectionId}/events", []string{"connectionId", }),
-	)
-	s.AddTool(
-		mcplib.NewTool("calendars_cal-unified-list-connections",
-			mcplib.WithDescription("Returns all calendar connections for the authenticated user (Google, Office 365, Apple). Use connectionId in connection-scoped endpoints. Note: Event CRUD (list/create/get/update/delete events) is currently only supported for Google Calendar connections; other types will return 400."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v2/calendars/connections", []string{ }),
-	)
-	s.AddTool(
-		mcplib.NewTool("calendars_cal-unified-update-connection-event",
-			mcplib.WithDescription("Update an event on the specified calendar connection. Only supported for Google Calendar connections; other connection types return 400. Required: connectionId, eventId. Optional: calendarId, description, status (plus 1 more). Returns the updated GetUnifiedCalendarEventOutput."),
-			mcplib.WithString("connectionId", mcplib.Required(), mcplib.Description("Connection id")),
-			mcplib.WithString("eventId", mcplib.Required(), mcplib.Description("Event id")),
-			mcplib.WithString("calendarId", mcplib.Description("Calendar id")),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("PATCH", "/v2/calendars/connections/{connectionId}/events/{eventId}", []string{"connectionId","eventId", }),
+		makeAPIHandler("GET", "/v2/auth/oauth2/clients/{clientId}", []string{"clientId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("calendars_check-ics-feed",
-			mcplib.WithDescription("Check an ICS feed. Returns the CheckIcsFeedResponse."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `APPS_READ` scope is required. Returns the CheckIcsFeedResponse."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/calendars/ics-feed/check", []string{ }),
+		makeAPIHandler("GET", "/v2/calendars/ics-feed/check", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("calendars_create-ics-feed",
-			mcplib.WithDescription("Save an ICS feed. Required: urls. Optional: readOnly (default: true). Returns the new CreateIcsFeedOutputResponseDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `APPS_WRITE` scope is required. Required: urls. Optional: readOnly (default: true). Returns the new CreateIcsFeedOutputResponseDto."),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/calendars/ics-feed/save", []string{ }),
+		makeAPIHandler("POST", "/v2/calendars/ics-feed/save", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("calendars_get",
-			mcplib.WithDescription("Get all calendars. Returns the ConnectedCalendarsOutput."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `APPS_READ` scope is required. Returns the ConnectedCalendarsOutput."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/calendars", []string{ }),
+		makeAPIHandler("GET", "/v2/calendars", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("calendars_get-busy-times",
-			mcplib.WithDescription("Get busy times from a calendar. Example request URL is `https://api.cal.com/v2/calendars/busy-times?timeZone=Europe%2FMadrid&dateFrom=2024-12-18&dateTo=2024-12-18&calendarsToLoad[0][credentialId]=135&calendarsToLoad[0][externalId]=skrauciz%40gmail.com`. Note: loggedInUsersTz is deprecated, use timeZone instead. Required: credentialId, externalId. Optional: loggedInUsersTz, timeZone, dateFrom (plus 1 more). Returns array of BusyTimesOutput."),
+			mcplib.WithDescription("Get busy times from a calendar. Example request URL is `https://api.cal.com/v2/calendars/busy-times?timeZone=Europe%2FMadrid&dateFrom=2024-12-18&dateTo=2024-12-18&calendarsToLoad[0][credentialId]=135&calendarsToLoad[0][externalId]=skrauciz%40gmail.com`. Note: loggedInUsersTz is deprecated, use timeZone instead. If accessed using an OAuth access token, the `APPS_READ` scope is required. Required: dateFrom, dateTo, calendarsToLoad. Optional: loggedInUsersTz, timeZone. Returns array of BusyTimesOutput."),
 			mcplib.WithString("loggedInUsersTz", mcplib.Description("Deprecated: Use timeZone instead. The timezone of the user represented as a string")),
 			mcplib.WithString("timeZone", mcplib.Description("The timezone for the busy times query represented as a string")),
-			mcplib.WithString("dateFrom", mcplib.Description("The starting date for the busy times query")),
-			mcplib.WithString("dateTo", mcplib.Description("The ending date for the busy times query")),
-			mcplib.WithString("credentialId", mcplib.Required(), mcplib.Description("Credential id")),
-			mcplib.WithString("externalId", mcplib.Required(), mcplib.Description("External id")),
+			mcplib.WithString("dateFrom", mcplib.Required(), mcplib.Description("The starting date for the busy times query")),
+			mcplib.WithString("dateTo", mcplib.Required(), mcplib.Description("The ending date for the busy times query")),
+			mcplib.WithString("calendarsToLoad", mcplib.Required(), mcplib.Description("An array of Calendar objects representing the calendars to be loaded. Use bracket notation in the URL, e.g.:...")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/calendars/busy-times", []string{ }),
+		makeAPIHandler("GET", "/v2/calendars/busy-times", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("calendars_check_calendars",
-			mcplib.WithDescription("Check a calendar connection. Required: calendar (default: apple). Returns the CalendarsResponse."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `APPS_READ` scope is required. Required: calendar (default: apple). Returns the CalendarsResponse."),
 			mcplib.WithString("calendar", mcplib.Description("Calendar")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/calendars/{calendar}/check", []string{"calendar", }),
+		makeAPIHandler("GET", "/v2/calendars/{calendar}/check", []string{"calendar"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("calendars_connect_calendars-redirect",
-			mcplib.WithDescription("Get OAuth connect URL. Required: calendar (default: office365), isDryRun. Optional: redir. Returns the CalendarsRedirectResponse."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `APPS_WRITE` scope is required. Required: calendar (default: office365), isDryRun. Optional: redir. Returns the CalendarsRedirectResponse."),
 			mcplib.WithString("calendar", mcplib.Description("Calendar")),
 			mcplib.WithString("isDryRun", mcplib.Required(), mcplib.Description("Is dry run")),
 			mcplib.WithString("redir", mcplib.Description("Redirect URL after successful calendar authorization.")),
@@ -409,111 +338,45 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/calendars/{calendar}/connect", []string{"calendar", }),
+		makeAPIHandler("GET", "/v2/calendars/{calendar}/connect", []string{"calendar"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("calendars_credentials_calendars-sync",
-			mcplib.WithDescription("Save Apple calendar credentials. Required: calendar (default: apple), password, username."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `APPS_WRITE` scope is required. Required: calendar (default: apple), password, username."),
 			mcplib.WithString("calendar", mcplib.Description("Calendar")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/calendars/{calendar}/credentials", []string{"calendar", }),
+		makeAPIHandler("POST", "/v2/calendars/{calendar}/credentials", []string{"calendar"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("calendars_disconnect_calendars-delete-calendar-credentials",
-			mcplib.WithDescription("Disconnect a calendar. Required: calendar (default: apple), id. Returns the new DeletedCalendarCredentialsOutputResponseDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `APPS_WRITE` scope is required. Required: calendar (default: apple), id. Returns the new DeletedCalendarCredentialsOutputResponseDto."),
 			mcplib.WithString("calendar", mcplib.Description("Calendar")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/calendars/{calendar}/disconnect", []string{"calendar", }),
+		makeAPIHandler("POST", "/v2/calendars/{calendar}/disconnect", []string{"calendar"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("calendars_event_cal-unified-calendars-get-calendar-details",
-			mcplib.WithDescription("Returns detailed information about a meeting including attendance metrics. The singular /event/ path is deprecated — use /events/ (plural) instead. For connection-scoped access use GET /connections/{connectionId}/events/{eventId}. Required: calendar (default: google), eventUid."),
+			mcplib.WithDescription("Returns detailed information about a meeting including attendance metrics. If accessed using an OAuth access token, the `APPS_READ` scope is required. Required: calendar (default: google), eventUid."),
 			mcplib.WithString("calendar", mcplib.Description("Calendar")),
 			mcplib.WithString("eventUid", mcplib.Required(), mcplib.Description("The Google Calendar event ID. You can retrieve this by getting booking references from the following endpoints: -...")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/calendars/{calendar}/event/{eventUid}", []string{"calendar","eventUid", }),
-	)
-	s.AddTool(
-		mcplib.NewTool("calendars_event_cal-unified-calendars-update-calendar",
-			mcplib.WithDescription("Updates event information in the specified calendar provider. The singular /event/ path is deprecated — use /events/ (plural) instead. For connection-scoped access use PATCH /connections/{connectionId}/events/{eventId}. Required: calendar (default: google), eventUid. Optional: description, status, title. Returns the updated GetUnifiedCalendarEventOutput."),
-			mcplib.WithString("calendar", mcplib.Description("Calendar")),
-			mcplib.WithString("eventUid", mcplib.Required(), mcplib.Description("The Google Calendar event ID. You can retrieve this by getting booking references from the following endpoints: -...")),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("PATCH", "/v2/calendars/{calendar}/event/{eventUid}", []string{"calendar","eventUid", }),
-	)
-	s.AddTool(
-		mcplib.NewTool("calendars_events_cal-unified-calendars-create-calendar",
-			mcplib.WithDescription("Create a new event on the authenticated user's calendar. Currently only Google Calendar is supported. Required: calendar (default: google), title. Optional: description. Returns the new GetUnifiedCalendarEventOutput."),
-			mcplib.WithString("calendar", mcplib.Description("Calendar")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/v2/calendars/{calendar}/events", []string{"calendar", }),
-	)
-	s.AddTool(
-		mcplib.NewTool("calendars_events_cal-unified-calendars-delete-calendar",
-			mcplib.WithDescription("Delete/cancel an event on the authenticated user's calendar. Currently only Google Calendar is supported. Required: calendar (default: google), eventUid. Destructive."),
-			mcplib.WithString("calendar", mcplib.Description("Calendar")),
-			mcplib.WithString("eventUid", mcplib.Required(), mcplib.Description("The calendar provider's event ID (e.g. Google Calendar event ID)")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/v2/calendars/{calendar}/events/{eventUid}", []string{"calendar","eventUid", }),
-	)
-	s.AddTool(
-		mcplib.NewTool("calendars_events_cal-unified-calendars-get-calendar-details",
-			mcplib.WithDescription("Returns detailed information about a meeting including attendance metrics. The singular /event/ path is deprecated — use /events/ (plural) instead. For connection-scoped access use GET /connections/{connectionId}/events/{eventId}. Required: calendar (default: google), eventUid."),
-			mcplib.WithString("calendar", mcplib.Description("Calendar")),
-			mcplib.WithString("eventUid", mcplib.Required(), mcplib.Description("The Google Calendar event ID. You can retrieve this by getting booking references from the following endpoints: -...")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v2/calendars/{calendar}/events/{eventUid}", []string{"calendar","eventUid", }),
-	)
-	s.AddTool(
-		mcplib.NewTool("calendars_events_cal-unified-calendars-list-calendar",
-			mcplib.WithDescription("List events in a date range for the authenticated user's calendar. Currently only Google Calendar is supported. Required: calendar (default: google), from, to. Optional: timeZone, calendarId (default: primary). Returns array of UnifiedCalendarEventOutput."),
-			mcplib.WithString("calendar", mcplib.Description("Calendar")),
-			mcplib.WithString("from", mcplib.Required(), mcplib.Description("Start of the date range (ISO 8601 date or date-time)")),
-			mcplib.WithString("to", mcplib.Required(), mcplib.Description("End of the date range (ISO 8601 date or date-time)")),
-			mcplib.WithString("timeZone", mcplib.Description("IANA time zone for the request (e.g. America/New_York)")),
-			mcplib.WithString("calendarId", mcplib.Description("Calendar ID. Use 'primary' for the user's primary calendar, or the external ID of a connected calendar.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v2/calendars/{calendar}/events", []string{"calendar", }),
+		makeAPIHandler("GET", "/v2/calendars/{calendar}/event/{eventUid}", []string{"calendar", "eventUid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("calendars_events_cal-unified-calendars-update-calendar",
-			mcplib.WithDescription("Updates event information in the specified calendar provider. The singular /event/ path is deprecated — use /events/ (plural) instead. For connection-scoped access use PATCH /connections/{connectionId}/events/{eventId}. Required: calendar (default: google), eventUid. Optional: description, status, title. Returns the updated GetUnifiedCalendarEventOutput."),
+			mcplib.WithDescription("Updates event information in the specified calendar provider. If accessed using an OAuth access token, the `APPS_WRITE` scope is required. Required: calendar (default: google), eventUid. Optional: description, status, title. Returns the updated GetUnifiedCalendarEventOutput."),
 			mcplib.WithString("calendar", mcplib.Description("Calendar")),
 			mcplib.WithString("eventUid", mcplib.Required(), mcplib.Description("The Google Calendar event ID. You can retrieve this by getting booking references from the following endpoints: -...")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/calendars/{calendar}/events/{eventUid}", []string{"calendar","eventUid", }),
-	)
-	s.AddTool(
-		mcplib.NewTool("calendars_freebusy_cal-unified-calendars-get-free-busy",
-			mcplib.WithDescription("Get busy time slots for the authenticated user's selected calendars in the given date range. Currently only Google Calendar is supported. Required: calendar (default: google), from, to. Optional: timeZone. Returns array of BusyTimesOutput."),
-			mcplib.WithString("calendar", mcplib.Description("Calendar")),
-			mcplib.WithString("from", mcplib.Required(), mcplib.Description("Start of the date range (ISO 8601 date or date-time)")),
-			mcplib.WithString("to", mcplib.Required(), mcplib.Description("End of the date range (ISO 8601 date or date-time)")),
-			mcplib.WithString("timeZone", mcplib.Description("IANA time zone (e.g. America/New_York)")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v2/calendars/{calendar}/freebusy", []string{"calendar", }),
+		makeAPIHandler("PATCH", "/v2/calendars/{calendar}/events/{eventUid}", []string{"calendar", "eventUid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("calendars_save_calendars",
@@ -525,56 +388,56 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/calendars/{calendar}/save", []string{"calendar", }),
+		makeAPIHandler("GET", "/v2/calendars/{calendar}/save", []string{"calendar"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("conferencing_get-default",
-			mcplib.WithDescription("Get your default conferencing application. Returns the GetDefaultConferencingAppOutputResponseDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `APPS_READ` scope is required. Returns the GetDefaultConferencingAppOutputResponseDto."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/conferencing/default", []string{ }),
+		makeAPIHandler("GET", "/v2/conferencing/default", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("conferencing_list-installed-apps",
-			mcplib.WithDescription("List your conferencing applications. Returns array of ConferencingAppsOutputDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `APPS_READ` scope is required. Returns array of ConferencingAppsOutputDto."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/conferencing", []string{ }),
+		makeAPIHandler("GET", "/v2/conferencing", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("conferencing_connect_conferencing",
-			mcplib.WithDescription("Connect your conferencing application. Required: app (default: google-meet). Returns the new ConferencingAppOutputResponseDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `APPS_WRITE` scope is required. Required: app (default: google-meet). Returns the new ConferencingAppOutputResponseDto."),
 			mcplib.WithString("app", mcplib.Description("Conferencing application type")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/conferencing/{app}/connect", []string{"app", }),
+		makeAPIHandler("POST", "/v2/conferencing/{app}/connect", []string{"app"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("conferencing_default_conferencing",
-			mcplib.WithDescription("Set your default conferencing application. Required: app (default: google-meet). Returns the new SetDefaultConferencingAppOutputResponseDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `APPS_WRITE` scope is required. Required: app (default: google-meet). Returns the new SetDefaultConferencingAppOutputResponseDto."),
 			mcplib.WithString("app", mcplib.Description("Conferencing application type")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/conferencing/{app}/default", []string{"app", }),
+		makeAPIHandler("POST", "/v2/conferencing/{app}/default", []string{"app"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("conferencing_disconnect_conferencing",
-			mcplib.WithDescription("Disconnect your conferencing application. Required: app (default: google-meet). Returns the DisconnectConferencingAppOutputResponseDto. Destructive."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `APPS_WRITE` scope is required. Required: app (default: google-meet). Returns the DisconnectConferencingAppOutputResponseDto. Destructive."),
 			mcplib.WithString("app", mcplib.Description("Conferencing application type")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/conferencing/{app}/disconnect", []string{"app", }),
+		makeAPIHandler("DELETE", "/v2/conferencing/{app}/disconnect", []string{"app"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("conferencing_oauth_conferencing-redirect",
-			mcplib.WithDescription("Get OAuth conferencing app auth URL. Required: app (default: zoom), returnTo, onErrorReturnTo. Returns the GetConferencingAppsOauthUrlResponseDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `APPS_WRITE` scope is required. Required: app (default: zoom), returnTo, onErrorReturnTo. Returns the GetConferencingAppsOauthUrlResponseDto."),
 			mcplib.WithString("app", mcplib.Description("Conferencing application type")),
 			mcplib.WithString("returnTo", mcplib.Required(), mcplib.Description("Return to")),
 			mcplib.WithString("onErrorReturnTo", mcplib.Required(), mcplib.Description("On error return to")),
@@ -582,7 +445,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/conferencing/{app}/oauth/auth-url", []string{"app", }),
+		makeAPIHandler("GET", "/v2/conferencing/{app}/oauth/auth-url", []string{"app"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("conferencing_oauth_conferencing-save",
@@ -594,31 +457,48 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/conferencing/{app}/oauth/callback", []string{"app", }),
+		makeAPIHandler("GET", "/v2/conferencing/{app}/oauth/callback", []string{"app"}),
 	)
 	s.AddTool(
-		mcplib.NewTool("destination-calendars_update",
-			mcplib.WithDescription("Update destination calendars. Required: externalId, integration. Optional: delegationCredentialId. Returns the updated DestinationCalendarsOutputResponseDto."),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("PUT", "/v2/destination-calendars", []string{ }),
-	)
-	s.AddTool(
-		mcplib.NewTool("event-types_create",
-			mcplib.WithDescription("<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note>. Required: lengthInMinutes, slug, title. Optional: afterEventBuffer, allowReschedulingCancelledBookings (default: false), allowReschedulingPastBookings (default: false) (plus 28 more). Returns the new CreateEventTypeOutput20240614."),
+		mcplib.NewTool("credits_charge",
+			mcplib.WithDescription("Charge credits for a completed AI agent interaction. Uses externalRef for idempotency to prevent double-charging. Required: creditFor, credits. Optional: externalRef. Returns the new ChargeResponse."),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/event-types", []string{ }),
+		makeAPIHandler("POST", "/v2/credits/charge", []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("credits_get-available",
+			mcplib.WithDescription("Check if the authenticated user (or their org/team) has available credits and return the current balance. Returns the GetAvailableResponse."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/v2/credits/available", []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("destination-calendars_update",
+			mcplib.WithDescription("If accessed using an OAuth access token, the `APPS_WRITE` scope is required. Required: externalId, integration. Optional: delegationCredentialId. Returns the updated DestinationCalendarsOutputResponseDto."),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("PUT", "/v2/destination-calendars", []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("event-types_create",
+			mcplib.WithDescription("<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note> If accessed using an OAuth access token, the `EVENT_TYPE_WRITE` scope is required. Required: lengthInMinutes, slug, title. Optional: afterEventBuffer, allowReschedulingCancelledBookings (default: false), allowReschedulingPastBookings (default: false) (plus 27 more). Returns the new CreateEventTypeOutput20240614."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/v2/event-types", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("event-types_delete",
-			mcplib.WithDescription("<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note>. Required: eventTypeId. Returns the DeleteEventTypeOutput20240614. Destructive."),
+			mcplib.WithDescription("<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note> If accessed using an OAuth access token, the `EVENT_TYPE_WRITE` scope is required. Required: eventTypeId. Returns the DeleteEventTypeOutput20240614. Destructive."),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/event-types/{eventTypeId}", []string{"eventTypeId", }),
+		makeAPIHandler("DELETE", "/v2/event-types/{eventTypeId}", []string{"eventTypeId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("event-types_get",
@@ -633,95 +513,95 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/event-types", []string{ }),
+		makeAPIHandler("GET", "/v2/event-types", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("event-types_get-by-id",
-			mcplib.WithDescription("<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note> Access control: This endpoint fetches an event type by ID and returns it only if the authenticated user is authorized. Authorization is granted to: - System admins - The event type owner - Hosts of the event type or users assigned to the event type - Team admins/owners of the team that owns the team event type - Organization admins/owners of the event type owner's organization - Organization admins/owners of the team's parent organization Note: Update and delete endpoints remain restricted to the event type owner only. Required: eventTypeId."),
+			mcplib.WithDescription("<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note> Access control: This endpoint fetches an event type by ID and returns it only if the authenticated user is authorized. Authorization is granted to: - System admins - The event type owner - Hosts of the event type or users assigned to the event type - Team admins/owners of the team that owns the team event type - Organization admins/owners of the event type owner's organization - Organization admins/owners of the team's parent organization Note: Update and delete endpoints remain restricted to the event type owner only. If accessed using an OAuth access token, the `EVENT_TYPE_READ` scope is required. Required: eventTypeId."),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/event-types/{eventTypeId}", []string{"eventTypeId", }),
+		makeAPIHandler("GET", "/v2/event-types/{eventTypeId}", []string{"eventTypeId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("event-types_update",
-			mcplib.WithDescription("<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note>. Required: eventTypeId. Optional: afterEventBuffer, allowReschedulingCancelledBookings (default: false), allowReschedulingPastBookings (default: false) (plus 31 more). Returns the updated UpdateEventTypeOutput20240614."),
+			mcplib.WithDescription("<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note> If accessed using an OAuth access token, the `EVENT_TYPE_WRITE` scope is required. Required: eventTypeId. Optional: afterEventBuffer, allowReschedulingCancelledBookings (default: false), allowReschedulingPastBookings (default: false) (plus 30 more). Returns the updated UpdateEventTypeOutput20240614."),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/event-types/{eventTypeId}", []string{"eventTypeId", }),
+		makeAPIHandler("PATCH", "/v2/event-types/{eventTypeId}", []string{"eventTypeId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("event-types_private-links_event-types-create",
-			mcplib.WithDescription("Create a private link for an event type. Required: eventTypeId. Optional: expiresAt, maxUsageCount (default: 1). Returns the new CreatePrivateLinkOutput."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `EVENT_TYPE_WRITE` scope is required. Required: eventTypeId. Optional: expiresAt, maxUsageCount (default: 1). Returns the new CreatePrivateLinkOutput."),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/event-types/{eventTypeId}/private-links", []string{"eventTypeId", }),
+		makeAPIHandler("POST", "/v2/event-types/{eventTypeId}/private-links", []string{"eventTypeId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("event-types_private-links_event-types-delete",
-			mcplib.WithDescription("Delete a private link for an event type. Required: eventTypeId, linkId. Returns the DeletePrivateLinkOutput. Destructive."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `EVENT_TYPE_WRITE` scope is required. Required: eventTypeId, linkId. Returns the DeletePrivateLinkOutput. Destructive."),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithString("linkId", mcplib.Required(), mcplib.Description("Link id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/event-types/{eventTypeId}/private-links/{linkId}", []string{"eventTypeId","linkId", }),
+		makeAPIHandler("DELETE", "/v2/event-types/{eventTypeId}/private-links/{linkId}", []string{"eventTypeId", "linkId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("event-types_private-links_event-types-get",
-			mcplib.WithDescription("Get all private links for an event type. Required: eventTypeId. Returns array of EventTypesGetItem."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `EVENT_TYPE_READ` scope is required. Required: eventTypeId. Returns array of EventTypesGetItem."),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/event-types/{eventTypeId}/private-links", []string{"eventTypeId", }),
+		makeAPIHandler("GET", "/v2/event-types/{eventTypeId}/private-links", []string{"eventTypeId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("event-types_private-links_event-types-update",
-			mcplib.WithDescription("Update a private link for an event type. Required: eventTypeId, linkId. Optional: expiresAt, maxUsageCount. Returns the updated UpdatePrivateLinkOutput."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `EVENT_TYPE_WRITE` scope is required. Required: eventTypeId, linkId. Optional: expiresAt, maxUsageCount. Returns the updated UpdatePrivateLinkOutput."),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithString("linkId", mcplib.Required(), mcplib.Description("Link id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/event-types/{eventTypeId}/private-links/{linkId}", []string{"eventTypeId","linkId", }),
+		makeAPIHandler("PATCH", "/v2/event-types/{eventTypeId}/private-links/{linkId}", []string{"eventTypeId", "linkId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("event-types_webhooks_event-type-create-event-type",
-			mcplib.WithDescription("Create a webhook. Required: eventTypeId, active, subscriberUrl, triggers. Optional: payloadTemplate, secret, version. Returns the new EventTypeWebhookOutputResponseDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `EVENT_TYPE_WRITE` scope is required. Required: eventTypeId, active, subscriberUrl, triggers. Optional: payloadTemplate, secret, version. Returns the new EventTypeWebhookOutputResponseDto."),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/event-types/{eventTypeId}/webhooks", []string{"eventTypeId", }),
+		makeAPIHandler("POST", "/v2/event-types/{eventTypeId}/webhooks", []string{"eventTypeId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("event-types_webhooks_event-type-delete-all-event-type",
-			mcplib.WithDescription("Delete all webhooks. Required: eventTypeId. Returns the DeleteManyWebhooksOutputResponseDto. Destructive."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `EVENT_TYPE_WRITE` scope is required. Required: eventTypeId. Returns the DeleteManyWebhooksOutputResponseDto. Destructive."),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/event-types/{eventTypeId}/webhooks", []string{"eventTypeId", }),
+		makeAPIHandler("DELETE", "/v2/event-types/{eventTypeId}/webhooks", []string{"eventTypeId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("event-types_webhooks_event-type-delete-event-type",
-			mcplib.WithDescription("Delete a webhook. Required: webhookId, eventTypeId. Returns the EventTypeWebhookOutputResponseDto. Destructive."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `EVENT_TYPE_WRITE` scope is required. Required: webhookId, eventTypeId. Returns the EventTypeWebhookOutputResponseDto. Destructive."),
 			mcplib.WithString("webhookId", mcplib.Required(), mcplib.Description("Webhook id")),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/event-types/{eventTypeId}/webhooks/{webhookId}", []string{"webhookId","eventTypeId", }),
+		makeAPIHandler("DELETE", "/v2/event-types/{eventTypeId}/webhooks/{webhookId}", []string{"webhookId", "eventTypeId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("event-types_webhooks_event-type-get-event-type",
-			mcplib.WithDescription("Get all webhooks. Required: eventTypeId. Optional: take (default: 250), skip (default: 0). Returns array of EventTypeWebhookOutputDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `EVENT_TYPE_READ` scope is required. Required: eventTypeId. Optional: take (default: 250), skip (default: 0). Returns array of EventTypeWebhookOutputDto."),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
@@ -729,43 +609,121 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/event-types/{eventTypeId}/webhooks", []string{"eventTypeId", }),
+		makeAPIHandler("GET", "/v2/event-types/{eventTypeId}/webhooks", []string{"eventTypeId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("event-types_webhooks_event-type-get-event-type-eventtypes",
-			mcplib.WithDescription("Get a webhook. Required: webhookId, eventTypeId. Returns the EventTypeWebhookOutputResponseDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `EVENT_TYPE_READ` scope is required. Required: webhookId, eventTypeId. Returns the EventTypeWebhookOutputResponseDto."),
 			mcplib.WithString("webhookId", mcplib.Required(), mcplib.Description("Webhook id")),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/event-types/{eventTypeId}/webhooks/{webhookId}", []string{"webhookId","eventTypeId", }),
+		makeAPIHandler("GET", "/v2/event-types/{eventTypeId}/webhooks/{webhookId}", []string{"webhookId", "eventTypeId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("event-types_webhooks_event-type-update-event-type",
-			mcplib.WithDescription("Update a webhook. Required: webhookId, eventTypeId. Optional: active, payloadTemplate, secret (plus 3 more). Returns the updated EventTypeWebhookOutputResponseDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `EVENT_TYPE_WRITE` scope is required. Required: webhookId, eventTypeId. Optional: active, payloadTemplate, secret (plus 3 more). Returns the updated EventTypeWebhookOutputResponseDto."),
 			mcplib.WithString("webhookId", mcplib.Required(), mcplib.Description("Webhook id")),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/event-types/{eventTypeId}/webhooks/{webhookId}", []string{"webhookId","eventTypeId", }),
+		makeAPIHandler("PATCH", "/v2/event-types/{eventTypeId}/webhooks/{webhookId}", []string{"webhookId", "eventTypeId"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("me_clear-my-booking-limits",
+			mcplib.WithDescription("Removes all of the authenticated user's global booking limits. Only available to organization members — non-org accounts receive a 403. If accessed using an OAuth access token, the `PROFILE_WRITE` scope is required. Destructive."),
+			mcplib.WithDestructiveHintAnnotation(true),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("DELETE", "/v2/me/booking-limits", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("me_get",
-			mcplib.WithDescription("Get my profile. Returns the GetMeOutput."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `PROFILE_READ` scope is required. Returns the GetMeOutput."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/me", []string{ }),
+		makeAPIHandler("GET", "/v2/me", []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("me_get-my-booking-limits",
+			mcplib.WithDescription("Returns the authenticated user's global booking limits. Unset bounds are returned as null. Only available to organization members — non-org accounts receive a 403. If accessed using an OAuth access token, the `PROFILE_READ` scope is required."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/v2/me/booking-limits", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("me_update",
-			mcplib.WithDescription("Updates the authenticated user's profile. Email changes require verification and the primary email stays unchanged until verification completes, unless the new email is already a verified secondary email or the user is platform-managed. Optional: avatarUrl, bio, defaultScheduleId (plus 6 more). Returns the updated UpdateMeOutput."),
+			mcplib.WithDescription("Updates the authenticated user's profile. Email changes require verification and the primary email stays unchanged until verification completes, unless the new email is already a verified secondary email or the user is platform-managed. If accessed using an OAuth access token, the `PROFILE_WRITE` scope is required. Optional: avatarUrl, bio, defaultScheduleId (plus 6 more). Returns the updated UpdateMeOutput."),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/me", []string{ }),
+		makeAPIHandler("PATCH", "/v2/me", []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("me_update-my-booking-limits",
+			mcplib.WithDescription("Partially updates the authenticated user's global booking limits. Only fields present in the request body are changed; omit a field to leave it untouched, or set it to null to remove that limit. Only available to organization members — non-org accounts receive a 403. If accessed using an OAuth access token, the `PROFILE_WRITE` scope is required. Optional: perDay, perMonth, perWeek (plus 1 more). Returns the updated UpdateBookingLimitsOutput."),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("PATCH", "/v2/me/booking-limits", []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("me_user-ooocontroller-create-my-ooo",
+			mcplib.WithDescription("If accessed using an OAuth access token, the `SCHEDULE_WRITE` scope is required. Required: end, start. Optional: notes, reason, toUserId. Returns the new UserOooOutputResponseDto."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/v2/me/ooo", []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("me_user-ooocontroller-delete-my-ooo",
+			mcplib.WithDescription("If accessed using an OAuth access token, the `SCHEDULE_WRITE` scope is required. Required: oooId. Returns the UserOooOutputResponseDto. Destructive."),
+			mcplib.WithString("oooId", mcplib.Required(), mcplib.Description("Ooo id")),
+			mcplib.WithDestructiveHintAnnotation(true),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("DELETE", "/v2/me/ooo/{oooId}", []string{"oooId"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("me_user-ooocontroller-get-my-ooo",
+			mcplib.WithDescription("If accessed using an OAuth access token, the `SCHEDULE_READ` scope is required. Optional: take (default: 250), skip (default: 0), sortStart (plus 1 more). Returns array of UserOooOutputDto."),
+			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
+			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
+			mcplib.WithString("sortStart", mcplib.Description("Sort results by their start time in ascending or descending order.")),
+			mcplib.WithString("sortEnd", mcplib.Description("Sort results by their end time in ascending or descending order.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/v2/me/ooo", []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("me_user-ooocontroller-update-my-ooo",
+			mcplib.WithDescription("If accessed using an OAuth access token, the `SCHEDULE_WRITE` scope is required. Required: oooId. Optional: end, notes, reason (plus 2 more). Returns the updated UserOooOutputResponseDto."),
+			mcplib.WithString("oooId", mcplib.Required(), mcplib.Description("Ooo id")),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("PATCH", "/v2/me/ooo/{oooId}", []string{"oooId"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("notifications_subscriptions-register",
+			mcplib.WithDescription("Register an app push subscription. Required: deviceId, platform, token. Returns the new AppPushSubscriptionResponseDto."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/v2/notifications/subscriptions/app-push", []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("notifications_subscriptions-remove",
+			mcplib.WithDescription("Remove an app push subscription. Required: token. Returns the RemoveAppPushSubscriptionResponseDto. Destructive."),
+			mcplib.WithDestructiveHintAnnotation(true),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("DELETE", "/v2/notifications/subscriptions/app-push", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("oauth_refresh_oauth-flow-tokens",
@@ -774,7 +732,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/oauth/{clientId}/refresh", []string{"clientId", }),
+		makeAPIHandler("POST", "/v2/oauth/{clientId}/refresh", []string{"clientId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("oauth-clients_create",
@@ -782,7 +740,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/oauth-clients", []string{ }),
+		makeAPIHandler("POST", "/v2/oauth-clients", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("oauth-clients_delete",
@@ -791,7 +749,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/oauth-clients/{clientId}", []string{"clientId", }),
+		makeAPIHandler("DELETE", "/v2/oauth-clients/{clientId}", []string{"clientId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("oauth-clients_get",
@@ -800,7 +758,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/oauth-clients", []string{ }),
+		makeAPIHandler("GET", "/v2/oauth-clients", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("oauth-clients_get-by-id",
@@ -810,7 +768,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/oauth-clients/{clientId}", []string{"clientId", }),
+		makeAPIHandler("GET", "/v2/oauth-clients/{clientId}", []string{"clientId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("oauth-clients_update",
@@ -818,7 +776,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("clientId", mcplib.Required(), mcplib.Description("Client id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/oauth-clients/{clientId}", []string{"clientId", }),
+		makeAPIHandler("PATCH", "/v2/oauth-clients/{clientId}", []string{"clientId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("oauth-clients_users_oauth-client-create",
@@ -827,7 +785,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/oauth-clients/{clientId}/users", []string{"clientId", }),
+		makeAPIHandler("POST", "/v2/oauth-clients/{clientId}/users", []string{"clientId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("oauth-clients_users_oauth-client-delete",
@@ -837,7 +795,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/oauth-clients/{clientId}/users/{userId}", []string{"clientId","userId", }),
+		makeAPIHandler("DELETE", "/v2/oauth-clients/{clientId}/users/{userId}", []string{"clientId", "userId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("oauth-clients_users_oauth-client-force-refresh",
@@ -847,7 +805,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/oauth-clients/{clientId}/users/{userId}/force-refresh", []string{"userId","clientId", }),
+		makeAPIHandler("POST", "/v2/oauth-clients/{clientId}/users/{userId}/force-refresh", []string{"userId", "clientId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("oauth-clients_users_oauth-client-get-by-id",
@@ -858,7 +816,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/oauth-clients/{clientId}/users/{userId}", []string{"clientId","userId", }),
+		makeAPIHandler("GET", "/v2/oauth-clients/{clientId}/users/{userId}", []string{"clientId", "userId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("oauth-clients_users_oauth-client-get-managed",
@@ -871,7 +829,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/oauth-clients/{clientId}/users", []string{"clientId", }),
+		makeAPIHandler("GET", "/v2/oauth-clients/{clientId}/users", []string{"clientId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("oauth-clients_users_oauth-client-update",
@@ -880,7 +838,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("userId", mcplib.Required(), mcplib.Description("User id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/oauth-clients/{clientId}/users/{userId}", []string{"clientId","userId", }),
+		makeAPIHandler("PATCH", "/v2/oauth-clients/{clientId}/users/{userId}", []string{"clientId", "userId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("oauth-clients_webhooks_oauth-client-create-oauth-client",
@@ -889,7 +847,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/oauth-clients/{clientId}/webhooks", []string{"clientId", }),
+		makeAPIHandler("POST", "/v2/oauth-clients/{clientId}/webhooks", []string{"clientId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("oauth-clients_webhooks_oauth-client-delete-all-oauth-client",
@@ -898,7 +856,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/oauth-clients/{clientId}/webhooks", []string{"clientId", }),
+		makeAPIHandler("DELETE", "/v2/oauth-clients/{clientId}/webhooks", []string{"clientId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("oauth-clients_webhooks_oauth-client-delete-oauth-client",
@@ -908,7 +866,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/oauth-clients/{clientId}/webhooks/{webhookId}", []string{"webhookId","clientId", }),
+		makeAPIHandler("DELETE", "/v2/oauth-clients/{clientId}/webhooks/{webhookId}", []string{"webhookId", "clientId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("oauth-clients_webhooks_oauth-client-get-oauth-client",
@@ -920,7 +878,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/oauth-clients/{clientId}/webhooks", []string{"clientId", }),
+		makeAPIHandler("GET", "/v2/oauth-clients/{clientId}/webhooks", []string{"clientId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("oauth-clients_webhooks_oauth-client-get-oauth-client-oauthclients",
@@ -931,7 +889,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/oauth-clients/{clientId}/webhooks/{webhookId}", []string{"webhookId","clientId", }),
+		makeAPIHandler("GET", "/v2/oauth-clients/{clientId}/webhooks/{webhookId}", []string{"webhookId", "clientId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("oauth-clients_webhooks_oauth-client-update-oauth-client",
@@ -940,30 +898,30 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("clientId", mcplib.Required(), mcplib.Description("Client id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/oauth-clients/{clientId}/webhooks/{webhookId}", []string{"webhookId","clientId", }),
+		makeAPIHandler("PATCH", "/v2/oauth-clients/{clientId}/webhooks/{webhookId}", []string{"webhookId", "clientId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_attributes_organizations-create-organization",
-			mcplib.WithDescription("Create an attribute. Required: orgId, name, slug, type. Optional: enabled. Returns the new CreateOrganizationAttributesOutput."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `organization.attributes.create`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, name, slug, type. Optional: enabled. Returns the new CreateOrganizationAttributesOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/attributes", []string{"orgId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/attributes", []string{"orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_attributes_organizations-delete-organization",
-			mcplib.WithDescription("Delete an attribute. Required: orgId, attributeId. Returns the DeleteOrganizationAttributesOutput. Destructive."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `organization.attributes.delete`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, attributeId. Returns the DeleteOrganizationAttributesOutput. Destructive."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("attributeId", mcplib.Required(), mcplib.Description("Attribute id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/attributes/{attributeId}", []string{"orgId","attributeId", }),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/attributes/{attributeId}", []string{"orgId", "attributeId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_attributes_organizations-get-organization",
-			mcplib.WithDescription("Get all attributes. Required: orgId. Optional: take (default: 250), skip (default: 0). Returns array of Attribute."),
+			mcplib.WithDescription("Required membership role: `org member`. PBAC permission: `organization.attributes.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId. Optional: take (default: 250), skip (default: 0). Returns array of Attribute."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
@@ -971,53 +929,53 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/attributes", []string{"orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/attributes", []string{"orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_attributes_organizations-get-organization-organizations",
-			mcplib.WithDescription("Get an attribute. Required: orgId, attributeId. Returns the GetSingleAttributeOutput."),
+			mcplib.WithDescription("Required membership role: `org member`. PBAC permission: `organization.attributes.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, attributeId. Returns the GetSingleAttributeOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("attributeId", mcplib.Required(), mcplib.Description("Attribute id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/attributes/{attributeId}", []string{"orgId","attributeId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/attributes/{attributeId}", []string{"orgId", "attributeId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_attributes_organizations-options-assign-organization-option-to-user",
-			mcplib.WithDescription("Assign an attribute to a user. Required: orgId, userId, attributeId. Optional: attributeOptionId, value. Returns the new AssignOptionUserOutput."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `organization.attributes.editUsers`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, userId, attributeId. Optional: attributeOptionId, value. Returns the new AssignOptionUserOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("userId", mcplib.Required(), mcplib.Description("User id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/attributes/options/{userId}", []string{"orgId","userId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/attributes/options/{userId}", []string{"orgId", "userId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_attributes_organizations-options-create-organization-option",
-			mcplib.WithDescription("Create an attribute option. Required: orgId, attributeId, slug, value. Returns the new CreateAttributeOptionOutput."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `organization.attributes.create`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, attributeId, slug, value. Returns the new CreateAttributeOptionOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("attributeId", mcplib.Required(), mcplib.Description("Attribute id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/attributes/{attributeId}/options", []string{"orgId","attributeId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/attributes/{attributeId}/options", []string{"orgId", "attributeId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_attributes_organizations-options-delete-organization-option",
-			mcplib.WithDescription("Delete an attribute option. Required: orgId, attributeId, optionId. Returns the DeleteAttributeOptionOutput. Destructive."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `organization.attributes.delete`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, attributeId, optionId. Returns the DeleteAttributeOptionOutput. Destructive."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("attributeId", mcplib.Required(), mcplib.Description("Attribute id")),
 			mcplib.WithString("optionId", mcplib.Required(), mcplib.Description("Option id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/attributes/{attributeId}/options/{optionId}", []string{"orgId","attributeId","optionId", }),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/attributes/{attributeId}/options/{optionId}", []string{"orgId", "attributeId", "optionId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_attributes_organizations-options-get-organization-assigned-options",
-			mcplib.WithDescription("Get all assigned attribute options by attribute ID. Required: orgId, attributeId. Optional: skip, take, assignedOptionIds (plus 1 more). Returns array of AssignedOptionOutput."),
+			mcplib.WithDescription("Required membership role: `org member`. PBAC permission: `organization.attributes.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, attributeId. Optional: skip, take, assignedOptionIds (plus 1 more). Returns array of AssignedOptionOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("attributeId", mcplib.Required(), mcplib.Description("Attribute id")),
 			mcplib.WithString("skip", mcplib.Description("Number of responses to skip")),
@@ -1028,11 +986,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/attributes/{attributeId}/options/assigned", []string{"orgId","attributeId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/attributes/{attributeId}/options/assigned", []string{"orgId", "attributeId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_attributes_organizations-options-get-organization-assigned-options-by-slug",
-			mcplib.WithDescription("Get all assigned attribute options by attribute slug. Required: orgId, attributeSlug. Optional: skip, take, assignedOptionIds (plus 1 more). Returns array of AssignedOptionOutput."),
+			mcplib.WithDescription("Required membership role: `org member`. PBAC permission: `organization.attributes.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, attributeSlug. Optional: skip, take, assignedOptionIds (plus 1 more). Returns array of AssignedOptionOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("attributeSlug", mcplib.Required(), mcplib.Description("Attribute slug")),
 			mcplib.WithString("skip", mcplib.Description("Number of responses to skip")),
@@ -1043,68 +1001,77 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/attributes/slugs/{attributeSlug}/options/assigned", []string{"orgId","attributeSlug", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/attributes/slugs/{attributeSlug}/options/assigned", []string{"orgId", "attributeSlug"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_attributes_organizations-options-get-organization-options",
-			mcplib.WithDescription("Get all attribute options. Required: orgId, attributeId. Returns array of OptionOutput."),
+			mcplib.WithDescription("Required membership role: `org member`. PBAC permission: `organization.attributes.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, attributeId. Returns array of OptionOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("attributeId", mcplib.Required(), mcplib.Description("Attribute id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/attributes/{attributeId}/options", []string{"orgId","attributeId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/attributes/{attributeId}/options", []string{"orgId", "attributeId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_attributes_organizations-options-get-organization-options-for-user",
-			mcplib.WithDescription("Get all attribute options for a user. Required: orgId, userId. Returns array of GetOptionUserOutputData."),
+			mcplib.WithDescription("Required membership role: `org member`. PBAC permission: `organization.attributes.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, userId. Returns array of GetOptionUserOutputData."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("userId", mcplib.Required(), mcplib.Description("User id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/attributes/options/{userId}", []string{"orgId","userId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/attributes/options/{userId}", []string{"orgId", "userId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_attributes_organizations-options-unassign-organization-option-from-user",
-			mcplib.WithDescription("Unassign an attribute from a user. Required: orgId, userId, attributeOptionId. Returns the UnassignOptionUserOutput. Destructive."),
+			mcplib.WithDescription("Required membership role: `org member`. PBAC permission: `organization.attributes.editUsers`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, userId, attributeOptionId. Returns the UnassignOptionUserOutput. Destructive."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("userId", mcplib.Required(), mcplib.Description("User id")),
 			mcplib.WithString("attributeOptionId", mcplib.Required(), mcplib.Description("Attribute option id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/attributes/options/{userId}/{attributeOptionId}", []string{"orgId","userId","attributeOptionId", }),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/attributes/options/{userId}/{attributeOptionId}", []string{"orgId", "userId", "attributeOptionId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_attributes_organizations-options-update-organization-option",
-			mcplib.WithDescription("Update an attribute option. Required: orgId, attributeId, optionId. Optional: slug, value. Returns the updated UpdateAttributeOptionOutput."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `organization.attributes.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, attributeId, optionId. Optional: slug, value. Returns the updated UpdateAttributeOptionOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("attributeId", mcplib.Required(), mcplib.Description("Attribute id")),
 			mcplib.WithString("optionId", mcplib.Required(), mcplib.Description("Option id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/attributes/{attributeId}/options/{optionId}", []string{"orgId","attributeId","optionId", }),
+		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/attributes/{attributeId}/options/{optionId}", []string{"orgId", "attributeId", "optionId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_attributes_organizations-update-organization",
-			mcplib.WithDescription("Update an attribute. Required: orgId, attributeId. Optional: enabled, name, slug (plus 1 more). Returns the updated UpdateOrganizationAttributesOutput."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `organization.attributes.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, attributeId. Optional: enabled, name, slug (plus 1 more). Returns the updated UpdateOrganizationAttributesOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("attributeId", mcplib.Required(), mcplib.Description("Attribute id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/attributes/{attributeId}", []string{"orgId","attributeId", }),
+		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/attributes/{attributeId}", []string{"orgId", "attributeId"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("organizations_bookings_organizations-block-org",
+			mcplib.WithDescription("Add the email or domain of a booking attendee to the organization blocklist. All matching upcoming bookings in the organization are silently cancelled. If accessed using an OAuth access token, the `ORG_BOOKING_WRITE` scope is required. Required: orgId, blockType, bookingUid. Returns the new BlockOrgBookingOutput."),
+			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/bookings/block", []string{"orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_bookings_organizations-get-all-org-team",
-			mcplib.WithDescription("Get organization bookings. Required: orgId. Optional: status, attendeeEmail, attendeeName (plus 18 more). Returns array of OrganizationsGetAllOrgTeamItem."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `booking.readOrgBookings`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_BOOKING_READ` scope is required. Required: orgId. Optional: status, attendeeEmail, attendeeName (plus 18 more). Returns array of OrganizationsGetAllOrgTeamItem."),
 			mcplib.WithString("status", mcplib.Description("Filter bookings by status. If you want to filter by multiple statuses, separate them with a comma.")),
 			mcplib.WithString("attendeeEmail", mcplib.Description("Filter bookings by the attendee's email address.")),
 			mcplib.WithString("attendeeName", mcplib.Description("Filter bookings by the attendee's name.")),
 			mcplib.WithString("bookingUid", mcplib.Description("Filter bookings by the booking Uid.")),
-			mcplib.WithString("eventTypeIds", mcplib.Description("Filter bookings by event type ids belonging to the user. Event type ids must be separated by a comma.")),
+			mcplib.WithString("eventTypeIds", mcplib.Description("Filter bookings by event type ids belonging to the user.")),
 			mcplib.WithString("eventTypeId", mcplib.Description("Filter bookings by event type id belonging to the user.")),
 			mcplib.WithString("teamsIds", mcplib.Description("Filter bookings by team ids that user is part of. Team ids must be separated by a comma.")),
 			mcplib.WithString("teamId", mcplib.Description("Filter bookings by team id that user is part of")),
@@ -1117,7 +1084,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("sortStart", mcplib.Description("Sort results by their start time in ascending or descending order.")),
 			mcplib.WithString("sortEnd", mcplib.Description("Sort results by their end time in ascending or descending order.")),
 			mcplib.WithString("sortCreated", mcplib.Description("Sort results by their creation time (when booking was made) in ascending or descending order.")),
-			mcplib.WithString("sortUpdatedAt", mcplib.Description("Sort results by their updated time (for example when booking status changes) in ascending or descending order.")),
+			mcplib.WithString("sortUpdatedAt", mcplib.Description("Sort results by their updated time (for example when booking status changes) in ascending or...")),
 			mcplib.WithString("take", mcplib.Description("The number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("The number of items to skip")),
 			mcplib.WithString("userIds", mcplib.Description("Filter bookings by ids of users within your organization.")),
@@ -1126,48 +1093,67 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/bookings", []string{"orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/bookings", []string{"orgId"}),
 	)
 	s.AddTool(
-		mcplib.NewTool("organizations_delegation-credentials_organizations-create",
-			mcplib.WithDescription("Save delegation credentials for your organization. Required: orgId, domain, workspacePlatformSlug. Returns the new CreateDelegationCredentialOutput."),
+		mcplib.NewTool("organizations_bookings_organizations-report-org",
+			mcplib.WithDescription("Report a booking within the organization. A booking report is created and the reported booking along with other matching upcoming bookings are silently cancelled. If accessed using an OAuth access token, the `ORG_BOOKING_WRITE` scope is required. Required: orgId, bookingUid, reason, reportType. Optional: description. Returns the new ReportOrgBookingOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/delegation-credentials", []string{"orgId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/bookings/report", []string{"orgId"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("organizations_delegation-credentials_organizations-create",
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `organization.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, domain, workspacePlatformSlug. Returns the new CreateDelegationCredentialOutput."),
+			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/delegation-credentials", []string{"orgId"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("organizations_delegation-credentials_organizations-delete",
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `organization.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, credentialId. Returns the DeleteDelegationCredentialOutput. Destructive."),
+			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
+			mcplib.WithString("credentialId", mcplib.Required(), mcplib.Description("Credential id")),
+			mcplib.WithDestructiveHintAnnotation(true),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/delegation-credentials/{credentialId}", []string{"orgId", "credentialId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_delegation-credentials_organizations-update",
-			mcplib.WithDescription("Update delegation credentials of your organization. Required: orgId, credentialId. Optional: enabled. Returns the updated UpdateDelegationCredentialOutput."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `organization.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, credentialId. Optional: enabled. Returns the updated UpdateDelegationCredentialOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("credentialId", mcplib.Required(), mcplib.Description("Credential id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/delegation-credentials/{credentialId}", []string{"orgId","credentialId", }),
+		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/delegation-credentials/{credentialId}", []string{"orgId", "credentialId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_memberships_organizations-create",
-			mcplib.WithDescription("Create a membership. Required: orgId, role (default: MEMBER), userId. Optional: accepted (default: false), disableImpersonation (default: false). Returns the new CreateOrgMembershipOutput."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `organization.invite`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_MEMBERSHIP_WRITE` scope is required. Required: orgId, role (default: MEMBER), userId. Optional: accepted (default: false), disableImpersonation (default: false). Returns the new CreateOrgMembershipOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/memberships", []string{"orgId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/memberships", []string{"orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_memberships_organizations-delete",
-			mcplib.WithDescription("Delete a membership. Required: orgId, membershipId. Returns the DeleteOrgMembership. Destructive."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `organization.remove`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_MEMBERSHIP_WRITE` scope is required. Required: orgId, membershipId. Returns the DeleteOrgMembership. Destructive."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("membershipId", mcplib.Required(), mcplib.Description("Membership id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/memberships/{membershipId}", []string{"orgId","membershipId", }),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/memberships/{membershipId}", []string{"orgId", "membershipId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_memberships_organizations-get-all",
-			mcplib.WithDescription("Get all memberships. Required: orgId. Optional: take (default: 250), skip (default: 0). Returns the GetAllOrgMemberships."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `organization.listMembers`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_MEMBERSHIP_READ` scope is required. Required: orgId. Optional: take (default: 250), skip (default: 0). Returns the GetAllOrgMemberships."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
@@ -1175,31 +1161,31 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/memberships", []string{"orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/memberships", []string{"orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_memberships_organizations-get-org",
-			mcplib.WithDescription("Get a membership. Required: orgId, membershipId. Returns the GetOrgMembership."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `organization.listMembers`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_MEMBERSHIP_READ` scope is required. Required: orgId, membershipId. Returns the GetOrgMembership."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("membershipId", mcplib.Required(), mcplib.Description("Membership id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/memberships/{membershipId}", []string{"orgId","membershipId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/memberships/{membershipId}", []string{"orgId", "membershipId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_memberships_organizations-update",
-			mcplib.WithDescription("Update a membership. Required: orgId, membershipId. Optional: accepted, disableImpersonation, role. Returns the updated UpdateOrgMembership."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `organization.changeMemberRole`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_MEMBERSHIP_WRITE` scope is required. Required: orgId, membershipId. Optional: accepted, disableImpersonation, role. Returns the updated UpdateOrgMembership."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("membershipId", mcplib.Required(), mcplib.Description("Membership id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/memberships/{membershipId}", []string{"orgId","membershipId", }),
+		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/memberships/{membershipId}", []string{"orgId", "membershipId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_ooo_organizations-users-ooocontroller-get-organization-users",
-			mcplib.WithDescription("Get all out-of-office entries for organization users. Required: orgId. Optional: take (default: 250), skip (default: 0), sortStart (plus 2 more). Returns array of UserOooOutputDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `ORG_SCHEDULE_READ` scope is required. Required: orgId. Optional: take (default: 250), skip (default: 0), sortStart (plus 2 more). Returns array of UserOooOutputDto."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
@@ -1210,30 +1196,30 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/ooo", []string{"orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/ooo", []string{"orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_organizations_create",
-			mcplib.WithDescription("Requires the user to have at least the 'ORG_ADMIN' role within the organization. Additionally, for platform, the plan must be 'SCALE' or higher to access this endpoint. Required: orgId, name. Optional: apiKeyDaysValid (default: 30), apiKeyNeverExpires, slug. Returns the new CreateManagedOrganizationOutput."),
+			mcplib.WithDescription("For platform, the plan must be 'SCALE' or higher to access this endpoint. Required membership role: `org admin`. PBAC permission: `organization.create`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, name. Optional: apiKeyDaysValid (default: 30), apiKeyNeverExpires, slug. Returns the new CreateManagedOrganizationOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/organizations", []string{"orgId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/organizations", []string{"orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_organizations_delete",
-			mcplib.WithDescription("Requires the user to have at least the 'ORG_ADMIN' role within the organization. Additionally, for platform, the plan must be 'SCALE' or higher to access this endpoint. Required: managedOrganizationId, orgId. Returns the GetManagedOrganizationOutput. Destructive."),
+			mcplib.WithDescription("For platform, the plan must be 'SCALE' or higher to access this endpoint. Required membership role: `org admin`. PBAC permission: `organization.delete`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: managedOrganizationId, orgId. Returns the GetManagedOrganizationOutput. Destructive."),
 			mcplib.WithString("managedOrganizationId", mcplib.Required(), mcplib.Description("Managed organization id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/organizations/{managedOrganizationId}", []string{"managedOrganizationId","orgId", }),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/organizations/{managedOrganizationId}", []string{"managedOrganizationId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_organizations_get",
-			mcplib.WithDescription("Requires the user to have at least the 'ORG_ADMIN' role within the organization. Additionally, for platform, the plan must be 'SCALE' or higher to access this endpoint. Required: orgId. Optional: take (default: 250), skip (default: 0), slug (plus 2 more). Returns array of ManagedOrganizationOutput."),
+			mcplib.WithDescription("For platform, the plan must be 'SCALE' or higher to access this endpoint. Required membership role: `org admin`. PBAC permission: `organization.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId. Optional: take (default: 250), skip (default: 0), slug (plus 2 more). Returns array of ManagedOrganizationOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
@@ -1244,61 +1230,61 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/organizations", []string{"orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/organizations", []string{"orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_organizations_get-organizations",
-			mcplib.WithDescription("Requires the user to have at least the 'ORG_ADMIN' role within the organization. Additionally, for platform, the plan must be 'SCALE' or higher to access this endpoint. Required: managedOrganizationId, orgId. Returns the GetManagedOrganizationOutput."),
+			mcplib.WithDescription("For platform, the plan must be 'SCALE' or higher to access this endpoint. Required membership role: `org admin`. PBAC permission: `organization.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: managedOrganizationId, orgId. Returns the GetManagedOrganizationOutput."),
 			mcplib.WithString("managedOrganizationId", mcplib.Required(), mcplib.Description("Managed organization id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/organizations/{managedOrganizationId}", []string{"managedOrganizationId","orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/organizations/{managedOrganizationId}", []string{"managedOrganizationId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_organizations_update",
-			mcplib.WithDescription("Requires the user to have at least the 'ORG_ADMIN' role within the organization. Additionally, for platform, the plan must be 'SCALE' or higher to access this endpoint. Required: orgId, managedOrganizationId. Optional: name. Returns the updated GetManagedOrganizationOutput."),
+			mcplib.WithDescription("For platform, the plan must be 'SCALE' or higher to access this endpoint. Required membership role: `org admin`. PBAC permission: `organization.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, managedOrganizationId. Optional: name. Returns the updated GetManagedOrganizationOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("managedOrganizationId", mcplib.Required(), mcplib.Description("Managed organization id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/organizations/{managedOrganizationId}", []string{"orgId","managedOrganizationId", }),
+		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/organizations/{managedOrganizationId}", []string{"orgId", "managedOrganizationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_roles_organizations-create",
-			mcplib.WithDescription("Create a new organization role. Required: orgId, name. Optional: color, description, permissions. Returns the new CreateOrgRoleOutput."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `role.create`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, name. Optional: color, description, permissions. Returns the new CreateOrgRoleOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/roles", []string{"orgId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/roles", []string{"orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_roles_organizations-delete",
-			mcplib.WithDescription("Delete an organization role. Required: orgId, roleId. Returns the DeleteOrgRoleOutput. Destructive."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `role.delete`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, roleId. Returns the DeleteOrgRoleOutput. Destructive."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("roleId", mcplib.Required(), mcplib.Description("Role id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/roles/{roleId}", []string{"orgId","roleId", }),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/roles/{roleId}", []string{"orgId", "roleId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_roles_organizations-get",
-			mcplib.WithDescription("Get a specific organization role. Required: orgId, roleId. Returns the GetOrgRoleOutput."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `role.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, roleId. Returns the GetOrgRoleOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("roleId", mcplib.Required(), mcplib.Description("Role id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/roles/{roleId}", []string{"orgId","roleId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/roles/{roleId}", []string{"orgId", "roleId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_roles_organizations-get-all",
-			mcplib.WithDescription("Get all organization roles. Required: orgId. Optional: take (default: 250), skip (default: 0). Returns array of OrgRoleOutput."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `role.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId. Optional: take (default: 250), skip (default: 0). Returns array of OrgRoleOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
@@ -1306,72 +1292,72 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/roles", []string{"orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/roles", []string{"orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_roles_organizations-permissions-add-permissions",
-			mcplib.WithDescription("Add permissions to an organization role (single or batch). Required: orgId, roleId, permissions. Returns array of string."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `role.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, roleId, permissions. Returns array of string."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("roleId", mcplib.Required(), mcplib.Description("Role id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/roles/{roleId}/permissions", []string{"orgId","roleId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/roles/{roleId}/permissions", []string{"orgId", "roleId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_roles_organizations-permissions-list-permissions",
-			mcplib.WithDescription("List permissions for an organization role. Required: orgId, roleId. Returns array of string."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `role.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, roleId. Returns array of string."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("roleId", mcplib.Required(), mcplib.Description("Role id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/roles/{roleId}/permissions", []string{"orgId","roleId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/roles/{roleId}/permissions", []string{"orgId", "roleId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_roles_organizations-permissions-remove-permission",
-			mcplib.WithDescription("Remove a permission from an organization role. Required: orgId, roleId, permission. Destructive."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `role.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, roleId, permission. Destructive."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("roleId", mcplib.Required(), mcplib.Description("Role id")),
 			mcplib.WithString("permission", mcplib.Required(), mcplib.Description("Permission")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/roles/{roleId}/permissions/{permission}", []string{"orgId","roleId","permission", }),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/roles/{roleId}/permissions/{permission}", []string{"orgId", "roleId", "permission"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_roles_organizations-permissions-remove-permissions",
-			mcplib.WithDescription("Remove multiple permissions from an organization role. Required: orgId, roleId. Optional: permissions. Destructive."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `role.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, roleId. Optional: permissions. Destructive."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("roleId", mcplib.Required(), mcplib.Description("Role id")),
 			mcplib.WithString("permissions", mcplib.Description("Permissions to remove (format: resource.action). Supports comma-separated values as well as repeated query params.")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/roles/{roleId}/permissions", []string{"orgId","roleId", }),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/roles/{roleId}/permissions", []string{"orgId", "roleId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_roles_organizations-permissions-set-permissions",
-			mcplib.WithDescription("Replace all permissions for an organization role. Required: orgId, roleId, permissions. Returns array of string."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `role.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, roleId, permissions. Returns array of string."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("roleId", mcplib.Required(), mcplib.Description("Role id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PUT", "/v2/organizations/{orgId}/roles/{roleId}/permissions", []string{"orgId","roleId", }),
+		makeAPIHandler("PUT", "/v2/organizations/{orgId}/roles/{roleId}/permissions", []string{"orgId", "roleId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_roles_organizations-update",
-			mcplib.WithDescription("Update an organization role. Required: orgId, roleId. Optional: color, description, name (plus 1 more). Returns the updated UpdateOrgRoleOutput."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `role.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: orgId, roleId. Optional: color, description, name (plus 1 more). Returns the updated UpdateOrgRoleOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("roleId", mcplib.Required(), mcplib.Description("Role id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/roles/{roleId}", []string{"orgId","roleId", }),
+		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/roles/{roleId}", []string{"orgId", "roleId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_routing-forms_organizations-get-organization",
-			mcplib.WithDescription("Get organization routing forms. Required: orgId. Optional: skip, take, sortCreatedAt (plus 7 more). Returns array of RoutingFormOutput."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `routingForm.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_ROUTING_FORM_READ` scope is required. Required: orgId. Optional: skip, take, sortCreatedAt (plus 7 more). Returns array of RoutingFormOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("skip", mcplib.Description("Number of responses to skip")),
 			mcplib.WithString("take", mcplib.Description("Number of responses to take")),
@@ -1387,28 +1373,28 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/routing-forms", []string{"orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/routing-forms", []string{"orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_routing-forms_organizations-responses-create-response",
-			mcplib.WithDescription("Create routing form response and get available slots. Required: orgId, routingFormId, start, end. Optional: timeZone, duration, format (plus 2 more). Returns the new CreateRoutingFormResponseOutput."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `routingForm.create`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_ROUTING_FORM_WRITE` scope is required. Required: orgId, routingFormId, start, end. Optional: timeZone, duration, format (plus 2 more). Returns the new CreateRoutingFormResponseOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("routingFormId", mcplib.Required(), mcplib.Description("Routing form id")),
-			mcplib.WithString("start", mcplib.Required(), mcplib.Description("Time starting from which available slots should be checked. Must be in UTC timezone as ISO 8601 datestring. You can...")),
-			mcplib.WithString("end", mcplib.Required(), mcplib.Description("Time until which available slots should be checked. Must be in UTC timezone as ISO 8601 datestring. You can pass...")),
+			mcplib.WithString("start", mcplib.Required(), mcplib.Description("Time starting from which available slots should be checked.")),
+			mcplib.WithString("end", mcplib.Required(), mcplib.Description("Time until which available slots should be checked.")),
 			mcplib.WithString("timeZone", mcplib.Description("Time zone in which the available slots should be returned. Defaults to UTC.")),
-			mcplib.WithString("duration", mcplib.Description("If event type has multiple possible durations then you can specify the desired duration here. Also, if you are...")),
+			mcplib.WithString("duration", mcplib.Description("If event type has multiple possible durations then you can specify the desired duration here.")),
 			mcplib.WithString("format", mcplib.Description("Format of slot times in response. Use 'range' to get start and end times.")),
-			mcplib.WithString("bookingUidToReschedule", mcplib.Description("The unique identifier of the booking being rescheduled. When provided will ensure that the original booking time...")),
+			mcplib.WithString("bookingUidToReschedule", mcplib.Description("The unique identifier of the booking being rescheduled.")),
 			mcplib.WithString("queueResponse", mcplib.Description("Whether to queue the form response.")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/routing-forms/{routingFormId}/responses", []string{"orgId","routingFormId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/routing-forms/{routingFormId}/responses", []string{"orgId", "routingFormId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_routing-forms_organizations-responses-get-responses",
-			mcplib.WithDescription("Get routing form responses. Required: orgId, routingFormId. Optional: skip, take, sortCreatedAt (plus 6 more). Returns array of RoutingFormResponseOutput."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `routingForm.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_ROUTING_FORM_READ` scope is required. Required: orgId, routingFormId. Optional: skip, take, sortCreatedAt (plus 6 more). Returns array of RoutingFormResponseOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("routingFormId", mcplib.Required(), mcplib.Description("Routing form id")),
 			mcplib.WithString("skip", mcplib.Description("Number of responses to skip")),
@@ -1424,21 +1410,21 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/routing-forms/{routingFormId}/responses", []string{"orgId","routingFormId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/routing-forms/{routingFormId}/responses", []string{"orgId", "routingFormId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_routing-forms_organizations-responses-update-response",
-			mcplib.WithDescription("Update routing form response. Required: orgId, routingFormId, responseId. Returns the updated UpdateRoutingFormResponseOutput."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `routingForm.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_ROUTING_FORM_WRITE` scope is required. Required: orgId, routingFormId, responseId. Returns the updated UpdateRoutingFormResponseOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("routingFormId", mcplib.Required(), mcplib.Description("Routing form id")),
 			mcplib.WithString("responseId", mcplib.Required(), mcplib.Description("Response id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/routing-forms/{routingFormId}/responses/{responseId}", []string{"orgId","routingFormId","responseId", }),
+		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/routing-forms/{routingFormId}/responses/{responseId}", []string{"orgId", "routingFormId", "responseId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_schedules_organizations-get-organization",
-			mcplib.WithDescription("Get all schedules. Required: orgId. Optional: take (default: 250), skip (default: 0). Returns array of ScheduleOutput20240611."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `availability.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_SCHEDULE_READ` scope is required. Required: orgId. Optional: take (default: 250), skip (default: 0). Returns array of ScheduleOutput20240611."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
@@ -1446,11 +1432,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/schedules", []string{"orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/schedules", []string{"orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_org-verified-resources-get-verified-email-by-id",
-			mcplib.WithDescription("Get verified email of an org team by id. Required: id, teamId, orgId. Returns the TeamVerifiedEmailOutput."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `team.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_VERIFIED_RESOURCES_READ` scope is required. Required: id, teamId, orgId. Returns the TeamVerifiedEmailOutput."),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
@@ -1458,11 +1444,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/verified-resources/emails/{id}", []string{"id","teamId","orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/verified-resources/emails/{id}", []string{"id", "teamId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_org-verified-resources-get-verified-emails",
-			mcplib.WithDescription("Get list of verified emails of an org team. Required: teamId, orgId. Optional: take (default: 250), skip (default: 0). Returns array of TeamVerifiedEmailOutputData."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `team.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_VERIFIED_RESOURCES_READ` scope is required. Required: teamId, orgId. Optional: take (default: 250), skip (default: 0). Returns array of TeamVerifiedEmailOutputData."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
@@ -1471,11 +1457,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/verified-resources/emails", []string{"teamId","orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/verified-resources/emails", []string{"teamId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_org-verified-resources-get-verified-phone-by-id",
-			mcplib.WithDescription("Get verified phone number of an org team by id. Required: teamId, id, orgId. Returns the TeamVerifiedPhoneOutput."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `team.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_VERIFIED_RESOURCES_READ` scope is required. Required: teamId, id, orgId. Returns the TeamVerifiedPhoneOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
@@ -1483,11 +1469,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/verified-resources/phones/{id}", []string{"teamId","id","orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/verified-resources/phones/{id}", []string{"teamId", "id", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_org-verified-resources-get-verified-phone-numbers",
-			mcplib.WithDescription("Get list of verified phone numbers of an org team. Required: teamId, orgId. Optional: take (default: 250), skip (default: 0). Returns array of TeamVerifiedPhoneOutputData."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `team.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_VERIFIED_RESOURCES_READ` scope is required. Required: teamId, orgId. Optional: take (default: 250), skip (default: 0). Returns array of TeamVerifiedPhoneOutputData."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
@@ -1496,93 +1482,93 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/verified-resources/phones", []string{"teamId","orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/verified-resources/phones", []string{"teamId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_org-verified-resources-request-email-verification-code",
-			mcplib.WithDescription("Sends a verification code to the email. Required: teamId, orgId, email. Returns the new RequestEmailVerificationOutput."),
+			mcplib.WithDescription("Sends a verification code to the email. Required membership role: `team admin`. PBAC permission: `team.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_VERIFIED_RESOURCES_WRITE` scope is required. Required: teamId, orgId, email. Returns the new RequestEmailVerificationOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/verified-resources/emails/verification-code/request", []string{"teamId","orgId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/verified-resources/emails/verification-code/request", []string{"teamId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_org-verified-resources-request-phone-verification-code",
-			mcplib.WithDescription("Sends a verification code to the phone number. Required: teamId, orgId, phone. Returns the new RequestPhoneVerificationOutput."),
+			mcplib.WithDescription("Sends a verification code to the phone number. Required membership role: `team admin`. PBAC permission: `team.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_VERIFIED_RESOURCES_WRITE` scope is required. Required: teamId, orgId, phone. Returns the new RequestPhoneVerificationOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/verified-resources/phones/verification-code/request", []string{"teamId","orgId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/verified-resources/phones/verification-code/request", []string{"teamId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_org-verified-resources-verify-email",
-			mcplib.WithDescription("Verify an email for an org team. Required: teamId, orgId, code, email. Returns the new TeamVerifiedEmailOutput."),
+			mcplib.WithDescription("Use code to verify an email. Required membership role: `team admin`. PBAC permission: `team.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_VERIFIED_RESOURCES_WRITE` scope is required. Required: teamId, orgId, code, email. Returns the new TeamVerifiedEmailOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/verified-resources/emails/verification-code/verify", []string{"teamId","orgId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/verified-resources/emails/verification-code/verify", []string{"teamId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_org-verified-resources-verify-phone-number",
-			mcplib.WithDescription("Verify a phone number for an org team. Required: teamId, orgId, code, phone. Returns the new TeamVerifiedPhoneOutput."),
+			mcplib.WithDescription("Use code to verify a phone number. Required membership role: `team admin`. PBAC permission: `team.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_VERIFIED_RESOURCES_WRITE` scope is required. Required: teamId, orgId, code, phone. Returns the new TeamVerifiedPhoneOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/verified-resources/phones/verification-code/verify", []string{"teamId","orgId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/verified-resources/phones/verification-code/verify", []string{"teamId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organization-workflows-create-event-type-workflow",
-			mcplib.WithDescription("Create organization team workflow for event-types. Required: teamId, orgId, name, trigger. Returns array of EventTypeWorkflowOutput."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `workflow.create`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_WORKFLOW_WRITE` scope is required. Required: teamId, orgId, name, trigger. Returns array of EventTypeWorkflowOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/workflows", []string{"teamId","orgId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/workflows", []string{"teamId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organization-workflows-create-form-workflow",
-			mcplib.WithDescription("Create organization team workflow for routing-forms. Required: teamId, orgId, name, trigger. Returns array of RoutingFormWorkflowOutput."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `workflow.create`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_WORKFLOW_WRITE` scope is required. Required: teamId, orgId, name, trigger. Returns array of RoutingFormWorkflowOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/workflows/routing-form", []string{"teamId","orgId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/workflows/routing-form", []string{"teamId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organization-workflows-delete-routing-form-workflow",
-			mcplib.WithDescription("Delete organization team routing-form workflow. Required: teamId, workflowId, orgId. Destructive."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `workflow.delete`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_WORKFLOW_WRITE` scope is required. Required: teamId, workflowId, orgId. Destructive."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("workflowId", mcplib.Required(), mcplib.Description("Workflow id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/teams/{teamId}/workflows/{workflowId}/routing-form", []string{"teamId","workflowId","orgId", }),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/teams/{teamId}/workflows/{workflowId}/routing-form", []string{"teamId", "workflowId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organization-workflows-delete-workflow",
-			mcplib.WithDescription("Delete organization team workflow. Required: teamId, workflowId, orgId. Destructive."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `workflow.delete`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_WORKFLOW_WRITE` scope is required. Required: teamId, workflowId, orgId. Destructive."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("workflowId", mcplib.Required(), mcplib.Description("Workflow id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/teams/{teamId}/workflows/{workflowId}", []string{"teamId","workflowId","orgId", }),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/teams/{teamId}/workflows/{workflowId}", []string{"teamId", "workflowId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organization-workflows-get-routing-form-workflow-by-id",
-			mcplib.WithDescription("Get organization team workflow. Required: teamId, workflowId, orgId. Returns array of RoutingFormWorkflowOutput."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `workflow.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_WORKFLOW_READ` scope is required. Required: teamId, workflowId, orgId. Returns array of RoutingFormWorkflowOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("workflowId", mcplib.Required(), mcplib.Description("Workflow id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
@@ -1590,11 +1576,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/workflows/{workflowId}/routing-form", []string{"teamId","workflowId","orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/workflows/{workflowId}/routing-form", []string{"teamId", "workflowId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organization-workflows-get-routing-form-workflows",
-			mcplib.WithDescription("Get organization team workflows. Required: orgId, teamId. Optional: take (default: 250), skip (default: 0). Returns array of RoutingFormWorkflowOutput."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `workflow.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_WORKFLOW_READ` scope is required. Required: orgId, teamId. Optional: take (default: 250), skip (default: 0). Returns array of RoutingFormWorkflowOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
@@ -1603,11 +1589,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/workflows/routing-form", []string{"orgId","teamId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/workflows/routing-form", []string{"orgId", "teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organization-workflows-get-workflow-by-id",
-			mcplib.WithDescription("Get organization team workflow. Required: teamId, workflowId, orgId. Returns array of EventTypeWorkflowOutput."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `workflow.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_WORKFLOW_READ` scope is required. Required: teamId, workflowId, orgId. Returns array of EventTypeWorkflowOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("workflowId", mcplib.Required(), mcplib.Description("Workflow id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
@@ -1615,11 +1601,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/workflows/{workflowId}", []string{"teamId","workflowId","orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/workflows/{workflowId}", []string{"teamId", "workflowId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organization-workflows-get-workflows",
-			mcplib.WithDescription("Get organization team workflows. Required: orgId, teamId. Optional: take (default: 250), skip (default: 0). Returns array of EventTypeWorkflowOutput."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `workflow.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_WORKFLOW_READ` scope is required. Required: orgId, teamId. Optional: take (default: 250), skip (default: 0). Returns array of EventTypeWorkflowOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
@@ -1628,31 +1614,31 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/workflows", []string{"orgId","teamId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/workflows", []string{"orgId", "teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organization-workflows-update-routing-form-workflow",
-			mcplib.WithDescription("Update organization routing form team workflow. Required: teamId, workflowId, orgId. Optional: name, trigger. Returns array of RoutingFormWorkflowOutput."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `workflow.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_WORKFLOW_WRITE` scope is required. Required: teamId, workflowId, orgId. Optional: name, trigger. Returns array of RoutingFormWorkflowOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("workflowId", mcplib.Required(), mcplib.Description("Workflow id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/teams/{teamId}/workflows/{workflowId}/routing-form", []string{"teamId","workflowId","orgId", }),
+		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/teams/{teamId}/workflows/{workflowId}/routing-form", []string{"teamId", "workflowId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organization-workflows-update-workflow",
-			mcplib.WithDescription("Update organization team workflow. Required: teamId, workflowId, orgId. Optional: name, trigger. Returns array of EventTypeWorkflowOutput."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `workflow.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_WORKFLOW_WRITE` scope is required. Required: teamId, workflowId, orgId. Optional: name, trigger. Returns array of EventTypeWorkflowOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("workflowId", mcplib.Required(), mcplib.Description("Workflow id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/teams/{teamId}/workflows/{workflowId}", []string{"teamId","workflowId","orgId", }),
+		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/teams/{teamId}/workflows/{workflowId}", []string{"teamId", "workflowId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-bookings-get-all-org-bookings",
-			mcplib.WithDescription("Get organization team bookings. Required: teamId, orgId. Optional: status, attendeeEmail, attendeeName (plus 10 more). Returns array of OrganizationsBookingsGetAllOrgBookingsItem."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `booking.readTeamBookings`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_BOOKING_READ` scope is required. Required: teamId, orgId. Optional: status, attendeeEmail, attendeeName (plus 10 more). Returns array of OrganizationsBookingsGetAllOrgBookingsItem."),
 			mcplib.WithString("status", mcplib.Description("Filter bookings by status. If you want to filter by multiple statuses, separate them with a comma.")),
 			mcplib.WithString("attendeeEmail", mcplib.Description("Filter bookings by the attendee's email address.")),
 			mcplib.WithString("attendeeName", mcplib.Description("Filter bookings by the attendee's name.")),
@@ -1672,11 +1658,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/bookings", []string{"teamId","orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/bookings", []string{"teamId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-bookings-get-booking-references",
-			mcplib.WithDescription("Get booking references. Required: bookingUid, teamId, orgId. Optional: type. Returns array of BookingReference."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `booking.readTeamBookings`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_BOOKING_READ` scope is required. Required: bookingUid, teamId, orgId. Optional: type. Returns array of BookingReference."),
 			mcplib.WithString("bookingUid", mcplib.Required(), mcplib.Description("Booking uid")),
 			mcplib.WithString("type", mcplib.Description("Filter booking references by type")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
@@ -1685,44 +1671,44 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/bookings/{bookingUid}/references", []string{"bookingUid","teamId","orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/bookings/{bookingUid}/references", []string{"bookingUid", "teamId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-conferencing-connect-app",
-			mcplib.WithDescription("Connect your conferencing application to a team. Required: teamId, orgId, app (default: google-meet). Returns the new ConferencingAppOutputResponseDto."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `team.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_APPS_WRITE` scope is required. Required: teamId, orgId, app (default: google-meet). Returns the new ConferencingAppOutputResponseDto."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("app", mcplib.Description("Conferencing application type")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/conferencing/{app}/connect", []string{"teamId","orgId","app", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/conferencing/{app}/connect", []string{"teamId", "orgId", "app"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-conferencing-disconnect-app",
-			mcplib.WithDescription("Disconnect team conferencing application. Required: teamId, app (default: google-meet), orgId. Returns the DisconnectConferencingAppOutputResponseDto. Destructive."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `team.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_APPS_WRITE` scope is required. Required: teamId, app (default: google-meet), orgId. Returns the DisconnectConferencingAppOutputResponseDto. Destructive."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("app", mcplib.Description("Conferencing application type")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/teams/{teamId}/conferencing/{app}/disconnect", []string{"teamId","app","orgId", }),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/teams/{teamId}/conferencing/{app}/disconnect", []string{"teamId", "app", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-conferencing-get-default-app",
-			mcplib.WithDescription("Get team default conferencing application. Required: teamId, orgId. Returns the GetDefaultConferencingAppOutputResponseDto."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `team.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_APPS_READ` scope is required. Required: teamId, orgId. Returns the GetDefaultConferencingAppOutputResponseDto."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/conferencing/default", []string{"teamId","orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/conferencing/default", []string{"teamId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-conferencing-get-oauth-url",
-			mcplib.WithDescription("Get OAuth conferencing app's auth URL for a team. Required: teamId, orgId, app (default: zoom), returnTo, onErrorReturnTo. Returns the GetConferencingAppsOauthUrlResponseDto."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `team.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_APPS_WRITE` scope is required. Required: teamId, orgId, app (default: zoom), returnTo, onErrorReturnTo. Returns the GetConferencingAppsOauthUrlResponseDto."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("app", mcplib.Description("Conferencing application type")),
@@ -1732,22 +1718,22 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/conferencing/{app}/oauth/auth-url", []string{"teamId","orgId","app", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/conferencing/{app}/oauth/auth-url", []string{"teamId", "orgId", "app"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-conferencing-list-conferencing-apps",
-			mcplib.WithDescription("List team conferencing applications. Required: teamId, orgId. Returns array of ConferencingAppsOutputDto."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `team.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_APPS_READ` scope is required. Required: teamId, orgId. Returns array of ConferencingAppsOutputDto."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/conferencing", []string{"teamId","orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/conferencing", []string{"teamId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-conferencing-save-oauth-credentials",
-			mcplib.WithDescription("Save conferencing app OAuth credentials. Required: state, code, teamId, orgId, app."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `team.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_APPS_WRITE` scope is required. Required: state, code, teamId, orgId, app."),
 			mcplib.WithString("state", mcplib.Required(), mcplib.Description("State")),
 			mcplib.WithString("code", mcplib.Required(), mcplib.Description("Code")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
@@ -1757,73 +1743,73 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/conferencing/{app}/oauth/callback", []string{"teamId","orgId","app", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/conferencing/{app}/oauth/callback", []string{"teamId", "orgId", "app"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-conferencing-set-default-app",
-			mcplib.WithDescription("Set team default conferencing application. Required: teamId, app (default: google-meet), orgId. Returns the new SetDefaultConferencingAppOutputResponseDto."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `team.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_APPS_WRITE` scope is required. Required: teamId, app (default: google-meet), orgId. Returns the new SetDefaultConferencingAppOutputResponseDto."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("app", mcplib.Description("Conferencing application type")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/conferencing/{app}/default", []string{"teamId","app","orgId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/conferencing/{app}/default", []string{"teamId", "app", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-create",
-			mcplib.WithDescription("Create a team. Required: orgId, name. Optional: appIconLogo, appLogo, autoAcceptCreator (default: true) (plus 14 more). Returns the new OrgTeamOutputResponseDto."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `team.create`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_PROFILE_WRITE` scope is required. Required: orgId, name. Optional: appIconLogo, appLogo, autoAcceptCreator (default: true) (plus 14 more). Returns the new OrgTeamOutputResponseDto."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams", []string{"orgId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams", []string{"orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-delete",
-			mcplib.WithDescription("Delete a team. Required: orgId, teamId. Returns the OrgTeamOutputResponseDto. Destructive."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `team.delete`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_PROFILE_WRITE` scope is required. Required: orgId, teamId. Returns the OrgTeamOutputResponseDto. Destructive."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/teams/{teamId}", []string{"orgId","teamId", }),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/teams/{teamId}", []string{"orgId", "teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-event-types-create-event-type",
-			mcplib.WithDescription("Create an event type. Required: teamId, orgId, lengthInMinutes, schedulingType, slug, title. Optional: afterEventBuffer, allowReschedulingCancelledBookings (default: false), allowReschedulingPastBookings (default: false) (plus 30 more). Returns the new CreateTeamEventTypeOutput."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `eventType.create`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_WRITE` scope is required. Required: teamId, orgId, lengthInMinutes, schedulingType, slug, title. Optional: afterEventBuffer, allowReschedulingCancelledBookings (default: false), allowReschedulingPastBookings (default: false) (plus 29 more). Returns the new CreateTeamEventTypeOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/event-types", []string{"teamId","orgId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/event-types", []string{"teamId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-event-types-create-phone-call",
-			mcplib.WithDescription("Create a phone call. Required: eventTypeId, orgId, teamId, calApiKey, numberToCall, templateType (default: CUSTOM_TEMPLATE), yourPhoneNumber. Optional: beginMessage, generalPrompt, guestCompany (plus 3 more). Returns the new CreatePhoneCallOutput."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `eventType.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_WRITE` scope is required. Required: eventTypeId, orgId, teamId, calApiKey, enabled (default: true), numberToCall, templateType (default: CUSTOM_TEMPLATE), yourPhoneNumber. Optional: beginMessage, generalPrompt, guestCompany (plus 3 more). Returns the new CreatePhoneCallOutput."),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/event-types/{eventTypeId}/create-phone-call", []string{"eventTypeId","orgId","teamId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/event-types/{eventTypeId}/create-phone-call", []string{"eventTypeId", "orgId", "teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-event-types-delete-event-type",
-			mcplib.WithDescription("Delete a team event type. Required: teamId, eventTypeId, orgId. Returns the DeleteTeamEventTypeOutput. Destructive."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `eventType.delete`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_WRITE` scope is required. Required: teamId, eventTypeId, orgId. Returns the DeleteTeamEventTypeOutput. Destructive."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/teams/{teamId}/event-types/{eventTypeId}", []string{"teamId","eventTypeId","orgId", }),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/teams/{teamId}/event-types/{eventTypeId}", []string{"teamId", "eventTypeId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-event-types-get-event-type",
-			mcplib.WithDescription("Get an event type. Required: teamId, eventTypeId, orgId. Returns the GetTeamEventTypeOutput."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `eventType.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_READ` scope is required. Required: teamId, eventTypeId, orgId. Returns the GetTeamEventTypeOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
@@ -1831,11 +1817,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/event-types/{eventTypeId}", []string{"teamId","eventTypeId","orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/event-types/{eventTypeId}", []string{"teamId", "eventTypeId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-event-types-get-event-types",
-			mcplib.WithDescription("Use the optional `sortCreatedAt` query parameter to order results by creation date (by ID). Accepts 'asc' (oldest first) or 'desc' (newest first). When not provided, no explicit ordering is applied. Required: orgId. Optional: take (default: 250), skip (default: 0), sortCreatedAt. Returns array of TeamEventTypeOutput20240614."),
+			mcplib.WithDescription("Use the optional `sortCreatedAt` query parameter to order results by creation date (by ID). Accepts 'asc' (oldest first) or 'desc' (newest first). When not provided, no explicit ordering is applied. Required membership role: `team admin`. PBAC permission: `eventType.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_EVENT_TYPE_READ` scope is required. Required: orgId. Optional: take (default: 250), skip (default: 0), sortCreatedAt. Returns array of TeamEventTypeOutput20240614."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
@@ -1844,7 +1830,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/event-types", []string{"orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/event-types", []string{"orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-event-types-get-event-types-organizations",
@@ -1858,22 +1844,22 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/event-types", []string{"teamId","orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/event-types", []string{"teamId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-event-types-private-links-create-private-link",
-			mcplib.WithDescription("Create a private link for a team event type. Required: teamId, eventTypeId, orgId. Optional: expiresAt, maxUsageCount (default: 1). Returns the new CreatePrivateLinkOutput."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_WRITE` scope is required. Required: teamId, eventTypeId, orgId. Optional: expiresAt, maxUsageCount (default: 1). Returns the new CreatePrivateLinkOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/event-types/{eventTypeId}/private-links", []string{"teamId","eventTypeId","orgId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/event-types/{eventTypeId}/private-links", []string{"teamId", "eventTypeId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-event-types-private-links-delete-private-link",
-			mcplib.WithDescription("Delete a private link for a team event type. Required: teamId, eventTypeId, linkId, orgId. Returns the DeletePrivateLinkOutput. Destructive."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_WRITE` scope is required. Required: teamId, eventTypeId, linkId, orgId. Returns the DeletePrivateLinkOutput. Destructive."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithString("linkId", mcplib.Required(), mcplib.Description("Link id")),
@@ -1881,11 +1867,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/teams/{teamId}/event-types/{eventTypeId}/private-links/{linkId}", []string{"teamId","eventTypeId","linkId","orgId", }),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/teams/{teamId}/event-types/{eventTypeId}/private-links/{linkId}", []string{"teamId", "eventTypeId", "linkId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-event-types-private-links-get-private-links",
-			mcplib.WithDescription("Get all private links for a team event type. Required: teamId, eventTypeId, orgId. Returns array of OrganizationsEventTypesPrivateLinksGetPrivateLinksItem."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_READ` scope is required. Required: teamId, eventTypeId, orgId. Returns array of OrganizationsEventTypesPrivateLinksGetPrivateLinksItem."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
@@ -1893,43 +1879,43 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/event-types/{eventTypeId}/private-links", []string{"teamId","eventTypeId","orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/event-types/{eventTypeId}/private-links", []string{"teamId", "eventTypeId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-event-types-private-links-update-private-link",
-			mcplib.WithDescription("Update a private link for a team event type. Required: teamId, eventTypeId, linkId, orgId. Returns the updated UpdatePrivateLinkOutput."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_WRITE` scope is required. Required: teamId, eventTypeId, linkId, orgId. Returns the updated UpdatePrivateLinkOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithString("linkId", mcplib.Required(), mcplib.Description("Link id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/teams/{teamId}/event-types/{eventTypeId}/private-links/{linkId}", []string{"teamId","eventTypeId","linkId","orgId", }),
+		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/teams/{teamId}/event-types/{eventTypeId}/private-links/{linkId}", []string{"teamId", "eventTypeId", "linkId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-event-types-update-event-type",
-			mcplib.WithDescription("Update a team event type. Required: teamId, eventTypeId, orgId. Optional: afterEventBuffer, allowReschedulingCancelledBookings (default: false), allowReschedulingPastBookings (default: false) (plus 34 more). Returns the updated UpdateTeamEventTypeOutput."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `eventType.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_WRITE` scope is required. Required: teamId, eventTypeId, orgId. Optional: afterEventBuffer, allowReschedulingCancelledBookings (default: false), allowReschedulingPastBookings (default: false) (plus 33 more). Returns the updated UpdateTeamEventTypeOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/teams/{teamId}/event-types/{eventTypeId}", []string{"teamId","eventTypeId","orgId", }),
+		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/teams/{teamId}/event-types/{eventTypeId}", []string{"teamId", "eventTypeId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-get",
-			mcplib.WithDescription("Get a team. Required: teamId, orgId. Returns the OrgTeamOutputResponseDto."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `team.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_PROFILE_READ` scope is required. Required: teamId, orgId. Returns the OrgTeamOutputResponseDto."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}", []string{"teamId","orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}", []string{"teamId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-get-all",
-			mcplib.WithDescription("Get all teams. Required: orgId. Optional: take (default: 250), skip (default: 0). Returns array of OrgTeamOutputDto."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `team.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_PROFILE_READ` scope is required. Required: orgId. Optional: take (default: 250), skip (default: 0). Returns array of OrgTeamOutputDto."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
@@ -1937,11 +1923,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams", []string{"orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams", []string{"orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-get-my",
-			mcplib.WithDescription("Get teams membership for user. Required: orgId. Optional: take (default: 250), skip (default: 0). Returns array of OrgTeamOutputDto."),
+			mcplib.WithDescription("Required membership role: `org member`. PBAC permission: `team.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_MEMBERSHIP_READ` scope is required. Required: orgId. Optional: take (default: 250), skip (default: 0). Returns array of OrgTeamOutputDto."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
@@ -1949,42 +1935,42 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/me", []string{"orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/me", []string{"orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-invite-create-invite",
-			mcplib.WithDescription("Create team invite link. Required: orgId, teamId. Returns the new CreateInviteOutputDto."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `team.invite`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_MEMBERSHIP_WRITE` scope is required. Required: orgId, teamId. Returns the new CreateInviteOutputDto."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/invite", []string{"orgId","teamId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/invite", []string{"orgId", "teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-memberships-create-org-membership",
-			mcplib.WithDescription("Create a membership. Required: orgId, teamId, role (default: MEMBER), userId. Optional: accepted (default: false), disableImpersonation (default: false). Returns the new OrgTeamMembershipOutputResponseDto."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `team.invite`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_MEMBERSHIP_WRITE` scope is required. Required: orgId, teamId, role (default: MEMBER), userId. Optional: accepted (default: false), disableImpersonation (default: false). Returns the new OrgTeamMembershipOutputResponseDto."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/memberships", []string{"orgId","teamId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/memberships", []string{"orgId", "teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-memberships-delete-org-membership",
-			mcplib.WithDescription("Delete a membership. Required: orgId, teamId, membershipId. Returns the OrgTeamMembershipOutputResponseDto. Destructive."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `team.remove`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_MEMBERSHIP_WRITE` scope is required. Required: orgId, teamId, membershipId. Returns the OrgTeamMembershipOutputResponseDto. Destructive."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("membershipId", mcplib.Required(), mcplib.Description("Membership id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/teams/{teamId}/memberships/{membershipId}", []string{"orgId","teamId","membershipId", }),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/teams/{teamId}/memberships/{membershipId}", []string{"orgId", "teamId", "membershipId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-memberships-get-all-org-memberships",
-			mcplib.WithDescription("Get all memberships. Required: orgId, teamId. Optional: take (default: 250), skip (default: 0). Returns array of TeamMembershipOutput."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `team.listMembers`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_MEMBERSHIP_READ` scope is required. Required: orgId, teamId. Optional: take (default: 250), skip (default: 0). Returns array of TeamMembershipOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
@@ -1993,11 +1979,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/memberships", []string{"orgId","teamId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/memberships", []string{"orgId", "teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-memberships-get-org-membership",
-			mcplib.WithDescription("Get a membership. Required: orgId, teamId, membershipId. Returns the OrgTeamMembershipOutputResponseDto."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `team.listMembers`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_MEMBERSHIP_READ` scope is required. Required: orgId, teamId, membershipId. Returns the OrgTeamMembershipOutputResponseDto."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("membershipId", mcplib.Required(), mcplib.Description("Membership id")),
@@ -2005,17 +1991,17 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/memberships/{membershipId}", []string{"orgId","teamId","membershipId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/memberships/{membershipId}", []string{"orgId", "teamId", "membershipId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-memberships-update-org-membership",
-			mcplib.WithDescription("Update a membership. Required: orgId, teamId, membershipId. Optional: accepted, disableImpersonation, role. Returns the updated OrgTeamMembershipOutputResponseDto."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `team.changeMemberRole`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_MEMBERSHIP_WRITE` scope is required. Required: orgId, teamId, membershipId. Optional: accepted, disableImpersonation, role. Returns the updated OrgTeamMembershipOutputResponseDto."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("membershipId", mcplib.Required(), mcplib.Description("Membership id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/teams/{teamId}/memberships/{membershipId}", []string{"orgId","teamId","membershipId", }),
+		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/teams/{teamId}/memberships/{membershipId}", []string{"orgId", "teamId", "membershipId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-roles-create-role",
@@ -2025,7 +2011,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/roles", []string{"orgId","teamId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/roles", []string{"orgId", "teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-roles-delete-role",
@@ -2036,7 +2022,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/teams/{teamId}/roles/{roleId}", []string{"orgId","teamId","roleId", }),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/teams/{teamId}/roles/{roleId}", []string{"orgId", "teamId", "roleId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-roles-get-all-roles",
@@ -2049,7 +2035,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/roles", []string{"orgId","teamId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/roles", []string{"orgId", "teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-roles-get-role",
@@ -2061,7 +2047,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/roles/{roleId}", []string{"orgId","teamId","roleId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/roles/{roleId}", []string{"orgId", "teamId", "roleId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-roles-permissions-add-permissions",
@@ -2072,7 +2058,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/roles/{roleId}/permissions", []string{"orgId","teamId","roleId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/roles/{roleId}/permissions", []string{"orgId", "teamId", "roleId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-roles-permissions-list-permissions",
@@ -2084,7 +2070,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/roles/{roleId}/permissions", []string{"orgId","teamId","roleId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/roles/{roleId}/permissions", []string{"orgId", "teamId", "roleId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-roles-permissions-remove-permission",
@@ -2096,7 +2082,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/teams/{teamId}/roles/{roleId}/permissions/{permission}", []string{"orgId","teamId","roleId","permission", }),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/teams/{teamId}/roles/{roleId}/permissions/{permission}", []string{"orgId", "teamId", "roleId", "permission"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-roles-permissions-remove-permissions",
@@ -2108,7 +2094,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/teams/{teamId}/roles/{roleId}/permissions", []string{"orgId","teamId","roleId", }),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/teams/{teamId}/roles/{roleId}/permissions", []string{"orgId", "teamId", "roleId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-roles-permissions-set-permissions",
@@ -2118,7 +2104,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("roleId", mcplib.Required(), mcplib.Description("Role id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PUT", "/v2/organizations/{orgId}/teams/{teamId}/roles/{roleId}/permissions", []string{"orgId","teamId","roleId", }),
+		makeAPIHandler("PUT", "/v2/organizations/{orgId}/teams/{teamId}/roles/{roleId}/permissions", []string{"orgId", "teamId", "roleId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-roles-update-role",
@@ -2128,11 +2114,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("roleId", mcplib.Required(), mcplib.Description("Role id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/teams/{teamId}/roles/{roleId}", []string{"orgId","teamId","roleId", }),
+		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/teams/{teamId}/roles/{roleId}", []string{"orgId", "teamId", "roleId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-routing-forms-get-routing-forms",
-			mcplib.WithDescription("Get team routing forms. Required: orgId, teamId. Optional: skip, take, sortCreatedAt (plus 6 more). Returns array of RoutingFormOutput."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `routingForm.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_ROUTING_FORM_READ` scope is required. Required: orgId, teamId. Optional: skip, take, sortCreatedAt (plus 6 more). Returns array of RoutingFormOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("skip", mcplib.Description("Number of responses to skip")),
@@ -2148,29 +2134,29 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/routing-forms", []string{"orgId","teamId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/routing-forms", []string{"orgId", "teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-routing-forms-responses-create-routing-form-response",
-			mcplib.WithDescription("Create routing form response and get available slots. Required: orgId, teamId, routingFormId, start, end. Optional: timeZone, duration, format (plus 2 more). Returns the new CreateRoutingFormResponseOutput."),
+			mcplib.WithDescription("Required membership role: `team member`. PBAC permission: `routingForm.create`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_ROUTING_FORM_WRITE` scope is required. Required: orgId, teamId, routingFormId, start, end. Optional: timeZone, duration, format (plus 2 more). Returns the new CreateRoutingFormResponseOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("routingFormId", mcplib.Required(), mcplib.Description("Routing form id")),
-			mcplib.WithString("start", mcplib.Required(), mcplib.Description("Time starting from which available slots should be checked. Must be in UTC timezone as ISO 8601 datestring. You can...")),
-			mcplib.WithString("end", mcplib.Required(), mcplib.Description("Time until which available slots should be checked. Must be in UTC timezone as ISO 8601 datestring. You can pass...")),
+			mcplib.WithString("start", mcplib.Required(), mcplib.Description("Time starting from which available slots should be checked.")),
+			mcplib.WithString("end", mcplib.Required(), mcplib.Description("Time until which available slots should be checked.")),
 			mcplib.WithString("timeZone", mcplib.Description("Time zone in which the available slots should be returned. Defaults to UTC.")),
-			mcplib.WithString("duration", mcplib.Description("If event type has multiple possible durations then you can specify the desired duration here. Also, if you are...")),
+			mcplib.WithString("duration", mcplib.Description("If event type has multiple possible durations then you can specify the desired duration here.")),
 			mcplib.WithString("format", mcplib.Description("Format of slot times in response. Use 'range' to get start and end times.")),
-			mcplib.WithString("bookingUidToReschedule", mcplib.Description("The unique identifier of the booking being rescheduled. When provided will ensure that the original booking time...")),
+			mcplib.WithString("bookingUidToReschedule", mcplib.Description("The unique identifier of the booking being rescheduled.")),
 			mcplib.WithString("queueResponse", mcplib.Description("Whether to queue the form response.")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/routing-forms/{routingFormId}/responses", []string{"orgId","teamId","routingFormId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/teams/{teamId}/routing-forms/{routingFormId}/responses", []string{"orgId", "teamId", "routingFormId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-routing-forms-responses-get-routing-form-responses",
-			mcplib.WithDescription("Get organization team routing form responses. Required: routingFormId, orgId, teamId. Optional: skip, take, sortCreatedAt (plus 6 more). Returns array of RoutingFormResponseOutput."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `routingForm.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_ROUTING_FORM_READ` scope is required. Required: routingFormId, orgId, teamId. Optional: skip, take, sortCreatedAt (plus 6 more). Returns array of RoutingFormResponseOutput."),
 			mcplib.WithString("routingFormId", mcplib.Required(), mcplib.Description("Routing form id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
@@ -2187,22 +2173,22 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/routing-forms/{routingFormId}/responses", []string{"routingFormId","orgId","teamId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/routing-forms/{routingFormId}/responses", []string{"routingFormId", "orgId", "teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-routing-forms-responses-update-routing-form-response",
-			mcplib.WithDescription("Update routing form response. Required: teamId, routingFormId, responseId, orgId. Returns the updated UpdateRoutingFormResponseOutput."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `routingForm.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_ROUTING_FORM_WRITE` scope is required. Required: teamId, routingFormId, responseId, orgId. Returns the updated UpdateRoutingFormResponseOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("routingFormId", mcplib.Required(), mcplib.Description("Routing form id")),
 			mcplib.WithString("responseId", mcplib.Required(), mcplib.Description("Response id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/teams/{teamId}/routing-forms/{routingFormId}/responses/{responseId}", []string{"teamId","routingFormId","responseId","orgId", }),
+		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/teams/{teamId}/routing-forms/{routingFormId}/responses/{responseId}", []string{"teamId", "routingFormId", "responseId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-schedules-get-schedules",
-			mcplib.WithDescription("Get all team member schedules. Required: orgId, teamId. Optional: take (default: 250), skip (default: 0), eventTypeId. Returns array of ScheduleOutput20240611."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `availability.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_SCHEDULE_READ` scope is required. Required: orgId, teamId. Optional: take (default: 250), skip (default: 0), eventTypeId. Returns array of ScheduleOutput20240611."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
@@ -2212,11 +2198,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/schedules", []string{"orgId","teamId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/schedules", []string{"orgId", "teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-schedules-get-user-schedules",
-			mcplib.WithDescription("Get schedules of a team member. Required: orgId, teamId, userId. Optional: eventTypeId. Returns array of ScheduleOutput20240611."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `availability.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `TEAM_SCHEDULE_READ` scope is required. Required: orgId, teamId, userId. Optional: eventTypeId. Returns array of ScheduleOutput20240611."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("userId", mcplib.Required(), mcplib.Description("User id")),
@@ -2225,22 +2211,22 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/users/{userId}/schedules", []string{"orgId","teamId","userId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/users/{userId}/schedules", []string{"orgId", "teamId", "userId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-stripe-check-stripe-connection",
-			mcplib.WithDescription("Check team Stripe connection. Required: teamId, orgId. Returns the StripCredentialsCheckOutputResponseDto."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `organization.manageBilling`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: teamId, orgId. Returns the StripCredentialsCheckOutputResponseDto."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/stripe/check", []string{"teamId","orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/stripe/check", []string{"teamId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-stripe-get-stripe-connect-url",
-			mcplib.WithDescription("Get Stripe connect URL for a team. Required: teamId, orgId, returnTo, onErrorReturnTo. Returns the StripConnectOutputResponseDto."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `organization.manageBilling`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: teamId, orgId, returnTo, onErrorReturnTo. Returns the StripConnectOutputResponseDto."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("returnTo", mcplib.Required(), mcplib.Description("Return to")),
@@ -2249,11 +2235,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/stripe/connect", []string{"teamId","orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/stripe/connect", []string{"teamId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-stripe-save",
-			mcplib.WithDescription("Save Stripe credentials. Required: state, code, teamId, orgId. Returns the StripCredentialsSaveOutputResponseDto."),
+			mcplib.WithDescription("Required membership role: `team admin`. PBAC permission: `organization.manageBilling`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. Required: state, code, teamId, orgId. Returns the StripCredentialsSaveOutputResponseDto."),
 			mcplib.WithString("state", mcplib.Required(), mcplib.Description("State")),
 			mcplib.WithString("code", mcplib.Required(), mcplib.Description("Code")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
@@ -2262,27 +2248,27 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/stripe/save", []string{"teamId","orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/teams/{teamId}/stripe/save", []string{"teamId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_teams_organizations-update",
-			mcplib.WithDescription("Update a team. Required: orgId, teamId. Optional: appIconLogo, appLogo, bannerUrl (plus 16 more). Returns the updated OrgTeamOutputResponseDto."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `team.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_PROFILE_WRITE` scope is required. Required: orgId, teamId. Optional: appIconLogo, appLogo, bannerUrl (plus 16 more). Returns the updated OrgTeamOutputResponseDto."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/teams/{teamId}", []string{"orgId","teamId", }),
+		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/teams/{teamId}", []string{"orgId", "teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_users_organizations-bookings-get-organization-bookings",
-			mcplib.WithDescription("Get all bookings for an organization user. Required: orgId, userId. Optional: status, attendeeEmail, attendeeName (plus 17 more)."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `ORG_BOOKING_READ` scope is required. Required: orgId, userId. Optional: status, attendeeEmail, attendeeName (plus 17 more)."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("userId", mcplib.Required(), mcplib.Description("User id")),
 			mcplib.WithString("status", mcplib.Description("Filter bookings by status. If you want to filter by multiple statuses, separate them with a comma.")),
 			mcplib.WithString("attendeeEmail", mcplib.Description("Filter bookings by the attendee's email address.")),
 			mcplib.WithString("attendeeName", mcplib.Description("Filter bookings by the attendee's name.")),
 			mcplib.WithString("bookingUid", mcplib.Description("Filter bookings by the booking Uid.")),
-			mcplib.WithString("eventTypeIds", mcplib.Description("Filter bookings by event type ids belonging to the user. Event type ids must be separated by a comma.")),
+			mcplib.WithString("eventTypeIds", mcplib.Description("Filter bookings by event type ids belonging to the user.")),
 			mcplib.WithString("eventTypeId", mcplib.Description("Filter bookings by event type id belonging to the user.")),
 			mcplib.WithString("teamsIds", mcplib.Description("Filter bookings by team ids that user is part of. Team ids must be separated by a comma.")),
 			mcplib.WithString("teamId", mcplib.Description("Filter bookings by team id that user is part of")),
@@ -2295,37 +2281,37 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("sortStart", mcplib.Description("Sort results by their start time in ascending or descending order.")),
 			mcplib.WithString("sortEnd", mcplib.Description("Sort results by their end time in ascending or descending order.")),
 			mcplib.WithString("sortCreated", mcplib.Description("Sort results by their creation time (when booking was made) in ascending or descending order.")),
-			mcplib.WithString("sortUpdatedAt", mcplib.Description("Sort results by their updated time (for example when booking status changes) in ascending or descending order.")),
+			mcplib.WithString("sortUpdatedAt", mcplib.Description("Sort results by their updated time (for example when booking status changes) in ascending or...")),
 			mcplib.WithString("take", mcplib.Description("The number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("The number of items to skip")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/users/{userId}/bookings", []string{"orgId","userId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/users/{userId}/bookings", []string{"orgId", "userId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_users_organizations-create-organization",
-			mcplib.WithDescription("Create a user. Required: orgId, email. Optional: appTheme, autoAccept (default: true), avatarUrl (plus 12 more). Returns the new GetOrganizationUserOutput."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `organization.invite`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_MEMBERSHIP_WRITE` scope is required. Required: orgId, email. Optional: appTheme, autoAccept (default: true), avatarUrl (plus 13 more). Returns the new GetOrganizationUserOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/users", []string{"orgId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/users", []string{"orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_users_organizations-delete-organization",
-			mcplib.WithDescription("Delete a user. Required: orgId, userId. Returns the GetOrganizationUserOutput. Destructive."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `organization.remove`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_MEMBERSHIP_WRITE` scope is required. Required: orgId, userId. Returns the GetOrganizationUserOutput. Destructive."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("userId", mcplib.Required(), mcplib.Description("User id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/users/{userId}", []string{"orgId","userId", }),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/users/{userId}", []string{"orgId", "userId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_users_organizations-get-organizations",
-			mcplib.WithDescription("Get all users. Required: orgId. Optional: take, skip, emails (plus 3 more). Returns array of GetOrgUsersWithProfileOutput."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `organization.listMembers`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_MEMBERSHIP_READ` scope is required. Required: orgId. Optional: take, skip, emails (plus 3 more). Returns array of GetOrgUsersWithProfileOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("take", mcplib.Description("The number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("The number of items to skip")),
@@ -2337,32 +2323,32 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/users", []string{"orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/users", []string{"orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_users_organizations-ooocontroller-create-organization-ooo",
-			mcplib.WithDescription("Create an out-of-office entry for a user. Required: userId, orgId, end, start. Optional: notes, reason, toUserId. Returns the new UserOooOutputResponseDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `ORG_SCHEDULE_WRITE` scope is required. Required: userId, orgId, end, start. Optional: notes, reason, toUserId. Returns the new UserOooOutputResponseDto."),
 			mcplib.WithString("userId", mcplib.Required(), mcplib.Description("User id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/users/{userId}/ooo", []string{"userId","orgId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/users/{userId}/ooo", []string{"userId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_users_organizations-ooocontroller-delete-organization-ooo",
-			mcplib.WithDescription("Delete an out-of-office entry for a user. Required: oooId, userId, orgId. Returns the UserOooOutputResponseDto. Destructive."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `ORG_SCHEDULE_WRITE` scope is required. Required: oooId, userId, orgId. Returns the UserOooOutputResponseDto. Destructive."),
 			mcplib.WithString("oooId", mcplib.Required(), mcplib.Description("Ooo id")),
 			mcplib.WithString("userId", mcplib.Required(), mcplib.Description("User id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/users/{userId}/ooo/{oooId}", []string{"oooId","userId","orgId", }),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/users/{userId}/ooo/{oooId}", []string{"oooId", "userId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_users_organizations-ooocontroller-get-organization-ooo",
-			mcplib.WithDescription("Get all out-of-office entries for a user. Required: userId, orgId. Optional: take (default: 250), skip (default: 0), sortStart (plus 1 more). Returns array of UserOooOutputDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `ORG_SCHEDULE_READ` scope is required. Required: userId, orgId. Optional: take (default: 250), skip (default: 0), sortStart (plus 1 more). Returns array of UserOooOutputDto."),
 			mcplib.WithString("userId", mcplib.Required(), mcplib.Description("User id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
@@ -2373,42 +2359,42 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/users/{userId}/ooo", []string{"userId","orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/users/{userId}/ooo", []string{"userId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_users_organizations-ooocontroller-update-organization-ooo",
-			mcplib.WithDescription("Update an out-of-office entry for a user. Required: userId, oooId, orgId. Optional: end, notes, reason (plus 2 more). Returns the updated UserOooOutputResponseDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `ORG_SCHEDULE_WRITE` scope is required. Required: userId, oooId, orgId. Optional: end, notes, reason (plus 2 more). Returns the updated UserOooOutputResponseDto."),
 			mcplib.WithString("userId", mcplib.Required(), mcplib.Description("User id")),
 			mcplib.WithString("oooId", mcplib.Required(), mcplib.Description("Ooo id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/users/{userId}/ooo/{oooId}", []string{"userId","oooId","orgId", }),
+		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/users/{userId}/ooo/{oooId}", []string{"userId", "oooId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_users_organizations-schedules-create-schedule",
-			mcplib.WithDescription("Create a schedule. Required: userId, orgId, isDefault, name, timeZone. Returns the new CreateScheduleOutput20240611."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `availability.create`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_SCHEDULE_WRITE` scope is required. Required: userId, orgId, isDefault, name, timeZone. Returns the new CreateScheduleOutput20240611."),
 			mcplib.WithString("userId", mcplib.Required(), mcplib.Description("User id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/users/{userId}/schedules", []string{"userId","orgId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/users/{userId}/schedules", []string{"userId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_users_organizations-schedules-delete-schedule",
-			mcplib.WithDescription("Delete a schedule. Required: userId, scheduleId, orgId. Returns the DeleteScheduleOutput20240611. Destructive."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `availability.delete`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_SCHEDULE_WRITE` scope is required. Required: userId, scheduleId, orgId. Returns the DeleteScheduleOutput20240611. Destructive."),
 			mcplib.WithString("userId", mcplib.Required(), mcplib.Description("User id")),
 			mcplib.WithString("scheduleId", mcplib.Required(), mcplib.Description("Schedule id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/users/{userId}/schedules/{scheduleId}", []string{"userId","scheduleId","orgId", }),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/users/{userId}/schedules/{scheduleId}", []string{"userId", "scheduleId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_users_organizations-schedules-get-schedule",
-			mcplib.WithDescription("Get a schedule. Required: userId, scheduleId, orgId. Returns the GetScheduleOutput20240611."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `availability.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_SCHEDULE_READ` scope is required. Required: userId, scheduleId, orgId. Returns the GetScheduleOutput20240611."),
 			mcplib.WithString("userId", mcplib.Required(), mcplib.Description("User id")),
 			mcplib.WithString("scheduleId", mcplib.Required(), mcplib.Description("Schedule id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
@@ -2416,60 +2402,60 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/users/{userId}/schedules/{scheduleId}", []string{"userId","scheduleId","orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/users/{userId}/schedules/{scheduleId}", []string{"userId", "scheduleId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_users_organizations-schedules-get-schedules",
-			mcplib.WithDescription("Get all schedules. Required: userId, orgId. Returns array of ScheduleOutput20240611."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `availability.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_SCHEDULE_READ` scope is required. Required: userId, orgId. Returns array of ScheduleOutput20240611."),
 			mcplib.WithString("userId", mcplib.Required(), mcplib.Description("User id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/users/{userId}/schedules", []string{"userId","orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/users/{userId}/schedules", []string{"userId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_users_organizations-schedules-update-schedule",
-			mcplib.WithDescription("Update a schedule. Required: userId, scheduleId, orgId. Optional: isDefault, name, timeZone. Returns the updated UpdateScheduleOutput20240611."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `availability.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_SCHEDULE_WRITE` scope is required. Required: userId, scheduleId, orgId. Optional: isDefault, name, timeZone. Returns the updated UpdateScheduleOutput20240611."),
 			mcplib.WithString("userId", mcplib.Required(), mcplib.Description("User id")),
 			mcplib.WithString("scheduleId", mcplib.Required(), mcplib.Description("Schedule id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/users/{userId}/schedules/{scheduleId}", []string{"userId","scheduleId","orgId", }),
+		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/users/{userId}/schedules/{scheduleId}", []string{"userId", "scheduleId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_users_organizations-update-organization",
-			mcplib.WithDescription("Update a user. Required: orgId, userId. Returns the updated GetOrganizationUserOutput."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `organization.editUsers`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_MEMBERSHIP_WRITE` scope is required. Required: orgId, userId. Optional: appTheme, avatarUrl, bio (plus 11 more). Returns the updated GetOrganizationUserOutput."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("userId", mcplib.Required(), mcplib.Description("User id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/users/{userId}", []string{"orgId","userId", }),
+		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/users/{userId}", []string{"orgId", "userId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_webhooks_organizations-create-organization",
-			mcplib.WithDescription("Create a webhook. Required: orgId, active, subscriberUrl, triggers. Optional: payloadTemplate, secret, version. Returns the new TeamWebhookOutputResponseDto."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `webhook.create`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_WEBHOOK_WRITE` scope is required. Required: orgId, active, subscriberUrl, triggers. Optional: payloadTemplate, secret, version. Returns the new TeamWebhookOutputResponseDto."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/organizations/{orgId}/webhooks", []string{"orgId", }),
+		makeAPIHandler("POST", "/v2/organizations/{orgId}/webhooks", []string{"orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_webhooks_organizations-delete",
-			mcplib.WithDescription("Delete a webhook. Required: webhookId, orgId. Returns the TeamWebhookOutputResponseDto. Destructive."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `webhook.delete`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_WEBHOOK_WRITE` scope is required. Required: webhookId, orgId. Returns the TeamWebhookOutputResponseDto. Destructive."),
 			mcplib.WithString("webhookId", mcplib.Required(), mcplib.Description("Webhook id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/webhooks/{webhookId}", []string{"webhookId","orgId", }),
+		makeAPIHandler("DELETE", "/v2/organizations/{orgId}/webhooks/{webhookId}", []string{"webhookId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_webhooks_organizations-get-all-organization",
-			mcplib.WithDescription("Get all webhooks. Required: orgId. Optional: take (default: 250), skip (default: 0). Returns array of TeamWebhookOutputDto."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `webhook.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_WEBHOOK_READ` scope is required. Required: orgId. Optional: take (default: 250), skip (default: 0). Returns array of TeamWebhookOutputDto."),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
@@ -2477,107 +2463,107 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/webhooks", []string{"orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/webhooks", []string{"orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_webhooks_organizations-get-organization",
-			mcplib.WithDescription("Get a webhook. Required: webhookId, orgId. Returns the TeamWebhookOutputResponseDto."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `webhook.read`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_WEBHOOK_READ` scope is required. Required: webhookId, orgId. Returns the TeamWebhookOutputResponseDto."),
 			mcplib.WithString("webhookId", mcplib.Required(), mcplib.Description("Webhook id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/organizations/{orgId}/webhooks/{webhookId}", []string{"webhookId","orgId", }),
+		makeAPIHandler("GET", "/v2/organizations/{orgId}/webhooks/{webhookId}", []string{"webhookId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_webhooks_organizations-update-org",
-			mcplib.WithDescription("Update a webhook. Required: webhookId, orgId. Optional: active, payloadTemplate, secret (plus 3 more). Returns the updated TeamWebhookOutputResponseDto."),
+			mcplib.WithDescription("Required membership role: `org admin`. PBAC permission: `webhook.update`. Learn more about API access control at https://cal.com/docs/api-reference/v2/access-control. If accessed using an OAuth access token, the `ORG_WEBHOOK_WRITE` scope is required. Required: webhookId, orgId. Optional: active, payloadTemplate, secret (plus 3 more). Returns the updated TeamWebhookOutputResponseDto."),
 			mcplib.WithString("webhookId", mcplib.Required(), mcplib.Description("Webhook id")),
 			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/webhooks/{webhookId}", []string{"webhookId","orgId", }),
+		makeAPIHandler("PATCH", "/v2/organizations/{orgId}/webhooks/{webhookId}", []string{"webhookId", "orgId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("routing-forms_calculate-slots_routing-forms-based-on-routing-form-response",
 			mcplib.WithDescription("It will not actually save the response just return the routed event type and slots when it can be booked. Required: start, end, routingFormId. Optional: timeZone, duration, format (plus 1 more). Returns the new ResponseSlotsOutput."),
-			mcplib.WithString("start", mcplib.Required(), mcplib.Description("Time starting from which available slots should be checked. Must be in UTC timezone as ISO 8601 datestring. You can...")),
-			mcplib.WithString("end", mcplib.Required(), mcplib.Description("Time until which available slots should be checked. Must be in UTC timezone as ISO 8601 datestring. You can pass...")),
+			mcplib.WithString("start", mcplib.Required(), mcplib.Description("Time starting from which available slots should be checked.")),
+			mcplib.WithString("end", mcplib.Required(), mcplib.Description("Time until which available slots should be checked.")),
 			mcplib.WithString("timeZone", mcplib.Description("Time zone in which the available slots should be returned. Defaults to UTC.")),
-			mcplib.WithString("duration", mcplib.Description("If event type has multiple possible durations then you can specify the desired duration here. Also, if you are...")),
+			mcplib.WithString("duration", mcplib.Description("If event type has multiple possible durations then you can specify the desired duration here.")),
 			mcplib.WithString("format", mcplib.Description("Format of slot times in response. Use 'range' to get start and end times.")),
-			mcplib.WithString("bookingUidToReschedule", mcplib.Description("The unique identifier of the booking being rescheduled. When provided will ensure that the original booking time...")),
+			mcplib.WithString("bookingUidToReschedule", mcplib.Description("The unique identifier of the booking being rescheduled.")),
 			mcplib.WithString("routingFormId", mcplib.Required(), mcplib.Description("Routing form id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/routing-forms/{routingFormId}/calculate-slots", []string{"routingFormId", }),
+		makeAPIHandler("POST", "/v2/routing-forms/{routingFormId}/calculate-slots", []string{"routingFormId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("schedules_create",
-			mcplib.WithDescription("Create a schedule for the authenticated user. The point of creating schedules is for event types to be available at specific times. The first goal of schedules is to have a default schedule. If you are platform customer and created managed users, then it is important to note that each managed user should have a default schedule. 1. If you passed `timeZone` when creating managed user, then the default schedule from Monday to Friday from 9AM to 5PM will be created with that timezone. The managed user can then change the default schedule via the `AvailabilitySettings` atom. 2. If you did not, then we assume you want the user to have this specific schedule right away. You should create a default schedule by specifying `'isDefault': true` in the request body. Until the user has a default schedule the user can't be booked nor manage their schedule via the AvailabilitySettings atom. The second goal of schedules is to create another schedule that event types can point to. This is useful for when an event is booked because availability is not checked against the default schedule but instead against that specific schedule. After creating a non-default schedule, you can update an event type to point to that schedule via the PATCH `event-types/{eventTypeId}` endpoint. When specifying start time and end time for each day use the 24 hour format e.g. 08:00, 15:00 etc. <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note>. Required: isDefault, name, timeZone. Returns the new CreateScheduleOutput20240611."),
+			mcplib.WithDescription("Create a schedule for the authenticated user. The point of creating schedules is for event types to be available at specific times. The first goal of schedules is to have a default schedule. If you are platform customer and created managed users, then it is important to note that each managed user should have a default schedule. 1. If you passed `timeZone` when creating managed user, then the default schedule from Monday to Friday from 9AM to 5PM will be created with that timezone. The managed user can then change the default schedule via the `AvailabilitySettings` atom. 2. If you did not, then we assume you want the user to have this specific schedule right away. You should create a default schedule by specifying `'isDefault': true` in the request body. Until the user has a default schedule the user can't be booked nor manage their schedule via the AvailabilitySettings atom. The second goal of schedules is to create another schedule that event types can point to. This is useful for when an event is booked because availability is not checked against the default schedule but instead against that specific schedule. After creating a non-default schedule, you can update an event type to point to that schedule via the PATCH `event-types/{eventTypeId}` endpoint. When specifying start time and end time for each day use the 24 hour format e.g. 08:00, 15:00 etc. <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note> If accessed using an OAuth access token, the `SCHEDULE_WRITE` scope is required. Required: isDefault, name, timeZone. Returns the new CreateScheduleOutput20240611."),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/schedules", []string{ }),
+		makeAPIHandler("POST", "/v2/schedules", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("schedules_delete",
-			mcplib.WithDescription("<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note>. Required: scheduleId. Returns the DeleteScheduleOutput20240611. Destructive."),
+			mcplib.WithDescription("<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note> If accessed using an OAuth access token, the `SCHEDULE_WRITE` scope is required. Required: scheduleId. Returns the DeleteScheduleOutput20240611. Destructive."),
 			mcplib.WithString("scheduleId", mcplib.Required(), mcplib.Description("Schedule id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/schedules/{scheduleId}", []string{"scheduleId", }),
+		makeAPIHandler("DELETE", "/v2/schedules/{scheduleId}", []string{"scheduleId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("schedules_get",
-			mcplib.WithDescription("Get all schedules of the authenticated user. <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note>. Returns array of ScheduleOutput20240611."),
+			mcplib.WithDescription("Get all schedules of the authenticated user. <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note> If accessed using an OAuth access token, the `SCHEDULE_READ` scope is required. Returns array of ScheduleOutput20240611."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/schedules", []string{ }),
+		makeAPIHandler("GET", "/v2/schedules", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("schedules_get-default",
-			mcplib.WithDescription("Get the default schedule of the authenticated user. <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note>. Returns the GetDefaultScheduleOutput20240611."),
+			mcplib.WithDescription("Get the default schedule of the authenticated user. <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note> If accessed using an OAuth access token, the `SCHEDULE_READ` scope is required. Returns the GetDefaultScheduleOutput20240611."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/schedules/default", []string{ }),
+		makeAPIHandler("GET", "/v2/schedules/default", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("schedules_get-scheduleid",
-			mcplib.WithDescription("<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note>. Required: scheduleId. Returns the GetScheduleOutput20240611."),
+			mcplib.WithDescription("<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note> If accessed using an OAuth access token, the `SCHEDULE_READ` scope is required. Required: scheduleId. Returns the GetScheduleOutput20240611."),
 			mcplib.WithString("scheduleId", mcplib.Required(), mcplib.Description("Schedule id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/schedules/{scheduleId}", []string{"scheduleId", }),
+		makeAPIHandler("GET", "/v2/schedules/{scheduleId}", []string{"scheduleId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("schedules_update",
-			mcplib.WithDescription("<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note>. Required: scheduleId. Optional: isDefault, name, timeZone. Returns the updated UpdateScheduleOutput20240611."),
+			mcplib.WithDescription("<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note> If accessed using an OAuth access token, the `SCHEDULE_WRITE` scope is required. Required: scheduleId. Optional: isDefault, name, timeZone. Returns the updated UpdateScheduleOutput20240611."),
 			mcplib.WithString("scheduleId", mcplib.Required(), mcplib.Description("Schedule id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/schedules/{scheduleId}", []string{"scheduleId", }),
+		makeAPIHandler("PATCH", "/v2/schedules/{scheduleId}", []string{"scheduleId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("selected-calendars_add",
-			mcplib.WithDescription("Add a selected calendar. Required: credentialId, externalId, integration. Optional: delegationCredentialId. Returns the new SelectedCalendarOutputResponseDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `APPS_WRITE` scope is required. Required: credentialId, externalId, integration. Optional: delegationCredentialId. Returns the new SelectedCalendarOutputResponseDto."),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/selected-calendars", []string{ }),
+		makeAPIHandler("POST", "/v2/selected-calendars", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("selected-calendars_delete",
-			mcplib.WithDescription("Delete a selected calendar. Required: integration, externalId, credentialId. Optional: delegationCredentialId. Returns the SelectedCalendarOutputResponseDto. Destructive."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `APPS_WRITE` scope is required. Required: integration, externalId, credentialId. Optional: delegationCredentialId. Returns the SelectedCalendarOutputResponseDto. Destructive."),
 			mcplib.WithString("integration", mcplib.Required(), mcplib.Description("Integration")),
 			mcplib.WithString("externalId", mcplib.Required(), mcplib.Description("External id")),
 			mcplib.WithString("credentialId", mcplib.Required(), mcplib.Description("Credential id")),
@@ -2585,7 +2571,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/selected-calendars", []string{ }),
+		makeAPIHandler("DELETE", "/v2/selected-calendars", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("slots_delete-reserved",
@@ -2594,12 +2580,12 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/slots/reservations/{uid}", []string{"uid", }),
+		makeAPIHandler("DELETE", "/v2/slots/reservations/{uid}", []string{"uid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("slots_get-available",
 			mcplib.WithDescription("There are 4 ways to get available slots for event type of an individual user: 1. By event type id. Example '/v2/slots?eventTypeId=10&start=2050-09-05&end=2050-09-06&timeZone=Europe/Rome' 2. By event type slug + username. Example '/v2/slots?eventTypeSlug=intro&username=bob&start=2050-09-05&end=2050-09-06' 3. By event type slug + username + organization slug when searching within an organization. Example '/v2/slots?organizationSlug=org-slug&eventTypeSlug=intro&username=bob&start=2050-09-05&end=2050-09-06' 4. By usernames only (used for dynamic event type - there is no specific event but you want to know when 2 or more people are available). Example '/v2/slots?usernames=alice,bob&username=bob&organizationSlug=org-slug&start=2050-09-05&end=2050-09-06'. As you see you also need to provide the slug of the organization to which each user in the 'usernames' array belongs. And 3 ways to get available slots for team event type: 1. By team event type id. Example '/v2/slots?eventTypeId=10&start=2050-09-05&end=2050-09-06&timeZone=Europe/Rome'. **Note for managed event types**: Managed event types are templates that create individual child event types for each team member. You cannot fetch slots for the parent managed event type directly. Instead, you must: - Find the child event type IDs (the ones assigned to specific users) - Use those child event type IDs to fetch slots as individual user event types using as described in the individual user section above. 2. By team event type slug + team slug. Example '/v2/slots?eventTypeSlug=intro&teamSlug=team-slug&start=2050-09-05&end=2050-09-06' 3. By team event type slug + team slug + organization slug when searching within an organization. Example '/v2/slots?organizationSlug=org-slug&eventTypeSlug=intro&teamSlug=team-slug&start=2050-09-05&end=2050-09-06' All of them require 'start' and 'end' query parameters which define the time range for which available slots should be checked. Optional parameters are: - timeZone: Time zone in which the available slots should be returned. Defaults to UTC. - duration: Only use for event types that allow multiple durations or for dynamic event types. If not passed for multiple duration event types defaults to default duration. For dynamic event types defaults to 30 aka each returned slot is 30 minutes long. So duration=60 means that returned slots will be each 60 minutes long. - format: Format of the slots. By default return is an object where each key is date and value is array of slots as string. If you want to get start and end of each slot use 'range' as value. - bookingUidToReschedule: When rescheduling an existing booking, provide the booking's unique identifier to exclude its time slot from busy time calculations. This ensures the original booking time appears as available for rescheduling. <Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing the correct value will default to an older version of this endpoint.</Note>. Required: start, end. Optional: bookingUidToReschedule, organizationSlug, teamSlug (plus 7 more)."),
-			mcplib.WithString("bookingUidToReschedule", mcplib.Description("The unique identifier of the booking being rescheduled. When provided will ensure that the original booking time...")),
+			mcplib.WithString("bookingUidToReschedule", mcplib.Description("The unique identifier of the booking being rescheduled.")),
 			mcplib.WithString("start", mcplib.Required(), mcplib.Description("Time starting from which available slots should be checked. Must be in UTC timezone as ISO 8601 datestring. You can...")),
 			mcplib.WithString("end", mcplib.Required(), mcplib.Description("Time until which available slots should be checked. Must be in UTC timezone as ISO 8601 datestring. You can pass...")),
 			mcplib.WithString("organizationSlug", mcplib.Description("The slug of the organization to which user with username belongs or team with teamSlug belongs.")),
@@ -2609,13 +2595,13 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("eventTypeId", mcplib.Description("The ID of the event type for which available slots should be checked.")),
 			mcplib.WithString("usernames", mcplib.Description("The usernames for which available slots should be checked separated by a comma. Checking slots by usernames is used...")),
 			mcplib.WithString("format", mcplib.Description("Format of slot times in response. Use 'range' to get start and end times. Use 'time' or omit this query parameter to...")),
-			mcplib.WithString("duration", mcplib.Description("If event type has multiple possible durations then you can specify the desired duration here. Also, if you are...")),
+			mcplib.WithString("duration", mcplib.Description("If event type has multiple possible durations then you can specify the desired duration here.")),
 			mcplib.WithString("timeZone", mcplib.Description("Time zone in which the available slots should be returned. Defaults to UTC.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/slots", []string{ }),
+		makeAPIHandler("GET", "/v2/slots", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("slots_get-reserved",
@@ -2625,7 +2611,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/slots/reservations/{uid}", []string{"uid", }),
+		makeAPIHandler("GET", "/v2/slots/reservations/{uid}", []string{"uid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("slots_reserve",
@@ -2633,7 +2619,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/slots/reservations", []string{ }),
+		makeAPIHandler("POST", "/v2/slots/reservations", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("slots_update-reserved",
@@ -2641,7 +2627,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("uid", mcplib.Required(), mcplib.Description("Uid")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/slots/reservations/{uid}", []string{"uid", }),
+		makeAPIHandler("PATCH", "/v2/slots/reservations/{uid}", []string{"uid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("stripe_check",
@@ -2650,7 +2636,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/stripe/check", []string{ }),
+		makeAPIHandler("GET", "/v2/stripe/check", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("stripe_redirect",
@@ -2659,7 +2645,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/stripe/connect", []string{ }),
+		makeAPIHandler("GET", "/v2/stripe/connect", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("stripe_save",
@@ -2670,55 +2656,55 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/stripe/save", []string{ }),
+		makeAPIHandler("GET", "/v2/stripe/save", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_create",
-			mcplib.WithDescription("Create a team. Required: name. Optional: appIconLogo, appLogo, autoAcceptCreator (default: true) (plus 14 more). Returns the new CreateTeamOutput."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_PROFILE_WRITE` scope is required. Required: name. Optional: appIconLogo, appLogo, autoAcceptCreator (default: true) (plus 14 more). Returns the new CreateTeamOutput."),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/teams", []string{ }),
+		makeAPIHandler("POST", "/v2/teams", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_delete",
-			mcplib.WithDescription("Delete a team. Required: teamId. Returns the OrgTeamOutputResponseDto. Destructive."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_PROFILE_WRITE` scope is required. Required: teamId. Returns the OrgTeamOutputResponseDto. Destructive."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/teams/{teamId}", []string{"teamId", }),
+		makeAPIHandler("DELETE", "/v2/teams/{teamId}", []string{"teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_get",
-			mcplib.WithDescription("Get teams. Returns array of TeamOutputDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_PROFILE_READ` scope is required. Returns array of TeamOutputDto."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/teams", []string{ }),
+		makeAPIHandler("GET", "/v2/teams", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_get-teamid",
-			mcplib.WithDescription("Get a team. Required: teamId. Returns the GetTeamOutput."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_PROFILE_READ` scope is required. Required: teamId. Returns the GetTeamOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/teams/{teamId}", []string{"teamId", }),
+		makeAPIHandler("GET", "/v2/teams/{teamId}", []string{"teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_update",
-			mcplib.WithDescription("Update a team. Required: teamId. Optional: appIconLogo, appLogo, bannerUrl (plus 16 more). Returns the updated UpdateTeamOutput."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_PROFILE_WRITE` scope is required. Required: teamId. Optional: appIconLogo, appLogo, bannerUrl (plus 16 more). Returns the updated UpdateTeamOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/teams/{teamId}", []string{"teamId", }),
+		makeAPIHandler("PATCH", "/v2/teams/{teamId}", []string{"teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_bookings_teams-get-all-team",
-			mcplib.WithDescription("Get team bookings. Required: teamId. Optional: status, attendeeEmail, attendeeName (plus 10 more). Returns array of TeamsGetAllTeamItem."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_BOOKING_READ` scope is required. Required: teamId. Optional: status, attendeeEmail, attendeeName (plus 10 more). Returns array of TeamsGetAllTeamItem."),
 			mcplib.WithString("status", mcplib.Description("Filter bookings by status. If you want to filter by multiple statuses, separate them with a comma.")),
 			mcplib.WithString("attendeeEmail", mcplib.Description("Filter bookings by the attendee's email address.")),
 			mcplib.WithString("attendeeName", mcplib.Description("Filter bookings by the attendee's name.")),
@@ -2737,37 +2723,36 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/teams/{teamId}/bookings", []string{"teamId", }),
+		makeAPIHandler("GET", "/v2/teams/{teamId}/bookings", []string{"teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_event-types_teams-create-phone-call",
-			mcplib.WithDescription("Create a phone call. Required: eventTypeId, orgId, teamId, calApiKey, numberToCall, templateType (default: CUSTOM_TEMPLATE), yourPhoneNumber. Optional: beginMessage, generalPrompt, guestCompany (plus 3 more). Returns the new CreatePhoneCallOutput."),
-			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
-			mcplib.WithString("orgId", mcplib.Required(), mcplib.Description("Org id")),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_WRITE` scope is required. Required: teamId, eventTypeId, calApiKey, enabled (default: true), numberToCall, templateType (default: CUSTOM_TEMPLATE), yourPhoneNumber. Optional: beginMessage, generalPrompt, guestCompany (plus 3 more). Returns the new CreatePhoneCallOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
+			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/teams/{teamId}/event-types/{eventTypeId}/create-phone-call", []string{"eventTypeId","orgId","teamId", }),
+		makeAPIHandler("POST", "/v2/teams/{teamId}/event-types/{eventTypeId}/create-phone-call", []string{"teamId", "eventTypeId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_event-types_teams-create-team",
-			mcplib.WithDescription("Create an event type. Required: teamId, lengthInMinutes, schedulingType, slug, title. Optional: afterEventBuffer, allowReschedulingCancelledBookings (default: false), allowReschedulingPastBookings (default: false) (plus 30 more). Returns the new CreateTeamEventTypeOutput."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_WRITE` scope is required. Required: teamId, lengthInMinutes, schedulingType, slug, title. Optional: afterEventBuffer, allowReschedulingCancelledBookings (default: false), allowReschedulingPastBookings (default: false) (plus 29 more). Returns the new CreateTeamEventTypeOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/teams/{teamId}/event-types", []string{"teamId", }),
+		makeAPIHandler("POST", "/v2/teams/{teamId}/event-types", []string{"teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_event-types_teams-delete-team",
-			mcplib.WithDescription("Delete a team event type. Required: teamId, eventTypeId. Returns the DeleteTeamEventTypeOutput. Destructive."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_WRITE` scope is required. Required: teamId, eventTypeId. Returns the DeleteTeamEventTypeOutput. Destructive."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/teams/{teamId}/event-types/{eventTypeId}", []string{"teamId","eventTypeId", }),
+		makeAPIHandler("DELETE", "/v2/teams/{teamId}/event-types/{eventTypeId}", []string{"teamId", "eventTypeId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_event-types_teams-get-team",
@@ -2780,62 +2765,62 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/teams/{teamId}/event-types", []string{"teamId", }),
+		makeAPIHandler("GET", "/v2/teams/{teamId}/event-types", []string{"teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_event-types_teams-get-team-teams",
-			mcplib.WithDescription("Get an event type. Required: teamId, eventTypeId. Returns the GetTeamEventTypeOutput."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_READ` scope is required. Required: teamId, eventTypeId. Returns the GetTeamEventTypeOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/teams/{teamId}/event-types/{eventTypeId}", []string{"teamId","eventTypeId", }),
+		makeAPIHandler("GET", "/v2/teams/{teamId}/event-types/{eventTypeId}", []string{"teamId", "eventTypeId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_event-types_teams-update-team",
-			mcplib.WithDescription("Update a team event type. Required: teamId, eventTypeId. Optional: afterEventBuffer, allowReschedulingCancelledBookings (default: false), allowReschedulingPastBookings (default: false) (plus 34 more). Returns the updated UpdateTeamEventTypeOutput."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_WRITE` scope is required. Required: teamId, eventTypeId. Optional: afterEventBuffer, allowReschedulingCancelledBookings (default: false), allowReschedulingPastBookings (default: false) (plus 33 more). Returns the updated UpdateTeamEventTypeOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/teams/{teamId}/event-types/{eventTypeId}", []string{"teamId","eventTypeId", }),
+		makeAPIHandler("PATCH", "/v2/teams/{teamId}/event-types/{eventTypeId}", []string{"teamId", "eventTypeId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_event-types_teams-webhooks-create-team-webhook",
-			mcplib.WithDescription("Create a webhook for a team event type. Required: eventTypeId, teamId, active, subscriberUrl, triggers. Optional: payloadTemplate, secret, version. Returns the new EventTypeWebhookOutputResponseDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_WRITE` scope is required. Required: eventTypeId, teamId, active, subscriberUrl, triggers. Optional: payloadTemplate, secret, version. Returns the new EventTypeWebhookOutputResponseDto."),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/teams/{teamId}/event-types/{eventTypeId}/webhooks", []string{"eventTypeId","teamId", }),
+		makeAPIHandler("POST", "/v2/teams/{teamId}/event-types/{eventTypeId}/webhooks", []string{"eventTypeId", "teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_event-types_teams-webhooks-delete-all-team-webhooks",
-			mcplib.WithDescription("Delete all webhooks for a team event type. Required: eventTypeId, teamId. Returns the DeleteManyWebhooksOutputResponseDto. Destructive."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_WRITE` scope is required. Required: eventTypeId, teamId. Returns the DeleteManyWebhooksOutputResponseDto. Destructive."),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/teams/{teamId}/event-types/{eventTypeId}/webhooks", []string{"eventTypeId","teamId", }),
+		makeAPIHandler("DELETE", "/v2/teams/{teamId}/event-types/{eventTypeId}/webhooks", []string{"eventTypeId", "teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_event-types_teams-webhooks-delete-team-webhook",
-			mcplib.WithDescription("Delete a webhook for a team event type. Required: webhookId, eventTypeId, teamId. Returns the EventTypeWebhookOutputResponseDto. Destructive."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_WRITE` scope is required. Required: webhookId, eventTypeId, teamId. Returns the EventTypeWebhookOutputResponseDto. Destructive."),
 			mcplib.WithString("webhookId", mcplib.Required(), mcplib.Description("Webhook id")),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/teams/{teamId}/event-types/{eventTypeId}/webhooks/{webhookId}", []string{"webhookId","eventTypeId","teamId", }),
+		makeAPIHandler("DELETE", "/v2/teams/{teamId}/event-types/{eventTypeId}/webhooks/{webhookId}", []string{"webhookId", "eventTypeId", "teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_event-types_teams-webhooks-get-team-webhook",
-			mcplib.WithDescription("Get a webhook for a team event type. Required: webhookId, eventTypeId, teamId. Returns the EventTypeWebhookOutputResponseDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_READ` scope is required. Required: webhookId, eventTypeId, teamId. Returns the EventTypeWebhookOutputResponseDto."),
 			mcplib.WithString("webhookId", mcplib.Required(), mcplib.Description("Webhook id")),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
@@ -2843,11 +2828,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/teams/{teamId}/event-types/{eventTypeId}/webhooks/{webhookId}", []string{"webhookId","eventTypeId","teamId", }),
+		makeAPIHandler("GET", "/v2/teams/{teamId}/event-types/{eventTypeId}/webhooks/{webhookId}", []string{"webhookId", "eventTypeId", "teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_event-types_teams-webhooks-get-team-webhooks",
-			mcplib.WithDescription("Get all webhooks for a team event type. Required: eventTypeId, teamId. Optional: take (default: 250), skip (default: 0). Returns array of EventTypeWebhookOutputDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_READ` scope is required. Required: eventTypeId, teamId. Optional: take (default: 250), skip (default: 0). Returns array of EventTypeWebhookOutputDto."),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
@@ -2856,49 +2841,49 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/teams/{teamId}/event-types/{eventTypeId}/webhooks", []string{"eventTypeId","teamId", }),
+		makeAPIHandler("GET", "/v2/teams/{teamId}/event-types/{eventTypeId}/webhooks", []string{"eventTypeId", "teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_event-types_teams-webhooks-update-team-webhook",
-			mcplib.WithDescription("Update a webhook for a team event type. Required: webhookId, eventTypeId, teamId. Optional: active, payloadTemplate, secret (plus 3 more). Returns the updated EventTypeWebhookOutputResponseDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_WRITE` scope is required. Required: webhookId, eventTypeId, teamId. Optional: active, payloadTemplate, secret (plus 3 more). Returns the updated EventTypeWebhookOutputResponseDto."),
 			mcplib.WithString("webhookId", mcplib.Required(), mcplib.Description("Webhook id")),
 			mcplib.WithString("eventTypeId", mcplib.Required(), mcplib.Description("Event type id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/teams/{teamId}/event-types/{eventTypeId}/webhooks/{webhookId}", []string{"webhookId","eventTypeId","teamId", }),
+		makeAPIHandler("PATCH", "/v2/teams/{teamId}/event-types/{eventTypeId}/webhooks/{webhookId}", []string{"webhookId", "eventTypeId", "teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_invite_teams-create",
-			mcplib.WithDescription("Create team invite link. Required: teamId. Returns the new CreateInviteOutputDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_MEMBERSHIP_WRITE` scope is required. Required: teamId. Returns the new CreateInviteOutputDto."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/teams/{teamId}/invite", []string{"teamId", }),
+		makeAPIHandler("POST", "/v2/teams/{teamId}/invite", []string{"teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_memberships_teams-create-team",
-			mcplib.WithDescription("Create a membership. Required: teamId, userId. Optional: accepted (default: false), disableImpersonation (default: false), role (default: MEMBER). Returns the new CreateTeamMembershipOutput."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_MEMBERSHIP_WRITE` scope is required. Required: teamId, userId. Optional: accepted (default: false), disableImpersonation (default: false), role (default: MEMBER). Returns the new CreateTeamMembershipOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/teams/{teamId}/memberships", []string{"teamId", }),
+		makeAPIHandler("POST", "/v2/teams/{teamId}/memberships", []string{"teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_memberships_teams-delete-team",
-			mcplib.WithDescription("Delete a membership. Required: teamId, membershipId. Returns the DeleteTeamMembershipOutput. Destructive."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_MEMBERSHIP_WRITE` scope is required. Required: teamId, membershipId. Returns the DeleteTeamMembershipOutput. Destructive."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("membershipId", mcplib.Required(), mcplib.Description("Membership id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/teams/{teamId}/memberships/{membershipId}", []string{"teamId","membershipId", }),
+		makeAPIHandler("DELETE", "/v2/teams/{teamId}/memberships/{membershipId}", []string{"teamId", "membershipId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_memberships_teams-get-team",
-			mcplib.WithDescription("Retrieve team memberships with optional filtering by email addresses. Supports pagination. Required: teamId. Optional: take (default: 250), skip (default: 0), emails. Returns the GetTeamMembershipsOutput."),
+			mcplib.WithDescription("Retrieve team memberships with optional filtering by email addresses. Supports pagination. If accessed using an OAuth access token, the `TEAM_MEMBERSHIP_READ` scope is required. Required: teamId. Optional: take (default: 250), skip (default: 0), emails. Returns the GetTeamMembershipsOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
@@ -2907,31 +2892,31 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/teams/{teamId}/memberships", []string{"teamId", }),
+		makeAPIHandler("GET", "/v2/teams/{teamId}/memberships", []string{"teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_memberships_teams-get-team-teams",
-			mcplib.WithDescription("Get a membership. Required: teamId, membershipId. Returns the GetTeamMembershipOutput."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_MEMBERSHIP_READ` scope is required. Required: teamId, membershipId. Returns the GetTeamMembershipOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("membershipId", mcplib.Required(), mcplib.Description("Membership id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/teams/{teamId}/memberships/{membershipId}", []string{"teamId","membershipId", }),
+		makeAPIHandler("GET", "/v2/teams/{teamId}/memberships/{membershipId}", []string{"teamId", "membershipId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_memberships_teams-update-team",
-			mcplib.WithDescription("Update membership. Required: teamId, membershipId. Optional: accepted, disableImpersonation, role. Returns the updated UpdateTeamMembershipOutput."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_MEMBERSHIP_WRITE` scope is required. Required: teamId, membershipId. Optional: accepted, disableImpersonation, role. Returns the updated UpdateTeamMembershipOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("membershipId", mcplib.Required(), mcplib.Description("Membership id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/teams/{teamId}/memberships/{membershipId}", []string{"teamId","membershipId", }),
+		makeAPIHandler("PATCH", "/v2/teams/{teamId}/memberships/{membershipId}", []string{"teamId", "membershipId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_schedules_teams-get-team",
-			mcplib.WithDescription("Get all team member schedules. Required: teamId. Optional: take (default: 250), skip (default: 0). Returns array of ScheduleOutput20240611."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_SCHEDULE_READ` scope is required. Required: teamId. Optional: take (default: 250), skip (default: 0). Returns array of ScheduleOutput20240611."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
@@ -2939,22 +2924,67 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/teams/{teamId}/schedules", []string{"teamId", }),
+		makeAPIHandler("GET", "/v2/teams/{teamId}/schedules", []string{"teamId"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("teams_users_teams-ooocontroller-create-team-member-ooo",
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_SCHEDULE_WRITE` scope is required. Required: teamId, userId, end, start. Optional: notes, reason, toUserId. Returns the new UserOooOutputResponseDto."),
+			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
+			mcplib.WithString("userId", mcplib.Required(), mcplib.Description("User id")),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/v2/teams/{teamId}/users/{userId}/ooo", []string{"teamId", "userId"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("teams_users_teams-ooocontroller-delete-team-member-ooo",
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_SCHEDULE_WRITE` scope is required. Required: teamId, oooId. Returns the UserOooOutputResponseDto. Destructive."),
+			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
+			mcplib.WithString("oooId", mcplib.Required(), mcplib.Description("Ooo id")),
+			mcplib.WithDestructiveHintAnnotation(true),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("DELETE", "/v2/teams/{teamId}/users/{userId}/ooo/{oooId}", []string{"teamId", "oooId"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("teams_users_teams-ooocontroller-get-team-member-ooo",
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_SCHEDULE_READ` scope is required. Required: teamId, userId. Optional: take (default: 250), skip (default: 0), sortStart (plus 1 more). Returns array of UserOooOutputDto."),
+			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
+			mcplib.WithString("userId", mcplib.Required(), mcplib.Description("User id")),
+			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
+			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
+			mcplib.WithString("sortStart", mcplib.Description("Sort results by their start time in ascending or descending order.")),
+			mcplib.WithString("sortEnd", mcplib.Description("Sort results by their end time in ascending or descending order.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/v2/teams/{teamId}/users/{userId}/ooo", []string{"teamId", "userId"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("teams_users_teams-ooocontroller-update-team-member-ooo",
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_SCHEDULE_WRITE` scope is required. Required: teamId, userId, oooId. Optional: end, notes, reason (plus 2 more). Returns the updated UserOooOutputResponseDto."),
+			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
+			mcplib.WithString("userId", mcplib.Required(), mcplib.Description("User id")),
+			mcplib.WithString("oooId", mcplib.Required(), mcplib.Description("Ooo id")),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("PATCH", "/v2/teams/{teamId}/users/{userId}/ooo/{oooId}", []string{"teamId", "userId", "oooId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_verified-resources_teams-get-verified-email-by-id",
-			mcplib.WithDescription("Get verified email of a team by id. Required: id, teamId. Returns the TeamVerifiedEmailOutput."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_VERIFIED_RESOURCES_READ` scope is required. Required: id, teamId. Returns the TeamVerifiedEmailOutput."),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Id")),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/teams/{teamId}/verified-resources/emails/{id}", []string{"id","teamId", }),
+		makeAPIHandler("GET", "/v2/teams/{teamId}/verified-resources/emails/{id}", []string{"id", "teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_verified-resources_teams-get-verified-emails",
-			mcplib.WithDescription("Get list of verified emails of a team. Required: teamId. Optional: take (default: 250), skip (default: 0). Returns array of TeamVerifiedEmailOutputData."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_VERIFIED_RESOURCES_READ` scope is required. Required: teamId. Optional: take (default: 250), skip (default: 0). Returns array of TeamVerifiedEmailOutputData."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
@@ -2962,22 +2992,22 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/teams/{teamId}/verified-resources/emails", []string{"teamId", }),
+		makeAPIHandler("GET", "/v2/teams/{teamId}/verified-resources/emails", []string{"teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_verified-resources_teams-get-verified-phone-by-id",
-			mcplib.WithDescription("Get verified phone number of a team by id. Required: teamId, id. Returns the TeamVerifiedPhoneOutput."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_VERIFIED_RESOURCES_READ` scope is required. Required: teamId, id. Returns the TeamVerifiedPhoneOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/teams/{teamId}/verified-resources/phones/{id}", []string{"teamId","id", }),
+		makeAPIHandler("GET", "/v2/teams/{teamId}/verified-resources/phones/{id}", []string{"teamId", "id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_verified-resources_teams-get-verified-phone-numbers",
-			mcplib.WithDescription("Get list of verified phone numbers of a team. Required: teamId. Optional: take (default: 250), skip (default: 0). Returns array of TeamVerifiedPhoneOutputData."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `TEAM_VERIFIED_RESOURCES_READ` scope is required. Required: teamId. Optional: take (default: 250), skip (default: 0). Returns array of TeamVerifiedPhoneOutputData."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
@@ -2985,163 +3015,163 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/teams/{teamId}/verified-resources/phones", []string{"teamId", }),
+		makeAPIHandler("GET", "/v2/teams/{teamId}/verified-resources/phones", []string{"teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_verified-resources_teams-request-email-verification-code",
-			mcplib.WithDescription("Sends a verification code to the Email. Required: teamId, email. Returns the new RequestEmailVerificationOutput."),
+			mcplib.WithDescription("Sends a verification code to the Email. If accessed using an OAuth access token, the `TEAM_VERIFIED_RESOURCES_WRITE` scope is required. Required: teamId, email. Returns the new RequestEmailVerificationOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/teams/{teamId}/verified-resources/emails/verification-code/request", []string{"teamId", }),
+		makeAPIHandler("POST", "/v2/teams/{teamId}/verified-resources/emails/verification-code/request", []string{"teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_verified-resources_teams-request-phone-verification-code",
-			mcplib.WithDescription("Sends a verification code to the phone number. Required: teamId, phone. Returns the new RequestPhoneVerificationOutput."),
+			mcplib.WithDescription("Sends a verification code to the phone number. If accessed using an OAuth access token, the `TEAM_VERIFIED_RESOURCES_WRITE` scope is required. Required: teamId, phone. Returns the new RequestPhoneVerificationOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/teams/{teamId}/verified-resources/phones/verification-code/request", []string{"teamId", }),
+		makeAPIHandler("POST", "/v2/teams/{teamId}/verified-resources/phones/verification-code/request", []string{"teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_verified-resources_teams-verify-email",
-			mcplib.WithDescription("Use code to verify an email. Required: teamId, code, email. Returns the new TeamVerifiedEmailOutput."),
+			mcplib.WithDescription("Use code to verify an email. If accessed using an OAuth access token, the `TEAM_VERIFIED_RESOURCES_WRITE` scope is required. Required: teamId, code, email. Returns the new TeamVerifiedEmailOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/teams/{teamId}/verified-resources/emails/verification-code/verify", []string{"teamId", }),
+		makeAPIHandler("POST", "/v2/teams/{teamId}/verified-resources/emails/verification-code/verify", []string{"teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_verified-resources_teams-verify-phone-number",
-			mcplib.WithDescription("Verify a phone number for an org team. Required: teamId, code, phone. Returns the new TeamVerifiedPhoneOutput."),
+			mcplib.WithDescription("Use code to verify a phone number. If accessed using an OAuth access token, the `TEAM_VERIFIED_RESOURCES_WRITE` scope is required. Required: teamId, code, phone. Returns the new TeamVerifiedPhoneOutput."),
 			mcplib.WithString("teamId", mcplib.Required(), mcplib.Description("Team id")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/teams/{teamId}/verified-resources/phones/verification-code/verify", []string{"teamId", }),
+		makeAPIHandler("POST", "/v2/teams/{teamId}/verified-resources/phones/verification-code/verify", []string{"teamId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("verified-resources_user-get-verified-email-by-id",
-			mcplib.WithDescription("Get verified email by id. Required: id. Returns the UserVerifiedEmailOutput."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `VERIFIED_RESOURCES_READ` scope is required. Required: id. Returns the UserVerifiedEmailOutput."),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/verified-resources/emails/{id}", []string{"id", }),
+		makeAPIHandler("GET", "/v2/verified-resources/emails/{id}", []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("verified-resources_user-get-verified-emails",
-			mcplib.WithDescription("Get list of verified emails. Optional: take (default: 250), skip (default: 0). Returns array of UserVerifiedEmailOutputData."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `VERIFIED_RESOURCES_READ` scope is required. Optional: take (default: 250), skip (default: 0). Returns array of UserVerifiedEmailOutputData."),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/verified-resources/emails", []string{ }),
+		makeAPIHandler("GET", "/v2/verified-resources/emails", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("verified-resources_user-get-verified-phone-by-id",
-			mcplib.WithDescription("Get verified phone number by id. Required: id. Returns the UserVerifiedPhoneOutput."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `VERIFIED_RESOURCES_READ` scope is required. Required: id. Returns the UserVerifiedPhoneOutput."),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/verified-resources/phones/{id}", []string{"id", }),
+		makeAPIHandler("GET", "/v2/verified-resources/phones/{id}", []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("verified-resources_user-get-verified-phone-numbers",
-			mcplib.WithDescription("Get list of verified phone numbers. Optional: take (default: 250), skip (default: 0). Returns array of UserVerifiedPhoneOutputData."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `VERIFIED_RESOURCES_READ` scope is required. Optional: take (default: 250), skip (default: 0). Returns array of UserVerifiedPhoneOutputData."),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/verified-resources/phones", []string{ }),
+		makeAPIHandler("GET", "/v2/verified-resources/phones", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("verified-resources_user-request-email-verification-code",
-			mcplib.WithDescription("Sends a verification code to the email. Required: email. Returns the new RequestEmailVerificationOutput."),
+			mcplib.WithDescription("Sends a verification code to the email. If accessed using an OAuth access token, the `VERIFIED_RESOURCES_WRITE` scope is required. Required: email. Returns the new RequestEmailVerificationOutput."),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/verified-resources/emails/verification-code/request", []string{ }),
+		makeAPIHandler("POST", "/v2/verified-resources/emails/verification-code/request", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("verified-resources_user-request-phone-verification-code",
-			mcplib.WithDescription("Sends a verification code to the phone number. Required: phone. Returns the new RequestPhoneVerificationOutput."),
+			mcplib.WithDescription("Sends a verification code to the phone number. If accessed using an OAuth access token, the `VERIFIED_RESOURCES_WRITE` scope is required. Required: phone. Returns the new RequestPhoneVerificationOutput."),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/verified-resources/phones/verification-code/request", []string{ }),
+		makeAPIHandler("POST", "/v2/verified-resources/phones/verification-code/request", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("verified-resources_user-verify-email",
-			mcplib.WithDescription("Use code to verify an email. Required: code, email. Returns the new UserVerifiedEmailOutput."),
+			mcplib.WithDescription("Use code to verify an email. If accessed using an OAuth access token, the `VERIFIED_RESOURCES_WRITE` scope is required. Required: code, email. Returns the new UserVerifiedEmailOutput."),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/verified-resources/emails/verification-code/verify", []string{ }),
+		makeAPIHandler("POST", "/v2/verified-resources/emails/verification-code/verify", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("verified-resources_user-verify-phone-number",
-			mcplib.WithDescription("Use code to verify a phone number. Required: code, phone. Returns the new UserVerifiedPhoneOutput."),
+			mcplib.WithDescription("Use code to verify a phone number. If accessed using an OAuth access token, the `VERIFIED_RESOURCES_WRITE` scope is required. Required: code, phone. Returns the new UserVerifiedPhoneOutput."),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/verified-resources/phones/verification-code/verify", []string{ }),
+		makeAPIHandler("POST", "/v2/verified-resources/phones/verification-code/verify", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("webhooks_create",
-			mcplib.WithDescription("Create a webhook. Required: active, subscriberUrl, triggers. Optional: payloadTemplate, secret, version. Returns the new UserWebhookOutputResponseDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `WEBHOOK_WRITE` scope is required. Required: active, subscriberUrl, triggers. Optional: payloadTemplate, secret, version. Returns the new UserWebhookOutputResponseDto."),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v2/webhooks", []string{ }),
+		makeAPIHandler("POST", "/v2/webhooks", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("webhooks_delete",
-			mcplib.WithDescription("Delete a webhook. Required: webhookId. Returns the UserWebhookOutputResponseDto. Destructive."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `WEBHOOK_WRITE` scope is required. Required: webhookId. Returns the UserWebhookOutputResponseDto. Destructive."),
 			mcplib.WithString("webhookId", mcplib.Required(), mcplib.Description("Webhook id")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v2/webhooks/{webhookId}", []string{"webhookId", }),
+		makeAPIHandler("DELETE", "/v2/webhooks/{webhookId}", []string{"webhookId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("webhooks_get",
-			mcplib.WithDescription("Gets a paginated list of webhooks for the authenticated user. Optional: take (default: 250), skip (default: 0). Returns array of UserWebhookOutputDto."),
+			mcplib.WithDescription("Gets a paginated list of webhooks for the authenticated user. If accessed using an OAuth access token, the `WEBHOOK_READ` scope is required. Optional: take (default: 250), skip (default: 0). Returns array of UserWebhookOutputDto."),
 			mcplib.WithString("take", mcplib.Description("Maximum number of items to return")),
 			mcplib.WithString("skip", mcplib.Description("Number of items to skip")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/webhooks", []string{ }),
+		makeAPIHandler("GET", "/v2/webhooks", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("webhooks_get-webhookid",
-			mcplib.WithDescription("Get a webhook. Required: webhookId. Returns the UserWebhookOutputResponseDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `WEBHOOK_READ` scope is required. Required: webhookId. Returns the UserWebhookOutputResponseDto."),
 			mcplib.WithString("webhookId", mcplib.Required(), mcplib.Description("Webhook id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/webhooks/{webhookId}", []string{"webhookId", }),
+		makeAPIHandler("GET", "/v2/webhooks/{webhookId}", []string{"webhookId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("webhooks_update",
-			mcplib.WithDescription("Update a webhook. Required: webhookId. Optional: active, payloadTemplate, secret (plus 3 more). Returns the updated UserWebhookOutputResponseDto."),
+			mcplib.WithDescription("If accessed using an OAuth access token, the `WEBHOOK_WRITE` scope is required. Required: webhookId. Optional: active, payloadTemplate, secret (plus 3 more). Returns the updated UserWebhookOutputResponseDto."),
 			mcplib.WithString("webhookId", mcplib.Required(), mcplib.Description("Webhook id")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v2/webhooks/{webhookId}", []string{"webhookId", }),
+		makeAPIHandler("PATCH", "/v2/webhooks/{webhookId}", []string{"webhookId"}),
 	)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
@@ -3194,7 +3224,9 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 		// we rely on here (or an empty map when the payload is something else).
 		args := req.GetArguments()
 
-		// Build path by substituting positional params
+		// positionalParams mixes real URL path params with CLI positional
+		// args that map to query params (e.g. `search <query>` -> ?query=);
+		// the placeholder check below disambiguates them at runtime.
 		path := pathTemplate
 		pathParams := make(map[string]bool, len(positionalParams))
 		for _, p := range positionalParams {
@@ -3208,12 +3240,12 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 			}
 		}
 
-		// Collect non-path params as query params
 		params := make(map[string]string)
 		for k, v := range args {
-			if !pathParams[k] {
-				params[k] = fmt.Sprintf("%v", v)
+			if pathParams[k] {
+				continue
 			}
+			params[k] = fmt.Sprintf("%v", v)
 		}
 
 		var data json.RawMessage
@@ -3244,16 +3276,19 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
 					"\n      Set your API key: export CAL_COM_TOKEN=<your-key>" +
+					"\n      Get a key at: https://app.cal.com/settings/developer/api-keys" +
 					"\n      Run 'cal-com-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
 				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your token." +
 					"\n      Set it with: export CAL_COM_TOKEN=<your-key>" +
+					"\n      Get a key at: https://app.cal.com/settings/developer/api-keys" +
 					"\n      Run 'cal-com-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: your credentials are valid but lack access to this resource." +
 					"\n      Set it with: export CAL_COM_TOKEN=<your-key>" +
+					"\n      Get a key at: https://app.cal.com/settings/developer/api-keys" +
 					"\n      Run 'cal-com-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
@@ -3295,9 +3330,9 @@ func newMCPClient() (*client.Client, error) {
 	}
 	c := client.New(cfg, 30*time.Second, 0)
 	// Agents calling through MCP need fresh data every call. The on-disk
-	// response cache survives across MCP server invocations, so a DELETE/PATCH
-	// followed by a GET would otherwise return the pre-mutation snapshot for up
-	// to the cache TTL. Skip the cache for the MCP path; the interactive CLI
+	// response cache survives across MCP server invocations, so a
+	// DELETE/PATCH followed by a GET would otherwise return the
+	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
 	// constructs its own client and is unaffected.
 	c.NoCache = true
 	return c, nil
@@ -3307,6 +3342,7 @@ func dbPath() string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", "cal-com-pp-cli", "data.db")
 }
+
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
 
@@ -3387,143 +3423,157 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
 		"api":         "cal-com",
-		"description": "Cal.com v2 API — scheduling infrastructure. Authenticate with a Bearer token (API key from Settings > Developer >...",
+		"description": "Cal.com is the open-source Calendly alternative — bookable invite links, availability, slots, bookings, schedules,...",
 		"archetype":   "generic",
-		"tool_count":  285,
+		"tool_count":  291,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion cal-com-pp-cli binary.",
 		"auth": map[string]any{
-			"type": "bearer_token",
-			"env_vars": []string{"CAL_COM_TOKEN",  },
+			"type":     "bearer_token",
+			"env_vars": []string{"CAL_COM_TOKEN"},
+			"key_url":  "https://app.cal.com/settings/developer/api-keys",
 		},
 		"resources": []map[string]any{
 			{
-				"name": "api-keys",
+				"name":        "api-keys",
 				"description": "Manage api keys",
-				"endpoints": []string{"keys-refresh",  },
+				"endpoints":   []string{"keys-refresh"},
 			},
 			{
-				"name": "bookings",
+				"name":        "bookings",
 				"description": "Manage bookings",
-				"endpoints": []string{"create", "get", "get-bookinguid", "get-by-seat-uid",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"create", "get", "get-bookinguid", "get-by-seat-uid"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "cal-com-auth",
+				"name":        "cal-com-auth",
 				"description": "Manage cal com auth",
-				"endpoints": []string{"oauth2-token",  },
+				"endpoints":   []string{"oauth2-token"},
 			},
 			{
-				"name": "cal-com-auth-2",
+				"name":        "cal-com-auth-2",
 				"description": "Manage cal com auth 2",
-				"endpoints": []string{"oauth2-get-client",  },
-				"searchable": true,
+				"endpoints":   []string{"oauth2-get-client"},
+				"searchable":  true,
 			},
 			{
-				"name": "calendars",
+				"name":        "calendars",
 				"description": "Manage calendars",
-				"endpoints": []string{"cal-unified-create-connection-event", "cal-unified-delete-connection-event", "cal-unified-get-connection-event", "cal-unified-get-connection-free-busy", "cal-unified-list-connection-events", "cal-unified-list-connections", "cal-unified-update-connection-event", "check-ics-feed", "create-ics-feed", "get", "get-busy-times",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"check-ics-feed", "create-ics-feed", "get", "get-busy-times"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "conferencing",
+				"name":        "conferencing",
 				"description": "Manage conferencing",
-				"endpoints": []string{"get-default", "list-installed-apps",  },
-				"syncable": true,
+				"endpoints":   []string{"get-default", "list-installed-apps"},
+				"syncable":    true,
 			},
 			{
-				"name": "destination-calendars",
+				"name":        "credits",
+				"description": "Manage credits",
+				"endpoints":   []string{"charge", "get-available"},
+				"syncable":    true,
+				"searchable":  true,
+			},
+			{
+				"name":        "destination-calendars",
 				"description": "Manage destination calendars",
-				"endpoints": []string{"update",  },
-				"searchable": true,
+				"endpoints":   []string{"update"},
+				"searchable":  true,
 			},
 			{
-				"name": "event-types",
+				"name":        "event-types",
 				"description": "Manage event types",
-				"endpoints": []string{"create", "delete", "get", "get-by-id", "update",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"create", "delete", "get", "get-by-id", "update"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "me",
+				"name":        "me",
 				"description": "Manage me",
-				"endpoints": []string{"get", "update",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"clear-my-booking-limits", "get", "get-my-booking-limits", "update", "update-my-booking-limits", "user-ooocontroller-create-my-ooo", "user-ooocontroller-delete-my-ooo", "user-ooocontroller-get-my-ooo", "user-ooocontroller-update-my-ooo"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "oauth",
+				"name":        "notifications",
+				"description": "Manage notifications",
+				"endpoints":   []string{"subscriptions-register", "subscriptions-remove"},
+				"searchable":  true,
+			},
+			{
+				"name":        "oauth",
 				"description": "Manage oauth",
-				"endpoints": []string{ },
-				"searchable": true,
+				"endpoints":   []string{},
+				"searchable":  true,
 			},
 			{
-				"name": "oauth-clients",
+				"name":        "oauth-clients",
 				"description": "Manage oauth clients",
-				"endpoints": []string{"create", "delete", "get", "get-by-id", "update",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"create", "delete", "get", "get-by-id", "update"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "organizations",
+				"name":        "organizations",
 				"description": "Manage organizations",
-				"endpoints": []string{ },
-				"searchable": true,
+				"endpoints":   []string{},
+				"searchable":  true,
 			},
 			{
-				"name": "routing-forms",
+				"name":        "routing-forms",
 				"description": "Manage routing forms",
-				"endpoints": []string{ },
-				"searchable": true,
+				"endpoints":   []string{},
+				"searchable":  true,
 			},
 			{
-				"name": "schedules",
+				"name":        "schedules",
 				"description": "Manage schedules",
-				"endpoints": []string{"create", "delete", "get", "get-default", "get-scheduleid", "update",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"create", "delete", "get", "get-default", "get-scheduleid", "update"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "selected-calendars",
+				"name":        "selected-calendars",
 				"description": "Manage selected calendars",
-				"endpoints": []string{"add", "delete",  },
-				"searchable": true,
+				"endpoints":   []string{"add", "delete"},
+				"searchable":  true,
 			},
 			{
-				"name": "slots",
+				"name":        "slots",
 				"description": "Manage slots",
-				"endpoints": []string{"delete-reserved", "get-available", "get-reserved", "reserve", "update-reserved",  },
-				"searchable": true,
+				"endpoints":   []string{"delete-reserved", "get-available", "get-reserved", "reserve", "update-reserved"},
+				"searchable":  true,
 			},
 			{
-				"name": "stripe",
+				"name":        "stripe",
 				"description": "Manage stripe",
-				"endpoints": []string{"check", "redirect", "save",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"check", "redirect", "save"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "teams",
+				"name":        "teams",
 				"description": "Manage teams",
-				"endpoints": []string{"create", "delete", "get", "get-teamid", "update",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"create", "delete", "get", "get-teamid", "update"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "verified-resources",
+				"name":        "verified-resources",
 				"description": "Manage verified resources",
-				"endpoints": []string{"user-get-verified-email-by-id", "user-get-verified-emails", "user-get-verified-phone-by-id", "user-get-verified-phone-numbers", "user-request-email-verification-code", "user-request-phone-verification-code", "user-verify-email", "user-verify-phone-number",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"user-get-verified-email-by-id", "user-get-verified-emails", "user-get-verified-phone-by-id", "user-get-verified-phone-numbers", "user-request-email-verification-code", "user-request-phone-verification-code", "user-verify-email", "user-verify-phone-number"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "webhooks",
+				"name":        "webhooks",
 				"description": "Manage webhooks",
-				"endpoints": []string{"create", "delete", "get", "get-webhookid", "update",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"create", "delete", "get", "get-webhookid", "update"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 		},
 		"query_tips": []string{
@@ -3532,6 +3582,32 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
+		},
+		// Command-mirror capabilities are exposed through MCP by shelling out
+		// to the companion CLI binary.
+		"command_mirror_capabilities": []map[string]string{
+			{"name": "One-shot booking", "command": "book", "description": "Find a slot and book it in a single command — no slot/reserve/create/confirm chain.", "rationale": "Cal.com forces a 4-call dance to book; we compose the chain transactionally with --dry-run support and roll back on...", "via": "mcp-command-mirror"},
+			{"name": "Unified agenda", "command": "agenda", "description": "Upcoming bookings in a window — today, this week, or any duration — read from the local store.", "rationale": "Joins bookings + event_types + attendees from local SQLite; no API call after sync, so agents stay cheap on context.", "via": "mcp-command-mirror"},
+			{"name": "Cross-event-type slot search", "command": "slots find", "description": "Find first available slots across multiple event types in one call, ranked by start time.", "rationale": "Cal.com's /v2/slots/available accepts one event type per call; we fan out, merge, dedupe, and rank.", "via": "mcp-command-mirror"},
+			{"name": "Booking analytics", "command": "analytics", "description": "Booking volume, density, no-show rate, and cancellation rate across a window, grouped by event type / attendee /...", "rationale": "Cal.com Insights is paid-tier; we compute the same metrics from the local store via SQL aggregation.", "via": "mcp-command-mirror"},
+			{"name": "Conflict detection", "command": "conflicts", "description": "Detects overlaps between active Cal.com bookings and external calendar busy-times.", "rationale": "The data exists in two API surfaces (bookings + calendars/busy-times); no endpoint joins them.", "via": "mcp-command-mirror"},
+			{"name": "Availability gap finder", "command": "gaps", "description": "Finds open windows in your schedule that are available but unbooked, filtered by minimum block size.", "rationale": "Joins local schedules (availability windows) with bookings to compute open intervals; no API filter exists.", "via": "mcp-command-mirror"},
+			{"name": "Team workload balance", "command": "workload", "description": "Booking distribution across team members over a window — surfaces overloaded vs underutilized hosts.", "rationale": "Joins bookings.hostId against team_memberships locally; no team-workload endpoint exists in Cal.com.", "via": "mcp-command-mirror"},
+			{"name": "Webhook coverage", "command": "webhooks coverage", "description": "Audits registered webhook triggers against the canonical set and reports lifecycle events with no subscriber.", "rationale": "Compares /v2/webhooks triggers vs an inlined canonical-trigger constant table; no vendor tool ships this.", "via": "mcp-command-mirror"},
+			{"name": "Stale event types", "command": "event-types stale", "description": "Event types with zero bookings in the last N days — candidates for removal.", "rationale": "Left-joins local event_types against bookings filtered by --days; no analogous API filter exists.", "via": "mcp-command-mirror"},
+			{"name": "Reschedule to next open slot", "command": "reschedule next", "description": "Move an existing booking to the next available slot for the same event type after a cutoff.", "rationale": "Composes /v2/bookings/{uid} + /v2/slots/available + /v2/bookings/{uid}/reschedule; no prior tool composes this.", "via": "mcp-command-mirror"},
+		},
+		"playbook": []map[string]string{
+			{"topic": "One-shot booking", "insight": "Cal.com forces a 4-call dance to book; we compose the chain transactionally with --dry-run support and roll back on partial failure."},
+			{"topic": "Unified agenda", "insight": "Joins bookings + event_types + attendees from local SQLite; no API call after sync, so agents stay cheap on context."},
+			{"topic": "Cross-event-type slot search", "insight": "Cal.com's /v2/slots/available accepts one event type per call; we fan out, merge, dedupe, and rank."},
+			{"topic": "Booking analytics", "insight": "Cal.com Insights is paid-tier; we compute the same metrics from the local store via SQL aggregation."},
+			{"topic": "Conflict detection", "insight": "The data exists in two API surfaces (bookings + calendars/busy-times); no endpoint joins them."},
+			{"topic": "Availability gap finder", "insight": "Joins local schedules (availability windows) with bookings to compute open intervals; no API filter exists."},
+			{"topic": "Team workload balance", "insight": "Joins bookings.hostId against team_memberships locally; no team-workload endpoint exists in Cal.com."},
+			{"topic": "Webhook coverage", "insight": "Compares /v2/webhooks triggers vs an inlined canonical-trigger constant table; no vendor tool ships this."},
+			{"topic": "Stale event types", "insight": "Left-joins local event_types against bookings filtered by --days; no analogous API filter exists."},
+			{"topic": "Reschedule to next open slot", "insight": "Composes /v2/bookings/{uid} + /v2/slots/available + /v2/bookings/{uid}/reschedule; no prior tool composes this."},
 		},
 	}
 	data, _ := json.MarshalIndent(ctx, "", "  ")

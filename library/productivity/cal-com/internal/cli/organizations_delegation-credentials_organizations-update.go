@@ -17,10 +17,10 @@ func newOrganizationsDelegationCredentialsOrganizationsUpdateCmd(flags *rootFlag
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "organizations-update <orgId> <credentialId>",
-		Aliases: []string{"update"},
-		Short: "Update delegation credentials of your organization",
-		Example: "  cal-com-pp-cli organizations delegation-credentials organizations-update 42 example-value",
+		Use:         "organizations-update <orgId> <credentialId>",
+		Aliases:     []string{"update"},
+		Short:       "Required membership role: `org admin`. PBAC permission: `organization.update`. Learn more about API access control...",
+		Example:     "  cal-com-pp-cli organizations delegation-credentials organizations-update 42 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "delegation-credentials.organizations-update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -36,7 +36,7 @@ func newOrganizationsDelegationCredentialsOrganizationsUpdateCmd(flags *rootFlag
 			path := "/v2/organizations/{orgId}/delegation-credentials/{credentialId}"
 			path = replacePathParam(path, "orgId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("credentialId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "credentialId"))
+				return usageErr(fmt.Errorf("credentialId is required\nUsage: %s <%s>", cmd.CommandPath(), "credentialId"))
 			}
 			path = replacePathParam(path, "credentialId", args[1])
 			var body map[string]any
@@ -70,7 +70,9 @@ func newOrganizationsDelegationCredentialsOrganizationsUpdateCmd(flags *rootFlag
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

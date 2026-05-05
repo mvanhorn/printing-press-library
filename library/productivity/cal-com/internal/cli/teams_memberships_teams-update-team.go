@@ -19,10 +19,10 @@ func newTeamsMembershipsTeamsUpdateTeamCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "teams-update-team <teamId> <membershipId>",
-		Aliases: []string{"update"},
-		Short: "Update membership",
-		Example: "  cal-com-pp-cli teams memberships teams-update-team 42 42",
+		Use:         "teams-update-team <teamId> <membershipId>",
+		Aliases:     []string{"update"},
+		Short:       "If accessed using an OAuth access token, the `TEAM_MEMBERSHIP_WRITE` scope is required.",
+		Example:     "  cal-com-pp-cli teams memberships teams-update-team 42 42",
 		Annotations: map[string]string{"pp:endpoint": "memberships.teams-update-team"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -38,7 +38,7 @@ func newTeamsMembershipsTeamsUpdateTeamCmd(flags *rootFlags) *cobra.Command {
 			path := "/v2/teams/{teamId}/memberships/{membershipId}"
 			path = replacePathParam(path, "teamId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("membershipId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "membershipId"))
+				return usageErr(fmt.Errorf("membershipId is required\nUsage: %s <%s>", cmd.CommandPath(), "membershipId"))
 			}
 			path = replacePathParam(path, "membershipId", args[1])
 			var body map[string]any
@@ -78,7 +78,9 @@ func newTeamsMembershipsTeamsUpdateTeamCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

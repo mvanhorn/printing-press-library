@@ -16,10 +16,10 @@ func newVerifiedResourcesUserGetVerifiedEmailsCmd(flags *rootFlags) *cobra.Comma
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:   "user-get-verified-emails",
-		Aliases: []string{"list"},
-		Short: "Get list of verified emails",
-		Example: "  cal-com-pp-cli verified-resources user-get-verified-emails",
+		Use:         "user-get-verified-emails",
+		Aliases:     []string{"list"},
+		Short:       "If accessed using an OAuth access token, the `VERIFIED_RESOURCES_READ` scope is required.",
+		Example:     "  cal-com-pp-cli verified-resources user-get-verified-emails",
 		Annotations: map[string]string{"pp:endpoint": "verified-resources.user-get-verified-emails", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

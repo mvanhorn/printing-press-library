@@ -16,9 +16,9 @@ func newOrganizationsTeamsOrganizationsRolesGetAllRolesCmd(flags *rootFlags) *co
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:   "organizations-roles-get-all-roles <orgId> <teamId>",
-		Short: "Get all organization team roles",
-		Example: "  cal-com-pp-cli organizations teams organizations-roles-get-all-roles 42 42",
+		Use:         "organizations-roles-get-all-roles <orgId> <teamId>",
+		Short:       "Get all organization team roles",
+		Example:     "  cal-com-pp-cli organizations teams organizations-roles-get-all-roles 42 42",
 		Annotations: map[string]string{"pp:endpoint": "teams.organizations-roles-get-all-roles", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -32,7 +32,7 @@ func newOrganizationsTeamsOrganizationsRolesGetAllRolesCmd(flags *rootFlags) *co
 			path := "/v2/organizations/{orgId}/teams/{teamId}/roles"
 			path = replacePathParam(path, "orgId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("teamId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "teamId"))
+				return usageErr(fmt.Errorf("teamId is required\nUsage: %s <%s>", cmd.CommandPath(), "teamId"))
 			}
 			path = replacePathParam(path, "teamId", args[1])
 			params := map[string]string{}

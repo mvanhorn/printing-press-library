@@ -16,9 +16,9 @@ func newVerifiedResourcesUserGetVerifiedPhoneNumbersCmd(flags *rootFlags) *cobra
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:   "user-get-verified-phone-numbers",
-		Short: "Get list of verified phone numbers",
-		Example: "  cal-com-pp-cli verified-resources user-get-verified-phone-numbers",
+		Use:         "user-get-verified-phone-numbers",
+		Short:       "If accessed using an OAuth access token, the `VERIFIED_RESOURCES_READ` scope is required.",
+		Example:     "  cal-com-pp-cli verified-resources user-get-verified-phone-numbers",
 		Annotations: map[string]string{"pp:endpoint": "verified-resources.user-get-verified-phone-numbers", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

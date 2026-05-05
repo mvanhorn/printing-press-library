@@ -20,10 +20,10 @@ func newSlotsReserveCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "reserve",
-		Aliases: []string{"create"},
-		Short: "Make a slot not available for others to book for a certain period of time. If you authenticate using oAuth...",
-		Example: "  cal-com-pp-cli slots reserve --slotStart example-value",
+		Use:         "reserve",
+		Aliases:     []string{"create"},
+		Short:       "Make a slot not available for others to book for a certain period of time. If you authenticate using oAuth...",
+		Example:     "  cal-com-pp-cli slots reserve --slotStart 2026-01-15T09:00:00Z",
 		Annotations: map[string]string{"pp:endpoint": "slots.reserve"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -80,7 +80,9 @@ func newSlotsReserveCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

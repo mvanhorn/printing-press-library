@@ -18,16 +18,16 @@ func newOrganizationsUsersOrganizationsOoocontrollerGetOrganizationOooCmd(flags 
 	var flagSortEnd string
 
 	cmd := &cobra.Command{
-		Use:   "organizations-ooocontroller-get-organization-ooo <userId> <orgId>",
-		Short: "Get all out-of-office entries for a user",
-		Example: "  cal-com-pp-cli organizations users organizations-ooocontroller-get-organization-ooo 42 42",
+		Use:         "organizations-ooocontroller-get-organization-ooo <userId> <orgId>",
+		Short:       "If accessed using an OAuth access token, the `ORG_SCHEDULE_READ` scope is required.",
+		Example:     "  cal-com-pp-cli organizations users organizations-ooocontroller-get-organization-ooo 42 42",
 		Annotations: map[string]string{"pp:endpoint": "users.organizations-ooocontroller-get-organization-ooo", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("sort-start") {
-				allowedSortStart := []string{ "asc", "desc" }
+				allowedSortStart := []string{"asc", "desc"}
 				validSortStart := false
 				for _, v := range allowedSortStart {
 					if flagSortStart == v {
@@ -40,7 +40,7 @@ func newOrganizationsUsersOrganizationsOoocontrollerGetOrganizationOooCmd(flags 
 				}
 			}
 			if cmd.Flags().Changed("sort-end") {
-				allowedSortEnd := []string{ "asc", "desc" }
+				allowedSortEnd := []string{"asc", "desc"}
 				validSortEnd := false
 				for _, v := range allowedSortEnd {
 					if flagSortEnd == v {
@@ -60,7 +60,7 @@ func newOrganizationsUsersOrganizationsOoocontrollerGetOrganizationOooCmd(flags 
 			path := "/v2/organizations/{orgId}/users/{userId}/ooo"
 			path = replacePathParam(path, "userId", args[0])
 			if len(args) < 6 {
-				return usageErr(fmt.Errorf("orgId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "orgId"))
+				return usageErr(fmt.Errorf("orgId is required\nUsage: %s <%s>", cmd.CommandPath(), "orgId"))
 			}
 			path = replacePathParam(path, "orgId", args[5])
 			params := map[string]string{}

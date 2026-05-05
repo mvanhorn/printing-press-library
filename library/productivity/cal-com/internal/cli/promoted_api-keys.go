@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/cliutil"
+
 	"github.com/spf13/cobra"
 )
 
@@ -16,12 +18,31 @@ func newApiKeysPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyApiKeyNeverExpires bool
 
 	cmd := &cobra.Command{
-		Use:   "api-keys",
-		Short: "Generate a new API key and delete the current one. Provide API key to refresh as a Bearer token in the Authorization...",
-		Long:  "Shortcut for 'api-keys keys-refresh'. Generate a new API key and delete the current one. Provide API key to refresh as a Bearer token in the Authorization...",
-		Example: "  cal-com-pp-cli api-keys",
+		Use:         "api-keys",
+		Short:       "Generate a new API key and delete the current one. Provide API key to refresh as a Bearer token in the Authorization...",
+		Long:        "Shortcut for 'api-keys keys-refresh'. Generate a new API key and delete the current one. Provide API key to refresh as a Bearer token in the Authorization...",
+		Example:     "  cal-com-pp-cli api-keys",
 		Annotations: map[string]string{"pp:endpoint": "api-keys.keys-refresh"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Refresh-key is destructive (deletes the current bearer token and
+			// returns a new one). Refuse to run under verify/dogfood mock or
+			// without --yes to prevent automation from invalidating the
+			// caller's auth state silently. Consult `--yes` after explicit
+			// `--dry-run` filtering so dry-run can still preview.
+			if cliutil.IsVerifyEnv() {
+				out := map[string]any{
+					"command":    "api-keys refresh",
+					"would_call": "POST /v2/api-keys/refresh",
+					"verify_env": true,
+					"dry_run":    flags.dryRun,
+					"refused":    "would delete the current API key; verify env short-circuit",
+				}
+				raw, _ := json.Marshal(out)
+				return printOutputWithFlags(cmd.OutOrStdout(), raw, flags)
+			}
+			if !flags.dryRun && !flags.yes {
+				return fmt.Errorf("api-keys refresh deletes the current API key and returns a new one — pass --yes to confirm, or use --dry-run to preview")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err

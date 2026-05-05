@@ -4,8 +4,11 @@
 package cli
 
 import (
+	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/store"
 	"encoding/json"
 	"fmt"
+	"github.com/spf13/cobra"
+	"net/url"
 	"os"
 	"regexp"
 	"strconv"
@@ -13,9 +16,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-
-	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/store"
-	"github.com/spf13/cobra"
 )
 
 // syncResult holds the outcome of syncing a single resource.
@@ -199,16 +199,17 @@ Exit codes & warnings:
 
 			elapsed := time.Since(started)
 			totalResources := successCount + warnCount + errCount
-			if !humanFriendly {
+			if humanFriendly {
+				if warnCount > 0 {
+					fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%d warned, %.1fs)\n",
+						totalSynced, totalResources, warnCount, elapsed.Seconds())
+				} else {
+					fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%.1fs)\n",
+						totalSynced, totalResources, elapsed.Seconds())
+				}
+			} else {
 				fmt.Fprintf(os.Stderr, `{"event":"sync_summary","total_records":%d,"resources":%d,"success":%d,"warned":%d,"errored":%d,"duration_ms":%d}`+"\n",
 					totalSynced, totalResources, successCount, warnCount, errCount, elapsed.Milliseconds())
-			}
-			if warnCount > 0 {
-				fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%d warned, %.1fs)\n",
-					totalSynced, totalResources, warnCount, elapsed.Seconds())
-			} else {
-				fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%.1fs)\n",
-					totalSynced, totalResources, elapsed.Seconds())
 			}
 
 			// Exit-code policy:
@@ -271,7 +272,10 @@ func syncResource(c interface {
 		fmt.Fprintf(os.Stderr, `{"event":"sync_start","resource":"%s"}`+"\n", resource)
 	}
 
-	path := syncResourcePath(resource)
+	path, err := syncResourcePath(resource)
+	if err != nil {
+		return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
+	}
 	var totalCount int
 
 	// Resume cursor from sync_state (unless --full cleared it)
@@ -362,7 +366,7 @@ func syncResource(c interface {
 		// "primary_key_unresolved" the first time any single item
 		// fails, and the F4b "stored_count_zero_after_extraction"
 		// probe when extraction succeeded but rows still didn't land.
-		stored, extractFailures, err := db.UpsertBatch(resource, items)
+		stored, extractFailures, err := upsertResourceBatch(db, resource, items)
 		if err != nil {
 			if !humanFriendly {
 				fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
@@ -562,12 +566,16 @@ func extractPageItems(data json.RawMessage, cursorParam string) ([]json.RawMessa
 func extractPaginationFromEnvelope(envelope map[string]json.RawMessage, cursorParam string) (string, bool) {
 	var hasMore bool
 
+	nextCursor := nextCursorFromLinks(envelope, cursorParam)
+
 	// Try common cursor field names
 	cursorKeys := []string{
 		"next_cursor", "nextCursor", "cursor", "next_page_token",
 		"nextPageToken", "page_token", "after", "end_cursor", "endCursor",
 	}
-	nextCursor := findCursorInMap(envelope, cursorKeys)
+	if nextCursor == "" {
+		nextCursor = findCursorInMap(envelope, cursorKeys)
+	}
 
 	// If no top-level cursor was found, look one level deeper into well-known
 	// pagination wrapper objects. Slack returns {"messages":[...],
@@ -611,6 +619,53 @@ func extractPaginationFromEnvelope(envelope map[string]json.RawMessage, cursorPa
 	return nextCursor, hasMore
 }
 
+// nextCursorFromLinks extracts JSON:API-style pagination cursors from
+// {"links":{"next":"https://example.com/items?page[cursor]=..."}}.
+func nextCursorFromLinks(envelope map[string]json.RawMessage, cursorParam string) string {
+	rawLinks, ok := envelope["links"]
+	if !ok {
+		return ""
+	}
+	var links map[string]json.RawMessage
+	if json.Unmarshal(rawLinks, &links) != nil {
+		return ""
+	}
+	rawNext, ok := links["next"]
+	if !ok {
+		return ""
+	}
+	var nextURL string
+	if json.Unmarshal(rawNext, &nextURL) != nil || nextURL == "" {
+		return ""
+	}
+
+	cursorKeys := []string{cursorParam}
+	if cursorParam != "page[cursor]" {
+		cursorKeys = append(cursorKeys, "page[cursor]")
+	}
+	if cursorParam != "cursor" {
+		cursorKeys = append(cursorKeys, "cursor")
+	}
+	if cursorParam != "after" {
+		cursorKeys = append(cursorKeys, "after")
+	}
+
+	parsed, err := url.Parse(nextURL)
+	if err != nil {
+		return ""
+	}
+	values := parsed.Query()
+	for _, key := range cursorKeys {
+		if key == "" {
+			continue
+		}
+		if cursor := values.Get(key); cursor != "" {
+			return cursor
+		}
+	}
+	return ""
+}
+
 // findCursorInMap returns the first non-empty string-typed value in m
 // whose key matches one of cursorKeys. Used by extractPaginationFromEnvelope
 // to scan both the top-level envelope and well-known wrapper objects with
@@ -629,6 +684,59 @@ func findCursorInMap(m map[string]json.RawMessage, cursorKeys []string) string {
 	return ""
 }
 
+type discriminatorDispatch struct {
+	Field  string
+	Values map[string]string
+}
+
+var discriminatorDispatchers = map[string]discriminatorDispatch{}
+
+func upsertResourceBatch(db *store.Store, resource string, items []json.RawMessage) (int, int, error) {
+	if _, ok := discriminatorDispatchers[resource]; !ok {
+		return db.UpsertBatch(resource, items)
+	}
+
+	grouped := map[string][]json.RawMessage{}
+	order := []string{}
+	for _, item := range items {
+		target := resource
+		var obj map[string]any
+		if err := json.Unmarshal(item, &obj); err == nil {
+			target = resolveDiscriminatedResource(resource, obj)
+		}
+		if _, ok := grouped[target]; !ok {
+			order = append(order, target)
+		}
+		grouped[target] = append(grouped[target], item)
+	}
+
+	var stored, extractFailures int
+	for _, target := range order {
+		targetStored, targetExtractFailures, err := db.UpsertBatch(target, grouped[target])
+		if err != nil {
+			return stored, extractFailures + targetExtractFailures, err
+		}
+		stored += targetStored
+		extractFailures += targetExtractFailures
+	}
+	return stored, extractFailures, nil
+}
+
+func resolveDiscriminatedResource(resource string, obj map[string]any) string {
+	dispatcher, ok := discriminatorDispatchers[resource]
+	if !ok || dispatcher.Field == "" {
+		return resource
+	}
+	value := store.LookupFieldValue(obj, dispatcher.Field)
+	if value == nil {
+		return resource
+	}
+	if target, ok := dispatcher.Values[fmt.Sprintf("%v", value)]; ok && target != "" {
+		return target
+	}
+	return resource
+}
+
 // upsertSingleObject stores a non-array API response as a single record.
 func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) error {
 	var obj map[string]any
@@ -637,106 +745,110 @@ func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) 
 		return db.Upsert(resource, resource, data)
 	}
 
+	resource = resolveDiscriminatedResource(resource, obj)
+
 	id := extractID(resource, obj)
 	if id == "" {
 		id = resource
 	}
 
 	switch resource {
+	case "teams":
+		return db.UpsertTeams(data)
+	case "users":
+		return db.UpsertUsers(data)
 	case "bookings":
 		return db.UpsertBookings(data)
-	case "references":
-		return db.UpsertReferences(data)
-	case "attendees":
-		return db.UpsertAttendees(data)
-	case "confirm":
-		return db.UpsertConfirm(data)
-	case "guests":
-		return db.UpsertGuests(data)
-	case "location":
-		return db.UpsertLocation(data)
-	case "reschedule":
-		return db.UpsertReschedule(data)
-	case "transcripts":
-		return db.UpsertTranscripts(data)
-	case "calendar_links":
-		return db.UpsertCalendarLinks(data)
-	case "cancel":
-		return db.UpsertCancel(data)
-	case "conferencing_sessions":
-		return db.UpsertConferencingSessions(data)
-	case "decline":
-		return db.UpsertDecline(data)
-	case "mark_absent":
-		return db.UpsertMarkAbsent(data)
-	case "reassign":
-		return db.UpsertReassign(data)
-	case "recordings":
-		return db.UpsertRecordings(data)
-	case "calendars":
-		return db.UpsertCalendars(data)
-	case "disconnect":
-		return db.UpsertDisconnect(data)
-	case "freebusy":
-		return db.UpsertFreebusy(data)
-	case "save":
-		return db.UpsertSave(data)
-	case "check":
-		return db.UpsertCheck(data)
-	case "events":
-		return db.UpsertEvents(data)
-	case "event":
-		return db.UpsertEvent(data)
-	case "connect":
-		return db.UpsertConnect(data)
-	case "credentials":
-		return db.UpsertCredentials(data)
+	case "event_types":
+		return db.UpsertEventTypes(data)
+	case "invite":
+		return db.UpsertInvite(data)
+	case "memberships":
+		return db.UpsertMemberships(data)
+	case "schedules":
+		return db.UpsertSchedules(data)
+	case "verified_resources":
+		return db.UpsertVerifiedResources(data)
 	case "webhooks":
 		return db.UpsertWebhooks(data)
 	case "attributes":
 		return db.UpsertAttributes(data)
 	case "delegation_credentials":
 		return db.UpsertDelegationCredentials(data)
-	case "memberships":
-		return db.UpsertMemberships(data)
-	case "routing_forms":
-		return db.UpsertRoutingForms(data)
-	case "users":
-		return db.UpsertUsers(data)
 	case "ooo":
 		return db.UpsertOoo(data)
 	case "roles":
 		return db.UpsertRoles(data)
-	case "schedules":
-		return db.UpsertSchedules(data)
-	case "teams":
-		return db.UpsertTeams(data)
-	case "calculate_slots":
-		return db.UpsertCalculateSlots(data)
-	case "default":
-		return db.UpsertDefault(data)
-	case "oauth":
-		return db.UpsertOauth(data)
-	case "event_types":
-		return db.UpsertEventTypes(data)
-	case "private_links":
-		return db.UpsertPrivateLinks(data)
-	case "selected_calendars":
-		return db.UpsertSelectedCalendars(data)
-	case "invite":
-		return db.UpsertInvite(data)
-	case "verified_resources":
-		return db.UpsertVerifiedResources(data)
+	case "routing_forms":
+		return db.UpsertRoutingForms(data)
+	case "cancel":
+		return db.UpsertCancel(data)
+	case "decline":
+		return db.UpsertDecline(data)
+	case "mark_absent":
+		return db.UpsertMarkAbsent(data)
+	case "references":
+		return db.UpsertReferences(data)
+	case "reschedule":
+		return db.UpsertReschedule(data)
+	case "transcripts":
+		return db.UpsertTranscripts(data)
+	case "attendees":
+		return db.UpsertAttendees(data)
+	case "calendar_links":
+		return db.UpsertCalendarLinks(data)
+	case "guests":
+		return db.UpsertGuests(data)
+	case "location":
+		return db.UpsertLocation(data)
+	case "confirm":
+		return db.UpsertConfirm(data)
+	case "request_reschedule":
+		return db.UpsertRequestReschedule(data)
+	case "conferencing_sessions":
+		return db.UpsertConferencingSessions(data)
+	case "reassign":
+		return db.UpsertReassign(data)
+	case "recordings":
+		return db.UpsertRecordings(data)
 	case "me":
 		return db.UpsertMe(data)
-	case "oauth_clients":
-		return db.UpsertOauthClients(data)
-	case "slots":
-		return db.UpsertSlots(data)
+	case "selected_calendars":
+		return db.UpsertSelectedCalendars(data)
+	case "credits":
+		return db.UpsertCredits(data)
 	case "stripe":
 		return db.UpsertStripe(data)
 	case "refresh":
 		return db.UpsertRefresh(data)
+	case "calculate_slots":
+		return db.UpsertCalculateSlots(data)
+	case "calendars":
+		return db.UpsertCalendars(data)
+	case "check":
+		return db.UpsertCheck(data)
+	case "connect":
+		return db.UpsertConnect(data)
+	case "credentials":
+		return db.UpsertCredentials(data)
+	case "disconnect":
+		return db.UpsertDisconnect(data)
+	case "save":
+		return db.UpsertSave(data)
+	case "event":
+		return db.UpsertEvent(data)
+	case "events":
+		return db.UpsertEvents(data)
+	case "oauth_clients":
+		return db.UpsertOauthClients(data)
+	case "notifications":
+		return db.UpsertNotifications(data)
+	case "default":
+		return db.UpsertDefault(data)
+	case "private_links":
+		return db.UpsertPrivateLinks(data)
+	case "slots":
+		return db.UpsertSlots(data)
 	default:
 		return db.Upsert(resource, id, data)
 	}
@@ -776,6 +888,7 @@ func defaultSyncResources() []string {
 		"bookings",
 		"calendars",
 		"conferencing",
+		"credits",
 		"event-types",
 		"me",
 		"oauth-clients",
@@ -790,24 +903,25 @@ func defaultSyncResources() []string {
 // syncResourcePath maps resource names to their actual API endpoint paths.
 // For REST APIs this is typically "/<resource>". For non-REST APIs (e.g., Steam)
 // this preserves the actual endpoint path like "/ISteamApps/GetAppList/v2".
-func syncResourcePath(resource string) string {
+func syncResourcePath(resource string) (string, error) {
 	paths := map[string]string{
-		"bookings": "/v2/bookings",
-		"calendars": "/v2/calendars",
-		"conferencing": "/v2/conferencing",
-		"event-types": "/v2/event-types",
-		"me": "/v2/me",
-		"oauth-clients": "/v2/oauth-clients",
-		"schedules": "/v2/schedules",
-		"stripe": "/v2/stripe/check",
-		"teams": "/v2/teams",
+		"bookings":           "/v2/bookings",
+		"calendars":          "/v2/calendars",
+		"conferencing":       "/v2/conferencing",
+		"credits":            "/v2/credits/available",
+		"event-types":        "/v2/event-types",
+		"me":                 "/v2/me",
+		"oauth-clients":      "/v2/oauth-clients",
+		"schedules":          "/v2/schedules",
+		"stripe":             "/v2/stripe/check",
+		"teams":              "/v2/teams",
 		"verified-resources": "/v2/verified-resources/emails",
-		"webhooks": "/v2/webhooks",
+		"webhooks":           "/v2/webhooks",
 	}
 	if p, ok := paths[resource]; ok {
-		return p
+		return p, nil
 	}
-	return "/" + resource
+	return "", fmt.Errorf("unknown sync resource %q", resource)
 }
 
 // resourceIDFieldOverrides projects per-resource IDField (set by the profiler
@@ -820,15 +934,16 @@ func syncResourcePath(resource string) string {
 // annotations on a child path-item are honored at runtime, not just on
 // flat paths.
 var resourceIDFieldOverrides = map[string]string{
-	"calendars": "status",
-	"conferencing": "id",
-	"event-types": "id",
-	"me": "status",
-	"oauth-clients": "id",
-	"schedules": "id",
-	"teams": "id",
+	"calendars":          "status",
+	"conferencing":       "id",
+	"event-types":        "id",
+	"me":                 "status",
+	"oauth-clients":      "id",
+	"schedules":          "id",
+	"stripe":             "status",
+	"teams":              "id",
 	"verified-resources": "id",
-	"webhooks": "id",
+	"webhooks":           "id",
 }
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
@@ -844,8 +959,7 @@ var genericIDFieldFallbacks = []string{"id", "ID", "name", "uuid", "slug", "key"
 // Includes both flat resources and dependent (parent-child) resources so a
 // failed child sync flagged x-critical: true exits non-zero just like a
 // flat-resource critical failure.
-var criticalResources = map[string]bool{
-}
+var criticalResources = map[string]bool{}
 
 // extractID resolves an item's primary-key field. It consults the
 // per-resource templated override first; on miss, it falls through to the

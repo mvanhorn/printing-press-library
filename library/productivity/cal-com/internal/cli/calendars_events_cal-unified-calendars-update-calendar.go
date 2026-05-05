@@ -20,17 +20,17 @@ func newCalendarsEventsCalUnifiedCalendarsUpdateCalendarCmd(flags *rootFlags) *c
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "cal-unified-calendars-update-calendar <eventUid>",
-		Aliases: []string{"update"},
-		Short: "Updates event information in the specified calendar provider. The singular /event/ path is deprecated — use...",
-		Example: "  cal-com-pp-cli calendars events cal-unified-calendars-update-calendar example-value",
+		Use:         "cal-unified-calendars-update-calendar <eventUid>",
+		Aliases:     []string{"update"},
+		Short:       "Updates event information in the specified calendar provider. If accessed using an OAuth access token, the...",
+		Example:     "  cal-com-pp-cli calendars events cal-unified-calendars-update-calendar 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "events.cal-unified-calendars-update-calendar"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("calendar") {
-				allowedCalendar := []string{ "google" }
+				allowedCalendar := []string{"google"}
 				validCalendar := false
 				for _, v := range allowedCalendar {
 					if flagCalendar == v {
@@ -51,7 +51,7 @@ func newCalendarsEventsCalUnifiedCalendarsUpdateCalendarCmd(flags *rootFlags) *c
 
 			path := "/v2/calendars/{calendar}/events/{eventUid}"
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("eventUid is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "eventUid"))
+				return usageErr(fmt.Errorf("eventUid is required\nUsage: %s <%s>", cmd.CommandPath(), "eventUid"))
 			}
 			path = replacePathParam(path, "eventUid", args[1])
 			path = replacePathParam(path, "calendar", fmt.Sprintf("%v", flagCalendar))
@@ -92,7 +92,9 @@ func newCalendarsEventsCalUnifiedCalendarsUpdateCalendarCmd(flags *rootFlags) *c
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

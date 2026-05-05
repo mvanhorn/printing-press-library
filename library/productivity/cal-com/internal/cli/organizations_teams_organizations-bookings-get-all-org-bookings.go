@@ -27,16 +27,16 @@ func newOrganizationsTeamsOrganizationsBookingsGetAllOrgBookingsCmd(flags *rootF
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:   "organizations-bookings-get-all-org-bookings <teamId> <orgId>",
-		Short: "Get organization team bookings",
-		Example: "  cal-com-pp-cli organizations teams organizations-bookings-get-all-org-bookings 42 42",
+		Use:         "organizations-bookings-get-all-org-bookings <teamId> <orgId>",
+		Short:       "Required membership role: `team admin`. PBAC permission: `booking.readTeamBookings`. Learn more about API access...",
+		Example:     "  cal-com-pp-cli organizations teams organizations-bookings-get-all-org-bookings 42 42",
 		Annotations: map[string]string{"pp:endpoint": "teams.organizations-bookings-get-all-org-bookings", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("sort-start") {
-				allowedSortStart := []string{ "asc", "desc" }
+				allowedSortStart := []string{"asc", "desc"}
 				validSortStart := false
 				for _, v := range allowedSortStart {
 					if flagSortStart == v {
@@ -49,7 +49,7 @@ func newOrganizationsTeamsOrganizationsBookingsGetAllOrgBookingsCmd(flags *rootF
 				}
 			}
 			if cmd.Flags().Changed("sort-end") {
-				allowedSortEnd := []string{ "asc", "desc" }
+				allowedSortEnd := []string{"asc", "desc"}
 				validSortEnd := false
 				for _, v := range allowedSortEnd {
 					if flagSortEnd == v {
@@ -62,7 +62,7 @@ func newOrganizationsTeamsOrganizationsBookingsGetAllOrgBookingsCmd(flags *rootF
 				}
 			}
 			if cmd.Flags().Changed("sort-created") {
-				allowedSortCreated := []string{ "asc", "desc" }
+				allowedSortCreated := []string{"asc", "desc"}
 				validSortCreated := false
 				for _, v := range allowedSortCreated {
 					if flagSortCreated == v {
@@ -81,11 +81,11 @@ func newOrganizationsTeamsOrganizationsBookingsGetAllOrgBookingsCmd(flags *rootF
 
 			path := "/v2/organizations/{orgId}/teams/{teamId}/bookings"
 			if len(args) < 14 {
-				return usageErr(fmt.Errorf("teamId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "teamId"))
+				return usageErr(fmt.Errorf("teamId is required\nUsage: %s <%s>", cmd.CommandPath(), "teamId"))
 			}
 			path = replacePathParam(path, "teamId", args[13])
 			if len(args) < 15 {
-				return usageErr(fmt.Errorf("orgId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "orgId"))
+				return usageErr(fmt.Errorf("orgId is required\nUsage: %s <%s>", cmd.CommandPath(), "orgId"))
 			}
 			path = replacePathParam(path, "orgId", args[14])
 			params := map[string]string{}

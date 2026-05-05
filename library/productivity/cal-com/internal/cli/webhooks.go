@@ -18,7 +18,6 @@ func newWebhooksCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newWebhooksGetCmd(flags))
 	cmd.AddCommand(newWebhooksGetWebhookidCmd(flags))
 	cmd.AddCommand(newWebhooksUpdateCmd(flags))
-	cmd.AddCommand(newWebhooksTriggersCmd(flags))
 	cmd.AddCommand(newWebhooksCoverageCmd(flags))
 	return cmd
 }

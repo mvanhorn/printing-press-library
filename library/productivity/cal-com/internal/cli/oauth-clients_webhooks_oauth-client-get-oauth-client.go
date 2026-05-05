@@ -16,10 +16,10 @@ func newOauthClientsWebhooksOauthClientGetOauthClientCmd(flags *rootFlags) *cobr
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:   "oauth-client-get-oauth-client <clientId>",
-		Aliases: []string{"get"},
-		Short: "<Warning>These endpoints are deprecated and will be removed in the future.</Warning>",
-		Example: "  cal-com-pp-cli oauth-clients webhooks oauth-client-get-oauth-client example-value",
+		Use:         "oauth-client-get-oauth-client <clientId>",
+		Aliases:     []string{"get"},
+		Short:       "<Warning>These endpoints are deprecated and will be removed in the future.</Warning>",
+		Example:     "  cal-com-pp-cli oauth-clients webhooks oauth-client-get-oauth-client 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "webhooks.oauth-client-get-oauth-client", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

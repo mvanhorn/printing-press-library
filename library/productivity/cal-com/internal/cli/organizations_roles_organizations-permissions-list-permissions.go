@@ -14,9 +14,9 @@ import (
 func newOrganizationsRolesOrganizationsPermissionsListPermissionsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "organizations-permissions-list-permissions <orgId> <roleId>",
-		Short: "List permissions for an organization role",
-		Example: "  cal-com-pp-cli organizations roles organizations-permissions-list-permissions 42 example-value",
+		Use:         "organizations-permissions-list-permissions <orgId> <roleId>",
+		Short:       "Required membership role: `org admin`. PBAC permission: `role.read`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations roles organizations-permissions-list-permissions 42 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "roles.organizations-permissions-list-permissions", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -30,7 +30,7 @@ func newOrganizationsRolesOrganizationsPermissionsListPermissionsCmd(flags *root
 			path := "/v2/organizations/{orgId}/roles/{roleId}/permissions"
 			path = replacePathParam(path, "orgId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("roleId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "roleId"))
+				return usageErr(fmt.Errorf("roleId is required\nUsage: %s <%s>", cmd.CommandPath(), "roleId"))
 			}
 			path = replacePathParam(path, "roleId", args[1])
 			params := map[string]string{}

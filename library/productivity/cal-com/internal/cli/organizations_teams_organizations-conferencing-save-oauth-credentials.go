@@ -16,9 +16,9 @@ func newOrganizationsTeamsOrganizationsConferencingSaveOauthCredentialsCmd(flags
 	var flagCode string
 
 	cmd := &cobra.Command{
-		Use:   "organizations-conferencing-save-oauth-credentials <teamId> <orgId> <app>",
-		Short: "Save conferencing app OAuth credentials",
-		Example: "  cal-com-pp-cli organizations teams organizations-conferencing-save-oauth-credentials 42 42 example-value",
+		Use:         "organizations-conferencing-save-oauth-credentials <teamId> <orgId> <app>",
+		Short:       "Required membership role: `team admin`. PBAC permission: `team.update`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations teams organizations-conferencing-save-oauth-credentials 42 42 example-value",
 		Annotations: map[string]string{"pp:endpoint": "teams.organizations-conferencing-save-oauth-credentials", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -37,15 +37,15 @@ func newOrganizationsTeamsOrganizationsConferencingSaveOauthCredentialsCmd(flags
 
 			path := "/v2/organizations/{orgId}/teams/{teamId}/conferencing/{app}/oauth/callback"
 			if len(args) < 3 {
-				return usageErr(fmt.Errorf("teamId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "teamId"))
+				return usageErr(fmt.Errorf("teamId is required\nUsage: %s <%s>", cmd.CommandPath(), "teamId"))
 			}
 			path = replacePathParam(path, "teamId", args[2])
 			if len(args) < 4 {
-				return usageErr(fmt.Errorf("orgId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "orgId"))
+				return usageErr(fmt.Errorf("orgId is required\nUsage: %s <%s>", cmd.CommandPath(), "orgId"))
 			}
 			path = replacePathParam(path, "orgId", args[3])
 			if len(args) < 5 {
-				return usageErr(fmt.Errorf("app is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "app"))
+				return usageErr(fmt.Errorf("app is required\nUsage: %s <%s>", cmd.CommandPath(), "app"))
 			}
 			path = replacePathParam(path, "app", args[4])
 			params := map[string]string{}

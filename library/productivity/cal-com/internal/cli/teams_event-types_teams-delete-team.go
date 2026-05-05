@@ -14,10 +14,10 @@ import (
 func newTeamsEventTypesTeamsDeleteTeamCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "teams-delete-team <teamId> <eventTypeId>",
-		Aliases: []string{"delete"},
-		Short: "Delete a team event type",
-		Example: "  cal-com-pp-cli teams event-types teams-delete-team 42 42",
+		Use:         "teams-delete-team <teamId> <eventTypeId>",
+		Aliases:     []string{"delete"},
+		Short:       "If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_WRITE` scope is required.",
+		Example:     "  cal-com-pp-cli teams event-types teams-delete-team 42 42",
 		Annotations: map[string]string{"pp:endpoint": "event-types.teams-delete-team"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -31,7 +31,7 @@ func newTeamsEventTypesTeamsDeleteTeamCmd(flags *rootFlags) *cobra.Command {
 			path := "/v2/teams/{teamId}/event-types/{eventTypeId}"
 			path = replacePathParam(path, "teamId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("eventTypeId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "eventTypeId"))
+				return usageErr(fmt.Errorf("eventTypeId is required\nUsage: %s <%s>", cmd.CommandPath(), "eventTypeId"))
 			}
 			path = replacePathParam(path, "eventTypeId", args[1])
 			data, statusCode, err := c.Delete(path)
@@ -48,7 +48,9 @@ func newTeamsEventTypesTeamsDeleteTeamCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

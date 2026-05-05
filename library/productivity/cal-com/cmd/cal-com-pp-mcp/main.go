@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mark3labs/mcp-go/server"
 	mcptools "github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/mcp"
+	"github.com/mark3labs/mcp-go/server"
 )
 
 func main() {

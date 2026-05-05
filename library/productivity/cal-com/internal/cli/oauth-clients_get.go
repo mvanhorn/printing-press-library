@@ -14,10 +14,10 @@ import (
 func newOauthClientsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Aliases: []string{"list"},
-		Short: "<Warning>These endpoints are deprecated and will be removed in the future.</Warning>",
-		Example: "  cal-com-pp-cli oauth-clients get",
+		Use:         "get",
+		Aliases:     []string{"list"},
+		Short:       "<Warning>These endpoints are deprecated and will be removed in the future.</Warning>",
+		Example:     "  cal-com-pp-cli oauth-clients get",
 		Annotations: map[string]string{"pp:endpoint": "oauth-clients.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

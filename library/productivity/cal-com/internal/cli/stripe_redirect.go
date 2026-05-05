@@ -14,9 +14,9 @@ import (
 func newStripeRedirectCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "redirect",
-		Short: "Get Stripe connect URL",
-		Example: "  cal-com-pp-cli stripe redirect",
+		Use:         "redirect",
+		Short:       "Get Stripe connect URL",
+		Example:     "  cal-com-pp-cli stripe redirect",
 		Annotations: map[string]string{"pp:endpoint": "stripe.redirect", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

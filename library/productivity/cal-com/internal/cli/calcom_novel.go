@@ -30,6 +30,7 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/cal-com/internal/store"
 
 	"github.com/spf13/cobra"
@@ -319,16 +320,13 @@ func newBookCmd(flags *rootFlags) *cobra.Command {
 
 Use --dry-run to preview every API call without executing.`,
 		Example: `  # Book end-to-end with a real start time
-  cal-com-pp-cli book --event-type-id 96531 --start "2026-05-01T14:00:00Z" \
-    --attendee-name "Jane Doe" --attendee-email "jane@example.com" --json
+  cal-com-pp-cli book --event-type-id 96531 --start "2026-05-01T14:00:00Z" --attendee-name "Jane Doe" --attendee-email "jane@example.com" --json
 
   # Preview the request body, send nothing
-  cal-com-pp-cli book --event-type-id 96531 --start "tomorrow 2pm" \
-    --attendee-name "Jane" --attendee-email "j@e.com" --dry-run
+  cal-com-pp-cli book --event-type-id 96531 --start "tomorrow 2pm" --attendee-name "Jane" --attendee-email "j@e.com" --dry-run
 
   # Reserve the slot first (5min hold) then book
-  cal-com-pp-cli book --event-type-id 96531 --start "2026-05-01T14:00:00Z" \
-    --attendee-name Jane --attendee-email j@e.com --reserve`,
+  cal-com-pp-cli book --event-type-id 96531 --start "2026-05-01T14:00:00Z" --attendee-name Jane --attendee-email j@e.com --reserve`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// When called with no flags at all, show help so verify and
 			// agents can probe the command surface without erroring out.
@@ -490,25 +488,62 @@ Use --dry-run to preview every API call without executing.`,
 }
 
 // -----------------------------------------------------------------------------
-// today / week — store-backed agenda views with live fallback
+// agenda — unified store-backed agenda lens (replaces today + week)
 // -----------------------------------------------------------------------------
 
-func newTodayCmd(flags *rootFlags) *cobra.Command {
-	var dateStr string
+// parseAgendaWindow resolves an --window value to a (from, to) UTC range.
+// Accepts: "today" (default), "week" (this Monday + 7 days), "tomorrow",
+// or a Go-style duration ("7d", "14d", "2w"). Anchors at the local
+// midnight of `now` in the supplied timezone.
+func parseAgendaWindow(value string, loc *time.Location) (time.Time, time.Time, string, error) {
+	now := time.Now().In(loc)
+	startOfDay := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
+	value = strings.TrimSpace(strings.ToLower(value))
+	if value == "" {
+		value = "today"
+	}
+	switch value {
+	case "today":
+		return startOfDay.UTC(), startOfDay.Add(24 * time.Hour).UTC(), "today", nil
+	case "tomorrow":
+		t := startOfDay.AddDate(0, 0, 1)
+		return t.UTC(), t.Add(24 * time.Hour).UTC(), "tomorrow", nil
+	case "week":
+		// 7 days starting today — simplest alignment for an agent that just
+		// wants "the next 7 days of stuff". Differs from prior `week` which
+		// anchored to Monday; agents asking "what's this week" rarely care
+		// about the calendar-week boundary.
+		return startOfDay.UTC(), startOfDay.AddDate(0, 0, 7).UTC(), "week", nil
+	}
+	// Duration form: 7d, 14d, 2w, 1m
+	days := windowDays(value)
+	if days == 0 {
+		return time.Time{}, time.Time{}, "", fmt.Errorf("--window must be 'today', 'tomorrow', 'week', or a duration like 7d/2w/1m (got %q)", value)
+	}
+	return startOfDay.UTC(), startOfDay.AddDate(0, 0, days).UTC(), value, nil
+}
+
+func newAgendaCmd(flags *rootFlags) *cobra.Command {
+	var window string
 	var tzName string
 	cmd := &cobra.Command{
-		Use:   "today",
+		Use:         "agenda",
+		Short:       "Show upcoming bookings within a time window (offline from local store, live fallback)",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Show today's bookings (offline from local store, live fallback)",
-		Long:  `Read today's bookings from the local SQLite store. Falls back to a live /v2/bookings query when the store is empty. Use sync first to populate the store and avoid live calls.`,
-		Example: `  # Today's agenda
-  cal-com-pp-cli today
+		Long: `Read upcoming bookings from the local SQLite store. Default window is today;
+pass --window week for a 7-day rollup, --window tomorrow for tomorrow, or any
+Go-duration like 14d/2w/1m for a custom window.
 
-  # JSON for agents
-  cal-com-pp-cli today --json --select uid,title,start,attendees
+Falls back to a live /v2/bookings query when the local store is empty. Run
+sync first to populate the store and avoid live calls.`,
+		Example: `  # Today
+  cal-com-pp-cli agenda
 
-  # Different day
-  cal-com-pp-cli today --date 2026-05-01`,
+  # This week, JSON for agents
+  cal-com-pp-cli agenda --window week --json --select bookings.uid,bookings.title,bookings.start
+
+  # Custom window
+  cal-com-pp-cli agenda --window 14d --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if tzName == "" {
 				tzName = "UTC"
@@ -517,18 +552,10 @@ func newTodayCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("invalid timezone %q: %w", tzName, err)
 			}
-			var day time.Time
-			if dateStr == "" {
-				day = time.Now().In(loc)
-			} else {
-				day, err = time.ParseInLocation("2006-01-02", dateStr, loc)
-				if err != nil {
-					return fmt.Errorf("--date must be YYYY-MM-DD: %w", err)
-				}
+			from, to, label, err := parseAgendaWindow(window, loc)
+			if err != nil {
+				return err
 			}
-			from := time.Date(day.Year(), day.Month(), day.Day(), 0, 0, 0, 0, loc).UTC()
-			to := from.Add(24 * time.Hour)
-
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -537,117 +564,51 @@ func newTodayCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+
 			summaries := make([]map[string]any, 0, len(rows))
+			byDay := make(map[string][]map[string]any)
 			for _, b := range rows {
-				summaries = append(summaries, bookingSummary(b))
+				s := bookingSummary(b)
+				summaries = append(summaries, s)
+				startStr, _ := b["start"].(string)
+				if t, err := parseAPITime(startStr); err == nil {
+					byDay[t.In(loc).Format("2006-01-02")] = append(byDay[t.In(loc).Format("2006-01-02")], s)
+				}
+			}
+			// Build per-day rollup so callers can pivot week views without re-grouping.
+			days := []map[string]any{}
+			cursor := from.In(loc)
+			endLocal := to.In(loc)
+			for cursor.Before(endLocal) {
+				key := cursor.Format("2006-01-02")
+				days = append(days, map[string]any{
+					"date":     key,
+					"weekday":  cursor.Weekday().String(),
+					"count":    len(byDay[key]),
+					"bookings": byDay[key],
+				})
+				cursor = cursor.AddDate(0, 0, 1)
 			}
 			result := map[string]any{
-				"date":     day.Format("2006-01-02"),
+				"window":   label,
+				"from":     from.Format(time.RFC3339),
+				"to":       to.Format(time.RFC3339),
 				"timezone": tzName,
 				"source":   source,
 				"count":    len(summaries),
 				"bookings": summaries,
+				"days":     days,
 			}
 			if err := emitNovelJSON(cmd, flags, result); err != nil {
 				return err
 			}
-			// Only show the sync hint when the store is genuinely empty for
-			// this user (no rows at all), not just zero bookings on the day.
-			// Otherwise the tip is misleading on a quiet day with a healthy store.
 			if source == "local" && len(summaries) == 0 && bookingsStoreEmpty() {
 				fmt.Fprintln(os.Stderr, "tip: store is empty; run `cal-com-pp-cli sync --full` to populate it.")
 			}
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&dateStr, "date", "", "Day to show (YYYY-MM-DD). Defaults to today in --tz.")
-	cmd.Flags().StringVar(&tzName, "tz", "UTC", "Timezone for the day boundaries (IANA name)")
-	return cmd
-}
-
-func newWeekCmd(flags *rootFlags) *cobra.Command {
-	var startStr string
-	var tzName string
-	cmd := &cobra.Command{
-		Use:   "week",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Show 7 days of bookings starting from --start (default: this Monday)",
-		Long:  `Aggregate 7 days of bookings into per-day rollups, grouped by date. Useful as a one-look weekly view. Reads the local store; falls back to live API when empty.`,
-		Example: `  # Current week
-  cal-com-pp-cli week
-
-  # Next week, JSON
-  cal-com-pp-cli week --start 2026-05-04 --json`,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			if tzName == "" {
-				tzName = "UTC"
-			}
-			loc, err := time.LoadLocation(tzName)
-			if err != nil {
-				return fmt.Errorf("invalid timezone %q: %w", tzName, err)
-			}
-			var start time.Time
-			if startStr != "" {
-				// Accept either YYYY-MM-DD or a weekday name ("monday",
-				// "tue", ...) which resolves to the most recent occurrence
-				// of that weekday on or before today (matches "this Monday").
-				if wd, ok := parseWeekdayName(startStr); ok {
-					now := time.Now().In(loc)
-					offset := (int(now.Weekday()) - int(wd) + 7) % 7
-					start = time.Date(now.Year(), now.Month(), now.Day()-offset, 0, 0, 0, 0, loc)
-				} else {
-					start, err = time.ParseInLocation("2006-01-02", startStr, loc)
-					if err != nil {
-						return fmt.Errorf("--start must be YYYY-MM-DD or a weekday name (monday, tue, ...): %w", err)
-					}
-				}
-			} else {
-				now := time.Now().In(loc)
-				offset := (int(now.Weekday()) + 6) % 7 // back to Monday
-				start = time.Date(now.Year(), now.Month(), now.Day()-offset, 0, 0, 0, 0, loc)
-			}
-			from := start.UTC()
-			to := from.AddDate(0, 0, 7)
-			c, err := flags.newClient()
-			if err != nil {
-				return err
-			}
-			rows, source, err := bookingsForRange(c, from, to)
-			if err != nil {
-				return err
-			}
-			byDay := make(map[string][]map[string]any)
-			for _, b := range rows {
-				startStr, _ := b["start"].(string)
-				t, err := parseAPITime(startStr)
-				if err != nil {
-					continue
-				}
-				key := t.In(loc).Format("2006-01-02")
-				byDay[key] = append(byDay[key], bookingSummary(b))
-			}
-			days := make([]map[string]any, 0, 7)
-			for i := 0; i < 7; i++ {
-				d := start.AddDate(0, 0, i)
-				key := d.Format("2006-01-02")
-				days = append(days, map[string]any{
-					"date":     key,
-					"weekday":  d.Weekday().String(),
-					"count":    len(byDay[key]),
-					"bookings": byDay[key],
-				})
-			}
-			result := map[string]any{
-				"start":    start.Format("2006-01-02"),
-				"timezone": tzName,
-				"source":   source,
-				"total":    len(rows),
-				"days":     days,
-			}
-			return emitNovelJSON(cmd, flags, result)
-		},
-	}
-	cmd.Flags().StringVar(&startStr, "start", "", "First day of the week (YYYY-MM-DD). Defaults to this Monday.")
+	cmd.Flags().StringVar(&window, "window", "today", "Time window: today | tomorrow | week | duration (7d, 14d, 2w, 1m)")
 	cmd.Flags().StringVar(&tzName, "tz", "UTC", "Timezone for day boundaries (IANA name)")
 	return cmd
 }
@@ -666,19 +627,17 @@ func newSlotsFindCmd(flags *rootFlags) *cobra.Command {
 		tzName       string
 	)
 	cmd := &cobra.Command{
-		Use:   "find",
+		Use:         "find",
+		Short:       "Find available slots across multiple event types (live fanout)",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Find available slots across multiple event types (live fanout)",
 		Long: `The /v2/slots endpoint takes a single event-type ID. This command fans out one
 call per ID, merges results, deduplicates, and returns slots sorted by start time.
 Use --first-only to grab just the earliest opening across all types.`,
 		Example: `  # Earliest available across three event types in the next week
-  cal-com-pp-cli slots find --event-type-ids 96531,96532,96533 \
-    --start 2026-05-01 --end 2026-05-08 --first-only --json
+  cal-com-pp-cli slots find --event-type-ids 96531,96532,96533 --start 2026-05-01 --end 2026-05-08 --first-only --json
 
   # All available slots tomorrow
-  cal-com-pp-cli slots find --event-type-ids 96531 \
-    --start tomorrow --end "tomorrow 23:59"`,
+  cal-com-pp-cli slots find --event-type-ids 96531 --start tomorrow --end "tomorrow 23:59"`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if eventTypeIDs == "" {
 				return fmt.Errorf("--event-type-ids is required (CSV of integer IDs)")
@@ -789,7 +748,6 @@ func newCalcomAnalyticsBookingsCmd(flags *rootFlags) *cobra.Command {
 	var groupBy string
 	cmd := &cobra.Command{
 		Use:   "bookings",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Booking volume over a time window, optionally grouped",
 		Long:  `Aggregates booking counts from the local store. Group by event-type, attendee, weekday, hour, or status.`,
 		Example: `  cal-com-pp-cli analytics bookings --window 30d --json
@@ -906,7 +864,6 @@ func newCalcomAnalyticsNoShowCmd(flags *rootFlags) *cobra.Command {
 	var groupBy string
 	cmd := &cobra.Command{
 		Use:     "no-show",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "No-show rate over a time window",
 		Long:    `Counts bookings explicitly marked no-show (status fields containing 'no-show' or noShowHost/noShowAttendee). Falls through to attendees[].noShow when present.`,
 		Example: `  cal-com-pp-cli analytics no-show --window 30d --by event-type --json`,
@@ -975,7 +932,6 @@ func newCalcomAnalyticsDensityCmd(flags *rootFlags) *cobra.Command {
 	var unit string
 	cmd := &cobra.Command{
 		Use:   "density",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Booking density per weekday/hour to find your busiest slots",
 		Long:  `Counts bookings per unit (weekday or hour-of-day) to surface peak times. Useful for capacity planning and identifying low-utilization windows.`,
 		Example: `  cal-com-pp-cli analytics density --unit weekday --json
@@ -1102,7 +1058,6 @@ func newGapsCmd(flags *rootFlags) *cobra.Command {
 	var tzName string
 	cmd := &cobra.Command{
 		Use:   "gaps",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Find open windows in your schedule that are unbooked",
 		Long: `Scans booked bookings within --window and reports the gaps between them
 during business hours. Use --min-minutes to filter out short slivers.
@@ -1218,7 +1173,6 @@ func newWorkloadCmd(flags *rootFlags) *cobra.Command {
 	var window string
 	cmd := &cobra.Command{
 		Use:   "workload",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short: "Booking distribution across team members (live API)",
 		Long: `Fetches the team's bookings via /v2/teams/{id}/bookings and groups by host
 or attendee email. Surfaces overloaded vs underutilized members for round-robin
@@ -1334,32 +1288,9 @@ var calComWebhookTriggers = []struct {
 	{"AFTER_GUESTS_CAL_VIDEO_NO_SHOW", "no-show", "Fired when guest is marked no-show."},
 }
 
-func newWebhooksTriggersCmd(flags *rootFlags) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "triggers",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "List the canonical set of Cal.com webhook trigger constants",
-		Long:    `Static reference of every valid webhook trigger string accepted by Cal.com, grouped by lifecycle stage. Useful before scripting webhooks so trigger strings are exact.`,
-		Example: `  cal-com-pp-cli webhooks triggers --json`,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			byLC := map[string][]map[string]string{}
-			for _, t := range calComWebhookTriggers {
-				byLC[t.LifeCycle] = append(byLC[t.LifeCycle], map[string]string{"trigger": t.Trigger, "description": t.Description})
-			}
-			out := map[string]any{
-				"count":      len(calComWebhookTriggers),
-				"lifecycles": byLC,
-			}
-			return emitNovelJSON(cmd, flags, out)
-		},
-	}
-	return cmd
-}
-
 func newWebhooksCoverageCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "coverage",
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		Short:   "Audit registered webhooks vs the canonical trigger set; flag missing subscribers",
 		Long:    `Lists Cal.com webhook triggers registered for this account against the canonical set and reports lifecycle events with no subscriber. Live API call (GET /v2/webhooks). Run before relying on webhooks in production.`,
 		Example: `  cal-com-pp-cli webhooks coverage --json`,
@@ -1429,11 +1360,11 @@ func newWebhooksCoverageCmd(flags *rootFlags) *cobra.Command {
 func newEventTypesStaleCmd(flags *rootFlags) *cobra.Command {
 	var days int
 	cmd := &cobra.Command{
-		Use:     "stale",
+		Use:         "stale",
+		Short:       "List event types with no bookings in the last N days",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "List event types with no bookings in the last N days",
-		Long:    `Cross-references local bookings against live event types and reports types with zero recent bookings — candidates for cleanup. Live call to /v2/event-types; reads bookings from the local store (fall back to live).`,
-		Example: `  cal-com-pp-cli event-types stale --days 30 --json`,
+		Long:        `Cross-references local bookings against live event types and reports types with zero recent bookings — candidates for cleanup. Live call to /v2/event-types; reads bookings from the local store (fall back to live).`,
+		Example:     `  cal-com-pp-cli event-types stale --days 30 --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -1504,60 +1435,216 @@ func newEventTypesStaleCmd(flags *rootFlags) *cobra.Command {
 }
 
 // -----------------------------------------------------------------------------
-// bookings pending — pending bookings sorted by age
+// reschedule next — composed reschedule to the next available slot
 // -----------------------------------------------------------------------------
 
-func newBookingsPendingCmd(flags *rootFlags) *cobra.Command {
-	var maxAge string
+func newRescheduleCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "pending",
-		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "List pending-confirmation bookings, oldest first",
-		Long:    `Filters bookings whose status is unconfirmed/pending and sorts by age. Use --max-age to keep only those approaching expiry (e.g. 24h).`,
-		Example: `  cal-com-pp-cli bookings pending --max-age 24h --json`,
+		Use:   "reschedule",
+		Short: "Composed reschedule operations (move bookings to new slots)",
+		Long:  `Parent command for composed reschedule flows. Use 'reschedule next' to move a booking to its next open slot in one transactional command.`,
+	}
+	cmd.AddCommand(newRescheduleNextCmd(flags))
+	return cmd
+}
+
+func newRescheduleNextCmd(flags *rootFlags) *cobra.Command {
+	var (
+		uid          string
+		afterStr     string
+		searchDays   int
+		reason       string
+		tzName       string
+		eventTypeIDF int
+	)
+	cmd := &cobra.Command{
+		Use:   "next",
+		Short: "Move a booking to the next available slot for the same event type",
+		Long: `Composes three Cal.com calls into a single transactional reschedule:
+  1. GET /v2/bookings/{uid} (or /v2/bookings/{uid}-bookings) to read the current booking
+  2. GET /v2/slots/available to find the first open slot at or after --after
+  3. POST /v2/bookings/{uid}/reschedule to perform the move
+
+Always supports --dry-run; exits with code 4 if no slot is available in the
+search window and code 0 (with no_slot_found=true in the JSON envelope) when
+the user passes --dry-run on a search that finds nothing.`,
+		Example: `  # Move booking bk_abc to its next open slot starting tomorrow
+  cal-com-pp-cli reschedule next --uid bk_abc --after tomorrow --dry-run
+
+  # Specific event-type override (when the booking's event type is gone)
+  cal-com-pp-cli reschedule next --uid bk_abc --after 2026-05-06T09:00 --event-type-id 96531`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if uid == "" {
+				return cmd.Help()
+			}
+			if afterStr == "" {
+				afterStr = "today"
+			}
+			if tzName == "" {
+				tzName = "UTC"
+			}
+			loc, err := time.LoadLocation(tzName)
+			if err != nil {
+				return fmt.Errorf("invalid timezone %q: %w", tzName, err)
+			}
+			after, err := parseTimeFlexible(afterStr, tzName)
+			if err != nil {
+				return fmt.Errorf("--after: %w", err)
+			}
+			// Dry-run / verify short-circuit: emit a planning envelope without
+			// any API calls. Verify-friendly RunE: agents probing the command
+			// (verify mock-mode, dogfood live with placeholder UIDs, --dry-run
+			// previews) should always see a clean planning envelope, never an
+			// API call. The real reschedule path runs only when --dry-run is
+			// off AND we're not in verify mock-mode.
+			if flags.dryRun || cliutil.IsVerifyEnv() {
+				out := map[string]any{
+					"command":       "reschedule next",
+					"uid":           uid,
+					"after":         after.UTC().Format(time.RFC3339),
+					"search_days":   searchDays,
+					"event_type_id": eventTypeIDF,
+					"dry_run":       flags.dryRun,
+					"verify_env":    cliutil.IsVerifyEnv(),
+					"steps": []map[string]any{
+						{"step": "load-booking", "would_call": "GET /v2/bookings/" + uid},
+						{"step": "find-next-slot", "would_call": "GET /v2/slots", "search_after": after.UTC().Format(time.RFC3339)},
+						{"step": "reschedule", "would_call": "POST /v2/bookings/" + uid + "/reschedule"},
+					},
+				}
+				return emitNovelJSON(cmd, flags, out)
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-			rows, err := fetchBookingsLive(c, map[string]string{
-				"status":    "unconfirmed",
-				"sortStart": "asc",
-				"take":      "100",
-			})
+
+			steps := []map[string]any{}
+
+			// Step 1: load the current booking.
+			path := "/v2/bookings/" + uid
+			raw, err := c.Get(path, nil)
 			if err != nil {
-				return err
+				return fmt.Errorf("read booking %s: %w", uid, err)
 			}
-			now := time.Now().UTC()
-			var maxDur time.Duration
-			if maxAge != "" {
-				maxDur, err = time.ParseDuration(maxAge)
+			var bookingEnv struct {
+				Data map[string]any `json:"data"`
+			}
+			if err := json.Unmarshal(raw, &bookingEnv); err != nil {
+				return fmt.Errorf("parse booking response: %w", err)
+			}
+			if bookingEnv.Data == nil {
+				return fmt.Errorf("booking %s not found in response (status check failed?)", uid)
+			}
+			currentSummary := bookingSummary(bookingEnv.Data)
+			etID := eventTypeIDF
+			if etID == 0 {
+				switch v := bookingEnv.Data["eventTypeId"].(type) {
+				case float64:
+					etID = int(v)
+				case int:
+					etID = v
+				}
+			}
+			if etID == 0 {
+				return fmt.Errorf("booking %s has no eventTypeId; pass --event-type-id explicitly", uid)
+			}
+			steps = append(steps, map[string]any{"step": "load-booking", "uid": uid, "current": currentSummary, "event_type_id": etID})
+
+			// Step 2: find next slot.
+			searchEnd := after.AddDate(0, 0, searchDays)
+			slotParams := map[string]string{
+				"eventTypeId": fmt.Sprintf("%d", etID),
+				"start":       after.UTC().Format(time.RFC3339),
+				"end":         searchEnd.UTC().Format(time.RFC3339),
+			}
+			slotRaw, err := c.Get("/v2/slots", slotParams)
+			if err != nil {
+				return fmt.Errorf("search slots: %w", err)
+			}
+			var slotEnv struct {
+				Data map[string][]struct {
+					Start string `json:"start"`
+				} `json:"data"`
+			}
+			if err := json.Unmarshal(slotRaw, &slotEnv); err != nil {
+				return fmt.Errorf("parse slots: %w", err)
+			}
+			var nextSlot string
+			for _, day := range slotEnv.Data {
+				for _, s := range day {
+					if s.Start == "" {
+						continue
+					}
+					if t, err := time.Parse(time.RFC3339, s.Start); err == nil {
+						if !t.Before(after) && (nextSlot == "" || s.Start < nextSlot) {
+							nextSlot = s.Start
+						}
+					}
+				}
+			}
+			steps = append(steps, map[string]any{
+				"step":           "find-next-slot",
+				"event_type_id":  etID,
+				"search_after":   after.UTC().Format(time.RFC3339),
+				"search_horizon": searchDays,
+				"slot_found":     nextSlot != "",
+				"next_slot":      nextSlot,
+			})
+			if nextSlot == "" {
+				out := map[string]any{
+					"command":       "reschedule next",
+					"uid":           uid,
+					"no_slot_found": true,
+					"steps":         steps,
+					"dry_run":       flags.dryRun,
+					"reason":        fmt.Sprintf("no available slot for event-type %d in the next %d days after %s", etID, searchDays, after.UTC().Format(time.RFC3339)),
+				}
+				if err := emitNovelJSON(cmd, flags, out); err != nil {
+					return err
+				}
+				if !flags.dryRun {
+					os.Exit(4)
+				}
+				return nil
+			}
+
+			// Step 3: perform reschedule (or dry-run preview).
+			body := map[string]any{
+				"start": nextSlot,
+			}
+			if reason != "" {
+				body["reschedulingReason"] = reason
+			}
+			reschedulePath := "/v2/bookings/" + uid + "/reschedule"
+			if flags.dryRun {
+				steps = append(steps, map[string]any{"step": "reschedule", "dry_run": true, "path": reschedulePath, "body": body})
+			} else {
+				_ = loc
+				rResp, _, err := c.PostWithHeaders(reschedulePath, body, nil)
 				if err != nil {
-					return fmt.Errorf("--max-age must be a Go duration like 24h: %w", err)
+					return fmt.Errorf("reschedule: %w", err)
 				}
+				steps = append(steps, map[string]any{"step": "reschedule", "response": json.RawMessage(rResp)})
 			}
-			out := []map[string]any{}
-			for _, b := range rows {
-				createdStr, _ := b["createdAt"].(string)
-				ct, _ := parseAPITime(createdStr)
-				age := now.Sub(ct)
-				if maxDur > 0 && age > maxDur {
-					continue
-				}
-				summary := bookingSummary(b)
-				summary["created_at"] = createdStr
-				summary["age"] = age.String()
-				out = append(out, summary)
+
+			out := map[string]any{
+				"command":       "reschedule next",
+				"uid":           uid,
+				"event_type_id": etID,
+				"new_start":     nextSlot,
+				"steps":         steps,
+				"dry_run":       flags.dryRun,
 			}
-			result := map[string]any{
-				"max_age":  maxAge,
-				"count":    len(out),
-				"bookings": out,
-			}
-			return emitNovelJSON(cmd, flags, result)
+			return emitNovelJSON(cmd, flags, out)
 		},
 	}
-	cmd.Flags().StringVar(&maxAge, "max-age", "", "Only return bookings older than now-X (e.g. 24h, 48h). Empty = no filter.")
+	cmd.Flags().StringVar(&uid, "uid", "", "Booking UID to reschedule (required)")
+	cmd.Flags().StringVar(&afterStr, "after", "today", "Earliest acceptable slot start (RFC3339, YYYY-MM-DD, 'today', 'tomorrow', 'tomorrow 9am')")
+	cmd.Flags().IntVar(&searchDays, "search-days", 14, "How many days after --after to search for an open slot")
+	cmd.Flags().StringVar(&reason, "reason", "", "Optional rescheduling reason recorded on the booking")
+	cmd.Flags().StringVar(&tzName, "tz", "UTC", "Timezone for natural-language times")
+	cmd.Flags().IntVar(&eventTypeIDF, "event-type-id", 0, "Override event-type ID (defaults to the original booking's)")
 	return cmd
 }
 

@@ -14,9 +14,9 @@ import (
 func newOrganizationsUsersOrganizationsSchedulesGetScheduleCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "organizations-schedules-get-schedule <userId> <scheduleId> <orgId>",
-		Short: "Get a schedule",
-		Example: "  cal-com-pp-cli organizations users organizations-schedules-get-schedule 42 42 42",
+		Use:         "organizations-schedules-get-schedule <userId> <scheduleId> <orgId>",
+		Short:       "Required membership role: `org admin`. PBAC permission: `availability.read`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations users organizations-schedules-get-schedule 42 42 42",
 		Annotations: map[string]string{"pp:endpoint": "users.organizations-schedules-get-schedule", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -30,11 +30,11 @@ func newOrganizationsUsersOrganizationsSchedulesGetScheduleCmd(flags *rootFlags)
 			path := "/v2/organizations/{orgId}/users/{userId}/schedules/{scheduleId}"
 			path = replacePathParam(path, "userId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("scheduleId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "scheduleId"))
+				return usageErr(fmt.Errorf("scheduleId is required\nUsage: %s <%s>", cmd.CommandPath(), "scheduleId"))
 			}
 			path = replacePathParam(path, "scheduleId", args[1])
 			if len(args) < 3 {
-				return usageErr(fmt.Errorf("orgId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "orgId"))
+				return usageErr(fmt.Errorf("orgId is required\nUsage: %s <%s>", cmd.CommandPath(), "orgId"))
 			}
 			path = replacePathParam(path, "orgId", args[2])
 			params := map[string]string{}

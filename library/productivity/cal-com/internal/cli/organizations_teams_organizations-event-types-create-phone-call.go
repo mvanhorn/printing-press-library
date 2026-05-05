@@ -15,6 +15,7 @@ import (
 func newOrganizationsTeamsOrganizationsEventTypesCreatePhoneCallCmd(flags *rootFlags) *cobra.Command {
 	var bodyBeginMessage string
 	var bodyCalApiKey string
+	var bodyEnabled bool
 	var bodyGeneralPrompt string
 	var bodyGuestCompany string
 	var bodyGuestEmail string
@@ -26,9 +27,9 @@ func newOrganizationsTeamsOrganizationsEventTypesCreatePhoneCallCmd(flags *rootF
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "organizations-event-types-create-phone-call <eventTypeId> <orgId> <teamId>",
-		Short: "Create a phone call",
-		Example: "  cal-com-pp-cli organizations teams organizations-event-types-create-phone-call 42 42 42 --calApiKey your-token-here",
+		Use:         "organizations-event-types-create-phone-call <eventTypeId> <orgId> <teamId>",
+		Short:       "Required membership role: `team admin`. PBAC permission: `eventType.update`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations teams organizations-event-types-create-phone-call 42 42 42 --calApiKey your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "teams.organizations-event-types-create-phone-call"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -53,11 +54,11 @@ func newOrganizationsTeamsOrganizationsEventTypesCreatePhoneCallCmd(flags *rootF
 			path := "/v2/organizations/{orgId}/teams/{teamId}/event-types/{eventTypeId}/create-phone-call"
 			path = replacePathParam(path, "eventTypeId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("orgId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "orgId"))
+				return usageErr(fmt.Errorf("orgId is required\nUsage: %s <%s>", cmd.CommandPath(), "orgId"))
 			}
 			path = replacePathParam(path, "orgId", args[1])
 			if len(args) < 3 {
-				return usageErr(fmt.Errorf("teamId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "teamId"))
+				return usageErr(fmt.Errorf("teamId is required\nUsage: %s <%s>", cmd.CommandPath(), "teamId"))
 			}
 			path = replacePathParam(path, "teamId", args[2])
 			var body map[string]any
@@ -78,6 +79,9 @@ func newOrganizationsTeamsOrganizationsEventTypesCreatePhoneCallCmd(flags *rootF
 				}
 				if bodyCalApiKey != "" {
 					body["calApiKey"] = bodyCalApiKey
+				}
+				if bodyEnabled != false {
+					body["enabled"] = bodyEnabled
 				}
 				if bodyGeneralPrompt != "" {
 					body["generalPrompt"] = bodyGeneralPrompt
@@ -118,7 +122,9 @@ func newOrganizationsTeamsOrganizationsEventTypesCreatePhoneCallCmd(flags *rootF
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
@@ -171,6 +177,7 @@ func newOrganizationsTeamsOrganizationsEventTypesCreatePhoneCallCmd(flags *rootF
 	}
 	cmd.Flags().StringVar(&bodyBeginMessage, "begin-message", "", "Begin message")
 	cmd.Flags().StringVar(&bodyCalApiKey, "cal-api-key", "", "CAL API Key")
+	cmd.Flags().BoolVar(&bodyEnabled, "enabled", true, "Enabled status")
 	cmd.Flags().StringVar(&bodyGeneralPrompt, "general-prompt", "", "General prompt")
 	cmd.Flags().StringVar(&bodyGuestCompany, "guest-company", "", "Guest company")
 	cmd.Flags().StringVar(&bodyGuestEmail, "guest-email", "", "Guest email")

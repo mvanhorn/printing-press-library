@@ -1,0 +1,362 @@
+{
+  "api_name": "cal-com",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "calcom/cal-mcp",
+      "url": "https://github.com/calcom/cal-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 21,
+      "last_updated": "",
+      "command_count": 167,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "dsddet/booking_chest",
+      "url": "https://github.com/dsddet/booking_chest",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 70,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bcharleson/calcom-cli",
+      "url": "https://github.com/bcharleson/calcom-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 61,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "aditzel/caldotcom-api-v2-sdk",
+      "url": "https://github.com/aditzel/caldotcom-api-v2-sdk",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "vinayh/calcom-mcp",
+      "url": "https://github.com/vinayh/calcom-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Danielpeter-99/calcom-mcp",
+      "url": "https://github.com/Danielpeter-99/calcom-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mumunha/cal_dot_com_mcpserver",
+      "url": "https://github.com/mumunha/cal_dot_com_mcpserver",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-04T20:56:34Z",
+  "novel_features": [
+    {
+      "name": "One-shot booking",
+      "command": "book",
+      "description": "Find a slot and create a booking in one composed command — slot check, optional reservation, create, optional confirm.",
+      "rationale": "Cal.com forces a 4-call dance to book; we compose the chain transactionally with --dry-run support.",
+      "example": "cal-com-pp-cli book --event-type-id 96531 --start 2026-05-06T17:00:00Z --attendee-name Guest --attendee-email guest@example.com --dry-run",
+      "why_it_matters": "Reach for this whenever you need to book a meeting; one call replaces four and is safe to dry-run.",
+      "group": "Composed booking flows"
+    },
+    {
+      "name": "Unified agenda",
+      "command": "agenda",
+      "description": "Upcoming bookings in a window — today, this week, or any duration — read from the local store.",
+      "rationale": "Joins bookings + event_types + attendees from local SQLite; no API call after sync, so agents stay cheap on context.",
+      "example": "cal-com-pp-cli agenda --window today --json --select id,start,title,attendees",
+      "why_it_matters": "Use this whenever an agent needs 'what's on my calendar'; single command across any time window.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-event-type slot search",
+      "command": "slots find",
+      "description": "Find first available slots across multiple event-type IDs in one call, ranked by start time.",
+      "rationale": "Cal.com's /v2/slots accepts one event-type per call; we fan out, merge, dedupe, and rank.",
+      "example": "cal-com-pp-cli slots find --event-type-ids 96531 --start tomorrow --end \"tomorrow 23:59\" --json",
+      "why_it_matters": "Use this when you don't know which event type fits — let the caller pick from a ranked merged list.",
+      "group": "Composed booking flows"
+    },
+    {
+      "name": "Booking analytics",
+      "command": "analytics no-show",
+      "description": "No-show, cancellation, volume, and density metrics over a window. Sister subcommands under analytics: bookings (volume), cancellations, no-show, density. --by accepts event-type, attendee, or weekday on the rate commands; analytics density --unit hour adds hourly heatmaps.",
+      "rationale": "Cal.com Insights is paid-tier; we compute the same metrics from the local store via SQL aggregation.",
+      "example": "cal-com-pp-cli analytics no-show --window 90d --by attendee --json",
+      "why_it_matters": "Use this for capacity planning, no-show trend analysis, or attendee follow-up — answers no single API call provides.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Conflict detection",
+      "command": "conflicts",
+      "description": "Detects overlapping bookings within a time window — pairs whose time ranges intersect get reported. Reads the local store, no API call.",
+      "rationale": "Cal.com normally prevents overlap on the same event type; this catches cross-event-type collisions, after-the-fact reassignments, and timezone-mismatch artifacts the API doesn't surface.",
+      "example": "cal-com-pp-cli conflicts --window 7d --json",
+      "why_it_matters": "Run before sending confirmations or after a bulk reschedule — surfaces double-bookings the API silently allows.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Availability gap finder",
+      "command": "gaps",
+      "description": "Finds open windows in your schedule that are available but unbooked, filtered by minimum block size.",
+      "rationale": "Joins local schedules (availability windows) with bookings to compute open intervals; no API filter exists.",
+      "example": "cal-com-pp-cli gaps --window 7d --min-minutes 60 --json",
+      "why_it_matters": "Use this for capacity planning — answers 'when can I take a meeting' rather than 'what's on my plate'.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Team workload balance",
+      "command": "workload",
+      "description": "Booking distribution across team members over a window — surfaces overloaded vs underutilized hosts.",
+      "rationale": "Live /v2/teams/{id}/bookings + per-host aggregation; no team-workload endpoint exists in Cal.com.",
+      "example": "cal-com-pp-cli workload --team-id 42 --window 30d --json",
+      "why_it_matters": "Use this for round-robin tuning or to spot host burnout before it shows up as no-shows.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Webhook coverage",
+      "command": "webhooks coverage",
+      "description": "Audits registered webhook triggers against the canonical set and reports lifecycle events with no subscriber.",
+      "rationale": "Compares /v2/webhooks triggers vs an inlined canonical-trigger constant table; no vendor tool ships this.",
+      "example": "cal-com-pp-cli webhooks coverage --json",
+      "why_it_matters": "Run this whenever you add a new automation — surfaces missed triggers like BOOKING_NO_SHOW_UPDATED before they bite.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Stale event types",
+      "command": "event-types stale",
+      "description": "Event types with zero bookings in the last N days — candidates for removal.",
+      "rationale": "Left-joins local event_types against bookings filtered by --days; no analogous API filter exists.",
+      "example": "cal-com-pp-cli event-types stale --days 90 --json",
+      "why_it_matters": "Use this for quarterly cleanup — keeps your bookable surface from drifting.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Reschedule to next open slot",
+      "command": "reschedule next",
+      "description": "Move an existing booking to the next available slot for the same event type, after a cutoff.",
+      "rationale": "Composes /v2/bookings/{uid} + /v2/slots + /v2/bookings/{uid}/reschedule; no prior tool composes this.",
+      "example": "cal-com-pp-cli reschedule next --uid \u003cbooking-uid\u003e --after tomorrow --dry-run",
+      "why_it_matters": "Use this for last-minute bumps — one command instead of three, with dry-run safety.",
+      "group": "Composed booking flows"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "One-shot booking",
+      "command": "book",
+      "description": "Find a slot and create a booking in one composed command — slot check, optional reservation, create, optional confirm.",
+      "rationale": "Cal.com forces a 4-call dance to book; we compose the chain transactionally with --dry-run support.",
+      "example": "cal-com-pp-cli book --event-type-id 96531 --start 2026-05-06T17:00:00Z --attendee-name Guest --attendee-email guest@example.com --dry-run",
+      "why_it_matters": "Reach for this whenever you need to book a meeting; one call replaces four and is safe to dry-run.",
+      "group": "Composed booking flows"
+    },
+    {
+      "name": "Unified agenda",
+      "command": "agenda",
+      "description": "Upcoming bookings in a window — today, this week, or any duration — read from the local store.",
+      "rationale": "Joins bookings + event_types + attendees from local SQLite; no API call after sync, so agents stay cheap on context.",
+      "example": "cal-com-pp-cli agenda --window today --json --select id,start,title,attendees",
+      "why_it_matters": "Use this whenever an agent needs 'what's on my calendar'; single command across any time window.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-event-type slot search",
+      "command": "slots find",
+      "description": "Find first available slots across multiple event-type IDs in one call, ranked by start time.",
+      "rationale": "Cal.com's /v2/slots accepts one event-type per call; we fan out, merge, dedupe, and rank.",
+      "example": "cal-com-pp-cli slots find --event-type-ids 96531 --start tomorrow --end \"tomorrow 23:59\" --json",
+      "why_it_matters": "Use this when you don't know which event type fits — let the caller pick from a ranked merged list.",
+      "group": "Composed booking flows"
+    },
+    {
+      "name": "Booking analytics",
+      "command": "analytics no-show",
+      "description": "No-show, cancellation, volume, and density metrics over a window. Sister subcommands under analytics: bookings (volume), cancellations, no-show, density. --by accepts event-type, attendee, or weekday on the rate commands; analytics density --unit hour adds hourly heatmaps.",
+      "rationale": "Cal.com Insights is paid-tier; we compute the same metrics from the local store via SQL aggregation.",
+      "example": "cal-com-pp-cli analytics no-show --window 90d --by attendee --json",
+      "why_it_matters": "Use this for capacity planning, no-show trend analysis, or attendee follow-up — answers no single API call provides.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Conflict detection",
+      "command": "conflicts",
+      "description": "Detects overlapping bookings within a time window — pairs whose time ranges intersect get reported. Reads the local store, no API call.",
+      "rationale": "Cal.com normally prevents overlap on the same event type; this catches cross-event-type collisions, after-the-fact reassignments, and timezone-mismatch artifacts the API doesn't surface.",
+      "example": "cal-com-pp-cli conflicts --window 7d --json",
+      "why_it_matters": "Run before sending confirmations or after a bulk reschedule — surfaces double-bookings the API silently allows.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Availability gap finder",
+      "command": "gaps",
+      "description": "Finds open windows in your schedule that are available but unbooked, filtered by minimum block size.",
+      "rationale": "Joins local schedules (availability windows) with bookings to compute open intervals; no API filter exists.",
+      "example": "cal-com-pp-cli gaps --window 7d --min-minutes 60 --json",
+      "why_it_matters": "Use this for capacity planning — answers 'when can I take a meeting' rather than 'what's on my plate'.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Team workload balance",
+      "command": "workload",
+      "description": "Booking distribution across team members over a window — surfaces overloaded vs underutilized hosts.",
+      "rationale": "Live /v2/teams/{id}/bookings + per-host aggregation; no team-workload endpoint exists in Cal.com.",
+      "example": "cal-com-pp-cli workload --team-id 42 --window 30d --json",
+      "why_it_matters": "Use this for round-robin tuning or to spot host burnout before it shows up as no-shows.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Webhook coverage",
+      "command": "webhooks coverage",
+      "description": "Audits registered webhook triggers against the canonical set and reports lifecycle events with no subscriber.",
+      "rationale": "Compares /v2/webhooks triggers vs an inlined canonical-trigger constant table; no vendor tool ships this.",
+      "example": "cal-com-pp-cli webhooks coverage --json",
+      "why_it_matters": "Run this whenever you add a new automation — surfaces missed triggers like BOOKING_NO_SHOW_UPDATED before they bite.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Stale event types",
+      "command": "event-types stale",
+      "description": "Event types with zero bookings in the last N days — candidates for removal.",
+      "rationale": "Left-joins local event_types against bookings filtered by --days; no analogous API filter exists.",
+      "example": "cal-com-pp-cli event-types stale --days 90 --json",
+      "why_it_matters": "Use this for quarterly cleanup — keeps your bookable surface from drifting.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Reschedule to next open slot",
+      "command": "reschedule next",
+      "description": "Move an existing booking to the next available slot for the same event type, after a cutoff.",
+      "rationale": "Composes /v2/bookings/{uid} + /v2/slots + /v2/bookings/{uid}/reschedule; no prior tool composes this.",
+      "example": "cal-com-pp-cli reschedule next --uid \u003cbooking-uid\u003e --after tomorrow --dry-run",
+      "why_it_matters": "Use this for last-minute bumps — one command instead of three, with dry-run safety.",
+      "group": "Composed booking flows"
+    }
+  ],
+  "narrative": {
+    "display_name": "Cal.com",
+    "headline": "Every Cal.com feature, plus offline agendas, composed booking flows, and analytics no other Cal.com tool ships.",
+    "value_prop": "cal-com-pp-cli wraps the entire Cal.com v2 API and adds a local SQLite store of your bookings, event types, schedules, and team data. Composed intents like `book` and `reschedule next` collapse multi-call dances into one transactional command. Local-store analytics, conflict detection, and team workload land in milliseconds with no API call.",
+    "auth_narrative": "Cal.com uses bearer tokens prefixed with `cal_live_` (live) or `cal_test_` (test). Set `CAL_COM_TOKEN` in your environment, or run `auth set-token` once. The CLI also accepts managed-user access tokens and OAuth access tokens through the same Authorization header. Per-resource API-version pinning via `cal-api-version` is handled automatically by the client.",
+    "quickstart": [
+      {
+        "command": "cal-com-pp-cli auth status",
+        "comment": "Confirm CAL_COM_TOKEN is loaded; use auth set-token \u003ctoken\u003e to save one to the config"
+      },
+      {
+        "command": "cal-com-pp-cli doctor",
+        "comment": "Confirm the token works against /v2/me"
+      },
+      {
+        "command": "cal-com-pp-cli sync",
+        "comment": "Pull bookings, event types, schedules, teams, and webhooks into the local store"
+      },
+      {
+        "command": "cal-com-pp-cli agenda --window today --json",
+        "comment": "See today's bookings without an API call"
+      },
+      {
+        "command": "cal-com-pp-cli slots find --event-type-ids 96531 --start tomorrow --end \"tomorrow 23:59\" --json",
+        "comment": "Fan out the slot search across event-type IDs"
+      },
+      {
+        "command": "cal-com-pp-cli book --event-type-id 96531 --start 2026-05-06T17:00:00Z --attendee-name Guest --attendee-email guest@example.com --dry-run",
+        "comment": "Compose slot check + reservation + create + confirm in one call"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports 401 Unauthorized",
+        "fix": "Re-run `auth set-token` with a `cal_live_` or `cal_test_` key from https://app.cal.com/settings/developer/api-keys"
+      },
+      {
+        "symptom": "sync reports 0 bookings but you have bookings on Cal.com",
+        "fix": "Cal.com's /v2/bookings defaults to upcoming only; pass `--include-past` or use a wider date range"
+      },
+      {
+        "symptom": "slots find returns nothing for a known-bookable event type",
+        "fix": "Slots respect the schedule's working hours and timezone — pass `--timezone America/Los_Angeles` (or your account TZ) explicitly"
+      },
+      {
+        "symptom": "book fails with 'no available slot'",
+        "fix": "Slot reservations expire after 5 minutes; re-run with a fresh `--after` window"
+      },
+      {
+        "symptom": "agenda shows nothing after a fresh sync",
+        "fix": "agenda reads from the local store; ensure sync completed (`sync --json | jq '.synced_resources'`) and pass `--window 7d` to widen the lens"
+      }
+    ],
+    "when_to_use": "Reach for cal-com-pp-cli whenever an agent needs to read or mutate a Cal.com calendar without burning context on the multi-call dance the API requires for booking and rescheduling. The local store makes 'what's on my calendar', 'when am I free', 'who is overloaded', and 'where are my conflicts' near-instant offline answers. The composed `book` and `reschedule next` commands are the right tools for transactional bookings; the endpoint-mirror coverage is there for everything else.",
+    "recipes": [
+      {
+        "title": "Today's agenda from the local store",
+        "command": "cal-com-pp-cli agenda --window today --json --select bookings.uid,bookings.title,bookings.start,bookings.attendees",
+        "explanation": "Returns just the four fields an agent needs from the agenda envelope — keeps context tight against deeply-nested booking payloads."
+      },
+      {
+        "title": "Cross-event-type slot search ranked by start",
+        "command": "cal-com-pp-cli slots find --event-type-ids 96531 --start tomorrow --end \"tomorrow 23:59\" --json --first-only",
+        "explanation": "Fans out /v2/slots per event-type ID; returns only the earliest slot."
+      },
+      {
+        "title": "No-show rate by attendee for capacity planning",
+        "command": "cal-com-pp-cli analytics no-show --window 90d --by attendee --json",
+        "explanation": "Local SQL aggregation over synced bookings; no API call."
+      },
+      {
+        "title": "Audit webhook coverage before adding automation",
+        "command": "cal-com-pp-cli webhooks coverage --json",
+        "explanation": "Compares your registered triggers against the canonical Cal.com lifecycle set and surfaces missing subscribers."
+      },
+      {
+        "title": "Reschedule a booking to the next free slot",
+        "command": "cal-com-pp-cli reschedule next --uid \u003cbooking-uid\u003e --after tomorrow --dry-run",
+        "explanation": "One composed command replaces three; --dry-run prints the planned move without committing."
+      }
+    ],
+    "trigger_phrases": [
+      "book a meeting on cal.com",
+      "what's on my calendar today",
+      "find an open slot",
+      "reschedule my next booking",
+      "audit my cal.com webhooks",
+      "use cal-com",
+      "run cal-com-pp-cli"
+    ]
+  }
+}

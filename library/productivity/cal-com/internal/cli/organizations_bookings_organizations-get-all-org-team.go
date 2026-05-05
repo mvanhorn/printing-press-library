@@ -35,17 +35,17 @@ func newOrganizationsBookingsOrganizationsGetAllOrgTeamCmd(flags *rootFlags) *co
 	var flagUserIds string
 
 	cmd := &cobra.Command{
-		Use:   "organizations-get-all-org-team <orgId>",
-		Aliases: []string{"get"},
-		Short: "Get organization bookings",
-		Example: "  cal-com-pp-cli organizations bookings organizations-get-all-org-team 42",
+		Use:         "organizations-get-all-org-team <orgId>",
+		Aliases:     []string{"get"},
+		Short:       "Required membership role: `org admin`. PBAC permission: `booking.readOrgBookings`. Learn more about API access...",
+		Example:     "  cal-com-pp-cli organizations bookings organizations-get-all-org-team 42",
 		Annotations: map[string]string{"pp:endpoint": "bookings.organizations-get-all-org-team", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("sort-start") {
-				allowedSortStart := []string{ "asc", "desc" }
+				allowedSortStart := []string{"asc", "desc"}
 				validSortStart := false
 				for _, v := range allowedSortStart {
 					if flagSortStart == v {
@@ -58,7 +58,7 @@ func newOrganizationsBookingsOrganizationsGetAllOrgTeamCmd(flags *rootFlags) *co
 				}
 			}
 			if cmd.Flags().Changed("sort-end") {
-				allowedSortEnd := []string{ "asc", "desc" }
+				allowedSortEnd := []string{"asc", "desc"}
 				validSortEnd := false
 				for _, v := range allowedSortEnd {
 					if flagSortEnd == v {
@@ -71,7 +71,7 @@ func newOrganizationsBookingsOrganizationsGetAllOrgTeamCmd(flags *rootFlags) *co
 				}
 			}
 			if cmd.Flags().Changed("sort-created") {
-				allowedSortCreated := []string{ "asc", "desc" }
+				allowedSortCreated := []string{"asc", "desc"}
 				validSortCreated := false
 				for _, v := range allowedSortCreated {
 					if flagSortCreated == v {
@@ -84,7 +84,7 @@ func newOrganizationsBookingsOrganizationsGetAllOrgTeamCmd(flags *rootFlags) *co
 				}
 			}
 			if cmd.Flags().Changed("sort-updated-at") {
-				allowedSortUpdatedAt := []string{ "asc", "desc" }
+				allowedSortUpdatedAt := []string{"asc", "desc"}
 				validSortUpdatedAt := false
 				for _, v := range allowedSortUpdatedAt {
 					if flagSortUpdatedAt == v {
@@ -103,7 +103,7 @@ func newOrganizationsBookingsOrganizationsGetAllOrgTeamCmd(flags *rootFlags) *co
 
 			path := "/v2/organizations/{orgId}/bookings"
 			if len(args) < 22 {
-				return usageErr(fmt.Errorf("orgId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "orgId"))
+				return usageErr(fmt.Errorf("orgId is required\nUsage: %s <%s>", cmd.CommandPath(), "orgId"))
 			}
 			path = replacePathParam(path, "orgId", args[21])
 			params := map[string]string{}

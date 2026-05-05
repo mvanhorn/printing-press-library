@@ -38,18 +38,28 @@ native streaming instead of polling.`,
   # Pipe to jq for filtering
   cal-com-pp-cli tail events --interval 30s | jq 'select(.type == "error")'`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) > 0 {
+				resource = args[0]
+			}
+			// JSON help envelope: when called with no resource AND --json,
+			// surface the list of known resources so agents can discover
+			// what to pass without parsing a usage error message.
+			// Envelope: {resources: [...], note}.
+			if resource == "" && flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"resources": tailKnownResources(),
+					"note":      "tail requires a resource name; pass one of the listed names",
+				}, flags)
+			}
+			if resource == "" {
+				return fmt.Errorf("resource name required (e.g., 'tail messages')")
+			}
+
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 			c.NoCache = true
-
-			if len(args) > 0 {
-				resource = args[0]
-			}
-			if resource == "" {
-				return fmt.Errorf("resource name required (e.g., 'tail messages')")
-			}
 
 			path := "/" + resource
 
@@ -89,7 +99,39 @@ native streaming instead of polling.`,
 	return cmd
 }
 
-func fetchAndEmit(c interface{ Get(string, map[string]string) (json.RawMessage, error) }, path string, enc *json.Encoder) error {
+// tailKnownResources returns the resource names this CLI exposes, so the
+// no-arg JSON help envelope can list them without depending on sync's
+// defaultSyncResources (which only exists when sync is generated).
+func tailKnownResources() []string {
+	return []string{
+		"api-keys",
+		"bookings",
+		"cal-com-auth",
+		"cal-com-auth-2",
+		"calendars",
+		"conferencing",
+		"credits",
+		"destination-calendars",
+		"event-types",
+		"me",
+		"notifications",
+		"oauth",
+		"oauth-clients",
+		"organizations",
+		"routing-forms",
+		"schedules",
+		"selected-calendars",
+		"slots",
+		"stripe",
+		"teams",
+		"verified-resources",
+		"webhooks",
+	}
+}
+
+func fetchAndEmit(c interface {
+	Get(string, map[string]string) (json.RawMessage, error)
+}, path string, enc *json.Encoder) error {
 	data, err := c.Get(path, nil)
 	if err != nil {
 		return err

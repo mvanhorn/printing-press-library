@@ -132,31 +132,16 @@ In local mode: searches locally synced data only.`,
 
 			var results []json.RawMessage
 			switch resourceType {
-			case "calendars":
-				results, err = db.SearchCalendars(query, limit)
-			case "event_types":
-				results, err = db.SearchEventTypes(query, limit)
+			case "me":
+				results, err = db.SearchMe(query, limit)
 			case "":
 				// Search all FTS-enabled tables individually to avoid duplicates.
 				seen := make(map[string]bool)
 				_ = seen // prevent unused error when no FTS tables exist
 				{
-					partial, searchErr := db.SearchCalendars(query, limit)
+					partial, searchErr := db.SearchMe(query, limit)
 					if searchErr != nil {
-						return fmt.Errorf("search calendars failed: %w", searchErr)
-					}
-					for _, r := range partial {
-						key := string(r)
-						if !seen[key] {
-							seen[key] = true
-							results = append(results, r)
-						}
-					}
-				}
-				{
-					partial, searchErr := db.SearchEventTypes(query, limit)
-					if searchErr != nil {
-						return fmt.Errorf("search event_types failed: %w", searchErr)
+						return fmt.Errorf("search me failed: %w", searchErr)
 					}
 					for _, r := range partial {
 						key := string(r)

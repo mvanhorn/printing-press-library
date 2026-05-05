@@ -22,9 +22,9 @@ func newTeamsEventTypesTeamsWebhooksCreateTeamWebhookCmd(flags *rootFlags) *cobr
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "teams-webhooks-create-team-webhook <eventTypeId> <teamId>",
-		Short: "Create a webhook for a team event type",
-		Example: "  cal-com-pp-cli teams event-types teams-webhooks-create-team-webhook 42 42 --subscriberUrl https://example.com/resource",
+		Use:         "teams-webhooks-create-team-webhook <eventTypeId> <teamId>",
+		Short:       "If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_WRITE` scope is required.",
+		Example:     "  cal-com-pp-cli teams event-types teams-webhooks-create-team-webhook 42 42 --subscriberUrl https://example.com/resource",
 		Annotations: map[string]string{"pp:endpoint": "event-types.teams-webhooks-create-team-webhook"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -49,7 +49,7 @@ func newTeamsEventTypesTeamsWebhooksCreateTeamWebhookCmd(flags *rootFlags) *cobr
 			path := "/v2/teams/{teamId}/event-types/{eventTypeId}/webhooks"
 			path = replacePathParam(path, "eventTypeId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("teamId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "teamId"))
+				return usageErr(fmt.Errorf("teamId is required\nUsage: %s <%s>", cmd.CommandPath(), "teamId"))
 			}
 			path = replacePathParam(path, "teamId", args[1])
 			var body map[string]any
@@ -102,7 +102,9 @@ func newTeamsEventTypesTeamsWebhooksCreateTeamWebhookCmd(flags *rootFlags) *cobr
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

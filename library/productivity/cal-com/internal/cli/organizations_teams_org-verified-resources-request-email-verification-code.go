@@ -17,10 +17,10 @@ func newOrganizationsTeamsOrgVerifiedResourcesRequestEmailVerificationCodeCmd(fl
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "org-verified-resources-request-email-verification-code <teamId> <orgId>",
-		Aliases: []string{"create"},
-		Short: "Sends a verification code to the email",
-		Example: "  cal-com-pp-cli organizations teams org-verified-resources-request-email-verification-code 42 42 --email user@example.com",
+		Use:         "org-verified-resources-request-email-verification-code <teamId> <orgId>",
+		Aliases:     []string{"create"},
+		Short:       "Sends a verification code to the email. Required membership role: `team admin`. PBAC permission: `team.update`....",
+		Example:     "  cal-com-pp-cli organizations teams org-verified-resources-request-email-verification-code 42 42 --email user@example.com",
 		Annotations: map[string]string{"pp:endpoint": "teams.org-verified-resources-request-email-verification-code"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -39,7 +39,7 @@ func newOrganizationsTeamsOrgVerifiedResourcesRequestEmailVerificationCodeCmd(fl
 			path := "/v2/organizations/{orgId}/teams/{teamId}/verified-resources/emails/verification-code/request"
 			path = replacePathParam(path, "teamId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("orgId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "orgId"))
+				return usageErr(fmt.Errorf("orgId is required\nUsage: %s <%s>", cmd.CommandPath(), "orgId"))
 			}
 			path = replacePathParam(path, "orgId", args[1])
 			var body map[string]any
@@ -73,7 +73,9 @@ func newOrganizationsTeamsOrgVerifiedResourcesRequestEmailVerificationCodeCmd(fl
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

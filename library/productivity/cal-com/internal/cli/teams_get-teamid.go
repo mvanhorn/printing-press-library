@@ -14,9 +14,9 @@ import (
 func newTeamsGetTeamidCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-teamid <teamId>",
-		Short: "Get a team",
-		Example: "  cal-com-pp-cli teams get-teamid 42",
+		Use:         "get-teamid <teamId>",
+		Short:       "If accessed using an OAuth access token, the `TEAM_PROFILE_READ` scope is required.",
+		Example:     "  cal-com-pp-cli teams get-teamid 42",
 		Annotations: map[string]string{"pp:endpoint": "teams.get-teamid", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

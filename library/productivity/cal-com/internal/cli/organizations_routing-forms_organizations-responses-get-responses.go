@@ -23,16 +23,16 @@ func newOrganizationsRoutingFormsOrganizationsResponsesGetResponsesCmd(flags *ro
 	var flagRoutedToBookingUid string
 
 	cmd := &cobra.Command{
-		Use:   "organizations-responses-get-responses <orgId> <routingFormId>",
-		Short: "Get routing form responses",
-		Example: "  cal-com-pp-cli organizations routing-forms organizations-responses-get-responses 42 example-value",
+		Use:         "organizations-responses-get-responses <orgId> <routingFormId>",
+		Short:       "Required membership role: `org admin`. PBAC permission: `routingForm.read`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations routing-forms organizations-responses-get-responses 42 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "routing-forms.organizations-responses-get-responses", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("sort-created-at") {
-				allowedSortCreatedAt := []string{ "asc", "desc" }
+				allowedSortCreatedAt := []string{"asc", "desc"}
 				validSortCreatedAt := false
 				for _, v := range allowedSortCreatedAt {
 					if flagSortCreatedAt == v {
@@ -45,7 +45,7 @@ func newOrganizationsRoutingFormsOrganizationsResponsesGetResponsesCmd(flags *ro
 				}
 			}
 			if cmd.Flags().Changed("sort-updated-at") {
-				allowedSortUpdatedAt := []string{ "asc", "desc" }
+				allowedSortUpdatedAt := []string{"asc", "desc"}
 				validSortUpdatedAt := false
 				for _, v := range allowedSortUpdatedAt {
 					if flagSortUpdatedAt == v {
@@ -65,7 +65,7 @@ func newOrganizationsRoutingFormsOrganizationsResponsesGetResponsesCmd(flags *ro
 			path := "/v2/organizations/{orgId}/routing-forms/{routingFormId}/responses"
 			path = replacePathParam(path, "orgId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("routingFormId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "routingFormId"))
+				return usageErr(fmt.Errorf("routingFormId is required\nUsage: %s <%s>", cmd.CommandPath(), "routingFormId"))
 			}
 			path = replacePathParam(path, "routingFormId", args[1])
 			params := map[string]string{}

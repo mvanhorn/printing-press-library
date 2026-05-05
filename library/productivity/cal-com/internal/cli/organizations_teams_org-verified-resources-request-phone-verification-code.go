@@ -17,9 +17,9 @@ func newOrganizationsTeamsOrgVerifiedResourcesRequestPhoneVerificationCodeCmd(fl
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "org-verified-resources-request-phone-verification-code <teamId> <orgId>",
-		Short: "Sends a verification code to the phone number",
-		Example: "  cal-com-pp-cli organizations teams org-verified-resources-request-phone-verification-code 42 42 --phone example-value",
+		Use:         "org-verified-resources-request-phone-verification-code <teamId> <orgId>",
+		Short:       "Sends a verification code to the phone number. Required membership role: `team admin`. PBAC permission:...",
+		Example:     "  cal-com-pp-cli organizations teams org-verified-resources-request-phone-verification-code 42 42 --phone example-value",
 		Annotations: map[string]string{"pp:endpoint": "teams.org-verified-resources-request-phone-verification-code"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -38,7 +38,7 @@ func newOrganizationsTeamsOrgVerifiedResourcesRequestPhoneVerificationCodeCmd(fl
 			path := "/v2/organizations/{orgId}/teams/{teamId}/verified-resources/phones/verification-code/request"
 			path = replacePathParam(path, "teamId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("orgId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "orgId"))
+				return usageErr(fmt.Errorf("orgId is required\nUsage: %s <%s>", cmd.CommandPath(), "orgId"))
 			}
 			path = replacePathParam(path, "orgId", args[1])
 			var body map[string]any
@@ -72,7 +72,9 @@ func newOrganizationsTeamsOrgVerifiedResourcesRequestPhoneVerificationCodeCmd(fl
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

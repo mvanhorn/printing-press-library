@@ -15,16 +15,16 @@ func newOrganizationsTeamsOrganizationsBookingsGetBookingReferencesCmd(flags *ro
 	var flagType string
 
 	cmd := &cobra.Command{
-		Use:   "organizations-bookings-get-booking-references <bookingUid> <teamId> <orgId>",
-		Short: "Get booking references",
-		Example: "  cal-com-pp-cli organizations teams organizations-bookings-get-booking-references example-value 42 42",
+		Use:         "organizations-bookings-get-booking-references <bookingUid> <teamId> <orgId>",
+		Short:       "Required membership role: `team admin`. PBAC permission: `booking.readTeamBookings`. Learn more about API access...",
+		Example:     "  cal-com-pp-cli organizations teams organizations-bookings-get-booking-references 550e8400-e29b-41d4-a716-446655440000 42 42",
 		Annotations: map[string]string{"pp:endpoint": "teams.organizations-bookings-get-booking-references", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("type") {
-				allowedType := []string{ "google_calendar", "office365_calendar", "daily_video", "google_video", "office365_video", "zoom_video" }
+				allowedType := []string{"google_calendar", "office365_calendar", "daily_video", "google_video", "office365_video", "zoom_video"}
 				validType := false
 				for _, v := range allowedType {
 					if flagType == v {
@@ -44,11 +44,11 @@ func newOrganizationsTeamsOrganizationsBookingsGetBookingReferencesCmd(flags *ro
 			path := "/v2/organizations/{orgId}/teams/{teamId}/bookings/{bookingUid}/references"
 			path = replacePathParam(path, "bookingUid", args[0])
 			if len(args) < 3 {
-				return usageErr(fmt.Errorf("teamId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "teamId"))
+				return usageErr(fmt.Errorf("teamId is required\nUsage: %s <%s>", cmd.CommandPath(), "teamId"))
 			}
 			path = replacePathParam(path, "teamId", args[2])
 			if len(args) < 4 {
-				return usageErr(fmt.Errorf("orgId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "orgId"))
+				return usageErr(fmt.Errorf("orgId is required\nUsage: %s <%s>", cmd.CommandPath(), "orgId"))
 			}
 			path = replacePathParam(path, "orgId", args[3])
 			params := map[string]string{}

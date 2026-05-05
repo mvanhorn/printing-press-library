@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "cal-com-pp-mcp",
   "display_name": "Cal.com",
-  "version": "2.3.9",
-  "description": "Every Cal.com feature, plus offline agendas, composed booking flows, and analytics no other Cal.com tool ships.",
+  "version": "3.9.0",
+  "description": "Cal.com API surface as MCP tools.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -22,8 +22,8 @@
   "user_config": {
     "cal_com_token": {
       "type": "string",
-      "title": "CAL_COM_TOKEN",
-      "description": "Sets CAL_COM_TOKEN for the Cal.com MCP server.",
+      "title": "Cal.com API Key",
+      "description": "Cal.com bearer token (cal_live_* or cal_test_*); managed-user access tokens and OAuth access tokens also accepted",
       "sensitive": true,
       "required": true
     }
@@ -35,6 +35,5 @@
       "linux",
       "win32"
     ]
-  },
-  "cli_binary": "cal-com-pp-cli"
+  }
 }

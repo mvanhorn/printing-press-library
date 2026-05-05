@@ -14,10 +14,10 @@ import (
 func newTeamsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Aliases: []string{"list"},
-		Short: "Get teams",
-		Example: "  cal-com-pp-cli teams get",
+		Use:         "get",
+		Aliases:     []string{"list"},
+		Short:       "If accessed using an OAuth access token, the `TEAM_PROFILE_READ` scope is required.",
+		Example:     "  cal-com-pp-cli teams get",
 		Annotations: map[string]string{"pp:endpoint": "teams.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -14,10 +14,10 @@ import (
 func newOrganizationsMembershipsOrganizationsDeleteCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "organizations-delete <orgId> <membershipId>",
-		Aliases: []string{"delete"},
-		Short: "Delete a membership",
-		Example: "  cal-com-pp-cli organizations memberships organizations-delete 42 42",
+		Use:         "organizations-delete <orgId> <membershipId>",
+		Aliases:     []string{"delete"},
+		Short:       "Required membership role: `org admin`. PBAC permission: `organization.remove`. Learn more about API access control...",
+		Example:     "  cal-com-pp-cli organizations memberships organizations-delete 42 42",
 		Annotations: map[string]string{"pp:endpoint": "memberships.organizations-delete"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -31,7 +31,7 @@ func newOrganizationsMembershipsOrganizationsDeleteCmd(flags *rootFlags) *cobra.
 			path := "/v2/organizations/{orgId}/memberships/{membershipId}"
 			path = replacePathParam(path, "orgId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("membershipId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "membershipId"))
+				return usageErr(fmt.Errorf("membershipId is required\nUsage: %s <%s>", cmd.CommandPath(), "membershipId"))
 			}
 			path = replacePathParam(path, "membershipId", args[1])
 			data, statusCode, err := c.Delete(path)
@@ -48,7 +48,9 @@ func newOrganizationsMembershipsOrganizationsDeleteCmd(flags *rootFlags) *cobra.
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

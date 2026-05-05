@@ -14,9 +14,10 @@ import (
 func newCalendarsCheckIcsFeedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "check-ics-feed",
-		Short: "Check an ICS feed",
-		Example: "  cal-com-pp-cli calendars check-ics-feed",
+		Use:         "check-ics-feed",
+		Aliases:     []string{"list"},
+		Short:       "If accessed using an OAuth access token, the `APPS_READ` scope is required.",
+		Example:     "  cal-com-pp-cli calendars check-ics-feed",
 		Annotations: map[string]string{"pp:endpoint": "calendars.check-ics-feed", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -33,7 +33,6 @@ func newOrganizationsTeamsOrganizationsEventTypesUpdateEventTypeCmd(flags *rootF
 	var bodyHideOrganizerEmail bool
 	var bodyInterfaceLanguage string
 	var bodyLengthInMinutes float64
-	var bodyLengthInMinutesOptions string
 	var bodyLockTimeZoneToggleOnBookingPage bool
 	var bodyMinimumBookingNotice float64
 	var bodyOffsetStart float64
@@ -53,9 +52,9 @@ func newOrganizationsTeamsOrganizationsEventTypesUpdateEventTypeCmd(flags *rootF
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "organizations-event-types-update-event-type <teamId> <eventTypeId> <orgId>",
-		Short: "Update a team event type",
-		Example: "  cal-com-pp-cli organizations teams organizations-event-types-update-event-type 42 42 42",
+		Use:         "organizations-event-types-update-event-type <teamId> <eventTypeId> <orgId>",
+		Short:       "Required membership role: `team admin`. PBAC permission: `eventType.update`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations teams organizations-event-types-update-event-type 42 42 42",
 		Annotations: map[string]string{"pp:endpoint": "teams.organizations-event-types-update-event-type"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -71,11 +70,11 @@ func newOrganizationsTeamsOrganizationsEventTypesUpdateEventTypeCmd(flags *rootF
 			path := "/v2/organizations/{orgId}/teams/{teamId}/event-types/{eventTypeId}"
 			path = replacePathParam(path, "teamId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("eventTypeId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "eventTypeId"))
+				return usageErr(fmt.Errorf("eventTypeId is required\nUsage: %s <%s>", cmd.CommandPath(), "eventTypeId"))
 			}
 			path = replacePathParam(path, "eventTypeId", args[1])
 			if len(args) < 3 {
-				return usageErr(fmt.Errorf("orgId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "orgId"))
+				return usageErr(fmt.Errorf("orgId is required\nUsage: %s <%s>", cmd.CommandPath(), "orgId"))
 			}
 			path = replacePathParam(path, "orgId", args[2])
 			var body map[string]any
@@ -151,13 +150,6 @@ func newOrganizationsTeamsOrganizationsEventTypesUpdateEventTypeCmd(flags *rootF
 				if bodyLengthInMinutes != 0.0 {
 					body["lengthInMinutes"] = bodyLengthInMinutes
 				}
-				if bodyLengthInMinutesOptions != "" {
-					var parsedLengthInMinutesOptions any
-					if err := json.Unmarshal([]byte(bodyLengthInMinutesOptions), &parsedLengthInMinutesOptions); err != nil {
-						return fmt.Errorf("parsing --length-in-minutes-options JSON: %w", err)
-					}
-					body["lengthInMinutesOptions"] = parsedLengthInMinutesOptions
-				}
 				if bodyLockTimeZoneToggleOnBookingPage != false {
 					body["lockTimeZoneToggleOnBookingPage"] = bodyLockTimeZoneToggleOnBookingPage
 				}
@@ -221,7 +213,9 @@ func newOrganizationsTeamsOrganizationsEventTypesUpdateEventTypeCmd(flags *rootF
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
@@ -292,7 +286,6 @@ func newOrganizationsTeamsOrganizationsEventTypesUpdateEventTypeCmd(flags *rootF
 	cmd.Flags().BoolVar(&bodyHideOrganizerEmail, "hide-organizer-email", false, "Boolean to Hide organizer's email address from the booking screen, email notifications, and calendar events")
 	cmd.Flags().StringVar(&bodyInterfaceLanguage, "interface-language", "", "Set preferred language for the booking interface. Use empty string for visitor's browser language (default).")
 	cmd.Flags().Float64Var(&bodyLengthInMinutes, "length-in-minutes", 0.0, "Length in minutes")
-	cmd.Flags().StringVar(&bodyLengthInMinutesOptions, "length-in-minutes-options", "", "If you want that user can choose between different lengths of the event you can specify them here. Must include the...")
 	cmd.Flags().BoolVar(&bodyLockTimeZoneToggleOnBookingPage, "lock-time-zone-toggle-on-booking-page", false, "Lock time zone toggle on booking page")
 	cmd.Flags().Float64Var(&bodyMinimumBookingNotice, "minimum-booking-notice", 0.0, "Minimum number of minutes before the event that a booking can be made.")
 	cmd.Flags().Float64Var(&bodyOffsetStart, "offset-start", 0.0, "Offset timeslots shown to bookers by a specified number of minutes")

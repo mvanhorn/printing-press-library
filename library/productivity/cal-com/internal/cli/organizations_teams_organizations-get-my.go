@@ -16,9 +16,9 @@ func newOrganizationsTeamsOrganizationsGetMyCmd(flags *rootFlags) *cobra.Command
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:   "organizations-get-my <orgId>",
-		Short: "Get teams membership for user",
-		Example: "  cal-com-pp-cli organizations teams organizations-get-my 42",
+		Use:         "organizations-get-my <orgId>",
+		Short:       "Required membership role: `org member`. PBAC permission: `team.read`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations teams organizations-get-my 42",
 		Annotations: map[string]string{"pp:endpoint": "teams.organizations-get-my", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

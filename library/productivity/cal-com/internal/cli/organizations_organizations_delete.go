@@ -14,9 +14,9 @@ import (
 func newOrganizationsOrganizationsDeleteCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "delete <managedOrganizationId> <orgId>",
-		Short: "Requires the user to have at least the 'ORG_ADMIN' role within the organization. Additionally, for platform, the...",
-		Example: "  cal-com-pp-cli organizations organizations delete 42 42",
+		Use:         "delete <managedOrganizationId> <orgId>",
+		Short:       "For platform, the plan must be 'SCALE' or higher to access this endpoint. Required membership role: `org admin`....",
+		Example:     "  cal-com-pp-cli organizations organizations delete 42 42",
 		Annotations: map[string]string{"pp:endpoint": "organizations.delete"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -30,7 +30,7 @@ func newOrganizationsOrganizationsDeleteCmd(flags *rootFlags) *cobra.Command {
 			path := "/v2/organizations/{orgId}/organizations/{managedOrganizationId}"
 			path = replacePathParam(path, "managedOrganizationId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("orgId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "orgId"))
+				return usageErr(fmt.Errorf("orgId is required\nUsage: %s <%s>", cmd.CommandPath(), "orgId"))
 			}
 			path = replacePathParam(path, "orgId", args[1])
 			data, statusCode, err := c.Delete(path)
@@ -47,7 +47,9 @@ func newOrganizationsOrganizationsDeleteCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

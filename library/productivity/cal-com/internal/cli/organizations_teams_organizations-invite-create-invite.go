@@ -16,9 +16,9 @@ func newOrganizationsTeamsOrganizationsInviteCreateInviteCmd(flags *rootFlags) *
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "organizations-invite-create-invite <orgId> <teamId>",
-		Short: "Create team invite link",
-		Example: "  cal-com-pp-cli organizations teams organizations-invite-create-invite 42 42",
+		Use:         "organizations-invite-create-invite <orgId> <teamId>",
+		Short:       "Required membership role: `team admin`. PBAC permission: `team.invite`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations teams organizations-invite-create-invite 42 42",
 		Annotations: map[string]string{"pp:endpoint": "teams.organizations-invite-create-invite"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -34,7 +34,7 @@ func newOrganizationsTeamsOrganizationsInviteCreateInviteCmd(flags *rootFlags) *
 			path := "/v2/organizations/{orgId}/teams/{teamId}/invite"
 			path = replacePathParam(path, "orgId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("teamId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "teamId"))
+				return usageErr(fmt.Errorf("teamId is required\nUsage: %s <%s>", cmd.CommandPath(), "teamId"))
 			}
 			path = replacePathParam(path, "teamId", args[1])
 			var body map[string]any
@@ -65,7 +65,9 @@ func newOrganizationsTeamsOrganizationsInviteCreateInviteCmd(flags *rootFlags) *
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

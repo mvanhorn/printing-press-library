@@ -14,10 +14,10 @@ import (
 func newOrganizationsTeamsOrgVerifiedResourcesGetVerifiedEmailByIdCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "org-verified-resources-get-verified-email-by-id <id> <teamId> <orgId>",
-		Aliases: []string{"get"},
-		Short: "Get verified email of an org team by id",
-		Example: "  cal-com-pp-cli organizations teams org-verified-resources-get-verified-email-by-id 550e8400-e29b-41d4-a716-446655440000 42 42",
+		Use:         "org-verified-resources-get-verified-email-by-id <id> <teamId> <orgId>",
+		Aliases:     []string{"get"},
+		Short:       "Required membership role: `team admin`. PBAC permission: `team.read`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations teams org-verified-resources-get-verified-email-by-id 550e8400-e29b-41d4-a716-446655440000 42 42",
 		Annotations: map[string]string{"pp:endpoint": "teams.org-verified-resources-get-verified-email-by-id", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -31,11 +31,11 @@ func newOrganizationsTeamsOrgVerifiedResourcesGetVerifiedEmailByIdCmd(flags *roo
 			path := "/v2/organizations/{orgId}/teams/{teamId}/verified-resources/emails/{id}"
 			path = replacePathParam(path, "id", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("teamId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "teamId"))
+				return usageErr(fmt.Errorf("teamId is required\nUsage: %s <%s>", cmd.CommandPath(), "teamId"))
 			}
 			path = replacePathParam(path, "teamId", args[1])
 			if len(args) < 3 {
-				return usageErr(fmt.Errorf("orgId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "orgId"))
+				return usageErr(fmt.Errorf("orgId is required\nUsage: %s <%s>", cmd.CommandPath(), "orgId"))
 			}
 			path = replacePathParam(path, "orgId", args[2])
 			params := map[string]string{}

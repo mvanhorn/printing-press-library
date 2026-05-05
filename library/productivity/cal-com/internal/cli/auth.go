@@ -26,8 +26,8 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 
 func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "status",
-		Short: "Show authentication status",
+		Use:     "status",
+		Short:   "Show authentication status",
 		Example: "  cal-com-pp-cli auth status",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(flags.configPath)
@@ -37,7 +37,25 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 			w := cmd.OutOrStdout()
 			header := cfg.AuthHeader()
-			if header == "" {
+			authed := header != ""
+			// JSON envelope: {authenticated, source, config}. When not
+			// authenticated, write the envelope first then return authErr
+			// so exit code carries the auth-failure signal.
+			if flags.asJSON {
+				out := map[string]any{
+					"authenticated": authed,
+					"source":        cfg.AuthSource,
+					"config":        cfg.Path,
+				}
+				if printErr := printJSONFiltered(w, out, flags); printErr != nil {
+					return printErr
+				}
+				if !authed {
+					return authErr(fmt.Errorf("no credentials configured"))
+				}
+				return nil
+			}
+			if !authed {
 				fmt.Fprintln(w, red("Not authenticated"))
 				fmt.Fprintln(w, "")
 				fmt.Fprintln(w, "Set your token:")
@@ -56,10 +74,10 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "set-token <token>",
-		Short: "Save an API token to the config file",
+		Use:     "set-token <token>",
+		Short:   "Save an API token to the config file",
 		Example: "  cal-com-pp-cli auth set-token sk_live_abc123",
-		Args:  cobra.ExactArgs(1),
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
@@ -79,6 +97,13 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}
 
+			// JSON envelope: {saved, config_path}.
+			if flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"saved":       true,
+					"config_path": cfg.Path,
+				}, flags)
+			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Token saved to %s\n", cfg.Path)
 			return nil
 		},
@@ -87,8 +112,8 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 
 func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "logout",
-		Short: "Clear stored credentials",
+		Use:     "logout",
+		Short:   "Clear stored credentials",
 		Example: "  cal-com-pp-cli auth logout",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(flags.configPath)
@@ -100,9 +125,24 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 				return configErr(fmt.Errorf("clearing tokens: %w", err))
 			}
 
-			// Warn if env vars still set
-			if os.Getenv("CAL_COM_TOKEN") != "" {
-				fmt.Fprintf(cmd.OutOrStdout(), "Config cleared. Note: CAL_COM_TOKEN env var is still set.\n")
+			// Identify which (if any) auth env var is still exported so the
+			// JSON envelope and the human prose can both surface it.
+			envStillSet := ""
+			if envStillSet == "" && os.Getenv("CAL_COM_TOKEN") != "" {
+				envStillSet = "CAL_COM_TOKEN"
+			}
+
+			// JSON envelope: {cleared: true, note?: "<env_var> env var is still set"}.
+			if flags.asJSON {
+				out := map[string]any{"cleared": true}
+				if envStillSet != "" {
+					out["note"] = envStillSet + " env var is still set"
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+			}
+
+			if envStillSet != "" {
+				fmt.Fprintf(cmd.OutOrStdout(), "Config cleared. Note: %s env var is still set.\n", envStillSet)
 				return nil
 			}
 			fmt.Fprintln(cmd.OutOrStdout(), "Logged out. Credentials cleared.")

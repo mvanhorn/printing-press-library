@@ -14,9 +14,9 @@ import (
 func newConferencingListInstalledAppsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "list-installed-apps",
-		Short: "List your conferencing applications",
-		Example: "  cal-com-pp-cli conferencing list-installed-apps",
+		Use:         "list-installed-apps",
+		Short:       "If accessed using an OAuth access token, the `APPS_READ` scope is required.",
+		Example:     "  cal-com-pp-cli conferencing list-installed-apps",
 		Annotations: map[string]string{"pp:endpoint": "conferencing.list-installed-apps", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

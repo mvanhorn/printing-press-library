@@ -23,6 +23,7 @@ func newTeamsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newTeamsInviteCmd(flags))
 	cmd.AddCommand(newTeamsMembershipsCmd(flags))
 	cmd.AddCommand(newTeamsSchedulesCmd(flags))
+	cmd.AddCommand(newTeamsUsersCmd(flags))
 	cmd.AddCommand(newTeamsVerifiedResourcesCmd(flags))
 	return cmd
 }

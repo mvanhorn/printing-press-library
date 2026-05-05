@@ -16,9 +16,9 @@ func newOauthClientsUsersOauthClientForceRefreshCmd(flags *rootFlags) *cobra.Com
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "oauth-client-force-refresh <userId> <clientId>",
-		Short: "<Warning>These endpoints are deprecated and will be removed in the future.</Warning> If you have lost managed user...",
-		Example: "  cal-com-pp-cli oauth-clients users oauth-client-force-refresh 42 example-value",
+		Use:         "oauth-client-force-refresh <userId> <clientId>",
+		Short:       "<Warning>These endpoints are deprecated and will be removed in the future.</Warning> If you have lost managed user...",
+		Example:     "  cal-com-pp-cli oauth-clients users oauth-client-force-refresh 42 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "users.oauth-client-force-refresh"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -34,7 +34,7 @@ func newOauthClientsUsersOauthClientForceRefreshCmd(flags *rootFlags) *cobra.Com
 			path := "/v2/oauth-clients/{clientId}/users/{userId}/force-refresh"
 			path = replacePathParam(path, "userId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("clientId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "clientId"))
+				return usageErr(fmt.Errorf("clientId is required\nUsage: %s <%s>", cmd.CommandPath(), "clientId"))
 			}
 			path = replacePathParam(path, "clientId", args[1])
 			var body map[string]any
@@ -65,7 +65,9 @@ func newOauthClientsUsersOauthClientForceRefreshCmd(flags *rootFlags) *cobra.Com
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

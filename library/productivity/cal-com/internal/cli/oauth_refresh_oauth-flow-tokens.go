@@ -17,10 +17,10 @@ func newOauthRefreshOauthFlowTokensCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "oauth-flow-tokens <clientId>",
-		Aliases: []string{"create"},
-		Short: "<Warning>These endpoints are deprecated and will be removed in the future.</Warning> If managed user access token is...",
-		Example: "  cal-com-pp-cli oauth refresh oauth-flow-tokens example-value --refreshToken your-token-here",
+		Use:         "oauth-flow-tokens <clientId>",
+		Aliases:     []string{"create"},
+		Short:       "<Warning>These endpoints are deprecated and will be removed in the future.</Warning> If managed user access token is...",
+		Example:     "  cal-com-pp-cli oauth refresh oauth-flow-tokens 550e8400-e29b-41d4-a716-446655440000 --refreshToken your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "refresh.oauth-flow-tokens"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -69,7 +69,9 @@ func newOauthRefreshOauthFlowTokensCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

@@ -14,9 +14,9 @@ import (
 func newOrganizationsMembershipsOrganizationsGetOrgCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "organizations-get-org <orgId> <membershipId>",
-		Short: "Get a membership",
-		Example: "  cal-com-pp-cli organizations memberships organizations-get-org 42 42",
+		Use:         "organizations-get-org <orgId> <membershipId>",
+		Short:       "Required membership role: `org admin`. PBAC permission: `organization.listMembers`. Learn more about API access...",
+		Example:     "  cal-com-pp-cli organizations memberships organizations-get-org 42 42",
 		Annotations: map[string]string{"pp:endpoint": "memberships.organizations-get-org", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -30,7 +30,7 @@ func newOrganizationsMembershipsOrganizationsGetOrgCmd(flags *rootFlags) *cobra.
 			path := "/v2/organizations/{orgId}/memberships/{membershipId}"
 			path = replacePathParam(path, "orgId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("membershipId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "membershipId"))
+				return usageErr(fmt.Errorf("membershipId is required\nUsage: %s <%s>", cmd.CommandPath(), "membershipId"))
 			}
 			path = replacePathParam(path, "membershipId", args[1])
 			params := map[string]string{}

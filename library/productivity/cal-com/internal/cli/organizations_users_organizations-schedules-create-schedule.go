@@ -19,9 +19,9 @@ func newOrganizationsUsersOrganizationsSchedulesCreateScheduleCmd(flags *rootFla
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "organizations-schedules-create-schedule <userId> <orgId>",
-		Short: "Create a schedule",
-		Example: "  cal-com-pp-cli organizations users organizations-schedules-create-schedule 42 42 --name example-resource",
+		Use:         "organizations-schedules-create-schedule <userId> <orgId>",
+		Short:       "Required membership role: `org admin`. PBAC permission: `availability.create`. Learn more about API access control...",
+		Example:     "  cal-com-pp-cli organizations users organizations-schedules-create-schedule 42 42 --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "users.organizations-schedules-create-schedule"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -46,7 +46,7 @@ func newOrganizationsUsersOrganizationsSchedulesCreateScheduleCmd(flags *rootFla
 			path := "/v2/organizations/{orgId}/users/{userId}/schedules"
 			path = replacePathParam(path, "userId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("orgId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "orgId"))
+				return usageErr(fmt.Errorf("orgId is required\nUsage: %s <%s>", cmd.CommandPath(), "orgId"))
 			}
 			path = replacePathParam(path, "orgId", args[1])
 			var body map[string]any
@@ -86,7 +86,9 @@ func newOrganizationsUsersOrganizationsSchedulesCreateScheduleCmd(flags *rootFla
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

@@ -17,16 +17,16 @@ func newOrganizationsTeamsOrganizationsEventTypesGetEventTypesCmd(flags *rootFla
 	var flagSortCreatedAt string
 
 	cmd := &cobra.Command{
-		Use:   "organizations-event-types-get-event-types <orgId>",
-		Short: "Use the optional `sortCreatedAt` query parameter to order results by creation date (by ID). Accepts 'asc' (oldest...",
-		Example: "  cal-com-pp-cli organizations teams organizations-event-types-get-event-types 42",
+		Use:         "organizations-event-types-get-event-types <orgId>",
+		Short:       "Use the optional `sortCreatedAt` query parameter to order results by creation date (by ID). Accepts 'asc' (oldest...",
+		Example:     "  cal-com-pp-cli organizations teams organizations-event-types-get-event-types 42",
 		Annotations: map[string]string{"pp:endpoint": "teams.organizations-event-types-get-event-types", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("sort-created-at") {
-				allowedSortCreatedAt := []string{ "asc", "desc" }
+				allowedSortCreatedAt := []string{"asc", "desc"}
 				validSortCreatedAt := false
 				for _, v := range allowedSortCreatedAt {
 					if flagSortCreatedAt == v {

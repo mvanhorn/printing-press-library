@@ -14,10 +14,10 @@ import (
 func newCalComAuth2PromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "cal-com-auth-2 <clientId>",
-		Short: "Returns the OAuth2 client information for the given client ID",
-		Long:  "Shortcut for 'cal-com-auth-2 oauth2-get-client'. Returns the OAuth2 client information for the given client ID",
-		Example: "  cal-com-pp-cli cal-com-auth-2",
+		Use:         "cal-com-auth-2 <clientId>",
+		Short:       "Returns the OAuth2 client information for the given client ID",
+		Long:        "Shortcut for 'cal-com-auth-2 oauth2-get-client'. Returns the OAuth2 client information for the given client ID",
+		Example:     "  cal-com-pp-cli cal-com-auth-2",
 		Annotations: map[string]string{"pp:endpoint": "cal-com-auth-2.oauth2-get-client", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -27,7 +27,17 @@ func newCalComAuth2PromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v2/auth/oauth2/clients/{clientId}"
 			if len(args) < 1 {
-				return usageErr(fmt.Errorf("clientId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "clientId"))
+				// JSON envelope: {error, usage}. Written first; the
+				// usageErr return preserves exit code 2 across modes.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "clientId is required",
+						"usage": fmt.Sprintf("%s <%s>", cmd.CommandPath(), "clientId"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("clientId is required\nUsage: %s <%s>", cmd.CommandPath(), "clientId"))
 			}
 			path = replacePathParam(path, "clientId", args[0])
 			params := map[string]string{}

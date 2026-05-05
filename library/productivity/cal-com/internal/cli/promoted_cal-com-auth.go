@@ -14,10 +14,10 @@ import (
 func newCalComAuthPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "cal-com-auth",
-		Short: "RFC 6749-compliant token endpoint. Pass client_id in the request body (Section 2.3.1). Use grant_type...",
-		Long:  "Shortcut for 'cal-com-auth oauth2-token'. RFC 6749-compliant token endpoint. Pass client_id in the request body (Section 2.3.1). Use grant_type...",
-		Example: "  cal-com-pp-cli cal-com-auth",
+		Use:         "cal-com-auth",
+		Short:       "RFC 6749-compliant token endpoint. Pass client_id in the request body (Section 2.3.1). Use grant_type...",
+		Long:        "Shortcut for 'cal-com-auth oauth2-token'. RFC 6749-compliant token endpoint. Pass client_id in the request body (Section 2.3.1). Use grant_type...",
+		Example:     "  cal-com-pp-cli cal-com-auth",
 		Annotations: map[string]string{"pp:endpoint": "cal-com-auth.oauth2-token"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

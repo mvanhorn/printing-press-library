@@ -14,9 +14,9 @@ import (
 func newCalendarsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get all calendars",
-		Example: "  cal-com-pp-cli calendars get",
+		Use:         "get",
+		Short:       "If accessed using an OAuth access token, the `APPS_READ` scope is required.",
+		Example:     "  cal-com-pp-cli calendars get",
 		Annotations: map[string]string{"pp:endpoint": "calendars.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

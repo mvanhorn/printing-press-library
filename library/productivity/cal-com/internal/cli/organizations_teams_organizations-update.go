@@ -35,9 +35,9 @@ func newOrganizationsTeamsOrganizationsUpdateCmd(flags *rootFlags) *cobra.Comman
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "organizations-update <orgId> <teamId>",
-		Short: "Update a team",
-		Example: "  cal-com-pp-cli organizations teams organizations-update 42 42",
+		Use:         "organizations-update <orgId> <teamId>",
+		Short:       "Required membership role: `org admin`. PBAC permission: `team.update`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations teams organizations-update 42 42",
 		Annotations: map[string]string{"pp:endpoint": "teams.organizations-update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -53,7 +53,7 @@ func newOrganizationsTeamsOrganizationsUpdateCmd(flags *rootFlags) *cobra.Comman
 			path := "/v2/organizations/{orgId}/teams/{teamId}"
 			path = replacePathParam(path, "orgId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("teamId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "teamId"))
+				return usageErr(fmt.Errorf("teamId is required\nUsage: %s <%s>", cmd.CommandPath(), "teamId"))
 			}
 			path = replacePathParam(path, "teamId", args[1])
 			var body map[string]any
@@ -141,7 +141,9 @@ func newOrganizationsTeamsOrganizationsUpdateCmd(flags *rootFlags) *cobra.Comman
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

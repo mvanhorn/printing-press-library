@@ -14,10 +14,10 @@ import (
 func newOauthClientsUsersOauthClientGetByIdCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "oauth-client-get-by-id <clientId> <userId>",
-		Aliases: []string{"get"},
-		Short: "<Warning>These endpoints are deprecated and will be removed in the future.</Warning>",
-		Example: "  cal-com-pp-cli oauth-clients users oauth-client-get-by-id example-value 42",
+		Use:         "oauth-client-get-by-id <clientId> <userId>",
+		Aliases:     []string{"get"},
+		Short:       "<Warning>These endpoints are deprecated and will be removed in the future.</Warning>",
+		Example:     "  cal-com-pp-cli oauth-clients users oauth-client-get-by-id 550e8400-e29b-41d4-a716-446655440000 42",
 		Annotations: map[string]string{"pp:endpoint": "users.oauth-client-get-by-id", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -31,7 +31,7 @@ func newOauthClientsUsersOauthClientGetByIdCmd(flags *rootFlags) *cobra.Command 
 			path := "/v2/oauth-clients/{clientId}/users/{userId}"
 			path = replacePathParam(path, "clientId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("userId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "userId"))
+				return usageErr(fmt.Errorf("userId is required\nUsage: %s <%s>", cmd.CommandPath(), "userId"))
 			}
 			path = replacePathParam(path, "userId", args[1])
 			params := map[string]string{}

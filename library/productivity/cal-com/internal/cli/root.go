@@ -81,11 +81,24 @@ func Execute() error {
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "cal-com-pp-cli",
-		Short: "Manage cal-com resources via the cal-com API",
-		Long: `Manage cal-com resources via the cal-com API.
+		Short: `Cal Com CLI — Every Cal.com feature, plus offline agendas, composed booking flows, and analytics no other Cal.com tool ships.`,
+		Long: `Cal Com CLI — Every Cal.com feature, plus offline agendas, composed booking flows, and analytics no other Cal.com tool ships.
 
-Add --agent to any command for JSON output + non-interactive mode.
-Run 'cal-com-pp-cli doctor' to verify auth and connectivity.`,
+Highlights (not in the official API docs):
+  • book   Find a slot and create a booking in one composed command — slot check, optional reservation, create, optional confirm.
+  • agenda   Upcoming bookings in a window — today, this week, or any duration — read from the local store.
+  • slots find   Find first available slots across multiple event-type IDs in one call, ranked by start time.
+  • analytics no-show   No-show, cancellation, volume, and density metrics over a window. Sister subcommands under analytics: bookings (volume), cancellations, no-show, density. --by accepts event-type, attendee, or weekday…
+  • conflicts   Detects overlapping bookings within a time window — pairs whose time ranges intersect get reported. Reads the local store, no API call.
+  • gaps   Finds open windows in your schedule that are available but unbooked, filtered by minimum block size.
+  • workload   Booking distribution across team members over a window — surfaces overloaded vs underutilized hosts.
+  • webhooks coverage   Audits registered webhook triggers against the canonical set and reports lifecycle events with no subscriber.
+  • event-types stale   Event types with zero bookings in the last N days — candidates for removal.
+  • reschedule next   Move an existing booking to the next available slot for the same event type, after a cutoff.
+
+Agent mode: add --agent to any command for JSON output + non-interactive mode.
+Health check: run 'cal-com-pp-cli doctor' to verify auth and connectivity.
+See README.md or the bundled SKILL.md for recipes.`,
 		SilenceUsage: true,
 		Version:      version,
 	}
@@ -167,8 +180,10 @@ Run 'cal-com-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.AddCommand(newBookingsCmd(flags))
 	rootCmd.AddCommand(newCalendarsCmd(flags))
 	rootCmd.AddCommand(newConferencingCmd(flags))
+	rootCmd.AddCommand(newCreditsCmd(flags))
 	rootCmd.AddCommand(newEventTypesCmd(flags))
 	rootCmd.AddCommand(newMeCmd(flags))
+	rootCmd.AddCommand(newNotificationsCmd(flags))
 	rootCmd.AddCommand(newOauthCmd(flags))
 	rootCmd.AddCommand(newOauthClientsCmd(flags))
 	rootCmd.AddCommand(newOrganizationsCmd(flags))
@@ -200,12 +215,13 @@ Run 'cal-com-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.AddCommand(newDestinationCalendarsPromotedCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
+	// Cal.com novel/transcendence commands (hand-built; not generator-emitted).
+	rootCmd.AddCommand(newAgendaCmd(flags))
 	rootCmd.AddCommand(newBookCmd(flags))
-	rootCmd.AddCommand(newTodayCmd(flags))
-	rootCmd.AddCommand(newWeekCmd(flags))
 	rootCmd.AddCommand(newConflictsCmd(flags))
 	rootCmd.AddCommand(newGapsCmd(flags))
 	rootCmd.AddCommand(newWorkloadCmd(flags))
+	rootCmd.AddCommand(newRescheduleCmd(flags))
 
 	return rootCmd
 }

@@ -17,9 +17,9 @@ func newConferencingOauthConferencingSaveCmd(flags *rootFlags) *cobra.Command {
 	var flagCode string
 
 	cmd := &cobra.Command{
-		Use:   "conferencing-save",
-		Short: "Conferencing app OAuth callback",
-		Example: "  cal-com-pp-cli conferencing oauth conferencing-save",
+		Use:         "conferencing-save",
+		Short:       "Conferencing app OAuth callback",
+		Example:     "  cal-com-pp-cli conferencing oauth conferencing-save",
 		Annotations: map[string]string{"pp:endpoint": "oauth.conferencing-save", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("state") && !flags.dryRun {
@@ -29,7 +29,7 @@ func newConferencingOauthConferencingSaveCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("required flag \"%s\" not set", "code")
 			}
 			if cmd.Flags().Changed("app") {
-				allowedApp := []string{ "zoom", "msteams" }
+				allowedApp := []string{"zoom", "msteams"}
 				validApp := false
 				for _, v := range allowedApp {
 					if flagApp == v {

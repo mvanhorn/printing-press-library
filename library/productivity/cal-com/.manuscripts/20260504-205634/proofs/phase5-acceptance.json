@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "api_name": "cal-com",
+  "run_id": "20260504-205634",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 6,
+  "tests_passed": 6,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "bearer_token",
+    "api_key_available": true,
+    "browser_session_available": false
+  },
+  "notes": "Quick Check passed against live api.cal.com (account trevin-chow-oiyph7, id 31995): (1) doctor 4/4 OK, auth+credentials valid; (2) sync --full succeeded (4 records, 12 resources scanned); (3) list commands return data — bookings (16 pre-existing), event-types (3), schedules (1), webhooks (0); (4) search returns results from synced bookings; (5) JSON+select+csv mode all produce correct output; (6) all 10 transcendence commands produce correct domain-specific output (book --dry-run composes 4-call chain; agenda window-today reads local store; slots find handles 404 gracefully with empty envelope; reschedule next emits planning envelope on dry-run; analytics no-show returns real rates; conflicts detected 7 real overlaps; gaps reported 7 windows; workload, webhooks coverage, event-types stale all returned correct shapes). Full-matrix results separately recorded in phase5-dogfood-live-3.json (637/723 pass, 86 fail; failures categorized: 80 fixture/scope mismatches not addressable from the CLI, 4 error_path generator heuristic gaps, 2 json_fidelity heuristic gaps for streaming sync and idempotent-noop output — see acceptance markdown for full triage and Printing Press retro candidates). Three CLI fixes applied during the run: api-keys destructive-op guard, book/slots-find Example field flatten, reschedule-next dry-run planning envelope."
+}

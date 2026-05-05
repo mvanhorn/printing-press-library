@@ -15,17 +15,17 @@ func newCalendarsEventCalUnifiedCalendarsGetCalendarDetailsCmd(flags *rootFlags)
 	var flagCalendar string
 
 	cmd := &cobra.Command{
-		Use:   "cal-unified-calendars-get-calendar-details <eventUid>",
-		Aliases: []string{"get"},
-		Short: "Returns detailed information about a meeting including attendance metrics. The singular /event/ path is deprecated...",
-		Example: "  cal-com-pp-cli calendars event cal-unified-calendars-get-calendar-details example-value",
+		Use:         "cal-unified-calendars-get-calendar-details <eventUid>",
+		Aliases:     []string{"get"},
+		Short:       "Returns detailed information about a meeting including attendance metrics. If accessed using an OAuth access token,...",
+		Example:     "  cal-com-pp-cli calendars event cal-unified-calendars-get-calendar-details 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "event.cal-unified-calendars-get-calendar-details", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("calendar") {
-				allowedCalendar := []string{ "google" }
+				allowedCalendar := []string{"google"}
 				validCalendar := false
 				for _, v := range allowedCalendar {
 					if flagCalendar == v {
@@ -44,7 +44,7 @@ func newCalendarsEventCalUnifiedCalendarsGetCalendarDetailsCmd(flags *rootFlags)
 
 			path := "/v2/calendars/{calendar}/event/{eventUid}"
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("eventUid is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "eventUid"))
+				return usageErr(fmt.Errorf("eventUid is required\nUsage: %s <%s>", cmd.CommandPath(), "eventUid"))
 			}
 			path = replacePathParam(path, "eventUid", args[1])
 			path = replacePathParam(path, "calendar", fmt.Sprintf("%v", flagCalendar))

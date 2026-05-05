@@ -16,10 +16,10 @@ func newEventTypesWebhooksEventTypeGetEventTypeCmd(flags *rootFlags) *cobra.Comm
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:   "event-type-get-event-type <eventTypeId>",
-		Aliases: []string{"get"},
-		Short: "Get all webhooks",
-		Example: "  cal-com-pp-cli event-types webhooks event-type-get-event-type 42",
+		Use:         "event-type-get-event-type <eventTypeId>",
+		Aliases:     []string{"get"},
+		Short:       "If accessed using an OAuth access token, the `EVENT_TYPE_READ` scope is required.",
+		Example:     "  cal-com-pp-cli event-types webhooks event-type-get-event-type 42",
 		Annotations: map[string]string{"pp:endpoint": "webhooks.event-type-get-event-type", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

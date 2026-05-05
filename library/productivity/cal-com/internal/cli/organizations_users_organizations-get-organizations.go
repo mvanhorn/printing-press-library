@@ -20,16 +20,16 @@ func newOrganizationsUsersOrganizationsGetOrganizationsCmd(flags *rootFlags) *co
 	var flagTeamIds string
 
 	cmd := &cobra.Command{
-		Use:   "organizations-get-organizations <orgId>",
-		Short: "Get all users",
-		Example: "  cal-com-pp-cli organizations users organizations-get-organizations 42",
+		Use:         "organizations-get-organizations <orgId>",
+		Short:       "Required membership role: `org admin`. PBAC permission: `organization.listMembers`. Learn more about API access...",
+		Example:     "  cal-com-pp-cli organizations users organizations-get-organizations 42",
 		Annotations: map[string]string{"pp:endpoint": "users.organizations-get-organizations", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if cmd.Flags().Changed("attribute-query-operator") {
-				allowedAttributeQueryOperator := []string{ "OR", "AND", "NONE" }
+				allowedAttributeQueryOperator := []string{"OR", "AND", "NONE"}
 				validAttributeQueryOperator := false
 				for _, v := range allowedAttributeQueryOperator {
 					if flagAttributeQueryOperator == v {

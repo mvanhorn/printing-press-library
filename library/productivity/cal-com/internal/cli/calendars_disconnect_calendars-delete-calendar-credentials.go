@@ -18,14 +18,14 @@ func newCalendarsDisconnectCalendarsDeleteCalendarCredentialsCmd(flags *rootFlag
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "calendars-delete-calendar-credentials",
-		Aliases: []string{"create"},
-		Short: "Disconnect a calendar",
-		Example: "  cal-com-pp-cli calendars disconnect calendars-delete-calendar-credentials",
+		Use:         "calendars-delete-calendar-credentials",
+		Aliases:     []string{"create"},
+		Short:       "If accessed using an OAuth access token, the `APPS_WRITE` scope is required.",
+		Example:     "  cal-com-pp-cli calendars disconnect calendars-delete-calendar-credentials",
 		Annotations: map[string]string{"pp:endpoint": "disconnect.calendars-delete-calendar-credentials"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("calendar") {
-				allowedCalendar := []string{ "apple", "google", "office365" }
+				allowedCalendar := []string{"apple", "google", "office365"}
 				validCalendar := false
 				for _, v := range allowedCalendar {
 					if flagCalendar == v {
@@ -80,7 +80,9 @@ func newCalendarsDisconnectCalendarsDeleteCalendarCredentialsCmd(flags *rootFlag
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

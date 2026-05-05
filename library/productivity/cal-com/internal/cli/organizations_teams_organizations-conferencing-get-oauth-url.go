@@ -17,9 +17,9 @@ func newOrganizationsTeamsOrganizationsConferencingGetOauthUrlCmd(flags *rootFla
 	var flagOnErrorReturnTo string
 
 	cmd := &cobra.Command{
-		Use:   "organizations-conferencing-get-oauth-url <teamId> <orgId>",
-		Short: "Get OAuth conferencing app's auth URL for a team",
-		Example: "  cal-com-pp-cli organizations teams organizations-conferencing-get-oauth-url example-value 42",
+		Use:         "organizations-conferencing-get-oauth-url <teamId> <orgId>",
+		Short:       "Required membership role: `team admin`. PBAC permission: `team.update`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations teams organizations-conferencing-get-oauth-url 42 42",
 		Annotations: map[string]string{"pp:endpoint": "teams.organizations-conferencing-get-oauth-url", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -32,7 +32,7 @@ func newOrganizationsTeamsOrganizationsConferencingGetOauthUrlCmd(flags *rootFla
 				return fmt.Errorf("required flag \"%s\" not set", "on-error-return-to")
 			}
 			if cmd.Flags().Changed("app") {
-				allowedApp := []string{ "zoom", "msteams" }
+				allowedApp := []string{"zoom", "msteams"}
 				validApp := false
 				for _, v := range allowedApp {
 					if flagApp == v {
@@ -52,7 +52,7 @@ func newOrganizationsTeamsOrganizationsConferencingGetOauthUrlCmd(flags *rootFla
 			path := "/v2/organizations/{orgId}/teams/{teamId}/conferencing/{app}/oauth/auth-url"
 			path = replacePathParam(path, "teamId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("orgId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "orgId"))
+				return usageErr(fmt.Errorf("orgId is required\nUsage: %s <%s>", cmd.CommandPath(), "orgId"))
 			}
 			path = replacePathParam(path, "orgId", args[1])
 			path = replacePathParam(path, "app", fmt.Sprintf("%v", flagApp))

@@ -16,9 +16,9 @@ func newOrganizationsTeamsOrganizationsRoutingFormsResponsesUpdateRoutingFormRes
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "organizations-routing-forms-responses-update-routing-form-response <teamId> <routingFormId> <responseId> <orgId>",
-		Short: "Update routing form response",
-		Example: "  cal-com-pp-cli organizations teams organizations-routing-forms-responses-update-routing-form-response 42 example-value 42 42",
+		Use:         "organizations-routing-forms-responses-update-routing-form-response <teamId> <routingFormId> <responseId> <orgId>",
+		Short:       "Required membership role: `team admin`. PBAC permission: `routingForm.update`. Learn more about API access control...",
+		Example:     "  cal-com-pp-cli organizations teams organizations-routing-forms-responses-update-routing-form-response 42 550e8400-e29b-41d4-a716-446655440000 42 42",
 		Annotations: map[string]string{"pp:endpoint": "teams.organizations-routing-forms-responses-update-routing-form-response"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -34,15 +34,15 @@ func newOrganizationsTeamsOrganizationsRoutingFormsResponsesUpdateRoutingFormRes
 			path := "/v2/organizations/{orgId}/teams/{teamId}/routing-forms/{routingFormId}/responses/{responseId}"
 			path = replacePathParam(path, "teamId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("routingFormId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "routingFormId"))
+				return usageErr(fmt.Errorf("routingFormId is required\nUsage: %s <%s>", cmd.CommandPath(), "routingFormId"))
 			}
 			path = replacePathParam(path, "routingFormId", args[1])
 			if len(args) < 3 {
-				return usageErr(fmt.Errorf("responseId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "responseId"))
+				return usageErr(fmt.Errorf("responseId is required\nUsage: %s <%s>", cmd.CommandPath(), "responseId"))
 			}
 			path = replacePathParam(path, "responseId", args[2])
 			if len(args) < 4 {
-				return usageErr(fmt.Errorf("orgId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "orgId"))
+				return usageErr(fmt.Errorf("orgId is required\nUsage: %s <%s>", cmd.CommandPath(), "orgId"))
 			}
 			path = replacePathParam(path, "orgId", args[3])
 			var body map[string]any
@@ -73,7 +73,9 @@ func newOrganizationsTeamsOrganizationsRoutingFormsResponsesUpdateRoutingFormRes
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

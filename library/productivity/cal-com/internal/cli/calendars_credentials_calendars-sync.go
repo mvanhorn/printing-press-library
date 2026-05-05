@@ -19,14 +19,14 @@ func newCalendarsCredentialsCalendarsSyncCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "calendars-sync",
-		Aliases: []string{"create"},
-		Short: "Save Apple calendar credentials",
-		Example: "  cal-com-pp-cli calendars credentials calendars-sync --password example-value",
+		Use:         "calendars-sync",
+		Aliases:     []string{"create"},
+		Short:       "If accessed using an OAuth access token, the `APPS_WRITE` scope is required.",
+		Example:     "  cal-com-pp-cli calendars credentials calendars-sync --password example-value",
 		Annotations: map[string]string{"pp:endpoint": "credentials.calendars-sync"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("calendar") {
-				allowedCalendar := []string{ "apple" }
+				allowedCalendar := []string{"apple"}
 				validCalendar := false
 				for _, v := range allowedCalendar {
 					if flagCalendar == v {
@@ -87,7 +87,9 @@ func newCalendarsCredentialsCalendarsSyncCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

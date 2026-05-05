@@ -22,9 +22,9 @@ func newTeamsEventTypesTeamsWebhooksUpdateTeamWebhookCmd(flags *rootFlags) *cobr
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "teams-webhooks-update-team-webhook <webhookId> <eventTypeId> <teamId>",
-		Short: "Update a webhook for a team event type",
-		Example: "  cal-com-pp-cli teams event-types teams-webhooks-update-team-webhook example-value 42 42",
+		Use:         "teams-webhooks-update-team-webhook <webhookId> <eventTypeId> <teamId>",
+		Short:       "If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_WRITE` scope is required.",
+		Example:     "  cal-com-pp-cli teams event-types teams-webhooks-update-team-webhook 550e8400-e29b-41d4-a716-446655440000 42 42",
 		Annotations: map[string]string{"pp:endpoint": "event-types.teams-webhooks-update-team-webhook"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -40,11 +40,11 @@ func newTeamsEventTypesTeamsWebhooksUpdateTeamWebhookCmd(flags *rootFlags) *cobr
 			path := "/v2/teams/{teamId}/event-types/{eventTypeId}/webhooks/{webhookId}"
 			path = replacePathParam(path, "webhookId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("eventTypeId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "eventTypeId"))
+				return usageErr(fmt.Errorf("eventTypeId is required\nUsage: %s <%s>", cmd.CommandPath(), "eventTypeId"))
 			}
 			path = replacePathParam(path, "eventTypeId", args[1])
 			if len(args) < 3 {
-				return usageErr(fmt.Errorf("teamId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "teamId"))
+				return usageErr(fmt.Errorf("teamId is required\nUsage: %s <%s>", cmd.CommandPath(), "teamId"))
 			}
 			path = replacePathParam(path, "teamId", args[2])
 			var body map[string]any
@@ -97,7 +97,9 @@ func newTeamsEventTypesTeamsWebhooksUpdateTeamWebhookCmd(flags *rootFlags) *cobr
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

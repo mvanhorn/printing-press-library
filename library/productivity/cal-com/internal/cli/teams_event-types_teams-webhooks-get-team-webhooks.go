@@ -16,9 +16,9 @@ func newTeamsEventTypesTeamsWebhooksGetTeamWebhooksCmd(flags *rootFlags) *cobra.
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:   "teams-webhooks-get-team-webhooks <eventTypeId> <teamId>",
-		Short: "Get all webhooks for a team event type",
-		Example: "  cal-com-pp-cli teams event-types teams-webhooks-get-team-webhooks 42 42",
+		Use:         "teams-webhooks-get-team-webhooks <eventTypeId> <teamId>",
+		Short:       "If accessed using an OAuth access token, the `TEAM_EVENT_TYPE_READ` scope is required.",
+		Example:     "  cal-com-pp-cli teams event-types teams-webhooks-get-team-webhooks 42 42",
 		Annotations: map[string]string{"pp:endpoint": "event-types.teams-webhooks-get-team-webhooks", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -32,7 +32,7 @@ func newTeamsEventTypesTeamsWebhooksGetTeamWebhooksCmd(flags *rootFlags) *cobra.
 			path := "/v2/teams/{teamId}/event-types/{eventTypeId}/webhooks"
 			path = replacePathParam(path, "eventTypeId", args[0])
 			if len(args) < 4 {
-				return usageErr(fmt.Errorf("teamId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "teamId"))
+				return usageErr(fmt.Errorf("teamId is required\nUsage: %s <%s>", cmd.CommandPath(), "teamId"))
 			}
 			path = replacePathParam(path, "teamId", args[3])
 			params := map[string]string{}

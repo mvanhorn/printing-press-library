@@ -14,10 +14,10 @@ import (
 func newMeGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Aliases: []string{"list"},
-		Short: "Get my profile",
-		Example: "  cal-com-pp-cli me get",
+		Use:         "get",
+		Aliases:     []string{"list"},
+		Short:       "If accessed using an OAuth access token, the `PROFILE_READ` scope is required.",
+		Example:     "  cal-com-pp-cli me get",
 		Annotations: map[string]string{"pp:endpoint": "me.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

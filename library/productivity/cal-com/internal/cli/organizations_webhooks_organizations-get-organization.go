@@ -14,9 +14,9 @@ import (
 func newOrganizationsWebhooksOrganizationsGetOrganizationCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "organizations-get-organization <webhookId> <orgId>",
-		Short: "Get a webhook",
-		Example: "  cal-com-pp-cli organizations webhooks organizations-get-organization example-value 42",
+		Use:         "organizations-get-organization <webhookId> <orgId>",
+		Short:       "Required membership role: `org admin`. PBAC permission: `webhook.read`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations webhooks organizations-get-organization 550e8400-e29b-41d4-a716-446655440000 42",
 		Annotations: map[string]string{"pp:endpoint": "webhooks.organizations-get-organization", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -30,7 +30,7 @@ func newOrganizationsWebhooksOrganizationsGetOrganizationCmd(flags *rootFlags) *
 			path := "/v2/organizations/{orgId}/webhooks/{webhookId}"
 			path = replacePathParam(path, "webhookId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("orgId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "orgId"))
+				return usageErr(fmt.Errorf("orgId is required\nUsage: %s <%s>", cmd.CommandPath(), "orgId"))
 			}
 			path = replacePathParam(path, "orgId", args[1])
 			params := map[string]string{}

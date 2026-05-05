@@ -13,10 +13,6 @@ func newCalendarsEventsCmd(flags *rootFlags) *cobra.Command {
 		Short: "Manage events",
 	}
 
-	cmd.AddCommand(newCalendarsEventsCalUnifiedCalendarsCreateCalendarCmd(flags))
-	cmd.AddCommand(newCalendarsEventsCalUnifiedCalendarsDeleteCalendarCmd(flags))
-	cmd.AddCommand(newCalendarsEventsCalUnifiedCalendarsGetCalendarDetailsCmd(flags))
-	cmd.AddCommand(newCalendarsEventsCalUnifiedCalendarsListCalendarCmd(flags))
 	cmd.AddCommand(newCalendarsEventsCalUnifiedCalendarsUpdateCalendarCmd(flags))
 	return cmd
 }

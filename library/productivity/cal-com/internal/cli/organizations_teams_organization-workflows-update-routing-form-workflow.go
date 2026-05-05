@@ -18,10 +18,10 @@ func newOrganizationsTeamsOrganizationWorkflowsUpdateRoutingFormWorkflowCmd(flag
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "organization-workflows-update-routing-form-workflow <teamId> <workflowId> <orgId>",
-		Aliases: []string{"update"},
-		Short: "Update organization routing form team workflow",
-		Example: "  cal-com-pp-cli organizations teams organization-workflows-update-routing-form-workflow 42 42 42",
+		Use:         "organization-workflows-update-routing-form-workflow <teamId> <workflowId> <orgId>",
+		Aliases:     []string{"update"},
+		Short:       "Required membership role: `team admin`. PBAC permission: `workflow.update`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations teams organization-workflows-update-routing-form-workflow 42 42 42",
 		Annotations: map[string]string{"pp:endpoint": "teams.organization-workflows-update-routing-form-workflow"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -37,11 +37,11 @@ func newOrganizationsTeamsOrganizationWorkflowsUpdateRoutingFormWorkflowCmd(flag
 			path := "/v2/organizations/{orgId}/teams/{teamId}/workflows/{workflowId}/routing-form"
 			path = replacePathParam(path, "teamId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("workflowId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "workflowId"))
+				return usageErr(fmt.Errorf("workflowId is required\nUsage: %s <%s>", cmd.CommandPath(), "workflowId"))
 			}
 			path = replacePathParam(path, "workflowId", args[1])
 			if len(args) < 3 {
-				return usageErr(fmt.Errorf("orgId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "orgId"))
+				return usageErr(fmt.Errorf("orgId is required\nUsage: %s <%s>", cmd.CommandPath(), "orgId"))
 			}
 			path = replacePathParam(path, "orgId", args[2])
 			var body map[string]any
@@ -78,7 +78,9 @@ func newOrganizationsTeamsOrganizationWorkflowsUpdateRoutingFormWorkflowCmd(flag
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

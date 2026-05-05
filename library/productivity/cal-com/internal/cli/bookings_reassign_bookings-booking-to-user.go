@@ -17,9 +17,9 @@ func newBookingsReassignBookingsBookingToUserCmd(flags *rootFlags) *cobra.Comman
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "bookings-booking-to-user <bookingUid> <userId>",
-		Short: "Currently only supports reassigning host for round robin bookings. The provided authorization header refers to the...",
-		Example: "  cal-com-pp-cli bookings reassign bookings-booking-to-user example-value 42",
+		Use:         "bookings-booking-to-user <bookingUid> <userId>",
+		Short:       "Currently only supports reassigning host for round robin bookings. The provided authorization header refers to the...",
+		Example:     "  cal-com-pp-cli bookings reassign bookings-booking-to-user 550e8400-e29b-41d4-a716-446655440000 42",
 		Annotations: map[string]string{"pp:endpoint": "reassign.bookings-booking-to-user"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -35,7 +35,7 @@ func newBookingsReassignBookingsBookingToUserCmd(flags *rootFlags) *cobra.Comman
 			path := "/v2/bookings/{bookingUid}/reassign/{userId}"
 			path = replacePathParam(path, "bookingUid", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("userId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "userId"))
+				return usageErr(fmt.Errorf("userId is required\nUsage: %s <%s>", cmd.CommandPath(), "userId"))
 			}
 			path = replacePathParam(path, "userId", args[1])
 			var body map[string]any
@@ -69,7 +69,9 @@ func newBookingsReassignBookingsBookingToUserCmd(flags *rootFlags) *cobra.Comman
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

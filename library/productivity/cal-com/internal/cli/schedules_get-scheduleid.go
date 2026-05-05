@@ -14,9 +14,9 @@ import (
 func newSchedulesGetScheduleidCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-scheduleid <scheduleId>",
-		Short: "<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing...",
-		Example: "  cal-com-pp-cli schedules get-scheduleid 42",
+		Use:         "get-scheduleid <scheduleId>",
+		Short:       "<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing...",
+		Example:     "  cal-com-pp-cli schedules get-scheduleid 42",
 		Annotations: map[string]string{"pp:endpoint": "schedules.get-scheduleid", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

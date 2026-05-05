@@ -18,10 +18,10 @@ func newEventTypesPrivateLinksEventTypesUpdateCmd(flags *rootFlags) *cobra.Comma
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "event-types-update <eventTypeId> <linkId>",
-		Aliases: []string{"update"},
-		Short: "Update a private link for an event type",
-		Example: "  cal-com-pp-cli event-types private-links event-types-update 42 https://example.com/resource",
+		Use:         "event-types-update <eventTypeId> <linkId>",
+		Aliases:     []string{"update"},
+		Short:       "If accessed using an OAuth access token, the `EVENT_TYPE_WRITE` scope is required.",
+		Example:     "  cal-com-pp-cli event-types private-links event-types-update 42 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "private-links.event-types-update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -37,7 +37,7 @@ func newEventTypesPrivateLinksEventTypesUpdateCmd(flags *rootFlags) *cobra.Comma
 			path := "/v2/event-types/{eventTypeId}/private-links/{linkId}"
 			path = replacePathParam(path, "eventTypeId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("linkId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "linkId"))
+				return usageErr(fmt.Errorf("linkId is required\nUsage: %s <%s>", cmd.CommandPath(), "linkId"))
 			}
 			path = replacePathParam(path, "linkId", args[1])
 			var body map[string]any
@@ -74,7 +74,9 @@ func newEventTypesPrivateLinksEventTypesUpdateCmd(flags *rootFlags) *cobra.Comma
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

@@ -14,10 +14,10 @@ import (
 func newConferencingGetDefaultCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-default",
-		Aliases: []string{"list"},
-		Short: "Get your default conferencing application",
-		Example: "  cal-com-pp-cli conferencing get-default",
+		Use:         "get-default",
+		Aliases:     []string{"list"},
+		Short:       "If accessed using an OAuth access token, the `APPS_READ` scope is required.",
+		Example:     "  cal-com-pp-cli conferencing get-default",
 		Annotations: map[string]string{"pp:endpoint": "conferencing.get-default", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

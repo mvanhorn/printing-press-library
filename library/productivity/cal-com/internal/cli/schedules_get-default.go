@@ -14,9 +14,9 @@ import (
 func newSchedulesGetDefaultCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-default",
-		Short: "Get the default schedule of the authenticated user. <Note>Please make sure to pass in the cal-api-version header...",
-		Example: "  cal-com-pp-cli schedules get-default",
+		Use:         "get-default",
+		Short:       "Get the default schedule of the authenticated user. <Note>Please make sure to pass in the cal-api-version header...",
+		Example:     "  cal-com-pp-cli schedules get-default",
 		Annotations: map[string]string{"pp:endpoint": "schedules.get-default", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

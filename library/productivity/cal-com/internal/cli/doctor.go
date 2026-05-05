@@ -68,6 +68,9 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "doctor",
 		Short: "Check CLI health",
+		Example: `  cal-com-pp-cli doctor
+  cal-com-pp-cli doctor --json
+  cal-com-pp-cli doctor --fail-on warn`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			report := map[string]any{}
 
@@ -87,6 +90,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				if header == "" {
 					report["auth"] = "not configured"
 					report["auth_hint"] = "export CAL_COM_TOKEN=<your-key>"
+					report["auth_key_url"] = "https://app.cal.com/settings/developer/api-keys"
 				} else {
 					report["auth"] = "configured"
 					report["auth_source"] = cfg.AuthSource
@@ -251,6 +255,9 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			// Print auth setup hints (indented under Auth line)
 			if hint, ok := report["auth_hint"]; ok {
 				fmt.Fprintf(w, "  hint: %v\n", hint)
+			}
+			if keyURL, ok := report["auth_key_url"]; ok {
+				fmt.Fprintf(w, "  Get a key at: %v\n", keyURL)
 			}
 			// Cache section: render after the primary health block so it
 			// sits next to version info, mirroring the JSON report layout.

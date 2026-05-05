@@ -17,10 +17,10 @@ func newCalendarsSaveCalendarsCmd(flags *rootFlags) *cobra.Command {
 	var flagCalendar string
 
 	cmd := &cobra.Command{
-		Use:   "calendars",
-		Aliases: []string{"get"},
-		Short: "Save Google or Outlook calendar credentials",
-		Example: "  cal-com-pp-cli calendars save calendars",
+		Use:         "calendars",
+		Aliases:     []string{"get"},
+		Short:       "Save Google or Outlook calendar credentials",
+		Example:     "  cal-com-pp-cli calendars save calendars",
 		Annotations: map[string]string{"pp:endpoint": "save.calendars", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("state") && !flags.dryRun {
@@ -30,7 +30,7 @@ func newCalendarsSaveCalendarsCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("required flag \"%s\" not set", "code")
 			}
 			if cmd.Flags().Changed("calendar") {
-				allowedCalendar := []string{ "office365", "google" }
+				allowedCalendar := []string{"office365", "google"}
 				validCalendar := false
 				for _, v := range allowedCalendar {
 					if flagCalendar == v {

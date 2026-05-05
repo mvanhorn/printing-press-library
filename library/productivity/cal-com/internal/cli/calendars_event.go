@@ -14,6 +14,5 @@ func newCalendarsEventCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	cmd.AddCommand(newCalendarsEventCalUnifiedCalendarsGetCalendarDetailsCmd(flags))
-	cmd.AddCommand(newCalendarsEventCalUnifiedCalendarsUpdateCalendarCmd(flags))
 	return cmd
 }

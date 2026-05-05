@@ -17,10 +17,10 @@ func newVerifiedResourcesUserRequestEmailVerificationCodeCmd(flags *rootFlags) *
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "user-request-email-verification-code",
-		Aliases: []string{"create"},
-		Short: "Sends a verification code to the email",
-		Example: "  cal-com-pp-cli verified-resources user-request-email-verification-code --email user@example.com",
+		Use:         "user-request-email-verification-code",
+		Aliases:     []string{"create"},
+		Short:       "Sends a verification code to the email. If accessed using an OAuth access token, the `VERIFIED_RESOURCES_WRITE`...",
+		Example:     "  cal-com-pp-cli verified-resources user-request-email-verification-code --email user@example.com",
 		Annotations: map[string]string{"pp:endpoint": "verified-resources.user-request-email-verification-code"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -65,7 +65,9 @@ func newVerifiedResourcesUserRequestEmailVerificationCodeCmd(flags *rootFlags) *
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

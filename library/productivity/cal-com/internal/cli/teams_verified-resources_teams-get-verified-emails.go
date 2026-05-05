@@ -16,9 +16,9 @@ func newTeamsVerifiedResourcesTeamsGetVerifiedEmailsCmd(flags *rootFlags) *cobra
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:   "teams-get-verified-emails <teamId>",
-		Short: "Get list of verified emails of a team",
-		Example: "  cal-com-pp-cli teams verified-resources teams-get-verified-emails 42",
+		Use:         "teams-get-verified-emails <teamId>",
+		Short:       "If accessed using an OAuth access token, the `TEAM_VERIFIED_RESOURCES_READ` scope is required.",
+		Example:     "  cal-com-pp-cli teams verified-resources teams-get-verified-emails 42",
 		Annotations: map[string]string{"pp:endpoint": "verified-resources.teams-get-verified-emails", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

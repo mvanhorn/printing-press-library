@@ -45,7 +45,7 @@ brews:
       owner: trevin-chow
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Cal.com v2 API — scheduling infrastructure. Authenticate with a Bearer token (API key from Settings > Developer > API Keys). Supports per-endpoint versioning via cal-api-version header."
+    description: "Cal.com is the open-source Calendly alternative — bookable invite links, availability, slots, bookings, schedules, teams, OAuth, and webhooks. All endpoints require a bearer token."
     install: |
       bin.install "cal-com-pp-cli"
       bin.install "cal-com-pp-mcp"

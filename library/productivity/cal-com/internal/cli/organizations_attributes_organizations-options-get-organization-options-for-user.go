@@ -14,9 +14,9 @@ import (
 func newOrganizationsAttributesOrganizationsOptionsGetOrganizationOptionsForUserCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "organizations-options-get-organization-options-for-user <orgId> <userId>",
-		Short: "Get all attribute options for a user",
-		Example: "  cal-com-pp-cli organizations attributes organizations-options-get-organization-options-for-user 42 42",
+		Use:         "organizations-options-get-organization-options-for-user <orgId> <userId>",
+		Short:       "Required membership role: `org member`. PBAC permission: `organization.attributes.read`. Learn more about API access...",
+		Example:     "  cal-com-pp-cli organizations attributes organizations-options-get-organization-options-for-user 42 42",
 		Annotations: map[string]string{"pp:endpoint": "attributes.organizations-options-get-organization-options-for-user", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -30,7 +30,7 @@ func newOrganizationsAttributesOrganizationsOptionsGetOrganizationOptionsForUser
 			path := "/v2/organizations/{orgId}/attributes/options/{userId}"
 			path = replacePathParam(path, "orgId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("userId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "userId"))
+				return usageErr(fmt.Errorf("userId is required\nUsage: %s <%s>", cmd.CommandPath(), "userId"))
 			}
 			path = replacePathParam(path, "userId", args[1])
 			params := map[string]string{}

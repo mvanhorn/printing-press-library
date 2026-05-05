@@ -20,10 +20,10 @@ func newOrganizationsAttributesOrganizationsCreateOrganizationCmd(flags *rootFla
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "organizations-create-organization <orgId>",
-		Aliases: []string{"create"},
-		Short: "Create an attribute",
-		Example: "  cal-com-pp-cli organizations attributes organizations-create-organization 42 --name example-resource",
+		Use:         "organizations-create-organization <orgId>",
+		Aliases:     []string{"create"},
+		Short:       "Required membership role: `org admin`. PBAC permission: `organization.attributes.create`. Learn more about API...",
+		Example:     "  cal-com-pp-cli organizations attributes organizations-create-organization 42 --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "attributes.organizations-create-organization"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -87,7 +87,9 @@ func newOrganizationsAttributesOrganizationsCreateOrganizationCmd(flags *rootFla
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

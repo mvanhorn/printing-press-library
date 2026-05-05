@@ -17,10 +17,10 @@ func newTeamsMembershipsTeamsGetTeamCmd(flags *rootFlags) *cobra.Command {
 	var flagEmails string
 
 	cmd := &cobra.Command{
-		Use:   "teams-get-team <teamId>",
-		Aliases: []string{"get"},
-		Short: "Retrieve team memberships with optional filtering by email addresses. Supports pagination.",
-		Example: "  cal-com-pp-cli teams memberships teams-get-team 42",
+		Use:         "teams-get-team <teamId>",
+		Aliases:     []string{"get"},
+		Short:       "Retrieve team memberships with optional filtering by email addresses. Supports pagination. If accessed using an...",
+		Example:     "  cal-com-pp-cli teams memberships teams-get-team 42",
 		Annotations: map[string]string{"pp:endpoint": "memberships.teams-get-team", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

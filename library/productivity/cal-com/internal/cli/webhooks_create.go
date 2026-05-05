@@ -22,9 +22,9 @@ func newWebhooksCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create",
-		Short: "Create a webhook",
-		Example: "  cal-com-pp-cli webhooks create --subscriberUrl https://example.com/resource",
+		Use:         "create",
+		Short:       "If accessed using an OAuth access token, the `WEBHOOK_WRITE` scope is required.",
+		Example:     "  cal-com-pp-cli webhooks create --subscriberUrl https://example.com/resource",
 		Annotations: map[string]string{"pp:endpoint": "webhooks.create"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
@@ -94,7 +94,9 @@ func newWebhooksCreateCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

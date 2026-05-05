@@ -18,9 +18,9 @@ func newTeamsVerifiedResourcesTeamsVerifyEmailCmd(flags *rootFlags) *cobra.Comma
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "teams-verify-email <teamId>",
-		Short: "Use code to verify an email",
-		Example: "  cal-com-pp-cli teams verified-resources teams-verify-email 42 --code example-value",
+		Use:         "teams-verify-email <teamId>",
+		Short:       "Use code to verify an email. If accessed using an OAuth access token, the `TEAM_VERIFIED_RESOURCES_WRITE` scope is...",
+		Example:     "  cal-com-pp-cli teams verified-resources teams-verify-email 42 --code example-value",
 		Annotations: map[string]string{"pp:endpoint": "verified-resources.teams-verify-email"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -75,7 +75,9 @@ func newTeamsVerifiedResourcesTeamsVerifyEmailCmd(flags *rootFlags) *cobra.Comma
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

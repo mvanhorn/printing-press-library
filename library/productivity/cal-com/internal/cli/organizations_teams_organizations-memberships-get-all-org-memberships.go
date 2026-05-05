@@ -16,9 +16,9 @@ func newOrganizationsTeamsOrganizationsMembershipsGetAllOrgMembershipsCmd(flags 
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:   "organizations-memberships-get-all-org-memberships <orgId> <teamId>",
-		Short: "Get all memberships",
-		Example: "  cal-com-pp-cli organizations teams organizations-memberships-get-all-org-memberships 42 42",
+		Use:         "organizations-memberships-get-all-org-memberships <orgId> <teamId>",
+		Short:       "Required membership role: `team admin`. PBAC permission: `team.listMembers`. Learn more about API access control at...",
+		Example:     "  cal-com-pp-cli organizations teams organizations-memberships-get-all-org-memberships 42 42",
 		Annotations: map[string]string{"pp:endpoint": "teams.organizations-memberships-get-all-org-memberships", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -32,7 +32,7 @@ func newOrganizationsTeamsOrganizationsMembershipsGetAllOrgMembershipsCmd(flags 
 			path := "/v2/organizations/{orgId}/teams/{teamId}/memberships"
 			path = replacePathParam(path, "orgId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("teamId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "teamId"))
+				return usageErr(fmt.Errorf("teamId is required\nUsage: %s <%s>", cmd.CommandPath(), "teamId"))
 			}
 			path = replacePathParam(path, "teamId", args[1])
 			params := map[string]string{}

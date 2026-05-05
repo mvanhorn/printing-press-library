@@ -1,6 +1,6 @@
 {
-  "dir": "/Users/tmchow/printing-press/library/cal-com",
-  "spec_path": "/Users/tmchow/printing-press/manuscripts/cal-com/20260426-231315/research/cal-com-openapi-v2.json",
+  "dir": "/Users/tmchow/printing-press/.runstate/calm-scribbling-glacier-fb2ca6fd/runs/20260504-205634/working/cal-com-pp-cli",
+  "spec_path": "/Users/tmchow/printing-press/.runstate/calm-scribbling-glacier-fb2ca6fd/runs/20260504-205634/research/cal-com-openapi-enriched.json",
   "verdict": "PASS",
   "path_check": {
     "tested": 4,
@@ -23,7 +23,7 @@
     "dead": 0
   },
   "dead_functions": {
-    "total": 48,
+    "total": 50,
     "dead": 0
   },
   "pipeline_check": {
@@ -40,8 +40,8 @@
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 390,
-      "registered": 390
+      "defined": 400,
+      "registered": 400
     },
     "config_consistency": {
       "consistent": true
@@ -54,20 +54,31 @@
     }
   },
   "novel_features_check": {
-    "planned": 0,
-    "found": 0,
-    "skipped": true
+    "planned": 10,
+    "found": 10
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
   },
   "reimplementation_check": {
-    "checked": 0,
+    "checked": 10,
     "exempted_via_store": 0,
+    "exempted_via_annotation": 10
+  },
+  "source_client_check": {
+    "checked": 0,
     "skipped": true
+  },
+  "print_json_filtered_check": {
+    "checked": 379
   },
   "test_presence": {
     "checked": 0
   },
   "naming_check": {
-    "checked": 368
+    "checked": 379
   },
   "issues": null
 }

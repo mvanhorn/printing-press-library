@@ -34,14 +34,14 @@ func newBookingsGetCmd(flags *rootFlags) *cobra.Command {
 	var flagSkip float64
 
 	cmd := &cobra.Command{
-		Use:   "get",
-		Aliases: []string{"list"},
-		Short: "<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing...",
-		Example: "  cal-com-pp-cli bookings get",
+		Use:         "get",
+		Aliases:     []string{"list"},
+		Short:       "<Note>Please make sure to pass in the cal-api-version header value as mentioned in the Headers section. Not passing...",
+		Example:     "  cal-com-pp-cli bookings get",
 		Annotations: map[string]string{"pp:endpoint": "bookings.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("sort-start") {
-				allowedSortStart := []string{ "asc", "desc" }
+				allowedSortStart := []string{"asc", "desc"}
 				validSortStart := false
 				for _, v := range allowedSortStart {
 					if flagSortStart == v {
@@ -54,7 +54,7 @@ func newBookingsGetCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if cmd.Flags().Changed("sort-end") {
-				allowedSortEnd := []string{ "asc", "desc" }
+				allowedSortEnd := []string{"asc", "desc"}
 				validSortEnd := false
 				for _, v := range allowedSortEnd {
 					if flagSortEnd == v {
@@ -67,7 +67,7 @@ func newBookingsGetCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if cmd.Flags().Changed("sort-created") {
-				allowedSortCreated := []string{ "asc", "desc" }
+				allowedSortCreated := []string{"asc", "desc"}
 				validSortCreated := false
 				for _, v := range allowedSortCreated {
 					if flagSortCreated == v {
@@ -80,7 +80,7 @@ func newBookingsGetCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if cmd.Flags().Changed("sort-updated-at") {
-				allowedSortUpdatedAt := []string{ "asc", "desc" }
+				allowedSortUpdatedAt := []string{"asc", "desc"}
 				validSortUpdatedAt := false
 				for _, v := range allowedSortUpdatedAt {
 					if flagSortUpdatedAt == v {

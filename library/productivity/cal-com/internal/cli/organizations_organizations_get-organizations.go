@@ -14,9 +14,9 @@ import (
 func newOrganizationsOrganizationsGetOrganizationsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-organizations <managedOrganizationId> <orgId>",
-		Short: "Requires the user to have at least the 'ORG_ADMIN' role within the organization. Additionally, for platform, the...",
-		Example: "  cal-com-pp-cli organizations organizations get-organizations 42 42",
+		Use:         "get-organizations <managedOrganizationId> <orgId>",
+		Short:       "For platform, the plan must be 'SCALE' or higher to access this endpoint. Required membership role: `org admin`....",
+		Example:     "  cal-com-pp-cli organizations organizations get-organizations 42 42",
 		Annotations: map[string]string{"pp:endpoint": "organizations.get-organizations", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -30,7 +30,7 @@ func newOrganizationsOrganizationsGetOrganizationsCmd(flags *rootFlags) *cobra.C
 			path := "/v2/organizations/{orgId}/organizations/{managedOrganizationId}"
 			path = replacePathParam(path, "managedOrganizationId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("orgId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "orgId"))
+				return usageErr(fmt.Errorf("orgId is required\nUsage: %s <%s>", cmd.CommandPath(), "orgId"))
 			}
 			path = replacePathParam(path, "orgId", args[1])
 			params := map[string]string{}

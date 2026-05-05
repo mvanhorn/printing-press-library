@@ -14,9 +14,9 @@ import (
 func newOrganizationsAttributesOrganizationsOptionsUnassignOrganizationOptionFromUserCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "organizations-options-unassign-organization-option-from-user <orgId> <userId> <attributeOptionId>",
-		Short: "Unassign an attribute from a user",
-		Example: "  cal-com-pp-cli organizations attributes organizations-options-unassign-organization-option-from-user 42 42 example-value",
+		Use:         "organizations-options-unassign-organization-option-from-user <orgId> <userId> <attributeOptionId>",
+		Short:       "Required membership role: `org member`. PBAC permission: `organization.attributes.editUsers`. Learn more about API...",
+		Example:     "  cal-com-pp-cli organizations attributes organizations-options-unassign-organization-option-from-user 42 42 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "attributes.organizations-options-unassign-organization-option-from-user"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -30,11 +30,11 @@ func newOrganizationsAttributesOrganizationsOptionsUnassignOrganizationOptionFro
 			path := "/v2/organizations/{orgId}/attributes/options/{userId}/{attributeOptionId}"
 			path = replacePathParam(path, "orgId", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("userId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "userId"))
+				return usageErr(fmt.Errorf("userId is required\nUsage: %s <%s>", cmd.CommandPath(), "userId"))
 			}
 			path = replacePathParam(path, "userId", args[1])
 			if len(args) < 3 {
-				return usageErr(fmt.Errorf("attributeOptionId is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "attributeOptionId"))
+				return usageErr(fmt.Errorf("attributeOptionId is required\nUsage: %s <%s>", cmd.CommandPath(), "attributeOptionId"))
 			}
 			path = replacePathParam(path, "attributeOptionId", args[2])
 			data, statusCode, err := c.Delete(path)
@@ -51,7 +51,9 @@ func newOrganizationsAttributesOrganizationsOptionsUnassignOrganizationOptionFro
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

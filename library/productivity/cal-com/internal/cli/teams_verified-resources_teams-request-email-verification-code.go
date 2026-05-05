@@ -17,10 +17,10 @@ func newTeamsVerifiedResourcesTeamsRequestEmailVerificationCodeCmd(flags *rootFl
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "teams-request-email-verification-code <teamId>",
-		Aliases: []string{"create"},
-		Short: "Sends a verification code to the Email",
-		Example: "  cal-com-pp-cli teams verified-resources teams-request-email-verification-code 42 --email user@example.com",
+		Use:         "teams-request-email-verification-code <teamId>",
+		Aliases:     []string{"create"},
+		Short:       "Sends a verification code to the Email. If accessed using an OAuth access token, the `TEAM_VERIFIED_RESOURCES_WRITE`...",
+		Example:     "  cal-com-pp-cli teams verified-resources teams-request-email-verification-code 42 --email user@example.com",
 		Annotations: map[string]string{"pp:endpoint": "verified-resources.teams-request-email-verification-code"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -69,7 +69,9 @@ func newTeamsVerifiedResourcesTeamsRequestEmailVerificationCodeCmd(flags *rootFl
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

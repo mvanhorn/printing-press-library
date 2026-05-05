@@ -14,9 +14,9 @@ import (
 func newWebhooksGetWebhookidCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "get-webhookid <webhookId>",
-		Short: "Get a webhook",
-		Example: "  cal-com-pp-cli webhooks get-webhookid example-value",
+		Use:         "get-webhookid <webhookId>",
+		Short:       "If accessed using an OAuth access token, the `WEBHOOK_READ` scope is required.",
+		Example:     "  cal-com-pp-cli webhooks get-webhookid 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "webhooks.get-webhookid", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

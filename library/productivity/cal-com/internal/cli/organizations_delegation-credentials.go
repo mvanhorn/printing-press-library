@@ -14,6 +14,7 @@ func newOrganizationsDelegationCredentialsCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	cmd.AddCommand(newOrganizationsDelegationCredentialsOrganizationsCreateCmd(flags))
+	cmd.AddCommand(newOrganizationsDelegationCredentialsOrganizationsDeleteCmd(flags))
 	cmd.AddCommand(newOrganizationsDelegationCredentialsOrganizationsUpdateCmd(flags))
 	return cmd
 }
