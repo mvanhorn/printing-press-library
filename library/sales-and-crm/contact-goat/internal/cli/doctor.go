@@ -322,15 +322,62 @@ func checkHappenstanceGraphCoverage(flags *rootFlags, report map[string]any) {
 	}
 	entry := resp.Statuses.LinkedInExt[0]
 	age := ""
+	freshness := graphFreshnessUnknown
 	if ts, err := time.Parse(time.RFC3339, entry.LastRefreshed); err == nil {
-		age = fmt.Sprintf(" (%s ago)", humanAge(time.Since(ts)))
+		elapsed := time.Since(ts)
+		age = fmt.Sprintf(" (%s ago)", humanAge(elapsed))
+		freshness = classifyGraphFreshness(elapsed)
 	}
 	status := entry.Status
 	if entry.IsError {
 		status = "ERROR"
 	}
-	report["happenstance_graph"] = fmt.Sprintf("linkedin_ext: %s, last refreshed %s%s",
-		status, fallbackStr(entry.LastRefreshed, "unknown"), age)
+	freshnessTag := ""
+	switch freshness {
+	case graphFreshnessStale:
+		freshnessTag = " [STALE — re-upload at https://happenstance.ai/connections]"
+	case graphFreshnessVeryStale:
+		freshnessTag = " [VERY STALE — re-upload at https://happenstance.ai/connections]"
+	}
+	report["happenstance_graph"] = fmt.Sprintf("linkedin_ext: %s, last refreshed %s%s%s",
+		status, fallbackStr(entry.LastRefreshed, "unknown"), age, freshnessTag)
+	report["happenstance_graph_status"] = string(freshness)
+}
+
+// graphFreshness names the staleness bucket for the LinkedIn graph
+// upload. Surfaced on the doctor JSON envelope as
+// happenstance_graph_status so programmatic callers can react without
+// parsing prose.
+type graphFreshness string
+
+const (
+	graphFreshnessOK        graphFreshness = "ok"
+	graphFreshnessStale     graphFreshness = "stale"
+	graphFreshnessVeryStale graphFreshness = "very_stale"
+	graphFreshnessUnknown   graphFreshness = "unknown"
+)
+
+// graphStaleThreshold and graphVeryStaleThreshold gate the doctor's
+// stale-graph warning. 90/180 days are conservative defaults: the SF
+// tasks that motivated U4 ran fine on a 9-month-old graph, so a 30-day
+// trigger would have cried wolf on a working setup. 90 days catches
+// degradation before the 180-day "you really need to re-upload" mark.
+const (
+	graphStaleThreshold     = 90 * 24 * time.Hour
+	graphVeryStaleThreshold = 180 * 24 * time.Hour
+)
+
+// classifyGraphFreshness maps an elapsed-since-refresh duration to one
+// of the freshness buckets used by checkHappenstanceGraphCoverage.
+func classifyGraphFreshness(elapsed time.Duration) graphFreshness {
+	switch {
+	case elapsed >= graphVeryStaleThreshold:
+		return graphFreshnessVeryStale
+	case elapsed >= graphStaleThreshold:
+		return graphFreshnessStale
+	default:
+		return graphFreshnessOK
+	}
 }
 
 func trimErr(s string) string {
