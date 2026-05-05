@@ -15,6 +15,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"sort"
 	"strings"
 	"time"
 
@@ -29,8 +30,11 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	cmd.AddCommand(newAuthLoginCmd(flags))
+	cmd.AddCommand(newAuthListCmd(flags))
 	cmd.AddCommand(newAuthStatusCmd(flags))
 	cmd.AddCommand(newAuthLogoutCmd(flags))
+	cmd.AddCommand(newAuthUseCmd(flags))
+	cmd.AddCommand(newAuthRemoveCmd(flags))
 
 	return cmd
 }
@@ -39,13 +43,20 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 	var clientID string
 	var clientSecret string
 	var port int
+	var account string
 
 	cmd := &cobra.Command{
-		Use:   "login",
+		Use:   "login [account-email]",
 		Short: "Authenticate via OAuth2",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if clientID == "" {
 				return fmt.Errorf("--client-id is required")
+			}
+			if len(args) > 0 {
+				account = args[0]
+			}
+			if account == "" {
+				account = flags.account
 			}
 
 			cfg, err := config.Load(flags.configPath)
@@ -165,11 +176,15 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			expiry := time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second)
-			if err := cfg.SaveTokens(clientID, clientSecret, tokenResp.AccessToken, tokenResp.RefreshToken, expiry); err != nil {
+			if err := cfg.SaveTokens(account, clientID, clientSecret, tokenResp.AccessToken, tokenResp.RefreshToken, expiry); err != nil {
 				return fmt.Errorf("saving tokens: %w", err)
 			}
 
-			fmt.Fprintf(os.Stderr, "%s Authentication successful! Token expires at %s\n", green("OK"), expiry.Format(time.RFC3339))
+			if account != "" {
+				fmt.Fprintf(os.Stderr, "%s Authentication successful for %s. Token expires at %s\n", green("OK"), account, expiry.Format(time.RFC3339))
+			} else {
+				fmt.Fprintf(os.Stderr, "%s Authentication successful! Token expires at %s\n", green("OK"), expiry.Format(time.RFC3339))
+			}
 			return nil
 		},
 	}
@@ -181,6 +196,66 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
+func newAuthListCmd(flags *rootFlags) *cobra.Command {
+	return &cobra.Command{
+		Use:   "list",
+		Short: "List stored OAuth accounts",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := config.Load(flags.configPath)
+			if err != nil {
+				return err
+			}
+			type accountInfo struct {
+				Account string `json:"account"`
+				Default bool   `json:"default"`
+				Expires string `json:"expires,omitempty"`
+			}
+			accounts := []accountInfo{}
+			names := make([]string, 0, len(cfg.Accounts))
+			for account := range cfg.Accounts {
+				names = append(names, account)
+			}
+			sort.Strings(names)
+			for _, account := range names {
+				token := cfg.Accounts[account]
+				info := accountInfo{
+					Account: account,
+					Default: account == cfg.DefaultAccount,
+				}
+				if !token.TokenExpiry.IsZero() {
+					info.Expires = token.TokenExpiry.Format(time.RFC3339)
+				}
+				accounts = append(accounts, info)
+			}
+			if cfg.AccessToken != "" {
+				info := accountInfo{Account: "legacy", Default: cfg.DefaultAccount == ""}
+				if !cfg.TokenExpiry.IsZero() {
+					info.Expires = cfg.TokenExpiry.Format(time.RFC3339)
+				}
+				accounts = append(accounts, info)
+			}
+			if flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"accounts":        accounts,
+					"default_account": cfg.DefaultAccount,
+				}, flags)
+			}
+			for _, account := range accounts {
+				marker := " "
+				if account.Default {
+					marker = "*"
+				}
+				expires := account.Expires
+				if expires == "" {
+					expires = "unknown"
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "%s %s\texpires %s\n", marker, account.Account, expires)
+			}
+			return nil
+		},
+	}
+}
+
 func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "status",
@@ -190,15 +265,26 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			cfg.SelectAccount(flags.account)
 
 			w := cmd.OutOrStdout()
-			authed := cfg.AccessToken != ""
+			header := cfg.AuthHeader()
+			authed := header != ""
+			tokenExpiry := cfg.TokenExpiry
+			refreshToken := cfg.RefreshToken
+			if acct, ok := cfg.SelectedOAuthAccount(); ok && acct.AccessToken != "" {
+				authed = true
+				tokenExpiry = acct.TokenExpiry
+				refreshToken = acct.RefreshToken
+			}
 			// JSON envelope: {authenticated, source, config}.
 			if flags.asJSON {
 				out := map[string]any{
-					"authenticated": authed,
-					"source":        cfg.AuthSource,
-					"config":        cfg.Path,
+					"authenticated":   authed,
+					"source":          cfg.AuthSource,
+					"config":          cfg.Path,
+					"account":         cfg.SelectedAccount,
+					"default_account": cfg.DefaultAccount,
 				}
 				return printJSONFiltered(w, out, flags)
 			}
@@ -208,12 +294,12 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 				return nil
 			}
 
-			if cfg.TokenExpiry.IsZero() {
+			if tokenExpiry.IsZero() {
 				fmt.Fprintf(w, "  %s Authenticated (no expiry info)\n", green("OK"))
-			} else if time.Now().Before(cfg.TokenExpiry) {
-				fmt.Fprintf(w, "  %s Authenticated (expires %s)\n", green("OK"), cfg.TokenExpiry.Format(time.RFC3339))
+			} else if time.Now().Before(tokenExpiry) {
+				fmt.Fprintf(w, "  %s Authenticated (expires %s)\n", green("OK"), tokenExpiry.Format(time.RFC3339))
 			} else {
-				if cfg.RefreshToken != "" {
+				if refreshToken != "" {
 					fmt.Fprintf(w, "  %s Token expired (will auto-refresh on next request)\n", yellow("WARN"))
 				} else {
 					fmt.Fprintf(w, "  %s Token expired. Run 'auth login' to re-authenticate.\n", red("FAIL"))
@@ -222,6 +308,9 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 			if cfg.AuthSource != "" {
 				fmt.Fprintf(w, "  source: %s\n", cfg.AuthSource)
+			}
+			if cfg.SelectedAccount != "" {
+				fmt.Fprintf(w, "  account: %s\n", cfg.SelectedAccount)
 			}
 			return nil
 		},
@@ -237,7 +326,8 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			if err := cfg.ClearTokens(); err != nil {
+			cfg.SelectAccount(flags.account)
+			if err := cfg.ClearTokens(cfg.SelectedAccount); err != nil {
 				return fmt.Errorf("clearing tokens: %w", err)
 			}
 			// JSON envelope: {cleared: true}. The OAuth flavor does not
@@ -249,6 +339,54 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 				}, flags)
 			}
 			fmt.Fprintf(os.Stderr, "Logged out. Tokens removed.\n")
+			return nil
+		},
+	}
+}
+
+func newAuthUseCmd(flags *rootFlags) *cobra.Command {
+	return &cobra.Command{
+		Use:   "use <account-email>",
+		Short: "Set the default OAuth account",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := config.Load(flags.configPath)
+			if err != nil {
+				return err
+			}
+			if err := cfg.SetDefaultAccount(args[0]); err != nil {
+				return err
+			}
+			if flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"default_account": cfg.DefaultAccount,
+				}, flags)
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "default account: %s\n", cfg.DefaultAccount)
+			return nil
+		},
+	}
+}
+
+func newAuthRemoveCmd(flags *rootFlags) *cobra.Command {
+	return &cobra.Command{
+		Use:   "remove <account-email>",
+		Short: "Remove a stored OAuth account",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := config.Load(flags.configPath)
+			if err != nil {
+				return err
+			}
+			if err := cfg.ClearTokens(args[0]); err != nil {
+				return fmt.Errorf("removing account: %w", err)
+			}
+			if flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"removed": args[0],
+				}, flags)
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "removed account: %s\n", args[0])
 			return nil
 		},
 	}

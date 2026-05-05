@@ -9,6 +9,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/google-photos/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/google-photos/internal/config"
 	"io"
 	"math"
 	"net/http"
@@ -18,8 +20,6 @@ import (
 	"sort"
 	"strings"
 	"time"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/google-photos/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/google-photos/internal/config"
 )
 
 type Client struct {
@@ -31,8 +31,6 @@ type Client struct {
 	cacheDir   string
 	limiter    *cliutil.AdaptiveLimiter
 }
-
-
 
 // APIError carries HTTP status information for structured exit codes.
 type APIError struct {
@@ -341,7 +339,15 @@ func (c *Client) authHeader() (string, error) {
 	if c.Config == nil {
 		return "", nil
 	}
-	if c.Config.AccessToken != "" && !c.Config.TokenExpiry.IsZero() && time.Now().After(c.Config.TokenExpiry) && c.Config.RefreshToken != "" {
+	accessToken := c.Config.AccessToken
+	refreshToken := c.Config.RefreshToken
+	tokenExpiry := c.Config.TokenExpiry
+	if acct, ok := c.Config.SelectedOAuthAccount(); ok {
+		accessToken = acct.AccessToken
+		refreshToken = acct.RefreshToken
+		tokenExpiry = acct.TokenExpiry
+	}
+	if accessToken != "" && !tokenExpiry.IsZero() && time.Now().After(tokenExpiry) && refreshToken != "" {
 		if err := c.refreshAccessToken(); err != nil {
 			return "", err
 		}
@@ -353,7 +359,15 @@ func (c *Client) refreshAccessToken() error {
 	if c.Config == nil {
 		return nil
 	}
-	if c.Config.RefreshToken == "" {
+	refreshToken := c.Config.RefreshToken
+	clientID := c.Config.ClientID
+	clientSecret := c.Config.ClientSecret
+	if acct, ok := c.Config.SelectedOAuthAccount(); ok {
+		refreshToken = acct.RefreshToken
+		clientID = acct.ClientID
+		clientSecret = acct.ClientSecret
+	}
+	if refreshToken == "" {
 		return nil
 	}
 
@@ -364,11 +378,11 @@ func (c *Client) refreshAccessToken() error {
 
 	params := url.Values{
 		"grant_type":    {"refresh_token"},
-		"refresh_token": {c.Config.RefreshToken},
-		"client_id":     {c.Config.ClientID},
+		"refresh_token": {refreshToken},
+		"client_id":     {clientID},
 	}
-	if c.Config.ClientSecret != "" {
-		params.Set("client_secret", c.Config.ClientSecret)
+	if clientSecret != "" {
+		params.Set("client_secret", clientSecret)
 	}
 
 	resp, err := c.HTTPClient.PostForm(tokenURL, params)
@@ -394,9 +408,9 @@ func (c *Client) refreshAccessToken() error {
 		return fmt.Errorf("refreshing access token: no access token in response")
 	}
 
-	refreshToken := c.Config.RefreshToken
+	nextRefreshToken := refreshToken
 	if tokenResp.RefreshToken != "" {
-		refreshToken = tokenResp.RefreshToken
+		nextRefreshToken = tokenResp.RefreshToken
 	}
 
 	expiry := time.Time{}
@@ -404,7 +418,7 @@ func (c *Client) refreshAccessToken() error {
 		expiry = time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second)
 	}
 
-	if err := c.Config.SaveTokens(c.Config.ClientID, c.Config.ClientSecret, tokenResp.AccessToken, refreshToken, expiry); err != nil {
+	if err := c.Config.SaveTokens(c.Config.SelectedAccount, clientID, clientSecret, tokenResp.AccessToken, nextRefreshToken, expiry); err != nil {
 		return fmt.Errorf("saving refreshed token: %w", err)
 	}
 
@@ -442,7 +456,6 @@ func sanitizeJSONResponse(body []byte) []byte {
 	}
 	return body
 }
-
 
 // maskToken redacts all but the last 4 characters of a token for safe display.
 func maskToken(token string) string {

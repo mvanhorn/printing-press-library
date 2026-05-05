@@ -31,6 +31,14 @@ google-photos-pp-cli auth login --client-id "$GOOGLE_PHOTOS_CLIENT_ID"
 ```
 
 This opens a browser window to complete the OAuth2 flow. Your tokens are stored locally and refreshed automatically.
+For multiple Google accounts, pass an account email and select it later:
+
+```bash
+google-photos-pp-cli auth login you@example.com --client-id "$GOOGLE_PHOTOS_CLIENT_ID"
+google-photos-pp-cli auth list
+google-photos-pp-cli auth use you@example.com
+google-photos-pp-cli --account you@example.com albums list
+```
 
 ### 3. Verify Setup
 
@@ -91,6 +99,23 @@ Upload media bytes and create upload tokens.
 
 - **`google-photos-pp-cli upload file <path>`** - Upload raw photo or video bytes and print the upload token for media-items batch-create.
 
+### auth
+
+Manage OAuth accounts and token storage.
+
+- **`google-photos-pp-cli auth login [account-email]`** - Authenticate via OAuth2 and store tokens, optionally under an account email.
+- **`google-photos-pp-cli auth list`** - List stored OAuth accounts.
+- **`google-photos-pp-cli auth status`** - Show authentication status for the selected account.
+- **`google-photos-pp-cli auth use <account-email>`** - Set the default OAuth account.
+- **`google-photos-pp-cli auth remove <account-email>`** - Remove a stored OAuth account.
+- **`google-photos-pp-cli auth logout`** - Remove the selected account token, or legacy token when no account is selected.
+
+### schema
+
+Emit machine-readable command, flag, auth, and safety-policy metadata.
+
+- **`google-photos-pp-cli schema --pretty`** - Print the same structured contract agents use for discovery.
+
 ## Google Photos Scope Limits
 
 Google Photos Library API read and edit scopes are limited to app-created albums and media. Use Library API commands here for app-created content, uploads, and album/media management. Use Picker commands when a user needs to select media from their broader Google Photos library.
@@ -112,6 +137,12 @@ google-photos-pp-cli albums list --dry-run
 
 # Agent mode — JSON + compact + no prompts in one flag
 google-photos-pp-cli albums list --agent
+
+# Command guard — permit only selected command families
+google-photos-pp-cli --enable-commands albums.list albums list --agent
+
+# Command guard — block specific risky commands
+google-photos-pp-cli --disable-commands picker.delete-session picker delete-session SESSION_ID --agent
 ```
 
 ## Agent Usage
@@ -127,8 +158,30 @@ This CLI is designed for AI agent consumption:
 - **Piped input** - write commands can accept structured input when their help lists `--stdin`
 - **Offline-friendly** - sync/search commands can use the local SQLite store when available
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
+- **Guarded** - `--enable-commands` and `--disable-commands` restrict runtime command execution with dotted command paths
+- **Introspectable** - `schema` and `agent-context` expose commands, flags, auth account selection, and safety policy as JSON
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
+
+## Safety Profiles
+
+The stock binary allows every command unless runtime guards are provided:
+
+```bash
+google-photos-pp-cli --enable-commands albums.list,media-items.get albums list --agent
+google-photos-pp-cli --disable-commands picker.delete-session picker delete-session SESSION_ID --agent
+```
+
+For agent or MCP deployments that need stronger local guardrails, build a baked profile. Baked profiles are compiled into the binary and cannot be loosened by command-line flags:
+
+```bash
+make build-readonly
+make build-agent-safe
+make build-mcp-readonly
+make build-mcp-agent-safe
+```
+
+`safety_readonly` permits read/list/search/export/schema-style commands and blocks Google Photos mutations. `safety_agent_safe` permits reads and local archive/search workflows while blocking auth writes, uploads, creates, patches, deletes, and album/media mutations.
 
 ## Use with Claude Code
 
@@ -218,6 +271,15 @@ Config file: `~/.config/google-photos-pp-cli/config.toml`
 
 Environment variables:
 - `GOOGLE_PHOTOS_TOKEN`
+- `GOOGLE_PHOTOS_ACCOUNT`
+- `GOOGLE_PHOTOS_ENABLE_COMMANDS`
+- `GOOGLE_PHOTOS_DISABLE_COMMANDS`
+
+OAuth account selection order:
+1. `--account <email>`
+2. `GOOGLE_PHOTOS_ACCOUNT`
+3. `default_account` from `auth use`
+4. legacy single-token fields in the config file
 
 ## Troubleshooting
 **Authentication errors (exit code 4)**

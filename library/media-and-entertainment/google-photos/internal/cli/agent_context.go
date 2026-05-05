@@ -8,27 +8,31 @@ import (
 	"os"
 	"sort"
 
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/google-photos/internal/config"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
 
 // agentContextSchemaVersion is bumped on any breaking change to the JSON
-// shape emitted by `agent-context`. Agents should check this before
-// parsing. Shape at v2 adds optional browser-sniff discovery context.
-const agentContextSchemaVersion = "2"
+// shape emitted by `agent-context`. Agents should check this before parsing.
+// Shape at v3 adds global flags, safety policy, account selection, and dotted
+// command paths shared by `schema`.
+const agentContextSchemaVersion = "3"
 
 // agentContext is the structured description of this CLI consumed by AI
 // agents. Inspired by Cloudflare's /cdn-cgi/explorer/api runtime endpoint
 // (2026-04-13 Wrangler post): agents can introspect the live CLI without
 // parsing --help or reading source.
 type agentContext struct {
-	SchemaVersion               string                `json:"schema_version"`
-	CLI                         agentContextCLI       `json:"cli"`
-	Auth                        agentContextAuth      `json:"auth"`
-	Discovery                   *agentContextDiscovery `json:"discovery,omitempty"`
-	Commands                    []agentContextCommand `json:"commands"`
-	AvailableProfiles           []string              `json:"available_profiles"`
-	FeedbackEndpointConfigured  bool                  `json:"feedback_endpoint_configured"`
+	SchemaVersion              string                 `json:"schema_version"`
+	CLI                        agentContextCLI        `json:"cli"`
+	Auth                       agentContextAuth       `json:"auth"`
+	Safety                     agentContextSafety     `json:"safety"`
+	Discovery                  *agentContextDiscovery `json:"discovery,omitempty"`
+	GlobalFlags                []agentContextFlag     `json:"global_flags,omitempty"`
+	Commands                   []agentContextCommand  `json:"commands"`
+	AvailableProfiles          []string               `json:"available_profiles"`
+	FeedbackEndpointConfigured bool                   `json:"feedback_endpoint_configured"`
 }
 
 type agentContextCLI struct {
@@ -38,8 +42,20 @@ type agentContextCLI struct {
 }
 
 type agentContextAuth struct {
-	Mode    string   `json:"mode"`
-	EnvVars []string `json:"env_vars"`
+	Mode            string   `json:"mode"`
+	EnvVars         []string `json:"env_vars"`
+	AccountEnvVar   string   `json:"account_env_var,omitempty"`
+	DefaultAccount  string   `json:"default_account,omitempty"`
+	SelectedAccount string   `json:"selected_account,omitempty"`
+	StoredAccounts  []string `json:"stored_accounts,omitempty"`
+}
+
+type agentContextSafety struct {
+	BakedProfile string   `json:"baked_profile,omitempty"`
+	BakedAllow   []string `json:"baked_allow,omitempty"`
+	BakedDeny    []string `json:"baked_deny,omitempty"`
+	RuntimeAllow string   `json:"runtime_allow_env_var,omitempty"`
+	RuntimeDeny  string   `json:"runtime_deny_env_var,omitempty"`
 }
 
 type agentContextDiscovery struct {
@@ -58,6 +74,7 @@ type agentContextDiscovery struct {
 
 type agentContextCommand struct {
 	Name        string                `json:"name"`
+	Path        string                `json:"path,omitempty"`
 	Use         string                `json:"use,omitempty"`
 	Short       string                `json:"short,omitempty"`
 	Annotations map[string]string     `json:"annotations,omitempty"`
@@ -97,6 +114,7 @@ reading source. Schema is versioned via schema_version.`,
 func buildAgentContext(rootCmd *cobra.Command) agentContext {
 	envVars := []string{
 		"GOOGLE_PHOTOS_TOKEN",
+		"GOOGLE_PHOTOS_ACCOUNT",
 	}
 	authMode := "oauth2"
 	if authMode == "" {
@@ -106,6 +124,11 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 	if profiles == nil {
 		profiles = []string{}
 	}
+	cfg, _ := config.Load("")
+	if cfg != nil {
+		cfg.SelectAccount("")
+	}
+	policy := bakedCommandPolicy()
 	return agentContext{
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
@@ -114,14 +137,52 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{
-			Mode:    authMode,
-			EnvVars: envVars,
+			Mode:            authMode,
+			EnvVars:         envVars,
+			AccountEnvVar:   "GOOGLE_PHOTOS_ACCOUNT",
+			DefaultAccount:  defaultAccount(cfg),
+			SelectedAccount: selectedAccount(cfg),
+			StoredAccounts:  storedAccounts(cfg),
+		},
+		Safety: agentContextSafety{
+			BakedProfile: policy.ProfileName,
+			BakedAllow:   policy.Allow,
+			BakedDeny:    policy.Deny,
+			RuntimeAllow: "GOOGLE_PHOTOS_ENABLE_COMMANDS",
+			RuntimeDeny:  "GOOGLE_PHOTOS_DISABLE_COMMANDS",
 		},
 		Discovery:                  buildAgentDiscoveryContext(),
+		GlobalFlags:                collectFlags(rootCmd.PersistentFlags()),
 		Commands:                   collectAgentCommands(rootCmd),
 		AvailableProfiles:          profiles,
 		FeedbackEndpointConfigured: FeedbackEndpointConfigured(),
 	}
+}
+
+func defaultAccount(cfg *config.Config) string {
+	if cfg == nil {
+		return ""
+	}
+	return cfg.DefaultAccount
+}
+
+func selectedAccount(cfg *config.Config) string {
+	if cfg == nil {
+		return ""
+	}
+	return cfg.SelectedAccount
+}
+
+func storedAccounts(cfg *config.Config) []string {
+	if cfg == nil || len(cfg.Accounts) == 0 {
+		return []string{}
+	}
+	accounts := make([]string, 0, len(cfg.Accounts))
+	for account := range cfg.Accounts {
+		accounts = append(accounts, account)
+	}
+	sort.Strings(accounts)
+	return accounts
 }
 
 func buildAgentDiscoveryContext() *agentContextDiscovery {
@@ -144,6 +205,7 @@ func collectAgentCommands(c *cobra.Command) []agentContextCommand {
 		}
 		entry := agentContextCommand{
 			Name:  sub.Name(),
+			Path:  cobraCommandPath(sub),
 			Use:   sub.Use,
 			Short: sub.Short,
 		}
@@ -157,21 +219,27 @@ func collectAgentCommands(c *cobra.Command) []agentContextCommand {
 				entry.Annotations[k] = v
 			}
 		}
-		sub.Flags().VisitAll(func(f *pflag.Flag) {
-			entry.Flags = append(entry.Flags, agentContextFlag{
-				Name:    f.Name,
-				Type:    f.Value.Type(),
-				Usage:   f.Usage,
-				Default: f.DefValue,
-			})
-		})
-		sort.Slice(entry.Flags, func(i, j int) bool {
-			return entry.Flags[i].Name < entry.Flags[j].Name
-		})
+		entry.Flags = collectFlags(sub.Flags())
 		if len(sub.Commands()) > 0 {
 			entry.Subcommands = collectAgentCommands(sub)
 		}
 		out = append(out, entry)
 	}
+	return out
+}
+
+func collectFlags(flags *pflag.FlagSet) []agentContextFlag {
+	out := []agentContextFlag{}
+	flags.VisitAll(func(f *pflag.Flag) {
+		out = append(out, agentContextFlag{
+			Name:    f.Name,
+			Type:    f.Value.Type(),
+			Usage:   f.Usage,
+			Default: f.DefValue,
+		})
+	})
+	sort.Slice(out, func(i, j int) bool {
+		return out[i].Name < out[j].Name
+	})
 	return out
 }

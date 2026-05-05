@@ -79,9 +79,13 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				report["config"] = fmt.Sprintf("error: %s", err)
 			} else {
+				cfg.SelectAccount(flags.account)
 				report["config"] = "ok"
 				report["config_path"] = cfg.Path
 				report["base_url"] = cfg.BaseURL
+				if cfg.SelectedAccount != "" {
+					report["account"] = cfg.SelectedAccount
+				}
 			}
 
 			// Check auth

@@ -14,16 +14,27 @@ import (
 )
 
 type Config struct {
-	BaseURL           string    `toml:"base_url"`
-	AuthHeaderVal     string    `toml:"auth_header"`
-	AuthSource        string    `toml:"-"`
-	AccessToken       string    `toml:"access_token"`
-	RefreshToken      string    `toml:"refresh_token"`
-	TokenExpiry       time.Time `toml:"token_expiry"`
-	ClientID          string    `toml:"client_id"`
-	ClientSecret      string    `toml:"client_secret"`
-	Path              string    `toml:"-"`
-	GooglePhotosToken string    `toml:"photos_token"`
+	BaseURL           string                  `toml:"base_url"`
+	AuthHeaderVal     string                  `toml:"auth_header"`
+	AuthSource        string                  `toml:"-"`
+	AccessToken       string                  `toml:"access_token"`
+	RefreshToken      string                  `toml:"refresh_token"`
+	TokenExpiry       time.Time               `toml:"token_expiry"`
+	ClientID          string                  `toml:"client_id"`
+	ClientSecret      string                  `toml:"client_secret"`
+	DefaultAccount    string                  `toml:"default_account"`
+	Accounts          map[string]OAuthAccount `toml:"accounts"`
+	SelectedAccount   string                  `toml:"-"`
+	Path              string                  `toml:"-"`
+	GooglePhotosToken string                  `toml:"photos_token"`
+}
+
+type OAuthAccount struct {
+	AccessToken  string    `toml:"access_token"`
+	RefreshToken string    `toml:"refresh_token"`
+	TokenExpiry  time.Time `toml:"token_expiry"`
+	ClientID     string    `toml:"client_id"`
+	ClientSecret string    `toml:"client_secret"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -63,6 +74,25 @@ func Load(configPath string) (*Config, error) {
 	return cfg, nil
 }
 
+func (c *Config) SelectAccount(account string) {
+	account = strings.ToLower(strings.TrimSpace(account))
+	if account == "" {
+		account = strings.ToLower(strings.TrimSpace(os.Getenv("GOOGLE_PHOTOS_ACCOUNT")))
+	}
+	if account == "" {
+		account = strings.ToLower(strings.TrimSpace(c.DefaultAccount))
+	}
+	c.SelectedAccount = account
+}
+
+func (c *Config) SelectedOAuthAccount() (OAuthAccount, bool) {
+	if c.SelectedAccount == "" || c.Accounts == nil {
+		return OAuthAccount{}, false
+	}
+	token, ok := c.Accounts[c.SelectedAccount]
+	return token, ok
+}
+
 func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
@@ -75,6 +105,10 @@ func (c *Config) AuthHeader() string {
 			"GOOGLE_PHOTOS_TOKEN": c.GooglePhotosToken,
 			"token":               c.GooglePhotosToken,
 		})
+	}
+	if acct, ok := c.SelectedOAuthAccount(); ok && acct.AccessToken != "" {
+		c.AuthSource = "oauth2:" + c.SelectedAccount
+		return applyAuthFormat("Bearer {token}", map[string]string{"access_token": acct.AccessToken, "token": acct.AccessToken})
 	}
 	if c.AccessToken != "" {
 		c.AuthSource = "oauth2"
@@ -96,7 +130,25 @@ func applyAuthFormat(format string, replacements map[string]string) string {
 	return format
 }
 
-func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken string, expiry time.Time) error {
+func (c *Config) SaveTokens(account, clientID, clientSecret, accessToken, refreshToken string, expiry time.Time) error {
+	account = strings.ToLower(strings.TrimSpace(account))
+	if account != "" {
+		if c.Accounts == nil {
+			c.Accounts = map[string]OAuthAccount{}
+		}
+		c.Accounts[account] = OAuthAccount{
+			AccessToken:  accessToken,
+			RefreshToken: refreshToken,
+			TokenExpiry:  expiry,
+			ClientID:     clientID,
+			ClientSecret: clientSecret,
+		}
+		c.SelectedAccount = account
+		if c.DefaultAccount == "" {
+			c.DefaultAccount = account
+		}
+		return c.save()
+	}
 	c.ClientID = clientID
 	c.ClientSecret = clientSecret
 	c.AccessToken = accessToken
@@ -105,10 +157,38 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 	return c.save()
 }
 
-func (c *Config) ClearTokens() error {
+func (c *Config) ClearTokens(account string) error {
+	account = strings.ToLower(strings.TrimSpace(account))
+	if account != "" && c.Accounts != nil {
+		delete(c.Accounts, account)
+		if c.DefaultAccount == account {
+			c.DefaultAccount = ""
+			for name := range c.Accounts {
+				c.DefaultAccount = name
+				break
+			}
+		}
+		return c.save()
+	}
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	return c.save()
+}
+
+func (c *Config) SetDefaultAccount(account string) error {
+	account = strings.ToLower(strings.TrimSpace(account))
+	if account == "" {
+		return fmt.Errorf("account is required")
+	}
+	if c.Accounts == nil {
+		return fmt.Errorf("account %q not found", account)
+	}
+	if _, ok := c.Accounts[account]; !ok {
+		return fmt.Errorf("account %q not found", account)
+	}
+	c.DefaultAccount = account
+	c.SelectedAccount = account
 	return c.save()
 }
 

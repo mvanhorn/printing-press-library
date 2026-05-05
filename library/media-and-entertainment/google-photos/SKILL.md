@@ -51,6 +51,10 @@ Google Photos Library and Picker APIs for app-created media, albums, uploads, an
 
 - `google-photos-pp-cli upload file <path>` — Upload raw photo or video bytes and print the upload token for media-items batch-create.
 - `google-photos-pp-cli picker wait <session-id>` — Poll a Picker session until selected media items are ready.
+- `google-photos-pp-cli schema --pretty` — Emit machine-readable command, flag, auth, and safety-policy metadata.
+- `google-photos-pp-cli auth list` — List stored OAuth accounts.
+- `google-photos-pp-cli auth use <account-email>` — Set the default OAuth account.
+- `google-photos-pp-cli auth remove <account-email>` — Remove a stored OAuth account.
 
 ## Google Photos Scope Limits
 
@@ -77,6 +81,17 @@ google-photos-pp-cli auth login --client-id "$GOOGLE_PHOTOS_CLIENT_ID"
 
 Tokens are stored locally and refreshed automatically.
 
+For multiple Google accounts, store tokens under account emails and select the account explicitly:
+
+```bash
+google-photos-pp-cli auth login you@example.com --client-id "$GOOGLE_PHOTOS_CLIENT_ID"
+google-photos-pp-cli auth list --json
+google-photos-pp-cli auth use you@example.com
+google-photos-pp-cli --account you@example.com albums list --agent
+```
+
+Account selection order: `--account`, `GOOGLE_PHOTOS_ACCOUNT`, `auth use` default, then legacy single-token config.
+
 Run `google-photos-pp-cli doctor` to verify setup.
 
 ## Agent Mode
@@ -92,6 +107,26 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
 - **Non-interactive** — never prompts, every input is a flag
+- **Guarded** — use `--enable-commands` / `--disable-commands` with dotted command paths:
+
+  ```bash
+  google-photos-pp-cli --enable-commands albums.list albums list --agent
+  google-photos-pp-cli --disable-commands picker.delete-session picker delete-session SESSION_ID --agent
+  ```
+- **Introspectable** — use `schema --pretty` or `agent-context --pretty` for the full JSON command contract.
+
+### Baked Safety Profiles
+
+Build stronger local guardrails when exposing this CLI or MCP server to autonomous agents:
+
+```bash
+make build-readonly
+make build-agent-safe
+make build-mcp-readonly
+make build-mcp-agent-safe
+```
+
+`safety_readonly` permits read/list/search/export/schema-style commands and blocks Google Photos mutations. `safety_agent_safe` permits reads and local archive/search workflows while blocking auth writes, uploads, creates, patches, deletes, and album/media mutations.
 
 ### Response envelope
 

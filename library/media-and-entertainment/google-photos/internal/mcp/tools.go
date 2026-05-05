@@ -15,8 +15,8 @@ import (
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/google-photos/internal/cli"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/google-photos/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/google-photos/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/google-photos/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/google-photos/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/google-photos/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/google-photos/internal/store"
@@ -31,7 +31,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/albums/{albumId}:addEnrichment", []string{"albumId", }),
+		makeAPIHandler("albums.add-enrichment", "POST", "/v1/albums/{albumId}:addEnrichment", []string{"albumId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("albums_batch_add_media_items",
@@ -40,7 +40,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/albums/{albumId}:batchAddMediaItems", []string{"albumId", }),
+		makeAPIHandler("albums.batch-add-media-items", "POST", "/v1/albums/{albumId}:batchAddMediaItems", []string{"albumId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("albums_batch_remove_media_items",
@@ -49,7 +49,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/albums/{albumId}:batchRemoveMediaItems", []string{"albumId", }),
+		makeAPIHandler("albums.batch-remove-media-items", "POST", "/v1/albums/{albumId}:batchRemoveMediaItems", []string{"albumId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("albums_create",
@@ -57,7 +57,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/albums", []string{ }),
+		makeAPIHandler("albums.create", "POST", "/v1/albums", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("albums_get",
@@ -67,7 +67,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/albums/{albumId}", []string{"albumId", }),
+		makeAPIHandler("albums.get", "GET", "/v1/albums/{albumId}", []string{"albumId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("albums_list",
@@ -78,7 +78,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/albums", []string{ }),
+		makeAPIHandler("albums.list", "GET", "/v1/albums", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("albums_patch",
@@ -87,7 +87,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("updateMask", mcplib.Required(), mcplib.Description("Comma-separated fields to update, such as title or coverPhotoMediaItemId.")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v1/albums/{id}", []string{"id", }),
+		makeAPIHandler("albums.patch", "PATCH", "/v1/albums/{id}", []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("media_items_batch_create",
@@ -95,7 +95,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/mediaItems:batchCreate", []string{ }),
+		makeAPIHandler("media-items.batch-create", "POST", "/v1/mediaItems:batchCreate", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("media_items_batch_get",
@@ -105,7 +105,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/mediaItems:batchGet", []string{ }),
+		makeAPIHandler("media-items.batch-get", "GET", "/v1/mediaItems:batchGet", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("media_items_get",
@@ -115,7 +115,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/mediaItems/{mediaItemId}", []string{"mediaItemId", }),
+		makeAPIHandler("media-items.get", "GET", "/v1/mediaItems/{mediaItemId}", []string{"mediaItemId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("media_items_list",
@@ -126,7 +126,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/mediaItems", []string{ }),
+		makeAPIHandler("media-items.list", "GET", "/v1/mediaItems", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("media_items_patch",
@@ -135,7 +135,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("updateMask", mcplib.Required(), mcplib.Description("Fields to update. Google Photos currently supports description.")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v1/mediaItems/{id}", []string{"id", }),
+		makeAPIHandler("media-items.patch", "PATCH", "/v1/mediaItems/{id}", []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("media_items_search",
@@ -143,7 +143,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/mediaItems:search", []string{ }),
+		makeAPIHandler("media-items.search", "POST", "/v1/mediaItems:search", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("picker_create_session",
@@ -151,7 +151,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "https://photospicker.googleapis.com/v1/sessions", []string{ }),
+		makeAPIHandler("picker.create-session", "POST", "https://photospicker.googleapis.com/v1/sessions", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("picker_delete_session",
@@ -160,7 +160,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "https://photospicker.googleapis.com/v1/sessions/{sessionId}", []string{"sessionId", }),
+		makeAPIHandler("picker.delete-session", "DELETE", "https://photospicker.googleapis.com/v1/sessions/{sessionId}", []string{"sessionId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("picker_get_session",
@@ -170,7 +170,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "https://photospicker.googleapis.com/v1/sessions/{sessionId}", []string{"sessionId", }),
+		makeAPIHandler("picker.get-session", "GET", "https://photospicker.googleapis.com/v1/sessions/{sessionId}", []string{"sessionId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("picker_list_media_items",
@@ -182,7 +182,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "https://photospicker.googleapis.com/v1/mediaItems", []string{ }),
+		makeAPIHandler("picker.list-media-items", "GET", "https://photospicker.googleapis.com/v1/mediaItems", []string{}),
 	)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
@@ -223,8 +223,11 @@ func RegisterTools(s *server.MCPServer) {
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
-func makeAPIHandler(method, pathTemplate string, positionalParams []string) server.ToolHandlerFunc {
+func makeAPIHandler(commandPath, method, pathTemplate string, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+		if err := enforceMCPCommandPolicy(commandPath); err != nil {
+			return mcplib.NewToolResultError(err.Error()), nil
+		}
 		c, err := newMCPClient()
 		if err != nil {
 			return mcplib.NewToolResultError(err.Error()), nil
@@ -332,6 +335,14 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 	}
 }
 
+func enforceMCPCommandPolicy(commandPath string) error {
+	return cli.EnforceCommandPolicy(
+		commandPath,
+		os.Getenv("GOOGLE_PHOTOS_ENABLE_COMMANDS"),
+		os.Getenv("GOOGLE_PHOTOS_DISABLE_COMMANDS"),
+	)
+}
+
 func newMCPClient() (*client.Client, error) {
 	home, _ := os.UserHomeDir()
 	cfgPath := filepath.Join(home, ".config", "google-photos-pp-cli", "config.toml")
@@ -339,6 +350,7 @@ func newMCPClient() (*client.Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
+	cfg.SelectAccount(os.Getenv("GOOGLE_PHOTOS_ACCOUNT"))
 	c := client.New(cfg, 30*time.Second, 0)
 	// Agents calling through MCP need fresh data every call. The on-disk
 	// response cache survives across MCP server invocations, so a
@@ -353,10 +365,14 @@ func dbPath() string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", "google-photos-pp-cli", "data.db")
 }
+
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
 
 func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	if err := enforceMCPCommandPolicy("search"); err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
 	args := req.GetArguments()
 	query, ok := args["query"].(string)
 	if !ok || query == "" {
@@ -384,6 +400,9 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 }
 
 func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	if err := enforceMCPCommandPolicy("sql"); err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
 	args := req.GetArguments()
 	query, ok := args["query"].(string)
 	if !ok || query == "" {
@@ -431,6 +450,9 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 }
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	if err := enforceMCPCommandPolicy("context"); err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
 	ctx := map[string]any{
 		"api":         "google-photos",
 		"description": "Google Photos Library and Picker APIs for app-created media, albums, uploads, and user-selected media.",
@@ -439,31 +461,31 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion google-photos-pp-cli binary.",
 		"auth": map[string]any{
-			"type": "oauth2",
-			"env_vars": []string{"GOOGLE_PHOTOS_TOKEN",  },
-			"key_url": "https://console.cloud.google.com/apis/credentials",
+			"type":     "oauth2",
+			"env_vars": []string{"GOOGLE_PHOTOS_TOKEN"},
+			"key_url":  "https://console.cloud.google.com/apis/credentials",
 		},
 		"resources": []map[string]any{
 			{
-				"name": "albums",
+				"name":        "albums",
 				"description": "Manage app-created Google Photos albums.",
-				"endpoints": []string{"add_enrichment", "batch_add_media_items", "batch_remove_media_items", "create", "get", "list", "patch",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"add_enrichment", "batch_add_media_items", "batch_remove_media_items", "create", "get", "list", "patch"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "media_items",
+				"name":        "media_items",
 				"description": "Manage app-created Google Photos media items.",
-				"endpoints": []string{"batch_create", "batch_get", "get", "list", "patch", "search",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"batch_create", "batch_get", "get", "list", "patch", "search"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "picker",
+				"name":        "picker",
 				"description": "Create, poll, clean up, and read Google Photos Picker sessions.",
-				"endpoints": []string{"create_session", "delete_session", "get_session", "list_media_items",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"create_session", "delete_session", "get_session", "list_media_items"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 		},
 		"query_tips": []string{

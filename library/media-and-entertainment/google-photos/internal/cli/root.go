@@ -13,32 +13,35 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/google-photos/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/google-photos/internal/config"
+	"github.com/spf13/cobra"
 )
 
 var version = "1.0.0"
 
 type rootFlags struct {
-	asJSON        bool
-	compact       bool
-	csv           bool
-	plain         bool
-	quiet         bool
-	dryRun        bool
-	noCache       bool
-	noInput       bool
-	yes           bool
-	agent         bool
-	selectFields  string
-	configPath    string
-	profileName   string
-	deliverSpec   string
-	timeout       time.Duration
-	rateLimit     float64
-	dataSource    string
-	freshnessMeta any
+	asJSON          bool
+	compact         bool
+	csv             bool
+	plain           bool
+	quiet           bool
+	dryRun          bool
+	noCache         bool
+	noInput         bool
+	yes             bool
+	agent           bool
+	account         string
+	enableCommands  string
+	disableCommands string
+	selectFields    string
+	configPath      string
+	profileName     string
+	deliverSpec     string
+	timeout         time.Duration
+	rateLimit       float64
+	dataSource      string
+	freshnessMeta   any
 
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
@@ -106,12 +109,18 @@ Run 'google-photos-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.PersistentFlags().BoolVar(&noColor, "no-color", false, "Disable colored output")
 	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
 	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
+	rootCmd.PersistentFlags().StringVar(&flags.account, "account", "", "Account email to use for stored OAuth tokens (or GOOGLE_PHOTOS_ACCOUNT/default account)")
+	rootCmd.PersistentFlags().StringVar(&flags.enableCommands, "enable-commands", "", "Comma-separated command allowlist using dotted paths (for example albums.list,media-items.get)")
+	rootCmd.PersistentFlags().StringVar(&flags.disableCommands, "disable-commands", "", "Comma-separated command denylist using dotted paths (for example picker.delete-session)")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'google-photos-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		if err := enforceCommandPolicyForCobra(cmd, flags); err != nil {
+			return err
+		}
 		if flags.deliverSpec != "" {
 			sink, err := ParseDeliverSink(flags.deliverSpec)
 			if err != nil {
@@ -174,6 +183,7 @@ Run 'google-photos-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.AddCommand(newProfileCmd(flags))
 	rootCmd.AddCommand(newFeedbackCmd(flags))
 	rootCmd.AddCommand(newWhichCmd(flags))
+	rootCmd.AddCommand(newSchemaCmd(rootCmd))
 	rootCmd.AddCommand(newExportCmd(flags))
 	rootCmd.AddCommand(newImportCmd(flags))
 	rootCmd.AddCommand(newSearchCmd(flags))
@@ -198,6 +208,7 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	if err != nil {
 		return nil, configErr(err)
 	}
+	cfg.SelectAccount(f.account)
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache
