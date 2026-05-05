@@ -99,7 +99,13 @@ GET /v1/search/{id} until the status is COMPLETED, FAILED, or
 FAILED_AMBIGUOUS — or the --poll-timeout fires.
 
 For paginating an existing search, see ` + "`api hpn search find-more <id>`" + `
-and ` + "`api hpn search get <id> [--page-id ID]`" + `.`,
+and ` + "`api hpn search get <id> [--page-id ID]`" + `. Use --all with
+--max-results or --budget to auto-paginate in one command.
+
+Filtering: --first-degree-only keeps only rows where you have a
+self_graph bridge (1st-degree). --min-score N drops rows whose score
+falls below N (use 5 to drop weak-signal noise). See docs/scoring.md
+for the rationale and observed ranges.`,
 		Example: `  contact-goat-pp-cli api hpn search "VPs at NBA" --yes
   contact-goat-pp-cli api hpn search "founders in Stripe's network" --include-friends-connections --yes
   contact-goat-pp-cli api hpn search "people in alumni" --group-id grp_abc123 --yes
