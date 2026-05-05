@@ -73,6 +73,8 @@ func newAPIHpnSearchCmd(flags *rootFlags) *cobra.Command {
 	var (
 		includeFriendsConnections bool
 		includeMyConnections      bool
+		firstDegreeOnly           bool
+		minScore                  float64
 		groupIDs                  []string
 		budget                    int
 		pollTimeoutSec            int
@@ -106,6 +108,9 @@ and ` + "`api hpn search get <id> [--page-id ID]`" + `.`,
 			if text == "" {
 				return usageErr(fmt.Errorf("search text is empty — pass a non-empty natural-language query"))
 			}
+			if minScore < 0 {
+				return usageErr(fmt.Errorf("--min-score must be >= 0 (got %g)", minScore))
+			}
 
 			c, err := flags.newHappenstanceAPIClient()
 			if err != nil {
@@ -135,10 +140,15 @@ and ` + "`api hpn search get <id> [--page-id ID]`" + `.`,
 				}
 			}
 
+			// --first-degree-only auto-implies --include-my-connections at
+			// the API layer (otherwise the response will never contain
+			// 1st-degree rows for the post-fetch filter to keep).
+			effectiveIncludeMyConnections := includeMyConnections || firstDegreeOnly
+
 			opts := &api.SearchOptions{
 				GroupIDs:                  groupIDs,
 				IncludeFriendsConnections: includeFriendsConnections,
-				IncludeMyConnections:      includeMyConnections,
+				IncludeMyConnections:      effectiveIncludeMyConnections,
 			}
 			pollOpts := buildPollSearchOptions(pollTimeoutSec, pollIntervalSec, "")
 
@@ -146,12 +156,24 @@ and ` + "`api hpn search get <id> [--page-id ID]`" + `.`,
 			if err != nil {
 				return classifyHpnError(err)
 			}
-			return emitHpnSearchEnvelope(cmd, flags, env, text)
+
+			// Best-effort fetch of the current user's UUID via the cookie
+			// surface so ToClientPersonWithBridges can retag self-bridges
+			// to BridgeKindSelfGraph. Without this the bearer surface
+			// cannot distinguish 1st-degree (you know them via your own
+			// synced contacts) from 2nd-degree (via a friend). When cookie
+			// auth is unavailable we fall back to "" — bridges all stay
+			// BridgeKindFriend, which matches today's behavior.
+			currentUUID := lookupCurrentUserUUID(flags)
+
+			return emitHpnSearchEnvelope(cmd, flags, env, text, currentUUID, firstDegreeOnly, minScore)
 		},
 	}
 
 	cmd.Flags().BoolVar(&includeFriendsConnections, "include-friends-connections", false, "Widen search to your Happenstance friends' connections (2nd-degree)")
 	cmd.Flags().BoolVar(&includeMyConnections, "include-my-connections", false, "Include your own LinkedIn-synced connections (1st-degree)")
+	cmd.Flags().BoolVar(&firstDegreeOnly, "first-degree-only", false, "Keep only results where you have a 1st-degree (self_graph) bridge. Implies --include-my-connections.")
+	cmd.Flags().Float64Var(&minScore, "min-score", 0, "Drop results with score below this threshold. 0 (default) disables the filter; >= 5 typically drops weak-signal public-graph hits. See docs/scoring.md.")
 	cmd.Flags().StringSliceVar(&groupIDs, "group-id", nil, "Group id to scope the search to (repeatable). Discover via 'api hpn groups list'")
 	cmd.Flags().IntVar(&budget, "budget", 0, "Max credits to spend per call. 0 disables the budget gate (default).")
 	cmd.Flags().IntVar(&pollTimeoutSec, "poll-timeout", int(api.DefaultPollTimeout.Seconds()), "Max seconds to wait for the async search to converge")
@@ -256,7 +278,10 @@ re-fetching after a find-more call to surface the additional results.`,
 			if err != nil {
 				return classifyHpnError(err)
 			}
-			return emitHpnSearchEnvelope(cmd, flags, env, env.Text)
+			// Re-fetch path: no filter flags, but still plumb currentUUID
+			// so the retag works correctly for the rendered output.
+			currentUUID := lookupCurrentUserUUID(flags)
+			return emitHpnSearchEnvelope(cmd, flags, env, env.Text, currentUUID, false, 0)
 		},
 	}
 	cmd.Flags().StringVar(&pageID, "page-id", "", "Page id from a previous find-more call (forwards as ?page_id=)")
@@ -293,14 +318,19 @@ func runHpnSearch(ctx context.Context, c *api.Client, text string, opts *api.Sea
 // emitHpnSearchEnvelope renders an api.SearchEnvelope to either a JSON
 // envelope (jq-friendly) or a human-readable table, honoring the
 // --json / --quiet / --compact root flags.
-func emitHpnSearchEnvelope(cmd *cobra.Command, flags *rootFlags, env api.SearchEnvelope, query string) error {
+//
+// currentUUID retags the user's own self-entry in envelope mutuals to
+// BridgeKindSelfGraph so renderers (and the --first-degree-only filter)
+// can distinguish 1st-degree from 2nd-degree. Pass "" to disable retag.
+//
+// firstDegreeOnly drops rows lacking any self_graph bridge after retag.
+// minScore drops rows with score < minScore (after bridge-affinity score
+// promotion). Both filters are post-fetch and cost no extra credits.
+func emitHpnSearchEnvelope(cmd *cobra.Command, flags *rootFlags, env api.SearchEnvelope, query string, currentUUID string, firstDegreeOnly bool, minScore float64) error {
 	results := make([]hpnSearchResult, 0, len(env.Results))
+	totalBeforeFilters := len(env.Results)
 	for _, r := range env.Results {
-		// `api hpn search` is a raw developer surface — the caller did
-		// not pass a currentUUID so we cannot retag the self-entry.
-		// Pass "" so every bridge shows up as a friend bridge (harmless;
-		// the raw endpoint JSON is meant to be grepped by humans).
-		p := api.ToClientPersonWithBridges(r, env.Mutuals, "")
+		p := api.ToClientPersonWithBridges(r, env.Mutuals, currentUUID)
 		row := hpnSearchResult{
 			Name:           p.Name,
 			CurrentTitle:   p.CurrentTitle,
@@ -315,7 +345,19 @@ func emitHpnSearchEnvelope(cmd *cobra.Command, flags *rootFlags, env api.SearchE
 				row.Score = score
 			}
 		}
+		if firstDegreeOnly && !hasSelfGraphBridge(p.Bridges) {
+			continue
+		}
+		if minScore > 0 && row.Score < minScore {
+			continue
+		}
 		results = append(results, row)
+	}
+	if (firstDegreeOnly || minScore > 0) && len(results) < totalBeforeFilters {
+		fmt.Fprintf(cmd.ErrOrStderr(),
+			"filters dropped %d of %d results (--first-degree-only=%v, --min-score=%g)\n",
+			totalBeforeFilters-len(results), totalBeforeFilters, firstDegreeOnly, minScore,
+		)
 	}
 	out := hpnSearchEnvelope{
 		SearchID:  env.Id,
@@ -333,6 +375,20 @@ func emitHpnSearchEnvelope(cmd *cobra.Command, flags *rootFlags, env api.SearchE
 		return flags.printJSON(cmd, out)
 	}
 	return printHpnSearchTable(cmd.OutOrStdout(), out)
+}
+
+// lookupCurrentUserUUID best-effort fetches the authenticated user's
+// Happenstance UUID via the cookie surface so bearer searches can retag
+// self-bridges. Returns "" silently when cookie auth is unavailable or
+// the lookup fails — callers must tolerate empty currentUUID (every
+// bridge falls back to BridgeKindFriend, matching pre-2026-05 behavior).
+func lookupCurrentUserUUID(flags *rootFlags) string {
+	cookieClient, _ := flags.newClient()
+	if cookieClient == nil || !cookieClient.HasCookieAuth() {
+		return ""
+	}
+	uuid, _ := fetchCurrentUserUUID(cookieClient)
+	return uuid
 }
 
 func printHpnSearchTable(w io.Writer, env hpnSearchEnvelope) error {

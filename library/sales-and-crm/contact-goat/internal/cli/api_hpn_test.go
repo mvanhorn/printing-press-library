@@ -323,7 +323,7 @@ func TestAPIHpnSearch_HappyPath(t *testing.T) {
 	cmd := &cobra.Command{}
 	var out bytes.Buffer
 	cmd.SetOut(&out)
-	if err := emitHpnSearchEnvelope(cmd, flags, env, "VPs at NBA"); err != nil {
+	if err := emitHpnSearchEnvelope(cmd, flags, env, "VPs at NBA", "", false, 0); err != nil {
 		t.Fatalf("emitHpnSearchEnvelope: %v", err)
 	}
 	var decoded struct {
@@ -477,4 +477,242 @@ func runCmdWithStderrCapture(t *testing.T, root *cobra.Command, argv []string) (
 	os.Stderr = prev
 	captured, _ := io.ReadAll(r)
 	return out, string(captured), runErr
+}
+
+// --- 6. U1: currentUUID retag + --first-degree-only + --min-score ---
+
+// envelopeWithBridges builds a synthetic SearchEnvelope mirroring what
+// the bearer surface returns when both --include-my-connections and
+// --include-friends-connections are set. Three results, three mutuals:
+//
+//   - Carol (the caller) is index 0 in the envelope mutuals; Result[0]
+//     has a self-bridge to Carol (1st-degree, kind self_graph after retag).
+//   - Bob (a friend) is index 1; Result[1] has a friend bridge to Bob
+//     (2nd-degree, kind friend).
+//   - Eve (a public-graph match) is index 2; Result[2] has a weak
+//     bridge to Eve.
+//
+// Caller passes Carol's UUID as currentUUID to enable the self_graph retag.
+func envelopeWithBridges(t *testing.T) (api.SearchEnvelope, string) {
+	t.Helper()
+	carolUUID := "uuid-carol-self"
+	env := api.SearchEnvelope{
+		Id:     "srch_test",
+		Status: api.StatusCompleted,
+		Mutuals: []api.SearchMutual{
+			{Index: 0, Id: carolUUID, Name: "Carol Self"},
+			{Index: 1, Id: "uuid-bob-friend", Name: "Bob Friend"},
+			{Index: 2, Id: "uuid-eve-pub", Name: "Eve Public"},
+		},
+		Results: []api.SearchResult{
+			{
+				Name:                "Self-Bridged Person",
+				CurrentTitle:        "VP",
+				CurrentCompany:      "AcmeCo",
+				WeightedTraitsScore: 50.0,
+				Mutuals:             []api.ResultMutual{{Index: 0, AffinityScore: 50.0}},
+			},
+			{
+				Name:                "Friend-Bridged Person",
+				CurrentTitle:        "Director",
+				CurrentCompany:      "AcmeCo",
+				WeightedTraitsScore: 30.0,
+				Mutuals:             []api.ResultMutual{{Index: 1, AffinityScore: 30.0}},
+			},
+			{
+				Name:                "Weak-Signal Person",
+				CurrentTitle:        "Engineer",
+				CurrentCompany:      "OtherCo",
+				WeightedTraitsScore: 2.0,
+				Mutuals:             []api.ResultMutual{{Index: 2, AffinityScore: 0.0}},
+			},
+		},
+	}
+	return env, carolUUID
+}
+
+// decodedHpnBridge / decodedHpnResult / decodedHpnEnvelope are typed
+// projections of the JSON envelope emitHpnSearchEnvelope produces, used
+// by the U1 tests so assertions can target rows and bridge kinds without
+// juggling map[string]any.
+type decodedHpnBridge struct {
+	Kind string `json:"kind"`
+	Name string `json:"name"`
+}
+
+type decodedHpnResult struct {
+	Name    string             `json:"name"`
+	Score   float64            `json:"score"`
+	Bridges []decodedHpnBridge `json:"bridges"`
+}
+
+type decodedHpnEnvelope struct {
+	Count   int                `json:"count"`
+	Source  string             `json:"source"`
+	Results []decodedHpnResult `json:"results"`
+}
+
+// decodeHpnEnvelope walks the JSON output of emitHpnSearchEnvelope into
+// a typed struct so test assertions can target individual rows and
+// bridge kinds without juggling map[string]any.
+func decodeHpnEnvelope(t *testing.T, out *bytes.Buffer) decodedHpnEnvelope {
+	t.Helper()
+	var decoded decodedHpnEnvelope
+	if err := json.Unmarshal(out.Bytes(), &decoded); err != nil {
+		t.Fatalf("decode envelope: %v\nout: %s", err, out.String())
+	}
+	return decoded
+}
+
+// TestEmitHpnSearchEnvelope_RetagsSelfGraphWithUUID is the regression
+// test for the U1 root-cause fix. With currentUUID plumbed, the self-bridge
+// retags to BridgeKindSelfGraph; without it (old behavior), all bridges
+// stay BridgeKindFriend and the agent cannot tell 1st-degree from 2nd.
+func TestEmitHpnSearchEnvelope_RetagsSelfGraphWithUUID(t *testing.T) {
+	env, currentUUID := envelopeWithBridges(t)
+	flags := &rootFlags{asJSON: true}
+	cmd := &cobra.Command{}
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	if err := emitHpnSearchEnvelope(cmd, flags, env, "test", currentUUID, false, 0); err != nil {
+		t.Fatalf("emitHpnSearchEnvelope: %v", err)
+	}
+	got := decodeHpnEnvelope(t, &out)
+	if got.Count != 3 {
+		t.Fatalf("count = %d, want 3", got.Count)
+	}
+	// Result[0] must have a self_graph bridge after retag.
+	if len(got.Results[0].Bridges) != 1 || got.Results[0].Bridges[0].Kind != "self_graph" {
+		t.Errorf("results[0].bridges[0].kind = %v, want self_graph (carol's self-entry should retag)", got.Results[0].Bridges)
+	}
+	// Result[1] must remain a friend bridge (not the caller's self-entry).
+	if len(got.Results[1].Bridges) != 1 || got.Results[1].Bridges[0].Kind != "friend" {
+		t.Errorf("results[1].bridges[0].kind = %v, want friend", got.Results[1].Bridges)
+	}
+}
+
+// TestEmitHpnSearchEnvelope_RegressionEmptyUUIDForcesAllFriend documents
+// the pre-fix behavior so anyone reverting the U1 fix without realizing
+// it has a failing test to catch them. With currentUUID="", normalize.go's
+// retag is skipped and every bridge stays BridgeKindFriend — which is
+// why bearer-side searches couldn't tell 1st-degree from 2nd-degree.
+func TestEmitHpnSearchEnvelope_RegressionEmptyUUIDForcesAllFriend(t *testing.T) {
+	env, _ := envelopeWithBridges(t)
+	flags := &rootFlags{asJSON: true}
+	cmd := &cobra.Command{}
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	if err := emitHpnSearchEnvelope(cmd, flags, env, "test", "", false, 0); err != nil {
+		t.Fatalf("emitHpnSearchEnvelope: %v", err)
+	}
+	got := decodeHpnEnvelope(t, &out)
+	for i, r := range got.Results {
+		for j, b := range r.Bridges {
+			if b.Kind == "self_graph" {
+				t.Errorf("results[%d].bridges[%d].kind = self_graph; with empty currentUUID nothing should retag", i, j)
+			}
+		}
+	}
+}
+
+// TestEmitHpnSearchEnvelope_FirstDegreeOnly drops the friend-bridged and
+// weak-signal rows, keeping only the self-graph row.
+func TestEmitHpnSearchEnvelope_FirstDegreeOnly(t *testing.T) {
+	env, currentUUID := envelopeWithBridges(t)
+	flags := &rootFlags{asJSON: true}
+	cmd := &cobra.Command{}
+	var out, errBuf bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&errBuf)
+	if err := emitHpnSearchEnvelope(cmd, flags, env, "test", currentUUID, true, 0); err != nil {
+		t.Fatalf("emitHpnSearchEnvelope: %v", err)
+	}
+	got := decodeHpnEnvelope(t, &out)
+	if got.Count != 1 {
+		t.Fatalf("count = %d, want 1 (only self-bridged kept)", got.Count)
+	}
+	if got.Results[0].Name != "Self-Bridged Person" {
+		t.Errorf("results[0].name = %q, want Self-Bridged Person", got.Results[0].Name)
+	}
+	if !strings.Contains(errBuf.String(), "filters dropped 2 of 3") {
+		t.Errorf("stderr should report 2 of 3 dropped, got: %s", errBuf.String())
+	}
+}
+
+// TestEmitHpnSearchEnvelope_MinScore drops below-threshold rows.
+func TestEmitHpnSearchEnvelope_MinScore(t *testing.T) {
+	env, currentUUID := envelopeWithBridges(t)
+	flags := &rootFlags{asJSON: true}
+	cmd := &cobra.Command{}
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	if err := emitHpnSearchEnvelope(cmd, flags, env, "test", currentUUID, false, 5); err != nil {
+		t.Fatalf("emitHpnSearchEnvelope: %v", err)
+	}
+	got := decodeHpnEnvelope(t, &out)
+	// Self-bridged (score 50) and friend-bridged (score 30) survive;
+	// weak-signal (score 2) is dropped.
+	if got.Count != 2 {
+		t.Fatalf("count = %d, want 2 (weak-signal score=2 dropped at min-score=5)", got.Count)
+	}
+	for _, r := range got.Results {
+		if r.Score < 5 {
+			t.Errorf("result %q score=%g below min-score=5", r.Name, r.Score)
+		}
+	}
+}
+
+// TestEmitHpnSearchEnvelope_FirstDegreeOnlyAndMinScore is the SF-task
+// shape: keep 1st-degree, drop weak-signal noise. Must intersect the
+// two filter outputs (only self-bridged AND score >= 5).
+func TestEmitHpnSearchEnvelope_FirstDegreeOnlyAndMinScore(t *testing.T) {
+	env, currentUUID := envelopeWithBridges(t)
+	flags := &rootFlags{asJSON: true}
+	cmd := &cobra.Command{}
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	if err := emitHpnSearchEnvelope(cmd, flags, env, "test", currentUUID, true, 5); err != nil {
+		t.Fatalf("emitHpnSearchEnvelope: %v", err)
+	}
+	got := decodeHpnEnvelope(t, &out)
+	if got.Count != 1 || got.Results[0].Name != "Self-Bridged Person" {
+		t.Fatalf("count = %d (want 1), name = %q (want Self-Bridged Person)", got.Count, got.Results[0].Name)
+	}
+}
+
+// TestEmitHpnSearchEnvelope_MinScoreZeroIsNoOp confirms the default value
+// doesn't accidentally filter anything.
+func TestEmitHpnSearchEnvelope_MinScoreZeroIsNoOp(t *testing.T) {
+	env, currentUUID := envelopeWithBridges(t)
+	flags := &rootFlags{asJSON: true}
+	cmd := &cobra.Command{}
+	var out, errBuf bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&errBuf)
+	if err := emitHpnSearchEnvelope(cmd, flags, env, "test", currentUUID, false, 0); err != nil {
+		t.Fatalf("emitHpnSearchEnvelope: %v", err)
+	}
+	got := decodeHpnEnvelope(t, &out)
+	if got.Count != 3 {
+		t.Errorf("count = %d, want 3 (no filter)", got.Count)
+	}
+	if errBuf.Len() != 0 {
+		t.Errorf("stderr should be empty when no filters set, got: %s", errBuf.String())
+	}
+}
+
+// TestAPIHpnSearch_NegativeMinScoreUsageErr confirms the flag-validation
+// path rejects --min-score values below 0 with a usage error. Sets
+// dryRun=true on rootFlags so the budget/credit-prompt paths short-circuit
+// before any client construction.
+func TestAPIHpnSearch_NegativeMinScoreUsageErr(t *testing.T) {
+	flags := &rootFlags{dryRun: true, yes: true}
+	root := newAPIHpnRootCmd(t, flags)
+	_, _, err := runCmd(t, root, []string{"api", "hpn", "search", "--min-score", "-1", "test"})
+	if err == nil {
+		t.Fatal("want usage error for --min-score=-1")
+	}
+	if !strings.Contains(err.Error(), "--min-score") {
+		t.Errorf("error should mention --min-score, got: %v", err)
+	}
 }
