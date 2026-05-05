@@ -31,7 +31,7 @@ go install github.com/mvanhorn/printing-press-library/library/commerce/ebay/cmd/
 
 ### Binary
 
-Download from [Releases](https://github.com/mvanhorn/printing-press-library/releases).
+Download from [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/ebay-current).
 
 ## Quick Start
 

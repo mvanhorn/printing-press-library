@@ -21,7 +21,7 @@ GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
 
 ### Binary
 
-Download from [Releases](https://github.com/mvanhorn/printing-press-library/releases).
+Download from [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/contact-goat-current).
 
 ## Authentication
 

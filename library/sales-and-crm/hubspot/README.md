@@ -14,7 +14,7 @@ go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubs
 
 ### Binary
 
-Download from [Releases](https://github.com/mvanhorn/printing-press-library/releases).
+Download from [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/hubspot-current).
 
 ## Authentication
 

@@ -16,7 +16,7 @@ go install github.com/mvanhorn/printing-press-library/library/food-and-dining/fo
 
 ### Binary
 
-Download from [Releases](https://github.com/mvanhorn/printing-press-library/releases).
+Download from [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/food52-current).
 
 ## Authentication
 

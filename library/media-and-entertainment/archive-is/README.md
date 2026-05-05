@@ -16,7 +16,7 @@ go install github.com/mvanhorn/printing-press-library/other/archive-is/cmd/archi
 
 ### Binary
 
-Download from [Releases](https://github.com/mvanhorn/printing-press-library/releases).
+Download from [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/archive-is-current).
 
 ### Authentication
 

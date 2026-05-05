@@ -12,7 +12,7 @@ go install github.com/mvanhorn/printing-press-library/library/productivity/slack
 
 ### Binary
 
-Download from [Releases](https://github.com/mvanhorn/printing-press-library/releases).
+Download from [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/slack-current).
 
 ## Quick Start
 
