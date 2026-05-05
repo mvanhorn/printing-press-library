@@ -150,12 +150,24 @@ func newRankCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&by, "by", "sqft", "Ranker: sqft|bed|rent.")
-	addRentalsFlags(cmd, rf)
+	// Flags inlined (not via addRentalsFlags) so the public-library
+	// verify-skill static analyzer can see them on this command.
+	cmd.Flags().StringVar(&rf.city, "city", "", "City slug (lowercased, hyphens for spaces). Example: austin, new-york.")
+	cmd.Flags().StringVar(&rf.state, "state", "", "Two-letter state abbreviation (lowercase).")
+	cmd.Flags().StringVar(&rf.zip, "zip", "", "ZIP code; overrides --city/--state when set.")
+	cmd.Flags().IntVar(&rf.beds, "beds", 0, "Exact bedroom count. Mutually exclusive with --beds-min.")
+	cmd.Flags().IntVar(&rf.bedsMin, "beds-min", 0, "Minimum bedrooms. Mutually exclusive with --beds.")
+	cmd.Flags().BoolVar(&rf.studio, "studio", false, "Match studios.")
+	cmd.Flags().IntVar(&rf.baths, "baths", 0, "Exact bathroom count.")
+	cmd.Flags().IntVar(&rf.bathsMin, "baths-min", 0, "Minimum bathrooms.")
+	cmd.Flags().IntVar(&rf.priceMin, "price-min", 0, "Minimum monthly rent in USD.")
+	cmd.Flags().IntVar(&rf.priceMax, "price-max", 0, "Maximum monthly rent in USD.")
+	cmd.Flags().StringVar(&rf.pets, "pets", "", "Pet filter: any|cat|dog|both|none.")
+	cmd.Flags().StringVar(&rf.typ, "type", "", "Property type: apartment|house|condo|townhome.")
+	cmd.Flags().IntVar(&rf.page, "page", 0, "Page number (1-indexed; default 1).")
+	cmd.Flags().IntVar(&rf.limit, "limit", 25, "Max rows to return.")
+	cmd.Flags().BoolVar(&rf.all, "all", false, "Auto-paginate up to 5 pages.")
 	rf.limit = 25
-	if f := cmd.Flags().Lookup("limit"); f != nil {
-		f.DefValue = "25"
-		_ = f.Value.Set("25")
-	}
 	// Hide --all/--page from rank — they're not meaningful here, but
 	// kept on the struct for code reuse.
 	_ = cmd.Flags().MarkHidden("all")
