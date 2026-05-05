@@ -404,6 +404,47 @@ func TestExecuteWithSourceFallback_BearerSourceDirect(t *testing.T) {
 	}
 }
 
+// TestExecuteWithSourceFallback_CookieBroadQueryHint confirms that
+// ErrCookieBroadQuery from the cookie runner triggers the
+// bearer-fallback hint on stderr and exits 5 (apiErr) without invoking
+// the bearer runner. Auto-fallback to bearer is intentionally NOT done
+// because the user did not authorize spending credits.
+func TestExecuteWithSourceFallback_CookieBroadQueryHint(t *testing.T) {
+	bearerCalled := false
+	var errBuf bytes.Buffer
+	out, err := ExecuteWithSourceFallback(
+		context.Background(),
+		SourceCookie,
+		func() (*client.PeopleSearchResult, error) {
+			return nil, fmt.Errorf("%w: poll timeout", client.ErrCookieBroadQuery)
+		},
+		func() (*client.PeopleSearchResult, error) {
+			bearerCalled = true
+			return &client.PeopleSearchResult{}, nil
+		},
+		&errBuf,
+	)
+	if err == nil {
+		t.Fatal("want apiErr from broad-query failure")
+	}
+	var ce *cliError
+	if !errors.As(err, &ce) {
+		t.Fatalf("want *cliError, got %T (%v)", err, err)
+	}
+	if ce.code != 5 {
+		t.Errorf("exit code = %d, want 5 (apiErr)", ce.code)
+	}
+	if !strings.Contains(errBuf.String(), "--source api") {
+		t.Errorf("stderr should hint --source api, got: %s", errBuf.String())
+	}
+	if bearerCalled {
+		t.Error("bearer runner must NOT be auto-invoked on broad-query failure (would silently spend credits)")
+	}
+	if out.UsedSource != SourceCookie {
+		t.Errorf("UsedSource = %q, want SourceCookie", out.UsedSource)
+	}
+}
+
 // TestExecuteWithSourceFallback_BearerNilRunnerErrors guards against
 // the call site forgetting to construct a bearer runner when the
 // selected source is SourceAPI. The wrapper must surface the canonical

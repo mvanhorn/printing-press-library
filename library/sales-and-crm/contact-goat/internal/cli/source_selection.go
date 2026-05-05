@@ -390,6 +390,16 @@ func ExecuteWithSourceFallback(
 	if err == nil {
 		return FallbackResult{Result: res, UsedSource: SourceCookie}, nil
 	}
+	if errors.Is(err, client.ErrCookieBroadQuery) {
+		// Cookie surface bailed early on a broad query (poll-timeout,
+		// 5xx upstream, or stuck "Thinking" status past 90s). Surface a
+		// hint pointing at the bearer surface and exit 5 (API error)
+		// rather than retrying or falling through to a generic error.
+		// Auto-fallback to bearer is intentionally not done: the user
+		// did not authorize spending credits on this call.
+		fmt.Fprintln(errOut, "cookie surface timed out (likely a broad query). Retry with --source api to use the bearer surface (2 credits/call).")
+		return FallbackResult{UsedSource: SourceCookie}, apiErr(err)
+	}
 	if !IsCookieRateLimitError(err) {
 		// Non-429 cookie error: surface verbatim. We do NOT silently fall
 		// back to the bearer surface on arbitrary cookie failures (auth
