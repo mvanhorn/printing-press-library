@@ -17,10 +17,11 @@ func newMultivariateEventCollectionsCreateMarketInCmd(flags *rootFlags) *cobra.C
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "create-market-in <collection_ticker>",
-		Aliases: []string{"create"},
-		Short:   "Create Market In Multivariate Event Collection",
-		Example: "  kalshi-pp-cli multivariate-event-collections create-market-in example-value",
+		Use:         "create-market-in <collection_ticker>",
+		Aliases:     []string{"create"},
+		Short:       "Endpoint for creating an individual market in a multivariate event collection. This endpoint must be hit at least...",
+		Example:     "  kalshi-pp-cli multivariate-event-collections create-market-in example-value",
+		Annotations: map[string]string{"pp:endpoint": "multivariate-event-collections.create-market-in"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -81,13 +82,15 @@ func newMultivariateEventCollectionsCreateMarketInCmd(flags *rootFlags) *cobra.C
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",

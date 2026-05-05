@@ -34,16 +34,13 @@ the specified number of days. Useful for identifying forgotten or blocked work.`
 
   # Output as JSON
   kalshi-pp-cli stale --days 30 --json`,
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if flags.dryRun {
-				fmt.Fprintln(cmd.OutOrStdout(), "QUERY stale items (days=30)")
-				return nil
-			}
 			if dbPath == "" {
 				dbPath = defaultDBPath("kalshi-pp-cli")
 			}
 
-			db, err := store.Open(dbPath)
+			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'kalshi-pp-cli sync' first.", err)
 			}

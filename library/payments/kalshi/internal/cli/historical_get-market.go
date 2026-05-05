@@ -14,10 +14,11 @@ import (
 func newHistoricalGetMarketCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "get-market <ticker>",
-		Aliases: []string{"get"},
-		Short:   "Get Historical Market",
-		Example: "  kalshi-pp-cli historical get-market example-value",
+		Use:         "get-market <ticker>",
+		Aliases:     []string{"get"},
+		Short:       "Endpoint for getting data about a specific market by its ticker from the historical database.",
+		Example:     "  kalshi-pp-cli historical get-market example-value",
+		Annotations: map[string]string{"pp:endpoint": "historical.get-market", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -30,7 +31,7 @@ func newHistoricalGetMarketCmd(flags *rootFlags) *cobra.Command {
 			path := "/historical/markets/{ticker}"
 			path = replacePathParam(path, "ticker", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "historical", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "historical", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -40,14 +41,15 @@ func newHistoricalGetMarketCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

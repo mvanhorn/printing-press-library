@@ -26,12 +26,13 @@ such as assignee, project, priority, or labels. Useful for triaging unowned work
 
   # Output as JSON
   kalshi-pp-cli orphans --json`,
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dbPath == "" {
 				dbPath = defaultDBPath("kalshi-pp-cli")
 			}
 
-			db, err := store.Open(dbPath)
+			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'kalshi-pp-cli sync' first.", err)
 			}

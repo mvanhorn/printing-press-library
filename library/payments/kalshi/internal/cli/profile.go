@@ -173,6 +173,8 @@ entry is replaced.
 
 To avoid creating empty profiles, at least one non-default flag must be
 present (other than --profile and --config).`,
+		Example: `  kalshi-pp-cli profile save my-defaults --json --compact
+  kalshi-pp-cli profile save tonight-defaults --region US`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
@@ -201,7 +203,7 @@ present (other than --profile and --config).`,
 				return err
 			}
 			if flags.asJSON {
-				return flags.printJSON(cmd, s.Profiles[name])
+				return printJSONFiltered(cmd.OutOrStdout(), s.Profiles[name], flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "saved profile %q with %d values\n", name, len(values))
 			return nil
@@ -215,7 +217,9 @@ func newProfileUseCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "use <name>",
 		Short: "Print the flag values a profile will apply (does not execute anything)",
-		Args:  cobra.ExactArgs(1),
+		Example: `  kalshi-pp-cli profile use my-defaults
+  kalshi-pp-cli profile use tonight-defaults --json`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			p, err := GetProfile(args[0])
 			if err != nil {
@@ -225,7 +229,7 @@ func newProfileUseCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("profile %q not found", args[0])
 			}
 			if flags.asJSON {
-				return flags.printJSON(cmd, p)
+				return printJSONFiltered(cmd.OutOrStdout(), p, flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "profile %q:\n", p.Name)
 			if p.Description != "" {
@@ -248,6 +252,8 @@ func newProfileListCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "list",
 		Short: "List saved profiles",
+		Example: `  kalshi-pp-cli profile list
+  kalshi-pp-cli profile list --json`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			s, err := loadProfileStore()
 			if err != nil {
@@ -268,7 +274,7 @@ func newProfileListCmd(flags *rootFlags) *cobra.Command {
 						"field_count": len(p.Values),
 					})
 				}
-				return flags.printJSON(cmd, out)
+				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 			}
 			headers := []string{"NAME", "FIELDS", "DESCRIPTION"}
 			rows := make([][]string, 0, len(names))
@@ -285,7 +291,9 @@ func newProfileShowCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "show <name>",
 		Short: "Show a profile's values as JSON",
-		Args:  cobra.ExactArgs(1),
+		Example: `  kalshi-pp-cli profile show my-defaults
+  kalshi-pp-cli profile show tonight-defaults --json`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			p, err := GetProfile(args[0])
 			if err != nil {
@@ -294,7 +302,7 @@ func newProfileShowCmd(flags *rootFlags) *cobra.Command {
 			if p == nil {
 				return fmt.Errorf("profile %q not found", args[0])
 			}
-			return flags.printJSON(cmd, p)
+			return printJSONFiltered(cmd.OutOrStdout(), p, flags)
 		},
 	}
 }
@@ -303,7 +311,9 @@ func newProfileDeleteCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "delete <name>",
 		Short: "Remove a profile",
-		Args:  cobra.ExactArgs(1),
+		Example: `  kalshi-pp-cli profile delete my-defaults --yes
+  kalshi-pp-cli profile delete old-profile --yes --json`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 			s, err := loadProfileStore()
@@ -320,6 +330,12 @@ func newProfileDeleteCmd(flags *rootFlags) *cobra.Command {
 			delete(s.Profiles, name)
 			if err := saveProfileStore(s); err != nil {
 				return err
+			}
+			// JSON envelope: {deleted: name}.
+			if flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"deleted": name,
+				}, flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "deleted profile %q\n", name)
 			return nil

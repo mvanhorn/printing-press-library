@@ -14,9 +14,10 @@ import (
 func newApiKeysDeleteCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "delete <api_key>",
-		Short:   "Delete API Key",
-		Example: "  kalshi-pp-cli api-keys delete your-token-here",
+		Use:         "delete <api_key>",
+		Short:       "Endpoint for deleting an existing API key. This endpoint permanently deletes an API key. Once deleted, the key can...",
+		Example:     "  kalshi-pp-cli api-keys delete your-token-here",
+		Annotations: map[string]string{"pp:endpoint": "api-keys.delete"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -58,13 +59,15 @@ func newApiKeysDeleteCmd(flags *rootFlags) *cobra.Command {
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "delete",

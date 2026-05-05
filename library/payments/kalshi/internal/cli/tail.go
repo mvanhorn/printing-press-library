@@ -20,8 +20,9 @@ func newTailCmd(flags *rootFlags) *cobra.Command {
 	var follow bool
 
 	cmd := &cobra.Command{
-		Use:   "tail [resource]",
-		Short: "Stream live changes by polling the API at regular intervals",
+		Use:         "tail [resource]",
+		Short:       "Stream live changes by polling the API at regular intervals",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Long: `Tail streams live data changes by polling the API at configurable intervals.
 Events are emitted as NDJSON to stdout for piping to other tools.
 Gracefully shuts down on SIGTERM/SIGINT.
@@ -40,13 +41,18 @@ native streaming instead of polling.`,
 			if len(args) > 0 {
 				resource = args[0]
 			}
-			if resource == "" {
-				return cmd.Help()
+			// JSON help envelope: when called with no resource AND --json,
+			// surface the list of known resources so agents can discover
+			// what to pass without parsing a usage error message.
+			// Envelope: {resources: [...], note}.
+			if resource == "" && flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"resources": tailKnownResources(),
+					"note":      "tail requires a resource name; pass one of the listed names",
+				}, flags)
 			}
-
-			if flags.dryRun {
-				fmt.Fprintf(cmd.OutOrStdout(), "POLL GET /%s every %s\n", resource, interval)
-				return nil
+			if resource == "" {
+				return fmt.Errorf("resource name required (e.g., 'tail messages')")
 			}
 
 			c, err := flags.newClient()
@@ -91,6 +97,31 @@ native streaming instead of polling.`,
 	cmd.Flags().BoolVar(&follow, "follow", true, "Keep running (set --follow=false for single poll)")
 
 	return cmd
+}
+
+// tailKnownResources returns the resource names this CLI exposes, so the
+// no-arg JSON help envelope can list them without depending on sync's
+// defaultSyncResources (which only exists when sync is generated).
+func tailKnownResources() []string {
+	return []string{
+		"account",
+		"api-keys",
+		"communications",
+		"events",
+		"exchange",
+		"fcm",
+		"historical",
+		"incentive-programs",
+		"kalshi-trade-manual-search",
+		"kalshi-trade-manual-search-2",
+		"live-data",
+		"markets",
+		"milestones",
+		"multivariate-event-collections",
+		"portfolio",
+		"series",
+		"structured-targets",
+	}
 }
 
 func fetchAndEmit(c interface {

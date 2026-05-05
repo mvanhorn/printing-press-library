@@ -1,29 +1,29 @@
 {
   "manifest_version": "0.3",
-  "name": "kalshi-pp-mcp",
-  "display_name": "Kalshi",
-  "version": "1.2.2",
-  "description": "Trade prediction markets, track portfolios, and analyze odds on Kalshi from the command line",
+  "name": "kalshi-trade-manual-pp-mcp",
+  "display_name": "Kalshi Trade Manual",
+  "version": "3.9.0",
+  "description": "Kalshi Trade Manual API surface as MCP tools.",
   "author": {
     "name": "CLI Printing Press"
   },
   "license": "Apache-2.0",
   "server": {
     "type": "binary",
-    "entry_point": "bin/kalshi-pp-mcp",
+    "entry_point": "bin/kalshi-trade-manual-pp-mcp",
     "mcp_config": {
-      "command": "${__dirname}/bin/kalshi-pp-mcp",
+      "command": "${__dirname}/bin/kalshi-trade-manual-pp-mcp",
       "args": [],
       "env": {
-        "KALSHI_API_KEY": "${user_config.kalshi_api_key}"
+        "KALSHI_TRADE_MANUAL_KALSHI_ACCESS_KEY": "${user_config.kalshi_trade_manual_kalshi_access_key}"
       }
     }
   },
   "user_config": {
-    "kalshi_api_key": {
+    "kalshi_trade_manual_kalshi_access_key": {
       "type": "string",
-      "title": "KALSHI_API_KEY",
-      "description": "Sets KALSHI_API_KEY for the Kalshi MCP server.",
+      "title": "KALSHI_TRADE_MANUAL_KALSHI_ACCESS_KEY",
+      "description": "Sets KALSHI_TRADE_MANUAL_KALSHI_ACCESS_KEY for the Kalshi Trade Manual MCP server.",
       "sensitive": true,
       "required": true
     }
@@ -35,6 +35,5 @@
       "linux",
       "win32"
     ]
-  },
-  "cli_binary": "kalshi-pp-cli"
+  }
 }

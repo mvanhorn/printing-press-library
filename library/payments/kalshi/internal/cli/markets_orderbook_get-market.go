@@ -15,10 +15,11 @@ func newMarketsOrderbookGetMarketCmd(flags *rootFlags) *cobra.Command {
 	var flagDepth int
 
 	cmd := &cobra.Command{
-		Use:     "get-market <ticker>",
-		Aliases: []string{"get"},
-		Short:   "Get Market Orderbook",
-		Example: "  kalshi-pp-cli markets orderbook get-market example-value",
+		Use:         "get-market <ticker>",
+		Aliases:     []string{"get"},
+		Short:       "Endpoint for getting the current order book for a specific market. The order book shows all active bid orders for...",
+		Example:     "  kalshi-pp-cli markets orderbook get-market example-value",
+		Annotations: map[string]string{"pp:endpoint": "orderbook.get-market", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -34,7 +35,7 @@ func newMarketsOrderbookGetMarketCmd(flags *rootFlags) *cobra.Command {
 			if flagDepth != 0 {
 				params["depth"] = fmt.Sprintf("%v", flagDepth)
 			}
-			data, prov, err := resolveRead(c, flags, "orderbook", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "orderbook", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -44,14 +45,15 @@ func newMarketsOrderbookGetMarketCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

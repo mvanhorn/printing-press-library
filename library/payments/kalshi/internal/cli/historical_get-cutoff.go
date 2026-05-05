@@ -14,10 +14,11 @@ import (
 func newHistoricalGetCutoffCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "get-cutoff",
-		Aliases: []string{"list"},
-		Short:   "Get Historical Cutoff Timestamps",
-		Example: "  kalshi-pp-cli historical get-cutoff",
+		Use:         "get-cutoff",
+		Aliases:     []string{"list"},
+		Short:       "Returns the cutoff timestamps that define the boundary between **live** and **historical** data. ## Cutoff fields -...",
+		Example:     "  kalshi-pp-cli historical get-cutoff",
+		Annotations: map[string]string{"pp:endpoint": "historical.get-cutoff", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -26,7 +27,7 @@ func newHistoricalGetCutoffCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/historical/cutoff"
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "historical", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "historical", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -36,14 +37,15 @@ func newHistoricalGetCutoffCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

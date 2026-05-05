@@ -4,55 +4,102 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"os"
 	"strings"
 	"text/tabwriter"
 	"time"
 
-	"bytes"
-	"io"
-	"os"
-
+	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/payments/kalshi/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/payments/kalshi/internal/config"
-	"github.com/spf13/cobra"
 )
 
-var version = "3.14.0"
+var version = "1.0.0"
 
 type rootFlags struct {
-	asJSON       bool
-	compact      bool
-	csv          bool
-	plain        bool
-	quiet        bool
-	dryRun       bool
-	noCache      bool
-	noInput      bool
-	yes          bool
-	agent        bool
-	selectFields string
-	configPath   string
-	timeout      time.Duration
-	rateLimit    float64
-	dataSource   string
-	profileName  string
-	deliverSpec  string
-	deliverBuf   *bytes.Buffer
-	deliverSink  DeliverSink
+	asJSON        bool
+	compact       bool
+	csv           bool
+	plain         bool
+	quiet         bool
+	dryRun        bool
+	noCache       bool
+	noInput       bool
+	yes           bool
+	agent         bool
+	readOnly      bool
+	selectFields  string
+	configPath    string
+	profileName   string
+	deliverSpec   string
+	timeout       time.Duration
+	rateLimit     float64
+	dataSource    string
+	freshnessMeta any
+
+	// deliverBuf captures command output when --deliver is set to a
+	// non-stdout sink. Flushed to the sink after Execute returns.
+	deliverBuf  *bytes.Buffer
+	deliverSink DeliverSink
+}
+
+// RootCmd returns the Cobra command tree without executing it. The MCP server
+// uses this to mirror every user-facing command as an agent tool.
+func RootCmd() *cobra.Command {
+	var flags rootFlags
+	return newRootCmd(&flags)
 }
 
 // Execute runs the CLI in non-interactive mode: never prompts, all values via flags or stdin.
 func Execute() error {
 	var flags rootFlags
+	rootCmd := newRootCmd(&flags)
 
+	err := rootCmd.Execute()
+	if err != nil && strings.Contains(err.Error(), "unknown flag") {
+		msg := err.Error()
+		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
+		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
+			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
+			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
+				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
+			}
+		}
+	}
+	if err == nil && flags.deliverBuf != nil {
+		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
+			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
+			return derr
+		}
+	}
+	return err
+}
+
+func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:           "kalshi-pp-cli",
-		Short:         "Trade prediction markets, track portfolios, and analyze odds on Kalshi from the command line",
-		SilenceUsage:  true,
-		SilenceErrors: true,
-		Version:       version,
+		Use:   "kalshi-pp-cli",
+		Short: `Kalshi CLI — Trade prediction markets, persist tick data, and answer category-level P&L questions Kalshi.com cannot.`,
+		Long: `Kalshi CLI — Trade prediction markets, persist tick data, and answer category-level P&L questions Kalshi.com cannot.
+
+Highlights (not in the official API docs):
+  • portfolio attribution   See your P&L broken down by market category and series over any time period
+  • markets history   Track how market odds moved over time with price progression charts
+  • portfolio winrate   Calculate your win/loss ratio, expected value, and ROI across all settled positions
+  • portfolio calendar   See upcoming settlements with your positions, expected payouts, and category breakdown
+  • markets movers   Find markets with the biggest price swings since your last sync
+  • markets correlate   Compare price histories of two markets to discover correlated events
+  • portfolio exposure   See your total risk broken down by category, with concentration warnings
+  • portfolio stale   Find positions in markets approaching expiry where you haven't acted recently
+
+Agent mode: add --agent to any command for JSON output + non-interactive mode.
+Health check: run 'kalshi-pp-cli doctor' to verify auth and connectivity.
+See README.md or the bundled SKILL.md for recipes.`,
+		SilenceUsage: true,
+		Version:      version,
 	}
 	rootCmd.SetVersionTemplate("kalshi-pp-cli {{ .Version }}\n")
 
@@ -72,10 +119,10 @@ func Execute() error {
 	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
 	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
-	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
-
-	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile")
+	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'kalshi-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
+	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
+	rootCmd.PersistentFlags().BoolVar(&flags.readOnly, "read-only", false, "Block mutating commands client-side regardless of key tier")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		if flags.deliverSpec != "" {
@@ -95,7 +142,11 @@ func Execute() error {
 				return err
 			}
 			if profile == nil {
-				return fmt.Errorf("profile %q not found", flags.profileName)
+				available := ListProfileNames()
+				if len(available) == 0 {
+					return fmt.Errorf("profile %q not found (no profiles saved yet; run '%s profile save <name> --<flag> <value>')", flags.profileName, cmd.Root().Name())
+				}
+				return fmt.Errorf("profile %q not found; available: %s", flags.profileName, strings.Join(available, ", "))
 			}
 			if err := ApplyProfileToFlags(cmd, profile); err != nil {
 				return err
@@ -126,57 +177,46 @@ func Execute() error {
 		}
 		return nil
 	}
-	rootCmd.AddCommand(newDoctorCmd(&flags))
-	rootCmd.AddCommand(newAuthCmd(&flags))
-	rootCmd.AddCommand(newExportCmd(&flags))
-	rootCmd.AddCommand(newImportCmd(&flags))
-	rootCmd.AddCommand(newSearchCmd(&flags))
-	rootCmd.AddCommand(newSyncCmd(&flags))
-	rootCmd.AddCommand(newTailCmd(&flags))
-	rootCmd.AddCommand(newAnalyticsCmd(&flags))
-	rootCmd.AddCommand(newWorkflowCmd(&flags))
-	rootCmd.AddCommand(newStaleCmd(&flags))
-	rootCmd.AddCommand(newOrphansCmd(&flags))
-	rootCmd.AddCommand(newLoadCmd(&flags))
-	rootCmd.AddCommand(newAPICmd(&flags))
-	rootCmd.AddCommand(newEventsPromotedCmd(&flags))
-	rootCmd.AddCommand(newHistoricalPromotedCmd(&flags))
-	rootCmd.AddCommand(newLiveDataPromotedCmd(&flags))
-	rootCmd.AddCommand(newMilestonesPromotedCmd(&flags))
-	rootCmd.AddCommand(newCommunicationsPromotedCmd(&flags))
-	rootCmd.AddCommand(newExchangePromotedCmd(&flags))
-	rootCmd.AddCommand(newSeriesPromotedCmd(&flags))
-	rootCmd.AddCommand(newStructuredTargetsPromotedCmd(&flags))
-	rootCmd.AddCommand(newApiKeysPromotedCmd(&flags))
-	rootCmd.AddCommand(newFcmPromotedCmd(&flags))
-	rootCmd.AddCommand(newPortfolioPromotedCmd(&flags))
-	rootCmd.AddCommand(newAccountPromotedCmd(&flags))
-	rootCmd.AddCommand(newIncentiveProgramsPromotedCmd(&flags))
-	rootCmd.AddCommand(newMarketsPromotedCmd(&flags))
-	rootCmd.AddCommand(newMultivariateEventCollectionsPromotedCmd(&flags))
+	rootCmd.AddCommand(newAccountCmd(flags))
+	rootCmd.AddCommand(newApiKeysCmd(flags))
+	rootCmd.AddCommand(newCommunicationsCmd(flags))
+	rootCmd.AddCommand(newEventsCmd(flags))
+	rootCmd.AddCommand(newExchangeCmd(flags))
+	rootCmd.AddCommand(newFcmCmd(flags))
+	rootCmd.AddCommand(newHistoricalCmd(flags))
+	rootCmd.AddCommand(newLiveDataCmd(flags))
+	rootCmd.AddCommand(newMarketsCmd(flags))
+	rootCmd.AddCommand(newMilestonesCmd(flags))
+	rootCmd.AddCommand(newMultivariateEventCollectionsCmd(flags))
+	rootCmd.AddCommand(newPortfolioCmd(flags))
+	rootCmd.AddCommand(newSeriesCmd(flags))
+	rootCmd.AddCommand(newStructuredTargetsCmd(flags))
+	rootCmd.AddCommand(newDoctorCmd(flags))
+	rootCmd.AddCommand(newAuthCmd(flags))
+	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
+	rootCmd.AddCommand(newProfileCmd(flags))
+	rootCmd.AddCommand(newFeedbackCmd(flags))
+	rootCmd.AddCommand(newWhichCmd(flags))
+	rootCmd.AddCommand(newExportCmd(flags))
+	rootCmd.AddCommand(newImportCmd(flags))
+	rootCmd.AddCommand(newSearchCmd(flags))
+	rootCmd.AddCommand(newSyncCmd(flags))
+	rootCmd.AddCommand(newTailCmd(flags))
+	rootCmd.AddCommand(newAnalyticsCmd(flags))
+	rootCmd.AddCommand(newWorkflowCmd(flags))
+	rootCmd.AddCommand(newStaleCmd(flags))
+	rootCmd.AddCommand(newOrphansCmd(flags))
+	rootCmd.AddCommand(newLoadCmd(flags))
+	rootCmd.AddCommand(newAPICmd(flags))
+	rootCmd.AddCommand(newIncentiveProgramsPromotedCmd(flags))
+	rootCmd.AddCommand(newKalshiTradeManualSearchPromotedCmd(flags))
+	rootCmd.AddCommand(newKalshiTradeManualSearch2PromotedCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
+	// Novel command groups not present in the OpenAPI surface.
+	rootCmd.AddCommand(newSubaccountsCmd(flags))
+	rootCmd.AddCommand(newWatchCmd(flags))
 
-	rootCmd.AddCommand(newProfileCmd(&flags))
-	rootCmd.AddCommand(newFeedbackCmd(&flags))
-
-	err := rootCmd.Execute()
-	if err != nil && strings.Contains(err.Error(), "unknown flag") {
-		msg := err.Error()
-		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
-		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
-			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
-			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
-				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
-			}
-		}
-	}
-	if err == nil && flags.deliverBuf != nil {
-		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
-			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
-			return derr
-		}
-	}
-	return err
+	return rootCmd
 }
 
 func ExitCode(err error) int {
@@ -192,6 +232,9 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	if err != nil {
 		return nil, configErr(err)
 	}
+	// --read-only OR config.ReadOnly OR KALSHI_READ_ONLY=1 (handled by config) all
+	// flip the gate. The flag only ever raises the floor; never lowers it.
+	cfg.ReadOnly = cfg.ReadOnly || f.readOnly
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache

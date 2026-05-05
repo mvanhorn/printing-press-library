@@ -1,10 +1,10 @@
 {
-  "dir": "/Users/tmchow/printing-press/library/kalshi",
-  "spec_path": "/Users/tmchow/printing-press/library/kalshi/spec.yaml",
+  "dir": "/Users/tmchow/printing-press/.runstate/scalable-hopping-kay-d72f6279/runs/20260504-204550/working/kalshi-pp-cli",
+  "spec_path": "/Users/tmchow/printing-press/.runstate/scalable-hopping-kay-d72f6279/runs/20260504-204550/working/kalshi-pp-cli/spec.yaml",
   "verdict": "PASS",
   "path_check": {
-    "tested": 7,
-    "valid": 7,
+    "tested": 6,
+    "valid": 6,
     "valid_pct": 100
   },
   "auth_check": {
@@ -13,28 +13,71 @@
     "match": true,
     "detail": "spec not provided or no bot/bearer scheme detected"
   },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
   "dead_flags": {
-    "total": 15,
+    "total": 18,
     "dead": 0
   },
   "dead_functions": {
-    "total": 47,
+    "total": 50,
     "dead": 0
   },
   "pipeline_check": {
     "sync_calls_domain": true,
-    "search_calls_domain": false,
-    "domain_tables": 1,
-    "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 1 domain tables found"
+    "search_calls_domain": true,
+    "domain_tables": 2,
+    "detail": "sync uses domain-specific Upsert methods; search uses domain-specific Search methods; 2 domain tables found"
   },
   "example_check": {
     "tested": 10,
-    "with_examples": 9,
-    "valid_examples": 9,
-    "missing": [
-      "promoted historical"
-    ],
-    "detail": "9/10 commands have examples"
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 162,
+      "registered": 162
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 8,
+    "found": 8
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 8,
+    "exempted_via_store": 8
+  },
+  "source_client_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "print_json_filtered_check": {
+    "checked": 141
+  },
+  "test_presence": {
+    "checked": 0
+  },
+  "naming_check": {
+    "checked": 141
   },
   "issues": null
 }

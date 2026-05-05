@@ -9,173 +9,191 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/payments/kalshi/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/payments/kalshi/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/payments/kalshi/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/payments/kalshi/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/payments/kalshi/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/payments/kalshi/internal/store"
 )
-
-// looksLikeAuthError checks if an error message body contains auth-related keywords.
-func looksLikeAuthError(msg string) bool {
-	lower := strings.ToLower(msg)
-	patterns := []string{
-		`\bkey\b`,
-		`\btoken\b`,
-		`\bunauthorized\b`,
-		`\bapi_key\b`,
-		`missing.{0,20}key`,
-		`required.{0,20}key`,
-		`\bforbidden\b`,
-		`\bauthenticat`,
-		`\bcredential`,
-	}
-	for _, p := range patterns {
-		if matched, _ := regexp.MatchString(p, lower); matched {
-			return true
-		}
-	}
-	return false
-}
-
-// sanitizeErrorBody truncates and strips credential-shaped strings from error output.
-func sanitizeErrorBody(msg string) string {
-	if len(msg) > 200 {
-		msg = msg[:200] + "..."
-	}
-	credPatterns := regexp.MustCompile(`(?i)(sk-[a-zA-Z0-9]{8,}|sk_live_[a-zA-Z0-9]+|Bearer\s+[a-zA-Z0-9._\-]+|key=[a-zA-Z0-9._\-]+)`)
-	msg = credPatterns.ReplaceAllString(msg, "[REDACTED]")
-	return msg
-}
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("account_get-api-limits",
-			mcplib.WithDescription("Get Account API Limits Returns GetAccountApiLimitsResponse."),
+			mcplib.WithDescription("Endpoint to retrieve the API tier limits associated with the authenticated user. Returns the GetAccountApiLimitsResponse."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/account/limits", []string{}),
 	)
 	s.AddTool(
+		mcplib.NewTool("account_get-endpoint-costs",
+			mcplib.WithDescription("Lists API v2 endpoints whose configured token cost differs from the default cost. Endpoints that use the default cost are omitted. Returns the GetAccountEndpointCostsResponse."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/account/endpoint_costs", []string{}),
+	)
+	s.AddTool(
 		mcplib.NewTool("api-keys_create",
-			mcplib.WithDescription("Create API Key Returns CreateApiKeyResponse."),
+			mcplib.WithDescription("Endpoint for creating a new API key with a user-provided public key. This endpoint allows users with Premier or Market Maker API usage levels to create API keys by providing their own RSA public key. The platform will use this public key to verify signatures on API requests. Required: name, public_key. Optional: scopes. Returns the new CreateApiKeyResponse."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/api_keys", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("api-keys_delete",
-			mcplib.WithDescription("Delete API Key Destructive operation."),
+			mcplib.WithDescription("Endpoint for deleting an existing API key. This endpoint permanently deletes an API key. Once deleted, the key can no longer be used for authentication. This action cannot be undone. Required: api_key. Destructive."),
 			mcplib.WithString("api_key", mcplib.Required(), mcplib.Description("API key ID to delete")),
+			mcplib.WithDestructiveHintAnnotation(true),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("DELETE", "/api_keys/{api_key}", []string{"api_key"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("api-keys_generate",
-			mcplib.WithDescription("Generate API Key Returns GenerateApiKeyResponse."),
+			mcplib.WithDescription("Endpoint for generating a new API key with an automatically created key pair. This endpoint generates both a public and private RSA key pair. The public key is stored on the platform, while the private key is returned to the user and must be stored securely. The private key cannot be retrieved again. Required: name. Optional: scopes. Returns the new GenerateApiKeyResponse."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/api_keys/generate", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("api-keys_get",
-			mcplib.WithDescription("Get API Keys Returns GetApiKeysResponse."),
+			mcplib.WithDescription("Endpoint for retrieving all API keys associated with the authenticated user. API keys allow programmatic access to the platform without requiring username/password authentication. Each key has a unique identifier and name. Returns the GetApiKeysResponse."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/api_keys", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("communications_accept-quote",
-			mcplib.WithDescription("Accept Quote"),
+			mcplib.WithDescription("Endpoint for accepting a quote. This will require the quoter to confirm. Required: quote_id, accepted_side."),
 			mcplib.WithString("quote_id", mcplib.Required(), mcplib.Description("Quote ID")),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("PUT", "/communications/quotes/{quote_id}/accept", []string{"quote_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("communications_confirm-quote",
-			mcplib.WithDescription("Confirm Quote"),
+			mcplib.WithDescription("Endpoint for confirming a quote. This will start a timer for order execution. Required: quote_id."),
 			mcplib.WithString("quote_id", mcplib.Required(), mcplib.Description("Quote ID")),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("PUT", "/communications/quotes/{quote_id}/confirm", []string{"quote_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("communications_create-quote",
-			mcplib.WithDescription("Create Quote Returns CreateQuoteResponse."),
+			mcplib.WithDescription("Endpoint for creating a quote in response to an RFQ. Required: no_bid, rest_remainder, rfq_id, yes_bid. Optional: subaccount. Returns the new CreateQuoteResponse."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/communications/quotes", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("communications_create-rfq",
-			mcplib.WithDescription("Create RFQ Returns CreateRfqresponse."),
+			mcplib.WithDescription("Endpoint for creating a new RFQ. You can have a maximum of 100 open RFQs at a time. Required: market_ticker, rest_remainder. Optional: contracts, contracts_fp, replace_existing (default: false) (plus 4 more). Returns the new CreateRfqresponse."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/communications/rfqs", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("communications_delete-quote",
-			mcplib.WithDescription("Delete Quote Destructive operation."),
+			mcplib.WithDescription("Endpoint for deleting a quote, which means it can no longer be accepted. Required: quote_id. Destructive."),
 			mcplib.WithString("quote_id", mcplib.Required(), mcplib.Description("Quote ID")),
+			mcplib.WithDestructiveHintAnnotation(true),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("DELETE", "/communications/quotes/{quote_id}", []string{"quote_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("communications_delete-rfq",
-			mcplib.WithDescription("Delete RFQ Destructive operation."),
+			mcplib.WithDescription("Endpoint for deleting an RFQ by ID. Required: rfq_id. Destructive."),
 			mcplib.WithString("rfq_id", mcplib.Required(), mcplib.Description("RFQ ID")),
+			mcplib.WithDestructiveHintAnnotation(true),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("DELETE", "/communications/rfqs/{rfq_id}", []string{"rfq_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("communications_get-id",
-			mcplib.WithDescription("Get Communications ID Returns GetCommunicationsIdresponse."),
+			mcplib.WithDescription("Endpoint for getting the communications ID of the logged-in user. Returns the GetCommunicationsIdresponse."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/communications/id", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("communications_get-quote",
-			mcplib.WithDescription("Get Quote Returns GetQuoteResponse."),
+			mcplib.WithDescription("Endpoint for getting a particular quote. Required: quote_id. Returns the GetQuoteResponse."),
 			mcplib.WithString("quote_id", mcplib.Required(), mcplib.Description("Quote ID")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/communications/quotes/{quote_id}", []string{"quote_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("communications_get-quotes",
-			mcplib.WithDescription("Get Quotes Returns GetQuotesResponse."),
-			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave...")),
+			mcplib.WithDescription("Endpoint for getting quotes. Optional: cursor, event_ticker, market_ticker (plus 7 more). Returns the GetQuotesResponse."),
+			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next...")),
 			mcplib.WithString("event_ticker", mcplib.Description("Event ticker to filter by. Only a single event ticker is supported.")),
 			mcplib.WithString("market_ticker", mcplib.Description("Filter by market ticker")),
 			mcplib.WithString("limit", mcplib.Description("Parameter to specify the number of results per page. Defaults to 500.")),
 			mcplib.WithString("status", mcplib.Description("Filter quotes by status")),
 			mcplib.WithString("quote_creator_user_id", mcplib.Description("Filter quotes by quote creator user ID")),
+			mcplib.WithString("user_filter", mcplib.Description("User filter")),
 			mcplib.WithString("rfq_creator_user_id", mcplib.Description("Filter quotes by RFQ creator user ID")),
 			mcplib.WithString("rfq_creator_subtrader_id", mcplib.Description("Filter quotes by RFQ creator subtrader ID (FCM members only)")),
 			mcplib.WithString("rfq_id", mcplib.Description("Filter quotes by RFQ ID")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/communications/quotes", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("communications_get-rfq",
-			mcplib.WithDescription("Get RFQ Returns GetRfqresponse."),
+			mcplib.WithDescription("Endpoint for getting a single RFQ by id. Required: rfq_id. Returns the GetRfqresponse."),
 			mcplib.WithString("rfq_id", mcplib.Required(), mcplib.Description("RFQ ID")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/communications/rfqs/{rfq_id}", []string{"rfq_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("communications_get-rfqs",
-			mcplib.WithDescription("Get RFQs Returns GetRfqsResponse."),
-			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave...")),
+			mcplib.WithDescription("Endpoint for getting RFQs. Optional: cursor, event_ticker, market_ticker (plus 5 more). Returns the GetRfqsResponse."),
+			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next...")),
 			mcplib.WithString("event_ticker", mcplib.Description("Event ticker to filter by. Only a single event ticker is supported.")),
 			mcplib.WithString("market_ticker", mcplib.Description("Filter by market ticker")),
 			mcplib.WithString("subaccount", mcplib.Description("Subaccount number (0 for primary, 1-32 for subaccounts). If omitted, defaults to all subaccounts.")),
 			mcplib.WithString("limit", mcplib.Description("Parameter to specify the number of results per page. Defaults to 100.")),
 			mcplib.WithString("status", mcplib.Description("Filter RFQs by status")),
 			mcplib.WithString("creator_user_id", mcplib.Description("Filter RFQs by creator user ID")),
+			mcplib.WithString("user_filter", mcplib.Description("User filter")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/communications/rfqs", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("events_get",
-			mcplib.WithDescription("Get Events Returns GetEventsResponse."),
+			mcplib.WithDescription("Get all events. This endpoint excludes multivariate events. To retrieve multivariate events, use the GET /events/multivariate endpoint. All events are accessible through this endpoint, even if their associated markets are older than the historical cutoff. Optional: limit (default: 200), cursor, with_nested_markets (default: false) (plus 5 more). Returns the GetEventsResponse."),
 			mcplib.WithString("limit", mcplib.Description("Parameter to specify the number of results per page. Defaults to 200. Maximum value is 200.")),
 			mcplib.WithString("cursor", mcplib.Description("Parameter to specify the pagination cursor. Use the cursor value returned from the previous response to get the next...")),
 			mcplib.WithString("with_nested_markets", mcplib.Description("Parameter to specify if nested markets should be included in the response. When true, each event will include a...")),
@@ -184,76 +202,103 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("series_ticker", mcplib.Description("Filter by series ticker")),
 			mcplib.WithString("min_close_ts", mcplib.Description("Filter events with at least one market with close timestamp greater than this Unix timestamp (in seconds).")),
 			mcplib.WithString("min_updated_ts", mcplib.Description("Filter events with metadata updated after this Unix timestamp (in seconds). Use this to efficiently poll for changes.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/events", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("events_get-eventticker",
-			mcplib.WithDescription("Get Event Returns GetEventResponse."),
+			mcplib.WithDescription("Endpoint for getting data about an event by its ticker. An event represents a real-world occurrence that can be traded on, such as an election, sports game, or economic indicator release. Events contain one or more markets where users can place trades on different outcomes. All events are accessible through this endpoint, even if their associated markets are older than the historical cutoff. Required: event_ticker. Optional: with_nested_markets (default: false). Returns the GetEventResponse."),
 			mcplib.WithString("event_ticker", mcplib.Required(), mcplib.Description("Event ticker")),
 			mcplib.WithString("with_nested_markets", mcplib.Description("If true, markets are included within the event object. If false (default), markets are returned as a separate...")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/events/{event_ticker}", []string{"event_ticker"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("events_get-multivariate",
-			mcplib.WithDescription("Get Multivariate Events Returns GetMultivariateEventsResponse."),
+			mcplib.WithDescription("Retrieve multivariate (combo) events. These are dynamically created events from multivariate event collections. Supports filtering by series and collection ticker. Optional: limit (default: 100), cursor, series_ticker (plus 2 more). Returns the GetMultivariateEventsResponse."),
 			mcplib.WithString("limit", mcplib.Description("Number of results per page. Defaults to 100. Maximum value is 200.")),
 			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next page of results.")),
 			mcplib.WithString("series_ticker", mcplib.Description("Filter by series ticker")),
 			mcplib.WithString("collection_ticker", mcplib.Description("Filter events by collection ticker. Returns only multivariate events belonging to the specified collection. Cannot...")),
 			mcplib.WithString("with_nested_markets", mcplib.Description("Parameter to specify if nested markets should be included in the response. When true, each event will include a...")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/events/multivariate", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("events_metadata_get-event",
-			mcplib.WithDescription("Get Event Metadata Returns GetEventMetadataResponse."),
+			mcplib.WithDescription("Endpoint for getting metadata about an event by its ticker. Returns only the metadata information for an event. Required: event_ticker."),
 			mcplib.WithString("event_ticker", mcplib.Required(), mcplib.Description("Event ticker")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/events/{event_ticker}/metadata", []string{"event_ticker"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("exchange_get-announcements",
-			mcplib.WithDescription("Get Exchange Announcements Returns GetExchangeAnnouncementsResponse."),
+			mcplib.WithDescription("Endpoint for getting all exchange-wide announcements. Returns the GetExchangeAnnouncementsResponse."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/exchange/announcements", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("exchange_get-schedule",
-			mcplib.WithDescription("Get Exchange Schedule Returns GetExchangeScheduleResponse."),
+			mcplib.WithDescription("Endpoint for getting the exchange schedule. Returns the GetExchangeScheduleResponse."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/exchange/schedule", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("exchange_get-status",
-			mcplib.WithDescription("Get Exchange Status Returns ExchangeStatus."),
+			mcplib.WithDescription("Endpoint for getting the exchange status. Returns the ExchangeStatus."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/exchange/status", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("exchange_get-user-data-timestamp",
-			mcplib.WithDescription("Get User Data Timestamp Returns GetUserDataTimestampResponse."),
+			mcplib.WithDescription("There is typically a short delay before exchange events are reflected in the API endpoints. Whenever possible, combine API responses to PUT/POST/DELETE requests with websocket data to obtain the most accurate view of the exchange state. This endpoint provides an approximate indication of when the data from the following endpoints was last validated: GetBalance, GetOrder(s), GetFills, GetPositions. Returns the GetUserDataTimestampResponse."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/exchange/user_data_timestamp", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("fcm_get-fcmorders",
-			mcplib.WithDescription("Get FCM Orders Returns GetOrdersResponse."),
+			mcplib.WithDescription("Endpoint for FCM members to get orders filtered by subtrader ID. This endpoint requires FCM member access level and allows filtering orders by subtrader ID. Required: subtrader_id. Optional: cursor, event_ticker, ticker (plus 4 more). Returns the GetOrdersResponse."),
 			mcplib.WithString("subtrader_id", mcplib.Required(), mcplib.Description("Restricts the response to orders for a specific subtrader (FCM members only)")),
-			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave...")),
+			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next...")),
 			mcplib.WithString("event_ticker", mcplib.Description("Event ticker to filter by. Only a single event ticker is supported.")),
 			mcplib.WithString("ticker", mcplib.Description("Filter by market ticker")),
 			mcplib.WithString("min_ts", mcplib.Description("Restricts the response to orders after a timestamp, formatted as a Unix Timestamp")),
 			mcplib.WithString("max_ts", mcplib.Description("Restricts the response to orders before a timestamp, formatted as a Unix Timestamp")),
 			mcplib.WithString("status", mcplib.Description("Restricts the response to orders that have a certain status")),
 			mcplib.WithString("limit", mcplib.Description("Parameter to specify the number of results per page. Defaults to 100")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/fcm/orders", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("fcm_get-fcmpositions",
-			mcplib.WithDescription("Get FCM Positions Returns GetPositionsResponse."),
+			mcplib.WithDescription("Endpoint for FCM members to get market positions filtered by subtrader ID. This endpoint requires FCM member access level and allows filtering positions by subtrader ID. Required: subtrader_id. Optional: ticker, event_ticker, count_filter (plus 3 more). Returns the GetPositionsResponse."),
 			mcplib.WithString("subtrader_id", mcplib.Required(), mcplib.Description("Restricts the response to positions for a specific subtrader (FCM members only)")),
 			mcplib.WithString("ticker", mcplib.Description("Ticker of desired positions")),
 			mcplib.WithString("event_ticker", mcplib.Description("Event ticker of desired positions")),
@@ -261,133 +306,194 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("settlement_status", mcplib.Description("Settlement status of the markets to return. Defaults to unsettled")),
 			mcplib.WithString("limit", mcplib.Description("Parameter to specify the number of results per page. Defaults to 100")),
 			mcplib.WithString("cursor", mcplib.Description("The Cursor represents a pointer to the next page of records in the pagination")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/fcm/positions", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("historical_get-cutoff",
-			mcplib.WithDescription("Get Historical Cutoff Timestamps Returns GetHistoricalCutoffResponse."),
+			mcplib.WithDescription("Returns the cutoff timestamps that define the boundary between **live** and **historical** data. ## Cutoff fields - `market_settled_ts` : Markets that **settled** before this timestamp, and their candlesticks, must be accessed via `GET /historical/markets` and `GET /historical/markets/{ticker}/candlesticks`. - `trades_created_ts` : Trades that were **filled** before this timestamp must be accessed via `GET /historical/fills`. - `orders_updated_ts` : Orders that were **canceled or fully executed** before this timestamp must be accessed via `GET /historical/orders`. Resting (active) orders are always available in `GET /portfolio/orders`."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/historical/cutoff", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("historical_get-fills",
-			mcplib.WithDescription("Get Historical Fills Returns GetFillsResponse."),
+			mcplib.WithDescription("Endpoint for getting all historical fills for the member. A fill is when a trade you have is matched. Optional: ticker, max_ts, limit (default: 100) (plus 1 more). Returns the GetFillsResponse."),
 			mcplib.WithString("ticker", mcplib.Description("Filter by market ticker")),
 			mcplib.WithString("max_ts", mcplib.Description("Filter items before this Unix timestamp")),
 			mcplib.WithString("limit", mcplib.Description("Number of results per page. Defaults to 100.")),
-			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave...")),
+			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next...")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/historical/fills", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("historical_get-market",
-			mcplib.WithDescription("Get Historical Market Returns GetMarketResponse."),
+			mcplib.WithDescription("Endpoint for getting data about a specific market by its ticker from the historical database. Required: ticker. Returns the GetMarketResponse."),
 			mcplib.WithString("ticker", mcplib.Required(), mcplib.Description("Market ticker")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/historical/markets/{ticker}", []string{"ticker"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("historical_get-market-candlesticks",
-			mcplib.WithDescription("Get Historical Market Candlesticks Returns GetMarketCandlesticksHistoricalResponse."),
+			mcplib.WithDescription("Endpoint for fetching historical candlestick data for markets that have been archived from the live data set. Time period length of each candlestick in minutes. Valid values: 1 (1 minute), 60 (1 hour), 1440 (1 day). Required: ticker, start_ts, end_ts, period_interval. Returns the GetMarketCandlesticksHistoricalResponse."),
 			mcplib.WithString("ticker", mcplib.Required(), mcplib.Description("Market ticker - unique identifier for the specific market")),
 			mcplib.WithString("start_ts", mcplib.Required(), mcplib.Description("Start timestamp (Unix timestamp). Candlesticks will include those ending on or after this time.")),
 			mcplib.WithString("end_ts", mcplib.Required(), mcplib.Description("End timestamp (Unix timestamp). Candlesticks will include those ending on or before this time.")),
 			mcplib.WithString("period_interval", mcplib.Required(), mcplib.Description("Time period length of each candlestick in minutes. Valid values are 1 (1 minute), 60 (1 hour), or 1440 (1 day).")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/historical/markets/{ticker}/candlesticks", []string{"ticker"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("historical_get-markets",
-			mcplib.WithDescription("Get Historical Markets Returns GetMarketsResponse."),
+			mcplib.WithDescription("Endpoint for getting markets that have been archived to the historical database. Filters are mutually exclusive. Optional: limit (default: 100), cursor, tickers (plus 3 more). Returns the GetMarketsResponse."),
 			mcplib.WithString("limit", mcplib.Description("Number of results per page. Defaults to 100. Maximum value is 1000.")),
-			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave...")),
+			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next...")),
 			mcplib.WithString("tickers", mcplib.Description("Filter by specific market tickers. Comma-separated list of market tickers to retrieve.")),
 			mcplib.WithString("event_ticker", mcplib.Description("Event ticker to filter by. Only a single event ticker is supported.")),
 			mcplib.WithString("series_ticker", mcplib.Description("Filter by series ticker")),
 			mcplib.WithString("mve_filter", mcplib.Description("Filter by multivariate events (combos). By default, MVE markets are included.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/historical/markets", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("historical_get-orders",
-			mcplib.WithDescription("Get Historical Orders Returns GetOrdersResponse."),
+			mcplib.WithDescription("Endpoint for getting orders that have been archived to the historical database. Optional: ticker, max_ts, limit (default: 100) (plus 1 more). Returns the GetOrdersResponse."),
 			mcplib.WithString("ticker", mcplib.Description("Filter by market ticker")),
 			mcplib.WithString("max_ts", mcplib.Description("Filter items before this Unix timestamp")),
 			mcplib.WithString("limit", mcplib.Description("Number of results per page. Defaults to 100.")),
-			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave...")),
+			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next...")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/historical/orders", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("historical_get-trades",
-			mcplib.WithDescription("Get Historical Trades Returns GetTradesResponse."),
+			mcplib.WithDescription("Endpoint for getting all historical trades for all markets. Trades that were filled before the historical cutoff are available via this endpoint. See [Historical Data](https://kalshi.com/docs/getting_started/historical_data) for details. Optional: ticker, min_ts, max_ts (plus 2 more). Returns the GetTradesResponse."),
 			mcplib.WithString("ticker", mcplib.Description("Filter by market ticker")),
 			mcplib.WithString("min_ts", mcplib.Description("Filter items after this Unix timestamp")),
 			mcplib.WithString("max_ts", mcplib.Description("Filter items before this Unix timestamp")),
 			mcplib.WithString("limit", mcplib.Description("Number of results per page. Defaults to 100. Maximum value is 1000.")),
-			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave...")),
+			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next...")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/historical/trades", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("incentive-programs_get",
-			mcplib.WithDescription("Get Incentives Returns GetIncentiveProgramsResponse."),
+			mcplib.WithDescription("List incentives with optional filters. Incentives are rewards programs for trading activity on specific markets. Optional: status, type, incentive_description (plus 2 more). Returns the GetIncentiveProgramsResponse."),
 			mcplib.WithString("status", mcplib.Description("Status filter. Can be 'all', 'active', 'upcoming', 'closed', or 'paid_out'. Default is 'all'.")),
 			mcplib.WithString("type", mcplib.Description("Type filter. Can be 'all', 'liquidity', or 'volume'. Default is 'all'.")),
+			mcplib.WithString("incentive_description", mcplib.Description("Filter by exact incentive description.")),
 			mcplib.WithString("limit", mcplib.Description("Number of results per page. Defaults to 100. Maximum value is 10000.")),
 			mcplib.WithString("cursor", mcplib.Description("Cursor for pagination")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/incentive_programs", []string{}),
 	)
 	s.AddTool(
+		mcplib.NewTool("kalshi-trade-manual-search_get-filters-for-sports",
+			mcplib.WithDescription("Retrieve available filters organized by sport. This endpoint returns filtering options available for each sport, including scopes and competitions. It also provides an ordered list of sports for display purposes."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/search/filters_by_sport", []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("kalshi-trade-manual-search-2_get-tags-for-series-categories",
+			mcplib.WithDescription("Retrieve tags organized by series categories. This endpoint returns a mapping of series categories to their associated tags, which can be used for filtering and search functionality."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/search/tags_by_categories", []string{}),
+	)
+	s.AddTool(
 		mcplib.NewTool("live-data_get",
-			mcplib.WithDescription("Get Multiple Live Data Returns GetLiveDatasResponse."),
+			mcplib.WithDescription("Get live data for multiple milestones. Required: milestone_ids. Optional: include_player_stats (default: false). Returns the GetLiveDatasResponse."),
 			mcplib.WithString("milestone_ids", mcplib.Required(), mcplib.Description("Array of milestone IDs")),
-			mcplib.WithString("include_player_stats", mcplib.Description("When true, includes player-level statistics in the live data response. Supported for Pro Football, Pro Basketball,...")),
+			mcplib.WithString("include_player_stats", mcplib.Description("When true, includes player-level statistics in the live data response.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/live_data/batch", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("live-data_get-by-milestone",
-			mcplib.WithDescription("Get Live Data Returns GetLiveDataResponse."),
+			mcplib.WithDescription("Get live data for a specific milestone. Required: milestone_id. Optional: include_player_stats (default: false). Returns the GetLiveDataResponse."),
 			mcplib.WithString("milestone_id", mcplib.Required(), mcplib.Description("Milestone ID")),
-			mcplib.WithString("include_player_stats", mcplib.Description("When true, includes player-level statistics in the live data response. Supported for Pro Football, Pro Basketball,...")),
+			mcplib.WithString("include_player_stats", mcplib.Description("When true, includes player-level statistics in the live data response.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/live_data/milestone/{milestone_id}", []string{"milestone_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("live-data_get-game-stats",
-			mcplib.WithDescription("Get Game Stats Returns GetGameStatsResponse."),
+			mcplib.WithDescription("Get play-by-play game statistics for a specific milestone. Supported sports: Pro Football, College Football, Pro Basketball, College Men's Basketball, College Women's Basketball, WNBA, Soccer, Pro Hockey, and Pro Baseball. Returns null for unsupported milestone types or milestones without a Sportradar ID. Required: milestone_id."),
 			mcplib.WithString("milestone_id", mcplib.Required(), mcplib.Description("Milestone ID")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/live_data/milestone/{milestone_id}/game_stats", []string{"milestone_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("live-data_milestone_get-live-data",
-			mcplib.WithDescription("Get Live Data (with type) Returns GetLiveDataResponse."),
+			mcplib.WithDescription("Get live data for a specific milestone. This is the legacy endpoint that requires a type path parameter. Prefer using `/live_data/milestone/{milestone_id}` instead. Required: type, milestone_id. Optional: include_player_stats (default: false). Returns the GetLiveDataResponse."),
 			mcplib.WithString("type", mcplib.Required(), mcplib.Description("Type of live data")),
 			mcplib.WithString("milestone_id", mcplib.Required(), mcplib.Description("Milestone ID")),
-			mcplib.WithString("include_player_stats", mcplib.Description("When true, includes player-level statistics in the live data response. Supported for Pro Football, Pro Basketball,...")),
+			mcplib.WithString("include_player_stats", mcplib.Description("When true, includes player-level statistics in the live data response.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/live_data/{type}/milestone/{milestone_id}", []string{"type", "milestone_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("markets_batch-get-candlesticks",
-			mcplib.WithDescription("Batch Get Market Candlesticks Returns BatchGetMarketCandlesticksResponse."),
+			mcplib.WithDescription("Endpoint for retrieving candlestick data for multiple markets. - Accepts up to 100 market tickers per request - Returns up to 10,000 candlesticks total across all markets - Returns candlesticks grouped by market_id - Optionally includes a synthetic initial candlestick for price continuity (see `include_latest_before_start` parameter). Required: market_tickers, start_ts, end_ts, period_interval. Optional: include_latest_before_start (default: false)."),
 			mcplib.WithString("market_tickers", mcplib.Required(), mcplib.Description("Comma-separated list of market tickers (maximum 100)")),
 			mcplib.WithString("start_ts", mcplib.Required(), mcplib.Description("Start timestamp in Unix seconds")),
 			mcplib.WithString("end_ts", mcplib.Required(), mcplib.Description("End timestamp in Unix seconds")),
 			mcplib.WithString("period_interval", mcplib.Required(), mcplib.Description("Candlestick period interval in minutes")),
 			mcplib.WithString("include_latest_before_start", mcplib.Description("If true, prepends the latest candlestick available before the start_ts. This synthetic candlestick is created by: 1....")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/markets/candlesticks", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("markets_get",
-			mcplib.WithDescription("Get Markets Returns GetMarketsResponse."),
+			mcplib.WithDescription("Filter by market status. Possible values: `unopened`, `open`, `closed`, `settled`. Leave empty to return markets with any status. - Only one `status` filter may be supplied at a time. - Timestamp filters will be mutually exclusive from other timestamp filters and certain status filters. | Compatible Timestamp Filters | Additional Status Filters| Extra Notes | |------------------------------|--------------------------|-------------| | min_created_ts, max_created_ts | `unopened`, `open`, *empty* | | | min_close_ts, max_close_ts | `closed`, *empty* | | | min_settled_ts, max_settled_ts | `settled`, *empty* | | | min_updated_ts | *empty* | Incompatible with all filters besides `mve_filter=exclude` | Markets that settled before the historical cutoff are only available via `GET /historical/markets`. See [Historical Data](https://kalshi.com/docs/getting_started/historical_data) for details. Optional: limit (default: 100), cursor, event_ticker (plus 11 more). Returns the GetMarketsResponse."),
 			mcplib.WithString("limit", mcplib.Description("Number of results per page. Defaults to 100. Maximum value is 1000.")),
-			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave...")),
+			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next...")),
 			mcplib.WithString("event_ticker", mcplib.Description("Event ticker to filter by. Only a single event ticker is supported.")),
 			mcplib.WithString("series_ticker", mcplib.Description("Filter by series ticker")),
 			mcplib.WithString("min_created_ts", mcplib.Description("Filter items that created after this Unix timestamp")),
@@ -400,45 +506,60 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("status", mcplib.Description("Filter by market status. Leave empty to return markets with any status.")),
 			mcplib.WithString("tickers", mcplib.Description("Filter by specific market tickers. Comma-separated list of market tickers to retrieve.")),
 			mcplib.WithString("mve_filter", mcplib.Description("Filter by multivariate events (combos). 'only' returns only multivariate events, 'exclude' excludes multivariate events.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/markets", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("markets_get-orderbooks",
-			mcplib.WithDescription("Get Multiple Market Orderbooks Returns GetMarketOrderbooksResponse."),
+			mcplib.WithDescription("Endpoint for getting the current order books for multiple markets in a single request. The order book shows all active bid orders for both yes and no sides of a binary market. It returns yes bids and no bids only (no asks are returned). This is because in binary markets, a bid for yes at price X is equivalent to an ask for no at price (100-X). For example, a yes bid at 7¢ is the same as a no ask at 93¢, with identical contract sizes. Each side shows price levels with their corresponding quantities and order counts, organized from best to worst prices. Returns one orderbook per requested market ticker. Required: tickers."),
 			mcplib.WithString("tickers", mcplib.Required(), mcplib.Description("List of market tickers to fetch orderbooks for")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/markets/orderbooks", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("markets_get-ticker",
-			mcplib.WithDescription("Get Market Returns GetMarketResponse."),
+			mcplib.WithDescription("Endpoint for getting data about a specific market by its ticker. A market represents a specific binary outcome within an event that users can trade on (e.g., 'Will candidate X win?'). Markets have yes/no positions, current prices, volume, and settlement rules. Required: ticker. Returns the GetMarketResponse."),
 			mcplib.WithString("ticker", mcplib.Required(), mcplib.Description("Market ticker")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/markets/{ticker}", []string{"ticker"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("markets_get-trades",
-			mcplib.WithDescription("Get Trades Returns GetTradesResponse."),
+			mcplib.WithDescription("Endpoint for getting all trades for all markets. A trade represents a completed transaction between two users on a specific market. Each trade includes the market ticker, price, quantity, and timestamp information. This endpoint returns a paginated response. Use the 'limit' parameter to control page size (1-1000, defaults to 100). The response includes a 'cursor' field - pass this value in the 'cursor' parameter of your next request to get the next page. An empty cursor indicates no more pages are available. Optional: limit (default: 100), cursor, ticker (plus 2 more)."),
 			mcplib.WithString("limit", mcplib.Description("Number of results per page. Defaults to 100. Maximum value is 1000.")),
-			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave...")),
+			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next...")),
 			mcplib.WithString("ticker", mcplib.Description("Filter by market ticker")),
 			mcplib.WithString("min_ts", mcplib.Description("Filter items after this Unix timestamp")),
 			mcplib.WithString("max_ts", mcplib.Description("Filter items before this Unix timestamp")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/markets/trades", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("markets_orderbook_get-market",
-			mcplib.WithDescription("Get Market Orderbook Returns GetMarketOrderbookResponse."),
+			mcplib.WithDescription("Endpoint for getting the current order book for a specific market. The order book shows all active bid orders for both yes and no sides of a binary market. It returns yes bids and no bids only (no asks are returned). This is because in binary markets, a bid for yes at price X is equivalent to an ask for no at price (100-X). For example, a yes bid at 7¢ is the same as a no ask at 93¢, with identical contract sizes. Each side shows price levels with their corresponding quantities and order counts, organized from best to worst prices. Required: ticker. Optional: depth (default: 0)."),
 			mcplib.WithString("ticker", mcplib.Required(), mcplib.Description("Market ticker")),
 			mcplib.WithString("depth", mcplib.Description("Depth of the orderbook to retrieve (0 or negative means all levels, 1-100 for specific depth)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/markets/{ticker}/orderbook", []string{"ticker"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("milestones_get",
-			mcplib.WithDescription("Get Milestones Returns GetMilestonesResponse."),
+			mcplib.WithDescription("Minimum start date to filter milestones. Format: RFC3339 timestamp. Required: limit. Optional: minimum_start_date, category, competition (plus 5 more). Returns the GetMilestonesResponse."),
 			mcplib.WithString("limit", mcplib.Required(), mcplib.Description("Number of milestones to return per page")),
 			mcplib.WithString("minimum_start_date", mcplib.Description("Minimum start date to filter milestones. Format RFC3339 timestamp")),
 			mcplib.WithString("category", mcplib.Description("Filter by milestone category. E.g. Sports, Elections, Esports, Crypto.")),
@@ -448,375 +569,515 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("related_event_ticker", mcplib.Description("Filter by related event ticker")),
 			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next page of results")),
 			mcplib.WithString("min_updated_ts", mcplib.Description("Filter milestones with metadata updated after this Unix timestamp (in seconds). Use this to efficiently poll for...")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/milestones", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("milestones_get-milestoneid",
-			mcplib.WithDescription("Get Milestone Returns GetMilestoneResponse."),
+			mcplib.WithDescription("Endpoint for getting data about a specific milestone by its ID. Required: milestone_id. Returns the GetMilestoneResponse."),
 			mcplib.WithString("milestone_id", mcplib.Required(), mcplib.Description("Milestone ID")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/milestones/{milestone_id}", []string{"milestone_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("multivariate-event-collections_create-market-in",
-			mcplib.WithDescription("Create Market In Multivariate Event Collection Returns CreateMarketInMultivariateEventCollectionResponse."),
+			mcplib.WithDescription("Endpoint for creating an individual market in a multivariate event collection. This endpoint must be hit at least once before trading or looking up a market. Users are limited to 5000 creations per week. Required: collection_ticker. Optional: with_market_payload. Returns the new CreateMarketInMultivariateEventCollectionResponse."),
 			mcplib.WithString("collection_ticker", mcplib.Required(), mcplib.Description("Collection ticker")),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/multivariate_event_collections/{collection_ticker}", []string{"collection_ticker"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("multivariate-event-collections_get",
-			mcplib.WithDescription("Get Multivariate Event Collections Returns GetMultivariateEventCollectionsResponse."),
+			mcplib.WithDescription("Endpoint for getting data about multivariate event collections. Optional: status, associated_event_ticker, series_ticker (plus 2 more). Returns the GetMultivariateEventCollectionsResponse."),
 			mcplib.WithString("status", mcplib.Description("Only return collections of a certain status. Can be unopened, open, or closed.")),
 			mcplib.WithString("associated_event_ticker", mcplib.Description("Only return collections associated with a particular event ticker.")),
 			mcplib.WithString("series_ticker", mcplib.Description("Only return collections with a particular series ticker.")),
 			mcplib.WithString("limit", mcplib.Description("Specify the maximum number of results.")),
 			mcplib.WithString("cursor", mcplib.Description("The Cursor represents a pointer to the next page of records in the pagination. This optional parameter, when filled,...")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/multivariate_event_collections", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("multivariate-event-collections_get-multivariateeventcollections",
-			mcplib.WithDescription("Get Multivariate Event Collection Returns GetMultivariateEventCollectionResponse."),
+			mcplib.WithDescription("Endpoint for getting data about a multivariate event collection by its ticker. Required: collection_ticker. Returns the GetMultivariateEventCollectionResponse."),
 			mcplib.WithString("collection_ticker", mcplib.Required(), mcplib.Description("Collection ticker")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/multivariate_event_collections/{collection_ticker}", []string{"collection_ticker"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("multivariate-event-collections_lookup_get-multivariate-event-collection-history",
-			mcplib.WithDescription("Get Multivariate Event Collection Lookup History Returns GetMultivariateEventCollectionLookupHistoryResponse."),
+			mcplib.WithDescription("DEPRECATED: This endpoint predates RFQs and should not be used for new integrations. Endpoint for retrieving which markets in an event collection were recently looked up. Required: collection_ticker, lookback_seconds. Returns the GetMultivariateEventCollectionLookupHistoryResponse."),
 			mcplib.WithString("collection_ticker", mcplib.Required(), mcplib.Description("Collection ticker")),
 			mcplib.WithString("lookback_seconds", mcplib.Required(), mcplib.Description("Number of seconds to look back for lookup history. Must be one of 10, 60, 300, or 3600.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/multivariate_event_collections/{collection_ticker}/lookup", []string{"collection_ticker"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("multivariate-event-collections_lookup_tickers-for-market-in-multivariate-event-collection",
-			mcplib.WithDescription("Lookup Tickers For Market In Multivariate Event Collection Returns LookupTickersForMarketInMultivariateEventCollectionResponse."),
+			mcplib.WithDescription("DEPRECATED: This endpoint predates RFQs and should not be used for new integrations. Endpoint for looking up an individual market in a multivariate event collection. If CreateMarketInMultivariateEventCollection has never been hit with that variable combination before, this will return a 404. Required: collection_ticker. Returns the updated LookupTickersForMarketInMultivariateEventCollectionResponse."),
 			mcplib.WithString("collection_ticker", mcplib.Required(), mcplib.Description("Collection ticker")),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("PUT", "/multivariate_event_collections/{collection_ticker}/lookup", []string{"collection_ticker"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("portfolio_amend-order",
-			mcplib.WithDescription("Amend Order Returns AmendOrderResponse."),
+			mcplib.WithDescription("Endpoint for amending the max number of fillable contracts and/or price in an existing order. Max fillable contracts is `remaining_count` + `fill_count`. Required: order_id, action, side, ticker. Optional: client_order_id, count, count_fp (plus 6 more). Returns the new AmendOrderResponse."),
 			mcplib.WithString("order_id", mcplib.Required(), mcplib.Description("Order ID")),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/portfolio/orders/{order_id}/amend", []string{"order_id"}),
 	)
 	s.AddTool(
+		mcplib.NewTool("portfolio_amend-order-v2",
+			mcplib.WithDescription("Endpoint for amending the price and/or remaining count of an existing event-market order using the V2 request/response shape. Required: order_id, count, price, side, ticker. Optional: subaccount, client_order_id, updated_client_order_id. Returns the new AmendOrderV2Response."),
+			mcplib.WithString("order_id", mcplib.Required(), mcplib.Description("Order ID")),
+			mcplib.WithString("subaccount", mcplib.Description("Subaccount number (0 for primary, 1-32 for subaccounts). Defaults to 0.")),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/portfolio/events/orders/{order_id}/amend", []string{"order_id"}),
+	)
+	s.AddTool(
 		mcplib.NewTool("portfolio_apply-subaccount-transfer",
-			mcplib.WithDescription("Transfer Between Subaccounts Returns ApplySubaccountTransferResponse."),
+			mcplib.WithDescription("Transfers funds between the authenticated user's subaccounts. Use 0 for the primary account, or 1-32 for numbered subaccounts. Required: amount_cents, client_transfer_id, from_subaccount, to_subaccount. Returns the new ApplySubaccountTransferResponse."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/portfolio/subaccounts/transfer", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("portfolio_batch-cancel-orders",
-			mcplib.WithDescription("Batch Cancel Orders Returns BatchCancelOrdersResponse. Destructive."),
+			mcplib.WithDescription("Endpoint for cancelling a batch of orders. The maximum batch size scales with your tier's write budget — see [Rate Limits and Tiers](/getting_started/rate_limits). Optional: ids. Returns the BatchCancelOrdersResponse. Destructive."),
+			mcplib.WithDestructiveHintAnnotation(true),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("DELETE", "/portfolio/orders/batched", []string{}),
 	)
 	s.AddTool(
+		mcplib.NewTool("portfolio_batch-cancel-orders-v2",
+			mcplib.WithDescription("Endpoint for cancelling a batch of event-market orders using the V2 response shape. The maximum batch size scales with your tier's write budget — see [Rate Limits and Tiers](/getting_started/rate_limits). Returns the BatchCancelOrdersV2Response. Destructive."),
+			mcplib.WithDestructiveHintAnnotation(true),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("DELETE", "/portfolio/events/orders/batched", []string{}),
+	)
+	s.AddTool(
 		mcplib.NewTool("portfolio_batch-create-orders",
-			mcplib.WithDescription("Batch Create Orders Returns BatchCreateOrdersResponse."),
+			mcplib.WithDescription("Endpoint for submitting a batch of orders. The maximum batch size scales with your tier's write budget — see [Rate Limits and Tiers](/getting_started/rate_limits). Returns the new BatchCreateOrdersResponse."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/portfolio/orders/batched", []string{}),
 	)
 	s.AddTool(
+		mcplib.NewTool("portfolio_batch-create-orders-v2",
+			mcplib.WithDescription("Endpoint for submitting a batch of event-market orders using the V2 request/response shape. The maximum batch size scales with your tier's write budget — see [Rate Limits and Tiers](/getting_started/rate_limits). Returns the new BatchCreateOrdersV2Response."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/portfolio/events/orders/batched", []string{}),
+	)
+	s.AddTool(
 		mcplib.NewTool("portfolio_cancel-order",
-			mcplib.WithDescription("Cancel Order Returns CancelOrderResponse. Destructive."),
+			mcplib.WithDescription("Endpoint for canceling orders. The value for the orderId should match the id field of the order you want to decrease. Commonly, DELETE-type endpoints return 204 status with no body content on success. But we can't completely delete the order, as it may be partially filled already. Instead, the DeleteOrder endpoint reduce the order completely, essentially zeroing the remaining resting contracts on it. The zeroed order is returned on the response payload as a form of validation for the client. Required: order_id. Optional: subaccount. Returns the CancelOrderResponse. Destructive."),
 			mcplib.WithString("order_id", mcplib.Required(), mcplib.Description("Order ID")),
 			mcplib.WithString("subaccount", mcplib.Description("Subaccount number (0 for primary, 1-32 for subaccounts). Defaults to 0.")),
+			mcplib.WithDestructiveHintAnnotation(true),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("DELETE", "/portfolio/orders/{order_id}", []string{"order_id"}),
 	)
 	s.AddTool(
+		mcplib.NewTool("portfolio_cancel-order-v2",
+			mcplib.WithDescription("Endpoint for cancelling event-market orders using the V2 response shape. Returns `{order_id, client_order_id, reduced_by}` rather than a full order object. Required: order_id. Optional: subaccount. Destructive."),
+			mcplib.WithString("order_id", mcplib.Required(), mcplib.Description("Order ID")),
+			mcplib.WithString("subaccount", mcplib.Description("Subaccount number (0 for primary, 1-32 for subaccounts). Defaults to 0.")),
+			mcplib.WithDestructiveHintAnnotation(true),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("DELETE", "/portfolio/events/orders/{order_id}", []string{"order_id"}),
+	)
+	s.AddTool(
 		mcplib.NewTool("portfolio_create-order",
-			mcplib.WithDescription("Create Order Returns CreateOrderResponse."),
+			mcplib.WithDescription("Endpoint for submitting orders in a market. Each user is limited to 200 000 open orders at a time. Required: action, side, ticker. Optional: buy_max_cost, cancel_order_on_pause, client_order_id (plus 13 more). Returns the new CreateOrderResponse."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/portfolio/orders", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("portfolio_create-order-group",
-			mcplib.WithDescription("Create Order Group Returns CreateOrderGroupResponse."),
+			mcplib.WithDescription("Creates a new order group with a contracts limit measured over a rolling 15-second window. When the limit is hit, all orders in the group are cancelled and no new orders can be placed until reset. Optional: contracts_limit, contracts_limit_fp, subaccount (default: 0). Returns the new CreateOrderGroupResponse."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/portfolio/order_groups/create", []string{}),
 	)
 	s.AddTool(
+		mcplib.NewTool("portfolio_create-order-v2",
+			mcplib.WithDescription("Endpoint for submitting event-market orders using the V2 request/response shape (single-book `bid`/`ask` side and fixed-point dollar prices). The legacy `/portfolio/orders` endpoint will be deprecated no earlier than May 6, 2026 — clients should migrate to this path. Required: client_order_id, count, price, side, ticker, time_in_force. Optional: cancel_order_on_pause, expiration_time, order_group_id (plus 3 more). Returns the new CreateOrderV2Response."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/portfolio/events/orders", []string{}),
+	)
+	s.AddTool(
 		mcplib.NewTool("portfolio_create-subaccount",
-			mcplib.WithDescription("Create Subaccount Returns CreateSubaccountResponse."),
+			mcplib.WithDescription("Creates a new subaccount for the authenticated user. Subaccounts are numbered sequentially starting from 1. Maximum 32 subaccounts per user. Returns the new CreateSubaccountResponse."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/portfolio/subaccounts", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("portfolio_decrease-order",
-			mcplib.WithDescription("Decrease Order Returns DecreaseOrderResponse."),
+			mcplib.WithDescription("Endpoint for decreasing the number of contracts in an existing order. This is the only kind of edit available on order quantity. Cancelling an order is equivalent to decreasing an order amount to zero. Required: order_id. Optional: reduce_by, reduce_by_fp, reduce_to (plus 2 more). Returns the new DecreaseOrderResponse."),
 			mcplib.WithString("order_id", mcplib.Required(), mcplib.Description("Order ID")),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/portfolio/orders/{order_id}/decrease", []string{"order_id"}),
 	)
 	s.AddTool(
+		mcplib.NewTool("portfolio_decrease-order-v2",
+			mcplib.WithDescription("Endpoint for decreasing the remaining count of an existing event-market order using the V2 request/response shape. Only `reduce_to` is supported. Required: order_id, reduce_to. Optional: subaccount. Returns the new DecreaseOrderV2Response."),
+			mcplib.WithString("order_id", mcplib.Required(), mcplib.Description("Order ID")),
+			mcplib.WithString("subaccount", mcplib.Description("Subaccount number (0 for primary, 1-32 for subaccounts). Defaults to 0.")),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/portfolio/events/orders/{order_id}/decrease", []string{"order_id"}),
+	)
+	s.AddTool(
 		mcplib.NewTool("portfolio_delete-order-group",
-			mcplib.WithDescription("Delete Order Group Returns EmptyResponse. Destructive."),
+			mcplib.WithDescription("Deletes an order group and cancels all orders within it. This permanently removes the group. Required: order_group_id. Optional: subaccount. Returns the EmptyResponse. Destructive."),
 			mcplib.WithString("order_group_id", mcplib.Required(), mcplib.Description("Order group ID")),
 			mcplib.WithString("subaccount", mcplib.Description("Subaccount number (0 for primary, 1-32 for subaccounts). Defaults to 0.")),
+			mcplib.WithDestructiveHintAnnotation(true),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("DELETE", "/portfolio/order_groups/{order_group_id}", []string{"order_group_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("portfolio_get-balance",
-			mcplib.WithDescription("Get Balance Returns GetBalanceResponse."),
+			mcplib.WithDescription("Endpoint for getting the balance and portfolio value of a member. Both values are returned in cents. Optional: subaccount. Returns the GetBalanceResponse."),
 			mcplib.WithString("subaccount", mcplib.Description("Subaccount number (0 for primary, 1-32 for subaccounts). Defaults to 0.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/portfolio/balance", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("portfolio_get-fills",
-			mcplib.WithDescription("Get Fills Returns GetFillsResponse."),
+			mcplib.WithDescription("Endpoint for getting all fills for the member. A fill is when a trade you have is matched. Fills that occurred before the historical cutoff are only available via `GET /historical/fills`. See [Historical Data](https://kalshi.com/docs/getting_started/historical_data) for details. Optional: ticker, order_id, min_ts (plus 4 more). Returns the GetFillsResponse."),
 			mcplib.WithString("ticker", mcplib.Description("Filter by market ticker")),
 			mcplib.WithString("order_id", mcplib.Description("Filter by order ID")),
 			mcplib.WithString("min_ts", mcplib.Description("Filter items after this Unix timestamp")),
 			mcplib.WithString("max_ts", mcplib.Description("Filter items before this Unix timestamp")),
 			mcplib.WithString("limit", mcplib.Description("Number of results per page. Defaults to 100.")),
-			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave...")),
+			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next...")),
 			mcplib.WithString("subaccount", mcplib.Description("Subaccount number (0 for primary, 1-32 for subaccounts). If omitted, defaults to all subaccounts.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/portfolio/fills", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("portfolio_get-order",
-			mcplib.WithDescription("Get Order Returns GetOrderResponse."),
+			mcplib.WithDescription("Endpoint for getting a single order. Required: order_id. Returns the GetOrderResponse."),
 			mcplib.WithString("order_id", mcplib.Required(), mcplib.Description("Order ID")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/portfolio/orders/{order_id}", []string{"order_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("portfolio_get-order-group",
-			mcplib.WithDescription("Get Order Group Returns GetOrderGroupResponse."),
+			mcplib.WithDescription("Retrieves details for a single order group including all order IDs and auto-cancel status. Required: order_group_id. Optional: subaccount. Returns the GetOrderGroupResponse."),
 			mcplib.WithString("order_group_id", mcplib.Required(), mcplib.Description("Order group ID")),
 			mcplib.WithString("subaccount", mcplib.Description("Subaccount number (0 for primary, 1-32 for subaccounts). If omitted, defaults to all subaccounts.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/portfolio/order_groups/{order_group_id}", []string{"order_group_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("portfolio_get-order-groups",
-			mcplib.WithDescription("Get Order Groups Returns GetOrderGroupsResponse."),
+			mcplib.WithDescription("Retrieves all order groups for the authenticated user. Optional: subaccount. Returns the GetOrderGroupsResponse."),
 			mcplib.WithString("subaccount", mcplib.Description("Subaccount number (0 for primary, 1-32 for subaccounts). If omitted, defaults to all subaccounts.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/portfolio/order_groups", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("portfolio_get-order-queue-position",
-			mcplib.WithDescription("Get Order Queue Position Returns GetOrderQueuePositionResponse."),
+			mcplib.WithDescription("Endpoint for getting an order's queue position in the order book. This represents the amount of orders that need to be matched before this order receives a partial or full match. Queue position is determined using a price-time priority. Required: order_id. Returns the GetOrderQueuePositionResponse."),
 			mcplib.WithString("order_id", mcplib.Required(), mcplib.Description("Order ID")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/portfolio/orders/{order_id}/queue_position", []string{"order_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("portfolio_get-order-queue-positions",
-			mcplib.WithDescription("Get Queue Positions for Orders Returns GetOrderQueuePositionsResponse."),
+			mcplib.WithDescription("Endpoint for getting queue positions for all resting orders. Queue position represents the number of contracts that need to be matched before an order receives a partial or full match, determined using price-time priority. Optional: market_tickers, event_ticker, subaccount. Returns the GetOrderQueuePositionsResponse."),
 			mcplib.WithString("market_tickers", mcplib.Description("Comma-separated list of market tickers to filter by")),
 			mcplib.WithString("event_ticker", mcplib.Description("Event ticker to filter by")),
 			mcplib.WithString("subaccount", mcplib.Description("Subaccount number (0 for primary, 1-32 for subaccounts). Defaults to 0.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/portfolio/orders/queue_positions", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("portfolio_get-orders",
-			mcplib.WithDescription("Get Orders Returns GetOrdersResponse."),
+			mcplib.WithDescription("Restricts the response to orders that have a certain status: resting, canceled, or executed. Orders that have been canceled or fully executed before the historical cutoff are only available via `GET /historical/orders`. Resting orders will always be available through this endpoint. See [Historical Data](https://kalshi.com/docs/getting_started/historical_data) for details. Optional: ticker, event_ticker, min_ts (plus 5 more). Returns the GetOrdersResponse."),
 			mcplib.WithString("ticker", mcplib.Description("Filter by market ticker")),
 			mcplib.WithString("event_ticker", mcplib.Description("Event tickers to filter by, as a comma-separated list (maximum 10).")),
 			mcplib.WithString("min_ts", mcplib.Description("Filter items after this Unix timestamp")),
 			mcplib.WithString("max_ts", mcplib.Description("Filter items before this Unix timestamp")),
 			mcplib.WithString("status", mcplib.Description("Filter by status. Possible values depend on the endpoint.")),
 			mcplib.WithString("limit", mcplib.Description("Number of results per page. Defaults to 100.")),
-			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave...")),
+			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next...")),
 			mcplib.WithString("subaccount", mcplib.Description("Subaccount number (0 for primary, 1-32 for subaccounts). If omitted, defaults to all subaccounts.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/portfolio/orders", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("portfolio_get-positions",
-			mcplib.WithDescription("Get Positions Returns GetPositionsResponse."),
+			mcplib.WithDescription("Restricts the positions to those with any of following fields with non-zero values, as a comma separated list. The following values are accepted: position, total_traded. Optional: cursor, limit (default: 100), count_filter (plus 3 more). Returns the GetPositionsResponse."),
 			mcplib.WithString("cursor", mcplib.Description("The Cursor represents a pointer to the next page of records in the pagination. Use the value returned from the...")),
 			mcplib.WithString("limit", mcplib.Description("Parameter to specify the number of results per page. Defaults to 100.")),
 			mcplib.WithString("count_filter", mcplib.Description("Restricts the positions to those with any of following fields with non-zero values, as a comma separated list. The...")),
 			mcplib.WithString("ticker", mcplib.Description("Filter by market ticker")),
 			mcplib.WithString("event_ticker", mcplib.Description("Event ticker to filter by. Only a single event ticker is supported.")),
 			mcplib.WithString("subaccount", mcplib.Description("Subaccount number (0 for primary, 1-32 for subaccounts). Defaults to 0.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/portfolio/positions", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("portfolio_get-resting-order-total-value",
-			mcplib.WithDescription("Get Total Resting Order Value Returns GetPortfolioRestingOrderTotalValueResponse."),
+			mcplib.WithDescription("Endpoint for getting the total value, in cents, of resting orders. This endpoint is only intended for use by FCM members (rare). Note: If you're uncertain about this endpoint, it likely does not apply to you. Returns the GetPortfolioRestingOrderTotalValueResponse."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/portfolio/summary/total_resting_order_value", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("portfolio_get-settlements",
-			mcplib.WithDescription("Get Settlements Returns GetSettlementsResponse."),
+			mcplib.WithDescription("Endpoint for getting the member's settlements historical track. Optional: limit (default: 100), cursor, ticker (plus 4 more). Returns the GetSettlementsResponse."),
 			mcplib.WithString("limit", mcplib.Description("Number of results per page. Defaults to 100.")),
-			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave...")),
+			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next...")),
 			mcplib.WithString("ticker", mcplib.Description("Filter by market ticker")),
 			mcplib.WithString("event_ticker", mcplib.Description("Event ticker to filter by. Only a single event ticker is supported.")),
 			mcplib.WithString("min_ts", mcplib.Description("Filter items after this Unix timestamp")),
 			mcplib.WithString("max_ts", mcplib.Description("Filter items before this Unix timestamp")),
 			mcplib.WithString("subaccount", mcplib.Description("Subaccount number (0 for primary, 1-32 for subaccounts). If omitted, defaults to all subaccounts.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/portfolio/settlements", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("portfolio_get-subaccount-balances",
-			mcplib.WithDescription("Get All Subaccount Balances Returns GetSubaccountBalancesResponse."),
+			mcplib.WithDescription("Gets balances for all subaccounts including the primary account. Returns the GetSubaccountBalancesResponse."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/portfolio/subaccounts/balances", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("portfolio_get-subaccount-netting",
-			mcplib.WithDescription("Get Subaccount Netting Returns GetSubaccountNettingResponse."),
+			mcplib.WithDescription("Gets the netting enabled settings for all subaccounts. Returns the GetSubaccountNettingResponse."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/portfolio/subaccounts/netting", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("portfolio_get-subaccount-transfers",
-			mcplib.WithDescription("Get Subaccount Transfers Returns GetSubaccountTransfersResponse."),
+			mcplib.WithDescription("Gets a paginated list of all transfers between subaccounts for the authenticated user. Optional: limit (default: 100), cursor. Returns the GetSubaccountTransfersResponse."),
 			mcplib.WithString("limit", mcplib.Description("Number of results per page. Defaults to 100.")),
-			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave...")),
+			mcplib.WithString("cursor", mcplib.Description("Pagination cursor. Use the cursor value returned from the previous response to get the next...")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/portfolio/subaccounts/transfers", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("portfolio_reset-order-group",
-			mcplib.WithDescription("Reset Order Group Returns EmptyResponse."),
+			mcplib.WithDescription("Resets the order group's matched contracts counter to zero, allowing new orders to be placed again after the limit was hit. Required: order_group_id. Optional: subaccount. Returns the updated EmptyResponse."),
 			mcplib.WithString("order_group_id", mcplib.Required(), mcplib.Description("Order group ID")),
 			mcplib.WithString("subaccount", mcplib.Description("Subaccount number (0 for primary, 1-32 for subaccounts). Defaults to 0.")),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("PUT", "/portfolio/order_groups/{order_group_id}/reset", []string{"order_group_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("portfolio_trigger-order-group",
-			mcplib.WithDescription("Trigger Order Group Returns EmptyResponse."),
+			mcplib.WithDescription("Triggers the order group, canceling all orders in the group and preventing new orders until the group is reset. Required: order_group_id. Optional: subaccount. Returns the updated EmptyResponse."),
 			mcplib.WithString("order_group_id", mcplib.Required(), mcplib.Description("Order group ID")),
 			mcplib.WithString("subaccount", mcplib.Description("Subaccount number (0 for primary, 1-32 for subaccounts). Defaults to 0.")),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("PUT", "/portfolio/order_groups/{order_group_id}/trigger", []string{"order_group_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("portfolio_update-order-group-limit",
-			mcplib.WithDescription("Update Order Group Limit Returns EmptyResponse."),
+			mcplib.WithDescription("Updates the order group contracts limit (rolling 15-second window). If the updated limit would immediately trigger the group, all orders in the group are canceled and the group is triggered. Required: order_group_id. Optional: contracts_limit, contracts_limit_fp. Returns the updated EmptyResponse."),
 			mcplib.WithString("order_group_id", mcplib.Required(), mcplib.Description("Order group ID")),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("PUT", "/portfolio/order_groups/{order_group_id}/limit", []string{"order_group_id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("portfolio_update-subaccount-netting",
-			mcplib.WithDescription("Update Subaccount Netting"),
+			mcplib.WithDescription("Updates the netting enabled setting for a specific subaccount. Use 0 for the primary account, or 1-32 for numbered subaccounts. Required: enabled, subaccount_number."),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("PUT", "/portfolio/subaccounts/netting", []string{}),
 	)
 	s.AddTool(
-		mcplib.NewTool("search_get-filters-for-sports",
-			mcplib.WithDescription("Get Filters for Sports Returns GetFiltersBySportsResponse."),
-		),
-		makeAPIHandler("GET", "/search/filters_by_sport", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("search_get-tags-for-series-categories",
-			mcplib.WithDescription("Get Tags for Series Categories Returns GetTagsForSeriesCategoriesResponse."),
-		),
-		makeAPIHandler("GET", "/search/tags_by_categories", []string{}),
-	)
-	s.AddTool(
 		mcplib.NewTool("series_get",
-			mcplib.WithDescription("Get Series Returns GetSeriesResponse."),
+			mcplib.WithDescription("Endpoint for getting data about a specific series by its ticker. A series represents a template for recurring events that follow the same format and rules (e.g., 'Monthly Jobs Report', 'Weekly Initial Jobless Claims', 'Daily Weather in NYC'). Series define the structure, settlement sources, and metadata that will be applied to each recurring event instance within that series. Required: series_ticker. Optional: include_volume (default: false). Returns the GetSeriesResponse."),
 			mcplib.WithString("series_ticker", mcplib.Required(), mcplib.Description("The ticker of the series to retrieve")),
 			mcplib.WithString("include_volume", mcplib.Description("If true, includes the total volume traded across all events in this series.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/series/{series_ticker}", []string{"series_ticker"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("series_get-fee-changes",
-			mcplib.WithDescription("Get Series Fee Changes Returns GetSeriesFeeChangesResponse."),
+			mcplib.WithDescription("Get Series Fee Changes. Optional: series_ticker, show_historical (default: false). Returns the GetSeriesFeeChangesResponse."),
 			mcplib.WithString("series_ticker", mcplib.Description("Series ticker")),
 			mcplib.WithString("show_historical", mcplib.Description("Show historical")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/series/fee_changes", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("series_get-list",
-			mcplib.WithDescription("Get Series List Returns GetSeriesListResponse."),
+			mcplib.WithDescription("Endpoint for getting data about multiple series with specified filters. A series represents a template for recurring events that follow the same format and rules (e.g., 'Monthly Jobs Report', 'Weekly Initial Jobless Claims', 'Daily Weather in NYC'). This endpoint allows you to browse and discover available series templates by category. Optional: category, tags, include_product_metadata (default: false) (plus 2 more). Returns the GetSeriesListResponse."),
 			mcplib.WithString("category", mcplib.Description("Category")),
 			mcplib.WithString("tags", mcplib.Description("Tags")),
 			mcplib.WithString("include_product_metadata", mcplib.Description("Include product metadata")),
 			mcplib.WithString("include_volume", mcplib.Description("If true, includes the total volume traded across all events in each series.")),
 			mcplib.WithString("min_updated_ts", mcplib.Description("Filter series with metadata updated after this Unix timestamp (in seconds). Use this to efficiently poll for changes.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/series", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("series_events_get-forecast-percentiles-history",
-			mcplib.WithDescription("Get Event Forecast Percentile History Returns GetEventForecastPercentilesHistoryResponse."),
+			mcplib.WithDescription("Endpoint for getting the historical raw and formatted forecast numbers for an event at specific percentiles. Required: ticker, series_ticker, percentiles, start_ts, end_ts, period_interval. Returns the GetEventForecastPercentilesHistoryResponse."),
 			mcplib.WithString("ticker", mcplib.Required(), mcplib.Description("The event ticker")),
 			mcplib.WithString("series_ticker", mcplib.Required(), mcplib.Description("The series ticker")),
 			mcplib.WithString("percentiles", mcplib.Required(), mcplib.Description("Array of percentile values to retrieve (0-10000, max 10 values)")),
 			mcplib.WithString("start_ts", mcplib.Required(), mcplib.Description("Start timestamp for the range")),
 			mcplib.WithString("end_ts", mcplib.Required(), mcplib.Description("End timestamp for the range")),
 			mcplib.WithString("period_interval", mcplib.Required(), mcplib.Description("Specifies the length of each forecast period, in minutes. 0 for 5-second intervals, or 1, 60, or 1440 for...")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/series/{series_ticker}/events/{ticker}/forecast_percentile_history", []string{"ticker", "series_ticker"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("series_events_get-market-candlesticks-by",
-			mcplib.WithDescription("Get Event Candlesticks Returns GetEventCandlesticksResponse."),
+			mcplib.WithDescription("End-point for returning aggregated data across all markets corresponding to an event. Required: ticker, series_ticker, start_ts, end_ts, period_interval. Returns the GetEventCandlesticksResponse."),
 			mcplib.WithString("ticker", mcplib.Required(), mcplib.Description("The event ticker")),
 			mcplib.WithString("series_ticker", mcplib.Required(), mcplib.Description("The series ticker")),
 			mcplib.WithString("start_ts", mcplib.Required(), mcplib.Description("Start timestamp for the range")),
 			mcplib.WithString("end_ts", mcplib.Required(), mcplib.Description("End timestamp for the range")),
 			mcplib.WithString("period_interval", mcplib.Required(), mcplib.Description("Specifies the length of each candlestick period, in minutes. Must be one minute, one hour, or one day.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/series/{series_ticker}/events/{ticker}/candlesticks", []string{"ticker", "series_ticker"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("series_markets_get-candlesticks",
-			mcplib.WithDescription("Get Market Candlesticks Returns GetMarketCandlesticksResponse."),
+			mcplib.WithDescription("Time period length of each candlestick in minutes. Valid values: 1 (1 minute), 60 (1 hour), 1440 (1 day). Candlesticks for markets that settled before the historical cutoff are only available via `GET /historical/markets/{ticker}/candlesticks`. See [Historical Data](https://kalshi.com/docs/getting_started/historical_data) for details. Required: series_ticker, ticker, start_ts, end_ts, period_interval. Optional: include_latest_before_start (default: false). Returns the GetMarketCandlesticksResponse."),
 			mcplib.WithString("series_ticker", mcplib.Required(), mcplib.Description("Series ticker - the series that contains the target market")),
 			mcplib.WithString("ticker", mcplib.Required(), mcplib.Description("Market ticker - unique identifier for the specific market")),
 			mcplib.WithString("start_ts", mcplib.Required(), mcplib.Description("Start timestamp (Unix timestamp). Candlesticks will include those ending on or after this time.")),
 			mcplib.WithString("end_ts", mcplib.Required(), mcplib.Description("End timestamp (Unix timestamp). Candlesticks will include those ending on or before this time.")),
 			mcplib.WithString("period_interval", mcplib.Required(), mcplib.Description("Time period length of each candlestick in minutes. Valid values are 1 (1 minute), 60 (1 hour), or 1440 (1 day).")),
 			mcplib.WithString("include_latest_before_start", mcplib.Description("If true, prepends the latest candlestick available before the start_ts. This synthetic candlestick is created by: 1....")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/series/{series_ticker}/markets/{ticker}/candlesticks", []string{"series_ticker", "ticker"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("structured-targets_get",
-			mcplib.WithDescription("Get Structured Targets Returns GetStructuredTargetsResponse."),
+			mcplib.WithDescription("Page size (min: 1, max: 2000). Optional: ids, type, competition (plus 2 more). Returns the GetStructuredTargetsResponse."),
 			mcplib.WithString("ids", mcplib.Description("Filter by specific structured target IDs. Pass multiple IDs by repeating the parameter (e.g. `?ids=uuid1&ids=uuid2`).")),
 			mcplib.WithString("type", mcplib.Description("Filter by structured target type")),
 			mcplib.WithString("competition", mcplib.Description("Filter by competition. Matches against the league, conference, division, or tour in the structured target details.")),
 			mcplib.WithString("page_size", mcplib.Description("Number of items per page (min 1, max 2000, default 100)")),
 			mcplib.WithString("cursor", mcplib.Description("Pagination cursor")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/structured_targets", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("structured-targets_get-structuredtargets",
-			mcplib.WithDescription("Get Structured Target Returns GetStructuredTargetResponse."),
+			mcplib.WithDescription("Endpoint for getting data about a specific structured target by its ID. Required: structured_target_id. Returns the GetStructuredTargetResponse."),
 			mcplib.WithString("structured_target_id", mcplib.Required(), mcplib.Description("Structured target ID")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/structured_targets/{structured_target_id}", []string{"structured_target_id"}),
-	)
-	// Sync tool — populates local database for offline search and sql queries
-	s.AddTool(
-		mcplib.NewTool("sync",
-			mcplib.WithDescription("Sync API data to local SQLite database. Run this before using search or sql tools. Supports incremental sync."),
-			mcplib.WithString("resources", mcplib.Description("Comma-separated resource types to sync (omit for all)")),
-			mcplib.WithString("since", mcplib.Description("Incremental sync since duration (e.g. 7d, 24h, 1w)")),
-			mcplib.WithBoolean("full", mcplib.Description("Full resync ignoring checkpoints")),
-		),
-		handleSync,
 	)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
@@ -824,6 +1085,8 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDescription("Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)")),
 			mcplib.WithNumber("limit", mcplib.Description("Max results (default 25)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleSearch,
 	)
@@ -832,6 +1095,8 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("sql",
 			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT only). Tables match resource names.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleSQL,
 	)
@@ -841,9 +1106,15 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("context",
 			mcplib.WithDescription("Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleContext,
 	)
+
+	// Runtime Cobra-tree mirror — exposes every user-facing command that is
+	// not already covered by a typed endpoint or framework MCP tool.
+	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
@@ -854,27 +1125,33 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 			return mcplib.NewToolResultError(err.Error()), nil
 		}
 
-		// Build path by substituting positional params
+		// mcp-go v0.47+ made CallToolParams.Arguments an `any` to support
+		// non-map payloads; GetArguments() returns the map[string]any shape
+		// we rely on here (or an empty map when the payload is something else).
+		args := req.GetArguments()
+
+		// positionalParams mixes real URL path params with CLI positional
+		// args that map to query params (e.g. `search <query>` -> ?query=);
+		// the placeholder check below disambiguates them at runtime.
 		path := pathTemplate
+		pathParams := make(map[string]bool, len(positionalParams))
 		for _, p := range positionalParams {
-			if v, ok := req.Params.Arguments[p]; ok {
-				path = strings.Replace(path, "{"+p+"}", fmt.Sprintf("%v", v), 1)
+			placeholder := "{" + p + "}"
+			if !strings.Contains(pathTemplate, placeholder) {
+				continue
+			}
+			pathParams[p] = true
+			if v, ok := args[p]; ok {
+				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
 			}
 		}
 
-		// Collect non-positional params as query params
 		params := make(map[string]string)
-		for k, v := range req.Params.Arguments {
-			isPositional := false
-			for _, p := range positionalParams {
-				if k == p {
-					isPositional = true
-					break
-				}
+		for k, v := range args {
+			if pathParams[k] {
+				continue
 			}
-			if !isPositional {
-				params[k] = fmt.Sprintf("%v", v)
-			}
+			params[k] = fmt.Sprintf("%v", v)
 		}
 
 		var data json.RawMessage
@@ -882,13 +1159,13 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 		case "GET":
 			data, err = c.Get(path, params)
 		case "POST":
-			body, _ := json.Marshal(req.Params.Arguments)
+			body, _ := json.Marshal(args)
 			data, _, err = c.Post(path, body)
 		case "PUT":
-			body, _ := json.Marshal(req.Params.Arguments)
+			body, _ := json.Marshal(args)
 			data, _, err = c.Put(path, body)
 		case "PATCH":
-			body, _ := json.Marshal(req.Params.Arguments)
+			body, _ := json.Marshal(args)
 			data, _, err = c.Patch(path, body)
 		case "DELETE":
 			data, _, err = c.Delete(path)
@@ -901,18 +1178,18 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 			switch {
 			case strings.Contains(msg, "HTTP 409"):
 				return mcplib.NewToolResultText("already exists (no-op)"), nil
-			case strings.Contains(msg, "HTTP 400") && looksLikeAuthError(msg):
-				return mcplib.NewToolResultError("authentication error: " + sanitizeErrorBody(msg) +
+			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
+				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
 					"\n      Set your API key: export KALSHI_TRADE_MANUAL_KALSHI_ACCESS_KEY=<your-key>" +
 					"\n      Run 'kalshi-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
-				return mcplib.NewToolResultError("authentication failed: " + sanitizeErrorBody(msg) +
+				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your API key." +
 					"\n      Set it with: export KALSHI_TRADE_MANUAL_KALSHI_ACCESS_KEY=<your-key>" +
 					"\n      Run 'kalshi-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
-				return mcplib.NewToolResultError("permission denied: " + sanitizeErrorBody(msg) +
+				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: your credentials are valid but lack access to this resource." +
 					"\n      Set it with: export KALSHI_TRADE_MANUAL_KALSHI_ACCESS_KEY=<your-key>" +
 					"\n      Run 'kalshi-pp-cli doctor' to check auth status."), nil
@@ -956,9 +1233,9 @@ func newMCPClient() (*client.Client, error) {
 	}
 	c := client.New(cfg, 30*time.Second, 0)
 	// Agents calling through MCP need fresh data every call. The on-disk
-	// response cache survives across MCP server invocations, so a DELETE/PATCH
-	// followed by a GET would otherwise return the pre-mutation snapshot for up
-	// to the cache TTL. Skip the cache for the MCP path; the interactive CLI
+	// response cache survives across MCP server invocations, so a
+	// DELETE/PATCH followed by a GET would otherwise return the
+	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
 	// constructs its own client and is unaffected.
 	c.NoCache = true
 	return c, nil
@@ -972,22 +1249,19 @@ func dbPath() string {
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
 
-func handleSync(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	return mcplib.NewToolResultText("sync not yet implemented via MCP - use the CLI: kalshi-pp-cli sync"), nil
-}
-
 func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	query, ok := req.Params.Arguments["query"].(string)
+	args := req.GetArguments()
+	query, ok := args["query"].(string)
 	if !ok || query == "" {
 		return mcplib.NewToolResultError("query is required"), nil
 	}
 
 	limit := 25
-	if v, ok := req.Params.Arguments["limit"].(float64); ok && v > 0 {
+	if v, ok := args["limit"].(float64); ok && v > 0 {
 		limit = int(v)
 	}
 
-	db, err := store.Open(dbPath())
+	db, err := store.OpenWithContext(ctx, dbPath())
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
@@ -1003,7 +1277,8 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 }
 
 func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	query, ok := req.Params.Arguments["query"].(string)
+	args := req.GetArguments()
+	query, ok := args["query"].(string)
 	if !ok || query == "" {
 		return mcplib.NewToolResultError("query is required"), nil
 	}
@@ -1016,7 +1291,7 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		}
 	}
 
-	db, err := store.Open(dbPath())
+	db, err := store.OpenWithContext(ctx, dbPath())
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
@@ -1050,11 +1325,12 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
-		"api":          "kalshi-trade-manual",
-		"description":  "Manually defined OpenAPI spec for endpoints being migrated to spec-first approach",
-		"archetype":    "project-management",
-		"tool_count":   89,
-		"tool_surface": "MCP exposes the endpoints listed under `resources` (plus sync/search/sql/context utilities when present). Items under `cli_only_capabilities` require running the companion kalshi-pp-cli binary; the MCP cannot invoke them.",
+		"api":         "kalshi",
+		"description": "Manually defined OpenAPI spec for endpoints being migrated to spec-first approach",
+		"archetype":   "project-management",
+		"tool_count":  96,
+		// tool_surface tells agents which surface a capability lives on.
+		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion kalshi-pp-cli binary.",
 		"auth": map[string]any{
 			"type":     "api_key",
 			"env_vars": []string{"KALSHI_TRADE_MANUAL_KALSHI_ACCESS_KEY"},
@@ -1063,7 +1339,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{
 				"name":        "account",
 				"description": "Manage account",
-				"endpoints":   []string{"get-api-limits"},
+				"endpoints":   []string{"get-api-limits", "get-endpoint-costs"},
 				"syncable":    true,
 			},
 			{
@@ -1115,6 +1391,18 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"searchable":  true,
 			},
 			{
+				"name":        "kalshi-trade-manual-search",
+				"description": "Manage kalshi trade manual search",
+				"endpoints":   []string{"get-filters-for-sports"},
+				"syncable":    true,
+			},
+			{
+				"name":        "kalshi-trade-manual-search-2",
+				"description": "Manage kalshi trade manual search 2",
+				"endpoints":   []string{"get-tags-for-series-categories"},
+				"syncable":    true,
+			},
+			{
 				"name":        "live-data",
 				"description": "Live data endpoints",
 				"endpoints":   []string{"get", "get-by-milestone", "get-game-stats"},
@@ -1144,15 +1432,9 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{
 				"name":        "portfolio",
 				"description": "Portfolio and balance information endpoints",
-				"endpoints":   []string{"amend-order", "apply-subaccount-transfer", "batch-cancel-orders", "batch-create-orders", "cancel-order", "create-order", "create-order-group", "create-subaccount", "decrease-order", "delete-order-group", "get-balance", "get-fills", "get-order", "get-order-group", "get-order-groups", "get-order-queue-position", "get-order-queue-positions", "get-orders", "get-positions", "get-resting-order-total-value", "get-settlements", "get-subaccount-balances", "get-subaccount-netting", "get-subaccount-transfers", "reset-order-group", "trigger-order-group", "update-order-group-limit", "update-subaccount-netting"},
+				"endpoints":   []string{"amend-order", "amend-order-v2", "apply-subaccount-transfer", "batch-cancel-orders", "batch-cancel-orders-v2", "batch-create-orders", "batch-create-orders-v2", "cancel-order", "cancel-order-v2", "create-order", "create-order-group", "create-order-v2", "create-subaccount", "decrease-order", "decrease-order-v2", "delete-order-group", "get-balance", "get-fills", "get-order", "get-order-group", "get-order-groups", "get-order-queue-position", "get-order-queue-positions", "get-orders", "get-positions", "get-resting-order-total-value", "get-settlements", "get-subaccount-balances", "get-subaccount-netting", "get-subaccount-transfers", "reset-order-group", "trigger-order-group", "update-order-group-limit", "update-subaccount-netting"},
 				"syncable":    true,
 				"searchable":  true,
-			},
-			{
-				"name":        "search",
-				"description": "Search and filtering endpoints",
-				"endpoints":   []string{"get-filters-for-sports", "get-tags-for-series-categories"},
-				"syncable":    true,
 			},
 			{
 				"name":        "series",
@@ -1176,25 +1458,31 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
 		},
-		"cli_only_capabilities": []map[string]string{
-			{"name": "Portfolio Attribution", "command": "portfolio attribution", "description": "See your P&L broken down by market category and series over any time period", "rationale": "Requires joining fills, settlements, events, and series data that only exists together in the local store", "via": "cli"},
-			{"name": "Odds History Tracker", "command": "markets history", "description": "Track how market odds moved over time with price progression charts", "rationale": "Requires periodic price snapshots stored locally across syncs — no existing tool persists historical prices", "via": "cli"},
-			{"name": "Win Rate Analytics", "command": "portfolio winrate", "description": "Calculate your win/loss ratio, expected value, and ROI across all settled positions", "rationale": "Requires correlating fills with settlement outcomes across your entire trading history in the local store", "via": "cli"},
-			{"name": "Settlement Calendar", "command": "portfolio calendar", "description": "See upcoming settlements with your positions, expected payouts, and category breakdown", "rationale": "Requires joining positions with event expiry data and market metadata that only coexist in the local store", "via": "cli"},
-			{"name": "Market Movers", "command": "markets movers", "description": "Find markets with the biggest price swings since your last sync", "rationale": "Requires prior price snapshots to compute deltas — impossible without persistent local data", "via": "cli"},
-			{"name": "Cross-Market Correlation", "command": "markets correlate", "description": "Compare price histories of two markets to discover correlated events", "rationale": "Requires historical price series for multiple markets stored locally for statistical comparison", "via": "cli"},
-			{"name": "Exposure Analysis", "command": "portfolio exposure", "description": "See your total risk broken down by category, with concentration warnings", "rationale": "Requires joining positions with market metadata and category data for portfolio-level risk assessment", "via": "cli"},
-			{"name": "Stale Position Finder", "command": "portfolio stale", "description": "Find positions in markets approaching expiry where you haven't acted recently", "rationale": "Requires joining local position data with market expiry dates to flag forgotten positions", "via": "cli"},
+		// Command-mirror capabilities are exposed through MCP by shelling out
+		// to the companion CLI binary.
+		"command_mirror_capabilities": []map[string]string{
+			{"name": "Portfolio Attribution", "command": "portfolio attribution", "description": "See your realized P&L broken down by market category and series over any time window — answer 'did politics...", "rationale": "Joins fills + settlements + events + series in the local store; no Kalshi tool persists this data together.", "via": "mcp-command-mirror"},
+			{"name": "Odds History Tracker", "command": "markets history", "description": "Show how a market's yes/no price moved over time, with a sparkline rendering — built from snapshots captured by...", "rationale": "Reads the local market_price_history table that the markets sync populates on every run. Kalshi's REST API does not...", "via": "mcp-command-mirror"},
+			{"name": "Win Rate Analytics", "command": "portfolio winrate", "description": "Calculate your win/loss ratio, expected value, and ROI across all settled positions, optionally sliced by category.", "rationale": "Joins fills × settlements in the local store; correlating outcomes with entry prices and category metadata.", "via": "mcp-command-mirror"},
+			{"name": "Settlement Calendar", "command": "portfolio calendar", "description": "See upcoming settlements with your positions, expected payouts, and category breakdown over the next N days.", "rationale": "Joins local positions × events.expiration_time × markets to project payouts per settlement date.", "via": "mcp-command-mirror"},
+			{"name": "Market Movers", "command": "markets movers", "description": "Find markets with the biggest price swings since the last sync — sorted by absolute delta or by volume change.", "rationale": "Compares snapshots in market_price_history table; impossible without persistent local data.", "via": "mcp-command-mirror"},
+			{"name": "Cross-Market Correlation", "command": "markets correlate", "description": "Compute Pearson correlation of two markets' price histories — find correlated events for hedging or signal discovery.", "rationale": "Pure local statistical compute on the market_price_history snapshot series for both tickers.", "via": "mcp-command-mirror"},
+			{"name": "Exposure Analysis", "command": "portfolio exposure", "description": "Break down total exposure by category with concentration warnings when any bucket exceeds a configurable risk threshold.", "rationale": "Joins local positions × markets × events × series; warns when category exposure exceeds threshold.", "via": "mcp-command-mirror"},
+			{"name": "Read-only safe mode", "command": "--read-only", "description": "Global env-var/flag lock that blocks every mutating command client-side regardless of which key tier is loaded —...", "rationale": "Generator emits --dry-run on every mutating endpoint mirror; the safe-mode env lock short-circuits before the...", "via": "mcp-command-mirror"},
+			{"name": "Subaccount roll-up", "command": "subaccounts rollup", "description": "Aggregate positions, fills-today, balance, and exposure-by-category across every subaccount you can see —...", "rationale": "Iterates the local subaccounts table, joins each subaccount's positions and balance rows, emits an aggregate view.", "via": "mcp-command-mirror"},
+			{"name": "Watchlist with snapshot diffs", "command": "watch diff", "description": "Maintain a local watchlist of tickers; `watch diff` shows price/volume change vs the last sync per watched market...", "rationale": "Local watchlist table joined to market_price_history snapshots; pure local query.", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Portfolio Attribution", "insight": "Requires joining fills, settlements, events, and series data that only exists together in the local store"},
-			{"topic": "Odds History Tracker", "insight": "Requires periodic price snapshots stored locally across syncs — no existing tool persists historical prices"},
-			{"topic": "Win Rate Analytics", "insight": "Requires correlating fills with settlement outcomes across your entire trading history in the local store"},
-			{"topic": "Settlement Calendar", "insight": "Requires joining positions with event expiry data and market metadata that only coexist in the local store"},
-			{"topic": "Market Movers", "insight": "Requires prior price snapshots to compute deltas — impossible without persistent local data"},
-			{"topic": "Cross-Market Correlation", "insight": "Requires historical price series for multiple markets stored locally for statistical comparison"},
-			{"topic": "Exposure Analysis", "insight": "Requires joining positions with market metadata and category data for portfolio-level risk assessment"},
-			{"topic": "Stale Position Finder", "insight": "Requires joining local position data with market expiry dates to flag forgotten positions"},
+			{"topic": "Portfolio Attribution", "insight": "Joins fills + settlements + events + series in the local store; no Kalshi tool persists this data together."},
+			{"topic": "Odds History Tracker", "insight": "Reads the local market_price_history table that the markets sync populates on every run. Kalshi's REST API does not return historical price series."},
+			{"topic": "Win Rate Analytics", "insight": "Joins fills × settlements in the local store; correlating outcomes with entry prices and category metadata."},
+			{"topic": "Settlement Calendar", "insight": "Joins local positions × events.expiration_time × markets to project payouts per settlement date."},
+			{"topic": "Market Movers", "insight": "Compares snapshots in market_price_history table; impossible without persistent local data."},
+			{"topic": "Cross-Market Correlation", "insight": "Pure local statistical compute on the market_price_history snapshot series for both tickers."},
+			{"topic": "Exposure Analysis", "insight": "Joins local positions × markets × events × series; warns when category exposure exceeds threshold."},
+			{"topic": "Read-only safe mode", "insight": "Generator emits --dry-run on every mutating endpoint mirror; the safe-mode env lock short-circuits before the request is signed."},
+			{"topic": "Subaccount roll-up", "insight": "Iterates the local subaccounts table, joins each subaccount's positions and balance rows, emits an aggregate view."},
+			{"topic": "Watchlist with snapshot diffs", "insight": "Local watchlist table joined to market_price_history snapshots; pure local query."},
 			{"topic": "Finding stale work", "insight": "Use the stale command or sql query to find items not updated recently. More reliable than scanning list results manually."},
 			{"topic": "Load analysis", "insight": "When analyzing team workload, filter by assignee and status. Raw counts without status filtering are misleading."},
 			{"topic": "Bulk operations", "insight": "For bulk status changes, prefer update endpoints over delete+create. Most PM APIs track history on updates."},
@@ -1204,7 +1492,9 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 	return mcplib.NewToolResultText(string(data)), nil
 }
 
-// RegisterNovelFeatureTools registers MCP tools that shell out to the
-// companion CLI binary. Empty body when the spec has no novel features.
+// RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP
+// mains. New generated mains call RegisterTools only; RegisterTools now
+// includes the runtime Cobra-tree mirror.
 func RegisterNovelFeatureTools(s *server.MCPServer) {
+	_ = s
 }

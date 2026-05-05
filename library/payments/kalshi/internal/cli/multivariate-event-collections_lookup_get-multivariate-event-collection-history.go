@@ -15,10 +15,11 @@ func newMultivariateEventCollectionsLookupGetMultivariateEventCollectionHistoryC
 	var flagLookbackSeconds int
 
 	cmd := &cobra.Command{
-		Use:     "get-multivariate-event-collection-history <collection_ticker>",
-		Aliases: []string{"get"},
-		Short:   "Get Multivariate Event Collection Lookup History",
-		Example: "  kalshi-pp-cli multivariate-event-collections lookup get-multivariate-event-collection-history example-value",
+		Use:         "get-multivariate-event-collection-history <collection_ticker>",
+		Aliases:     []string{"get"},
+		Short:       "DEPRECATED: This endpoint predates RFQs and should not be used for new integrations. Endpoint for retrieving which...",
+		Example:     "  kalshi-pp-cli multivariate-event-collections lookup get-multivariate-event-collection-history example-value",
+		Annotations: map[string]string{"pp:endpoint": "lookup.get-multivariate-event-collection-history", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -37,7 +38,7 @@ func newMultivariateEventCollectionsLookupGetMultivariateEventCollectionHistoryC
 			if flagLookbackSeconds != 0 {
 				params["lookback_seconds"] = fmt.Sprintf("%v", flagLookbackSeconds)
 			}
-			data, prov, err := resolveRead(c, flags, "lookup", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "lookup", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -47,14 +48,15 @@ func newMultivariateEventCollectionsLookupGetMultivariateEventCollectionHistoryC
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -78,7 +80,7 @@ func newMultivariateEventCollectionsLookupGetMultivariateEventCollectionHistoryC
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().IntVar(&flagLookbackSeconds, "lookback-seconds", 0, "Number of seconds to look back for lookup history. Must be one of 10, 60, 300, or 3600.")
+	cmd.Flags().IntVar(&flagLookbackSeconds, "lookback-seconds", 0, "Number of seconds to look back for lookup history. Must be one of 10, 60, 300, or 3600. (one of: 10, 60, 300, 3600)")
 
 	return cmd
 }

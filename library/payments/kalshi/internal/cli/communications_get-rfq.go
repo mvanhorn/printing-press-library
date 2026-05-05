@@ -14,9 +14,10 @@ import (
 func newCommunicationsGetRfqCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "get-rfq <rfq_id>",
-		Short:   "Get RFQ",
-		Example: "  kalshi-pp-cli communications get-rfq 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "get-rfq <rfq_id>",
+		Short:       "Endpoint for getting a single RFQ by id",
+		Example:     "  kalshi-pp-cli communications get-rfq 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "communications.get-rfq", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -29,7 +30,7 @@ func newCommunicationsGetRfqCmd(flags *rootFlags) *cobra.Command {
 			path := "/communications/rfqs/{rfq_id}"
 			path = replacePathParam(path, "rfq_id", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "communications", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "communications", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -39,14 +40,15 @@ func newCommunicationsGetRfqCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

@@ -9,9 +9,8 @@ import (
 
 func newMultivariateEventCollectionsLookupCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "lookup",
-		Short:  "Manage lookup",
-		Hidden: true,
+		Use:   "lookup",
+		Short: "Manage lookup",
 	}
 
 	cmd.AddCommand(newMultivariateEventCollectionsLookupGetMultivariateEventCollectionHistoryCmd(flags))

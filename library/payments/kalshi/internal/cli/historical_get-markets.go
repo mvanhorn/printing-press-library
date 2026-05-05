@@ -21,24 +21,38 @@ func newHistoricalGetMarketsCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "get-markets",
-		Short:   "Get Historical Markets",
-		Example: "  kalshi-pp-cli historical get-markets",
+		Use:         "get-markets",
+		Short:       "Endpoint for getting markets that have been archived to the historical database. Filters are mutually exclusive.",
+		Example:     "  kalshi-pp-cli historical get-markets",
+		Annotations: map[string]string{"pp:endpoint": "historical.get-markets", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if cmd.Flags().Changed("mve-filter") {
+				allowedMveFilter := []string{"exclude"}
+				validMveFilter := false
+				for _, v := range allowedMveFilter {
+					if flagMveFilter == v {
+						validMveFilter = true
+						break
+					}
+				}
+				if !validMveFilter {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "mve-filter", flagMveFilter, allowedMveFilter)
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
 			path := "/historical/markets"
-			data, prov, err := resolvePaginatedRead(c, flags, "historical", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "historical", path, map[string]string{
 				"limit":         fmt.Sprintf("%v", flagLimit),
 				"cursor":        fmt.Sprintf("%v", flagCursor),
 				"tickers":       fmt.Sprintf("%v", flagTickers),
 				"event_ticker":  fmt.Sprintf("%v", flagEventTicker),
 				"series_ticker": fmt.Sprintf("%v", flagSeriesTicker),
 				"mve_filter":    fmt.Sprintf("%v", flagMveFilter),
-			}, flagAll, "cursor", "", "")
+			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -48,14 +62,15 @@ func newHistoricalGetMarketsCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -84,7 +99,7 @@ func newHistoricalGetMarketsCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagTickers, "tickers", "", "Filter by specific market tickers. Comma-separated list of market tickers to retrieve.")
 	cmd.Flags().StringVar(&flagEventTicker, "event-ticker", "", "Event ticker to filter by. Only a single event ticker is supported.")
 	cmd.Flags().StringVar(&flagSeriesTicker, "series-ticker", "", "Filter by series ticker")
-	cmd.Flags().StringVar(&flagMveFilter, "mve-filter", "", "Filter by multivariate events (combos). By default, MVE markets are included.")
+	cmd.Flags().StringVar(&flagMveFilter, "mve-filter", "", "Filter by multivariate events (combos). By default, MVE markets are included. (one of: exclude)")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

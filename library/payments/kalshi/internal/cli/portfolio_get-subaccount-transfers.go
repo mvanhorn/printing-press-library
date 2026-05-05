@@ -17,9 +17,10 @@ func newPortfolioGetSubaccountTransfersCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "get-subaccount-transfers",
-		Short:   "Get Subaccount Transfers",
-		Example: "  kalshi-pp-cli portfolio get-subaccount-transfers",
+		Use:         "get-subaccount-transfers",
+		Short:       "Gets a paginated list of all transfers between subaccounts for the authenticated user.",
+		Example:     "  kalshi-pp-cli portfolio get-subaccount-transfers",
+		Annotations: map[string]string{"pp:endpoint": "portfolio.get-subaccount-transfers", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -27,10 +28,10 @@ func newPortfolioGetSubaccountTransfersCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/portfolio/subaccounts/transfers"
-			data, prov, err := resolvePaginatedRead(c, flags, "portfolio", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "portfolio", path, map[string]string{
 				"limit":  fmt.Sprintf("%v", flagLimit),
 				"cursor": fmt.Sprintf("%v", flagCursor),
-			}, flagAll, "cursor", "", "")
+			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -40,14 +41,15 @@ func newPortfolioGetSubaccountTransfersCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

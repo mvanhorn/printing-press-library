@@ -1,18 +1,65 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-04-11T04:22:24.229774Z",
-  "printing_press_version": "1.2.2-0.20260411023050-cbcd67dbddd8+dirty",
+  "generated_at": "2026-05-05T05:42:50.860318Z",
+  "printing_press_version": "3.9.0",
   "api_name": "kalshi",
+  "display_name": "Kalshi Trade Manual",
   "cli_name": "kalshi-pp-cli",
-  "spec_path": "https://docs.kalshi.com/openapi.yaml",
   "spec_format": "openapi3",
-  "spec_checksum": "sha256:31deffe4befe587fe94449dd0341012d172502d6441e7426656a47538555e586",
-  "run_id": "20260410-204716",
-  "mcp_binary": "kalshi-pp-mcp",
-  "mcp_tool_count": 89,
+  "spec_checksum": "sha256:dfcfa4e1d9ee14ad69c5c68f2407b132684c306616c62a0de7935250a15bac80",
+  "run_id": "20260504-204550",
+  "mcp_binary": "kalshi-trade-manual-pp-mcp",
+  "mcp_tool_count": 96,
   "mcp_ready": "full",
   "auth_type": "api_key",
   "auth_env_vars": [
-    "KALSHI_API_KEY"
+    "KALSHI_TRADE_MANUAL_KALSHI_ACCESS_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Portfolio Attribution",
+      "command": "portfolio attribution",
+      "description": "See your realized P\u0026L broken down by market category and series over any time window — answer 'did politics actually make money this quarter?' in one command."
+    },
+    {
+      "name": "Odds History Tracker",
+      "command": "markets history",
+      "description": "Show how a market's yes/no price moved over time, with a sparkline rendering — built from snapshots captured by every markets sync."
+    },
+    {
+      "name": "Win Rate Analytics",
+      "command": "portfolio winrate",
+      "description": "Calculate your win/loss ratio, expected value, and ROI across all settled positions, optionally sliced by category."
+    },
+    {
+      "name": "Settlement Calendar",
+      "command": "portfolio calendar",
+      "description": "See upcoming settlements with your positions, expected payouts, and category breakdown over the next N days."
+    },
+    {
+      "name": "Market Movers",
+      "command": "markets movers",
+      "description": "Find markets with the biggest price swings since the last sync — sorted by absolute delta or by volume change."
+    },
+    {
+      "name": "Cross-Market Correlation",
+      "command": "markets correlate",
+      "description": "Compute Pearson correlation of two markets' price histories — find correlated events for hedging or signal discovery."
+    },
+    {
+      "name": "Exposure Analysis",
+      "command": "portfolio exposure",
+      "description": "Break down total exposure by category with concentration warnings when any bucket exceeds a configurable risk threshold."
+    },
+    {
+      "name": "Subaccount roll-up",
+      "command": "subaccounts rollup",
+      "description": "Aggregate positions, fills-today, balance, and exposure-by-category across every subaccount you can see — household view of risk and resting orders."
+    },
+    {
+      "name": "Watchlist with snapshot diffs",
+      "command": "watch diff",
+      "description": "Maintain a local watchlist of tickers; `watch diff` shows price/volume change vs the last sync per watched market — Riley's daily-snapshot ritual reduced to one command."
+    }
   ]
 }

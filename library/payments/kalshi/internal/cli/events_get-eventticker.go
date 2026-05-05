@@ -15,9 +15,10 @@ func newEventsGetEventtickerCmd(flags *rootFlags) *cobra.Command {
 	var flagWithNestedMarkets bool
 
 	cmd := &cobra.Command{
-		Use:     "get-eventticker <event_ticker>",
-		Short:   "Get Event",
-		Example: "  kalshi-pp-cli events get-eventticker example-value",
+		Use:         "get-eventticker <event_ticker>",
+		Short:       "Endpoint for getting data about an event by its ticker. An event represents a real-world occurrence that can be...",
+		Example:     "  kalshi-pp-cli events get-eventticker example-value",
+		Annotations: map[string]string{"pp:endpoint": "events.get-eventticker", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -33,7 +34,7 @@ func newEventsGetEventtickerCmd(flags *rootFlags) *cobra.Command {
 			if flagWithNestedMarkets != false {
 				params["with_nested_markets"] = fmt.Sprintf("%v", flagWithNestedMarkets)
 			}
-			data, prov, err := resolveRead(c, flags, "events", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "events", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -43,14 +44,15 @@ func newEventsGetEventtickerCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

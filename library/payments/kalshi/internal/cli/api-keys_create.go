@@ -19,9 +19,10 @@ func newApiKeysCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "create",
-		Short:   "Create API Key",
-		Example: "  kalshi-pp-cli api-keys create --name example-resource",
+		Use:         "create",
+		Short:       "Endpoint for creating a new API key with a user-provided public key. This endpoint allows users with Premier or...",
+		Example:     "  kalshi-pp-cli api-keys create --name example-resource",
+		Annotations: map[string]string{"pp:endpoint": "api-keys.create"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("name") && !flags.dryRun {
@@ -57,7 +58,11 @@ func newApiKeysCreateCmd(flags *rootFlags) *cobra.Command {
 					body["public_key"] = bodyPublicKey
 				}
 				if bodyScopes != "" {
-					body["scopes"] = bodyScopes
+					var parsedScopes any
+					if err := json.Unmarshal([]byte(bodyScopes), &parsedScopes); err != nil {
+						return fmt.Errorf("parsing --scopes JSON: %w", err)
+					}
+					body["scopes"] = parsedScopes
 				}
 			}
 			data, statusCode, err := c.Post(path, body)
@@ -90,13 +95,15 @@ func newApiKeysCreateCmd(flags *rootFlags) *cobra.Command {
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",

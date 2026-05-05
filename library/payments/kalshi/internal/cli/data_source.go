@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -46,12 +47,12 @@ func isNetworkError(err error) bool {
 
 // openStoreForRead opens the local SQLite store for reading.
 // Returns nil, nil if the database file does not exist (no sync has been run).
-func openStoreForRead(cliName string) (*store.Store, error) {
+func openStoreForRead(ctx context.Context, cliName string) (*store.Store, error) {
 	dbPath := defaultDBPath(cliName)
 	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 		return nil, nil
 	}
-	return store.Open(dbPath)
+	return store.OpenWithContext(ctx, dbPath)
 }
 
 // localProvenance builds a DataProvenance for local data reads.
@@ -68,6 +69,13 @@ func localProvenance(db *store.Store, resourceType, reason string) DataProvenanc
 	return prov
 }
 
+func attachFreshness(prov DataProvenance, flags *rootFlags) DataProvenance {
+	if flags != nil {
+		prov.Freshness = flags.freshnessMeta
+	}
+	return prov
+}
+
 // resolveRead dispatches a GET request to either the live API or local store
 // based on the --data-source flag. Returns the response data and provenance metadata.
 //
@@ -78,86 +86,97 @@ func localProvenance(db *store.Store, resourceType, reason string) DataProvenanc
 //   - isList: true for list endpoints, false for get-by-ID endpoints
 //   - path: the API path (e.g., "/links" or "/links/abc123")
 //   - params: query parameters for the API call
-func resolveRead(c *client.Client, flags *rootFlags, resourceType string, isList bool, path string, params map[string]string) (json.RawMessage, DataProvenance, error) {
+//   - headers: per-endpoint required headers (e.g. cal-api-version, Stripe-Version)
+//     baked in by the command template at codegen time. Pass nil when the endpoint
+//     declares no per-endpoint header overrides. Without this parameter, store-backed
+//     reads on per-endpoint-versioned APIs silently get the wrong response shape
+//     (cal-com retro #334 F1).
+func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, isList bool, path string, params map[string]string, headers map[string]string) (json.RawMessage, DataProvenance, error) {
 	switch flags.dataSource {
 	case "local":
-		return resolveLocal(resourceType, isList, path, params, "user_requested")
+		data, prov, err := resolveLocal(ctx, resourceType, isList, path, params, "user_requested")
+		return data, attachFreshness(prov, flags), err
 
 	case "live":
-		data, err := c.Get(path, params)
+		data, err := c.GetWithHeaders(path, params, headers)
 		if err != nil {
 			return nil, DataProvenance{}, err
 		}
-		writeThroughCache(resourceType, data)
-		return data, DataProvenance{Source: "live"}, nil
+		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"
-		data, err := c.Get(path, params)
+		data, err := c.GetWithHeaders(path, params, headers)
 		if err == nil {
-			writeThroughCache(resourceType, data)
-			return data, DataProvenance{Source: "live"}, nil
+			writeThroughCache(ctx, resourceType, data)
+			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		if !isNetworkError(err) {
 			// HTTP 4xx/5xx errors propagate — not a fallback case
 			return nil, DataProvenance{}, err
 		}
 		// Network error — try local fallback
-		localData, prov, localErr := resolveLocal(resourceType, isList, path, params, "api_unreachable")
-		if localErr != nil {
+		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, resourceType, isList, path, params, "api_unreachable")
+		if fallbackErr != nil {
 			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'kalshi-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
 		}
-		return localData, prov, nil
+		return fallbackData, attachFreshness(fallbackProv, flags), nil
 	}
 }
 
 // resolvePaginatedRead dispatches a paginated GET request to either the live API
-// or local store. When local, skips pagination and returns all synced data.
-func resolvePaginatedRead(c *client.Client, flags *rootFlags, resourceType string, path string, params map[string]string, fetchAll bool, cursorParam, nextCursorPath, hasMoreField string) (json.RawMessage, DataProvenance, error) {
+// or local store. When local, skips pagination and returns all synced data. The
+// headers argument carries per-endpoint required headers; pass nil when the
+// endpoint declares no overrides.
+func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, nextCursorPath, hasMoreField string) (json.RawMessage, DataProvenance, error) {
 	switch flags.dataSource {
 	case "local":
-		return resolveLocal(resourceType, true, path, params, "user_requested")
+		data, prov, err := resolveLocal(ctx, resourceType, true, path, params, "user_requested")
+		return data, attachFreshness(prov, flags), err
 
 	case "live":
-		data, err := paginatedGet(c, path, params, fetchAll, cursorParam, nextCursorPath, hasMoreField)
+		data, err := paginatedGet(c, path, params, headers, fetchAll, cursorParam, nextCursorPath, hasMoreField)
 		if err != nil {
 			return nil, DataProvenance{}, err
 		}
-		writeThroughCache(resourceType, data)
-		return data, DataProvenance{Source: "live"}, nil
+		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"
-		data, err := paginatedGet(c, path, params, fetchAll, cursorParam, nextCursorPath, hasMoreField)
+		data, err := paginatedGet(c, path, params, headers, fetchAll, cursorParam, nextCursorPath, hasMoreField)
 		if err == nil {
-			writeThroughCache(resourceType, data)
-			return data, DataProvenance{Source: "live"}, nil
+			writeThroughCache(ctx, resourceType, data)
+			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		if !isNetworkError(err) {
 			return nil, DataProvenance{}, err
 		}
-		localData, prov, localErr := resolveLocal(resourceType, true, path, params, "api_unreachable")
-		if localErr != nil {
+		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, resourceType, true, path, params, "api_unreachable")
+		if fallbackErr != nil {
 			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'kalshi-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
 		}
-		return localData, prov, nil
+		return fallbackData, attachFreshness(fallbackProv, flags), nil
 	}
 }
 
 // writeThroughCache upserts live API results into the local SQLite store so
 // FTS search covers everything the user has looked up — not just explicit syncs.
 // Best-effort: failures are silently ignored (the live result already succeeded).
-func writeThroughCache(resourceType string, data json.RawMessage) {
-	db, err := store.Open(defaultDBPath("kalshi-pp-cli"))
+func writeThroughCache(ctx context.Context, resourceType string, data json.RawMessage) {
+	db, err := store.OpenWithContext(ctx, defaultDBPath("kalshi-pp-cli"))
 	if err != nil {
 		return
 	}
 	defer db.Close()
 
+	// Collect items to upsert from various response shapes
 	var items []json.RawMessage
+
+	// Try direct array first
 	if json.Unmarshal(data, &items) != nil || len(items) == 0 {
 		items = nil
+		// Try object — check for common envelope patterns (results, data, items)
 		var envelope map[string]json.RawMessage
 		if json.Unmarshal(data, &envelope) == nil {
-			for _, key := range []string{"results", "data", "items", "markets", "events", "orders", "trades"} {
+			for _, key := range []string{"results", "data", "items"} {
 				if raw, ok := envelope[key]; ok {
 					var arr []json.RawMessage
 					if json.Unmarshal(raw, &arr) == nil && len(arr) > 0 {
@@ -166,13 +185,9 @@ func writeThroughCache(resourceType string, data json.RawMessage) {
 					}
 				}
 			}
+			// Single object with an id field (e.g., detail response)
 			if items == nil {
 				if idRaw, ok := envelope["id"]; ok {
-					id := strings.Trim(string(idRaw), "\"")
-					_ = db.Upsert(resourceType, id, data)
-					return
-				}
-				if idRaw, ok := envelope["ticker"]; ok {
 					id := strings.Trim(string(idRaw), "\"")
 					_ = db.Upsert(resourceType, id, data)
 					return
@@ -181,18 +196,14 @@ func writeThroughCache(resourceType string, data json.RawMessage) {
 		}
 	}
 
+	// Upsert each item individually
 	for _, item := range items {
 		var obj map[string]json.RawMessage
 		if json.Unmarshal(item, &obj) != nil {
 			continue
 		}
-		id := ""
 		if idRaw, ok := obj["id"]; ok {
-			id = strings.Trim(string(idRaw), "\"")
-		} else if idRaw, ok := obj["ticker"]; ok {
-			id = strings.Trim(string(idRaw), "\"")
-		}
-		if id != "" {
+			id := strings.Trim(string(idRaw), "\"")
 			_ = db.Upsert(resourceType, id, item)
 		}
 	}
@@ -202,8 +213,8 @@ func writeThroughCache(resourceType string, data json.RawMessage) {
 // Note: local reads return ALL synced data for the resource type. Endpoint-specific
 // filters (query params, path scoping like /teams/{id}/users) are NOT applied locally.
 // The provenance metadata includes "unscoped":true when params were present but not applied.
-func resolveLocal(resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
-	db, err := openStoreForRead("kalshi-pp-cli")
+func resolveLocal(ctx context.Context, resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
+	db, err := openStoreForRead(ctx, "kalshi-pp-cli")
 	if err != nil {
 		return nil, DataProvenance{}, fmt.Errorf("opening local database: %w\nRun 'kalshi-pp-cli sync' first.", err)
 	}

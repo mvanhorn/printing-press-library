@@ -14,9 +14,10 @@ import (
 func newExchangeGetStatusCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "get-status",
-		Short:   "Get Exchange Status",
-		Example: "  kalshi-pp-cli exchange get-status",
+		Use:         "get-status",
+		Short:       "Endpoint for getting the exchange status.",
+		Example:     "  kalshi-pp-cli exchange get-status",
+		Annotations: map[string]string{"pp:endpoint": "exchange.get-status", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -25,7 +26,7 @@ func newExchangeGetStatusCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/exchange/status"
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "exchange", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "exchange", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -35,14 +36,15 @@ func newExchangeGetStatusCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

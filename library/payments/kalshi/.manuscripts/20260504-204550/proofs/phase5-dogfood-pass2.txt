@@ -1,0 +1,542 @@
+Live Dogfood Report: kalshi-pp-cli
+================================
+
+Level:      full
+Verdict:    FAIL
+Commands:   133
+Tests:      286 passed, 58 failed, 188 skipped
+
+[PASS] account get-api-limits help
+[PASS] account get-api-limits happy_path
+[PASS] account get-api-limits json_fidelity
+[SKIP] account get-api-limits error_path: no positional argument
+[PASS] account get-endpoint-costs help
+[PASS] account get-endpoint-costs happy_path
+[PASS] account get-endpoint-costs json_fidelity
+[SKIP] account get-endpoint-costs error_path: no positional argument
+[PASS] analytics help
+[PASS] analytics happy_path
+[PASS] analytics json_fidelity
+[SKIP] analytics error_path: no positional argument
+[PASS] api help
+[SKIP] api happy_path: command path [api] has fewer segments than placeholders (1)
+[SKIP] api json_fidelity: command path [api] has fewer segments than placeholders (1)
+[PASS] api error_path
+[PASS] api-keys create help
+[FAIL] api-keys create happy_path: exit 1
+[FAIL] api-keys create json_fidelity: exit 1
+[SKIP] api-keys create error_path: no positional argument
+[PASS] api-keys delete help
+[SKIP] api-keys delete happy_path: non-id positional "api_key" at depth 0
+[SKIP] api-keys delete json_fidelity: non-id positional "api_key" at depth 0
+[PASS] api-keys delete error_path
+[PASS] api-keys generate help
+[PASS] api-keys generate happy_path
+[PASS] api-keys generate json_fidelity
+[SKIP] api-keys generate error_path: no positional argument
+[PASS] api-keys get help
+[PASS] api-keys get happy_path
+[PASS] api-keys get json_fidelity
+[SKIP] api-keys get error_path: no positional argument
+[PASS] auth logout help
+[PASS] auth logout happy_path
+[PASS] auth logout json_fidelity
+[SKIP] auth logout error_path: no positional argument
+[PASS] auth set-token help
+[SKIP] auth set-token happy_path: non-id positional "token" at depth 0
+[SKIP] auth set-token json_fidelity: non-id positional "token" at depth 0
+[FAIL] auth set-token error_path: expected non-zero exit for invalid argument
+[PASS] auth status help
+[PASS] auth status happy_path
+[PASS] auth status json_fidelity
+[SKIP] auth status error_path: no positional argument
+[PASS] communications accept-quote help
+[SKIP] communications accept-quote happy_path: no list companion at depth 0 for "quote_id"
+[SKIP] communications accept-quote json_fidelity: no list companion at depth 0 for "quote_id"
+[PASS] communications accept-quote error_path
+[PASS] communications confirm-quote help
+[SKIP] communications confirm-quote happy_path: no list companion at depth 0 for "quote_id"
+[SKIP] communications confirm-quote json_fidelity: no list companion at depth 0 for "quote_id"
+[PASS] communications confirm-quote error_path
+[PASS] communications create-quote help
+[FAIL] communications create-quote happy_path: exit 1
+[FAIL] communications create-quote json_fidelity: exit 1
+[SKIP] communications create-quote error_path: no positional argument
+[PASS] communications create-rfq help
+[FAIL] communications create-rfq happy_path: exit 1
+[FAIL] communications create-rfq json_fidelity: exit 1
+[SKIP] communications create-rfq error_path: no positional argument
+[PASS] communications delete-quote help
+[SKIP] communications delete-quote happy_path: no list companion at depth 0 for "quote_id"
+[SKIP] communications delete-quote json_fidelity: no list companion at depth 0 for "quote_id"
+[PASS] communications delete-quote error_path
+[PASS] communications delete-rfq help
+[SKIP] communications delete-rfq happy_path: no list companion at depth 0 for "rfq_id"
+[SKIP] communications delete-rfq json_fidelity: no list companion at depth 0 for "rfq_id"
+[PASS] communications delete-rfq error_path
+[PASS] communications get-id help
+[PASS] communications get-id happy_path
+[PASS] communications get-id json_fidelity
+[SKIP] communications get-id error_path: no positional argument
+[PASS] communications get-quote help
+[SKIP] communications get-quote happy_path: no list companion at depth 0 for "quote_id"
+[SKIP] communications get-quote json_fidelity: no list companion at depth 0 for "quote_id"
+[PASS] communications get-quote error_path
+[PASS] communications get-quotes help
+[FAIL] communications get-quotes happy_path: exit 4
+[FAIL] communications get-quotes json_fidelity: exit 4
+[SKIP] communications get-quotes error_path: no positional argument
+[PASS] communications get-rfq help
+[SKIP] communications get-rfq happy_path: no list companion at depth 0 for "rfq_id"
+[SKIP] communications get-rfq json_fidelity: no list companion at depth 0 for "rfq_id"
+[PASS] communications get-rfq error_path
+[PASS] communications get-rfqs help
+[PASS] communications get-rfqs happy_path
+[PASS] communications get-rfqs json_fidelity
+[SKIP] communications get-rfqs error_path: no positional argument
+[PASS] doctor help
+[PASS] doctor happy_path
+[PASS] doctor json_fidelity
+[SKIP] doctor error_path: no positional argument
+[PASS] events get help
+[PASS] events get happy_path
+[PASS] events get json_fidelity
+[SKIP] events get error_path: no positional argument
+[PASS] events get-eventticker help
+[SKIP] events get-eventticker happy_path: non-id positional "event_ticker" at depth 0
+[SKIP] events get-eventticker json_fidelity: non-id positional "event_ticker" at depth 0
+[PASS] events get-eventticker error_path
+[PASS] events get-multivariate help
+[PASS] events get-multivariate happy_path
+[PASS] events get-multivariate json_fidelity
+[SKIP] events get-multivariate error_path: no positional argument
+[PASS] events lifecycle help
+[SKIP] events lifecycle happy_path: non-id positional "event_ticker" at depth 0
+[SKIP] events lifecycle json_fidelity: non-id positional "event_ticker" at depth 0
+[FAIL] events lifecycle error_path: expected non-zero exit for invalid argument
+[PASS] events metadata get-event help
+[SKIP] events metadata get-event happy_path: non-id positional "event_ticker" at depth 0
+[SKIP] events metadata get-event json_fidelity: non-id positional "event_ticker" at depth 0
+[PASS] events metadata get-event error_path
+[PASS] exchange get-announcements help
+[PASS] exchange get-announcements happy_path
+[PASS] exchange get-announcements json_fidelity
+[SKIP] exchange get-announcements error_path: no positional argument
+[PASS] exchange get-schedule help
+[PASS] exchange get-schedule happy_path
+[PASS] exchange get-schedule json_fidelity
+[SKIP] exchange get-schedule error_path: no positional argument
+[PASS] exchange get-status help
+[PASS] exchange get-status happy_path
+[PASS] exchange get-status json_fidelity
+[SKIP] exchange get-status error_path: no positional argument
+[PASS] exchange get-user-data-timestamp help
+[PASS] exchange get-user-data-timestamp happy_path
+[PASS] exchange get-user-data-timestamp json_fidelity
+[SKIP] exchange get-user-data-timestamp error_path: no positional argument
+[PASS] export help
+[SKIP] export happy_path: command path [export] has fewer segments than placeholders (2)
+[SKIP] export json_fidelity: command path [export] has fewer segments than placeholders (2)
+[PASS] export error_path
+[PASS] fcm get-fcmorders help
+[FAIL] fcm get-fcmorders happy_path: exit 1
+[FAIL] fcm get-fcmorders json_fidelity: exit 1
+[SKIP] fcm get-fcmorders error_path: no positional argument
+[PASS] fcm get-fcmpositions help
+[FAIL] fcm get-fcmpositions happy_path: exit 1
+[FAIL] fcm get-fcmpositions json_fidelity: exit 1
+[SKIP] fcm get-fcmpositions error_path: no positional argument
+[PASS] feedback list help
+[PASS] feedback list happy_path
+[PASS] feedback list json_fidelity
+[SKIP] feedback list error_path: no positional argument
+[PASS] historical get-cutoff help
+[PASS] historical get-cutoff happy_path
+[PASS] historical get-cutoff json_fidelity
+[SKIP] historical get-cutoff error_path: no positional argument
+[PASS] historical get-fills help
+[PASS] historical get-fills happy_path
+[PASS] historical get-fills json_fidelity
+[SKIP] historical get-fills error_path: no positional argument
+[PASS] historical get-market help
+[SKIP] historical get-market happy_path: non-id positional "ticker" at depth 0
+[SKIP] historical get-market json_fidelity: non-id positional "ticker" at depth 0
+[PASS] historical get-market error_path
+[PASS] historical get-market-candlesticks help
+[SKIP] historical get-market-candlesticks happy_path: non-id positional "ticker" at depth 0
+[SKIP] historical get-market-candlesticks json_fidelity: non-id positional "ticker" at depth 0
+[PASS] historical get-market-candlesticks error_path
+[PASS] historical get-markets help
+[PASS] historical get-markets happy_path
+[PASS] historical get-markets json_fidelity
+[SKIP] historical get-markets error_path: no positional argument
+[PASS] historical get-orders help
+[PASS] historical get-orders happy_path
+[PASS] historical get-orders json_fidelity
+[SKIP] historical get-orders error_path: no positional argument
+[PASS] historical get-trades help
+[PASS] historical get-trades happy_path
+[PASS] historical get-trades json_fidelity
+[SKIP] historical get-trades error_path: no positional argument
+[PASS] import help
+[SKIP] import happy_path: command path [import] has fewer segments than placeholders (1)
+[SKIP] import json_fidelity: command path [import] has fewer segments than placeholders (1)
+[PASS] import error_path
+[PASS] incentive-programs help
+[PASS] incentive-programs happy_path
+[PASS] incentive-programs json_fidelity
+[SKIP] incentive-programs error_path: no positional argument
+[PASS] kalshi-trade-manual-search help
+[PASS] kalshi-trade-manual-search happy_path
+[PASS] kalshi-trade-manual-search json_fidelity
+[SKIP] kalshi-trade-manual-search error_path: no positional argument
+[PASS] kalshi-trade-manual-search-2 help
+[PASS] kalshi-trade-manual-search-2 happy_path
+[PASS] kalshi-trade-manual-search-2 json_fidelity
+[SKIP] kalshi-trade-manual-search-2 error_path: no positional argument
+[PASS] live-data get help
+[FAIL] live-data get happy_path: exit 1
+[FAIL] live-data get json_fidelity: exit 1
+[SKIP] live-data get error_path: no positional argument
+[PASS] live-data get-by-milestone help
+[SKIP] live-data get-by-milestone happy_path: no list companion at depth 0 for "milestone_id"
+[SKIP] live-data get-by-milestone json_fidelity: no list companion at depth 0 for "milestone_id"
+[PASS] live-data get-by-milestone error_path
+[PASS] live-data get-game-stats help
+[SKIP] live-data get-game-stats happy_path: no list companion at depth 0 for "milestone_id"
+[SKIP] live-data get-game-stats json_fidelity: no list companion at depth 0 for "milestone_id"
+[PASS] live-data get-game-stats error_path
+[PASS] live-data milestone get-live-data help
+[SKIP] live-data milestone get-live-data happy_path: non-id positional "type" at depth 0
+[SKIP] live-data milestone get-live-data json_fidelity: non-id positional "type" at depth 0
+[PASS] live-data milestone get-live-data error_path
+[PASS] load help
+[PASS] load happy_path
+[PASS] load json_fidelity
+[SKIP] load error_path: no positional argument
+[PASS] markets batch-get-candlesticks help
+[FAIL] markets batch-get-candlesticks happy_path: exit 1
+[FAIL] markets batch-get-candlesticks json_fidelity: exit 1
+[SKIP] markets batch-get-candlesticks error_path: no positional argument
+[PASS] markets correlate help
+[SKIP] markets correlate happy_path: command path [markets correlate] has fewer segments than placeholders (2)
+[SKIP] markets correlate json_fidelity: command path [markets correlate] has fewer segments than placeholders (2)
+[PASS] markets correlate error_path
+[PASS] markets get help
+[PASS] markets get happy_path
+[PASS] markets get json_fidelity
+[SKIP] markets get error_path: no positional argument
+[PASS] markets get-orderbooks help
+[FAIL] markets get-orderbooks happy_path: exit 1
+[FAIL] markets get-orderbooks json_fidelity: exit 1
+[SKIP] markets get-orderbooks error_path: no positional argument
+[PASS] markets get-ticker help
+[SKIP] markets get-ticker happy_path: non-id positional "ticker" at depth 0
+[SKIP] markets get-ticker json_fidelity: non-id positional "ticker" at depth 0
+[PASS] markets get-ticker error_path
+[PASS] markets get-trades help
+[PASS] markets get-trades happy_path
+[PASS] markets get-trades json_fidelity
+[SKIP] markets get-trades error_path: no positional argument
+[PASS] markets heatmap help
+[PASS] markets heatmap happy_path
+[PASS] markets heatmap json_fidelity
+[SKIP] markets heatmap error_path: no positional argument
+[PASS] markets history help
+[SKIP] markets history happy_path: non-id positional "ticker" at depth 0
+[SKIP] markets history json_fidelity: non-id positional "ticker" at depth 0
+[FAIL] markets history error_path: expected non-zero exit for invalid argument
+[PASS] markets movers help
+[PASS] markets movers happy_path
+[PASS] markets movers json_fidelity
+[SKIP] markets movers error_path: no positional argument
+[PASS] markets orderbook get-market help
+[SKIP] markets orderbook get-market happy_path: non-id positional "ticker" at depth 0
+[SKIP] markets orderbook get-market json_fidelity: non-id positional "ticker" at depth 0
+[FAIL] markets orderbook get-market error_path: expected non-zero exit for invalid argument
+[PASS] milestones get help
+[FAIL] milestones get happy_path: exit 1
+[FAIL] milestones get json_fidelity: exit 1
+[SKIP] milestones get error_path: no positional argument
+[PASS] milestones get-milestoneid help
+[SKIP] milestones get-milestoneid happy_path: no list companion at depth 0 for "milestone_id"
+[SKIP] milestones get-milestoneid json_fidelity: no list companion at depth 0 for "milestone_id"
+[PASS] milestones get-milestoneid error_path
+[PASS] multivariate-event-collections create-market-in help
+[SKIP] multivariate-event-collections create-market-in happy_path: non-id positional "collection_ticker" at depth 0
+[SKIP] multivariate-event-collections create-market-in json_fidelity: non-id positional "collection_ticker" at depth 0
+[PASS] multivariate-event-collections create-market-in error_path
+[PASS] multivariate-event-collections get help
+[PASS] multivariate-event-collections get happy_path
+[FAIL] multivariate-event-collections get json_fidelity: invalid JSON
+[SKIP] multivariate-event-collections get error_path: no positional argument
+[PASS] multivariate-event-collections get-multivariateeventcollections help
+[SKIP] multivariate-event-collections get-multivariateeventcollections happy_path: non-id positional "collection_ticker" at depth 0
+[SKIP] multivariate-event-collections get-multivariateeventcollections json_fidelity: non-id positional "collection_ticker" at depth 0
+[PASS] multivariate-event-collections get-multivariateeventcollections error_path
+[PASS] multivariate-event-collections lookup get-multivariate-event-collection-history help
+[SKIP] multivariate-event-collections lookup get-multivariate-event-collection-history happy_path: non-id positional "collection_ticker" at depth 0
+[SKIP] multivariate-event-collections lookup get-multivariate-event-collection-history json_fidelity: non-id positional "collection_ticker" at depth 0
+[PASS] multivariate-event-collections lookup get-multivariate-event-collection-history error_path
+[PASS] multivariate-event-collections lookup tickers-for-market-in-multivariate-event-collection help
+[SKIP] multivariate-event-collections lookup tickers-for-market-in-multivariate-event-collection happy_path: non-id positional "collection_ticker" at depth 0
+[SKIP] multivariate-event-collections lookup tickers-for-market-in-multivariate-event-collection json_fidelity: non-id positional "collection_ticker" at depth 0
+[PASS] multivariate-event-collections lookup tickers-for-market-in-multivariate-event-collection error_path
+[PASS] orphans help
+[PASS] orphans happy_path
+[PASS] orphans json_fidelity
+[SKIP] orphans error_path: no positional argument
+[PASS] portfolio amend-order help
+[SKIP] portfolio amend-order happy_path: no list companion at depth 0 for "order_id"
+[SKIP] portfolio amend-order json_fidelity: no list companion at depth 0 for "order_id"
+[PASS] portfolio amend-order error_path
+[PASS] portfolio amend-order-v2 help
+[SKIP] portfolio amend-order-v2 happy_path: no list companion at depth 0 for "order_id"
+[SKIP] portfolio amend-order-v2 json_fidelity: no list companion at depth 0 for "order_id"
+[PASS] portfolio amend-order-v2 error_path
+[PASS] portfolio apply-subaccount-transfer help
+[FAIL] portfolio apply-subaccount-transfer happy_path: exit 1
+[FAIL] portfolio apply-subaccount-transfer json_fidelity: exit 1
+[SKIP] portfolio apply-subaccount-transfer error_path: no positional argument
+[PASS] portfolio attribution help
+[PASS] portfolio attribution happy_path
+[PASS] portfolio attribution json_fidelity
+[SKIP] portfolio attribution error_path: no positional argument
+[PASS] portfolio batch-cancel-orders help
+[FAIL] portfolio batch-cancel-orders happy_path: exit 5
+[FAIL] portfolio batch-cancel-orders json_fidelity: exit 5
+[SKIP] portfolio batch-cancel-orders error_path: no positional argument
+[PASS] portfolio batch-cancel-orders-v2 help
+[FAIL] portfolio batch-cancel-orders-v2 happy_path: exit 5
+[FAIL] portfolio batch-cancel-orders-v2 json_fidelity: exit 5
+[SKIP] portfolio batch-cancel-orders-v2 error_path: no positional argument
+[PASS] portfolio batch-create-orders help
+[FAIL] portfolio batch-create-orders happy_path: exit 4
+[FAIL] portfolio batch-create-orders json_fidelity: exit 4
+[SKIP] portfolio batch-create-orders error_path: no positional argument
+[PASS] portfolio batch-create-orders-v2 help
+[FAIL] portfolio batch-create-orders-v2 happy_path: exit 4
+[FAIL] portfolio batch-create-orders-v2 json_fidelity: exit 4
+[SKIP] portfolio batch-create-orders-v2 error_path: no positional argument
+[PASS] portfolio calendar help
+[PASS] portfolio calendar happy_path
+[PASS] portfolio calendar json_fidelity
+[SKIP] portfolio calendar error_path: no positional argument
+[PASS] portfolio cancel-order help
+[SKIP] portfolio cancel-order happy_path: no list companion at depth 0 for "order_id"
+[SKIP] portfolio cancel-order json_fidelity: no list companion at depth 0 for "order_id"
+[FAIL] portfolio cancel-order error_path: expected non-zero exit for invalid argument
+[PASS] portfolio cancel-order-v2 help
+[SKIP] portfolio cancel-order-v2 happy_path: no list companion at depth 0 for "order_id"
+[SKIP] portfolio cancel-order-v2 json_fidelity: no list companion at depth 0 for "order_id"
+[FAIL] portfolio cancel-order-v2 error_path: expected non-zero exit for invalid argument
+[PASS] portfolio create-order help
+[FAIL] portfolio create-order happy_path: exit 1
+[FAIL] portfolio create-order json_fidelity: exit 1
+[SKIP] portfolio create-order error_path: no positional argument
+[PASS] portfolio create-order-group help
+[FAIL] portfolio create-order-group happy_path: exit 5
+[FAIL] portfolio create-order-group json_fidelity: exit 5
+[SKIP] portfolio create-order-group error_path: no positional argument
+[PASS] portfolio create-order-v2 help
+[FAIL] portfolio create-order-v2 happy_path: exit 1
+[FAIL] portfolio create-order-v2 json_fidelity: exit 1
+[SKIP] portfolio create-order-v2 error_path: no positional argument
+[PASS] portfolio create-subaccount help
+[FAIL] portfolio create-subaccount happy_path: exit 4
+[FAIL] portfolio create-subaccount json_fidelity: exit 4
+[SKIP] portfolio create-subaccount error_path: no positional argument
+[PASS] portfolio decrease-order help
+[SKIP] portfolio decrease-order happy_path: no list companion at depth 0 for "order_id"
+[SKIP] portfolio decrease-order json_fidelity: no list companion at depth 0 for "order_id"
+[PASS] portfolio decrease-order error_path
+[PASS] portfolio decrease-order-v2 help
+[SKIP] portfolio decrease-order-v2 happy_path: no list companion at depth 0 for "order_id"
+[SKIP] portfolio decrease-order-v2 json_fidelity: no list companion at depth 0 for "order_id"
+[PASS] portfolio decrease-order-v2 error_path
+[PASS] portfolio delete-order-group help
+[SKIP] portfolio delete-order-group happy_path: no list companion at depth 0 for "order_group_id"
+[SKIP] portfolio delete-order-group json_fidelity: no list companion at depth 0 for "order_group_id"
+[PASS] portfolio delete-order-group error_path
+[PASS] portfolio exposure help
+[PASS] portfolio exposure happy_path
+[FAIL] portfolio exposure json_fidelity: invalid JSON
+[SKIP] portfolio exposure error_path: no positional argument
+[PASS] portfolio get-balance help
+[PASS] portfolio get-balance happy_path
+[PASS] portfolio get-balance json_fidelity
+[SKIP] portfolio get-balance error_path: no positional argument
+[PASS] portfolio get-fills help
+[PASS] portfolio get-fills happy_path
+[PASS] portfolio get-fills json_fidelity
+[SKIP] portfolio get-fills error_path: no positional argument
+[PASS] portfolio get-order help
+[SKIP] portfolio get-order happy_path: no list companion at depth 0 for "order_id"
+[SKIP] portfolio get-order json_fidelity: no list companion at depth 0 for "order_id"
+[PASS] portfolio get-order error_path
+[PASS] portfolio get-order-group help
+[SKIP] portfolio get-order-group happy_path: no list companion at depth 0 for "order_group_id"
+[SKIP] portfolio get-order-group json_fidelity: no list companion at depth 0 for "order_group_id"
+[PASS] portfolio get-order-group error_path
+[PASS] portfolio get-order-groups help
+[PASS] portfolio get-order-groups happy_path
+[PASS] portfolio get-order-groups json_fidelity
+[SKIP] portfolio get-order-groups error_path: no positional argument
+[PASS] portfolio get-order-queue-position help
+[SKIP] portfolio get-order-queue-position happy_path: no list companion at depth 0 for "order_id"
+[SKIP] portfolio get-order-queue-position json_fidelity: no list companion at depth 0 for "order_id"
+[PASS] portfolio get-order-queue-position error_path
+[PASS] portfolio get-order-queue-positions help
+[FAIL] portfolio get-order-queue-positions happy_path: exit 5
+[FAIL] portfolio get-order-queue-positions json_fidelity: exit 5
+[SKIP] portfolio get-order-queue-positions error_path: no positional argument
+[PASS] portfolio get-orders help
+[PASS] portfolio get-orders happy_path
+[PASS] portfolio get-orders json_fidelity
+[SKIP] portfolio get-orders error_path: no positional argument
+[PASS] portfolio get-positions help
+[PASS] portfolio get-positions happy_path
+[PASS] portfolio get-positions json_fidelity
+[SKIP] portfolio get-positions error_path: no positional argument
+[PASS] portfolio get-resting-order-total-value help
+[FAIL] portfolio get-resting-order-total-value happy_path: exit 4
+[FAIL] portfolio get-resting-order-total-value json_fidelity: exit 4
+[SKIP] portfolio get-resting-order-total-value error_path: no positional argument
+[PASS] portfolio get-settlements help
+[PASS] portfolio get-settlements happy_path
+[PASS] portfolio get-settlements json_fidelity
+[SKIP] portfolio get-settlements error_path: no positional argument
+[PASS] portfolio get-subaccount-balances help
+[PASS] portfolio get-subaccount-balances happy_path
+[PASS] portfolio get-subaccount-balances json_fidelity
+[SKIP] portfolio get-subaccount-balances error_path: no positional argument
+[PASS] portfolio get-subaccount-netting help
+[PASS] portfolio get-subaccount-netting happy_path
+[PASS] portfolio get-subaccount-netting json_fidelity
+[SKIP] portfolio get-subaccount-netting error_path: no positional argument
+[PASS] portfolio get-subaccount-transfers help
+[PASS] portfolio get-subaccount-transfers happy_path
+[PASS] portfolio get-subaccount-transfers json_fidelity
+[SKIP] portfolio get-subaccount-transfers error_path: no positional argument
+[PASS] portfolio reset-order-group help
+[SKIP] portfolio reset-order-group happy_path: no list companion at depth 0 for "order_group_id"
+[SKIP] portfolio reset-order-group json_fidelity: no list companion at depth 0 for "order_group_id"
+[PASS] portfolio reset-order-group error_path
+[PASS] portfolio trigger-order-group help
+[SKIP] portfolio trigger-order-group happy_path: no list companion at depth 0 for "order_group_id"
+[SKIP] portfolio trigger-order-group json_fidelity: no list companion at depth 0 for "order_group_id"
+[PASS] portfolio trigger-order-group error_path
+[PASS] portfolio update-order-group-limit help
+[SKIP] portfolio update-order-group-limit happy_path: no list companion at depth 0 for "order_group_id"
+[SKIP] portfolio update-order-group-limit json_fidelity: no list companion at depth 0 for "order_group_id"
+[PASS] portfolio update-order-group-limit error_path
+[PASS] portfolio update-subaccount-netting help
+[FAIL] portfolio update-subaccount-netting happy_path: exit 1
+[FAIL] portfolio update-subaccount-netting json_fidelity: exit 1
+[SKIP] portfolio update-subaccount-netting error_path: no positional argument
+[PASS] portfolio winrate help
+[PASS] portfolio winrate happy_path
+[PASS] portfolio winrate json_fidelity
+[SKIP] portfolio winrate error_path: no positional argument
+[PASS] profile delete help
+[SKIP] profile delete happy_path: non-id positional "name" at depth 0
+[SKIP] profile delete json_fidelity: non-id positional "name" at depth 0
+[PASS] profile delete error_path
+[PASS] profile list help
+[PASS] profile list happy_path
+[PASS] profile list json_fidelity
+[SKIP] profile list error_path: no positional argument
+[PASS] profile save help
+[SKIP] profile save happy_path: non-id positional "name" at depth 0
+[SKIP] profile save json_fidelity: non-id positional "name" at depth 0
+[PASS] profile save error_path
+[PASS] profile show help
+[SKIP] profile show happy_path: non-id positional "name" at depth 0
+[SKIP] profile show json_fidelity: non-id positional "name" at depth 0
+[PASS] profile show error_path
+[PASS] profile use help
+[SKIP] profile use happy_path: non-id positional "name" at depth 0
+[SKIP] profile use json_fidelity: non-id positional "name" at depth 0
+[PASS] profile use error_path
+[PASS] search help
+[SKIP] search happy_path: command path [search] has fewer segments than placeholders (1)
+[SKIP] search json_fidelity: command path [search] has fewer segments than placeholders (1)
+[PASS] search error_path
+[PASS] series events get-forecast-percentiles-history help
+[SKIP] series events get-forecast-percentiles-history happy_path: non-id positional "ticker" at depth 0
+[SKIP] series events get-forecast-percentiles-history json_fidelity: non-id positional "ticker" at depth 0
+[PASS] series events get-forecast-percentiles-history error_path
+[PASS] series events get-market-candlesticks-by help
+[SKIP] series events get-market-candlesticks-by happy_path: non-id positional "ticker" at depth 0
+[SKIP] series events get-market-candlesticks-by json_fidelity: non-id positional "ticker" at depth 0
+[PASS] series events get-market-candlesticks-by error_path
+[PASS] series get help
+[SKIP] series get happy_path: non-id positional "series_ticker" at depth 0
+[SKIP] series get json_fidelity: non-id positional "series_ticker" at depth 0
+[PASS] series get error_path
+[PASS] series get-fee-changes help
+[PASS] series get-fee-changes happy_path
+[PASS] series get-fee-changes json_fidelity
+[SKIP] series get-fee-changes error_path: no positional argument
+[PASS] series get-list help
+[PASS] series get-list happy_path
+[FAIL] series get-list json_fidelity: invalid JSON
+[SKIP] series get-list error_path: no positional argument
+[PASS] series markets get-candlesticks help
+[SKIP] series markets get-candlesticks happy_path: non-id positional "series_ticker" at depth 0
+[SKIP] series markets get-candlesticks json_fidelity: non-id positional "series_ticker" at depth 0
+[PASS] series markets get-candlesticks error_path
+[PASS] stale help
+[PASS] stale happy_path
+[PASS] stale json_fidelity
+[SKIP] stale error_path: no positional argument
+[PASS] structured-targets get help
+[PASS] structured-targets get happy_path
+[PASS] structured-targets get json_fidelity
+[SKIP] structured-targets get error_path: no positional argument
+[PASS] structured-targets get-structuredtargets help
+[SKIP] structured-targets get-structuredtargets happy_path: no list companion at depth 0 for "structured_target_id"
+[SKIP] structured-targets get-structuredtargets json_fidelity: no list companion at depth 0 for "structured_target_id"
+[PASS] structured-targets get-structuredtargets error_path
+[PASS] subaccounts rollup help
+[PASS] subaccounts rollup happy_path
+[FAIL] subaccounts rollup json_fidelity: invalid JSON
+[SKIP] subaccounts rollup error_path: no positional argument
+[PASS] sync help
+[FAIL] sync happy_path: exit -1
+[FAIL] sync json_fidelity: exit -1
+[SKIP] sync error_path: no positional argument
+[PASS] tail help
+[SKIP] tail happy_path: command path [tail] has fewer segments than placeholders (1)
+[SKIP] tail json_fidelity: command path [tail] has fewer segments than placeholders (1)
+[PASS] tail error_path
+[PASS] watch add help
+[SKIP] watch add happy_path: non-id positional "ticker" at depth 0
+[SKIP] watch add json_fidelity: non-id positional "ticker" at depth 0
+[FAIL] watch add error_path: expected non-zero exit for invalid argument
+[PASS] watch diff help
+[PASS] watch diff happy_path
+[PASS] watch diff json_fidelity
+[SKIP] watch diff error_path: no positional argument
+[PASS] watch list help
+[PASS] watch list happy_path
+[PASS] watch list json_fidelity
+[SKIP] watch list error_path: no positional argument
+[PASS] watch remove help
+[SKIP] watch remove happy_path: non-id positional "ticker" at depth 0
+[SKIP] watch remove json_fidelity: non-id positional "ticker" at depth 0
+[FAIL] watch remove error_path: expected non-zero exit for invalid argument
+[PASS] which help
+[SKIP] which happy_path: command path [which] has fewer segments than placeholders (1)
+[SKIP] which json_fidelity: command path [which] has fewer segments than placeholders (1)
+[PASS] which error_path
+[PASS] workflow archive help
+[PASS] workflow archive happy_path
+[PASS] workflow archive json_fidelity
+[SKIP] workflow archive error_path: no positional argument
+[PASS] workflow status help
+[PASS] workflow status happy_path
+[PASS] workflow status json_fidelity
+[SKIP] workflow status error_path: no positional argument
+Error: live dogfood failed: 58/344 tests failed
+live dogfood failed: 58/344 tests failed

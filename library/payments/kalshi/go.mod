@@ -10,12 +10,13 @@ require (
 require modernc.org/sqlite v1.37.0
 
 require (
-	github.com/mark3labs/mcp-go v0.26.0
+	github.com/mark3labs/mcp-go v0.47.0
 	github.com/spf13/pflag v1.0.6
 )
 
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/google/jsonschema-go v0.4.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

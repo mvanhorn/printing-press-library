@@ -379,16 +379,17 @@
       "name": "kalshi",
       "category": "payments",
       "api": "Kalshi",
-      "description": "Trade prediction markets, track portfolios, and analyze odds on Kalshi from the command line",
+      "description": "Trade prediction markets, persist tick data, and answer category-level P&L questions Kalshi.com cannot.",
       "path": "library/payments/kalshi",
       "mcp": {
         "binary": "kalshi-pp-mcp",
         "transport": "stdio",
-        "tool_count": 89,
+        "tool_count": 96,
         "public_tool_count": 0,
         "auth_type": "api_key",
         "env_vars": [
-          "KALSHI_API_KEY"
+          "KALSHI_API_KEY",
+          "KALSHI_PRIVATE_KEY_PATH"
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"

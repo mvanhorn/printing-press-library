@@ -17,9 +17,10 @@ func newSeriesEventsGetMarketCandlesticksByCmd(flags *rootFlags) *cobra.Command 
 	var flagPeriodInterval int
 
 	cmd := &cobra.Command{
-		Use:     "get-market-candlesticks-by <ticker> <series_ticker>",
-		Short:   "Get Event Candlesticks",
-		Example: "  kalshi-pp-cli series events get-market-candlesticks-by example-value example-value",
+		Use:         "get-market-candlesticks-by <ticker> <series_ticker>",
+		Short:       "End-point for returning aggregated data across all markets corresponding to an event.",
+		Example:     "  kalshi-pp-cli series events get-market-candlesticks-by example-value example-value",
+		Annotations: map[string]string{"pp:endpoint": "events.get-market-candlesticks-by", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -41,7 +42,7 @@ func newSeriesEventsGetMarketCandlesticksByCmd(flags *rootFlags) *cobra.Command 
 			path := "/series/{series_ticker}/events/{ticker}/candlesticks"
 			path = replacePathParam(path, "ticker", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("series_ticker is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "series_ticker"))
+				return usageErr(fmt.Errorf("series_ticker is required\nUsage: %s <%s>", cmd.CommandPath(), "series_ticker"))
 			}
 			path = replacePathParam(path, "series_ticker", args[1])
 			params := map[string]string{}
@@ -54,7 +55,7 @@ func newSeriesEventsGetMarketCandlesticksByCmd(flags *rootFlags) *cobra.Command 
 			if flagPeriodInterval != 0 {
 				params["period_interval"] = fmt.Sprintf("%v", flagPeriodInterval)
 			}
-			data, prov, err := resolveRead(c, flags, "events", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "events", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -64,14 +65,15 @@ func newSeriesEventsGetMarketCandlesticksByCmd(flags *rootFlags) *cobra.Command 
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -97,7 +99,7 @@ func newSeriesEventsGetMarketCandlesticksByCmd(flags *rootFlags) *cobra.Command 
 	}
 	cmd.Flags().IntVar(&flagStartTs, "start-ts", 0, "Start timestamp for the range")
 	cmd.Flags().IntVar(&flagEndTs, "end-ts", 0, "End timestamp for the range")
-	cmd.Flags().IntVar(&flagPeriodInterval, "period-interval", 0, "Specifies the length of each candlestick period, in minutes. Must be one minute, one hour, or one day.")
+	cmd.Flags().IntVar(&flagPeriodInterval, "period-interval", 0, "Specifies the length of each candlestick period, in minutes. Must be one minute, one hour, or one day. (one of: 1, 60, 1440)")
 
 	return cmd
 }

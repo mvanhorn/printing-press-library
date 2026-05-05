@@ -18,33 +18,49 @@ func newCommunicationsGetQuotesCmd(flags *rootFlags) *cobra.Command {
 	var flagLimit int
 	var flagStatus string
 	var flagQuoteCreatorUserId string
+	var flagUserFilter string
 	var flagRfqCreatorUserId string
 	var flagRfqCreatorSubtraderId string
 	var flagRfqId string
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "get-quotes",
-		Short:   "Get Quotes",
-		Example: "  kalshi-pp-cli communications get-quotes",
+		Use:         "get-quotes",
+		Short:       "Endpoint for getting quotes",
+		Example:     "  kalshi-pp-cli communications get-quotes",
+		Annotations: map[string]string{"pp:endpoint": "communications.get-quotes", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if cmd.Flags().Changed("user-filter") {
+				allowedUserFilter := []string{"self"}
+				validUserFilter := false
+				for _, v := range allowedUserFilter {
+					if flagUserFilter == v {
+						validUserFilter = true
+						break
+					}
+				}
+				if !validUserFilter {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "user-filter", flagUserFilter, allowedUserFilter)
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
 			path := "/communications/quotes"
-			data, prov, err := resolvePaginatedRead(c, flags, "communications", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "communications", path, map[string]string{
 				"cursor":                   fmt.Sprintf("%v", flagCursor),
 				"event_ticker":             fmt.Sprintf("%v", flagEventTicker),
 				"market_ticker":            fmt.Sprintf("%v", flagMarketTicker),
 				"limit":                    fmt.Sprintf("%v", flagLimit),
 				"status":                   fmt.Sprintf("%v", flagStatus),
 				"quote_creator_user_id":    fmt.Sprintf("%v", flagQuoteCreatorUserId),
+				"user_filter":              fmt.Sprintf("%v", flagUserFilter),
 				"rfq_creator_user_id":      fmt.Sprintf("%v", flagRfqCreatorUserId),
 				"rfq_creator_subtrader_id": fmt.Sprintf("%v", flagRfqCreatorSubtraderId),
 				"rfq_id":                   fmt.Sprintf("%v", flagRfqId),
-			}, flagAll, "cursor", "", "")
+			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -54,14 +70,15 @@ func newCommunicationsGetQuotesCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -91,6 +108,7 @@ func newCommunicationsGetQuotesCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&flagLimit, "limit", 500, "Parameter to specify the number of results per page. Defaults to 500.")
 	cmd.Flags().StringVar(&flagStatus, "status", "", "Filter quotes by status")
 	cmd.Flags().StringVar(&flagQuoteCreatorUserId, "quote-creator-user-id", "", "Filter quotes by quote creator user ID")
+	cmd.Flags().StringVar(&flagUserFilter, "user-filter", "", "User filter (one of: self)")
 	cmd.Flags().StringVar(&flagRfqCreatorUserId, "rfq-creator-user-id", "", "Filter quotes by RFQ creator user ID")
 	cmd.Flags().StringVar(&flagRfqCreatorSubtraderId, "rfq-creator-subtrader-id", "", "Filter quotes by RFQ creator subtrader ID (FCM members only)")
 	cmd.Flags().StringVar(&flagRfqId, "rfq-id", "", "Filter quotes by RFQ ID")

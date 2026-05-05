@@ -14,9 +14,10 @@ import (
 func newExchangeGetUserDataTimestampCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "get-user-data-timestamp",
-		Short:   "Get User Data Timestamp",
-		Example: "  kalshi-pp-cli exchange get-user-data-timestamp",
+		Use:         "get-user-data-timestamp",
+		Short:       "There is typically a short delay before exchange events are reflected in the API endpoints. Whenever possible,...",
+		Example:     "  kalshi-pp-cli exchange get-user-data-timestamp",
+		Annotations: map[string]string{"pp:endpoint": "exchange.get-user-data-timestamp", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -25,7 +26,7 @@ func newExchangeGetUserDataTimestampCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/exchange/user_data_timestamp"
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "exchange", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "exchange", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -35,14 +36,15 @@ func newExchangeGetUserDataTimestampCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

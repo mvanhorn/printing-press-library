@@ -15,10 +15,11 @@ func newPortfolioBatchCancelOrdersCmd(flags *rootFlags) *cobra.Command {
 	var bodyIds string
 
 	cmd := &cobra.Command{
-		Use:     "batch-cancel-orders",
-		Aliases: []string{"delete"},
-		Short:   "Batch Cancel Orders",
-		Example: "  kalshi-pp-cli portfolio batch-cancel-orders",
+		Use:         "batch-cancel-orders",
+		Aliases:     []string{"delete"},
+		Short:       "Endpoint for cancelling a batch of orders. The maximum batch size scales with your tier's write budget — see [Rate...",
+		Example:     "  kalshi-pp-cli portfolio batch-cancel-orders",
+		Annotations: map[string]string{"pp:endpoint": "portfolio.batch-cancel-orders"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -56,13 +57,15 @@ func newPortfolioBatchCancelOrdersCmd(flags *rootFlags) *cobra.Command {
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "delete",

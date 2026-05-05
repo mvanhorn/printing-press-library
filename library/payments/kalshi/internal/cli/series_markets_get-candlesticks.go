@@ -18,10 +18,11 @@ func newSeriesMarketsGetCandlesticksCmd(flags *rootFlags) *cobra.Command {
 	var flagIncludeLatestBeforeStart bool
 
 	cmd := &cobra.Command{
-		Use:     "get-candlesticks <series_ticker> <ticker>",
-		Aliases: []string{"get"},
-		Short:   "Get Market Candlesticks",
-		Example: "  kalshi-pp-cli series markets get-candlesticks example-value example-value",
+		Use:         "get-candlesticks <series_ticker> <ticker>",
+		Aliases:     []string{"get"},
+		Short:       "Time period length of each candlestick in minutes. Valid values: 1 (1 minute), 60 (1 hour), 1440 (1 day)....",
+		Example:     "  kalshi-pp-cli series markets get-candlesticks example-value example-value",
+		Annotations: map[string]string{"pp:endpoint": "markets.get-candlesticks", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -43,7 +44,7 @@ func newSeriesMarketsGetCandlesticksCmd(flags *rootFlags) *cobra.Command {
 			path := "/series/{series_ticker}/markets/{ticker}/candlesticks"
 			path = replacePathParam(path, "series_ticker", args[0])
 			if len(args) < 2 {
-				return usageErr(fmt.Errorf("ticker is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "ticker"))
+				return usageErr(fmt.Errorf("ticker is required\nUsage: %s <%s>", cmd.CommandPath(), "ticker"))
 			}
 			path = replacePathParam(path, "ticker", args[1])
 			params := map[string]string{}
@@ -59,7 +60,7 @@ func newSeriesMarketsGetCandlesticksCmd(flags *rootFlags) *cobra.Command {
 			if flagIncludeLatestBeforeStart != false {
 				params["include_latest_before_start"] = fmt.Sprintf("%v", flagIncludeLatestBeforeStart)
 			}
-			data, prov, err := resolveRead(c, flags, "markets", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "markets", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -69,14 +70,15 @@ func newSeriesMarketsGetCandlesticksCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -102,7 +104,7 @@ func newSeriesMarketsGetCandlesticksCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().IntVar(&flagStartTs, "start-ts", 0, "Start timestamp (Unix timestamp). Candlesticks will include those ending on or after this time.")
 	cmd.Flags().IntVar(&flagEndTs, "end-ts", 0, "End timestamp (Unix timestamp). Candlesticks will include those ending on or before this time.")
-	cmd.Flags().IntVar(&flagPeriodInterval, "period-interval", 0, "Time period length of each candlestick in minutes. Valid values are 1 (1 minute), 60 (1 hour), or 1440 (1 day).")
+	cmd.Flags().IntVar(&flagPeriodInterval, "period-interval", 0, "Time period length of each candlestick in minutes. Valid values are 1 (1 minute), 60 (1 hour), or 1440 (1 day). (one of: 1, 60, 1440)")
 	cmd.Flags().BoolVar(&flagIncludeLatestBeforeStart, "include-latest-before-start", false, "If true, prepends the latest candlestick available before the start_ts. This synthetic candlestick is created by: 1....")
 
 	return cmd

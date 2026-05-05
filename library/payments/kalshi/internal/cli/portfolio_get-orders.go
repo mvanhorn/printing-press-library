@@ -23,9 +23,10 @@ func newPortfolioGetOrdersCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "get-orders",
-		Short:   "Get Orders",
-		Example: "  kalshi-pp-cli portfolio get-orders",
+		Use:         "get-orders",
+		Short:       "Restricts the response to orders that have a certain status: resting, canceled, or executed. Orders that have been...",
+		Example:     "  kalshi-pp-cli portfolio get-orders",
+		Annotations: map[string]string{"pp:endpoint": "portfolio.get-orders", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -33,7 +34,7 @@ func newPortfolioGetOrdersCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/portfolio/orders"
-			data, prov, err := resolvePaginatedRead(c, flags, "portfolio", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "portfolio", path, map[string]string{
 				"ticker":       fmt.Sprintf("%v", flagTicker),
 				"event_ticker": fmt.Sprintf("%v", flagEventTicker),
 				"min_ts":       fmt.Sprintf("%v", flagMinTs),
@@ -42,7 +43,7 @@ func newPortfolioGetOrdersCmd(flags *rootFlags) *cobra.Command {
 				"limit":        fmt.Sprintf("%v", flagLimit),
 				"cursor":       fmt.Sprintf("%v", flagCursor),
 				"subaccount":   fmt.Sprintf("%v", flagSubaccount),
-			}, flagAll, "cursor", "", "")
+			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -52,14 +53,15 @@ func newPortfolioGetOrdersCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

@@ -3,6 +3,7 @@
   "base_url": "https://api.elections.kalshi.com/trade-api/v2",
   "description": "Manually defined OpenAPI spec for endpoints being migrated to spec-first approach",
   "mcp_ready": "full",
+  "http_transport": "standard",
   "auth": {
     "type": "api_key",
     "header": "KALSHI-ACCESS-KEY",
@@ -15,14 +16,21 @@
   "tools": [
     {
       "name": "account_get-api-limits",
-      "description": "Get Account API Limits",
+      "description": "Endpoint to retrieve the API tier limits associated with the authenticated user. Returns the GetAccountApiLimitsResponse.",
       "method": "GET",
       "path": "/account/limits",
       "params": []
     },
     {
+      "name": "account_get-endpoint-costs",
+      "description": "Lists API v2 endpoints whose configured token cost differs from the default cost. Endpoints that use the default cost are omitted. Returns the GetAccountEndpointCostsResponse.",
+      "method": "GET",
+      "path": "/account/endpoint_costs",
+      "params": []
+    },
+    {
       "name": "api-keys_create",
-      "description": "Create API Key",
+      "description": "Endpoint for creating a new API key with a user-provided public key. This endpoint allows users with Premier or Market Maker API usage levels to create API keys by providing their own RSA public key. The platform will use this public key to verify signatures on API requests. Required: name, public_key. Optional: scopes. Returns the new CreateApiKeyResponse.",
       "method": "POST",
       "path": "/api_keys",
       "params": [
@@ -50,7 +58,7 @@
     },
     {
       "name": "api-keys_delete",
-      "description": "Delete API Key",
+      "description": "Endpoint for deleting an existing API key. This endpoint permanently deletes an API key. Once deleted, the key can no longer be used for authentication. This action cannot be undone. Required: api_key. Destructive.",
       "method": "DELETE",
       "path": "/api_keys/{api_key}",
       "params": [
@@ -65,7 +73,7 @@
     },
     {
       "name": "api-keys_generate",
-      "description": "Generate API Key",
+      "description": "Endpoint for generating a new API key with an automatically created key pair. This endpoint generates both a public and private RSA key pair. The public key is stored on the platform, while the private key is returned to the user and must be stored securely. The private key cannot be retrieved again. Required: name. Optional: scopes. Returns the new GenerateApiKeyResponse.",
       "method": "POST",
       "path": "/api_keys/generate",
       "params": [
@@ -86,14 +94,14 @@
     },
     {
       "name": "api-keys_get",
-      "description": "Get API Keys",
+      "description": "Endpoint for retrieving all API keys associated with the authenticated user. API keys allow programmatic access to the platform without requiring username/password authentication. Each key has a unique identifier and name. Returns the GetApiKeysResponse.",
       "method": "GET",
       "path": "/api_keys",
       "params": []
     },
     {
       "name": "communications_accept-quote",
-      "description": "Accept Quote",
+      "description": "Endpoint for accepting a quote. This will require the quoter to confirm. Required: quote_id, accepted_side.",
       "method": "PUT",
       "path": "/communications/quotes/{quote_id}/accept",
       "params": [
@@ -115,7 +123,7 @@
     },
     {
       "name": "communications_confirm-quote",
-      "description": "Confirm Quote",
+      "description": "Endpoint for confirming a quote. This will start a timer for order execution. Required: quote_id.",
       "method": "PUT",
       "path": "/communications/quotes/{quote_id}/confirm",
       "params": [
@@ -130,7 +138,7 @@
     },
     {
       "name": "communications_create-quote",
-      "description": "Create Quote",
+      "description": "Endpoint for creating a quote in response to an RFQ. Required: no_bid, rest_remainder, rfq_id, yes_bid. Optional: subaccount. Returns the new CreateQuoteResponse.",
       "method": "POST",
       "path": "/communications/quotes",
       "params": [
@@ -172,7 +180,7 @@
     },
     {
       "name": "communications_create-rfq",
-      "description": "Create RFQ",
+      "description": "Endpoint for creating a new RFQ. You can have a maximum of 100 open RFQs at a time. Required: market_ticker, rest_remainder. Optional: contracts, contracts_fp, replace_existing (default: false) (plus 4 more). Returns the new CreateRfqresponse.",
       "method": "POST",
       "path": "/communications/rfqs",
       "params": [
@@ -186,7 +194,7 @@
           "name": "contracts_fp",
           "type": "string",
           "location": "body",
-          "description": "Fixed-point contract count string (2 decimals, e.g., \"10.00\"; referred to as \"fp\" in field names). Requests accept 0–2 decimal places (e.g., \"10\", \"10.0\", \"10.00\"); responses always emit 2 decimals. Fractional contract values (e.g., \"2.50\") are supported on markets with fractional trading enabled; the minimum granularity is 0.01 contracts. Integer contract count fields are legacy and will be deprecated; when both integer and fp fields are provided, they must match."
+          "description": "Fixed-point contract count string (2 decimals, e.g., '10.00'; referred to as 'fp' in field names). Requests accept 0–2 decimal places (e.g., '10', '10.0', '10.00'); responses always emit 2 decimals. Fractional contract values (e.g., '2.50') are supported on markets with fractional trading enabled; the minimum granularity is 0.01 contracts. Integer contract count fields are legacy and will be deprecated; when both integer and fp fields are provided, they must match."
         },
         {
           "name": "market_ticker",
@@ -236,7 +244,7 @@
     },
     {
       "name": "communications_delete-quote",
-      "description": "Delete Quote",
+      "description": "Endpoint for deleting a quote, which means it can no longer be accepted. Required: quote_id. Destructive.",
       "method": "DELETE",
       "path": "/communications/quotes/{quote_id}",
       "params": [
@@ -251,7 +259,7 @@
     },
     {
       "name": "communications_delete-rfq",
-      "description": "Delete RFQ",
+      "description": "Endpoint for deleting an RFQ by ID. Required: rfq_id. Destructive.",
       "method": "DELETE",
       "path": "/communications/rfqs/{rfq_id}",
       "params": [
@@ -266,14 +274,14 @@
     },
     {
       "name": "communications_get-id",
-      "description": "Get Communications ID",
+      "description": "Endpoint for getting the communications ID of the logged-in user. Returns the GetCommunicationsIdresponse.",
       "method": "GET",
       "path": "/communications/id",
       "params": []
     },
     {
       "name": "communications_get-quote",
-      "description": "Get Quote",
+      "description": "Endpoint for getting a particular quote. Required: quote_id. Returns the GetQuoteResponse.",
       "method": "GET",
       "path": "/communications/quotes/{quote_id}",
       "params": [
@@ -288,7 +296,7 @@
     },
     {
       "name": "communications_get-quotes",
-      "description": "Get Quotes",
+      "description": "Endpoint for getting quotes. Optional: cursor, event_ticker, market_ticker (plus 7 more). Returns the GetQuotesResponse.",
       "method": "GET",
       "path": "/communications/quotes",
       "params": [
@@ -296,7 +304,7 @@
           "name": "cursor",
           "type": "string",
           "location": "query",
-          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave empty for the first page."
+          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next..."
         },
         {
           "name": "event_ticker",
@@ -329,6 +337,12 @@
           "description": "Filter quotes by quote creator user ID"
         },
         {
+          "name": "user_filter",
+          "type": "string",
+          "location": "query",
+          "description": "User filter"
+        },
+        {
           "name": "rfq_creator_user_id",
           "type": "string",
           "location": "query",
@@ -350,7 +364,7 @@
     },
     {
       "name": "communications_get-rfq",
-      "description": "Get RFQ",
+      "description": "Endpoint for getting a single RFQ by id. Required: rfq_id. Returns the GetRfqresponse.",
       "method": "GET",
       "path": "/communications/rfqs/{rfq_id}",
       "params": [
@@ -365,7 +379,7 @@
     },
     {
       "name": "communications_get-rfqs",
-      "description": "Get RFQs",
+      "description": "Endpoint for getting RFQs. Optional: cursor, event_ticker, market_ticker (plus 5 more). Returns the GetRfqsResponse.",
       "method": "GET",
       "path": "/communications/rfqs",
       "params": [
@@ -373,7 +387,7 @@
           "name": "cursor",
           "type": "string",
           "location": "query",
-          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave empty for the first page."
+          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next..."
         },
         {
           "name": "event_ticker",
@@ -410,12 +424,18 @@
           "type": "string",
           "location": "query",
           "description": "Filter RFQs by creator user ID"
+        },
+        {
+          "name": "user_filter",
+          "type": "string",
+          "location": "query",
+          "description": "User filter"
         }
       ]
     },
     {
       "name": "events_get",
-      "description": "Get Events",
+      "description": "Get all events. This endpoint excludes multivariate events. To retrieve multivariate events, use the GET /events/multivariate endpoint. All events are accessible through this endpoint, even if their associated markets are older than the historical cutoff. Optional: limit (default: 200), cursor, with_nested_markets (default: false) (plus 5 more). Returns the GetEventsResponse.",
       "method": "GET",
       "path": "/events",
       "params": [
@@ -471,7 +491,7 @@
     },
     {
       "name": "events_get-eventticker",
-      "description": "Get Event",
+      "description": "Endpoint for getting data about an event by its ticker. An event represents a real-world occurrence that can be traded on, such as an election, sports game, or economic indicator release. Events contain one or more markets where users can place trades on different outcomes. All events are accessible through this endpoint, even if their associated markets are older than the historical cutoff. Required: event_ticker. Optional: with_nested_markets (default: false). Returns the GetEventResponse.",
       "method": "GET",
       "path": "/events/{event_ticker}",
       "params": [
@@ -492,7 +512,7 @@
     },
     {
       "name": "events_get-multivariate",
-      "description": "Get Multivariate Events",
+      "description": "Retrieve multivariate (combo) events. These are dynamically created events from multivariate event collections. Supports filtering by series and collection ticker. Optional: limit (default: 100), cursor, series_ticker (plus 2 more). Returns the GetMultivariateEventsResponse.",
       "method": "GET",
       "path": "/events/multivariate",
       "params": [
@@ -530,7 +550,7 @@
     },
     {
       "name": "events_metadata_get-event",
-      "description": "Get Event Metadata",
+      "description": "Endpoint for getting metadata about an event by its ticker. Returns only the metadata information for an event. Required: event_ticker.",
       "method": "GET",
       "path": "/events/{event_ticker}/metadata",
       "params": [
@@ -545,35 +565,35 @@
     },
     {
       "name": "exchange_get-announcements",
-      "description": "Get Exchange Announcements",
+      "description": "Endpoint for getting all exchange-wide announcements. Returns the GetExchangeAnnouncementsResponse.",
       "method": "GET",
       "path": "/exchange/announcements",
       "params": []
     },
     {
       "name": "exchange_get-schedule",
-      "description": "Get Exchange Schedule",
+      "description": "Endpoint for getting the exchange schedule. Returns the GetExchangeScheduleResponse.",
       "method": "GET",
       "path": "/exchange/schedule",
       "params": []
     },
     {
       "name": "exchange_get-status",
-      "description": "Get Exchange Status",
+      "description": "Endpoint for getting the exchange status. Returns the ExchangeStatus.",
       "method": "GET",
       "path": "/exchange/status",
       "params": []
     },
     {
       "name": "exchange_get-user-data-timestamp",
-      "description": "Get User Data Timestamp",
+      "description": "There is typically a short delay before exchange events are reflected in the API endpoints. Whenever possible, combine API responses to PUT/POST/DELETE requests with websocket data to obtain the most accurate view of the exchange state. This endpoint provides an approximate indication of when the data from the following endpoints was last validated: GetBalance, GetOrder(s), GetFills, GetPositions. Returns the GetUserDataTimestampResponse.",
       "method": "GET",
       "path": "/exchange/user_data_timestamp",
       "params": []
     },
     {
       "name": "fcm_get-fcmorders",
-      "description": "Get FCM Orders",
+      "description": "Endpoint for FCM members to get orders filtered by subtrader ID. This endpoint requires FCM member access level and allows filtering orders by subtrader ID. Required: subtrader_id. Optional: cursor, event_ticker, ticker (plus 4 more). Returns the GetOrdersResponse.",
       "method": "GET",
       "path": "/fcm/orders",
       "params": [
@@ -588,7 +608,7 @@
           "name": "cursor",
           "type": "string",
           "location": "query",
-          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave empty for the first page."
+          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next..."
         },
         {
           "name": "event_ticker",
@@ -630,7 +650,7 @@
     },
     {
       "name": "fcm_get-fcmpositions",
-      "description": "Get FCM Positions",
+      "description": "Endpoint for FCM members to get market positions filtered by subtrader ID. This endpoint requires FCM member access level and allows filtering positions by subtrader ID. Required: subtrader_id. Optional: ticker, event_ticker, count_filter (plus 3 more). Returns the GetPositionsResponse.",
       "method": "GET",
       "path": "/fcm/positions",
       "params": [
@@ -681,14 +701,14 @@
     },
     {
       "name": "historical_get-cutoff",
-      "description": "Get Historical Cutoff Timestamps",
+      "description": "Returns the cutoff timestamps that define the boundary between **live** and **historical** data. ## Cutoff fields - `market_settled_ts` : Markets that **settled** before this timestamp, and their candlesticks, must be accessed via `GET /historical/markets` and `GET /historical/markets/{ticker}/candlesticks`. - `trades_created_ts` : Trades that were **filled** before this timestamp must be accessed via `GET /historical/fills`. - `orders_updated_ts` : Orders that were **canceled or fully executed** before this timestamp must be accessed via `GET /historical/orders`. Resting (active) orders are always available in `GET /portfolio/orders`.",
       "method": "GET",
       "path": "/historical/cutoff",
       "params": []
     },
     {
       "name": "historical_get-fills",
-      "description": "Get Historical Fills",
+      "description": "Endpoint for getting all historical fills for the member. A fill is when a trade you have is matched. Optional: ticker, max_ts, limit (default: 100) (plus 1 more). Returns the GetFillsResponse.",
       "method": "GET",
       "path": "/historical/fills",
       "params": [
@@ -714,13 +734,13 @@
           "name": "cursor",
           "type": "string",
           "location": "query",
-          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave empty for the first page."
+          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next..."
         }
       ]
     },
     {
       "name": "historical_get-market",
-      "description": "Get Historical Market",
+      "description": "Endpoint for getting data about a specific market by its ticker from the historical database. Required: ticker. Returns the GetMarketResponse.",
       "method": "GET",
       "path": "/historical/markets/{ticker}",
       "params": [
@@ -735,7 +755,7 @@
     },
     {
       "name": "historical_get-market-candlesticks",
-      "description": "Get Historical Market Candlesticks",
+      "description": "Endpoint for fetching historical candlestick data for markets that have been archived from the live data set. Time period length of each candlestick in minutes. Valid values: 1 (1 minute), 60 (1 hour), 1440 (1 day). Required: ticker, start_ts, end_ts, period_interval. Returns the GetMarketCandlesticksHistoricalResponse.",
       "method": "GET",
       "path": "/historical/markets/{ticker}/candlesticks",
       "params": [
@@ -771,7 +791,7 @@
     },
     {
       "name": "historical_get-markets",
-      "description": "Get Historical Markets",
+      "description": "Endpoint for getting markets that have been archived to the historical database. Filters are mutually exclusive. Optional: limit (default: 100), cursor, tickers (plus 3 more). Returns the GetMarketsResponse.",
       "method": "GET",
       "path": "/historical/markets",
       "params": [
@@ -785,7 +805,7 @@
           "name": "cursor",
           "type": "string",
           "location": "query",
-          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave empty for the first page."
+          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next..."
         },
         {
           "name": "tickers",
@@ -815,7 +835,7 @@
     },
     {
       "name": "historical_get-orders",
-      "description": "Get Historical Orders",
+      "description": "Endpoint for getting orders that have been archived to the historical database. Optional: ticker, max_ts, limit (default: 100) (plus 1 more). Returns the GetOrdersResponse.",
       "method": "GET",
       "path": "/historical/orders",
       "params": [
@@ -841,13 +861,13 @@
           "name": "cursor",
           "type": "string",
           "location": "query",
-          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave empty for the first page."
+          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next..."
         }
       ]
     },
     {
       "name": "historical_get-trades",
-      "description": "Get Historical Trades",
+      "description": "Endpoint for getting all historical trades for all markets. Trades that were filled before the historical cutoff are available via this endpoint. See [Historical Data](https://kalshi.com/docs/getting_started/historical_data) for details. Optional: ticker, min_ts, max_ts (plus 2 more). Returns the GetTradesResponse.",
       "method": "GET",
       "path": "/historical/trades",
       "params": [
@@ -879,13 +899,13 @@
           "name": "cursor",
           "type": "string",
           "location": "query",
-          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave empty for the first page."
+          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next..."
         }
       ]
     },
     {
       "name": "incentive-programs_get",
-      "description": "Get Incentives",
+      "description": "List incentives with optional filters. Incentives are rewards programs for trading activity on specific markets. Optional: status, type, incentive_description (plus 2 more). Returns the GetIncentiveProgramsResponse.",
       "method": "GET",
       "path": "/incentive_programs",
       "params": [
@@ -893,13 +913,19 @@
           "name": "status",
           "type": "string",
           "location": "query",
-          "description": "Status filter. Can be \"all\", \"active\", \"upcoming\", \"closed\", or \"paid_out\". Default is \"all\"."
+          "description": "Status filter. Can be 'all', 'active', 'upcoming', 'closed', or 'paid_out'. Default is 'all'."
         },
         {
           "name": "type",
           "type": "string",
           "location": "query",
-          "description": "Type filter. Can be \"all\", \"liquidity\", or \"volume\". Default is \"all\"."
+          "description": "Type filter. Can be 'all', 'liquidity', or 'volume'. Default is 'all'."
+        },
+        {
+          "name": "incentive_description",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by exact incentive description."
         },
         {
           "name": "limit",
@@ -916,8 +942,22 @@
       ]
     },
     {
+      "name": "kalshi-trade-manual-search_get-filters-for-sports",
+      "description": "Retrieve available filters organized by sport. This endpoint returns filtering options available for each sport, including scopes and competitions. It also provides an ordered list of sports for display purposes.",
+      "method": "GET",
+      "path": "/search/filters_by_sport",
+      "params": []
+    },
+    {
+      "name": "kalshi-trade-manual-search-2_get-tags-for-series-categories",
+      "description": "Retrieve tags organized by series categories. This endpoint returns a mapping of series categories to their associated tags, which can be used for filtering and search functionality.",
+      "method": "GET",
+      "path": "/search/tags_by_categories",
+      "params": []
+    },
+    {
       "name": "live-data_get",
-      "description": "Get Multiple Live Data",
+      "description": "Get live data for multiple milestones. Required: milestone_ids. Optional: include_player_stats (default: false). Returns the GetLiveDatasResponse.",
       "method": "GET",
       "path": "/live_data/batch",
       "params": [
@@ -932,13 +972,13 @@
           "name": "include_player_stats",
           "type": "bool",
           "location": "query",
-          "description": "When true, includes player-level statistics in the live data response. Supported for Pro Football, Pro Basketball, and College Men's Basketball milestones that have player ID mappings configured. Has no effect for other sports or milestones without player mappings."
+          "description": "When true, includes player-level statistics in the live data response."
         }
       ]
     },
     {
       "name": "live-data_get-by-milestone",
-      "description": "Get Live Data",
+      "description": "Get live data for a specific milestone. Required: milestone_id. Optional: include_player_stats (default: false). Returns the GetLiveDataResponse.",
       "method": "GET",
       "path": "/live_data/milestone/{milestone_id}",
       "params": [
@@ -953,13 +993,13 @@
           "name": "include_player_stats",
           "type": "bool",
           "location": "query",
-          "description": "When true, includes player-level statistics in the live data response. Supported for Pro Football, Pro Basketball, and College Men's Basketball milestones that have player ID mappings configured. Has no effect for other sports or milestones without player mappings."
+          "description": "When true, includes player-level statistics in the live data response."
         }
       ]
     },
     {
       "name": "live-data_get-game-stats",
-      "description": "Get Game Stats",
+      "description": "Get play-by-play game statistics for a specific milestone. Supported sports: Pro Football, College Football, Pro Basketball, College Men's Basketball, College Women's Basketball, WNBA, Soccer, Pro Hockey, and Pro Baseball. Returns null for unsupported milestone types or milestones without a Sportradar ID. Required: milestone_id.",
       "method": "GET",
       "path": "/live_data/milestone/{milestone_id}/game_stats",
       "params": [
@@ -974,7 +1014,7 @@
     },
     {
       "name": "live-data_milestone_get-live-data",
-      "description": "Get Live Data (with type)",
+      "description": "Get live data for a specific milestone. This is the legacy endpoint that requires a type path parameter. Prefer using `/live_data/milestone/{milestone_id}` instead. Required: type, milestone_id. Optional: include_player_stats (default: false). Returns the GetLiveDataResponse.",
       "method": "GET",
       "path": "/live_data/{type}/milestone/{milestone_id}",
       "params": [
@@ -996,13 +1036,13 @@
           "name": "include_player_stats",
           "type": "bool",
           "location": "query",
-          "description": "When true, includes player-level statistics in the live data response. Supported for Pro Football, Pro Basketball, and College Men's Basketball milestones that have player ID mappings configured. Has no effect for other sports or milestones without player mappings."
+          "description": "When true, includes player-level statistics in the live data response."
         }
       ]
     },
     {
       "name": "markets_batch-get-candlesticks",
-      "description": "Batch Get Market Candlesticks",
+      "description": "Endpoint for retrieving candlestick data for multiple markets. - Accepts up to 100 market tickers per request - Returns up to 10,000 candlesticks total across all markets - Returns candlesticks grouped by market_id - Optionally includes a synthetic initial candlestick for price continuity (see `include_latest_before_start` parameter). Required: market_tickers, start_ts, end_ts, period_interval. Optional: include_latest_before_start (default: false).",
       "method": "GET",
       "path": "/markets/candlesticks",
       "params": [
@@ -1038,13 +1078,13 @@
           "name": "include_latest_before_start",
           "type": "bool",
           "location": "query",
-          "description": "If true, prepends the latest candlestick available before the start_ts. This synthetic candlestick is created by:\n1. Finding the most recent real candlestick before start_ts\n2. Projecting it forward to the first period boundary (calculated as the next period interval after start_ts)\n3. Setting all OHLC prices to null, and `previous_price` to the close price from the real candlestick"
+          "description": "If true, prepends the latest candlestick available before the start_ts. This synthetic candlestick is created by: 1. Finding the most recent real candlestick before start_ts 2. Projecting it forward to the first period boundary (calculated as the next period interval after start_ts) 3. Setting all OHLC prices to null, and `previous_price` to the close price from the real candlestick"
         }
       ]
     },
     {
       "name": "markets_get",
-      "description": "Get Markets",
+      "description": "Filter by market status. Possible values: `unopened`, `open`, `closed`, `settled`. Leave empty to return markets with any status. - Only one `status` filter may be supplied at a time. - Timestamp filters will be mutually exclusive from other timestamp filters and certain status filters. | Compatible Timestamp Filters | Additional Status Filters| Extra Notes | |------------------------------|--------------------------|-------------| | min_created_ts, max_created_ts | `unopened`, `open`, *empty* | | | min_close_ts, max_close_ts | `closed`, *empty* | | | min_settled_ts, max_settled_ts | `settled`, *empty* | | | min_updated_ts | *empty* | Incompatible with all filters besides `mve_filter=exclude` | Markets that settled before the historical cutoff are only available via `GET /historical/markets`. See [Historical Data](https://kalshi.com/docs/getting_started/historical_data) for details. Optional: limit (default: 100), cursor, event_ticker (plus 11 more). Returns the GetMarketsResponse.",
       "method": "GET",
       "path": "/markets",
       "params": [
@@ -1058,7 +1098,7 @@
           "name": "cursor",
           "type": "string",
           "location": "query",
-          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave empty for the first page."
+          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next..."
         },
         {
           "name": "event_ticker",
@@ -1136,7 +1176,7 @@
     },
     {
       "name": "markets_get-orderbooks",
-      "description": "Get Multiple Market Orderbooks",
+      "description": "Endpoint for getting the current order books for multiple markets in a single request. The order book shows all active bid orders for both yes and no sides of a binary market. It returns yes bids and no bids only (no asks are returned). This is because in binary markets, a bid for yes at price X is equivalent to an ask for no at price (100-X). For example, a yes bid at 7¢ is the same as a no ask at 93¢, with identical contract sizes. Each side shows price levels with their corresponding quantities and order counts, organized from best to worst prices. Returns one orderbook per requested market ticker. Required: tickers.",
       "method": "GET",
       "path": "/markets/orderbooks",
       "params": [
@@ -1151,7 +1191,7 @@
     },
     {
       "name": "markets_get-ticker",
-      "description": "Get Market",
+      "description": "Endpoint for getting data about a specific market by its ticker. A market represents a specific binary outcome within an event that users can trade on (e.g., 'Will candidate X win?'). Markets have yes/no positions, current prices, volume, and settlement rules. Required: ticker. Returns the GetMarketResponse.",
       "method": "GET",
       "path": "/markets/{ticker}",
       "params": [
@@ -1166,7 +1206,7 @@
     },
     {
       "name": "markets_get-trades",
-      "description": "Get Trades",
+      "description": "Endpoint for getting all trades for all markets. A trade represents a completed transaction between two users on a specific market. Each trade includes the market ticker, price, quantity, and timestamp information. This endpoint returns a paginated response. Use the 'limit' parameter to control page size (1-1000, defaults to 100). The response includes a 'cursor' field - pass this value in the 'cursor' parameter of your next request to get the next page. An empty cursor indicates no more pages are available. Optional: limit (default: 100), cursor, ticker (plus 2 more).",
       "method": "GET",
       "path": "/markets/trades",
       "params": [
@@ -1180,7 +1220,7 @@
           "name": "cursor",
           "type": "string",
           "location": "query",
-          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave empty for the first page."
+          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next..."
         },
         {
           "name": "ticker",
@@ -1204,7 +1244,7 @@
     },
     {
       "name": "markets_orderbook_get-market",
-      "description": "Get Market Orderbook",
+      "description": "Endpoint for getting the current order book for a specific market. The order book shows all active bid orders for both yes and no sides of a binary market. It returns yes bids and no bids only (no asks are returned). This is because in binary markets, a bid for yes at price X is equivalent to an ask for no at price (100-X). For example, a yes bid at 7¢ is the same as a no ask at 93¢, with identical contract sizes. Each side shows price levels with their corresponding quantities and order counts, organized from best to worst prices. Required: ticker. Optional: depth (default: 0).",
       "method": "GET",
       "path": "/markets/{ticker}/orderbook",
       "params": [
@@ -1225,7 +1265,7 @@
     },
     {
       "name": "milestones_get",
-      "description": "Get Milestones",
+      "description": "Minimum start date to filter milestones. Format: RFC3339 timestamp. Required: limit. Optional: minimum_start_date, category, competition (plus 5 more). Returns the GetMilestonesResponse.",
       "method": "GET",
       "path": "/milestones",
       "params": [
@@ -1288,7 +1328,7 @@
     },
     {
       "name": "milestones_get-milestoneid",
-      "description": "Get Milestone",
+      "description": "Endpoint for getting data about a specific milestone by its ID. Required: milestone_id. Returns the GetMilestoneResponse.",
       "method": "GET",
       "path": "/milestones/{milestone_id}",
       "params": [
@@ -1303,7 +1343,7 @@
     },
     {
       "name": "multivariate-event-collections_create-market-in",
-      "description": "Create Market In Multivariate Event Collection",
+      "description": "Endpoint for creating an individual market in a multivariate event collection. This endpoint must be hit at least once before trading or looking up a market. Users are limited to 5000 creations per week. Required: collection_ticker. Optional: with_market_payload. Returns the new CreateMarketInMultivariateEventCollectionResponse.",
       "method": "POST",
       "path": "/multivariate_event_collections/{collection_ticker}",
       "params": [
@@ -1324,7 +1364,7 @@
     },
     {
       "name": "multivariate-event-collections_get",
-      "description": "Get Multivariate Event Collections",
+      "description": "Endpoint for getting data about multivariate event collections. Optional: status, associated_event_ticker, series_ticker (plus 2 more). Returns the GetMultivariateEventCollectionsResponse.",
       "method": "GET",
       "path": "/multivariate_event_collections",
       "params": [
@@ -1362,7 +1402,7 @@
     },
     {
       "name": "multivariate-event-collections_get-multivariateeventcollections",
-      "description": "Get Multivariate Event Collection",
+      "description": "Endpoint for getting data about a multivariate event collection by its ticker. Required: collection_ticker. Returns the GetMultivariateEventCollectionResponse.",
       "method": "GET",
       "path": "/multivariate_event_collections/{collection_ticker}",
       "params": [
@@ -1377,7 +1417,7 @@
     },
     {
       "name": "multivariate-event-collections_lookup_get-multivariate-event-collection-history",
-      "description": "Get Multivariate Event Collection Lookup History",
+      "description": "DEPRECATED: This endpoint predates RFQs and should not be used for new integrations. Endpoint for retrieving which markets in an event collection were recently looked up. Required: collection_ticker, lookback_seconds. Returns the GetMultivariateEventCollectionLookupHistoryResponse.",
       "method": "GET",
       "path": "/multivariate_event_collections/{collection_ticker}/lookup",
       "params": [
@@ -1399,7 +1439,7 @@
     },
     {
       "name": "multivariate-event-collections_lookup_tickers-for-market-in-multivariate-event-collection",
-      "description": "Lookup Tickers For Market In Multivariate Event Collection",
+      "description": "DEPRECATED: This endpoint predates RFQs and should not be used for new integrations. Endpoint for looking up an individual market in a multivariate event collection. If CreateMarketInMultivariateEventCollection has never been hit with that variable combination before, this will return a 404. Required: collection_ticker. Returns the updated LookupTickersForMarketInMultivariateEventCollectionResponse.",
       "method": "PUT",
       "path": "/multivariate_event_collections/{collection_ticker}/lookup",
       "params": [
@@ -1414,7 +1454,7 @@
     },
     {
       "name": "portfolio_amend-order",
-      "description": "Amend Order",
+      "description": "Endpoint for amending the max number of fillable contracts and/or price in an existing order. Max fillable contracts is `remaining_count` + `fill_count`. Required: order_id, action, side, ticker. Optional: client_order_id, count, count_fp (plus 6 more). Returns the new AmendOrderResponse.",
       "method": "POST",
       "path": "/portfolio/orders/{order_id}/amend",
       "params": [
@@ -1448,7 +1488,7 @@
           "name": "count_fp",
           "type": "string",
           "location": "body",
-          "description": "Fixed-point contract count string (2 decimals, e.g., \"10.00\"; referred to as \"fp\" in field names). Requests accept 0–2 decimal places (e.g., \"10\", \"10.0\", \"10.00\"); responses always emit 2 decimals. Fractional contract values (e.g., \"2.50\") are supported on markets with fractional trading enabled; the minimum granularity is 0.01 contracts. Integer contract count fields are legacy and will be deprecated; when both integer and fp fields are provided, they must match."
+          "description": "Fixed-point contract count string (2 decimals, e.g., '10.00'; referred to as 'fp' in field names). Requests accept 0–2 decimal places (e.g., '10', '10.0', '10.00'); responses always emit 2 decimals. Fractional contract values (e.g., '2.50') are supported on markets with fractional trading enabled; the minimum granularity is 0.01 contracts. Integer contract count fields are legacy and will be deprecated; when both integer and fp fields are provided, they must match."
         },
         {
           "name": "no_price",
@@ -1503,8 +1543,69 @@
       ]
     },
     {
+      "name": "portfolio_amend-order-v2",
+      "description": "Endpoint for amending the price and/or remaining count of an existing event-market order using the V2 request/response shape. Required: order_id, count, price, side, ticker. Optional: subaccount, client_order_id, updated_client_order_id. Returns the new AmendOrderV2Response.",
+      "method": "POST",
+      "path": "/portfolio/events/orders/{order_id}/amend",
+      "params": [
+        {
+          "name": "order_id",
+          "type": "string",
+          "location": "path",
+          "description": "Order ID",
+          "required": true
+        },
+        {
+          "name": "subaccount",
+          "type": "int",
+          "location": "query",
+          "description": "Subaccount number (0 for primary, 1-32 for subaccounts). Defaults to 0."
+        },
+        {
+          "name": "client_order_id",
+          "type": "string",
+          "location": "body",
+          "description": "The original client-specified order ID to be amended"
+        },
+        {
+          "name": "count",
+          "type": "string",
+          "location": "body",
+          "description": "Fixed-point contract count string (2 decimals, e.g., '10.00'; referred to as 'fp' in field names). Requests accept 0–2 decimal places (e.g., '10', '10.0', '10.00'); responses always emit 2 decimals. Fractional contract values (e.g., '2.50') are supported on markets with fractional trading enabled; the minimum granularity is 0.01 contracts. Integer contract count fields are legacy and will be deprecated; when both integer and fp fields are provided, they must match.",
+          "required": true
+        },
+        {
+          "name": "price",
+          "type": "string",
+          "location": "body",
+          "description": "US dollar amount as a fixed-point decimal string with up to 6 decimal places of precision. This is the maximum supported precision; valid quote intervals for a given market are constrained by that market's price level structure.",
+          "required": true
+        },
+        {
+          "name": "side",
+          "type": "string",
+          "location": "body",
+          "description": "Side of the book for an order or trade. For event markets, this refers to the YES leg only: `bid` means buy YES, `ask` means sell YES. (Selling YES is economically equivalent to buying NO at `1 - price`, but this endpoint quotes everything from the YES side.)",
+          "required": true
+        },
+        {
+          "name": "ticker",
+          "type": "string",
+          "location": "body",
+          "description": "Market ticker",
+          "required": true
+        },
+        {
+          "name": "updated_client_order_id",
+          "type": "string",
+          "location": "body",
+          "description": "The new client-specified order ID after amendment"
+        }
+      ]
+    },
+    {
       "name": "portfolio_apply-subaccount-transfer",
-      "description": "Transfer Between Subaccounts",
+      "description": "Transfers funds between the authenticated user's subaccounts. Use 0 for the primary account, or 1-32 for numbered subaccounts. Required: amount_cents, client_transfer_id, from_subaccount, to_subaccount. Returns the new ApplySubaccountTransferResponse.",
       "method": "POST",
       "path": "/portfolio/subaccounts/transfer",
       "params": [
@@ -1540,7 +1641,7 @@
     },
     {
       "name": "portfolio_batch-cancel-orders",
-      "description": "Batch Cancel Orders",
+      "description": "Endpoint for cancelling a batch of orders. The maximum batch size scales with your tier's write budget — see [Rate Limits and Tiers](/getting_started/rate_limits). Optional: ids. Returns the BatchCancelOrdersResponse. Destructive.",
       "method": "DELETE",
       "path": "/portfolio/orders/batched",
       "params": [
@@ -1553,15 +1654,29 @@
       ]
     },
     {
+      "name": "portfolio_batch-cancel-orders-v2",
+      "description": "Endpoint for cancelling a batch of event-market orders using the V2 response shape. The maximum batch size scales with your tier's write budget — see [Rate Limits and Tiers](/getting_started/rate_limits). Returns the BatchCancelOrdersV2Response. Destructive.",
+      "method": "DELETE",
+      "path": "/portfolio/events/orders/batched",
+      "params": []
+    },
+    {
       "name": "portfolio_batch-create-orders",
-      "description": "Batch Create Orders",
+      "description": "Endpoint for submitting a batch of orders. The maximum batch size scales with your tier's write budget — see [Rate Limits and Tiers](/getting_started/rate_limits). Returns the new BatchCreateOrdersResponse.",
       "method": "POST",
       "path": "/portfolio/orders/batched",
       "params": []
     },
     {
+      "name": "portfolio_batch-create-orders-v2",
+      "description": "Endpoint for submitting a batch of event-market orders using the V2 request/response shape. The maximum batch size scales with your tier's write budget — see [Rate Limits and Tiers](/getting_started/rate_limits). Returns the new BatchCreateOrdersV2Response.",
+      "method": "POST",
+      "path": "/portfolio/events/orders/batched",
+      "params": []
+    },
+    {
       "name": "portfolio_cancel-order",
-      "description": "Cancel Order",
+      "description": "Endpoint for canceling orders. The value for the orderId should match the id field of the order you want to decrease. Commonly, DELETE-type endpoints return 204 status with no body content on success. But we can't completely delete the order, as it may be partially filled already. Instead, the DeleteOrder endpoint reduce the order completely, essentially zeroing the remaining resting contracts on it. The zeroed order is returned on the response payload as a form of validation for the client. Required: order_id. Optional: subaccount. Returns the CancelOrderResponse. Destructive.",
       "method": "DELETE",
       "path": "/portfolio/orders/{order_id}",
       "params": [
@@ -1581,8 +1696,29 @@
       ]
     },
     {
+      "name": "portfolio_cancel-order-v2",
+      "description": "Endpoint for cancelling event-market orders using the V2 response shape. Returns `{order_id, client_order_id, reduced_by}` rather than a full order object. Required: order_id. Optional: subaccount. Destructive.",
+      "method": "DELETE",
+      "path": "/portfolio/events/orders/{order_id}",
+      "params": [
+        {
+          "name": "order_id",
+          "type": "string",
+          "location": "path",
+          "description": "Order ID",
+          "required": true
+        },
+        {
+          "name": "subaccount",
+          "type": "int",
+          "location": "query",
+          "description": "Subaccount number (0 for primary, 1-32 for subaccounts). Defaults to 0."
+        }
+      ]
+    },
+    {
       "name": "portfolio_create-order",
-      "description": "Create Order",
+      "description": "Endpoint for submitting orders in a market. Each user is limited to 200 000 open orders at a time. Required: action, side, ticker. Optional: buy_max_cost, cancel_order_on_pause, client_order_id (plus 13 more). Returns the new CreateOrderResponse.",
       "method": "POST",
       "path": "/portfolio/orders",
       "params": [
@@ -1621,7 +1757,7 @@
           "name": "count_fp",
           "type": "string",
           "location": "body",
-          "description": "Fixed-point contract count string (2 decimals, e.g., \"10.00\"; referred to as \"fp\" in field names). Requests accept 0–2 decimal places (e.g., \"10\", \"10.0\", \"10.00\"); responses always emit 2 decimals. Fractional contract values (e.g., \"2.50\") are supported on markets with fractional trading enabled; the minimum granularity is 0.01 contracts. Integer contract count fields are legacy and will be deprecated; when both integer and fp fields are provided, they must match."
+          "description": "Fixed-point contract count string (2 decimals, e.g., '10.00'; referred to as 'fp' in field names). Requests accept 0–2 decimal places (e.g., '10', '10.0', '10.00'); responses always emit 2 decimals. Fractional contract values (e.g., '2.50') are supported on markets with fractional trading enabled; the minimum granularity is 0.01 contracts. Integer contract count fields are legacy and will be deprecated; when both integer and fp fields are provided, they must match."
         },
         {
           "name": "expiration_ts",
@@ -1707,7 +1843,7 @@
     },
     {
       "name": "portfolio_create-order-group",
-      "description": "Create Order Group",
+      "description": "Creates a new order group with a contracts limit measured over a rolling 15-second window. When the limit is hit, all orders in the group are cancelled and no new orders can be placed until reset. Optional: contracts_limit, contracts_limit_fp, subaccount (default: 0). Returns the new CreateOrderGroupResponse.",
       "method": "POST",
       "path": "/portfolio/order_groups/create",
       "params": [
@@ -1721,7 +1857,7 @@
           "name": "contracts_limit_fp",
           "type": "string",
           "location": "body",
-          "description": "Fixed-point contract count string (2 decimals, e.g., \"10.00\"; referred to as \"fp\" in field names). Requests accept 0–2 decimal places (e.g., \"10\", \"10.0\", \"10.00\"); responses always emit 2 decimals. Fractional contract values (e.g., \"2.50\") are supported on markets with fractional trading enabled; the minimum granularity is 0.01 contracts. Integer contract count fields are legacy and will be deprecated; when both integer and fp fields are provided, they must match."
+          "description": "Fixed-point contract count string (2 decimals, e.g., '10.00'; referred to as 'fp' in field names). Requests accept 0–2 decimal places (e.g., '10', '10.0', '10.00'); responses always emit 2 decimals. Fractional contract values (e.g., '2.50') are supported on markets with fractional trading enabled; the minimum granularity is 0.01 contracts. Integer contract count fields are legacy and will be deprecated; when both integer and fp fields are provided, they must match."
         },
         {
           "name": "subaccount",
@@ -1732,15 +1868,101 @@
       ]
     },
     {
+      "name": "portfolio_create-order-v2",
+      "description": "Endpoint for submitting event-market orders using the V2 request/response shape (single-book `bid`/`ask` side and fixed-point dollar prices). The legacy `/portfolio/orders` endpoint will be deprecated no earlier than May 6, 2026 — clients should migrate to this path. Required: client_order_id, count, price, side, ticker, time_in_force. Optional: cancel_order_on_pause, expiration_time, order_group_id (plus 3 more). Returns the new CreateOrderV2Response.",
+      "method": "POST",
+      "path": "/portfolio/events/orders",
+      "params": [
+        {
+          "name": "cancel_order_on_pause",
+          "type": "bool",
+          "location": "body",
+          "description": "If this flag is set to true, the order will be canceled if the order is open and trading on the exchange is paused for any reason."
+        },
+        {
+          "name": "client_order_id",
+          "type": "string",
+          "location": "body",
+          "description": "Client order id",
+          "required": true
+        },
+        {
+          "name": "count",
+          "type": "string",
+          "location": "body",
+          "description": "Fixed-point contract count string (2 decimals, e.g., '10.00'; referred to as 'fp' in field names). Requests accept 0–2 decimal places (e.g., '10', '10.0', '10.00'); responses always emit 2 decimals. Fractional contract values (e.g., '2.50') are supported on markets with fractional trading enabled; the minimum granularity is 0.01 contracts. Integer contract count fields are legacy and will be deprecated; when both integer and fp fields are provided, they must match.",
+          "required": true
+        },
+        {
+          "name": "expiration_time",
+          "type": "int",
+          "location": "body",
+          "description": "Expiration time"
+        },
+        {
+          "name": "order_group_id",
+          "type": "string",
+          "location": "body",
+          "description": "The order group this order is part of"
+        },
+        {
+          "name": "post_only",
+          "type": "bool",
+          "location": "body",
+          "description": "Post only"
+        },
+        {
+          "name": "price",
+          "type": "string",
+          "location": "body",
+          "description": "US dollar amount as a fixed-point decimal string with up to 6 decimal places of precision. This is the maximum supported precision; valid quote intervals for a given market are constrained by that market's price level structure.",
+          "required": true
+        },
+        {
+          "name": "reduce_only",
+          "type": "bool",
+          "location": "body",
+          "description": "Specifies whether the order place count should be capped by the member's current position."
+        },
+        {
+          "name": "side",
+          "type": "string",
+          "location": "body",
+          "description": "Side of the book for an order or trade. For event markets, this refers to the YES leg only: `bid` means buy YES, `ask` means sell YES. (Selling YES is economically equivalent to buying NO at `1 - price`, but this endpoint quotes everything from the YES side.)",
+          "required": true
+        },
+        {
+          "name": "subaccount",
+          "type": "int",
+          "location": "body",
+          "description": "The subaccount number to use for this order. 0 is the primary subaccount."
+        },
+        {
+          "name": "ticker",
+          "type": "string",
+          "location": "body",
+          "description": "Ticker",
+          "required": true
+        },
+        {
+          "name": "time_in_force",
+          "type": "string",
+          "location": "body",
+          "description": "Time in force",
+          "required": true
+        }
+      ]
+    },
+    {
       "name": "portfolio_create-subaccount",
-      "description": "Create Subaccount",
+      "description": "Creates a new subaccount for the authenticated user. Subaccounts are numbered sequentially starting from 1. Maximum 32 subaccounts per user. Returns the new CreateSubaccountResponse.",
       "method": "POST",
       "path": "/portfolio/subaccounts",
       "params": []
     },
     {
       "name": "portfolio_decrease-order",
-      "description": "Decrease Order",
+      "description": "Endpoint for decreasing the number of contracts in an existing order. This is the only kind of edit available on order quantity. Cancelling an order is equivalent to decreasing an order amount to zero. Required: order_id. Optional: reduce_by, reduce_by_fp, reduce_to (plus 2 more). Returns the new DecreaseOrderResponse.",
       "method": "POST",
       "path": "/portfolio/orders/{order_id}/decrease",
       "params": [
@@ -1761,7 +1983,7 @@
           "name": "reduce_by_fp",
           "type": "string",
           "location": "body",
-          "description": "Fixed-point contract count string (2 decimals, e.g., \"10.00\"; referred to as \"fp\" in field names). Requests accept 0–2 decimal places (e.g., \"10\", \"10.0\", \"10.00\"); responses always emit 2 decimals. Fractional contract values (e.g., \"2.50\") are supported on markets with fractional trading enabled; the minimum granularity is 0.01 contracts. Integer contract count fields are legacy and will be deprecated; when both integer and fp fields are provided, they must match."
+          "description": "Fixed-point contract count string (2 decimals, e.g., '10.00'; referred to as 'fp' in field names). Requests accept 0–2 decimal places (e.g., '10', '10.0', '10.00'); responses always emit 2 decimals. Fractional contract values (e.g., '2.50') are supported on markets with fractional trading enabled; the minimum granularity is 0.01 contracts. Integer contract count fields are legacy and will be deprecated; when both integer and fp fields are provided, they must match."
         },
         {
           "name": "reduce_to",
@@ -1773,7 +1995,7 @@
           "name": "reduce_to_fp",
           "type": "string",
           "location": "body",
-          "description": "Fixed-point contract count string (2 decimals, e.g., \"10.00\"; referred to as \"fp\" in field names). Requests accept 0–2 decimal places (e.g., \"10\", \"10.0\", \"10.00\"); responses always emit 2 decimals. Fractional contract values (e.g., \"2.50\") are supported on markets with fractional trading enabled; the minimum granularity is 0.01 contracts. Integer contract count fields are legacy and will be deprecated; when both integer and fp fields are provided, they must match."
+          "description": "Fixed-point contract count string (2 decimals, e.g., '10.00'; referred to as 'fp' in field names). Requests accept 0–2 decimal places (e.g., '10', '10.0', '10.00'); responses always emit 2 decimals. Fractional contract values (e.g., '2.50') are supported on markets with fractional trading enabled; the minimum granularity is 0.01 contracts. Integer contract count fields are legacy and will be deprecated; when both integer and fp fields are provided, they must match."
         },
         {
           "name": "subaccount",
@@ -1784,8 +2006,36 @@
       ]
     },
     {
+      "name": "portfolio_decrease-order-v2",
+      "description": "Endpoint for decreasing the remaining count of an existing event-market order using the V2 request/response shape. Only `reduce_to` is supported. Required: order_id, reduce_to. Optional: subaccount. Returns the new DecreaseOrderV2Response.",
+      "method": "POST",
+      "path": "/portfolio/events/orders/{order_id}/decrease",
+      "params": [
+        {
+          "name": "order_id",
+          "type": "string",
+          "location": "path",
+          "description": "Order ID",
+          "required": true
+        },
+        {
+          "name": "subaccount",
+          "type": "int",
+          "location": "query",
+          "description": "Subaccount number (0 for primary, 1-32 for subaccounts). Defaults to 0."
+        },
+        {
+          "name": "reduce_to",
+          "type": "string",
+          "location": "body",
+          "description": "Fixed-point contract count string (2 decimals, e.g., '10.00'; referred to as 'fp' in field names). Requests accept 0–2 decimal places (e.g., '10', '10.0', '10.00'); responses always emit 2 decimals. Fractional contract values (e.g., '2.50') are supported on markets with fractional trading enabled; the minimum granularity is 0.01 contracts. Integer contract count fields are legacy and will be deprecated; when both integer and fp fields are provided, they must match.",
+          "required": true
+        }
+      ]
+    },
+    {
       "name": "portfolio_delete-order-group",
-      "description": "Delete Order Group",
+      "description": "Deletes an order group and cancels all orders within it. This permanently removes the group. Required: order_group_id. Optional: subaccount. Returns the EmptyResponse. Destructive.",
       "method": "DELETE",
       "path": "/portfolio/order_groups/{order_group_id}",
       "params": [
@@ -1806,7 +2056,7 @@
     },
     {
       "name": "portfolio_get-balance",
-      "description": "Get Balance",
+      "description": "Endpoint for getting the balance and portfolio value of a member. Both values are returned in cents. Optional: subaccount. Returns the GetBalanceResponse.",
       "method": "GET",
       "path": "/portfolio/balance",
       "params": [
@@ -1820,7 +2070,7 @@
     },
     {
       "name": "portfolio_get-fills",
-      "description": "Get Fills",
+      "description": "Endpoint for getting all fills for the member. A fill is when a trade you have is matched. Fills that occurred before the historical cutoff are only available via `GET /historical/fills`. See [Historical Data](https://kalshi.com/docs/getting_started/historical_data) for details. Optional: ticker, order_id, min_ts (plus 4 more). Returns the GetFillsResponse.",
       "method": "GET",
       "path": "/portfolio/fills",
       "params": [
@@ -1858,7 +2108,7 @@
           "name": "cursor",
           "type": "string",
           "location": "query",
-          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave empty for the first page."
+          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next..."
         },
         {
           "name": "subaccount",
@@ -1870,7 +2120,7 @@
     },
     {
       "name": "portfolio_get-order",
-      "description": "Get Order",
+      "description": "Endpoint for getting a single order. Required: order_id. Returns the GetOrderResponse.",
       "method": "GET",
       "path": "/portfolio/orders/{order_id}",
       "params": [
@@ -1885,7 +2135,7 @@
     },
     {
       "name": "portfolio_get-order-group",
-      "description": "Get Order Group",
+      "description": "Retrieves details for a single order group including all order IDs and auto-cancel status. Required: order_group_id. Optional: subaccount. Returns the GetOrderGroupResponse.",
       "method": "GET",
       "path": "/portfolio/order_groups/{order_group_id}",
       "params": [
@@ -1906,7 +2156,7 @@
     },
     {
       "name": "portfolio_get-order-groups",
-      "description": "Get Order Groups",
+      "description": "Retrieves all order groups for the authenticated user. Optional: subaccount. Returns the GetOrderGroupsResponse.",
       "method": "GET",
       "path": "/portfolio/order_groups",
       "params": [
@@ -1920,7 +2170,7 @@
     },
     {
       "name": "portfolio_get-order-queue-position",
-      "description": "Get Order Queue Position",
+      "description": "Endpoint for getting an order's queue position in the order book. This represents the amount of orders that need to be matched before this order receives a partial or full match. Queue position is determined using a price-time priority. Required: order_id. Returns the GetOrderQueuePositionResponse.",
       "method": "GET",
       "path": "/portfolio/orders/{order_id}/queue_position",
       "params": [
@@ -1935,7 +2185,7 @@
     },
     {
       "name": "portfolio_get-order-queue-positions",
-      "description": "Get Queue Positions for Orders",
+      "description": "Endpoint for getting queue positions for all resting orders. Queue position represents the number of contracts that need to be matched before an order receives a partial or full match, determined using price-time priority. Optional: market_tickers, event_ticker, subaccount. Returns the GetOrderQueuePositionsResponse.",
       "method": "GET",
       "path": "/portfolio/orders/queue_positions",
       "params": [
@@ -1961,7 +2211,7 @@
     },
     {
       "name": "portfolio_get-orders",
-      "description": "Get Orders",
+      "description": "Restricts the response to orders that have a certain status: resting, canceled, or executed. Orders that have been canceled or fully executed before the historical cutoff are only available via `GET /historical/orders`. Resting orders will always be available through this endpoint. See [Historical Data](https://kalshi.com/docs/getting_started/historical_data) for details. Optional: ticker, event_ticker, min_ts (plus 5 more). Returns the GetOrdersResponse.",
       "method": "GET",
       "path": "/portfolio/orders",
       "params": [
@@ -2005,7 +2255,7 @@
           "name": "cursor",
           "type": "string",
           "location": "query",
-          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave empty for the first page."
+          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next..."
         },
         {
           "name": "subaccount",
@@ -2017,7 +2267,7 @@
     },
     {
       "name": "portfolio_get-positions",
-      "description": "Get Positions",
+      "description": "Restricts the positions to those with any of following fields with non-zero values, as a comma separated list. The following values are accepted: position, total_traded. Optional: cursor, limit (default: 100), count_filter (plus 3 more). Returns the GetPositionsResponse.",
       "method": "GET",
       "path": "/portfolio/positions",
       "params": [
@@ -2061,14 +2311,14 @@
     },
     {
       "name": "portfolio_get-resting-order-total-value",
-      "description": "Get Total Resting Order Value",
+      "description": "Endpoint for getting the total value, in cents, of resting orders. This endpoint is only intended for use by FCM members (rare). Note: If you're uncertain about this endpoint, it likely does not apply to you. Returns the GetPortfolioRestingOrderTotalValueResponse.",
       "method": "GET",
       "path": "/portfolio/summary/total_resting_order_value",
       "params": []
     },
     {
       "name": "portfolio_get-settlements",
-      "description": "Get Settlements",
+      "description": "Endpoint for getting the member's settlements historical track. Optional: limit (default: 100), cursor, ticker (plus 4 more). Returns the GetSettlementsResponse.",
       "method": "GET",
       "path": "/portfolio/settlements",
       "params": [
@@ -2082,7 +2332,7 @@
           "name": "cursor",
           "type": "string",
           "location": "query",
-          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave empty for the first page."
+          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next..."
         },
         {
           "name": "ticker",
@@ -2118,21 +2368,21 @@
     },
     {
       "name": "portfolio_get-subaccount-balances",
-      "description": "Get All Subaccount Balances",
+      "description": "Gets balances for all subaccounts including the primary account. Returns the GetSubaccountBalancesResponse.",
       "method": "GET",
       "path": "/portfolio/subaccounts/balances",
       "params": []
     },
     {
       "name": "portfolio_get-subaccount-netting",
-      "description": "Get Subaccount Netting",
+      "description": "Gets the netting enabled settings for all subaccounts. Returns the GetSubaccountNettingResponse.",
       "method": "GET",
       "path": "/portfolio/subaccounts/netting",
       "params": []
     },
     {
       "name": "portfolio_get-subaccount-transfers",
-      "description": "Get Subaccount Transfers",
+      "description": "Gets a paginated list of all transfers between subaccounts for the authenticated user. Optional: limit (default: 100), cursor. Returns the GetSubaccountTransfersResponse.",
       "method": "GET",
       "path": "/portfolio/subaccounts/transfers",
       "params": [
@@ -2146,13 +2396,13 @@
           "name": "cursor",
           "type": "string",
           "location": "query",
-          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next page of results. Leave empty for the first page."
+          "description": "Pagination cursor. Use the cursor value returned from the previous response to get the next..."
         }
       ]
     },
     {
       "name": "portfolio_reset-order-group",
-      "description": "Reset Order Group",
+      "description": "Resets the order group's matched contracts counter to zero, allowing new orders to be placed again after the limit was hit. Required: order_group_id. Optional: subaccount. Returns the updated EmptyResponse.",
       "method": "PUT",
       "path": "/portfolio/order_groups/{order_group_id}/reset",
       "params": [
@@ -2173,7 +2423,7 @@
     },
     {
       "name": "portfolio_trigger-order-group",
-      "description": "Trigger Order Group",
+      "description": "Triggers the order group, canceling all orders in the group and preventing new orders until the group is reset. Required: order_group_id. Optional: subaccount. Returns the updated EmptyResponse.",
       "method": "PUT",
       "path": "/portfolio/order_groups/{order_group_id}/trigger",
       "params": [
@@ -2194,7 +2444,7 @@
     },
     {
       "name": "portfolio_update-order-group-limit",
-      "description": "Update Order Group Limit",
+      "description": "Updates the order group contracts limit (rolling 15-second window). If the updated limit would immediately trigger the group, all orders in the group are canceled and the group is triggered. Required: order_group_id. Optional: contracts_limit, contracts_limit_fp. Returns the updated EmptyResponse.",
       "method": "PUT",
       "path": "/portfolio/order_groups/{order_group_id}/limit",
       "params": [
@@ -2215,13 +2465,13 @@
           "name": "contracts_limit_fp",
           "type": "string",
           "location": "body",
-          "description": "Fixed-point contract count string (2 decimals, e.g., \"10.00\"; referred to as \"fp\" in field names). Requests accept 0–2 decimal places (e.g., \"10\", \"10.0\", \"10.00\"); responses always emit 2 decimals. Fractional contract values (e.g., \"2.50\") are supported on markets with fractional trading enabled; the minimum granularity is 0.01 contracts. Integer contract count fields are legacy and will be deprecated; when both integer and fp fields are provided, they must match."
+          "description": "Fixed-point contract count string (2 decimals, e.g., '10.00'; referred to as 'fp' in field names). Requests accept 0–2 decimal places (e.g., '10', '10.0', '10.00'); responses always emit 2 decimals. Fractional contract values (e.g., '2.50') are supported on markets with fractional trading enabled; the minimum granularity is 0.01 contracts. Integer contract count fields are legacy and will be deprecated; when both integer and fp fields are provided, they must match."
         }
       ]
     },
     {
       "name": "portfolio_update-subaccount-netting",
-      "description": "Update Subaccount Netting",
+      "description": "Updates the netting enabled setting for a specific subaccount. Use 0 for the primary account, or 1-32 for numbered subaccounts. Required: enabled, subaccount_number.",
       "method": "PUT",
       "path": "/portfolio/subaccounts/netting",
       "params": [
@@ -2242,22 +2492,8 @@
       ]
     },
     {
-      "name": "search_get-filters-for-sports",
-      "description": "Get Filters for Sports",
-      "method": "GET",
-      "path": "/search/filters_by_sport",
-      "params": []
-    },
-    {
-      "name": "search_get-tags-for-series-categories",
-      "description": "Get Tags for Series Categories",
-      "method": "GET",
-      "path": "/search/tags_by_categories",
-      "params": []
-    },
-    {
       "name": "series_get",
-      "description": "Get Series",
+      "description": "Endpoint for getting data about a specific series by its ticker. A series represents a template for recurring events that follow the same format and rules (e.g., 'Monthly Jobs Report', 'Weekly Initial Jobless Claims', 'Daily Weather in NYC'). Series define the structure, settlement sources, and metadata that will be applied to each recurring event instance within that series. Required: series_ticker. Optional: include_volume (default: false). Returns the GetSeriesResponse.",
       "method": "GET",
       "path": "/series/{series_ticker}",
       "params": [
@@ -2278,7 +2514,7 @@
     },
     {
       "name": "series_get-fee-changes",
-      "description": "Get Series Fee Changes",
+      "description": "Get Series Fee Changes. Optional: series_ticker, show_historical (default: false). Returns the GetSeriesFeeChangesResponse.",
       "method": "GET",
       "path": "/series/fee_changes",
       "params": [
@@ -2298,7 +2534,7 @@
     },
     {
       "name": "series_get-list",
-      "description": "Get Series List",
+      "description": "Endpoint for getting data about multiple series with specified filters. A series represents a template for recurring events that follow the same format and rules (e.g., 'Monthly Jobs Report', 'Weekly Initial Jobless Claims', 'Daily Weather in NYC'). This endpoint allows you to browse and discover available series templates by category. Optional: category, tags, include_product_metadata (default: false) (plus 2 more). Returns the GetSeriesListResponse.",
       "method": "GET",
       "path": "/series",
       "params": [
@@ -2336,7 +2572,7 @@
     },
     {
       "name": "series_events_get-forecast-percentiles-history",
-      "description": "Get Event Forecast Percentile History",
+      "description": "Endpoint for getting the historical raw and formatted forecast numbers for an event at specific percentiles. Required: ticker, series_ticker, percentiles, start_ts, end_ts, period_interval. Returns the GetEventForecastPercentilesHistoryResponse.",
       "method": "GET",
       "path": "/series/{series_ticker}/events/{ticker}/forecast_percentile_history",
       "params": [
@@ -2386,7 +2622,7 @@
     },
     {
       "name": "series_events_get-market-candlesticks-by",
-      "description": "Get Event Candlesticks",
+      "description": "End-point for returning aggregated data across all markets corresponding to an event. Required: ticker, series_ticker, start_ts, end_ts, period_interval. Returns the GetEventCandlesticksResponse.",
       "method": "GET",
       "path": "/series/{series_ticker}/events/{ticker}/candlesticks",
       "params": [
@@ -2429,7 +2665,7 @@
     },
     {
       "name": "series_markets_get-candlesticks",
-      "description": "Get Market Candlesticks",
+      "description": "Time period length of each candlestick in minutes. Valid values: 1 (1 minute), 60 (1 hour), 1440 (1 day). Candlesticks for markets that settled before the historical cutoff are only available via `GET /historical/markets/{ticker}/candlesticks`. See [Historical Data](https://kalshi.com/docs/getting_started/historical_data) for details. Required: series_ticker, ticker, start_ts, end_ts, period_interval. Optional: include_latest_before_start (default: false). Returns the GetMarketCandlesticksResponse.",
       "method": "GET",
       "path": "/series/{series_ticker}/markets/{ticker}/candlesticks",
       "params": [
@@ -2472,13 +2708,13 @@
           "name": "include_latest_before_start",
           "type": "bool",
           "location": "query",
-          "description": "If true, prepends the latest candlestick available before the start_ts. This synthetic candlestick is created by:\n1. Finding the most recent real candlestick before start_ts\n2. Projecting it forward to the first period boundary (calculated as the next period interval after start_ts)\n3. Setting all OHLC prices to null, and `previous_price` to the close price from the real candlestick"
+          "description": "If true, prepends the latest candlestick available before the start_ts. This synthetic candlestick is created by: 1. Finding the most recent real candlestick before start_ts 2. Projecting it forward to the first period boundary (calculated as the next period interval after start_ts) 3. Setting all OHLC prices to null, and `previous_price` to the close price from the real candlestick"
         }
       ]
     },
     {
       "name": "structured-targets_get",
-      "description": "Get Structured Targets",
+      "description": "Page size (min: 1, max: 2000). Optional: ids, type, competition (plus 2 more). Returns the GetStructuredTargetsResponse.",
       "method": "GET",
       "path": "/structured_targets",
       "params": [
@@ -2516,7 +2752,7 @@
     },
     {
       "name": "structured-targets_get-structuredtargets",
-      "description": "Get Structured Target",
+      "description": "Endpoint for getting data about a specific structured target by its ID. Required: structured_target_id. Returns the GetStructuredTargetResponse.",
       "method": "GET",
       "path": "/structured_targets/{structured_target_id}",
       "params": [

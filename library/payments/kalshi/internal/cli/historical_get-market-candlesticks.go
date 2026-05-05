@@ -17,9 +17,10 @@ func newHistoricalGetMarketCandlesticksCmd(flags *rootFlags) *cobra.Command {
 	var flagPeriodInterval int
 
 	cmd := &cobra.Command{
-		Use:     "get-market-candlesticks <ticker>",
-		Short:   "Get Historical Market Candlesticks",
-		Example: "  kalshi-pp-cli historical get-market-candlesticks example-value",
+		Use:         "get-market-candlesticks <ticker>",
+		Short:       "Endpoint for fetching historical candlestick data for markets that have been archived from the live data set. Time...",
+		Example:     "  kalshi-pp-cli historical get-market-candlesticks example-value",
+		Annotations: map[string]string{"pp:endpoint": "historical.get-market-candlesticks", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -50,7 +51,7 @@ func newHistoricalGetMarketCandlesticksCmd(flags *rootFlags) *cobra.Command {
 			if flagPeriodInterval != 0 {
 				params["period_interval"] = fmt.Sprintf("%v", flagPeriodInterval)
 			}
-			data, prov, err := resolveRead(c, flags, "historical", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "historical", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -60,14 +61,15 @@ func newHistoricalGetMarketCandlesticksCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -93,7 +95,7 @@ func newHistoricalGetMarketCandlesticksCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().IntVar(&flagStartTs, "start-ts", 0, "Start timestamp (Unix timestamp). Candlesticks will include those ending on or after this time.")
 	cmd.Flags().IntVar(&flagEndTs, "end-ts", 0, "End timestamp (Unix timestamp). Candlesticks will include those ending on or before this time.")
-	cmd.Flags().IntVar(&flagPeriodInterval, "period-interval", 0, "Time period length of each candlestick in minutes. Valid values are 1 (1 minute), 60 (1 hour), or 1440 (1 day).")
+	cmd.Flags().IntVar(&flagPeriodInterval, "period-interval", 0, "Time period length of each candlestick in minutes. Valid values are 1 (1 minute), 60 (1 hour), or 1440 (1 day). (one of: 1, 60, 1440)")
 
 	return cmd
 }

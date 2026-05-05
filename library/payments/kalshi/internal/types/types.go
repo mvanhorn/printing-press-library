@@ -29,6 +29,24 @@ type AmendOrderResponse struct {
 	Order    string `json:"order"`
 }
 
+type AmendOrderV2Request struct {
+	ClientOrderId        string `json:"client_order_id"`
+	Count                string `json:"count"`
+	Price                string `json:"price"`
+	Side                 string `json:"side"`
+	Ticker               string `json:"ticker"`
+	UpdatedClientOrderId string `json:"updated_client_order_id"`
+}
+
+type AmendOrderV2Response struct {
+	AverageFeePaid   string `json:"average_fee_paid"`
+	AverageFillPrice string `json:"average_fill_price"`
+	ClientOrderId    string `json:"client_order_id"`
+	FillCount        string `json:"fill_count"`
+	OrderId          string `json:"order_id"`
+	RemainingCount   string `json:"remaining_count"`
+}
+
 type Announcement struct {
 	DeliveryTime string `json:"delivery_time"`
 	Message      string `json:"message"`
@@ -81,6 +99,14 @@ type BatchCancelOrdersResponse struct {
 	Orders json.RawMessage `json:"orders"`
 }
 
+type BatchCancelOrdersV2Request struct {
+	Orders json.RawMessage `json:"orders"`
+}
+
+type BatchCancelOrdersV2Response struct {
+	Orders json.RawMessage `json:"orders"`
+}
+
 type BatchCreateOrdersIndividualResponse struct {
 	ClientOrderId string `json:"client_order_id"`
 	Error         string `json:"error"`
@@ -92,6 +118,14 @@ type BatchCreateOrdersRequest struct {
 }
 
 type BatchCreateOrdersResponse struct {
+	Orders json.RawMessage `json:"orders"`
+}
+
+type BatchCreateOrdersV2Request struct {
+	Orders json.RawMessage `json:"orders"`
+}
+
+type BatchCreateOrdersV2Response struct {
 	Orders json.RawMessage `json:"orders"`
 }
 
@@ -113,9 +147,20 @@ type BidAskDistributionHistorical struct {
 	Open  string `json:"open"`
 }
 
+type BucketLimit struct {
+	BucketCapacity int `json:"bucket_capacity"`
+	RefillRate     int `json:"refill_rate"`
+}
+
 type CancelOrderResponse struct {
 	Order       string `json:"order"`
 	ReducedByFp string `json:"reduced_by_fp"`
+}
+
+type CancelOrderV2Response struct {
+	ClientOrderId string `json:"client_order_id"`
+	OrderId       string `json:"order_id"`
+	ReducedBy     string `json:"reduced_by"`
 }
 
 type CreateApiKeyRequest struct {
@@ -176,6 +221,31 @@ type CreateOrderResponse struct {
 	Order string `json:"order"`
 }
 
+type CreateOrderV2Request struct {
+	CancelOrderOnPause      bool   `json:"cancel_order_on_pause"`
+	ClientOrderId           string `json:"client_order_id"`
+	Count                   string `json:"count"`
+	ExpirationTime          int    `json:"expiration_time"`
+	OrderGroupId            string `json:"order_group_id"`
+	PostOnly                bool   `json:"post_only"`
+	Price                   string `json:"price"`
+	ReduceOnly              bool   `json:"reduce_only"`
+	SelfTradePreventionType string `json:"self_trade_prevention_type"`
+	Side                    string `json:"side"`
+	Subaccount              int    `json:"subaccount"`
+	Ticker                  string `json:"ticker"`
+	TimeInForce             string `json:"time_in_force"`
+}
+
+type CreateOrderV2Response struct {
+	AverageFeePaid   string `json:"average_fee_paid"`
+	AverageFillPrice string `json:"average_fill_price"`
+	ClientOrderId    string `json:"client_order_id"`
+	FillCount        string `json:"fill_count"`
+	OrderId          string `json:"order_id"`
+	RemainingCount   string `json:"remaining_count"`
+}
+
 type CreateQuoteRequest struct {
 	NoBid         string `json:"no_bid"`
 	RestRemainder bool   `json:"rest_remainder"`
@@ -225,7 +295,23 @@ type DecreaseOrderResponse struct {
 	Order string `json:"order"`
 }
 
+type DecreaseOrderV2Request struct {
+	ReduceTo string `json:"reduce_to"`
+}
+
+type DecreaseOrderV2Response struct {
+	ClientOrderId  string `json:"client_order_id"`
+	OrderId        string `json:"order_id"`
+	RemainingCount string `json:"remaining_count"`
+}
+
 type EmptyResponse struct {
+}
+
+type EndpointTokenCost struct {
+	Cost   int    `json:"cost"`
+	Method string `json:"method"`
+	Path   string `json:"path"`
 }
 
 type ErrorResponse struct {
@@ -302,9 +388,14 @@ type GenerateApiKeyResponse struct {
 }
 
 type GetAccountApiLimitsResponse struct {
-	ReadLimit  int    `json:"read_limit"`
-	UsageTier  string `json:"usage_tier"`
-	WriteLimit int    `json:"write_limit"`
+	Read      string `json:"read"`
+	UsageTier string `json:"usage_tier"`
+	Write     string `json:"write"`
+}
+
+type GetAccountEndpointCostsResponse struct {
+	DefaultCost   int             `json:"default_cost"`
+	EndpointCosts json.RawMessage `json:"endpoint_costs"`
 }
 
 type GetApiKeysResponse struct {
@@ -554,16 +645,17 @@ type GetUserDataTimestampResponse struct {
 }
 
 type IncentiveProgram struct {
-	DiscountFactorBps int    `json:"discount_factor_bps"`
-	EndDate           string `json:"end_date"`
-	Id                string `json:"id"`
-	IncentiveType     string `json:"incentive_type"`
-	MarketId          string `json:"market_id"`
-	MarketTicker      string `json:"market_ticker"`
-	PaidOut           bool   `json:"paid_out"`
-	PeriodReward      int    `json:"period_reward"`
-	StartDate         string `json:"start_date"`
-	TargetSizeFp      string `json:"target_size_fp"`
+	DiscountFactorBps    int    `json:"discount_factor_bps"`
+	EndDate              string `json:"end_date"`
+	Id                   string `json:"id"`
+	IncentiveDescription string `json:"incentive_description"`
+	IncentiveType        string `json:"incentive_type"`
+	MarketId             string `json:"market_id"`
+	MarketTicker         string `json:"market_ticker"`
+	PaidOut              bool   `json:"paid_out"`
+	PeriodReward         int    `json:"period_reward"`
+	StartDate            string `json:"start_date"`
+	TargetSizeFp         string `json:"target_size_fp"`
 }
 
 type IntraExchangeInstanceTransferRequest struct {
@@ -629,6 +721,7 @@ type Market struct {
 	NoBidDollars             string          `json:"no_bid_dollars"`
 	NoSubTitle               string          `json:"no_sub_title"`
 	NotionalValueDollars     string          `json:"notional_value_dollars"`
+	OccurrenceDatetime       string          `json:"occurrence_datetime"`
 	OpenInterestFp           string          `json:"open_interest_fp"`
 	OpenTime                 string          `json:"open_time"`
 	PreviousPriceDollars     string          `json:"previous_price_dollars"`
@@ -647,7 +740,6 @@ type Market struct {
 	Status                   string          `json:"status"`
 	StrikeType               string          `json:"strike_type"`
 	Subtitle                 string          `json:"subtitle"`
-	TickSize                 int             `json:"tick_size"`
 	Ticker                   string          `json:"ticker"`
 	Title                    string          `json:"title"`
 	UpdatedTime              string          `json:"updated_time"`
@@ -836,6 +928,7 @@ type Quote struct {
 	CreatedTs            string `json:"created_ts"`
 	CreatorId            string `json:"creator_id"`
 	CreatorOrderId       string `json:"creator_order_id"`
+	CreatorSubaccount    int    `json:"creator_subaccount"`
 	CreatorUserId        string `json:"creator_user_id"`
 	ExecutedTs           string `json:"executed_ts"`
 	Id                   string `json:"id"`
@@ -845,6 +938,7 @@ type Quote struct {
 	RestRemainder        bool   `json:"rest_remainder"`
 	RfqCreatorId         string `json:"rfq_creator_id"`
 	RfqCreatorOrderId    string `json:"rfq_creator_order_id"`
+	RfqCreatorSubaccount int    `json:"rfq_creator_subaccount"`
 	RfqCreatorUserId     string `json:"rfq_creator_user_id"`
 	RfqId                string `json:"rfq_id"`
 	RfqTargetCostDollars string `json:"rfq_target_cost_dollars"`
@@ -860,6 +954,7 @@ type RFQ struct {
 	ContractsFp         string          `json:"contracts_fp"`
 	CreatedTs           string          `json:"created_ts"`
 	CreatorId           string          `json:"creator_id"`
+	CreatorSubaccount   int             `json:"creator_subaccount"`
 	CreatorUserId       string          `json:"creator_user_id"`
 	Id                  string          `json:"id"`
 	MarketTicker        string          `json:"market_ticker"`

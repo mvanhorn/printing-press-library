@@ -29,17 +29,44 @@ func newMarketsGetCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "get",
-		Short:   "Get Markets",
-		Example: "  kalshi-pp-cli markets get",
+		Use:         "get",
+		Short:       "Filter by market status. Possible values: `unopened`, `open`, `closed`, `settled`. Leave empty to return markets...",
+		Example:     "  kalshi-pp-cli markets get",
+		Annotations: map[string]string{"pp:endpoint": "markets.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if cmd.Flags().Changed("status") {
+				allowedStatus := []string{"unopened", "open", "paused", "closed", "settled"}
+				validStatus := false
+				for _, v := range allowedStatus {
+					if flagStatus == v {
+						validStatus = true
+						break
+					}
+				}
+				if !validStatus {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "status", flagStatus, allowedStatus)
+				}
+			}
+			if cmd.Flags().Changed("mve-filter") {
+				allowedMveFilter := []string{"only", "exclude"}
+				validMveFilter := false
+				for _, v := range allowedMveFilter {
+					if flagMveFilter == v {
+						validMveFilter = true
+						break
+					}
+				}
+				if !validMveFilter {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "mve-filter", flagMveFilter, allowedMveFilter)
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
 			path := "/markets"
-			data, prov, err := resolvePaginatedRead(c, flags, "markets", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "markets", path, map[string]string{
 				"limit":          fmt.Sprintf("%v", flagLimit),
 				"cursor":         fmt.Sprintf("%v", flagCursor),
 				"event_ticker":   fmt.Sprintf("%v", flagEventTicker),
@@ -54,7 +81,7 @@ func newMarketsGetCmd(flags *rootFlags) *cobra.Command {
 				"status":         fmt.Sprintf("%v", flagStatus),
 				"tickers":        fmt.Sprintf("%v", flagTickers),
 				"mve_filter":     fmt.Sprintf("%v", flagMveFilter),
-			}, flagAll, "cursor", "", "")
+			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -64,14 +91,15 @@ func newMarketsGetCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -106,9 +134,9 @@ func newMarketsGetCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&flagMinCloseTs, "min-close-ts", 0, "Filter items that close after this Unix timestamp")
 	cmd.Flags().IntVar(&flagMinSettledTs, "min-settled-ts", 0, "Filter items that settled after this Unix timestamp")
 	cmd.Flags().IntVar(&flagMaxSettledTs, "max-settled-ts", 0, "Filter items that settled before this Unix timestamp")
-	cmd.Flags().StringVar(&flagStatus, "status", "", "Filter by market status. Leave empty to return markets with any status.")
+	cmd.Flags().StringVar(&flagStatus, "status", "", "Filter by market status. Leave empty to return markets with any status. (one of: unopened, open, paused, closed, settled)")
 	cmd.Flags().StringVar(&flagTickers, "tickers", "", "Filter by specific market tickers. Comma-separated list of market tickers to retrieve.")
-	cmd.Flags().StringVar(&flagMveFilter, "mve-filter", "", "Filter by multivariate events (combos). 'only' returns only multivariate events, 'exclude' excludes multivariate events.")
+	cmd.Flags().StringVar(&flagMveFilter, "mve-filter", "", "Filter by multivariate events (combos). 'only' returns only multivariate events, 'exclude' excludes multivariate events. (one of: only, exclude)")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

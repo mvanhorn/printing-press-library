@@ -16,9 +16,10 @@ func newPortfolioCreateSubaccountCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "create-subaccount",
-		Short:   "Create Subaccount",
-		Example: "  kalshi-pp-cli portfolio create-subaccount",
+		Use:         "create-subaccount",
+		Short:       "Creates a new subaccount for the authenticated user. Subaccounts are numbered sequentially starting from 1. Maximum...",
+		Example:     "  kalshi-pp-cli portfolio create-subaccount",
+		Annotations: map[string]string{"pp:endpoint": "portfolio.create-subaccount"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 			}
@@ -72,13 +73,15 @@ func newPortfolioCreateSubaccountCmd(flags *rootFlags) *cobra.Command {
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",

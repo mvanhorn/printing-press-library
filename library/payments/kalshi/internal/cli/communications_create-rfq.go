@@ -25,9 +25,10 @@ func newCommunicationsCreateRfqCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "create-rfq",
-		Short:   "Create RFQ",
-		Example: "  kalshi-pp-cli communications create-rfq --market-ticker example-value",
+		Use:         "create-rfq",
+		Short:       "Endpoint for creating a new RFQ. You can have a maximum of 100 open RFQs at a time.",
+		Example:     "  kalshi-pp-cli communications create-rfq --market-ticker example-value",
+		Annotations: map[string]string{"pp:endpoint": "communications.create-rfq"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("market-ticker") && !flags.dryRun {
@@ -114,13 +115,15 @@ func newCommunicationsCreateRfqCmd(flags *rootFlags) *cobra.Command {
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",

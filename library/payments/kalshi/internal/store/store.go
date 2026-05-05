@@ -7,6 +7,7 @@
 package store
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -14,6 +15,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	_ "modernc.org/sqlite"
@@ -26,12 +28,37 @@ func IsUUID(s string) bool {
 	return uuidPattern.MatchString(s)
 }
 
+// StoreSchemaVersion is the on-disk schema version this binary understands.
+// It is stamped into SQLite's PRAGMA user_version on fresh databases and
+// checked on every open. Bump this whenever a migration changes table
+// shape — adding columns, dropping indexes, changing FTS5 tokenizers —
+// so an older binary refuses to open a newer database rather than silently
+// producing wrong results against a schema it cannot read.
+const StoreSchemaVersion = 1
+
 type Store struct {
-	db   *sql.DB
-	path string
+	db *sql.DB
+	// writeMu serializes all DB writes. Read paths bypass the lock and run
+	// concurrently against WAL. Resource-level concurrency in sync.go.tmpl
+	// is 1 (one goroutine per resource via len(resources)-sized work channel)
+	// — read-then-write sequences (e.g., GetSyncCursor → SaveSyncState) are
+	// race-free by construction within a resource.
+	writeMu sync.Mutex
+	path    string
 }
 
+// Open opens or creates the SQLite store at dbPath using the background
+// context. Prefer OpenWithContext from a Cobra command so SIGINT during
+// a slow migration interrupts the open instead of stranding the caller.
 func Open(dbPath string) (*Store, error) {
+	return OpenWithContext(context.Background(), dbPath)
+}
+
+// OpenWithContext opens or creates the SQLite store at dbPath. The
+// context is honored by the migration path: cancellation interrupts the
+// retry-on-SQLITE_BUSY loop and propagates ctx.Err() back to the caller
+// instead of waiting out the full migrationLockTimeout.
+func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
 		return nil, fmt.Errorf("creating db directory: %w", err)
 	}
@@ -41,10 +68,13 @@ func Open(dbPath string) (*Store, error) {
 		return nil, fmt.Errorf("opening database: %w", err)
 	}
 
-	db.SetMaxOpenConns(1)
+	// WAL mode + 2 connections allows one read cursor open while a second
+	// query executes (e.g., analytics commands calling helpers during row
+	// iteration). Writes are still serialized by SQLite's WAL lock.
+	db.SetMaxOpenConns(2)
 
 	s := &Store{db: db, path: dbPath}
-	if err := s.migrate(); err != nil {
+	if err := s.migrate(ctx); err != nil {
 		db.Close()
 		return nil, fmt.Errorf("running migrations: %w", err)
 	}
@@ -56,12 +86,298 @@ func (s *Store) Close() error {
 	return s.db.Close()
 }
 
-// DB returns the underlying sql.DB for direct queries (used by transcendence commands).
+// Path returns the on-disk path of the backing SQLite file.
+func (s *Store) Path() string {
+	return s.path
+}
+
+// DB exposes the underlying *sql.DB for callers that need to run ad-hoc
+// queries (e.g., doctor's cache inspection, share snapshot import).
+// Callers must not call Close on the returned handle.
 func (s *Store) DB() *sql.DB {
 	return s.db
 }
 
-func (s *Store) migrate() error {
+// SchemaVersion reads PRAGMA user_version, which is stamped by migrate().
+// A zero value means the database predates the schema-version gate — not
+// a bug, but the caller may want to warn.
+func (s *Store) SchemaVersion() (int, error) {
+	var v int
+	if err := s.db.QueryRow(`PRAGMA user_version`).Scan(&v); err != nil {
+		return 0, fmt.Errorf("read user_version: %w", err)
+	}
+	return v, nil
+}
+
+// ensureColumn adds a column to an existing table if it isn't already
+// present. It is the upgrade-path safety valve for schema additions:
+// CREATE TABLE IF NOT EXISTS is a no-op when the table already exists, so
+// columns added by newer binaries (e.g. parent_id from the dependent-
+// resources work) never land on databases created by older binaries —
+// which then trip "no such column" when a follow-on CREATE INDEX runs.
+//
+// Skips silently if the table doesn't yet exist (fresh install — the
+// CREATE TABLE migration will create it with the column already declared)
+// or if the column already exists. Runs on the pinned migration
+// connection so it sees the writes performed by the in-flight BEGIN
+// IMMEDIATE transaction; using s.db here would route through the pool
+// and BUSY against the holding writer under concurrent migrators.
+func (s *Store) ensureColumn(ctx context.Context, conn *sql.Conn, table, column, decl string) error {
+	var name string
+	err := conn.QueryRowContext(ctx,
+		`SELECT name FROM sqlite_master WHERE type='table' AND name=?`, table,
+	).Scan(&name)
+	if err == sql.ErrNoRows {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("checking table %s: %w", table, err)
+	}
+
+	rows, err := conn.QueryContext(ctx, fmt.Sprintf(`PRAGMA table_info("%s")`, table))
+	if err != nil {
+		return fmt.Errorf("table_info %s: %w", table, err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var cid int
+		var n, typ string
+		var notnull, pk int
+		var dflt sql.NullString
+		if err := rows.Scan(&cid, &n, &typ, &notnull, &dflt, &pk); err != nil {
+			return fmt.Errorf("scan table_info %s: %w", table, err)
+		}
+		if n == column {
+			return nil
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("iterating table_info %s: %w", table, err)
+	}
+
+	if _, err := conn.ExecContext(ctx, fmt.Sprintf(`ALTER TABLE "%s" ADD COLUMN "%s" %s`, table, column, decl)); err != nil {
+		// A concurrent Open() may have added the column between our
+		// PRAGMA check and this ALTER. SQLite returns SQLITE_ERROR with
+		// "duplicate column name", which busy_timeout does not retry.
+		// The DB is now in the desired state regardless of who won.
+		if strings.Contains(err.Error(), "duplicate column name") {
+			return nil
+		}
+		return fmt.Errorf("add column %s.%s: %w", table, column, err)
+	}
+	return nil
+}
+
+// backfillColumns adds columns that newer binaries declare but that
+// pre-existing databases (created before those columns were added) lack.
+// Must run before the migrations slice so that subsequent CREATE INDEX
+// statements referencing the column can succeed against the upgraded
+// table. Idempotent: safe to call on fresh DBs (table-not-found short-
+// circuit) and on already-current DBs (column-exists short-circuit).
+//
+// Table names are emitted bare (no safeName) — ensureColumn double-quotes
+// them at SQL emit time and uses parameter binding for the sqlite_master
+// lookup, so the values flow as Go string literals first and SQL
+// identifiers second. Wrapping with safeName here would embed literal
+// double-quote characters into the Go string and break compilation for
+// any spec whose dependent-resource snake_cased name is a SQL reserved
+// word.
+func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
+	for _, c := range []struct{ table, column, decl string }{
+		{table: "structured_targets", column: "type", decl: "TEXT"},
+		{table: "structured_targets", column: "competition", decl: "TEXT"},
+		{table: "structured_targets", column: "page_size", decl: "INTEGER"},
+		{table: "structured_targets", column: "cursor", decl: "TEXT"},
+		{table: "structured_targets", column: "structured_target_id", decl: "TEXT"},
+		{table: "events", column: "limit", decl: "INTEGER"},
+		{table: "events", column: "cursor", decl: "TEXT"},
+		{table: "events", column: "with_nested_markets", decl: "INTEGER"},
+		{table: "events", column: "with_milestones", decl: "INTEGER"},
+		{table: "events", column: "status", decl: "TEXT"},
+		{table: "events", column: "series_ticker", decl: "TEXT"},
+		{table: "events", column: "min_close_ts", decl: "INTEGER"},
+		{table: "events", column: "min_updated_ts", decl: "INTEGER"},
+		{table: "events", column: "collection_ticker", decl: "TEXT"},
+		{table: "events", column: "event_ticker", decl: "TEXT"},
+		{table: "metadata", column: "events_id", decl: "TEXT"},
+		{table: "markets", column: "market_tickers", decl: "TEXT"},
+		{table: "markets", column: "start_ts", decl: "INTEGER"},
+		{table: "markets", column: "end_ts", decl: "INTEGER"},
+		{table: "markets", column: "period_interval", decl: "INTEGER"},
+		{table: "markets", column: "include_latest_before_start", decl: "INTEGER"},
+		{table: "markets", column: "limit", decl: "INTEGER"},
+		{table: "markets", column: "cursor", decl: "TEXT"},
+		{table: "markets", column: "ticker", decl: "TEXT"},
+		{table: "markets", column: "min_ts", decl: "INTEGER"},
+		{table: "markets", column: "max_ts", decl: "INTEGER"},
+		{table: "markets", column: "event_ticker", decl: "TEXT"},
+		{table: "markets", column: "series_ticker", decl: "TEXT"},
+		{table: "markets", column: "min_created_ts", decl: "INTEGER"},
+		{table: "markets", column: "max_created_ts", decl: "INTEGER"},
+		{table: "markets", column: "min_updated_ts", decl: "INTEGER"},
+		{table: "markets", column: "max_close_ts", decl: "INTEGER"},
+		{table: "markets", column: "min_close_ts", decl: "INTEGER"},
+		{table: "markets", column: "min_settled_ts", decl: "INTEGER"},
+		{table: "markets", column: "max_settled_ts", decl: "INTEGER"},
+		{table: "markets", column: "status", decl: "TEXT"},
+		{table: "markets", column: "mve_filter", decl: "TEXT"},
+		{table: "orderbook", column: "markets_id", decl: "TEXT"},
+		{table: "communications", column: "rfq_id", decl: "TEXT"},
+		{table: "communications", column: "cursor", decl: "TEXT"},
+		{table: "communications", column: "event_ticker", decl: "TEXT"},
+		{table: "communications", column: "market_ticker", decl: "TEXT"},
+		{table: "communications", column: "subaccount", decl: "INTEGER"},
+		{table: "communications", column: "limit", decl: "INTEGER"},
+		{table: "communications", column: "status", decl: "TEXT"},
+		{table: "communications", column: "creator_user_id", decl: "TEXT"},
+		{table: "communications", column: "user_filter", decl: "TEXT"},
+		{table: "communications", column: "quote_id", decl: "TEXT"},
+		{table: "communications", column: "quote_creator_user_id", decl: "TEXT"},
+		{table: "communications", column: "rfq_creator_user_id", decl: "TEXT"},
+		{table: "communications", column: "rfq_creator_subtrader_id", decl: "TEXT"},
+		{table: "communications", column: "accepted_side", decl: "TEXT"},
+		{table: "communications", column: "no_bid", decl: "TEXT"},
+		{table: "communications", column: "rest_remainder", decl: "INTEGER"},
+		{table: "communications", column: "yes_bid", decl: "TEXT"},
+		{table: "communications", column: "contracts", decl: "INTEGER"},
+		{table: "communications", column: "contracts_fp", decl: "TEXT"},
+		{table: "communications", column: "replace_existing", decl: "INTEGER"},
+		{table: "communications", column: "subtrader_id", decl: "TEXT"},
+		{table: "communications", column: "target_cost_centi_cents", decl: "INTEGER"},
+		{table: "communications", column: "target_cost_dollars", decl: "TEXT"},
+		{table: "fcm", column: "subtrader_id", decl: "TEXT"},
+		{table: "fcm", column: "cursor", decl: "TEXT"},
+		{table: "fcm", column: "event_ticker", decl: "TEXT"},
+		{table: "fcm", column: "ticker", decl: "TEXT"},
+		{table: "fcm", column: "min_ts", decl: "INTEGER"},
+		{table: "fcm", column: "max_ts", decl: "INTEGER"},
+		{table: "fcm", column: "status", decl: "TEXT"},
+		{table: "fcm", column: "limit", decl: "INTEGER"},
+		{table: "fcm", column: "count_filter", decl: "TEXT"},
+		{table: "fcm", column: "settlement_status", decl: "TEXT"},
+		{table: "incentive_programs", column: "status", decl: "TEXT"},
+		{table: "incentive_programs", column: "type", decl: "TEXT"},
+		{table: "incentive_programs", column: "incentive_description", decl: "TEXT"},
+		{table: "incentive_programs", column: "limit", decl: "INTEGER"},
+		{table: "incentive_programs", column: "cursor", decl: "TEXT"},
+		{table: "milestones", column: "limit", decl: "INTEGER"},
+		{table: "milestones", column: "minimum_start_date", decl: "DATETIME"},
+		{table: "milestones", column: "category", decl: "TEXT"},
+		{table: "milestones", column: "competition", decl: "TEXT"},
+		{table: "milestones", column: "source_id", decl: "TEXT"},
+		{table: "milestones", column: "type", decl: "TEXT"},
+		{table: "milestones", column: "related_event_ticker", decl: "TEXT"},
+		{table: "milestones", column: "cursor", decl: "TEXT"},
+		{table: "milestones", column: "min_updated_ts", decl: "INTEGER"},
+		{table: "milestones", column: "milestone_id", decl: "TEXT"},
+		{table: "series", column: "category", decl: "TEXT"},
+		{table: "series", column: "tags", decl: "TEXT"},
+		{table: "series", column: "include_product_metadata", decl: "INTEGER"},
+		{table: "series", column: "include_volume", decl: "INTEGER"},
+		{table: "series", column: "min_updated_ts", decl: "INTEGER"},
+		{table: "series", column: "series_ticker", decl: "TEXT"},
+		{table: "series", column: "show_historical", decl: "INTEGER"},
+		{table: "historical", column: "ticker", decl: "TEXT"},
+		{table: "historical", column: "max_ts", decl: "INTEGER"},
+		{table: "historical", column: "limit", decl: "INTEGER"},
+		{table: "historical", column: "cursor", decl: "TEXT"},
+		{table: "historical", column: "min_ts", decl: "INTEGER"},
+		{table: "historical", column: "start_ts", decl: "INTEGER"},
+		{table: "historical", column: "end_ts", decl: "INTEGER"},
+		{table: "historical", column: "period_interval", decl: "INTEGER"},
+		{table: "historical", column: "tickers", decl: "TEXT"},
+		{table: "historical", column: "event_ticker", decl: "TEXT"},
+		{table: "historical", column: "series_ticker", decl: "TEXT"},
+		{table: "historical", column: "mve_filter", decl: "TEXT"},
+		{table: "multivariate_event_collections", column: "status", decl: "TEXT"},
+		{table: "multivariate_event_collections", column: "associated_event_ticker", decl: "TEXT"},
+		{table: "multivariate_event_collections", column: "series_ticker", decl: "TEXT"},
+		{table: "multivariate_event_collections", column: "limit", decl: "INTEGER"},
+		{table: "multivariate_event_collections", column: "cursor", decl: "TEXT"},
+		{table: "multivariate_event_collections", column: "collection_ticker", decl: "TEXT"},
+		{table: "multivariate_event_collections", column: "with_market_payload", decl: "INTEGER"},
+		{table: "lookup", column: "multivariate_event_collections_id", decl: "TEXT"},
+		{table: "live_data", column: "include_player_stats", decl: "INTEGER"},
+		{table: "live_data", column: "milestone_id", decl: "TEXT"},
+		{table: "milestone", column: "live_data_id", decl: "TEXT"},
+		{table: "portfolio", column: "cursor", decl: "TEXT"},
+		{table: "portfolio", column: "limit", decl: "INTEGER"},
+		{table: "portfolio", column: "count_filter", decl: "TEXT"},
+		{table: "portfolio", column: "ticker", decl: "TEXT"},
+		{table: "portfolio", column: "event_ticker", decl: "TEXT"},
+		{table: "portfolio", column: "subaccount", decl: "INTEGER"},
+		{table: "portfolio", column: "order_id", decl: "TEXT"},
+		{table: "portfolio", column: "min_ts", decl: "INTEGER"},
+		{table: "portfolio", column: "max_ts", decl: "INTEGER"},
+		{table: "portfolio", column: "status", decl: "TEXT"},
+		{table: "portfolio", column: "order_group_id", decl: "TEXT"},
+		{table: "portfolio", column: "market_tickers", decl: "TEXT"},
+		{table: "portfolio", column: "reduce_to", decl: "TEXT"},
+		{table: "portfolio", column: "cancel_order_on_pause", decl: "INTEGER"},
+		{table: "portfolio", column: "client_order_id", decl: "TEXT"},
+		{table: "portfolio", column: "count", decl: "TEXT"},
+		{table: "portfolio", column: "expiration_time", decl: "INTEGER"},
+		{table: "portfolio", column: "post_only", decl: "INTEGER"},
+		{table: "portfolio", column: "price", decl: "TEXT"},
+		{table: "portfolio", column: "reduce_only", decl: "INTEGER"},
+		{table: "portfolio", column: "side", decl: "TEXT"},
+		{table: "portfolio", column: "time_in_force", decl: "TEXT"},
+		{table: "portfolio", column: "contracts_limit", decl: "INTEGER"},
+		{table: "portfolio", column: "contracts_limit_fp", decl: "TEXT"},
+		{table: "portfolio", column: "amount_cents", decl: "INTEGER"},
+		{table: "portfolio", column: "client_transfer_id", decl: "TEXT"},
+		{table: "portfolio", column: "from_subaccount", decl: "INTEGER"},
+		{table: "portfolio", column: "to_subaccount", decl: "INTEGER"},
+		{table: "portfolio", column: "action", decl: "TEXT"},
+		{table: "portfolio", column: "buy_max_cost", decl: "INTEGER"},
+		{table: "portfolio", column: "count_fp", decl: "TEXT"},
+		{table: "portfolio", column: "expiration_ts", decl: "INTEGER"},
+		{table: "portfolio", column: "no_price", decl: "INTEGER"},
+		{table: "portfolio", column: "no_price_dollars", decl: "TEXT"},
+		{table: "portfolio", column: "sell_position_floor", decl: "INTEGER"},
+		{table: "portfolio", column: "yes_price", decl: "INTEGER"},
+		{table: "portfolio", column: "yes_price_dollars", decl: "TEXT"},
+		{table: "portfolio", column: "reduce_by", decl: "INTEGER"},
+		{table: "portfolio", column: "reduce_by_fp", decl: "TEXT"},
+		{table: "portfolio", column: "reduce_to_fp", decl: "TEXT"},
+		{table: "portfolio", column: "updated_client_order_id", decl: "TEXT"},
+		{table: "portfolio", column: "enabled", decl: "INTEGER"},
+		{table: "portfolio", column: "subaccount_number", decl: "INTEGER"},
+		{table: "api_keys", column: "name", decl: "TEXT"},
+		{table: "api_keys", column: "public_key", decl: "TEXT"},
+		{table: "sync_state", column: "last_cursor", decl: "TEXT"},
+		{table: "sync_state", column: "last_synced_at", decl: "DATETIME"},
+		{table: "sync_state", column: "total_count", decl: "INTEGER DEFAULT 0"},
+	} {
+		if err := s.ensureColumn(ctx, conn, c.table, c.column, c.decl); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *Store) migrate(ctx context.Context) error {
+	conn, err := s.db.Conn(ctx)
+	if err != nil {
+		return fmt.Errorf("acquiring migration connection: %w", err)
+	}
+	defer conn.Close()
+
+	// Read user_version before the migration lock so an old binary
+	// opening a newer-schema DB rejects immediately. WAL readers don't
+	// normally block on writers, but the fresh-DB WAL-init race can BUSY
+	// a SELECT — share the lock's deadline so total budget stays bounded.
+	deadline := time.Now().Add(migrationLockTimeout)
+	var current int
+	if err := retryOnBusy(ctx, deadline, "reading schema version", func() error {
+		return conn.QueryRowContext(ctx, `PRAGMA user_version`).Scan(&current)
+	}); err != nil {
+		return err
+	}
+	if current > StoreSchemaVersion {
+		return fmt.Errorf("database schema version %d is newer than supported version %d; upgrade the CLI binary or open an older database", current, StoreSchemaVersion)
+	}
+
 	migrations := []string{
 		`CREATE TABLE IF NOT EXISTS resources (
 			id TEXT PRIMARY KEY,
@@ -81,6 +397,72 @@ func (s *Store) migrate() error {
 		`CREATE VIRTUAL TABLE IF NOT EXISTS resources_fts USING fts5(
 			id, resource_type, content, tokenize='porter unicode61'
 		)`,
+		`CREATE TABLE IF NOT EXISTS structured_targets (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			type TEXT,
+			competition TEXT,
+			page_size INTEGER,
+			cursor TEXT,
+			structured_target_id TEXT
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_structured_targets_structured_target_id ON structured_targets(structured_target_id)`,
+		`CREATE TABLE IF NOT EXISTS events (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			"limit" INTEGER,
+			cursor TEXT,
+			with_nested_markets INTEGER,
+			with_milestones INTEGER,
+			status TEXT,
+			series_ticker TEXT,
+			min_close_ts INTEGER,
+			min_updated_ts INTEGER,
+			collection_ticker TEXT,
+			event_ticker TEXT
+		)`,
+		`CREATE TABLE IF NOT EXISTS metadata (
+			id TEXT PRIMARY KEY,
+			events_id TEXT NOT NULL,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_metadata_events_id ON metadata(events_id)`,
+		`CREATE TABLE IF NOT EXISTS markets (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			market_tickers TEXT,
+			start_ts INTEGER,
+			end_ts INTEGER,
+			period_interval INTEGER,
+			include_latest_before_start INTEGER,
+			"limit" INTEGER,
+			cursor TEXT,
+			ticker TEXT,
+			min_ts INTEGER,
+			max_ts INTEGER,
+			event_ticker TEXT,
+			series_ticker TEXT,
+			min_created_ts INTEGER,
+			max_created_ts INTEGER,
+			min_updated_ts INTEGER,
+			max_close_ts INTEGER,
+			min_close_ts INTEGER,
+			min_settled_ts INTEGER,
+			max_settled_ts INTEGER,
+			status TEXT,
+			mve_filter TEXT
+		)`,
+		`CREATE TABLE IF NOT EXISTS orderbook (
+			id TEXT PRIMARY KEY,
+			markets_id TEXT NOT NULL,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_orderbook_markets_id ON orderbook(markets_id)`,
 		`CREATE TABLE IF NOT EXISTS communications (
 			id TEXT PRIMARY KEY,
 			data JSON NOT NULL,
@@ -93,176 +475,55 @@ func (s *Store) migrate() error {
 			"limit" INTEGER,
 			status TEXT,
 			creator_user_id TEXT,
+			user_filter TEXT,
+			quote_id TEXT,
 			quote_creator_user_id TEXT,
 			rfq_creator_user_id TEXT,
 			rfq_creator_subtrader_id TEXT,
-			quote_id TEXT,
+			accepted_side TEXT,
+			no_bid TEXT,
+			rest_remainder INTEGER,
+			yes_bid TEXT,
 			contracts INTEGER,
 			contracts_fp TEXT,
 			replace_existing INTEGER,
-			rest_remainder INTEGER,
 			subtrader_id TEXT,
 			target_cost_centi_cents INTEGER,
-			target_cost_dollars TEXT,
-			accepted_side TEXT,
-			no_bid TEXT,
-			yes_bid TEXT
+			target_cost_dollars TEXT
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_communications_rfq_id ON communications(rfq_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_communications_creator_user_id ON communications(creator_user_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_communications_quote_id ON communications(quote_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_communications_quote_creator_user_id ON communications(quote_creator_user_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_communications_rfq_creator_user_id ON communications(rfq_creator_user_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_communications_rfq_creator_subtrader_id ON communications(rfq_creator_subtrader_id)`,
-		`CREATE INDEX IF NOT EXISTS idx_communications_quote_id ON communications(quote_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_communications_subtrader_id ON communications(subtrader_id)`,
-		`CREATE TABLE IF NOT EXISTS exchange (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE TABLE IF NOT EXISTS search (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE TABLE IF NOT EXISTS series (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE TABLE IF NOT EXISTS events (
-			id TEXT PRIMARY KEY,
-			series_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_events_series_id ON events(series_id)`,
-		`CREATE TABLE IF NOT EXISTS markets (
-			id TEXT PRIMARY KEY,
-			series_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_markets_series_id ON markets(series_id)`,
-		`CREATE TABLE IF NOT EXISTS structured_targets (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE TABLE IF NOT EXISTS api_keys (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
 		`CREATE TABLE IF NOT EXISTS fcm (
 			id TEXT PRIMARY KEY,
 			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE TABLE IF NOT EXISTS portfolio (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
 			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			subaccount INTEGER,
-			order_group_id TEXT,
-			market_tickers TEXT,
+			subtrader_id TEXT,
+			cursor TEXT,
 			event_ticker TEXT,
 			ticker TEXT,
-			order_id TEXT,
 			min_ts INTEGER,
 			max_ts INTEGER,
-			"limit" INTEGER,
-			cursor TEXT,
 			status TEXT,
+			"limit" INTEGER,
 			count_filter TEXT,
-			contracts_limit INTEGER,
-			contracts_limit_fp TEXT,
-			enabled INTEGER,
-			subaccount_number INTEGER,
-			reduce_by INTEGER,
-			reduce_by_fp TEXT,
-			reduce_to INTEGER,
-			reduce_to_fp TEXT,
-			amount_cents INTEGER,
-			client_transfer_id TEXT,
-			from_subaccount INTEGER,
-			to_subaccount INTEGER,
-			action TEXT,
-			buy_max_cost INTEGER,
-			cancel_order_on_pause INTEGER,
-			client_order_id TEXT,
-			count INTEGER,
-			count_fp TEXT,
-			expiration_ts INTEGER,
-			no_price INTEGER,
-			no_price_dollars TEXT,
-			post_only INTEGER,
-			reduce_only INTEGER,
-			sell_position_floor INTEGER,
-			side TEXT,
-			time_in_force TEXT,
-			yes_price INTEGER,
-			yes_price_dollars TEXT,
-			updated_client_order_id TEXT
+			settlement_status TEXT
 		)`,
-		`CREATE INDEX IF NOT EXISTS idx_portfolio_order_group_id ON portfolio(order_group_id)`,
-		`CREATE INDEX IF NOT EXISTS idx_portfolio_order_id ON portfolio(order_id)`,
-		`CREATE INDEX IF NOT EXISTS idx_portfolio_client_transfer_id ON portfolio(client_transfer_id)`,
-		`CREATE INDEX IF NOT EXISTS idx_portfolio_client_order_id ON portfolio(client_order_id)`,
-		`CREATE INDEX IF NOT EXISTS idx_portfolio_updated_client_order_id ON portfolio(updated_client_order_id)`,
-		`CREATE TABLE IF NOT EXISTS account (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
+		`CREATE INDEX IF NOT EXISTS idx_fcm_subtrader_id ON fcm(subtrader_id)`,
 		`CREATE TABLE IF NOT EXISTS incentive_programs (
 			id TEXT PRIMARY KEY,
 			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			status TEXT,
+			type TEXT,
+			incentive_description TEXT,
+			"limit" INTEGER,
+			cursor TEXT
 		)`,
-		`CREATE TABLE IF NOT EXISTS orderbook (
-			id TEXT PRIMARY KEY,
-			markets_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_orderbook_markets_id ON orderbook(markets_id)`,
-		`CREATE TABLE IF NOT EXISTS multivariate_event_collections (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE TABLE IF NOT EXISTS lookup (
-			id TEXT PRIMARY KEY,
-			multivariate_event_collections_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_lookup_multivariate_event_collections_id ON lookup(multivariate_event_collections_id)`,
-		`CREATE TABLE IF NOT EXISTS metadata (
-			id TEXT PRIMARY KEY,
-			events_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_metadata_events_id ON metadata(events_id)`,
-		`CREATE TABLE IF NOT EXISTS historical (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE TABLE IF NOT EXISTS live_data (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE TABLE IF NOT EXISTS milestone (
-			id TEXT PRIMARY KEY,
-			live_data_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_milestone_live_data_id ON milestone(live_data_id)`,
 		`CREATE TABLE IF NOT EXISTS milestones (
 			id TEXT PRIMARY KEY,
 			data JSON NOT NULL,
@@ -280,14 +541,320 @@ func (s *Store) migrate() error {
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_milestones_source_id ON milestones(source_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_milestones_milestone_id ON milestones(milestone_id)`,
+		`CREATE TABLE IF NOT EXISTS series (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			category TEXT,
+			tags TEXT,
+			include_product_metadata INTEGER,
+			include_volume INTEGER,
+			min_updated_ts INTEGER,
+			series_ticker TEXT,
+			show_historical INTEGER
+		)`,
+		`CREATE VIRTUAL TABLE IF NOT EXISTS series_fts USING fts5(
+			category,
+			tags,
+			content='series',
+			content_rowid='rowid'
+		)`,
+		`CREATE TRIGGER IF NOT EXISTS series_ai AFTER INSERT ON series BEGIN
+			INSERT INTO series_fts(rowid, category, tags)
+			VALUES (new.rowid,new.category, new.tags);
+		END`,
+		`CREATE TRIGGER IF NOT EXISTS series_ad AFTER DELETE ON series BEGIN
+			INSERT INTO series_fts(series_fts, rowid, category, tags)
+			VALUES ('delete', old.rowid,old.category, old.tags);
+		END`,
+		`CREATE TRIGGER IF NOT EXISTS series_au AFTER UPDATE ON series BEGIN
+			INSERT INTO series_fts(series_fts, rowid, category, tags)
+			VALUES ('delete', old.rowid,old.category, old.tags);
+			INSERT INTO series_fts(rowid, category, tags)
+			VALUES (new.rowid,new.category, new.tags);
+		END`,
+		`CREATE TABLE IF NOT EXISTS historical (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			ticker TEXT,
+			max_ts INTEGER,
+			"limit" INTEGER,
+			cursor TEXT,
+			min_ts INTEGER,
+			start_ts INTEGER,
+			end_ts INTEGER,
+			period_interval INTEGER,
+			tickers TEXT,
+			event_ticker TEXT,
+			series_ticker TEXT,
+			mve_filter TEXT
+		)`,
+		`CREATE TABLE IF NOT EXISTS multivariate_event_collections (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			status TEXT,
+			associated_event_ticker TEXT,
+			series_ticker TEXT,
+			"limit" INTEGER,
+			cursor TEXT,
+			collection_ticker TEXT,
+			with_market_payload INTEGER
+		)`,
+		`CREATE TABLE IF NOT EXISTS lookup (
+			id TEXT PRIMARY KEY,
+			multivariate_event_collections_id TEXT NOT NULL,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_lookup_multivariate_event_collections_id ON lookup(multivariate_event_collections_id)`,
+		`CREATE TABLE IF NOT EXISTS live_data (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			include_player_stats INTEGER,
+			milestone_id TEXT
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_live_data_milestone_id ON live_data(milestone_id)`,
+		`CREATE TABLE IF NOT EXISTS milestone (
+			id TEXT PRIMARY KEY,
+			live_data_id TEXT NOT NULL,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_milestone_live_data_id ON milestone(live_data_id)`,
+		`CREATE TABLE IF NOT EXISTS portfolio (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			cursor TEXT,
+			"limit" INTEGER,
+			count_filter TEXT,
+			ticker TEXT,
+			event_ticker TEXT,
+			subaccount INTEGER,
+			order_id TEXT,
+			min_ts INTEGER,
+			max_ts INTEGER,
+			status TEXT,
+			order_group_id TEXT,
+			market_tickers TEXT,
+			reduce_to TEXT,
+			cancel_order_on_pause INTEGER,
+			client_order_id TEXT,
+			count TEXT,
+			expiration_time INTEGER,
+			post_only INTEGER,
+			price TEXT,
+			reduce_only INTEGER,
+			side TEXT,
+			time_in_force TEXT,
+			contracts_limit INTEGER,
+			contracts_limit_fp TEXT,
+			amount_cents INTEGER,
+			client_transfer_id TEXT,
+			from_subaccount INTEGER,
+			to_subaccount INTEGER,
+			action TEXT,
+			buy_max_cost INTEGER,
+			count_fp TEXT,
+			expiration_ts INTEGER,
+			no_price INTEGER,
+			no_price_dollars TEXT,
+			sell_position_floor INTEGER,
+			yes_price INTEGER,
+			yes_price_dollars TEXT,
+			reduce_by INTEGER,
+			reduce_by_fp TEXT,
+			reduce_to_fp TEXT,
+			updated_client_order_id TEXT,
+			enabled INTEGER,
+			subaccount_number INTEGER
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_portfolio_order_id ON portfolio(order_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_portfolio_order_group_id ON portfolio(order_group_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_portfolio_client_order_id ON portfolio(client_order_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_portfolio_client_transfer_id ON portfolio(client_transfer_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_portfolio_updated_client_order_id ON portfolio(updated_client_order_id)`,
+		`CREATE TABLE IF NOT EXISTS api_keys (
+			id TEXT PRIMARY KEY,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			name TEXT,
+			public_key TEXT
+		)`,
+		// Novel: per-sync market price snapshots, used by 'markets history'.
+		`CREATE TABLE IF NOT EXISTS market_price_history (
+			ticker TEXT NOT NULL,
+			snapshot_ts INTEGER NOT NULL,
+			yes_bid REAL,
+			yes_ask REAL,
+			no_bid REAL,
+			no_ask REAL,
+			last_price REAL,
+			volume INTEGER,
+			open_interest INTEGER,
+			PRIMARY KEY (ticker, snapshot_ts)
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_market_price_history_ticker ON market_price_history(ticker, snapshot_ts)`,
+		// Novel: local-only watchlist powering 'watch' subcommand.
+		`CREATE TABLE IF NOT EXISTS watchlist (
+			ticker TEXT PRIMARY KEY,
+			added_at INTEGER NOT NULL
+		)`,
 	}
 
-	for _, m := range migrations {
-		if _, err := s.db.Exec(m); err != nil {
-			return fmt.Errorf("migration failed: %w", err)
+	// Run every migration — including the column backfill and the
+	// schema-version stamp — inside a single BEGIN IMMEDIATE transaction
+	// pinned to one connection. IMMEDIATE acquires SQLite's RESERVED lock
+	// at BEGIN time so concurrent migrators serialize on it instead of
+	// racing per-statement and tripping SQLITE_BUSY despite busy_timeout.
+	// modernc.org/sqlite's busy_timeout does not always cover write-write
+	// contention at BEGIN/COMMIT time, so we retry both explicitly on
+	// SQLITE_BUSY for up to migrationLockTimeout.
+	return withMigrationLock(ctx, conn, deadline, func() error {
+		// Re-read user_version inside the lock. This is load-bearing,
+		// not paranoid: between the pre-lock read above and our
+		// successful BEGIN IMMEDIATE, a newer-binary peer may have
+		// committed a higher version stamp. Without this re-read, an
+		// older binary (smaller StoreSchemaVersion) would proceed to
+		// stamp its own lower version at the end of the closure,
+		// silently downgrading user_version on a schema that's already
+		// at the newer level. Future maintainers: leave this read in.
+		var current int
+		if err := conn.QueryRowContext(ctx, `PRAGMA user_version`).Scan(&current); err != nil {
+			return fmt.Errorf("reading schema version: %w", err)
 		}
+		if current > StoreSchemaVersion {
+			return fmt.Errorf("database schema version %d is newer than supported version %d; upgrade the CLI binary or open an older database", current, StoreSchemaVersion)
+		}
+
+		if err := s.backfillColumns(ctx, conn); err != nil {
+			return fmt.Errorf("backfilling columns: %w", err)
+		}
+		for _, m := range migrations {
+			if _, err := conn.ExecContext(ctx, m); err != nil {
+				return fmt.Errorf("migration failed: %w", err)
+			}
+		}
+		// Stamp the schema version. On a fresh DB this writes 1; on an
+		// already-stamped DB this is a no-op write of the same value.
+		// An older DB with user_version = 0 and pre-existing tables
+		// gets stamped here without any data rewrites because the
+		// migrations above are idempotent via CREATE TABLE IF NOT EXISTS.
+		if _, err := conn.ExecContext(ctx, fmt.Sprintf(`PRAGMA user_version = %d`, StoreSchemaVersion)); err != nil {
+			return fmt.Errorf("stamp user_version: %w", err)
+		}
+		return nil
+	})
+}
+
+const (
+	migrationLockTimeout    = 30 * time.Second
+	migrationLockBackoffMin = 5 * time.Millisecond
+	migrationLockBackoffMax = 100 * time.Millisecond
+)
+
+// withMigrationLock runs fn inside a BEGIN IMMEDIATE / COMMIT pair on
+// conn, retrying both BEGIN and COMMIT on SQLITE_BUSY against the
+// caller-provided deadline. Sharing the deadline with the pre-lock
+// version read keeps total Open() latency bounded by a single budget.
+// The real upper bound is deadline + one trailing backoff interval
+// (≤100ms) + the driver's busy_timeout for the in-flight Exec, since
+// the deadline is checked after each failed attempt rather than as a
+// hard wall-clock cutoff. fn must use conn (not s.db) so its writes
+// participate in the held transaction.
+func withMigrationLock(ctx context.Context, conn *sql.Conn, deadline time.Time, fn func() error) error {
+	if err := execWithBusyRetry(ctx, conn, "BEGIN IMMEDIATE", "begin migration transaction", deadline); err != nil {
+		return err
 	}
+	committed := false
+	defer func() {
+		if committed {
+			return
+		}
+		// ROLLBACK uses context.Background() so caller-context cancellation
+		// can't strand the connection in an open transaction. A failed
+		// rollback is rare on local SQLite (broken file handle, fatal
+		// driver error) but worth surfacing — silent swallow leaves a
+		// pinned connection returned to the pool with state that will
+		// confuse later queries.
+		if _, rerr := conn.ExecContext(context.Background(), "ROLLBACK"); rerr != nil {
+			fmt.Fprintf(os.Stderr, "warning: store migration rollback failed: %v\n", rerr)
+		}
+	}()
+
+	if err := fn(); err != nil {
+		return err
+	}
+
+	if err := execWithBusyRetry(ctx, conn, "COMMIT", "commit migration transaction", deadline); err != nil {
+		return err
+	}
+	committed = true
 	return nil
+}
+
+// execWithBusyRetry runs stmt on conn and retries on SQLITE_BUSY until
+// deadline. It covers BEGIN IMMEDIATE and COMMIT contention;
+// modernc.org/sqlite's busy_timeout does not reliably cover either when
+// multiple connections race for the WAL write lock.
+func execWithBusyRetry(ctx context.Context, conn *sql.Conn, stmt, label string, deadline time.Time) error {
+	return retryOnBusy(ctx, deadline, label, func() error {
+		_, err := conn.ExecContext(ctx, stmt)
+		return err
+	})
+}
+
+// retryOnBusy runs op and retries it on SQLITE_BUSY/LOCKED until
+// deadline. The same retry shape covers Exec, Query, and any other
+// SQLite call that can race the WAL writer lock — including the
+// pre-lock user_version read, where the WAL initialization race on a
+// fresh DB can BUSY a SELECT that should otherwise succeed under WAL
+// reader/writer concurrency.
+func retryOnBusy(ctx context.Context, deadline time.Time, label string, op func() error) error {
+	backoff := migrationLockBackoffMin
+	for {
+		err := op()
+		if err == nil {
+			return nil
+		}
+		if !isSQLiteBusy(err) {
+			return fmt.Errorf("%s: %w", label, err)
+		}
+		if time.Now().After(deadline) {
+			// The label carries the operation context (e.g. "begin
+			// migration transaction", "reading schema version") — we
+			// don't hardcode "waiting for write lock" because pre-lock
+			// reads also flow through this helper.
+			return fmt.Errorf("%s: timed out after %s under SQLite contention: %w", label, migrationLockTimeout, err)
+		}
+		select {
+		case <-ctx.Done():
+			return fmt.Errorf("%s: %w", label, ctx.Err())
+		case <-time.After(backoff):
+		}
+		backoff = min(backoff*2, migrationLockBackoffMax)
+	}
+}
+
+// isSQLiteBusy reports whether err is a retryable SQLite lock condition.
+// Covers both the file-level WAL writer race (SQLITE_BUSY / "database is
+// locked") and the table-level shared-cache contention (SQLITE_LOCKED /
+// "database table is locked"). The match is on the error string because
+// modernc.org/sqlite does not export an error type the generated code
+// can switch on without dragging the driver package into every store
+// consumer.
+func isSQLiteBusy(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := err.Error()
+	return strings.Contains(msg, "SQLITE_BUSY") ||
+		strings.Contains(msg, "SQLITE_LOCKED") ||
+		strings.Contains(msg, "database is locked") ||
+		strings.Contains(msg, "database table is locked")
 }
 
 func (s *Store) upsertGenericResourceTx(tx *sql.Tx, resourceType, id string, data json.RawMessage) error {
@@ -301,17 +868,18 @@ func (s *Store) upsertGenericResourceTx(tx *sql.Tx, resourceType, id string, dat
 		return err
 	}
 
-	_, err = tx.Exec(`DELETE FROM resources_fts WHERE id = ?`, id)
-	if err != nil {
+	ftsRowid := ftsRowID(id)
+	// Use explicit rowid for FTS5 compatibility with modernc.org/sqlite.
+	// Standard DELETE WHERE column=? may not work on FTS5 virtual tables.
+	if _, err = tx.Exec(`DELETE FROM resources_fts WHERE rowid = ?`, ftsRowid); err != nil {
 		fmt.Fprintf(os.Stderr, "warning: FTS index cleanup failed: %v\n", err)
 	}
 
-	_, err = tx.Exec(
-		`INSERT INTO resources_fts (id, resource_type, content)
-		 VALUES (?, ?, ?)`,
-		id, resourceType, string(data),
-	)
-	if err != nil {
+	if _, err = tx.Exec(
+		`INSERT INTO resources_fts (rowid, id, resource_type, content)
+		 VALUES (?, ?, ?, ?)`,
+		ftsRowid, id, resourceType, string(data),
+	); err != nil {
 		// FTS insert failure is non-fatal
 		fmt.Fprintf(os.Stderr, "warning: FTS index update failed: %v\n", err)
 	}
@@ -320,6 +888,8 @@ func (s *Store) upsertGenericResourceTx(tx *sql.Tx, resourceType, id string, dat
 }
 
 func (s *Store) Upsert(resourceType, id string, data json.RawMessage) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
@@ -409,9 +979,24 @@ func extractObjectID(obj map[string]any) string {
 	return ""
 }
 
-func lookupFieldValue(obj map[string]any, snakeKey string) any {
+// ftsRowID derives a deterministic rowid from a string ID for use with FTS5.
+// modernc.org/sqlite's FTS5 implementation may not support DELETE WHERE column=?
+// on virtual tables, so we use explicit rowids and DELETE WHERE rowid=? instead.
+func ftsRowID(id string) int64 {
+	var h uint64
+	for _, c := range id {
+		h = h*31 + uint64(c)
+	}
+	return int64(h & 0x7FFFFFFFFFFFFFFF) // ensure positive
+}
+
+// LookupFieldValue resolves a field value from a JSON object map, trying
+// the snake_case key first and the camelCase rendering second. Exported so
+// the sync command's extractID and the upsert path resolve fields the same
+// way — a divergence here produces silent drops on heterogeneous payloads.
+func LookupFieldValue(obj map[string]any, snakeKey string) any {
 	if v, ok := obj[snakeKey]; ok {
-		return v
+		return sqliteFieldValue(v)
 	}
 	parts := strings.Split(snakeKey, "_")
 	for i := 1; i < len(parts); i++ {
@@ -421,8 +1006,380 @@ func lookupFieldValue(obj map[string]any, snakeKey string) any {
 		parts[i] = strings.ToUpper(parts[i][:1]) + parts[i][1:]
 	}
 	if v, ok := obj[strings.Join(parts, "")]; ok {
-		return v
+		return sqliteFieldValue(v)
 	}
+	return nil
+}
+
+func sqliteFieldValue(v any) any {
+	switch v.(type) {
+	case nil, string, bool, int, int64, float64, []byte:
+		return v
+	default:
+		data, err := json.Marshal(v)
+		if err != nil {
+			return fmt.Sprint(v)
+		}
+		return string(data)
+	}
+}
+
+// lookupFieldValue is kept as an unexported alias for in-package callers so
+// the existing UpsertBatch code reads naturally without prefixing every call
+// with the package name.
+func lookupFieldValue(obj map[string]any, snakeKey string) any {
+	return LookupFieldValue(obj, snakeKey)
+}
+
+// upsertStructuredTargetsTx writes the typed-table portion of a structured_targets upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertStructuredTargetsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO structured_targets (id, data, synced_at, type, competition, page_size, cursor, structured_target_id)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, type = excluded.type, competition = excluded.competition, page_size = excluded.page_size, cursor = excluded.cursor, structured_target_id = excluded.structured_target_id`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "type"),
+		lookupFieldValue(obj, "competition"),
+		lookupFieldValue(obj, "page_size"),
+		lookupFieldValue(obj, "cursor"),
+		lookupFieldValue(obj, "structured_target_id"),
+	); err != nil {
+		return fmt.Errorf("insert into structured_targets: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertStructuredTargets inserts or updates a structured_targets record with domain-specific columns.
+func (s *Store) UpsertStructuredTargets(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling structured_targets: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for structured_targets")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "structured_targets", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertStructuredTargetsTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+// upsertEventsTx writes the typed-table portion of a events upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertEventsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO events (id, data, synced_at, "limit", cursor, with_nested_markets, with_milestones, status, series_ticker, min_close_ts, min_updated_ts, collection_ticker, event_ticker)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, "limit" = excluded."limit", cursor = excluded.cursor, with_nested_markets = excluded.with_nested_markets, with_milestones = excluded.with_milestones, status = excluded.status, series_ticker = excluded.series_ticker, min_close_ts = excluded.min_close_ts, min_updated_ts = excluded.min_updated_ts, collection_ticker = excluded.collection_ticker, event_ticker = excluded.event_ticker`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "limit"),
+		lookupFieldValue(obj, "cursor"),
+		lookupFieldValue(obj, "with_nested_markets"),
+		lookupFieldValue(obj, "with_milestones"),
+		lookupFieldValue(obj, "status"),
+		lookupFieldValue(obj, "series_ticker"),
+		lookupFieldValue(obj, "min_close_ts"),
+		lookupFieldValue(obj, "min_updated_ts"),
+		lookupFieldValue(obj, "collection_ticker"),
+		lookupFieldValue(obj, "event_ticker"),
+	); err != nil {
+		return fmt.Errorf("insert into events: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertEvents inserts or updates a events record with domain-specific columns.
+func (s *Store) UpsertEvents(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling events: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for events")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "events", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertEventsTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+// upsertMetadataTx writes the typed-table portion of a metadata upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertMetadataTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO metadata (id, events_id, data, synced_at)
+		 VALUES (?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET events_id = excluded.events_id, data = excluded.data, synced_at = excluded.synced_at`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "events_id"),
+	); err != nil {
+		return fmt.Errorf("insert into metadata: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertMetadata inserts or updates a metadata record with domain-specific columns.
+func (s *Store) UpsertMetadata(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling metadata: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for metadata")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "metadata", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertMetadataTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+// upsertMarketsTx writes the typed-table portion of a markets upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertMarketsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO markets (id, data, synced_at, market_tickers, start_ts, end_ts, period_interval, include_latest_before_start, "limit", cursor, ticker, min_ts, max_ts, event_ticker, series_ticker, min_created_ts, max_created_ts, min_updated_ts, max_close_ts, min_close_ts, min_settled_ts, max_settled_ts, status, mve_filter)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, market_tickers = excluded.market_tickers, start_ts = excluded.start_ts, end_ts = excluded.end_ts, period_interval = excluded.period_interval, include_latest_before_start = excluded.include_latest_before_start, "limit" = excluded."limit", cursor = excluded.cursor, ticker = excluded.ticker, min_ts = excluded.min_ts, max_ts = excluded.max_ts, event_ticker = excluded.event_ticker, series_ticker = excluded.series_ticker, min_created_ts = excluded.min_created_ts, max_created_ts = excluded.max_created_ts, min_updated_ts = excluded.min_updated_ts, max_close_ts = excluded.max_close_ts, min_close_ts = excluded.min_close_ts, min_settled_ts = excluded.min_settled_ts, max_settled_ts = excluded.max_settled_ts, status = excluded.status, mve_filter = excluded.mve_filter`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "market_tickers"),
+		lookupFieldValue(obj, "start_ts"),
+		lookupFieldValue(obj, "end_ts"),
+		lookupFieldValue(obj, "period_interval"),
+		lookupFieldValue(obj, "include_latest_before_start"),
+		lookupFieldValue(obj, "limit"),
+		lookupFieldValue(obj, "cursor"),
+		lookupFieldValue(obj, "ticker"),
+		lookupFieldValue(obj, "min_ts"),
+		lookupFieldValue(obj, "max_ts"),
+		lookupFieldValue(obj, "event_ticker"),
+		lookupFieldValue(obj, "series_ticker"),
+		lookupFieldValue(obj, "min_created_ts"),
+		lookupFieldValue(obj, "max_created_ts"),
+		lookupFieldValue(obj, "min_updated_ts"),
+		lookupFieldValue(obj, "max_close_ts"),
+		lookupFieldValue(obj, "min_close_ts"),
+		lookupFieldValue(obj, "min_settled_ts"),
+		lookupFieldValue(obj, "max_settled_ts"),
+		lookupFieldValue(obj, "status"),
+		lookupFieldValue(obj, "mve_filter"),
+	); err != nil {
+		return fmt.Errorf("insert into markets: %w", err)
+	}
+
+	// Novel: capture a price snapshot for 'markets history'. Best-effort —
+	// failures here must not break the markets sync. Each sync writes one
+	// row per ticker, keyed (ticker, snapshot_ts), so two syncs >=1s apart
+	// produce two rows.
+	if _, err := tx.Exec(
+		`INSERT OR IGNORE INTO market_price_history (ticker, snapshot_ts, yes_bid, yes_ask, no_bid, no_ask, last_price, volume, open_interest)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		id,
+		time.Now().Unix(),
+		obj["yes_bid"],
+		obj["yes_ask"],
+		obj["no_bid"],
+		obj["no_ask"],
+		obj["last_price"],
+		obj["volume"],
+		obj["open_interest"],
+	); err != nil {
+		// Log and continue — snapshots are best-effort.
+		fmt.Fprintf(os.Stderr, "warning: market_price_history snapshot for %s failed: %v\n", id, err)
+	}
+
+	return nil
+}
+
+// UpsertMarkets inserts or updates a markets record with domain-specific columns.
+func (s *Store) UpsertMarkets(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling markets: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for markets")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "markets", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertMarketsTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+// upsertOrderbookTx writes the typed-table portion of a orderbook upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertOrderbookTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO orderbook (id, markets_id, data, synced_at)
+		 VALUES (?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET markets_id = excluded.markets_id, data = excluded.data, synced_at = excluded.synced_at`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "markets_id"),
+	); err != nil {
+		return fmt.Errorf("insert into orderbook: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertOrderbook inserts or updates a orderbook record with domain-specific columns.
+func (s *Store) UpsertOrderbook(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling orderbook: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for orderbook")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "orderbook", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertOrderbookTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+// upsertCommunicationsTx writes the typed-table portion of a communications upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertCommunicationsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO communications (id, data, synced_at, rfq_id, cursor, event_ticker, market_ticker, subaccount, "limit", status, creator_user_id, user_filter, quote_id, quote_creator_user_id, rfq_creator_user_id, rfq_creator_subtrader_id, accepted_side, no_bid, rest_remainder, yes_bid, contracts, contracts_fp, replace_existing, subtrader_id, target_cost_centi_cents, target_cost_dollars)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, rfq_id = excluded.rfq_id, cursor = excluded.cursor, event_ticker = excluded.event_ticker, market_ticker = excluded.market_ticker, subaccount = excluded.subaccount, "limit" = excluded."limit", status = excluded.status, creator_user_id = excluded.creator_user_id, user_filter = excluded.user_filter, quote_id = excluded.quote_id, quote_creator_user_id = excluded.quote_creator_user_id, rfq_creator_user_id = excluded.rfq_creator_user_id, rfq_creator_subtrader_id = excluded.rfq_creator_subtrader_id, accepted_side = excluded.accepted_side, no_bid = excluded.no_bid, rest_remainder = excluded.rest_remainder, yes_bid = excluded.yes_bid, contracts = excluded.contracts, contracts_fp = excluded.contracts_fp, replace_existing = excluded.replace_existing, subtrader_id = excluded.subtrader_id, target_cost_centi_cents = excluded.target_cost_centi_cents, target_cost_dollars = excluded.target_cost_dollars`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "rfq_id"),
+		lookupFieldValue(obj, "cursor"),
+		lookupFieldValue(obj, "event_ticker"),
+		lookupFieldValue(obj, "market_ticker"),
+		lookupFieldValue(obj, "subaccount"),
+		lookupFieldValue(obj, "limit"),
+		lookupFieldValue(obj, "status"),
+		lookupFieldValue(obj, "creator_user_id"),
+		lookupFieldValue(obj, "user_filter"),
+		lookupFieldValue(obj, "quote_id"),
+		lookupFieldValue(obj, "quote_creator_user_id"),
+		lookupFieldValue(obj, "rfq_creator_user_id"),
+		lookupFieldValue(obj, "rfq_creator_subtrader_id"),
+		lookupFieldValue(obj, "accepted_side"),
+		lookupFieldValue(obj, "no_bid"),
+		lookupFieldValue(obj, "rest_remainder"),
+		lookupFieldValue(obj, "yes_bid"),
+		lookupFieldValue(obj, "contracts"),
+		lookupFieldValue(obj, "contracts_fp"),
+		lookupFieldValue(obj, "replace_existing"),
+		lookupFieldValue(obj, "subtrader_id"),
+		lookupFieldValue(obj, "target_cost_centi_cents"),
+		lookupFieldValue(obj, "target_cost_dollars"),
+	); err != nil {
+		return fmt.Errorf("insert into communications: %w", err)
+	}
+
 	return nil
 }
 
@@ -438,6 +1395,8 @@ func (s *Store) UpsertCommunications(data json.RawMessage) error {
 		return fmt.Errorf("missing id for communications")
 	}
 
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
@@ -447,373 +1406,135 @@ func (s *Store) UpsertCommunications(data json.RawMessage) error {
 	if err := s.upsertGenericResourceTx(tx, "communications", id, data); err != nil {
 		return err
 	}
+	if err := s.upsertCommunicationsTx(tx, id, obj, data); err != nil {
+		return err
+	}
 
-	_, err = tx.Exec(
-		`INSERT INTO communications (id, data, synced_at, rfq_id, cursor, event_ticker, market_ticker, subaccount, "limit", status, creator_user_id, quote_creator_user_id, rfq_creator_user_id, rfq_creator_subtrader_id, quote_id, contracts, contracts_fp, replace_existing, rest_remainder, subtrader_id, target_cost_centi_cents, target_cost_dollars, accepted_side, no_bid, yes_bid)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, rfq_id = excluded.rfq_id, cursor = excluded.cursor, event_ticker = excluded.event_ticker, market_ticker = excluded.market_ticker, subaccount = excluded.subaccount, "limit" = excluded."limit", status = excluded.status, creator_user_id = excluded.creator_user_id, quote_creator_user_id = excluded.quote_creator_user_id, rfq_creator_user_id = excluded.rfq_creator_user_id, rfq_creator_subtrader_id = excluded.rfq_creator_subtrader_id, quote_id = excluded.quote_id, contracts = excluded.contracts, contracts_fp = excluded.contracts_fp, replace_existing = excluded.replace_existing, rest_remainder = excluded.rest_remainder, subtrader_id = excluded.subtrader_id, target_cost_centi_cents = excluded.target_cost_centi_cents, target_cost_dollars = excluded.target_cost_dollars, accepted_side = excluded.accepted_side, no_bid = excluded.no_bid, yes_bid = excluded.yes_bid`,
+	return tx.Commit()
+}
+
+// upsertFcmTx writes the typed-table portion of a fcm upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertFcmTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO fcm (id, data, synced_at, subtrader_id, cursor, event_ticker, ticker, min_ts, max_ts, status, "limit", count_filter, settlement_status)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, subtrader_id = excluded.subtrader_id, cursor = excluded.cursor, event_ticker = excluded.event_ticker, ticker = excluded.ticker, min_ts = excluded.min_ts, max_ts = excluded.max_ts, status = excluded.status, "limit" = excluded."limit", count_filter = excluded.count_filter, settlement_status = excluded.settlement_status`,
 		id,
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "rfq_id"),
-		lookupFieldValue(obj, "cursor"),
-		lookupFieldValue(obj, "event_ticker"),
-		lookupFieldValue(obj, "market_ticker"),
-		lookupFieldValue(obj, "subaccount"),
-		lookupFieldValue(obj, "limit"),
-		lookupFieldValue(obj, "status"),
-		lookupFieldValue(obj, "creator_user_id"),
-		lookupFieldValue(obj, "quote_creator_user_id"),
-		lookupFieldValue(obj, "rfq_creator_user_id"),
-		lookupFieldValue(obj, "rfq_creator_subtrader_id"),
-		lookupFieldValue(obj, "quote_id"),
-		lookupFieldValue(obj, "contracts"),
-		lookupFieldValue(obj, "contracts_fp"),
-		lookupFieldValue(obj, "replace_existing"),
-		lookupFieldValue(obj, "rest_remainder"),
 		lookupFieldValue(obj, "subtrader_id"),
-		lookupFieldValue(obj, "target_cost_centi_cents"),
-		lookupFieldValue(obj, "target_cost_dollars"),
-		lookupFieldValue(obj, "accepted_side"),
-		lookupFieldValue(obj, "no_bid"),
-		lookupFieldValue(obj, "yes_bid"),
-	)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-
-// UpsertEvents inserts or updates a events record with domain-specific columns.
-func (s *Store) UpsertEvents(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling events: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for events")
-	}
-
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "events", id, data); err != nil {
-		return err
-	}
-
-	_, err = tx.Exec(
-		`INSERT INTO events (id, series_id, data, synced_at)
-		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET series_id = excluded.series_id, data = excluded.data, synced_at = excluded.synced_at`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "series_id"),
-	)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-
-// UpsertMarkets inserts or updates a markets record with domain-specific columns.
-func (s *Store) UpsertMarkets(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling markets: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for markets")
-	}
-
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "markets", id, data); err != nil {
-		return err
-	}
-
-	_, err = tx.Exec(
-		`INSERT INTO markets (id, series_id, data, synced_at)
-		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET series_id = excluded.series_id, data = excluded.data, synced_at = excluded.synced_at`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "series_id"),
-	)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-
-// UpsertPortfolio inserts or updates a portfolio record with domain-specific columns.
-func (s *Store) UpsertPortfolio(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling portfolio: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for portfolio")
-	}
-
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "portfolio", id, data); err != nil {
-		return err
-	}
-
-	_, err = tx.Exec(
-		`INSERT INTO portfolio (id, data, synced_at, subaccount, order_group_id, market_tickers, event_ticker, ticker, order_id, min_ts, max_ts, "limit", cursor, status, count_filter, contracts_limit, contracts_limit_fp, enabled, subaccount_number, reduce_by, reduce_by_fp, reduce_to, reduce_to_fp, amount_cents, client_transfer_id, from_subaccount, to_subaccount, action, buy_max_cost, cancel_order_on_pause, client_order_id, count, count_fp, expiration_ts, no_price, no_price_dollars, post_only, reduce_only, sell_position_floor, side, time_in_force, yes_price, yes_price_dollars, updated_client_order_id)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, subaccount = excluded.subaccount, order_group_id = excluded.order_group_id, market_tickers = excluded.market_tickers, event_ticker = excluded.event_ticker, ticker = excluded.ticker, order_id = excluded.order_id, min_ts = excluded.min_ts, max_ts = excluded.max_ts, "limit" = excluded."limit", cursor = excluded.cursor, status = excluded.status, count_filter = excluded.count_filter, contracts_limit = excluded.contracts_limit, contracts_limit_fp = excluded.contracts_limit_fp, enabled = excluded.enabled, subaccount_number = excluded.subaccount_number, reduce_by = excluded.reduce_by, reduce_by_fp = excluded.reduce_by_fp, reduce_to = excluded.reduce_to, reduce_to_fp = excluded.reduce_to_fp, amount_cents = excluded.amount_cents, client_transfer_id = excluded.client_transfer_id, from_subaccount = excluded.from_subaccount, to_subaccount = excluded.to_subaccount, action = excluded.action, buy_max_cost = excluded.buy_max_cost, cancel_order_on_pause = excluded.cancel_order_on_pause, client_order_id = excluded.client_order_id, count = excluded.count, count_fp = excluded.count_fp, expiration_ts = excluded.expiration_ts, no_price = excluded.no_price, no_price_dollars = excluded.no_price_dollars, post_only = excluded.post_only, reduce_only = excluded.reduce_only, sell_position_floor = excluded.sell_position_floor, side = excluded.side, time_in_force = excluded.time_in_force, yes_price = excluded.yes_price, yes_price_dollars = excluded.yes_price_dollars, updated_client_order_id = excluded.updated_client_order_id`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "subaccount"),
-		lookupFieldValue(obj, "order_group_id"),
-		lookupFieldValue(obj, "market_tickers"),
+		lookupFieldValue(obj, "cursor"),
 		lookupFieldValue(obj, "event_ticker"),
 		lookupFieldValue(obj, "ticker"),
-		lookupFieldValue(obj, "order_id"),
 		lookupFieldValue(obj, "min_ts"),
 		lookupFieldValue(obj, "max_ts"),
+		lookupFieldValue(obj, "status"),
+		lookupFieldValue(obj, "limit"),
+		lookupFieldValue(obj, "count_filter"),
+		lookupFieldValue(obj, "settlement_status"),
+	); err != nil {
+		return fmt.Errorf("insert into fcm: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertFcm inserts or updates a fcm record with domain-specific columns.
+func (s *Store) UpsertFcm(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling fcm: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for fcm")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "fcm", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertFcmTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+// upsertIncentiveProgramsTx writes the typed-table portion of a incentive_programs upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertIncentiveProgramsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO incentive_programs (id, data, synced_at, status, type, incentive_description, "limit", cursor)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, status = excluded.status, type = excluded.type, incentive_description = excluded.incentive_description, "limit" = excluded."limit", cursor = excluded.cursor`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "status"),
+		lookupFieldValue(obj, "type"),
+		lookupFieldValue(obj, "incentive_description"),
 		lookupFieldValue(obj, "limit"),
 		lookupFieldValue(obj, "cursor"),
-		lookupFieldValue(obj, "status"),
-		lookupFieldValue(obj, "count_filter"),
-		lookupFieldValue(obj, "contracts_limit"),
-		lookupFieldValue(obj, "contracts_limit_fp"),
-		lookupFieldValue(obj, "enabled"),
-		lookupFieldValue(obj, "subaccount_number"),
-		lookupFieldValue(obj, "reduce_by"),
-		lookupFieldValue(obj, "reduce_by_fp"),
-		lookupFieldValue(obj, "reduce_to"),
-		lookupFieldValue(obj, "reduce_to_fp"),
-		lookupFieldValue(obj, "amount_cents"),
-		lookupFieldValue(obj, "client_transfer_id"),
-		lookupFieldValue(obj, "from_subaccount"),
-		lookupFieldValue(obj, "to_subaccount"),
-		lookupFieldValue(obj, "action"),
-		lookupFieldValue(obj, "buy_max_cost"),
-		lookupFieldValue(obj, "cancel_order_on_pause"),
-		lookupFieldValue(obj, "client_order_id"),
-		lookupFieldValue(obj, "count"),
-		lookupFieldValue(obj, "count_fp"),
-		lookupFieldValue(obj, "expiration_ts"),
-		lookupFieldValue(obj, "no_price"),
-		lookupFieldValue(obj, "no_price_dollars"),
-		lookupFieldValue(obj, "post_only"),
-		lookupFieldValue(obj, "reduce_only"),
-		lookupFieldValue(obj, "sell_position_floor"),
-		lookupFieldValue(obj, "side"),
-		lookupFieldValue(obj, "time_in_force"),
-		lookupFieldValue(obj, "yes_price"),
-		lookupFieldValue(obj, "yes_price_dollars"),
-		lookupFieldValue(obj, "updated_client_order_id"),
-	)
-	if err != nil {
-		return err
+	); err != nil {
+		return fmt.Errorf("insert into incentive_programs: %w", err)
 	}
 
-	return tx.Commit()
+	return nil
 }
 
-// UpsertOrderbook inserts or updates a orderbook record with domain-specific columns.
-func (s *Store) UpsertOrderbook(data json.RawMessage) error {
+// UpsertIncentivePrograms inserts or updates a incentive_programs record with domain-specific columns.
+func (s *Store) UpsertIncentivePrograms(data json.RawMessage) error {
 	var obj map[string]any
 	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling orderbook: %w", err)
+		return fmt.Errorf("unmarshaling incentive_programs: %w", err)
 	}
 
 	id := extractObjectID(obj)
 	if id == "" {
-		return fmt.Errorf("missing id for orderbook")
+		return fmt.Errorf("missing id for incentive_programs")
 	}
 
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
 
-	if err := s.upsertGenericResourceTx(tx, "orderbook", id, data); err != nil {
+	if err := s.upsertGenericResourceTx(tx, "incentive_programs", id, data); err != nil {
 		return err
 	}
-
-	_, err = tx.Exec(
-		`INSERT INTO orderbook (id, markets_id, data, synced_at)
-		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET markets_id = excluded.markets_id, data = excluded.data, synced_at = excluded.synced_at`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "markets_id"),
-	)
-	if err != nil {
+	if err := s.upsertIncentiveProgramsTx(tx, id, obj, data); err != nil {
 		return err
 	}
 
 	return tx.Commit()
 }
 
-// UpsertLookup inserts or updates a lookup record with domain-specific columns.
-func (s *Store) UpsertLookup(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling lookup: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for lookup")
-	}
-
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "lookup", id, data); err != nil {
-		return err
-	}
-
-	_, err = tx.Exec(
-		`INSERT INTO lookup (id, multivariate_event_collections_id, data, synced_at)
-		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET multivariate_event_collections_id = excluded.multivariate_event_collections_id, data = excluded.data, synced_at = excluded.synced_at`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "multivariate_event_collections_id"),
-	)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-
-// UpsertMetadata inserts or updates a metadata record with domain-specific columns.
-func (s *Store) UpsertMetadata(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling metadata: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for metadata")
-	}
-
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "metadata", id, data); err != nil {
-		return err
-	}
-
-	_, err = tx.Exec(
-		`INSERT INTO metadata (id, events_id, data, synced_at)
-		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET events_id = excluded.events_id, data = excluded.data, synced_at = excluded.synced_at`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "events_id"),
-	)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-
-// UpsertMilestone inserts or updates a milestone record with domain-specific columns.
-func (s *Store) UpsertMilestone(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling milestone: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for milestone")
-	}
-
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "milestone", id, data); err != nil {
-		return err
-	}
-
-	_, err = tx.Exec(
-		`INSERT INTO milestone (id, live_data_id, data, synced_at)
-		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET live_data_id = excluded.live_data_id, data = excluded.data, synced_at = excluded.synced_at`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "live_data_id"),
-	)
-	if err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-
-// UpsertMilestones inserts or updates a milestones record with domain-specific columns.
-func (s *Store) UpsertMilestones(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling milestones: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for milestones")
-	}
-
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "milestones", id, data); err != nil {
-		return err
-	}
-
-	_, err = tx.Exec(
+// upsertMilestonesTx writes the typed-table portion of a milestones upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertMilestonesTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
 		`INSERT INTO milestones (id, data, synced_at, "limit", minimum_start_date, category, competition, source_id, type, related_event_ticker, cursor, min_updated_ts, milestone_id)
 		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, "limit" = excluded."limit", minimum_start_date = excluded.minimum_start_date, category = excluded.category, competition = excluded.competition, source_id = excluded.source_id, type = excluded.type, related_event_ticker = excluded.related_event_ticker, cursor = excluded.cursor, min_updated_ts = excluded.min_updated_ts, milestone_id = excluded.milestone_id`,
@@ -830,70 +1551,721 @@ func (s *Store) UpsertMilestones(data json.RawMessage) error {
 		lookupFieldValue(obj, "cursor"),
 		lookupFieldValue(obj, "min_updated_ts"),
 		lookupFieldValue(obj, "milestone_id"),
-	)
+	); err != nil {
+		return fmt.Errorf("insert into milestones: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertMilestones inserts or updates a milestones record with domain-specific columns.
+func (s *Store) UpsertMilestones(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling milestones: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for milestones")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
 	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "milestones", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertMilestonesTx(tx, id, obj, data); err != nil {
 		return err
 	}
 
 	return tx.Commit()
 }
 
-// UpsertBatch inserts or replaces multiple records in a single transaction.
-// This is 10-100x faster than individual Upsert calls for bulk operations.
-func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) error {
+// upsertSeriesTx writes the typed-table portion of a series upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertSeriesTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO series (id, data, synced_at, category, tags, include_product_metadata, include_volume, min_updated_ts, series_ticker, show_historical)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, category = excluded.category, tags = excluded.tags, include_product_metadata = excluded.include_product_metadata, include_volume = excluded.include_volume, min_updated_ts = excluded.min_updated_ts, series_ticker = excluded.series_ticker, show_historical = excluded.show_historical`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "category"),
+		lookupFieldValue(obj, "tags"),
+		lookupFieldValue(obj, "include_product_metadata"),
+		lookupFieldValue(obj, "include_volume"),
+		lookupFieldValue(obj, "min_updated_ts"),
+		lookupFieldValue(obj, "series_ticker"),
+		lookupFieldValue(obj, "show_historical"),
+	); err != nil {
+		return fmt.Errorf("insert into series: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertSeries inserts or updates a series record with domain-specific columns.
+func (s *Store) UpsertSeries(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling series: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for series")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
 	tx, err := s.db.Begin()
 	if err != nil {
-		return fmt.Errorf("starting batch transaction: %w", err)
+		return err
 	}
 	defer tx.Rollback()
 
-	for _, item := range items {
-		var obj map[string]any
-		if err := json.Unmarshal(item, &obj); err != nil {
-			continue
-		}
-		id := fmt.Sprintf("%v", lookupFieldValue(obj, "id"))
-		if id == "" || id == "<nil>" {
-			// Try ticker as ID (Kalshi uses ticker as primary identifier)
-			for _, altKey := range []string{"ticker", "event_ticker", "series_ticker"} {
-				if v := lookupFieldValue(obj, altKey); v != nil {
-					alt := fmt.Sprintf("%v", v)
-					if alt != "" && alt != "<nil>" {
-						id = alt
-						break
-					}
-				}
-			}
-		}
-		if id == "" || id == "<nil>" {
-			continue
-		}
-
-		_, err := tx.Exec(
-			`INSERT OR REPLACE INTO resources (id, resource_type, data, synced_at, updated_at)
-			 VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-			id, resourceType, string(item),
-		)
-		if err != nil {
-			return fmt.Errorf("upserting %s/%s: %w", resourceType, id, err)
-		}
-
-		// Update FTS index (non-fatal — matches upsertGenericResourceTx pattern)
-		if _, ftsErr := tx.Exec(`DELETE FROM resources_fts WHERE id = ?`, id); ftsErr != nil {
-			fmt.Fprintf(os.Stderr, "warning: FTS index cleanup failed for %s/%s: %v\n", resourceType, id, ftsErr)
-		}
-		if _, ftsErr := tx.Exec(
-			`INSERT INTO resources_fts (id, resource_type, content) VALUES (?, ?, ?)`,
-			id, resourceType, string(item),
-		); ftsErr != nil {
-			fmt.Fprintf(os.Stderr, "warning: FTS index update failed for %s/%s: %v\n", resourceType, id, ftsErr)
-		}
+	if err := s.upsertGenericResourceTx(tx, "series", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertSeriesTx(tx, id, obj, data); err != nil {
+		return err
 	}
 
 	return tx.Commit()
 }
 
+// upsertHistoricalTx writes the typed-table portion of a historical upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertHistoricalTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO historical (id, data, synced_at, ticker, max_ts, "limit", cursor, min_ts, start_ts, end_ts, period_interval, tickers, event_ticker, series_ticker, mve_filter)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, ticker = excluded.ticker, max_ts = excluded.max_ts, "limit" = excluded."limit", cursor = excluded.cursor, min_ts = excluded.min_ts, start_ts = excluded.start_ts, end_ts = excluded.end_ts, period_interval = excluded.period_interval, tickers = excluded.tickers, event_ticker = excluded.event_ticker, series_ticker = excluded.series_ticker, mve_filter = excluded.mve_filter`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "ticker"),
+		lookupFieldValue(obj, "max_ts"),
+		lookupFieldValue(obj, "limit"),
+		lookupFieldValue(obj, "cursor"),
+		lookupFieldValue(obj, "min_ts"),
+		lookupFieldValue(obj, "start_ts"),
+		lookupFieldValue(obj, "end_ts"),
+		lookupFieldValue(obj, "period_interval"),
+		lookupFieldValue(obj, "tickers"),
+		lookupFieldValue(obj, "event_ticker"),
+		lookupFieldValue(obj, "series_ticker"),
+		lookupFieldValue(obj, "mve_filter"),
+	); err != nil {
+		return fmt.Errorf("insert into historical: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertHistorical inserts or updates a historical record with domain-specific columns.
+func (s *Store) UpsertHistorical(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling historical: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for historical")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "historical", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertHistoricalTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+// upsertMultivariateEventCollectionsTx writes the typed-table portion of a multivariate_event_collections upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertMultivariateEventCollectionsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO multivariate_event_collections (id, data, synced_at, status, associated_event_ticker, series_ticker, "limit", cursor, collection_ticker, with_market_payload)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, status = excluded.status, associated_event_ticker = excluded.associated_event_ticker, series_ticker = excluded.series_ticker, "limit" = excluded."limit", cursor = excluded.cursor, collection_ticker = excluded.collection_ticker, with_market_payload = excluded.with_market_payload`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "status"),
+		lookupFieldValue(obj, "associated_event_ticker"),
+		lookupFieldValue(obj, "series_ticker"),
+		lookupFieldValue(obj, "limit"),
+		lookupFieldValue(obj, "cursor"),
+		lookupFieldValue(obj, "collection_ticker"),
+		lookupFieldValue(obj, "with_market_payload"),
+	); err != nil {
+		return fmt.Errorf("insert into multivariate_event_collections: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertMultivariateEventCollections inserts or updates a multivariate_event_collections record with domain-specific columns.
+func (s *Store) UpsertMultivariateEventCollections(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling multivariate_event_collections: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for multivariate_event_collections")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "multivariate_event_collections", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertMultivariateEventCollectionsTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+// upsertLookupTx writes the typed-table portion of a lookup upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertLookupTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO lookup (id, multivariate_event_collections_id, data, synced_at)
+		 VALUES (?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET multivariate_event_collections_id = excluded.multivariate_event_collections_id, data = excluded.data, synced_at = excluded.synced_at`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "multivariate_event_collections_id"),
+	); err != nil {
+		return fmt.Errorf("insert into lookup: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertLookup inserts or updates a lookup record with domain-specific columns.
+func (s *Store) UpsertLookup(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling lookup: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for lookup")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "lookup", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertLookupTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+// upsertLiveDataTx writes the typed-table portion of a live_data upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertLiveDataTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO live_data (id, data, synced_at, include_player_stats, milestone_id)
+		 VALUES (?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, include_player_stats = excluded.include_player_stats, milestone_id = excluded.milestone_id`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "include_player_stats"),
+		lookupFieldValue(obj, "milestone_id"),
+	); err != nil {
+		return fmt.Errorf("insert into live_data: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertLiveData inserts or updates a live_data record with domain-specific columns.
+func (s *Store) UpsertLiveData(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling live_data: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for live_data")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "live_data", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertLiveDataTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+// upsertMilestoneTx writes the typed-table portion of a milestone upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertMilestoneTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO milestone (id, live_data_id, data, synced_at)
+		 VALUES (?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET live_data_id = excluded.live_data_id, data = excluded.data, synced_at = excluded.synced_at`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "live_data_id"),
+	); err != nil {
+		return fmt.Errorf("insert into milestone: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertMilestone inserts or updates a milestone record with domain-specific columns.
+func (s *Store) UpsertMilestone(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling milestone: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for milestone")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "milestone", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertMilestoneTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+// upsertPortfolioTx writes the typed-table portion of a portfolio upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertPortfolioTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO portfolio (id, data, synced_at, cursor, "limit", count_filter, ticker, event_ticker, subaccount, order_id, min_ts, max_ts, status, order_group_id, market_tickers, reduce_to, cancel_order_on_pause, client_order_id, count, expiration_time, post_only, price, reduce_only, side, time_in_force, contracts_limit, contracts_limit_fp, amount_cents, client_transfer_id, from_subaccount, to_subaccount, action, buy_max_cost, count_fp, expiration_ts, no_price, no_price_dollars, sell_position_floor, yes_price, yes_price_dollars, reduce_by, reduce_by_fp, reduce_to_fp, updated_client_order_id, enabled, subaccount_number)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, cursor = excluded.cursor, "limit" = excluded."limit", count_filter = excluded.count_filter, ticker = excluded.ticker, event_ticker = excluded.event_ticker, subaccount = excluded.subaccount, order_id = excluded.order_id, min_ts = excluded.min_ts, max_ts = excluded.max_ts, status = excluded.status, order_group_id = excluded.order_group_id, market_tickers = excluded.market_tickers, reduce_to = excluded.reduce_to, cancel_order_on_pause = excluded.cancel_order_on_pause, client_order_id = excluded.client_order_id, count = excluded.count, expiration_time = excluded.expiration_time, post_only = excluded.post_only, price = excluded.price, reduce_only = excluded.reduce_only, side = excluded.side, time_in_force = excluded.time_in_force, contracts_limit = excluded.contracts_limit, contracts_limit_fp = excluded.contracts_limit_fp, amount_cents = excluded.amount_cents, client_transfer_id = excluded.client_transfer_id, from_subaccount = excluded.from_subaccount, to_subaccount = excluded.to_subaccount, action = excluded.action, buy_max_cost = excluded.buy_max_cost, count_fp = excluded.count_fp, expiration_ts = excluded.expiration_ts, no_price = excluded.no_price, no_price_dollars = excluded.no_price_dollars, sell_position_floor = excluded.sell_position_floor, yes_price = excluded.yes_price, yes_price_dollars = excluded.yes_price_dollars, reduce_by = excluded.reduce_by, reduce_by_fp = excluded.reduce_by_fp, reduce_to_fp = excluded.reduce_to_fp, updated_client_order_id = excluded.updated_client_order_id, enabled = excluded.enabled, subaccount_number = excluded.subaccount_number`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "cursor"),
+		lookupFieldValue(obj, "limit"),
+		lookupFieldValue(obj, "count_filter"),
+		lookupFieldValue(obj, "ticker"),
+		lookupFieldValue(obj, "event_ticker"),
+		lookupFieldValue(obj, "subaccount"),
+		lookupFieldValue(obj, "order_id"),
+		lookupFieldValue(obj, "min_ts"),
+		lookupFieldValue(obj, "max_ts"),
+		lookupFieldValue(obj, "status"),
+		lookupFieldValue(obj, "order_group_id"),
+		lookupFieldValue(obj, "market_tickers"),
+		lookupFieldValue(obj, "reduce_to"),
+		lookupFieldValue(obj, "cancel_order_on_pause"),
+		lookupFieldValue(obj, "client_order_id"),
+		lookupFieldValue(obj, "count"),
+		lookupFieldValue(obj, "expiration_time"),
+		lookupFieldValue(obj, "post_only"),
+		lookupFieldValue(obj, "price"),
+		lookupFieldValue(obj, "reduce_only"),
+		lookupFieldValue(obj, "side"),
+		lookupFieldValue(obj, "time_in_force"),
+		lookupFieldValue(obj, "contracts_limit"),
+		lookupFieldValue(obj, "contracts_limit_fp"),
+		lookupFieldValue(obj, "amount_cents"),
+		lookupFieldValue(obj, "client_transfer_id"),
+		lookupFieldValue(obj, "from_subaccount"),
+		lookupFieldValue(obj, "to_subaccount"),
+		lookupFieldValue(obj, "action"),
+		lookupFieldValue(obj, "buy_max_cost"),
+		lookupFieldValue(obj, "count_fp"),
+		lookupFieldValue(obj, "expiration_ts"),
+		lookupFieldValue(obj, "no_price"),
+		lookupFieldValue(obj, "no_price_dollars"),
+		lookupFieldValue(obj, "sell_position_floor"),
+		lookupFieldValue(obj, "yes_price"),
+		lookupFieldValue(obj, "yes_price_dollars"),
+		lookupFieldValue(obj, "reduce_by"),
+		lookupFieldValue(obj, "reduce_by_fp"),
+		lookupFieldValue(obj, "reduce_to_fp"),
+		lookupFieldValue(obj, "updated_client_order_id"),
+		lookupFieldValue(obj, "enabled"),
+		lookupFieldValue(obj, "subaccount_number"),
+	); err != nil {
+		return fmt.Errorf("insert into portfolio: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertPortfolio inserts or updates a portfolio record with domain-specific columns.
+func (s *Store) UpsertPortfolio(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling portfolio: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for portfolio")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "portfolio", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertPortfolioTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+// upsertApiKeysTx writes the typed-table portion of a api_keys upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertApiKeysTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO api_keys (id, data, synced_at, name, public_key)
+		 VALUES (?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, name = excluded.name, public_key = excluded.public_key`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "name"),
+		lookupFieldValue(obj, "public_key"),
+	); err != nil {
+		return fmt.Errorf("insert into api_keys: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertApiKeys inserts or updates a api_keys record with domain-specific columns.
+func (s *Store) UpsertApiKeys(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling api_keys: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for api_keys")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "api_keys", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertApiKeysTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+// resourceIDFieldOverrides projects per-resource IDField (set by the profiler
+// from x-resource-id or response-schema fallback) into a runtime lookup map.
+// UpsertBatch consults this first so the templated path wins over the
+// generic fallback list. Empty when no resource declared an override; the
+// runtime fallback list still applies.
+//
+// Includes both flat resources and dependent (parent-child) resources so a
+// child path-item annotated with x-resource-id resolves the same as a flat
+// path-item.
+var resourceIDFieldOverrides = map[string]string{
+	"account":        "usage_tier",
+	"communications": "communications_id",
+	"events":         "cursor",
+	"fcm":            "cursor",
+	"historical":     "cursor",
+	"markets":        "cursor",
+	"portfolio":      "cursor",
+}
+
+// genericIDFieldFallbacks is the runtime safety net for resources that did
+// NOT receive a templated IDField. API-specific names belong in spec
+// annotations (x-resource-id), not this list.
+var genericIDFieldFallbacks = []string{"id", "ID", "name", "uuid", "slug", "key", "code", "uid"}
+
+// UpsertBatch inserts or replaces multiple records in a single transaction
+// and returns (stored, extractFailures, err). stored counts rows actually
+// landed; extractFailures counts items that survived JSON unmarshal but had
+// no extractable primary key (templated IDField AND generic fallback both
+// missed). callers (sync.go.tmpl) compare these against len(items) to emit
+// the per-item primary_key_unresolved warning and the F4b
+// stored_count_zero_after_extraction probe.
+//
+// For resource types that have a domain-specific typed table, the per-item
+// generic insert is followed by a dispatch to the matching upsert<Pascal>Tx
+// inside the same transaction. Without that dispatch, paginated syncs would
+// only populate the generic resources table — typed tables (and indexed
+// columns like parent_id added by dependent-resource sync) would stay empty.
+func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, int, error) {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return 0, 0, fmt.Errorf("starting batch transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	var stored, skippedCount, extractFailures int
+	for _, item := range items {
+		var obj map[string]any
+		if err := json.Unmarshal(item, &obj); err != nil {
+			skippedCount++
+			continue
+		}
+		// Templated IDField wins; generic fallback list runs second when
+		// the override is empty OR the override field is absent on this
+		// particular item (response shape mismatches happen even when the
+		// spec declares x-resource-id).
+		var id string
+		if override, ok := resourceIDFieldOverrides[resourceType]; ok && override != "" {
+			if v := lookupFieldValue(obj, override); v != nil {
+				s := fmt.Sprintf("%v", v)
+				if s != "" && s != "<nil>" {
+					id = s
+				}
+			}
+		}
+		if id == "" {
+			for _, key := range genericIDFieldFallbacks {
+				if v := lookupFieldValue(obj, key); v != nil {
+					s := fmt.Sprintf("%v", v)
+					if s != "" && s != "<nil>" {
+						id = s
+						break
+					}
+				}
+			}
+		}
+		if id == "" {
+			skippedCount++
+			extractFailures++
+			continue
+		}
+
+		if err := s.upsertGenericResourceTx(tx, resourceType, id, item); err != nil {
+			return 0, extractFailures, fmt.Errorf("upserting %s/%s: %w", resourceType, id, err)
+		}
+
+		switch resourceType {
+		case "structured_targets":
+			if err := s.upsertStructuredTargetsTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "events":
+			if err := s.upsertEventsTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "metadata":
+			if err := s.upsertMetadataTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "markets":
+			if err := s.upsertMarketsTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "orderbook":
+			if err := s.upsertOrderbookTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "communications":
+			if err := s.upsertCommunicationsTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "fcm":
+			if err := s.upsertFcmTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "incentive_programs":
+			if err := s.upsertIncentiveProgramsTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "milestones":
+			if err := s.upsertMilestonesTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "series":
+			if err := s.upsertSeriesTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "historical":
+			if err := s.upsertHistoricalTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "multivariate_event_collections":
+			if err := s.upsertMultivariateEventCollectionsTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "lookup":
+			if err := s.upsertLookupTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "live_data":
+			if err := s.upsertLiveDataTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "milestone":
+			if err := s.upsertMilestoneTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "portfolio":
+			if err := s.upsertPortfolioTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "api_keys":
+			if err := s.upsertApiKeysTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		}
+		stored++
+	}
+
+	// Warn when most items in a batch lack an extractable ID — this likely
+	// means the API uses a primary key field we don't recognize yet.
+	if skippedCount > 0 && len(items) > 0 && skippedCount*2 > len(items) {
+		fmt.Fprintf(os.Stderr, "warning: %d/%d %s items skipped (no extractable ID field found)\n", skippedCount, len(items), resourceType)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return 0, extractFailures, err
+	}
+	return stored, extractFailures, nil
+}
+
+// SearchSeries searches the series_fts index with optional filters.
+func (s *Store) SearchSeries(query string, limit int) ([]json.RawMessage, error) {
+	if limit <= 0 {
+		limit = 50
+	}
+	rows, err := s.db.Query(
+		`SELECT t.data FROM series t
+		 JOIN series_fts ON series_fts.rowid = t.rowid
+		 WHERE series_fts MATCH ?
+		 ORDER BY rank LIMIT ?`,
+		query, limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var results []json.RawMessage
+	for rows.Next() {
+		var data string
+		if err := rows.Scan(&data); err != nil {
+			return nil, err
+		}
+		results = append(results, json.RawMessage(data))
+	}
+	return results, rows.Err()
+}
+
 func (s *Store) SaveSyncState(resourceType, cursor string, count int) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
 	_, err := s.db.Exec(
 		`INSERT INTO sync_state (resource_type, last_cursor, last_synced_at, total_count)
 		 VALUES (?, ?, ?, ?)
@@ -917,6 +2289,8 @@ func (s *Store) GetSyncState(resourceType string) (cursor string, lastSynced tim
 
 // SaveSyncCursor stores the pagination cursor for a resource type.
 func (s *Store) SaveSyncCursor(resourceType, cursor string) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
 	_, err := s.db.Exec(
 		`INSERT INTO sync_state (resource_type, last_cursor, last_synced_at, total_count)
 		 VALUES (?, ?, CURRENT_TIMESTAMP, 0)
@@ -936,6 +2310,32 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 	return ""
 }
 
+// ListIDs returns all IDs from a resource's domain table, or from the generic
+// resources table if no domain table exists. Used by dependent sync to iterate parents.
+func (s *Store) ListIDs(resourceType string) ([]string, error) {
+	// Try domain table first (tables are named after the resource type)
+	query := fmt.Sprintf("SELECT id FROM %s", resourceType)
+	rows, err := s.db.Query(query)
+	if err != nil {
+		// Fall back to generic resources table
+		rows, err = s.db.Query("SELECT id FROM resources WHERE resource_type = ?", resourceType)
+		if err != nil {
+			return nil, err
+		}
+	}
+	defer rows.Close()
+
+	var ids []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			continue
+		}
+		ids = append(ids, id)
+	}
+	return ids, rows.Err()
+}
+
 // GetLastSyncedAt returns the last sync timestamp for a resource type.
 func (s *Store) GetLastSyncedAt(resourceType string) string {
 	var ts sql.NullString
@@ -948,6 +2348,8 @@ func (s *Store) GetLastSyncedAt(resourceType string) string {
 
 // ClearSyncCursors resets all sync state for a full resync.
 func (s *Store) ClearSyncCursors() error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
 	_, err := s.db.Exec("DELETE FROM sync_state")
 	return err
 }

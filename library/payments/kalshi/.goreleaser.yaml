@@ -17,9 +17,9 @@ builds:
       - linux_arm64
       - windows_amd64
       - windows_arm64
-  - id: kalshi-trade-manual-pp-mcp
-    main: ./cmd/kalshi-trade-manual-pp-mcp
-    binary: kalshi-trade-manual-pp-mcp
+  - id: kalshi-pp-mcp
+    main: ./cmd/kalshi-pp-mcp
+    binary: kalshi-pp-mcp
     env:
       - CGO_ENABLED=0
     ldflags:
@@ -48,4 +48,4 @@ brews:
     description: "Manually defined OpenAPI spec for endpoints being migrated to spec-first approach"
     install: |
       bin.install "kalshi-pp-cli"
-      bin.install "kalshi-trade-manual-pp-mcp"
+      bin.install "kalshi-pp-mcp"

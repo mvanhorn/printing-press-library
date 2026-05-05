@@ -16,9 +16,9 @@ clean:
 	rm -rf bin/
 
 build-mcp:
-	go build -o bin/kalshi-trade-manual-pp-mcp ./cmd/kalshi-trade-manual-pp-mcp
+	go build -o bin/kalshi-pp-mcp ./cmd/kalshi-pp-mcp
 
 install-mcp:
-	go install ./cmd/kalshi-trade-manual-pp-mcp
+	go install ./cmd/kalshi-pp-mcp
 
 build-all: build build-mcp

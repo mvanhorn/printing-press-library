@@ -22,12 +22,26 @@ func newFcmGetFcmpositionsCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "get-fcmpositions",
-		Short:   "Get FCM Positions",
-		Example: "  kalshi-pp-cli fcm get-fcmpositions",
+		Use:         "get-fcmpositions",
+		Short:       "Endpoint for FCM members to get market positions filtered by subtrader ID. This endpoint requires FCM member access...",
+		Example:     "  kalshi-pp-cli fcm get-fcmpositions",
+		Annotations: map[string]string{"pp:endpoint": "fcm.get-fcmpositions", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("subtrader-id") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "subtrader-id")
+			}
+			if cmd.Flags().Changed("settlement-status") {
+				allowedSettlementStatus := []string{"all", "unsettled", "settled"}
+				validSettlementStatus := false
+				for _, v := range allowedSettlementStatus {
+					if flagSettlementStatus == v {
+						validSettlementStatus = true
+						break
+					}
+				}
+				if !validSettlementStatus {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "settlement-status", flagSettlementStatus, allowedSettlementStatus)
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -35,7 +49,7 @@ func newFcmGetFcmpositionsCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/fcm/positions"
-			data, prov, err := resolvePaginatedRead(c, flags, "fcm", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "fcm", path, map[string]string{
 				"subtrader_id":      fmt.Sprintf("%v", flagSubtraderId),
 				"ticker":            fmt.Sprintf("%v", flagTicker),
 				"event_ticker":      fmt.Sprintf("%v", flagEventTicker),
@@ -43,7 +57,7 @@ func newFcmGetFcmpositionsCmd(flags *rootFlags) *cobra.Command {
 				"settlement_status": fmt.Sprintf("%v", flagSettlementStatus),
 				"limit":             fmt.Sprintf("%v", flagLimit),
 				"cursor":            fmt.Sprintf("%v", flagCursor),
-			}, flagAll, "cursor", "", "")
+			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -53,14 +67,15 @@ func newFcmGetFcmpositionsCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -88,7 +103,7 @@ func newFcmGetFcmpositionsCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagTicker, "ticker", "", "Ticker of desired positions")
 	cmd.Flags().StringVar(&flagEventTicker, "event-ticker", "", "Event ticker of desired positions")
 	cmd.Flags().StringVar(&flagCountFilter, "count-filter", "", "Restricts the positions to those with any of following fields with non-zero values, as a comma separated list")
-	cmd.Flags().StringVar(&flagSettlementStatus, "settlement-status", "", "Settlement status of the markets to return. Defaults to unsettled")
+	cmd.Flags().StringVar(&flagSettlementStatus, "settlement-status", "", "Settlement status of the markets to return. Defaults to unsettled (one of: all, unsettled, settled)")
 	cmd.Flags().IntVar(&flagLimit, "limit", 0, "Parameter to specify the number of results per page. Defaults to 100")
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "The Cursor represents a pointer to the next page of records in the pagination")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")

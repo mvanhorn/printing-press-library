@@ -16,9 +16,10 @@ func newCommunicationsConfirmQuoteCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "confirm-quote <quote_id>",
-		Short:   "Confirm Quote",
-		Example: "  kalshi-pp-cli communications confirm-quote 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "confirm-quote <quote_id>",
+		Short:       "Endpoint for confirming a quote. This will start a timer for order execution",
+		Example:     "  kalshi-pp-cli communications confirm-quote 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "communications.confirm-quote"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -76,13 +77,15 @@ func newCommunicationsConfirmQuoteCmd(flags *rootFlags) *cobra.Command {
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "put",

@@ -16,9 +16,10 @@ func newPortfolioBatchCreateOrdersCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "batch-create-orders",
-		Short:   "Batch Create Orders",
-		Example: "  kalshi-pp-cli portfolio batch-create-orders",
+		Use:         "batch-create-orders",
+		Short:       "Endpoint for submitting a batch of orders. The maximum batch size scales with your tier's write budget — see [Rate...",
+		Example:     "  kalshi-pp-cli portfolio batch-create-orders",
+		Annotations: map[string]string{"pp:endpoint": "portfolio.batch-create-orders"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 			}
@@ -72,13 +73,15 @@ func newPortfolioBatchCreateOrdersCmd(flags *rootFlags) *cobra.Command {
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",

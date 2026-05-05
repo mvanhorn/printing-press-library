@@ -14,28 +14,57 @@ import (
 func newIncentiveProgramsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagStatus string
 	var flagType string
+	var flagIncentiveDescription string
 	var flagLimit int
 	var flagCursor string
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "incentive-programs",
-		Short:   "Get Incentives",
-		Long:    "Shortcut for 'incentive-programs get'. Get Incentives",
-		Example: "  kalshi-pp-cli incentive-programs",
+		Use:         "incentive-programs",
+		Short:       "List incentives with optional filters. Incentives are rewards programs for trading activity on specific markets.",
+		Long:        "Shortcut for 'incentive-programs get'. List incentives with optional filters. Incentives are rewards programs for trading activity on specific markets.",
+		Example:     "  kalshi-pp-cli incentive-programs",
+		Annotations: map[string]string{"pp:endpoint": "incentive-programs.get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if cmd.Flags().Changed("status") {
+				allowedStatus := []string{"all", "active", "upcoming", "closed", "paid_out"}
+				validStatus := false
+				for _, v := range allowedStatus {
+					if flagStatus == v {
+						validStatus = true
+						break
+					}
+				}
+				if !validStatus {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "status", flagStatus, allowedStatus)
+				}
+			}
+			if cmd.Flags().Changed("type") {
+				allowedType := []string{"all", "liquidity", "volume"}
+				validType := false
+				for _, v := range allowedType {
+					if flagType == v {
+						validType = true
+						break
+					}
+				}
+				if !validType {
+					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "type", flagType, allowedType)
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
 			path := "/incentive_programs"
-			data, prov, err := resolvePaginatedRead(c, flags, "incentive-programs", path, map[string]string{
-				"status": fmt.Sprintf("%v", flagStatus),
-				"type":   fmt.Sprintf("%v", flagType),
-				"limit":  fmt.Sprintf("%v", flagLimit),
-				"cursor": fmt.Sprintf("%v", flagCursor),
-			}, flagAll, "cursor", "", "")
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "incentive-programs", path, map[string]string{
+				"status":                fmt.Sprintf("%v", flagStatus),
+				"type":                  fmt.Sprintf("%v", flagType),
+				"incentive_description": fmt.Sprintf("%v", flagIncentiveDescription),
+				"limit":                 fmt.Sprintf("%v", flagLimit),
+				"cursor":                fmt.Sprintf("%v", flagCursor),
+			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -56,14 +85,15 @@ func newIncentiveProgramsPromotedCmd(flags *rootFlags) *cobra.Command {
 			if flags.csv {
 				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 			}
-			// For JSON output, wrap with provenance envelope
+			// For JSON output, wrap with provenance envelope. --select wins over
+			// --compact when both are set; --compact only runs when no explicit
+			// fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -86,8 +116,9 @@ func newIncentiveProgramsPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagStatus, "status", "", "Status filter. Can be 'all', 'active', 'upcoming', 'closed', or 'paid_out'. Default is 'all'.")
-	cmd.Flags().StringVar(&flagType, "type", "", "Type filter. Can be 'all', 'liquidity', or 'volume'. Default is 'all'.")
+	cmd.Flags().StringVar(&flagStatus, "status", "", "Status filter. Can be 'all', 'active', 'upcoming', 'closed', or 'paid_out'. Default is 'all'. (one of: all, active, upcoming, closed, paid_out)")
+	cmd.Flags().StringVar(&flagType, "type", "", "Type filter. Can be 'all', 'liquidity', or 'volume'. Default is 'all'. (one of: all, liquidity, volume)")
+	cmd.Flags().StringVar(&flagIncentiveDescription, "incentive-description", "", "Filter by exact incentive description.")
 	cmd.Flags().IntVar(&flagLimit, "limit", 0, "Number of results per page. Defaults to 100. Maximum value is 10000.")
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Cursor for pagination")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")

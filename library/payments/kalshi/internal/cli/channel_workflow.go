@@ -49,13 +49,13 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			if dbPath == "" {
 				dbPath = defaultDBPath("kalshi-pp-cli")
 			}
-			s, err := store.Open(dbPath)
+			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
 			}
 			defer s.Close()
 
-			resources := []string{"account", "api-keys", "communications", "events", "exchange", "fcm", "historical", "incentive-programs", "markets", "milestones", "multivariate-event-collections", "portfolio", "search", "series", "structured-targets"}
+			resources := []string{"account", "api-keys", "communications", "events", "exchange", "fcm", "historical", "incentive-programs", "kalshi-trade-manual-search", "kalshi-trade-manual-search-2", "markets", "milestones", "multivariate-event-collections", "portfolio", "series", "structured-targets"}
 			totalSynced := 0
 
 			for _, resource := range resources {
@@ -147,8 +147,9 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 
 	cmd := &cobra.Command{
-		Use:   "status",
-		Short: "Show local archive status and sync state for all resources",
+		Use:         "status",
+		Short:       "Show local archive status and sync state for all resources",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Example: `  # Show archive status
   kalshi-pp-cli workflow status
 
@@ -158,7 +159,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 			if dbPath == "" {
 				dbPath = defaultDBPath("kalshi-pp-cli")
 			}
-			s, err := store.Open(dbPath)
+			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
 			}

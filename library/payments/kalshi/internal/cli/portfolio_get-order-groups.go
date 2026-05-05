@@ -15,9 +15,10 @@ func newPortfolioGetOrderGroupsCmd(flags *rootFlags) *cobra.Command {
 	var flagSubaccount int
 
 	cmd := &cobra.Command{
-		Use:     "get-order-groups",
-		Short:   "Get Order Groups",
-		Example: "  kalshi-pp-cli portfolio get-order-groups",
+		Use:         "get-order-groups",
+		Short:       "Retrieves all order groups for the authenticated user.",
+		Example:     "  kalshi-pp-cli portfolio get-order-groups",
+		Annotations: map[string]string{"pp:endpoint": "portfolio.get-order-groups", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -29,7 +30,7 @@ func newPortfolioGetOrderGroupsCmd(flags *rootFlags) *cobra.Command {
 			if flagSubaccount != 0 {
 				params["subaccount"] = fmt.Sprintf("%v", flagSubaccount)
 			}
-			data, prov, err := resolveRead(c, flags, "portfolio", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "portfolio", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
@@ -39,14 +40,15 @@ func newPortfolioGetOrderGroupsCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

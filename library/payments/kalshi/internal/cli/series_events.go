@@ -9,9 +9,8 @@ import (
 
 func newSeriesEventsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "events",
-		Short:  "Event endpoints",
-		Hidden: true,
+		Use:   "events",
+		Short: "Event endpoints",
 	}
 
 	cmd.AddCommand(newSeriesEventsGetForecastPercentilesHistoryCmd(flags))

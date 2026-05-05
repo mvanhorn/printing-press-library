@@ -105,102 +105,80 @@ In local mode: searches locally synced data only.`,
 
   # JSON output for piping
   kalshi-pp-cli search "critical" --json --limit 20`,
+		Annotations: map[string]string{"mcp:hidden": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			query := args[0]
-
-			// Live search: paginate through events and filter by keyword
+			// This API has a search endpoint: GET /search/filters_by_sport
 			if flags.dataSource != "local" {
 				c, err := flags.newClient()
 				if err != nil {
 					return err
 				}
-
-				var matched []json.RawMessage
-				lowerQuery := strings.ToLower(query)
-				cursor := ""
-				maxPages := 10 // cap at ~2000 events to avoid excessive API calls
-
-				for page := 0; page < maxPages; page++ {
-					params := map[string]string{"limit": "200"}
-					if cursor != "" {
-						params["cursor"] = cursor
-					}
-					data, getErr := c.Get("/events", params)
-					if getErr != nil {
-						if flags.dataSource == "live" {
-							return classifyAPIError(getErr)
-						}
-						// auto mode: fall through to local
-						fmt.Fprintf(cmd.ErrOrStderr(), "API unreachable, falling back to local search.\n")
-						break
-					}
-
-					// Extract events from response
-					var envelope map[string]json.RawMessage
-					if json.Unmarshal(data, &envelope) != nil {
-						break
-					}
-					var events []json.RawMessage
-					if raw, ok := envelope["events"]; ok {
-						json.Unmarshal(raw, &events)
-					}
-
-					// Filter by keyword match
-					for _, evt := range events {
-						if strings.Contains(strings.ToLower(string(evt)), lowerQuery) {
-							matched = append(matched, evt)
-						}
-					}
-
-					// Check for next page
-					var nextCursor string
-					if raw, ok := envelope["cursor"]; ok {
-						json.Unmarshal(raw, &nextCursor)
-					}
-					if nextCursor == "" || len(events) < 200 {
-						break
-					}
-					cursor = nextCursor
-
-					// Stop early if we have enough results
-					if len(matched) >= limit {
-						break
-					}
-				}
-
-				if len(matched) > 0 {
+				data, getErr := c.Get("/search/filters_by_sport", map[string]string{
+					"q": query,
+				})
+				if getErr == nil {
+					// Live search succeeded
+					results := extractSearchResults(data)
 					prov := DataProvenance{Source: "live"}
-					return outputSearchResults(cmd, flags, matched, limit, prov)
+					return outputSearchResults(cmd, flags, results, limit, prov)
 				}
-
-				if flags.dataSource == "live" {
-					fmt.Fprintf(cmd.ErrOrStderr(), "No results (source: live)\n")
-					return nil
+				// Check if it's a network error for auto-mode fallback
+				if flags.dataSource == "live" || !isNetworkError(getErr) {
+					return classifyAPIError(getErr)
 				}
-				// auto mode with no live results: fall through to local
+				// auto mode + network error: fall through to local FTS
+				fmt.Fprintf(cmd.ErrOrStderr(), "API unreachable, falling back to local search.\n")
 			}
 
-			// Local FTS search (fallback)
+			// Local FTS search
 			if dbPath == "" {
 				dbPath = defaultDBPath("kalshi-pp-cli")
 			}
 
-			db, err := store.Open(dbPath)
+			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'kalshi-pp-cli sync' first to populate the local database.", err)
 			}
 			defer db.Close()
 
 			var results []json.RawMessage
-			results, err = db.Search(query, limit)
+			switch resourceType {
+			case "series":
+				results, err = db.SearchSeries(query, limit)
+			case "":
+				// Search all FTS-enabled tables individually to avoid duplicates.
+				seen := make(map[string]bool)
+				_ = seen // prevent unused error when no FTS tables exist
+				{
+					partial, searchErr := db.SearchSeries(query, limit)
+					if searchErr != nil {
+						return fmt.Errorf("search series failed: %w", searchErr)
+					}
+					for _, r := range partial {
+						key := string(r)
+						if !seen[key] {
+							seen[key] = true
+							results = append(results, r)
+						}
+					}
+				}
+			default:
+				// Unrecognized type — fall back to generic search
+				results, err = db.Search(query, limit)
+			}
 			if err != nil {
 				return fmt.Errorf("search failed: %w", err)
 			}
 
-			prov := localProvenance(db, "search", "user_requested")
+			reason := "user_requested"
+			if flags.dataSource == "auto" {
+				reason = "api_unreachable"
+			}
+			prov := localProvenance(db, "search", reason)
 
 			return outputSearchResults(cmd, flags, results, limit, prov)
 		},
@@ -209,10 +187,6 @@ In local mode: searches locally synced data only.`,
 	cmd.Flags().StringVar(&resourceType, "type", "", "Filter by resource type")
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum results to return")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/kalshi-pp-cli/data.db)")
-
-	// Wire API-backed search subcommands
-	cmd.AddCommand(newSearchGetFiltersForSportsCmd(flags))
-	cmd.AddCommand(newSearchGetTagsForSeriesCategoriesCmd(flags))
 
 	return cmd
 }
@@ -233,26 +207,31 @@ func outputSearchResults(cmd *cobra.Command, flags *rootFlags, results []json.Ra
 		results = results[:limit]
 	}
 
-	if len(results) == 0 {
-		fmt.Fprintf(cmd.ErrOrStderr(), "No results (source: %s)\n", prov.Source)
-		return nil
-	}
+	jsonMode := flags.asJSON || !isTerminal(cmd.OutOrStdout())
 
-	// Print provenance to stderr for human output
-	printProvenance(cmd, len(results), prov)
-
-	if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+	// JSON mode always emits a valid envelope, including on no matches —
+	// agents pipe stdout through json.loads / jq and need parseable output
+	// regardless of result count. The filtered slice is built via make
+	// above, so it's non-nil even when empty; json.Marshal renders that
+	// as `[]` rather than `null`.
+	if jsonMode {
 		data, err := json.Marshal(results)
 		if err != nil {
 			return err
 		}
-		wrapped, err := wrapWithProvenance(json.RawMessage(data), prov)
+		wrapped, err := wrapWithProvenance(data, prov)
 		if err != nil {
 			return err
 		}
 		return printOutput(cmd.OutOrStdout(), wrapped, true)
 	}
 
+	if len(results) == 0 {
+		fmt.Fprintf(cmd.ErrOrStderr(), "No results (source: %s)\n", prov.Source)
+		return nil
+	}
+
+	printProvenance(cmd, len(results), prov)
 	for _, r := range results {
 		fmt.Fprintln(cmd.OutOrStdout(), string(r))
 	}

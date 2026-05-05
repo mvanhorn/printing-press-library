@@ -17,10 +17,11 @@ func newPortfolioResetOrderGroupCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "reset-order-group <order_group_id>",
-		Aliases: []string{"update"},
-		Short:   "Reset Order Group",
-		Example: "  kalshi-pp-cli portfolio reset-order-group 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "reset-order-group <order_group_id>",
+		Aliases:     []string{"update"},
+		Short:       "Resets the order group's matched contracts counter to zero, allowing new orders to be placed again after the limit...",
+		Example:     "  kalshi-pp-cli portfolio reset-order-group 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "portfolio.reset-order-group"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -78,13 +79,15 @@ func newPortfolioResetOrderGroupCmd(flags *rootFlags) *cobra.Command {
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "put",
