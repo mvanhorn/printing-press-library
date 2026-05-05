@@ -154,17 +154,18 @@ Notes:
 | Command | What it does |
 |---------|--------------|
 | `coverage <company>` | Who you know at a company across LinkedIn + Happenstance, ranked by relationship strength |
-| `hp people <query>` | Happenstance graph people-search (1st / 2nd / 3rd degree) |
+| `coverage --location <city>` | Who you know in a city. Bearer-only (cookie surface has no city-search); use `--source api`. |
+| `hp people <query>` | Happenstance graph people-search (1st / 2nd / 3rd degree). `--csv` emits flat CSV with semicolon-joined bridges. |
 | `prospect <query>` | Fan-out search across LinkedIn + Happenstance (+ opt-in Deepline), deduped |
 | `warm-intro <target>` | Mutual connections across sources who could intro you to a target |
 | `waterfall <target> [--company X]` | Free-sources-first enrichment, falls through to Deepline provider chain. Requires DEEPLINE_API_KEY or --byok. Bare-name targets need --company |
 | `dossier <target> [--enrich-email]` | Unified LinkedIn + Happenstance + (optional) Deepline dossier. --enrich-email requires DEEPLINE_API_KEY |
 | `deepline find-email "<name>" --company <domain>` | Single-call work-email lookup via dropleads_email_finder |
 | `deepline enrich-person <linkedin-url>` | Full person record via apollo_people_match (includes personal_emails[]) |
-| `api hpn search <text>` | Bearer-API search (costs 2 credits, async with poll) |
+| `api hpn search <text>` | Bearer-API search (costs 2 credits, async with poll). `--first-degree-only` keeps only 1st-degree matches; `--min-score N` drops weak signals (see docs/scoring.md); `--all --max-results N` auto-paginates. |
 | `api hpn research <description>` | Bearer-API deep dossier (costs 1 credit on completion) |
 | `api hpn usage` | Live credit balance, purchases, recent usage events (free) |
-| `doctor` | Check CLI health, both Happenstance surfaces, LinkedIn, and Deepline |
+| `doctor` | Check CLI health, both Happenstance surfaces, LinkedIn, and Deepline. Reports `happenstance_graph_status` (ok / stale / very_stale) on the LinkedIn upload age. |
 
 Run any command with `--help` for full flag documentation.
 
