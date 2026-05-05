@@ -9,8 +9,10 @@ package cli
 // 3rd-degree tiers.
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -136,6 +138,9 @@ connected. The RELATIONSHIP column shows 1st_degree / 2nd_degree /
 				res.People = res.People[:limit]
 			}
 
+			if flags.csv {
+				return printHPPeopleCSV(cmd, res, currentUserUUID)
+			}
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				out := buildHPPeopleJSON(res, currentUserUUID)
 				enc := json.NewEncoder(cmd.OutOrStdout())
@@ -272,6 +277,113 @@ func printHPPeopleTable(cmd *cobra.Command, res *client.PeopleSearchResult, curr
 		)
 	}
 	return tw.Flush()
+}
+
+// printHPPeopleCSV emits the people-search result as flat CSV with a
+// stable column contract designed for spreadsheet and agent piping.
+// The bridges[] array is denormalized into three semicolon-joined
+// columns (bridge_count, bridge_names, bridge_kinds) plus a
+// top_bridge_affinity scalar so cardinality and identity survive
+// flattening without going long-form. Consumers needing the structured
+// form should use --json instead.
+//
+// Columns (stable):
+//   name | current_title | current_company | linkedin_url | score |
+//   relationship_tier | bridge_count | bridge_names | bridge_kinds |
+//   top_bridge_affinity | rationale
+//
+// relationship_tier derives from the strongest bridge's kind:
+// self_graph -> 1st_degree, friend -> 2nd_degree, no bridge -> the
+// referrer-chain tier (or 3rd_degree when even that is empty).
+func printHPPeopleCSV(cmd *cobra.Command, res *client.PeopleSearchResult, currentUserUUID string) error {
+	w := csv.NewWriter(cmd.OutOrStdout())
+	header := []string{
+		"name", "current_title", "current_company", "linkedin_url", "score",
+		"relationship_tier", "bridge_count", "bridge_names", "bridge_kinds",
+		"top_bridge_affinity", "rationale",
+	}
+	if err := w.Write(header); err != nil {
+		return err
+	}
+	for _, p := range res.People {
+		score := p.Score
+		rationale := ""
+		if len(p.Bridges) > 0 {
+			if bs := bearerScore(p.Bridges, p.Score); bs > score {
+				score = bs
+			}
+			rationale = bearerRationale(p.Bridges)
+		}
+		tier := relationshipTierForCSV(p, currentUserUUID)
+		bridgeCount, bridgeNames, bridgeKinds, topAffinity := summarizeBridges(p.Bridges)
+
+		row := []string{
+			p.Name,
+			p.CurrentTitle,
+			p.CurrentCompany,
+			p.LinkedInURL,
+			strconv.FormatFloat(score, 'f', -1, 64),
+			tier,
+			strconv.Itoa(bridgeCount),
+			bridgeNames,
+			bridgeKinds,
+			formatAffinity(topAffinity),
+			rationale,
+		}
+		if err := w.Write(row); err != nil {
+			return err
+		}
+	}
+	w.Flush()
+	return w.Error()
+}
+
+// relationshipTierForCSV picks the strongest tier signal across both
+// the bridge list (bearer surface) and the referrer chain (cookie
+// surface). Bridges win when present because the bearer surface is the
+// only place self-graph signal lives explicitly.
+func relationshipTierForCSV(p client.Person, currentUserUUID string) string {
+	if hasSelfGraphBridge(p.Bridges) {
+		return string(client.TierFirstDegree)
+	}
+	for _, b := range p.Bridges {
+		if b.Kind == client.BridgeKindFriend {
+			return string(client.TierSecondDegree)
+		}
+	}
+	return string(p.Tier(currentUserUUID))
+}
+
+// summarizeBridges flattens a Bridge slice into the four CSV scalars
+// that preserve cardinality + identity without going long-form. Names
+// and kinds are semicolon-joined in the same order as the input slice
+// so callers can re-zip them. top_bridge_affinity is the max across
+// the slice (0 when the slice is empty).
+func summarizeBridges(bridges []client.Bridge) (count int, names string, kinds string, topAffinity float64) {
+	count = len(bridges)
+	if count == 0 {
+		return 0, "", "", 0
+	}
+	nameParts := make([]string, 0, count)
+	kindParts := make([]string, 0, count)
+	for _, b := range bridges {
+		nameParts = append(nameParts, b.Name)
+		kindParts = append(kindParts, b.Kind)
+		if b.AffinityScore > topAffinity {
+			topAffinity = b.AffinityScore
+		}
+	}
+	return count, strings.Join(nameParts, ";"), strings.Join(kindParts, ";"), topAffinity
+}
+
+// formatAffinity renders an affinity score for the CSV column. Empty
+// string for zero so spreadsheet consumers see a blank cell rather
+// than "0" when no bridges contributed signal.
+func formatAffinity(f float64) string {
+	if f == 0 {
+		return ""
+	}
+	return strconv.FormatFloat(f, 'f', -1, 64)
 }
 
 // fetchCurrentUserUUID pulls the current user's Happenstance uuid from
