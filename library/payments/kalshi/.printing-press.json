@@ -8,7 +8,7 @@
   "spec_format": "openapi3",
   "spec_checksum": "sha256:dfcfa4e1d9ee14ad69c5c68f2407b132684c306616c62a0de7935250a15bac80",
   "run_id": "20260504-204550",
-  "mcp_binary": "kalshi-trade-manual-pp-mcp",
+  "mcp_binary": "kalshi-pp-mcp",
   "mcp_tool_count": 96,
   "mcp_ready": "full",
   "auth_type": "api_key",
