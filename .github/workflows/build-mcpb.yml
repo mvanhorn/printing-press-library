@@ -27,8 +27,24 @@ on:
   push:
     branches: [main]
     paths:
-      - 'library/**'
-      - '!library/**/build/**'
+      # Inputs that actually affect the compiled CLI binary or MCPB
+      # bundle: Go source, module files, and the MCPB manifest. The
+      # //go:embed directive can include any file type, but in practice
+      # those files live inside cmd/ or internal/ (e.g. dub's
+      # internal/mcp/embedded_manifest.json), so this whitelist still
+      # catches them.
+      #
+      # Anything else under library/<cat>/<slug>/ — README.md, SKILL.md,
+      # LICENSE, NOTICE, Makefile, .golangci.yml, .goreleaser.yaml,
+      # .printing-press.json, spec.{yaml,json}, dogfood-results.json,
+      # workflow-verify-report.json, .manuscripts/** — is documentation,
+      # provenance, archived input, or post-build artifact and does not
+      # belong in the rebuild trigger.
+      - 'library/**/cmd/**'
+      - 'library/**/internal/**'
+      - 'library/**/go.mod'
+      - 'library/**/go.sum'
+      - 'library/**/manifest.json'
       - '.github/workflows/build-mcpb.yml'
 
 permissions:
@@ -67,10 +83,25 @@ jobs:
             # Push event: diff against parent commit. The all-zeros sentinel
             # appears for initial branch pushes; fall back to HEAD^ then to
             # listing all library entries so the workflow degrades gracefully.
+            #
+            # Pathspec is restricted to build-relevant files (Go source under
+            # cmd/ and internal/, module files, MCPB manifest). This mirrors
+            # the on.push.paths filter above so a mixed commit that touches
+            # build-relevant files in CLI A and only docs in CLI B rebuilds
+            # A only. Without this filter, the awk extraction would include
+            # B as affected because any path under library/<cat>/<slug>/
+            # surfaces the same <cat>/<slug>.
+            build_paths=(
+              'library/**/cmd/**'
+              'library/**/internal/**'
+              'library/**/go.mod'
+              'library/**/go.sum'
+              'library/**/manifest.json'
+            )
             if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ] || [ -z "$BEFORE_SHA" ]; then
-              changed_paths=$(git diff --name-only "HEAD^" "HEAD" -- 'library/**' 2>/dev/null || git ls-files 'library/**')
+              changed_paths=$(git diff --name-only "HEAD^" "HEAD" -- "${build_paths[@]}" 2>/dev/null || git ls-files "${build_paths[@]}")
             else
-              changed_paths=$(git diff --name-only "$BEFORE_SHA" "$AFTER_SHA" -- 'library/**' || true)
+              changed_paths=$(git diff --name-only "$BEFORE_SHA" "$AFTER_SHA" -- "${build_paths[@]}" || true)
             fi
             # Filter to directories that still exist in the merged tree so a
             # rename (which surfaces in `git diff` as deletions under the old
