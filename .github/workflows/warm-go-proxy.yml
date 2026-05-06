@@ -1,0 +1,76 @@
+name: Warm proxy.golang.org for library/ modules
+
+# After every merge to main that touches library/, ping
+# proxy.golang.org for each CLI module's @latest and @v/list endpoints.
+# This forces the public Go module proxy to fetch the new commit from
+# GitHub and refresh its cached "latest pseudo-version" answer, so the
+# first user who runs `go install <module>@latest` (directly or via
+# `printing-press install`) does not race a stale proxy cache and 410
+# during the fresh-merge window.
+#
+# Why this exists: this repo does not publish vX.Y.Z semver tags for
+# library modules, so users install with @latest. proxy.golang.org
+# resolves @latest by asking the upstream VCS what the tip of the
+# default branch is — a result it caches for a short TTL. Until the
+# proxy refreshes, @latest returns the previous commit (or, for a
+# brand-new module path, may briefly serve a negative cache). Hitting
+# /@latest and /@v/list ourselves right after merge primes both caches
+# so users never observe the lag.
+#
+# Failures in the warm step are non-fatal: proxy lag self-resolves
+# within minutes, and a failed warm leaves the world no worse than the
+# pre-workflow status quo.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'library/**'
+      - 'registry.json'
+      - '.github/workflows/warm-go-proxy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  warm:
+    name: Warm proxy.golang.org
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+      - name: Build module URL list from registry.json
+        id: modules
+        run: |
+          set -euo pipefail
+          # Each registry entry's `path` matches the module path under
+          # github.com/mvanhorn/printing-press-library/, so the canonical
+          # module URL is just the prefix + .path. This avoids a separate
+          # walk of go.mod files and stays in sync with registry truth.
+          jq -r '.entries[] | "github.com/mvanhorn/printing-press-library/\(.path)"' registry.json > modules.txt
+          echo "Found $(wc -l < modules.txt) module(s) to warm."
+      - name: Hit proxy.golang.org for each module
+        run: |
+          set -euo pipefail
+          # Warm both @latest (forces resolution of the new commit's
+          # pseudo-version) and @v/list (refreshes the version list
+          # cache). 16-way parallelism keeps total runtime under a
+          # minute even for the full catalog. -fsS reports HTTP errors
+          # but stays quiet on success; --max-time bounds each request
+          # so a hung proxy connection cannot stall the workflow.
+          warm_one() {
+            local module="$1"
+            local endpoint="$2"
+            local url="https://proxy.golang.org/${module}/${endpoint}"
+            if curl -fsS -o /dev/null --max-time 30 "$url"; then
+              echo "  ok  ${module} ${endpoint}"
+            else
+              echo "  miss ${module} ${endpoint} (non-fatal)"
+            fi
+          }
+          export -f warm_one
+
+          xargs -P 16 -I {} bash -c 'warm_one "$@"' _ {} '@latest' < modules.txt
+          xargs -P 16 -I {} bash -c 'warm_one "$@"' _ {} '@v/list' < modules.txt
