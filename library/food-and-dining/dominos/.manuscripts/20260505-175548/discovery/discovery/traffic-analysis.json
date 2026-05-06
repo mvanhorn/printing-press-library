@@ -1,0 +1,26 @@
+{
+  "version": "1",
+  "summary": {
+    "request_count": 0,
+    "host_count": 1,
+    "primary_host": "www.dominos.com",
+    "captured_at": "2026-05-05T20:00:00Z",
+    "source": "chrome-mcp manual probe of authenticated dominos web app"
+  },
+  "reachability": {
+    "mode": "browser_http",
+    "confidence": 0.9,
+    "reasons": [
+      "Scripted fetch to www.dominos.com/api/power/customer/profile with valid Authorization: Bearer + cookies returned 503 from Akamai WAF",
+      "Native browser XHRs from same origin succeed",
+      "Chrome TLS fingerprint (Surf transport) required to pass WAF on /api/power/* and /api/web-bff/graphql"
+    ]
+  },
+  "protocols": [],
+  "auth": {
+    "candidates": [
+      {"type": "bearer_token", "confidence": 1.0}
+    ]
+  },
+  "endpoint_clusters": []
+}

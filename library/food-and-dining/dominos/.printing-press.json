@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "api_name": "dominos",
+  "cli_name": "dominos-pp-cli",
+  "display_name": "Domino's",
+  "description": "Order pizza, browse menus, optimize deals, and track delivery from your terminal \u2014 with a local SQLite store that powers reorder, price comparison, and deal stacking no other Domino's tool offers.",
+  "category": "food-and-dining",
+  "generated_at": "2026-05-06T04:28:29Z",
+  "run_id": "20260505-175548",
+  "printing_press_version": "3.9.1+pr639+dominos-rebase",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:d44d2eb6b26f1a777bf6d492a7813f3a40476432aefb96dc0f75a94753d3aadf",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "DOMINOS_USERNAME",
+    "DOMINOS_PASSWORD",
+    "DOMINOS_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "DOMINOS_USERNAME",
+      "kind": "auth_flow_input",
+      "required": false,
+      "sensitive": false,
+      "description": "Domino's account email or phone consumed by 'auth login' to obtain a bearer token. Read-only commands work without."
+    },
+    {
+      "name": "DOMINOS_PASSWORD",
+      "kind": "auth_flow_input",
+      "required": false,
+      "sensitive": true,
+      "description": "Domino's account password consumed by 'auth login' to obtain a bearer token."
+    },
+    {
+      "name": "DOMINOS_TOKEN",
+      "kind": "harvested",
+      "required": false,
+      "sensitive": true,
+      "description": "Bearer token populated automatically by 'auth login' and read by authenticated commands. Do not set manually."
+    }
+  ],
+  "mcp_binary": "dominos-pp-mcp",
+  "mcp_tool_count": 20,
+  "mcp_public_tool_count": 11,
+  "mcp_ready": "full",
+  "novel_features": [
+    {
+      "name": "Named order templates",
+      "command": "template save",
+      "description": "Save your usual order \u2014 store, address, items, toppings, payment ref \u2014 and replay it with one command.",
+      "rationale": "Requires SQLite-persisted templates that survive across sessions; no existing wrapper persists named orders.",
+      "example": "dominos-pp-cli template save friday-night --from-cart && dominos-pp-cli template order friday-night --eta-watch --json",
+      "why_it_matters": "Reach for this when an agent or user wants a one-command repeat of a known-good order without rebuilding the cart from scratch.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Smart reorder with substitution",
+      "command": "reorder",
+      "description": "Replay your last order against today's menu; FTS-substitute items the menu rotated out so the order still goes through.",
+      "rationale": "Joins synced order history with the current menu's FTS5 index \u2014 neither piece exists in any wrapper alone.",
+      "example": "dominos-pp-cli reorder --last --substitute-unavailable --dry-run --json",
+      "why_it_matters": "Reach for this when a saved-order-style replay must survive Domino's menu rotation; substitution avoids the 'this item is no longer available' failure.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Deal optimizer",
+      "command": "deals best",
+      "description": "Cross-reference your cart against every available deal (incl. loyalty-exclusive) and report the lowest-priced combination.",
+      "rationale": "Domino's CheckDraftDeal is per-deal; combining N deals against one cart requires local fan-out and ranking.",
+      "example": "dominos-pp-cli deals best --agent",
+      "why_it_matters": "Reach for this before placing an order whenever the user cares about price; the flag enumerates 2-3-deal combinations the website never surfaces.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-store price comparison",
+      "command": "compare-prices",
+      "description": "Same cart priced at every nearby store; rank by total including delivery fee.",
+      "rationale": "Multi-store fan-out depends on the local menu cache; community wrappers query one store at a time.",
+      "example": "dominos-pp-cli compare-prices --address \"421 N 63rd St\" --city \"Seattle WA\" --items S_PIZPH,S_LAVA --agent",
+      "why_it_matters": "Reach for this when latency-or-price tradeoffs across nearby stores matter (delivery fee + wait time can offset a cheaper menu).",
+      "group": "Cross-source insights"
+    },
+    {
+      "name": "Multi-store wait-time scoreboard",
+      "command": "stores wait",
+      "description": "Pull CartEtaMinutes for every store in radius and rank by ETA \u2014 the unique GraphQL BFF op every other wrapper ignores.",
+      "rationale": "CartEtaMinutes is reverse-engineered and absent from every existing wrapper; combining it across stores is novel.",
+      "example": "dominos-pp-cli stores wait --address \"421 N 63rd St\" --city \"Seattle WA\" --agent",
+      "why_it_matters": "Reach for this when busy-hour delivery decisions need accurate wait estimates rather than a phone call to the store.",
+      "group": "Cross-source insights"
+    },
+    {
+      "name": "Live delivery tracker with polling",
+      "command": "track",
+      "description": "Stream Domino's tracker stages \u2014 placed \u2192 prep \u2192 bake \u2192 quality check \u2192 out \u2192 delivered \u2014 until the order arrives.",
+      "rationale": "node-dominos has single-shot tracker only; status-transition streaming requires interval polling and state diffing.",
+      "example": "dominos-pp-cli track --phone 2065551234 --watch --interval 30s --agent",
+      "why_it_matters": "Reach for this when an agent or user wants to know precisely when a placed order changes stage without holding open a browser tab.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "One-shot agent order",
+      "command": "order-quick",
+      "description": "Replay a template, validate, price, place (with --confirm), and tail the tracker \u2014 all in one command emitting a final JSON envelope.",
+      "rationale": "Composes existing primitives into the single agent-shaped affordance Ace persona explicitly asked for.",
+      "example": "dominos-pp-cli order-quick --template friday-night --confirm --eta-watch --json",
+      "why_it_matters": "Reach for this when an agent or automation wants to trigger an order and exit cleanly with structured `{order_id, eta_min, total, tracker_phone}` output.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Cart-shaped deal eligibility",
+      "command": "deals eligible",
+      "description": "List which advertised deals actually apply to your current cart and explain why each non-matching one fails.",
+      "rationale": "DealsList exposes per-deal predicates the UI hides; locally evaluating them against the cart is unique to the local data layer.",
+      "example": "dominos-pp-cli deals eligible --agent",
+      "why_it_matters": "Reach for this when the user is hunting for a coupon and needs to understand the predicate gap, not just whether 'a deal' applies.",
+      "group": "Cross-source insights"
+    },
+    {
+      "name": "Spending analytics",
+      "command": "analytics",
+      "description": "Aggregate your synced order history into spending totals, item frequency, favorite stores, and average order value.",
+      "rationale": "Order history is auth-gated and ephemeral on the website; persisting it locally is the only way to compute multi-period rollups.",
+      "example": "dominos-pp-cli analytics --period 90d --group-by item --agent",
+      "why_it_matters": "Reach for this when 'how much have I spent on pizza this quarter' or 'what are my top 3 items' is the question. Powered entirely by the local SQLite order history.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Named order templates",
+      "command": "template save",
+      "description": "Save your usual order \u2014 store, address, items, toppings, payment ref \u2014 and replay it with one command.",
+      "rationale": "Requires SQLite-persisted templates that survive across sessions; no existing wrapper persists named orders.",
+      "example": "dominos-pp-cli template save friday-night --from-cart && dominos-pp-cli template order friday-night --eta-watch --json",
+      "why_it_matters": "Reach for this when an agent or user wants a one-command repeat of a known-good order without rebuilding the cart from scratch.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Smart reorder with substitution",
+      "command": "reorder",
+      "description": "Replay your last order against today's menu; FTS-substitute items the menu rotated out so the order still goes through.",
+      "rationale": "Joins synced order history with the current menu's FTS5 index \u2014 neither piece exists in any wrapper alone.",
+      "example": "dominos-pp-cli reorder --last --substitute-unavailable --dry-run --json",
+      "why_it_matters": "Reach for this when a saved-order-style replay must survive Domino's menu rotation; substitution avoids the 'this item is no longer available' failure.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Deal optimizer",
+      "command": "deals best",
+      "description": "Cross-reference your cart against every available deal (incl. loyalty-exclusive) and report the lowest-priced combination.",
+      "rationale": "Domino's CheckDraftDeal is per-deal; combining N deals against one cart requires local fan-out and ranking.",
+      "example": "dominos-pp-cli deals best --agent",
+      "why_it_matters": "Reach for this before placing an order whenever the user cares about price; the flag enumerates 2-3-deal combinations the website never surfaces.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-store price comparison",
+      "command": "compare-prices",
+      "description": "Same cart priced at every nearby store; rank by total including delivery fee.",
+      "rationale": "Multi-store fan-out depends on the local menu cache; community wrappers query one store at a time.",
+      "example": "dominos-pp-cli compare-prices --address \"421 N 63rd St\" --city \"Seattle WA\" --items S_PIZPH,S_LAVA --agent",
+      "why_it_matters": "Reach for this when latency-or-price tradeoffs across nearby stores matter (delivery fee + wait time can offset a cheaper menu).",
+      "group": "Cross-source insights"
+    },
+    {
+      "name": "Multi-store wait-time scoreboard",
+      "command": "stores wait",
+      "description": "Pull CartEtaMinutes for every store in radius and rank by ETA \u2014 the unique GraphQL BFF op every other wrapper ignores.",
+      "rationale": "CartEtaMinutes is reverse-engineered and absent from every existing wrapper; combining it across stores is novel.",
+      "example": "dominos-pp-cli stores wait --address \"421 N 63rd St\" --city \"Seattle WA\" --agent",
+      "why_it_matters": "Reach for this when busy-hour delivery decisions need accurate wait estimates rather than a phone call to the store.",
+      "group": "Cross-source insights"
+    },
+    {
+      "name": "Live delivery tracker with polling",
+      "command": "track",
+      "description": "Stream Domino's tracker stages \u2014 placed \u2192 prep \u2192 bake \u2192 quality check \u2192 out \u2192 delivered \u2014 until the order arrives.",
+      "rationale": "node-dominos has single-shot tracker only; status-transition streaming requires interval polling and state diffing.",
+      "example": "dominos-pp-cli track --phone 2065551234 --watch --interval 30s --agent",
+      "why_it_matters": "Reach for this when an agent or user wants to know precisely when a placed order changes stage without holding open a browser tab.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "One-shot agent order",
+      "command": "order-quick",
+      "description": "Replay a template, validate, price, place (with --confirm), and tail the tracker \u2014 all in one command emitting a final JSON envelope.",
+      "rationale": "Composes existing primitives into the single agent-shaped affordance Ace persona explicitly asked for.",
+      "example": "dominos-pp-cli order-quick --template friday-night --confirm --eta-watch --json",
+      "why_it_matters": "Reach for this when an agent or automation wants to trigger an order and exit cleanly with structured `{order_id, eta_min, total, tracker_phone}` output.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Cart-shaped deal eligibility",
+      "command": "deals eligible",
+      "description": "List which advertised deals actually apply to your current cart and explain why each non-matching one fails.",
+      "rationale": "DealsList exposes per-deal predicates the UI hides; locally evaluating them against the cart is unique to the local data layer.",
+      "example": "dominos-pp-cli deals eligible --agent",
+      "why_it_matters": "Reach for this when the user is hunting for a coupon and needs to understand the predicate gap, not just whether 'a deal' applies.",
+      "group": "Cross-source insights"
+    },
+    {
+      "name": "Spending analytics",
+      "command": "analytics",
+      "description": "Aggregate your synced order history into spending totals, item frequency, favorite stores, and average order value.",
+      "rationale": "Order history is auth-gated and ephemeral on the website; persisting it locally is the only way to compute multi-period rollups.",
+      "example": "dominos-pp-cli analytics --period 90d --group-by item --agent",
+      "why_it_matters": "Reach for this when 'how much have I spent on pizza this quarter' or 'what are my top 3 items' is the question. Powered entirely by the local SQLite order history.",
+      "group": "Local state that compounds"
+    }
+  ]
+}
