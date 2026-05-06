@@ -24,8 +24,18 @@ name: Warm proxy.golang.org for library/ modules
 on:
   push:
     branches: [main]
+    # Narrowed to Go-relevant files. Doc/metadata churn (SKILL.md,
+    # README.md, .manuscripts/, .printing-press.json, dogfood/verify
+    # JSON, .goreleaser.yaml) ships in the same module zip but does
+    # not change what `go install` produces, so warming after those
+    # is cosmetic — the proxy's @latest pointer would just be advanced
+    # to a different commit that yields an identical binary, and the
+    # proxy's natural ~1-minute cache TTL handles that case anyway.
+    # Filter to commits that actually change the installable artifact.
     paths:
-      - 'library/**'
+      - 'library/**/*.go'
+      - 'library/**/go.mod'
+      - 'library/**/go.sum'
       - '.github/workflows/warm-go-proxy.yml'
   workflow_dispatch:
 
