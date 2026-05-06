@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3
+
+- Drop the `auth env vars: …` line from `install` output. The data was a bare list of env var names without the surrounding context (where to get the token, how to set it, what command verifies it) — that context lives in each CLI's `--help`, `doctor` command, and authenticated-error messages, which is the natural moment to discover auth requirements. JSON output no longer carries `authEnvVars` either; consumers that genuinely need a structured env-var list can read `mcp.env_vars` directly from `registry.json`.
+
 ## 0.1.2
 
 - CI fix: pin the npm version used for Trusted Publishing to `npm@11.5.1`. The previous `npm install -g npm@latest` step is flaky on Actions runners — npm overwrites itself mid-install and the global install ends up with a missing `promise-retry` module. v0.1.1 was tagged but never reached npmjs.com because of this; this is the first published release on the OIDC pipeline.

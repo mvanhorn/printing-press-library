@@ -38,7 +38,6 @@ interface InstallSummary {
   modulePath?: string;
   skill?: string;
   binaryPath?: string;
-  authEnvVars: string[];
 }
 
 interface InstallOutcome {
@@ -108,7 +107,6 @@ async function installOne(
 
   const summary: InstallSummary = {
     name: entry.name,
-    authEnvVars: entry.mcp?.env_vars ?? [],
   };
 
   if (!options.skillOnly) {
@@ -167,9 +165,6 @@ async function installOne(
     }
     if (summary.skill) {
       deps.stdout(`  skill: ${summary.skill}`);
-    }
-    if (summary.authEnvVars.length > 0) {
-      deps.stdout(`  auth env vars: ${summary.authEnvVars.join(", ")}`);
     }
   }
 
