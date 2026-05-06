@@ -1,0 +1,80 @@
+name: Verify library conventions
+
+# PR-time guards for two invariants that local builds and the existing
+# verify-skills.yml / verify-manifests.yml workflows do not catch:
+#
+# 1. cli-skills/<slug>/SKILL.md must equal what
+#    tools/generate-skills/main.go would produce from the current
+#    library/<cat>/<slug>/SKILL.md. Hand-edits to either side without
+#    re-running the generator produce drift that ships to users
+#    immediately via `npx skills add`. The post-merge auto-regen
+#    workflow fixes drift after the fact, but a PR can ship visibly
+#    drifted mirrors that real users consume in the meantime.
+#
+# 2. library/<cat>/<slug>/go.mod's declared `module` path must match
+#    its directory location (github.com/mvanhorn/printing-press-library/<dirpath>).
+#    A mismatch compiles fine locally because the package is internally
+#    self-consistent, but every public install via `go install …@latest`
+#    fails downstream with a "module declares its path as X but was
+#    required as Y" error after the proxy has already served the zip.
+#    The hubspot CLI shipped with this exact bug for some time before
+#    being caught.
+
+on:
+  pull_request:
+    paths:
+      - 'library/**'
+      - 'cli-skills/**'
+      - 'tools/generate-skills/**'
+      - '.github/workflows/verify-library-conventions.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.26'
+
+      - name: cli-skills mirror parity
+        run: |
+          set -euo pipefail
+          go run ./tools/generate-skills/main.go > /dev/null
+          # `git status --porcelain` catches both modifications to
+          # tracked mirrors and brand-new mirrors the generator would
+          # create (e.g., when a PR adds a new CLI without committing
+          # its cli-skills/pp-<slug>/SKILL.md alongside).
+          drift=$(git status --porcelain -- cli-skills/)
+          if [ -n "$drift" ]; then
+            echo "::error::cli-skills/ is out of sync with what tools/generate-skills produces from library/<cat>/<slug>/SKILL.md."
+            echo "::error::Run \`go run ./tools/generate-skills/main.go\` locally and commit the result."
+            echo
+            echo "Out-of-sync entries:"
+            echo "$drift"
+            exit 1
+          fi
+          echo "cli-skills/ matches generator output."
+
+      - name: go.mod module path matches directory
+        run: |
+          set -euo pipefail
+          fail=0
+          for gomod in library/*/*/go.mod; do
+            dir="${gomod%/go.mod}"
+            expected="github.com/mvanhorn/printing-press-library/${dir}"
+            declared=$(awk '/^module / {print $2; exit}' "$gomod")
+            if [ "$expected" != "$declared" ]; then
+              echo "::error file=${gomod}::module path mismatch: directory implies ${expected}, go.mod declares ${declared}. Public \`go install\` against this CLI will fail with 'module declares its path as X but was required as Y'."
+              fail=1
+            fi
+          done
+          if [ "$fail" = 1 ]; then
+            exit 1
+          fi
+          echo "All library/*/*/go.mod module declarations match their directories."
