@@ -93,11 +93,11 @@ A few older CLIs (e.g. `agent-capture`, `instacart`) use a package-global `var r
 
 ## SKILL.md coverage
 
-Every CLI in `library/` should ship a `library/<category>/<slug>/SKILL.md`. The generator (`tools/generate-skills/main.go`) copies each library SKILL.md verbatim to `cli-skills/pp-<slug>/SKILL.md`. The verifier (`verify-skills.yml`) runs flag / command / positional-arg checks against every CLI.
+Every CLI in `library/` **must** ship a `library/<category>/<slug>/SKILL.md`. The generator (`tools/generate-skills/main.go`) is a verbatim mirror: it copies each library SKILL.md to `cli-skills/pp-<slug>/SKILL.md` and **fails the regen workflow** if any registry entry has no library SKILL.md (or has an empty one). There is no fallback synthesis path here — generator behavior, including SKILL.md content and frontmatter shape, lives in `cli-printing-press`. The verifier (`verify-skills.yml`) runs flag / command / positional-arg checks against every CLI.
 
 **No command shims.** Per-CLI skills live under `cli-skills/pp-foo/SKILL.md` for direct installation through `npx skills add` and the npm installer. Don't re-add a `commands/` directory. `cli-skills/` is the flat direct-install namespace.
 
-When adding a new CLI, ship a library SKILL.md alongside the generated code. Registry-only synthesis still works as a fallback but is strictly worse: agents get no "when to use" guidance, no curated command list, and the trigger-phrase list is generic ("install X, use X, run X") so natural-language matches miss.
+When adding a new CLI, ship a library SKILL.md alongside the generated code. If you need to change SKILL.md *shape* (frontmatter fields, structure, sections), make that change in `cli-printing-press`'s `internal/generator/templates/skill.md.tmpl` and regenerate the affected CLIs — don't hand-shape it here.
 
 ## NPM installer surface
 
