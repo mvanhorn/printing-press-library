@@ -1,0 +1,66 @@
+name: Auto-tag npm release on version bump
+
+# When npm/package.json's "version" field changes on main, push a matching
+# `npm-v<version>` tag. The existing npm-publish.yml workflow listens for that
+# tag and publishes via OIDC.
+#
+# This means the entire release rhythm is:
+#   1. Bump npm/package.json version in a PR (alongside any code change).
+#   2. Merge the PR.
+#   3. This workflow tags. npm-publish.yml publishes. Done.
+#
+# Things that intentionally do NOT trigger a release:
+#   - Library / SKILL.md / registry.json / cli-skills changes (sourced live by
+#     the orchestrator at install time, not bundled in the npm tarball).
+#   - Root README, AGENTS.md, CI workflow tweaks (not in the npm tarball).
+#   - npm/package.json changes that don't bump the version (metadata polish
+#     only ships when packaged with an intentional version bump — re-publishing
+#     the same version would fail at npm anyway).
+#
+# Bot regen commits with `[skip ci]` (registry / skill regenerations) skip
+# this workflow entirely, by design.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'npm/package.json'
+
+permissions:
+  contents: write   # needs to push the tag
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 2   # need previous commit to diff against
+
+      - id: check
+        name: Detect version bump
+        run: |
+          set -euo pipefail
+          new=$(jq -r .version npm/package.json)
+          if old=$(git show HEAD~1:npm/package.json 2>/dev/null | jq -r .version); then
+            :
+          else
+            old=""
+          fi
+          echo "old=$old" >> "$GITHUB_OUTPUT"
+          echo "new=$new" >> "$GITHUB_OUTPUT"
+          if [ -n "$new" ] && [ "$new" != "null" ] && [ "$old" != "$new" ]; then
+            echo "bumped=true" >> "$GITHUB_OUTPUT"
+            echo "Version changed: $old → $new"
+          else
+            echo "No version bump (old=$old, new=$new); skipping tag."
+          fi
+
+      - name: Push npm-v<new> tag
+        if: steps.check.outputs.bumped == 'true'
+        run: |
+          set -euo pipefail
+          tag="npm-v${{ steps.check.outputs.new }}"
+          git tag "$tag"
+          git push origin "$tag"
+          echo "Pushed tag $tag — npm-publish.yml will run on the tag event."
