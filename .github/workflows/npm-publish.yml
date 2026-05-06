@@ -6,11 +6,21 @@ on:
       - 'npm-v*'
   workflow_dispatch:
 
+# Authenticates to npm via Trusted Publishing (OIDC). Configure on
+# npmjs.com/package/@mvanhorn/printing-press → Settings → Trusted Publishers:
+#   Provider:   GitHub Actions
+#   Owner:      mvanhorn
+#   Repository: printing-press-library
+#   Workflow:   npm-publish.yml
+# If the workflow filename or repo location changes, update the npm side too
+# or releases will start failing with 401 Unauthorized.
+
 jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write
 
     steps:
       - uses: actions/checkout@v6
@@ -36,6 +46,4 @@ jobs:
 
       - name: Publish
         working-directory: npm
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --access public
+        run: npm publish --access public --provenance
