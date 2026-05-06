@@ -19,7 +19,7 @@ const skillOutputDir = "cli-skills"
 
 type MCPBlock struct {
 	Binary          string   `json:"binary"`
-	Transport       string   `json:"transport"`
+	Transports      []string `json:"transports"`
 	ToolCount       int      `json:"tool_count"`
 	PublicToolCount int      `json:"public_tool_count"`
 	AuthType        string   `json:"auth_type"`

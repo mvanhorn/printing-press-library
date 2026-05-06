@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "entries": [
     {
       "name": "agent-capture",
@@ -16,7 +16,10 @@
       "path": "library/marketing/ahrefs",
       "mcp": {
         "binary": "ahrefs-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio",
+          "http"
+        ],
         "tool_count": 29,
         "public_tool_count": 2,
         "auth_type": "api_key",
@@ -35,7 +38,9 @@
       "path": "library/travel/airbnb",
       "mcp": {
         "binary": "airbnb-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 8,
         "public_tool_count": 6,
         "auth_type": "cookie",
@@ -52,7 +57,10 @@
       "path": "library/food-and-dining/allrecipes",
       "mcp": {
         "binary": "allrecipes-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio",
+          "http"
+        ],
         "tool_count": 2,
         "public_tool_count": 1,
         "auth_type": "cookie",
@@ -71,7 +79,9 @@
       "path": "library/other/apartments",
       "mcp": {
         "binary": "apartments-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 2,
         "public_tool_count": 0,
         "auth_type": "none",
@@ -88,7 +98,9 @@
       "path": "library/media-and-entertainment/archive-is",
       "mcp": {
         "binary": "archive-is-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 6,
         "public_tool_count": 0,
         "auth_type": "none",
@@ -104,7 +116,9 @@
       "path": "library/productivity/cal-com",
       "mcp": {
         "binary": "cal-com-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 291,
         "public_tool_count": 0,
         "auth_type": "bearer_token",
@@ -123,7 +137,9 @@
       "path": "library/payments/coingecko",
       "mcp": {
         "binary": "coingecko-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 11,
         "public_tool_count": 11,
         "auth_type": "none",
@@ -140,7 +156,9 @@
       "path": "library/developer-tools/company-goat",
       "mcp": {
         "binary": "company-goat-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 1,
         "public_tool_count": 0,
         "auth_type": "none",
@@ -157,7 +175,9 @@
       "path": "library/sales-and-crm/contact-goat",
       "mcp": {
         "binary": "contact-goat-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 16,
         "public_tool_count": 0,
         "auth_type": "composed",
@@ -177,7 +197,10 @@
       "path": "library/commerce/craigslist",
       "mcp": {
         "binary": "craigslist-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio",
+          "http"
+        ],
         "tool_count": 1,
         "public_tool_count": 1,
         "auth_type": "none",
@@ -194,7 +217,9 @@
       "path": "library/developer-tools/docker-hub",
       "mcp": {
         "binary": "docker-hub-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 5,
         "public_tool_count": 5,
         "auth_type": "none",
@@ -211,7 +236,10 @@
       "path": "library/food-and-dining/dominos",
       "mcp": {
         "binary": "dominos-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio",
+          "http"
+        ],
         "tool_count": 20,
         "public_tool_count": 11,
         "auth_type": "bearer_token",
@@ -232,7 +260,10 @@
       "path": "library/marketing/dub",
       "mcp": {
         "binary": "dub-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio",
+          "http"
+        ],
         "tool_count": 53,
         "public_tool_count": 0,
         "auth_type": "bearer_token",
@@ -251,7 +282,9 @@
       "path": "library/commerce/ebay",
       "mcp": {
         "binary": "ebay-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 8,
         "public_tool_count": 1,
         "auth_type": "cookie",
@@ -268,7 +301,9 @@
       "path": "library/media-and-entertainment/espn",
       "mcp": {
         "binary": "espn-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 7,
         "public_tool_count": 0,
         "auth_type": "none",
@@ -285,7 +320,10 @@
       "path": "library/commerce/fedex",
       "mcp": {
         "binary": "fedex-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio",
+          "http"
+        ],
         "tool_count": 48,
         "public_tool_count": 0,
         "auth_type": "bearer_token",
@@ -305,7 +343,9 @@
       "path": "library/developer-tools/firecrawl",
       "mcp": {
         "binary": "firecrawl-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 20,
         "public_tool_count": 0,
         "auth_type": "bearer_token",
@@ -324,7 +364,9 @@
       "path": "library/travel/flight-goat",
       "mcp": {
         "binary": "flight-goat-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 58,
         "public_tool_count": 0,
         "auth_type": "api_key",
@@ -343,7 +385,9 @@
       "path": "library/food-and-dining/food52",
       "mcp": {
         "binary": "food52-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 4,
         "public_tool_count": 4,
         "auth_type": "none",
@@ -360,7 +404,10 @@
       "path": "library/media-and-entertainment/google-photos",
       "mcp": {
         "binary": "google-photos-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio",
+          "http"
+        ],
         "tool_count": 19,
         "public_tool_count": 0,
         "auth_type": "oauth2",
@@ -379,7 +426,10 @@
       "path": "library/media-and-entertainment/hackernews",
       "mcp": {
         "binary": "hackernews-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio",
+          "http"
+        ],
         "tool_count": 10,
         "public_tool_count": 10,
         "auth_type": "none",
@@ -396,7 +446,9 @@
       "path": "library/sales-and-crm/hubspot",
       "mcp": {
         "binary": "hubspot-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 62,
         "public_tool_count": 0,
         "auth_type": "api_key",
@@ -421,7 +473,9 @@
       "path": "library/payments/kalshi",
       "mcp": {
         "binary": "kalshi-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 96,
         "public_tool_count": 0,
         "auth_type": "api_key",
@@ -440,7 +494,9 @@
       "path": "library/marketing/klaviyo",
       "mcp": {
         "binary": "klaviyo-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 308,
         "public_tool_count": 11,
         "auth_type": "api_key",
@@ -459,7 +515,9 @@
       "path": "library/project-management/linear",
       "mcp": {
         "binary": "linear-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 63,
         "public_tool_count": 0,
         "auth_type": "api_key",
@@ -477,7 +535,10 @@
       "path": "library/media-and-entertainment/movie-goat",
       "mcp": {
         "binary": "movie-goat-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio",
+          "http"
+        ],
         "tool_count": 25,
         "public_tool_count": 0,
         "auth_type": "api_key",
@@ -496,7 +557,9 @@
       "path": "library/developer-tools/nvd",
       "mcp": {
         "binary": "nvd-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 2,
         "public_tool_count": 2,
         "auth_type": "none",
@@ -513,7 +576,9 @@
       "path": "library/other/open-meteo",
       "mcp": {
         "binary": "open-meteo-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 11,
         "public_tool_count": 11,
         "auth_type": "none",
@@ -530,7 +595,10 @@
       "path": "library/food-and-dining/pagliacci",
       "mcp": {
         "binary": "pagliacci-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio",
+          "http"
+        ],
         "tool_count": 57,
         "public_tool_count": 26,
         "auth_type": "composed",
@@ -547,7 +615,9 @@
       "path": "library/media-and-entertainment/pokeapi",
       "mcp": {
         "binary": "pokeapi-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 98,
         "public_tool_count": 98,
         "auth_type": "none",
@@ -564,7 +634,9 @@
       "path": "library/developer-tools/postman-explore",
       "mcp": {
         "binary": "postman-explore-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 8,
         "public_tool_count": 8,
         "auth_type": "none",
@@ -581,7 +653,10 @@
       "path": "library/marketing/producthunt",
       "mcp": {
         "binary": "producthunt-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio",
+          "http"
+        ],
         "tool_count": 1,
         "public_tool_count": 1,
         "auth_type": "bearer_token",
@@ -600,7 +675,9 @@
       "path": "library/developer-tools/pypi",
       "mcp": {
         "binary": "pypi-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 4,
         "public_tool_count": 4,
         "auth_type": "none",
@@ -617,7 +694,9 @@
       "path": "library/food-and-dining/recipe-goat",
       "mcp": {
         "binary": "recipe-goat-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 3,
         "public_tool_count": 0,
         "auth_type": "api_key",
@@ -636,7 +715,9 @@
       "path": "library/developer-tools/scrape-creators",
       "mcp": {
         "binary": "scrape-creators-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 114,
         "public_tool_count": 0,
         "auth_type": "api_key",
@@ -655,7 +736,9 @@
       "path": "library/monitoring/sentry",
       "mcp": {
         "binary": "sentry-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 219,
         "public_tool_count": 0,
         "auth_type": "bearer_token",
@@ -674,7 +757,9 @@
       "path": "library/commerce/shopify",
       "mcp": {
         "binary": "shopify-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 10,
         "public_tool_count": 0,
         "auth_type": "api_key",
@@ -693,7 +778,9 @@
       "path": "library/productivity/slack",
       "mcp": {
         "binary": "slack-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 66,
         "public_tool_count": 0,
         "auth_type": "api_key",
@@ -711,7 +798,9 @@
       "path": "library/media-and-entertainment/steam-web",
       "mcp": {
         "binary": "steam-web-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 161,
         "public_tool_count": 0,
         "auth_type": "api_key",
@@ -730,7 +819,9 @@
       "path": "library/commerce/tiktok-shop",
       "mcp": {
         "binary": "tiktok-shop-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 11,
         "public_tool_count": 11,
         "auth_type": "signed_tiktok_shop_open_api",
@@ -753,7 +844,9 @@
       "path": "library/developer-tools/trigger-dev",
       "mcp": {
         "binary": "trigger-dev-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 41,
         "public_tool_count": 0,
         "auth_type": "api_key",
@@ -771,7 +864,9 @@
       "path": "library/other/weather-goat",
       "mcp": {
         "binary": "weather-goat-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 5,
         "public_tool_count": 5,
         "auth_type": "none",
@@ -788,7 +883,9 @@
       "path": "library/media-and-entertainment/wikipedia",
       "mcp": {
         "binary": "wikipedia-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 5,
         "public_tool_count": 5,
         "auth_type": "none",
@@ -805,7 +902,9 @@
       "path": "library/commerce/yahoo-finance",
       "mcp": {
         "binary": "yahoo-finance-pp-mcp",
-        "transport": "stdio",
+        "transports": [
+          "stdio"
+        ],
         "tool_count": 11,
         "public_tool_count": 0,
         "auth_type": "none",

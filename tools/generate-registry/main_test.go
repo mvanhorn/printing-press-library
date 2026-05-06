@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -140,6 +142,101 @@ Trailing prose.
 	}
 	if strings.Contains(string(first), "old table") || strings.Contains(string(first), "old counts") {
 		t.Errorf("updateReadme failed to replace sentinel content; got:\n%s", first)
+	}
+}
+
+// TestDetectMCPTransports covers the source-grep detection logic.
+// Encoding the detection rule in tests guards against two regressions:
+// (a) a future generator template renaming NewStreamableHTTPServer to a
+//     differently-named entry point would silently flip every dual-transport
+//     CLI back to stdio-only, and the test fails before the registry is
+//     re-emitted.
+// (b) the missing-binary fallback returning nil would cause the registry
+//     to emit `"transports": null` instead of `["stdio"]`; we lock in the
+//     non-nil ["stdio"] default so the JSON shape stays a real array.
+func TestDetectMCPTransports(t *testing.T) {
+	stdioOnlyMain := `package main
+
+import "github.com/mark3labs/mcp-go/server"
+
+func main() {
+	s := server.NewMCPServer("Demo", "1.0.0")
+	server.ServeStdio(s)
+}
+`
+	dualTransportMain := `package main
+
+import "github.com/mark3labs/mcp-go/server"
+
+func main() {
+	s := server.NewMCPServer("Demo", "1.0.0")
+	switch *transport {
+	case "stdio":
+		server.ServeStdio(s)
+	case "http":
+		httpSrv := server.NewStreamableHTTPServer(s)
+		_ = httpSrv.Start(":7777")
+	}
+}
+`
+
+	cases := []struct {
+		name    string
+		binary  string
+		writeAt string // relative to cliDir; "" means don't write
+		body    string
+		want    []string
+	}{
+		{
+			name:    "stdio-only binary",
+			binary:  "demo-pp-mcp",
+			writeAt: "cmd/demo-pp-mcp/main.go",
+			body:    stdioOnlyMain,
+			want:    []string{"stdio"},
+		},
+		{
+			name:    "dual transport binary",
+			binary:  "demo-pp-mcp",
+			writeAt: "cmd/demo-pp-mcp/main.go",
+			body:    dualTransportMain,
+			want:    []string{"stdio", "http"},
+		},
+		{
+			name:    "missing binary file falls back to stdio",
+			binary:  "demo-pp-mcp",
+			writeAt: "",
+			want:    []string{"stdio"},
+		},
+		{
+			name:    "empty binary name returns stdio without filesystem read",
+			binary:  "",
+			writeAt: "",
+			want:    []string{"stdio"},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			cliDir := t.TempDir()
+			if tc.writeAt != "" {
+				path := filepath.Join(cliDir, tc.writeAt)
+				if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+					t.Fatalf("mkdir: %v", err)
+				}
+				if err := os.WriteFile(path, []byte(tc.body), 0o644); err != nil {
+					t.Fatalf("write main.go: %v", err)
+				}
+			}
+			got := detectMCPTransports(cliDir, tc.binary)
+			if len(got) != len(tc.want) {
+				t.Fatalf("transports = %v, want %v", got, tc.want)
+			}
+			for i, v := range tc.want {
+				if got[i] != v {
+					t.Errorf("transports[%d] = %q, want %q", i, got[i], v)
+				}
+			}
+		})
 	}
 }
 

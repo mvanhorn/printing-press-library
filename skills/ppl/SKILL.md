@@ -19,7 +19,7 @@ The registry contains entries with these fields:
 - `api` — human-readable API name (e.g., `ESPN`, `Linear`)
 - `description` — what the CLI does
 - `path` — repo-relative path to the CLI source (e.g., `library/media-and-entertainment/espn`)
-- `mcp` (optional) — MCP server metadata: `binary`, `transport`, `tool_count`, `auth_type`, `env_vars`
+- `mcp` (optional) — MCP server metadata: `binary`, `transports` (e.g., `["stdio"]` or `["stdio", "http"]`), `tool_count`, `auth_type`, `env_vars`
 
 ## Argument Parsing
 

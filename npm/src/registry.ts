@@ -3,7 +3,7 @@ export const DEFAULT_REGISTRY_URL =
 
 export interface MCPBlock {
   binary: string;
-  transport: string;
+  transports: string[];
   tool_count: number;
   public_tool_count?: number;
   auth_type: string;
@@ -31,7 +31,7 @@ export function parseRegistry(value: unknown): Registry {
   if (!isRecord(value)) {
     throw new Error("registry payload must be an object");
   }
-  if (value.schema_version !== 1) {
+  if (value.schema_version !== 2) {
     throw new Error(`unsupported registry schema_version: ${String(value.schema_version)}`);
   }
   if (!Array.isArray(value.entries)) {
@@ -39,7 +39,7 @@ export function parseRegistry(value: unknown): Registry {
   }
 
   return {
-    schema_version: 1,
+    schema_version: 2,
     entries: value.entries.map(parseRegistryEntry),
   };
 }
@@ -114,7 +114,7 @@ function parseRegistryEntry(value: unknown): RegistryEntry {
         ...entry,
         mcp: {
           binary: requiredString(value.mcp, "binary"),
-          transport: requiredString(value.mcp, "transport"),
+          transports: requiredStringArray(value.mcp, "transports"),
           tool_count: requiredNumber(value.mcp, "tool_count"),
           public_tool_count:
             typeof value.mcp.public_tool_count === "number" ? value.mcp.public_tool_count : undefined,
@@ -142,6 +142,21 @@ function requiredNumber(value: Record<string, unknown>, key: string): number {
     throw new Error(`registry entry missing number field: ${key}`);
   }
   return value[key];
+}
+
+function requiredStringArray(value: Record<string, unknown>, key: string): string[] {
+  const raw = value[key];
+  if (!Array.isArray(raw) || raw.length === 0) {
+    throw new Error(`registry entry missing non-empty string array field: ${key}`);
+  }
+  const out: string[] = [];
+  for (const item of raw) {
+    if (typeof item !== "string" || item.trim() === "") {
+      throw new Error(`registry entry has non-string value in array field: ${key}`);
+    }
+    out.push(item);
+  }
+  return out;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

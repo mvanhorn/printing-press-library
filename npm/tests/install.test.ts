@@ -6,7 +6,7 @@ import type { RunResult } from "../src/process.js";
 import type { Registry } from "../src/registry.js";
 
 const registry: Registry = {
-  schema_version: 1,
+  schema_version: 2,
   entries: [
     {
       name: "espn",
@@ -16,7 +16,7 @@ const registry: Registry = {
       path: "library/sports/espn",
       mcp: {
         binary: "espn-pp-mcp",
-        transport: "stdio",
+        transports: ["stdio"],
         tool_count: 10,
         auth_type: "none",
         env_vars: [],
@@ -179,7 +179,7 @@ test("install command emits JSON when requested", async () => {
 
 test("install command uses go.mod module path when it differs from registry path", async () => {
   const hubspotRegistry: Registry = {
-    schema_version: 1,
+    schema_version: 2,
     entries: [
       {
         name: "hubspot-pp-cli",
