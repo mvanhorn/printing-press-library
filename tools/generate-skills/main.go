@@ -1,14 +1,12 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"text/template"
 )
@@ -317,50 +315,10 @@ func copyUpstreamSkill(entryPath, skillDir, skillFile string) (bool, error) {
 	if err := os.MkdirAll(skillDir, 0755); err != nil {
 		return false, fmt.Errorf("mkdir %s: %w", skillDir, err)
 	}
-	augmented := injectStaleBuildFallback(data)
-	if err := os.WriteFile(skillFile, augmented, 0644); err != nil {
+	if err := os.WriteFile(skillFile, data, 0644); err != nil {
 		return false, fmt.Errorf("write %s: %w", skillFile, err)
 	}
 	return true, nil
-}
-
-// injectStaleBuildFallback adds a short "if @latest is stale, install
-// from @main" code block right after every `go install ...@latest` line
-// that targets a printing-press-library cmd. Upstream (hand-authored)
-// SKILL.md files bypass the template, so they need this augmentation at
-// copy time to match what template-generated skills already ship.
-//
-// Idempotent: if the file already contains `@main` (either from a
-// prior run of this generator or hand-added guidance), we make no
-// changes and return the original bytes unchanged.
-func injectStaleBuildFallback(data []byte) []byte {
-	if bytes.Contains(data, []byte("@main")) {
-		return data
-	}
-	// Pattern: a line ending in `cmd/<binary>@latest` that is NOT inside
-	// the metadata block. Post-migration, metadata is a multi-line nested
-	// YAML block whose `module:` lines carry bare module paths (no
-	// `go install ` prefix), so the `^(\s*)go install ` anchor naturally
-	// excludes them. The regex still matches the install-instruction
-	// lines in the body sections (CLI Installation + MCP Server
-	// Installation), which is what we want.
-	goInstallRE := regexp.MustCompile(
-		`(?m)^(\s*)(go install github\.com/mvanhorn/printing-press-library/library/[^\s@]+@latest)\s*$`)
-	fallbackBlock := func(indent, installCmd string) string {
-		mainCmd := strings.Replace(installCmd, "@latest", "@main", 1)
-		return fmt.Sprintf(
-			"%s%s\n%s\n%s# If `@latest` installs a stale build (Go module proxy cache lag), install from main:\n%sGOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \\\n%s  %s",
-			indent, installCmd, indent, indent, indent, indent, mainCmd)
-	}
-	return goInstallRE.ReplaceAllFunc(data, func(match []byte) []byte {
-		sub := goInstallRE.FindSubmatch(match)
-		if len(sub) < 3 {
-			return match
-		}
-		indent := string(sub[1])
-		installCmd := string(sub[2])
-		return []byte(fallbackBlock(indent, installCmd))
-	})
 }
 
 // resolveCLIBinary resolves the CLI binary name using layered precedence:

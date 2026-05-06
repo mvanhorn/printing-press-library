@@ -122,7 +122,7 @@ async function installOne(
       `github.com/mvanhorn/printing-press-library/${entry.path}`;
     const modulePath = `${moduleRoot}/cmd/${binary}`;
 
-    const install = await installGoWithFallback(deps, modulePath);
+    const install = await deps.goInstall(modulePath, "latest");
     if (install.code !== 0) {
       deps.stderr(`go install failed for ${modulePath}`);
       if (install.stderr.trim()) {
@@ -278,35 +278,6 @@ function parseInstallArgs(args: string[]):
   }
 
   return { names, options };
-}
-
-async function installGoWithFallback(deps: InstallDeps, modulePath: string): Promise<RunResult> {
-  const latest = await deps.goInstall(modulePath, "latest");
-  if (latest.code === 0) {
-    return latest;
-  }
-
-  const env = {
-    GOPRIVATE: "github.com/mvanhorn/*",
-    GOFLAGS: "-mod=mod",
-  };
-  const main = await deps.goInstall(modulePath, "main", env);
-  return main.code === 0 ? main : combineFailures(latest, main);
-}
-
-function combineFailures(latest: RunResult, main: RunResult): RunResult {
-  return {
-    code: main.code || latest.code || 1,
-    stdout: [latest.stdout, main.stdout].filter(Boolean).join("\n"),
-    stderr: [
-      "go install @latest failed:",
-      latest.stderr.trim(),
-      "go install @main fallback failed:",
-      main.stderr.trim(),
-    ]
-      .filter(Boolean)
-      .join("\n"),
-  };
 }
 
 function goMissingMessage(platform: NodeJS.Platform): string {

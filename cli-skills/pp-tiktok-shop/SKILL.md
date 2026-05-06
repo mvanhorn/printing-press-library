@@ -138,10 +138,6 @@ Parse `$ARGUMENTS`:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/commerce/tiktok-shop/cmd/tiktok-shop-pp-cli@latest
-
-# If `@latest` installs a stale build (Go module proxy cache lag), install from main:
-GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
-  go install github.com/mvanhorn/printing-press-library/library/commerce/tiktok-shop/cmd/tiktok-shop-pp-cli@main
 tiktok-shop-pp-cli --version
 ```
 
@@ -149,10 +145,6 @@ tiktok-shop-pp-cli --version
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/commerce/tiktok-shop/cmd/tiktok-shop-pp-mcp@latest
-
-# If `@latest` installs a stale build (Go module proxy cache lag), install from main:
-GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
-  go install github.com/mvanhorn/printing-press-library/library/commerce/tiktok-shop/cmd/tiktok-shop-pp-mcp@main
 claude mcp add tiktok-shop-pp-mcp -- tiktok-shop-pp-mcp
 ```
 

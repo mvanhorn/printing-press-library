@@ -328,10 +328,6 @@ Parse `$ARGUMENTS`:
 2. Install:
    ```bash
    go install github.com/mvanhorn/printing-press-library/library/other/kalshi/cmd/kalshi-pp-cli@latest
-   
-   # If `@latest` installs a stale build (Go module proxy cache lag), install from main:
-   GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
-     go install github.com/mvanhorn/printing-press-library/library/other/kalshi/cmd/kalshi-pp-cli@main
    ```
 3. Verify: `kalshi-pp-cli --version`
 4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -341,10 +337,6 @@ Parse `$ARGUMENTS`:
 1. Install the MCP server:
    ```bash
    go install github.com/mvanhorn/printing-press-library/library/other/kalshi/cmd/kalshi-pp-mcp@latest
-   
-   # If `@latest` installs a stale build (Go module proxy cache lag), install from main:
-   GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
-     go install github.com/mvanhorn/printing-press-library/library/other/kalshi/cmd/kalshi-pp-mcp@main
    ```
 2. Register with Claude Code:
    ```bash

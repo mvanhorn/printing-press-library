@@ -106,53 +106,6 @@ func TestCopyUpstreamSkill_OverwritesExisting(t *testing.T) {
 	}
 }
 
-// TestInjectStaleBuildFallback covers the copy-time augmentation that
-// teaches upstream (hand-authored) SKILL.md files the same @main
-// fallback the generator template already emits. See the 2026-04-19
-// stale-@latest bug for context.
-func TestInjectStaleBuildFallback(t *testing.T) {
-	t.Run("injects after go install @latest line in a code block", func(t *testing.T) {
-		in := []byte("## CLI Installation\n\n```bash\ngo install github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/cmd/yahoo-finance-pp-cli@latest\nyahoo-finance-pp-cli --version\n```\n")
-		got := string(injectStaleBuildFallback(in))
-		if !strings.Contains(got, "@main") {
-			t.Errorf("expected @main fallback injected, got:\n%s", got)
-		}
-		if !strings.Contains(got, "GOPRIVATE='github.com/mvanhorn/*'") {
-			t.Errorf("expected GOPRIVATE guidance injected, got:\n%s", got)
-		}
-		if !strings.Contains(got, "yahoo-finance-pp-cli@main") {
-			t.Errorf("expected binary-specific @main line, got:\n%s", got)
-		}
-	})
-
-	t.Run("is idempotent when @main already present", func(t *testing.T) {
-		in := []byte("go install github.com/mvanhorn/printing-press-library/library/x/cmd/x-pp-cli@latest\n\n# fallback: go install ...@main\n")
-		got := injectStaleBuildFallback(in)
-		if string(got) != string(in) {
-			t.Errorf("expected idempotent no-op when @main already present\nwant: %q\ngot:  %q", in, got)
-		}
-	})
-
-	t.Run("no go install lines means no injection", func(t *testing.T) {
-		in := []byte("# Title\n\nNarrative content with no install commands.\n")
-		got := injectStaleBuildFallback(in)
-		if string(got) != string(in) {
-			t.Errorf("expected no-op when no @latest install line present")
-		}
-	})
-
-	t.Run("skips metadata-JSON @latest since it is not a plain install line", func(t *testing.T) {
-		// The frontmatter metadata line is long and uses JSON quoting.
-		// Our regex requires a line starting with optional whitespace
-		// then `go install` — metadata lines do NOT satisfy this.
-		in := []byte("metadata: '{\"openclaw\":{\"install\":[{\"command\":\"go install github.com/mvanhorn/printing-press-library/library/x/cmd/x-pp-cli@latest\"}]}}'\n")
-		got := injectStaleBuildFallback(in)
-		if string(got) != string(in) {
-			t.Errorf("expected metadata @latest to be left alone (it is not a user-runnable line)")
-		}
-	})
-}
-
 func TestCopyUpstreamSkill_EmptyFallsThrough(t *testing.T) {
 	tmp := t.TempDir()
 	entryPath := filepath.Join(tmp, "library", "commerce", "blank")

@@ -27,12 +27,6 @@ Parse `$ARGUMENTS`:
    ```bash
    go install github.com/mvanhorn/printing-press-library/{{.InstallPath}}/cmd/{{.CLIBinary}}@latest
    ```
-
-   If `@latest` installs a stale build (the Go module proxy cache can lag the repo by hours after a fresh merge), install from main directly:
-   ```bash
-   GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
-     go install github.com/mvanhorn/printing-press-library/{{.InstallPath}}/cmd/{{.CLIBinary}}@main
-   ```
 3. Verify: `{{.CLIBinary}} --version`
 4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 {{- if eq .AuthType "api_key"}}
@@ -64,12 +58,6 @@ Parse `$ARGUMENTS`:
 1. Install the MCP server:
    ```bash
    go install github.com/mvanhorn/printing-press-library/{{.InstallPath}}/cmd/{{.MCPBinary}}@latest
-   ```
-
-   If `@latest` installs a stale build, install from main directly:
-   ```bash
-   GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
-     go install github.com/mvanhorn/printing-press-library/{{.InstallPath}}/cmd/{{.MCPBinary}}@main
    ```
 2. Register with Claude Code:
    ```bash

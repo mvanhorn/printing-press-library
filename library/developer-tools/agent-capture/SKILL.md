@@ -53,12 +53,6 @@ Parse `$ARGUMENTS`:
    ```bash
    go install github.com/mvanhorn/printing-press-library/library/developer-tools/agent-capture/cmd/agent-capture-pp-cli@latest
    ```
-
-   If `@latest` installs a stale build (Go module proxy cache lag):
-   ```bash
-   GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
-     go install github.com/mvanhorn/printing-press-library/library/developer-tools/agent-capture/cmd/agent-capture-pp-cli@main
-   ```
 3. Verify: `agent-capture --version`.
 4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 5. Grant macOS Screen Recording permission:

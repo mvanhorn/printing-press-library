@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4
+
+- Drop the `GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod … @main` fallback from the `install` command. The library is fully public, so `go install …@latest` resolves through the public Go module proxy without any private-module configuration. The `@main` retry was only useful when paired with `GOPRIVATE` to bypass the proxy entirely; without it, `@main` issues an identical query subject to the same proxy cache and adds no value.
+
 ## 0.1.3
 
 - Drop the `auth env vars: …` line from `install` output. The data was a bare list of env var names without the surrounding context (where to get the token, how to set it, what command verifies it) — that context lives in each CLI's `--help`, `doctor` command, and authenticated-error messages, which is the natural moment to discover auth requirements. JSON output no longer carries `authEnvVars` either; consumers that genuinely need a structured env-var list can read `mcp.env_vars` directly from `registry.json`.

@@ -102,24 +102,26 @@ test("install command stops when Go is missing", async () => {
   assert.match(stderr.join("\n"), /brew install go/);
 });
 
-test("install command retries go install at main when latest fails", async () => {
+test("install command surfaces go install failure when @latest fails", async () => {
   const refs: string[] = [];
+  const stderr: string[] = [];
   const command = createInstallCommand({
     fetchRegistry: async () => registry,
     resolveModulePath: async () => null,
     detectGo: async () => ({ installed: true }),
     goInstall: async (_modulePath, ref) => {
       refs.push(ref);
-      return ref === "latest" ? fail("proxy miss") : ok();
+      return fail("proxy miss");
     },
     commandOnPath: async () => "/Users/example/go/bin/espn-pp-cli",
     installSkill: async () => ok(),
     stdout: () => {},
-    stderr: () => {},
+    stderr: (message) => stderr.push(message),
   });
 
-  assert.equal(await command(["espn"]), 0);
-  assert.deepEqual(refs, ["latest", "main"]);
+  assert.equal(await command(["espn"]), 1);
+  assert.deepEqual(refs, ["latest"]);
+  assert.match(stderr.join("\n"), /go install failed/);
 });
 
 test("install command stops when binary is not on PATH", async () => {

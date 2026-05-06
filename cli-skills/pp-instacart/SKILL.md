@@ -243,10 +243,6 @@ Error surfaces worth translating for the user:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/commerce/instacart/cmd/instacart-pp-cli@latest
-
-# If `@latest` installs a stale build (Go module proxy cache lag), install from main:
-GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod \
-  go install github.com/mvanhorn/printing-press-library/library/commerce/instacart/cmd/instacart-pp-cli@main
 instacart-pp-cli --version
 ```
 
