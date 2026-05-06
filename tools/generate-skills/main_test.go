@@ -456,3 +456,49 @@ func TestBuildOpenClawMetadata_NeverEmitsLegacyShape(t *testing.T) {
 		t.Error("must not emit label: field")
 	}
 }
+
+func TestPruneOrphanSkills(t *testing.T) {
+	tmp := t.TempDir()
+
+	// Layout: two registry-backed skills, one orphan, one non-pp dir, one
+	// stray file. Only the orphan pp-* dir should be removed.
+	mustMkdir := func(p string) {
+		t.Helper()
+		if err := os.MkdirAll(filepath.Join(tmp, p), 0755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	mustMkdir("pp-flight-goat")
+	mustMkdir("pp-recipe-goat")
+	mustMkdir("pp-flightgoat")     // orphan: registry no longer has it
+	mustMkdir("not-a-pp-dir")      // unrelated content, must be preserved
+	if err := os.WriteFile(filepath.Join(tmp, "stray.txt"), []byte("x"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	expected := map[string]struct{}{
+		"pp-flight-goat": {},
+		"pp-recipe-goat": {},
+	}
+	removed := pruneOrphanSkills(tmp, expected)
+	if removed != 1 {
+		t.Fatalf("removed = %d, want 1", removed)
+	}
+	if _, err := os.Stat(filepath.Join(tmp, "pp-flightgoat")); !os.IsNotExist(err) {
+		t.Errorf("pp-flightgoat should have been removed, stat err = %v", err)
+	}
+	for _, keep := range []string{"pp-flight-goat", "pp-recipe-goat", "not-a-pp-dir", "stray.txt"} {
+		if _, err := os.Stat(filepath.Join(tmp, keep)); err != nil {
+			t.Errorf("%s should still exist: %v", keep, err)
+		}
+	}
+}
+
+func TestPruneOrphanSkills_DirMissing(t *testing.T) {
+	// Fresh checkout where cli-skills/ doesn't exist yet should not error.
+	missing := filepath.Join(t.TempDir(), "does-not-exist")
+	removed := pruneOrphanSkills(missing, map[string]struct{}{})
+	if removed != 0 {
+		t.Fatalf("removed = %d, want 0 for missing dir", removed)
+	}
+}
