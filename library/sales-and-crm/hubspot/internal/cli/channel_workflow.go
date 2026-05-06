@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot/internal/store"
 )
 
 func newWorkflowCmd(flags *rootFlags) *cobra.Command {

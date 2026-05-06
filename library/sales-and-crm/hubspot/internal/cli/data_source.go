@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot-pp-cli/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot/internal/store"
 )
 
 // isNetworkError returns true for errors caused by network connectivity issues

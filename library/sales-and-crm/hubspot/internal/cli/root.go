@@ -14,8 +14,8 @@ import (
 	"io"
 	"os"
 
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot-pp-cli/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot/internal/config"
 	"github.com/spf13/cobra"
 )
 

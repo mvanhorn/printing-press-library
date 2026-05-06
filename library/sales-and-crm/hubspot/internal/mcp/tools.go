@@ -15,9 +15,9 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot-pp-cli/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot-pp-cli/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot/internal/store"
 )
 
 // looksLikeAuthError checks if an error message body contains auth-related keywords.

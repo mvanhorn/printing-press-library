@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot/internal/config"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {

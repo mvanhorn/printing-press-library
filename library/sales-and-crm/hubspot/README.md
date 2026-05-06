@@ -9,7 +9,7 @@ Learn more at [HubSpot Developers](https://developers.hubspot.com/docs/api).
 ### Go
 
 ```
-go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot-pp-cli/cmd/hubspot-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot/cmd/hubspot-pp-cli@latest
 ```
 
 ### Binary

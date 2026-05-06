@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot-pp-cli/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot/internal/cli"
 )
 
 func main() {

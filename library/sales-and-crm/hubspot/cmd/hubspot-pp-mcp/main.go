@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/mark3labs/mcp-go/server"
-	mcptools "github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot-pp-cli/internal/mcp"
+	mcptools "github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot/internal/mcp"
 )
 
 func main() {

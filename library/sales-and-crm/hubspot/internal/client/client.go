@@ -20,7 +20,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot/internal/config"
 )
 
 type Client struct {

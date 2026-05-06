@@ -14,7 +14,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot/internal/store"
 	"github.com/spf13/cobra"
 )
 

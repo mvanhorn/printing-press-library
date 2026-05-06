@@ -1,4 +1,4 @@
-module github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot-pp-cli
+module github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot
 
 go 1.23.0
 
