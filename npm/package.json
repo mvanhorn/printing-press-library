@@ -1,15 +1,40 @@
 {
   "name": "@mvanhorn/printing-press",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Installer and catalog CLI for Printing Press-generated CLIs.",
   "type": "module",
+  "license": "MIT",
+  "author": "Matt Van Horn <mvanhorn@gmail.com>",
+  "contributors": [
+    "Trevin Chow <trevin@trevinchow.com>"
+  ],
+  "homepage": "https://printingpress.dev",
+  "bugs": {
+    "url": "https://github.com/mvanhorn/printing-press-library/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mvanhorn/printing-press-library.git",
+    "directory": "npm"
+  },
+  "keywords": [
+    "cli",
+    "claude",
+    "agent",
+    "go",
+    "openapi",
+    "skills",
+    "printing-press",
+    "installer"
+  ],
   "bin": {
-    "pp": "./bin/pp.mjs"
+    "printing-press": "./bin/printing-press.mjs"
   },
   "files": [
     "bin/",
     "CHANGELOG.md",
     "dist/src/",
+    "LICENSE",
     "README.md"
   ],
   "engines": {
@@ -18,7 +43,12 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "rm -rf dist",
-    "test": "npm run build && node --test \"dist/tests/**/*.test.js\""
+    "test": "npm run build && node --test \"dist/tests/**/*.test.js\"",
+    "prepublishOnly": "npm test && npm run build"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "devDependencies": {
     "@types/node": "^20.19.39",

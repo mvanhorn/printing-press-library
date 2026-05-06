@@ -51,18 +51,33 @@ function printHelp(): void {
   console.log(`Printing Press CLI installer
 
 Usage:
-  pp <command> [options]
+  printing-press <command> [options]
 
 Commands:
-  install <name>     Install a Printing Press CLI and skill
-  update [name]      Refresh one installed CLI, or all installed CLIs
-  list               List installed Printing Press CLIs
-  search <query>     Search the Printing Press catalog
-  uninstall <name>   Remove a Printing Press CLI and skill
+  install <name|bundle>...  Install one or more Printing Press CLIs (and skills)
+  update [name]             Refresh one installed CLI, or all installed CLIs
+  list                      List installed Printing Press CLIs
+  search <query>            Search the Printing Press catalog
+  uninstall <name>          Remove a Printing Press CLI and skill
 
-Options:
-  -h, --help         Show help
-  -v, --version      Show version`);
+Bundles:
+  starter-pack              espn, flight-goat, movie-goat, recipe-goat
+
+Examples:
+  printing-press install starter-pack
+  printing-press install espn linear dub
+  printing-press install espn --cli-only
+  printing-press search sports
+
+Install options:
+  --cli-only             Install only the Go binary (skip the focused skill)
+  --skill-only           Install only the focused skill (skip the Go binary)
+  --agent <agent>        Constrain skill install to a specific agent (repeatable)
+  --json                 Emit machine-readable output
+
+Top-level options:
+  -h, --help             Show help
+  -v, --version          Show version`);
 }
 
 async function packageVersion(): Promise<string> {

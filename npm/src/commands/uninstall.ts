@@ -27,7 +27,7 @@ export function createUninstallCommand(overrides: Partial<UninstallDeps> = {}) {
     const parsed = parseUninstallArgs(args);
     if ("error" in parsed) {
       deps.stderr(parsed.error);
-      deps.stderr("Usage: pp uninstall <name> --yes [--agent <agent>...]");
+      deps.stderr("Usage: printing-press uninstall <name> --yes [--agent <agent>...]");
       return 1;
     }
     if (!parsed.yes) {

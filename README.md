@@ -14,25 +14,32 @@ Three to try first:
 - flight-goat (Kayak nonstop search plus sniffed Google Flights). _"Non-stop flights over 8 hours from Seattle for 4 people, Dec 24 to Jan 1, cheapest first."_ Two sources, one query.
 - linear-pp-cli (50ms against a local SQLite mirror). _"Every blocked issue whose blocker has been stuck for a week."_ Compound queries the Linear API can't answer.
 
-## Release status
+## Install
 
-The v0.1.0 npm installer and `cli-skills/` direct-install namespace are prepared in this repo, but public use is waiting on three release steps:
+The fastest way to start — install four hand-picked CLIs and skills in one command:
 
-1. Merge this work to `main`, so `cli-skills/` exists on the default branch.
-2. Publish `@mvanhorn/printing-press` to npm.
-3. Make the repo public, or document the private-repo token setup for early users.
+```bash
+npx -y @mvanhorn/printing-press install starter-pack
+```
 
-While the repo is private, live installer use requires `GITHUB_TOKEN` or `GH_TOKEN` for catalog and skill fetches, plus private Go module access for `go install`.
+The starter pack: [`espn`](library/media-and-entertainment/espn/) (live sports), [`flight-goat`](library/travel/flightgoat/) (flight search), [`movie-goat`](library/media-and-entertainment/movie-goat/) (movie discovery), [`recipe-goat`](library/food-and-dining/recipe-goat/) (recipe ranking).
 
-## Install a CLI
+Every install pulls the Go binary **and** the focused skill in one shot. Pass `--cli-only` or `--skill-only` if you want just one half.
 
-After v0.1.0 is published, the primary install path is:
+One tool:
 
 ```bash
 npx -y @mvanhorn/printing-press install espn
 ```
 
-That command installs the Go binary and the focused `pp-espn` skill. The npm package is intentionally thin: it reads the live catalog in `registry.json`, resolves the CLI's Go module path, runs `go install`, and installs the matching skill from `cli-skills/pp-<name>`.
+Several at once (bundles and CLI names mix freely):
+
+```bash
+npx -y @mvanhorn/printing-press install espn linear dub
+npx -y @mvanhorn/printing-press install starter-pack hubspot
+```
+
+Under the hood: the npm package is a thin orchestrator that reads the live catalog in `registry.json`, resolves each CLI's Go module path, runs `go install`, and installs the matching skill from `cli-skills/pp-<name>`.
 
 Useful commands:
 
@@ -42,6 +49,8 @@ npx -y @mvanhorn/printing-press list
 npx -y @mvanhorn/printing-press update espn
 npx -y @mvanhorn/printing-press uninstall espn --yes
 ```
+
+While the catalog repository is private, live installer use requires `GITHUB_TOKEN` or `GH_TOKEN` for catalog and skill fetches, plus working private Go module access for `go install`.
 
 ## Use the plugin router
 

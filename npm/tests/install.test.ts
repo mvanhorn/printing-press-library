@@ -177,6 +177,213 @@ test("install command emits JSON when requested", async () => {
   assert.equal(JSON.parse(stdout[0]!).skill, "pp-espn");
 });
 
+test("install command installs multiple CLIs in one call", async () => {
+  const multiRegistry: Registry = {
+    schema_version: 1,
+    entries: [
+      {
+        name: "espn",
+        category: "sports",
+        api: "ESPN",
+        description: "Sports scores",
+        path: "library/sports/espn",
+      },
+      {
+        name: "linear",
+        category: "project-management",
+        api: "Linear",
+        description: "Issues",
+        path: "library/project-management/linear",
+      },
+    ],
+  };
+  const installed: string[] = [];
+  const skills: string[] = [];
+  const stdout: string[] = [];
+  const command = createInstallCommand({
+    fetchRegistry: async () => multiRegistry,
+    resolveModulePath: async () => null,
+    detectGo: async () => ({ installed: true }),
+    goInstall: async (modulePath) => {
+      installed.push(modulePath);
+      return ok();
+    },
+    commandOnPath: async (binary) => `/Users/example/go/bin/${binary}`,
+    installSkill: async (skillName) => {
+      skills.push(skillName);
+      return ok();
+    },
+    stdout: (message) => stdout.push(message),
+    stderr: () => {},
+  });
+
+  assert.equal(await command(["espn", "linear"]), 0);
+  assert.equal(installed.length, 2);
+  assert.deepEqual(skills, ["pp-espn", "pp-linear"]);
+  assert.match(stdout.join("\n"), /Installed 2 CLI/);
+});
+
+test("install command expands the starter-pack bundle", async () => {
+  const bundleRegistry: Registry = {
+    schema_version: 1,
+    entries: [
+      { name: "espn", category: "media", api: "ESPN", description: "x", path: "library/media/espn" },
+      { name: "flight-goat", category: "travel", api: "FlightGoat", description: "x", path: "library/travel/flightgoat" },
+      { name: "movie-goat", category: "media", api: "MovieGoat", description: "x", path: "library/media/movie-goat" },
+      { name: "recipe-goat", category: "food", api: "RecipeGoat", description: "x", path: "library/food/recipe-goat" },
+    ],
+  };
+  const installed: string[] = [];
+  const stdout: string[] = [];
+  const command = createInstallCommand({
+    fetchRegistry: async () => bundleRegistry,
+    resolveModulePath: async () => null,
+    detectGo: async () => ({ installed: true }),
+    goInstall: async (modulePath) => {
+      installed.push(modulePath);
+      return ok();
+    },
+    commandOnPath: async (binary) => `/Users/example/go/bin/${binary}`,
+    installSkill: async () => ok(),
+    stdout: (message) => stdout.push(message),
+    stderr: () => {},
+  });
+
+  assert.equal(await command(["starter-pack"]), 0);
+  assert.equal(installed.length, 4);
+  assert.match(stdout.join("\n"), /Bundle "starter-pack"/);
+  assert.match(stdout.join("\n"), /Installed 4 CLI/);
+});
+
+test("install command continues after a partial multi-name failure", async () => {
+  const partialRegistry: Registry = {
+    schema_version: 1,
+    entries: [
+      { name: "espn", category: "sports", api: "ESPN", description: "x", path: "library/sports/espn" },
+    ],
+  };
+  const stdout: string[] = [];
+  const command = createInstallCommand({
+    fetchRegistry: async () => partialRegistry,
+    resolveModulePath: async () => null,
+    detectGo: async () => ({ installed: true }),
+    goInstall: async () => ok(),
+    commandOnPath: async (binary) => `/Users/example/go/bin/${binary}`,
+    installSkill: async () => ok(),
+    stdout: (message) => stdout.push(message),
+    stderr: () => {},
+  });
+
+  assert.equal(await command(["espn", "made-up-name"]), 1);
+  assert.match(stdout.join("\n"), /Installed 1 of 2; failed: made-up-name/);
+});
+
+test("install command with --cli-only skips skill install", async () => {
+  const goCalls: string[] = [];
+  const skillCalls: string[] = [];
+  const stdout: string[] = [];
+  const command = createInstallCommand({
+    fetchRegistry: async () => registry,
+    resolveModulePath: async () => null,
+    detectGo: async () => ({ installed: true }),
+    goInstall: async (modulePath) => {
+      goCalls.push(modulePath);
+      return ok();
+    },
+    commandOnPath: async () => "/Users/example/go/bin/espn-pp-cli",
+    installSkill: async (skillName) => {
+      skillCalls.push(skillName);
+      return ok();
+    },
+    stdout: (message) => stdout.push(message),
+    stderr: () => {},
+  });
+
+  assert.equal(await command(["espn", "--cli-only"]), 0);
+  assert.equal(goCalls.length, 1);
+  assert.deepEqual(skillCalls, []);
+  assert.match(stdout.join("\n"), /binary:/);
+  assert.doesNotMatch(stdout.join("\n"), /skill:/);
+});
+
+test("install command with --skill-only skips go install and PATH check", async () => {
+  const goCalls: string[] = [];
+  const skillCalls: string[] = [];
+  const detectGoCalls: number[] = [];
+  const stdout: string[] = [];
+  const command = createInstallCommand({
+    fetchRegistry: async () => registry,
+    resolveModulePath: async () => null,
+    detectGo: async () => {
+      detectGoCalls.push(1);
+      return { installed: false };
+    },
+    goInstall: async (modulePath) => {
+      goCalls.push(modulePath);
+      return ok();
+    },
+    commandOnPath: async () => null,
+    installSkill: async (skillName) => {
+      skillCalls.push(skillName);
+      return ok();
+    },
+    stdout: (message) => stdout.push(message),
+    stderr: () => {},
+  });
+
+  assert.equal(await command(["espn", "--skill-only"]), 0);
+  assert.deepEqual(goCalls, []);
+  assert.deepEqual(detectGoCalls, []);
+  assert.deepEqual(skillCalls, ["pp-espn"]);
+  assert.match(stdout.join("\n"), /skill: pp-espn/);
+  assert.doesNotMatch(stdout.join("\n"), /binary:/);
+});
+
+test("install command rejects --cli-only and --skill-only together", async () => {
+  const stderr: string[] = [];
+  const command = createInstallCommand({
+    fetchRegistry: async () => registry,
+    stderr: (message) => stderr.push(message),
+  });
+
+  assert.equal(await command(["espn", "--cli-only", "--skill-only"]), 1);
+  assert.match(stderr.join("\n"), /mutually exclusive/);
+});
+
+test("install command --cli-only with bundle skips every skill", async () => {
+  const bundleRegistry: Registry = {
+    schema_version: 1,
+    entries: [
+      { name: "espn", category: "media", api: "ESPN", description: "x", path: "library/media/espn" },
+      { name: "flight-goat", category: "travel", api: "FlightGoat", description: "x", path: "library/travel/flightgoat" },
+      { name: "movie-goat", category: "media", api: "MovieGoat", description: "x", path: "library/media/movie-goat" },
+      { name: "recipe-goat", category: "food", api: "RecipeGoat", description: "x", path: "library/food/recipe-goat" },
+    ],
+  };
+  const goCalls: string[] = [];
+  const skillCalls: string[] = [];
+  const command = createInstallCommand({
+    fetchRegistry: async () => bundleRegistry,
+    resolveModulePath: async () => null,
+    detectGo: async () => ({ installed: true }),
+    goInstall: async (modulePath) => {
+      goCalls.push(modulePath);
+      return ok();
+    },
+    commandOnPath: async (binary) => `/Users/example/go/bin/${binary}`,
+    installSkill: async (skillName) => {
+      skillCalls.push(skillName);
+      return ok();
+    },
+    stdout: () => {},
+    stderr: () => {},
+  });
+
+  assert.equal(await command(["starter-pack", "--cli-only"]), 0);
+  assert.equal(goCalls.length, 4);
+  assert.deepEqual(skillCalls, []);
+});
+
 test("install command uses go.mod module path when it differs from registry path", async () => {
   const hubspotRegistry: Registry = {
     schema_version: 1,

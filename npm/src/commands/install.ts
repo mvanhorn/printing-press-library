@@ -1,3 +1,4 @@
+import { BUNDLES, isBundle } from "../bundles.js";
 import { detectGo, goInstall, type GoDetection } from "../go.js";
 import { commandOnPath, type RunResult } from "../process.js";
 import {
@@ -15,6 +16,8 @@ interface InstallOptions {
   agents: string[];
   json: boolean;
   registryUrl: string;
+  cliOnly: boolean;
+  skillOnly: boolean;
 }
 
 interface InstallDeps {
@@ -29,13 +32,20 @@ interface InstallDeps {
   platform: NodeJS.Platform;
 }
 
-interface InstallResult {
+interface InstallSummary {
   name: string;
-  binary: string;
-  modulePath: string;
-  skill: string;
-  binaryPath: string;
+  binary?: string;
+  modulePath?: string;
+  skill?: string;
+  binaryPath?: string;
   authEnvVars: string[];
+}
+
+interface InstallOutcome {
+  ok: boolean;
+  name: string;
+  data?: InstallSummary;
+  error?: string;
 }
 
 export function createInstallCommand(overrides: Partial<InstallDeps> = {}) {
@@ -56,101 +66,195 @@ export function createInstallCommand(overrides: Partial<InstallDeps> = {}) {
     const parsed = parseInstallArgs(args);
     if ("error" in parsed) {
       deps.stderr(parsed.error);
-      deps.stderr("Usage: pp install <name> [--agent <agent>...] [--json]");
+      deps.stderr("Usage: printing-press install <name|bundle>... [--agent <agent>...] [--json]");
       return 1;
     }
 
-    const { name, options } = parsed;
+    const expanded = expandBundles(parsed.names, parsed.options, deps);
 
+    let registry: Registry;
     try {
-      const registry = await deps.fetchRegistry(options.registryUrl);
-      const entry = lookupByName(registry, name);
-      if (!entry) {
-        deps.stderr(`No Printing Press CLI found for "${name}". Try \`pp search ${name}\`.`);
-        return 1;
-      }
-
-      const go = await deps.detectGo();
-      if (!go.installed) {
-        deps.stderr(goMissingMessage(deps.platform));
-        return 1;
-      }
-
-      const binary = cliBinaryName(entry);
-      const moduleRoot =
-        (await deps.resolveModulePath(entry.path, options.registryUrl)) ??
-        `github.com/mvanhorn/printing-press-library/${entry.path}`;
-      const modulePath = `${moduleRoot}/cmd/${binary}`;
-      const skillName = cliSkillName(entry);
-
-      const install = await installGoWithFallback(deps, modulePath);
-      if (install.code !== 0) {
-        deps.stderr(`go install failed for ${modulePath}`);
-        if (install.stderr.trim()) {
-          deps.stderr(install.stderr.trim());
-        }
-        return 1;
-      }
-
-      const binaryPath = await deps.commandOnPath(binary);
-      if (!binaryPath) {
-        deps.stderr(pathMessage(binary));
-        return 1;
-      }
-
-      const skill = await deps.installSkill(skillName, options.agents);
-      if (skill.code !== 0) {
-        deps.stderr(`Skill install failed for ${skillName}. The binary remains installed at ${binaryPath}.`);
-        if (skill.stderr.trim()) {
-          deps.stderr(skill.stderr.trim());
-        }
-        return 1;
-      }
-
-      const result: InstallResult = {
-        name: entry.name,
-        binary,
-        modulePath,
-        skill: skillName,
-        binaryPath,
-        authEnvVars: entry.mcp?.env_vars ?? [],
-      };
-
-      if (options.json) {
-        deps.stdout(JSON.stringify({ ok: true, ...result }, null, 2));
-      } else {
-        deps.stdout(`Installed ${entry.name}`);
-        deps.stdout(`  binary: ${binaryPath}`);
-        deps.stdout(`  skill: ${skillName}`);
-        if (result.authEnvVars.length > 0) {
-          deps.stdout(`  auth env vars: ${result.authEnvVars.join(", ")}`);
-        }
-      }
-
-      return 0;
+      registry = await deps.fetchRegistry(parsed.options.registryUrl);
     } catch (error) {
       deps.stderr(error instanceof Error ? error.message : String(error));
       return 1;
     }
+
+    const outcomes: InstallOutcome[] = [];
+    for (const name of expanded) {
+      const outcome = await installOne(name, registry, parsed.options, deps);
+      outcomes.push(outcome);
+      if (outcome.error === "go missing") {
+        // Go is a global precondition; no point retrying it for the rest.
+        break;
+      }
+    }
+
+    return reportResults(outcomes, parsed.options, deps);
   };
+}
+
+async function installOne(
+  name: string,
+  registry: Registry,
+  options: InstallOptions,
+  deps: InstallDeps,
+): Promise<InstallOutcome> {
+  const entry = lookupByName(registry, name);
+  if (!entry) {
+    deps.stderr(`No Printing Press CLI found for "${name}". Try \`printing-press search ${name}\`.`);
+    return { ok: false, name, error: "not in catalog" };
+  }
+
+  const summary: InstallSummary = {
+    name: entry.name,
+    authEnvVars: entry.mcp?.env_vars ?? [],
+  };
+
+  if (!options.skillOnly) {
+    const go = await deps.detectGo();
+    if (!go.installed) {
+      deps.stderr(goMissingMessage(deps.platform));
+      return { ok: false, name: entry.name, error: "go missing" };
+    }
+
+    const binary = cliBinaryName(entry);
+    const moduleRoot =
+      (await deps.resolveModulePath(entry.path, options.registryUrl)) ??
+      `github.com/mvanhorn/printing-press-library/${entry.path}`;
+    const modulePath = `${moduleRoot}/cmd/${binary}`;
+
+    const install = await installGoWithFallback(deps, modulePath);
+    if (install.code !== 0) {
+      deps.stderr(`go install failed for ${modulePath}`);
+      if (install.stderr.trim()) {
+        deps.stderr(install.stderr.trim());
+      }
+      return { ok: false, name: entry.name, error: "go install failed" };
+    }
+
+    const binaryPath = await deps.commandOnPath(binary);
+    if (!binaryPath) {
+      deps.stderr(pathMessage(binary));
+      return { ok: false, name: entry.name, error: "binary not on PATH" };
+    }
+
+    summary.binary = binary;
+    summary.modulePath = modulePath;
+    summary.binaryPath = binaryPath;
+  }
+
+  if (!options.cliOnly) {
+    const skillName = cliSkillName(entry);
+    const skill = await deps.installSkill(skillName, options.agents);
+    if (skill.code !== 0) {
+      const binaryNote = summary.binaryPath
+        ? ` The binary remains installed at ${summary.binaryPath}.`
+        : "";
+      deps.stderr(`Skill install failed for ${skillName}.${binaryNote}`);
+      if (skill.stderr.trim()) {
+        deps.stderr(skill.stderr.trim());
+      }
+      return { ok: false, name: entry.name, error: "skill install failed" };
+    }
+    summary.skill = skillName;
+  }
+
+  if (!options.json) {
+    deps.stdout(`Installed ${entry.name}`);
+    if (summary.binaryPath) {
+      deps.stdout(`  binary: ${summary.binaryPath}`);
+    }
+    if (summary.skill) {
+      deps.stdout(`  skill: ${summary.skill}`);
+    }
+    if (summary.authEnvVars.length > 0) {
+      deps.stdout(`  auth env vars: ${summary.authEnvVars.join(", ")}`);
+    }
+  }
+
+  return { ok: true, name: entry.name, data: summary };
+}
+
+function expandBundles(names: string[], options: InstallOptions, deps: InstallDeps): string[] {
+  const expanded: string[] = [];
+  for (const name of names) {
+    if (isBundle(name)) {
+      const members = BUNDLES[name]!;
+      if (!options.json) {
+        deps.stdout(`Bundle "${name}" → ${members.join(", ")}`);
+      }
+      expanded.push(...members);
+    } else {
+      expanded.push(name);
+    }
+  }
+  return expanded;
+}
+
+function reportResults(outcomes: InstallOutcome[], options: InstallOptions, deps: InstallDeps): number {
+  const failures = outcomes.filter((o) => !o.ok);
+
+  if (options.json) {
+    // Backward-compatible flat shape for the single-success case.
+    if (outcomes.length === 1 && outcomes[0]!.ok) {
+      deps.stdout(JSON.stringify({ ok: true, ...outcomes[0]!.data }, null, 2));
+      return 0;
+    }
+    deps.stdout(
+      JSON.stringify(
+        {
+          ok: failures.length === 0,
+          results: outcomes.map((o) => ({
+            ok: o.ok,
+            name: o.name,
+            ...(o.data ?? {}),
+            ...(o.error ? { error: o.error } : {}),
+          })),
+        },
+        null,
+        2,
+      ),
+    );
+    return failures.length === 0 ? 0 : 1;
+  }
+
+  if (outcomes.length > 1) {
+    deps.stdout("");
+    if (failures.length === 0) {
+      deps.stdout(`Installed ${outcomes.length} CLI(s).`);
+    } else {
+      const ok = outcomes.length - failures.length;
+      const failedNames = failures.map((f) => f.name).join(", ");
+      deps.stdout(`Installed ${ok} of ${outcomes.length}; failed: ${failedNames}.`);
+    }
+  }
+
+  return failures.length === 0 ? 0 : 1;
 }
 
 export const installCommand = createInstallCommand();
 
 function parseInstallArgs(args: string[]):
-  | { name: string; options: InstallOptions }
+  | { names: string[]; options: InstallOptions }
   | { error: string } {
   const options: InstallOptions = {
     agents: [],
     json: false,
     registryUrl: DEFAULT_REGISTRY_URL,
+    cliOnly: false,
+    skillOnly: false,
   };
-  let name: string | undefined;
+  const names: string[] = [];
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]!;
     if (arg === "--json") {
       options.json = true;
+    } else if (arg === "--cli-only") {
+      options.cliOnly = true;
+    } else if (arg === "--skill-only") {
+      options.skillOnly = true;
     } else if (arg === "--agent" || arg === "-a") {
       const agent = args[++i];
       if (!agent) {
@@ -165,18 +269,20 @@ function parseInstallArgs(args: string[]):
       options.registryUrl = registryUrl;
     } else if (arg.startsWith("-")) {
       return { error: `Unknown install option: ${arg}` };
-    } else if (!name) {
-      name = arg;
     } else {
-      return { error: `Unexpected argument: ${arg}` };
+      names.push(arg);
     }
   }
 
-  if (!name) {
-    return { error: "Missing CLI name" };
+  if (options.cliOnly && options.skillOnly) {
+    return { error: "--cli-only and --skill-only are mutually exclusive" };
   }
 
-  return { name, options };
+  if (names.length === 0) {
+    return { error: "Missing CLI name or bundle" };
+  }
+
+  return { names, options };
 }
 
 async function installGoWithFallback(deps: InstallDeps, modulePath: string): Promise<RunResult> {

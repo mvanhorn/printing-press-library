@@ -51,7 +51,7 @@ export function createListCommand(overrides: Partial<ListDeps> = {}) {
     }
 
     if (installed.length === 0) {
-      deps.stdout("No Printing Press CLIs installed. Try `pp search <query>` or `pp install <name>`.");
+      deps.stdout("No Printing Press CLIs installed. Try `printing-press search <query>` or `printing-press install <name>`.");
       return 0;
     }
 
