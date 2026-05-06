@@ -72,9 +72,18 @@ jobs:
             else
               changed_paths=$(git diff --name-only "$BEFORE_SHA" "$AFTER_SHA" -- 'library/**' || true)
             fi
+            # Filter to directories that still exist in the merged tree so a
+            # rename (which surfaces in `git diff` as deletions under the old
+            # slug + additions under the new slug) doesn't spawn a spurious
+            # matrix branch for the now-deleted directory. Without this, the
+            # bundle/build/release jobs run vacuously or fail noisily for the
+            # old slug. See issue #250 for the flightgoat -> flight-goat case.
             affected=$(printf '%s\n' "$changed_paths" \
               | awk -F/ 'NF >= 3 && $1 == "library" { print $2"/"$3 }' \
               | sort -u \
+              | while IFS= read -r entry; do
+                  [ -d "library/$entry" ] && printf '%s\n' "$entry"
+                done \
               | jq -R . | jq -s -c .)
           fi
           # Filter out empty/null entries
