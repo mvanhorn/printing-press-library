@@ -1,8 +1,0 @@
-{
-  "dir": "/Users/mvanhorn/printing-press/.runstate/mvanhorn-eb6a05f2/runs/20260411-000903/working/flightgoat",
-  "workflows": null,
-  "verdict": "workflow-pass",
-  "issues": [
-    "no workflow manifest found, skipping"
-  ]
-}
