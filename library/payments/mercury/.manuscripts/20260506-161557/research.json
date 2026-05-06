@@ -1,0 +1,75 @@
+{
+  "api_name": "mercury",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "mercury-cli",
+      "url": "https://github.com/MercuryTechnologies/mercury-cli",
+      "language": "go"
+    }
+  ],
+  "gaps": [
+    "the official CLI is optimized for human terminal use rather than autonomous MCP hosts",
+    "the official CLI does not provide a local archive/search layer for agent context",
+    "the official CLI does not emit explicit approval-ready money-movement plans before writes"
+  ],
+  "patterns": [
+    "resource-oriented commands",
+    "browser login for humans",
+    "multiple output formats and GJSON transforms"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-06T21:15:57Z",
+  "novel_features": [
+    {
+      "name": "Agent money movement plan",
+      "command": "workflow payment-plan",
+      "description": "Builds a read-only approval plan with body, idempotency key, dry-run command, and execute command before payment or transfer writes.",
+      "rationale": "Banking APIs are high-risk for agents; separating planning from execution makes approval and audit explicit.",
+      "example": "mercury-pp-cli workflow payment-plan --kind transfer --source-account-id acct_src --destination-account-id acct_dst --amount 25 --agent",
+      "why_it_matters": "Agents can prepare exact write commands without moving money."
+    },
+    {
+      "name": "Agent-native local archive",
+      "command": "workflow archive",
+      "description": "Syncs supported Mercury resources into a local SQLite store for offline search and analytics.",
+      "rationale": "Agents need stable local context instead of repeatedly polling account and transaction endpoints.",
+      "example": "mercury-pp-cli workflow archive --agent",
+      "why_it_matters": "Reduces API calls and gives agents repeatable context."
+    },
+    {
+      "name": "Structured command introspection",
+      "command": "agent-context",
+      "description": "Emits machine-readable command metadata for agents and MCP hosts.",
+      "rationale": "Agents need a compact tool map rather than scraping human help text.",
+      "example": "mercury-pp-cli agent-context --agent",
+      "why_it_matters": "Improves autonomous command selection and reduces context waste."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Agent money movement plan",
+      "command": "workflow payment-plan",
+      "description": "Builds a read-only approval plan with body, idempotency key, dry-run command, and execute command before payment or transfer writes.",
+      "rationale": "Banking APIs are high-risk for agents; separating planning from execution makes approval and audit explicit.",
+      "example": "mercury-pp-cli workflow payment-plan --kind transfer --source-account-id acct_src --destination-account-id acct_dst --amount 25 --agent",
+      "why_it_matters": "Agents can prepare exact write commands without moving money."
+    },
+    {
+      "name": "Agent-native local archive",
+      "command": "workflow archive",
+      "description": "Syncs supported Mercury resources into a local SQLite store for offline search and analytics.",
+      "rationale": "Agents need stable local context instead of repeatedly polling account and transaction endpoints.",
+      "example": "mercury-pp-cli workflow archive --agent",
+      "why_it_matters": "Reduces API calls and gives agents repeatable context."
+    },
+    {
+      "name": "Structured command introspection",
+      "command": "agent-context",
+      "description": "Emits machine-readable command metadata for agents and MCP hosts.",
+      "rationale": "Agents need a compact tool map rather than scraping human help text.",
+      "example": "mercury-pp-cli agent-context --agent",
+      "why_it_matters": "Improves autonomous command selection and reduces context waste."
+    }
+  ]
+}

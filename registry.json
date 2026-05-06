@@ -552,6 +552,27 @@
       }
     },
     {
+      "name": "mercury",
+      "category": "payments",
+      "api": "Mercury",
+      "description": "Business banking API for accounts, transactions, payments, recipients, cards, invoices, treasury, and webhooks",
+      "path": "library/payments/mercury",
+      "mcp": {
+        "binary": "mercury-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 75,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "MERCURY_BEARER_AUTH"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "movie-goat",
       "category": "media-and-entertainment",
       "api": "Movie Goat",

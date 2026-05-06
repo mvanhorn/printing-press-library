@@ -1,0 +1,2429 @@
+{
+  "api_name": "mercury",
+  "base_url": "https://api.mercury.com/api/v1",
+  "description": "Streamline financial tasks with secure account management and transaction processing. Enables user registration, balance tracking, and payment handling.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "MERCURY_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "MERCURY_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "account_get",
+      "description": "Get account by ID. Required: accountId. Returns the Account.",
+      "method": "GET",
+      "path": "/account/{accountId}",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "account_cards_get-account",
+      "description": "Retrieve all debit and credit cards associated with a specific account. Required: accountId. Returns the AccountCardsResponse.",
+      "method": "GET",
+      "path": "/account/{accountId}/cards",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "account_request-send-money_request_send_money",
+      "description": "Create a 'request to send money' that will require approval based on your organization's approval policies. Required: accountId, amount, idempotencyKey, paymentMethod, recipientId. Optional: externalMemo, note. Returns the new SendMoneyApprovalRequestResponse.",
+      "method": "POST",
+      "path": "/account/{accountId}/request-send-money",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "amount",
+          "type": "float",
+          "location": "body",
+          "description": "Amount of USD you want to send, must be a positive number.",
+          "required": true
+        },
+        {
+          "name": "externalMemo",
+          "type": "string",
+          "location": "body",
+          "description": "Optional external memo"
+        },
+        {
+          "name": "idempotencyKey",
+          "type": "string",
+          "location": "body",
+          "description": "Unique string identifying the transaction",
+          "required": true
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Optional note"
+        },
+        {
+          "name": "paymentMethod",
+          "type": "string",
+          "location": "body",
+          "description": "Payment method to use.",
+          "required": true
+        },
+        {
+          "name": "recipientId",
+          "type": "string",
+          "location": "body",
+          "description": "Recipient ID from the /recipients endpoint.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "account_statements_get-account",
+      "description": "Retrieve a paginated list of monthly statements for a specific account. Supports cursor-based pagination with limit, order, start_after, and end_before query parameters, as well as date range filtering with start and end parameters. Required: accountId. Optional: limit (default: 1000), order (default: desc), start_after (plus 3 more). Returns the DepositoryAccountStatementsPaginatedResponse.",
+      "method": "GET",
+      "path": "/account/{accountId}/statements",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        },
+        {
+          "name": "start_after",
+          "type": "string",
+          "location": "query",
+          "description": "Start after"
+        },
+        {
+          "name": "end_before",
+          "type": "string",
+          "location": "query",
+          "description": "End before"
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "Start"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "End"
+        }
+      ]
+    },
+    {
+      "name": "account_transaction_get",
+      "description": "Get transaction by ID. Required: accountId, transactionId. Returns the Transaction.",
+      "method": "GET",
+      "path": "/account/{accountId}/transaction/{transactionId}",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "transactionId",
+          "type": "string",
+          "location": "path",
+          "description": "Transaction id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "account_transactions_create",
+      "description": "Send money from an account to a recipient. Creates a transaction that will be processed immediately or may require approval. Required: accountId, amount, idempotencyKey, paymentMethod, recipientId. Optional: externalMemo, note, purpose. Returns the new Transaction.",
+      "method": "POST",
+      "path": "/account/{accountId}/transactions",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "amount",
+          "type": "float",
+          "location": "body",
+          "description": "Amount of USD you want to send, must be a positive number.",
+          "required": true
+        },
+        {
+          "name": "externalMemo",
+          "type": "string",
+          "location": "body",
+          "description": "Optional external memo"
+        },
+        {
+          "name": "idempotencyKey",
+          "type": "string",
+          "location": "body",
+          "description": "Unique string identifying the transaction",
+          "required": true
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Optional note"
+        },
+        {
+          "name": "paymentMethod",
+          "type": "string",
+          "location": "body",
+          "description": "If domesticWire is used, then the purpose field is required.",
+          "required": true
+        },
+        {
+          "name": "purpose",
+          "type": "object",
+          "location": "body",
+          "description": "Purpose of payment with category and optional additional info. Required when paymentMethod is 'domesticWire'."
+        },
+        {
+          "name": "recipientId",
+          "type": "string",
+          "location": "body",
+          "description": "Recipient ID from the /recipients endpoint.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "account_transactions_list-account",
+      "description": "Retrieve a paginated list of transactions for a specific account. Supports filtering by date range, status, and search terms. Required: accountId. Optional: limit (default: 1000), start, end (plus 7 more). Returns the TransactionsResponse.",
+      "method": "GET",
+      "path": "/account/{accountId}/transactions",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "path",
+          "description": "Account id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "Start"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "End"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        },
+        {
+          "name": "requestId",
+          "type": "string",
+          "location": "query",
+          "description": "Request id"
+        },
+        {
+          "name": "mercuryCategory",
+          "type": "string",
+          "location": "query",
+          "description": "Mercury category"
+        },
+        {
+          "name": "categoryId",
+          "type": "string",
+          "location": "query",
+          "description": "Category id"
+        }
+      ]
+    },
+    {
+      "name": "accounts_get",
+      "description": "Retrieve a paginated list of accounts. Supports cursor-based pagination with limit, order, start_after, and end_before query parameters. Optional: limit (default: 1000), order (default: asc), start_after (plus 1 more). Returns the AccountsPaginatedResponse.",
+      "method": "GET",
+      "path": "/accounts",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        },
+        {
+          "name": "start_after",
+          "type": "string",
+          "location": "query",
+          "description": "Start after"
+        },
+        {
+          "name": "end_before",
+          "type": "string",
+          "location": "query",
+          "description": "End before"
+        }
+      ]
+    },
+    {
+      "name": "ar_cancel-invoice",
+      "description": "Cancel an invoice. This action cannot be undone. Required: invoiceId.",
+      "method": "POST",
+      "path": "/ar/invoices/{invoiceId}/cancel",
+      "params": [
+        {
+          "name": "invoiceId",
+          "type": "string",
+          "location": "path",
+          "description": "Invoice id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ar_create-customer",
+      "description": "Create a new customer for the organization. Required: email, name. Optional: address. Returns the new ApiV1ArCustomerResponseData.",
+      "method": "POST",
+      "path": "/ar/customers",
+      "params": [
+        {
+          "name": "address",
+          "type": "object",
+          "location": "body",
+          "description": "Address input for creating or updating customers"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the customer.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ar_create-invoice",
+      "description": "Create a new invoice for the organization. Required: achDebitEnabled, ccEmails, creditCardEnabled, customerId, destinationAccountId, dueDate, invoiceDate, lineItems, useRealAccountNumber. Optional: internalNote, invoiceNumber, payerMemo (plus 4 more). Returns the new ApiV1ArInvoiceResponse.",
+      "method": "POST",
+      "path": "/ar/invoices",
+      "params": [
+        {
+          "name": "achDebitEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not the invoice can be paid via ACH debit.",
+          "required": true
+        },
+        {
+          "name": "ccEmails",
+          "type": "array",
+          "location": "body",
+          "description": "Emails to be CCed on invoice notifications/reminders.",
+          "required": true
+        },
+        {
+          "name": "creditCardEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not the invoice can be paid via credit card. Requires Stripe to be setup for the Mercury account.",
+          "required": true
+        },
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "body",
+          "description": "The customer who will receive the invoice. Use the /api/v1/ar/customers endpoint to list your customers and find the corresponding id, or create a new customer first.",
+          "required": true
+        },
+        {
+          "name": "destinationAccountId",
+          "type": "string",
+          "location": "body",
+          "description": "ID for a Mercury account.",
+          "required": true
+        },
+        {
+          "name": "dueDate",
+          "type": "string",
+          "location": "body",
+          "description": "Due date",
+          "required": true
+        },
+        {
+          "name": "internalNote",
+          "type": "string",
+          "location": "body",
+          "description": "Internal note for the invoice, visible by users in the organization but not visible to payers."
+        },
+        {
+          "name": "invoiceDate",
+          "type": "string",
+          "location": "body",
+          "description": "Invoice date",
+          "required": true
+        },
+        {
+          "name": "invoiceNumber",
+          "type": "string",
+          "location": "body",
+          "description": "The payer facing invoice number/identifier."
+        },
+        {
+          "name": "lineItems",
+          "type": "array",
+          "location": "body",
+          "description": "The line items for the invoice",
+          "required": true
+        },
+        {
+          "name": "payerMemo",
+          "type": "string",
+          "location": "body",
+          "description": "Memo for the payer of the invoice."
+        },
+        {
+          "name": "poNumber",
+          "type": "string",
+          "location": "body",
+          "description": "Purchase order number for the invoice, if applicable."
+        },
+        {
+          "name": "sendEmailOption",
+          "type": "string",
+          "location": "body",
+          "description": "Send email option"
+        },
+        {
+          "name": "servicePeriodEndDate",
+          "type": "string",
+          "location": "body",
+          "description": "Service period end date"
+        },
+        {
+          "name": "servicePeriodStartDate",
+          "type": "string",
+          "location": "body",
+          "description": "Service period start date"
+        },
+        {
+          "name": "useRealAccountNumber",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not the invoice payment instructions will show the real account and routing number for the destination account or use virtual account numbers instead. Virtual accounts are safer and are preferred in most cases.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ar_delete-customer",
+      "description": "Delete a customer. This action cannot be undone. Required: customerId. Destructive.",
+      "method": "DELETE",
+      "path": "/ar/customers/{customerId}",
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "Customer id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ar_get-attachment",
+      "description": "Retrieve attachment details including download URL. Required: attachmentId. Returns the ApiV1ArAttachmentResponseData.",
+      "method": "GET",
+      "path": "/ar/attachments/{attachmentId}",
+      "params": [
+        {
+          "name": "attachmentId",
+          "type": "string",
+          "location": "path",
+          "description": "Attachment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ar_get-customer",
+      "description": "Retrieve details of a specific customer by their ID. Required: customerId. Returns the ApiV1ArCustomerResponseData.",
+      "method": "GET",
+      "path": "/ar/customers/{customerId}",
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "Customer id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ar_get-invoice",
+      "description": "Retrieve details of an invoice by its ID. Required: invoiceId. Returns the ApiV1ArInvoiceResponse.",
+      "method": "GET",
+      "path": "/ar/invoices/{invoiceId}",
+      "params": [
+        {
+          "name": "invoiceId",
+          "type": "string",
+          "location": "path",
+          "description": "Invoice id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ar_get-invoice-pdf",
+      "description": "Downloads a PDF file for the specified invoice. The response includes a Content-Disposition header set to 'attachment' with the filename. Required: invoiceId.",
+      "method": "GET",
+      "path": "/ar/invoices/{invoiceId}/pdf",
+      "params": [
+        {
+          "name": "invoiceId",
+          "type": "string",
+          "location": "path",
+          "description": "Invoice id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ar_list-customers",
+      "description": "Retrieve a paginated list of customers. Supports cursor-based pagination with limit, order, start_after, and end_before query parameters. Optional: limit (default: 1000), start_after, end_before (plus 1 more). Returns the ApiV1ArCustomerPaginatedResponseData.",
+      "method": "GET",
+      "path": "/ar/customers",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "start_after",
+          "type": "string",
+          "location": "query",
+          "description": "Start after"
+        },
+        {
+          "name": "end_before",
+          "type": "string",
+          "location": "query",
+          "description": "End before"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "ar_list-invoice-attachments",
+      "description": "Retrieve a list of all attachments for a specific invoice. Required: invoiceId. Returns the ApiV1ArAttachmentsResponseData.",
+      "method": "GET",
+      "path": "/ar/invoices/{invoiceId}/attachments",
+      "params": [
+        {
+          "name": "invoiceId",
+          "type": "string",
+          "location": "path",
+          "description": "Invoice id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ar_list-invoices",
+      "description": "Retrieve a paginated list of invoices. Supports cursor-based pagination with limit, order, start_after, and end_before query parameters. Optional: limit (default: 1000), order (default: asc), start_after (plus 1 more). Returns the ApiV1ArInvoicesPaginatedResponse.",
+      "method": "GET",
+      "path": "/ar/invoices",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        },
+        {
+          "name": "start_after",
+          "type": "string",
+          "location": "query",
+          "description": "Start after"
+        },
+        {
+          "name": "end_before",
+          "type": "string",
+          "location": "query",
+          "description": "End before"
+        }
+      ]
+    },
+    {
+      "name": "ar_update-customer",
+      "description": "Update an existing customer. Required: customerId, email, name, resendOpenInvoices. Optional: address. Returns the new ApiV1ArCustomerResponseData.",
+      "method": "POST",
+      "path": "/ar/customers/{customerId}",
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "path",
+          "description": "Customer id",
+          "required": true
+        },
+        {
+          "name": "address",
+          "type": "object",
+          "location": "body",
+          "description": "Address input for creating or updating customers"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the customer.",
+          "required": true
+        },
+        {
+          "name": "resendOpenInvoices",
+          "type": "bool",
+          "location": "body",
+          "description": "Open invoices for the customer will be resent with updated data when this is true.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ar_update-invoice",
+      "description": "Update an existing invoice. Required: invoiceId, achDebitEnabled, ccEmails, creditCardEnabled, dueDate, invoiceDate, invoiceNumber, lineItems, useRealAccountNumber. Optional: internalNote, payerMemo, poNumber (plus 2 more). Returns the new ApiV1ArInvoiceResponse.",
+      "method": "POST",
+      "path": "/ar/invoices/{invoiceId}",
+      "params": [
+        {
+          "name": "invoiceId",
+          "type": "string",
+          "location": "path",
+          "description": "Invoice id",
+          "required": true
+        },
+        {
+          "name": "achDebitEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not the invoice can be paid via ACH debit.",
+          "required": true
+        },
+        {
+          "name": "ccEmails",
+          "type": "array",
+          "location": "body",
+          "description": "List of emails to be CCed on notifications/reminders.",
+          "required": true
+        },
+        {
+          "name": "creditCardEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not the invoice can be paid via credit card. Requires Stripe to be setup for the Mercury account.",
+          "required": true
+        },
+        {
+          "name": "dueDate",
+          "type": "string",
+          "location": "body",
+          "description": "Due date",
+          "required": true
+        },
+        {
+          "name": "internalNote",
+          "type": "string",
+          "location": "body",
+          "description": "Internal note for the invoice, visible by users in the organization but not visible to payers."
+        },
+        {
+          "name": "invoiceDate",
+          "type": "string",
+          "location": "body",
+          "description": "Invoice date",
+          "required": true
+        },
+        {
+          "name": "invoiceNumber",
+          "type": "string",
+          "location": "body",
+          "description": "The invoice number.",
+          "required": true
+        },
+        {
+          "name": "lineItems",
+          "type": "array",
+          "location": "body",
+          "description": "The line items for the invoice",
+          "required": true
+        },
+        {
+          "name": "payerMemo",
+          "type": "string",
+          "location": "body",
+          "description": "Memo for the payer of the invoice."
+        },
+        {
+          "name": "poNumber",
+          "type": "string",
+          "location": "body",
+          "description": "The purchase order number for the invoice if applicable."
+        },
+        {
+          "name": "servicePeriodEndDate",
+          "type": "string",
+          "location": "body",
+          "description": "Service period end date"
+        },
+        {
+          "name": "servicePeriodStartDate",
+          "type": "string",
+          "location": "body",
+          "description": "Service period start date"
+        },
+        {
+          "name": "useRealAccountNumber",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not the invoice payment instructions will show the real account and routing number for the destination account or use virtual account numbers instead.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "books_delete-agent-coa-template",
+      "description": "Delete a specific Chart of Accounts template. Required: coaTemplateId. Returns array of DeleteAgentCoaTemplateItem. Destructive.",
+      "method": "DELETE",
+      "path": "/books/agent-coa-template/{coaTemplateId}",
+      "params": [
+        {
+          "name": "coaTemplateId",
+          "type": "string",
+          "location": "path",
+          "description": "Coa template id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "books_delete-agent-ledger-template",
+      "description": "Delete an existing ledger within an agent-owned Chart of Accounts template. Required: ledgerId. Returns array of DeleteAgentLedgerTemplateItem. Destructive.",
+      "method": "DELETE",
+      "path": "/books/agent-ledger-template/{ledgerId}",
+      "params": [
+        {
+          "name": "ledgerId",
+          "type": "string",
+          "location": "path",
+          "description": "Ledger id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "books_delete-journal-entries",
+      "description": "Bulk delete journal entries. Required: booksId, journalEntryIds. Returns array of DeleteJournalEntriesItem. Destructive.",
+      "method": "DELETE",
+      "path": "/books/journal-entries/{booksId}",
+      "params": [
+        {
+          "name": "booksId",
+          "type": "string",
+          "location": "path",
+          "description": "Books id",
+          "required": true
+        },
+        {
+          "name": "journalEntryIds",
+          "type": "array",
+          "location": "body",
+          "description": "A list of journal entry ids to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "books_get-agent-coa-template",
+      "description": "Retrieve details of a specific Chart of Accounts template. Required: coaTemplateId. Optional: expand. Returns the GetBooksApiagentCoaTemplateResponse.",
+      "method": "GET",
+      "path": "/books/agent-coa-template/{coaTemplateId}",
+      "params": [
+        {
+          "name": "coaTemplateId",
+          "type": "string",
+          "location": "path",
+          "description": "Coa template id",
+          "required": true
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Expand"
+        }
+      ]
+    },
+    {
+      "name": "books_get-agent-coa-templates",
+      "description": "Retrieve a paginated list of all default and agent-owned Chart of Accounts templates. These templates can be used when creating new Books instances for clients. Optional: pageToken, limit, expand. Returns the GetBooksApiagentCoaTemplatesResponse.",
+      "method": "GET",
+      "path": "/books/agent-coa-templates",
+      "params": [
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Expand"
+        }
+      ]
+    },
+    {
+      "name": "books_get-journal-entries",
+      "description": "List all journal entries. Required: booksId. Optional: startDate, endDate, ledgerId (plus 10 more). Returns the GetBooksApijournalEntriesResponse.",
+      "method": "GET",
+      "path": "/books/journal-entries/{booksId}",
+      "params": [
+        {
+          "name": "booksId",
+          "type": "string",
+          "location": "path",
+          "description": "Books id",
+          "required": true
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "Start date"
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "End date"
+        },
+        {
+          "name": "ledgerId",
+          "type": "string",
+          "location": "query",
+          "description": "Ledger id"
+        },
+        {
+          "name": "creationSource",
+          "type": "string",
+          "location": "query",
+          "description": "Creation source"
+        },
+        {
+          "name": "journalEntrySort",
+          "type": "string",
+          "location": "query",
+          "description": "Journal entry sort"
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Expand"
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        },
+        {
+          "name": "keywords",
+          "type": "string",
+          "location": "query",
+          "description": "Keywords"
+        },
+        {
+          "name": "amount",
+          "type": "float",
+          "location": "query",
+          "description": "Amount"
+        },
+        {
+          "name": "minAmount",
+          "type": "float",
+          "location": "query",
+          "description": "Min amount"
+        },
+        {
+          "name": "maxAmount",
+          "type": "float",
+          "location": "query",
+          "description": "Max amount"
+        },
+        {
+          "name": "ledgerIdGroups",
+          "type": "array",
+          "location": "query",
+          "description": "Ledger id groups"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "books_get-journal-entry",
+      "description": "Retrieve a Journal Entry. Required: booksId, journalEntryId. Optional: expand. Returns the GetBooksApijournalEntryResponse.",
+      "method": "GET",
+      "path": "/books/journal-entry/{booksId}/{journalEntryId}",
+      "params": [
+        {
+          "name": "booksId",
+          "type": "string",
+          "location": "path",
+          "description": "Books id",
+          "required": true
+        },
+        {
+          "name": "journalEntryId",
+          "type": "string",
+          "location": "path",
+          "description": "Journal entry id",
+          "required": true
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Expand"
+        }
+      ]
+    },
+    {
+      "name": "books_post-agent-coa-templates",
+      "description": "Create a new agent-owned Chart of Accounts template. These templates can be used when creating new Books instances for clients. Required: accountingBasis, name. Optional: expand. Returns the new CreateBooksApiagentCoaTemplateResponse.",
+      "method": "POST",
+      "path": "/books/agent-coa-templates",
+      "params": [
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Expand"
+        },
+        {
+          "name": "accountingBasis",
+          "type": "string",
+          "location": "body",
+          "description": "Accounting basis",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "An arbitrary string on the object, useful for identifying the Chart of Accounts template.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "books_post-agent-ledger-templates",
+      "description": "Create a new ledger within an agent-owned Chart of Accounts template. Required: coaTemplateId, debitCredit, editable, financialAccountType, ledgerSubType, ledgerType, name, reportCashFlow, sortCode. Optional: parentId. Returns the new CreateBooksApiagentLedgerTemplateResponse.",
+      "method": "POST",
+      "path": "/books/agent-ledger-templates",
+      "params": [
+        {
+          "name": "coaTemplateId",
+          "type": "string",
+          "location": "body",
+          "description": "The COA Template Id.",
+          "required": true
+        },
+        {
+          "name": "debitCredit",
+          "type": "string",
+          "location": "body",
+          "description": "Debit credit",
+          "required": true
+        },
+        {
+          "name": "editable",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether line entries can be manually added or removed from the ledger.",
+          "required": true
+        },
+        {
+          "name": "financialAccountType",
+          "type": "string",
+          "location": "body",
+          "description": "Financial account type",
+          "required": true
+        },
+        {
+          "name": "ledgerSubType",
+          "type": "string",
+          "location": "body",
+          "description": "Ledger sub type",
+          "required": true
+        },
+        {
+          "name": "ledgerType",
+          "type": "string",
+          "location": "body",
+          "description": "Ledger type",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the ledger.",
+          "required": true
+        },
+        {
+          "name": "parentId",
+          "type": "string",
+          "location": "body",
+          "description": "If the ledger is a child Ledger, the ID of the parent ledger object."
+        },
+        {
+          "name": "reportCashFlow",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether Teal includes this ledger in the cash flow report.",
+          "required": true
+        },
+        {
+          "name": "sortCode",
+          "type": "string",
+          "location": "body",
+          "description": "Determines the display order in reports, ordered digit by digit.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "books_post-journal-entries",
+      "description": "Create multiple Journal Entries. Required: booksId. Optional: expand, modifiedBy. Returns the new CreateBooksApijournalEntriesBulkResponse.",
+      "method": "POST",
+      "path": "/books/journal-entries/{booksId}",
+      "params": [
+        {
+          "name": "booksId",
+          "type": "string",
+          "location": "path",
+          "description": "Books id",
+          "required": true
+        },
+        {
+          "name": "expand",
+          "type": "string",
+          "location": "query",
+          "description": "Expand"
+        },
+        {
+          "name": "modifiedBy",
+          "type": "string",
+          "location": "query",
+          "description": "Modified by"
+        }
+      ]
+    },
+    {
+      "name": "books_put-agent-ledger-template",
+      "description": "Update an existing ledger within an agent-owned Chart of Accounts template. Required: ledgerId. Optional: name, sortCode. Returns the updated UpdateBooksApiagentLedgerTemplateResponse.",
+      "method": "PUT",
+      "path": "/books/agent-ledger-template/{ledgerId}",
+      "params": [
+        {
+          "name": "ledgerId",
+          "type": "string",
+          "location": "path",
+          "description": "Ledger id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the ledger."
+        },
+        {
+          "name": "sortCode",
+          "type": "string",
+          "location": "body",
+          "description": "Determines the display order in reports, ordered digit by digit."
+        }
+      ]
+    },
+    {
+      "name": "books_put-journal-entries",
+      "description": "Bulk update journal entries. Required: booksId, updates. Returns array of PutJournalEntriesItem.",
+      "method": "PUT",
+      "path": "/books/journal-entries/{booksId}",
+      "params": [
+        {
+          "name": "booksId",
+          "type": "string",
+          "location": "path",
+          "description": "Books id",
+          "required": true
+        },
+        {
+          "name": "updates",
+          "type": "array",
+          "location": "body",
+          "description": "The individual journal entry updates",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cards_create",
+      "description": "Issue a new virtual card. Required: accountId, kind, type, userId. Optional: nickname, spendLimit. Returns the new Card.",
+      "method": "POST",
+      "path": "/cards",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "body",
+          "description": "The deposit account the new card will draw funds from.",
+          "required": true
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Kind",
+          "required": true
+        },
+        {
+          "name": "nickname",
+          "type": "string",
+          "location": "body",
+          "description": "Optional user-assigned label for the card."
+        },
+        {
+          "name": "spendLimit",
+          "type": "object",
+          "location": "body",
+          "description": "Spending controls applied to a card"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "body",
+          "description": "The user to assign as the cardholder.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cards_get",
+      "description": "Retrieve details of a specific card by its ID. Required: cardId. Returns the Card.",
+      "method": "GET",
+      "path": "/cards/{cardId}",
+      "params": [
+        {
+          "name": "cardId",
+          "type": "string",
+          "location": "path",
+          "description": "Card id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cards_list",
+      "description": "Retrieve a paginated list of cards. Optional: accountId, status, type (plus 6 more). Returns the CardListResponse.",
+      "method": "GET",
+      "path": "/cards",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "array",
+          "location": "query",
+          "description": "Account id"
+        },
+        {
+          "name": "status",
+          "type": "array",
+          "location": "query",
+          "description": "Status"
+        },
+        {
+          "name": "type",
+          "type": "array",
+          "location": "query",
+          "description": "Type"
+        },
+        {
+          "name": "kind",
+          "type": "array",
+          "location": "query",
+          "description": "Kind"
+        },
+        {
+          "name": "userId",
+          "type": "array",
+          "location": "query",
+          "description": "User id"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        },
+        {
+          "name": "start_after",
+          "type": "string",
+          "location": "query",
+          "description": "Start after"
+        },
+        {
+          "name": "end_before",
+          "type": "string",
+          "location": "query",
+          "description": "End before"
+        }
+      ]
+    },
+    {
+      "name": "cards_update",
+      "description": "Update a card's nickname or spending limits. Required: cardId, nickname. Optional: spendLimit. Returns the new Card.",
+      "method": "POST",
+      "path": "/cards/{cardId}",
+      "params": [
+        {
+          "name": "cardId",
+          "type": "string",
+          "location": "path",
+          "description": "Card id",
+          "required": true
+        },
+        {
+          "name": "nickname",
+          "type": "string",
+          "location": "body",
+          "description": "Nickname update action. Omit the field to keep the current nickname, send null or an empty/whitespace-only string to clear it, or send a string to set it.",
+          "required": true
+        },
+        {
+          "name": "spendLimit",
+          "type": "object",
+          "location": "body",
+          "description": "Spending controls applied to a card"
+        }
+      ]
+    },
+    {
+      "name": "cards_cancel_card",
+      "description": "Permanently cancel a card. This action cannot be undone. Required: cardId. Returns the new Card.",
+      "method": "POST",
+      "path": "/cards/{cardId}/cancel",
+      "params": [
+        {
+          "name": "cardId",
+          "type": "string",
+          "location": "path",
+          "description": "Card id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cards_freeze_card",
+      "description": "Temporarily freeze a card. The card must be active. Required: cardId. Returns the new Card.",
+      "method": "POST",
+      "path": "/cards/{cardId}/freeze",
+      "params": [
+        {
+          "name": "cardId",
+          "type": "string",
+          "location": "path",
+          "description": "Card id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cards_unfreeze_card",
+      "description": "Unfreeze a previously frozen card, restoring it to active status. Required: cardId. Returns the new Card.",
+      "method": "POST",
+      "path": "/cards/{cardId}/unfreeze",
+      "params": [
+        {
+          "name": "cardId",
+          "type": "string",
+          "location": "path",
+          "description": "Card id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_create-category",
+      "description": "Create a new custom expense category for the organization. Required: name, visibleForCardSpend, visibleForOther, visibleForReimbursements. Returns the new CategoryData.",
+      "method": "POST",
+      "path": "/categories/create",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "visibleForCardSpend",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this category is applicable to card transactions",
+          "required": true
+        },
+        {
+          "name": "visibleForOther",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this category is applicable to all other transaction kinds",
+          "required": true
+        },
+        {
+          "name": "visibleForReimbursements",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this category is applicable to expense reimbursement transactions",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_list",
+      "description": "Retrieve a paginated list of all available custom expense categories for the organization. Supports cursor-based pagination with limit, order, start_after, and end_before query parameters. Optional: limit (default: 1000), order (default: asc), start_after (plus 1 more). Returns the CategoriesPaginatedResponse.",
+      "method": "GET",
+      "path": "/categories",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        },
+        {
+          "name": "start_after",
+          "type": "string",
+          "location": "query",
+          "description": "Start after"
+        },
+        {
+          "name": "end_before",
+          "type": "string",
+          "location": "query",
+          "description": "End before"
+        }
+      ]
+    },
+    {
+      "name": "categories_edit_category",
+      "description": "Update an existing custom expense category for the organization. Required: expenseCategoryId. Optional: name, visibleForCardSpend, visibleForOther (plus 1 more). Returns the new CategoryData.",
+      "method": "POST",
+      "path": "/categories/{expenseCategoryId}/edit",
+      "params": [
+        {
+          "name": "expenseCategoryId",
+          "type": "string",
+          "location": "path",
+          "description": "Expense category id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "visibleForCardSpend",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this category is applicable to card transactions"
+        },
+        {
+          "name": "visibleForOther",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this category is applicable to all other transaction kinds"
+        },
+        {
+          "name": "visibleForReimbursements",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this category is applicable to expense reimbursement transactions"
+        }
+      ]
+    },
+    {
+      "name": "credit_list",
+      "description": "Retrieve a list of all credit accounts for the organization. Returns the CreditAccountsResponse.",
+      "method": "GET",
+      "path": "/credit",
+      "params": []
+    },
+    {
+      "name": "events_get",
+      "description": "Get all events. Optional: limit (default: 1000), start_after, end_before (plus 3 more). Returns the ApiEventsPaginatedResponse.",
+      "method": "GET",
+      "path": "/events",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "start_after",
+          "type": "string",
+          "location": "query",
+          "description": "Start after"
+        },
+        {
+          "name": "end_before",
+          "type": "string",
+          "location": "query",
+          "description": "End before"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        },
+        {
+          "name": "resourceType",
+          "type": "string",
+          "location": "query",
+          "description": "Resource type"
+        },
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "query",
+          "description": "Resource id"
+        }
+      ]
+    },
+    {
+      "name": "events_get-eventid",
+      "description": "Get event by ID. Required: eventId. Returns the ApiEventResponse.",
+      "method": "GET",
+      "path": "/events/{eventId}",
+      "params": [
+        {
+          "name": "eventId",
+          "type": "string",
+          "location": "path",
+          "description": "Event id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organization_get",
+      "description": "Retrieve information about your organization including EIN, legal business name, and DBAs. Returns the OrganizationResponse.",
+      "method": "GET",
+      "path": "/organization",
+      "params": []
+    },
+    {
+      "name": "recipient_get",
+      "description": "Retrieve details of a specific recipient by ID. Required: recipientId. Returns the RecipientInfo.",
+      "method": "GET",
+      "path": "/recipient/{recipientId}",
+      "params": [
+        {
+          "name": "recipientId",
+          "type": "string",
+          "location": "path",
+          "description": "Recipient id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "recipient_update",
+      "description": "Edit information about a specific recipient. Required: recipientId. Optional: address, checkInfo, contactEmail (plus 5 more). Returns the new RecipientInfo.",
+      "method": "POST",
+      "path": "/recipient/{recipientId}",
+      "params": [
+        {
+          "name": "recipientId",
+          "type": "string",
+          "location": "path",
+          "description": "Recipient id",
+          "required": true
+        },
+        {
+          "name": "address",
+          "type": "object",
+          "location": "body",
+          "description": "Deprecated. Use checkInfo instead."
+        },
+        {
+          "name": "checkInfo",
+          "type": "object",
+          "location": "body",
+          "description": "Information needed to send a check."
+        },
+        {
+          "name": "contactEmail",
+          "type": "string",
+          "location": "body",
+          "description": "Contact email address of the recipient"
+        },
+        {
+          "name": "domesticWireRoutingInfo",
+          "type": "object",
+          "location": "body",
+          "description": "Information needed to send a domestic wire."
+        },
+        {
+          "name": "electronicRoutingInfo",
+          "type": "object",
+          "location": "body",
+          "description": "Information needed to send an ACH."
+        },
+        {
+          "name": "emails",
+          "type": "array",
+          "location": "body",
+          "description": "Emails"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "nickname",
+          "type": "string",
+          "location": "body",
+          "description": "Nickname"
+        }
+      ]
+    },
+    {
+      "name": "recipient_attachments_upload-recipient",
+      "description": "Upload a tax form attachment for a recipient. The file is uploaded via multipart/form-data. Supported file types include PDF, images (PNG, JPG, GIF), and common document formats. The attachment will be associated as a tax document for the recipient. Required: recipientId, file.",
+      "method": "POST",
+      "path": "/recipient/{recipientId}/attachments",
+      "params": [
+        {
+          "name": "recipientId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the recipient to attach the file to",
+          "required": true
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "The file to upload (tax form document)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "recipients_create",
+      "description": "Create a new recipient for making payments. Required: emails, name. Optional: address, checkInfo, contactEmail (plus 3 more). Returns the new RecipientInfo.",
+      "method": "POST",
+      "path": "/recipients",
+      "params": [
+        {
+          "name": "address",
+          "type": "object",
+          "location": "body",
+          "description": "Deprecated. Use checkInfo instead."
+        },
+        {
+          "name": "checkInfo",
+          "type": "object",
+          "location": "body",
+          "description": "Information needed to send a physical check."
+        },
+        {
+          "name": "contactEmail",
+          "type": "string",
+          "location": "body",
+          "description": "Contact email address of the recipient"
+        },
+        {
+          "name": "domesticWireRoutingInfo",
+          "type": "object",
+          "location": "body",
+          "description": "Information needed to send a domestic wire."
+        },
+        {
+          "name": "electronicRoutingInfo",
+          "type": "object",
+          "location": "body",
+          "description": "Information needed to send an ACH."
+        },
+        {
+          "name": "emails",
+          "type": "array",
+          "location": "body",
+          "description": "Emails",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "nickname",
+          "type": "string",
+          "location": "body",
+          "description": "Nickname"
+        }
+      ]
+    },
+    {
+      "name": "recipients_get",
+      "description": "Retrieve a paginated list of all recipients. Use cursor parameters (start_after, end_before) for pagination. Optional: limit (default: 1000), start_after, end_before (plus 1 more). Returns the RecipientsPaginatedResponse.",
+      "method": "GET",
+      "path": "/recipients",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "start_after",
+          "type": "string",
+          "location": "query",
+          "description": "Start after"
+        },
+        {
+          "name": "end_before",
+          "type": "string",
+          "location": "query",
+          "description": "End before"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "recipients_list-attachments",
+      "description": "Retrieve a paginated list of all recipient tax form attachments across all recipients in the organization. Use cursor parameters (start_after, end_before) for pagination. Optional: limit (default: 1000), start_after, end_before (plus 1 more). Returns the RecipientsAttachmentsPaginatedResponse.",
+      "method": "GET",
+      "path": "/recipients/attachments",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "start_after",
+          "type": "string",
+          "location": "query",
+          "description": "Start after"
+        },
+        {
+          "name": "end_before",
+          "type": "string",
+          "location": "query",
+          "description": "End before"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "request-send-money_get-send-money-approval-request",
+      "description": "Get send money approval request by ID. Required: requestId. Returns the SendMoneyApprovalRequestResponse.",
+      "method": "GET",
+      "path": "/request-send-money/{requestId}",
+      "params": [
+        {
+          "name": "requestId",
+          "type": "string",
+          "location": "path",
+          "description": "Request id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "request-send-money_list-send-money-approval-requests",
+      "description": "Retrieve a paginated list of send money approval requests for the authenticated organization. Supports filtering by account and status. Optional: accountId, status, start_after (plus 2 more). Returns the SendMoneyApprovalRequestsPaginatedResponse.",
+      "method": "GET",
+      "path": "/request-send-money",
+      "params": [
+        {
+          "name": "accountId",
+          "type": "string",
+          "location": "query",
+          "description": "Account id"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        },
+        {
+          "name": "start_after",
+          "type": "string",
+          "location": "query",
+          "description": "Start after"
+        },
+        {
+          "name": "end_before",
+          "type": "string",
+          "location": "query",
+          "description": "End before"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "safes_get-request",
+      "description": "Retrieve a specific SAFE request by its ID. Required: safeRequestId. Returns the ApisafeRequest.",
+      "method": "GET",
+      "path": "/safes/{safeRequestId}",
+      "params": [
+        {
+          "name": "safeRequestId",
+          "type": "string",
+          "location": "path",
+          "description": "Safe request id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "safes_get-requests",
+      "description": "Retrieve all SAFE (Simple Agreement for Future Equity) requests for your organization. Returns array of ApisafeRequest.",
+      "method": "GET",
+      "path": "/safes",
+      "params": []
+    },
+    {
+      "name": "safes_document_get-safe-request",
+      "description": "Download the PDF document for a specific SAFE request. Returns binary PDF data with a Content-Disposition header. Required: safeRequestId.",
+      "method": "GET",
+      "path": "/safes/{safeRequestId}/document",
+      "params": [
+        {
+          "name": "safeRequestId",
+          "type": "string",
+          "location": "path",
+          "description": "Safe request id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "statements_pdf_get-statement",
+      "description": "Downloads a PDF file for the specified account statement. The response includes a Content-Disposition header for proper file download handling. Returns binary PDF data. Required: statementId.",
+      "method": "GET",
+      "path": "/statements/{statementId}/pdf",
+      "params": [
+        {
+          "name": "statementId",
+          "type": "string",
+          "location": "path",
+          "description": "Statement id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transaction_get-by-id",
+      "description": "Retrieve a single transaction by its ID. Returns full transaction details including attachments, check images, and related metadata. Required: transactionId.",
+      "method": "GET",
+      "path": "/transaction/{transactionId}",
+      "params": [
+        {
+          "name": "transactionId",
+          "type": "string",
+          "location": "path",
+          "description": "Transaction id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transaction_update",
+      "description": "Update the note and/or category of an existing transaction. Use null values to clear existing data. Required: transactionId, categoryId, note. Returns the updated Transaction.",
+      "method": "PATCH",
+      "path": "/transaction/{transactionId}",
+      "params": [
+        {
+          "name": "transactionId",
+          "type": "string",
+          "location": "path",
+          "description": "Transaction id",
+          "required": true
+        },
+        {
+          "name": "categoryId",
+          "type": "string",
+          "location": "body",
+          "description": "ID for the category",
+          "required": true
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Note update action. Omit field to keep current note, send null or empty string to clear note, send text to set note.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transaction_attachments_upload-transaction",
+      "description": "Upload a file attachment to a transaction. The file is uploaded via multipart/form-data. Supported file types include PDF, images (PNG, JPG, GIF), and common document formats. Required: transactionId, file. Optional: attachmentType.",
+      "method": "POST",
+      "path": "/transaction/{transactionId}/attachments",
+      "params": [
+        {
+          "name": "transactionId",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the transaction to attach the file to",
+          "required": true
+        },
+        {
+          "name": "attachmentType",
+          "type": "string",
+          "location": "body",
+          "description": "Type of attachment: 'receipt', 'bill', or 'other'. Defaults to 'other'."
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "The file to upload",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactions_list",
+      "description": "Retrieve a paginated list of all transactions across all accounts. Supports advanced filtering by date ranges, status, categories, and cursor-based pagination. Optional: status, search, start (plus 11 more). Returns the TransactionsPaginatedResponse.",
+      "method": "GET",
+      "path": "/transactions",
+      "params": [
+        {
+          "name": "status",
+          "type": "array",
+          "location": "query",
+          "description": "Status"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search"
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "Start"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "End"
+        },
+        {
+          "name": "postedStart",
+          "type": "string",
+          "location": "query",
+          "description": "Posted start"
+        },
+        {
+          "name": "postedEnd",
+          "type": "string",
+          "location": "query",
+          "description": "Posted end"
+        },
+        {
+          "name": "accountId",
+          "type": "array",
+          "location": "query",
+          "description": "Account id"
+        },
+        {
+          "name": "mercuryCategory",
+          "type": "string",
+          "location": "query",
+          "description": "Mercury category"
+        },
+        {
+          "name": "categoryId",
+          "type": "string",
+          "location": "query",
+          "description": "Category id"
+        },
+        {
+          "name": "start_at",
+          "type": "string",
+          "location": "query",
+          "description": "Start at"
+        },
+        {
+          "name": "start_after",
+          "type": "string",
+          "location": "query",
+          "description": "Start after"
+        },
+        {
+          "name": "end_before",
+          "type": "string",
+          "location": "query",
+          "description": "End before"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "transfer_create-internal",
+      "description": "Transfer funds between two accounts within the same organization. Supports transfers between depository accounts (checking/savings), from a depository account to a treasury/investment account, and from a treasury/investment account to a depository account. Creates paired debit and credit transactions. Required: amount, destinationAccountId, idempotencyKey, sourceAccountId. Optional: note. Returns the new InternalTransferApiresponse.",
+      "method": "POST",
+      "path": "/transfer",
+      "params": [
+        {
+          "name": "amount",
+          "type": "float",
+          "location": "body",
+          "description": "A positive dollar amount with at least 1 cent.",
+          "required": true
+        },
+        {
+          "name": "destinationAccountId",
+          "type": "string",
+          "location": "body",
+          "description": "ID for a Mercury account.",
+          "required": true
+        },
+        {
+          "name": "idempotencyKey",
+          "type": "string",
+          "location": "body",
+          "description": "Idempotency key",
+          "required": true
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Note"
+        },
+        {
+          "name": "sourceAccountId",
+          "type": "string",
+          "location": "body",
+          "description": "ID for a Mercury account.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "treasury_get",
+      "description": "Retrieve a paginated list of all treasury accounts associated with the authenticated organization. Use cursor parameters (start_after, end_before) for pagination. Optional: limit (default: 1000), start_after, end_before (plus 1 more). Returns the TreasuryAccountsPaginatedResponse.",
+      "method": "GET",
+      "path": "/treasury",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "start_after",
+          "type": "string",
+          "location": "query",
+          "description": "Start after"
+        },
+        {
+          "name": "end_before",
+          "type": "string",
+          "location": "query",
+          "description": "End before"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "treasury_statements_get-treasury",
+      "description": "Retrieve a paginated list of statements for a specific treasury account. Supports cursor-based pagination and filtering by document type. Required: treasuryId. Optional: limit (default: 1000), order (default: asc), start_after (plus 2 more). Returns the TreasuryStatementsPaginatedResponse.",
+      "method": "GET",
+      "path": "/treasury/{treasuryId}/statements",
+      "params": [
+        {
+          "name": "treasuryId",
+          "type": "string",
+          "location": "path",
+          "description": "Treasury id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        },
+        {
+          "name": "start_after",
+          "type": "string",
+          "location": "query",
+          "description": "Start after"
+        },
+        {
+          "name": "end_before",
+          "type": "string",
+          "location": "query",
+          "description": "End before"
+        },
+        {
+          "name": "documentType",
+          "type": "string",
+          "location": "query",
+          "description": "Document type"
+        }
+      ]
+    },
+    {
+      "name": "treasury_transactions_get-treasury",
+      "description": "Retrieve paginated treasury transactions for a specific treasury account. Required: treasuryId. Optional: limit (default: 100), order (default: desc), cursor. Returns the TreasuryTransactionsResponse.",
+      "method": "GET",
+      "path": "/treasury/{treasuryId}/transactions",
+      "params": [
+        {
+          "name": "treasuryId",
+          "type": "string",
+          "location": "path",
+          "description": "Treasury id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        },
+        {
+          "name": "cursor",
+          "type": "int",
+          "location": "query",
+          "description": "Cursor"
+        }
+      ]
+    },
+    {
+      "name": "users_get",
+      "description": "Get all users. Optional: limit (default: 1000), start_after, end_before (plus 1 more). Returns the UsersPaginatedResponse.",
+      "method": "GET",
+      "path": "/users",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "start_after",
+          "type": "string",
+          "location": "query",
+          "description": "Start after"
+        },
+        {
+          "name": "end_before",
+          "type": "string",
+          "location": "query",
+          "description": "End before"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "users_get-userid",
+      "description": "Get user by ID. Required: userId. Returns the UserDetails.",
+      "method": "GET",
+      "path": "/users/{userId}",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_create",
+      "description": "Register a new webhook endpoint to receive event notifications. Required: url. Optional: eventTypes, filterPaths. Returns the new ApiWebhookResponse.",
+      "method": "POST",
+      "path": "/webhooks",
+      "params": [
+        {
+          "name": "eventTypes",
+          "type": "array",
+          "location": "body",
+          "description": "Optional array of event types to subscribe to. Nothing means subscribe to all event types."
+        },
+        {
+          "name": "filterPaths",
+          "type": "array",
+          "location": "body",
+          "description": "Optional array of resource field paths to filter events by. When specified, webhook events will only be sent when one of these fields changes. Nothing means no filtering (all events are sent)."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The URL to which webhook events will be delivered",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_delete",
+      "description": "Delete a webhook endpoint. Required: webhookEndpointId. Destructive.",
+      "method": "DELETE",
+      "path": "/webhooks/{webhookEndpointId}",
+      "params": [
+        {
+          "name": "webhookEndpointId",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook endpoint id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_get",
+      "description": "Retrieve a paginated list of all webhook endpoints for your organization. Supports filtering by status. Optional: status, limit (default: 1000), start_after (plus 2 more). Returns the ApiWebhooksPaginatedResponse.",
+      "method": "GET",
+      "path": "/webhooks",
+      "params": [
+        {
+          "name": "status",
+          "type": "array",
+          "location": "query",
+          "description": "Status"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "start_after",
+          "type": "string",
+          "location": "query",
+          "description": "Start after"
+        },
+        {
+          "name": "end_before",
+          "type": "string",
+          "location": "query",
+          "description": "End before"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "webhooks_get-webhookendpointid",
+      "description": "Retrieve details of a specific webhook endpoint by ID. Required: webhookEndpointId. Returns the ApiWebhookResponse.",
+      "method": "GET",
+      "path": "/webhooks/{webhookEndpointId}",
+      "params": [
+        {
+          "name": "webhookEndpointId",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook endpoint id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_update",
+      "description": "Update the configuration of an existing webhook endpoint. A webhook that has been disabled due to consecutive delivery failures can be reactivated by setting its status to 'active'. Required: webhookEndpointId. Optional: eventTypes, filterPaths, status (plus 1 more). Returns the new ApiWebhookResponse.",
+      "method": "POST",
+      "path": "/webhooks/{webhookEndpointId}",
+      "params": [
+        {
+          "name": "webhookEndpointId",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook endpoint id",
+          "required": true
+        },
+        {
+          "name": "eventTypes",
+          "type": "array",
+          "location": "body",
+          "description": "Event types to subscribe to. Send null to subscribe to all event types. Send an array to subscribe to specific types. Omit to leave unchanged."
+        },
+        {
+          "name": "filterPaths",
+          "type": "array",
+          "location": "body",
+          "description": "Resource field paths to filter events by. When specified, webhook events will only be sent when one of these fields changes. Send null for no filtering. Send an array to filter by specific fields. Omit to leave unchanged."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The URL to which webhook events will be delivered. Omit to leave unchanged."
+        }
+      ]
+    },
+    {
+      "name": "webhooks_verify_webhook",
+      "description": "Send a test event to verify the webhook endpoint is properly configured and reachable. The request body accepts an optional 'eventType' field to specify which event type to test (e.g., 'transaction.created', 'transaction.updated'). If omitted from the request body, defaults to 'transaction.created'. Required: webhookEndpointId. Optional: eventType.",
+      "method": "POST",
+      "path": "/webhooks/{webhookEndpointId}/verify",
+      "params": [
+        {
+          "name": "webhookEndpointId",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook endpoint id",
+          "required": true
+        },
+        {
+          "name": "eventType",
+          "type": "string",
+          "location": "body",
+          "description": "Event type"
+        }
+      ]
+    }
+  ]
+}

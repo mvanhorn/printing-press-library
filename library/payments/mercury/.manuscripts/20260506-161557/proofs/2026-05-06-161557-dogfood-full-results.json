@@ -1,0 +1,4084 @@
+{
+  "dir": "[redacted: local CLI directory]",
+  "binary": "[redacted: local CLI binary]",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 220,
+  "passed": 220,
+  "failed": 0,
+  "skipped": 178,
+  "commands": [
+    "account cards get-account",
+    "account request-send-money request-send-money",
+    "account statements get-account",
+    "account transaction get",
+    "account transactions create",
+    "account transactions list-account",
+    "accounts",
+    "analytics",
+    "api",
+    "ar cancel-invoice",
+    "ar create-customer",
+    "ar create-invoice",
+    "ar delete-customer",
+    "ar get-attachment",
+    "ar get-customer",
+    "ar get-invoice",
+    "ar get-invoice-pdf",
+    "ar list-customers",
+    "ar list-invoice-attachments",
+    "ar list-invoices",
+    "ar update-customer",
+    "ar update-invoice",
+    "books delete-agent-coa-template",
+    "books delete-agent-ledger-template",
+    "books delete-journal-entries",
+    "books get-agent-coa-template",
+    "books get-agent-coa-templates",
+    "books get-journal-entries",
+    "books get-journal-entry",
+    "books post-agent-coa-templates",
+    "books post-agent-ledger-templates",
+    "books post-journal-entries",
+    "books put-agent-ledger-template",
+    "books put-journal-entries",
+    "cards cancel card",
+    "cards create",
+    "cards freeze card",
+    "cards get",
+    "cards list",
+    "cards unfreeze card",
+    "cards update",
+    "categories create-category",
+    "categories edit category",
+    "categories list",
+    "credit",
+    "doctor",
+    "events get",
+    "events get-eventid",
+    "export",
+    "feedback list",
+    "import",
+    "organization",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "recipient attachments upload-recipient",
+    "recipient get",
+    "recipient update",
+    "recipients create",
+    "recipients get",
+    "recipients list-attachments",
+    "request-send-money get-send-money-approval-request",
+    "request-send-money list-send-money-approval-requests",
+    "safes document get-safe-request",
+    "safes get-request",
+    "safes get-requests",
+    "search",
+    "statements pdf get-statement",
+    "sync",
+    "tail",
+    "transaction attachments upload-transaction",
+    "transaction get-by-id",
+    "transaction update",
+    "transactions",
+    "transfer",
+    "treasury statements get-treasury",
+    "treasury transactions get-treasury",
+    "users get",
+    "users get-userid",
+    "webhooks create",
+    "webhooks delete",
+    "webhooks get",
+    "webhooks get-webhookendpointid",
+    "webhooks update",
+    "webhooks verify webhook",
+    "which",
+    "workflow archive",
+    "workflow payment-plan",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "account cards get-account",
+      "kind": "help",
+      "args": [
+        "account",
+        "cards",
+        "get-account",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "account cards get-account",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"accountid\"",
+      "output_sample": null
+    },
+    {
+      "command": "account cards get-account",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"accountid\"",
+      "output_sample": null
+    },
+    {
+      "command": "account cards get-account",
+      "kind": "error_path",
+      "args": [
+        "account",
+        "cards",
+        "get-account",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "account request-send-money request-send-money",
+      "kind": "help",
+      "args": [
+        "account",
+        "request-send-money",
+        "request-send-money",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "account request-send-money request-send-money",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"accountid\"",
+      "output_sample": null
+    },
+    {
+      "command": "account request-send-money request-send-money",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"accountid\"",
+      "output_sample": null
+    },
+    {
+      "command": "account request-send-money request-send-money",
+      "kind": "error_path",
+      "args": [
+        "account",
+        "request-send-money",
+        "request-send-money",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "account request-send-money request-send-money",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"accountid\"",
+      "output_sample": null
+    },
+    {
+      "command": "account statements get-account",
+      "kind": "help",
+      "args": [
+        "account",
+        "statements",
+        "get-account",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "account statements get-account",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"accountid\"",
+      "output_sample": null
+    },
+    {
+      "command": "account statements get-account",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"accountid\"",
+      "output_sample": null
+    },
+    {
+      "command": "account statements get-account",
+      "kind": "error_path",
+      "args": [
+        "account",
+        "statements",
+        "get-account",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "account transaction get",
+      "kind": "help",
+      "args": [
+        "account",
+        "transaction",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "account transaction get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"accountid\"",
+      "output_sample": null
+    },
+    {
+      "command": "account transaction get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"accountid\"",
+      "output_sample": null
+    },
+    {
+      "command": "account transaction get",
+      "kind": "error_path",
+      "args": [
+        "account",
+        "transaction",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "account transactions create",
+      "kind": "help",
+      "args": [
+        "account",
+        "transactions",
+        "create",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "account transactions create",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"accountid\"",
+      "output_sample": null
+    },
+    {
+      "command": "account transactions create",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"accountid\"",
+      "output_sample": null
+    },
+    {
+      "command": "account transactions create",
+      "kind": "error_path",
+      "args": [
+        "account",
+        "transactions",
+        "create",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "account transactions create",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"accountid\"",
+      "output_sample": null
+    },
+    {
+      "command": "account transactions list-account",
+      "kind": "help",
+      "args": [
+        "account",
+        "transactions",
+        "list-account",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "account transactions list-account",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"accountid\"",
+      "output_sample": null
+    },
+    {
+      "command": "account transactions list-account",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"accountid\"",
+      "output_sample": null
+    },
+    {
+      "command": "account transactions list-account",
+      "kind": "error_path",
+      "args": [
+        "account",
+        "transactions",
+        "list-account",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "accounts",
+      "kind": "help",
+      "args": [
+        "accounts",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "accounts",
+      "kind": "happy_path",
+      "args": [
+        "accounts"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "accounts",
+      "kind": "json_fidelity",
+      "args": [
+        "accounts",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "accounts",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)",
+      "output_sample": null
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)",
+      "output_sample": null
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar cancel-invoice",
+      "kind": "help",
+      "args": [
+        "ar",
+        "cancel-invoice",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar cancel-invoice",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"invoiceid\"",
+      "output_sample": null
+    },
+    {
+      "command": "ar cancel-invoice",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"invoiceid\"",
+      "output_sample": null
+    },
+    {
+      "command": "ar cancel-invoice",
+      "kind": "error_path",
+      "args": [
+        "ar",
+        "cancel-invoice",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar cancel-invoice",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"invoiceid\"",
+      "output_sample": null
+    },
+    {
+      "command": "ar create-customer",
+      "kind": "help",
+      "args": [
+        "ar",
+        "create-customer",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar create-customer",
+      "kind": "happy_path",
+      "args": [
+        "ar",
+        "create-customer",
+        "--email",
+        "user@example.com",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar create-customer",
+      "kind": "json_fidelity",
+      "args": [
+        "ar",
+        "create-customer",
+        "--email",
+        "user@example.com",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar create-customer",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "ar create-customer",
+      "kind": "error_path_real",
+      "args": [
+        "ar",
+        "create-customer",
+        "--email",
+        "user@example.com"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar create-invoice",
+      "kind": "help",
+      "args": [
+        "ar",
+        "create-invoice",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar create-invoice",
+      "kind": "happy_path",
+      "args": [
+        "ar",
+        "create-invoice",
+        "--customer-id",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar create-invoice",
+      "kind": "json_fidelity",
+      "args": [
+        "ar",
+        "create-invoice",
+        "--customer-id",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar create-invoice",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "ar create-invoice",
+      "kind": "error_path_real",
+      "args": [
+        "ar",
+        "create-invoice",
+        "--customer-id",
+        "550e8400-e29b-41d4-a716-446655440000"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar delete-customer",
+      "kind": "help",
+      "args": [
+        "ar",
+        "delete-customer",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar delete-customer",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"customerid\"",
+      "output_sample": null
+    },
+    {
+      "command": "ar delete-customer",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"customerid\"",
+      "output_sample": null
+    },
+    {
+      "command": "ar delete-customer",
+      "kind": "error_path",
+      "args": [
+        "ar",
+        "delete-customer",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar delete-customer",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"customerid\"",
+      "output_sample": null
+    },
+    {
+      "command": "ar get-attachment",
+      "kind": "help",
+      "args": [
+        "ar",
+        "get-attachment",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar get-attachment",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"attachmentid\"",
+      "output_sample": null
+    },
+    {
+      "command": "ar get-attachment",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"attachmentid\"",
+      "output_sample": null
+    },
+    {
+      "command": "ar get-attachment",
+      "kind": "error_path",
+      "args": [
+        "ar",
+        "get-attachment",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar get-customer",
+      "kind": "help",
+      "args": [
+        "ar",
+        "get-customer",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar get-customer",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"customerid\"",
+      "output_sample": null
+    },
+    {
+      "command": "ar get-customer",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"customerid\"",
+      "output_sample": null
+    },
+    {
+      "command": "ar get-customer",
+      "kind": "error_path",
+      "args": [
+        "ar",
+        "get-customer",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar get-invoice",
+      "kind": "help",
+      "args": [
+        "ar",
+        "get-invoice",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar get-invoice",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"invoiceid\"",
+      "output_sample": null
+    },
+    {
+      "command": "ar get-invoice",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"invoiceid\"",
+      "output_sample": null
+    },
+    {
+      "command": "ar get-invoice",
+      "kind": "error_path",
+      "args": [
+        "ar",
+        "get-invoice",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar get-invoice-pdf",
+      "kind": "help",
+      "args": [
+        "ar",
+        "get-invoice-pdf",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar get-invoice-pdf",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"invoiceid\"",
+      "output_sample": null
+    },
+    {
+      "command": "ar get-invoice-pdf",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"invoiceid\"",
+      "output_sample": null
+    },
+    {
+      "command": "ar get-invoice-pdf",
+      "kind": "error_path",
+      "args": [
+        "ar",
+        "get-invoice-pdf",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar list-customers",
+      "kind": "help",
+      "args": [
+        "ar",
+        "list-customers",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar list-customers",
+      "kind": "happy_path",
+      "args": [
+        "ar",
+        "list-customers"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar list-customers",
+      "kind": "json_fidelity",
+      "args": [
+        "ar",
+        "list-customers",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar list-customers",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "ar list-invoice-attachments",
+      "kind": "help",
+      "args": [
+        "ar",
+        "list-invoice-attachments",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar list-invoice-attachments",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"invoiceid\"",
+      "output_sample": null
+    },
+    {
+      "command": "ar list-invoice-attachments",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"invoiceid\"",
+      "output_sample": null
+    },
+    {
+      "command": "ar list-invoice-attachments",
+      "kind": "error_path",
+      "args": [
+        "ar",
+        "list-invoice-attachments",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar list-invoices",
+      "kind": "help",
+      "args": [
+        "ar",
+        "list-invoices",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar list-invoices",
+      "kind": "happy_path",
+      "args": [
+        "ar",
+        "list-invoices"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar list-invoices",
+      "kind": "json_fidelity",
+      "args": [
+        "ar",
+        "list-invoices",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar list-invoices",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "ar update-customer",
+      "kind": "help",
+      "args": [
+        "ar",
+        "update-customer",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar update-customer",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"customerid\"",
+      "output_sample": null
+    },
+    {
+      "command": "ar update-customer",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"customerid\"",
+      "output_sample": null
+    },
+    {
+      "command": "ar update-customer",
+      "kind": "error_path",
+      "args": [
+        "ar",
+        "update-customer",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar update-customer",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"customerid\"",
+      "output_sample": null
+    },
+    {
+      "command": "ar update-invoice",
+      "kind": "help",
+      "args": [
+        "ar",
+        "update-invoice",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar update-invoice",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"invoiceid\"",
+      "output_sample": null
+    },
+    {
+      "command": "ar update-invoice",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"invoiceid\"",
+      "output_sample": null
+    },
+    {
+      "command": "ar update-invoice",
+      "kind": "error_path",
+      "args": [
+        "ar",
+        "update-invoice",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "ar update-invoice",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"invoiceid\"",
+      "output_sample": null
+    },
+    {
+      "command": "books delete-agent-coa-template",
+      "kind": "help",
+      "args": [
+        "books",
+        "delete-agent-coa-template",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books delete-agent-coa-template",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"coatemplateid\"",
+      "output_sample": null
+    },
+    {
+      "command": "books delete-agent-coa-template",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"coatemplateid\"",
+      "output_sample": null
+    },
+    {
+      "command": "books delete-agent-coa-template",
+      "kind": "error_path",
+      "args": [
+        "books",
+        "delete-agent-coa-template",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books delete-agent-coa-template",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"coatemplateid\"",
+      "output_sample": null
+    },
+    {
+      "command": "books delete-agent-ledger-template",
+      "kind": "help",
+      "args": [
+        "books",
+        "delete-agent-ledger-template",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books delete-agent-ledger-template",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"ledgerid\"",
+      "output_sample": null
+    },
+    {
+      "command": "books delete-agent-ledger-template",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"ledgerid\"",
+      "output_sample": null
+    },
+    {
+      "command": "books delete-agent-ledger-template",
+      "kind": "error_path",
+      "args": [
+        "books",
+        "delete-agent-ledger-template",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books delete-agent-ledger-template",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"ledgerid\"",
+      "output_sample": null
+    },
+    {
+      "command": "books delete-journal-entries",
+      "kind": "help",
+      "args": [
+        "books",
+        "delete-journal-entries",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books delete-journal-entries",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"booksid\"",
+      "output_sample": null
+    },
+    {
+      "command": "books delete-journal-entries",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"booksid\"",
+      "output_sample": null
+    },
+    {
+      "command": "books delete-journal-entries",
+      "kind": "error_path",
+      "args": [
+        "books",
+        "delete-journal-entries",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books delete-journal-entries",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"booksid\"",
+      "output_sample": null
+    },
+    {
+      "command": "books get-agent-coa-template",
+      "kind": "help",
+      "args": [
+        "books",
+        "get-agent-coa-template",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books get-agent-coa-template",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"coatemplateid\"",
+      "output_sample": null
+    },
+    {
+      "command": "books get-agent-coa-template",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"coatemplateid\"",
+      "output_sample": null
+    },
+    {
+      "command": "books get-agent-coa-template",
+      "kind": "error_path",
+      "args": [
+        "books",
+        "get-agent-coa-template",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books get-agent-coa-templates",
+      "kind": "help",
+      "args": [
+        "books",
+        "get-agent-coa-templates",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books get-agent-coa-templates",
+      "kind": "happy_path",
+      "args": [
+        "books",
+        "get-agent-coa-templates"
+      ],
+      "status": "skip",
+      "exit_code": 4,
+      "reason": "unavailable for runner credentials",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books get-agent-coa-templates",
+      "kind": "json_fidelity",
+      "args": [
+        "books",
+        "get-agent-coa-templates",
+        "--json"
+      ],
+      "status": "skip",
+      "exit_code": 4,
+      "reason": "unavailable for runner credentials",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books get-agent-coa-templates",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "books get-journal-entries",
+      "kind": "help",
+      "args": [
+        "books",
+        "get-journal-entries",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books get-journal-entries",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"booksid\"",
+      "output_sample": null
+    },
+    {
+      "command": "books get-journal-entries",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"booksid\"",
+      "output_sample": null
+    },
+    {
+      "command": "books get-journal-entries",
+      "kind": "error_path",
+      "args": [
+        "books",
+        "get-journal-entries",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books get-journal-entry",
+      "kind": "help",
+      "args": [
+        "books",
+        "get-journal-entry",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books get-journal-entry",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [books get-journal-entry] has fewer segments than placeholders (2)",
+      "output_sample": null
+    },
+    {
+      "command": "books get-journal-entry",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [books get-journal-entry] has fewer segments than placeholders (2)",
+      "output_sample": null
+    },
+    {
+      "command": "books get-journal-entry",
+      "kind": "error_path",
+      "args": [
+        "books",
+        "get-journal-entry",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books post-agent-coa-templates",
+      "kind": "help",
+      "args": [
+        "books",
+        "post-agent-coa-templates",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books post-agent-coa-templates",
+      "kind": "happy_path",
+      "args": [
+        "books",
+        "post-agent-coa-templates",
+        "--accounting-basis",
+        "example-value",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books post-agent-coa-templates",
+      "kind": "json_fidelity",
+      "args": [
+        "books",
+        "post-agent-coa-templates",
+        "--accounting-basis",
+        "example-value",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books post-agent-coa-templates",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "books post-agent-coa-templates",
+      "kind": "error_path_real",
+      "args": [
+        "books",
+        "post-agent-coa-templates",
+        "--accounting-basis",
+        "example-value"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books post-agent-ledger-templates",
+      "kind": "help",
+      "args": [
+        "books",
+        "post-agent-ledger-templates",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books post-agent-ledger-templates",
+      "kind": "happy_path",
+      "args": [
+        "books",
+        "post-agent-ledger-templates",
+        "--coa-template-id",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books post-agent-ledger-templates",
+      "kind": "json_fidelity",
+      "args": [
+        "books",
+        "post-agent-ledger-templates",
+        "--coa-template-id",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books post-agent-ledger-templates",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "books post-agent-ledger-templates",
+      "kind": "error_path_real",
+      "args": [
+        "books",
+        "post-agent-ledger-templates",
+        "--coa-template-id",
+        "550e8400-e29b-41d4-a716-446655440000"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books post-journal-entries",
+      "kind": "help",
+      "args": [
+        "books",
+        "post-journal-entries",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books post-journal-entries",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"booksid\"",
+      "output_sample": null
+    },
+    {
+      "command": "books post-journal-entries",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"booksid\"",
+      "output_sample": null
+    },
+    {
+      "command": "books post-journal-entries",
+      "kind": "error_path",
+      "args": [
+        "books",
+        "post-journal-entries",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books post-journal-entries",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"booksid\"",
+      "output_sample": null
+    },
+    {
+      "command": "books put-agent-ledger-template",
+      "kind": "help",
+      "args": [
+        "books",
+        "put-agent-ledger-template",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books put-agent-ledger-template",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"ledgerid\"",
+      "output_sample": null
+    },
+    {
+      "command": "books put-agent-ledger-template",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"ledgerid\"",
+      "output_sample": null
+    },
+    {
+      "command": "books put-agent-ledger-template",
+      "kind": "error_path",
+      "args": [
+        "books",
+        "put-agent-ledger-template",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books put-agent-ledger-template",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"ledgerid\"",
+      "output_sample": null
+    },
+    {
+      "command": "books put-journal-entries",
+      "kind": "help",
+      "args": [
+        "books",
+        "put-journal-entries",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books put-journal-entries",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"booksid\"",
+      "output_sample": null
+    },
+    {
+      "command": "books put-journal-entries",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"booksid\"",
+      "output_sample": null
+    },
+    {
+      "command": "books put-journal-entries",
+      "kind": "error_path",
+      "args": [
+        "books",
+        "put-journal-entries",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "books put-journal-entries",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"booksid\"",
+      "output_sample": null
+    },
+    {
+      "command": "cards cancel card",
+      "kind": "help",
+      "args": [
+        "cards",
+        "cancel",
+        "card",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "cards cancel card",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"cardid\"",
+      "output_sample": null
+    },
+    {
+      "command": "cards cancel card",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"cardid\"",
+      "output_sample": null
+    },
+    {
+      "command": "cards cancel card",
+      "kind": "error_path",
+      "args": [
+        "cards",
+        "cancel",
+        "card",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "cards cancel card",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"cardid\"",
+      "output_sample": null
+    },
+    {
+      "command": "cards create",
+      "kind": "help",
+      "args": [
+        "cards",
+        "create",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "cards create",
+      "kind": "happy_path",
+      "args": [
+        "cards",
+        "create",
+        "--account-id",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "cards create",
+      "kind": "json_fidelity",
+      "args": [
+        "cards",
+        "create",
+        "--account-id",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "cards create",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "cards create",
+      "kind": "error_path_real",
+      "args": [
+        "cards",
+        "create",
+        "--account-id",
+        "550e8400-e29b-41d4-a716-446655440000"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "cards freeze card",
+      "kind": "help",
+      "args": [
+        "cards",
+        "freeze",
+        "card",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "cards freeze card",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"cardid\"",
+      "output_sample": null
+    },
+    {
+      "command": "cards freeze card",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"cardid\"",
+      "output_sample": null
+    },
+    {
+      "command": "cards freeze card",
+      "kind": "error_path",
+      "args": [
+        "cards",
+        "freeze",
+        "card",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "cards freeze card",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"cardid\"",
+      "output_sample": null
+    },
+    {
+      "command": "cards get",
+      "kind": "help",
+      "args": [
+        "cards",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "cards get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion failed at depth 0: exit 3",
+      "output_sample": null
+    },
+    {
+      "command": "cards get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion failed at depth 0: exit 3",
+      "output_sample": null
+    },
+    {
+      "command": "cards get",
+      "kind": "error_path",
+      "args": [
+        "cards",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "cards list",
+      "kind": "help",
+      "args": [
+        "cards",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "cards list",
+      "kind": "happy_path",
+      "args": [
+        "cards",
+        "list"
+      ],
+      "status": "skip",
+      "exit_code": 3,
+      "reason": "unavailable for runner credentials",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "cards list",
+      "kind": "json_fidelity",
+      "args": [
+        "cards",
+        "list",
+        "--json"
+      ],
+      "status": "skip",
+      "exit_code": 3,
+      "reason": "unavailable for runner credentials",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "cards list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "cards unfreeze card",
+      "kind": "help",
+      "args": [
+        "cards",
+        "unfreeze",
+        "card",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "cards unfreeze card",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"cardid\"",
+      "output_sample": null
+    },
+    {
+      "command": "cards unfreeze card",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"cardid\"",
+      "output_sample": null
+    },
+    {
+      "command": "cards unfreeze card",
+      "kind": "error_path",
+      "args": [
+        "cards",
+        "unfreeze",
+        "card",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "cards unfreeze card",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"cardid\"",
+      "output_sample": null
+    },
+    {
+      "command": "cards update",
+      "kind": "help",
+      "args": [
+        "cards",
+        "update",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "cards update",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"cardid\"",
+      "output_sample": null
+    },
+    {
+      "command": "cards update",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"cardid\"",
+      "output_sample": null
+    },
+    {
+      "command": "cards update",
+      "kind": "error_path",
+      "args": [
+        "cards",
+        "update",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "cards update",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"cardid\"",
+      "output_sample": null
+    },
+    {
+      "command": "categories create-category",
+      "kind": "help",
+      "args": [
+        "categories",
+        "create-category",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "categories create-category",
+      "kind": "happy_path",
+      "args": [
+        "categories",
+        "create-category",
+        "--name",
+        "example-resource",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "categories create-category",
+      "kind": "json_fidelity",
+      "args": [
+        "categories",
+        "create-category",
+        "--name",
+        "example-resource",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "categories create-category",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "categories create-category",
+      "kind": "error_path_real",
+      "args": [
+        "categories",
+        "create-category",
+        "--name",
+        "example-resource"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "categories edit category",
+      "kind": "help",
+      "args": [
+        "categories",
+        "edit",
+        "category",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "categories edit category",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"expensecategoryid\"",
+      "output_sample": null
+    },
+    {
+      "command": "categories edit category",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"expensecategoryid\"",
+      "output_sample": null
+    },
+    {
+      "command": "categories edit category",
+      "kind": "error_path",
+      "args": [
+        "categories",
+        "edit",
+        "category",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "categories edit category",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"expensecategoryid\"",
+      "output_sample": null
+    },
+    {
+      "command": "categories list",
+      "kind": "help",
+      "args": [
+        "categories",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "categories list",
+      "kind": "happy_path",
+      "args": [
+        "categories",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "categories list",
+      "kind": "json_fidelity",
+      "args": [
+        "categories",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "categories list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "credit",
+      "kind": "help",
+      "args": [
+        "credit",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "credit",
+      "kind": "happy_path",
+      "args": [
+        "credit"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "credit",
+      "kind": "json_fidelity",
+      "args": [
+        "credit",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "credit",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "events get",
+      "kind": "help",
+      "args": [
+        "events",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "events get",
+      "kind": "happy_path",
+      "args": [
+        "events",
+        "get"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "events get",
+      "kind": "json_fidelity",
+      "args": [
+        "events",
+        "get",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "events get",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "events get-eventid",
+      "kind": "help",
+      "args": [
+        "events",
+        "get-eventid",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "events get-eventid",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"eventid\"",
+      "output_sample": null
+    },
+    {
+      "command": "events get-eventid",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"eventid\"",
+      "output_sample": null
+    },
+    {
+      "command": "events get-eventid",
+      "kind": "error_path",
+      "args": [
+        "events",
+        "get-eventid",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "export",
+      "kind": "help",
+      "args": [
+        "export",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "export",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)",
+      "output_sample": null
+    },
+    {
+      "command": "export",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)",
+      "output_sample": null
+    },
+    {
+      "command": "export",
+      "kind": "error_path",
+      "args": [
+        "export",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)",
+      "output_sample": null
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)",
+      "output_sample": null
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "organization",
+      "kind": "help",
+      "args": [
+        "organization",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "organization",
+      "kind": "happy_path",
+      "args": [
+        "organization"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "organization",
+      "kind": "json_fidelity",
+      "args": [
+        "organization",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "organization",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0",
+      "output_sample": null
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0",
+      "output_sample": null
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "delete",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0",
+      "output_sample": null
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0",
+      "output_sample": null
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0",
+      "output_sample": null
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0",
+      "output_sample": null
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0",
+      "output_sample": null
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0",
+      "output_sample": null
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0",
+      "output_sample": null
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "recipient attachments upload-recipient",
+      "kind": "help",
+      "args": [
+        "recipient",
+        "attachments",
+        "upload-recipient",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "recipient attachments upload-recipient",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"recipientid\"",
+      "output_sample": null
+    },
+    {
+      "command": "recipient attachments upload-recipient",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"recipientid\"",
+      "output_sample": null
+    },
+    {
+      "command": "recipient attachments upload-recipient",
+      "kind": "error_path",
+      "args": [
+        "recipient",
+        "attachments",
+        "upload-recipient",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "recipient attachments upload-recipient",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"recipientid\"",
+      "output_sample": null
+    },
+    {
+      "command": "recipient get",
+      "kind": "help",
+      "args": [
+        "recipient",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "recipient get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"recipientid\"",
+      "output_sample": null
+    },
+    {
+      "command": "recipient get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"recipientid\"",
+      "output_sample": null
+    },
+    {
+      "command": "recipient get",
+      "kind": "error_path",
+      "args": [
+        "recipient",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "recipient update",
+      "kind": "help",
+      "args": [
+        "recipient",
+        "update",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "recipient update",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"recipientid\"",
+      "output_sample": null
+    },
+    {
+      "command": "recipient update",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"recipientid\"",
+      "output_sample": null
+    },
+    {
+      "command": "recipient update",
+      "kind": "error_path",
+      "args": [
+        "recipient",
+        "update",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "recipient update",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"recipientid\"",
+      "output_sample": null
+    },
+    {
+      "command": "recipients create",
+      "kind": "help",
+      "args": [
+        "recipients",
+        "create",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "recipients create",
+      "kind": "happy_path",
+      "args": [
+        "recipients",
+        "create",
+        "--name",
+        "example-resource",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "recipients create",
+      "kind": "json_fidelity",
+      "args": [
+        "recipients",
+        "create",
+        "--name",
+        "example-resource",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "recipients create",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "recipients create",
+      "kind": "error_path_real",
+      "args": [
+        "recipients",
+        "create",
+        "--name",
+        "example-resource"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "recipients get",
+      "kind": "help",
+      "args": [
+        "recipients",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "recipients get",
+      "kind": "happy_path",
+      "args": [
+        "recipients",
+        "get"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "recipients get",
+      "kind": "json_fidelity",
+      "args": [
+        "recipients",
+        "get",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "recipients get",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "recipients list-attachments",
+      "kind": "help",
+      "args": [
+        "recipients",
+        "list-attachments",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "recipients list-attachments",
+      "kind": "happy_path",
+      "args": [
+        "recipients",
+        "list-attachments"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "recipients list-attachments",
+      "kind": "json_fidelity",
+      "args": [
+        "recipients",
+        "list-attachments",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "recipients list-attachments",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "request-send-money get-send-money-approval-request",
+      "kind": "help",
+      "args": [
+        "request-send-money",
+        "get-send-money-approval-request",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "request-send-money get-send-money-approval-request",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"requestid\"",
+      "output_sample": null
+    },
+    {
+      "command": "request-send-money get-send-money-approval-request",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"requestid\"",
+      "output_sample": null
+    },
+    {
+      "command": "request-send-money get-send-money-approval-request",
+      "kind": "error_path",
+      "args": [
+        "request-send-money",
+        "get-send-money-approval-request",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "request-send-money list-send-money-approval-requests",
+      "kind": "help",
+      "args": [
+        "request-send-money",
+        "list-send-money-approval-requests",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "request-send-money list-send-money-approval-requests",
+      "kind": "happy_path",
+      "args": [
+        "request-send-money",
+        "list-send-money-approval-requests"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "request-send-money list-send-money-approval-requests",
+      "kind": "json_fidelity",
+      "args": [
+        "request-send-money",
+        "list-send-money-approval-requests",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "request-send-money list-send-money-approval-requests",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "safes document get-safe-request",
+      "kind": "help",
+      "args": [
+        "safes",
+        "document",
+        "get-safe-request",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "safes document get-safe-request",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"saferequestid\"",
+      "output_sample": null
+    },
+    {
+      "command": "safes document get-safe-request",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"saferequestid\"",
+      "output_sample": null
+    },
+    {
+      "command": "safes document get-safe-request",
+      "kind": "error_path",
+      "args": [
+        "safes",
+        "document",
+        "get-safe-request",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "safes get-request",
+      "kind": "help",
+      "args": [
+        "safes",
+        "get-request",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "safes get-request",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"saferequestid\"",
+      "output_sample": null
+    },
+    {
+      "command": "safes get-request",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"saferequestid\"",
+      "output_sample": null
+    },
+    {
+      "command": "safes get-request",
+      "kind": "error_path",
+      "args": [
+        "safes",
+        "get-request",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "safes get-requests",
+      "kind": "help",
+      "args": [
+        "safes",
+        "get-requests",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "safes get-requests",
+      "kind": "happy_path",
+      "args": [
+        "safes",
+        "get-requests"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "safes get-requests",
+      "kind": "json_fidelity",
+      "args": [
+        "safes",
+        "get-requests",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "safes get-requests",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)",
+      "output_sample": null
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)",
+      "output_sample": null
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "statements pdf get-statement",
+      "kind": "help",
+      "args": [
+        "statements",
+        "pdf",
+        "get-statement",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "statements pdf get-statement",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"statementid\"",
+      "output_sample": null
+    },
+    {
+      "command": "statements pdf get-statement",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"statementid\"",
+      "output_sample": null
+    },
+    {
+      "command": "statements pdf get-statement",
+      "kind": "error_path",
+      "args": [
+        "statements",
+        "pdf",
+        "get-statement",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "tail",
+      "kind": "help",
+      "args": [
+        "tail",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "tail",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)",
+      "output_sample": null
+    },
+    {
+      "command": "tail",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)",
+      "output_sample": null
+    },
+    {
+      "command": "tail",
+      "kind": "error_path",
+      "args": [
+        "tail",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": -1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "transaction attachments upload-transaction",
+      "kind": "help",
+      "args": [
+        "transaction",
+        "attachments",
+        "upload-transaction",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "transaction attachments upload-transaction",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"transactionid\"",
+      "output_sample": null
+    },
+    {
+      "command": "transaction attachments upload-transaction",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"transactionid\"",
+      "output_sample": null
+    },
+    {
+      "command": "transaction attachments upload-transaction",
+      "kind": "error_path",
+      "args": [
+        "transaction",
+        "attachments",
+        "upload-transaction",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "transaction attachments upload-transaction",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"transactionid\"",
+      "output_sample": null
+    },
+    {
+      "command": "transaction get-by-id",
+      "kind": "help",
+      "args": [
+        "transaction",
+        "get-by-id",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "transaction get-by-id",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"transactionid\"",
+      "output_sample": null
+    },
+    {
+      "command": "transaction get-by-id",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"transactionid\"",
+      "output_sample": null
+    },
+    {
+      "command": "transaction get-by-id",
+      "kind": "error_path",
+      "args": [
+        "transaction",
+        "get-by-id",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "transaction update",
+      "kind": "help",
+      "args": [
+        "transaction",
+        "update",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "transaction update",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"transactionid\"",
+      "output_sample": null
+    },
+    {
+      "command": "transaction update",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"transactionid\"",
+      "output_sample": null
+    },
+    {
+      "command": "transaction update",
+      "kind": "error_path",
+      "args": [
+        "transaction",
+        "update",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "transaction update",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"transactionid\"",
+      "output_sample": null
+    },
+    {
+      "command": "transactions",
+      "kind": "help",
+      "args": [
+        "transactions",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "transactions",
+      "kind": "happy_path",
+      "args": [
+        "transactions"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "transactions",
+      "kind": "json_fidelity",
+      "args": [
+        "transactions",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "transactions",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "transfer",
+      "kind": "help",
+      "args": [
+        "transfer",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "transfer",
+      "kind": "happy_path",
+      "args": [
+        "transfer",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "transfer",
+      "kind": "json_fidelity",
+      "args": [
+        "transfer",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "transfer",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "transfer",
+      "kind": "error_path_real",
+      "args": [
+        "transfer"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "treasury statements get-treasury",
+      "kind": "help",
+      "args": [
+        "treasury",
+        "statements",
+        "get-treasury",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "treasury statements get-treasury",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"treasuryid\"",
+      "output_sample": null
+    },
+    {
+      "command": "treasury statements get-treasury",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"treasuryid\"",
+      "output_sample": null
+    },
+    {
+      "command": "treasury statements get-treasury",
+      "kind": "error_path",
+      "args": [
+        "treasury",
+        "statements",
+        "get-treasury",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "treasury transactions get-treasury",
+      "kind": "help",
+      "args": [
+        "treasury",
+        "transactions",
+        "get-treasury",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "treasury transactions get-treasury",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"treasuryid\"",
+      "output_sample": null
+    },
+    {
+      "command": "treasury transactions get-treasury",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"treasuryid\"",
+      "output_sample": null
+    },
+    {
+      "command": "treasury transactions get-treasury",
+      "kind": "error_path",
+      "args": [
+        "treasury",
+        "transactions",
+        "get-treasury",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "users get",
+      "kind": "help",
+      "args": [
+        "users",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "users get",
+      "kind": "happy_path",
+      "args": [
+        "users",
+        "get"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "users get",
+      "kind": "json_fidelity",
+      "args": [
+        "users",
+        "get",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "users get",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "users get-userid",
+      "kind": "help",
+      "args": [
+        "users",
+        "get-userid",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "users get-userid",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"userid\"",
+      "output_sample": null
+    },
+    {
+      "command": "users get-userid",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"userid\"",
+      "output_sample": null
+    },
+    {
+      "command": "users get-userid",
+      "kind": "error_path",
+      "args": [
+        "users",
+        "get-userid",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "webhooks create",
+      "kind": "help",
+      "args": [
+        "webhooks",
+        "create",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "webhooks create",
+      "kind": "happy_path",
+      "args": [
+        "webhooks",
+        "create",
+        "--url",
+        "https://example.com/resource",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "webhooks create",
+      "kind": "json_fidelity",
+      "args": [
+        "webhooks",
+        "create",
+        "--url",
+        "https://example.com/resource",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "webhooks create",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "webhooks create",
+      "kind": "error_path_real",
+      "args": [
+        "webhooks",
+        "create",
+        "--url",
+        "https://example.com/resource"
+      ],
+      "status": "pass",
+      "exit_code": 4,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "webhooks delete",
+      "kind": "help",
+      "args": [
+        "webhooks",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "webhooks delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"webhookendpointid\"",
+      "output_sample": null
+    },
+    {
+      "command": "webhooks delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"webhookendpointid\"",
+      "output_sample": null
+    },
+    {
+      "command": "webhooks delete",
+      "kind": "error_path",
+      "args": [
+        "webhooks",
+        "delete",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "webhooks delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"webhookendpointid\"",
+      "output_sample": null
+    },
+    {
+      "command": "webhooks get",
+      "kind": "help",
+      "args": [
+        "webhooks",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "webhooks get",
+      "kind": "happy_path",
+      "args": [
+        "webhooks",
+        "get"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "webhooks get",
+      "kind": "json_fidelity",
+      "args": [
+        "webhooks",
+        "get",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "webhooks get",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "webhooks get-webhookendpointid",
+      "kind": "help",
+      "args": [
+        "webhooks",
+        "get-webhookendpointid",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "webhooks get-webhookendpointid",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"webhookendpointid\"",
+      "output_sample": null
+    },
+    {
+      "command": "webhooks get-webhookendpointid",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"webhookendpointid\"",
+      "output_sample": null
+    },
+    {
+      "command": "webhooks get-webhookendpointid",
+      "kind": "error_path",
+      "args": [
+        "webhooks",
+        "get-webhookendpointid",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "webhooks update",
+      "kind": "help",
+      "args": [
+        "webhooks",
+        "update",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "webhooks update",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"webhookendpointid\"",
+      "output_sample": null
+    },
+    {
+      "command": "webhooks update",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"webhookendpointid\"",
+      "output_sample": null
+    },
+    {
+      "command": "webhooks update",
+      "kind": "error_path",
+      "args": [
+        "webhooks",
+        "update",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "webhooks update",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"webhookendpointid\"",
+      "output_sample": null
+    },
+    {
+      "command": "webhooks verify webhook",
+      "kind": "help",
+      "args": [
+        "webhooks",
+        "verify",
+        "webhook",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "webhooks verify webhook",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"webhookendpointid\"",
+      "output_sample": null
+    },
+    {
+      "command": "webhooks verify webhook",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"webhookendpointid\"",
+      "output_sample": null
+    },
+    {
+      "command": "webhooks verify webhook",
+      "kind": "error_path",
+      "args": [
+        "webhooks",
+        "verify",
+        "webhook",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "webhooks verify webhook",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"webhookendpointid\"",
+      "output_sample": null
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)",
+      "output_sample": null
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)",
+      "output_sample": null
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "workflow payment-plan",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "payment-plan",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "workflow payment-plan",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "payment-plan",
+        "--kind",
+        "payment",
+        "--account-id",
+        "acct_123",
+        "--recipient-id",
+        "rec_123",
+        "--amount",
+        "25",
+        "--payment-method",
+        "ach",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "workflow payment-plan",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "payment-plan",
+        "--kind",
+        "payment",
+        "--account-id",
+        "acct_123",
+        "--recipient-id",
+        "rec_123",
+        "--amount",
+        "25",
+        "--payment-method",
+        "ach",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "workflow payment-plan",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument",
+      "output_sample": null
+    }
+  ],
+  "ran_at": "2026-05-06T21:27:53.384094Z"
+}

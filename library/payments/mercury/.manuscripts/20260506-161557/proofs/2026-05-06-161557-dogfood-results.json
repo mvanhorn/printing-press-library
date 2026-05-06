@@ -1,0 +1,99 @@
+{
+  "dir": "[redacted: local CLI directory]",
+  "binary": "[redacted: local CLI binary]",
+  "level": "quick",
+  "verdict": "PASS",
+  "matrix_size": 4,
+  "passed": 4,
+  "failed": 0,
+  "skipped": 4,
+  "commands": [
+    "account cards get-account",
+    "account request-send-money request-send-money"
+  ],
+  "tests": [
+    {
+      "command": "account cards get-account",
+      "kind": "help",
+      "args": [
+        "account",
+        "cards",
+        "get-account",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "account cards get-account",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"accountid\"",
+      "output_sample": null
+    },
+    {
+      "command": "account cards get-account",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"accountid\"",
+      "output_sample": null
+    },
+    {
+      "command": "account cards get-account",
+      "kind": "error_path",
+      "args": [
+        "account",
+        "cards",
+        "get-account",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "account request-send-money request-send-money",
+      "kind": "help",
+      "args": [
+        "account",
+        "request-send-money",
+        "request-send-money",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    },
+    {
+      "command": "account request-send-money request-send-money",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"accountid\"",
+      "output_sample": null
+    },
+    {
+      "command": "account request-send-money request-send-money",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"accountid\"",
+      "output_sample": null
+    },
+    {
+      "command": "account request-send-money request-send-money",
+      "kind": "error_path",
+      "args": [
+        "account",
+        "request-send-money",
+        "request-send-money",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "[redacted: live command output omitted from public manuscript]"
+    }
+  ],
+  "ran_at": "2026-05-06T21:18:54.444494Z"
+}

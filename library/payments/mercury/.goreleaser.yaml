@@ -1,0 +1,51 @@
+version: 2
+project_name: mercury-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: mercury-pp-cli
+    main: ./cmd/mercury-pp-cli
+    binary: mercury-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/payments/mercury/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: mercury-pp-mcp
+    main: ./cmd/mercury-pp-mcp
+    binary: mercury-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: mercury-pp-cli
+    repository:
+      owner: user
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Streamline financial tasks with secure account management and transaction processing. Enables user registration, balance tracking, and payment handling."
+    install: |
+      bin.install "mercury-pp-cli"
+      bin.install "mercury-pp-mcp"

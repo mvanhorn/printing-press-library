@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "mercury-pp-mcp",
+  "display_name": "Mercury",
+  "version": "3.10.0",
+  "description": "Business banking API for accounts, transactions, payments, recipients, cards, invoices, treasury, and webhooks",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/mercury-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/mercury-pp-mcp",
+      "args": [],
+      "env": {
+        "MERCURY_BEARER_AUTH": "${user_config.mercury_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "mercury_bearer_auth": {
+      "type": "string",
+      "title": "MERCURY_BEARER_AUTH",
+      "description": "Sets MERCURY_BEARER_AUTH for the Mercury MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
