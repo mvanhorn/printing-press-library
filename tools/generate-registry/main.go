@@ -8,13 +8,12 @@
 // This tool is the source of truth for registry.json. It runs in CI on
 // push to main against library/** changes (see
 // .github/workflows/generate-registry.yml) and commits the regenerated
-// registry alongside the skills/ppl/references/registry.json mirror,
-// matching the same generated-artifact pattern this repo already uses
-// for cli-skills/.
+// registry, matching the same generated-artifact pattern this repo
+// already uses for cli-skills/.
 //
 // Usage:
 //
-//	go run ./tools/generate-registry             # write registry.json + mirror
+//	go run ./tools/generate-registry             # write registry.json
 //	go run ./tools/generate-registry --check     # exit non-zero if drift detected
 //	go run ./tools/generate-registry --print     # print to stdout, do not write
 package main
@@ -36,7 +35,6 @@ import (
 const (
 	libraryDir    = "library"
 	registryPath  = "registry.json"
-	mirrorPath    = "skills/ppl/references/registry.json"
 	readmePath    = "README.md"
 	schemaVersion = 2
 	// stdioTransport / httpTransport are the registry-side names for the
@@ -181,16 +179,10 @@ func main() {
 	if err := os.WriteFile(registryPath, registryOut, 0o644); err != nil {
 		log.Fatalf("writing %s: %v", registryPath, err)
 	}
-	if err := os.MkdirAll(filepath.Dir(mirrorPath), 0o755); err != nil {
-		log.Fatalf("creating mirror dir: %v", err)
-	}
-	if err := os.WriteFile(mirrorPath, registryOut, 0o644); err != nil {
-		log.Fatalf("writing %s: %v", mirrorPath, err)
-	}
 	if err := os.WriteFile(readmePath, newReadme, 0o644); err != nil {
 		log.Fatalf("writing %s: %v", readmePath, err)
 	}
-	fmt.Fprintf(os.Stderr, "wrote %s, %s, and %s (%d entries)\n", registryPath, mirrorPath, readmePath, len(entries))
+	fmt.Fprintf(os.Stderr, "wrote %s and %s (%d entries)\n", registryPath, readmePath, len(entries))
 }
 
 // loadExistingEntries reads the current registry.json and returns a

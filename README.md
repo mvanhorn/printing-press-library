@@ -52,40 +52,6 @@ npx -y @mvanhorn/printing-press uninstall espn --yes
 
 While the catalog repository is private, live installer use requires `GITHUB_TOKEN` or `GH_TOKEN` for catalog and skill fetches, plus working private Go module access for `go install`.
 
-## Use the plugin router
-
-This repo is also a Claude Code plugin marketplace. Add it and install the plugin:
-
-```text
-/plugin marketplace add mvanhorn/printing-press-library
-/plugin install printing-press-library@printing-press-library
-```
-
-The plugin exposes the catalog router skill:
-
-```text
-/ppl
-```
-
-/ppl handles discovery, routing, and install guidance:
-
-```text
-/ppl
-/ppl sports scores
-/ppl install espn
-/ppl espn lakers score
-/ppl linear my open issues
-```
-
-The plugin intentionally does not install every focused `/pp-*` skill by default. Focused skills live under `cli-skills/` for direct installation, so users can install only the tools they want.
-
-Want to print new CLIs from API specs? Install the Printing Press itself too:
-
-```text
-/plugin marketplace add mvanhorn/cli-printing-press
-/plugin install cli-printing-press@cli-printing-press
-```
-
 ## Focused skills
 
 When you already know the tool you want, install just that skill:
@@ -102,7 +68,7 @@ Then use the focused slash skill directly:
 /pp-weather-goat phoenix forecast
 ```
 
-`/ppl` is the catalog router. Each `/pp-<name>` skill is a focused interface for one CLI.
+Each `/pp-<name>` skill is a focused interface for one CLI.
 
 ## Catalog
 
@@ -200,10 +166,6 @@ library/
       .printing-press.json
       .manuscripts/
 
-.claude-plugin/
-  marketplace.json
-  plugin.json
-
 cli-skills/
   pp-*/
     SKILL.md                 # generated direct-install mirror of library/<.>/SKILL.md
@@ -213,14 +175,10 @@ npm/
   src/
   bin/
 
-skills/
-  ppl/
-    SKILL.md
-
 registry.json
 ```
 
-Each published tool is self-contained: source code, a local README, a `.printing-press.json` provenance manifest, and the manuscripts from the printing run. `cli-skills/pp-*` is a generated mirror of each library `SKILL.md`, produced by `tools/generate-skills/main.go`. `skills/ppl` is the plugin-facing router skill.
+Each published tool is self-contained: source code, a local README, a `.printing-press.json` provenance manifest, and the manuscripts from the printing run. `cli-skills/pp-*` is a generated mirror of each library `SKILL.md`, produced by `tools/generate-skills/main.go`.
 
 ## What endorsed means
 

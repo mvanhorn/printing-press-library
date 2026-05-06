@@ -33,12 +33,6 @@ jobs:
       - name: Run skill generator
         run: go run ./tools/generate-skills/main.go
 
-      # Note: skills/ppl/references/registry.json is now owned by the
-      # generate-registry workflow (it regenerates registry.json from
-      # library/ and syncs the mirror in one step). Don't write to the
-      # mirror here — concurrent runs of these two workflows would
-      # otherwise race on the mirror file.
-
       - name: Commit and push if changed
         run: |
           git config user.name "github-actions[bot]"

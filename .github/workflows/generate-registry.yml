@@ -3,9 +3,8 @@ name: Regenerate registry.json and README catalog
 # Regenerates registry.json from each CLI's .printing-press.json +
 # manifest.json whenever a library/** change lands on main. Also
 # regenerates the README catalog table and count callout (sentinel
-# regions) from the same entries slice, mirrors registry.json into
-# skills/ppl/references/registry.json (where the ppl skill reads it
-# from), and commits all three with [skip ci].
+# regions) from the same entries slice, and commits both with
+# [skip ci].
 #
 # This is the same generated-artifact pattern this repo already uses
 # for cli-skills/ — PRs don't touch the generated outputs directly, the
@@ -65,13 +64,13 @@ jobs:
       - name: Commit if changed
         run: |
           set -euo pipefail
-          if git diff --quiet -- registry.json skills/ppl/references/registry.json README.md; then
+          if git diff --quiet -- registry.json README.md; then
             echo "No generated-artifact changes; nothing to commit."
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add registry.json skills/ppl/references/registry.json README.md
+          git add registry.json README.md
           # [skip ci] suppresses the chained workflow run on the
           # generated commit. Without it, the regen commit would
           # re-trigger this workflow, producing a noop commit chain.
