@@ -108,11 +108,46 @@ When adding a new CLI, ship a library SKILL.md alongside the generated code. Reg
 
 ## NPM installer surface
 
-`@mvanhorn/printing-press` lives in `npm/`. The `pp` command reads the live `registry.json`, resolves a catalog name to its published Go module path, runs `go install`, and installs the matching `cli-skills/pp-<name>` skill with `skills@latest`.
+`@mvanhorn/printing-press` lives in `npm/`. The `printing-press` command reads the live `registry.json`, resolves a catalog name to its published Go module path, runs `go install`, and installs the matching `cli-skills/pp-<name>` skill with `skills@latest`.
 
-Adding or updating a CLI should not require an npm publish after v0.1.0 lands. The package is a thin installer over the catalog; new CLIs become installable when `registry.json`, `library/`, and `cli-skills/` are updated on the target branch.
+Adding or updating a CLI does not require an npm publish. The package is a thin installer over the catalog; new CLIs become installable as soon as `registry.json`, `library/`, and `cli-skills/` are updated on `main`.
 
-While this repo remains private, live installer usage requires `GITHUB_TOKEN` or `GH_TOKEN` for registry and skill fetches plus working private Go module auth. Don't describe the npm install path as public-ready until the package is published and the repo visibility/token story is settled.
+The repo is public, the package is published, and `npx -y @mvanhorn/printing-press install <name>` works end-to-end for unauthenticated users.
+
+## Releasing the npm installer
+
+Single rule: **bump `npm/package.json`'s `version` field in your release PR.** Everything else is automated.
+
+When a PR that bumps the version merges to `main`:
+
+1. `.github/workflows/auto-tag-npm.yml` detects the version change and pushes a matching `npm-v<version>` tag.
+2. `.github/workflows/npm-publish.yml` triggers on the tag push, runs tests + build, and publishes via OIDC Trusted Publishing with a provenance attestation.
+
+End-to-end: PR → review → merge → tag → publish, with no manual steps after merge.
+
+**What does NOT trigger a release:**
+
+| Change | Why no release |
+|---|---|
+| `library/**` (Go code, SKILL.md, per-CLI README) | Sourced live by the orchestrator at install time, not in the npm tarball |
+| `cli-skills/pp-*/SKILL.md` | Fetched live by `npx skills add` |
+| `registry.json` | Fetched live by the installer; auto-regenerated post-merge with `[skip ci]` |
+| Root `README.md` / `AGENTS.md` / `CONTRIBUTING.md` | Repo docs, not in the npm tarball |
+| `.github/workflows/**` | CI infra, not in the tarball |
+| `npm/README.md` alone (no version bump) | The npmjs.com page only refreshes on republish; bump a patch version intentionally if you want it updated |
+| Bot regen commits with `[skip ci]` | Skipped by GitHub Actions |
+
+The single source of truth is `npm/package.json`'s `version`. If it didn't change in the merge to `main`, nothing publishes.
+
+**Recovery and retry:**
+
+- A tagged release failed partway? → `gh workflow run npm-publish.yml --ref main` re-runs the publish from current main (the workflow's `workflow_dispatch` trigger is the escape hatch).
+- A tag was created but `npm-publish.yml` failed before publishing? → Fix the underlying issue, then re-run via `workflow_dispatch`. The same version will be republished. If npm rejects it as already-existing, bump to the next patch instead.
+- Force-pushing a tag is generally not needed and is a smell — bump the patch version and let the pipeline re-fire instead.
+
+**Cadence implication:**
+
+Releases are for *orchestrator* changes only — the npm package's commands, flags, bundles, install logic. The CLIs, skills, and catalog update independently and continuously without touching the npm release cadence. A typical week often has many CLI changes and zero npm releases.
 
 ## Generated artifacts: `registry.json`, `cli-skills/`, `skills/ppl/references/`
 
