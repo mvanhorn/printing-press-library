@@ -32,8 +32,12 @@ jobs:
           cache: 'npm'
           cache-dependency-path: npm/package-lock.json
 
-      - name: Upgrade npm so it supports Trusted Publishing
-        run: npm install -g npm@latest
+      # Pin to a specific npm version that supports OIDC Trusted Publishing.
+      # `npm install -g npm@latest` is flaky in CI — npm overwrites itself
+      # mid-install and can leave the global install in a broken state with
+      # a missing `promise-retry` module. Pinning avoids the race.
+      - name: Use npm 11.5.1+ for Trusted Publishing
+        run: npm install -g npm@11.5.1
 
       - name: Install dependencies
         working-directory: npm

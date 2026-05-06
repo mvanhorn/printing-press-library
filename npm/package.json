@@ -1,6 +1,6 @@
 {
   "name": "@mvanhorn/printing-press",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Installer and catalog CLI for Printing Press-generated CLIs.",
   "type": "module",
   "license": "MIT",
