@@ -15,7 +15,8 @@
       "command": "${__dirname}/bin/movie-goat-pp-mcp",
       "args": [],
       "env": {
-        "TMDB_API_KEY": "${user_config.tmdb_api_key}"
+        "TMDB_API_KEY": "${user_config.tmdb_api_key}",
+        "OMDB_API_KEY": "${user_config.omdb_api_key}"
       }
     }
   },
@@ -26,6 +27,13 @@
       "description": "Sets TMDB_API_KEY for the Movie Goat MCP server. Get a credential from https://www.themoviedb.org/settings/api.",
       "sensitive": true,
       "required": true
+    },
+    "omdb_api_key": {
+      "type": "string",
+      "title": "OMDb API Key",
+      "description": "Optional. Sets OMDB_API_KEY for the Movie Goat MCP server to enable IMDb, Rotten Tomatoes, and Metacritic enrichment. Get a credential from http://www.omdbapi.com/apikey.aspx.",
+      "sensitive": true,
+      "required": false
     }
   },
   "compatibility": {

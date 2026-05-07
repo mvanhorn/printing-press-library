@@ -97,6 +97,7 @@ reading source. Schema is versioned via schema_version.`,
 func buildAgentContext(rootCmd *cobra.Command) agentContext {
 	envVars := []string{
 		"TMDB_API_KEY",
+		"OMDB_API_KEY",
 	}
 	authMode := "api_key"
 	if authMode == "" {

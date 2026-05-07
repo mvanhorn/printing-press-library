@@ -572,7 +572,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion movie-goat-pp-cli binary.",
 		"auth": map[string]any{
 			"type":     "api_key",
-			"env_vars": []string{"TMDB_API_KEY"},
+			"env_vars": []string{"TMDB_API_KEY", "OMDB_API_KEY"},
 			"key_url":  "https://www.themoviedb.org/settings/api",
 		},
 		"resources": []map[string]any{
