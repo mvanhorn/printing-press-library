@@ -1,46 +1,38 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
 const skillOutputDir = "cli-skills"
 
-// Registry schema (only the fields this mirror needs).
-
-type RegistryEntry struct {
-	Name string `json:"name"`
-	Path string `json:"path"`
+type PrintManifest struct {
+	APIName string `json:"api_name"`
 }
 
-type Registry struct {
-	SchemaVersion int             `json:"schema_version"`
-	Entries       []RegistryEntry `json:"entries"`
+type LibrarySkill struct {
+	Name string
+	Path string
 }
 
 func main() {
-	// Read registry.json from current working directory (repo root)
-	registryPath := "registry.json"
-	registryData, err := os.ReadFile(registryPath)
+	librarySkills, err := discoverLibrarySkills("library")
 	if err != nil {
-		log.Fatalf("Error reading %s: %v\nRun this program from the repo root.", registryPath, err)
+		log.Fatal(err)
 	}
 
-	var registry Registry
-	if err := json.Unmarshal(registryData, &registry); err != nil {
-		log.Fatalf("Error parsing %s: %v", registryPath, err)
-	}
-
-	// Track every skill name the registry asks for so we can prune
+	// Track every skill name the library asks for so we can prune
 	// pp-<oldslug>/ directories left behind by renames or removals. Filled
 	// at the top of the loop (before any error paths) so a transient write
 	// failure for an entry doesn't make us delete its existing skill.
-	expectedSkills := make(map[string]struct{}, len(registry.Entries))
+	expectedSkills := make(map[string]struct{}, len(librarySkills))
 
 	var (
 		copiedCount int
@@ -48,9 +40,8 @@ func main() {
 		writeErrors []string
 	)
 
-	for _, entry := range registry.Entries {
-		baseName := strings.TrimSuffix(entry.Name, "-pp-cli")
-		skillName := "pp-" + baseName
+	for _, entry := range librarySkills {
+		skillName := "pp-" + entry.Name
 		expectedSkills[skillName] = struct{}{}
 
 		skillDir := filepath.Join(skillOutputDir, skillName)
@@ -73,7 +64,7 @@ func main() {
 
 	fmt.Printf("\nMirrored %d skill(s) from library/ to %s/\n", copiedCount, skillOutputDir)
 	if prunedCount > 0 {
-		fmt.Printf("Pruned %d orphan skill dir(s) with no registry entry.\n", prunedCount)
+		fmt.Printf("Pruned %d orphan skill dir(s) with no library manifest.\n", prunedCount)
 	}
 
 	if len(writeErrors) > 0 {
@@ -95,6 +86,44 @@ func main() {
 	}
 }
 
+func discoverLibrarySkills(libraryRoot string) ([]LibrarySkill, error) {
+	manifestPaths, err := filepath.Glob(filepath.Join(libraryRoot, "*", "*", ".printing-press.json"))
+	if err != nil {
+		return nil, fmt.Errorf("discover library manifests: %w", err)
+	}
+	if len(manifestPaths) == 0 {
+		return nil, fmt.Errorf("no .printing-press.json files found under %s/*/*; run this program from the repo root", libraryRoot)
+	}
+
+	skills := make([]LibrarySkill, 0, len(manifestPaths))
+	for _, manifestPath := range manifestPaths {
+		data, err := os.ReadFile(manifestPath)
+		if err != nil {
+			return nil, fmt.Errorf("read %s: %w", manifestPath, err)
+		}
+		var manifest PrintManifest
+		if err := json.Unmarshal(data, &manifest); err != nil {
+			return nil, fmt.Errorf("parse %s: %w", manifestPath, err)
+		}
+		apiName := strings.TrimSpace(manifest.APIName)
+		if apiName == "" {
+			return nil, fmt.Errorf("%s is missing api_name", manifestPath)
+		}
+		skills = append(skills, LibrarySkill{
+			Name: apiName,
+			Path: filepath.ToSlash(filepath.Dir(manifestPath)),
+		})
+	}
+
+	sort.Slice(skills, func(i, j int) bool {
+		if skills[i].Name == skills[j].Name {
+			return skills[i].Path < skills[j].Path
+		}
+		return skills[i].Name < skills[j].Name
+	})
+	return skills, nil
+}
+
 // copyUpstreamSkill copies <entryPath>/SKILL.md to skillFile if it exists and
 // is non-empty. Returns (true, nil) on successful copy, (false, nil) when
 // upstream is missing or empty/whitespace-only (caller reports it as missing),
@@ -112,7 +141,7 @@ func copyUpstreamSkill(entryPath, skillDir, skillFile string) (bool, error) {
 		}
 		return false, fmt.Errorf("read %s: %w", upstreamPath, err)
 	}
-	if len(strings.TrimSpace(string(data))) == 0 {
+	if len(bytes.TrimSpace(data)) == 0 {
 		return false, nil
 	}
 	if err := os.MkdirAll(skillDir, 0755); err != nil {
@@ -125,9 +154,9 @@ func copyUpstreamSkill(entryPath, skillDir, skillFile string) (bool, error) {
 }
 
 // pruneOrphanSkills removes cli-skills/pp-<slug>/ directories whose pp-<slug>
-// is not in the expected set (i.e., the registry has no corresponding entry).
+// is not in the expected set (i.e., the library has no corresponding manifest).
 // Without this, renaming a CLI's slug leaves the old mirror behind: the
-// registry generator drops the old entry, the main loop above only writes the
+// library drops the old manifest, the main loop above only writes the
 // new entry, and `git add cli-skills/` in CI sees no working-tree change for
 // the orphan dir. See issue #250 for the flightgoat -> flight-goat case.
 //
@@ -159,7 +188,7 @@ func pruneOrphanSkills(dir string, expected map[string]struct{}) int {
 			log.Printf("Warning: could not remove orphan %s: %v", target, err)
 			continue
 		}
-		fmt.Printf("  removed orphan %s (no registry entry)\n", target)
+		fmt.Printf("  removed orphan %s (no library manifest)\n", target)
 		removed++
 	}
 	return removed
