@@ -1,0 +1,304 @@
+{
+  "api_name": "trigger-dev",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "trigger.dev (official CLI)",
+      "url": "https://github.com/triggerdotdev/trigger.dev",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 14803,
+      "last_updated": "",
+      "command_count": 17,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "@trigger.dev/sdk",
+      "url": "https://github.com/triggerdotdev/trigger.dev/tree/main/packages/trigger-sdk",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 14803,
+      "last_updated": "",
+      "command_count": 41,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "trigger.dev MCP server",
+      "url": "https://github.com/triggerdotdev/trigger.dev/tree/main/packages/cli-v3/src/mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 14803,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Inngest CLI",
+      "url": "https://github.com/inngest/inngest",
+      "language": "Go",
+      "install_method": "",
+      "stars": 5093,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Temporal CLI",
+      "url": "https://github.com/temporalio/cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 25,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-07T00:08:00Z",
+  "novel_features": [
+    {
+      "name": "LLM span cost rollup",
+      "command": "runs span-cost",
+      "description": "Group recent runs by model and task to see which span pairs are eating your LLM budget — the report your finance lead actually wants.",
+      "rationale": "The Trigger.dev API exposes per-span model/token/cost on individual run traces, but no aggregation endpoint joins them across runs. The local store does that join in one SQL group-by.",
+      "example": "trigger-dev-pp-cli runs span-cost --since 7d --by model,task --top 20 --agent",
+      "why_it_matters": "Pick this when the user asks 'where is my LLM spend going' or 'what's costing money this week' — answers in one shell command without dashboard clicks.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Real-time failure watch",
+      "command": "runs watch",
+      "description": "Watches runs for new failures and interrupts your terminal the moment one happens — non-zero exit, desktop notification, sound, composable in shell loops.",
+      "rationale": "No Trigger.dev endpoint streams 'new failures since cursor X' with notification semantics. The CLI keeps a local seen-cursor and side-effects gate behind explicit flags.",
+      "example": "trigger-dev-pp-cli runs watch --task daily-digest --notify --sound",
+      "why_it_matters": "Pick this for post-deploy windows or oncall — the user gets paged the second a failure lands instead of refreshing the dashboard.",
+      "group": "Real-time and side-effect-aware"
+    },
+    {
+      "name": "Stale schedule detection",
+      "command": "schedules stale",
+      "description": "Lists schedules that stopped firing or whose recent runs have a low success rate — the zombie-cron audit no other tool gives you.",
+      "rationale": "Joins the synced schedules table with recent runs in local SQLite. Neither the schedules API nor the runs API answers 'schedule that stopped firing' on its own.",
+      "example": "trigger-dev-pp-cli schedules stale --days 14 --min-success-rate 0.5 --agent",
+      "why_it_matters": "Pick this for any 'check my crons are healthy' request, or when rotating credentials that schedules might depend on.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Env var diff",
+      "command": "envvars diff",
+      "description": "Side-by-side diff of environment variables between two environments — keys missing, keys extra, values that differ (masked).",
+      "rationale": "The SDK has no diff endpoint. The CLI does two real GETs and a Go set-diff with masked-value handling — safe to print, scriptable to compare.",
+      "example": "trigger-dev-pp-cli envvars diff --project proj_abc --from prod --to staging --agent",
+      "why_it_matters": "Pick this when a user says 'works in staging but not prod' or 'audit env vars after rotation' — answers it without two browser tabs.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Recurring failure patterns",
+      "command": "failures top",
+      "description": "Top recurring (task, error-signature) pairs over a time window — mechanical group-by, no LLM, no NLP.",
+      "rationale": "Group-by with regex error-signature normalization runs over the local store. Strips IDs, numbers, hex tokens so 'task X timed out at 12345ms' and 'task X timed out at 67890ms' collapse into one signature.",
+      "example": "trigger-dev-pp-cli failures top --since 7d --top 20 --agent",
+      "why_it_matters": "Pick this for incident triage — answers 'what's going wrong most often' before manual log diving.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Full-text search over run errors",
+      "command": "runs find",
+      "description": "substring grep over the synced runs table — error messages, tags, metadata, task identifiers — ranked by recency.",
+      "rationale": "The dashboard search is online-only and forgets filters across pagination. SQLite FTS5 over the synced store composes with --status, --since, --json offline.",
+      "example": "trigger-dev-pp-cli runs find \"timeout\" --status FAILED --since 30d --agent --select id,taskIdentifier,error.message",
+      "why_it_matters": "Pick this for any 'find a run that did X' question — keystroke-level grep that survives pagination and works offline.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Typed exit codes on terminal-state runs",
+      "command": "runs get",
+      "description": "runs get returns typed exit codes per terminal status: 0=COMPLETED, 20=FAILED, 21=CRASHED, 22=SYSTEM_FAILURE, 23=CANCELED, 3=not-found, 4=auth-error.",
+      "rationale": "The Cobra annotation pp:typed-exit-codes makes verify and agents read the exit-code contract directly from the command, without parsing JSON to branch on outcome.",
+      "example": "trigger-dev-pp-cli runs get run_abc123; case $? in 0) echo ok ;; 20) echo failed ;; esac",
+      "why_it_matters": "Pick this in shell loops or agent task graphs that need to branch on run outcome — no parsing required.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "TRQL recipe library",
+      "command": "query recipes",
+      "description": "Curated TRQL one-liners for the common analytics questions (failed-last-hour, cost-by-model-7d, oncall-deploy-window) — list them with `query recipes`, run them parameterized with `query run \u003crecipe\u003e`.",
+      "rationale": "TRQL is Trigger.dev's signature analytics surface, but agents can't reliably author SQL against an unfamiliar schema. Recipes are curated static reference (// pp:novel-static-reference); execution is a real /api/v1/query POST with parameter substitution.",
+      "example": "trigger-dev-pp-cli query run cost-by-model-7d --param env=prod --agent",
+      "why_it_matters": "Pick this when the user asks an analytics question that fits the catalog (cost, latency, failure rate by dimension) — one canonical CLI flag instead of authoring TRQL from scratch.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "LLM span cost rollup",
+      "command": "runs span-cost",
+      "description": "Group recent runs by model and task to see which span pairs are eating your LLM budget — the report your finance lead actually wants.",
+      "rationale": "The Trigger.dev API exposes per-span model/token/cost on individual run traces, but no aggregation endpoint joins them across runs. The local store does that join in one SQL group-by.",
+      "example": "trigger-dev-pp-cli runs span-cost --since 7d --by model,task --top 20 --agent",
+      "why_it_matters": "Pick this when the user asks 'where is my LLM spend going' or 'what's costing money this week' — answers in one shell command without dashboard clicks.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Real-time failure watch",
+      "command": "runs watch",
+      "description": "Watches runs for new failures and interrupts your terminal the moment one happens — non-zero exit, desktop notification, sound, composable in shell loops.",
+      "rationale": "No Trigger.dev endpoint streams 'new failures since cursor X' with notification semantics. The CLI keeps a local seen-cursor and side-effects gate behind explicit flags.",
+      "example": "trigger-dev-pp-cli runs watch --task daily-digest --notify --sound",
+      "why_it_matters": "Pick this for post-deploy windows or oncall — the user gets paged the second a failure lands instead of refreshing the dashboard.",
+      "group": "Real-time and side-effect-aware"
+    },
+    {
+      "name": "Stale schedule detection",
+      "command": "schedules stale",
+      "description": "Lists schedules that stopped firing or whose recent runs have a low success rate — the zombie-cron audit no other tool gives you.",
+      "rationale": "Joins the synced schedules table with recent runs in local SQLite. Neither the schedules API nor the runs API answers 'schedule that stopped firing' on its own.",
+      "example": "trigger-dev-pp-cli schedules stale --days 14 --min-success-rate 0.5 --agent",
+      "why_it_matters": "Pick this for any 'check my crons are healthy' request, or when rotating credentials that schedules might depend on.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Env var diff",
+      "command": "envvars diff",
+      "description": "Side-by-side diff of environment variables between two environments — keys missing, keys extra, values that differ (masked).",
+      "rationale": "The SDK has no diff endpoint. The CLI does two real GETs and a Go set-diff with masked-value handling — safe to print, scriptable to compare.",
+      "example": "trigger-dev-pp-cli envvars diff --project proj_abc --from prod --to staging --agent",
+      "why_it_matters": "Pick this when a user says 'works in staging but not prod' or 'audit env vars after rotation' — answers it without two browser tabs.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Recurring failure patterns",
+      "command": "failures top",
+      "description": "Top recurring (task, error-signature) pairs over a time window — mechanical group-by, no LLM, no NLP.",
+      "rationale": "Group-by with regex error-signature normalization runs over the local store. Strips IDs, numbers, hex tokens so 'task X timed out at 12345ms' and 'task X timed out at 67890ms' collapse into one signature.",
+      "example": "trigger-dev-pp-cli failures top --since 7d --top 20 --agent",
+      "why_it_matters": "Pick this for incident triage — answers 'what's going wrong most often' before manual log diving.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Full-text search over run errors",
+      "command": "runs find",
+      "description": "substring grep over the synced runs table — error messages, tags, metadata, task identifiers — ranked by recency.",
+      "rationale": "The dashboard search is online-only and forgets filters across pagination. SQLite FTS5 over the synced store composes with --status, --since, --json offline.",
+      "example": "trigger-dev-pp-cli runs find \"timeout\" --status FAILED --since 30d --agent --select id,taskIdentifier,error.message",
+      "why_it_matters": "Pick this for any 'find a run that did X' question — keystroke-level grep that survives pagination and works offline.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Typed exit codes on terminal-state runs",
+      "command": "runs get",
+      "description": "runs get returns typed exit codes per terminal status: 0=COMPLETED, 20=FAILED, 21=CRASHED, 22=SYSTEM_FAILURE, 23=CANCELED, 3=not-found, 4=auth-error.",
+      "rationale": "The Cobra annotation pp:typed-exit-codes makes verify and agents read the exit-code contract directly from the command, without parsing JSON to branch on outcome.",
+      "example": "trigger-dev-pp-cli runs get run_abc123; case $? in 0) echo ok ;; 20) echo failed ;; esac",
+      "why_it_matters": "Pick this in shell loops or agent task graphs that need to branch on run outcome — no parsing required.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "TRQL recipe library",
+      "command": "query recipes",
+      "description": "Curated TRQL one-liners for the common analytics questions (failed-last-hour, cost-by-model-7d, oncall-deploy-window) — list them with `query recipes`, run them parameterized with `query run \u003crecipe\u003e`.",
+      "rationale": "TRQL is Trigger.dev's signature analytics surface, but agents can't reliably author SQL against an unfamiliar schema. Recipes are curated static reference (// pp:novel-static-reference); execution is a real /api/v1/query POST with parameter substitution.",
+      "example": "trigger-dev-pp-cli query run cost-by-model-7d --param env=prod --agent",
+      "why_it_matters": "Pick this when the user asks an analytics question that fits the catalog (cost, latency, failure rate by dimension) — one canonical CLI flag instead of authoring TRQL from scratch.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Trigger.dev",
+    "headline": "Every Trigger.dev management endpoint, plus offline FTS over runs, span-cost rollups, and zombie-schedule detection no other tool gives you.",
+    "value_prop": "trigger-dev-pp-cli wraps the full v3 management API (47 endpoints across runs, schedules, deployments, batches, queues, waitpoints, env vars, and TRQL queries) and adds the cross-run aggregations the dashboard hides one click deep — LLM span cost rollups, recurring-failure patterns, real-time failure watch with desktop notifications, env-var diffs across environments, and substring grep over cached run errors.",
+    "auth_narrative": "Authentication uses a Trigger.dev secret key in the `Authorization: Bearer` header. Set `TRIGGER_SECRET_KEY` to your environment's key — `tr_dev_…` for development, `tr_prod_…` for production, `tr_pat_…` for personal access tokens. Each key is environment-scoped: a dev key cannot manage prod runs.",
+    "quickstart": [
+      {
+        "command": "trigger-dev-pp-cli doctor",
+        "comment": "Validate TRIGGER_SECRET_KEY and confirm reachability."
+      },
+      {
+        "command": "trigger-dev-pp-cli sync --resource runs --since 7d",
+        "comment": "Cache last 7 days of runs locally so search/aggregations work offline."
+      },
+      {
+        "command": "trigger-dev-pp-cli failures top --since 7d --top 20 --agent",
+        "comment": "See the recurring failure signatures across all tasks in one shell call."
+      },
+      {
+        "command": "trigger-dev-pp-cli runs span-cost --since 7d --by model,task --top 20",
+        "comment": "Rank LLM cost by model+task — the report finance asks for."
+      },
+      {
+        "command": "trigger-dev-pp-cli schedules stale --days 14 --agent",
+        "comment": "Find zombie crons that stopped firing or whose runs all fail."
+      },
+      {
+        "command": "trigger-dev-pp-cli runs watch --task my-task --notify",
+        "comment": "Stay in your terminal — get pinged the second a failure lands."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every call",
+        "fix": "Set TRIGGER_SECRET_KEY to a `tr_dev_…`, `tr_prod_…`, or `tr_pat_…` key and run `trigger-dev-pp-cli doctor`. The key prefix encodes which environment you can manage."
+      },
+      {
+        "symptom": "403 environment mismatch when calling /api/v1/runs",
+        "fix": "Your key is scoped to a different environment than the resource. A `tr_dev_…` key cannot list prod runs. Switch keys."
+      },
+      {
+        "symptom": "429 rate-limited",
+        "fix": "Trigger.dev returns standard `Retry-After` in seconds. The CLI's adaptive limiter honors it automatically; if you're seeing this in scripts, lower concurrency or add `--limit`."
+      },
+      {
+        "symptom": "`runs find` returns nothing",
+        "fix": "Run `trigger-dev-pp-cli sync --resource runs --since 30d` first — substring grep is over the local store, not the live API."
+      },
+      {
+        "symptom": "`schedules stale` says all schedules are stale on a fresh project",
+        "fix": "The store is empty until sync. Run `trigger-dev-pp-cli sync --resource schedules` and `--resource runs` so the join has data."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent task needs to operate Trigger.dev programmatically: triaging failed runs, auditing schedule health, diffing env vars across environments, computing LLM costs across runs, or watching for new failures. It complements the official trigger.dev CLI (which focuses on dev-time deploy/init/dev) by exposing the management API surface as scriptable, agent-native commands with offline FTS and typed exit codes.",
+    "recipes": [
+      {
+        "title": "Triage today's failures",
+        "command": "trigger-dev-pp-cli sync --resource runs --since 1d \u0026\u0026 trigger-dev-pp-cli failures top --since 1d --top 10 --agent --select 'task,error_signature,count,last_seen'",
+        "explanation": "Sync today's runs, then group by task and normalized error signature to surface the dominant failure patterns."
+      },
+      {
+        "title": "Watch a deploy window",
+        "command": "trigger-dev-pp-cli runs watch --task my-task --notify --sound",
+        "explanation": "Stay in the terminal during a deploy — the command exits non-zero and beeps on the first new FAILED run."
+      },
+      {
+        "title": "Audit env-var drift across environments",
+        "command": "trigger-dev-pp-cli envvars diff --project proj_abc --from prod --to staging --agent",
+        "explanation": "Compare two environments' variables; values are masked, drift flagged."
+      },
+      {
+        "title": "Find runs that hit a specific error",
+        "command": "trigger-dev-pp-cli runs find \"connection timeout\" --since 7d --status FAILED --agent --select 'id,taskIdentifier,error.message,createdAt'",
+        "explanation": "substring grep over the local store with --select narrowing the agent context to the fields that matter."
+      },
+      {
+        "title": "Run a curated TRQL recipe",
+        "command": "trigger-dev-pp-cli query run cost-by-model-7d --param env=prod --agent",
+        "explanation": "Execute a curated TRQL query without authoring SQL. Recipes cover failure-rate, cost, and latency by common dimensions."
+      }
+    ],
+    "trigger_phrases": [
+      "trigger.dev failed runs",
+      "trigger.dev cost rollup",
+      "trigger.dev schedule health",
+      "audit trigger.dev env vars",
+      "watch trigger.dev failures",
+      "use trigger-dev",
+      "run trigger-dev"
+    ]
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "dir": "/Users/tmchow/printing-press/.runstate/serene-hatching-meteor-2cee6bad/runs/20260507-000200/working/trigger-dev-pp-cli",
+  "binary": "/Users/tmchow/printing-press/.runstate/serene-hatching-meteor-2cee6bad/runs/20260507-000200/working/trigger-dev-pp-cli/trigger-dev-pp-cli",
+  "level": "quick",
+  "verdict": "PASS",
+  "matrix_size": 5,
+  "passed": 5,
+  "failed": 0,
+  "skipped": 3,
+  "commands": [
+    "analytics",
+    "api"
+  ],
+  "tests": [
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  trigger-dev-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  trigger-dev-pp-cli analytics --type messages\n\n  # Group by a field\n  trigger-dev-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  trigger-dev-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         Database path\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'trigger-dev-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  trigger-dev-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  trigger-dev-pp-cli api\n\n  # Show methods for a specific interface\n  trigger-dev-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'trigger-dev-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'trigger-dev-pp-cli api' to list all interfaces\ninterface \"__printing_press_invalid__\" not found. Run 'trigger-dev-pp-cli api' to list all interfaces\n"
+    }
+  ],
+  "ran_at": "2026-05-07T08:26:01.542418Z"
+}

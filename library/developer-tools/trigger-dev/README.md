@@ -1,37 +1,367 @@
 # Trigger.dev CLI
 
-Monitor runs, trigger tasks, manage schedules, and detect failures via the Trigger.dev API
+**Every Trigger.dev management endpoint, plus offline FTS over runs, span-cost rollups, and zombie-schedule detection no other tool gives you.**
+
+trigger-dev-pp-cli wraps the full v3 management API (47 endpoints across runs, schedules, deployments, batches, queues, waitpoints, env vars, and TRQL queries) and adds the cross-run aggregations the dashboard hides one click deep — LLM span cost rollups, recurring-failure patterns, real-time failure watch with desktop notifications, env-var diffs across environments, and substring grep over cached run errors.
+
+Learn more at [Trigger.dev](https://trigger.dev).
 
 ## Install
 
-The recommended path installs both the `trigger-dev-pp-cli` binary and the `pp-trigger-dev` agent skill in one shot:
-
-```bash
-npx -y @mvanhorn/printing-press install trigger-dev
-```
-
-For CLI only (no skill):
-
-```bash
-npx -y @mvanhorn/printing-press install trigger-dev --cli-only
-```
-
-### Without Node (Go fallback)
-
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/developer-tools/trigger-dev/cmd/trigger-dev-pp-cli@latest
-```
-
-This installs the CLI only — no skill.
-
-### Pre-built binary
+### Binary
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/trigger-dev-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+### Go
+
+```
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/trigger-dev/cmd/trigger-dev-pp-cli@latest
+```
+
+## Authentication
+
+Authentication uses a Trigger.dev secret key in the `Authorization: Bearer` header. Set `TRIGGER_SECRET_KEY` to your environment's key — `tr_dev_…` for development, `tr_prod_…` for production, `tr_pat_…` for personal access tokens. Each key is environment-scoped: a dev key cannot manage prod runs.
+
+## Quick Start
+
+```bash
+# Validate TRIGGER_SECRET_KEY and confirm reachability.
+trigger-dev-pp-cli doctor
+
+
+# Cache last 7 days of runs locally so search/aggregations work offline.
+trigger-dev-pp-cli sync --resources runs --since 7d
+
+
+# See the recurring failure signatures across all tasks in one shell call.
+trigger-dev-pp-cli failures top --since 7d --top 20 --agent
+
+
+# Rank LLM cost by model+task — the report finance asks for.
+trigger-dev-pp-cli runs span-cost --since 7d --by model,task --top 20
+
+
+# Find zombie crons that stopped firing or whose runs all fail.
+trigger-dev-pp-cli schedules stale --days 14 --agent
+
+
+# Stay in your terminal — get pinged the second a failure lands.
+trigger-dev-pp-cli runs watch --task my-task --notify
+
+```
+
+## Unique Features
+
+These capabilities aren't available in any other tool for this API.
+
+### Real-time terminal alerting
+- **`runs watch`** — Watches runs for new failures and interrupts your terminal the moment one happens — desktop notification, sound, and a non-zero exit so it composes with shell loops.
+
+  _Reach for this when an agent or oncall engineer needs to react to failures the second they appear, instead of polling the dashboard or waiting for an email._
+
+  ```bash
+  trigger-dev-pp-cli runs watch --task daily-digest --notify --sound
+  ```
+
+### Local state that compounds
+- **`schedules stale`** — Lists schedules that stopped firing or whose recent runs have a low success rate — the zombie cron audit no other tool gives you.
+
+  _Reach for this after an env var rotation, a Postgres URL change, or any silent-config event that might have killed crons without anyone noticing._
+
+  ```bash
+  trigger-dev-pp-cli schedules stale --days 7 --min-success-rate 0.5 --agent
+  ```
+- **`runs span-cost`** — Walks recent runs, surfaces the most expensive LLM spans grouped by model and task, with token totals and dollar cost — the report your finance lead actually wants.
+
+  _Reach for this when an AI-product engineer or agent needs to pinpoint which model + task pair is eating the LLM budget, before the next billing cycle closes._
+
+  ```bash
+  trigger-dev-pp-cli runs span-cost --since 7d --by model,task --top 20 --agent --select spans.model,spans.task_identifier,spans.total_cost_cents
+  ```
+- **`failures top`** — Top recurring (task, error-signature) pairs over a time window — mechanical group-by, no LLM, no NLP.
+
+  _Reach for this in an incident loop when an agent needs to find the dominant failure signature instead of reading 200 stack traces by hand._
+
+  ```bash
+  trigger-dev-pp-cli failures top --since 7d --top 20 --agent --select patterns.task_identifier,patterns.error_signature,patterns.count,patterns.last_occurred_at
+  ```
+- **`runs find`** — FTS5 grep over the synced runs table — error messages, tags, metadata, task identifiers — ranked by recency.
+
+  _Reach for this when an agent has a fragment of an error message and needs the matching runs without typing TRQL._
+
+  ```bash
+  trigger-dev-pp-cli runs find "payload too large" --status FAILED --since 30d --agent
+  ```
+
+### Operator hygiene
+- **`envvars diff`** — Side-by-side diff of environment variables between two environments — keys missing, keys extra, values that differ (masked).
+
+  _Reach for this when an agent is debugging "works in staging, fails in prod" — the answer is almost always an env var, and diff makes the answer one command away._
+
+  ```bash
+  trigger-dev-pp-cli envvars diff --from prod --to staging --project proj_abc --agent
+  ```
+
+### Agent ergonomics
+- **`runs get`** — runs get returns typed exit codes: 0=COMPLETED, 20=FAILED, 21=CRASHED, 22=SYSTEM_FAILURE, 23=CANCELED, 3=not-found, 4=auth-error. Cobra annotation pp:typed-exit-codes makes verify and agents read the contract directly.
+
+  _Reach for this when an agent is writing a shell loop over many runs and wants to branch on success/failure without parsing JSON._
+
+  ```bash
+  trigger-dev-pp-cli runs get run_abc123 --json && echo COMPLETED || echo $?
+  ```
+
+## Usage
+
+Run `trigger-dev-pp-cli --help` for the full command reference and flag list.
+
+## Commands
+
+### batches
+
+Manage batches
+
+- **`trigger-dev-pp-cli batches retrieve-batch-v1`** - Retrieve a batch by its ID, including its status and the IDs of all runs in the batch.
+
+### deployments
+
+Manage deployments
+
+- **`trigger-dev-pp-cli deployments get-latest-v1`** - Retrieve information about the latest unmanaged deployment for the authenticated project.
+- **`trigger-dev-pp-cli deployments get-v1`** - Retrieve information about a specific deployment by its ID.
+- **`trigger-dev-pp-cli deployments list-v1`** - List deployments for the authenticated environment, ordered by most recent first.
+
+### projects
+
+Manage projects
+
+
+### query
+
+Manage query
+
+- **`trigger-dev-pp-cli query execute-v1`** - Execute a TRQL (Trigger.dev Query Language) query against your run data. TRQL is a SQL-style query language that allows you to analyze runs, calculate metrics, and export data.
+- **`trigger-dev-pp-cli query get-schema-v1`** - Get the schema for TRQL queries, including all available tables, their columns, data types, descriptions, and allowed values.
+- **`trigger-dev-pp-cli query list-dashboards-v1`** - List available built-in dashboards with their widgets. Each dashboard contains pre-built TRQL queries for common metrics like run success rates, costs, and LLM usage.
+
+### queues
+
+Manage queues
+
+- **`trigger-dev-pp-cli queues list-v1`** - List all queues in your environment with pagination support.
+- **`trigger-dev-pp-cli queues retrieve-v1`** - Get a queue by its ID, or by type and name.
+
+### runs
+
+Manage runs
+
+- **`trigger-dev-pp-cli runs list-v1`** - List runs in a specific environment. You can filter the runs by status, created at, task identifier, version, and more.
+- **`trigger-dev-pp-cli runs retrieve-v1`** - Retrieve information about a run, including its status, payload, output, and attempts. If you authenticate with a Public API key, we will omit the payload and output fields for security reasons.
+
+### schedules
+
+Manage schedules
+
+- **`trigger-dev-pp-cli schedules create-v1`** - Create a new `IMPERATIVE` schedule based on the specified options.
+- **`trigger-dev-pp-cli schedules delete-v1`** - Delete a schedule by its ID. This will only work on `IMPERATIVE` schedules that were created in the dashboard or using the imperative SDK functions like `schedules.create()`.
+- **`trigger-dev-pp-cli schedules get-v1`** - Get a schedule by its ID.
+- **`trigger-dev-pp-cli schedules list-v1`** - List all schedules. You can also paginate the results.
+- **`trigger-dev-pp-cli schedules update-v1`** - Update a schedule by its ID. This will only work on `IMPERATIVE` schedules that were created in the dashboard or using the imperative SDK functions like `schedules.create()`.
+
+### tasks
+
+Manage tasks
+
+- **`trigger-dev-pp-cli tasks batch-trigger-v1`** - Batch trigger tasks with up to 1,000 payloads with SDK 4.3.1+ (500 in prior versions).
+
+### timezones
+
+Manage timezones
+
+- **`trigger-dev-pp-cli timezones get-v1`** - Get all supported timezones that schedule tasks support.
+
+### waitpoints
+
+Manage waitpoints
+
+- **`trigger-dev-pp-cli waitpoints complete-token-callback-v1`** - Completes a waitpoint token using the pre-signed callback URL returned in the `url` field when the token was created. No API key is required — the `callbackHash` in the URL acts as the authentication token.
+
+This is designed to be given directly to external services (e.g. as a webhook URL) so they can unblock a waiting run without needing access to your API key. The entire request body is passed as the output data to the waiting run.
+
+If the token is already completed, this is a no-op and returns `success: true`.
+- **`trigger-dev-pp-cli waitpoints complete-token-v1`** - Completes a waitpoint token, unblocking any run that is waiting for it via `wait.forToken()`. An optional `data` payload can be passed and will be returned to the waiting run. If the token is already completed, this is a no-op and returns `success: true`.
+
+This endpoint accepts both secret API keys and short-lived JWTs (public access tokens), making it safe to call from frontend clients.
+- **`trigger-dev-pp-cli waitpoints create-token-v1`** - Creates a new waitpoint token that can be used to pause a run until an external event completes it. The token includes a `url` which can be called via HTTP POST to complete the waitpoint. Use the token ID with `wait.forToken()` inside a task to pause execution until the token is completed.
+- **`trigger-dev-pp-cli waitpoints list-tokens-v1`** - Returns a paginated list of waitpoint tokens for the current environment. Results are ordered by creation date, newest first. Use cursor-based pagination with `page[after]` and `page[before]` to navigate pages.
+- **`trigger-dev-pp-cli waitpoints retrieve-token-v1`** - Retrieves a waitpoint token by its ID, including its current status and output if it has been completed.
+
+
+## Output Formats
+
+```bash
+# Human-readable table (default in terminal, JSON when piped)
+trigger-dev-pp-cli batches mock-value
+
+# JSON for scripting and agents
+trigger-dev-pp-cli batches mock-value --json
+
+# Filter to specific fields
+trigger-dev-pp-cli batches mock-value --json --select id,name,status
+
+# Dry run — show the request without sending
+trigger-dev-pp-cli batches mock-value --dry-run
+
+# Agent mode — JSON + compact + no prompts in one flag
+trigger-dev-pp-cli batches mock-value --agent
+```
+
+## Agent Usage
+
+This CLI is designed for AI agent consumption:
+
+- **Non-interactive** - never prompts, every input is a flag
+- **Pipeable** - `--json` output to stdout, errors to stderr
+- **Filterable** - `--select id,name` returns only fields you need
+- **Previewable** - `--dry-run` shows the request without sending
+- **Explicit retries** - add `--idempotent` to create retries and `--ignore-missing` to delete retries when a no-op success is acceptable
+- **Confirmable** - `--yes` for explicit confirmation of destructive actions
+- **Piped input** - write commands can accept structured input when their help lists `--stdin`
+- **Offline-friendly** - sync/search commands can use the local SQLite store when available
+- **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
+
+Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
+
+## Cookbook
+
+### Triage today's failures
+
+```bash
+# Top recurring failure signatures across all tasks in the last 24 hours
+trigger-dev-pp-cli failures top --since 1d --top 20 --agent
+```
+
+### Find runs by error fragment (offline)
+
+```bash
+# Sync first, then grep — works without an internet connection
+trigger-dev-pp-cli sync --resources runs --since 30d
+trigger-dev-pp-cli runs find "payload too large" --status FAILED --since 30d --json
+```
+
+### Rank LLM cost by model and task
+
+```bash
+# Drill into the most expensive model+task pairs over the last week
+trigger-dev-pp-cli runs span-cost --since 7d --by model,task --top 20 --agent
+```
+
+### Watch for new failures in your terminal
+
+```bash
+# Default behavior is plain stdout; --notify and --sound opt in to OS alerts
+trigger-dev-pp-cli runs watch --task daily-digest --interval 30s --notify --sound
+```
+
+### Diff env vars across environments
+
+```bash
+# Mask values, machine-readable output for diff in CI
+trigger-dev-pp-cli envvars diff --from prod --to staging --project proj_abc --json
+```
+
+### Find zombie schedules
+
+```bash
+# Schedules that haven't fired in 14 days OR whose recent runs all fail
+trigger-dev-pp-cli schedules stale --days 14 --min-success-rate 0.5 --agent
+```
+
+### Run a TRQL query
+
+```bash
+# Inspect the schema first, then execute against your run data
+trigger-dev-pp-cli query get-schema-v1 --json
+trigger-dev-pp-cli query execute-v1 --query "SELECT task_identifier, COUNT(*) FROM runs GROUP BY task_identifier" --json
+```
+
+### Get a run with typed exit codes for shell branching
+
+```bash
+# Exit code is 0=COMPLETED, 20=FAILED, 21=CRASHED, 22=SYSTEM_FAILURE, 23=CANCELED, 3=not-found, 4=auth-error
+trigger-dev-pp-cli runs get run_abc123 --json && echo "ok" || echo "exit=$?"
+```
+
+### Trigger a task
+
+```bash
+# Mutation example — pass payload via --stdin (JSON request body) or --payload
+echo '{"payload": {"name": "alex"}}' | trigger-dev-pp-cli tasks trigger task-v1 my-task-id --stdin --agent
+```
+
+### Stream live changes
+
+```bash
+# Polls the API and emits NDJSON to stdout for piping into downstream tools
+trigger-dev-pp-cli tail --resource runs --interval 5s --json
+```
+
+### Use the local store for offline analysis
+
+```bash
+# Sync first, then run analytics queries against the synced data offline
+trigger-dev-pp-cli sync --resources runs,schedules --since 30d
+trigger-dev-pp-cli analytics --json
+```
+
+### Audit unowned items
+
+```bash
+# Items missing assignee/project/priority/labels — surfaces unowned work
+trigger-dev-pp-cli orphans --json
+```
+
+## Use with Claude Code
+
+Install the focused skill — it auto-installs the CLI on first invocation:
+
+```bash
+npx skills add mvanhorn/printing-press-library/cli-skills/pp-trigger-dev -g
+```
+
+Then invoke `/pp-trigger-dev <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
+
+<details>
+<summary>Use as an MCP server in Claude Code (advanced)</summary>
+
+If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/trigger-dev/cmd/trigger-dev-pp-mcp@latest
+```
+
+Then register it:
+
+```bash
+claude mcp add trigger-dev trigger-dev-pp-mcp -e TRIGGER_SECRET_KEY=<your-token>
+```
+
+</details>
+
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/trigger-dev-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `TRIGGER_SECRET_KEY` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
 <!-- pp-hermes-install-anchor -->
-## Install for Hermes
+## Install via Hermes
 
 From the Hermes CLI:
 
@@ -45,7 +375,7 @@ Inside a Hermes chat session:
 /skills install mvanhorn/printing-press-library/cli-skills/pp-trigger-dev --force
 ```
 
-## Install for OpenClaw
+## Install via OpenClaw
 
 Tell your OpenClaw agent (copy this):
 
@@ -53,217 +383,14 @@ Tell your OpenClaw agent (copy this):
 Install the pp-trigger-dev skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-trigger-dev. The skill defines how its required CLI can be installed.
 ```
 
-## Quick Start
+<details>
+<summary>Manual JSON config (advanced)</summary>
 
-### 1. Set Up Credentials
-
-Get your secret key from [Trigger.dev Settings](https://cloud.trigger.dev) and store it:
-
-```bash
-trigger-dev-pp-cli auth set-token YOUR_SECRET_KEY
-```
-
-Or set it via environment variable:
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
 
 ```bash
-export TRIGGER_SECRET_KEY="tr_dev_..."
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/trigger-dev/cmd/trigger-dev-pp-mcp@latest
 ```
-
-### 2. Verify Setup
-
-```bash
-trigger-dev-pp-cli doctor
-```
-
-### 3. Sync and Explore
-
-```bash
-# Sync runs and schedules to local SQLite for fast search
-trigger-dev-pp-cli sync
-
-# See health metrics for every task
-trigger-dev-pp-cli health
-
-# Watch for failures in real time
-trigger-dev-pp-cli watch --notify
-```
-
-## Unique Features
-
-These capabilities aren't available in any other tool for this API.
-
-- **`watch`** - Monitor runs in real time and get instant desktop notifications when tasks fail
-- **`failures`** - Automatically identify recurring failure patterns across tasks, error types, and time periods
-- **`health`** - See success rates, durations, costs, and failure trends for every task in one view
-- **`costs`** - Track spending by task, time period, and machine type to find cost spikes before they hit your bill
-- **`schedules stale`** - Find schedules that stopped producing runs or have high failure rates
-- **`queues bottleneck`** - Identify queues with growing backlogs and concurrency limits causing delays
-- **`envvars diff`** - Compare environment variables across dev, staging, and prod to catch drift
-
-## Usage
-
-```
-trigger-dev-pp-cli [command]
-
-Available Commands:
-  api         Browse all API endpoints by interface name
-  auth        Manage authentication tokens
-  batches     Retrieve batch status and item counts
-  costs       Analyze run costs by task, time period, and machine type
-  deployments Get the most recent deployment
-  doctor      Check CLI health
-  envvars     List environment variables for a project environment
-  export      Export data to JSONL or JSON for backup, migration, or analysis
-  failures    Analyze failure patterns across tasks and time periods
-  health      Task health dashboard with success rates, durations, and cost trends
-  import      Import data from JSONL file via API create/upsert calls
-  load        Show workload distribution per assignee
-  orphans     Find items missing key fields like assignee or project
-  queues      List all queues with running and queued counts
-  runs        List runs with filtering by status, task, tags, date range
-  schedules   List all schedules
-  search      Full-text search across synced data or live API
-  stale       Find items with no updates in N days
-  sync        Sync API data to local SQLite for offline search and analysis
-  watch       Monitor runs in real time and alert on failures
-  workflow    Compound workflows that combine multiple API operations
-```
-
-## Commands
-
-### Runs and Tasks
-
-Task execution and triggering
-
-- **`trigger-dev-pp-cli runs`** - List runs with filtering by status, task, tags, date range
-- **`trigger-dev-pp-cli runs get <runId>`** - Retrieve detailed run with payload, output, attempts, related runs
-- **`trigger-dev-pp-cli runs cancel <runId>`** - Cancel a running or queued run
-- **`trigger-dev-pp-cli runs replay <runId>`** - Replay a completed or failed run
-- **`trigger-dev-pp-cli runs reschedule <runId>`** - Reschedule a delayed run with a new delay
-- **`trigger-dev-pp-cli runs add-tags <runId>`** - Add tags to a run (max 10 tags, 128 chars each)
-- **`trigger-dev-pp-cli runs update-metadata <runId>`** - Update run metadata JSON
-- **`trigger-dev-pp-cli runs timeline`** - Visual ASCII timeline of run starts, completions, and failures
-- **`trigger-dev-pp-cli tasks trigger <taskIdentifier>`** - Trigger a task with a JSON payload
-- **`trigger-dev-pp-cli tasks batch-trigger <taskIdentifier>`** - Batch trigger multiple runs of a task
-- **`trigger-dev-pp-cli batches get <batchId>`** - Retrieve batch status and item counts
-
-### Scheduling
-
-Cron-based scheduled task execution
-
-- **`trigger-dev-pp-cli schedules`** - List all schedules
-- **`trigger-dev-pp-cli schedules create`** - Create a new cron schedule for a task
-- **`trigger-dev-pp-cli schedules get <scheduleId>`** - Retrieve a specific schedule
-- **`trigger-dev-pp-cli schedules update <scheduleId>`** - Update a schedule's cron, timezone, or external ID
-- **`trigger-dev-pp-cli schedules activate <scheduleId>`** - Activate a paused schedule
-- **`trigger-dev-pp-cli schedules deactivate <scheduleId>`** - Pause a schedule
-- **`trigger-dev-pp-cli schedules delete <scheduleId>`** - Delete a schedule permanently
-- **`trigger-dev-pp-cli schedules timezones`** - List supported IANA timezones
-- **`trigger-dev-pp-cli schedules stale`** - Find schedules that stopped producing runs
-
-### Queues and Infrastructure
-
-Queue management and concurrency control
-
-- **`trigger-dev-pp-cli queues`** - List all queues with running and queued counts
-- **`trigger-dev-pp-cli queues get <queueName>`** - Retrieve a specific queue's details
-- **`trigger-dev-pp-cli queues pause <queueName>`** - Pause a queue (stops processing new runs)
-- **`trigger-dev-pp-cli queues resume <queueName>`** - Resume a paused queue
-- **`trigger-dev-pp-cli queues override-concurrency <queueName>`** - Override the concurrency limit
-- **`trigger-dev-pp-cli queues reset-concurrency <queueName>`** - Reset concurrency to default
-- **`trigger-dev-pp-cli queues bottleneck`** - Identify queues with growing backlogs
-- **`trigger-dev-pp-cli deployments`** - Get the most recent deployment
-
-### Environment Variables
-
-Environment variable management across dev, staging, and prod
-
-- **`trigger-dev-pp-cli envvars <env>`** - List environment variables for a project environment
-- **`trigger-dev-pp-cli envvars create`** - Create an environment variable
-- **`trigger-dev-pp-cli envvars delete`** - Delete an environment variable
-- **`trigger-dev-pp-cli envvars import`** - Import environment variables in bulk
-- **`trigger-dev-pp-cli envvars diff <env1> <env2>`** - Compare environment variables between two environments
-
-### Waitpoints
-
-Waitpoint tokens for human-in-the-loop approval workflows
-
-- **`trigger-dev-pp-cli waitpoints`** - List waitpoint tokens
-- **`trigger-dev-pp-cli waitpoints create`** - Create a waitpoint token for human approval
-- **`trigger-dev-pp-cli waitpoints get <tokenId>`** - Retrieve a waitpoint token
-- **`trigger-dev-pp-cli waitpoints complete <tokenId>`** - Complete a waitpoint token with approval output
-
-### Analytics and Observability
-
-- **`trigger-dev-pp-cli health`** - Task health dashboard with success rates, durations, and cost trends
-- **`trigger-dev-pp-cli failures`** - Analyze failure patterns across tasks and time periods
-- **`trigger-dev-pp-cli costs`** - Track spending by task, time period, and machine type
-- **`trigger-dev-pp-cli watch`** - Monitor runs in real time and alert on failures
-- **`trigger-dev-pp-cli query execute`** - Execute a TRQL query (SQL-like syntax against runs and metrics)
-
-### Utilities
-
-- **`trigger-dev-pp-cli doctor`** - Check CLI health and credentials
-- **`trigger-dev-pp-cli sync`** - Sync API data to local SQLite for offline search and analysis
-- **`trigger-dev-pp-cli search <query>`** - Full-text search across synced data or live API
-- **`trigger-dev-pp-cli export`** - Export data to JSONL or JSON for backup
-- **`trigger-dev-pp-cli import`** - Import data from JSONL file
-- **`trigger-dev-pp-cli stale`** - Find items with no updates in N days
-- **`trigger-dev-pp-cli workflow archive`** - Sync all resources to local store for offline access
-
-## Output Formats
-
-```bash
-# Human-readable table (default in terminal, JSON when piped)
-trigger-dev-pp-cli runs --status FAILED
-
-# JSON for scripting and agents
-trigger-dev-pp-cli runs --json
-
-# Filter to specific fields
-trigger-dev-pp-cli runs --json --select id,taskIdentifier,status
-
-# CSV for spreadsheets
-trigger-dev-pp-cli runs --csv
-
-# Compact mode for minimal token usage
-trigger-dev-pp-cli health --compact
-
-# Dry run - show the request without sending
-trigger-dev-pp-cli runs --dry-run
-
-# Agent mode - JSON + compact + no prompts in one flag
-trigger-dev-pp-cli runs --agent
-```
-
-## Agent Usage
-
-This CLI is designed for AI agent consumption:
-
-- **Non-interactive** - never prompts, every input is a flag
-- **Pipeable** - `--json` output to stdout, errors to stderr
-- **Filterable** - `--select id,name` returns only fields you need
-- **Previewable** - `--dry-run` shows the request without sending
-- **Retryable** - creates return "already exists" on retry, deletes return "already deleted"
-- **Confirmable** - `--yes` for explicit confirmation of destructive actions
-- **Piped input** - `echo '{"key":"value"}' | trigger-dev-pp-cli tasks trigger my-task --stdin`
-- **Cacheable** - GET responses cached for 5 minutes, bypass with `--no-cache`
-- **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
-- **Progress events** - paginated commands emit NDJSON events to stderr in default mode
-
-Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
-
-## Use as MCP Server
-
-This CLI ships a companion MCP server for use with Claude Desktop, Cursor, and other MCP-compatible tools.
-
-### Claude Code
-
-```bash
-claude mcp add trigger-dev trigger-dev-pp-mcp -e TRIGGER_SECRET_KEY=<your-token>
-```
-
-### Claude Desktop
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 
@@ -280,59 +407,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 }
 ```
 
-## Cookbook
-
-```bash
-# Trigger a task with a JSON payload
-trigger-dev-pp-cli tasks trigger send-welcome-email \
-  --payload '{"userId": "user_abc123", "template": "onboarding"}'
-
-# Trigger with delay and concurrency key
-trigger-dev-pp-cli tasks trigger process-invoice \
-  --payload '{"invoiceId": "inv_456"}' \
-  --options-delay 30m \
-  --options-concurrency-key "invoice-processing"
-
-# List failed runs from the last 24 hours
-trigger-dev-pp-cli runs --status FAILED --filter-created-at-period 1d
-
-# Get full details on a specific run
-trigger-dev-pp-cli runs get run_1234abc --json
-
-# Cancel a stuck run
-trigger-dev-pp-cli runs cancel run_1234abc
-
-# Replay a failed run
-trigger-dev-pp-cli runs replay run_1234abc
-
-# See failure patterns over the last week
-trigger-dev-pp-cli failures --period 7d --group-by task
-
-# Health dashboard for a specific task
-trigger-dev-pp-cli health --task send-welcome-email --period 30d
-
-# Cost breakdown - find your most expensive tasks
-trigger-dev-pp-cli costs --period 30d --top 5
-
-# Compare env vars between staging and production
-trigger-dev-pp-cli envvars diff staging prod --project proj_abc123
-
-# Watch for failures with desktop notifications
-trigger-dev-pp-cli watch --task send-welcome-email --notify --interval 5s
-
-# Sync and search offline
-trigger-dev-pp-cli sync --full
-trigger-dev-pp-cli search "payment failed"
-
-# Visual timeline of runs
-trigger-dev-pp-cli runs timeline --task process-invoice --period 24h
-
-# Pause a queue during maintenance
-trigger-dev-pp-cli queues pause my-queue
-
-# Export runs for backup
-trigger-dev-pp-cli export runs --format jsonl > trigger-dev-runs-backup.jsonl
-```
+</details>
 
 ## Health Check
 
@@ -340,53 +415,33 @@ trigger-dev-pp-cli export runs --format jsonl > trigger-dev-runs-backup.jsonl
 trigger-dev-pp-cli doctor
 ```
 
-```
-  OK Config: ok
-  OK Auth: configured
-  OK API: reachable
-  config_path: ~/.config/trigger-dev-pp-cli/config.json
-  base_url: https://api.trigger.dev
-  version: 4.4
-```
+Verifies configuration, credentials, and connectivity to the API.
 
 ## Configuration
 
-Config file: `~/.config/trigger-dev-pp-cli/config.json`
+Config file: `~/.config/trigger-dev-pp-cli/config.toml`
 
 Environment variables:
-- `TRIGGER_SECRET_KEY` - Primary authentication key (secret key from Trigger.dev dashboard)
-- `TRIGGER_DEV_API_KEY` - Alternative API key for authentication
-- `TRIGGER_DEV_BASE_URL` - Override the API base URL (default: `https://api.trigger.dev`). Useful for self-hosted Trigger.dev instances.
-- `TRIGGER_DEV_CONFIG` - Override the config file path
 
-## Self-Hosting
-
-If you run a self-hosted Trigger.dev instance, point the CLI at your server:
-
-```bash
-export TRIGGER_DEV_BASE_URL="https://trigger.internal.company.com"
-trigger-dev-pp-cli doctor
-```
+| Name | Kind | Required | Description |
+| --- | --- | --- | --- |
+| `TRIGGER_SECRET_KEY` | per_call | Yes | Set to your API credential. |
 
 ## Troubleshooting
-
 **Authentication errors (exit code 4)**
 - Run `trigger-dev-pp-cli doctor` to check credentials
 - Verify the environment variable is set: `echo $TRIGGER_SECRET_KEY`
-- Get your key from [Trigger.dev Settings](https://cloud.trigger.dev)
-
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
-- Run the list command to see available items (e.g., `trigger-dev-pp-cli runs`)
+- Run the `list` command to see available items
 
-**Rate limit errors (exit code 7)**
-- The CLI auto-retries with exponential backoff
-- Use `--rate-limit 2` to cap requests per second
-- If persistent, wait a few minutes and try again
+### API-specific
 
-**Stale local data**
-- Run `trigger-dev-pp-cli sync --full` to resync everything
-- Use `--data-source live` to bypass local cache entirely
+- **401 Unauthorized on every call** — Set TRIGGER_SECRET_KEY to a `tr_dev_…`, `tr_prod_…`, or `tr_pat_…` key and run `trigger-dev-pp-cli doctor`. The key prefix encodes which environment you can manage.
+- **403 environment mismatch when calling /api/v1/runs** — Your key is scoped to a different environment than the resource. A `tr_dev_…` key cannot list prod runs. Switch keys.
+- **429 rate-limited** — Trigger.dev returns standard `Retry-After` in seconds. The CLI's adaptive limiter honors it automatically; if you're seeing this in scripts, lower concurrency or add `--limit`.
+- **`runs find` returns nothing** — Run `trigger-dev-pp-cli sync --resources runs --since 30d` first — substring grep is over the local store, not the live API.
+- **`schedules stale` says all schedules are stale on a fresh project** — The store is empty until sync. Run `trigger-dev-pp-cli sync --resources schedules` and `--resources runs` so the join has data.
 
 ---
 
@@ -394,16 +449,10 @@ trigger-dev-pp-cli doctor
 
 This CLI was built by studying these projects and resources:
 
-- [**trigger.dev CLI**](https://github.com/triggerdotdev/trigger.dev) - TypeScript (10000 stars)
-- [**@trigger.dev/sdk**](https://github.com/triggerdotdev/trigger.dev) - TypeScript (10000 stars)
+- [**trigger.dev (official CLI)**](https://github.com/triggerdotdev/trigger.dev) — TypeScript (14803 stars)
+- [**@trigger.dev/sdk**](https://github.com/triggerdotdev/trigger.dev/tree/main/packages/trigger-sdk) — TypeScript (14803 stars)
+- [**trigger.dev MCP server**](https://github.com/triggerdotdev/trigger.dev/tree/main/packages/cli-v3/src/mcp) — TypeScript (14803 stars)
+- [**Inngest CLI**](https://github.com/inngest/inngest) — Go (5093 stars)
+- [**Temporal CLI**](https://github.com/temporalio/cli) — Go
 
 Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)
-
-<!-- pr-218-features -->
-## Agent workflow features
-
-This CLI was patched to add these agent-workflow capabilities (see [`printing-press patch`](https://github.com/mvanhorn/cli-printing-press/pull/221)):
-
-- **Named profiles** — save a set of flags under a name and reuse them: `trigger-dev-pp-cli profile save <name> --<flag> <value>`, then `trigger-dev-pp-cli --profile <name> <command>`. Flag precedence: explicit flag > env var > profile > default.
-- **`--deliver`** — route command output to a sink other than stdout. Values: `file:<path>` writes atomically via tmp+rename; `webhook:<url>` POSTs as JSON (or NDJSON with `--compact`).
-- **`feedback`** — record in-band feedback about the CLI. Entries append as JSON lines to `~/.trigger-dev-pp-cli/feedback.jsonl`. When `TRIGGER_DEV_FEEDBACK_ENDPOINT` is set and either `--send` is passed or `TRIGGER_DEV_FEEDBACK_AUTO_SEND=true`, the entry is also POSTed upstream.

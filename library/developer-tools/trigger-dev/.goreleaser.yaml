@@ -42,10 +42,10 @@ checksum:
 brews:
   - name: trigger-dev-pp-cli
     repository:
-      owner: matt-van-horn
+      owner: trevin-chow
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Trigger.dev management API - background jobs, AI agents, and workflow orchestration"
+    description: "The REST API lets you trigger and manage runs on Trigger.dev. You can trigger a run, get the status of a run, and get the results of a run."
     install: |
       bin.install "trigger-dev-pp-cli"
       bin.install "trigger-dev-pp-mcp"

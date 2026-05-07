@@ -1,0 +1,1095 @@
+{
+  "api_name": "trigger-dev",
+  "base_url": "https://api.trigger.dev",
+  "description": "The REST API lets you trigger and manage runs on Trigger.dev. You can trigger a run, get the status of a run, and get the results of a run.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "TRIGGER_SECRET_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "TRIGGER_SECRET_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "batches_retrieve-batch-v1",
+      "description": "Retrieve a batch by its ID, including its status and the IDs of all runs in the batch. Required: batchId. Returns the RetrieveBatchV1Response.",
+      "method": "GET",
+      "path": "/api/v1/batches/{batchId}",
+      "params": [
+        {
+          "name": "batchId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the batch, starts with `batch_`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "batches_results_get-batch-v1",
+      "description": "Returns the execution results of all completed runs in a batch. Only finished runs (successful or failed) are included in the items array — runs that are still executing are omitted. Returns 404 if the batch doesn't exist. Required: batchId.",
+      "method": "GET",
+      "path": "/api/v1/batches/{batchId}/results",
+      "params": [
+        {
+          "name": "batchId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the batch, starts with `batch_`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deployments_get-latest-v1",
+      "description": "Retrieve information about the latest unmanaged deployment for the authenticated project. Returns the GetLatestV1Response.",
+      "method": "GET",
+      "path": "/api/v1/deployments/latest",
+      "params": []
+    },
+    {
+      "name": "deployments_get-v1",
+      "description": "Retrieve information about a specific deployment by its ID. Required: deploymentId. Returns the GetV1Response.",
+      "method": "GET",
+      "path": "/api/v1/deployments/{deploymentId}",
+      "params": [
+        {
+          "name": "deploymentId",
+          "type": "string",
+          "location": "path",
+          "description": "The deployment ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deployments_list-v1",
+      "description": "List deployments for the authenticated environment, ordered by most recent first. Optional: page[after], page[size] (default: 20), status (plus 3 more). Returns array of ListV1Item.",
+      "method": "GET",
+      "path": "/api/v1/deployments",
+      "params": [
+        {
+          "name": "page[after]",
+          "type": "string",
+          "location": "query",
+          "description": "The deployment ID to start the search from, to get the next page."
+        },
+        {
+          "name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "The number of deployments to return (default 20, min 5, max 100)."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter deployments by status."
+        },
+        {
+          "name": "period",
+          "type": "string",
+          "location": "query",
+          "description": "Filter deployments created within this period (e.g. 1d, 7d, 3h)."
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Filter deployments created on or after this date (ISO 8601)."
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Filter deployments created on or before this date (ISO 8601). Only applied when `from` is also provided."
+        }
+      ]
+    },
+    {
+      "name": "deployments_promote_deployment-v1",
+      "description": "Promote a previously deployed version to be the current version for the environment. This makes the specified version active for new task runs. Required: version. Returns the new DeploymentV1Response.",
+      "method": "POST",
+      "path": "/api/v1/deployments/{version}/promote",
+      "params": [
+        {
+          "name": "version",
+          "type": "string",
+          "location": "path",
+          "description": "The deployment version to promote (e.g., '20250228.1').",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_envvars_create-project-v1",
+      "description": "Create a new environment variable for a specific project and environment. Required: projectRef, env (default: dev), name, value. Returns the new SucceedResponse.",
+      "method": "POST",
+      "path": "/api/v1/projects/{projectRef}/envvars/{env}",
+      "params": [
+        {
+          "name": "projectRef",
+          "type": "string",
+          "location": "path",
+          "description": "The external ref of the project. You can find this in the project settings. Starts with `proj_`.",
+          "required": true
+        },
+        {
+          "name": "env",
+          "type": "string",
+          "location": "path",
+          "description": "The environment of the project to list variables for."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "location": "body",
+          "description": "Value",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_envvars_delete-project-v1",
+      "description": "Delete a specific environment variable for a specific project and environment. Required: projectRef, env (default: dev), name. Returns the SucceedResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/projects/{projectRef}/envvars/{env}/{name}",
+      "params": [
+        {
+          "name": "projectRef",
+          "type": "string",
+          "location": "path",
+          "description": "The external ref of the project. You can find this in the project settings. Starts with `proj_`.",
+          "required": true
+        },
+        {
+          "name": "env",
+          "type": "string",
+          "location": "path",
+          "description": "The environment of the project to list variables for."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the environment variable.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_envvars_get-project-v1",
+      "description": "Retrieve a specific environment variable for a specific project and environment. Required: projectRef, env (default: dev), name. Returns the EnvVarValue.",
+      "method": "GET",
+      "path": "/api/v1/projects/{projectRef}/envvars/{env}/{name}",
+      "params": [
+        {
+          "name": "projectRef",
+          "type": "string",
+          "location": "path",
+          "description": "The external ref of the project. You can find this in the project settings. Starts with `proj_`.",
+          "required": true
+        },
+        {
+          "name": "env",
+          "type": "string",
+          "location": "path",
+          "description": "The environment of the project to list variables for."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the environment variable.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_envvars_list-project-v1",
+      "description": "List all environment variables for a specific project and environment. Required: projectRef, env (default: dev). Returns array of EnvVar.",
+      "method": "GET",
+      "path": "/api/v1/projects/{projectRef}/envvars/{env}",
+      "params": [
+        {
+          "name": "projectRef",
+          "type": "string",
+          "location": "path",
+          "description": "The external ref of the project. You can find this in the project settings. Starts with `proj_`.",
+          "required": true
+        },
+        {
+          "name": "env",
+          "type": "string",
+          "location": "path",
+          "description": "The environment of the project to list variables for."
+        }
+      ]
+    },
+    {
+      "name": "projects_envvars_update-project-v1",
+      "description": "Update a specific environment variable for a specific project and environment. Required: projectRef, env (default: dev), name, value. Returns the updated SucceedResponse.",
+      "method": "PUT",
+      "path": "/api/v1/projects/{projectRef}/envvars/{env}/{name}",
+      "params": [
+        {
+          "name": "projectRef",
+          "type": "string",
+          "location": "path",
+          "description": "The external ref of the project. You can find this in the project settings. Starts with `proj_`.",
+          "required": true
+        },
+        {
+          "name": "env",
+          "type": "string",
+          "location": "path",
+          "description": "The environment of the project to list variables for."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "The name of the environment variable.",
+          "required": true
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "location": "body",
+          "description": "Value",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_envvars_upload-project-v1",
+      "description": "Upload mulitple environment variables for a specific project and environment. Required: projectRef, env (default: dev), variables. Optional: override (default: false). Returns the new SucceedResponse.",
+      "method": "POST",
+      "path": "/api/v1/projects/{projectRef}/envvars/{env}/import",
+      "params": [
+        {
+          "name": "projectRef",
+          "type": "string",
+          "location": "path",
+          "description": "The external ref of the project. You can find this in the project settings. Starts with `proj_`.",
+          "required": true
+        },
+        {
+          "name": "env",
+          "type": "string",
+          "location": "path",
+          "description": "The environment of the project to list variables for."
+        },
+        {
+          "name": "override",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to override existing variables or not"
+        },
+        {
+          "name": "variables",
+          "type": "array",
+          "location": "body",
+          "description": "Variables",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_runs_list-project-v1",
+      "description": "List runs in a project, across multiple environments, using Personal Access Token auth. You can filter the runs by status, created at, task identifier, version, and more. Required: projectRef. Optional: page, filter. Returns array of ListRunItem.",
+      "method": "GET",
+      "path": "/api/v1/projects/{projectRef}/runs",
+      "params": [
+        {
+          "name": "projectRef",
+          "type": "string",
+          "location": "path",
+          "description": "The external ref of the project. You can find this in the project settings. Starts with `proj_`.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "object",
+          "location": "query",
+          "description": "Use this parameter to paginate the results. You can specify the number of runs per page, and the ID of the run to start the page after or before. For object fields like `page`, you should use the 'form' encoding style. For example, to get the next page of runs, you can use `page[after]=run_1234`."
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Use this parameter to filter the runs. You can filter by created at, environment, status, task identifier, and version. For array fields, you can provide multiple values to filter by using a comma-separated list. For example, to get QUEUED and EXECUTING runs, you can use `filter[status]=QUEUED,EXECUTING`. For object fields, you should use the 'form' encoding style. For example, to filter by the period, you can use `filter[createdAt][period]=1d`."
+        }
+      ]
+    },
+    {
+      "name": "query_execute-v1",
+      "description": "Execute a TRQL (Trigger.dev Query Language) query against your run data. TRQL is a SQL-style query language that allows you to analyze runs, calculate metrics, and export data. Required: query. Optional: format (default: json), from, period (plus 2 more).",
+      "method": "POST",
+      "path": "/api/v1/query",
+      "params": [
+        {
+          "name": "format",
+          "type": "string",
+          "location": "body",
+          "description": "Response format - 'json' returns structured data (default), 'csv' returns CSV string"
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "body",
+          "description": "Start of time range as ISO 8601 timestamp. Must be used with 'to'."
+        },
+        {
+          "name": "period",
+          "type": "string",
+          "location": "body",
+          "description": "Time period shorthand (e.g., '7d', '30d', '1h'). Cannot be used with from/to."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "The TRQL query to execute",
+          "required": true
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "location": "body",
+          "description": "The scope of data to query - environment (default), project, or organization"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "body",
+          "description": "End of time range as ISO 8601 timestamp. Must be used with 'from'."
+        }
+      ]
+    },
+    {
+      "name": "query_get-schema-v1",
+      "description": "Get the schema for TRQL queries, including all available tables, their columns, data types, descriptions, and allowed values. Returns the GetSchemaV1Response.",
+      "method": "GET",
+      "path": "/api/v1/query/schema",
+      "params": []
+    },
+    {
+      "name": "query_list-dashboards-v1",
+      "description": "List available built-in dashboards with their widgets. Each dashboard contains pre-built TRQL queries for common metrics like run success rates, costs, and LLM usage. Returns the ListDashboardsV1Response.",
+      "method": "GET",
+      "path": "/api/v1/query/dashboards",
+      "params": []
+    },
+    {
+      "name": "queues_list-v1",
+      "description": "List all queues in your environment with pagination support. Optional: page, perPage. Returns array of QueueObject.",
+      "method": "GET",
+      "path": "/api/v1/queues",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number of the queue listing (1-based)"
+        },
+        {
+          "name": "perPage",
+          "type": "int",
+          "location": "query",
+          "description": "Number of queues per page"
+        }
+      ]
+    },
+    {
+      "name": "queues_retrieve-v1",
+      "description": "Get a queue by its ID, or by type and name. Required: queueParam. Optional: type (default: id). Returns the QueueObject.",
+      "method": "GET",
+      "path": "/api/v1/queues/{queueParam}",
+      "params": [
+        {
+          "name": "queueParam",
+          "type": "string",
+          "location": "path",
+          "description": "The queue ID (e.g., `queue_1234`), or the name of the queue when using the `type` query parameter.",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "How to interpret the `queueParam` path parameter: - `id`: Treat as a queue ID (default) -..."
+        }
+      ]
+    },
+    {
+      "name": "queues_concurrency_override-queue-v1",
+      "description": "Override the concurrency limit of a queue. This is useful for temporarily scaling up or down based on demand. Required: queueParam, concurrencyLimit. Optional: type (default: id). Returns the new QueueObject.",
+      "method": "POST",
+      "path": "/api/v1/queues/{queueParam}/concurrency/override",
+      "params": [
+        {
+          "name": "queueParam",
+          "type": "string",
+          "location": "path",
+          "description": "The queue ID (e.g., `queue_1234`), or the name of the queue when using the `type` body parameter.",
+          "required": true
+        },
+        {
+          "name": "concurrencyLimit",
+          "type": "int",
+          "location": "body",
+          "description": "The new concurrency limit to set for the queue",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "How to interpret the `queueParam` path parameter: - `id`: Treat as a queue ID (default) -..."
+        }
+      ]
+    },
+    {
+      "name": "queues_concurrency_reset-queue-v1",
+      "description": "Reset the concurrency limit of a queue back to its base value defined in code. Required: queueParam. Optional: type (default: id). Returns the new QueueObject.",
+      "method": "POST",
+      "path": "/api/v1/queues/{queueParam}/concurrency/reset",
+      "params": [
+        {
+          "name": "queueParam",
+          "type": "string",
+          "location": "path",
+          "description": "The queue ID (e.g., `queue_1234`), or the name of the queue when using the `type` body parameter.",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "How to interpret the `queueParam` path parameter: - `id`: Treat as a queue ID (default) -..."
+        }
+      ]
+    },
+    {
+      "name": "queues_pause_queue-v1",
+      "description": "Pause a queue to prevent new runs from starting, or resume a paused queue. Runs that are currently executing will continue to completion. Required: queueParam, action. Optional: type (default: id). Returns the new QueueObject.",
+      "method": "POST",
+      "path": "/api/v1/queues/{queueParam}/pause",
+      "params": [
+        {
+          "name": "queueParam",
+          "type": "string",
+          "location": "path",
+          "description": "The queue ID (e.g., `queue_1234`), or the name of the queue when using the `type` body parameter.",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "Whether to pause or resume the queue",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "How to interpret the `queueParam` path parameter: - `id`: Treat as a queue ID (default) -..."
+        }
+      ]
+    },
+    {
+      "name": "runs_list-v1",
+      "description": "List runs in a specific environment. You can filter the runs by status, created at, task identifier, version, and more. Optional: page, filter. Returns array of ListRunItem.",
+      "method": "GET",
+      "path": "/api/v1/runs",
+      "params": [
+        {
+          "name": "page",
+          "type": "object",
+          "location": "query",
+          "description": "Use this parameter to paginate the results. You can specify the number of runs per page, and the ID of the run to start the page after or before. For object fields like `page`, you should use the 'form' encoding style. For example, to get the next page of runs, you can use `page[after]=run_1234`."
+        },
+        {
+          "name": "filter",
+          "type": "object",
+          "location": "query",
+          "description": "Use this parameter to filter the runs. You can filter by created at, status, task identifier, and version. For array fields, you can provide multiple values to filter by using a comma-separated list. For example, to get QUEUED and EXECUTING runs, you can use `filter[status]=QUEUED,EXECUTING`. For object fields, you should use the 'form' encoding style. For example, to filter by the period, you can use `filter[createdAt][period]=1d`."
+        }
+      ]
+    },
+    {
+      "name": "runs_retrieve-v1",
+      "description": "Retrieve information about a run, including its status, payload, output, and attempts. If you authenticate with a Public API key, we will omit the payload and output fields for security reasons. Required: runId. Returns the RetrieveRunResponse.",
+      "method": "GET",
+      "path": "/api/v3/runs/{runId}",
+      "params": [
+        {
+          "name": "runId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of an run, starts with `run_`. The run ID will be returned when you trigger a run on a task.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "runs_cancel_run-v1",
+      "description": "Cancels an in-progress run. If the run is already completed, this will have no effect. Required: runId. Returns the new RunV1Response.",
+      "method": "POST",
+      "path": "/api/v2/runs/{runId}/cancel",
+      "params": [
+        {
+          "name": "runId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of an run, starts with `run_`. The run ID will be returned when you trigger a run on a task.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "runs_events_get-run-v1",
+      "description": "Returns all OTel span events for a run. Useful for debugging and observability. Required: runId.",
+      "method": "GET",
+      "path": "/api/v1/runs/{runId}/events",
+      "params": [
+        {
+          "name": "runId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of an run, starts with `run_`. The run ID will be returned when you trigger a run on a task.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "runs_metadata_update-run-v1",
+      "description": "Update the metadata of a run. Required: runId. Optional: metadata. Returns the updated UpdateRunV1Response.",
+      "method": "PUT",
+      "path": "/api/v1/runs/{runId}/metadata",
+      "params": [
+        {
+          "name": "runId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of an run, starts with `run_`. The run ID will be returned when you trigger a run on a task.",
+          "required": true
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "The new metadata to set on the run."
+        }
+      ]
+    },
+    {
+      "name": "runs_replay_run-v1",
+      "description": "Creates a new run with the same payload and options as the original run. Required: runId. Returns the new RunV1Response.",
+      "method": "POST",
+      "path": "/api/v1/runs/{runId}/replay",
+      "params": [
+        {
+          "name": "runId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of an run, starts with `run_`. The run ID will be returned when you trigger a run on a task.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "runs_reschedule_run-v1",
+      "description": "Updates a delayed run with a new delay. Only valid when the run is in the DELAYED state. Required: runId. Optional: delay. Returns the new RetrieveRunResponse.",
+      "method": "POST",
+      "path": "/api/v1/runs/{runId}/reschedule",
+      "params": [
+        {
+          "name": "runId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of an run, starts with `run_`. The run ID will be returned when you trigger a run on a task.",
+          "required": true
+        },
+        {
+          "name": "delay",
+          "type": "string",
+          "location": "body",
+          "description": "Delay"
+        }
+      ]
+    },
+    {
+      "name": "runs_result_get-run-v1",
+      "description": "Returns the execution result of a completed run. Returns 404 if the run doesn't exist or hasn't finished yet. Required: runId.",
+      "method": "GET",
+      "path": "/api/v1/runs/{runId}/result",
+      "params": [
+        {
+          "name": "runId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of an run, starts with `run_`. The run ID will be returned when you trigger a run on a task.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "runs_tags_add-run-v1",
+      "description": "Adds one or more tags to a run. Runs can have a maximum of 10 tags. Duplicate tags are ignored. Required: runId, tags. Returns the new AddRunV1Response.",
+      "method": "POST",
+      "path": "/api/v1/runs/{runId}/tags",
+      "params": [
+        {
+          "name": "runId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of an run, starts with `run_`. The run ID will be returned when you trigger a run on a task.",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "One or more tags to attach to a run. Runs can have a maximum of 10 tags.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "runs_trace_get-run-v1",
+      "description": "Returns the full OTel trace tree for a run, including all spans and their children. Required: runId.",
+      "method": "GET",
+      "path": "/api/v1/runs/{runId}/trace",
+      "params": [
+        {
+          "name": "runId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of an run, starts with `run_`. The run ID will be returned when you trigger a run on a task.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "schedules_create-v1",
+      "description": "Create a new `IMPERATIVE` schedule based on the specified options. Required: cron, deduplicationKey, task. Optional: externalId, timezone. Returns the new ScheduleObject.",
+      "method": "POST",
+      "path": "/api/v1/schedules",
+      "params": [
+        {
+          "name": "cron",
+          "type": "string",
+          "location": "body",
+          "description": "Cron",
+          "required": true
+        },
+        {
+          "name": "deduplicationKey",
+          "type": "string",
+          "location": "body",
+          "description": "Deduplication key",
+          "required": true
+        },
+        {
+          "name": "externalId",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "task",
+          "type": "string",
+          "location": "body",
+          "description": "Task",
+          "required": true
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "body",
+          "description": "Defaults to 'UTC'. In IANA format ('America/New_York'). If set then it will trigger at the CRON frequency in that timezone and respect daylight savings time."
+        }
+      ]
+    },
+    {
+      "name": "schedules_delete-v1",
+      "description": "Delete a schedule by its ID. This will only work on `IMPERATIVE` schedules that were created in the dashboard or using the imperative SDK functions like `schedules.create()`. Required: schedule_id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/schedules/{schedule_id}",
+      "params": [
+        {
+          "name": "schedule_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the schedule.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "schedules_get-v1",
+      "description": "Get a schedule by its ID. Required: schedule_id. Returns the ScheduleObject.",
+      "method": "GET",
+      "path": "/api/v1/schedules/{schedule_id}",
+      "params": [
+        {
+          "name": "schedule_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the schedule.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "schedules_list-v1",
+      "description": "List all schedules. You can also paginate the results. Optional: page, perPage. Returns array of ScheduleObject.",
+      "method": "GET",
+      "path": "/api/v1/schedules",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number of the schedule listing"
+        },
+        {
+          "name": "perPage",
+          "type": "int",
+          "location": "query",
+          "description": "Number of schedules per page"
+        }
+      ]
+    },
+    {
+      "name": "schedules_update-v1",
+      "description": "Update a schedule by its ID. This will only work on `IMPERATIVE` schedules that were created in the dashboard or using the imperative SDK functions like `schedules.create()`. Required: schedule_id, cron, task. Optional: externalId, timezone. Returns the updated ScheduleObject.",
+      "method": "PUT",
+      "path": "/api/v1/schedules/{schedule_id}",
+      "params": [
+        {
+          "name": "schedule_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the schedule.",
+          "required": true
+        },
+        {
+          "name": "cron",
+          "type": "string",
+          "location": "body",
+          "description": "Cron",
+          "required": true
+        },
+        {
+          "name": "externalId",
+          "type": "string",
+          "location": "body",
+          "description": "External id"
+        },
+        {
+          "name": "task",
+          "type": "string",
+          "location": "body",
+          "description": "Task",
+          "required": true
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "body",
+          "description": "Defaults to 'UTC'. In IANA format ('America/New_York'). If set then it will trigger at the CRON frequency in that timezone and respect daylight savings time."
+        }
+      ]
+    },
+    {
+      "name": "schedules_activate_schedule-v1",
+      "description": "Activate a schedule by its ID. This will only work on `IMPERATIVE` schedules that were created in the dashboard or using the imperative SDK functions like `schedules.create()`. Required: schedule_id. Returns the new ScheduleObject.",
+      "method": "POST",
+      "path": "/api/v1/schedules/{schedule_id}/activate",
+      "params": [
+        {
+          "name": "schedule_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the schedule.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "schedules_deactivate_schedule-v1",
+      "description": "Deactivate a schedule by its ID. This will only work on `IMPERATIVE` schedules that were created in the dashboard or using the imperative SDK functions like `schedules.create()`. Required: schedule_id. Returns the new ScheduleObject.",
+      "method": "POST",
+      "path": "/api/v1/schedules/{schedule_id}/deactivate",
+      "params": [
+        {
+          "name": "schedule_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the schedule.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_batch-trigger-v1",
+      "description": "Batch trigger tasks with up to 1,000 payloads with SDK 4.3.1+ (500 in prior versions). Required: items. Returns the new BatchTriggerTaskResponse.",
+      "method": "POST",
+      "path": "/api/v1/tasks/batch",
+      "params": [
+        {
+          "name": "items",
+          "type": "array",
+          "location": "body",
+          "description": "An array of payloads to trigger the task with",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_batch_trigger-task-by-id-v1",
+      "description": "Batch trigger a specific task with up to 1,000 payloads. All items in the batch run the same task. Required: taskIdentifier, items. Returns the new BatchTriggerTaskResponse.",
+      "method": "POST",
+      "path": "/api/v1/tasks/{taskIdentifier}/batch",
+      "params": [
+        {
+          "name": "taskIdentifier",
+          "type": "string",
+          "location": "path",
+          "description": "The id of a task",
+          "required": true
+        },
+        {
+          "name": "items",
+          "type": "array",
+          "location": "body",
+          "description": "An array of payloads to trigger the task with (max 1,000 items).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_trigger_task-v1",
+      "description": "Trigger a task by its identifier. Required: taskIdentifier. Optional: context, options, payload. Returns the new TriggerTaskResponse.",
+      "method": "POST",
+      "path": "/api/v1/tasks/{taskIdentifier}/trigger",
+      "params": [
+        {
+          "name": "taskIdentifier",
+          "type": "string",
+          "location": "path",
+          "description": "The id of a task",
+          "required": true
+        },
+        {
+          "name": "context",
+          "type": "string",
+          "location": "body",
+          "description": "The context can include any valid JSON"
+        },
+        {
+          "name": "options",
+          "type": "object",
+          "location": "body",
+          "description": "Options"
+        },
+        {
+          "name": "payload",
+          "type": "string",
+          "location": "body",
+          "description": "The payload can include any valid JSON"
+        }
+      ]
+    },
+    {
+      "name": "timezones_get-v1",
+      "description": "Get all supported timezones that schedule tasks support. Optional: excludeUtc. Returns the GetTimezonesResult. (public)",
+      "method": "GET",
+      "path": "/api/v1/timezones",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "excludeUtc",
+          "type": "bool",
+          "location": "query",
+          "description": "Defaults to false. Whether to include UTC in the results or not."
+        }
+      ]
+    },
+    {
+      "name": "waitpoints_complete-token-callback-v1",
+      "description": "Completes a waitpoint token using the pre-signed callback URL returned in the `url` field when the token was created. No API key is required — the `callbackHash` in the URL acts as the authentication token. This is designed to be given directly to external services (e.g. as a webhook URL) so they can unblock a waiting run without needing access to your API key. The entire request body is passed as the output data to the waiting run. If the token is already completed, this is a no-op and returns `success: true`. Required: waitpointId, callbackHash.",
+      "method": "POST",
+      "path": "/api/v1/waitpoints/tokens/{waitpointId}/callback/{callbackHash}",
+      "params": [
+        {
+          "name": "waitpointId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the waitpoint token.",
+          "required": true
+        },
+        {
+          "name": "callbackHash",
+          "type": "string",
+          "location": "path",
+          "description": "The HMAC hash that authenticates the request. This is embedded in the `url` returned when creating the token — do not construct it manually.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "waitpoints_complete-token-v1",
+      "description": "Completes a waitpoint token, unblocking any run that is waiting for it via `wait.forToken()`. An optional `data` payload can be passed and will be returned to the waiting run. If the token is already completed, this is a no-op and returns `success: true`. This endpoint accepts both secret API keys and short-lived JWTs (public access tokens), making it safe to call from frontend clients. Required: waitpointId. Optional: data.",
+      "method": "POST",
+      "path": "/api/v1/waitpoints/tokens/{waitpointId}/complete",
+      "params": [
+        {
+          "name": "waitpointId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the waitpoint token to complete.",
+          "required": true
+        },
+        {
+          "name": "data",
+          "type": "string",
+          "location": "body",
+          "description": "Any JSON-serializable value to pass back to the run waiting on this token. The data will be returned from `wait.forToken()` as the result payload."
+        }
+      ]
+    },
+    {
+      "name": "waitpoints_create-token-v1",
+      "description": "Creates a new waitpoint token that can be used to pause a run until an external event completes it. The token includes a `url` which can be called via HTTP POST to complete the waitpoint. Use the token ID with `wait.forToken()` inside a task to pause execution until the token is completed. Optional: idempotencyKey, idempotencyKeyTTL, tags (plus 1 more). Returns the new CreateWaitpointTokenResponse.",
+      "method": "POST",
+      "path": "/api/v1/waitpoints/tokens",
+      "params": [
+        {
+          "name": "idempotencyKey",
+          "type": "string",
+          "location": "body",
+          "description": "An optional idempotency key. If you pass the same key twice before it expires, you will receive the original token back. The returned token may already be completed, in which case `wait.forToken()` will continue immediately."
+        },
+        {
+          "name": "idempotencyKeyTTL",
+          "type": "string",
+          "location": "body",
+          "description": "How long the idempotency key is valid, after which passing the same key creates a new waitpoint. Accepts durations like '30s', '1m', '2h', '3d'."
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "Tags to attach to the waitpoint. You can set up to 10 tags, each under 128 characters. We recommend namespacing tags with a prefix like `user:1234567` or `org_9876543`."
+        },
+        {
+          "name": "timeout",
+          "type": "string",
+          "location": "body",
+          "description": "How long to wait before the token times out. When a run is waiting for a timed-out token, `wait.forToken()` returns with `ok: false`. Accepts an ISO 8601 date string or duration shorthand like '30s', '1m', '2h', '3d', '4w'."
+        }
+      ]
+    },
+    {
+      "name": "waitpoints_list-tokens-v1",
+      "description": "Returns a paginated list of waitpoint tokens for the current environment. Results are ordered by creation date, newest first. Use cursor-based pagination with `page[after]` and `page[before]` to navigate pages. Optional: page[size], page[after], page[before] (plus 6 more).",
+      "method": "GET",
+      "path": "/api/v1/waitpoints/tokens",
+      "params": [
+        {
+          "name": "page[size]",
+          "type": "int",
+          "location": "query",
+          "description": "Number of tokens to return per page (1–100)."
+        },
+        {
+          "name": "page[after]",
+          "type": "string",
+          "location": "query",
+          "description": "Return tokens after this cursor (from `pagination.next` in a previous response)."
+        },
+        {
+          "name": "page[before]",
+          "type": "string",
+          "location": "query",
+          "description": "Return tokens before this cursor (from `pagination.previous` in a previous response)."
+        },
+        {
+          "name": "filter[status]",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of statuses to filter by. Allowed values: `WAITING`, `COMPLETED`, `TIMED_OUT`."
+        },
+        {
+          "name": "filter[idempotencyKey]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by idempotency key."
+        },
+        {
+          "name": "filter[tags]",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of tags to filter by."
+        },
+        {
+          "name": "filter[createdAt][period]",
+          "type": "string",
+          "location": "query",
+          "description": "Shorthand time period to filter by creation date (e.g. `1h`, `24h`, `7d`). Cannot be combined with `filter[createdAt][from]` or `filter[createdAt][to]`."
+        },
+        {
+          "name": "filter[createdAt][from]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter tokens created at or after this ISO 8601 timestamp."
+        },
+        {
+          "name": "filter[createdAt][to]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter tokens created at or before this ISO 8601 timestamp."
+        }
+      ]
+    },
+    {
+      "name": "waitpoints_retrieve-token-v1",
+      "description": "Retrieves a waitpoint token by its ID, including its current status and output if it has been completed. Required: waitpointId. Returns the WaitpointTokenObject.",
+      "method": "GET",
+      "path": "/api/v1/waitpoints/tokens/{waitpointId}",
+      "params": [
+        {
+          "name": "waitpointId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the waitpoint token.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

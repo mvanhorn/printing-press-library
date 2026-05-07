@@ -1,8 +1,11 @@
+// Hand-authored novel feature: top recurring failure patterns.
+
 package cli
 
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -11,162 +14,140 @@ import (
 )
 
 func newFailuresCmd(flags *rootFlags) *cobra.Command {
-	var period string
-	var topN int
-	var groupBy string
-
 	cmd := &cobra.Command{
 		Use:   "failures",
+		Short: "Aggregations over failed runs (top recurring patterns)",
+	}
+	cmd.AddCommand(newFailuresTopCmd(flags))
+	return cmd
+}
+
+func newFailuresTopCmd(flags *rootFlags) *cobra.Command {
+	var period string
+	var topN int
+
+	cmd := &cobra.Command{
+		Use:         "top",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Analyze failure patterns across tasks and time periods",
-		Long: `Identify recurring failure patterns by analyzing failed runs across tasks,
-error types, and time-of-day. Helps you find systemic issues that one-off
-alerts miss.
-
-Requires synced data (run 'sync --full' first for best results, or uses live API).`,
-		Example: `  # Show failure patterns from the last 7 days
-  trigger-dev-pp-cli failures --period 7d
-
-  # Group failures by task
-  trigger-dev-pp-cli failures --period 30d --group-by task
-
-  # Top 5 failure patterns
-  trigger-dev-pp-cli failures --period 7d --top 5 --json`,
+		Short:       "Top recurring (task, error-signature) failure patterns over a window",
+		Long: `Walks failed runs in the window, normalizes error messages by stripping
+IDs/numbers/hex tokens/UUIDs, then groups by (task, signature). Mechanical —
+no LLM, no NLP.`,
+		Example: `  trigger-dev-pp-cli failures top --since 7d --top 20
+  trigger-dev-pp-cli failures top --since 1d --json --select 'rows.task,rows.signature,rows.count'`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			if flags.dryRun {
-				fmt.Fprintf(cmd.OutOrStdout(), "Would analyze failures for period=%s grouped by %s\n", period, groupBy)
+			if dryRunOK(flags) {
+				fmt.Fprintf(cmd.OutOrStdout(), "would aggregate failures over %s, top %d\n", period, topN)
 				return nil
 			}
-
-			// Fetch failed runs
-			params := map[string]string{
+			resp, err := c.Get("/api/v1/runs", map[string]string{
 				"status":                    "FAILED,CRASHED,SYSTEM_FAILURE",
 				"page[size]":                "100",
 				"filter[createdAt][period]": period,
-			}
-
-			resp, err := c.Get("/api/v1/runs", params)
+			})
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-
-			var envelope struct {
-				Data []json.RawMessage `json:"data"`
-			}
-			if err := json.Unmarshal(resp, &envelope); err != nil {
-				var arr []json.RawMessage
-				if err2 := json.Unmarshal(resp, &arr); err2 == nil {
-					envelope.Data = arr
-				}
-			}
-
-			type failedRun struct {
-				ID             string    `json:"id"`
-				Status         string    `json:"status"`
-				TaskIdentifier string    `json:"taskIdentifier"`
-				CreatedAt      time.Time `json:"createdAt"`
-				DurationMs     int       `json:"durationMs"`
-				CostInCents    float64   `json:"costInCents"`
-				Tags           []string  `json:"tags"`
-			}
-
-			var runs []failedRun
-			for _, raw := range envelope.Data {
-				var r failedRun
-				if err := json.Unmarshal(raw, &r); err == nil {
-					runs = append(runs, r)
-				}
-			}
-
-			if len(runs) == 0 {
-				fmt.Fprintf(cmd.OutOrStdout(), "No failures found in the last %s.\n", period)
-				return nil
-			}
-
-			// Analysis
 			type pattern struct {
-				Key       string         `json:"key"`
-				Count     int            `json:"count"`
-				TotalCost float64        `json:"total_cost_cents"`
-				AvgDurMs  float64        `json:"avg_duration_ms"`
-				LastSeen  string         `json:"last_seen"`
-				Statuses  map[string]int `json:"statuses"`
+				Task      string `json:"task"`
+				Signature string `json:"signature"`
+				Count     int    `json:"count"`
+				LastSeen  string `json:"last_seen"`
+				Status    string `json:"status"`
 			}
-
-			patterns := make(map[string]*pattern)
-			for _, r := range runs {
-				var key string
-				switch groupBy {
-				case "task":
-					key = r.TaskIdentifier
-				case "status":
-					key = r.Status
-				case "hour":
-					key = fmt.Sprintf("%02d:00", r.CreatedAt.Local().Hour())
-				default:
-					key = r.TaskIdentifier
+			groups := map[string]*pattern{}
+			for _, raw := range unwrapEnvelope(resp) {
+				var run struct {
+					ID             string    `json:"id"`
+					Status         string    `json:"status"`
+					TaskIdentifier string    `json:"taskIdentifier"`
+					CreatedAt      time.Time `json:"createdAt"`
+					Error          struct {
+						Message string `json:"message"`
+					} `json:"error"`
 				}
-
-				p, ok := patterns[key]
+				if err := json.Unmarshal(raw, &run); err != nil {
+					continue
+				}
+				signature := normalizeErrorSignature(run.Error.Message)
+				if signature == "" {
+					signature = run.Status
+				}
+				key := run.TaskIdentifier + "|" + signature
+				p, ok := groups[key]
 				if !ok {
-					p = &pattern{Key: key, Statuses: make(map[string]int)}
-					patterns[key] = p
+					p = &pattern{Task: run.TaskIdentifier, Signature: signature, Status: run.Status}
+					groups[key] = p
 				}
 				p.Count++
-				p.TotalCost += r.CostInCents
-				p.AvgDurMs += float64(r.DurationMs)
-				p.Statuses[r.Status]++
-				if r.CreatedAt.Format(time.RFC3339) > p.LastSeen {
-					p.LastSeen = r.CreatedAt.Local().Format("2006-01-02 15:04")
+				ts := run.CreatedAt.Local().Format("2006-01-02 15:04")
+				if ts > p.LastSeen {
+					p.LastSeen = ts
 				}
 			}
-
-			// Finalize averages
-			var sorted []*pattern
-			for _, p := range patterns {
-				p.AvgDurMs = p.AvgDurMs / float64(p.Count)
-				sorted = append(sorted, p)
+			rows := make([]*pattern, 0, len(groups))
+			for _, p := range groups {
+				rows = append(rows, p)
 			}
-			sort.Slice(sorted, func(i, j int) bool {
-				return sorted[i].Count > sorted[j].Count
+			sort.Slice(rows, func(i, j int) bool {
+				if rows[i].Count != rows[j].Count {
+					return rows[i].Count > rows[j].Count
+				}
+				return rows[i].LastSeen > rows[j].LastSeen
 			})
-
-			if topN > 0 && topN < len(sorted) {
-				sorted = sorted[:topN]
+			if topN > 0 && topN < len(rows) {
+				rows = rows[:topN]
 			}
-
-			if flags.asJSON {
-				result := map[string]any{
+			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 					"period":          period,
-					"total_failures":  len(runs),
-					"unique_patterns": len(patterns),
-					"patterns":        sorted,
-				}
-				return flags.printJSON(cmd, result)
+					"unique_patterns": len(groups),
+					"rows":            rows,
+				}, flags)
 			}
-
-			fmt.Fprintf(cmd.OutOrStdout(), "Failure Analysis (last %s)\n", period)
-			fmt.Fprintf(cmd.OutOrStdout(), "Total failures: %d across %d %s(s)\n\n", len(runs), len(patterns), groupBy)
-
-			fmt.Fprintf(cmd.OutOrStdout(), "%-35s %6s %12s %10s  %s\n", groupBy, "count", "avg duration", "cost", "last seen")
-			fmt.Fprintf(cmd.OutOrStdout(), "%-35s %6s %12s %10s  %s\n", strings.Repeat("-", 35), "------", "------------", "----------", "----------------")
-			for _, p := range sorted {
-				fmt.Fprintf(cmd.OutOrStdout(), "%-35s %6d %10.0fms $%8.4f  %s\n",
-					truncate(p.Key, 35), p.Count, p.AvgDurMs, p.TotalCost/100, p.LastSeen)
+			if len(rows) == 0 {
+				fmt.Fprintf(cmd.OutOrStdout(), "No failures in the last %s.\n", period)
+				return nil
 			}
-
+			fmt.Fprintf(cmd.OutOrStdout(), "Top failure patterns (last %s) — %d unique groupings\n\n", period, len(groups))
+			fmt.Fprintf(cmd.OutOrStdout(), "%-30s %-50s %5s  %s\n", "task", "signature", "count", "last seen")
+			fmt.Fprintf(cmd.OutOrStdout(), "%s\n", strings.Repeat("-", 110))
+			for _, p := range rows {
+				fmt.Fprintf(cmd.OutOrStdout(), "%-30s %-50s %5d  %s\n",
+					truncate(p.Task, 30), truncate(p.Signature, 50), p.Count, p.LastSeen)
+			}
 			return nil
 		},
 	}
-
-	cmd.Flags().StringVar(&period, "period", "7d", "Time period to analyze (e.g., 1d, 7d, 30d)")
-	cmd.Flags().IntVar(&topN, "top", 0, "Show only top N patterns (0 for all)")
-	cmd.Flags().StringVar(&groupBy, "group-by", "task", "Group by: task, status, or hour")
-
+	cmd.Flags().StringVar(&period, "since", "7d", "Time window (1d, 7d, 30d)")
+	cmd.Flags().IntVar(&topN, "top", 20, "Show only the top N rows")
 	return cmd
+}
+
+var (
+	reSigUUID    = regexp.MustCompile(`\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b`)
+	reSigHex     = regexp.MustCompile(`\b[0-9a-fA-F]{8,}\b`)
+	reSigPrefix  = regexp.MustCompile(`\b[a-z]{2,5}_[A-Za-z0-9]{8,}\b`)
+	reSigNumeric = regexp.MustCompile(`\b\d{2,}\b`)
+	reSigQuoted  = regexp.MustCompile(`"[^"]*"`)
+)
+
+func normalizeErrorSignature(msg string) string {
+	if msg == "" {
+		return ""
+	}
+	s := strings.TrimSpace(msg)
+	s = reSigUUID.ReplaceAllString(s, "<uuid>")
+	s = reSigHex.ReplaceAllString(s, "<hex>")
+	s = reSigPrefix.ReplaceAllString(s, "<id>")
+	s = reSigNumeric.ReplaceAllString(s, "<n>")
+	s = reSigQuoted.ReplaceAllString(s, `"<v>"`)
+	if len(s) > 200 {
+		s = s[:200]
+	}
+	return s
 }

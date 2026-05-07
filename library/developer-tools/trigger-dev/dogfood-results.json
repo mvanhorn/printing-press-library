@@ -1,23 +1,31 @@
 {
-  "dir": ".",
-  "verdict": "PASS",
+  "dir": "/Users/tmchow/printing-press/.runstate/serene-hatching-meteor-2cee6bad/runs/20260507-000200/working/trigger-dev-pp-cli",
+  "spec_path": "/Users/tmchow/printing-press/manuscripts/trigger-dev/20260504-203523/research/trigger-dev-spec.yaml",
+  "verdict": "WARN",
   "path_check": {
     "tested": 0,
     "valid": 0,
-    "valid_pct": 0
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
   },
   "auth_check": {
-    "spec_scheme": "",
-    "generated_format": "",
+    "spec_scheme": "bearer token format (expects \"Bearer \" prefix)",
+    "generated_format": "Bearer ",
     "match": true,
-    "detail": "spec not provided; auth protocol check skipped"
+    "detail": "spec and generated client both use \"Bearer\""
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
   },
   "dead_flags": {
-    "total": 15,
+    "total": 19,
     "dead": 0
   },
   "dead_functions": {
-    "total": 47,
+    "total": 52,
     "dead": 0
   },
   "pipeline_check": {
@@ -28,18 +36,14 @@
   },
   "example_check": {
     "tested": 10,
-    "with_examples": 8,
-    "valid_examples": 8,
-    "missing": [
-      "pm stale",
-      "promoted runs"
-    ],
-    "detail": "8/10 commands have examples"
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 64,
-      "registered": 64
+      "defined": 111,
+      "registered": 111
     },
     "config_consistency": {
       "consistent": true
@@ -52,9 +56,35 @@
     }
   },
   "novel_features_check": {
-    "planned": 0,
-    "found": 0,
+    "planned": 8,
+    "found": 7,
+    "missing": [
+      "tasks health"
+    ]
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 7,
+    "exempted_via_store": 2
+  },
+  "source_client_check": {
+    "checked": 0,
     "skipped": true
   },
-  "issues": null
+  "print_json_filtered_check": {
+    "checked": 100
+  },
+  "test_presence": {
+    "checked": 0
+  },
+  "naming_check": {
+    "checked": 100
+  },
+  "issues": [
+    "1/8 novel features missing: tasks health"
+  ]
 }

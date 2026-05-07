@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "trigger-dev-pp-mcp",
+  "display_name": "Trigger.dev",
+  "version": "3.10.0",
+  "description": "Durable background jobs and AI agent orchestration — runs, schedules, deployments, batches, queues, waitpoints, env vars, and TRQL analytics",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/trigger-dev-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/trigger-dev-pp-mcp",
+      "args": [],
+      "env": {
+        "TRIGGER_SECRET_KEY": "${user_config.trigger_secret_key}"
+      }
+    }
+  },
+  "user_config": {
+    "trigger_secret_key": {
+      "type": "string",
+      "title": "TRIGGER_SECRET_KEY",
+      "description": "Sets TRIGGER_SECRET_KEY for the Trigger.dev MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
