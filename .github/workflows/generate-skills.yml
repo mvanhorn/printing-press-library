@@ -6,7 +6,9 @@ on:
     paths:
       - 'registry.json'
       - 'library/**/.printing-press.json'
-      - 'tools/generate-skills/**'
+      - 'library/**/SKILL.md'
+      - 'library/**/README.md'
+      - 'tools/generate-skills/main.go'
 
 jobs:
   generate:
