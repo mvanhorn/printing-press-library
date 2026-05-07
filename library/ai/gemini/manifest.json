@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "gemini-pp-mcp",
+  "display_name": "Gemini",
+  "version": "4.0.2",
+  "description": "Gemini API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/gemini-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/gemini-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

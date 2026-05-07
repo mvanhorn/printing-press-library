@@ -1,0 +1,10 @@
+{
+  "spec_source": "google-discovery-document",
+  "discovery_url": "https://generativelanguage.googleapis.com/$discovery/rest?version=v1",
+  "conversion_method": "google-discovery-to-openapi-via-custom-converter",
+  "converter_script": "discovery_to_openapi.py",
+  "spec_checksum": "sha256:5a9a386c43615cd38ea96155ea0a655cd6206c0ee8be730069c25180c380574d",
+  "endpoints_discovered": 31,
+  "schemas_converted": 64,
+  "conversion_timestamp": "2026-05-08T00:37:32.476053"
+}

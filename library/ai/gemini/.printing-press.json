@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-07T19:04:27.888592Z",
+  "printing_press_version": "4.0.2",
+  "api_name": "gemini",
+  "display_name": "Gemini",
+  "cli_name": "gemini-pp-cli",
+  "owner": "krishna-vardhan",
+  "spec_path": "/tmp/gemini-openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:5a9a386c43615cd38ea96155ea0a655cd6206c0ee8be730069c25180c380574d",
+  "mcp_binary": "gemini-pp-mcp",
+  "mcp_tool_count": 11,
+  "mcp_public_tool_count": 11,
+  "mcp_ready": "full",
+  "api_version": "v1",
+  "auth_type": "none",
+  "run_id": "gen-20260508-003732",
+  "novel_features": [
+    {
+      "name": "compound-insight",
+      "description": "Ask domain-level questions across all Gemini resources with cached local data"
+    },
+    {
+      "name": "offline-search",
+      "description": "FTS5 full-text search across synced models and responses"
+    }
+  ],
+  "research_brief_path": "research.json"
+}

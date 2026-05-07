@@ -1,0 +1,2679 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Gemini API",
+    "description": "The Gemini API allows developers to build generative AI applications using Gemini models. Gemini is our most capable model, built from the ground up to be multimodal. It can generalize and seamlessly understand, operate across, and combine different types of information including language, images, audio, video, and code. You can use the Gemini API for use cases like reasoning across text and images, content generation, dialogue agents, summarization and classification systems, and more.",
+    "version": "v1",
+    "contact": {
+      "name": "Google",
+      "url": "https://developers.generativeai.google/api"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://generativelanguage.googleapis.com",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/v1/{model}:generateContent": {
+      "post": {
+        "operationId": "generativelanguage.tunedModels.generateContent",
+        "description": "Generates a model response given an input `GenerateContentRequest`. Refer to the [text generation guide](https://ai.google.dev/gemini-api/docs/text-generation) for detailed usage information. Input capabilities differ between models, including tuned models. Refer to the [model guide](https://ai.google.dev/gemini-api/docs/models/gemini) and [tuning guide](https://ai.google.dev/gemini-api/docs/model-tuning) for details.",
+        "summary": "Generates a model response given an input `GenerateContentRequest`",
+        "tags": [
+          "tunedModels"
+        ],
+        "parameters": [
+          {
+            "name": "model",
+            "in": "path",
+            "description": "Required. The name of the `Model` to use for generating the completion. Format: `models/{model}`.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^tunedModels/[^/]+$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateContentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateContentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/v1/{model}:streamGenerateContent": {
+      "post": {
+        "operationId": "generativelanguage.tunedModels.streamGenerateContent",
+        "description": "Generates a [streamed response](https://ai.google.dev/gemini-api/docs/text-generation?lang=python#generate-a-text-stream) from the model given an input `GenerateContentRequest`.",
+        "summary": "Generates a [streamed response](https://ai",
+        "tags": [
+          "tunedModels"
+        ],
+        "parameters": [
+          {
+            "name": "model",
+            "in": "path",
+            "description": "Required. The name of the `Model` to use for generating the completion. Format: `models/{model}`.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^tunedModels/[^/]+$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateContentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateContentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/v1/{model}:batchGenerateContent": {
+      "post": {
+        "operationId": "generativelanguage.tunedModels.batchGenerateContent",
+        "description": "Enqueues a batch of `GenerateContent` requests for batch processing.",
+        "summary": "Enqueues a batch of `GenerateContent` requests for batch processing",
+        "tags": [
+          "tunedModels"
+        ],
+        "parameters": [
+          {
+            "name": "model",
+            "in": "path",
+            "description": "Required. The name of the `Model` to use for generating the completion. Format: `models/{model}`.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^tunedModels/[^/]+$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchGenerateContentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Operation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/v1/{model}:asyncBatchEmbedContent": {
+      "post": {
+        "operationId": "generativelanguage.tunedModels.asyncBatchEmbedContent",
+        "description": "Enqueues a batch of `EmbedContent` requests for batch processing. We have a `BatchEmbedContents` handler in `GenerativeService`, but it was synchronized. So we name this one to be `Async` to avoid confusion.",
+        "summary": "Enqueues a batch of `EmbedContent` requests for batch processing",
+        "tags": [
+          "tunedModels"
+        ],
+        "parameters": [
+          {
+            "name": "model",
+            "in": "path",
+            "description": "Required. The name of the `Model` to use for generating the completion. Format: `models/{model}`.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^tunedModels/[^/]+$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AsyncBatchEmbedContentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Operation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/v1/{name}/operations": {
+      "get": {
+        "operationId": "generativelanguage.tunedModels.operations.list",
+        "description": "Lists operations that match the specified filter in the request. If the server doesn't support this method, it returns `UNIMPLEMENTED`.",
+        "summary": "Lists operations that match the specified filter in the request",
+        "tags": [
+          "tunedModels"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "The name of the operation's parent resource.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^tunedModels/[^/]+$"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The standard list page size.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageToken",
+            "in": "query",
+            "description": "The standard list page token.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "returnPartialSuccess",
+            "in": "query",
+            "description": "When set to `true`, operations that are reachable are returned as normal, and those that are unreachable are returned in the ListOperationsResponse.unreachable field. This can only be `true` when reading across collections. For example, when `parent` is set to `\"projects/example/locations/-\"`. This field is not supported by default and will result in an `UNIMPLEMENTED` error if set unless explicitly documented otherwise in service or product specific documentation.",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "The standard list filter.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListOperationsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/v1/{name}": {
+      "get": {
+        "operationId": "generativelanguage.tunedModels.operations.get",
+        "description": "Gets the latest state of a long-running operation. Clients can use this method to poll the operation result at intervals as recommended by the API service.",
+        "summary": "Gets the latest state of a long-running operation",
+        "tags": [
+          "tunedModels"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "The name of the operation resource.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^tunedModels/[^/]+/operations/[^/]+$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Operation"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "generativelanguage.operations.delete",
+        "description": "Deletes a long-running operation. This method indicates that the client is no longer interested in the operation result. It does not cancel the operation. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`.",
+        "summary": "Deletes a long-running operation",
+        "tags": [
+          "operations"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "The name of the operation resource to be deleted.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^operations/.*$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Empty"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/v1/{name}:cancel": {
+      "post": {
+        "operationId": "generativelanguage.tunedModels.operations.cancel",
+        "description": "Starts asynchronous cancellation on a long-running operation. The server makes a best effort to cancel the operation, but success is not guaranteed. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`. Clients can use Operations.GetOperation or other methods to check whether the cancellation succeeded or whether the operation completed despite cancellation. On successful cancellation, the operation is not deleted; instead, it becomes an operation with an Operation.error value with a google.rpc.Status.code of `1`, corresponding to `Code.CANCELLED`.",
+        "summary": "Starts asynchronous cancellation on a long-running operation",
+        "tags": [
+          "tunedModels"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "The name of the operation resource to be cancelled.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^tunedModels/[^/]+/operations/[^/]+$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelOperationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Empty"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/v1/{name}:updateGenerateContentBatch": {
+      "patch": {
+        "operationId": "generativelanguage.batches.updateGenerateContentBatch",
+        "description": "Updates a batch of GenerateContent requests for batch processing.",
+        "summary": "Updates a batch of GenerateContent requests for batch processing",
+        "tags": [
+          "batches"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Output only. Identifier. Resource name of the batch. Format: `batches/{batch_id}`.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^batches/[^/]+$"
+            }
+          },
+          {
+            "name": "updateMask",
+            "in": "query",
+            "description": "Optional. The list of fields to update.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateContentBatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateContentBatch"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/v1/{name}:updateEmbedContentBatch": {
+      "patch": {
+        "operationId": "generativelanguage.batches.updateEmbedContentBatch",
+        "description": "Updates a batch of EmbedContent requests for batch processing.",
+        "summary": "Updates a batch of EmbedContent requests for batch processing",
+        "tags": [
+          "batches"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "Output only. Identifier. Resource name of the batch. Format: `batches/{batch_id}`.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^batches/[^/]+$"
+            }
+          },
+          {
+            "name": "updateMask",
+            "in": "query",
+            "description": "Optional. The list of fields to update.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmbedContentBatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmbedContentBatch"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/v1/{model}:batchEmbedContents": {
+      "post": {
+        "operationId": "generativelanguage.models.batchEmbedContents",
+        "description": "Generates multiple embedding vectors from the input `Content` which consists of a batch of strings represented as `EmbedContentRequest` objects.",
+        "summary": "Generates multiple embedding vectors from the input `Content` which consists of a batch of strings r",
+        "tags": [
+          "models"
+        ],
+        "parameters": [
+          {
+            "name": "model",
+            "in": "path",
+            "description": "Required. The model's resource name. This serves as an ID for the Model to use. This name should match a model name returned by the `ListModels` method. Format: `models/{model}`",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^models/[^/]+$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchEmbedContentsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchEmbedContentsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/v1/{model}:countTokens": {
+      "post": {
+        "operationId": "generativelanguage.models.countTokens",
+        "description": "Runs a model's tokenizer on input `Content` and returns the token count. Refer to the [tokens guide](https://ai.google.dev/gemini-api/docs/tokens) to learn more about tokens.",
+        "summary": "Runs a model's tokenizer on input `Content` and returns the token count",
+        "tags": [
+          "models"
+        ],
+        "parameters": [
+          {
+            "name": "model",
+            "in": "path",
+            "description": "Required. The model's resource name. This serves as an ID for the Model to use. This name should match a model name returned by the `ListModels` method. Format: `models/{model}`",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^models/[^/]+$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CountTokensRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CountTokensResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/v1/models": {
+      "get": {
+        "operationId": "generativelanguage.models.list",
+        "description": "Lists the [`Model`s](https://ai.google.dev/gemini-api/docs/models/gemini) available through the Gemini API.",
+        "summary": "Lists the [`Model`s](https://ai",
+        "tags": [
+          "models"
+        ],
+        "parameters": [
+          {
+            "name": "pageToken",
+            "in": "query",
+            "description": "A page token, received from a previous `ListModels` call. Provide the `page_token` returned by one request as an argument to the next request to retrieve the next page. When paginating, all other parameters provided to `ListModels` must match the call that provided the page token.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The maximum number of `Models` to return (per page). If unspecified, 50 models will be returned per page. This method returns at most 1000 models per page, even if you pass a larger page_size.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListModelsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/v1/{model}:embedContent": {
+      "post": {
+        "operationId": "generativelanguage.models.embedContent",
+        "description": "Generates a text embedding vector from the input `Content` using the specified [Gemini Embedding model](https://ai.google.dev/gemini-api/docs/models/gemini#text-embedding).",
+        "summary": "Generates a text embedding vector from the input `Content` using the specified [Gemini Embedding mod",
+        "tags": [
+          "models"
+        ],
+        "parameters": [
+          {
+            "name": "model",
+            "in": "path",
+            "description": "Required. The model's resource name. This serves as an ID for the Model to use. This name should match a model name returned by the `ListModels` method. Format: `models/{model}`",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^models/[^/]+$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmbedContentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmbedContentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "InlinedResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/Status"
+          },
+          "response": {
+            "$ref": "#/components/schemas/GenerateContentResponse"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "description": "Properties of the object."
+            },
+            "description": "Output only. The metadata associated with the request."
+          }
+        },
+        "description": "The response to a single request in the batch."
+      },
+      "Segment": {
+        "type": "object",
+        "properties": {
+          "startIndex": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Start index in the given Part, measured in bytes. Offset from the start of the Part, inclusive, starting at zero."
+          },
+          "endIndex": {
+            "type": "integer",
+            "format": "int32",
+            "description": "End index in the given Part, measured in bytes. Offset from the start of the Part, exclusive, starting at zero."
+          },
+          "partIndex": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The index of a Part object within its parent Content object."
+          },
+          "text": {
+            "type": "string",
+            "description": "The text corresponding to the segment from the response."
+          }
+        },
+        "description": "Segment of the content."
+      },
+      "GroundingSupport": {
+        "type": "object",
+        "properties": {
+          "groundingChunkIndices": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "Optional. A list of indices (into 'grounding_chunk' in `response.candidate.grounding_metadata`) specifying the citations associated with the claim. For instance [1,3,4] means that grounding_chunk[1], grounding_chunk[3], grounding_chunk[4] are the retrieved content attributed to the claim. If the response is streaming, the grounding_chunk_indices refer to the indices across all responses. It is the client's responsibility to accumulate the grounding chunks from all responses (while maintaining the same order)."
+          },
+          "renderedParts": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "Output only. Indices into the `parts` field of the candidate's content. These indices specify which rendered parts are associated with this support source."
+          },
+          "segment": {
+            "$ref": "#/components/schemas/Segment"
+          },
+          "confidenceScores": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "float"
+            },
+            "description": "Optional. Confidence score of the support references. Ranges from 0 to 1. 1 is the most confident. This list must have the same size as the grounding_chunk_indices."
+          }
+        },
+        "description": "Grounding support."
+      },
+      "BatchEmbedContentsResponse": {
+        "type": "object",
+        "properties": {
+          "embeddings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContentEmbedding"
+            },
+            "description": "Output only. The embeddings for each request, in the same order as provided in the batch request."
+          },
+          "usageMetadata": {
+            "$ref": "#/components/schemas/EmbeddingUsageMetadata"
+          }
+        },
+        "description": "The response to a `BatchEmbedContentsRequest`."
+      },
+      "EmbedContentResponse": {
+        "type": "object",
+        "properties": {
+          "embedding": {
+            "$ref": "#/components/schemas/ContentEmbedding"
+          },
+          "usageMetadata": {
+            "$ref": "#/components/schemas/EmbeddingUsageMetadata"
+          }
+        },
+        "description": "The response to an `EmbedContentRequest`."
+      },
+      "ContentEmbedding": {
+        "type": "object",
+        "properties": {
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "float"
+            },
+            "description": "The embedding values. This is for 3P users only and will not be populated for 1P calls."
+          },
+          "shape": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "This field stores the soft tokens tensor frame shape (e.g. [1, 1, 256, 2048])."
+          }
+        },
+        "description": "A list of floats representing an embedding."
+      },
+      "Operation": {
+        "type": "object",
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "description": "Properties of the object. Contains field @type with type URL."
+            },
+            "description": "Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata. Any method that returns a long-running operation should document the metadata type, if any."
+          },
+          "response": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "description": "Properties of the object. Contains field @type with type URL."
+            },
+            "description": "The normal, successful response of the operation. If the original method returns no data on success, such as `Delete`, the response is `google.protobuf.Empty`. If the original method is standard `Get`/`Create`/`Update`, the response should be the resource. For other methods, the response should have the type `XxxResponse`, where `Xxx` is the original method name. For example, if the original method name is `TakeSnapshot()`, the inferred response type is `TakeSnapshotResponse`."
+          },
+          "name": {
+            "type": "string",
+            "description": "The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."
+          },
+          "error": {
+            "$ref": "#/components/schemas/Status"
+          },
+          "done": {
+            "type": "boolean",
+            "description": "If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."
+          }
+        },
+        "description": "This resource represents a long-running operation that is the result of a network API call."
+      },
+      "CancelOperationRequest": {
+        "type": "object",
+        "description": "The request message for Operations.CancelOperation."
+      },
+      "CitationMetadata": {
+        "type": "object",
+        "properties": {
+          "citationSources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CitationSource"
+            },
+            "description": "Citations to sources for a specific response."
+          }
+        },
+        "description": "A collection of source attributions for a piece of content."
+      },
+      "BatchGenerateContentRequest": {
+        "type": "object",
+        "properties": {
+          "batch": {
+            "$ref": "#/components/schemas/GenerateContentBatch"
+          }
+        },
+        "description": "Request for a `BatchGenerateContent` operation."
+      },
+      "ModalityTokenCount": {
+        "type": "object",
+        "properties": {
+          "tokenCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of tokens."
+          },
+          "modality": {
+            "type": "string",
+            "enum": [
+              "MODALITY_UNSPECIFIED",
+              "TEXT",
+              "IMAGE",
+              "VIDEO",
+              "AUDIO",
+              "DOCUMENT"
+            ],
+            "description": "The modality associated with this token count."
+          }
+        },
+        "description": "Represents token counting info for a single modality."
+      },
+      "UrlContextMetadata": {
+        "type": "object",
+        "properties": {
+          "urlMetadata": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UrlMetadata"
+            },
+            "description": "List of url context."
+          }
+        },
+        "description": "Metadata related to url context retrieval tool."
+      },
+      "InlinedRequests": {
+        "type": "object",
+        "properties": {
+          "requests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InlinedRequest"
+            },
+            "description": "Required. The requests to be processed in the batch."
+          }
+        },
+        "description": "The requests to be processed in the batch if provided as part of the batch creation request."
+      },
+      "EmbedContentRequest": {
+        "type": "object",
+        "properties": {
+          "taskType": {
+            "type": "string",
+            "enum": [
+              "TASK_TYPE_UNSPECIFIED",
+              "RETRIEVAL_QUERY",
+              "RETRIEVAL_DOCUMENT",
+              "SEMANTIC_SIMILARITY",
+              "CLASSIFICATION",
+              "CLUSTERING",
+              "QUESTION_ANSWERING",
+              "FACT_VERIFICATION",
+              "CODE_RETRIEVAL_QUERY"
+            ],
+            "description": "Optional. Deprecated: Please use EmbedContentConfig.task_type instead. Optional task type for which the embeddings will be used. Not supported on earlier models (`models/embedding-001`)."
+          },
+          "model": {
+            "type": "string",
+            "description": "Required. The model's resource name. This serves as an ID for the Model to use. This name should match a model name returned by the `ListModels` method. Format: `models/{model}`"
+          },
+          "embedContentConfig": {
+            "$ref": "#/components/schemas/EmbedContentConfig"
+          },
+          "title": {
+            "type": "string",
+            "description": "Optional. Deprecated: Please use EmbedContentConfig.title instead. An optional title for the text. Only applicable when TaskType is `RETRIEVAL_DOCUMENT`. Note: Specifying a `title` for `RETRIEVAL_DOCUMENT` provides better quality embeddings for retrieval."
+          },
+          "outputDimensionality": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Optional. Deprecated: Please use EmbedContentConfig.output_dimensionality instead. Optional reduced dimension for the output embedding. If set, excessive values in the output embedding are truncated from the end. Supported by newer models since 2024 only. You cannot set this value if using the earlier model (`models/embedding-001`)."
+          },
+          "content": {
+            "$ref": "#/components/schemas/Content"
+          }
+        },
+        "description": "Request containing the `Content` for the model to embed."
+      },
+      "SafetySetting": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "HARM_CATEGORY_UNSPECIFIED",
+              "HARM_CATEGORY_DEROGATORY",
+              "HARM_CATEGORY_TOXICITY",
+              "HARM_CATEGORY_VIOLENCE",
+              "HARM_CATEGORY_SEXUAL",
+              "HARM_CATEGORY_MEDICAL",
+              "HARM_CATEGORY_DANGEROUS",
+              "HARM_CATEGORY_HARASSMENT",
+              "HARM_CATEGORY_HATE_SPEECH",
+              "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+              "HARM_CATEGORY_DANGEROUS_CONTENT",
+              "HARM_CATEGORY_CIVIC_INTEGRITY"
+            ],
+            "description": "Required. The category for this setting."
+          },
+          "threshold": {
+            "type": "string",
+            "enum": [
+              "HARM_BLOCK_THRESHOLD_UNSPECIFIED",
+              "BLOCK_LOW_AND_ABOVE",
+              "BLOCK_MEDIUM_AND_ABOVE",
+              "BLOCK_ONLY_HIGH",
+              "BLOCK_NONE",
+              "OFF"
+            ],
+            "description": "Required. Controls the probability threshold at which harm is blocked."
+          }
+        },
+        "description": "Safety setting, affecting the safety-blocking behavior. Passing a safety setting for a category changes the allowed probability that content is blocked."
+      },
+      "InlinedEmbedContentRequest": {
+        "type": "object",
+        "properties": {
+          "request": {
+            "$ref": "#/components/schemas/EmbedContentRequest"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "description": "Properties of the object."
+            },
+            "description": "Optional. The metadata to be associated with the request."
+          }
+        },
+        "description": "The request to be processed in the batch."
+      },
+      "InlinedRequest": {
+        "type": "object",
+        "properties": {
+          "request": {
+            "$ref": "#/components/schemas/GenerateContentRequest"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "description": "Properties of the object."
+            },
+            "description": "Optional. The metadata to be associated with the request."
+          }
+        },
+        "description": "The request to be processed in the batch."
+      },
+      "SearchEntryPoint": {
+        "type": "object",
+        "properties": {
+          "renderedContent": {
+            "type": "string",
+            "description": "Optional. Web content snippet that can be embedded in a web page or an app webview."
+          },
+          "sdkBlob": {
+            "type": "string",
+            "format": "byte",
+            "description": "Optional. Base64 encoded JSON representing array of tuple."
+          }
+        },
+        "description": "Google search entry point."
+      },
+      "Candidate": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Output only. Index of the candidate in the list of response candidates."
+          },
+          "finishMessage": {
+            "type": "string",
+            "description": "Optional. Output only. Details the reason why the model stopped generating tokens. This is populated only when `finish_reason` is set."
+          },
+          "content": {
+            "$ref": "#/components/schemas/Content"
+          },
+          "finishReason": {
+            "type": "string",
+            "enum": [
+              "FINISH_REASON_UNSPECIFIED",
+              "STOP",
+              "MAX_TOKENS",
+              "SAFETY",
+              "RECITATION",
+              "LANGUAGE",
+              "OTHER",
+              "BLOCKLIST",
+              "PROHIBITED_CONTENT",
+              "SPII",
+              "MALFORMED_FUNCTION_CALL",
+              "IMAGE_SAFETY",
+              "IMAGE_PROHIBITED_CONTENT",
+              "IMAGE_OTHER",
+              "NO_IMAGE",
+              "IMAGE_RECITATION",
+              "UNEXPECTED_TOOL_CALL",
+              "TOO_MANY_TOOL_CALLS",
+              "MISSING_THOUGHT_SIGNATURE",
+              "MALFORMED_RESPONSE"
+            ],
+            "description": "Optional. Output only. The reason why the model stopped generating tokens. If empty, the model has not stopped generating tokens."
+          },
+          "groundingMetadata": {
+            "$ref": "#/components/schemas/GroundingMetadata"
+          },
+          "avgLogprobs": {
+            "type": "number",
+            "format": "double",
+            "description": "Output only. Average log probability score of the candidate."
+          },
+          "urlContextMetadata": {
+            "$ref": "#/components/schemas/UrlContextMetadata"
+          },
+          "logprobsResult": {
+            "$ref": "#/components/schemas/LogprobsResult"
+          },
+          "safetyRatings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SafetyRating"
+            },
+            "description": "List of ratings for the safety of a response candidate. There is at most one rating per category."
+          },
+          "citationMetadata": {
+            "$ref": "#/components/schemas/CitationMetadata"
+          },
+          "tokenCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Output only. Token count for this candidate."
+          }
+        },
+        "description": "A response candidate generated from the model."
+      },
+      "ListOperationsResponse": {
+        "type": "object",
+        "properties": {
+          "nextPageToken": {
+            "type": "string",
+            "description": "The standard List next-page token."
+          },
+          "unreachable": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Unordered list. Unreachable resources. Populated when the request sets `ListOperationsRequest.return_partial_success` and reads across collections. For example, when attempting to list all resources across all supported locations."
+          },
+          "operations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Operation"
+            },
+            "description": "A list of operations that matches the specified filter in the request."
+          }
+        },
+        "description": "The response message for Operations.ListOperations."
+      },
+      "EmbeddingUsageMetadata": {
+        "type": "object",
+        "properties": {
+          "promptTokenDetails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModalityTokenCount"
+            },
+            "description": "Output only. List of modalities that were processed in the request input."
+          },
+          "promptTokenCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Output only. Number of tokens in the prompt."
+          }
+        },
+        "description": "Metadata on the usage of the embedding request."
+      },
+      "RetrievalMetadata": {
+        "type": "object",
+        "properties": {
+          "googleSearchDynamicRetrievalScore": {
+            "type": "number",
+            "format": "float",
+            "description": "Optional. Score indicating how likely information from google search could help answer the prompt. The score is in the range [0, 1], where 0 is the least likely and 1 is the most likely. This score is only populated when google search grounding and dynamic retrieval is enabled. It will be compared to the threshold to determine whether to trigger google search."
+          }
+        },
+        "description": "Metadata related to retrieval in the grounding flow."
+      },
+      "PromptFeedback": {
+        "type": "object",
+        "properties": {
+          "safetyRatings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SafetyRating"
+            },
+            "description": "Ratings for safety of the prompt. There is at most one rating per category."
+          },
+          "blockReason": {
+            "type": "string",
+            "enum": [
+              "BLOCK_REASON_UNSPECIFIED",
+              "SAFETY",
+              "OTHER",
+              "BLOCKLIST",
+              "PROHIBITED_CONTENT",
+              "IMAGE_SAFETY"
+            ],
+            "description": "Optional. If set, the prompt was blocked and no candidates are returned. Rephrase the prompt."
+          }
+        },
+        "description": "A set of the feedback metadata the prompt specified in `GenerateContentRequest.content`."
+      },
+      "BatchStats": {
+        "type": "object",
+        "properties": {
+          "successfulRequestCount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Output only. The number of requests that were successfully processed."
+          },
+          "failedRequestCount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Output only. The number of requests that failed to be processed."
+          },
+          "pendingRequestCount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Output only. The number of requests that are still pending processing."
+          },
+          "requestCount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Output only. The number of requests in the batch."
+          }
+        },
+        "description": "Stats about the batch."
+      },
+      "LogprobsResultCandidate": {
+        "type": "object",
+        "properties": {
+          "logProbability": {
+            "type": "number",
+            "format": "float",
+            "description": "The candidate's log probability."
+          },
+          "tokenId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The candidate\u2019s token id value."
+          },
+          "token": {
+            "type": "string",
+            "description": "The candidate\u2019s token string value."
+          }
+        },
+        "description": "Candidate for the logprobs token and score."
+      },
+      "GroundingMetadata": {
+        "type": "object",
+        "properties": {
+          "groundingChunks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GroundingChunk"
+            },
+            "description": "List of supporting references retrieved from specified grounding source. When streaming, this only contains the grounding chunks that have not been included in the grounding metadata of previous responses."
+          },
+          "groundingSupports": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GroundingSupport"
+            },
+            "description": "List of grounding support."
+          },
+          "webSearchQueries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Web search queries for the following-up web search."
+          },
+          "imageSearchQueries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Image search queries used for grounding."
+          },
+          "retrievalMetadata": {
+            "$ref": "#/components/schemas/RetrievalMetadata"
+          },
+          "searchEntryPoint": {
+            "$ref": "#/components/schemas/SearchEntryPoint"
+          },
+          "googleMapsWidgetContextToken": {
+            "type": "string",
+            "description": "Optional. Resource name of the Google Maps widget context token that can be used with the PlacesContextElement widget in order to render contextual data. Only populated in the case that grounding with Google Maps is enabled."
+          }
+        },
+        "description": "Metadata returned to client when grounding is enabled."
+      },
+      "Content": {
+        "type": "object",
+        "properties": {
+          "parts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Part"
+            },
+            "description": "Ordered `Parts` that constitute a single message. Parts may have different MIME types."
+          },
+          "role": {
+            "type": "string",
+            "description": "Optional. The producer of the content. Must be either 'user' or 'model'. Useful to set for multi-turn conversations, otherwise can be left blank or unset."
+          }
+        },
+        "description": "The base structured datatype containing multi-part content of a message. A `Content` includes a `role` field designating the producer of the `Content` and a `parts` field containing multi-part data that contains the content of the message turn."
+      },
+      "VideoMetadata": {
+        "type": "object",
+        "properties": {
+          "endOffset": {
+            "type": "string",
+            "format": "google-duration",
+            "description": "Optional. The end offset of the video."
+          },
+          "startOffset": {
+            "type": "string",
+            "format": "google-duration",
+            "description": "Optional. The start offset of the video."
+          },
+          "fps": {
+            "type": "number",
+            "format": "double",
+            "description": "Optional. The frame rate of the video sent to the model. If not specified, the default value will be 1.0. The fps range is (0.0, 24.0]."
+          }
+        },
+        "description": "Deprecated: Use `GenerateContentRequest.processing_options` instead. Metadata describes the input video content."
+      },
+      "Blob": {
+        "type": "object",
+        "properties": {
+          "mimeType": {
+            "type": "string",
+            "description": "The IANA standard MIME type of the source data. Examples of supported types: - Images: image/png, image/jpeg, image/jpg, image/webp, image/heic, image/heif, image/gif, image/avif - Audio: audio/*, video/audio/s16le, video/audio/wav - Video: video/* - Text: text/plain, text/html, text/css, text/javascript, text/x-typescript, text/csv, text/markdown, text/x-python, text/xml, text/rtf, video/text/timestamp - Applications: application/x-javascript, application/x-typescript, application/x-python-code, application/json, application/x-ipynb+json, application/rtf, application/pdf For additional context, see [Supported file formats](https://ai.google.dev/gemini-api/docs/file-input-methods#supported-content-types). //"
+          },
+          "data": {
+            "type": "string",
+            "format": "byte",
+            "description": "Raw bytes for media formats."
+          }
+        },
+        "description": "Raw media bytes. Text should not be sent as raw bytes, use the 'text' field."
+      },
+      "UrlMetadata": {
+        "type": "object",
+        "properties": {
+          "retrievedUrl": {
+            "type": "string",
+            "description": "Retrieved url by the tool."
+          },
+          "urlRetrievalStatus": {
+            "type": "string",
+            "enum": [
+              "URL_RETRIEVAL_STATUS_UNSPECIFIED",
+              "URL_RETRIEVAL_STATUS_SUCCESS",
+              "URL_RETRIEVAL_STATUS_ERROR",
+              "URL_RETRIEVAL_STATUS_PAYWALL",
+              "URL_RETRIEVAL_STATUS_UNSAFE"
+            ],
+            "description": "Status of the url retrieval."
+          }
+        },
+        "description": "Context of the a single url retrieval."
+      },
+      "InlinedEmbedContentResponses": {
+        "type": "object",
+        "properties": {
+          "inlinedResponses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InlinedEmbedContentResponse"
+            },
+            "description": "Output only. The responses to the requests in the batch."
+          }
+        },
+        "description": "The responses to the requests in the batch."
+      },
+      "UsageMetadata": {
+        "type": "object",
+        "properties": {
+          "toolUsePromptTokensDetails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModalityTokenCount"
+            },
+            "description": "Output only. List of modalities that were processed for tool-use request inputs."
+          },
+          "toolUsePromptTokenCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Output only. Number of tokens present in tool-use prompt(s)."
+          },
+          "promptTokensDetails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModalityTokenCount"
+            },
+            "description": "Output only. List of modalities that were processed in the request input."
+          },
+          "cacheTokensDetails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModalityTokenCount"
+            },
+            "description": "Output only. List of modalities of the cached content in the request input."
+          },
+          "candidatesTokenCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Total number of tokens across all the generated response candidates."
+          },
+          "thoughtsTokenCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Output only. Number of tokens of thoughts for thinking models."
+          },
+          "totalTokenCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Total token count for the generation request (prompt + thoughts + response candidates)."
+          },
+          "candidatesTokensDetails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModalityTokenCount"
+            },
+            "description": "Output only. List of modalities that were returned in the response."
+          },
+          "promptTokenCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of tokens in the prompt. When `cached_content` is set, this is still the total effective prompt size meaning this includes the number of tokens in the cached content."
+          },
+          "serviceTier": {
+            "type": "string",
+            "enum": [
+              "unspecified",
+              "standard",
+              "flex",
+              "priority"
+            ],
+            "description": "Output only. Service tier of the request."
+          }
+        },
+        "description": "Metadata on the generation request's token usage."
+      },
+      "SafetyRating": {
+        "type": "object",
+        "properties": {
+          "probability": {
+            "type": "string",
+            "enum": [
+              "HARM_PROBABILITY_UNSPECIFIED",
+              "NEGLIGIBLE",
+              "LOW",
+              "MEDIUM",
+              "HIGH"
+            ],
+            "description": "Required. The probability of harm for this content."
+          },
+          "blocked": {
+            "type": "boolean",
+            "description": "Was this content blocked because of this rating?"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "HARM_CATEGORY_UNSPECIFIED",
+              "HARM_CATEGORY_DEROGATORY",
+              "HARM_CATEGORY_TOXICITY",
+              "HARM_CATEGORY_VIOLENCE",
+              "HARM_CATEGORY_SEXUAL",
+              "HARM_CATEGORY_MEDICAL",
+              "HARM_CATEGORY_DANGEROUS",
+              "HARM_CATEGORY_HARASSMENT",
+              "HARM_CATEGORY_HATE_SPEECH",
+              "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+              "HARM_CATEGORY_DANGEROUS_CONTENT",
+              "HARM_CATEGORY_CIVIC_INTEGRITY"
+            ],
+            "description": "Required. The category for this rating."
+          }
+        },
+        "description": "Safety rating for a piece of content. The safety rating contains the category of harm and the harm probability level in that category for a piece of content. Content is classified for safety across a number of harm categories and the probability of the harm classification is included here."
+      },
+      "GenerateContentBatch": {
+        "type": "object",
+        "properties": {
+          "output": {
+            "$ref": "#/components/schemas/GenerateContentBatchOutput"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "google-datetime",
+            "description": "Output only. The time at which the batch was created."
+          },
+          "displayName": {
+            "type": "string",
+            "description": "Required. The user-defined name of this batch."
+          },
+          "priority": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Optional. The priority of the batch. Batches with a higher priority value will be processed before batches with a lower priority value. Negative values are allowed. Default is 0."
+          },
+          "updateTime": {
+            "type": "string",
+            "format": "google-datetime",
+            "description": "Output only. The time at which the batch was last updated."
+          },
+          "endTime": {
+            "type": "string",
+            "format": "google-datetime",
+            "description": "Output only. The time at which the batch processing completed."
+          },
+          "batchStats": {
+            "$ref": "#/components/schemas/BatchStats"
+          },
+          "model": {
+            "type": "string",
+            "description": "Required. The name of the `Model` to use for generating the completion. Format: `models/{model}`."
+          },
+          "name": {
+            "type": "string",
+            "description": "Output only. Identifier. Resource name of the batch. Format: `batches/{batch_id}`."
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "BATCH_STATE_UNSPECIFIED",
+              "BATCH_STATE_PENDING",
+              "BATCH_STATE_RUNNING",
+              "BATCH_STATE_SUCCEEDED",
+              "BATCH_STATE_FAILED",
+              "BATCH_STATE_CANCELLED",
+              "BATCH_STATE_EXPIRED"
+            ],
+            "description": "Output only. The state of the batch."
+          },
+          "inputConfig": {
+            "$ref": "#/components/schemas/InputConfig"
+          }
+        },
+        "description": "A resource representing a batch of `GenerateContent` requests."
+      },
+      "GenerationConfig": {
+        "type": "object",
+        "properties": {
+          "maxOutputTokens": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Optional. The maximum number of tokens to include in a response candidate. Note: The default value varies by model, see the `Model.output_token_limit` attribute of the `Model` returned from the `getModel` function."
+          },
+          "presencePenalty": {
+            "type": "number",
+            "format": "float",
+            "description": "Optional. Presence penalty applied to the next token's logprobs if the token has already been seen in the response. This penalty is binary on/off and not dependant on the number of times the token is used (after the first). Use frequency_penalty for a penalty that increases with each use. A positive penalty will discourage the use of tokens that have already been used in the response, increasing the vocabulary. A negative penalty will encourage the use of tokens that have already been used in the response, decreasing the vocabulary."
+          },
+          "topP": {
+            "type": "number",
+            "format": "float",
+            "description": "Optional. The maximum cumulative probability of tokens to consider when sampling. The model uses combined Top-k and Top-p (nucleus) sampling. Tokens are sorted based on their assigned probabilities so that only the most likely tokens are considered. Top-k sampling directly limits the maximum number of tokens to consider, while Nucleus sampling limits the number of tokens based on the cumulative probability. Note: The default value varies by `Model` and is specified by the`Model.top_p` attribute returned from the `getModel` function. An empty `top_k` attribute indicates that the model doesn't apply top-k sampling and doesn't allow setting `top_k` on requests."
+          },
+          "topK": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Optional. The maximum number of tokens to consider when sampling. Gemini models use Top-p (nucleus) sampling or a combination of Top-k and nucleus sampling. Top-k sampling considers the set of `top_k` most probable tokens. Models running with nucleus sampling don't allow top_k setting. Note: The default value varies by `Model` and is specified by the`Model.top_p` attribute returned from the `getModel` function. An empty `top_k` attribute indicates that the model doesn't apply top-k sampling and doesn't allow setting `top_k` on requests."
+          },
+          "responseLogprobs": {
+            "type": "boolean",
+            "description": "Optional. If true, export the logprobs results in response."
+          },
+          "frequencyPenalty": {
+            "type": "number",
+            "format": "float",
+            "description": "Optional. Frequency penalty applied to the next token's logprobs, multiplied by the number of times each token has been seen in the respponse so far. A positive penalty will discourage the use of tokens that have already been used, proportional to the number of times the token has been used: The more a token is used, the more difficult it is for the model to use that token again increasing the vocabulary of responses. Caution: A _negative_ penalty will encourage the model to reuse tokens proportional to the number of times the token has been used. Small negative values will reduce the vocabulary of a response. Larger negative values will cause the model to start repeating a common token until it hits the max_output_tokens limit."
+          },
+          "temperature": {
+            "type": "number",
+            "format": "float",
+            "description": "Optional. Controls the randomness of the output. Note: The default value varies by model, see the `Model.temperature` attribute of the `Model` returned from the `getModel` function. Values can range from [0.0, 2.0]."
+          },
+          "responseJsonSchema": {
+            "type": "object",
+            "description": "Optional. An internal detail. Use `responseJsonSchema` rather than this field."
+          },
+          "stopSequences": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Optional. The set of character sequences (up to 5) that will stop output generation. If specified, the API will stop at the first appearance of a `stop_sequence`. The stop sequence will not be included as part of the response."
+          },
+          "logprobs": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Optional. Only valid if response_logprobs=True. This sets the number of top logprobs, including the chosen candidate, to return at each decoding step in the Candidate.logprobs_result. The number must be in the range of [0, 20]."
+          },
+          "candidateCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Optional. Number of generated responses to return. If unset, this will default to 1. Please note that this doesn't work for previous generation models (Gemini 1.0 family)"
+          },
+          "enableEnhancedCivicAnswers": {
+            "type": "boolean",
+            "description": "Optional. Enables enhanced civic answers. It may not be available for all models."
+          },
+          "seed": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Optional. Seed used in decoding. If not set, the request uses a randomly generated seed."
+          }
+        },
+        "description": "Configuration options for model generation and outputs. Not all parameters are configurable for every model."
+      },
+      "ListModelsResponse": {
+        "type": "object",
+        "properties": {
+          "models": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Model"
+            },
+            "description": "The returned Models."
+          },
+          "nextPageToken": {
+            "type": "string",
+            "description": "A token, which can be sent as `page_token` to retrieve the next page. If this field is omitted, there are no more pages."
+          }
+        },
+        "description": "Response from `ListModel` containing a paginated list of Models."
+      },
+      "CreateTunedModelMetadata": {
+        "type": "object",
+        "properties": {
+          "tunedModel": {
+            "type": "string",
+            "description": "Name of the tuned model associated with the tuning operation."
+          },
+          "snapshots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TuningSnapshot"
+            },
+            "description": "Metrics collected during tuning."
+          },
+          "completedSteps": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The number of steps completed."
+          },
+          "completedPercent": {
+            "type": "number",
+            "format": "float",
+            "description": "The completed percentage for the tuning operation."
+          },
+          "totalSteps": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The total number of tuning steps."
+          }
+        },
+        "description": "Metadata about the state and progress of creating a tuned model returned from the long-running operation"
+      },
+      "EmbedContentBatch": {
+        "type": "object",
+        "properties": {
+          "priority": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Optional. The priority of the batch. Batches with a higher priority value will be processed before batches with a lower priority value. Negative values are allowed. Default is 0."
+          },
+          "updateTime": {
+            "type": "string",
+            "format": "google-datetime",
+            "description": "Output only. The time at which the batch was last updated."
+          },
+          "output": {
+            "$ref": "#/components/schemas/EmbedContentBatchOutput"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "Required. The user-defined name of this batch."
+          },
+          "createTime": {
+            "type": "string",
+            "format": "google-datetime",
+            "description": "Output only. The time at which the batch was created."
+          },
+          "inputConfig": {
+            "$ref": "#/components/schemas/InputEmbedContentConfig"
+          },
+          "model": {
+            "type": "string",
+            "description": "Required. The name of the `Model` to use for generating the completion. Format: `models/{model}`."
+          },
+          "endTime": {
+            "type": "string",
+            "format": "google-datetime",
+            "description": "Output only. The time at which the batch processing completed."
+          },
+          "batchStats": {
+            "$ref": "#/components/schemas/EmbedContentBatchStats"
+          },
+          "name": {
+            "type": "string",
+            "description": "Output only. Identifier. Resource name of the batch. Format: `batches/{batch_id}`."
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "BATCH_STATE_UNSPECIFIED",
+              "BATCH_STATE_PENDING",
+              "BATCH_STATE_RUNNING",
+              "BATCH_STATE_SUCCEEDED",
+              "BATCH_STATE_FAILED",
+              "BATCH_STATE_CANCELLED",
+              "BATCH_STATE_EXPIRED"
+            ],
+            "description": "Output only. The state of the batch."
+          }
+        },
+        "description": "A resource representing a batch of `EmbedContent` requests."
+      },
+      "Empty": {
+        "type": "object",
+        "description": "A generic empty message that you can re-use to avoid defining duplicated empty messages in your APIs. A typical example is to use it as the request or the response type of an API method. For instance: service Foo { rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty); }"
+      },
+      "CountTokensRequest": {
+        "type": "object",
+        "properties": {
+          "generateContentRequest": {
+            "$ref": "#/components/schemas/GenerateContentRequest"
+          },
+          "contents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Content"
+            },
+            "description": "Optional. The input given to the model as a prompt. This field is ignored when `generate_content_request` is set."
+          }
+        },
+        "description": "Counts the number of tokens in the `prompt` sent to a model. Models may tokenize text differently, so each model may return a different `token_count`."
+      },
+      "ModelStatus": {
+        "type": "object",
+        "properties": {
+          "modelStage": {
+            "type": "string",
+            "enum": [
+              "MODEL_STAGE_UNSPECIFIED",
+              "UNSTABLE_EXPERIMENTAL",
+              "EXPERIMENTAL",
+              "PREVIEW",
+              "STABLE",
+              "LEGACY",
+              "DEPRECATED",
+              "RETIRED"
+            ],
+            "description": "The stage of the underlying model."
+          },
+          "retirementTime": {
+            "type": "string",
+            "format": "google-datetime",
+            "description": "The time at which the model will be retired."
+          },
+          "message": {
+            "type": "string",
+            "description": "A message explaining the model status."
+          }
+        },
+        "description": "The status of the underlying model. This is used to indicate the stage of the underlying model and the retirement time if applicable."
+      },
+      "BatchEmbedContentsRequest": {
+        "type": "object",
+        "properties": {
+          "requests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmbedContentRequest"
+            },
+            "description": "Required. Embed requests for the batch. The model in each of these requests must match the model specified `BatchEmbedContentsRequest.model`."
+          }
+        },
+        "description": "Batch request to get embeddings from the model for a list of prompts."
+      },
+      "EmbedContentBatchOutput": {
+        "type": "object",
+        "properties": {
+          "inlinedResponses": {
+            "$ref": "#/components/schemas/InlinedEmbedContentResponses"
+          },
+          "responsesFile": {
+            "type": "string",
+            "description": "Output only. The file ID of the file containing the responses. The file will be a JSONL file with a single response per line. The responses will be `EmbedContentResponse` messages formatted as JSON. The responses will be written in the same order as the input requests."
+          }
+        },
+        "description": "The output of a batch request. This is returned in the `AsyncBatchEmbedContentResponse` or the `EmbedContentBatch.output` field."
+      },
+      "InlinedEmbedContentRequests": {
+        "type": "object",
+        "properties": {
+          "requests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InlinedEmbedContentRequest"
+            },
+            "description": "Required. The requests to be processed in the batch."
+          }
+        },
+        "description": "The requests to be processed in the batch if provided as part of the batch creation request."
+      },
+      "EmbedContentBatchStats": {
+        "type": "object",
+        "properties": {
+          "successfulRequestCount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Output only. The number of requests that were successfully processed."
+          },
+          "failedRequestCount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Output only. The number of requests that failed to be processed."
+          },
+          "pendingRequestCount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Output only. The number of requests that are still pending processing."
+          },
+          "requestCount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Output only. The number of requests in the batch."
+          }
+        },
+        "description": "Stats about the batch."
+      },
+      "TopCandidates": {
+        "type": "object",
+        "properties": {
+          "candidates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LogprobsResultCandidate"
+            },
+            "description": "Sorted by log probability in descending order."
+          }
+        },
+        "description": "Candidates with top log probabilities at each decoding step."
+      },
+      "InputEmbedContentConfig": {
+        "type": "object",
+        "properties": {
+          "fileName": {
+            "type": "string",
+            "description": "The name of the `File` containing the input requests."
+          },
+          "requests": {
+            "$ref": "#/components/schemas/InlinedEmbedContentRequests"
+          }
+        },
+        "description": "Configures the input to the batch request."
+      },
+      "Model": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Required. The resource name of the `Model`. Refer to [Model variants](https://ai.google.dev/gemini-api/docs/models/gemini#model-variations) for all allowed values. Format: `models/{model}` with a `{model}` naming convention of: * \"{base_model_id}-{version}\" Examples: * `models/gemini-1.5-flash-001`"
+          },
+          "description": {
+            "type": "string",
+            "description": "A short description of the model."
+          },
+          "thinking": {
+            "type": "boolean",
+            "description": "Whether the model supports thinking."
+          },
+          "inputTokenLimit": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Maximum number of input tokens allowed for this model."
+          },
+          "version": {
+            "type": "string",
+            "description": "Required. The version number of the model. This represents the major version (`1.0` or `1.5`)"
+          },
+          "baseModelId": {
+            "type": "string",
+            "description": "Required. The name of the base model, pass this to the generation request. Examples: * `gemini-1.5-flash`"
+          },
+          "outputTokenLimit": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Maximum number of output tokens available for this model."
+          },
+          "maxTemperature": {
+            "type": "number",
+            "format": "float",
+            "description": "The maximum temperature this model can use."
+          },
+          "topP": {
+            "type": "number",
+            "format": "float",
+            "description": "For [Nucleus sampling](https://ai.google.dev/gemini-api/docs/prompting-strategies#top-p). Nucleus sampling considers the smallest set of tokens whose probability sum is at least `top_p`. This value specifies default to be used by the backend while making the call to the model."
+          },
+          "topK": {
+            "type": "integer",
+            "format": "int32",
+            "description": "For Top-k sampling. Top-k sampling considers the set of `top_k` most probable tokens. This value specifies default to be used by the backend while making the call to the model. If empty, indicates the model doesn't use top-k sampling, and `top_k` isn't allowed as a generation parameter."
+          },
+          "temperature": {
+            "type": "number",
+            "format": "float",
+            "description": "Controls the randomness of the output. Values can range over `[0.0,max_temperature]`, inclusive. A higher value will produce responses that are more varied, while a value closer to `0.0` will typically result in less surprising responses from the model. This value specifies default to be used by the backend while making the call to the model."
+          },
+          "supportedGenerationMethods": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The model's supported generation methods. The corresponding API method names are defined as Pascal case strings, such as `generateMessage` and `generateContent`."
+          },
+          "displayName": {
+            "type": "string",
+            "description": "The human-readable name of the model. E.g. \"Gemini 1.5 Flash\". The name can be up to 128 characters long and can consist of any UTF-8 characters."
+          }
+        },
+        "description": "Information about a Generative Language Model."
+      },
+      "CitationSource": {
+        "type": "object",
+        "properties": {
+          "license": {
+            "type": "string",
+            "description": "Optional. License for the GitHub project that is attributed as a source for segment. License info is required for code citations."
+          },
+          "startIndex": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Optional. Start of segment of the response that is attributed to this source. Index indicates the start of the segment, measured in bytes."
+          },
+          "endIndex": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Optional. End of the attributed segment, exclusive."
+          },
+          "uri": {
+            "type": "string",
+            "description": "Optional. URI that is attributed as a source for a portion of the text."
+          }
+        },
+        "description": "A citation to a source for a portion of a specific response."
+      },
+      "InlinedEmbedContentResponse": {
+        "type": "object",
+        "properties": {
+          "response": {
+            "$ref": "#/components/schemas/EmbedContentResponse"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "description": "Properties of the object."
+            },
+            "description": "Output only. The metadata associated with the request."
+          },
+          "error": {
+            "$ref": "#/components/schemas/Status"
+          }
+        },
+        "description": "The response to a single request in the batch."
+      },
+      "InputConfig": {
+        "type": "object",
+        "properties": {
+          "requests": {
+            "$ref": "#/components/schemas/InlinedRequests"
+          },
+          "fileName": {
+            "type": "string",
+            "description": "The name of the `File` containing the input requests."
+          }
+        },
+        "description": "Configures the input to the batch request."
+      },
+      "LogprobsResult": {
+        "type": "object",
+        "properties": {
+          "logProbabilitySum": {
+            "type": "number",
+            "format": "float",
+            "description": "Sum of log probabilities for all tokens."
+          },
+          "topCandidates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopCandidates"
+            },
+            "description": "Length = total number of decoding steps."
+          },
+          "chosenCandidates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LogprobsResultCandidate"
+            },
+            "description": "Length = total number of decoding steps. The chosen candidates may or may not be in top_candidates."
+          }
+        },
+        "description": "Logprobs Result"
+      },
+      "AsyncBatchEmbedContentRequest": {
+        "type": "object",
+        "properties": {
+          "batch": {
+            "$ref": "#/components/schemas/EmbedContentBatch"
+          }
+        },
+        "description": "Request for an `AsyncBatchEmbedContent` operation."
+      },
+      "CountTokensResponse": {
+        "type": "object",
+        "properties": {
+          "promptTokensDetails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModalityTokenCount"
+            },
+            "description": "Output only. List of modalities that were processed in the request input."
+          },
+          "totalTokens": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The number of tokens that the `Model` tokenizes the `prompt` into. Always non-negative."
+          },
+          "cacheTokensDetails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModalityTokenCount"
+            },
+            "description": "Output only. List of modalities that were processed in the cached content."
+          }
+        },
+        "description": "A response from `CountTokens`. It returns the model's `token_count` for the `prompt`."
+      },
+      "InlinedResponses": {
+        "type": "object",
+        "properties": {
+          "inlinedResponses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InlinedResponse"
+            },
+            "description": "Output only. The responses to the requests in the batch."
+          }
+        },
+        "description": "The responses to the requests in the batch."
+      },
+      "GenerateContentBatchOutput": {
+        "type": "object",
+        "properties": {
+          "inlinedResponses": {
+            "$ref": "#/components/schemas/InlinedResponses"
+          },
+          "responsesFile": {
+            "type": "string",
+            "description": "Output only. The file ID of the file containing the responses. The file will be a JSONL file with a single response per line. The responses will be `GenerateContentResponse` messages formatted as JSON. The responses will be written in the same order as the input requests."
+          }
+        },
+        "description": "The output of a batch request. This is returned in the `BatchGenerateContentResponse` or the `GenerateContentBatch.output` field."
+      },
+      "EmbedContentConfig": {
+        "type": "object",
+        "properties": {
+          "audioTrackExtraction": {
+            "type": "boolean",
+            "description": "Optional. Whether to extract audio from video content."
+          },
+          "taskType": {
+            "type": "string",
+            "enum": [
+              "TASK_TYPE_UNSPECIFIED",
+              "RETRIEVAL_QUERY",
+              "RETRIEVAL_DOCUMENT",
+              "SEMANTIC_SIMILARITY",
+              "CLASSIFICATION",
+              "CLUSTERING",
+              "QUESTION_ANSWERING",
+              "FACT_VERIFICATION",
+              "CODE_RETRIEVAL_QUERY"
+            ],
+            "description": "Optional. The task type of the embedding."
+          },
+          "autoTruncate": {
+            "type": "boolean",
+            "description": "Optional. Whether to silently truncate the input content if it's longer than the maximum sequence length."
+          },
+          "title": {
+            "type": "string",
+            "description": "Optional. The title for the text."
+          },
+          "outputDimensionality": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Optional. Reduced dimension for the output embedding. If set, excessive values in the output embedding are truncated from the end."
+          },
+          "documentOcr": {
+            "type": "boolean",
+            "description": "Optional. Whether to enable OCR for document content."
+          }
+        },
+        "description": "Configurations for the EmbedContent request."
+      },
+      "GenerateContentRequest": {
+        "type": "object",
+        "properties": {
+          "serviceTier": {
+            "type": "string",
+            "enum": [
+              "unspecified",
+              "standard",
+              "flex",
+              "priority"
+            ],
+            "description": "Optional. The service tier of the request."
+          },
+          "contents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Content"
+            },
+            "description": "Required. The content of the current conversation with the model. For single-turn queries, this is a single instance. For multi-turn queries like [chat](https://ai.google.dev/gemini-api/docs/text-generation#chat), this is a repeated field that contains the conversation history and the latest request."
+          },
+          "model": {
+            "type": "string",
+            "description": "Required. The name of the `Model` to use for generating the completion. Format: `models/{model}`."
+          },
+          "safetySettings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SafetySetting"
+            },
+            "description": "Optional. A list of unique `SafetySetting` instances for blocking unsafe content. This will be enforced on the `GenerateContentRequest.contents` and `GenerateContentResponse.candidates`. There should not be more than one setting for each `SafetyCategory` type. The API will block any contents and responses that fail to meet the thresholds set by these settings. This list overrides the default settings for each `SafetyCategory` specified in the safety_settings. If there is no `SafetySetting` for a given `SafetyCategory` provided in the list, the API will use the default safety setting for that category. Harm categories HARM_CATEGORY_HATE_SPEECH, HARM_CATEGORY_SEXUALLY_EXPLICIT, HARM_CATEGORY_DANGEROUS_CONTENT, HARM_CATEGORY_HARASSMENT, HARM_CATEGORY_CIVIC_INTEGRITY are supported. Refer to the [guide](https://ai.google.dev/gemini-api/docs/safety-settings) for detailed information on available safety settings. Also refer to the [Safety guidance](https://ai.google.dev/gemini-api/docs/safety-guidance) to learn how to incorporate safety considerations in your AI applications."
+          },
+          "generationConfig": {
+            "$ref": "#/components/schemas/GenerationConfig"
+          },
+          "store": {
+            "type": "boolean",
+            "description": "Optional. Configures the logging behavior for a given request. If set, it takes precedence over the project-level logging config."
+          }
+        },
+        "description": "Request to generate a completion from the model."
+      },
+      "GenerateContentResponse": {
+        "type": "object",
+        "properties": {
+          "usageMetadata": {
+            "$ref": "#/components/schemas/UsageMetadata"
+          },
+          "modelVersion": {
+            "type": "string",
+            "description": "Output only. The model version used to generate the response."
+          },
+          "responseId": {
+            "type": "string",
+            "description": "Output only. response_id is used to identify each response."
+          },
+          "modelStatus": {
+            "$ref": "#/components/schemas/ModelStatus"
+          },
+          "promptFeedback": {
+            "$ref": "#/components/schemas/PromptFeedback"
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Candidate"
+            },
+            "description": "Candidate responses from the model."
+          }
+        },
+        "description": "Response from the model supporting multiple candidate responses. Safety ratings and content filtering are reported for both prompt in `GenerateContentResponse.prompt_feedback` and for each candidate in `finish_reason` and in `safety_ratings`. The API: - Returns either all requested candidates or none of them - Returns no candidates at all only if there was something wrong with the prompt (check `prompt_feedback`) - Reports feedback on each candidate in `finish_reason` and `safety_ratings`."
+      },
+      "Status": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the google.rpc.Status.details field, or localized by the client."
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "description": "Properties of the object. Contains field @type with type URL."
+              }
+            },
+            "description": "A list of messages that carry the error details. There is a common set of message types for APIs to use."
+          },
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The status code, which should be an enum value of google.rpc.Code."
+          }
+        },
+        "description": "The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors)."
+      },
+      "GroundingChunk": {
+        "type": "object",
+        "properties": {
+          "web": {
+            "$ref": "#/components/schemas/Web"
+          }
+        },
+        "description": "A `GroundingChunk` represents a segment of supporting evidence that grounds the model's response. It can be a chunk from the web, a retrieved context from a file, or information from Google Maps."
+      },
+      "Web": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Output only. Title of the chunk."
+          },
+          "uri": {
+            "type": "string",
+            "description": "Output only. URI reference of the chunk."
+          }
+        },
+        "description": "Chunk from the web."
+      },
+      "Part": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "Inline text."
+          },
+          "inlineData": {
+            "$ref": "#/components/schemas/Blob"
+          },
+          "videoMetadata": {
+            "$ref": "#/components/schemas/VideoMetadata"
+          }
+        },
+        "description": "A datatype containing media that is part of a multi-part `Content` message. A `Part` consists of data which has an associated datatype. A `Part` can only contain one of the accepted types in `Part.data`. A `Part` must have a fixed IANA MIME type identifying the type and subtype of the media if the `inline_data` field is filled with raw bytes."
+      },
+      "TuningSnapshot": {
+        "type": "object",
+        "properties": {
+          "computeTime": {
+            "type": "string",
+            "format": "google-datetime",
+            "description": "Output only. The timestamp when this metric was computed."
+          },
+          "epoch": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Output only. The epoch this step was part of."
+          },
+          "meanLoss": {
+            "type": "number",
+            "format": "float",
+            "description": "Output only. The mean loss of the training examples for this step."
+          },
+          "step": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Output only. The tuning step."
+          }
+        },
+        "description": "Record for a single tuning step."
+      }
+    },
+    "securitySchemes": {},
+    "parameters": {
+      "fields": {
+        "name": "fields",
+        "in": "query",
+        "description": "Selector specifying which fields to include in a partial response.",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "upload_protocol": {
+        "name": "upload_protocol",
+        "in": "query",
+        "description": "Upload protocol for media (e.g. \"raw\", \"multipart\").",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "alt": {
+        "name": "alt",
+        "in": "query",
+        "description": "Data format for response.",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "json",
+            "media",
+            "proto"
+          ],
+          "default": "json"
+        }
+      },
+      "quotaUser": {
+        "name": "quotaUser",
+        "in": "query",
+        "description": "Available to use for quota purposes for server-side applications. Can be any arbitrary string assigned to a user, but should not exceed 40 characters.",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "callback": {
+        "name": "callback",
+        "in": "query",
+        "description": "JSONP",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "key": {
+        "name": "key",
+        "in": "query",
+        "description": "API key. Your API key identifies your project and provides you with API access, quota, and reports. Required unless you provide an OAuth 2.0 token.",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "$.xgafv": {
+        "name": "$.xgafv",
+        "in": "query",
+        "description": "V1 error format.",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "1",
+            "2"
+          ]
+        }
+      },
+      "access_token": {
+        "name": "access_token",
+        "in": "query",
+        "description": "OAuth access token.",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "oauth_token": {
+        "name": "oauth_token",
+        "in": "query",
+        "description": "OAuth 2.0 token for the current user.",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "uploadType": {
+        "name": "uploadType",
+        "in": "query",
+        "description": "Legacy upload protocol for media (e.g. \"media\", \"multipart\").",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "prettyPrint": {
+        "name": "prettyPrint",
+        "in": "query",
+        "description": "Returns response with indentations and line breaks.",
+        "required": false,
+        "schema": {
+          "type": "boolean",
+          "default": "true"
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "tunedModels_operations",
+      "description": "Tunedmodels Operations"
+    },
+    {
+      "name": "tunedModels",
+      "description": "Tunedmodels"
+    },
+    {
+      "name": "operations",
+      "description": "Operations"
+    },
+    {
+      "name": "batches",
+      "description": "Batches"
+    },
+    {
+      "name": "corpora_operations",
+      "description": "Corpora Operations"
+    },
+    {
+      "name": "corpora",
+      "description": "Corpora"
+    },
+    {
+      "name": "generatedFiles_operations",
+      "description": "Generatedfiles Operations"
+    },
+    {
+      "name": "generatedFiles",
+      "description": "Generatedfiles"
+    },
+    {
+      "name": "fileSearchStores_operations",
+      "description": "Filesearchstores Operations"
+    },
+    {
+      "name": "fileSearchStores_upload_operations",
+      "description": "Filesearchstores Upload Operations"
+    },
+    {
+      "name": "fileSearchStores_upload",
+      "description": "Filesearchstores Upload"
+    },
+    {
+      "name": "fileSearchStores",
+      "description": "Filesearchstores"
+    },
+    {
+      "name": "models_operations",
+      "description": "Models Operations"
+    },
+    {
+      "name": "models",
+      "description": "Models"
+    },
+    {
+      "name": "dynamic",
+      "description": "Dynamic"
+    }
+  ],
+  "security": []
+}
