@@ -13,7 +13,7 @@ import (
 
 func main() {
 	s := server.NewMCPServer(
-		"linear-pp-mcp",
+		"Linear",
 		"1.0.0",
 		server.WithToolCapabilities(false),
 	)

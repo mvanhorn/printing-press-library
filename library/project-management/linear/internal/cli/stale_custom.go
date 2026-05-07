@@ -19,10 +19,10 @@ func newStaleCmd(flags *rootFlags) *cobra.Command {
 	var days int
 	var teamFilter string
 	cmd := &cobra.Command{
-		Use:   "stale",
+		Use:         "stale",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Find issues not updated in N days",
-		Long:  "Scan locally synced issues for staleness. Groups by team and project. Requires a prior sync.",
+		Short:       "Find issues not updated in N days",
+		Long:        "Scan locally synced issues for staleness. Groups by team and project. Requires a prior sync.",
 		Example: `  linear-pp-cli stale --days 30
   linear-pp-cli stale --days 14 --team ENG
   linear-pp-cli stale --json`,

@@ -122,7 +122,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			report["version"] = version
 
 			if flags.asJSON {
-				return flags.printJSON(cmd, report)
+				return printJSONFiltered(cmd.OutOrStdout(), report, flags)
 			}
 
 			// Human-readable output with color

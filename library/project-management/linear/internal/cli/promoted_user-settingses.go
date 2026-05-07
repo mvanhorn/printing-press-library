@@ -14,10 +14,11 @@ import (
 func newUserSettingsesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "user-settingses",
-		Short:   "Get a single usersettings",
-		Long:    "Shortcut for 'user-settingses get'. Get a single usersettings",
-		Example: "  linear-pp-cli user-settingses",
+		Use:         "user-settingses",
+		Short:       "Get a single usersettings",
+		Long:        "Shortcut for 'user-settingses get'. Get a single usersettings",
+		Example:     "  linear-pp-cli user-settingses",
+		Annotations: map[string]string{"pp:endpoint": "user-settingses.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

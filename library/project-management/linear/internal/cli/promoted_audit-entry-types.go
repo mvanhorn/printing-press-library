@@ -20,6 +20,7 @@ func newAuditEntryTypesPromotedCmd(flags *rootFlags) *cobra.Command {
 		Example: `  linear-pp-cli audit-entry-types
   linear-pp-cli audit-entry-types --json
   linear-pp-cli audit-entry-types --json --select id,name`,
+		Annotations: map[string]string{"pp:endpoint": "audit-entry-types.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

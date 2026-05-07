@@ -1,6 +1,6 @@
 {
-  "dir": ".",
-  "verdict": "FAIL",
+  "dir": "/Users/tmchow/printing-press/library/linear",
+  "verdict": "WARN",
   "path_check": {
     "tested": 0,
     "valid": 0,
@@ -12,40 +12,36 @@
     "match": true,
     "detail": "spec not provided; auth protocol check skipped"
   },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "spec not provided; browser-session auth check skipped"
+  },
   "dead_flags": {
-    "total": 15,
+    "total": 19,
     "dead": 0
   },
   "dead_functions": {
-    "total": 47,
+    "total": 50,
     "dead": 0
   },
   "pipeline_check": {
     "sync_calls_domain": true,
     "search_calls_domain": false,
-    "domain_tables": 1,
-    "detail": "sync uses domain-specific Upsert methods; search methods not found; 1 domain tables found"
+    "domain_tables": 2,
+    "detail": "sync uses domain-specific Upsert methods; search methods not found; 2 domain tables found"
   },
   "example_check": {
-    "tested": 10,
-    "with_examples": 2,
-    "valid_examples": 2,
-    "missing": [
-      "promoted audit-entry-types",
-      "promoted customers",
-      "promoted initiative-to-projects",
-      "promoted issue-priority-values",
-      "promoted organizations",
-      "promoted release-pipelines",
-      "promoted teams",
-      "sqlcmd"
-    ],
-    "detail": "2/10 commands have examples"
+    "tested": 0,
+    "with_examples": 0,
+    "valid_examples": 0,
+    "skipped": true,
+    "detail": "could not discover command tree from agent-context: agent-context failed: unknown command \"agent-context\" for \"linear-pp-cli\""
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 69,
-      "registered": 69
+      "defined": 87,
+      "registered": 87
     },
     "config_consistency": {
       "consistent": true
@@ -58,11 +54,32 @@
     }
   },
   "novel_features_check": {
-    "planned": 0,
-    "found": 0,
+    "planned": 12,
+    "found": 12
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 12,
+    "exempted_via_store": 10
+  },
+  "source_client_check": {
+    "checked": 0,
     "skipped": true
   },
+  "print_json_filtered_check": {
+    "checked": 76
+  },
+  "test_presence": {
+    "checked": 0
+  },
+  "naming_check": {
+    "checked": 76
+  },
   "issues": [
-    "20% example coverage"
+    "example check skipped: could not discover command tree from agent-context: agent-context failed: unknown command \"agent-context\" for \"linear-pp-cli\""
   ]
 }

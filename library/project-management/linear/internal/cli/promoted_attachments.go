@@ -14,10 +14,11 @@ import (
 func newAttachmentsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "attachments <id>",
-		Short:   "Get a single attachment",
-		Long:    "Shortcut for 'attachments get'. Get a single attachment",
-		Example: "  linear-pp-cli attachments",
+		Use:         "attachments <id>",
+		Short:       "Get a single attachment",
+		Long:        "Shortcut for 'attachments get'. Get a single attachment",
+		Example:     "  linear-pp-cli attachments",
+		Annotations: map[string]string{"pp:endpoint": "attachments.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

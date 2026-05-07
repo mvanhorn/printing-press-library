@@ -83,6 +83,7 @@ func newCyclesPromotedCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	// Wire sibling endpoints and sub-resources as subcommands
+	cmd.AddCommand(newCyclesCompareCmd(flags))
 
 	return cmd
 }

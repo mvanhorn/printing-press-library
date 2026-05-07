@@ -17,8 +17,9 @@ func newOrphansCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 
 	cmd := &cobra.Command{
-		Use:   "orphans",
-		Short: "Find items missing key fields like assignee or project",
+		Use:         "orphans",
+		Short:       "Find items missing key fields like assignee or project",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Long: `Scan locally synced data for items that are missing important fields
 such as assignee, project, priority, or labels. Useful for triaging unowned work.`,
 		Example: `  # Find orphaned items

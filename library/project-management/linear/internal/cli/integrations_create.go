@@ -16,9 +16,10 @@ func newIntegrationsCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "create",
-		Short:   "Create a integration",
-		Example: "  linear-pp-cli integrations create",
+		Use:         "create",
+		Short:       "Create a integration",
+		Example:     "  linear-pp-cli integrations create",
+		Annotations: map[string]string{"pp:endpoint": "integrations.create", "pp:method": "POST", "pp:path": "/graphql"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 			}

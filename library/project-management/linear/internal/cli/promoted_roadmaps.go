@@ -14,10 +14,11 @@ import (
 func newRoadmapsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "roadmaps <id>",
-		Short:   "Get a single roadmap",
-		Long:    "Shortcut for 'roadmaps get'. Get a single roadmap",
-		Example: "  linear-pp-cli roadmaps",
+		Use:         "roadmaps <id>",
+		Short:       "Get a single roadmap",
+		Long:        "Shortcut for 'roadmaps get'. Get a single roadmap",
+		Example:     "  linear-pp-cli roadmaps",
+		Annotations: map[string]string{"pp:endpoint": "roadmaps.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

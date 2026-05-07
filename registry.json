@@ -99,7 +99,7 @@
       "name": "apartments",
       "category": "other",
       "api": "Apartments",
-      "description": "Search Apartments.com listings, sync results to a local SQLite store, and run workflows the website never built — diff saved searches, rank by $/sqft, compare shortlists, and surface price drops or phantom listings.",
+      "description": "Search Apartments.com listings, sync results to a local SQLite store, and run workflows the website never built \u2014 diff saved searches, rank by $/sqft, compare shortlists, and surface price drops or phantom listings.",
       "path": "library/other/apartments",
       "mcp": {
         "binary": "apartments-pp-mcp",
@@ -256,7 +256,7 @@
       "name": "dominos",
       "category": "food-and-dining",
       "api": "Domino's",
-      "description": "Order pizza, browse menus, optimize deals, and track delivery from your terminal — with a local SQLite store that powers reorder, price comparison, and deal stacking no other Domino's tool offers.",
+      "description": "Order pizza, browse menus, optimize deals, and track delivery from your terminal \u2014 with a local SQLite store that powers reorder, price comparison, and deal stacking no other Domino's tool offers.",
       "path": "library/food-and-dining/dominos",
       "mcp": {
         "binary": "dominos-pp-mcp",
@@ -280,7 +280,7 @@
       "name": "dub",
       "category": "marketing",
       "api": "Dub",
-      "description": "Modern link attribution platform — short links, conversion tracking, affiliate/partner programs.",
+      "description": "Modern link attribution platform \u2014 short links, conversion tracking, affiliate/partner programs.",
       "path": "library/marketing/dub",
       "mcp": {
         "binary": "dub-pp-mcp",
@@ -340,7 +340,7 @@
       "name": "fedex",
       "category": "commerce",
       "api": "FedEx",
-      "description": "Ship, rate, and track FedEx packages from the terminal — built for small business shippers.",
+      "description": "Ship, rate, and track FedEx packages from the terminal \u2014 built for small business shippers.",
       "path": "library/commerce/fedex",
       "mcp": {
         "binary": "fedex-pp-mcp",
@@ -405,7 +405,7 @@
       "name": "food52",
       "category": "food-and-dining",
       "api": "Food52",
-      "description": "Search, browse, and read Food52 from your terminal — with offline FTS, pantry matching, recipe scaling, and the editorial signals other tools throw away.",
+      "description": "Search, browse, and read Food52 from your terminal \u2014 with offline FTS, pantry matching, recipe scaling, and the editorial signals other tools throw away.",
       "path": "library/food-and-dining/food52",
       "mcp": {
         "binary": "food52-pp-mcp",
@@ -446,7 +446,7 @@
       "name": "hackernews",
       "category": "media-and-entertainment",
       "api": "Hacker News",
-      "description": "Hacker News from your terminal — with a local SQLite store, snapshot history, and agent-native output no other HN tool has.",
+      "description": "Hacker News from your terminal \u2014 with a local SQLite store, snapshot history, and agent-native output no other HN tool has.",
       "path": "library/media-and-entertainment/hackernews",
       "mcp": {
         "binary": "hackernews-pp-mcp",
@@ -515,20 +515,19 @@
       "name": "linear",
       "category": "project-management",
       "api": "Linear",
-      "description": "Offline-capable, agent-native CLI for the Linear API with SQLite-backed sync, search, and cross-entity queries.",
+      "description": "Offline-capable, agent-native CLI for the Linear API with SQLite-backed sync, FTS5 search, cross-cycle comparison, project burndown, and pp_created fixture lifecycle for safe live testing.",
       "path": "library/project-management/linear",
       "mcp": {
         "binary": "linear-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 63,
+        "transport": "stdio",
+        "tool_count": 28,
         "public_tool_count": 0,
         "auth_type": "api_key",
         "env_vars": [
           "LINEAR_API_KEY"
         ],
-        "mcp_ready": "full"
+        "mcp_ready": "full",
+        "spec_format": "graphql"
       }
     },
     {
@@ -556,7 +555,7 @@
       "name": "movie-goat",
       "category": "media-and-entertainment",
       "api": "Movie Goat",
-      "description": "The movie CLI that combines TMDb's discovery engine with OMDb's multi-source ratings — and ships a SQLite watchlist that flags what's streaming on your services right now.",
+      "description": "The movie CLI that combines TMDb's discovery engine with OMDb's multi-source ratings \u2014 and ships a SQLite watchlist that flags what's streaming on your services right now.",
       "path": "library/media-and-entertainment/movie-goat",
       "mcp": {
         "binary": "movie-goat-pp-mcp",
@@ -616,7 +615,7 @@
       "name": "pagliacci",
       "category": "food-and-dining",
       "api": "Pagliacci Pizza",
-      "description": "Order Seattle's Pagliacci Pizza from the terminal — half-and-half pies, small-party planner, slice rotation, and rewards stacking.",
+      "description": "Order Seattle's Pagliacci Pizza from the terminal \u2014 half-and-half pies, small-party planner, slice rotation, and rewards stacking.",
       "path": "library/food-and-dining/pagliacci",
       "mcp": {
         "binary": "pagliacci-pp-mcp",
@@ -635,8 +634,8 @@
     {
       "name": "pokeapi",
       "category": "media-and-entertainment",
-      "api": "PokéAPI",
-      "description": "Fully offline Pokédex with SQL, full-text search, type math, and a damage calculator no other Pokémon tool ships as a CLI.",
+      "api": "Pok\u00e9API",
+      "description": "Fully offline Pok\u00e9dex with SQL, full-text search, type math, and a damage calculator no other Pok\u00e9mon tool ships as a CLI.",
       "path": "library/media-and-entertainment/pokeapi",
       "mcp": {
         "binary": "pokeapi-pp-mcp",
@@ -674,7 +673,7 @@
       "name": "producthunt",
       "category": "marketing",
       "api": "Product Hunt",
-      "description": "Read Product Hunt from your terminal — works token-free for the daily skim, unlocks a launch-day cockpit and a marketer research desk in one onboarding step.",
+      "description": "Read Product Hunt from your terminal \u2014 works token-free for the daily skim, unlocks a launch-day cockpit and a marketer research desk in one onboarding step.",
       "path": "library/marketing/producthunt",
       "mcp": {
         "binary": "producthunt-pp-mcp",
@@ -696,7 +695,7 @@
       "name": "pypi",
       "category": "developer-tools",
       "api": "PyPI",
-      "description": "PyPI JSON API. Look up Python package metadata, versions, release files, and vulnerability data. Browse recent updates and newest packages via RSS feeds. No authentication required — all endpoints are public.",
+      "description": "PyPI JSON API. Look up Python package metadata, versions, release files, and vulnerability data. Browse recent updates and newest packages via RSS feeds. No authentication required \u2014 all endpoints are public.",
       "path": "library/developer-tools/pypi",
       "mcp": {
         "binary": "pypi-pp-mcp",
@@ -715,7 +714,7 @@
       "name": "recipe-goat",
       "category": "food-and-dining",
       "api": "Cross-site recipe aggregator (37 trusted sites: King Arthur, Serious Eats, Smitten Kitchen, AllRecipes, Food52, BBC Food, EatingWell, Food Network, and 29 more) + USDA FoodData Central",
-      "description": "Find the best version of any recipe across 37 trusted sites — trust-aware ranking weights real reader signal at 80% and editorial trust at 15% (curated chef/baker sites win tie-break over crowdsourced aggregators). Builds a local SQLite cookbook with pantry match, meal plans, cook log, substitutions, and USDA-backed nutrition backfill. Powered by Surf-Chrome HTTP transport — bypasses TLS-fingerprint bot detection that previously blocked Dotdash properties.",
+      "description": "Find the best version of any recipe across 37 trusted sites \u2014 trust-aware ranking weights real reader signal at 80% and editorial trust at 15% (curated chef/baker sites win tie-break over crowdsourced aggregators). Builds a local SQLite cookbook with pantry match, meal plans, cook log, substitutions, and USDA-backed nutrition backfill. Powered by Surf-Chrome HTTP transport \u2014 bypasses TLS-fingerprint bot detection that previously blocked Dotdash properties.",
       "path": "library/food-and-dining/recipe-goat",
       "mcp": {
         "binary": "recipe-goat-pp-mcp",
@@ -736,7 +735,7 @@
       "name": "scrape-creators",
       "category": "developer-tools",
       "api": "Scrape Creators",
-      "description": "Scrape public social media data from the terminal — profiles, posts, videos, comments, ads, and transcripts across TikTok, Instagram, YouTube, Twitter/X, LinkedIn, Facebook, Reddit, Threads, Bluesky, Pinterest, Snapchat, Twitch, Kick, Truth Social, and 15+ link-in-bio / creator link services.",
+      "description": "Scrape public social media data from the terminal \u2014 profiles, posts, videos, comments, ads, and transcripts across TikTok, Instagram, YouTube, Twitter/X, LinkedIn, Facebook, Reddit, Threads, Bluesky, Pinterest, Snapchat, Twitch, Kick, Truth Social, and 15+ link-in-bio / creator link services.",
       "path": "library/developer-tools/scrape-creators",
       "mcp": {
         "binary": "scrape-creators-pp-mcp",
@@ -886,20 +885,19 @@
       "name": "trigger-dev",
       "category": "developer-tools",
       "api": "Trigger.dev",
-      "description": "Monitor runs, trigger tasks, manage schedules, and detect failures via the Trigger.dev API",
+      "description": "Durable background jobs and AI agent orchestration \u2014 runs, schedules, deployments, batches, queues, waitpoints, env vars, and TRQL analytics",
       "path": "library/developer-tools/trigger-dev",
       "mcp": {
         "binary": "trigger-dev-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 41,
-        "public_tool_count": 0,
-        "auth_type": "api_key",
+        "transport": "stdio",
+        "tool_count": 47,
+        "public_tool_count": 1,
+        "auth_type": "bearer_token",
         "env_vars": [
           "TRIGGER_SECRET_KEY"
         ],
-        "mcp_ready": "full"
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
       }
     },
     {
@@ -944,7 +942,7 @@
       "name": "yahoo-finance",
       "category": "commerce",
       "api": "Yahoo Finance",
-      "description": "Quotes, charts, fundamentals, options chains, and a local portfolio/watchlist tracker against Yahoo Finance — no API key, with Chrome-session fallback for rate-limited IPs",
+      "description": "Quotes, charts, fundamentals, options chains, and a local portfolio/watchlist tracker against Yahoo Finance \u2014 no API key, with Chrome-session fallback for rate-limited IPs",
       "path": "library/commerce/yahoo-finance",
       "mcp": {
         "binary": "yahoo-finance-pp-mcp",

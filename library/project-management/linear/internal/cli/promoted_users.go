@@ -14,10 +14,11 @@ import (
 func newUsersPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "users",
-		Short:   "Get a single user",
-		Long:    "Shortcut for 'users get'. Get a single user",
-		Example: "  linear-pp-cli users",
+		Use:         "users",
+		Short:       "Get a single user",
+		Long:        "Shortcut for 'users get'. Get a single user",
+		Example:     "  linear-pp-cli users",
+		Annotations: map[string]string{"pp:endpoint": "users.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

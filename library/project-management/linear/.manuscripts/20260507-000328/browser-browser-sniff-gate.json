@@ -1,0 +1,11 @@
+{
+  "run_id": "20260507-000328",
+  "sources": [
+    {
+      "source_name": "linear",
+      "decision": "skip-silent",
+      "reason": "spec-complete: Linear publishes its full GraphQL SDL (43k lines, ~98 entity types). Prior v1.2.0 generation succeeded against the same SDL. No reachability gap; competitor coverage already absorbed.",
+      "asked_at": "2026-05-07T00:18:00Z"
+    }
+  ]
+}

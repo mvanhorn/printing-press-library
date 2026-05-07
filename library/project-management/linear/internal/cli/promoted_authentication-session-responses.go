@@ -14,10 +14,11 @@ import (
 func newAuthenticationSessionResponsesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "authentication-session-responses",
-		Short:   "Get a single authenticationsessionresponse",
-		Long:    "Shortcut for 'authentication-session-responses get'. Get a single authenticationsessionresponse",
-		Example: "  linear-pp-cli authentication-session-responses",
+		Use:         "authentication-session-responses",
+		Short:       "Get a single authenticationsessionresponse",
+		Long:        "Shortcut for 'authentication-session-responses get'. Get a single authenticationsessionresponse",
+		Example:     "  linear-pp-cli authentication-session-responses",
+		Annotations: map[string]string{"pp:endpoint": "authentication-session-responses.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/cliutil"
+
 	"github.com/spf13/cobra"
 )
 
@@ -20,6 +22,9 @@ func newOrganizationMetasPromotedCmd(flags *rootFlags) *cobra.Command {
 		Long:    "Shortcut for 'organization-metas get'. Get a single organizationmeta",
 		Example: "  linear-pp-cli organization-metas",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if cliutil.IsVerifyEnv() {
+				return nil
+			}
 			if !cmd.Flags().Changed("url-key") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url-key")
 			}

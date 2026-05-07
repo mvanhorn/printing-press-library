@@ -1,11 +1,79 @@
 {
-  "cli_name": "linear-pp-cli",
+  "schema_version": 0,
+  "generated_at": "2026-05-07T08:00:01Z",
+  "printing_press_version": "3.10.0",
   "api_name": "linear",
-  "spec_source": "graphql-sdl",
+  "display_name": "Linear",
+  "cli_name": "linear-pp-cli",
   "spec_url": "https://github.com/linear/linear/blob/master/packages/sdk/src/schema.graphql",
-  "printing_press_version": "1.2.0",
-  "generated_at": "2026-04-08T07:28:36Z",
-  "run_id": "20260407-234803",
-  "scorecard": 90,
-  "verify_pass_rate": 97
+  "run_id": "20260507-000328",
+  "mcp_binary": "linear-pp-mcp",
+  "mcp_tool_count": 28,
+  "mcp_ready": "full",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "LINEAR_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Today View",
+      "command": "today",
+      "description": "See all your issues for today across every team, ranked by priority and cycle deadline."
+    },
+    {
+      "name": "Bottleneck Detection",
+      "command": "bottleneck",
+      "description": "See which team members are overloaded and which issues are blocked before sprint planning."
+    },
+    {
+      "name": "Project Burndown",
+      "command": "projects burndown",
+      "description": "Project a project's landing date by linear-regressing remaining estimate against the team's measured velocity."
+    },
+    {
+      "name": "Cycle Comparison",
+      "command": "cycles compare",
+      "description": "Side-by-side metrics between any two cycles: completion %, scope added, scope cut, carryover, average cycle time."
+    },
+    {
+      "name": "Stale Issue Radar",
+      "command": "stale",
+      "description": "Find issues that haven't been touched in N days, grouped by team and project."
+    },
+    {
+      "name": "Slipped Issues",
+      "command": "slipped",
+      "description": "Show what carried over from last cycle into this cycle, grouped by team and reason heuristic."
+    },
+    {
+      "name": "Blocking Queue",
+      "command": "blocking",
+      "description": "Show issues you are blocking — sorted by impact (downstream count and priority)."
+    },
+    {
+      "name": "Duplicate Detection",
+      "command": "similar",
+      "description": "Find issues that look like duplicates of a query string using offline FTS5 fuzzy matching."
+    },
+    {
+      "name": "Velocity Trends",
+      "command": "velocity",
+      "description": "Track sprint completion rates over the last N cycles to spot productivity trends."
+    },
+    {
+      "name": "Initiatives Health",
+      "command": "initiatives health",
+      "description": "Rolled-up portfolio view per initiative: child project progress, milestone target-vs-projected dates, slippage flags."
+    },
+    {
+      "name": "Test Fixture Lifecycle",
+      "command": "pp-test list",
+      "description": "List Linear issues this CLI created in the current or named session, then archive them with pp-cleanup."
+    },
+    {
+      "name": "Trust Mode Mutation Guard",
+      "command": "issues create",
+      "description": "Refuse mutations on Linear issues not in the local pp_created ledger when --trust-mode strict is set; works on the create command and any future mutation surfaces."
+    }
+  ]
 }

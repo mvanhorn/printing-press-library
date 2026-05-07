@@ -14,10 +14,11 @@ import (
 func newEmailIntakeAddressesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "email-intake-addresses <id>",
-		Short:   "Get a single emailintakeaddress",
-		Long:    "Shortcut for 'email-intake-addresses get'. Get a single emailintakeaddress",
-		Example: "  linear-pp-cli email-intake-addresses",
+		Use:         "email-intake-addresses <id>",
+		Short:       "Get a single emailintakeaddress",
+		Long:        "Shortcut for 'email-intake-addresses get'. Get a single emailintakeaddress",
+		Example:     "  linear-pp-cli email-intake-addresses",
+		Annotations: map[string]string{"pp:endpoint": "email-intake-addresses.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

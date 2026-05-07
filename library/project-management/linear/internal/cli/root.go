@@ -14,9 +14,9 @@ import (
 	"io"
 	"os"
 
+	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/config"
-	"github.com/spf13/cobra"
 )
 
 var version = "1.0.0"
@@ -41,12 +41,43 @@ type rootFlags struct {
 	deliverSpec  string
 	deliverBuf   *bytes.Buffer
 	deliverSink  DeliverSink
+	trustMode    string
+	ppSession    string
+}
+
+// RootCmd returns the Cobra command tree without executing it. The MCP server
+// uses this to mirror every user-facing command as an agent tool.
+func RootCmd() *cobra.Command {
+	var flags rootFlags
+	return newRootCmd(&flags)
 }
 
 // Execute runs the CLI in non-interactive mode: never prompts, all values via flags or stdin.
 func Execute() error {
 	var flags rootFlags
+	rootCmd := newRootCmd(&flags)
 
+	err := rootCmd.Execute()
+	if err != nil && strings.Contains(err.Error(), "unknown flag") {
+		msg := err.Error()
+		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
+		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
+			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
+			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
+				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
+			}
+		}
+	}
+	if err == nil && flags.deliverBuf != nil {
+		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
+			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
+			return derr
+		}
+	}
+	return err
+}
+
+func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:           "linear-pp-cli",
 		Short:         "Manage issues, projects, cycles, and teams via the Linear API with offline search and analytics",
@@ -76,6 +107,8 @@ func Execute() error {
 
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
+	rootCmd.PersistentFlags().StringVar(&flags.trustMode, "trust-mode", "", "Mutation guard: 'strict' refuses to mutate Linear issues not in the local pp_created table. Defaults to config trust_mode or 'normal'.")
+	rootCmd.PersistentFlags().StringVar(&flags.ppSession, "pp-session", "", "Session tag for issues this CLI creates (defaults to PP_SESSION env or current run timestamp)")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		if flags.deliverSpec != "" {
@@ -126,90 +159,76 @@ func Execute() error {
 		}
 		return nil
 	}
-	rootCmd.AddCommand(newDoctorCmd(&flags))
-	rootCmd.AddCommand(newAuthCmd(&flags))
-	rootCmd.AddCommand(newExportCmd(&flags))
-	rootCmd.AddCommand(newImportCmd(&flags))
-	rootCmd.AddCommand(newSyncCmd(&flags))
-	rootCmd.AddCommand(newTailCmd(&flags))
-	rootCmd.AddCommand(newAnalyticsCmd(&flags))
-	rootCmd.AddCommand(newWorkflowCmd(&flags))
-	rootCmd.AddCommand(newStaleCmd(&flags))
-	rootCmd.AddCommand(newOrphansCmd(&flags))
-	rootCmd.AddCommand(newLoadCmd(&flags))
-	rootCmd.AddCommand(newAPICmd(&flags))
-	rootCmd.AddCommand(newCustomersPromotedCmd(&flags))
-	rootCmd.AddCommand(newInitiativesPromotedCmd(&flags))
-	rootCmd.AddCommand(newProjectRelationsPromotedCmd(&flags))
-	rootCmd.AddCommand(newProjectLabelsPromotedCmd(&flags))
-	rootCmd.AddCommand(newIssueLabelsPromotedCmd(&flags))
-	rootCmd.AddCommand(newIssueRelationsPromotedCmd(&flags))
-	rootCmd.AddCommand(newReleasesPromotedCmd(&flags))
-	rootCmd.AddCommand(newAttachmentsPromotedCmd(&flags))
-	rootCmd.AddCommand(newAuthenticationSessionResponsesPromotedCmd(&flags))
-	rootCmd.AddCommand(newFavoritesPromotedCmd(&flags))
-	rootCmd.AddCommand(newIntegrationsPromotedCmd(&flags))
-	rootCmd.AddCommand(newReleaseStagesPromotedCmd(&flags))
-	rootCmd.AddCommand(newTeamsPromotedCmd(&flags))
-	rootCmd.AddCommand(newProjectMilestonesPromotedCmd(&flags))
-	rootCmd.AddCommand(newProjectStatusesPromotedCmd(&flags))
-	rootCmd.AddCommand(newReleasePipelinesPromotedCmd(&flags))
-	rootCmd.AddCommand(newAuthResolverResponsesPromotedCmd(&flags))
-	rootCmd.AddCommand(newIssuesCmd(&flags))
-	rootCmd.AddCommand(newIssueToReleasesPromotedCmd(&flags))
-	rootCmd.AddCommand(newTemplatesPromotedCmd(&flags))
-	rootCmd.AddCommand(newWorkflowStatesPromotedCmd(&flags))
-	rootCmd.AddCommand(newCustomerStatusesPromotedCmd(&flags))
-	rootCmd.AddCommand(newCustomerTiersPromotedCmd(&flags))
-	rootCmd.AddCommand(newEmailIntakeAddressesPromotedCmd(&flags))
-	rootCmd.AddCommand(newEntityExternalLinksPromotedCmd(&flags))
-	rootCmd.AddCommand(newIssuePriorityValuesPromotedCmd(&flags))
-	rootCmd.AddCommand(newOrganizationMetasPromotedCmd(&flags))
-	rootCmd.AddCommand(newRoadmapsPromotedCmd(&flags))
-	rootCmd.AddCommand(newIntegrationTemplatesPromotedCmd(&flags))
-	rootCmd.AddCommand(newIntegrationsSettingsesPromotedCmd(&flags))
-	rootCmd.AddCommand(newAuditEntryTypesPromotedCmd(&flags))
-	rootCmd.AddCommand(newCyclesPromotedCmd(&flags))
-	rootCmd.AddCommand(newDocumentsPromotedCmd(&flags))
-	rootCmd.AddCommand(newInitiativeToProjectsPromotedCmd(&flags))
-	rootCmd.AddCommand(newProjectsPromotedCmd(&flags))
-	rootCmd.AddCommand(newUserSettingsesPromotedCmd(&flags))
-	rootCmd.AddCommand(newCustomViewsPromotedCmd(&flags))
-	rootCmd.AddCommand(newOrganizationsPromotedCmd(&flags))
-	rootCmd.AddCommand(newRoadmapToProjectsPromotedCmd(&flags))
-	rootCmd.AddCommand(newUsersPromotedCmd(&flags))
-	rootCmd.AddCommand(newOrganizationInvitesPromotedCmd(&flags))
-	rootCmd.AddCommand(newTeamMembershipsPromotedCmd(&flags))
-	rootCmd.AddCommand(newTodayCmd(&flags))
-	rootCmd.AddCommand(newBottleneckCmd(&flags))
-	rootCmd.AddCommand(newSimilarCmd(&flags))
-	rootCmd.AddCommand(newWorkloadCmd(&flags))
-	rootCmd.AddCommand(newVelocityCmd(&flags))
-	rootCmd.AddCommand(newMeCmd(&flags))
-	rootCmd.AddCommand(newSQLCmd(&flags))
+	rootCmd.AddCommand(newDoctorCmd(flags))
+	rootCmd.AddCommand(newAuthCmd(flags))
+	rootCmd.AddCommand(newExportCmd(flags))
+	rootCmd.AddCommand(newImportCmd(flags))
+	rootCmd.AddCommand(newSyncCmd(flags))
+	rootCmd.AddCommand(newTailCmd(flags))
+	rootCmd.AddCommand(newAnalyticsCmd(flags))
+	rootCmd.AddCommand(newWorkflowCmd(flags))
+	rootCmd.AddCommand(newStaleCmd(flags))
+	rootCmd.AddCommand(newOrphansCmd(flags))
+	rootCmd.AddCommand(newLoadCmd(flags))
+	rootCmd.AddCommand(newAPICmd(flags))
+	rootCmd.AddCommand(newCustomersPromotedCmd(flags))
+	rootCmd.AddCommand(newInitiativesPromotedCmd(flags))
+	rootCmd.AddCommand(newProjectRelationsPromotedCmd(flags))
+	rootCmd.AddCommand(newProjectLabelsPromotedCmd(flags))
+	rootCmd.AddCommand(newIssueLabelsPromotedCmd(flags))
+	rootCmd.AddCommand(newIssueRelationsPromotedCmd(flags))
+	rootCmd.AddCommand(newReleasesPromotedCmd(flags))
+	rootCmd.AddCommand(newAttachmentsPromotedCmd(flags))
+	rootCmd.AddCommand(newAuthenticationSessionResponsesPromotedCmd(flags))
+	rootCmd.AddCommand(newFavoritesPromotedCmd(flags))
+	rootCmd.AddCommand(newIntegrationsPromotedCmd(flags))
+	rootCmd.AddCommand(newReleaseStagesPromotedCmd(flags))
+	rootCmd.AddCommand(newTeamsPromotedCmd(flags))
+	rootCmd.AddCommand(newProjectMilestonesPromotedCmd(flags))
+	rootCmd.AddCommand(newProjectStatusesPromotedCmd(flags))
+	rootCmd.AddCommand(newReleasePipelinesPromotedCmd(flags))
+	rootCmd.AddCommand(newAuthResolverResponsesPromotedCmd(flags))
+	rootCmd.AddCommand(newIssuesCmd(flags))
+	rootCmd.AddCommand(newIssueToReleasesPromotedCmd(flags))
+	rootCmd.AddCommand(newTemplatesPromotedCmd(flags))
+	rootCmd.AddCommand(newWorkflowStatesPromotedCmd(flags))
+	rootCmd.AddCommand(newCustomerStatusesPromotedCmd(flags))
+	rootCmd.AddCommand(newCustomerTiersPromotedCmd(flags))
+	rootCmd.AddCommand(newEmailIntakeAddressesPromotedCmd(flags))
+	rootCmd.AddCommand(newEntityExternalLinksPromotedCmd(flags))
+	rootCmd.AddCommand(newIssuePriorityValuesPromotedCmd(flags))
+	rootCmd.AddCommand(newOrganizationMetasPromotedCmd(flags))
+	rootCmd.AddCommand(newRoadmapsPromotedCmd(flags))
+	rootCmd.AddCommand(newIntegrationTemplatesPromotedCmd(flags))
+	rootCmd.AddCommand(newIntegrationsSettingsesPromotedCmd(flags))
+	rootCmd.AddCommand(newAuditEntryTypesPromotedCmd(flags))
+	rootCmd.AddCommand(newCyclesPromotedCmd(flags))
+	rootCmd.AddCommand(newDocumentsPromotedCmd(flags))
+	rootCmd.AddCommand(newInitiativeToProjectsPromotedCmd(flags))
+	rootCmd.AddCommand(newProjectsPromotedCmd(flags))
+	rootCmd.AddCommand(newUserSettingsesPromotedCmd(flags))
+	rootCmd.AddCommand(newCustomViewsPromotedCmd(flags))
+	rootCmd.AddCommand(newOrganizationsPromotedCmd(flags))
+	rootCmd.AddCommand(newRoadmapToProjectsPromotedCmd(flags))
+	rootCmd.AddCommand(newUsersPromotedCmd(flags))
+	rootCmd.AddCommand(newOrganizationInvitesPromotedCmd(flags))
+	rootCmd.AddCommand(newTeamMembershipsPromotedCmd(flags))
+	rootCmd.AddCommand(newTodayCmd(flags))
+	rootCmd.AddCommand(newBottleneckCmd(flags))
+	rootCmd.AddCommand(newSimilarCmd(flags))
+	rootCmd.AddCommand(newVelocityCmd(flags))
+	rootCmd.AddCommand(newMeCmd(flags))
+	rootCmd.AddCommand(newSQLCmd(flags))
+	rootCmd.AddCommand(newPPTestCmd(flags))
+	rootCmd.AddCommand(newPPCleanupCmd(flags))
+	rootCmd.AddCommand(newSlippedCmd(flags))
+	rootCmd.AddCommand(newBlockingCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
-	rootCmd.AddCommand(newProfileCmd(&flags))
-	rootCmd.AddCommand(newFeedbackCmd(&flags))
+	rootCmd.AddCommand(newProfileCmd(flags))
+	rootCmd.AddCommand(newFeedbackCmd(flags))
 
-	err := rootCmd.Execute()
-	if err != nil && strings.Contains(err.Error(), "unknown flag") {
-		msg := err.Error()
-		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
-		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
-			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
-			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
-				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
-			}
-		}
-	}
-	if err == nil && flags.deliverBuf != nil {
-		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
-			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
-			return derr
-		}
-	}
-	return err
+	return rootCmd
 }
 
 func ExitCode(err error) int {
@@ -231,6 +250,9 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	return c, nil
 }
 
+// printJSON emits v as plain indented JSON. Prefer printJSONFiltered for
+// novel-feature handlers that should honor --select / --compact / --csv
+// / --quiet; this method is retained for legacy call sites that opt out.
 func (f *rootFlags) printJSON(w *cobra.Command, v any) error {
 	enc := json.NewEncoder(w.OutOrStdout())
 	enc.SetIndent("", "  ")

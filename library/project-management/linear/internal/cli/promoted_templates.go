@@ -14,10 +14,11 @@ import (
 func newTemplatesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "templates",
-		Short:   "Get a single template",
-		Long:    "Shortcut for 'templates get'. Get a single template",
-		Example: "  linear-pp-cli templates",
+		Use:         "templates",
+		Short:       "Get a single template",
+		Long:        "Shortcut for 'templates get'. Get a single template",
+		Example:     "  linear-pp-cli templates",
+		Annotations: map[string]string{"pp:endpoint": "templates.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

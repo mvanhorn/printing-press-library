@@ -14,9 +14,10 @@ import (
 func newIntegrationsDeleteCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "delete",
-		Short:   "Delete a integration",
-		Example: "  linear-pp-cli integrations delete",
+		Use:         "delete",
+		Short:       "Delete a integration",
+		Example:     "  linear-pp-cli integrations delete",
+		Annotations: map[string]string{"pp:endpoint": "integrations.delete", "pp:method": "DELETE", "pp:path": "/graphql"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

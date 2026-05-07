@@ -22,9 +22,10 @@ metadata:
 
 This skill drives the `linear-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
-   ```bash
-   npx -y @mvanhorn/printing-press install linear --cli-only
+1. Install via the Printing Press installer (use the `cli-only` flag to skip the MCP component):
+   <!-- npx -y @mvanhorn/printing-press install linear cli-only -->
+   ```
+   npx -y @mvanhorn/printing-press install linear cli-only
    ```
 2. Verify: `linear-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -168,3 +169,95 @@ Data-layer commands wrap output in `{"meta": {...}, "results": <data>}`. Parse `
 | 4 | Authentication required (LINEAR_API_KEY missing or invalid) |
 | 5 | API error (Linear upstream, including GraphQL errors) |
 | 7 | Rate limited (Linear enforces per-key complexity budgets) |
+
+## Unique Capabilities
+
+These capabilities aren't available in any other tool for this API.
+
+### Local state that compounds
+- **`today`** — See all your issues for today across every team, ranked by priority and cycle deadline.
+
+  _When an agent is asked 'what should I work on right now?', this returns the ranked list in one call instead of N team-scoped list queries._
+
+  ```bash
+  linear-pp-cli today --json --select identifier,title,priority,cycle.endsAt
+  ```
+- **`bottleneck`** — See which team members are overloaded and which issues are blocked before sprint planning.
+
+  _Pre-sprint-planning question 'who is overloaded right now' becomes a single agent call instead of scrolling N tabs._
+
+  ```bash
+  linear-pp-cli bottleneck --team ENG --json
+  ```
+- **`projects burndown`** — Project a project's landing date by linear-regressing remaining estimate against the team's measured velocity.
+
+  _Replaces static project target-dates with a velocity-driven projection an agent can compare against the milestone date._
+
+  ```bash
+  linear-pp-cli projects burndown PROJ-42 --json
+  ```
+- **`cycles compare`** — Side-by-side metrics between any two cycles: completion %, scope added, scope cut, carryover, average cycle time.
+
+  _Friday-update ritual: 'how does this cycle compare to last cycle?' becomes one call._
+
+  ```bash
+  linear-pp-cli cycles compare 42 43 --json
+  ```
+- **`stale`** — Find issues that haven't been touched in N days, grouped by team and project.
+
+  _Backlog-grooming workflow: surface zombie issues without paying API complexity for a full scan._
+
+  ```bash
+  linear-pp-cli stale --days 30 --team ENG --json
+  ```
+- **`slipped`** — Show what carried over from last cycle into this cycle, grouped by team and reason heuristic.
+
+  _Maya's Friday update needs 'what slipped' as a structured list, not a manual count._
+
+  ```bash
+  linear-pp-cli slipped --team ENG --json
+  ```
+- **`blocking`** — Show issues you are blocking — sorted by impact (downstream count and priority).
+
+  _Daily ritual: 'what's blocked because of me' becomes one call instead of clicking through every assigned issue._
+
+  ```bash
+  linear-pp-cli blocking --json
+  ```
+- **`similar`** — Find issues that look like duplicates of a query string using offline FTS5 fuzzy matching.
+
+  _Triage and grooming: catch dupes before filing or while sweeping the inbox._
+
+  ```bash
+  linear-pp-cli similar "login button broken" --json
+  ```
+- **`velocity`** — Track sprint completion rates over the last N cycles to spot productivity trends.
+
+  _Multi-cycle trend lines feed the burndown projection and the weekly stakeholder update._
+
+  ```bash
+  linear-pp-cli velocity --weeks 8 --team ENG --json
+  ```
+- **`initiatives health`** — Rolled-up portfolio view per initiative: child project progress, milestone target-vs-projected dates, slippage flags.
+
+  _Portfolio review: 'which milestone in my portfolio is most at risk this month' becomes one ranked answer._
+
+  ```bash
+  linear-pp-cli initiatives health --json
+  ```
+
+### Agent-native plumbing
+- **`pp-test list`** — List Linear issues this CLI created in the current or named session, then archive them with pp-cleanup.
+
+  _Lets agents create test issues during a session and clean up only their own fixtures, never touching pre-existing tickets._
+
+  ```bash
+  linear-pp-cli pp-test list --session current && linear-pp-cli pp-cleanup --session current --dry-run
+  ```
+- **`issues create`** — Refuse mutations on Linear issues not in the local pp_created ledger when --trust-mode strict is set; works on the create command and any future mutation surfaces.
+
+  _When an agent runs against a real workspace, this is the safety net that prevents silent damage to non-test data._
+
+  ```bash
+  linear-pp-cli issues create --title "test" --team ENG --trust-mode strict --session demo
+  ```

@@ -14,10 +14,11 @@ import (
 func newProjectsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "projects <id>",
-		Short:   "Get a single project",
-		Long:    "Shortcut for 'projects get'. Get a single project",
-		Example: "  linear-pp-cli projects",
+		Use:         "projects <id>",
+		Short:       "Get a single project",
+		Long:        "Shortcut for 'projects get'. Get a single project",
+		Example:     "  linear-pp-cli projects",
+		Annotations: map[string]string{"pp:endpoint": "projects.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -83,6 +84,7 @@ func newProjectsPromotedCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	// Wire sibling endpoints and sub-resources as subcommands
+	cmd.AddCommand(newProjectsBurndownCmd(flags))
 
 	return cmd
 }

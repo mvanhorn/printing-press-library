@@ -14,10 +14,11 @@ import (
 func newProjectMilestonesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "project-milestones <id>",
-		Short:   "Get a single projectmilestone",
-		Long:    "Shortcut for 'project-milestones get'. Get a single projectmilestone",
-		Example: "  linear-pp-cli project-milestones",
+		Use:         "project-milestones <id>",
+		Short:       "Get a single projectmilestone",
+		Long:        "Shortcut for 'project-milestones get'. Get a single projectmilestone",
+		Example:     "  linear-pp-cli project-milestones",
+		Annotations: map[string]string{"pp:endpoint": "project-milestones.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

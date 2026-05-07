@@ -20,6 +20,7 @@ func newReleasePipelinesPromotedCmd(flags *rootFlags) *cobra.Command {
 		Example: `  linear-pp-cli release-pipelines
   linear-pp-cli release-pipelines --json
   linear-pp-cli release-pipelines --json --select id,name`,
+		Annotations: map[string]string{"pp:endpoint": "release-pipelines.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

@@ -20,6 +20,7 @@ func newInitiativeToProjectsPromotedCmd(flags *rootFlags) *cobra.Command {
 		Example: `  linear-pp-cli initiative-to-projects abc123-def456
   linear-pp-cli initiative-to-projects abc123-def456 --json
   linear-pp-cli initiative-to-projects abc123-def456 --json --select id,name`,
+		Annotations: map[string]string{"pp:endpoint": "initiative-to-projects.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

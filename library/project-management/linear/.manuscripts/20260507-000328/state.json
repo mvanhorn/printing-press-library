@@ -1,0 +1,8 @@
+{
+  "api_name": "linear",
+  "run_id": "20260507-000328",
+  "working_dir": "/Users/tmchow/printing-press/library/linear",
+  "output_dir": "/Users/tmchow/printing-press/library/linear",
+  "spec_path": "/Users/tmchow/printing-press/.runstate/wondrous-wandering-haven-5253cd9f/runs/20260507-000328/research/linear-schema.graphql",
+  "pivot_note": "v3 fresh gen at /Users/tmchow/printing-press/.runstate/wondrous-wandering-haven-5253cd9f/runs/20260507-000328/working/linear-pp-cli did not include GraphQL sync template; using v1-imported library tree as base and applying scope additions"
+}

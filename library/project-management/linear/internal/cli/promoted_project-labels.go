@@ -14,10 +14,11 @@ import (
 func newProjectLabelsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "project-labels <id>",
-		Short:   "Get a single projectlabel",
-		Long:    "Shortcut for 'project-labels get'. Get a single projectlabel",
-		Example: "  linear-pp-cli project-labels",
+		Use:         "project-labels <id>",
+		Short:       "Get a single projectlabel",
+		Long:        "Shortcut for 'project-labels get'. Get a single projectlabel",
+		Example:     "  linear-pp-cli project-labels",
+		Annotations: map[string]string{"pp:endpoint": "project-labels.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

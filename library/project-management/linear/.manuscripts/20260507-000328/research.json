@@ -1,0 +1,383 @@
+{
+  "api_name": "linear",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "Finesssee/linear-cli",
+      "url": "https://github.com/Finesssee/linear-cli",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 60,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "schpet/linear-cli",
+      "url": "https://github.com/schpet/linear-cli",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 25,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "czottmann/linearis",
+      "url": "https://github.com/czottmann/linearis",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "dorkitude/linctl",
+      "url": "https://github.com/dorkitude/linctl",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "evangodon/linear-cli",
+      "url": "https://github.com/evangodon/linear-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tacticlaunch/mcp-linear",
+      "url": "https://github.com/tacticlaunch/mcp-linear",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-07T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Today View",
+      "command": "today",
+      "description": "See all your issues for today across every team, ranked by priority and cycle deadline.",
+      "rationale": "Requires a compound local-store join across assignments, cycles, priorities, states, and relations that no single Linear API call returns.",
+      "example": "linear-pp-cli today --json --select identifier,title,priority,cycle.endsAt",
+      "why_it_matters": "When an agent is asked 'what should I work on right now?', this returns the ranked list in one call instead of N team-scoped list queries.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bottleneck Detection",
+      "command": "bottleneck",
+      "description": "See which team members are overloaded and which issues are blocked before sprint planning.",
+      "rationale": "Joins issues, assignees, cycle data, and dependency chains that only exist together in the local store.",
+      "example": "linear-pp-cli bottleneck --team ENG --json",
+      "why_it_matters": "Pre-sprint-planning question 'who is overloaded right now' becomes a single agent call instead of scrolling N tabs.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Project Burndown",
+      "command": "projects burndown",
+      "description": "Project a project's landing date by linear-regressing remaining estimate against the team's measured velocity.",
+      "rationale": "Requires local estimate and state time-series data plus per-cycle velocity history that isn't exposed as a single Linear endpoint.",
+      "example": "linear-pp-cli projects burndown PROJ-42 --json",
+      "why_it_matters": "Replaces static project target-dates with a velocity-driven projection an agent can compare against the milestone date.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cycle Comparison",
+      "command": "cycles compare",
+      "description": "Side-by-side metrics between any two cycles: completion %, scope added, scope cut, carryover, average cycle time.",
+      "rationale": "Cross-cycle comparison requires historical cycle snapshots stored locally; Linear's UI only shows the active cycle.",
+      "example": "linear-pp-cli cycles compare 42 43 --json",
+      "why_it_matters": "Friday-update ritual: 'how does this cycle compare to last cycle?' becomes one call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale Issue Radar",
+      "command": "stale",
+      "description": "Find issues that haven't been touched in N days, grouped by team and project.",
+      "rationale": "Requires local updatedAt tracking across the full issue corpus; doing this against the API on every call burns the complexity budget.",
+      "example": "linear-pp-cli stale --days 30 --team ENG --json",
+      "why_it_matters": "Backlog-grooming workflow: surface zombie issues without paying API complexity for a full scan.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Slipped Issues",
+      "command": "slipped",
+      "description": "Show what carried over from last cycle into this cycle, grouped by team and reason heuristic.",
+      "rationale": "Requires diffing the issue.cycle field across cycle-history rows; the API gives you the current state but not the rollover semantic.",
+      "example": "linear-pp-cli slipped --team ENG --json",
+      "why_it_matters": "Maya's Friday update needs 'what slipped' as a structured list, not a manual count.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Blocking Queue",
+      "command": "blocking",
+      "description": "Show issues you are blocking — sorted by impact (downstream count and priority).",
+      "rationale": "Linear shows the blocking relation per-issue but not as a personal queue; the answer requires a graph walk over the local issue_relation table.",
+      "example": "linear-pp-cli blocking --json",
+      "why_it_matters": "Daily ritual: 'what's blocked because of me' becomes one call instead of clicking through every assigned issue.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Duplicate Detection",
+      "command": "similar",
+      "description": "Find issues that look like duplicates of a query string using offline FTS5 fuzzy matching.",
+      "rationale": "Requires SQLite FTS5 across all synced issue text; impossible offline with the GraphQL API alone.",
+      "example": "linear-pp-cli similar \"login button broken\" --json",
+      "why_it_matters": "Triage and grooming: catch dupes before filing or while sweeping the inbox.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Velocity Trends",
+      "command": "velocity",
+      "description": "Track sprint completion rates over the last N cycles to spot productivity trends.",
+      "rationale": "Requires historical cycle snapshots stored locally across multiple sprints; Linear's UI shows a single cycle at a time.",
+      "example": "linear-pp-cli velocity --weeks 8 --team ENG --json",
+      "why_it_matters": "Multi-cycle trend lines feed the burndown projection and the weekly stakeholder update.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Initiatives Health",
+      "command": "initiatives health",
+      "description": "Rolled-up portfolio view per initiative: child project progress, milestone target-vs-projected dates, slippage flags.",
+      "rationale": "Cross-entity rollup over initiatives → projects → milestones; competitor CLIs all stop at the project level.",
+      "example": "linear-pp-cli initiatives health --json",
+      "why_it_matters": "Portfolio review: 'which milestone in my portfolio is most at risk this month' becomes one ranked answer.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Test Fixture Lifecycle",
+      "command": "pp-test list",
+      "description": "List Linear issues this CLI created in the current or named session, then archive them with pp-cleanup.",
+      "rationale": "The local pp_created table records every issue ID returned from issues create; cleanup invokes the real archive endpoint per row, scoped to fixtures the CLI itself made.",
+      "example": "linear-pp-cli pp-test list --session current \u0026\u0026 linear-pp-cli pp-cleanup --session current --dry-run",
+      "why_it_matters": "Lets agents create test issues during a session and clean up only their own fixtures, never touching pre-existing tickets.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Trust Mode Mutation Guard",
+      "command": "issues create",
+      "description": "Refuse mutations on Linear issues not in the local pp_created ledger when --trust-mode strict is set; works on the create command and any future mutation surfaces.",
+      "rationale": "Pre-mutation client-side guard backed by the same pp_created table; floor against accidental mutation of pre-existing tickets in shared workspaces.",
+      "example": "linear-pp-cli issues create --title \"test\" --team ENG --trust-mode strict --session demo",
+      "why_it_matters": "When an agent runs against a real workspace, this is the safety net that prevents silent damage to non-test data.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Today View",
+      "command": "today",
+      "description": "See all your issues for today across every team, ranked by priority and cycle deadline.",
+      "rationale": "Requires a compound local-store join across assignments, cycles, priorities, states, and relations that no single Linear API call returns.",
+      "example": "linear-pp-cli today --json --select identifier,title,priority,cycle.endsAt",
+      "why_it_matters": "When an agent is asked 'what should I work on right now?', this returns the ranked list in one call instead of N team-scoped list queries.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bottleneck Detection",
+      "command": "bottleneck",
+      "description": "See which team members are overloaded and which issues are blocked before sprint planning.",
+      "rationale": "Joins issues, assignees, cycle data, and dependency chains that only exist together in the local store.",
+      "example": "linear-pp-cli bottleneck --team ENG --json",
+      "why_it_matters": "Pre-sprint-planning question 'who is overloaded right now' becomes a single agent call instead of scrolling N tabs.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Project Burndown",
+      "command": "projects burndown",
+      "description": "Project a project's landing date by linear-regressing remaining estimate against the team's measured velocity.",
+      "rationale": "Requires local estimate and state time-series data plus per-cycle velocity history that isn't exposed as a single Linear endpoint.",
+      "example": "linear-pp-cli projects burndown PROJ-42 --json",
+      "why_it_matters": "Replaces static project target-dates with a velocity-driven projection an agent can compare against the milestone date.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cycle Comparison",
+      "command": "cycles compare",
+      "description": "Side-by-side metrics between any two cycles: completion %, scope added, scope cut, carryover, average cycle time.",
+      "rationale": "Cross-cycle comparison requires historical cycle snapshots stored locally; Linear's UI only shows the active cycle.",
+      "example": "linear-pp-cli cycles compare 42 43 --json",
+      "why_it_matters": "Friday-update ritual: 'how does this cycle compare to last cycle?' becomes one call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale Issue Radar",
+      "command": "stale",
+      "description": "Find issues that haven't been touched in N days, grouped by team and project.",
+      "rationale": "Requires local updatedAt tracking across the full issue corpus; doing this against the API on every call burns the complexity budget.",
+      "example": "linear-pp-cli stale --days 30 --team ENG --json",
+      "why_it_matters": "Backlog-grooming workflow: surface zombie issues without paying API complexity for a full scan.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Slipped Issues",
+      "command": "slipped",
+      "description": "Show what carried over from last cycle into this cycle, grouped by team and reason heuristic.",
+      "rationale": "Requires diffing the issue.cycle field across cycle-history rows; the API gives you the current state but not the rollover semantic.",
+      "example": "linear-pp-cli slipped --team ENG --json",
+      "why_it_matters": "Maya's Friday update needs 'what slipped' as a structured list, not a manual count.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Blocking Queue",
+      "command": "blocking",
+      "description": "Show issues you are blocking — sorted by impact (downstream count and priority).",
+      "rationale": "Linear shows the blocking relation per-issue but not as a personal queue; the answer requires a graph walk over the local issue_relation table.",
+      "example": "linear-pp-cli blocking --json",
+      "why_it_matters": "Daily ritual: 'what's blocked because of me' becomes one call instead of clicking through every assigned issue.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Duplicate Detection",
+      "command": "similar",
+      "description": "Find issues that look like duplicates of a query string using offline FTS5 fuzzy matching.",
+      "rationale": "Requires SQLite FTS5 across all synced issue text; impossible offline with the GraphQL API alone.",
+      "example": "linear-pp-cli similar \"login button broken\" --json",
+      "why_it_matters": "Triage and grooming: catch dupes before filing or while sweeping the inbox.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Velocity Trends",
+      "command": "velocity",
+      "description": "Track sprint completion rates over the last N cycles to spot productivity trends.",
+      "rationale": "Requires historical cycle snapshots stored locally across multiple sprints; Linear's UI shows a single cycle at a time.",
+      "example": "linear-pp-cli velocity --weeks 8 --team ENG --json",
+      "why_it_matters": "Multi-cycle trend lines feed the burndown projection and the weekly stakeholder update.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Initiatives Health",
+      "command": "initiatives health",
+      "description": "Rolled-up portfolio view per initiative: child project progress, milestone target-vs-projected dates, slippage flags.",
+      "rationale": "Cross-entity rollup over initiatives → projects → milestones; competitor CLIs all stop at the project level.",
+      "example": "linear-pp-cli initiatives health --json",
+      "why_it_matters": "Portfolio review: 'which milestone in my portfolio is most at risk this month' becomes one ranked answer.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Test Fixture Lifecycle",
+      "command": "pp-test list",
+      "description": "List Linear issues this CLI created in the current or named session, then archive them with pp-cleanup.",
+      "rationale": "The local pp_created table records every issue ID returned from issues create; cleanup invokes the real archive endpoint per row, scoped to fixtures the CLI itself made.",
+      "example": "linear-pp-cli pp-test list --session current \u0026\u0026 linear-pp-cli pp-cleanup --session current --dry-run",
+      "why_it_matters": "Lets agents create test issues during a session and clean up only their own fixtures, never touching pre-existing tickets.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Trust Mode Mutation Guard",
+      "command": "issues create",
+      "description": "Refuse mutations on Linear issues not in the local pp_created ledger when --trust-mode strict is set; works on the create command and any future mutation surfaces.",
+      "rationale": "Pre-mutation client-side guard backed by the same pp_created table; floor against accidental mutation of pre-existing tickets in shared workspaces.",
+      "example": "linear-pp-cli issues create --title \"test\" --team ENG --trust-mode strict --session demo",
+      "why_it_matters": "When an agent runs against a real workspace, this is the safety net that prevents silent damage to non-test data.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Linear",
+    "headline": "Every Linear feature, plus offline sync, FTS search, and cross-entity views no other Linear tool ships.",
+    "value_prop": "linear-pp-cli wraps Linear's full GraphQL surface (issues, projects, cycles, milestones, initiatives, comments, documents) and adds a local SQLite store with FTS5 search, cycle history, and velocity snapshots. Compound commands like `today`, `bottleneck`, `cycles compare`, and `projects burndown` answer the Monday-morning sprint-planning and Friday-stakeholder-update questions in a single call.",
+    "auth_narrative": "Linear authenticates with a Personal API Key in the `Authorization` header (no `Bearer` prefix). Set `LINEAR_API_KEY=lin_api_...` or run `linear-pp-cli auth login` to walk through it. The CLI is rate-limit aware — Linear measures complexity points (~1,500/hour for personal keys), so sync uses shallow Connection queries by default and pages cleanly.",
+    "quickstart": [
+      {
+        "command": "linear-pp-cli auth login",
+        "comment": "Set your LINEAR_API_KEY for the session and verify viewer access."
+      },
+      {
+        "command": "linear-pp-cli sync --full",
+        "comment": "Pull issues, cycles, projects, teams, users, labels, and states into the local SQLite store."
+      },
+      {
+        "command": "linear-pp-cli today --json",
+        "comment": "Cross-team, ranked-by-priority view of your work for the day."
+      },
+      {
+        "command": "linear-pp-cli stale --days 30 --json",
+        "comment": "Issues nobody has touched in a month, grouped by team and project."
+      },
+      {
+        "command": "linear-pp-cli cycles compare 42 43 --json",
+        "comment": "Two-cycle diff for the Friday stakeholder update."
+      },
+      {
+        "command": "linear-pp-cli projects burndown PROJ-42 --json",
+        "comment": "Project landing date projected from velocity."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every command",
+        "fix": "Check `linear-pp-cli auth status`; rotate the key in linear.app/settings/api if needed and re-export `LINEAR_API_KEY`."
+      },
+      {
+        "symptom": "GraphQL response says 'Query too complex'",
+        "fix": "Sync uses shallow queries by default; if you've passed `--depth`, lower it. Linear caps personal keys around 1,500 complexity points/hour."
+      },
+      {
+        "symptom": "FTS search returns no rows after sync",
+        "fix": "Run `linear-pp-cli sync --full` once after upgrading; v3 reprints rebuild the FTS index on first sync."
+      },
+      {
+        "symptom": "Mutation fails with 'trust-mode strict' error",
+        "fix": "Either run `linear-pp-cli config set trust-mode normal`, or pass an issue ID this CLI created in the current session (see `linear-pp-cli pp-test list`)."
+      }
+    ],
+    "when_to_use": "Reach for linear-pp-cli when an agent needs a ranked, joined view across Linear entities (today, bottleneck, blocking, slipped, initiatives health) instead of N separate API calls. It is the right choice for sprint-planning, weekly-update, and triage rituals that compound across cycles and projects. For one-off issue lookups or simple CRUD on a single ticket, the typed `issues get`, `issues update`, and `issues create` commands are also exposed and idempotent.",
+    "recipes": [
+      {
+        "title": "Daily standup view",
+        "command": "linear-pp-cli today --json --select identifier,title,priority,state.name,cycle.endsAt | jq '.[] | select(.priority \u003c 3)'",
+        "explanation": "High-priority work for today, narrowed to a few fields so an agent doesn't drag the full issue payload into context."
+      },
+      {
+        "title": "Friday stakeholder update",
+        "command": "linear-pp-cli cycles compare current previous --json \u0026\u0026 linear-pp-cli slipped --team ENG --json",
+        "explanation": "Cycle-over-cycle metrics plus what carried over, in the shape Maya pastes into her stakeholder doc."
+      },
+      {
+        "title": "Project landing forecast",
+        "command": "linear-pp-cli projects burndown PROJ-42 --weeks 8 --json",
+        "explanation": "Predicts completion from measured velocity instead of the static target date the project was created with."
+      },
+      {
+        "title": "Safe testing on a real workspace",
+        "command": "linear-pp-cli config set trust-mode strict \u0026\u0026 linear-pp-cli issues create --title 'pp-test sanity' --team ENG \u0026\u0026 linear-pp-cli pp-cleanup --session current",
+        "explanation": "Strict trust-mode plus pp-test/pp-cleanup means the CLI only mutates the issues it created — never pre-existing tickets."
+      },
+      {
+        "title": "Find duplicates before filing",
+        "command": "linear-pp-cli similar \"login button broken\" --json --select identifier,title,score | head",
+        "explanation": "FTS5 over the synced corpus; works offline and won't hit the API complexity budget."
+      }
+    ],
+    "trigger_phrases": [
+      "what should I work on today",
+      "who's overloaded on the platform team",
+      "compare last cycle to this cycle",
+      "when will project X land",
+      "find Linear duplicates of",
+      "use linear-pp-cli",
+      "run linear-pp-cli"
+    ]
+  }
+}

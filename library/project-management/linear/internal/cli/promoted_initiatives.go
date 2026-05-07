@@ -14,10 +14,11 @@ import (
 func newInitiativesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "initiatives <id>",
-		Short:   "Get a single initiative",
-		Long:    "Shortcut for 'initiatives get'. Get a single initiative",
-		Example: "  linear-pp-cli initiatives",
+		Use:         "initiatives <id>",
+		Short:       "Get a single initiative",
+		Long:        "Shortcut for 'initiatives get'. Get a single initiative",
+		Example:     "  linear-pp-cli initiatives",
+		Annotations: map[string]string{"pp:endpoint": "initiatives.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -83,6 +84,7 @@ func newInitiativesPromotedCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	// Wire sibling endpoints and sub-resources as subcommands
+	cmd.AddCommand(newInitiativesHealthCmd(flags))
 
 	return cmd
 }

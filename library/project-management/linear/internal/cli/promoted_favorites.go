@@ -14,10 +14,11 @@ import (
 func newFavoritesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "favorites <id>",
-		Short:   "Get a single favorite",
-		Long:    "Shortcut for 'favorites get'. Get a single favorite",
-		Example: "  linear-pp-cli favorites",
+		Use:         "favorites <id>",
+		Short:       "Get a single favorite",
+		Long:        "Shortcut for 'favorites get'. Get a single favorite",
+		Example:     "  linear-pp-cli favorites",
+		Annotations: map[string]string{"pp:endpoint": "favorites.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

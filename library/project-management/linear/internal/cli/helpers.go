@@ -393,6 +393,19 @@ func camelToKebab(s string) string {
 	return b.String()
 }
 
+// printJSONFiltered serializes v to JSON and routes through
+// printOutputWithFlags so --select / --compact / --csv / --quiet behave
+// the same as on data-layer commands. Use this in novel-feature
+// command handlers instead of the legacy bare-JSON receiver method,
+// which silently drops those flags.
+func printJSONFiltered(w io.Writer, v any, flags *rootFlags) error {
+	raw, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	return printOutputWithFlags(w, raw, flags)
+}
+
 // printOutputWithFlags routes output through the right format based on flags.
 func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) error {
 	// Apply --compact: filter to high-gravity fields only

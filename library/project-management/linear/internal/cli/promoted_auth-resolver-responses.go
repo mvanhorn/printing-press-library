@@ -14,10 +14,11 @@ import (
 func newAuthResolverResponsesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "auth-resolver-responses",
-		Short:   "Get a single authresolverresponse",
-		Long:    "Shortcut for 'auth-resolver-responses get'. Get a single authresolverresponse",
-		Example: "  linear-pp-cli auth-resolver-responses",
+		Use:         "auth-resolver-responses",
+		Short:       "Get a single authresolverresponse",
+		Long:        "Shortcut for 'auth-resolver-responses get'. Get a single authresolverresponse",
+		Example:     "  linear-pp-cli auth-resolver-responses",
+		Annotations: map[string]string{"pp:endpoint": "auth-resolver-responses.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/store"
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/store"
 )
 
 func TestParseIssueIdentifier(t *testing.T) {

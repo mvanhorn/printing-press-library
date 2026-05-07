@@ -28,11 +28,17 @@ type GraphQLError struct {
 }
 
 // Query executes a GraphQL query and returns the raw data payload.
+// In dry-run mode the underlying transport prints the request and returns
+// a synthetic envelope; callers receive an empty payload so dry-run never
+// fails downstream JSON decoding.
 func (c *Client) Query(query string, variables map[string]any) (json.RawMessage, error) {
 	req := GraphQLRequest{Query: query, Variables: variables}
 	raw, _, err := c.Post("/graphql", req)
 	if err != nil {
 		return nil, err
+	}
+	if c.DryRun {
+		return nil, nil
 	}
 
 	var resp GraphQLResponse
@@ -50,10 +56,15 @@ func (c *Client) Query(query string, variables map[string]any) (json.RawMessage,
 }
 
 // QueryInto executes a GraphQL query and unmarshals the data into dest.
+// In dry-run mode it returns nil without touching dest, so callers can
+// continue without seeing a JSON-decode error on the dry-run envelope.
 func (c *Client) QueryInto(query string, variables map[string]any, dest any) error {
 	data, err := c.Query(query, variables)
 	if err != nil {
 		return err
+	}
+	if c.DryRun || len(data) == 0 {
+		return nil
 	}
 	return json.Unmarshal(data, dest)
 }

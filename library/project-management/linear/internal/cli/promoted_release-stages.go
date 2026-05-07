@@ -14,10 +14,11 @@ import (
 func newReleaseStagesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "release-stages <id>",
-		Short:   "Get a single releasestage",
-		Long:    "Shortcut for 'release-stages get'. Get a single releasestage",
-		Example: "  linear-pp-cli release-stages",
+		Use:         "release-stages <id>",
+		Short:       "Get a single releasestage",
+		Long:        "Shortcut for 'release-stages get'. Get a single releasestage",
+		Example:     "  linear-pp-cli release-stages",
+		Annotations: map[string]string{"pp:endpoint": "release-stages.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

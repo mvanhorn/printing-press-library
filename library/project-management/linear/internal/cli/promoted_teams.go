@@ -20,6 +20,7 @@ func newTeamsPromotedCmd(flags *rootFlags) *cobra.Command {
 		Example: `  linear-pp-cli teams abc123-def456
   linear-pp-cli teams abc123-def456 --json
   linear-pp-cli teams abc123-def456 --json --select id,name,key`,
+		Annotations: map[string]string{"pp:endpoint": "teams.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

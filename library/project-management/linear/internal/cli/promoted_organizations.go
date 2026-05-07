@@ -20,6 +20,7 @@ func newOrganizationsPromotedCmd(flags *rootFlags) *cobra.Command {
 		Example: `  linear-pp-cli organizations
   linear-pp-cli organizations --json
   linear-pp-cli organizations --json --select id,name`,
+		Annotations: map[string]string{"pp:endpoint": "organizations.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

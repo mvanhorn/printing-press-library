@@ -14,10 +14,11 @@ import (
 func newReleasesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "releases <id>",
-		Short:   "Get a single release",
-		Long:    "Shortcut for 'releases get'. Get a single release",
-		Example: "  linear-pp-cli releases",
+		Use:         "releases <id>",
+		Short:       "Get a single release",
+		Long:        "Shortcut for 'releases get'. Get a single release",
+		Example:     "  linear-pp-cli releases",
+		Annotations: map[string]string{"pp:endpoint": "releases.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

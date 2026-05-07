@@ -7,6 +7,7 @@
 package store
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -97,6 +98,13 @@ type workflowStatePayload struct {
 type issueLabelPayload struct{ Name, Color string }
 
 func Open(dbPath string) (*Store, error) {
+	return OpenWithContext(context.Background(), dbPath)
+}
+
+// OpenWithContext opens the local SQLite store and runs migrations,
+// honoring the supplied context for cancellation. Used by the MCP
+// tool handlers, which receive ctx from the runtime.
+func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
 		return nil, fmt.Errorf("creating db directory: %w", err)
 	}
@@ -105,6 +113,10 @@ func Open(dbPath string) (*Store, error) {
 		return nil, fmt.Errorf("opening database: %w", err)
 	}
 	db.SetMaxOpenConns(1)
+	if err := db.PingContext(ctx); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("opening database: %w", err)
+	}
 	s := &Store{db: db}
 	if err := s.migrate(); err != nil {
 		db.Close()
@@ -220,6 +232,16 @@ func (s *Store) migrate() error {
 			INSERT INTO issues_fts(issues_fts, rowid, identifier, title, description) VALUES('delete', old.rowid, old.identifier, old.title, old.description);
 			INSERT INTO issues_fts(rowid, identifier, title, description) VALUES (new.rowid, new.identifier, new.title, new.description);
 		END`,
+		`CREATE TABLE IF NOT EXISTS pp_created (
+			issue_id TEXT NOT NULL,
+			identifier TEXT,
+			title TEXT,
+			session TEXT NOT NULL,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			archived_at DATETIME,
+			PRIMARY KEY (issue_id, session)
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_pp_created_session ON pp_created(session)`,
 	}
 	otherTables := []string{
 		"audit_entry_types", "documents", "initiative_to_projects", "user_settingses", "custom_views", "organizations",

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "linear-pp-mcp",
+  "display_name": "Linear",
+  "version": "3.10.0",
+  "description": "Linear API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/linear-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/linear-pp-mcp",
+      "args": [],
+      "env": {
+        "LINEAR_API_KEY": "${user_config.linear_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "linear_api_key": {
+      "type": "string",
+      "title": "LINEAR_API_KEY",
+      "description": "Sets LINEAR_API_KEY for the Linear MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
