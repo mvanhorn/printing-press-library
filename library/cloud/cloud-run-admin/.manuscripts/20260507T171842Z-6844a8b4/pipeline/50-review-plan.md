@@ -13,18 +13,18 @@ Evaluate the generated CLI with one shipcheck block: dogfood, runtime verificati
 
 ## Context
 
-- Pipeline directory: /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline
-- Output directory: /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli
+- Pipeline directory: ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline
+- Output directory: ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli
 - Spec URL: https://api.apis.guru/v2/specs/googleapis.com/run/v2/openapi.yaml
 - Spec source: catalog entry google-cloud-run (validated via apis.guru googleapis.com/run/v2)
 - Sandbox note: petstore is sandbox-safe for Tier 3 dogfooding
 
 ## What This Phase Must Produce
 
-- dogfood-results.json in /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline
-- verification-report.json in /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli
-- scorecard.md in /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline
-- review.md in /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline summarizing the combined shipcheck result
+- dogfood-results.json in ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline
+- verification-report.json in ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli
+- scorecard.md in ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline
+- review.md in ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline summarizing the combined shipcheck result
 
 ## Prior Phase Outputs
 
@@ -32,7 +32,7 @@ Evaluate the generated CLI with one shipcheck block: dogfood, runtime verificati
 
 ## Codebase Pointers
 
-- printing-press dogfood --dir /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli --spec <spec>
-- printing-press verify --dir /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli --spec <spec> --fix
-- printing-press scorecard --dir /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli --spec <spec>
-- Generated CLI binary and help surfaces in /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli
+- printing-press dogfood --dir ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli --spec <spec>
+- printing-press verify --dir ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli --spec <spec> --fix
+- printing-press scorecard --dir ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli --spec <spec>
+- Generated CLI binary and help surfaces in ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli

@@ -8,9 +8,9 @@ Command:
 
 ```bash
 ./printing-press shipcheck \
-  --dir /Users/cathrynlavery/printing-press/library/cloud-run-admin \
-  --spec /Users/cathrynlavery/printing-press/library/cloud-run-admin/spec.yaml \
-  --research-dir /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline \
+  --dir ~/printing-press/library/cloud-run-admin \
+  --spec ~/printing-press/library/cloud-run-admin/spec.yaml \
+  --research-dir ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline \
   --json
 ```
 

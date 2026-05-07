@@ -16,17 +16,17 @@ https://www.googleapis.com/auth/cloud-platform
 
 ## Cloud Run Probe
 
-`littlemight-gog` rejected Cloud Run Admin calls because the API is disabled or inaccessible in that project:
+`<cloud-run-disabled-project>` rejected Cloud Run Admin calls because the API is disabled or inaccessible in that project:
 
 ```text
-HTTP 403: Cloud Run Admin API has not been used in project littlemight-gog before or it is disabled
+HTTP 403: Cloud Run Admin API has not been used in project <cloud-run-disabled-project> before or it is disabled
 ```
 
-The same credential source successfully listed Cloud Run services in `helm-app-ef1b1`:
+The same credential source successfully listed Cloud Run services in `<cloud-run-enabled-project>`:
 
 ```bash
 CLOUD_RUN_ADMIN_OAUTH2C="<cloud-platform token minted from Google Ads OAuth config>" \
-./cloud-run-admin services list projects/helm-app-ef1b1/locations/us-central1 --json --timeout 20s
+./cloud-run-admin services list projects/<cloud-run-enabled-project>/locations/us-central1 --json --timeout 20s
 ```
 
 Result: PASS. The output came from the live Cloud Run Admin API.

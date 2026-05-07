@@ -13,14 +13,14 @@ Discover existing CLI tools for the cloud-run-admin API and assess whether gener
 
 ## Context
 
-- Pipeline directory: /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline
-- Output directory: /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli
+- Pipeline directory: ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline
+- Output directory: ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli
 - Spec URL: https://api.apis.guru/v2/specs/googleapis.com/run/v2/openapi.yaml
 - Spec source: catalog entry google-cloud-run (validated via apis.guru googleapis.com/run/v2)
 
 ## What This Phase Must Produce
 
-- research.json in /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline with:
+- research.json in ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline with:
   - List of discovered alternative CLIs (name, URL, language, stars)
   - Novelty score (1-10)
   - Recommendation: proceed, proceed-with-gaps, or skip

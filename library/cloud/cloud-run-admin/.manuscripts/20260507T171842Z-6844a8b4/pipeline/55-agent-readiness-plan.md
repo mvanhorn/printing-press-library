@@ -14,8 +14,8 @@ and implement its fixes in a severity-gated loop (max 2 passes) until no Blocker
 
 ## Context
 
-- Pipeline directory: /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline
-- Output directory: /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli
+- Pipeline directory: ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline
+- Output directory: ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli
 - Spec URL: https://api.apis.guru/v2/specs/googleapis.com/run/v2/openapi.yaml
 - Spec source: catalog entry google-cloud-run (validated via apis.guru googleapis.com/run/v2)
 
@@ -28,7 +28,7 @@ and implement its fixes in a severity-gated loop (max 2 passes) until no Blocker
 ## Prior Phase Outputs
 
 - Runtime verification results from Phase 4.8 (pass rate, data pipeline status)
-- Working CLI binary in /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli
+- Working CLI binary in ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli
 
 ## Codebase Pointers
 

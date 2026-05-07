@@ -1,6 +1,6 @@
 {
-  "dir": "/Users/cathrynlavery/printing-press/library/cloud-run-admin",
-  "binary": "/Users/cathrynlavery/printing-press/library/cloud-run-admin/cloud-run-admin",
+  "dir": "~/printing-press/library/cloud-run-admin",
+  "binary": "~/printing-press/library/cloud-run-admin/cloud-run-admin",
   "level": "full",
   "verdict": "PASS",
   "matrix_size": 67,
@@ -261,7 +261,7 @@
         "doctor"
       ],
       "status": "pass",
-      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK 1/1 available\n  OK API: reachable (HTTP 404 at /)\n  OK Credentials: ok (HTTP 404 from /, but auth was accepted)\n  config_path: /Users/cathrynlavery/.config/cloud-run-admin-pp-cli/config.toml\n  base_url: https://run.googleapis.com\n  auth_source: env:CLOUD_RUN_ADMIN_OAUTH2C\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /Users/cathrynlavery/.local/share/cloud-run-admin-pp-cli/data.db\n    schema_version: 1\n    db_bytes: 135168\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'cloud-run-admin-pp-cli sync' to hydrate.\n"
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK 1/1 available\n  OK API: reachable (HTTP 404 at /)\n  OK Credentials: ok (HTTP 404 from /, but auth was accepted)\n  config_path: ~/.config/cloud-run-admin-pp-cli/config.toml\n  base_url: https://run.googleapis.com\n  auth_source: env:CLOUD_RUN_ADMIN_OAUTH2C\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: ~/.local/share/cloud-run-admin-pp-cli/data.db\n    schema_version: 1\n    db_bytes: 135168\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'cloud-run-admin-pp-cli sync' to hydrate.\n"
     },
     {
       "command": "doctor",
@@ -271,7 +271,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"api\": \"reachable (HTTP 404 at /)\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"env:CLOUD_RUN_ADMIN_OAUTH2C\",\n  \"base_url\": \"https://run.googleapis.com\",\n  \"cache\": {\n    \"db_bytes\": 135168,\n    \"db_path\": \"/Users/cathrynlavery/.local/share/cloud-run-admin-pp-cli/data.db\",\n    \"hint\": \"sync_state is empty; run 'cloud-run-admin-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 1,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/Users/cathrynlavery/.config/cloud-run-admin-pp-cli/config.toml\",\n  \"credentials\": \"ok (HTTP 404 from /, but auth was accepted)\",\n  \"env_vars\": \"OK 1/1 available\",\n  \"version\": \"1.0.0\"\n}\n"
+      "output_sample": "{\n  \"api\": \"reachable (HTTP 404 at /)\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"env:CLOUD_RUN_ADMIN_OAUTH2C\",\n  \"base_url\": \"https://run.googleapis.com\",\n  \"cache\": {\n    \"db_bytes\": 135168,\n    \"db_path\": \"~/.local/share/cloud-run-admin-pp-cli/data.db\",\n    \"hint\": \"sync_state is empty; run 'cloud-run-admin-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 1,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"~/.config/cloud-run-admin-pp-cli/config.toml\",\n  \"credentials\": \"ok (HTTP 404 from /, but auth was accepted)\",\n  \"env_vars\": \"OK 1/1 available\",\n  \"version\": \"1.0.0\"\n}\n"
     },
     {
       "command": "doctor",
@@ -1167,7 +1167,7 @@
         "archive"
       ],
       "status": "pass",
-      "output_sample": "Archived 0 items across 0 resources to /Users/cathrynlavery/.local/share/cloud-run-admin-pp-cli/data.db\n"
+      "output_sample": "Archived 0 items across 0 resources to ~/.local/share/cloud-run-admin-pp-cli/data.db\n"
     },
     {
       "command": "workflow archive",
@@ -1178,7 +1178,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"resources_synced\": 0,\n  \"store_path\": \"/Users/cathrynlavery/.local/share/cloud-run-admin-pp-cli/data.db\",\n  \"timestamp\": \"2026-05-07T18:07:05Z\",\n  \"total_items\": 0\n}\n"
+      "output_sample": "{\n  \"resources_synced\": 0,\n  \"store_path\": \"~/.local/share/cloud-run-admin-pp-cli/data.db\",\n  \"timestamp\": \"2026-05-07T18:07:05Z\",\n  \"total_items\": 0\n}\n"
     },
     {
       "command": "workflow archive",

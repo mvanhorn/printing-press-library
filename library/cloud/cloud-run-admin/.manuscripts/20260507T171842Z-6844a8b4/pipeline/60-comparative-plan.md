@@ -13,14 +13,14 @@ Score the generated cloud-run-admin CLI against discovered alternatives on 6 dim
 
 ## Context
 
-- Pipeline directory: /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline
-- Output directory: /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli
+- Pipeline directory: ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline
+- Output directory: ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli
 - Spec URL: https://api.apis.guru/v2/specs/googleapis.com/run/v2/openapi.yaml
 - Spec source: catalog entry google-cloud-run (validated via apis.guru googleapis.com/run/v2)
 
 ## What This Phase Must Produce
 
-- comparative-analysis.md in /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline with:
+- comparative-analysis.md in ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline with:
   - Score table (our CLI vs each alternative, 100 points max)
   - Gap summary: what we're missing
   - Advantage summary: what we have that others don't
@@ -41,10 +41,10 @@ Score the generated cloud-run-admin CLI against discovered alternatives on 6 dim
 
 - research.json from research phase
 - dogfood-results.json from review phase
-- Working CLI binary in /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli
+- Working CLI binary in ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli
 
 ## Codebase Pointers
 
 - Comparative logic: internal/pipeline/comparative.go
-- Research results: /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline/research.json
-- Dogfood results: /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline/dogfood-results.json
+- Research results: ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline/research.json
+- Dogfood results: ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline/dogfood-results.json

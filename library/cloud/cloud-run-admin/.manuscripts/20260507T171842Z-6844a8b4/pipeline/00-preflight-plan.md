@@ -13,8 +13,8 @@ Verify the local environment and source inputs needed to run the cloud-run-admin
 
 ## Context
 
-- Pipeline directory: /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline
-- Output directory: /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli
+- Pipeline directory: ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline
+- Output directory: ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli
 - Spec URL: https://api.apis.guru/v2/specs/googleapis.com/run/v2/openapi.yaml
 - Spec source: catalog entry google-cloud-run (validated via apis.guru googleapis.com/run/v2)
 
@@ -23,7 +23,7 @@ Verify the local environment and source inputs needed to run the cloud-run-admin
 - Verified Go environment for the pipeline run
 - Verified printing-press binary for local generation work
 - Downloaded and validated OpenAPI spec for cloud-run-admin
-- conventions.json in /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline
+- conventions.json in ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline
 
 ## Prior Phase Outputs
 

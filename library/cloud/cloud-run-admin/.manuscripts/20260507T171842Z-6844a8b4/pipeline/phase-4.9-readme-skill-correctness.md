@@ -4,9 +4,9 @@ Run ID: 20260507T171842Z-6844a8b4
 
 ## Checks
 
-- `printing-press verify-skill --dir /Users/cathrynlavery/printing-press/library/cloud-run-admin`: PASS
-- `go test ./...` from `/Users/cathrynlavery/printing-press/library/cloud-run-admin`: PASS
-- `printing-press publish validate --dir /Users/cathrynlavery/printing-press/library/cloud-run-admin --json`: PASS
+- `printing-press verify-skill --dir ~/printing-press/library/cloud-run-admin`: PASS
+- `go test ./...` from `~/printing-press/library/cloud-run-admin`: PASS
+- `printing-press publish validate --dir ~/printing-press/library/cloud-run-admin --json`: PASS
 
 ## Findings
 

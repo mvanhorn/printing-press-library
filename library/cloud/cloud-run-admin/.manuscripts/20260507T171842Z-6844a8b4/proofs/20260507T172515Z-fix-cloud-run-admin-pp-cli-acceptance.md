@@ -9,9 +9,9 @@ CLOUD_RUN_ADMIN_OAUTH2C="$(minted from the local Google Ads OAuth refresh-token 
 ./printing-press dogfood \
   --live \
   --level full \
-  --dir /Users/cathrynlavery/printing-press/library/cloud-run-admin \
+  --dir ~/printing-press/library/cloud-run-admin \
   --auth-env CLOUD_RUN_ADMIN_OAUTH2C \
-  --write-acceptance /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/proofs/phase5-acceptance.json \
+  --write-acceptance ~/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/proofs/phase5-acceptance.json \
   --json
 ```
 
@@ -34,7 +34,7 @@ Skipped cases were validator-approved live dogfood skips, primarily commands who
 
 ## Level Selection
 
-Cloud Run credentials were available, so this was not a no-auth skip. The Google Ads OAuth refresh token was able to mint a Cloud Platform-scoped token. `littlemight-gog` rejected Cloud Run Admin calls because the API is disabled or inaccessible there, but `helm-app-ef1b1` has Cloud Run enabled and accepted a live read probe with the same credential source. Full live dogfood passed without `--allow-destructive`.
+Cloud Run credentials were available, so this was not a no-auth skip. The Google Ads OAuth refresh token was able to mint a Cloud Platform-scoped token. `<cloud-run-disabled-project>` rejected Cloud Run Admin calls because the API is disabled or inaccessible there, but `<cloud-run-enabled-project>` has Cloud Run enabled and accepted a live read probe with the same credential source. Full live dogfood passed without `--allow-destructive`.
 
 ## Resulting Marker
 

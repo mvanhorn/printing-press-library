@@ -9,7 +9,7 @@ Run ID: 20260507T171842Z-6844a8b4
 - CLI slug: cloud-run-admin
 - Category: cloud
 - Spec: https://api.apis.guru/v2/specs/googleapis.com/run/v2/openapi.yaml
-- Local CLI: /Users/cathrynlavery/printing-press/library/cloud-run-admin
+- Local CLI: ~/printing-press/library/cloud-run-admin
 - Public PR: https://github.com/mvanhorn/printing-press-library/pull/279
 
 ## Workflow Status
@@ -23,9 +23,9 @@ Run ID: 20260507T171842Z-6844a8b4
 
 ## Validation
 
-- `printing-press publish validate --dir /Users/cathrynlavery/printing-press/library/cloud-run-admin --json`: PASS
-- `go test ./...` in `/Users/cathrynlavery/printing-press/library/cloud-run-admin`: PASS
-- `printing-press verify-skill --dir /Users/cathrynlavery/printing-press/library/cloud-run-admin`: PASS
+- `printing-press publish validate --dir ~/printing-press/library/cloud-run-admin --json`: PASS
+- `go test ./...` in `~/printing-press/library/cloud-run-admin`: PASS
+- `printing-press verify-skill --dir ~/printing-press/library/cloud-run-admin`: PASS
 - Public package publish validation: PASS
 - Public package `go test ./...`: PASS
 - Public package verify-skill: PASS
@@ -33,7 +33,7 @@ Run ID: 20260507T171842Z-6844a8b4
 
 ## Phase 5 Note
 
-Cloud Run credentials were available. The local Google Ads OAuth refresh-token configuration can mint a `cloud-platform` access token, and full live dogfood passed without `--allow-destructive`: 67 tests passed, 0 failed, and 62 validator-approved skips. `littlemight-gog` rejected Cloud Run Admin calls because the API is disabled or inaccessible there; `helm-app-ef1b1` has Cloud Run enabled and accepted a live read probe with the same credential source.
+Cloud Run credentials were available. The local Google Ads OAuth refresh-token configuration can mint a `cloud-platform` access token, and full live dogfood passed without `--allow-destructive`: 67 tests passed, 0 failed, and 62 validator-approved skips. `<cloud-run-disabled-project>` rejected Cloud Run Admin calls because the API is disabled or inaccessible there; `<cloud-run-enabled-project>` has Cloud Run enabled and accepted a live read probe with the same credential source.
 
 ## Follow-Up
 
