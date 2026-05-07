@@ -18,7 +18,7 @@ Run ID: 20260507T171842Z-6844a8b4
 - Research: completed with official Cloud Run Admin API, gcloud, Go client, and prior-art sources.
 - Generation: completed from catalog-backed Google Run v2 OpenAPI spec.
 - Review: completed with dogfood, verify, workflow-verify, verify-skill, and scorecard.
-- Phase 5: completed with auth-aware quick live dogfood using `gcloud auth print-access-token`.
+- Phase 5: completed with full live dogfood using a Cloud Platform-scoped token minted from the same local Google Ads OAuth refresh-token config.
 - Publish: packaged into public library category `cloud` and opened PR 279.
 
 ## Validation
@@ -33,7 +33,7 @@ Run ID: 20260507T171842Z-6844a8b4
 
 ## Phase 5 Note
 
-Cloud Run credentials were available. Quick live dogfood was used because the full matrix can exercise write-side Cloud Run resources and no disposable fixture project was approved for destructive or cost-bearing checks. The validator-approved acceptance marker passed with 5 tests passed, 0 failed, and 4 skipped.
+Cloud Run credentials were available. The local Google Ads OAuth refresh-token configuration can mint a `cloud-platform` access token, and full live dogfood passed without `--allow-destructive`: 67 tests passed, 0 failed, and 62 validator-approved skips. `littlemight-gog` rejected Cloud Run Admin calls because the API is disabled or inaccessible there; `helm-app-ef1b1` has Cloud Run enabled and accepted a live read probe with the same credential source.
 
 ## Follow-Up
 

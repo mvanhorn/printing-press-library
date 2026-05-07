@@ -5,45 +5,43 @@ Run ID: 20260507T171842Z-6844a8b4
 ## Command
 
 ```bash
-CLOUD_RUN_ADMIN_OAUTH2C="$(gcloud auth print-access-token 2>/dev/null)" \
+CLOUD_RUN_ADMIN_OAUTH2C="$(minted from the local Google Ads OAuth refresh-token config with cloud-platform scope)" \
 ./printing-press dogfood \
   --live \
-  --level quick \
+  --level full \
   --dir /Users/cathrynlavery/printing-press/library/cloud-run-admin \
   --auth-env CLOUD_RUN_ADMIN_OAUTH2C \
   --write-acceptance /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/proofs/phase5-acceptance.json \
   --json
 ```
 
-JSON proof: `proofs/20260507T172515Z-dogfood-results.json`
+JSON proof: `proofs/20260507T174200Z-dogfood-results-full-google-ads-token.json`
 
 ## Result
 
 Verdict: PASS
 
-- Level: quick
-- Matrix size: 5
-- Passed: 5
+- Level: full
+- Matrix size: 67
+- Passed: 67
 - Failed: 0
-- Skipped: 4
-- Auth: bearer token available from `gcloud auth print-access-token`
+- Skipped: 62
+- Auth: bearer token minted from the same local Google Ads OAuth client/refresh-token material, requested with `https://www.googleapis.com/auth/cloud-platform`
 
 ## Skips
 
-- `analytics` error-path: skipped because the command has no positional argument.
-- `cloud-run-admin-jobs create` happy path and JSON fidelity: skipped because the live dogfood runner cannot safely synthesize a real Cloud Run `parent` without an approved disposable project/location fixture.
-- `cloud-run-admin-jobs create` real error-path: skipped for the same non-id parent reason.
+Skipped cases were validator-approved live dogfood skips, primarily commands whose required Cloud Run parent/name positional arguments cannot be safely synthesized without a disposable fixture resource. Destructive-at-auth checks were not enabled.
 
 ## Level Selection
 
-Cloud Run credentials were available, so this was not a no-auth skip. Quick live dogfood was used because the full matrix can exercise write-side Cloud Run APIs and no disposable fixture project was approved for destructive or cost-bearing checks. The acceptance marker was written by `printing-press dogfood` and publish validation accepts it.
+Cloud Run credentials were available, so this was not a no-auth skip. The Google Ads OAuth refresh token was able to mint a Cloud Platform-scoped token. `littlemight-gog` rejected Cloud Run Admin calls because the API is disabled or inaccessible there, but `helm-app-ef1b1` has Cloud Run enabled and accepted a live read probe with the same credential source. Full live dogfood passed without `--allow-destructive`.
 
 ## Resulting Marker
 
 `proofs/phase5-acceptance.json` records:
 
 - status: pass
-- level: quick
-- tests_passed: 5
-- tests_skipped: 4
+- level: full
+- tests_passed: 67
+- tests_skipped: 62
 - api_key_available: true
