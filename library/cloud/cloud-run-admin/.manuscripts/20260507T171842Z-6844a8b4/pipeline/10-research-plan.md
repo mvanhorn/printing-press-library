@@ -15,8 +15,8 @@ Discover existing CLI tools for the cloud-run-admin API and assess whether gener
 
 - Pipeline directory: /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/pipeline
 - Output directory: /Users/cathrynlavery/printing-press/.runstate/mogadishu-36cf6133/runs/20260507T171842Z-6844a8b4/working/cloud-run-admin-pp-cli
-- Spec URL: https://raw.githubusercontent.com/APIs-guru/openapi-directory/main/APIs/cloud-run-admin.com/v1/openapi.yaml
-- Spec source: apis-guru (unverified, needs fetch validation)
+- Spec URL: https://api.apis.guru/v2/specs/googleapis.com/run/v2/openapi.yaml
+- Spec source: catalog entry google-cloud-run (validated via apis.guru googleapis.com/run/v2)
 
 ## What This Phase Must Produce
 

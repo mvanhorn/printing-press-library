@@ -1,0 +1,46 @@
+{
+  "scorecard": {
+    "api_name": "cloud-run-admin",
+    "steinberger": {
+      "output_modes": 10,
+      "auth": 10,
+      "error_handling": 10,
+      "terminal_ux": 9,
+      "readme": 8,
+      "doctor": 10,
+      "agent_native": 10,
+      "mcp_quality": 10,
+      "mcp_description_quality": 10,
+      "mcp_token_efficiency": 4,
+      "mcp_remote_transport": 5,
+      "mcp_tool_design": 5,
+      "mcp_surface_strategy": 0,
+      "local_cache": 10,
+      "cache_freshness": 5,
+      "breadth": 5,
+      "vision": 7,
+      "workflows": 6,
+      "insight": 8,
+      "agent_workflow_readiness": 9,
+      "path_validity": 10,
+      "auth_protocol": 10,
+      "data_pipeline_integrity": 10,
+      "sync_correctness": 10,
+      "type_fidelity": 3,
+      "dead_code": 5,
+      "live_api_verification": 0,
+      "total": 87,
+      "percentage": 87
+    },
+    "competitor_scores": null,
+    "overall_grade": "A",
+    "gap_report": [
+      "mcp_token_efficiency scored 4/10 - needs improvement",
+      "MCP: 16 tools (0 public, 16 auth-required) — readiness: full"
+    ],
+    "unscored_dimensions": [
+      "mcp_surface_strategy",
+      "live_api_verification"
+    ]
+  }
+}
