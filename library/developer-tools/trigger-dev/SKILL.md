@@ -1,7 +1,6 @@
 ---
 name: pp-trigger-dev
 description: "Trigger.dev background-job monitoring and observability from the terminal. List runs, analyze failures, watch live for failures, inspect queues, schedules, deployments, batches, cost by task, and task health. Use when the user wants to check Trigger.dev status, find failing tasks, watch runs live, audit schedules, look up a specific run, compare cost across tasks or machine types, or debug a stuck batch. Offline search via local SQLite sync."
-version: "1.2.1"
 author: "Matt Van Horn"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

@@ -1,7 +1,6 @@
 ---
 name: pp-amazon-seller
 description: "Printing Press CLI for Amazon Seller. Read FBA inventory, orders, sales reports, listings, and catalog data for an Amazon seller account."
-version: "3.10.0"
 author: "Cathryn Lavery"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

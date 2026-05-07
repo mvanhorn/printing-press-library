@@ -1,7 +1,6 @@
 ---
 name: pp-hackernews
 description: "Hacker News from your terminal — with a local SQLite store, snapshot history, and agent-native output no other HN tool has. Trigger phrases: `check hacker news`, `search hn`, `what is hn saying about`, `diff the hn front page`, `pulse on hn`, `look up hn user`, `hn who is hiring`, `hn top stories`, `use hackernews`, `run hackernews`."
-version: "3.9.0"
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

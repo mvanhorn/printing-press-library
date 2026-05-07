@@ -1,7 +1,6 @@
 ---
 name: pp-pokeapi
 description: "PokéAPI as a fully offline Pokédex with SQL, full-text search, type math, and a damage calculator no other Pokémon tool ships as a CLI. Trigger phrases: `look up a pokemon`, `what beats charizard`, `build a pokemon team`, `type matchup`, `evolution chain`, `use pokeapi`, `run pokeapi-pp-cli`."
-version: "3.0.1"
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

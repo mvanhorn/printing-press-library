@@ -1,7 +1,6 @@
 ---
 name: pp-producthunt
 description: "Read Product Hunt from your terminal — works token-free for the daily skim, unlocks a launch-day cockpit and a marketer research desk in one onboarding step. Trigger phrases: `what launched on product hunt today`, `find ai launches on product hunt this week`, `how is my product hunt launch tracking`, `compare these product hunt launches`, `summarize the comments on this product hunt post`, `what does a good product hunt launch look like at hour 6`, `use producthunt`, `run producthunt`."
-version: "3.2.1"
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

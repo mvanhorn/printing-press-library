@@ -1,7 +1,6 @@
 ---
 name: pp-yahoo-finance
 description: "Use Yahoo Finance CLI for stock and ETF quotes, charts, fundamentals, options chains, symbol search, trending tickers, local watchlists, portfolio lots, and market digests. Use when the user asks about a ticker, portfolio performance, option filtering, market movers, or wants Yahoo Finance data in a terminal or agent-friendly format."
-version: "1.3.2"
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

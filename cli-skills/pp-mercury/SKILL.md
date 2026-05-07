@@ -1,7 +1,6 @@
 ---
 name: pp-mercury
 description: "Printing Press CLI for Mercury. Streamline financial tasks with secure account management and transaction processing. Enables user registration,..."
-version: "3.10.0"
 author: "Cathryn Lavery"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

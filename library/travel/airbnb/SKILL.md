@@ -1,7 +1,6 @@
 ---
 name: pp-airbnb
 description: "Skip the Airbnb platform fee. Find the host's direct booking site for any Airbnb listing. Trigger phrases: `find the direct booking site`, `skip the airbnb fee`, `vacation rental cheapest`, `book direct`, `use airbnb-pp`, `run airbnb-pp`. NOTE: VRBO support is currently disabled — pending Akamai workaround."
-version: "3.6.1"
 author: "Matt Van Horn"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

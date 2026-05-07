@@ -1,7 +1,6 @@
 ---
 name: pp-steam-web
 description: "Steam player and game lookup via the Steam Web API. Look up player profiles, owned games, recent playtime, achievements, stats, badges, friend lists, VAC/game ban status, and game schemas. Use when the user asks about their Steam library, a friend's achievements, who's playing a game, compare two players' stats, a player's Steam level or badges, VAC status, or wants to resolve a vanity URL to a Steam ID."
-version: "0.4.0"
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

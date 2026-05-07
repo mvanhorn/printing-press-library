@@ -1,7 +1,6 @@
 ---
 name: pp-archive-is
 description: "Use this skill whenever the user wants to archive a URL, bypass a paywall, look up an existing archive, view a cached version of a webpage, pull article text from archive.today or the Wayback Machine, or batch-archive a list of URLs. archive.today + Wayback Machine CLI with lookup-before-submit, automatic fallback when one backend is down, and agent-friendly output. No API key required. Triggers on phrasings like 'archive this article', 'bypass the paywall on this link', 'grab the cached text', 'save this url to archive.today', 'check if this was already archived', 'bulk archive these 20 URLs'."
-version: "1.2.1"
 author: "Matt Van Horn"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

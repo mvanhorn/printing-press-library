@@ -1,7 +1,6 @@
 ---
 name: pp-open-meteo
 description: "Every Open-Meteo endpoint family in one CLI — forecast, archive, marine, air quality, flood, climate, ensemble, seasonal, geocoding, elevation. Trigger phrases: `what's the weather in`, `forecast for`, `is it going to rain`, `marine forecast`, `air quality in`, `historical weather`, `climate normal`, `use open-meteo`, `run open-meteo`."
-version: "3.6.1"
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

@@ -1,7 +1,6 @@
 ---
 name: pp-google-photos
 description: "Printing Press CLI for Google Photos. Google Photos Library and Picker APIs for app-created media, albums, uploads, and user-selected media."
-version: "3.9.1"
 author: "Cathryn Lavery"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

@@ -1,7 +1,6 @@
 ---
 name: pp-company-goat
 description: "Look up startups across SEC Form D, GitHub, Hacker News, Companies House, YC, and Wikidata in one command — including the SEC fundraising data hidden behind paid Crunchbase tiers. Trigger phrases: `look up this startup`, `research <company>`, `what does <company> do`, `form D for <company>`, `is <company> still active`, `compare <a> and <b>`, `use company-goat`, `run company-goat-pp-cli`."
-version: "2.3.9"
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

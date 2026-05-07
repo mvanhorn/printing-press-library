@@ -1,7 +1,6 @@
 ---
 name: pp-tiktok-shop
 description: "Printing Press CLI/MCP for confirmed TikTok Shop Seller APIs. Safe v1 supports auth readiness, token exchange/refresh, read-only shops/orders/products/inventory/package/warehouse commands, and defers risky mutations."
-version: "3.8.0"
 author: "Cathryn Lavery"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

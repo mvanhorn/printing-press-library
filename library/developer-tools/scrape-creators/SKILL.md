@@ -1,7 +1,6 @@
 ---
 name: pp-scrape-creators
 description: "Every Scrape Creators endpoint, plus offline search, cross-platform compounding, and a local store no other Scrape Creators tool ships with. Trigger phrases: `scrape creators`, `tiktok profile`, `instagram profile`, `youtube channel`, `facebook ad library`, `creator on every platform`, `social media transcript search`, `use scrape-creators`, `run scrape-creators`."
-version: "3.2.1"
 author: "Adrian Horning"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

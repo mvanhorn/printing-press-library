@@ -1,7 +1,6 @@
 ---
 name: pp-craigslist
 description: "The local-first Craigslist watcher and triage tool that knows what's a repost, what's a scam, and what just dropped in price. Trigger phrases: `watch craigslist for`, `find new listings on craigslist`, `craigslist deal alert`, `scan craigslist across cities`, `craigslist repost`, `craigslist scam check`, `use craigslist-pp-cli`, `run craigslist-pp`."
-version: "3.6.0"
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

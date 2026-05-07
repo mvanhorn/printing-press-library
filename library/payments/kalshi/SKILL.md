@@ -1,7 +1,6 @@
 ---
 name: pp-kalshi
 description: "Trade prediction markets, persist tick data, and answer category-level P&L questions Kalshi.com cannot. Trigger phrases: `kalshi market price`, `track prediction market`, `kalshi portfolio P&L`, `kalshi correlate markets`, `use kalshi`, `run kalshi`."
-version: "3.9.0"
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

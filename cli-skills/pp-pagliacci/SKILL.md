@@ -1,7 +1,6 @@
 ---
 name: pp-pagliacci
 description: "Order Seattle's favorite pizza from the terminal — every endpoint, plus discount stacking, slice rotation across stores, half-and-half pies, and a small-party planner nobody else has. Trigger phrases: `order from pagliacci`, `what pagliacci slices are available`, `plan a pagliacci order for the family`, `build a half-and-half pagliacci pizza`, `pagliacci rewards balance`, `use pagliacci`, `run pagliacci`."
-version: "3.7.0"
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

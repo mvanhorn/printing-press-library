@@ -1,7 +1,6 @@
 ---
 name: pp-fedex
 description: "REST-native FedEx CLI for small business shippers, with rate-shopping, bulk CSV labels, an address book, and a local SQLite ledger no other tool has. Trigger phrases: `ship a package via FedEx`, `rate-shop FedEx services`, `bulk-print FedEx labels from CSV`, `save a FedEx recipient`, `issue a FedEx return label`, `FedEx spend this month`, `track a FedEx shipment`, `use fedex-pp-cli`, `run fedex`."
-version: "3.6.0"
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

@@ -1,7 +1,6 @@
 ---
 name: pp-firecrawl
 description: "Printing Press CLI for Firecrawl. API for interacting with Firecrawl services to perform web scraping and crawling tasks."
-version: "3.6.0"
 author: "Hiten Shah"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

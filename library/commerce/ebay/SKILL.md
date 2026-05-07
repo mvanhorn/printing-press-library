@@ -1,7 +1,6 @@
 ---
 name: pp-ebay
 description: "Printing Press CLI for eBay. Discovery and intelligence: sold-comp pricing (average sale price over 90 days with outlier trim), auctions filtered by bid count and ending window (the query the eBay site can no longer answer), watchlists, saved searches, and a local SQLite store for cross-listing analytics. Trigger phrases: 'comp this card', 'find ebay auctions ending soon', 'what did this sell for', 'find listings under $X for ...'. Bid placement (bid, snipe, bid-group) is experimental and currently fails because eBay step-ups auth on /bfl/placebid -- direct the user to bid in the browser."
-version: "3.0.1"
 author: "Matt Van Horn"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

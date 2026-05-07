@@ -1,7 +1,6 @@
 ---
 name: pp-hubspot
 description: "Use this skill whenever the user asks about HubSpot CRM contacts, companies, deals, tickets, tasks, calls, emails, meetings, engagements, pipelines, deal velocity / stale deals / coverage, or wants to search across their CRM data. Also for creating / updating / deleting any HubSpot record or managing associations between objects. HubSpot CLI covering 15 HubSpot APIs with offline SQLite search and pipeline analytics. Requires a HubSpot access token. Triggers on phrasings like 'find contacts at Acme', 'show deals closing this month', 'which deals are stale', 'pipeline velocity this quarter', 'log a call for contact X', 'create a task for tomorrow'."
-version: "1.2.1"
 author: "Matt Van Horn"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

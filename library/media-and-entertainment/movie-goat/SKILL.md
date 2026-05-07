@@ -1,7 +1,6 @@
 ---
 name: pp-movie-goat
 description: "The movie CLI that combines TMDb's discovery engine with OMDb's multi-source ratings — and ships a SQLite watchlist that flags what's streaming on your services right now. Trigger phrases: `what should I watch tonight`, `where can I stream <title>`, `rate <title>`, `compare <title> and <title>`, `what's <person>'s filmography`, `plan a <franchise> marathon`, `use movie-goat`, `run movie-goat`."
-version: "3.8.0"
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

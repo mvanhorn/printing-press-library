@@ -1,7 +1,6 @@
 ---
 name: pp-food52
 description: "Search, browse, and read Food52 from your terminal — with offline FTS, pantry matching, recipe scaling, and the editorial signals other tools throw away. Trigger phrases: `find me a food52 recipe for X`, `scale this food52 recipe to N servings`, `what can I cook from food52 with what's in my pantry`, `use food52`, `run food52`."
-version: "3.2.1"
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

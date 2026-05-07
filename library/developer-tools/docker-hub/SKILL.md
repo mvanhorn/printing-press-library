@@ -1,7 +1,6 @@
 ---
 name: pp-docker-hub
 description: "Printing Press CLI for Docker Hub. Docker Hub public API. Search container images, browse tags, check sizes, inspect Dockerfiles, and explore the..."
-version: "3.6.0"
 author: "Hiten Shah"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

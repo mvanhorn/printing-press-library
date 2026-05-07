@@ -1,7 +1,6 @@
 ---
 name: pp-coingecko
 description: "Printing Press CLI for Coingecko. CoinGecko public API for cryptocurrency data. Free tier, no API key required for basic endpoints."
-version: "2.3.7"
 author: "Hiten Shah"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

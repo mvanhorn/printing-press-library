@@ -1,7 +1,6 @@
 ---
 name: pp-postman-explore
 description: "The CLI for the public API directory at postman.com/explore — search, rank, and watch community-contributed Postman Collections, agent-native and offline. Trigger phrases: `find a postman collection for`, `what postman collection should i fork for`, `is there a postman collection for`, `browse postman api network`, `compare postman publishers`, `what changed on the postman network`, `use postman-explore`, `run postman-explore`."
-version: "3.0.1"
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

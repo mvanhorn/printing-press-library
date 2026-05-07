@@ -1,7 +1,6 @@
 ---
 name: pp-nvd
 description: "Printing Press CLI for Nvd. The NVD is the U.S. government repository of standards-based vulnerability management data. Search CVEs by keyword,..."
-version: "3.6.0"
 author: "Hiten Shah"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

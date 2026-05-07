@@ -1,7 +1,6 @@
 ---
 name: pp-cal-com
 description: "Every Cal.com feature, plus offline agendas, composed booking flows, and analytics no other Cal.com tool ships. Trigger phrases: `book a meeting on cal.com`, `what's on my calendar today`, `find an open slot`, `reschedule my next booking`, `audit my cal.com webhooks`, `use cal-com`, `run cal-com-pp-cli`."
-version: "3.9.0"
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

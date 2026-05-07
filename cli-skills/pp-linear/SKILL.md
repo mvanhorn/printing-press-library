@@ -1,7 +1,6 @@
 ---
 name: pp-linear
 description: "Linear project-management CLI for the terminal. Manage issues, projects, cycles, teams, initiatives, roadmaps, and customer records via the Linear GraphQL API with offline-capable SQLite sync. Use when the user asks about their Linear issues, wants today's queue, sprint velocity, team workload, bottlenecks, duplicate / stale / orphaned issues, release pipelines, or wants to create, update, or search Linear items from the terminal. Offline search and analytics work without an API round-trip after a one-time sync."
-version: "1.2.0"
 author: "Matt Van Horn"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

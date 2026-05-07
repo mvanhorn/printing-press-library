@@ -1,7 +1,6 @@
 ---
 name: pp-sentry
 description: "A broad Sentry API CLI with local search, SQL, export, and MCP surfaces for incident work. Trigger phrases: `check Sentry issues`, `list Sentry projects`, `debug a Sentry event`, `audit Sentry releases`, `search Sentry incidents`, `use Sentry`, `run Sentry`."
-version: "3.4.3"
 author: "Cathryn Lavery"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

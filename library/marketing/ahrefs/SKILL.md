@@ -1,7 +1,6 @@
 ---
 name: pp-ahrefs
 description: "Printing Press CLI for Ahrefs. SEO and competitive intelligence API for backlinks, keywords, rank tracking, site audit, and SERP data."
-version: "3.4.0"
 author: "Cathryn Lavery"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
