@@ -65,6 +65,15 @@ func TestFormatDescription(t *testing.T) {
 	}
 }
 
+func TestRegistryDescriptionReplacesBareMarkdownHeading(t *testing.T) {
+	if got := registryDescription("# Introduction", "Real catalog copy."); got != "Real catalog copy." {
+		t.Fatalf("registryDescription heading fallback = %q, want fallback", got)
+	}
+	if got := registryDescription("Curated catalog copy.", "Fallback."); got != "Curated catalog copy." {
+		t.Fatalf("registryDescription curated copy = %q, want prior", got)
+	}
+}
+
 // TestRenderCatalogCounts checks both pluralization branches and the
 // happy multi-entry / multi-category path. The pluralization matters
 // because the rendered string lands in human-readable prose; "1 CLIs
@@ -148,12 +157,15 @@ Trailing prose.
 // TestDetectMCPTransports covers the source-grep detection logic.
 // Encoding the detection rule in tests guards against two regressions:
 // (a) a future generator template renaming NewStreamableHTTPServer to a
-//     differently-named entry point would silently flip every dual-transport
-//     CLI back to stdio-only, and the test fails before the registry is
-//     re-emitted.
+//
+//	differently-named entry point would silently flip every dual-transport
+//	CLI back to stdio-only, and the test fails before the registry is
+//	re-emitted.
+//
 // (b) the missing-binary fallback returning nil would cause the registry
-//     to emit `"transports": null` instead of `["stdio"]`; we lock in the
-//     non-nil ["stdio"] default so the JSON shape stays a real array.
+//
+//	to emit `"transports": null` instead of `["stdio"]`; we lock in the
+//	non-nil ["stdio"] default so the JSON shape stays a real array.
 func TestDetectMCPTransports(t *testing.T) {
 	stdioOnlyMain := `package main
 

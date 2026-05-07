@@ -975,7 +975,7 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
 		"api":         "flight-goat",
-		"description": "# Introduction AeroAPI is a simple, query-based API that gives software developers access to a variety of...",
+		"description": "Search Google Flights, scan Kayak long-haul routes, and join FlightAware AeroAPI reliability, alerts, and tracking from one CLI.",
 		"archetype":   "generic",
 		"tool_count":  58,
 		// tool_surface tells agents which surface a capability lives on.

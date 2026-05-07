@@ -384,7 +384,7 @@
       "name": "flight-goat",
       "category": "travel",
       "api": "Flight GOAT",
-      "description": "# Introduction",
+      "description": "Search Google Flights, scan Kayak long-haul routes, and join FlightAware AeroAPI reliability, alerts, and tracking from one CLI.",
       "path": "library/travel/flight-goat",
       "mcp": {
         "binary": "flight-goat-pp-mcp",

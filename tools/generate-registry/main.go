@@ -288,11 +288,10 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry) (
 	// Description preference: existing registry value (curated) > goreleaser
 	// brew description (homebrew tap one-liner) > empty. Curated descriptions
 	// in registry.json are the documented surface and shouldn't be clobbered.
-	if prior.Description != "" {
-		entry.Description = prior.Description
-	} else {
-		entry.Description = readGoreleaserDescription(filepath.Join(dir, ".goreleaser.yaml"))
-	}
+	// Exception: an old generator bug let bare Markdown headings like
+	// "# Introduction" land as descriptions. Those are not real curated copy,
+	// so allow the source one-liner to repair them on the next regen.
+	entry.Description = registryDescription(prior.Description, readGoreleaserDescription(filepath.Join(dir, ".goreleaser.yaml")))
 
 	// MCP block preference: derive from .printing-press.json when it
 	// declares mcp_binary (the modern, authoritative source) > preserve
@@ -314,6 +313,22 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry) (
 	}
 
 	return &entry, nil
+}
+
+func registryDescription(prior, fallback string) string {
+	if prior != "" && !isBareMarkdownHeading(prior) {
+		return prior
+	}
+	return fallback
+}
+
+func isBareMarkdownHeading(s string) bool {
+	trimmed := strings.TrimSpace(s)
+	if !strings.HasPrefix(trimmed, "#") {
+		return false
+	}
+	trimmed = strings.TrimLeft(trimmed, "#")
+	return strings.TrimSpace(trimmed) != "" && !strings.ContainsAny(trimmed, "\r\n.")
 }
 
 // apiDisplayName picks the best human-facing name for the registry's
