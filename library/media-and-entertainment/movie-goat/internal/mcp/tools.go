@@ -569,11 +569,13 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"archetype":   "generic",
 		"tool_count":  25,
 		// tool_surface tells agents which surface a capability lives on.
-		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion movie-goat-pp-cli binary.",
+		"tool_surface": "MCP exposes typed TMDb endpoint tools plus a runtime mirror of user-facing CLI commands. OMDb-backed ratings live in command-mirror tools such as ratings, versus, and career; they shell out to the companion movie-goat-pp-cli binary.",
 		"auth": map[string]any{
-			"type":     "api_key",
-			"env_vars": []string{"TMDB_API_KEY"},
-			"key_url":  "https://www.themoviedb.org/settings/api",
+			"type": "api_key",
+			"env_vars": []map[string]any{
+				{"name": "TMDB_API_KEY", "required": true, "purpose": "TMDb discovery, search, details, and watch-provider data", "key_url": "https://www.themoviedb.org/settings/api"},
+				{"name": "OMDB_API_KEY", "required": false, "purpose": "IMDb, Rotten Tomatoes, and Metacritic enrichment for ratings, versus, and career", "key_url": "http://www.omdbapi.com/apikey.aspx"},
+			},
 		},
 		"resources": []map[string]any{
 			{

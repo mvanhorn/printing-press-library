@@ -311,8 +311,9 @@ Parse `$ARGUMENTS`:
    ```
 2. Register with Claude Code:
    ```bash
-   claude mcp add movie-goat-pp-mcp -- movie-goat-pp-mcp
+   claude mcp add -e TMDB_API_KEY=<your-tmdb-key> -e OMDB_API_KEY=<your-omdb-key> movie-goat-pp-mcp -- movie-goat-pp-mcp
    ```
+   `OMDB_API_KEY` is optional, but it enables IMDb, Rotten Tomatoes, and Metacritic enrichment in `ratings`, `versus`, and `career`.
 3. Verify: `claude mcp list`
 
 ## Direct Use
