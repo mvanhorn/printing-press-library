@@ -23,18 +23,20 @@ metadata:
 
 This skill drives the `postman-explore-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Check Go is installed: `go version` (requires Go 1.23+)
-2. Install:
+1. Install via the Printing Press installer:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/developer-tools/postman-explore/cmd/postman-explore-pp-cli@latest
+   npx -y @mvanhorn/printing-press install postman-explore --cli-only
    ```
-3. Verify: `postman-explore-pp-cli --version`
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+2. Verify: `postman-explore-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/postman-explore/cmd/postman-explore-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-
-Postman's API Network is the world's largest public API directory, but discovery is web-only and unscriptable. This CLI mirrors the public surface into a local SQLite store with FTS, then layers commands the website cannot offer: canonical-collection lookup, cross-publisher comparison, trend ranking by custom metrics, and drift detection across snapshots. No authentication required; designed for AI agents and power users who need the network as data, not as a webpage.
 
 ## When to Use This CLI
 

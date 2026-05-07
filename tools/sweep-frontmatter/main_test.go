@@ -174,7 +174,11 @@ license: "Apache-2.0"
 	})
 }
 
-func TestPatchSkillPrerequisites_Idempotent(t *testing.T) {
+func TestPatchSkillPrerequisites_RewritesExistingSection(t *testing.T) {
+	// A prior sweep inserted Prerequisites with stale content (e.g., the
+	// pre-npx install line). The next sweep must replace it with the
+	// canonical content rather than skip — otherwise install-command
+	// updates can't propagate across re-sweeps.
 	body := `---
 name: pp-x
 ---
@@ -183,7 +187,7 @@ name: pp-x
 
 ## Prerequisites: Install the CLI
 
-This skill drives the ` + "`x-pp-cli`" + ` binary. **You must verify...**
+This skill drives the ` + "`x-pp-cli`" + ` binary. STALE INSTALL CONTENT FROM PREVIOUS SWEEP — should be replaced.
 
 ## When to Use
 
@@ -191,8 +195,23 @@ stuff.
 `
 	ctx := patchSkillCtx{CLIName: "x-pp-cli", APIName: "x", Category: "other"}
 	got := patchSkillPrerequisites(body, ctx)
-	if got != body {
-		t.Errorf("expected idempotent no-op when Prerequisites already present.\ngot: %q", got)
+
+	// Stale content gone, canonical content present.
+	if strings.Contains(got, "STALE INSTALL CONTENT") {
+		t.Errorf("stale Prerequisites content not removed:\n%s", got)
+	}
+	if !strings.Contains(got, "npx -y @mvanhorn/printing-press install x --cli-only") {
+		t.Errorf("canonical npx install line not present:\n%s", got)
+	}
+	if strings.Count(got, "## Prerequisites: Install the CLI") != 1 {
+		t.Errorf("Prerequisites heading should appear exactly once; got %d", strings.Count(got, "## Prerequisites: Install the CLI"))
+	}
+
+	// Idempotency: running a second time with same ctx should produce
+	// identical output.
+	gotAgain := patchSkillPrerequisites(got, ctx)
+	if gotAgain != got {
+		t.Errorf("second run should produce zero diff;\ngot diff:\n%s", gotAgain)
 	}
 }
 

@@ -23,18 +23,20 @@ metadata:
 
 This skill drives the `hackernews-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Check Go is installed: `go version` (requires Go 1.23+)
-2. Install:
+1. Install via the Printing Press installer:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/cmd/hackernews-pp-cli@latest
+   npx -y @mvanhorn/printing-press install hackernews --cli-only
    ```
-3. Verify: `hackernews-pp-cli --version`
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+2. Verify: `hackernews-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/cmd/hackernews-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-
-Combines the Firebase real-time API and the Algolia search API in one CLI. Sync once and run cross-month hiring digests, topic pulses, repost lookups, and rank-over-time queries against a local store — offline, scriptable, MCP-ready. Every command supports --json and --select; the API itself is read-only, so this CLI is too.
 
 ## When to Use This CLI
 

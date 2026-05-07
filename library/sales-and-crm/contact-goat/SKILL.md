@@ -23,18 +23,20 @@ metadata:
 
 This skill drives the `contact-goat-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Check Go is installed: `go version` (requires Go 1.23+)
-2. Install:
+1. Install via the Printing Press installer:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/cmd/contact-goat-pp-cli@latest
+   npx -y @mvanhorn/printing-press install contact-goat --cli-only
    ```
-3. Verify: `contact-goat-pp-cli --version`
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+2. Verify: `contact-goat-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/cmd/contact-goat-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-
-Super LinkedIn for the terminal. One CLI that fans out across three sources to answer "who do I know at X", "who can intro me to Y", and "who should I prospect for Z" - then enriches, dedupes, and ranks the answers without you stitching three tools together.
 
 ## When to Use This CLI
 

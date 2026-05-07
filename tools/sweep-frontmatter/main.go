@@ -498,19 +498,24 @@ func topLevelFieldRe(name string) *regexp.Regexp {
 // patchSkillPrerequisites moves the existing `## CLI Installation`
 // section to immediately after the H1 and renames it. For SKILL.md
 // files that lack `## CLI Installation` entirely (4 in the live
-// library), constructs the section from manifest data.
+// library), constructs the section from manifest data. If a
+// previous sweep already inserted a `## Prerequisites: Install the
+// CLI` section, that prior section is removed and the canonical
+// content is re-emitted — so install-command updates (e.g., a
+// switch from `go install` to `npx ... install --cli-only`)
+// propagate across re-sweeps without manual intervention.
 //
-// Idempotent: if `## Prerequisites: Install the CLI` already appears
-// anywhere in the body, returns unchanged.
+// Idempotent in the second-run-zero-diff sense: running with the
+// same ctx produces the same Prerequisites content.
 func patchSkillPrerequisites(body string, ctx patchSkillCtx) string {
-	if strings.Contains(body, "## Prerequisites: Install the CLI") {
-		return body
-	}
+	// Remove an existing Prerequisites section (from a prior sweep) so
+	// the canonical content can be re-emitted with any updates.
+	body = removePrerequisitesSection(body)
 
 	prereq := buildPrerequisitesSection(ctx)
 
-	// Try to remove the existing `## CLI Installation` section first.
-	body, removed := removeCLIInstallationSection(body)
+	// Try to remove the existing `## CLI Installation` section.
+	body, removedCLIInstall := removeCLIInstallationSection(body)
 
 	// Insert Prerequisites right after the H1 line. If we couldn't find
 	// an H1, insert at the very top after the closing frontmatter ---.
@@ -520,7 +525,7 @@ func patchSkillPrerequisites(body string, ctx patchSkillCtx) string {
 	// any remaining references (the Direct Use section's "see CLI
 	// Installation above" hint is the canonical one, but other prose
 	// may reference it too).
-	if removed {
+	if removedCLIInstall {
 		body = strings.ReplaceAll(body, "(see CLI Installation above)",
 			"(see Prerequisites at the top of this skill)")
 		// The Argument Parsing rule uses the phrase "CLI installation"
@@ -533,6 +538,36 @@ func patchSkillPrerequisites(body string, ctx patchSkillCtx) string {
 	return body
 }
 
+// removePrerequisitesSection strips an existing `## Prerequisites:
+// Install the CLI` section (heading + body up to the next `## `
+// heading or EOF) so the sweep can re-emit canonical content. Used
+// to make install-command updates (e.g., switching the install line
+// from `go install` to `npx ... install --cli-only`) propagate
+// across re-sweeps.
+func removePrerequisitesSection(body string) string {
+	const heading = "## Prerequisites: Install the CLI"
+	idx := strings.Index(body, heading)
+	if idx < 0 {
+		return body
+	}
+	rest := body[idx+len(heading):]
+	nextIdx := strings.Index(rest, "\n## ")
+	var sectionEnd int
+	if nextIdx < 0 {
+		sectionEnd = len(body)
+	} else {
+		sectionEnd = idx + len(heading) + nextIdx + 1
+	}
+	start := idx
+	for start > 0 && body[start-1] == '\n' {
+		start--
+		if start > 0 && body[start-1] != '\n' {
+			break
+		}
+	}
+	return body[:start+1] + body[sectionEnd:]
+}
+
 func buildPrerequisitesSection(ctx patchSkillCtx) string {
 	module := fmt.Sprintf(
 		"github.com/mvanhorn/printing-press-library/library/%s/%s/cmd/%s",
@@ -542,17 +577,22 @@ func buildPrerequisitesSection(ctx patchSkillCtx) string {
 
 This skill drives the `+"`%s`"+` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Check Go is installed: `+"`go version`"+` (requires Go 1.23+)
-2. Install:
+1. Install via the Printing Press installer:
    `+"```bash"+`
-   go install %s@latest
+   npx -y @mvanhorn/printing-press install %s --cli-only
    `+"```"+`
-3. Verify: `+"`%s --version`"+`
-4. Ensure `+"`$GOPATH/bin`"+` (or `+"`$HOME/go/bin`"+`) is on `+"`$PATH`"+`.
+2. Verify: `+"`%s --version`"+`
+3. Ensure `+"`$GOPATH/bin`"+` (or `+"`$HOME/go/bin`"+`) is on `+"`$PATH`"+`.
+
+If the `+"`npx`"+` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+`+"```bash"+`
+go install %s@latest
+`+"```"+`
 
 If `+"`--version`"+` reports "command not found" after install, the install step did not put the binary on `+"`$PATH`"+`. Do not proceed with skill commands until verification succeeds.
 
-`, ctx.CLIName, module, ctx.CLIName)
+`, ctx.CLIName, ctx.APIName, ctx.CLIName, module)
 }
 
 // removeCLIInstallationSection strips the existing `## CLI Installation`

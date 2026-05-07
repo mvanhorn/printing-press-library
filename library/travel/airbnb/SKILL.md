@@ -23,22 +23,20 @@ metadata:
 
 This skill drives the `airbnb-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Check Go is installed: `go version` (requires Go 1.23+)
-2. Install:
+1. Install via the Printing Press installer:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/travel/airbnb/cmd/airbnb-pp-cli@latest
+   npx -y @mvanhorn/printing-press install airbnb --cli-only
    ```
-3. Verify: `airbnb-pp-cli --version`
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+2. Verify: `airbnb-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/travel/airbnb/cmd/airbnb-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-
-Search Airbnb from the terminal, run cheapest on a listing to extract the host's brand, web-search for their direct booking site, and report the lowest of three prices side-by-side. Price-drop watchlist, host portfolio analysis, and trip planning all built on a local store that compounds over time.
-
-> **VRBO support is currently disabled.** VRBO's Akamai bot challenge blocks the scraper. Every VRBO entry point (`vrbo-listing search/get`, `match` from a VRBO URL, `find-twin` from VRBO, the VRBO branch of `cheapest` and `plan`) returns the disabled error. The VRBO source code stays in the tree so re-enabling is a flag flip once an Akamai workaround lands.
-
-> **Renamed from `airbnb-vrbo-pp-cli` to `airbnb-pp-cli` (this release).** State directories migrate automatically on first run. `AIRBNB_VRBO_*` env vars are still read but emit a one-time deprecation warning; use `AIRBNB_PP_*` going forward.
 
 ## When to Use This CLI
 

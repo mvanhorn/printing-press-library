@@ -23,18 +23,20 @@ metadata:
 
 This skill drives the `fedex-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Check Go is installed: `go version` (requires Go 1.23+)
-2. Install:
+1. Install via the Printing Press installer:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/commerce/fedex/cmd/fedex-pp-cli@latest
+   npx -y @mvanhorn/printing-press install fedex --cli-only
    ```
-3. Verify: `fedex-pp-cli --version`
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+2. Verify: `fedex-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/commerce/fedex/cmd/fedex-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-
-FedEx retires its SOAP APIs on June 1, 2026 and every existing wrapper goes dark. fedex-pp-cli ships the full FedEx OAuth2 REST surface as a single static Go binary. For small-business shippers it adds the four things SaaS competitors charge for: rate-shopping across every service type, bulk-CSV label printing with adaptive rate limits, a local address book, and a SQLite ledger that powers spend reports, archive search, and accounting export.
 
 ## When to Use This CLI
 

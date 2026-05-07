@@ -23,18 +23,20 @@ metadata:
 
 This skill drives the `company-goat-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Check Go is installed: `go version` (requires Go 1.23+)
-2. Install:
+1. Install via the Printing Press installer:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/developer-tools/company-goat/cmd/company-goat-pp-cli@latest
+   npx -y @mvanhorn/printing-press install company-goat --cli-only
    ```
-3. Verify: `company-goat-pp-cli --version`
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+2. Verify: `company-goat-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/company-goat/cmd/company-goat-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-
-company-goat-pp-cli fans out across seven free authoritative sources to research small and midsize startups in seconds. The killer feature is SEC Form D extraction: most US startups raising priced rounds file Form D with the SEC, and almost nobody outside finance knows this is queryable for free. After one snapshot, you know whether they raised, are shipping code, are talked about on HN, and are a real legal entity — without eight browser tabs.
 
 ## When to Use This CLI
 

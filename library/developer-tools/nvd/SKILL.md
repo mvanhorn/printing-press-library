@@ -23,20 +23,20 @@ metadata:
 
 This skill drives the `nvd-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Check Go is installed: `go version` (requires Go 1.23+)
-2. Install:
+1. Install via the Printing Press installer:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/developer-tools/nvd/cmd/nvd-pp-cli@latest
+   npx -y @mvanhorn/printing-press install nvd --cli-only
    ```
-3. Verify: `nvd-pp-cli --version`
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+2. Verify: `nvd-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/nvd/cmd/nvd-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-
-The NVD is the U.S. government repository of standards-based vulnerability management data.
-Search CVEs by keyword, product (CPE name), CVE ID, or date range. Get CVSS scores,
-affected versions, references, and severity ratings. No API key required (optional for higher rate limits).
 
 ## When Not to Use This CLI
 

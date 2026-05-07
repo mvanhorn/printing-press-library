@@ -23,18 +23,20 @@ metadata:
 
 This skill drives the `allrecipes-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Check Go is installed: `go version` (requires Go 1.23+)
-2. Install:
+1. Install via the Printing Press installer:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/cmd/allrecipes-pp-cli@latest
+   npx -y @mvanhorn/printing-press install allrecipes --cli-only
    ```
-3. Verify: `allrecipes-pp-cli --version`
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+2. Verify: `allrecipes-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes/cmd/allrecipes-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-
-Search Allrecipes' 250k-recipe corpus from the command line, fetch a full recipe as parsed JSON-LD (ingredients with quantity+unit+name, instructions, nutrition, ratings, Made-It count), aggregate grocery lists from a meal plan, scale recipes, and export to clean markdown. Every recipe you fetch lands in a local SQLite store, which unlocks `pantry` (which recipes can I cook with what I have), `with-ingredient` (reverse index), `top-rated` with Bayesian smoothing (no more 1-review 5-star noise), and `cookbook` (export a category as a personal cookbook). Recipe detail pages are walled by Cloudflare; one-time `auth login --chrome` captures a clearance cookie from your browser — no Allrecipes account needed.
 
 ## When to Use This CLI
 

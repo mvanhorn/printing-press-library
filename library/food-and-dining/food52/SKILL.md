@@ -23,18 +23,20 @@ metadata:
 
 This skill drives the `food52-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Check Go is installed: `go version` (requires Go 1.23+)
-2. Install:
+1. Install via the Printing Press installer:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/food-and-dining/food52/cmd/food52-pp-cli@latest
+   npx -y @mvanhorn/printing-press install food52 --cli-only
    ```
-3. Verify: `food52-pp-cli --version`
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+2. Verify: `food52-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/food-and-dining/food52/cmd/food52-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-
-Every recipe and article on Food52, queryable without a browser. Ships with `pantry match` (find recipes from what you already have), `search` (offline FTS over your synced cookbook), `recipes top` (Test-Kitchen approved + rating-floored), and `scale` (resize ingredient lists via JSON-LD). The only existing Food52 CLI is a 2018-era Ruby HTML scraper that no longer runs against today's Vercel-protected site; this is a clean rebuild on Surf with Chrome TLS impersonation.
 
 ## When to Use This CLI
 

@@ -23,18 +23,20 @@ metadata:
 
 This skill drives the `tiktok-shop-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Check Go is installed: `go version` (requires Go 1.23+)
-2. Install:
+1. Install via the Printing Press installer:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/commerce/tiktok-shop/cmd/tiktok-shop-pp-cli@latest
+   npx -y @mvanhorn/printing-press install tiktok-shop --cli-only
    ```
-3. Verify: `tiktok-shop-pp-cli --version`
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+2. Verify: `tiktok-shop-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/commerce/tiktok-shop/cmd/tiktok-shop-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-
-Use this CLI for confirmed TikTok Shop Seller API reads and auth readiness. Safe v1 is intentionally conservative: inventory updates, returns/refunds, shipping label mutations, product create/update/delete, finance, and webhooks are deferred.
 
 ## Official Source Boundaries
 

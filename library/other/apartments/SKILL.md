@@ -15,18 +15,20 @@ metadata: '{"openclaw":{"requires":{"bins":["apartments-pp-cli"]},"install":[{"i
 
 This skill drives the `apartments-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Check Go is installed: `go version` (requires Go 1.23+)
-2. Install:
+1. Install via the Printing Press installer:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/other/apartments/cmd/apartments-pp-cli@latest
+   npx -y @mvanhorn/printing-press install apartments --cli-only
    ```
-3. Verify: `apartments-pp-cli --version`
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+2. Verify: `apartments-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/other/apartments/cmd/apartments-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-
-Search every Apartments.com listing path-slug from the terminal, sync results to a local SQLite store, and run the workflows the website never built: diff a saved search week-over-week with `watch`, rank by $/sqft net of pet fees with `value`, compare a shortlist side-by-side with `compare`, and surface price drops or phantom listings with `drops`, `stale`, and `phantoms`. Every command is `--json`/`--select`-shaped so an agent can pipe the output without burning context.
 
 ## When to Use This CLI
 

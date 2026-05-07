@@ -23,18 +23,20 @@ metadata:
 
 This skill drives the `dub-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Check Go is installed: `go version` (requires Go 1.23+)
-2. Install:
+1. Install via the Printing Press installer:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/marketing/dub/cmd/dub-pp-cli@latest
+   npx -y @mvanhorn/printing-press install dub --cli-only
    ```
-3. Verify: `dub-pp-cli --version`
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+2. Verify: `dub-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/marketing/dub/cmd/dub-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-
-dub-pp-cli covers all 53 Dub API operations as typed commands, then transcends with cross-resource joins the API cannot answer alone — dead-link detection, drift detection, partner leaderboards from /partners/analytics joined with local commissions, bounty submission triage, and a Monday-morning workspace health report. The official dub-cli covers 6 commands; we cover 67.
 
 ## When to Use This CLI
 

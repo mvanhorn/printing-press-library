@@ -23,18 +23,20 @@ metadata:
 
 This skill drives the `craigslist-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Check Go is installed: `go version` (requires Go 1.23+)
-2. Install:
+1. Install via the Printing Press installer:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/commerce/craigslist/cmd/craigslist-pp-cli@latest
+   npx -y @mvanhorn/printing-press install craigslist --cli-only
    ```
-3. Verify: `craigslist-pp-cli --version`
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+2. Verify: `craigslist-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/commerce/craigslist/cmd/craigslist-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-
-craigslist-pp-cli wraps Craigslist's own undocumented JSON endpoints (sapi, rapi, reference) — the same ones the Craigslist mobile app uses — and layers a local SQLite snapshot history on top. That powers cross-city search, saved-search alerts that distinguish true new listings from edits and reposts, price-drift detection, and cross-city duplicate / scam scoring. Free, scriptable, no PII selling, no proxies, no API key.
 
 ## When to Use This CLI
 
