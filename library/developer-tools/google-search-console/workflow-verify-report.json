@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/jamesfrewin/printing-press/.runstate/cli-printing-press-344417ba/runs/20260507-203018/working/google-search-console-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

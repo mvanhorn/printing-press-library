@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "google-search-console-pp-mcp",
+  "display_name": "Google Search Console",
+  "version": "4.0.2",
+  "description": "Search Console API — search analytics, sites, sitemaps, and URL inspection",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/google-search-console-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/google-search-console-pp-mcp",
+      "args": [],
+      "env": {
+        "GOOGLE_SEARCH_CONSOLE_OAUTH2C": "${user_config.google_search_console_oauth2c}"
+      }
+    }
+  },
+  "user_config": {
+    "google_search_console_oauth2c": {
+      "type": "string",
+      "title": "GOOGLE_SEARCH_CONSOLE_OAUTH2C",
+      "description": "Sets GOOGLE_SEARCH_CONSOLE_OAUTH2C for the Google Search Console MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

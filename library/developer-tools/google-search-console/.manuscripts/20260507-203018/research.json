@@ -1,0 +1,386 @@
+{
+  "api_name": "google-search-console",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "Bin-Huang/google-search-console-cli",
+      "url": "https://github.com/Bin-Huang/google-search-console-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ahonn/mcp-server-gsc",
+      "url": "https://github.com/ahonn/mcp-server-gsc",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "AminForou/mcp-gsc",
+      "url": "https://github.com/AminForou/mcp-gsc",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "joshcarty/google-searchconsole",
+      "url": "https://github.com/joshcarty/google-searchconsole",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ncosentino/google-search-console-mcp",
+      "url": "https://github.com/ncosentino/google-search-console-mcp",
+      "language": "C#",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "saurabhsharma2u/search-console-mcp",
+      "url": "https://github.com/saurabhsharma2u/search-console-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ivankristianto/google-search-console-cli",
+      "url": "https://github.com/ivankristianto/google-search-console-cli",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "kasdimg/analytics-cli",
+      "url": "https://github.com/kasdimg/analytics-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-07T19:34:41Z",
+  "novel_features": [
+    {
+      "name": "Cross-property mover board",
+      "command": "book",
+      "description": "One report covering every verified property: top pages and queries by absolute click delta in the last window, with per-site rollup rows.",
+      "rationale": "Requires UNION across all sites' synced rows plus delta computation — no single API call expresses it.",
+      "example": "google-search-console-pp-cli book --window 7d --top 25 --agent",
+      "why_it_matters": "Reach for this whenever you need to compare performance across multiple Search Console properties without N round trips.",
+      "group": "Cross-property and time-series leverage"
+    },
+    {
+      "name": "Keyword cannibalization",
+      "command": "cannibalize",
+      "description": "Find queries where 2+ pages on the same site rank in the top 20 competing for the same intent; reports impression split and CTR drag.",
+      "rationale": "GROUP BY (site, query) HAVING COUNT(DISTINCT page) \u003e 1 is structurally impossible against the single-call API.",
+      "example": "google-search-console-pp-cli cannibalize --site sc-domain:example.com --top 20 --min-impressions 100 --agent",
+      "why_it_matters": "Use when planning content consolidation or canonical fixes — surfaces internal SERP competition the GSC UI hides.",
+      "group": "Local-store joins"
+    },
+    {
+      "name": "Query decay watch",
+      "command": "decay",
+      "description": "Queries whose impressions or clicks have steadily declined over a rolling N-week window, ranked by absolute click loss.",
+      "rationale": "Linear-fit slope across 16 months of daily rows in SQLite; the live API has no slope endpoint.",
+      "example": "google-search-console-pp-cli decay --site sc-domain:example.com --window 12w --min-loss 100 --agent",
+      "why_it_matters": "Catch gradual ranking erosion before it becomes a missing-traffic emergency.",
+      "group": "Local-store joins"
+    },
+    {
+      "name": "Coverage drift",
+      "command": "coverage-drift",
+      "description": "Diff successive URL-inspection snapshots: pages whose coverageState, lastCrawlTime, or googleCanonical changed since last sync.",
+      "rationale": "urlInspection.inspect is single-shot; only a local snapshot history can express drift.",
+      "example": "google-search-console-pp-cli coverage-drift --site sc-domain:example.com --since last-sync --agent",
+      "why_it_matters": "Spot silent deindexings within hours of the next sync instead of weeks later from a stakeholder.",
+      "group": "Snapshot diffs"
+    },
+    {
+      "name": "Opportunity with baseline",
+      "command": "opportunity",
+      "description": "Today's quick-wins (positions 4-20, high-impression / low-CTR) joined to prior daily snapshots so each row carries the date the page entered the opportunity zone.",
+      "rationale": "Live API can compute a snapshot but cannot say when a page first became an opportunity — that requires history.",
+      "example": "google-search-console-pp-cli opportunity --site sc-domain:example.com --new-since 14d --agent",
+      "why_it_matters": "Lets agents distinguish fresh opportunities (worth a refresh) from chronic ones (already triaged).",
+      "group": "Snapshot diffs"
+    },
+    {
+      "name": "New (and lost) queries",
+      "command": "new-queries",
+      "description": "Queries that appeared this week with material impressions and were absent in the prior trailing window; --lost inverts.",
+      "rationale": "LEFT JOIN against the prior window — anti-join requires persistent state.",
+      "example": "google-search-console-pp-cli new-queries --site sc-domain:example.com --window 7d --min-impressions 50 --agent",
+      "why_it_matters": "Aki's 'what's new since my last visit' loop without burning quota on full re-pulls.",
+      "group": "Local-store joins"
+    },
+    {
+      "name": "Indexing-issue triage",
+      "command": "triage",
+      "description": "Non-INDEXED pages from url_inspections joined against the last 30 days of impressions, ranked by traffic lost.",
+      "rationale": "Cross-table join between coverage state and historical impressions is the whole product; neither table alone is enough.",
+      "example": "google-search-console-pp-cli triage --site sc-domain:example.com --by impact --agent",
+      "why_it_matters": "Fix the broken pages that actually drive traffic, not whatever was inspected most recently.",
+      "group": "Local-store joins"
+    },
+    {
+      "name": "Page momentum",
+      "command": "momentum",
+      "description": "Pages whose 7-day clicks exceed (or fall below) their trailing 28-day daily average by N×, sorted by absolute lift.",
+      "rationale": "Windowed aggregation across daily rows in SQLite.",
+      "example": "google-search-console-pp-cli momentum --site sc-domain:example.com --window 7d --vs 28d --agent",
+      "why_it_matters": "Spot rising stars and collapsing pages in one pass instead of eyeballing the GSC UI's compare mode.",
+      "group": "Cross-property and time-series leverage"
+    },
+    {
+      "name": "Territorial shift",
+      "command": "territory",
+      "description": "For each query, change in country and device mix week-over-week; flags queries whose geo or device split moved more than N points.",
+      "rationale": "Cross-time pivot on (query × country × device) requires stored history.",
+      "example": "google-search-console-pp-cli territory --site sc-domain:example.com --by country,device --agent",
+      "why_it_matters": "Diagnose 'why did our US traffic drop' or 'mobile shift' questions in one command.",
+      "group": "Cross-property and time-series leverage"
+    },
+    {
+      "name": "Search-appearance breakdown",
+      "command": "appearance",
+      "description": "Per-page or per-query breakdown of clicks/impressions by searchAppearance (featured snippet, sitelinks, video, FAQ rich result), with gain/loss flags across windows.",
+      "rationale": "The searchAppearance dimension is mutually exclusive with others in a single query, so cross-time tracking requires our isolated sync path.",
+      "example": "google-search-console-pp-cli appearance --site sc-domain:example.com --window 28d --vs prior --agent",
+      "why_it_matters": "Catch lost rich-result eligibility (featured snippets, sitelinks) before traffic drops.",
+      "group": "Snapshot diffs"
+    },
+    {
+      "name": "Sitemap health",
+      "command": "sitemap-health",
+      "description": "Cross-snapshot diff on per-property sitemap state; flags new errors, new warnings, and indexed-vs-submitted ratio drops.",
+      "rationale": "sitemaps.list/get is point-in-time; the regression flag requires our local history.",
+      "example": "google-search-console-pp-cli sitemap-health --regressed --agent",
+      "why_it_matters": "Surface sitemap regressions in your weekly status email instead of next quarter's audit.",
+      "group": "Snapshot diffs"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-property mover board",
+      "command": "book",
+      "description": "One report covering every verified property: top pages and queries by absolute click delta in the last window, with per-site rollup rows.",
+      "rationale": "Requires UNION across all sites' synced rows plus delta computation — no single API call expresses it.",
+      "example": "google-search-console-pp-cli book --window 7d --top 25 --agent",
+      "why_it_matters": "Reach for this whenever you need to compare performance across multiple Search Console properties without N round trips.",
+      "group": "Cross-property and time-series leverage"
+    },
+    {
+      "name": "Keyword cannibalization",
+      "command": "cannibalize",
+      "description": "Find queries where 2+ pages on the same site rank in the top 20 competing for the same intent; reports impression split and CTR drag.",
+      "rationale": "GROUP BY (site, query) HAVING COUNT(DISTINCT page) \u003e 1 is structurally impossible against the single-call API.",
+      "example": "google-search-console-pp-cli cannibalize --site sc-domain:example.com --top 20 --min-impressions 100 --agent",
+      "why_it_matters": "Use when planning content consolidation or canonical fixes — surfaces internal SERP competition the GSC UI hides.",
+      "group": "Local-store joins"
+    },
+    {
+      "name": "Query decay watch",
+      "command": "decay",
+      "description": "Queries whose impressions or clicks have steadily declined over a rolling N-week window, ranked by absolute click loss.",
+      "rationale": "Linear-fit slope across 16 months of daily rows in SQLite; the live API has no slope endpoint.",
+      "example": "google-search-console-pp-cli decay --site sc-domain:example.com --window 12w --min-loss 100 --agent",
+      "why_it_matters": "Catch gradual ranking erosion before it becomes a missing-traffic emergency.",
+      "group": "Local-store joins"
+    },
+    {
+      "name": "Coverage drift",
+      "command": "coverage-drift",
+      "description": "Diff successive URL-inspection snapshots: pages whose coverageState, lastCrawlTime, or googleCanonical changed since last sync.",
+      "rationale": "urlInspection.inspect is single-shot; only a local snapshot history can express drift.",
+      "example": "google-search-console-pp-cli coverage-drift --site sc-domain:example.com --since last-sync --agent",
+      "why_it_matters": "Spot silent deindexings within hours of the next sync instead of weeks later from a stakeholder.",
+      "group": "Snapshot diffs"
+    },
+    {
+      "name": "Opportunity with baseline",
+      "command": "opportunity",
+      "description": "Today's quick-wins (positions 4-20, high-impression / low-CTR) joined to prior daily snapshots so each row carries the date the page entered the opportunity zone.",
+      "rationale": "Live API can compute a snapshot but cannot say when a page first became an opportunity — that requires history.",
+      "example": "google-search-console-pp-cli opportunity --site sc-domain:example.com --new-since 14d --agent",
+      "why_it_matters": "Lets agents distinguish fresh opportunities (worth a refresh) from chronic ones (already triaged).",
+      "group": "Snapshot diffs"
+    },
+    {
+      "name": "New (and lost) queries",
+      "command": "new-queries",
+      "description": "Queries that appeared this week with material impressions and were absent in the prior trailing window; --lost inverts.",
+      "rationale": "LEFT JOIN against the prior window — anti-join requires persistent state.",
+      "example": "google-search-console-pp-cli new-queries --site sc-domain:example.com --window 7d --min-impressions 50 --agent",
+      "why_it_matters": "Aki's 'what's new since my last visit' loop without burning quota on full re-pulls.",
+      "group": "Local-store joins"
+    },
+    {
+      "name": "Indexing-issue triage",
+      "command": "triage",
+      "description": "Non-INDEXED pages from url_inspections joined against the last 30 days of impressions, ranked by traffic lost.",
+      "rationale": "Cross-table join between coverage state and historical impressions is the whole product; neither table alone is enough.",
+      "example": "google-search-console-pp-cli triage --site sc-domain:example.com --by impact --agent",
+      "why_it_matters": "Fix the broken pages that actually drive traffic, not whatever was inspected most recently.",
+      "group": "Local-store joins"
+    },
+    {
+      "name": "Page momentum",
+      "command": "momentum",
+      "description": "Pages whose 7-day clicks exceed (or fall below) their trailing 28-day daily average by N×, sorted by absolute lift.",
+      "rationale": "Windowed aggregation across daily rows in SQLite.",
+      "example": "google-search-console-pp-cli momentum --site sc-domain:example.com --window 7d --vs 28d --agent",
+      "why_it_matters": "Spot rising stars and collapsing pages in one pass instead of eyeballing the GSC UI's compare mode.",
+      "group": "Cross-property and time-series leverage"
+    },
+    {
+      "name": "Territorial shift",
+      "command": "territory",
+      "description": "For each query, change in country and device mix week-over-week; flags queries whose geo or device split moved more than N points.",
+      "rationale": "Cross-time pivot on (query × country × device) requires stored history.",
+      "example": "google-search-console-pp-cli territory --site sc-domain:example.com --by country,device --agent",
+      "why_it_matters": "Diagnose 'why did our US traffic drop' or 'mobile shift' questions in one command.",
+      "group": "Cross-property and time-series leverage"
+    },
+    {
+      "name": "Search-appearance breakdown",
+      "command": "appearance",
+      "description": "Per-page or per-query breakdown of clicks/impressions by searchAppearance (featured snippet, sitelinks, video, FAQ rich result), with gain/loss flags across windows.",
+      "rationale": "The searchAppearance dimension is mutually exclusive with others in a single query, so cross-time tracking requires our isolated sync path.",
+      "example": "google-search-console-pp-cli appearance --site sc-domain:example.com --window 28d --vs prior --agent",
+      "why_it_matters": "Catch lost rich-result eligibility (featured snippets, sitelinks) before traffic drops.",
+      "group": "Snapshot diffs"
+    },
+    {
+      "name": "Sitemap health",
+      "command": "sitemap-health",
+      "description": "Cross-snapshot diff on per-property sitemap state; flags new errors, new warnings, and indexed-vs-submitted ratio drops.",
+      "rationale": "sitemaps.list/get is point-in-time; the regression flag requires our local history.",
+      "example": "google-search-console-pp-cli sitemap-health --regressed --agent",
+      "why_it_matters": "Surface sitemap regressions in your weekly status email instead of next quarter's audit.",
+      "group": "Snapshot diffs"
+    }
+  ],
+  "narrative": {
+    "display_name": "Google Search Console",
+    "headline": "Every Search Console feature, plus a local SQLite store that turns one-shot API calls into time-series insights no other GSC tool ships.",
+    "value_prop": "Sync your search analytics, sites, sitemaps, and URL inspection state into a local store, then run cross-time queries the live API cannot express: query decay, keyword cannibalization, coverage drift, opportunity-with-baseline, and a cross-property mover board. Every command supports --json, --select, --csv, --dry-run, and ships an MCP server out of the box.",
+    "auth_narrative": "OAuth2 with the `webmasters` (or `webmasters.readonly`) scope. Two paths: (1) run `google-search-console-pp-cli auth login` for the interactive OAuth2 flow and the CLI will store and refresh tokens for you; (2) for headless / CI environments, mint an access token elsewhere and set `GOOGLE_SEARCH_CONSOLE_OAUTH2C` in env. Easiest token source for local dev: `gcloud auth login` against a project with the Search Console API enabled, then `export GOOGLE_SEARCH_CONSOLE_OAUTH2C=$(gcloud auth print-access-token)`. Run `auth status` to confirm the binary can read your credential.",
+    "quickstart": [
+      {
+        "command": "google-search-console-pp-cli auth status",
+        "comment": "Confirm the CLI can mint an access token via gcloud or service account before anything else."
+      },
+      {
+        "command": "google-search-console-pp-cli webmasters sites-list --json",
+        "comment": "List your verified properties so you have a site URL to point sync at."
+      },
+      {
+        "command": "google-search-console-pp-cli sync --site sc-domain:example.com --backfill 90d",
+        "comment": "Backfill 90 days of search-analytics rows and current url-inspection state into the local SQLite store."
+      },
+      {
+        "command": "google-search-console-pp-cli opportunity --site sc-domain:example.com --new-since 14d --agent",
+        "comment": "Pages on positions 4-20 with high impressions and low CTR that entered the opportunity zone within the last 14 days."
+      },
+      {
+        "command": "google-search-console-pp-cli book --window 7d --top 25 --agent",
+        "comment": "Cross-property mover board: largest click deltas this week across every verified site, with a per-site rollup."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 'Login Required' on every call",
+        "fix": "Run `gcloud auth login` then `gcloud auth print-access-token` to confirm a token mints; the CLI shells out to the same command."
+      },
+      {
+        "symptom": "403 'User does not have sufficient permissions'",
+        "fix": "Make sure the authed account is verified on the property in Search Console, or pass `--credentials` to a service account that is."
+      },
+      {
+        "symptom": "429 quota errors during sync",
+        "fix": "Retry with `--throttle slow`; default quotas are 1,200 QPM per project, 30,000 QPD."
+      },
+      {
+        "symptom": "`searchanalytics query --dimensions searchAppearance,query` returns 400",
+        "fix": "`searchAppearance` is mutually exclusive with all other dimensions in a single call; request it alone or use the `appearance` command which handles the split."
+      },
+      {
+        "symptom": "Sync fills in zero rows for the last 2-3 days",
+        "fix": "GSC search analytics finalize ~3 days late; sync only writes through `today-3` by default. Use `--data-state all` to include preliminary rows."
+      }
+    ],
+    "when_to_use": "Reach for this CLI whenever a task needs more than one Search Console call at a time — period-over-period analysis, cross-property roll-ups, drift detection, or any question that requires comparing today's data to history. The local SQLite store and SQL/FTS surface make it the right tool for agent loops that want deterministic 'what changed since last visit' answers without burning API quota. For one-shot lookups (sites list, single URL inspection) a generic HTTP client is fine; reach for this CLI when persistence pays for itself.",
+    "recipes": [
+      {
+        "title": "Monday mover review",
+        "command": "google-search-console-pp-cli book --window 7d --top 25 --agent --select rows.page,rows.query,rows.click_delta,rows.site_url",
+        "explanation": "Cross-property mover board narrowed to the four columns an agent needs to draft a Slack post."
+      },
+      {
+        "title": "Find pages cannibalizing each other",
+        "command": "google-search-console-pp-cli cannibalize --site sc-domain:example.com --min-impressions 100 --json | jq '.rows[] | select(.contender_count \u003e= 3)'",
+        "explanation": "Worst-case cannibalization where three or more URLs split impressions on the same query."
+      },
+      {
+        "title": "Triage broken-but-trafficked pages",
+        "command": "google-search-console-pp-cli triage --site sc-domain:example.com --by impact --top 20 --agent",
+        "explanation": "Top 20 non-INDEXED pages ranked by impressions lost in the last 30 days."
+      },
+      {
+        "title": "Catch silent deindexings",
+        "command": "google-search-console-pp-cli coverage-drift --site sc-domain:example.com --since last-sync --json | jq '.rows[] | select(.from == \"INDEXED\" and .to != \"INDEXED\")'",
+        "explanation": "Pages that flipped from INDEXED to anything else since the last sync — the change Priya finds out from sales reps weeks later today."
+      },
+      {
+        "title": "What's new since last visit (agent loop)",
+        "command": "google-search-console-pp-cli new-queries --site sc-domain:example.com --window 7d --min-impressions 50 --agent",
+        "explanation": "Anti-join surface for autonomous agents that want a deterministic 'new this week' delta without re-pulling the whole window."
+      }
+    ],
+    "trigger_phrases": [
+      "what changed in search console this week",
+      "find cannibalizing keywords",
+      "which pages dropped out of the index",
+      "search console mover board",
+      "use google-search-console",
+      "run google-search-console"
+    ]
+  }
+}

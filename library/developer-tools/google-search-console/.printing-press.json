@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-07T21:11:32.812733Z",
+  "printing_press_version": "4.0.2",
+  "api_name": "google-search-console",
+  "display_name": "Google Search Console",
+  "cli_name": "google-search-console-pp-cli",
+  "spec_path": "https://api.apis.guru/v2/specs/googleapis.com/searchconsole/v1/openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:b7c6931da0fbcf6215223191cc2d3eac9707093850bd95cec1086dcaf7082fbf",
+  "run_id": "20260507-203018",
+  "catalog_entry": "google-search-console",
+  "category": "developer-tools",
+  "description": "Search Console API — search analytics, sites, sitemaps, and URL inspection",
+  "mcp_binary": "google-search-console-pp-mcp",
+  "mcp_tool_count": 11,
+  "mcp_ready": "full",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "GOOGLE_SEARCH_CONSOLE_OAUTH2C"
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-property mover board",
+      "command": "book",
+      "description": "One report covering every verified property: top pages and queries by absolute click delta in the last window, with per-site rollup rows."
+    },
+    {
+      "name": "Keyword cannibalization",
+      "command": "cannibalize",
+      "description": "Find queries where 2+ pages on the same site rank in the top 20 competing for the same intent; reports impression split and CTR drag."
+    },
+    {
+      "name": "Query decay watch",
+      "command": "decay",
+      "description": "Queries whose impressions or clicks have steadily declined over a rolling N-week window, ranked by absolute click loss."
+    },
+    {
+      "name": "Coverage drift",
+      "command": "coverage-drift",
+      "description": "Diff successive URL-inspection snapshots: pages whose coverageState, lastCrawlTime, or googleCanonical changed since last sync."
+    },
+    {
+      "name": "Opportunity with baseline",
+      "command": "opportunity",
+      "description": "Today's quick-wins (positions 4-20, high-impression / low-CTR) joined to prior daily snapshots so each row carries the date the page entered the opportunity zone."
+    },
+    {
+      "name": "New (and lost) queries",
+      "command": "new-queries",
+      "description": "Queries that appeared this week with material impressions and were absent in the prior trailing window; --lost inverts."
+    },
+    {
+      "name": "Indexing-issue triage",
+      "command": "triage",
+      "description": "Non-INDEXED pages from url_inspections joined against the last 30 days of impressions, ranked by traffic lost."
+    },
+    {
+      "name": "Page momentum",
+      "command": "momentum",
+      "description": "Pages whose 7-day clicks exceed (or fall below) their trailing 28-day daily average by N×, sorted by absolute lift."
+    },
+    {
+      "name": "Territorial shift",
+      "command": "territory",
+      "description": "For each query, change in country and device mix week-over-week; flags queries whose geo or device split moved more than N points."
+    },
+    {
+      "name": "Search-appearance breakdown",
+      "command": "appearance",
+      "description": "Per-page or per-query breakdown of clicks/impressions by searchAppearance (featured snippet, sitelinks, video, FAQ rich result), with gain/loss flags across windows."
+    },
+    {
+      "name": "Sitemap health",
+      "command": "sitemap-health",
+      "description": "Cross-snapshot diff on per-property sitemap state; flags new errors, new warnings, and indexed-vs-submitted ratio drops."
+    }
+  ]
+}
