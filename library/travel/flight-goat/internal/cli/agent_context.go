@@ -110,7 +110,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
 			Name:        "flight-goat-pp-cli",
-			Description: "# Introduction AeroAPI is a simple, query-based API that gives software developers access to a variety of...",
+			Description: "Search Google Flights, scan Kayak long-haul routes, and join FlightAware AeroAPI reliability, alerts, and tracking from one CLI.",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{

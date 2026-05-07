@@ -13,7 +13,24 @@
   "mcp_ready": "full",
   "auth_type": "api_key",
   "auth_env_vars": [
-    "TMDB_API_KEY"
+    "TMDB_API_KEY",
+    "OMDB_API_KEY"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "TMDB_API_KEY",
+      "kind": "api_key",
+      "required": true,
+      "sensitive": true,
+      "description": "TMDb v3 API key required for Movie GOAT API requests."
+    },
+    {
+      "name": "OMDB_API_KEY",
+      "kind": "api_key",
+      "required": false,
+      "sensitive": true,
+      "description": "Optional OMDb key that enables IMDb, Rotten Tomatoes, and Metacritic enrichment."
+    }
   ],
   "auth_key_url": "https://www.themoviedb.org/settings/api",
   "auth_title": "TMDb v3 API Key (32-char hex; sent as ?api_key=… query param, not Bearer header)",

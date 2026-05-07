@@ -1,6 +1,6 @@
 ---
 name: pp-flight-goat
-description: "Printing Press CLI for Flight Goat. # Introduction AeroAPI is a simple, query-based API that gives software developers access to a variety of..."
+description: "Search Google Flights, scan Kayak long-haul routes, and join FlightAware AeroAPI reliability, alerts, and tracking from one CLI."
 author: "Matt Van Horn"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

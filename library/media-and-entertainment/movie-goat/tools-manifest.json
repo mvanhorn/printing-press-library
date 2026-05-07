@@ -9,6 +9,10 @@
     "header": "api_key",
     "in": "query",
     "env_vars": [
+      "TMDB_API_KEY",
+      "OMDB_API_KEY"
+    ],
+    "required_env": [
       "TMDB_API_KEY"
     ],
     "key_url": "https://www.themoviedb.org/settings/api"
