@@ -1,0 +1,674 @@
+{
+  "api_name": "customer-io",
+  "base_url": "https://us.fly.customer.io",
+  "description": "Customer.io CLI — every action a marketer or ops engineer takes, with named verbs, a local SQLite cache, and a bundled MCP server.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "in": "header",
+    "env_vars": [
+      "CUSTOMERIO_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "CUSTOMERIO_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "broadcasts_get",
+      "description": "Get one broadcast. Required: environment_id, id. Returns the Broadcast.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/newsletters/{id}",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Broadcast (newsletter) ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "broadcasts_list",
+      "description": "List broadcasts in an environment. Required: environment_id. Returns array of Broadcast.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/newsletters",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "broadcasts_metrics",
+      "description": "Read metrics for one broadcast. Required: environment_id, id. Returns the BroadcastMetrics.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/newsletters/{id}/metrics",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Broadcast (newsletter) ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "broadcasts_trigger",
+      "description": "Trigger a broadcast (rate-limited to 1 req / 10 s). Required: environment_id, id. Optional: data. Returns the new TriggerResult.",
+      "method": "POST",
+      "path": "/v1/environments/{environment_id}/newsletters/{id}/triggers",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Broadcast (newsletter) ID",
+          "required": true
+        },
+        {
+          "name": "data",
+          "type": "string",
+          "location": "body",
+          "description": "Serialized JSON of trigger payload data"
+        }
+      ]
+    },
+    {
+      "name": "campaigns_get",
+      "description": "Get one campaign. Required: environment_id, campaign_id. Returns the Campaign.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/campaigns/{campaign_id}",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        },
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Campaign ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_journey_metrics",
+      "description": "Read step-by-step journey funnel metrics. Required: environment_id, campaign_id. Returns the JourneyMetrics.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/campaigns/{campaign_id}/journey_metrics",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        },
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Campaign ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_list",
+      "description": "List campaigns in an environment. Required: environment_id. Returns array of Campaign.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/campaigns",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment (workspace) ID — find via 'workspaces list'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_metrics",
+      "description": "Read aggregate metrics for a campaign. Required: environment_id, campaign_id. Optional: period, steps. Returns the CampaignMetrics.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/campaigns/{campaign_id}/metrics",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        },
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Campaign ID",
+          "required": true
+        },
+        {
+          "name": "period",
+          "type": "string",
+          "location": "query",
+          "description": "Time period: hours, days, weeks, months"
+        },
+        {
+          "name": "steps",
+          "type": "int",
+          "location": "query",
+          "description": "Number of period steps to return"
+        }
+      ]
+    },
+    {
+      "name": "cdp_destinations_list",
+      "description": "List CDP destinations configured on this Customer.io workspace. Returns an array of CDPDestination objects with id and name. Premium-tier feature: Essentials accounts receive HTTP 403. Use this before debugging downstream sync issues — confirms which destinations exist before correlating against cdp_reverse_etl_list output.",
+      "method": "GET",
+      "path": "/cdp/api/destinations",
+      "params": []
+    },
+    {
+      "name": "cdp_reverse_etl_list",
+      "description": "List Reverse-ETL syncs in this Customer.io workspace. Returns an array of ReverseETLSync objects with id and name. Premium-tier feature: Essentials accounts receive HTTP 403. Pair with the `cdp-reverse-etl health` command (named verb) for status, row counts, and per-sync error reasons; this raw list is suitable when an agent only needs sync IDs to feed into other tools.",
+      "method": "GET",
+      "path": "/cdp/api/reverse_etl/syncs",
+      "params": []
+    },
+    {
+      "name": "cdp_sources_list",
+      "description": "List CDP data sources configured on this Customer.io workspace. Returns an array of CDPSource objects with id and name. Premium-tier feature: Essentials accounts receive HTTP 403. Sources are the upstream side of the CDP pipeline; pair with cdp_destinations_list when mapping the workspace's full data flow.",
+      "method": "GET",
+      "path": "/cdp/api/sources",
+      "params": []
+    },
+    {
+      "name": "customers_get",
+      "description": "Get a customer's attributes. Required: environment_id, customer_id. Returns the Customer.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/customers/{customer_id}/attributes",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment (workspace) ID — find via 'workspaces list'",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "Customer ID or email",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_list_activities",
+      "description": "List activity events for a customer. Required: environment_id, customer_id. Returns array of Activity.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/customers/{customer_id}/activities",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "Customer ID or email",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_list_messages",
+      "description": "List messages sent to a customer. Required: environment_id, customer_id. Returns array of Delivery.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/customers/{customer_id}/messages",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "Customer ID or email",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_list_segments",
+      "description": "List the segments a customer belongs to. Required: environment_id, customer_id. Returns array of Segment.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/customers/{customer_id}/segments",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "Customer ID or email",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deliveries_get",
+      "description": "Get one delivery. Required: environment_id, message_id. Returns the Delivery.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/deliveries/{message_id}",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        },
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Delivery ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deliveries_list",
+      "description": "List recent deliveries. Required: environment_id. Optional: limit, type. Returns array of Delivery.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/deliveries",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max deliveries to return"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by message type (email, sms, push, in_app, webhook)"
+        }
+      ]
+    },
+    {
+      "name": "exports_download",
+      "description": "Get the signed download URL for a finished export. Required: environment_id, export_id. Returns the ExportDownloadURL.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/exports/{export_id}/download",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        },
+        {
+          "name": "export_id",
+          "type": "string",
+          "location": "path",
+          "description": "Export ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "exports_get",
+      "description": "Get the status of an export. Required: environment_id, export_id. Returns the Export.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/exports/{export_id}",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        },
+        {
+          "name": "export_id",
+          "type": "string",
+          "location": "path",
+          "description": "Export ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "exports_list",
+      "description": "List recent exports. Required: environment_id. Returns array of Export.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/exports",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segments_customer_count",
+      "description": "Get the customer count for a segment. Required: environment_id, segment_id. Returns the SegmentCount.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/segments/{segment_id}/customer_count",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        },
+        {
+          "name": "segment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Segment ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segments_get",
+      "description": "Get one segment. Required: environment_id, segment_id. Returns the Segment.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/segments/{segment_id}",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        },
+        {
+          "name": "segment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Segment ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segments_list",
+      "description": "List segments in an environment. Required: environment_id. Returns array of Segment.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/segments",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segments_members",
+      "description": "List customer IDs in a segment. Required: environment_id, segment_id. Returns array of SegmentMember.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/segments/{segment_id}/membership",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        },
+        {
+          "name": "segment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Segment ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "suppressions_add",
+      "description": "Suppress a customer. Required: environment_id, customer_id. Returns the new SuppressionResult.",
+      "method": "POST",
+      "path": "/v1/environments/{environment_id}/customers/{customer_id}/suppress",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "Customer ID or email",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "suppressions_count",
+      "description": "Get the count of suppressed customers in an environment (Customer.io has no list endpoint; use 'exports email_suppressions' for the full list). Required: environment_id. Returns the SuppressionCount.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/customers_suppression_count",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "suppressions_remove",
+      "description": "Remove a suppression. Required: environment_id, customer_id. Returns the new SuppressionResult.",
+      "method": "POST",
+      "path": "/v1/environments/{environment_id}/customers/{customer_id}/unsuppress",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        },
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "Customer ID or email",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactional_get_template",
+      "description": "Get one transactional template. Required: environment_id, template_id. Returns the TransactionalTemplate.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/transactional_messages/{template_id}",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        },
+        {
+          "name": "template_id",
+          "type": "string",
+          "location": "path",
+          "description": "Transactional template ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactional_list_templates",
+      "description": "List transactional templates. Required: environment_id. Returns array of TransactionalTemplate.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/transactional_messages",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "transactional_template_metrics",
+      "description": "Read metrics for one transactional template. Required: environment_id, template_id. Returns the TransactionalMetrics.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/transactional_messages/{template_id}/metrics",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        },
+        {
+          "name": "template_id",
+          "type": "string",
+          "location": "path",
+          "description": "Transactional template ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_get",
+      "description": "Get one Reporting Webhook. Required: environment_id, id. Returns the Webhook.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/webhook_configurations/{id}",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook configuration ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_list",
+      "description": "List Reporting Webhooks. Required: environment_id. Returns array of Webhook.",
+      "method": "GET",
+      "path": "/v1/environments/{environment_id}/webhook_configurations",
+      "params": [
+        {
+          "name": "environment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Environment ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspaces_account",
+      "description": "Get the current account details. Returns the AccountInfo.",
+      "method": "GET",
+      "path": "/v1/accounts/current",
+      "params": []
+    },
+    {
+      "name": "workspaces_list",
+      "description": "Read the current account, including environment_ids visible to the SA token. Returns the AccountInfo.",
+      "method": "GET",
+      "path": "/v1/accounts/current",
+      "params": []
+    }
+  ]
+}

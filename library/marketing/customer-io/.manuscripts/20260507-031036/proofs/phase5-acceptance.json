@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "api_name": "customer-io",
+  "run_id": "20260507-031036",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 6,
+  "tests_passed": 6,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "bearer_token",
+    "api_key_available": true,
+    "browser_session_available": false
+  },
+  "notes": "Quick-check core matrix passed end-to-end against workspace 123457 (test workspace): doctor, sync, search, campaigns list, broadcasts list, broadcasts preflight. Re-tested against workspace 123456 (the customer production) with a read-only-scoped SA token: 16 real campaigns, 20 broadcasts, 50+ segments, 1 transactional template, 50 deliveries, suppression count surfaced correctly. Read-only scope correctly rejected a write attempt (suppressions bulk add returned HTTP 405). campaigns funnel works against running campaigns via /metrics fallback; deliveries triage --live intentionally not wired."
+}

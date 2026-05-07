@@ -1,0 +1,312 @@
+{
+  "api_name": "customer-io",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "customerio/cli (cio)",
+      "url": "https://github.com/customerio/cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "customerio-node",
+      "url": "https://github.com/customerio/customerio-node",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 65,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "customerio-go",
+      "url": "https://github.com/customerio/go-customerio",
+      "language": "Go",
+      "install_method": "",
+      "stars": 30,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "customerio-python",
+      "url": "https://github.com/customerio/customerio-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 65,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "customerio-ruby",
+      "url": "https://github.com/customerio/customerio-ruby",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 69,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "@customerio/cdp-analytics-js",
+      "url": "https://github.com/customerio/cdp-analytics-js",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 9,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-07T03:11:00Z",
+  "novel_features": [
+    {
+      "name": "Journey funnel × segment",
+      "command": "campaigns funnel",
+      "description": "Render a step-by-step journey funnel (sent → delivered → opened → clicked → converted) for one campaign, optionally cross-cut by segment.",
+      "rationale": "The Customer.io API exposes per-campaign journey_metrics but no per-segment breakdown; the funnel × segment join only exists once deliveries and segment_members are in local SQLite.",
+      "example": "customer-io campaigns funnel cmp_482 --segment seg_19 --since 30d --json",
+      "why_it_matters": "Reach for this when an agent is asked 'what fraction of segment X completed journey Y' — the answer is one query against synced data, not two exports and a spreadsheet.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Segment overlap",
+      "command": "segments overlap",
+      "description": "Compute pairwise and multi-way Venn diagrams of segment memberships from the local store.",
+      "rationale": "Customer.io's UI offers no multi-segment intersection; SQL over synced segment_members produces deterministic counts and (with --show-ids) the overlapping customer IDs.",
+      "example": "customer-io segments overlap seg_19 seg_42 seg_88 --json",
+      "why_it_matters": "Use when validating audience design — 'are my churned-risk and high-value segments overlapping?' — without exporting twice.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Customer 360 timeline",
+      "command": "customers timeline",
+      "description": "Chronological per-customer event stream merging identifies, deliveries, suppressions, and segment-membership events from the local store.",
+      "rationale": "The web UI scatters this across 4+ pages; only a local join can render the full timeline in one pass.",
+      "example": "customer-io customers timeline alice@example.com --since 30d --json",
+      "why_it_matters": "Reach for this on incident triage or 'did the welcome SMS go out to this user?' — one command instead of a UI scroll-fest.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Broadcast pre-flight",
+      "command": "broadcasts preflight",
+      "description": "Before triggering a broadcast, check target segment size, suppression overlap, and last-sent recency from the local deliveries cache; emit a green/yellow/red verdict with structured reasons.",
+      "rationale": "The 1 req / 10 s broadcast throttle makes 'is this safe to send?' a real failure mode; pre-flight is the only way to answer it without spending a real broadcast slot.",
+      "example": "customer-io broadcasts preflight 123457 bcr_77 --segment seg_19 --json",
+      "why_it_matters": "Use before any broadcast to avoid double-sending, accidental over-mailing, or 429 storms.",
+      "group": "Send-time safety"
+    },
+    {
+      "name": "Suppression audit",
+      "command": "suppressions audit",
+      "description": "Attribute every suppression in a window to the triggering bounce or complaint delivery (or 'manual' if no preceding event).",
+      "rationale": "Customer.io exposes individual suppress events but not the join to the delivery that caused them — only a local SQL join over synced suppressions × deliveries produces the audit trail.",
+      "example": "customer-io suppressions audit --since 30d --reason bounce --json",
+      "why_it_matters": "Use when an ops engineer needs to explain why a customer is suppressed, or when auditing complaint-driven churn.",
+      "group": "Send-time safety"
+    },
+    {
+      "name": "Reverse-ETL health",
+      "command": "cdp-reverse-etl health",
+      "description": "Named verb over Reverse-ETL run history with status, row counts, error reasons, and an optional --watch poll mode.",
+      "rationale": "The official cio CLI exposes RETL only via generic api passthrough. RETL is a Premium-tier feature that ops engineers check daily — it deserves a verb.",
+      "example": "customer-io cdp-reverse-etl health --since 24h --watch",
+      "why_it_matters": "Use as the daily standup question 'are warehouse syncs healthy?' — replaces three separate api calls + jq filters.",
+      "group": "Send-time safety"
+    },
+    {
+      "name": "Bulk suppress with audit log",
+      "command": "suppressions bulk add",
+      "description": "Read a CSV or JSONL of email/customer-id, fan out real suppress calls with adaptive throttle, append every call to a local JSONL audit log keyed by date.",
+      "rationale": "The App API takes one customer at a time and offers no audit log; the local JSONL log + adaptive throttle is the differentiator over loop-and-call from an SDK.",
+      "example": "customer-io suppressions bulk add --from-csv complaints.csv --reason complaint --dry-run",
+      "why_it_matters": "Use for compliance-driven bulk actions where you need to defend later 'who got suppressed when, by whom, with what status code'.",
+      "group": "Audit and provenance"
+    },
+    {
+      "name": "Delivery triage bundle",
+      "command": "deliveries triage",
+      "description": "Filter live + local deliveries by template + status + window, write a self-contained bundle (summary.md with SQL group-by error reasons, deliveries.jsonl, recipients.txt) ready to paste into an incident doc.",
+      "rationale": "Pulls live API state and joins it with the synced delivery cache; assembles the agent-shaped bundle the brief's incident persona explicitly wants.",
+      "example": "customer-io deliveries triage --template tx_91 --status bounced --since 1h --bundle ./incident-2026-05-07",
+      "why_it_matters": "Pipe the bundle into Claude or a Notion doc for one-shot incident handoff; replaces 30+ minutes of UI scrolling.",
+      "group": "Audit and provenance"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Journey funnel × segment",
+      "command": "campaigns funnel",
+      "description": "Render a step-by-step journey funnel (sent → delivered → opened → clicked → converted) for one campaign, optionally cross-cut by segment.",
+      "rationale": "The Customer.io API exposes per-campaign journey_metrics but no per-segment breakdown; the funnel × segment join only exists once deliveries and segment_members are in local SQLite.",
+      "example": "customer-io campaigns funnel cmp_482 --segment seg_19 --since 30d --json",
+      "why_it_matters": "Reach for this when an agent is asked 'what fraction of segment X completed journey Y' — the answer is one query against synced data, not two exports and a spreadsheet.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Segment overlap",
+      "command": "segments overlap",
+      "description": "Compute pairwise and multi-way Venn diagrams of segment memberships from the local store.",
+      "rationale": "Customer.io's UI offers no multi-segment intersection; SQL over synced segment_members produces deterministic counts and (with --show-ids) the overlapping customer IDs.",
+      "example": "customer-io segments overlap seg_19 seg_42 seg_88 --json",
+      "why_it_matters": "Use when validating audience design — 'are my churned-risk and high-value segments overlapping?' — without exporting twice.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Customer 360 timeline",
+      "command": "customers timeline",
+      "description": "Chronological per-customer event stream merging identifies, deliveries, suppressions, and segment-membership events from the local store.",
+      "rationale": "The web UI scatters this across 4+ pages; only a local join can render the full timeline in one pass.",
+      "example": "customer-io customers timeline alice@example.com --since 30d --json",
+      "why_it_matters": "Reach for this on incident triage or 'did the welcome SMS go out to this user?' — one command instead of a UI scroll-fest.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Broadcast pre-flight",
+      "command": "broadcasts preflight",
+      "description": "Before triggering a broadcast, check target segment size, suppression overlap, and last-sent recency from the local deliveries cache; emit a green/yellow/red verdict with structured reasons.",
+      "rationale": "The 1 req / 10 s broadcast throttle makes 'is this safe to send?' a real failure mode; pre-flight is the only way to answer it without spending a real broadcast slot.",
+      "example": "customer-io broadcasts preflight 123457 bcr_77 --segment seg_19 --json",
+      "why_it_matters": "Use before any broadcast to avoid double-sending, accidental over-mailing, or 429 storms.",
+      "group": "Send-time safety"
+    },
+    {
+      "name": "Suppression audit",
+      "command": "suppressions audit",
+      "description": "Attribute every suppression in a window to the triggering bounce or complaint delivery (or 'manual' if no preceding event).",
+      "rationale": "Customer.io exposes individual suppress events but not the join to the delivery that caused them — only a local SQL join over synced suppressions × deliveries produces the audit trail.",
+      "example": "customer-io suppressions audit --since 30d --reason bounce --json",
+      "why_it_matters": "Use when an ops engineer needs to explain why a customer is suppressed, or when auditing complaint-driven churn.",
+      "group": "Send-time safety"
+    },
+    {
+      "name": "Reverse-ETL health",
+      "command": "cdp-reverse-etl health",
+      "description": "Named verb over Reverse-ETL run history with status, row counts, error reasons, and an optional --watch poll mode.",
+      "rationale": "The official cio CLI exposes RETL only via generic api passthrough. RETL is a Premium-tier feature that ops engineers check daily — it deserves a verb.",
+      "example": "customer-io cdp-reverse-etl health --since 24h --watch",
+      "why_it_matters": "Use as the daily standup question 'are warehouse syncs healthy?' — replaces three separate api calls + jq filters.",
+      "group": "Send-time safety"
+    },
+    {
+      "name": "Bulk suppress with audit log",
+      "command": "suppressions bulk add",
+      "description": "Read a CSV or JSONL of email/customer-id, fan out real suppress calls with adaptive throttle, append every call to a local JSONL audit log keyed by date.",
+      "rationale": "The App API takes one customer at a time and offers no audit log; the local JSONL log + adaptive throttle is the differentiator over loop-and-call from an SDK.",
+      "example": "customer-io suppressions bulk add --from-csv complaints.csv --reason complaint --dry-run",
+      "why_it_matters": "Use for compliance-driven bulk actions where you need to defend later 'who got suppressed when, by whom, with what status code'.",
+      "group": "Audit and provenance"
+    },
+    {
+      "name": "Delivery triage bundle",
+      "command": "deliveries triage",
+      "description": "Filter live + local deliveries by template + status + window, write a self-contained bundle (summary.md with SQL group-by error reasons, deliveries.jsonl, recipients.txt) ready to paste into an incident doc.",
+      "rationale": "Pulls live API state and joins it with the synced delivery cache; assembles the agent-shaped bundle the brief's incident persona explicitly wants.",
+      "example": "customer-io deliveries triage --template tx_91 --status bounced --since 1h --bundle ./incident-2026-05-07",
+      "why_it_matters": "Pipe the bundle into Claude or a Notion doc for one-shot incident handoff; replaces 30+ minutes of UI scrolling.",
+      "group": "Audit and provenance"
+    }
+  ],
+  "narrative": {
+    "display_name": "Customer.io",
+    "headline": "Every Customer.io action a marketer or ops engineer takes — campaigns, broadcasts, segments, deliveries, exports, suppressions, Reverse-ETL — wrapped in named verbs, backed by a local SQLite cache, and served through a bundled MCP server.",
+    "value_prop": "The official customerio/cli exposes the API as raw passthrough. This CLI gives you typed commands for every meaningful workflow, plus eight commands no other tool has — journey funnels cross-cut by segment, multi-segment overlap, customer 360 timelines, broadcast pre-flight, suppression audit trails, Reverse-ETL health, bulk suppress with provenance, and incident-ready delivery triage bundles. It is also the only Customer.io tool that ships an MCP server.",
+    "auth_narrative": "Customer.io uses Service Account tokens (`sa_live_*` prefix). The CLI exchanges the token for a short-lived JWT via the OAuth client-credentials endpoint at `https://us.fly.customer.io/v1/service_accounts/oauth/token` (or `eu.fly.customer.io` for EU workspaces) and uses the JWT as the Bearer for both the Journeys UI API (`/v1/...`) and the CDP control plane (`/cdp/api/...`). Run `customer-io auth login --sa-token $CIO_TOKEN --region us` once; the cached JWT auto-refreshes. The Track API (separate Site ID + API Key auth) is intentionally out of scope for v1 — the SA token is the unified credential.",
+    "quickstart": [
+      {
+        "command": "customer-io auth login --sa-token $CIO_TOKEN --region us",
+        "comment": "One-time SA token exchange; the JWT is cached and refreshed automatically."
+      },
+      {
+        "command": "customer-io doctor",
+        "comment": "Confirms token, region, account_id, and which workspaces are reachable."
+      },
+      {
+        "command": "customer-io sync --resources customers,segments,deliveries --since 30d",
+        "comment": "Populate the local SQLite cache so SQL/search/funnel/timeline work offline."
+      },
+      {
+        "command": "customer-io campaigns list --json --select id,name,state,created_at",
+        "comment": "Smoke-test: list campaigns and pluck just the fields you need."
+      },
+      {
+        "command": "customer-io broadcasts preflight 123457 bcr_77 --segment seg_19",
+        "comment": "Run pre-flight before any broadcast — the 1 req / 10 s throttle is unforgiving."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every call",
+        "fix": "Run `customer-io auth status`; if the JWT is expired, re-run `customer-io auth login --sa-token $CIO_TOKEN --region \u003cus|eu\u003e`. SA tokens themselves are long-lived; only the minted JWT expires."
+      },
+      {
+        "symptom": "Calls go to the wrong region",
+        "fix": "Pass `--region eu` (or set `CUSTOMERIO_REGION=eu`) — both the JWT exchange and the API calls must target the same region."
+      },
+      {
+        "symptom": "429 Too Many Requests on broadcast trigger",
+        "fix": "Broadcast triggers are limited to 1 request per 10 seconds. Use `customer-io broadcasts preflight` first; the trigger command itself adapts to the limit. Don't wrap it in retry-without-backoff loops."
+      },
+      {
+        "symptom": "`segments members` or `customers timeline` returns empty",
+        "fix": "Run `customer-io sync --resources segment_members,deliveries` first. Some commands read from the local store rather than the live API."
+      },
+      {
+        "symptom": "Reverse-ETL endpoints return 403",
+        "fix": "Reverse-ETL is a Premium-tier feature; the endpoint is reachable but returns 403 on Essentials accounts. List the workspaces visible to your Service Account with `customer-io-pp-cli workspaces`."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when you need to do anything in Customer.io that's tedious in the web UI: bulk suppressions with an audit trail, journey funnels cross-cut by segment, customer-360 timelines for incident triage, broadcast pre-flight before a high-stakes send, or Reverse-ETL health checks. It is also the right tool when an agent needs to drive Customer.io — the bundled MCP server exposes the same verbs over stdio and HTTP transports. For raw event ingestion (the Track API) or per-source CDP write keys, prefer one of the official server-side SDKs.",
+    "recipes": [
+      {
+        "title": "Find which high-value customers haven't engaged with the welcome journey",
+        "command": "customer-io campaigns funnel cmp_welcome --segment seg_high_value --since 90d --agent --select steps.delivered.count,steps.opened.count,steps.clicked.count,non_engaged.recipients",
+        "explanation": "The funnel command joins synced deliveries with segment members; --agent + --select narrows the deeply-nested funnel response to just the counts and the non-engaged recipient list, keeping the agent's context lean."
+      },
+      {
+        "title": "Draft an incident bundle for a transactional bounce spike",
+        "command": "customer-io deliveries triage --template tx_password_reset --status bounced --since 2h --bundle ./incident-bounce-2026-05-07",
+        "explanation": "Writes summary.md with grouped error reasons, deliveries.jsonl with full delivery objects, and recipients.txt — paste-ready for a Notion incident doc or a Claude summarize prompt."
+      },
+      {
+        "title": "Prove that a broadcast is safe to trigger",
+        "command": "customer-io broadcasts preflight 123457 bcr_summer_promo --segment seg_active_30d --json",
+        "explanation": "Returns a green/yellow/red verdict with structured reasons (segment size, suppression overlap, last-sent recency from synced deliveries). Run before every broadcast at non-trivial scale."
+      },
+      {
+        "title": "Bulk-suppress a complaint list with provenance",
+        "command": "customer-io suppressions bulk add --from-csv complaints-2026-05.csv --reason complaint --dry-run",
+        "explanation": "Drop --dry-run to commit. Every call lands in `~/.customer-io/audit/suppressions-2026-05-07.jsonl` with timestamp, recipient, status, and HTTP code — defensible later."
+      },
+      {
+        "title": "Watch Reverse-ETL syncs in real time",
+        "command": "customer-io cdp-reverse-etl health --watch --since 24h",
+        "explanation": "Polls every 60 s and prints a status row per sync; pipe to `tee` to keep a log."
+      }
+    ],
+    "trigger_phrases": [
+      "use customer-io",
+      "run customer-io",
+      "trigger a customer.io broadcast",
+      "send a customer.io transactional message",
+      "export a customer.io segment",
+      "check customer.io delivery health",
+      "audit customer.io suppressions",
+      "what fraction of segment X opened journey Y in customer.io"
+    ]
+  }
+}

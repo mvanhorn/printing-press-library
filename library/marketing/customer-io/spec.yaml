@@ -1,0 +1,847 @@
+name: customer-io
+display_name: "Customer.io"
+description: "Customer.io CLI — every action a marketer or ops engineer takes, with named verbs, a local SQLite cache, and a bundled MCP server."
+version: "0.1.0"
+base_url: "https://us.fly.customer.io"
+cli_description: "Manage Customer.io campaigns, broadcasts, segments, deliveries, exports, and Reverse-ETL via the Service Account token."
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  in: header
+  env_vars:
+    - CUSTOMERIO_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/customer-io-pp-cli/config.toml"
+
+mcp:
+  transport:
+    - stdio
+    - http
+  orchestration: code
+  endpoint_tools: hidden
+
+resources:
+  workspaces:
+    description: "List the environments (workspaces) visible to the Service Account"
+    endpoints:
+      list:
+        method: GET
+        path: "/v1/accounts/current"
+        description: "Read the current account, including environment_ids visible to the SA token"
+        response:
+          type: object
+          item: AccountInfo
+      account:
+        method: GET
+        path: "/v1/accounts/current"
+        description: "Get the current account details"
+        response:
+          type: object
+          item: AccountInfo
+
+  customers:
+    description: "Manage Customer.io customer profiles within an environment (workspace)"
+    endpoints:
+      get:
+        method: GET
+        path: "/v1/environments/{environment_id}/customers/{customer_id}/attributes"
+        description: "Get a customer's attributes"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment (workspace) ID — find via 'workspaces list'"
+          - name: customer_id
+            type: string
+            required: true
+            positional: true
+            description: "Customer ID or email"
+        response:
+          type: object
+          item: Customer
+      list_segments:
+        method: GET
+        path: "/v1/environments/{environment_id}/customers/{customer_id}/segments"
+        description: "List the segments a customer belongs to"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+          - name: customer_id
+            type: string
+            required: true
+            positional: true
+            description: "Customer ID or email"
+        response:
+          type: array
+          item: Segment
+      list_messages:
+        method: GET
+        path: "/v1/environments/{environment_id}/customers/{customer_id}/messages"
+        description: "List messages sent to a customer"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+          - name: customer_id
+            type: string
+            required: true
+            positional: true
+            description: "Customer ID or email"
+        response:
+          type: array
+          item: Delivery
+      list_activities:
+        method: GET
+        path: "/v1/environments/{environment_id}/customers/{customer_id}/activities"
+        description: "List activity events for a customer"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+          - name: customer_id
+            type: string
+            required: true
+            positional: true
+            description: "Customer ID or email"
+        response:
+          type: array
+          item: Activity
+
+  campaigns:
+    description: "List campaigns and read campaign + journey metrics"
+    endpoints:
+      list:
+        method: GET
+        path: "/v1/environments/{environment_id}/campaigns"
+        description: "List campaigns in an environment"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment (workspace) ID — find via 'workspaces list'"
+        response:
+          type: array
+          item: Campaign
+      get:
+        method: GET
+        path: "/v1/environments/{environment_id}/campaigns/{campaign_id}"
+        description: "Get one campaign"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+          - name: campaign_id
+            type: string
+            required: true
+            positional: true
+            description: "Campaign ID"
+        response:
+          type: object
+          item: Campaign
+      metrics:
+        method: GET
+        path: "/v1/environments/{environment_id}/campaigns/{campaign_id}/metrics"
+        description: "Read aggregate metrics for a campaign"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+          - name: campaign_id
+            type: string
+            required: true
+            positional: true
+            description: "Campaign ID"
+          - name: period
+            type: string
+            description: "Time period: hours, days, weeks, months"
+          - name: steps
+            type: int
+            description: "Number of period steps to return"
+        response:
+          type: object
+          item: CampaignMetrics
+      journey_metrics:
+        method: GET
+        path: "/v1/environments/{environment_id}/campaigns/{campaign_id}/journey_metrics"
+        description: "Read step-by-step journey funnel metrics"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+          - name: campaign_id
+            type: string
+            required: true
+            positional: true
+            description: "Campaign ID"
+        response:
+          type: object
+          item: JourneyMetrics
+
+  broadcasts:
+    description: "List, inspect, and trigger one-off broadcasts (1 req / 10 s rate-limited)"
+    endpoints:
+      list:
+        method: GET
+        path: "/v1/environments/{environment_id}/newsletters"
+        description: "List broadcasts in an environment"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+        response:
+          type: array
+          item: Broadcast
+      get:
+        method: GET
+        path: "/v1/environments/{environment_id}/newsletters/{id}"
+        description: "Get one broadcast"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Broadcast (newsletter) ID"
+        response:
+          type: object
+          item: Broadcast
+      metrics:
+        method: GET
+        path: "/v1/environments/{environment_id}/newsletters/{id}/metrics"
+        description: "Read metrics for one broadcast"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Broadcast (newsletter) ID"
+        response:
+          type: object
+          item: BroadcastMetrics
+      trigger:
+        method: POST
+        path: "/v1/environments/{environment_id}/newsletters/{id}/triggers"
+        description: "Trigger a broadcast (rate-limited to 1 req / 10 s)"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Broadcast (newsletter) ID"
+        body:
+          - name: data
+            type: string
+            description: "Serialized JSON of trigger payload data"
+        response:
+          type: object
+          item: TriggerResult
+
+  segments:
+    description: "List segments and inspect segment membership"
+    endpoints:
+      list:
+        method: GET
+        path: "/v1/environments/{environment_id}/segments"
+        description: "List segments in an environment"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+        response:
+          type: array
+          item: Segment
+      get:
+        method: GET
+        path: "/v1/environments/{environment_id}/segments/{segment_id}"
+        description: "Get one segment"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+          - name: segment_id
+            type: string
+            required: true
+            positional: true
+            description: "Segment ID"
+        response:
+          type: object
+          item: Segment
+      members:
+        method: GET
+        path: "/v1/environments/{environment_id}/segments/{segment_id}/membership"
+        description: "List customer IDs in a segment"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+          - name: segment_id
+            type: string
+            required: true
+            positional: true
+            description: "Segment ID"
+        response:
+          type: array
+          item: SegmentMember
+      customer_count:
+        method: GET
+        path: "/v1/environments/{environment_id}/segments/{segment_id}/customer_count"
+        description: "Get the customer count for a segment"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+          - name: segment_id
+            type: string
+            required: true
+            positional: true
+            description: "Segment ID"
+        response:
+          type: object
+          item: SegmentCount
+
+  transactional:
+    description: "Inspect transactional templates and metrics"
+    endpoints:
+      list_templates:
+        method: GET
+        path: "/v1/environments/{environment_id}/transactional_messages"
+        description: "List transactional templates"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+        response:
+          type: array
+          item: TransactionalTemplate
+      get_template:
+        method: GET
+        path: "/v1/environments/{environment_id}/transactional_messages/{template_id}"
+        description: "Get one transactional template"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+          - name: template_id
+            type: string
+            required: true
+            positional: true
+            description: "Transactional template ID"
+        response:
+          type: object
+          item: TransactionalTemplate
+      template_metrics:
+        method: GET
+        path: "/v1/environments/{environment_id}/transactional_messages/{template_id}/metrics"
+        description: "Read metrics for one transactional template"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+          - name: template_id
+            type: string
+            required: true
+            positional: true
+            description: "Transactional template ID"
+        response:
+          type: object
+          item: TransactionalMetrics
+
+  deliveries:
+    description: "Inspect delivery events (sends, opens, clicks, bounces, complaints)"
+    endpoints:
+      list:
+        method: GET
+        path: "/v1/environments/{environment_id}/deliveries"
+        description: "List recent deliveries"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+          - name: limit
+            type: int
+            description: "Max deliveries to return"
+          - name: type
+            type: string
+            description: "Filter by message type (email, sms, push, in_app, webhook)"
+        response:
+          type: array
+          item: Delivery
+      get:
+        method: GET
+        path: "/v1/environments/{environment_id}/deliveries/{message_id}"
+        description: "Get one delivery"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+          - name: message_id
+            type: string
+            required: true
+            positional: true
+            description: "Delivery ID"
+        response:
+          type: object
+          item: Delivery
+
+  exports:
+    description: "Start, monitor, and download data exports (segment members, deliveries, customers, etc.)"
+    endpoints:
+      list:
+        method: GET
+        path: "/v1/environments/{environment_id}/exports"
+        description: "List recent exports"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+        response:
+          type: array
+          item: Export
+      get:
+        method: GET
+        path: "/v1/environments/{environment_id}/exports/{export_id}"
+        description: "Get the status of an export"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+          - name: export_id
+            type: string
+            required: true
+            positional: true
+            description: "Export ID"
+        response:
+          type: object
+          item: Export
+      download:
+        method: GET
+        path: "/v1/environments/{environment_id}/exports/{export_id}/download"
+        description: "Get the signed download URL for a finished export"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+          - name: export_id
+            type: string
+            required: true
+            positional: true
+            description: "Export ID"
+        response:
+          type: object
+          item: ExportDownloadURL
+
+  suppressions:
+    description: "Suppress and unsuppress customers; the official audit surface for compliance actions"
+    endpoints:
+      count:
+        method: GET
+        path: "/v1/environments/{environment_id}/customers_suppression_count"
+        description: "Get the count of suppressed customers in an environment (Customer.io has no list endpoint; use 'exports email_suppressions' for the full list)"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+        response:
+          type: object
+          item: SuppressionCount
+      add:
+        method: POST
+        path: "/v1/environments/{environment_id}/customers/{customer_id}/suppress"
+        description: "Suppress a customer"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+          - name: customer_id
+            type: string
+            required: true
+            positional: true
+            description: "Customer ID or email"
+        response:
+          type: object
+          item: SuppressionResult
+      remove:
+        method: POST
+        path: "/v1/environments/{environment_id}/customers/{customer_id}/unsuppress"
+        description: "Remove a suppression"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+          - name: customer_id
+            type: string
+            required: true
+            positional: true
+            description: "Customer ID or email"
+        response:
+          type: object
+          item: SuppressionResult
+
+  webhooks:
+    description: "Manage Reporting Webhooks for delivery + engagement events"
+    endpoints:
+      list:
+        method: GET
+        path: "/v1/environments/{environment_id}/webhook_configurations"
+        description: "List Reporting Webhooks"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+        response:
+          type: array
+          item: Webhook
+      get:
+        method: GET
+        path: "/v1/environments/{environment_id}/webhook_configurations/{id}"
+        description: "Get one Reporting Webhook"
+        params:
+          - name: environment_id
+            type: string
+            required: true
+            positional: true
+            description: "Environment ID"
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Webhook configuration ID"
+        response:
+          type: object
+          item: Webhook
+
+  cdp_sources:
+    description: "List CDP data sources (Premium feature)"
+    endpoints:
+      list:
+        method: GET
+        path: "/cdp/api/sources"
+        description: "List CDP sources"
+        response:
+          type: array
+          item: CDPSource
+
+  cdp_destinations:
+    description: "List CDP destinations (Premium feature)"
+    endpoints:
+      list:
+        method: GET
+        path: "/cdp/api/destinations"
+        description: "List CDP destinations"
+        response:
+          type: array
+          item: CDPDestination
+
+  cdp_reverse_etl:
+    description: "List Reverse-ETL syncs (Premium feature)"
+    endpoints:
+      list:
+        method: GET
+        path: "/cdp/api/reverse_etl/syncs"
+        description: "List Reverse-ETL syncs"
+        response:
+          type: array
+          item: ReverseETLSync
+
+types:
+  AccountInfo:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: email
+        type: string
+      - name: environment_ids
+        type: string
+      - name: plan_slug
+        type: string
+
+  Customer:
+    fields:
+      - name: id
+        type: string
+      - name: email
+        type: string
+      - name: created_at
+        type: int
+
+  Segment:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: type
+        type: string
+      - name: state
+        type: string
+      - name: created
+        type: int
+      - name: updated
+        type: int
+
+  SegmentMember:
+    fields:
+      - name: identifier
+        type: string
+
+  SegmentCount:
+    fields:
+      - name: count
+        type: int
+
+  Campaign:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: state
+        type: string
+      - name: type
+        type: string
+      - name: created
+        type: int
+      - name: updated
+        type: int
+
+  CampaignMetrics:
+    fields:
+      - name: sent
+        type: int
+      - name: delivered
+        type: int
+      - name: opened
+        type: int
+      - name: clicked
+        type: int
+      - name: converted
+        type: int
+      - name: bounced
+        type: int
+
+  JourneyMetrics:
+    fields:
+      - name: steps
+        type: string
+
+  Broadcast:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: state
+        type: string
+      - name: created
+        type: int
+      - name: updated
+        type: int
+
+  BroadcastMetrics:
+    fields:
+      - name: sent
+        type: int
+      - name: delivered
+        type: int
+      - name: opened
+        type: int
+      - name: clicked
+        type: int
+
+  TriggerResult:
+    fields:
+      - name: id
+        type: string
+
+  TransactionalTemplate:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: type
+        type: string
+
+  TransactionalMetrics:
+    fields:
+      - name: sent
+        type: int
+      - name: delivered
+        type: int
+      - name: opened
+        type: int
+      - name: clicked
+        type: int
+
+  Delivery:
+    fields:
+      - name: id
+        type: string
+      - name: type
+        type: string
+      - name: customer_id
+        type: string
+      - name: recipient
+        type: string
+      - name: subject
+        type: string
+      - name: campaign_id
+        type: string
+      - name: state
+        type: string
+      - name: created
+        type: int
+      - name: updated
+        type: int
+      - name: failure_message
+        type: string
+
+  Activity:
+    fields:
+      - name: id
+        type: string
+      - name: customer_id
+        type: string
+      - name: type
+        type: string
+      - name: name
+        type: string
+      - name: timestamp
+        type: int
+
+  Export:
+    fields:
+      - name: id
+        type: string
+      - name: type
+        type: string
+      - name: status
+        type: string
+      - name: created_at
+        type: int
+
+  ExportDownloadURL:
+    fields:
+      - name: link
+        type: string
+
+  Suppression:
+    fields:
+      - name: id
+        type: string
+      - name: email
+        type: string
+      - name: reason
+        type: string
+      - name: created_at
+        type: int
+
+  SuppressionCount:
+    fields:
+      - name: count
+        type: int
+
+  SuppressionResult:
+    fields:
+      - name: success
+        type: bool
+
+  Webhook:
+    fields:
+      - name: id
+        type: string
+      - name: endpoint
+        type: string
+      - name: name
+        type: string
+
+  CDPSource:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+
+  CDPDestination:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+
+  ReverseETLSync:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string

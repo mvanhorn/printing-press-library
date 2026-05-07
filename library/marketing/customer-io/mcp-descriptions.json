@@ -1,0 +1,7 @@
+{
+  "descriptions": {
+    "cdp_destinations_list": "List CDP destinations configured on this Customer.io workspace. Returns an array of CDPDestination objects with id and name. Premium-tier feature: Essentials accounts receive HTTP 403. Use this before debugging downstream sync issues — confirms which destinations exist before correlating against cdp_reverse_etl_list output.",
+    "cdp_reverse_etl_list": "List Reverse-ETL syncs in this Customer.io workspace. Returns an array of ReverseETLSync objects with id and name. Premium-tier feature: Essentials accounts receive HTTP 403. Pair with the `cdp-reverse-etl health` command (named verb) for status, row counts, and per-sync error reasons; this raw list is suitable when an agent only needs sync IDs to feed into other tools.",
+    "cdp_sources_list": "List CDP data sources configured on this Customer.io workspace. Returns an array of CDPSource objects with id and name. Premium-tier feature: Essentials accounts receive HTTP 403. Sources are the upstream side of the CDP pipeline; pair with cdp_destinations_list when mapping the workspace's full data flow."
+  }
+}

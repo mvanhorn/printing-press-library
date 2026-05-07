@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "customer-io-pp-mcp",
+  "display_name": "Customer.io",
+  "version": "4.0.0",
+  "description": "Manage Customer.io campaigns, broadcasts, segments, deliveries, exports, and Reverse-ETL via the Service Account token.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/customer-io-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/customer-io-pp-mcp",
+      "args": [],
+      "env": {
+        "CUSTOMERIO_TOKEN": "${user_config.customerio_token}"
+      }
+    }
+  },
+  "user_config": {
+    "customerio_token": {
+      "type": "string",
+      "title": "CUSTOMERIO_TOKEN",
+      "description": "Sets CUSTOMERIO_TOKEN for the Customer.io MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

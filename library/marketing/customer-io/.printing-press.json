@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-07T16:04:24.513763Z",
+  "printing_press_version": "4.0.0",
+  "api_name": "customer-io",
+  "display_name": "Customer.io",
+  "cli_name": "customer-io-pp-cli",
+  "spec_path": "/Users/tmchow/printing-press/.runstate/piped-strolling-bird-5ebb1b07/runs/20260507-031036/research/customer-io-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:4fba0ae2479fab0298ff6328d0f222af669178131983975773f567e2d5dff0ab",
+  "run_id": "20260507-031036",
+  "description": "Manage Customer.io campaigns, broadcasts, segments, deliveries, exports, and Reverse-ETL via the Service Account token.",
+  "mcp_binary": "customer-io-pp-mcp",
+  "mcp_tool_count": 34,
+  "mcp_ready": "full",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "CUSTOMERIO_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Journey funnel × segment",
+      "command": "campaigns funnel",
+      "description": "Render a step-by-step journey funnel (sent → delivered → opened → clicked → converted) for one campaign, optionally cross-cut by segment."
+    },
+    {
+      "name": "Segment overlap",
+      "command": "segments overlap",
+      "description": "Compute pairwise and multi-way Venn diagrams of segment memberships from the local store."
+    },
+    {
+      "name": "Customer 360 timeline",
+      "command": "customers timeline",
+      "description": "Chronological per-customer event stream merging identifies, deliveries, suppressions, and segment-membership events from the local store."
+    },
+    {
+      "name": "Broadcast pre-flight",
+      "command": "broadcasts preflight",
+      "description": "Before triggering a broadcast, check target segment size, suppression overlap, and last-sent recency from the local deliveries cache; emit a green/yellow/red verdict with structured reasons."
+    },
+    {
+      "name": "Suppression audit",
+      "command": "suppressions audit",
+      "description": "Attribute every suppression in a window to the triggering bounce or complaint delivery (or 'manual' if no preceding event)."
+    },
+    {
+      "name": "Reverse-ETL health",
+      "command": "cdp-reverse-etl health",
+      "description": "Named verb over Reverse-ETL run history with status, row counts, error reasons, and an optional --watch poll mode."
+    },
+    {
+      "name": "Bulk suppress with audit log",
+      "command": "suppressions bulk add",
+      "description": "Read a CSV or JSONL of email/customer-id, fan out real suppress calls with adaptive throttle, append every call to a local JSONL audit log keyed by date."
+    },
+    {
+      "name": "Delivery triage bundle",
+      "command": "deliveries triage",
+      "description": "Filter live + local deliveries by template + status + window, write a self-contained bundle (summary.md with SQL group-by error reasons, deliveries.jsonl, recipients.txt) ready to paste into an incident doc."
+    }
+  ]
+}
