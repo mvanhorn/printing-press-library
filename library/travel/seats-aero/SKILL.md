@@ -2,7 +2,7 @@
 name: pp-seats-aero
 description: "Printing Press CLI for Seats Aero. Seats.aero Partner API for award travel availability, cached search, route lists, and trip revalidation details."
 version: "3.10.0"
-author: "Trevin Chow"
+author: "Cathryn Lavery"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"

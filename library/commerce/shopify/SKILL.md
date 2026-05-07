@@ -2,7 +2,7 @@
 name: pp-shopify
 description: "Printing Press CLI for Shopify. Ecommerce orders, products, customers, inventory, fulfillment orders, and bulk operations via the Shopify Admin..."
 version: "3.2.1"
-author: "Trevin Chow"
+author: "Cathryn Lavery"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"

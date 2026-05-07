@@ -132,7 +132,7 @@ argument-hint: "..."
 		}
 	})
 
-	t.Run("idempotent when all three fields present", func(t *testing.T) {
+	t.Run("idempotent when fields match canonical values", func(t *testing.T) {
 		in := `name: pp-test
 description: "a CLI"
 version: "3.10.0"
@@ -141,7 +141,23 @@ license: "Apache-2.0"
 argument-hint: "..."
 `
 		if got := ensureFrontmatterTopLevelFields(in, ctx); got != in {
-			t.Errorf("expected no-op; got: %q", got)
+			t.Errorf("expected no-op when ctx matches existing values; got: %q", got)
+		}
+	})
+
+	t.Run("rewrites author when ctx differs (per-CLI map correction)", func(t *testing.T) {
+		in := `description: "a CLI"
+version: "3.10.0"
+author: "Wrong Operator"
+license: "Apache-2.0"
+`
+		want := `description: "a CLI"
+version: "3.10.0"
+author: "Trevin Chow"
+license: "Apache-2.0"
+`
+		if got := ensureFrontmatterTopLevelFields(in, ctx); got != want {
+			t.Errorf("expected author rewritten to ctx value;\nwant: %q\ngot:  %q", want, got)
 		}
 	})
 

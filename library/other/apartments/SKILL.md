@@ -2,7 +2,7 @@
 name: pp-apartments
 description: "The apartment-hunt CLI that actually works in 2026 — Surf-cleared bot protection plus a local SQLite store the website itself doesn't have. Trigger phrases: `find apartments in <city>`, `watch apartment listings for <area>`, `rank rentals by price per square foot`, `compare these apartments`, `use apartments-pp-cli`, `run apartments`."
 version: "3.8.0"
-author: "Trevin Chow"
+author: "rderwin"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"

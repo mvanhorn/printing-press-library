@@ -2,7 +2,7 @@
 name: pp-klaviyo
 description: "Klaviyo from the shell, with local customer-behavior analytics layered on top. Trigger phrases: `inspect a Klaviyo profile`, `deploy a Klaviyo campaign`, `check Klaviyo flow decay`, `reconcile Klaviyo campaign revenue`."
 version: "3.5.0"
-author: "Trevin Chow"
+author: "Cathryn Lavery"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
