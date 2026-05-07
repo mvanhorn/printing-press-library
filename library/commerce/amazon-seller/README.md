@@ -6,15 +6,31 @@ Learn more at [Amazon Seller](https://developer-docs.amazon.com/sp-api/).
 
 ## Install
 
-### Binary
+The recommended path installs both the `amazon-seller-pp-cli` binary and the `pp-amazon-seller` agent skill in one shot:
 
-Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/amazon-seller-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
-
-### Go
-
+```bash
+npx -y @mvanhorn/printing-press install amazon-seller
 ```
+
+For CLI only (no skill):
+
+```bash
+npx -y @mvanhorn/printing-press install amazon-seller --cli-only
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
+
+```bash
 go install github.com/mvanhorn/printing-press-library/library/commerce/amazon-seller/cmd/amazon-seller-pp-cli@latest
 ```
+
+This installs the CLI only — no skill.
+
+### Pre-built binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/amazon-seller-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 ## Quick Start
 

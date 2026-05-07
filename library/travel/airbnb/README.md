@@ -10,15 +10,31 @@ Search Airbnb from the terminal, run cheapest on a listing to extract the host's
 
 ## Install
 
-### Binary
+The recommended path installs both the `airbnb-pp-cli` binary and the `pp-airbnb` agent skill in one shot:
 
-Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/airbnb-pp-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
-
-### Go
-
+```bash
+npx -y @mvanhorn/printing-press install airbnb
 ```
+
+For CLI only (no skill):
+
+```bash
+npx -y @mvanhorn/printing-press install airbnb --cli-only
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
+
+```bash
 go install github.com/mvanhorn/printing-press-library/library/travel/airbnb/cmd/airbnb-pp-cli@latest
 ```
+
+This installs the CLI only — no skill.
+
+### Pre-built binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/airbnb-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 ## Authentication
 

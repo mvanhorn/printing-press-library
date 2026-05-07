@@ -302,7 +302,7 @@ Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for...
 <details>
 <summary>Manual JSON config (advanced)</summary>
 `
-	ctx := patchReadmeCtx{CLIName: "x-pp-cli", APIName: "x"}
+	ctx := patchReadmeCtx{CLIName: "x-pp-cli", APIName: "x", Category: "other"}
 	got, err := patchReadme(body, ctx)
 	if err != nil {
 		t.Fatal(err)
@@ -330,7 +330,7 @@ stuff.
 
 other stuff.
 `
-	ctx := patchReadmeCtx{CLIName: "x-pp-cli", APIName: "x"}
+	ctx := patchReadmeCtx{CLIName: "x-pp-cli", APIName: "x", Category: "other"}
 	got, err := patchReadme(body, ctx)
 	if err != nil {
 		t.Fatal(err)
@@ -353,12 +353,156 @@ stuff.
 
 ## Use with Claude Desktop
 `
-	ctx := patchReadmeCtx{CLIName: "x-pp-cli", APIName: "x"}
+	ctx := patchReadmeCtx{CLIName: "x-pp-cli", APIName: "x", Category: "other"}
 	got, err := patchReadme(body, ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if got != body {
 		t.Errorf("expected idempotent no-op when Install via Hermes already present;\ngot diff:\n%s", got)
+	}
+}
+
+func TestPatchReadmeInstall_RewritesLegacyBinaryGoSection(t *testing.T) {
+	// Legacy shape: ## Install with ### Binary and ### Go subsections
+	// from the pre-npx readme.md.tmpl.
+	body := `# X CLI
+
+Some prose.
+
+## Install
+
+### Binary
+
+Download a pre-built binary for your platform from the [latest release](https://example/releases). On macOS, clear the Gatekeeper quarantine.
+
+### Go
+
+` + "```" + `
+go install github.com/mvanhorn/printing-press-library/library/other/x/cmd/x-pp-cli@latest
+` + "```" + `
+
+## Authentication
+
+stuff.
+`
+	ctx := patchReadmeCtx{CLIName: "x-pp-cli", APIName: "x", Category: "other"}
+	got := patchReadmeInstall(body, ctx)
+
+	// Legacy headings gone.
+	if strings.Contains(got, "### Binary\n") {
+		t.Errorf("legacy ### Binary subsection still present:\n%s", got)
+	}
+	// Canonical npx install line present.
+	if !strings.Contains(got, "npx -y @mvanhorn/printing-press install x\n") {
+		t.Errorf("canonical npx install line not present:\n%s", got)
+	}
+	if !strings.Contains(got, "npx -y @mvanhorn/printing-press install x --cli-only") {
+		t.Errorf("--cli-only variant not present:\n%s", got)
+	}
+	// Go fallback retained, with module path derived from category.
+	if !strings.Contains(got, "go install github.com/mvanhorn/printing-press-library/library/other/x/cmd/x-pp-cli@latest") {
+		t.Errorf("Go fallback module path missing:\n%s", got)
+	}
+	// Pre-built binary block retained as last subsection.
+	if !strings.Contains(got, "### Pre-built binary") {
+		t.Errorf("Pre-built binary subsection missing:\n%s", got)
+	}
+	// Surrounding sections preserved.
+	if !strings.Contains(got, "## Authentication") {
+		t.Errorf("trailing ## Authentication section was lost:\n%s", got)
+	}
+	if !strings.Contains(got, "Some prose.") {
+		t.Errorf("leading prose was lost:\n%s", got)
+	}
+	// ## Install heading appears exactly once.
+	if strings.Count(got, "## Install\n") != 1 {
+		t.Errorf("## Install heading should appear exactly once; got %d", strings.Count(got, "## Install\n"))
+	}
+}
+
+func TestPatchReadmeInstall_Idempotent(t *testing.T) {
+	body := `# X CLI
+
+## Install
+
+### Binary
+
+old binary text.
+
+### Go
+
+old go text.
+
+## Authentication
+`
+	ctx := patchReadmeCtx{CLIName: "x-pp-cli", APIName: "x", Category: "other"}
+	first := patchReadmeInstall(body, ctx)
+	second := patchReadmeInstall(first, ctx)
+	if second != first {
+		t.Errorf("second run should produce zero diff;\nfirst:\n%s\nsecond:\n%s", first, second)
+	}
+}
+
+func TestPatchReadmeInstall_NoOpWhenInstallSectionAbsent(t *testing.T) {
+	// agent-capture's README has Quick Start but no ## Install heading.
+	// Tool must leave it alone.
+	body := `# agent-capture
+
+Some prose.
+
+## Quick Start
+
+stuff.
+`
+	ctx := patchReadmeCtx{CLIName: "agent-capture-pp-cli", APIName: "agent-capture", Category: "developer-tools"}
+	got := patchReadmeInstall(body, ctx)
+	if got != body {
+		t.Errorf("expected no-op when ## Install absent;\ngot:\n%s", got)
+	}
+}
+
+func TestPatchReadmeInstall_DoesNotMatchInstallViaHermes(t *testing.T) {
+	// `## Install via Hermes` must not be confused with `## Install`.
+	body := `# X CLI
+
+## Install via Hermes
+
+stuff.
+
+## Install via OpenClaw
+
+other stuff.
+`
+	ctx := patchReadmeCtx{CLIName: "x-pp-cli", APIName: "x", Category: "other"}
+	got := patchReadmeInstall(body, ctx)
+	if got != body {
+		t.Errorf("expected no-op when only ## Install via X headings present (no bare ## Install);\ngot:\n%s", got)
+	}
+}
+
+func TestPatchReadmeInstall_CategoryPathFromContext(t *testing.T) {
+	// The Go module path must reflect the category passed in ctx, not
+	// hardcode "other". This catches a regression where category got
+	// dropped during a refactor.
+	body := `# Y CLI
+
+## Install
+
+### Go
+
+` + "```" + `
+go install github.com/mvanhorn/printing-press-library/library/other/y/cmd/y-pp-cli@latest
+` + "```" + `
+
+## Next
+`
+	ctx := patchReadmeCtx{CLIName: "y-pp-cli", APIName: "y", Category: "commerce"}
+	got := patchReadmeInstall(body, ctx)
+	if !strings.Contains(got, "library/commerce/y/cmd/y-pp-cli@latest") {
+		t.Errorf("expected module path under library/commerce/...; got:\n%s", got)
+	}
+	if strings.Contains(got, "library/other/y/cmd/y-pp-cli@latest") {
+		t.Errorf("legacy library/other/... path leaked through:\n%s", got)
 	}
 }

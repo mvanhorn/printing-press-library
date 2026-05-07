@@ -31,25 +31,31 @@ Install the pp-archive-is skill from https://github.com/mvanhorn/printing-press-
 
 ## Install
 
-### Go
-
-```
-go install github.com/mvanhorn/printing-press-library/other/archive-is/cmd/archive-is-pp-cli@latest
-```
-
-### Binary
-
-Download from [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/archive-is-current).
-
-### Authentication
-
-archive.today has no official API and requires no credentials. Just run the CLI:
+The recommended path installs both the `archive-is-pp-cli` binary and the `pp-archive-is` agent skill in one shot:
 
 ```bash
-archive-is-pp-cli read https://www.nytimes.com/2026/04/10/article
+npx -y @mvanhorn/printing-press install archive-is
 ```
 
-For self-hosted or mirror override, set `ARCHIVE_IS_BASE_URL` (see [Configuration](#configuration)).
+For CLI only (no skill):
+
+```bash
+npx -y @mvanhorn/printing-press install archive-is --cli-only
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/archive-is/cmd/archive-is-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
+
+### Pre-built binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/archive-is-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 ## Quick Start
 

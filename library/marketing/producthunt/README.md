@@ -8,15 +8,31 @@ Learn more at [Product Hunt](https://www.producthunt.com).
 
 ## Install
 
-### Go
+The recommended path installs both the `producthunt-pp-cli` binary and the `pp-producthunt` agent skill in one shot:
 
+```bash
+npx -y @mvanhorn/printing-press install producthunt
 ```
+
+For CLI only (no skill):
+
+```bash
+npx -y @mvanhorn/printing-press install producthunt --cli-only
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
+
+```bash
 go install github.com/mvanhorn/printing-press-library/library/marketing/producthunt/cmd/producthunt-pp-cli@latest
 ```
 
-### Binary
+This installs the CLI only — no skill.
 
-Download from [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/producthunt-current).
+### Pre-built binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/producthunt-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 ## Authentication
 

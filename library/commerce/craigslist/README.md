@@ -8,15 +8,31 @@ Learn more at [Craigslist](https://www.craigslist.org).
 
 ## Install
 
-### Binary
+The recommended path installs both the `craigslist-pp-cli` binary and the `pp-craigslist` agent skill in one shot:
 
-Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/craigslist-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
-
-### Go
-
+```bash
+npx -y @mvanhorn/printing-press install craigslist
 ```
+
+For CLI only (no skill):
+
+```bash
+npx -y @mvanhorn/printing-press install craigslist --cli-only
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
+
+```bash
 go install github.com/mvanhorn/printing-press-library/library/commerce/craigslist/cmd/craigslist-pp-cli@latest
 ```
+
+This installs the CLI only — no skill.
+
+### Pre-built binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/craigslist-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 ## Authentication
 

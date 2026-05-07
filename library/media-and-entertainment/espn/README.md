@@ -27,15 +27,31 @@ Install the pp-espn skill from https://github.com/mvanhorn/printing-press-librar
 
 ## Install
 
-### Go
+The recommended path installs both the `espn-pp-cli` binary and the `pp-espn` agent skill in one shot:
 
+```bash
+npx -y @mvanhorn/printing-press install espn
 ```
+
+For CLI only (no skill):
+
+```bash
+npx -y @mvanhorn/printing-press install espn --cli-only
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
+
+```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/cmd/espn-pp-cli@latest
 ```
 
-### Binary
+This installs the CLI only — no skill.
 
-Download from [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/espn-current).
+### Pre-built binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/espn-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 ## Authentication
 

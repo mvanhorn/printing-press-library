@@ -1,10 +1,25 @@
-// Command sweep-frontmatter applies the Hermes/OpenClaw frontmatter
-// alignment shape (cli-printing-press
-// docs/plans/2026-05-06-002-feat-hermes-openclaw-frontmatter-alignment-plan.md)
-// to every per-CLI library entry in this repo:
+// Command sweep-canonical applies the canonical published-library
+// shape across every per-CLI entry in this repo. The shape is owned
+// upstream by cli-printing-press's skill.md.tmpl and readme.md.tmpl
+// (so fresh prints land correctly); this tool retrofits existing
+// library/<cat>/<api>/SKILL.md and README.md files to match when an
+// upstream template change ships and the existing entries need to
+// catch up without a full regeneration.
 //
+// Originally introduced for the Hermes/OpenClaw frontmatter alignment
+// (cli-printing-press
+// docs/plans/2026-05-06-002-feat-hermes-openclaw-frontmatter-alignment-plan.md);
+// has since broadened to also rewrite the SKILL.md Prerequisites
+// section, the README ## Install section, and to insert the README
+// Hermes/OpenClaw install blocks. The "frontmatter" name was retired
+// because the tool now operates on body content too — its job is
+// "apply canonical shape", not "patch frontmatter".
+//
+// What the tool patches in each library/<cat>/<api>/ directory:
+//
+// SKILL.md:
 //   - Strips legacy OpenClaw env-var declarations (requires.env, envVars,
-//     primaryEnv) from each library/<cat>/<api>/SKILL.md frontmatter.
+//     primaryEnv) from frontmatter.
 //   - Adds the Hermes-recognized top-level fields (author, license) after
 //     the description: line. Strips any pre-existing `version:` line —
 //     it was emitted by an earlier sweep but tracked the Press version,
@@ -16,21 +31,29 @@
 //     CLI` with imperative "you must verify ... do not proceed" wording.
 //     For CLIs that lack a `## CLI Installation` section entirely, the
 //     Prerequisites section is constructed from manifest data instead.
+//
+// README.md:
+//   - Rewrites the `## Install` section (with its `### Binary` /
+//     `### Go` subsections) to lead with the `npx -y
+//     @mvanhorn/printing-press install <api>` installer (CLI + agent
+//     skill), with `--cli-only` and a Go fallback below. Mirrors the
+//     upstream readme.md.tmpl change.
 //   - Inserts `## Install via Hermes` and `## Install via OpenClaw`
-//     sections into each library/<cat>/<api>/README.md, anchored on the
-//     <!-- pp-hermes-install-anchor --> comment when present, or via
-//     a fallback chain (Use with Claude Desktop -> Use with Claude
-//     Code -> ## Install -> EOF) for legacy READMEs.
+//     sections, anchored on the <!-- pp-hermes-install-anchor -->
+//     comment when present, or via a fallback chain (Use with Claude
+//     Desktop -> Use with Claude Code -> ## Install -> EOF) for
+//     legacy READMEs.
 //
 // Idempotent: running twice produces zero textual diff on the second run.
 // Snapshot-restore: if any per-CLI patch fails, all touched files for
 // that CLI are restored from in-memory snapshots before moving on. The
 // rest of the sweep continues.
 //
-// One-shot tool. Once every library entry has been swept, the regen
-// workflow takes over for ongoing changes (Hermes/OpenClaw shape lives
-// in cli-printing-press's skill.md.tmpl and readme.md.tmpl from now on,
-// then verbatim-mirrored to cli-skills/ via .github/workflows/generate-skills.yml).
+// Once every library entry has been swept and the upstream templates
+// match, the regen workflow takes over for ongoing changes — fresh
+// prints from cli-printing-press already produce canonical-shape
+// output, so this tool is only invoked when an upstream template
+// change ships and existing entries need to catch up.
 package main
 
 import (
@@ -267,8 +290,9 @@ func sweepCLI(cliDir, ownerName string) (sweepStatus, error) {
 	}
 
 	readmeAfter, err := patchReadme(string(readmeBefore), patchReadmeCtx{
-		CLIName: mf.CLIName,
-		APIName: mf.APIName,
+		CLIName:  mf.CLIName,
+		APIName:  mf.APIName,
+		Category: category,
 	})
 	if err != nil {
 		return statusUnchanged, fmt.Errorf("patch README.md: %w", err)
@@ -643,13 +667,103 @@ func patchSkillReferences(body string, cliName string) string {
 }
 
 type patchReadmeCtx struct {
-	CLIName string
-	APIName string
+	CLIName  string
+	APIName  string
+	Category string
 }
 
-// patchReadme inserts the Install via Hermes / Install via OpenClaw
-// sections into a README.md. Idempotent: skips if `## Install via
-// Hermes` is already present.
+// patchReadme applies the canonical README shape:
+//  1. Rewrites the `## Install` section to lead with the `npx -y
+//     @mvanhorn/printing-press install <api>` installer (CLI + agent
+//     skill), with `--cli-only` and a Go fallback below. Mirrors the
+//     upstream readme.md.tmpl shape.
+//  2. Inserts the `## Install via Hermes` and `## Install via
+//     OpenClaw` sections.
+//
+// Both steps are idempotent in the second-run-zero-diff sense.
+func patchReadme(body string, ctx patchReadmeCtx) (string, error) {
+	body = patchReadmeInstall(body, ctx)
+	body = patchReadmeHermesOpenClaw(body, ctx)
+	return body, nil
+}
+
+// patchReadmeInstall finds the `## Install` heading and rewrites its
+// body up to the next `## ` heading with the canonical block (npx
+// default → `--cli-only` → Go fallback → pre-built binary).
+//
+// Idempotent: running with the same ctx produces the same output. We
+// achieve this by always re-emitting the canonical block — running
+// against a body that already has the canonical content produces the
+// same canonical content.
+//
+// READMEs without a `## Install` section (2 in the live library:
+// agent-capture and the contact-goat manuscript copy) are left
+// untouched. Adding an Install section to those is out of scope —
+// they have hand-shaped install guidance that doesn't fit the
+// template.
+func patchReadmeInstall(body string, ctx patchReadmeCtx) string {
+	// Match the literal H2 with trailing newline so we don't pick up
+	// `## Install via Hermes`, `## Installation`, etc.
+	const heading = "## Install\n"
+	idx := strings.Index(body, heading)
+	if idx < 0 {
+		return body
+	}
+
+	// Find the next H2 heading after this one — that's where the
+	// Install section ends. Match `\n## ` to avoid matching `### `.
+	tail := body[idx+len(heading):]
+	nextIdx := strings.Index(tail, "\n## ")
+	var sectionEnd int
+	if nextIdx < 0 {
+		sectionEnd = len(body)
+	} else {
+		sectionEnd = idx + len(heading) + nextIdx + 1 // include the \n before next heading
+	}
+
+	canonical := buildReadmeInstallSection(ctx)
+	return body[:idx] + canonical + body[sectionEnd:]
+}
+
+func buildReadmeInstallSection(ctx patchReadmeCtx) string {
+	module := fmt.Sprintf(
+		"github.com/mvanhorn/printing-press-library/library/%s/%s/cmd/%s",
+		ctx.Category, ctx.APIName, ctx.CLIName,
+	)
+	return fmt.Sprintf(`## Install
+
+The recommended path installs both the `+"`%s`"+` binary and the `+"`pp-%s`"+` agent skill in one shot:
+
+`+"```bash"+`
+npx -y @mvanhorn/printing-press install %s
+`+"```"+`
+
+For CLI only (no skill):
+
+`+"```bash"+`
+npx -y @mvanhorn/printing-press install %s --cli-only
+`+"```"+`
+
+### Without Node (Go fallback)
+
+If `+"`npx`"+` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
+
+`+"```bash"+`
+go install %s@latest
+`+"```"+`
+
+This installs the CLI only — no skill.
+
+### Pre-built binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/%s-current). On macOS, clear the Gatekeeper quarantine: `+"`xattr -d com.apple.quarantine <binary>`"+`. On Unix, mark it executable: `+"`chmod +x <binary>`"+`.
+
+`, ctx.CLIName, ctx.APIName, ctx.APIName, ctx.APIName, module, ctx.APIName)
+}
+
+// patchReadmeHermesOpenClaw inserts the Install via Hermes / Install
+// via OpenClaw sections into a README.md. Idempotent: skips if `##
+// Install via Hermes` is already present.
 //
 // Insertion-point fallback chain for legacy READMEs without the
 // `<!-- pp-hermes-install-anchor -->` HTML comment:
@@ -662,9 +776,9 @@ type patchReadmeCtx struct {
 // "Right before" means: the new sections appear above the matched
 // heading, so they show up in the same neighborhood as related
 // install-and-setup content.
-func patchReadme(body string, ctx patchReadmeCtx) (string, error) {
+func patchReadmeHermesOpenClaw(body string, ctx patchReadmeCtx) string {
 	if strings.Contains(body, "## Install via Hermes") {
-		return body, nil
+		return body
 	}
 
 	insert := buildReadmeInstallSections(ctx)
@@ -680,7 +794,7 @@ func patchReadme(body string, ctx patchReadmeCtx) (string, error) {
 		if end < len(body) && body[end] == '\n' {
 			end++
 		}
-		return body[:end] + insert + body[end:], nil
+		return body[:end] + insert + body[end:]
 	}
 
 	// Fallback chain: insert before the first matching heading.
@@ -693,7 +807,7 @@ func patchReadme(body string, ctx patchReadmeCtx) (string, error) {
 			// Insert anchor + sections + blank line before the heading.
 			pre := body[:idx+1] // include the leading \n
 			post := body[idx+1:]
-			return pre + anchor + "\n" + insert + post, nil
+			return pre + anchor + "\n" + insert + post
 		}
 	}
 
@@ -702,7 +816,7 @@ func patchReadme(body string, ctx patchReadmeCtx) (string, error) {
 	if !strings.HasSuffix(suffix, "\n") {
 		suffix += "\n"
 	}
-	return suffix + "\n" + anchor + "\n" + insert, nil
+	return suffix + "\n" + anchor + "\n" + insert
 }
 
 func buildReadmeInstallSections(ctx patchReadmeCtx) string {

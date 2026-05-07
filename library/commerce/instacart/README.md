@@ -275,9 +275,29 @@ Install the pp-instacart skill from https://github.com/mvanhorn/printing-press-l
 
 ## Install
 
-Built binary lives at `~/printing-press/library/instacart/instacart`. Symlink
-it into your PATH:
+The recommended path installs both the `instacart-pp-cli` binary and the `pp-instacart` agent skill in one shot:
 
 ```bash
-ln -s ~/printing-press/library/instacart/instacart ~/bin/instacart
+npx -y @mvanhorn/printing-press install instacart
 ```
+
+For CLI only (no skill):
+
+```bash
+npx -y @mvanhorn/printing-press install instacart --cli-only
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/commerce/instacart/cmd/instacart-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
+
+### Pre-built binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/instacart-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
+

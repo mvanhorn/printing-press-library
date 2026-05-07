@@ -51,15 +51,31 @@ company-goat-pp-cli funding --domain junelife.com --json
 
 ## Install
 
-### Go
+The recommended path installs both the `company-goat-pp-cli` binary and the `pp-company-goat` agent skill in one shot:
 
+```bash
+npx -y @mvanhorn/printing-press install company-goat
 ```
+
+For CLI only (no skill):
+
+```bash
+npx -y @mvanhorn/printing-press install company-goat --cli-only
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
+
+```bash
 go install github.com/mvanhorn/printing-press-library/library/developer-tools/company-goat/cmd/company-goat-pp-cli@latest
 ```
 
-### Binary
+This installs the CLI only — no skill.
 
-Download from [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/company-goat-current).
+### Pre-built binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/company-goat-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 ## Authentication
 

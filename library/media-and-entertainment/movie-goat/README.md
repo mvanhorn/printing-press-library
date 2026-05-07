@@ -8,15 +8,31 @@ Learn more at [Movie Goat](https://www.themoviedb.org).
 
 ## Install
 
-### Binary
+The recommended path installs both the `movie-goat-pp-cli` binary and the `pp-movie-goat` agent skill in one shot:
 
-Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/movie-goat-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
-
-### Go
-
+```bash
+npx -y @mvanhorn/printing-press install movie-goat
 ```
+
+For CLI only (no skill):
+
+```bash
+npx -y @mvanhorn/printing-press install movie-goat --cli-only
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
+
+```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movie-goat/cmd/movie-goat-pp-cli@latest
 ```
+
+This installs the CLI only — no skill.
+
+### Pre-built binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/movie-goat-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 ## Authentication
 

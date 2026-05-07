@@ -169,16 +169,16 @@ Don't touch `registry.json`. The post-merge regen handles it. Your PR's diff sta
 
 **When does this fail?** If the generator itself is broken (compile error, panic) or the source files have invalid JSON, the post-merge run will fail and `registry.json` will go stale. Watch for `generate-registry.yml` failures in the Actions tab after merging library/** changes.
 
-## Bulk SKILL.md/README.md retrofits: `tools/sweep-frontmatter/`
+## Bulk SKILL.md/README.md retrofits: `tools/sweep-canonical/`
 
-When a frontmatter or section-shape change must propagate across **all library CLIs at once** — Hermes/OpenClaw shape alignment, stripping a deprecated field, normalizing an install command — edit and run this tool rather than hand-touching every entry. Don't use it for one-CLI-specific changes (edit `library/<cat>/<slug>/SKILL.md` directly), and don't use it for shape changes that belong upstream in `cli-printing-press/internal/generator/templates/skill.md.tmpl` — fix the template first so future fresh prints get it right, then run the sweep here to retrofit existing entries.
+When a SKILL.md or README.md shape change must propagate across **all library CLIs at once** — Hermes/OpenClaw shape alignment, stripping a deprecated field, normalizing an install command, rewriting the README `## Install` section — edit and run this tool rather than hand-touching every entry. The tool's job is "apply canonical published-library shape to every entry"; it covers frontmatter, SKILL.md Prerequisites, README `## Install`, and README Hermes/OpenClaw blocks. Don't use it for one-CLI-specific changes (edit `library/<cat>/<slug>/SKILL.md` or `README.md` directly), and don't use it for shape changes that belong upstream in `cli-printing-press/internal/generator/templates/skill.md.tmpl` or `readme.md.tmpl` — fix the template first so future fresh prints get it right, then run the sweep here to retrofit existing entries.
 
 **The `cliAuthorByAPIName` map is curated.** Don't replace it with a git-history lookup or operator-config fallback — that silently flips attribution on the published CLIs. Add a new entry when adding a new library CLI; correct one only when the actual author was misrecorded.
 
-**Idempotency is a hard requirement** — running the tool twice with the same inputs must produce zero diff. Tests at `tools/sweep-frontmatter/main_test.go` enforce this; run them before opening a sweep PR:
+**Idempotency is a hard requirement** — running the tool twice with the same inputs must produce zero diff. Tests at `tools/sweep-canonical/main_test.go` enforce this; run them before opening a sweep PR:
 
 ```bash
-cd tools/sweep-frontmatter && GO111MODULE=off go test .
+cd tools/sweep-canonical && GO111MODULE=off go test .
 ```
 
 The tool runs in GOPATH mode (no `go.mod`) so it stays decoupled from the rest of the repo's module graph. After running the sweep, regenerate `cli-skills/` so the mirror reflects the updated library content (see the section above).

@@ -6,15 +6,31 @@ affected versions, references, and severity ratings. No API key required (option
 
 ## Install
 
-### Binary
+The recommended path installs both the `nvd-pp-cli` binary and the `pp-nvd` agent skill in one shot:
+
+```bash
+npx -y @mvanhorn/printing-press install nvd
+```
+
+For CLI only (no skill):
+
+```bash
+npx -y @mvanhorn/printing-press install nvd --cli-only
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/nvd/cmd/nvd-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
+
+### Pre-built binary
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/nvd-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
-
-### Go
-
-```
-go install github.com/mvanhorn/printing-press-library/library/other/nvd/cmd/nvd-pp-cli@latest
-```
 
 ## Quick Start
 

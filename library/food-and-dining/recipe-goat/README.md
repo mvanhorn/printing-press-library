@@ -4,15 +4,31 @@ Recipe GOAT — find the best version of any recipe across 37 trusted sites, wit
 
 ## Install
 
-### Binary
+The recommended path installs both the `recipe-goat-pp-cli` binary and the `pp-recipe-goat` agent skill in one shot:
+
+```bash
+npx -y @mvanhorn/printing-press install recipe-goat
+```
+
+For CLI only (no skill):
+
+```bash
+npx -y @mvanhorn/printing-press install recipe-goat --cli-only
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/food-and-dining/recipe-goat/cmd/recipe-goat-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
+
+### Pre-built binary
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/recipe-goat-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
-
-### Go
-
-```
-go install github.com/mvanhorn/printing-press-library/library/other/recipe-goat/cmd/recipe-goat-pp-cli@latest
-```
 
 ## Quick Start
 

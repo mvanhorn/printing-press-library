@@ -8,15 +8,31 @@ Learn more at [Cal.com](https://cal.com).
 
 ## Install
 
-### Binary
+The recommended path installs both the `cal-com-pp-cli` binary and the `pp-cal-com` agent skill in one shot:
+
+```bash
+npx -y @mvanhorn/printing-press install cal-com
+```
+
+For CLI only (no skill):
+
+```bash
+npx -y @mvanhorn/printing-press install cal-com --cli-only
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/productivity/cal-com/cmd/cal-com-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
+
+### Pre-built binary
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/cal-com-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
-
-### Go
-
-```
-go install github.com/mvanhorn/printing-press-library/library/other/cal-com/cmd/cal-com-pp-cli@latest
-```
 
 ## Authentication
 
