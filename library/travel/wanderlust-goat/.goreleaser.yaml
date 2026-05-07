@@ -1,0 +1,51 @@
+version: 2
+project_name: wanderlust-goat-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: wanderlust-goat-pp-cli
+    main: ./cmd/wanderlust-goat-pp-cli
+    binary: wanderlust-goat-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: wanderlust-goat-pp-mcp
+    main: ./cmd/wanderlust-goat-pp-mcp
+    binary: wanderlust-goat-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: wanderlust-goat-pp-cli
+    repository:
+      owner: joe-heitzeberg
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Wanderlust GOAT — what a knowledgeable local with great taste would tell you to walk to from here, fused across editorial, local-language, and crowd layers no single tool ranks together."
+    install: |
+      bin.install "wanderlust-goat-pp-cli"
+      bin.install "wanderlust-goat-pp-mcp"

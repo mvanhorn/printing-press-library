@@ -1,0 +1,388 @@
+{
+  "api_name": "wanderlust-goat",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "Mapbox MCP Server",
+      "url": "https://github.com/mapbox/mapbox-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "AWS Location MCP Server",
+      "url": "https://github.com/awslabs/mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "google-maps-mcp",
+      "url": "https://github.com/modelcontextprotocol/servers",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "atlas-obscura-api",
+      "url": "https://github.com/bartholomej/atlas-obscura-api",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gurume",
+      "url": "https://github.com/narumiruna/gurume",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Naver-Place-scraper",
+      "url": "https://github.com/seolhalee/Naver-Place-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "trip-planner",
+      "url": "https://github.com/adl1995/trip-planner",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "query-overpass",
+      "url": "https://github.com/perliedman/query-overpass",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-07T13:55:00Z",
+  "novel_features": [
+    {
+      "name": "Persona-shaped local fanout",
+      "command": "near",
+      "description": "Find the 3-5 amazing things within walking distance that match your stated identity and criteria — not the 40 closest things.",
+      "rationale": "Geocodes the anchor, fans out to every source eligible for the country, scores against `places` + `reddit_threads` in local SQLite using `trust × (1 + country_boost) × intent_match × 1/(1 + walking_min/15)`. No competing tool composes editorial + Wikipedia + Reddit + OSM + local-language signals through one trust-weighted formula.",
+      "example": "wanderlust-goat-pp-cli near \"Park Hyatt Tokyo\" --criteria \"vintage jazz kissaten, no tourists, great pour-over\" --identity \"coffee snob, into 70s Japanese kissaten culture\" --minutes 15 --agent",
+      "why_it_matters": "When an agent needs the curated picks for a persona at a location, this is the single command that fuses ~12 sources into one ranked, sourced answer.",
+      "group": "Persona-shaped fanout"
+    },
+    {
+      "name": "Heuristic GOAT compound (no LLM)",
+      "command": "goat",
+      "description": "Same fanout as `near` but with no LLM in the runtime path — criteria-to-source mapping uses static lookup tables so the CLI works standalone.",
+      "rationale": "Brief mandate: 'CLI is the muscle, calling agent is the brain... ships a `goat` compound that runs heuristic orchestration without an LLM.' Static maps in `internal/criteria/` translate criteria phrases to OSM tags and Reddit keywords mechanically.",
+      "example": "wanderlust-goat-pp-cli goat \"35.6895,139.6917\" --criteria \"vintage clothing, vinyl, hidden\" --minutes 20 --agent",
+      "why_it_matters": "Agents and humans both need a GOAT mode that works without an LLM caller — useful for shell pipelines, cron, and offline runs.",
+      "group": "Persona-shaped fanout"
+    },
+    {
+      "name": "Agent research-plan emitter",
+      "command": "research-plan",
+      "description": "Output a JSON query plan agents execute in a loop — typed, country-aware, ordered by trust, ready to fan out.",
+      "rationale": "Reads the country dispatch + intent→source-set table; emits ordered JSON [{client, method, params, locale, expected_trust}] the agent runs. No other CLI emits a typed call graph; brief Workflow #2.",
+      "example": "wanderlust-goat-pp-cli research-plan \"Bukchon Hanok Village, Seoul\" --criteria \"hand-pulled noodles, locals only\" --identity \"food traveler\" --json",
+      "why_it_matters": "Drop this into an agent loop to let the agent run multi-source travel research without re-deriving the fanout plan every call.",
+      "group": "Agent-orchestration plumbing"
+    },
+    {
+      "name": "Crossover walks",
+      "command": "crossover",
+      "description": "Find pairs where a high-trust restaurant sits within 200m of a Wikipedia-notable historic site or Atlas Obscura entry — food + culture in one walk.",
+      "rationale": "Spatial cross-entity SQL: SELECT a, b FROM places a JOIN places b WHERE distance(a, b) \u003c 200m AND a.intent='food' AND b.intent='culture' AND trust ≥ 0.85. Cross-entity join no single source can answer.",
+      "example": "wanderlust-goat-pp-cli crossover --anchor \"Marais, Paris\" --radius 800m --pair food+culture --agent",
+      "why_it_matters": "When the persona wants 'a great meal next to something interesting', this is the spatial query that compounds two layers.",
+      "group": "Cross-source walks"
+    },
+    {
+      "name": "Golden-hour viewpoint hunt",
+      "command": "golden-hour",
+      "description": "Compute sunrise/sunset/blue-hour locally (pure Go, no API) and pair with viewpoints photographers know about within walking distance.",
+      "rationale": "SunCalc-style sun-position math + Overpass `tourism=viewpoint` + Atlas Obscura viewpoint entries + Reddit accessibility keyword match. Service-specific photographer ritual; no competing tool fuses sun math with multi-source viewpoint ranking.",
+      "example": "wanderlust-goat-pp-cli golden-hour \"Eiffel Tower\" --date 2026-06-15 --minutes 20 --agent",
+      "why_it_matters": "When an agent needs to brief Felix the photographer for tonight's shoot, this is the one call that fuses the math and the spots.",
+      "group": "Cross-source walks"
+    },
+    {
+      "name": "Route-view exploration",
+      "command": "route-view",
+      "description": "Walking polyline from A to B, then everything interesting along the path — not just at the endpoints.",
+      "rationale": "OSRM walking polyline (cached in `routes`) + spatial buffer query against local `places` along the polyline geometry, ranked by trust × proximity-to-path. Geometric local-store query no single API can answer.",
+      "example": "wanderlust-goat-pp-cli route-view \"Shibuya Station, Tokyo\" \"Yoyogi Park, Tokyo\" --buffer 150m --agent",
+      "why_it_matters": "For walks where the journey IS the point, the agent needs everything along the path — not the closest thing to either end.",
+      "group": "Cross-source walks"
+    },
+    {
+      "name": "City pre-trip sync",
+      "command": "sync-city",
+      "description": "Pre-cache editorial best-of, Reddit threads, Wikipedia, Wikivoyage, OSM POIs, Atlas Obscura, and regional-language sources for offline use.",
+      "rationale": "Iterates the country dispatch table and writes to `places`, `cities`, `reddit_threads`, `sync_state`; populates `places_fts`. Substrate every other transcendence command queries.",
+      "example": "wanderlust-goat-pp-cli sync-city tokyo --layers all --agent",
+      "why_it_matters": "Agents working offline or with flaky connectivity need a synced local store; this populates it.",
+      "group": "Local store + sync"
+    },
+    {
+      "name": "Trust-weighted score explanation",
+      "command": "why",
+      "description": "Print every source that mentioned a place, the trust weight, country boost, walking time, criteria match, and the final goat-score breakdown.",
+      "rationale": "Pure local-store inspection + step-by-step formula breakdown. Auditable agent-shaped explanation of opaque ranking; no competing tool exposes its scoring math.",
+      "example": "wanderlust-goat-pp-cli why \"珈琲 美美\" --json",
+      "why_it_matters": "When the agent's pick surprises the user, this command answers 'why was this ranked #1?' in one call.",
+      "group": "Local store + sync"
+    },
+    {
+      "name": "Reddit-quote extractor",
+      "command": "reddit-quotes",
+      "description": "Surface the highest-scored Reddit comment snippets that mention a place — verbatim quotes, no LLM summarization.",
+      "rationale": "SELECT title, url, score, body FROM reddit_threads WHERE body LIKE '%\u003cname\u003e%' OR body LIKE '%\u003cname_local\u003e%' ORDER BY score DESC. Cross-table join places ↔ reddit_threads; service-specific content pattern (Reddit's r/[city] tradition).",
+      "example": "wanderlust-goat-pp-cli reddit-quotes \"Kohi Bibi\" --json",
+      "why_it_matters": "Agents giving travel advice need the actual local quotes, not a summary that can hallucinate. This returns the raw text with provenance.",
+      "group": "Local store + sync"
+    },
+    {
+      "name": "Sync coverage report",
+      "command": "coverage",
+      "description": "Per-tier row counts, last-sync ages, country-match boost, and which v1 sources are missing for a synced city.",
+      "rationale": "SELECT source, tier, count(*), max(synced_at) FROM places JOIN sync_state — local SQL aggregation. Agents need it to know if `near` calls run on thin data.",
+      "example": "wanderlust-goat-pp-cli coverage tokyo --json",
+      "why_it_matters": "Before an agent trusts a `near` answer, it should check whether the local store actually has the layers it claims to fuse.",
+      "group": "Local store + sync"
+    },
+    {
+      "name": "Quiet-hour discovery",
+      "command": "quiet-hour",
+      "description": "Places that locals describe as quiet at the requested time, intersected with OSM opening hours and walking radius.",
+      "rationale": "Reddit body keyword match (`dead before`, `empty weekday`, `quiet on`) joined to `places`, intersected with OSM `opening_hours` and walking-radius reachability. Cross-source content pattern + tag filter.",
+      "example": "wanderlust-goat-pp-cli quiet-hour \"Yurakucho, Tokyo\" --minutes 15 --day mon --time 14:00 --agent",
+      "why_it_matters": "Agents helping someone find the un-crowded version of a popular cafe need the Reddit-quiet-signal layer the persona always asks for but never gets.",
+      "group": "Cross-source walks"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Persona-shaped local fanout",
+      "command": "near",
+      "description": "Find the 3-5 amazing things within walking distance that match your stated identity and criteria — not the 40 closest things.",
+      "rationale": "Geocodes the anchor, fans out to every source eligible for the country, scores against `places` + `reddit_threads` in local SQLite using `trust × (1 + country_boost) × intent_match × 1/(1 + walking_min/15)`. No competing tool composes editorial + Wikipedia + Reddit + OSM + local-language signals through one trust-weighted formula.",
+      "example": "wanderlust-goat-pp-cli near \"Park Hyatt Tokyo\" --criteria \"vintage jazz kissaten, no tourists, great pour-over\" --identity \"coffee snob, into 70s Japanese kissaten culture\" --minutes 15 --agent",
+      "why_it_matters": "When an agent needs the curated picks for a persona at a location, this is the single command that fuses ~12 sources into one ranked, sourced answer.",
+      "group": "Persona-shaped fanout"
+    },
+    {
+      "name": "Heuristic GOAT compound (no LLM)",
+      "command": "goat",
+      "description": "Same fanout as `near` but with no LLM in the runtime path — criteria-to-source mapping uses static lookup tables so the CLI works standalone.",
+      "rationale": "Brief mandate: 'CLI is the muscle, calling agent is the brain... ships a `goat` compound that runs heuristic orchestration without an LLM.' Static maps in `internal/criteria/` translate criteria phrases to OSM tags and Reddit keywords mechanically.",
+      "example": "wanderlust-goat-pp-cli goat \"35.6895,139.6917\" --criteria \"vintage clothing, vinyl, hidden\" --minutes 20 --agent",
+      "why_it_matters": "Agents and humans both need a GOAT mode that works without an LLM caller — useful for shell pipelines, cron, and offline runs.",
+      "group": "Persona-shaped fanout"
+    },
+    {
+      "name": "Agent research-plan emitter",
+      "command": "research-plan",
+      "description": "Output a JSON query plan agents execute in a loop — typed, country-aware, ordered by trust, ready to fan out.",
+      "rationale": "Reads the country dispatch + intent→source-set table; emits ordered JSON [{client, method, params, locale, expected_trust}] the agent runs. No other CLI emits a typed call graph; brief Workflow #2.",
+      "example": "wanderlust-goat-pp-cli research-plan \"Bukchon Hanok Village, Seoul\" --criteria \"hand-pulled noodles, locals only\" --identity \"food traveler\" --json",
+      "why_it_matters": "Drop this into an agent loop to let the agent run multi-source travel research without re-deriving the fanout plan every call.",
+      "group": "Agent-orchestration plumbing"
+    },
+    {
+      "name": "Crossover walks",
+      "command": "crossover",
+      "description": "Find pairs where a high-trust restaurant sits within 200m of a Wikipedia-notable historic site or Atlas Obscura entry — food + culture in one walk.",
+      "rationale": "Spatial cross-entity SQL: SELECT a, b FROM places a JOIN places b WHERE distance(a, b) \u003c 200m AND a.intent='food' AND b.intent='culture' AND trust ≥ 0.85. Cross-entity join no single source can answer.",
+      "example": "wanderlust-goat-pp-cli crossover --anchor \"Marais, Paris\" --radius 800m --pair food+culture --agent",
+      "why_it_matters": "When the persona wants 'a great meal next to something interesting', this is the spatial query that compounds two layers.",
+      "group": "Cross-source walks"
+    },
+    {
+      "name": "Golden-hour viewpoint hunt",
+      "command": "golden-hour",
+      "description": "Compute sunrise/sunset/blue-hour locally (pure Go, no API) and pair with viewpoints photographers know about within walking distance.",
+      "rationale": "SunCalc-style sun-position math + Overpass `tourism=viewpoint` + Atlas Obscura viewpoint entries + Reddit accessibility keyword match. Service-specific photographer ritual; no competing tool fuses sun math with multi-source viewpoint ranking.",
+      "example": "wanderlust-goat-pp-cli golden-hour \"Eiffel Tower\" --date 2026-06-15 --minutes 20 --agent",
+      "why_it_matters": "When an agent needs to brief Felix the photographer for tonight's shoot, this is the one call that fuses the math and the spots.",
+      "group": "Cross-source walks"
+    },
+    {
+      "name": "Route-view exploration",
+      "command": "route-view",
+      "description": "Walking polyline from A to B, then everything interesting along the path — not just at the endpoints.",
+      "rationale": "OSRM walking polyline (cached in `routes`) + spatial buffer query against local `places` along the polyline geometry, ranked by trust × proximity-to-path. Geometric local-store query no single API can answer.",
+      "example": "wanderlust-goat-pp-cli route-view \"Shibuya Station, Tokyo\" \"Yoyogi Park, Tokyo\" --buffer 150m --agent",
+      "why_it_matters": "For walks where the journey IS the point, the agent needs everything along the path — not the closest thing to either end.",
+      "group": "Cross-source walks"
+    },
+    {
+      "name": "City pre-trip sync",
+      "command": "sync-city",
+      "description": "Pre-cache editorial best-of, Reddit threads, Wikipedia, Wikivoyage, OSM POIs, Atlas Obscura, and regional-language sources for offline use.",
+      "rationale": "Iterates the country dispatch table and writes to `places`, `cities`, `reddit_threads`, `sync_state`; populates `places_fts`. Substrate every other transcendence command queries.",
+      "example": "wanderlust-goat-pp-cli sync-city tokyo --layers all --agent",
+      "why_it_matters": "Agents working offline or with flaky connectivity need a synced local store; this populates it.",
+      "group": "Local store + sync"
+    },
+    {
+      "name": "Trust-weighted score explanation",
+      "command": "why",
+      "description": "Print every source that mentioned a place, the trust weight, country boost, walking time, criteria match, and the final goat-score breakdown.",
+      "rationale": "Pure local-store inspection + step-by-step formula breakdown. Auditable agent-shaped explanation of opaque ranking; no competing tool exposes its scoring math.",
+      "example": "wanderlust-goat-pp-cli why \"珈琲 美美\" --json",
+      "why_it_matters": "When the agent's pick surprises the user, this command answers 'why was this ranked #1?' in one call.",
+      "group": "Local store + sync"
+    },
+    {
+      "name": "Reddit-quote extractor",
+      "command": "reddit-quotes",
+      "description": "Surface the highest-scored Reddit comment snippets that mention a place — verbatim quotes, no LLM summarization.",
+      "rationale": "SELECT title, url, score, body FROM reddit_threads WHERE body LIKE '%\u003cname\u003e%' OR body LIKE '%\u003cname_local\u003e%' ORDER BY score DESC. Cross-table join places ↔ reddit_threads; service-specific content pattern (Reddit's r/[city] tradition).",
+      "example": "wanderlust-goat-pp-cli reddit-quotes \"Kohi Bibi\" --json",
+      "why_it_matters": "Agents giving travel advice need the actual local quotes, not a summary that can hallucinate. This returns the raw text with provenance.",
+      "group": "Local store + sync"
+    },
+    {
+      "name": "Sync coverage report",
+      "command": "coverage",
+      "description": "Per-tier row counts, last-sync ages, country-match boost, and which v1 sources are missing for a synced city.",
+      "rationale": "SELECT source, tier, count(*), max(synced_at) FROM places JOIN sync_state — local SQL aggregation. Agents need it to know if `near` calls run on thin data.",
+      "example": "wanderlust-goat-pp-cli coverage tokyo --json",
+      "why_it_matters": "Before an agent trusts a `near` answer, it should check whether the local store actually has the layers it claims to fuse.",
+      "group": "Local store + sync"
+    },
+    {
+      "name": "Quiet-hour discovery",
+      "command": "quiet-hour",
+      "description": "Places that locals describe as quiet at the requested time, intersected with OSM opening hours and walking radius.",
+      "rationale": "Reddit body keyword match (`dead before`, `empty weekday`, `quiet on`) joined to `places`, intersected with OSM `opening_hours` and walking-radius reachability. Cross-source content pattern + tag filter.",
+      "example": "wanderlust-goat-pp-cli quiet-hour \"Yurakucho, Tokyo\" --minutes 15 --day mon --time 14:00 --agent",
+      "why_it_matters": "Agents helping someone find the un-crowded version of a popular cafe need the Reddit-quiet-signal layer the persona always asks for but never gets.",
+      "group": "Cross-source walks"
+    }
+  ],
+  "narrative": {
+    "display_name": "Wanderlust GOAT",
+    "headline": "What a knowledgeable local with great taste would tell you to walk to from here — fused across editorial, local-language, and crowd layers no single tool ranks together.",
+    "value_prop": "Most 'near me' tools return the 40 closest results. Wanderlust GOAT returns the 3 results that match your stated identity and criteria. It fuses Nominatim, OSRM walking time, OSM Overpass, Wikipedia, Wikivoyage, Atlas Obscura, Reddit, editorial scrapes (Eater, Time Out, NYT 36 Hours, Michelin), and language-aware regional sources (Tabelog, Naver, Le Fooding) through one trust-weighted score, with local-language names preserved alongside transliterations. Free, no API keys, with an offline SQLite store and a JSON `research-plan` surface for agent orchestration.",
+    "auth_narrative": "wanderlust-goat is intentionally key-less. Every v1 source is a free public API or a politely-rate-limited public scrape. OSRM uses the project-osrm.org public demo; the README documents how to point at a self-hosted OSRM. Set a contact-bearing User-Agent via `WANDERLUST_GOAT_UA` env var (Nominatim policy requires a real contact URL or email).",
+    "quickstart": [
+      {
+        "command": "wanderlust-goat-pp-cli sync-city tokyo --layers all",
+        "comment": "Pre-cache Tokyo's editorial + Reddit + Wikipedia + OSM + Tabelog layers into the local SQLite store."
+      },
+      {
+        "command": "wanderlust-goat-pp-cli near \"Park Hyatt Tokyo\" --criteria \"vintage jazz kissaten, no tourists, great pour-over\" --identity \"coffee snob, into 70s Japanese kissaten culture\" --minutes 15",
+        "comment": "Persona-shaped 15-minute walk: 3-5 ranked picks with local-language names and one-line 'why it's special'."
+      },
+      {
+        "command": "wanderlust-goat-pp-cli research-plan \"Bukchon Hanok Village\" --criteria \"hand-pulled noodles, locals only\" --json --select sources,calls.client",
+        "comment": "Emit the typed JSON query plan an agent should execute — narrowed to client and source list."
+      },
+      {
+        "command": "wanderlust-goat-pp-cli golden-hour \"Eiffel Tower\" --date 2026-06-15 --minutes 20",
+        "comment": "Tonight's blue-hour windows + the photographer-known viewpoints inside a 20-minute walking radius."
+      },
+      {
+        "command": "wanderlust-goat-pp-cli why \"珈琲 美美\"",
+        "comment": "Audit the goat-score breakdown for any place the persona is curious about."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Nominatim returns 403",
+        "fix": "Set WANDERLUST_GOAT_UA to a string with your real contact URL or email — Nominatim blocks placeholder UAs (no `example.com`)."
+      },
+      {
+        "symptom": "Tabelog or Michelin returns 202/AWS-WAF challenge",
+        "fix": "These sources use Surf (Chrome TLS fingerprint) by default; if a corporate proxy strips TLS extensions, run `wanderlust-goat-pp-cli doctor` to confirm Surf transport."
+      },
+      {
+        "symptom": "Atlas Obscura entries empty",
+        "fix": "AO sometimes adds Cloudflare gates regionally; rerun with `--data-source local` to use cached entries from the last `sync-city` pass."
+      },
+      {
+        "symptom": "OSRM public demo is slow or 5xx",
+        "fix": "Set WANDERLUST_GOAT_OSRM_BASE_URL to a self-hosted OSRM endpoint; instructions in README under 'Self-host OSRM'."
+      },
+      {
+        "symptom": "near returns 40 results instead of 3-5",
+        "fix": "Add a stronger --criteria — narrow phrasing forces persona-shaped scoring. Add --identity for a +0.05 trust boost on local-language sources."
+      }
+    ],
+    "when_to_use": "Reach for wanderlust-goat when you need persona-shaped place discovery within walking distance, especially for cross-cultural travel where English search dominates and the local-language gems are hidden. Best for trip prep (sync-city), in-the-moment 'what should I walk to from here' (near, goat), photographer routing (golden-hour, route-view), and agent-orchestrated travel research (research-plan). Prefer Mapbox/Google MCPs only if you have their keys and need raw geocoding without persona scoring.",
+    "recipes": [
+      {
+        "title": "Kissaten hunt in Tokyo (Mira's morning)",
+        "command": "wanderlust-goat-pp-cli near \"Park Hyatt Tokyo\" --criteria \"vintage jazz kissaten, no tourists, great pour-over\" --identity \"coffee snob, into 70s Japanese kissaten culture\" --minutes 15 --agent --select results.name,results.name_local,results.why_special,results.sources,results.walking_min",
+        "explanation": "Returns 3-5 picks with local-language names preserved (e.g. 珈琲 美美), trust-weighted across Tabelog 3.5+, jp.wikipedia history, /r/japan threads, Time Out Tokyo's vintage-cafe list, and OSM `cafe + cuisine=japanese` tagging. The dotted --select narrows the JSON to the fields the persona cares about so an agent doesn't burn context on raw payload."
+      },
+      {
+        "title": "Photographer's blue-hour route in Seoul (Felix's evening)",
+        "command": "wanderlust-goat-pp-cli golden-hour \"Bukchon Hanok Village, Seoul\" --date 2026-06-15 --minutes 25 --agent",
+        "explanation": "Computes blue-hour and golden-hour windows for the date locally (no API), then ranks viewpoints from OSM `tourism=viewpoint` + Atlas Obscura viewpoint entries + ko.wikipedia notable-views by elevation tag and Reddit-accessibility keyword match. Agent can plan the walk in one call."
+      },
+      {
+        "title": "Agent-orchestrated research plan for a friend's Paris weekend",
+        "command": "wanderlust-goat-pp-cli research-plan \"Marais, Paris\" --criteria \"natural wine, neighborhood spot, no scene\" --identity \"food writer\" --json",
+        "explanation": "Emits typed JSON describing which clients to call (Le Fooding, Pudlo, fr.wikivoyage, /r/Paris, Eater Paris, Michelin Bib Gourmand) with parameters pre-filled. Drop into an agent loop: agent executes each, then you call `near` with `--data-source local` to fuse the cached results."
+      },
+      {
+        "title": "Crossover walk: a great meal next to something interesting",
+        "command": "wanderlust-goat-pp-cli crossover --anchor \"Asakusa, Tokyo\" --radius 800m --pair food+culture --agent --csv",
+        "explanation": "Spatial join finds high-trust restaurants within 200m of a Wikipedia-notable historic site or Atlas Obscura entry. CSV output lets you paste pairs into a planning doc; --agent forces structured exit codes for cron scripts."
+      },
+      {
+        "title": "Pre-trip city sync (Priya's two-weeks-out workflow)",
+        "command": "wanderlust-goat-pp-cli sync-city paris --layers all --concurrency 2 --since 30d",
+        "explanation": "Polite-rate-limited fanout: editorial scrapes + multilingual Wikipedia + Wikivoyage + OSM Overpass POIs + Le Fooding + Pudlo + /r/Paris top threads ≥10 upvotes, all into local SQLite. After this, every other command can run with `--data-source local` (or `auto`) — no internet needed in the cafe with bad wifi."
+      }
+    ],
+    "trigger_phrases": [
+      "what should I walk to from here",
+      "near me with great taste",
+      "find the 3 places not the 40",
+      "kissaten near my hotel",
+      "viewpoint within walking distance",
+      "blue hour photo spot",
+      "use wanderlust-goat",
+      "run wanderlust-goat"
+    ]
+  }
+}

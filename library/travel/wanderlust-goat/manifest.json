@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "wanderlust-goat-pp-mcp",
+  "display_name": "Wanderlust GOAT",
+  "version": "4.0.1",
+  "description": "Persona-shaped place discovery within walking distance — fused across editorial, local-language, Reddit, Wikipedia, OSM, and Atlas Obscura.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/wanderlust-goat-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/wanderlust-goat-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

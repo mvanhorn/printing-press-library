@@ -1,0 +1,80 @@
+name: wanderlust-goat
+display_name: Wanderlust GOAT
+kind: synthetic
+description: "Wanderlust GOAT — what a knowledgeable local with great taste would tell you to walk to from here, fused across editorial, local-language, and crowd layers no single tool ranks together."
+cli_description: "Persona-shaped place discovery within walking distance — fused across editorial, local-language, Reddit, Wikipedia, OSM, and Atlas Obscura."
+version: "0.1.0"
+base_url: "https://nominatim.openstreetmap.org"
+http_transport: standard
+category: travel
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/wanderlust-goat-pp-cli/config.toml"
+
+resources:
+  places:
+    description: "Geocode addresses and look up canonical place coordinates via Nominatim (foundation layer for the multi-source GOAT stack)."
+    endpoints:
+      search:
+        method: GET
+        path: "/search"
+        description: "Forward geocode an address, place name, or business to lat/lng candidates."
+        params:
+          - name: q
+            flag_name: query
+            aliases: [q]
+            type: string
+            required: true
+            description: "Free-text address, business name, or place (e.g. 'Park Hyatt Tokyo', '1600 Pennsylvania Ave')."
+          - name: limit
+            type: int
+            description: "Maximum candidate results (1–50). Default: 5."
+          - name: format
+            type: string
+            description: "Response format. Always 'json' in this CLI."
+            default: "json"
+          - name: addressdetails
+            type: int
+            description: "Return structured address parts (1=on, 0=off). Default: 1."
+            default: 1
+          - name: countrycodes
+            type: string
+            description: "Comma-separated ISO 3166-1 alpha-2 codes to constrain results (e.g. 'jp,kr,fr')."
+        response:
+          type: array
+          item: GeocodeResult
+
+      reverse:
+        method: GET
+        path: "/reverse"
+        description: "Reverse geocode lat/lng to a structured address."
+        params:
+          - name: lat
+            type: number
+            required: true
+            description: "Latitude (decimal degrees)."
+          - name: lon
+            flag_name: lng
+            aliases: [lon]
+            type: number
+            required: true
+            description: "Longitude (decimal degrees)."
+          - name: format
+            type: string
+            description: "Response format. Always 'json' in this CLI."
+            default: "json"
+          - name: addressdetails
+            type: int
+            description: "Return structured address parts (1=on, 0=off). Default: 1."
+            default: 1
+          - name: zoom
+            type: int
+            description: "Detail level (3=country, 18=building). Default: 18."
+            default: 18
+        response:
+          type: object
+          item: GeocodeResult

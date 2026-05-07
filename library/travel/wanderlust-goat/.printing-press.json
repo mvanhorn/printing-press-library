@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-07T22:30:53.23741Z",
+  "printing_press_version": "4.0.1",
+  "api_name": "wanderlust-goat",
+  "display_name": "Wanderlust GOAT",
+  "cli_name": "wanderlust-goat-pp-cli",
+  "spec_path": "/Users/joeheitzeberg/printing-press/.runstate/cli-printing-press-5f1d6c25/runs/20260507-135232/research/wanderlust-goat-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:75fbbc4af3c89c8f22050abb6dc2204c07e2bb1fc9a2a5545dae7ed6289c7de4",
+  "run_id": "20260507-135232",
+  "description": "Persona-shaped place discovery within walking distance — fused across editorial, local-language, Reddit, Wikipedia, OSM, and Atlas Obscura.",
+  "mcp_binary": "wanderlust-goat-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Persona-shaped local fanout",
+      "command": "near",
+      "description": "Find the 3-5 amazing things within walking distance that match your stated identity and criteria — not the 40 closest things."
+    },
+    {
+      "name": "Heuristic GOAT compound (no LLM)",
+      "command": "goat",
+      "description": "Same fanout as `near` but with no LLM in the runtime path — criteria-to-source mapping uses static lookup tables so the CLI works standalone."
+    },
+    {
+      "name": "Agent research-plan emitter",
+      "command": "research-plan",
+      "description": "Output a JSON query plan agents execute in a loop — typed, country-aware, ordered by trust, ready to fan out."
+    },
+    {
+      "name": "Crossover walks",
+      "command": "crossover",
+      "description": "Find pairs where a high-trust restaurant sits within 200m of a Wikipedia-notable historic site or Atlas Obscura entry — food + culture in one walk."
+    },
+    {
+      "name": "Golden-hour viewpoint hunt",
+      "command": "golden-hour",
+      "description": "Compute sunrise/sunset/blue-hour locally (pure Go, no API) and pair with viewpoints photographers know about within walking distance."
+    },
+    {
+      "name": "Route-view exploration",
+      "command": "route-view",
+      "description": "Walking polyline from A to B, then everything interesting along the path — not just at the endpoints."
+    },
+    {
+      "name": "City pre-trip sync",
+      "command": "sync-city",
+      "description": "Pre-cache editorial best-of, Reddit threads, Wikipedia, Wikivoyage, OSM POIs, Atlas Obscura, and regional-language sources for offline use."
+    },
+    {
+      "name": "Trust-weighted score explanation",
+      "command": "why",
+      "description": "Print every source that mentioned a place, the trust weight, country boost, walking time, criteria match, and the final goat-score breakdown."
+    },
+    {
+      "name": "Reddit-quote extractor",
+      "command": "reddit-quotes",
+      "description": "Surface the highest-scored Reddit comment snippets that mention a place — verbatim quotes, no LLM summarization."
+    },
+    {
+      "name": "Sync coverage report",
+      "command": "coverage",
+      "description": "Per-tier row counts, last-sync ages, country-match boost, and which v1 sources are missing for a synced city."
+    },
+    {
+      "name": "Quiet-hour discovery",
+      "command": "quiet-hour",
+      "description": "Places that locals describe as quiet at the requested time, intersected with OSM opening hours and walking radius."
+    }
+  ],
+  "category": "travel"
+}

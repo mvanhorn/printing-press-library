@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "api_name": "wanderlust-goat",
+  "run_id": "20260507-135232",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 59,
+  "tests_passed": 59,
+  "tests_failed": 0,
+  "tests_skipped": 42,
+  "auth_context": {
+    "type": "none",
+    "api_key_available": false,
+    "browser_session_available": false
+  }
+}

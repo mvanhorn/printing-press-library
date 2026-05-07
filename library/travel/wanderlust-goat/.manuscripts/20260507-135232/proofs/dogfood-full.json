@@ -1,0 +1,977 @@
+{
+  "dir": "/Users/joeheitzeberg/printing-press/.runstate/cli-printing-press-5f1d6c25/runs/20260507-135232/working/wanderlust-goat-pp-cli",
+  "binary": "/Users/joeheitzeberg/printing-press/.runstate/cli-printing-press-5f1d6c25/runs/20260507-135232/working/wanderlust-goat-pp-cli/wanderlust-goat-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 59,
+  "passed": 59,
+  "failed": 0,
+  "skipped": 42,
+  "commands": [
+    "coverage",
+    "crossover",
+    "doctor",
+    "feedback list",
+    "goat",
+    "golden-hour",
+    "import",
+    "near",
+    "places reverse",
+    "places search",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "quiet-hour",
+    "reddit-quotes",
+    "research-plan",
+    "route-view",
+    "sync",
+    "sync-city",
+    "which",
+    "why",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "coverage",
+      "kind": "help",
+      "args": [
+        "coverage",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Local-store aggregation that tells you whether a 'near' or 'goat' query\non this city is running on thin data. For each registered v1 source, prints\nthe row count from the last sync, the last-synced timestamp, the trust\nweight, and (for regional sources) whether the country-match boost applies.\nMissing sources surface as zero rows so an agent can decide to call\nsync-city before querying.\n\nUsage:\n  wanderlust-goat-pp-cli coverage \u003ccity-slug\u003e [flags]\n\nExamples:\n  # Quick coverage check for Tokyo\n  wanderlust-goat-pp-cli coverage tokyo\n\n  # Pipe to jq for agent consumption\n  wanderlust-goat-pp-cli coverage paris --json --select coverage.source,coverage.row_count\n\nFlags:\n  -h, --help   help for coverage\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "coverage",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [coverage] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "coverage",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [coverage] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "coverage",
+      "kind": "error_path",
+      "args": [
+        "coverage",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "{\n  \"city\": \"__printing_press_invalid__\",\n  \"coverage\": [\n    {\n      \"source\": \"nominatim\",\n      \"tier\": \"foundation\",\n      \"trust\": 1,\n      \"country_match_boost\": 0,\n      \"row_count\": 0\n    },\n    {\n      \"source\": \"overpass\",\n      \"tier\": \"foundation\",\n      \"trust\": 0.9,\n      \"country_match_boost\": 0,\n      \"row_count\": 0\n    },\n    {\n      \"source\": \"osrm\",\n      \"tier\": \"foundation\",\n      \"trust\": 1,\n      \"country_match_boost\": 0,\n      \"row_count\": 0\n    },\n    {\n      \"source\": \"michelin\",\n      \"tier\": \"editorial\",\n      \"trust\": 0.95,\n      \"country_match_boost\": 0,\n      \"row_count\": 0\n    },\n    {\n      \"source\": \"nyt36hours\",\n      \"tier\": \"editorial\",\n      \"trust\": 0.95,\n      \"country_match_boost\": 0,\n      \"row_count\": 0\n    },\n    {\n      \"source\": \"wikipedia\",\n      \"tier\": \"editorial\",\n      \"trust\": 0.95,\n      \"country_match_boost\": 0,\n      \"row_count\": 0\n    },\n    {\n      \"source\": \"eater\",\n      \"tier\": \"editorial\",\n      \"trust\": 0.9,\n      \"country_match_boost\": 0,\n      \"row_count\": 0\n    },\n    {\n      \"source\": \"timeout\",\n      \"tier\": \"editorial\",\n      \"trust\": 0.85,\n      \"country_match_boost\": 0,\n      \"row_count\": 0\n    },\n    {\n      \"source\": \"wikivoyage\",\n      \"tier\": \"editorial\",\n      \"trust\": 0.85,\n      \"country_match_boost\": 0,\n      \"row_count\": 0\n    },\n    {\n      \"source\": \"tabelog\",\n      \"tier\": \"regional\",\n      \"trust\": 0.9,\n      \"country_match_boost\": 0,\n      \"row_count\": 0\n    },\n    {\n      \"source\": \"lefooding\",\n      \"tier\": \"regional\",\n      \"trust\": 0.9,\n      \"country_match_boost\": 0,\n      \"row_count\": 0\n    },\n    {\n      \"source\": \"navermap\",\n      \"tier\": \"regional\",\n      \"trust\": 0.85,\n      \"country_match_boost\": 0,\n      \"row_count\": 0\n    },\n    {\n      \"source\": \"naverblog\",\n      \"tier\": \"regional\",\n      \"trust\": 0.8,\n      \"country_match_boost\": 0,\n      \"row_count\": 0\n    },\n    {\n      \"source\": \"kakaomap\",\n      \"tier\": \"regional\",\n      \"trust\": 0.8,\n      \"country_match_boost\": 0,\n      \"row_count\": 0,\n      \"stub\": true,\n      \"stub_reason\": \"v1 ships package shell + listing surface; rich body extraction deferred to v2 (KR signal already covered by Naver Map)\"\n    },\n    {\n      \"source\": \"mangoplate\",\n      \"tier\": \"regional\",\n      \"trust\": 0.75,\n      \"country_match_boost\": 0,\n      \"row_count\": 0,\n      \"stub\": true,\n      \"stub_reason\": \"v1 ships read-only listing surface; service has been winding down public coverage\"\n    },\n    {\n      \"source\": \"fourtravel\",\n      \"tier\": \"regional\",\n      \"trust\": 0.7,\n      \"country_match_boost\": 0,\n      \"row_count\": 0,\n      \"stub\": true,\n      \"stub_reason\": \"v1 ships sitemap discovery; rich blog-body extraction deferred to v2\"\n    },\n    {\n      \"source\": \"retty\",\n      \"tier\": \"regional\",\n      \"trust\": 0.75,\n      \"country_match_boost\": 0,\n      \"row_count\": 0,\n      \"stub\": true,\n      \"stub_reason\": \"v1 ships sitemap discovery; rich body extraction deferred to v2\"\n    },\n    {\n      \"source\": \"hotpepper\",\n      \"tier\": \"regional\",\n      \"trust\": 0.75,\n      \"country_match_boost\": 0,\n      \"row_count\": 0,\n      \"stub\": true,\n      \"stub_reason\": \"v1 ships public-listing scrape shell; rich data is behind official API key (deferred to v2)\"\n    },\n    {\n      \"source\": \"notecom\",\n      \"tier\": \"regional\",\n      \"trust\": 0.7,\n      \"country_match_boost\": 0,\n      \"row_count\": 0,\n      \"stub\": true,\n      \"stub_reason\": \"v1 ships search-only shell; body extraction deferred to v2\"\n    },\n    {\n      \"source\": \"pudlo\",\n      \"tier\": \"regional\",\n      \"trust\": 0.85,\n      \"country_match_boost\": 0,\n      \"row_count\": 0,\n      \"stub\": true,\n      \"stub_reason\": \"v1 ships sitemap discovery; rich body extraction deferred to v2\"\n    },\n    {\n      \"source\": \"atlasobscura\",\n      \"tier\": \"hidden\",\n      \"trust\": 0.8,\n      \"country_match_boost\": 0,\n      \"row_count\": 0\n    },\n    {\n      \"source\": \"reddit\",\n      \"tier\": \"crowd\",\n      \"trust\": 0.75,\n      \"country_match_boost\": 0,\n      \"row_count\": 0\n    }\n  ],\n  \"summary\": {\n    \"total_rows\": 0,\n    \"sources_with_data\": 0,\n    \"sources_empty\":…[truncated]"
+    },
+    {
+      "command": "crossover",
+      "kind": "help",
+      "args": [
+        "crossover",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Spatial cross-entity SQL: pairs places where the first member matches one\nintent (default: food) and the second matches another (default: culture or\nhistoric), within --pair-distance meters of each other AND within the\n--radius meters of the anchor. Ranked by combined trust × proximity.\n\nUsage:\n  wanderlust-goat-pp-cli crossover [flags]\n\nExamples:\n  # Default food+culture pairing in Marais\n  wanderlust-goat-pp-cli crossover --anchor \"Marais, Paris\" --radius 800m\n\n  # Food + viewpoint pairing\n  wanderlust-goat-pp-cli crossover --anchor \"Asakusa, Tokyo\" --radius 1km --pair food+viewpoint\n\n  # Agent JSON for pipelines\n  wanderlust-goat-pp-cli crossover --anchor \"Bukchon, Seoul\" --radius 1.2km --pair food+culture --agent\n\nFlags:\n      --anchor string     Anchor address or \"lat,lng\".\n  -h, --help              help for crossover\n      --min-trust float   Minimum trust for both members (default 0.85). (default 0.85)\n      --pair string       Intent pair: food+culture, food+historic, food+viewpoint. (default \"food+culture\")\n      --radius string     Search radius (e.g. 800m, 1km, 1.2km). (default \"800m\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "crossover",
+      "kind": "happy_path",
+      "args": [
+        "crossover",
+        "--anchor",
+        "Marais, Paris",
+        "--radius",
+        "800m"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"anchor\": {\n    \"query\": \"Marais, Paris\",\n    \"lat\": 48.8603823,\n    \"lng\": 2.360742,\n    \"country\": \"FR\",\n    \"display\": \"Le Marais, Paris, Île-de-France, France métropolitaine, France\"\n  },\n  \"radius_meters\": 800,\n  \"pair\": \"food+culture\",\n  \"pair_distance_meters\": 200,\n  \"pairs\": null,\n  \"note\": \"No qualifying pairs in the local store. Run 'sync-city \\u003cslug\\u003e' to populate places, or widen --radius.\"\n}\n"
+    },
+    {
+      "command": "crossover",
+      "kind": "json_fidelity",
+      "args": [
+        "crossover",
+        "--anchor",
+        "Marais, Paris",
+        "--radius",
+        "800m",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"anchor\": {\n    \"query\": \"Marais, Paris\",\n    \"lat\": 48.8603823,\n    \"lng\": 2.360742,\n    \"country\": \"FR\",\n    \"display\": \"Le Marais, Paris, Île-de-France, France métropolitaine, France\"\n  },\n  \"radius_meters\": 800,\n  \"pair\": \"food+culture\",\n  \"pair_distance_meters\": 200,\n  \"pairs\": null,\n  \"note\": \"No qualifying pairs in the local store. Run 'sync-city \\u003cslug\\u003e' to populate places, or widen --radius.\"\n}\n"
+    },
+    {
+      "command": "crossover",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  wanderlust-goat-pp-cli doctor [flags]\n\nExamples:\n  wanderlust-goat-pp-cli doctor\n  wanderlust-goat-pp-cli doctor --json\n  wanderlust-goat-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK API: reachable\n  config_path: /Users/joeheitzeberg/.config/wanderlust-goat-pp-cli/config.toml\n  base_url: https://nominatim.openstreetmap.org\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /Users/joeheitzeberg/.local/share/wanderlust-goat-pp-cli/data.db\n    schema_version: 1\n    db_bytes: 57344\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'wanderlust-goat-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://nominatim.openstreetmap.org\",\n  \"cache\": {\n    \"db_bytes\": 57344,\n    \"db_path\": \"/Users/joeheitzeberg/.local/share/wanderlust-goat-pp-cli/data.db\",\n    \"hint\": \"sync_state is empty; run 'wanderlust-goat-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 1,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/Users/joeheitzeberg/.config/wanderlust-goat-pp-cli/config.toml\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  wanderlust-goat-pp-cli feedback list [flags]\n\nExamples:\n  wanderlust-goat-pp-cli feedback list\n  wanderlust-goat-pp-cli feedback list --limit 5\n  wanderlust-goat-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"wanderlust-goat-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-07T21:46:43.246269Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"wanderlust-goat-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-07T21:46:43.252893Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"wanderlust-goat-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-07T21:47:28.556447Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"wanderlust-goat-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-07T21:47:28.56309Z\"\n  }\n]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"wanderlust-goat-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-07T21:46:43.246269Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"wanderlust-goat-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-07T21:46:43.252893Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"wanderlust-goat-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-07T21:47:28.556447Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"wanderlust-goat-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-07T21:47:28.56309Z\"\n  }\n]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "goat",
+      "kind": "help",
+      "args": [
+        "goat",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Heuristic GOAT compound. Identical fanout to 'near' but explicitly\nguarantees no LLM is invoked at runtime: criteria phrases are translated to\nOSM tag filters and Reddit body keywords through static lookup tables in\ninternal/criteria/. Use 'goat' from shell pipelines, cron jobs, and any\ncontext where you cannot or should not delegate to an agent.\n\nUsage:\n  wanderlust-goat-pp-cli goat \u003canchor\u003e [flags]\n\nExamples:\n  # Lat,lng anchor with no agent in the loop\n  wanderlust-goat-pp-cli goat 35.6895,139.6917 \\\n    --criteria \"vintage clothing, vinyl, hidden\" --minutes 20\n\n  # CSV mode for cron-driven shortlists\n  wanderlust-goat-pp-cli goat \"Marais, Paris\" \\\n    --criteria \"natural wine, no scene\" --minutes 15 --csv\n\nFlags:\n      --criteria string   Free-text criteria (e.g. \"hand-pulled noodles, locals only\").\n  -h, --help              help for goat\n      --identity string   Free-text identity — informs ranking but does not invoke an LLM.\n      --minutes int       Walking-time radius in minutes. (default 15)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "goat",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [goat] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "goat",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [goat] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "goat",
+      "kind": "error_path",
+      "args": [
+        "goat",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: geocode returned no results for \"__printing_press_invalid__\"\ngeocode returned no results for \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "golden-hour",
+      "kind": "help",
+      "args": [
+        "golden-hour",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Pure-Go SunCalc-style sun-position math (no external API) plus a\nwalking-radius viewpoint search. Returns:\n- sunrise / sunset / civil dawn / civil dusk\n- evening blue hour and golden hour windows (and morning equivalents)\n- viewpoints from the local store ranked by elevation tag and Reddit\n  accessibility hits.\n\nUse --zone to display in a specific local time zone (e.g. Asia/Tokyo).\n\nUsage:\n  wanderlust-goat-pp-cli golden-hour \u003canchor\u003e [flags]\n\nExamples:\n  # Tonight's blue-hour windows + Tokyo viewpoints\n  wanderlust-goat-pp-cli golden-hour \"Tokyo Tower\" --date 2026-06-15 --zone Asia/Tokyo\n\n  # Lat,lng + minutes-radius\n  wanderlust-goat-pp-cli golden-hour 48.8584,2.2945 --date 2026-06-21 --minutes 30 --agent\n\nFlags:\n      --date string   Date YYYY-MM-DD (default: today). (default \"2026-05-07\")\n  -h, --help          help for golden-hour\n      --minutes int   Walking-time radius in minutes for viewpoint search. (default 20)\n      --zone string   IANA zone for displayed times (e.g. Asia/Tokyo, Europe/Paris). (default \"Local\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "golden-hour",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [golden-hour] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "golden-hour",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [golden-hour] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "golden-hour",
+      "kind": "error_path",
+      "args": [
+        "golden-hour",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: geocode returned no results for \"__printing_press_invalid__\"\ngeocode returned no results for \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  wanderlust-goat-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  wanderlust-goat-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  wanderlust-goat-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | wanderlust-goat-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: required flag(s) \"input\" not set\nrequired flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "near",
+      "kind": "help",
+      "args": [
+        "near",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Persona-shaped local fanout. Geocodes the anchor (address or \"lat,lng\"),\nthen fans out to every source eligible for the location's country. Scores by\ntrust × (1 + country_match_boost) × intent_match × walking-time-decay against\nthe local SQLite store + live source results, returning 3-5 ranked picks\nwith local-language names preserved alongside transliterations.\n\nUsage:\n  wanderlust-goat-pp-cli near \u003canchor\u003e [flags]\n\nExamples:\n  # Persona-shaped 15-minute walk near a Tokyo hotel\n  wanderlust-goat-pp-cli near \"Park Hyatt Tokyo\" \\\n    --criteria \"vintage jazz kissaten, no tourists, great pour-over\" \\\n    --identity \"coffee snob, into 70s Japanese kissaten culture\" \\\n    --minutes 15\n\n  # By lat,lng with --agent for JSON output\n  wanderlust-goat-pp-cli near 35.6895,139.6917 \\\n    --criteria \"viewpoint, blue hour\" --identity \"photographer\" \\\n    --minutes 20 --agent --select results.name,results.walking_min\n\nFlags:\n      --criteria string   Free-text criteria (e.g. \"vintage jazz kissaten, no tourists\").\n  -h, --help              help for near\n      --identity string   Free-text identity (e.g. \"coffee snob, into 70s kissaten culture\") — boosts local-language sources.\n      --minutes int       Walking-time radius in minutes (default 15, max 60). (default 15)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "near",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [near] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "near",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [near] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "near",
+      "kind": "error_path",
+      "args": [
+        "near",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: geocode returned no results for \"__printing_press_invalid__\"\ngeocode returned no results for \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "places reverse",
+      "kind": "help",
+      "args": [
+        "places",
+        "reverse",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Reverse geocode lat/lng to a structured address.\n\nUsage:\n  wanderlust-goat-pp-cli places reverse [flags]\n\nExamples:\n  wanderlust-goat-pp-cli places reverse --lat 42 --lng 42\n\nFlags:\n      --addressdetails int   Return structured address parts (1=on, 0=off). Default: 1. (default 1)\n      --format string        Response format. Always 'json' in this CLI. (default \"json\")\n  -h, --help                 help for reverse\n      --lat float            Latitude (decimal degrees).\n      --lng float            Longitude (decimal degrees).\n      --zoom int             Detail level (3=country, 18=building). Default: 18. (default 18)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "places reverse",
+      "kind": "happy_path",
+      "args": [
+        "places",
+        "reverse",
+        "--lat",
+        "42",
+        "--lng",
+        "42"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"place_id\": 192539446,\n    \"licence\": \"Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright\",\n    \"osm_type\": \"way\",\n    \"osm_id\": 101162640,\n    \"lat\": \"41.9999023\",\n    \"lon\": \"41.9998523\",\n    \"class\": \"highway\",\n    \"type\": \"tertiary\",\n    \"place_rank\": 26,\n    \"importance\": 0.053370834668497714,\n    \"addresstype\": \"road\",\n    \"name\": \"\",\n    \"display_name\": \"სილაური, ოზურგეთის მუნიციპალიტეტი, გურია, 3500, საქართველო\",\n    \"address\": {\n      \"village\": \"სილაური\",\n      \"county\": \"ოზურგეთის მუნიციპალიტეტი\",\n      \"state\": \"გურია\",\n      \"ISO3166-2-lvl4\": \"GE-GU\",\n      \"postcode\": \"3500\",\n      \"country\": \"საქართველო\",\n      \"country_code\": \"ge\"\n    },\n    \"boundingbox\": [\n      \"41.9863636\",\n      \"42.0007831\",\n      \"41.9799252\",\n      \"42.0015527\"\n    ]\n  }\n}\n"
+    },
+    {
+      "command": "places reverse",
+      "kind": "json_fidelity",
+      "args": [
+        "places",
+        "reverse",
+        "--lat",
+        "42",
+        "--lng",
+        "42",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"place_id\": 192539446,\n    \"licence\": \"Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright\",\n    \"osm_type\": \"way\",\n    \"osm_id\": 101162640,\n    \"lat\": \"41.9999023\",\n    \"lon\": \"41.9998523\",\n    \"class\": \"highway\",\n    \"type\": \"tertiary\",\n    \"place_rank\": 26,\n    \"importance\": 0.053370834668497714,\n    \"addresstype\": \"road\",\n    \"name\": \"\",\n    \"display_name\": \"სილაური, ოზურგეთის მუნიციპალიტეტი, გურია, 3500, საქართველო\",\n    \"address\": {\n      \"village\": \"სილაური\",\n      \"county\": \"ოზურგეთის მუნიციპალიტეტი\",\n      \"state\": \"გურია\",\n      \"ISO3166-2-lvl4\": \"GE-GU\",\n      \"postcode\": \"3500\",\n      \"country\": \"საქართველო\",\n      \"country_code\": \"ge\"\n    },\n    \"boundingbox\": [\n      \"41.9863636\",\n      \"42.0007831\",\n      \"41.9799252\",\n      \"42.0015527\"\n    ]\n  }\n}\n"
+    },
+    {
+      "command": "places reverse",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "places search",
+      "kind": "help",
+      "args": [
+        "places",
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Forward geocode an address, place name, or business to lat/lng candidates.\n\nUsage:\n  wanderlust-goat-pp-cli places search [flags]\n\nExamples:\n  wanderlust-goat-pp-cli places search --query example-value\n\nFlags:\n      --addressdetails int    Return structured address parts (1=on, 0=off). Default: 1. (default 1)\n      --countrycodes string   Comma-separated ISO 3166-1 alpha-2 codes to constrain results (e.g. 'jp,kr,fr').\n      --format string         Response format. Always 'json' in this CLI. (default \"json\")\n  -h, --help                  help for search\n      --limit int             Maximum candidate results (1–50). Default: 5.\n      --query string          Free-text address, business name, or place (e.g. 'Park Hyatt Tokyo', '1600 Pennsylvania Ave').\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "places search",
+      "kind": "happy_path",
+      "args": [
+        "places",
+        "search",
+        "--query",
+        "example-value"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "places search",
+      "kind": "json_fidelity",
+      "args": [
+        "places",
+        "search",
+        "--query",
+        "example-value",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "places search",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  wanderlust-goat-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  wanderlust-goat-pp-cli profile delete my-defaults --yes\n  wanderlust-goat-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "delete",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\nprofile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  wanderlust-goat-pp-cli profile list [flags]\n\nExamples:\n  wanderlust-goat-pp-cli profile list\n  wanderlust-goat-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  wanderlust-goat-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  wanderlust-goat-pp-cli profile save my-defaults --json --compact\n  wanderlust-goat-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\nno non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  wanderlust-goat-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  wanderlust-goat-pp-cli profile show my-defaults\n  wanderlust-goat-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\nprofile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  wanderlust-goat-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  wanderlust-goat-pp-cli profile use my-defaults\n  wanderlust-goat-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\nprofile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "quiet-hour",
+      "kind": "help",
+      "args": [
+        "quiet-hour",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Cross-source content pattern: matches goat_reddit_threads body + title for\nquiet-signal phrases (dead before, empty weekday, quiet on, never crowded,\nalmost empty, rarely busy, no line) joined to goat_places, optionally\nfiltered by walking radius. The result is \"places where locals say it's\nempty at this time\" — one of the most-cited unstated tastes in r/Tokyo\nand r/Paris \"real cafe\" threads.\n\nUsage:\n  wanderlust-goat-pp-cli quiet-hour \u003canchor\u003e [flags]\n\nExamples:\n  # Quiet kissaten near Yurakucho on a Monday at 2pm\n  wanderlust-goat-pp-cli quiet-hour \"Yurakucho, Tokyo\" --minutes 15 --day mon --time 14:00\n\n  # JSON for an agent\n  wanderlust-goat-pp-cli quiet-hour \"Marais, Paris\" --minutes 20 --day tue --time 15:30 --agent\n\nFlags:\n      --day string    Day of week (mon, tue, wed, thu, fri, sat, sun, weekday, weekend, any). (default \"any\")\n  -h, --help          help for quiet-hour\n      --minutes int   Walking-time radius in minutes. (default 15)\n      --time string   Time HH:MM (used to filter OSM opening_hours when populated). (default \"any\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "quiet-hour",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [quiet-hour] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "quiet-hour",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [quiet-hour] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "quiet-hour",
+      "kind": "error_path",
+      "args": [
+        "quiet-hour",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: geocode returned no results for \"__printing_press_invalid__\"\ngeocode returned no results for \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "reddit-quotes",
+      "kind": "help",
+      "args": [
+        "reddit-quotes",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Cross-table join: searches goat_reddit_threads body and title for any string\nthat appears as a name or name_local on a place in goat_places. Returns the\nverbatim title + body chunks with subreddit, score, and permalink. No LLM\nsummarization — agents that need 'real talk' from locals get the raw text\nwith provenance.\n\nUsage:\n  wanderlust-goat-pp-cli reddit-quotes \u003cplace-name-or-id\u003e [flags]\n\nExamples:\n  # Quotes mentioning a known place\n  wanderlust-goat-pp-cli reddit-quotes \"Kohi Bibi\" --json\n\n  # By a Wikipedia-derived name\n  wanderlust-goat-pp-cli reddit-quotes \"Tsukiji Fish Market\"\n\nFlags:\n  -h, --help   help for reddit-quotes\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "reddit-quotes",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [reddit-quotes] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "reddit-quotes",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [reddit-quotes] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "reddit-quotes",
+      "kind": "error_path",
+      "args": [
+        "reddit-quotes",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "{\n  \"query\": \"__printing_press_invalid__\",\n  \"quotes\": null,\n  \"note\": \"No matching Reddit threads in the local store. Run sync-city \\u003cslug\\u003e first.\"\n}\nError: no Reddit threads mention \"__printing_press_invalid__\"\nno Reddit threads mention \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "research-plan",
+      "kind": "help",
+      "args": [
+        "research-plan",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Emit a JSON-shaped query plan for an agent to execute. The plan resolves\nthe anchor through Nominatim, classifies criteria, and lists every typed\nclient call (with parameters, locale, expected trust) the agent should run.\nThe CLI does not execute the plan — that's the agent's job. Drop into an\nagent loop to fan out across editorial + Wikipedia + Reddit + OSM + the\ncountry's local-language sources without re-deriving the dispatch each call.\n\nUsage:\n  wanderlust-goat-pp-cli research-plan \u003canchor\u003e [flags]\n\nExamples:\n  # Emit the plan and pipe to jq\n  wanderlust-goat-pp-cli research-plan \"Bukchon Hanok Village, Seoul\" \\\n    --criteria \"hand-pulled noodles, locals only\" --identity \"food traveler\" --json\n\n  # Narrow to client + method only\n  wanderlust-goat-pp-cli research-plan \"Marais, Paris\" \\\n    --criteria \"natural wine, no scene\" \\\n    --json --select sources,calls.client,calls.method\n\nFlags:\n      --criteria string   Free-text criteria for the plan.\n  -h, --help              help for research-plan\n      --identity string   Free-text identity (informational only — does not change the plan structure).\n      --minutes int       Walking-time radius in minutes (drives radius_meters in each call). (default 15)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "research-plan",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [research-plan] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "research-plan",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [research-plan] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "research-plan",
+      "kind": "error_path",
+      "args": [
+        "research-plan",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: geocode returned no results for \"__printing_press_invalid__\"\ngeocode returned no results for \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "route-view",
+      "kind": "help",
+      "args": [
+        "route-view",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "OSRM walking polyline (cached) + spatial buffer query against the local\ngoat_places store. Returns places within --buffer meters of the polyline\ngeometry, ranked by trust × proximity-to-path. Geometric local-store query\nno single API can answer.\n\nUsage:\n  wanderlust-goat-pp-cli route-view \u003cfrom\u003e \u003cto\u003e [flags]\n\nExamples:\n  # Walk from Shibuya to Yoyogi Park, see what's worth a 150m detour\n  wanderlust-goat-pp-cli route-view \"Shibuya Station, Tokyo\" \"Yoyogi Park, Tokyo\" --buffer 150m\n\n  # Pipe to jq for an agent\n  wanderlust-goat-pp-cli route-view \"Place de la République, Paris\" \"Marais, Paris\" --buffer 200m --agent\n\nFlags:\n      --buffer string     Max distance from the polyline (e.g. 150m, 0.3km). (default \"150m\")\n  -h, --help              help for route-view\n      --min-trust float   Minimum trust filter for places along the route. (default 0.75)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "route-view",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [route-view] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "route-view",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [route-view] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "route-view",
+      "kind": "error_path",
+      "args": [
+        "route-view",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: route-view requires both \u003cfrom\u003e and \u003cto\u003e; got 1 arg(s)\nroute-view requires both \u003cfrom\u003e and \u003cto\u003e; got 1 arg(s)\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nUsage:\n  wanderlust-goat-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  wanderlust-goat-pp-cli sync\n\n  # Sync specific resources only\n  wanderlust-goat-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  wanderlust-goat-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  wanderlust-goat-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  wanderlust-goat-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  wanderlust-goat-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int     Number of parallel sync workers (default 4)\n      --db string           Database path (default: ~/.local/share/wanderlust-goat-pp-cli/data.db)\n      --full                Full resync (ignore previous checkpoint)\n  -h, --help                help for sync\n      --latest-only         Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int       Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event) (default 100)\n      --resources strings   Comma-separated resource types to sync\n      --since string        Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict              Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sync-city",
+      "kind": "help",
+      "args": [
+        "sync-city",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Pull every layer for a city into the local SQLite store. Run this two\nweeks before a trip; afterwards you can use --data-source local to query\nwithout internet. Layers covered: editorial (Eater best-of), Atlas Obscura\ncity listings, OSM Overpass POIs (heritage, michelin, viewpoint, historic),\nWikipedia GeoSearch (locale-aware), Wikivoyage, /r/\u003ccity\u003e top threads.\n\nKnown city slugs (v1): tokyo, kyoto, osaka, seoul, busan, paris, lyon,\nmarseille. Other slugs fall through to a Nominatim geocode of the slug.\n\nUsage:\n  wanderlust-goat-pp-cli sync-city \u003cslug\u003e [flags]\n\nExamples:\n  # Heavy pre-trip sync of Tokyo\n  wanderlust-goat-pp-cli sync-city tokyo --layers all --concurrency 2\n\n  # Refresh only Reddit threads from the last 7 days\n  wanderlust-goat-pp-cli sync-city paris --layers reddit --since 7d\n\n  # Custom slug — geocode the term and treat as the city center\n  wanderlust-goat-pp-cli sync-city \"Mexico City\"\n\nFlags:\n      --concurrency int   Concurrent fetches; keep low for polite rate limiting (default 2). (default 2)\n  -h, --help              help for sync-city\n      --layers string     Comma-separated layers to sync: all,osm,wikipedia,wikivoyage,reddit,atlasobscura,eater (default \"all\"). (default \"all\")\n      --since string      Skip rows synced more recently than this (e.g. 7d, 24h, 1w). Empty means full re-sync.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sync-city",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [sync-city] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "sync-city",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [sync-city] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "sync-city",
+      "kind": "error_path",
+      "args": [
+        "sync-city",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: unknown city slug \"__printing_press_invalid__\" and geocode failed: geocode returned no results for \"__printing_press_invalid__\"\nunknown city slug \"__printing_press_invalid__\" and geocode failed: geocode returned no results for \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  wanderlust-goat-pp-cli which [query] [flags]\n\nExamples:\n  wanderlust-goat-pp-cli which \"stale tickets\"\n  wanderlust-goat-pp-cli which \"bottleneck\"\n  wanderlust-goat-pp-cli which --limit 1 \"send message\"\n  wanderlust-goat-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "why",
+      "kind": "help",
+      "args": [
+        "why",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Step-by-step audit of why a place appears (or doesn't) in a 'near' or 'goat'\nresult. Resolves the input by name (FTS match in goat_places) or by id, then\nprints every source row referencing it, the trust contribution per source,\nand the formula breakdown:\n\n  goat_score = trust × (1 + country_match_boost) × intent_match × walking_decay\n\nUsage:\n  wanderlust-goat-pp-cli why \u003cplace-name-or-id\u003e [flags]\n\nExamples:\n  # By exact id\n  wanderlust-goat-pp-cli why \"wikipedia.ja:42519\"\n\n  # By name (FTS-style)\n  wanderlust-goat-pp-cli why \"Kohi Bibi\" --json\n\nFlags:\n  -h, --help   help for why\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "why",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [why] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "why",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [why] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "why",
+      "kind": "error_path",
+      "args": [
+        "why",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "{\n  \"query\": \"__printing_press_invalid__\",\n  \"mentions\": null,\n  \"note\": \"No matches in the local store. Run sync-city \\u003cslug\\u003e first, or pass --data-source live.\"\n}\nError: no matches for \"__printing_press_invalid__\"\nno matches for \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  wanderlust-goat-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  wanderlust-goat-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  wanderlust-goat-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/wanderlust-goat-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "Archived 0 items across 0 resources to /Users/joeheitzeberg/.local/share/wanderlust-goat-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 0,\n  \"store_path\": \"/Users/joeheitzeberg/.local/share/wanderlust-goat-pp-cli/data.db\",\n  \"timestamp\": \"2026-05-07T22:13:30Z\",\n  \"total_items\": 0\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  wanderlust-goat-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  wanderlust-goat-pp-cli workflow status\n\n  # Show status as JSON\n  wanderlust-goat-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'wanderlust-goat-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "No archived data. Run 'workflow archive' to sync.\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-05-07T22:13:29.580395Z"
+}

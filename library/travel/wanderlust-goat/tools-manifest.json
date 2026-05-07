@@ -1,0 +1,102 @@
+{
+  "api_name": "wanderlust-goat",
+  "base_url": "https://nominatim.openstreetmap.org",
+  "description": "Wanderlust GOAT — what a knowledgeable local with great taste would tell you to walk to from here, fused across editorial, local-language, and crowd layers no single tool ranks together.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "places_reverse",
+      "description": "Reverse geocode lat/lng to a structured address. Required: lat, lng. Optional: format (default: json), addressdetails (default: 1), zoom (default: 18). Returns the GeocodeResult.",
+      "method": "GET",
+      "path": "/reverse",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "lat",
+          "type": "number",
+          "location": "query",
+          "description": "Latitude (decimal degrees).",
+          "required": true
+        },
+        {
+          "name": "lng",
+          "wire_name": "lon",
+          "type": "number",
+          "location": "query",
+          "description": "Longitude (decimal degrees).",
+          "required": true,
+          "aliases": [
+            "lon"
+          ]
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format. Always 'json' in this CLI."
+        },
+        {
+          "name": "addressdetails",
+          "type": "int",
+          "location": "query",
+          "description": "Return structured address parts (1=on, 0=off). Default: 1."
+        },
+        {
+          "name": "zoom",
+          "type": "int",
+          "location": "query",
+          "description": "Detail level (3=country, 18=building). Default: 18."
+        }
+      ]
+    },
+    {
+      "name": "places_search",
+      "description": "Forward geocode an address, place name, or business to lat/lng candidates. Required: query. Optional: limit, format (default: json), addressdetails (default: 1) (plus 1 more). Returns array of GeocodeResult.",
+      "method": "GET",
+      "path": "/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text address, business name, or place (e.g. 'Park Hyatt Tokyo', '1600 Pennsylvania Ave').",
+          "required": true,
+          "aliases": [
+            "q"
+          ]
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum candidate results (1–50). Default: 5."
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format. Always 'json' in this CLI."
+        },
+        {
+          "name": "addressdetails",
+          "type": "int",
+          "location": "query",
+          "description": "Return structured address parts (1=on, 0=off). Default: 1."
+        },
+        {
+          "name": "countrycodes",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated ISO 3166-1 alpha-2 codes to constrain results (e.g. 'jp,kr,fr')."
+        }
+      ]
+    }
+  ]
+}

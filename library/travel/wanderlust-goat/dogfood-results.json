@@ -1,0 +1,171 @@
+{
+  "dir": "/Users/joeheitzeberg/printing-press/.runstate/cli-printing-press-5f1d6c25/runs/20260507-135232/working/wanderlust-goat-pp-cli",
+  "spec_path": "/Users/joeheitzeberg/printing-press/.runstate/cli-printing-press-5f1d6c25/runs/20260507-135232/working/wanderlust-goat-pp-cli/spec.yaml",
+  "verdict": "FAIL",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "synthetic spec: path validity not applicable"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "spec not provided or no bot/bearer scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "dead_flags": {
+    "total": 18,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 49,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "detail": "sync uses domain-specific Upsert methods; search methods not found; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 31,
+      "registered": 31
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 11,
+    "found": 11
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 11,
+    "exempted_via_store": 10
+  },
+  "source_client_check": {
+    "checked": 27,
+    "findings": [
+      {
+        "package": "atlasobscura",
+        "file": "internal/atlasobscura/atlasobscura.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "eater",
+        "file": "internal/eater/eater.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "lefooding",
+        "file": "internal/lefooding/lefooding.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "michelin",
+        "file": "internal/michelin/michelin.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "naverblog",
+        "file": "internal/naverblog/naverblog.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "navermap",
+        "file": "internal/navermap/navermap.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "nyt36hours",
+        "file": "internal/nyt36hours/nyt36hours.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "osrm",
+        "file": "internal/osrm/osrm.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "overpass",
+        "file": "internal/overpass/overpass.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "reddit",
+        "file": "internal/reddit/reddit.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "tabelog",
+        "file": "internal/tabelog/tabelog.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "timeout",
+        "file": "internal/timeout/timeout.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "wikipedia",
+        "file": "internal/wikipedia/wikipedia.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "wikivoyage",
+        "file": "internal/wikivoyage/wikivoyage.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      }
+    ]
+  },
+  "print_json_filtered_check": {
+    "checked": 30
+  },
+  "test_presence": {
+    "checked": 27,
+    "missing_tests": [
+      "fourtravel",
+      "hotpepper",
+      "kakaomap",
+      "mangoplate",
+      "notecom",
+      "pudlo",
+      "retty"
+    ],
+    "thin_tests": [
+      "dispatch (2 test funcs)"
+    ]
+  },
+  "naming_check": {
+    "checked": 30
+  },
+  "issues": [
+    "14 source client file(s) without rate-limit handling: internal/atlasobscura/atlasobscura.go — outbound HTTP without rate limiter or typed 429 handling; internal/eater/eater.go — outbound HTTP without rate limiter or typed 429 handling; internal/lefooding/lefooding.go — outbound HTTP without rate limiter or typed 429 handling; internal/michelin/michelin.go — outbound HTTP without rate limiter or typed 429 handling; internal/naverblog/naverblog.go — outbound HTTP without rate limiter or typed 429 handling; internal/navermap/navermap.go — outbound HTTP without rate limiter or typed 429 handling; internal/nyt36hours/nyt36hours.go — outbound HTTP without rate limiter or typed 429 handling; internal/osrm/osrm.go — outbound HTTP without rate limiter or typed 429 handling; internal/overpass/overpass.go — outbound HTTP without rate limiter or typed 429 handling; internal/reddit/reddit.go — outbound HTTP without rate limiter or typed 429 handling; internal/tabelog/tabelog.go — outbound HTTP without rate limiter or typed 429 handling; internal/timeout/timeout.go — outbound HTTP without rate limiter or typed 429 handling; internal/wikipedia/wikipedia.go — outbound HTTP without rate limiter or typed 429 handling; internal/wikivoyage/wikivoyage.go — outbound HTTP without rate limiter or typed 429 handling",
+    "pure-logic packages with no tests: fourtravel, hotpepper, kakaomap, mangoplate, notecom, pudlo, retty"
+  ]
+}
