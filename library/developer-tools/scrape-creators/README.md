@@ -447,6 +447,29 @@ claude mcp add scrape-creators scrape-creators-pp-mcp -e SCRAPE_CREATORS_API_KEY
 
 </details>
 
+<!-- pp-hermes-install-anchor -->
+## Install via Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-scrape-creators --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-scrape-creators --force
+```
+
+## Install via OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-scrape-creators skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-scrape-creators. The skill defines how its required CLI can be installed.
+```
+
 ## Use with Claude Desktop
 
 This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).

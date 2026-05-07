@@ -119,6 +119,29 @@ claude mcp add recipe-goat recipe-goat-pp-mcp -e USDA_FDC_API_KEY=<your-key>
 
 </details>
 
+<!-- pp-hermes-install-anchor -->
+## Install via Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-recipe-goat --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-recipe-goat --force
+```
+
+## Install via OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-recipe-goat skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-recipe-goat. The skill defines how its required CLI can be installed.
+```
+
 ## Use with Claude Desktop
 
 This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).

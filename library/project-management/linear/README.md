@@ -2,6 +2,29 @@
 
 Manage issues, projects, cycles, and teams via the Linear API with offline search and analytics.
 
+<!-- pp-hermes-install-anchor -->
+## Install via Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-linear --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-linear --force
+```
+
+## Install via OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-linear skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-linear. The skill defines how its required CLI can be installed.
+```
+
 ## Install
 
 ### Go

@@ -2,6 +2,29 @@
 
 Send messages, search conversations, monitor channels, and manage your Slack workspace from the terminal
 
+<!-- pp-hermes-install-anchor -->
+## Install via Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-slack --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-slack --force
+```
+
+## Install via OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-slack skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-slack. The skill defines how its required CLI can be installed.
+```
+
 ## Install
 
 ### Go

@@ -4,6 +4,29 @@ Manage HubSpot CRM contacts, companies, deals, tickets, engagements, pipelines, 
 
 Learn more at [HubSpot Developers](https://developers.hubspot.com/docs/api).
 
+<!-- pp-hermes-install-anchor -->
+## Install via Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-hubspot --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-hubspot --force
+```
+
+## Install via OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-hubspot skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-hubspot. The skill defines how its required CLI can be installed.
+```
+
 ## Install
 
 ### Go

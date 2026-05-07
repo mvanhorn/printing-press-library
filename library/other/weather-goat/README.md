@@ -4,6 +4,29 @@ The weather CLI that answers the questions you actually ask: Should I bike today
 
 Powered by Open-Meteo (global forecasts, 80 years of history, air quality) and NWS (severe weather alerts). No API key required.
 
+<!-- pp-hermes-install-anchor -->
+## Install via Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-weather-goat --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-weather-goat --force
+```
+
+## Install via OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-weather-goat skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-weather-goat. The skill defines how its required CLI can be installed.
+```
+
 ## Install
 
 ### Go

@@ -219,6 +219,29 @@ claude mcp add producthunt producthunt-pp-mcp -e PRODUCT_HUNT_TOKEN=<your-token>
 
 </details>
 
+<!-- pp-hermes-install-anchor -->
+## Install via Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-producthunt --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-producthunt --force
+```
+
+## Install via OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-producthunt skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-producthunt. The skill defines how its required CLI can be installed.
+```
+
 ## Use with Claude Desktop
 
 This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).

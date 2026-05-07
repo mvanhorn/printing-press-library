@@ -135,6 +135,29 @@ claude mcp add seats-aero seats-aero-pp-mcp -e SEATS_AERO_PARTNER_PARTNER_AUTHOR
 
 </details>
 
+<!-- pp-hermes-install-anchor -->
+## Install via Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-seats-aero --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-seats-aero --force
+```
+
+## Install via OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-seats-aero skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-seats-aero. The skill defines how its required CLI can be installed.
+```
+
 ## Use with Claude Desktop
 
 This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).

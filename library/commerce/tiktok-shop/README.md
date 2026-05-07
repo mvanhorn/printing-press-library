@@ -4,6 +4,29 @@ Safe v1 CLI and MCP server for confirmed TikTok Shop Seller APIs.
 
 This package intentionally exposes a conservative surface based only on official TikTok Shop Partner Center docs: auth readiness, token exchange and refresh, shop discovery, read-only orders, products, inventory search, fulfillment packages, and warehouses. Inventory update is documented as confirmed but remains deferred until idempotency, retry, and operator-confirmation safety are designed.
 
+<!-- pp-hermes-install-anchor -->
+## Install via Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-tiktok-shop --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-tiktok-shop --force
+```
+
+## Install via OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-tiktok-shop skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-tiktok-shop. The skill defines how its required CLI can be installed.
+```
+
 ## Install
 
 ```bash

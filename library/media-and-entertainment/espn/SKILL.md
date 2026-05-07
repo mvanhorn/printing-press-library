@@ -1,6 +1,9 @@
 ---
 name: pp-espn
 description: "Use this skill whenever the user asks about live sports scores, standings, team stats, game summaries (with box score, leaders, scoring plays, odds, and win probability), NFL / NBA / MLB / NHL / NCAA / MLS / EPL / WNBA games, team schedules, polls, or rankings. ESPN sports CLI with live scores across 10 leagues, offline search, head-to-head comparisons, and rich per-game summary payloads. No API key required. Triggers on natural phrasings like 'what's the score of the Lakers game', 'Patriots schedule this week', 'NFL standings', 'box score for tonight's Mavs game', 'Chiefs vs Eagles head to head', 'who's on top of the AP poll'."
+version: "1.2.1-0.20260409145412-b1128d0e07fd+dirty"
+author: "Trevin Chow"
+license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata:
@@ -15,6 +18,21 @@ metadata:
 ---
 
 # ESPN — Printing Press CLI
+
+## Prerequisites: Install the CLI
+
+This skill drives the `espn-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+
+1. Check Go is installed: `go version` (requires Go 1.23+)
+2. Install:
+   ```bash
+   go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/cmd/espn-pp-cli@latest
+   ```
+3. Verify: `espn-pp-cli --version`
+4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
+
 
 ESPN from your terminal. Live scores, standings, polls, rich per-game summaries (with box score, leaders, scoring plays, odds, and win probability), team schedules, and offline search across 10 major leagues (NFL, NBA, MLB, NHL, NCAAF, NCAAM, NCAAW, MLS, EPL, WNBA). No API key needed — the spec was sniffed from live ESPN endpoints that back their own apps and website.
 

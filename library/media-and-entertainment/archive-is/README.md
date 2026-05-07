@@ -6,6 +6,29 @@ Bypass paywalls and look up web archives via archive.today. Looks up existing sn
 
 > **About archive.today:** On February 21, 2026, Wikipedia formally blacklisted archive.today after evidence of DDoS activity and snapshot tampering. This CLI is intended for personal paywall reading. Do NOT use it for legal evidence, academic citation, or anything requiring a trustworthy archive — use the Wayback Machine for that. This CLI ships with Wayback as a built-in fallback backend for that reason.
 
+<!-- pp-hermes-install-anchor -->
+## Install via Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-archive-is --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-archive-is --force
+```
+
+## Install via OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-archive-is skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-archive-is. The skill defines how its required CLI can be installed.
+```
+
 ## Install
 
 ### Go

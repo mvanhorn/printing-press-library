@@ -2,6 +2,29 @@
 
 Live scores, standings, news, and game history across 17 sports from ESPN
 
+<!-- pp-hermes-install-anchor -->
+## Install via Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-espn --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-espn --force
+```
+
+## Install via OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-espn skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-espn. The skill defines how its required CLI can be installed.
+```
+
 ## Install
 
 ### Go

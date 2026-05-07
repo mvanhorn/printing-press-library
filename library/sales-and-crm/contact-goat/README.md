@@ -3,6 +3,29 @@
 Super LinkedIn for the terminal. Search, enrich, and map warm-intro paths
 across LinkedIn, Happenstance, and Deepline from one SQLite-backed CLI.
 
+<!-- pp-hermes-install-anchor -->
+## Install via Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-contact-goat --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-contact-goat --force
+```
+
+## Install via OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-contact-goat skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-contact-goat. The skill defines how its required CLI can be installed.
+```
+
 ## Install
 
 ### Go

@@ -1,6 +1,9 @@
 ---
 name: pp-linear
 description: "Linear project-management CLI for the terminal. Manage issues, projects, cycles, teams, initiatives, roadmaps, and customer records via the Linear GraphQL API with offline-capable SQLite sync. Use when the user asks about their Linear issues, wants today's queue, sprint velocity, team workload, bottlenecks, duplicate / stale / orphaned issues, release pipelines, or wants to create, update, or search Linear items from the terminal. Offline search and analytics work without an API round-trip after a one-time sync."
+version: "1.2.0"
+author: "Trevin Chow"
+license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata:
@@ -8,9 +11,6 @@ metadata:
     requires:
       bins:
         - linear-pp-cli
-      env:
-        - LINEAR_API_KEY
-    primaryEnv: LINEAR_API_KEY
     install:
       - kind: go
         bins: [linear-pp-cli]
@@ -18,6 +18,21 @@ metadata:
 ---
 
 # Linear - Printing Press CLI
+
+## Prerequisites: Install the CLI
+
+This skill drives the `linear-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+
+1. Check Go is installed: `go version` (requires Go 1.23+)
+2. Install:
+   ```bash
+   go install github.com/mvanhorn/printing-press-library/library/project-management/linear/cmd/linear-pp-cli@latest
+   ```
+3. Verify: `linear-pp-cli --version`
+4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
+
 
 Manage Linear issues, projects, cycles, teams, and releases from the terminal. The CLI pairs live GraphQL calls with a local SQLite sync so searches, analytics, and cross-entity queries run offline in milliseconds instead of round-tripping to Linear's API.
 
@@ -48,23 +63,6 @@ Parse `$ARGUMENTS`:
 1. **Empty, `help`, or `--help`** -> show `linear-pp-cli --help`
 2. **Starts with `install`** -> ends with `mcp` -> MCP installation; otherwise -> CLI installation
 3. **Anything else** -> Direct Use (map to the best command and run it)
-
-## CLI Installation
-
-1. Check Go is installed: `go version` (requires Go 1.23+).
-2. Install:
-   ```bash
-   go install github.com/mvanhorn/printing-press-library/library/project-management/linear/cmd/linear-pp-cli@latest
-   ```
-3. Verify: `linear-pp-cli --version`.
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
-5. Auth setup:
-   ```bash
-   export LINEAR_API_KEY="lin_api_..."
-   ```
-   Create a personal API key at https://linear.app/settings/api.
-6. Verify: `linear-pp-cli doctor` reports key status and org identity.
-
 ## MCP Server Installation
 
 The CLI ships an MCP server at `linear-pp-mcp`:

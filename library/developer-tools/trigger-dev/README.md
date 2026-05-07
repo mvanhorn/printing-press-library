@@ -2,6 +2,29 @@
 
 Monitor runs, trigger tasks, manage schedules, and detect failures via the Trigger.dev API
 
+<!-- pp-hermes-install-anchor -->
+## Install via Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-trigger-dev --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-trigger-dev --force
+```
+
+## Install via OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-trigger-dev skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-trigger-dev. The skill defines how its required CLI can be installed.
+```
+
 ## Install
 
 ### Go

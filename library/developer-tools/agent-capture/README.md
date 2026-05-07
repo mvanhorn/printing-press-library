@@ -188,3 +188,27 @@ agent-capture evidence --tier remotion --entry src/index.ts --comp Demo --output
 ## Acknowledgments
 
 Built with research from [Peekaboo](https://github.com/steipete/Peekaboo), [macosrec](https://github.com/xenodium/macosrec), [SwiftCapture](https://github.com/GlennWong/SwiftCapture), [freeze](https://github.com/charmbracelet/freeze), [termshot](https://github.com/homeport/termshot), and [Aperture](https://github.com/wulkano/Aperture).
+
+<!-- pp-hermes-install-anchor -->
+## Install via Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-agent-capture --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-agent-capture --force
+```
+
+## Install via OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-agent-capture skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-agent-capture. The skill defines how its required CLI can be installed.
+```
+

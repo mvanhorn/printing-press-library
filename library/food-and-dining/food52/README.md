@@ -6,6 +6,29 @@ Every recipe and article on Food52, queryable without a browser. Ships with `pan
 
 Learn more at [Food52](https://food52.com).
 
+<!-- pp-hermes-install-anchor -->
+## Install via Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-food52 --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-food52 --force
+```
+
+## Install via OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-food52 skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-food52. The skill defines how its required CLI can be installed.
+```
+
 ## Install
 
 ### Go

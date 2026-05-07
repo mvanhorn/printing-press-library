@@ -12,6 +12,29 @@ You need a Steam Web API key. Get one at [steamcommunity.com/dev/apikey](https:/
 export STEAM_API_KEY="your-key-here"
 ```
 
+<!-- pp-hermes-install-anchor -->
+## Install via Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-steam-web --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-steam-web --force
+```
+
+## Install via OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-steam-web skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-steam-web. The skill defines how its required CLI can be installed.
+```
+
 ## Install
 
 ### Go
