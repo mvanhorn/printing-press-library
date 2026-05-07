@@ -25,8 +25,8 @@ npx -y @mvanhorn/printing-press install espn
 Several at once (bundles and CLI names mix freely):
 
 ```bash
-npx -y @mvanhorn/printing-press install espn linear dub
-npx -y @mvanhorn/printing-press install starter-pack hubspot
+npx -y @mvanhorn/printing-press install espn sentry dub
+npx -y @mvanhorn/printing-press install starter-pack cal-com
 ```
 
 Under the hood: the installer reads the live catalog at [`registry.json`](https://github.com/mvanhorn/printing-press-library/blob/main/registry.json), resolves the CLI's Go module path, runs `go install`, and installs the matching focused skill from `cli-skills/pp-<name>` via `npx skills@latest`.

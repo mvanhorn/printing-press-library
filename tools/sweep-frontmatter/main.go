@@ -91,7 +91,6 @@ var cliAuthorByAPIName = map[string]string{
 	"food52":          "Trevin Chow",
 	"google-photos":   "Cathryn Lavery",
 	"hackernews":      "Trevin Chow",
-	"hubspot":         "Matt Van Horn",
 	"instacart":       "Matt Van Horn",
 	"kalshi":          "Trevin Chow",
 	"klaviyo":         "Cathryn Lavery",

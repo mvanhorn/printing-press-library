@@ -192,8 +192,8 @@ func main() {
 //   - description: hand-curated copy (29/42 entries don't match the
 //     .goreleaser.yaml brews description; the registry copy is what's
 //     authoritative).
-//   - mcp block: legacy CLIs (archive-is, hubspot, linear, slack,
-//     steam-web, trigger-dev) ship MCP source under cmd/<slug>-pp-mcp/
+//   - mcp block: legacy CLIs (archive-is, linear, slack, steam-web,
+//     trigger-dev) ship MCP source under cmd/<slug>-pp-mcp/
 //     but their pre-v2 .printing-press.json doesn't declare mcp_binary
 //     or tool_count. We carry their existing registry mcp block forward
 //     until they're regen'd upstream and the .printing-press.json

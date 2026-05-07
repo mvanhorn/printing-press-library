@@ -463,26 +463,6 @@
       }
     },
     {
-      "name": "hubspot",
-      "category": "sales-and-crm",
-      "api": "HubSpot",
-      "description": "Manage HubSpot CRM contacts, companies, deals, tickets, engagements, pipelines, and associations with offline search and pipeline analytics",
-      "path": "library/sales-and-crm/hubspot",
-      "mcp": {
-        "binary": "hubspot-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 62,
-        "public_tool_count": 0,
-        "auth_type": "api_key",
-        "env_vars": [
-          "HUBSPOT_ACCESS_TOKEN"
-        ],
-        "mcp_ready": "full"
-      }
-    },
-    {
       "name": "instacart",
       "category": "commerce",
       "api": "Instacart",
