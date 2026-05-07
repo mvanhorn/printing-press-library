@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-07T17:26:25.36174Z",
+  "printing_press_version": "4.0.1",
+  "api_name": "cloud-run-admin",
+  "display_name": "Google Cloud Run",
+  "cli_name": "cloud-run-admin-pp-cli",
+  "owner": "user",
+  "spec_url": "https://api.apis.guru/v2/specs/googleapis.com/run/v2/openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:1fcc20da6d89b529216363e66a4e8fd916b2cd0e096da2c02603c9f8fff61c2c",
+  "catalog_entry": "google-cloud-run",
+  "category": "cloud",
+  "description": "Cloud Run Admin API for deploying and managing serverless container services, revisions, jobs, and executions",
+  "run_id": "20260507T171842Z-6844a8b4",
+  "mcp_binary": "cloud-run-admin-pp-mcp",
+  "mcp_tool_count": 16,
+  "mcp_ready": "full",
+  "api_version": "v2",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "CLOUD_RUN_ADMIN_OAUTH2C"
+  ],
+  "novel_features": [
+    {
+      "name": "Agent-ready service inventory",
+      "command": "services list",
+      "description": "Lists Cloud Run services through the Admin API with agent-friendly JSON, compact output, and field selection."
+    },
+    {
+      "name": "Local Cloud Run inventory",
+      "command": "sync",
+      "description": "Syncs Cloud Run resources into a local SQLite store so services, jobs, revisions, executions, tasks, and operations can be searched without repeating every API call."
+    },
+    {
+      "name": "Offline resource search",
+      "command": "search",
+      "description": "Searches synced Cloud Run inventory locally or falls back to live API calls depending on the data-source mode."
+    },
+    {
+      "name": "Cloud Run analytics",
+      "command": "analytics",
+      "description": "Runs local analysis against synced Cloud Run data for inventory and status-oriented questions."
+    },
+    {
+      "name": "Compound Cloud Run workflows",
+      "command": "workflow",
+      "description": "Provides compound workflows that combine multiple Cloud Run Admin API operations into one operator-facing flow."
+    }
+  ]
+}
