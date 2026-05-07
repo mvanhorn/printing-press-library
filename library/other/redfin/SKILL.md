@@ -1,7 +1,6 @@
 ---
 name: pp-redfin
 description: "Stingray-backed Redfin CLI with the workflows the website can't do — saved-search diff, sold-price trends, $/sqft ranking, and offline SQL. Trigger phrases: `find homes for sale in <city>`, `watch redfin listings for <area>`, `rank houses by price per square foot`, `pull sold comps for <address>`, `compare these redfin listings`, `use redfin-pp-cli`, `run redfin`."
-version: "1.0.0"
 author: "rderwin"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
