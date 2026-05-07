@@ -153,6 +153,8 @@ Two files in this repo are **generated outputs**, regenerated post-merge by CI w
 
 **When you change `library/**/SKILL.md` or `library/**/internal/cli/**`:**
 
+**Edit `library/<cat>/<slug>/SKILL.md`, never `cli-skills/pp-<slug>/SKILL.md` directly.** The mirror is verbatim-regenerated from the library copy — any direct edit to `cli-skills/` will be silently overwritten on the next regen. Same rule for README.md.
+
 The workflow's trigger paths don't include SKILL.md or `internal/cli/**`. Until those triggers expand, run the generator locally and commit the result alongside your library change:
 
 ```bash
@@ -166,6 +168,20 @@ Then commit the regenerated `cli-skills/pp-*/SKILL.md` files alongside your libr
 Don't touch `registry.json`. The post-merge regen handles it. Your PR's diff stays focused on the actual library change. After your PR merges, `generate-registry.yml` runs, regenerates `registry.json`, and commits with `[skip ci]`. The regen-generated commit shows up on main within a minute or two.
 
 **When does this fail?** If the generator itself is broken (compile error, panic) or the source files have invalid JSON, the post-merge run will fail and `registry.json` will go stale. Watch for `generate-registry.yml` failures in the Actions tab after merging library/** changes.
+
+## Bulk SKILL.md/README.md retrofits: `tools/sweep-frontmatter/`
+
+When a frontmatter or section-shape change must propagate across **all library CLIs at once** — Hermes/OpenClaw shape alignment, stripping a deprecated field, normalizing an install command — edit and run this tool rather than hand-touching every entry. Don't use it for one-CLI-specific changes (edit `library/<cat>/<slug>/SKILL.md` directly), and don't use it for shape changes that belong upstream in `cli-printing-press/internal/generator/templates/skill.md.tmpl` — fix the template first so future fresh prints get it right, then run the sweep here to retrofit existing entries.
+
+**The `cliAuthorByAPIName` map is curated.** Don't replace it with a git-history lookup or operator-config fallback — that silently flips attribution on the published CLIs. Add a new entry when adding a new library CLI; correct one only when the actual author was misrecorded.
+
+**Idempotency is a hard requirement** — running the tool twice with the same inputs must produce zero diff. Tests at `tools/sweep-frontmatter/main_test.go` enforce this; run them before opening a sweep PR:
+
+```bash
+cd tools/sweep-frontmatter && GO111MODULE=off go test .
+```
+
+The tool runs in GOPATH mode (no `go.mod`) so it stays decoupled from the rest of the repo's module graph. After running the sweep, regenerate `cli-skills/` so the mirror reflects the updated library content (see the section above).
 
 ## Commit style
 

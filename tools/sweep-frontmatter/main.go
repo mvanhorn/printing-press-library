@@ -5,8 +5,12 @@
 //
 //   - Strips legacy OpenClaw env-var declarations (requires.env, envVars,
 //     primaryEnv) from each library/<cat>/<api>/SKILL.md frontmatter.
-//   - Adds the Hermes-recognized top-level fields (version, author,
-//     license) after the description: line.
+//   - Adds the Hermes-recognized top-level fields (author, license) after
+//     the description: line. Strips any pre-existing `version:` line —
+//     it was emitted by an earlier sweep but tracked the Press version,
+//     conflating generator with skill. Hermes lists `version` as
+//     optional; omission is the honest move until per-CLI release
+//     versions can be stamped at library CI time from goreleaser tags.
 //   - Moves the existing `## CLI Installation` section to immediately
 //     after the H1 and rewrites it as `## Prerequisites: Install the
 //     CLI` with imperative "you must verify ... do not proceed" wording.
@@ -42,10 +46,9 @@ import (
 )
 
 type manifest struct {
-	CLIName              string `json:"cli_name"`
-	APIName              string `json:"api_name"`
-	PrintingPressVersion string `json:"printing_press_version"`
-	OwnerName            string `json:"owner_name"`
+	CLIName   string `json:"cli_name"`
+	APIName   string `json:"api_name"`
+	OwnerName string `json:"owner_name"`
 }
 
 // cliAuthorByAPIName is the canonical author display name for every
@@ -228,14 +231,6 @@ func sweepCLI(cliDir, ownerName string) (sweepStatus, error) {
 		category = "other"
 	}
 
-	pressVersion := mf.PrintingPressVersion
-	if pressVersion == "" {
-		// Should not happen for any current library entry, but guard
-		// anyway — a sweep that emits version: "" silently is worse
-		// than one that fails loudly.
-		return statusUnchanged, fmt.Errorf("manifest missing printing_press_version")
-	}
-
 	// Authorship resolution:
 	//  1. cliAuthorByAPIName — the curated per-CLI mapping; the source
 	//     of truth for the existing 49 published CLIs. Honors actual
@@ -263,11 +258,10 @@ func sweepCLI(cliDir, ownerName string) (sweepStatus, error) {
 	}
 
 	skillAfter, err := patchSkill(string(skillBefore), patchSkillCtx{
-		CLIName:      mf.CLIName,
-		APIName:      mf.APIName,
-		Category:     category,
-		PressVersion: pressVersion,
-		AuthorName:   authorName,
+		CLIName:    mf.CLIName,
+		APIName:    mf.APIName,
+		Category:   category,
+		AuthorName: authorName,
 	})
 	if err != nil {
 		return statusUnchanged, fmt.Errorf("patch SKILL.md: %w", err)
@@ -326,11 +320,10 @@ func sweepCLI(cliDir, ownerName string) (sweepStatus, error) {
 }
 
 type patchSkillCtx struct {
-	CLIName      string // e.g. "shopify-pp-cli"
-	APIName      string // e.g. "shopify"
-	Category     string // e.g. "commerce"
-	PressVersion string // e.g. "3.10.0"
-	AuthorName   string // display name, e.g. "Trevin Chow"
+	CLIName    string // e.g. "shopify-pp-cli"
+	APIName    string // e.g. "shopify"
+	Category   string // e.g. "commerce"
+	AuthorName string // display name, e.g. "Trevin Chow"
 }
 
 // patchSkill applies the canonical Hermes/OpenClaw shape to a SKILL.md
@@ -349,8 +342,9 @@ func patchSkill(body string, ctx patchSkillCtx) (string, error) {
 //     single inline, block-style, absent).
 //   - Strips entire `    envVars:` block including all indented children.
 //   - Strips `    primaryEnv: ...` line.
-//   - Adds `version`, `author`, `license` top-level fields after the
-//     `description:` line if not already present.
+//   - Adds `author`, `license` top-level fields after the `description:`
+//     line. Strips any pre-existing `version:` line — see top-of-file
+//     comment for why version is omitted.
 //
 // Body content (after the closing ---) is byte-preserved.
 func patchSkillFrontmatter(body string, ctx patchSkillCtx) string {
@@ -435,35 +429,29 @@ func leadingSpaces(s string) int {
 	return len(s)
 }
 
-// ensureFrontmatterTopLevelFields normalizes `version`, `author`, and
-// `license` to the canonical "after description" position with a
-// canonical version → author → license order. All three are stripped
-// first (capturing existing values when present) and re-inserted as
-// a contiguous block, so:
+// ensureFrontmatterTopLevelFields normalizes `author` and `license` to
+// the canonical "after description" position. Both are stripped first
+// and re-inserted as a contiguous block, so:
 //
 //   * Author always reflects the per-CLI authorship mapping
 //     (cliAuthorByAPIName) — overrides any stale value from a
 //     previous sweep run with a wrong default.
-//   * Version preserves the existing value when present (regen path:
-//     the file was produced by a specific Press version, and we
-//     don't want a re-sweep to bump it). Otherwise uses ctx.PressVersion.
 //   * License is always "Apache-2.0" — the constant for every printed
 //     CLI per LICENSE.tmpl.
+//
+// Also strips any pre-existing `version:` line (legacy from an earlier
+// sweep that emitted the Press version) without re-emitting one. See
+// top-of-file comment for the rationale.
 //
 // Idempotent in the second-run-zero-diff sense — running with the
 // same ctx produces the same output.
 func ensureFrontmatterTopLevelFields(fm string, ctx patchSkillCtx) string {
-	pressVersion := extractTopLevelFieldValue(fm, "version")
-	if pressVersion == "" {
-		pressVersion = ctx.PressVersion
-	}
-
 	fm = stripTopLevelField(fm, "version")
 	fm = stripTopLevelField(fm, "author")
 	fm = stripTopLevelField(fm, "license")
 
-	block := fmt.Sprintf("version: %q\nauthor: %q\nlicense: %q\n",
-		pressVersion, ctx.AuthorName, "Apache-2.0")
+	block := fmt.Sprintf("author: %q\nlicense: %q\n",
+		ctx.AuthorName, "Apache-2.0")
 
 	descRe := regexp.MustCompile(`(?m)^description: ".*"\n`)
 	return descRe.ReplaceAllStringFunc(fm, func(match string) string {

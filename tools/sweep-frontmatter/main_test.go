@@ -113,7 +113,7 @@ metadata:
 }
 
 func TestEnsureFrontmatterTopLevelFields(t *testing.T) {
-	ctx := patchSkillCtx{PressVersion: "3.10.0", AuthorName: "Trevin Chow"}
+	ctx := patchSkillCtx{AuthorName: "Trevin Chow"}
 
 	t.Run("inserts after description when fields absent", func(t *testing.T) {
 		in := `name: pp-test
@@ -122,7 +122,6 @@ argument-hint: "..."
 `
 		want := `name: pp-test
 description: "a CLI"
-version: "3.10.0"
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "..."
@@ -135,7 +134,6 @@ argument-hint: "..."
 	t.Run("idempotent when fields match canonical values", func(t *testing.T) {
 		in := `name: pp-test
 description: "a CLI"
-version: "3.10.0"
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "..."
@@ -147,12 +145,10 @@ argument-hint: "..."
 
 	t.Run("rewrites author when ctx differs (per-CLI map correction)", func(t *testing.T) {
 		in := `description: "a CLI"
-version: "3.10.0"
 author: "Wrong Operator"
 license: "Apache-2.0"
 `
 		want := `description: "a CLI"
-version: "3.10.0"
 author: "Trevin Chow"
 license: "Apache-2.0"
 `
@@ -161,8 +157,26 @@ license: "Apache-2.0"
 		}
 	})
 
+	t.Run("strips legacy version: line without re-emitting", func(t *testing.T) {
+		// Earlier sweep emitted `version:` tracking the Press version.
+		// That decision was reverted (see top-of-file comment); a re-sweep
+		// must drop the line and not re-add it.
+		in := `description: "a CLI"
+version: "3.10.0"
+author: "Trevin Chow"
+license: "Apache-2.0"
+`
+		want := `description: "a CLI"
+author: "Trevin Chow"
+license: "Apache-2.0"
+`
+		if got := ensureFrontmatterTopLevelFields(in, ctx); got != want {
+			t.Errorf("expected version: line stripped;\nwant: %q\ngot:  %q", want, got)
+		}
+	})
+
 	t.Run("escapes special characters via fmt %q", func(t *testing.T) {
-		ctxQuoted := patchSkillCtx{PressVersion: "3.10.0", AuthorName: `Trevin "Quoted" Chow`}
+		ctxQuoted := patchSkillCtx{AuthorName: `Trevin "Quoted" Chow`}
 		in := `description: "a CLI"
 `
 		got := ensureFrontmatterTopLevelFields(in, ctxQuoted)
