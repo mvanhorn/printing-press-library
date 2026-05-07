@@ -34,6 +34,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/dub-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-dub --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-dub --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-dub skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-dub. The skill defines how its required CLI can be installed.
+```
+
 ## Authentication
 
 dub-pp-cli reads DUB_API_KEY from the environment (Speakeasy convention; DUB_TOKEN also accepted for compatibility with prior community CLIs). The key is workspace-scoped — the workspace is implicit in the key. Get one from dub.co/settings/tokens and run `dub-pp-cli doctor` to verify connectivity.
@@ -44,18 +67,14 @@ dub-pp-cli reads DUB_API_KEY from the environment (Speakeasy convention; DUB_TOK
 # Verify API key, base URL, and rate-limit headroom.
 dub-pp-cli doctor
 
-
 # Populate the local SQLite store so search and transcendence commands work offline.
 dub-pp-cli sync
-
 
 # List the workspace's links with the fields agents care about.
 dub-pp-cli links list --json --select id,key,url,clicks
 
-
 # Find dormant links — the headline transcendence feature.
 dub-pp-cli links stale --days 90 --json
-
 
 # Cross-resource Monday-morning report: rate-limit headroom, expiring links, bounty triage backlog.
 dub-pp-cli health --json
@@ -180,7 +199,6 @@ Run `dub-pp-cli --help` for the full command reference and flag list.
 
 Manage bounties
 
-
 ### commissions
 
 Manage commissions
@@ -296,7 +314,6 @@ Manage track
 - **`dub-pp-cli track open`** - This endpoint is used to track when a user opens your app via a Dub-powered deep link (for both iOS and Android).
 - **`dub-pp-cli track sale`** - Track a sale for a short link.
 
-
 ## Output Formats
 
 ```bash
@@ -384,29 +401,6 @@ Default is `thin` because the agent's tool catalog is loaded every conversation 
 Pattern source: Anthropic 2026-04 "Building agents that reach production systems with MCP" (Cloudflare's MCP server uses the same search+execute shape for ~2,500 endpoints in ~1K tokens).
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-dub --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-dub --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-dub skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-dub. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 

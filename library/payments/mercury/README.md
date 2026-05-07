@@ -32,6 +32,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/mercury-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-mercury --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-mercury --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-mercury skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-mercury. The skill defines how its required CLI can be installed.
+```
+
 ## Quick Start
 
 ### 1. Install
@@ -213,7 +236,6 @@ Manage SAFE (Simple Agreement for Future Equity) requests
 
 Download account statements
 
-
 ### transaction
 
 Manage transactions
@@ -255,7 +277,6 @@ Manage webhooks
 - **`mercury-pp-cli webhooks get`** - Retrieve a paginated list of all webhook endpoints for your organization. Supports filtering by status.
 - **`mercury-pp-cli webhooks get-webhookendpointid`** - Retrieve details of a specific webhook endpoint by ID
 - **`mercury-pp-cli webhooks update`** - Update the configuration of an existing webhook endpoint. A webhook that has been disabled due to consecutive delivery failures can be reactivated by setting its status to 'active'.
-
 
 ## Output Formats
 
@@ -318,29 +339,6 @@ claude mcp add mercury mercury-pp-mcp -e MERCURY_BEARER_AUTH=<your-token>
 ```
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-mercury --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-mercury --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-mercury skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-mercury. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 

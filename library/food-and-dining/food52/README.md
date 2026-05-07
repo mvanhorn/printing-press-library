@@ -6,29 +6,6 @@ Every recipe and article on Food52, queryable without a browser. Ships with `pan
 
 Learn more at [Food52](https://food52.com).
 
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-food52 --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-food52 --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-food52 skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-food52. The skill defines how its required CLI can be installed.
-```
-
 ## Install
 
 The recommended path installs both the `food52-pp-cli` binary and the `pp-food52` agent skill in one shot:
@@ -57,6 +34,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/food52-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-food52 --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-food52 --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-food52 skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-food52. The skill defines how its required CLI can be installed.
+```
+
 ## Authentication
 
 No Food52 sign-in required. Food52 sits behind Vercel bot mitigation, but the challenge is passive (TLS-fingerprint), not JS-active — Surf with Chrome impersonation clears it without cookies or setup. Search uses a Typesense search-only key the CLI auto-discovers from Food52's public JS bundle, so users never see a key prompt or env var.
@@ -67,22 +67,17 @@ No Food52 sign-in required. Food52 sits behind Vercel bot mitigation, but the ch
 # Live Typesense search; sub-second results.
 food52-pp-cli recipes search "brownies" --limit 5 --json
 
-
 # Full structured recipe (ingredients, steps, ratings, kitchen notes) for one recipe.
 food52-pp-cli recipes get sarah-fennel-s-best-lunch-lady-brownie-recipe --json
-
 
 # Seed the local store with two tags worth of recipes — required for offline search and pantry match.
 food52-pp-cli sync recipes chicken vegetarian --limit 100
 
-
 # Tell the CLI what's in your kitchen.
 food52-pp-cli pantry add chicken garlic lemon thyme
 
-
 # Find synced recipes you can mostly make right now.
 food52-pp-cli pantry match --min-coverage 0.6 --json
-
 
 # Clean cooking-friendly view, ready to pipe to lp or paste.
 food52-pp-cli print sarah-fennel-s-best-lunch-lady-brownie-recipe
@@ -167,7 +162,6 @@ Browse Food52 recipes by tag and fetch single recipe details (extracted from Nex
 
 - **`food52-pp-cli recipes browse`** - Browse Food52 recipes filtered by a tag (e.g. chicken, breakfast, vegetarian)
 - **`food52-pp-cli recipes get`** - Get full structured details for a single Food52 recipe by slug
-
 
 ## Output Formats
 

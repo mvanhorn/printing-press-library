@@ -32,6 +32,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/open-meteo-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-open-meteo --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-open-meteo --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-open-meteo skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-open-meteo. The skill defines how its required CLI can be installed.
+```
+
 ## Authentication
 
 No API key required. The free tier supports up to ~10,000 requests per day for non-commercial use. If you have an Open-Meteo customer-tier subscription, set OPEN_METEO_API_KEY in the environment and the CLI auto-routes to customer-*.open-meteo.com with the apikey appended — same commands, same flags, higher limits, commercial use allowed.
@@ -44,22 +67,17 @@ No API key required. The free tier supports up to ~10,000 requests per day for n
 # accuracy, is-good-for) accept --place natively.
 open-meteo-pp-cli geocode search --name Seattle --count 1 --json
 
-
 # Current conditions for a city by name (panel takes --place natively).
 open-meteo-pp-cli panel --place Seattle --current temperature_2m,weather_code --humanize
-
 
 # 7-day daily forecast as JSON.
 open-meteo-pp-cli forecast --latitude 47.6062 --longitude -122.3321 --daily temperature_2m_max,temperature_2m_min,precipitation_sum --forecast-days 7 --json
 
-
 # Historical ERA5 data — works for any date back to 1940.
 open-meteo-pp-cli archive --latitude 47.6062 --longitude -122.3321 --start-date 2024-01-01 --end-date 2024-01-31 --daily temperature_2m_max --json
 
-
 # Climate-vs-now anomaly: how today compares to the 30-year normal (--place native).
 open-meteo-pp-cli compare --place Seattle --metric temperature_2m_mean --years 30 --json
-
 
 # Side-by-side multi-location panel in one batched call.
 open-meteo-pp-cli panel --place Seattle,Berlin,Tokyo --current temperature_2m,weather_code --json
@@ -192,7 +210,6 @@ Seasonal forecasts (up to 9 months) using NCEP CFSv2.
 
 - **`open-meteo-pp-cli seasonal get`** - 9-month seasonal forecast at six-hourly resolution. Default model is NCEP CFSv2.
 
-
 ## Output Formats
 
 ```bash
@@ -260,29 +277,6 @@ claude mcp add open-meteo open-meteo-pp-mcp
 ```
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-open-meteo --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-open-meteo --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-open-meteo skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-open-meteo. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 

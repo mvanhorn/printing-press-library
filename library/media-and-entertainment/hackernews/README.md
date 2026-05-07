@@ -34,6 +34,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/hackernews-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-hackernews --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-hackernews --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-hackernews skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-hackernews. The skill defines how its required CLI can be installed.
+```
+
 ## Authentication
 
 No authentication needed — both the Firebase and Algolia HN APIs are free and public.
@@ -44,18 +67,14 @@ No authentication needed — both the Firebase and Algolia HN APIs are free and 
 # Pull current top/new/best/show/ask/job lists plus recent items into the local store
 hackernews-pp-cli sync
 
-
 # Browse the freshest top stories
 hackernews-pp-cli stories top --limit 10
-
 
 # Track a topic's per-day mentions, score, and comment volume
 hackernews-pp-cli pulse rust --days 7 --agent
 
-
 # See exactly what changed on the front page since the last sync
 hackernews-pp-cli since --json
-
 
 # Aggregate the last 3 months of Who-is-Hiring — languages, remote ratio, top companies
 hackernews-pp-cli hiring stats --months 3 --agent
@@ -184,7 +203,6 @@ Recently changed items and profiles
 Look up Hacker News user profiles
 
 - **`hackernews-pp-cli users get`** - Get a user's profile including karma and submission history
-
 
 ## Output Formats
 
@@ -362,29 +380,6 @@ claude mcp add hackernews hackernews-pp-mcp
 ```
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-hackernews --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-hackernews --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-hackernews skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-hackernews. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 

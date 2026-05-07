@@ -4,29 +4,6 @@ The weather CLI that answers the questions you actually ask: Should I bike today
 
 Powered by Open-Meteo (global forecasts, 80 years of history, air quality) and NWS (severe weather alerts). No API key required.
 
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-weather-goat --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-weather-goat --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-weather-goat skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-weather-goat. The skill defines how its required CLI can be installed.
-```
-
 ## Install
 
 The recommended path installs both the `weather-goat-pp-cli` binary and the `pp-weather-goat` agent skill in one shot:
@@ -54,6 +31,29 @@ This installs the CLI only — no skill.
 ### Pre-built binary
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/weather-goat-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
+
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-weather-goat --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-weather-goat --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-weather-goat skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-weather-goat. The skill defines how its required CLI can be installed.
+```
 
 ## Authentication
 

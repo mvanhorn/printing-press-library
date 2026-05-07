@@ -34,6 +34,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/craigslist-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-craigslist --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-craigslist --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-craigslist skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-craigslist. The skill defines how its required CLI can be installed.
+```
+
 ## Authentication
 
 No authentication required. Craigslist's read endpoints (sapi.craigslist.org/web/v8, rapi.craigslist.org/web/v8, reference.craigslist.org) are public. The CLI sets a polite User-Agent and reuses the cl_b cookie Craigslist auto-issues. Posting and account management are intentionally out of scope for v1.
@@ -44,26 +67,20 @@ No authentication required. Craigslist's read endpoints (sapi.craigslist.org/web
 # Pull the 178-category and 707-area reference taxonomy into the local store; refreshed at most every 30 days per Craigslist's own Cache-Control.
 craigslist-pp-cli catalog refresh
 
-
 # Single-city search with a price cap; default human table output.
 craigslist-pp-cli search 'ipad' --site sfbay --category sss --max-price 300
-
 
 # Cross-city hunt for a rare item — fans out parallel sapi calls, source-attributes results.
 craigslist-pp-cli search 'leica m6' --sites sfbay,nyc,seattle,losangeles,chicago --category pho --json
 
-
 # Populate the local store before running snapshot-driven commands (drift, scam-score, dupe-cluster, median, reposts).
 craigslist-pp-cli cl-sync --site sfbay --category apa --since 7d
-
 
 # Save a smart search with negative keywords Craigslist's own search doesn't support.
 craigslist-pp-cli watch save apartments --query 1BR --negate furnished,sublet --sites sfbay --category apa --max-price 2500
 
-
 # Stream new-listing events as JSON lines: [NEW] (new posts) and [PRICE-DROP] (sellers dropped the price).
 craigslist-pp-cli watch tail apartments --interval 5m --json
-
 
 # Rule-based scam triage on a listing (requires `cl-sync` to have synced the listing first).
 craigslist-pp-cli scam-score 7915891289 --json
@@ -169,7 +186,6 @@ The full command tree is discoverable via `craigslist-pp-cli --help`. Headline g
 - **Local-state CRUD** — `favorite add|list|remove`
 - **Framework helpers** — `doctor`, `version`, `which`, `agent-context`, `analytics`, `export`, `import`, `feedback`, `profile`, `tail`, `sync`, `workflow`
 
-
 ## Output Formats
 
 ```bash
@@ -240,29 +256,6 @@ claude mcp add craigslist craigslist-pp-mcp
 ```
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-craigslist --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-craigslist --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-craigslist skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-craigslist. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 

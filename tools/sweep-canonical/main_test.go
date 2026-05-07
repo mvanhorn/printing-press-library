@@ -292,74 +292,167 @@ stuff.
 	}
 }
 
-func TestPatchReadme_AnchorBased(t *testing.T) {
-	// When the anchor is present (post-U3 fresh print), insert right after it.
-	body := `Some content.
+func TestPatchReadmeHermesOpenClaw_OrderAfterInstall(t *testing.T) {
+	// Canonical layout: ## Install → ## Install for Hermes → ## Install for OpenClaw → next section.
+	body := `# X CLI
 
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for...
+## Install
 
-<!-- pp-hermes-install-anchor -->
-<details>
-<summary>Manual JSON config (advanced)</summary>
+[install body]
+
+## Authentication
+
+stuff.
 `
 	ctx := patchReadmeCtx{CLIName: "x-pp-cli", APIName: "x", Category: "other"}
-	got, err := patchReadme(body, ctx)
-	if err != nil {
-		t.Fatal(err)
+	got := patchReadmeHermesOpenClaw(body, ctx)
+
+	installIdx := strings.Index(got, "## Install\n")
+	hermesIdx := strings.Index(got, "## Install for Hermes")
+	openclawIdx := strings.Index(got, "## Install for OpenClaw")
+	authIdx := strings.Index(got, "## Authentication")
+
+	if installIdx < 0 || hermesIdx < 0 || openclawIdx < 0 || authIdx < 0 {
+		t.Fatalf("missing expected section: install=%d hermes=%d openclaw=%d auth=%d\n%s",
+			installIdx, hermesIdx, openclawIdx, authIdx, got)
 	}
-	if !strings.Contains(got, "## Install via Hermes") {
-		t.Errorf("Install via Hermes section must be inserted")
+	if !(installIdx < hermesIdx && hermesIdx < openclawIdx && openclawIdx < authIdx) {
+		t.Errorf("expected order Install → Install for Hermes → Install for OpenClaw → Authentication; got positions %d/%d/%d/%d:\n%s",
+			installIdx, hermesIdx, openclawIdx, authIdx, got)
 	}
-	if !strings.Contains(got, "## Install via OpenClaw") {
-		t.Errorf("Install via OpenClaw section must be inserted")
+}
+
+func TestPatchReadmeHermesOpenClaw_MovesFromBottomToAfterInstall(t *testing.T) {
+	// Fedex-shape: Install at top, Hermes/OpenClaw deep in the file
+	// near Use with Claude Desktop. Sweep moves them up.
+	body := `# Fedex CLI
+
+## Install
+
+cli body.
+
+## Authentication
+
+auth body.
+
+## Use with Claude Code
+
+claude code body.
+
+<!-- pp-hermes-install-anchor -->
+## Install via Hermes
+
+hermes body.
+
+## Install via OpenClaw
+
+openclaw body.
+
+## Use with Claude Desktop
+
+desktop body.
+`
+	ctx := patchReadmeCtx{CLIName: "fedex-pp-cli", APIName: "fedex", Category: "commerce"}
+	got := patchReadmeHermesOpenClaw(body, ctx)
+
+	hermesIdx := strings.Index(got, "## Install for Hermes")
+	authIdx := strings.Index(got, "## Authentication")
+	codeIdx := strings.Index(got, "## Use with Claude Code")
+
+	if hermesIdx < 0 || authIdx < 0 || codeIdx < 0 {
+		t.Fatalf("missing expected section: hermes=%d auth=%d code=%d\n%s", hermesIdx, authIdx, codeIdx, got)
 	}
-	// Anchor must not be duplicated.
+	// Hermes must now be BEFORE Authentication (i.e. moved to top), not BEFORE Use with Claude Code (its old neighbor).
+	if !(hermesIdx < authIdx) {
+		t.Errorf("Hermes must appear before Authentication after sweep; hermes=%d auth=%d:\n%s", hermesIdx, authIdx, got)
+	}
+	// Old "via" naming gone.
+	if strings.Contains(got, "## Install via Hermes") || strings.Contains(got, "## Install via OpenClaw") {
+		t.Errorf("legacy 'via' headings still present:\n%s", got)
+	}
+	// Anchor still present, exactly once.
 	if strings.Count(got, "<!-- pp-hermes-install-anchor -->") != 1 {
 		t.Errorf("anchor should appear exactly once; got %d", strings.Count(got, "<!-- pp-hermes-install-anchor -->"))
 	}
 }
 
-func TestPatchReadme_FallbackToClaudeDesktop(t *testing.T) {
-	body := `Some content.
+func TestPatchReadmeHermesOpenClaw_MovesFromTopToAfterInstall(t *testing.T) {
+	// ESPN-shape: Hermes/OpenClaw are FIRST (above Install), need to move down.
+	body := `# ESPN CLI
 
-## Use with Claude Code
-
-stuff.
-
-## Use with Claude Desktop
-
-other stuff.
-`
-	ctx := patchReadmeCtx{CLIName: "x-pp-cli", APIName: "x", Category: "other"}
-	got, err := patchReadme(body, ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	// Insertion must be BEFORE Use with Claude Desktop.
-	hermesIdx := strings.Index(got, "## Install via Hermes")
-	desktopIdx := strings.Index(got, "## Use with Claude Desktop")
-	if hermesIdx < 0 || desktopIdx < 0 || hermesIdx >= desktopIdx {
-		t.Errorf("Install via Hermes must appear before Use with Claude Desktop; hermes=%d desktop=%d", hermesIdx, desktopIdx)
-	}
-}
-
-func TestPatchReadme_Idempotent(t *testing.T) {
-	body := `Some content.
+A summary.
 
 <!-- pp-hermes-install-anchor -->
 ## Install via Hermes
 
-stuff.
+hermes body.
 
-## Use with Claude Desktop
+## Install via OpenClaw
+
+openclaw body.
+
+## Install
+
+cli body.
+
+## Authentication
+
+auth body.
+`
+	ctx := patchReadmeCtx{CLIName: "espn-pp-cli", APIName: "espn", Category: "media-and-entertainment"}
+	got := patchReadmeHermesOpenClaw(body, ctx)
+
+	installIdx := strings.Index(got, "## Install\n")
+	hermesIdx := strings.Index(got, "## Install for Hermes")
+	openclawIdx := strings.Index(got, "## Install for OpenClaw")
+	authIdx := strings.Index(got, "## Authentication")
+
+	if installIdx < 0 || hermesIdx < 0 || openclawIdx < 0 || authIdx < 0 {
+		t.Fatalf("missing expected section: install=%d hermes=%d openclaw=%d auth=%d\n%s",
+			installIdx, hermesIdx, openclawIdx, authIdx, got)
+	}
+	if !(installIdx < hermesIdx && hermesIdx < openclawIdx && openclawIdx < authIdx) {
+		t.Errorf("expected order Install → Install for Hermes → Install for OpenClaw → Authentication; got positions %d/%d/%d/%d:\n%s",
+			installIdx, hermesIdx, openclawIdx, authIdx, got)
+	}
+	// Old "via" naming gone.
+	if strings.Contains(got, "## Install via Hermes") || strings.Contains(got, "## Install via OpenClaw") {
+		t.Errorf("legacy 'via' headings still present:\n%s", got)
+	}
+}
+
+func TestPatchReadmeHermesOpenClaw_Idempotent(t *testing.T) {
+	body := `# X CLI
+
+## Install
+
+cli body.
+
+## Authentication
+
+auth body.
 `
 	ctx := patchReadmeCtx{CLIName: "x-pp-cli", APIName: "x", Category: "other"}
-	got, err := patchReadme(body, ctx)
-	if err != nil {
-		t.Fatal(err)
+	first := patchReadmeHermesOpenClaw(body, ctx)
+	second := patchReadmeHermesOpenClaw(first, ctx)
+	if second != first {
+		t.Errorf("second run should produce zero diff;\nfirst:\n%s\nsecond:\n%s", first, second)
 	}
+}
+
+func TestPatchReadmeHermesOpenClaw_NoOpWhenInstallSectionAbsent(t *testing.T) {
+	// agent-capture has no ## Install heading. Tool should leave it
+	// alone rather than insert at an arbitrary position.
+	body := `# agent-capture
+
+## Quick Start
+
+stuff.
+`
+	ctx := patchReadmeCtx{CLIName: "agent-capture-pp-cli", APIName: "agent-capture", Category: "developer-tools"}
+	got := patchReadmeHermesOpenClaw(body, ctx)
 	if got != body {
-		t.Errorf("expected idempotent no-op when Install via Hermes already present;\ngot diff:\n%s", got)
+		t.Errorf("expected no-op when ## Install absent;\ngot:\n%s", got)
 	}
 }
 

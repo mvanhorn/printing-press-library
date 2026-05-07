@@ -34,6 +34,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/movie-goat-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-movie-goat --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-movie-goat --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-movie-goat skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-movie-goat. The skill defines how its required CLI can be installed.
+```
+
 ## Authentication
 
 TMDb v3 API key (free, https://www.themoviedb.org/settings/api) is required and goes in `TMDB_API_KEY` — used as a query parameter, not a Bearer header. OMDb key (free, http://www.omdbapi.com/apikey.aspx) is optional and goes in `OMDB_API_KEY`; without it, `ratings` and `versus` show TMDb-only and gracefully omit the IMDb/RT/Metacritic columns.
@@ -44,22 +67,17 @@ TMDb v3 API key (free, https://www.themoviedb.org/settings/api) is required and 
 # The fastest path to the value: a streaming-filtered, well-rated shortlist for tonight.
 movie-goat-pp-cli tonight --providers "Netflix,Max" --region US
 
-
 # Multi-type search across movies, TV, and people.
 movie-goat-pp-cli multi "the bear"
-
 
 # Cross-source rating card for Fight Club (TMDb id 550).
 movie-goat-pp-cli ratings 550
 
-
 # Add Inception to the local SQLite watchlist.
 movie-goat-pp-cli watchlist add 27205 --kind movie
 
-
 # Show which saved titles are streamable on your services right now.
 movie-goat-pp-cli watchlist list --available --providers netflix,max --region US
-
 
 # Plan a franchise marathon with totalled runtime.
 movie-goat-pp-cli marathon "The Avengers" --order release
@@ -195,7 +213,6 @@ Search and browse TV shows
 - **`movie-goat-pp-cli tv search`** - Search for TV shows by title
 - **`movie-goat-pp-cli tv top-rated`** - Get the highest rated TV shows
 
-
 ## Cookbook
 
 Real-world recipes using verified flag names. Pipe `--json` and chain with
@@ -299,29 +316,6 @@ claude mcp add movie-goat movie-goat-pp-mcp -e TMDB_API_KEY=<your-key>
 ```
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-movie-goat --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-movie-goat --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-movie-goat skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-movie-goat. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 

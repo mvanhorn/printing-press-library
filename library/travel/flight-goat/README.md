@@ -73,6 +73,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/flight-goat-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-flight-goat --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-flight-goat --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-flight-goat skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-flight-goat. The skill defines how its required CLI can be installed.
+```
+
 ## Quick Start
 
 ### 1. Install
@@ -430,7 +453,6 @@ Manage schedules
 schedules are available for up to three months in the past as well as
 one year into the future.
 
-
 ## Output Formats
 
 ```bash
@@ -492,29 +514,6 @@ claude mcp add flight-goat flight-goat-pp-mcp -e FLIGHT_GOAT_API_KEY_AUTH=<your-
 ```
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-flight-goat --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-flight-goat --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-flight-goat skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-flight-goat. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 

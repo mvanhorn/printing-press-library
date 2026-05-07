@@ -32,6 +32,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/wikipedia-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-wikipedia --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-wikipedia --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-wikipedia skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-wikipedia. The skill defines how its required CLI can be installed.
+```
+
 ## Quick Start
 
 ### 1. Install
@@ -72,7 +95,6 @@ Article content and metadata
 - **`wikipedia-pp-cli page get-media`** - Returns images, videos, and other media files associated with an article.
 - **`wikipedia-pp-cli page get-random`** - Returns a random Wikipedia article summary.
 - **`wikipedia-pp-cli page get-summary`** - Returns a page summary including title, extract text, thumbnail, and coordinates.
-
 
 ## Output Formats
 
@@ -133,29 +155,6 @@ claude mcp add wikipedia wikipedia-pp-mcp
 ```
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-wikipedia --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-wikipedia --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-wikipedia skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-wikipedia. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 

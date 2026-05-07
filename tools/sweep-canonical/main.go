@@ -761,66 +761,109 @@ Download a pre-built binary for your platform from the [latest release](https://
 `, ctx.CLIName, ctx.APIName, ctx.APIName, ctx.APIName, module, ctx.APIName)
 }
 
-// patchReadmeHermesOpenClaw inserts the Install via Hermes / Install
-// via OpenClaw sections into a README.md. Idempotent: skips if `##
-// Install via Hermes` is already present.
+// patchReadmeHermesOpenClaw enforces the canonical position and
+// naming for the Hermes and OpenClaw install sections:
 //
-// Insertion-point fallback chain for legacy READMEs without the
-// `<!-- pp-hermes-install-anchor -->` HTML comment:
+//  1. Strips any existing Hermes/OpenClaw sections and the
+//     pp-hermes-install-anchor comment from wherever they currently
+//     are. Handles both legacy "Install via X" naming and current
+//     "Install for X" naming, so the function is forward- and
+//     backward-compatible across template versions.
+//  2. Re-inserts the canonical "Install for X" blocks (preceded by
+//     the anchor comment) immediately after the `## Install` section
+//     ends, so all install paths sit grouped at the top of the
+//     README.
 //
-//  1. Right before `## Use with Claude Desktop` (most common)
-//  2. Right before `## Use with Claude Code`
-//  3. Right before `## Install` (older READMEs)
-//  4. End of file
+// Idempotent: running with body that already has the canonical shape
+// strips and re-inserts identical content, producing zero diff.
 //
-// "Right before" means: the new sections appear above the matched
-// heading, so they show up in the same neighborhood as related
-// install-and-setup content.
+// READMEs without a `## Install` heading (only agent-capture in the
+// live library) are left unchanged — their hand-shaped install
+// guidance doesn't fit the template, and dropping the Hermes/OpenClaw
+// blocks at an arbitrary position would be worse than leaving them
+// off entirely.
 func patchReadmeHermesOpenClaw(body string, ctx patchReadmeCtx) string {
-	if strings.Contains(body, "## Install via Hermes") {
+	// If there's no ## Install heading to anchor on, don't touch the
+	// README — stripping existing Hermes/OpenClaw blocks without being
+	// able to re-insert them would silently delete install
+	// instructions. Only agent-capture among 49 live CLIs falls in
+	// this branch; its README has hand-shaped install guidance that
+	// doesn't fit the template.
+	const installHeading = "## Install\n"
+	if !strings.Contains(body, installHeading) {
 		return body
 	}
 
-	insert := buildReadmeInstallSections(ctx)
-
-	// Anchor wins if present (only fresh prints from the post-U3
-	// template have it; legacy READMEs do not).
-	const anchor = "<!-- pp-hermes-install-anchor -->"
-	if idx := strings.Index(body, anchor); idx >= 0 {
-		// The anchor in the live template is followed by a newline
-		// then the Hermes heading. We insert right after the anchor's
-		// newline so subsequent sweeps find their own emitted sections.
-		end := idx + len(anchor)
-		if end < len(body) && body[end] == '\n' {
-			end++
-		}
-		return body[:end] + insert + body[end:]
-	}
-
-	// Fallback chain: insert before the first matching heading.
-	for _, heading := range []string{
-		"\n## Use with Claude Desktop",
-		"\n## Use with Claude Code",
-		"\n## Install\n",
+	// Strip stale Hermes/OpenClaw sections. List both naming variants
+	// so we can migrate "via" to "for" without a separate code path.
+	for _, h := range []string{
+		"## Install via Hermes",
+		"## Install via OpenClaw",
+		"## Install for Hermes",
+		"## Install for OpenClaw",
 	} {
-		if idx := strings.Index(body, heading); idx >= 0 {
-			// Insert anchor + sections + blank line before the heading.
-			pre := body[:idx+1] // include the leading \n
-			post := body[idx+1:]
-			return pre + anchor + "\n" + insert + post
-		}
+		body = stripH2Section(body, h)
+	}
+	// Strip the anchor comment with or without trailing newline.
+	body = strings.ReplaceAll(body, "<!-- pp-hermes-install-anchor -->\n", "")
+	body = strings.ReplaceAll(body, "<!-- pp-hermes-install-anchor -->", "")
+	// Collapse any blank-line gaps left by stripping (e.g. two adjacent
+	// stripped sections leave `\n\n\n` between surrounding content).
+	for strings.Contains(body, "\n\n\n") {
+		body = strings.ReplaceAll(body, "\n\n\n", "\n\n")
 	}
 
-	// No match — append at EOF.
-	suffix := body
-	if !strings.HasSuffix(suffix, "\n") {
-		suffix += "\n"
+	// Re-insert canonical anchor + "for"-named blocks immediately after
+	// the `## Install` section ends.
+	canonical := "<!-- pp-hermes-install-anchor -->\n" + buildReadmeInstallSections(ctx)
+
+	installIdx := strings.Index(body, installHeading)
+	if installIdx < 0 {
+		// Defensive: shouldn't reach here given the early-return above,
+		// but keep the guard in case body got transformed unexpectedly.
+		return body
 	}
-	return suffix + "\n" + anchor + "\n" + insert
+	// Find the next H2 after ## Install. That's the section boundary
+	// where we insert (right before whatever comes next, typically
+	// ## Authentication or ## Quick Start).
+	tail := body[installIdx+len(installHeading):]
+	nextH2Idx := strings.Index(tail, "\n## ")
+	if nextH2Idx < 0 {
+		// ## Install is the last section in the README. Append at
+		// EOF, ensuring a trailing newline boundary.
+		if !strings.HasSuffix(body, "\n") {
+			body += "\n"
+		}
+		return body + "\n" + canonical
+	}
+	insertPos := installIdx + len(installHeading) + nextH2Idx + 1
+	return body[:insertPos] + canonical + body[insertPos:]
+}
+
+// stripH2Section removes a `## <heading>` section (heading line + body
+// up to the next `## ` heading or EOF) from body. Returns body
+// unchanged if the heading is not present. Preserves the blank line
+// from the previous section's trailing content; surrounding content
+// is otherwise byte-preserved.
+func stripH2Section(body, heading string) string {
+	needle := heading + "\n"
+	idx := strings.Index(body, needle)
+	if idx < 0 {
+		return body
+	}
+	rest := body[idx+len(needle):]
+	nextIdx := strings.Index(rest, "\n## ")
+	var sectionEnd int
+	if nextIdx < 0 {
+		sectionEnd = len(body)
+	} else {
+		sectionEnd = idx + len(needle) + nextIdx + 1
+	}
+	return body[:idx] + body[sectionEnd:]
 }
 
 func buildReadmeInstallSections(ctx patchReadmeCtx) string {
-	return fmt.Sprintf("## Install via Hermes\n\n"+
+	return fmt.Sprintf("## Install for Hermes\n\n"+
 		"From the Hermes CLI:\n\n"+
 		"```bash\n"+
 		"hermes skills install mvanhorn/printing-press-library/cli-skills/pp-%s --force\n"+
@@ -829,7 +872,7 @@ func buildReadmeInstallSections(ctx patchReadmeCtx) string {
 		"```bash\n"+
 		"/skills install mvanhorn/printing-press-library/cli-skills/pp-%s --force\n"+
 		"```\n\n"+
-		"## Install via OpenClaw\n\n"+
+		"## Install for OpenClaw\n\n"+
 		"Tell your OpenClaw agent (copy this):\n\n"+
 		"```\n"+
 		"Install the pp-%s skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-%s. The skill defines how its required CLI can be installed.\n"+

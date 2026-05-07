@@ -34,6 +34,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/scrape-creators-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-scrape-creators --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-scrape-creators --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-scrape-creators skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-scrape-creators. The skill defines how its required CLI can be installed.
+```
+
 ## Authentication
 
 Set SCRAPE_CREATORS_API_KEY (get one at https://scrapecreators.com). One header, no OAuth handshake.
@@ -44,22 +67,17 @@ Set SCRAPE_CREATORS_API_KEY (get one at https://scrapecreators.com). One header,
 # Verify auth and see remaining credits.
 scrape-creators-pp-cli account balance --json
 
-
 # Cross-platform presence — see every platform a creator is on.
 scrape-creators-pp-cli creator find mrbeast --json
-
 
 # Pull a single profile (any of 23 platforms supported).
 scrape-creators-pp-cli tiktok profile mrbeast --json
 
-
 # Persist tiktok resources to local SQLite (use --resources for any platform).
 scrape-creators-pp-cli sync --resources tiktok
 
-
 # FTS5 across every synced transcript, offline.
 scrape-creators-pp-cli transcripts search "giveaway" --json
-
 
 # Unified Facebook + Google + LinkedIn ad library search.
 scrape-creators-pp-cli ads search "Liquid Death" --json
@@ -402,7 +420,6 @@ Scrape YouTube channels, videos, and more
 - **`scrape-creators-pp-cli youtube list-video-3`** - Retrieves the captions, subtitles, or transcript of a YouTube video or short. Returns both a timestamped transcript array with start/end times and a plain-text version in transcript_only_text. Supports specifying a language code. Note: the video must be under 2 minutes for transcript extraction to work.
 - **`scrape-creators-pp-cli youtube list-video-4`** - Fetches replies to a specific comment on a YouTube video, including each reply's text content, author details (name, channel ID, avatar, verified/creator status), like count, and publish date. Requires a continuationToken obtained from the 'repliesContinuationToken' field on comments returned by the Comments endpoint. Supports paginating through additional replies with the continuationToken returned in each response.
 
-
 ## Output Formats
 
 ```bash
@@ -462,29 +479,6 @@ claude mcp add scrape-creators scrape-creators-pp-mcp -e SCRAPE_CREATORS_API_KEY
 ```
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-scrape-creators --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-scrape-creators --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-scrape-creators skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-scrape-creators. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 

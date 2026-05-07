@@ -34,6 +34,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/producthunt-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-producthunt --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-producthunt --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-producthunt skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-producthunt. The skill defines how its required CLI can be installed.
+```
+
 ## Authentication
 
 Product Hunt's GraphQL API supports two auth modes; the CLI handles both. Recommended for personal use: visit https://www.producthunt.com/v2/oauth/applications, create an application (the redirect URL field is required by the form but unused for personal-token flow — set it to `https://localhost/callback`), then scroll to the bottom of the app page and click `Create Token` to generate a developer token that never expires. Set `PRODUCT_HUNT_TOKEN=<your-token>` or run `producthunt auth onboard` for an interactive walkthrough. For CI/automation, the alternate mode is OAuth `client_credentials`: set `PRODUCT_HUNT_CLIENT_ID` and `PRODUCT_HUNT_CLIENT_SECRET` from the same app page; the CLI exchanges them for an access token internally and refreshes on 401 (note: under OAuth client_credentials, the `whoami` command returns null because the public scope has no user context). The public Atom feed (`producthunt feed`) needs no token at all.
@@ -44,22 +67,17 @@ Product Hunt's GraphQL API supports two auth modes; the CLI handles both. Recomm
 # Token-free first read — the public Atom feed surfaces the latest 5 launches
 producthunt feed --count 5
 
-
 # Interactive setup for the personal developer token (includes the callback URL trick)
 producthunt auth onboard
-
 
 # Confirms the token works and shows your remaining complexity-points budget
 producthunt doctor
 
-
 # GraphQL-backed snapshot of today's top launches with votes, comments, and topics
 producthunt today
 
-
 # Full detail for a single launch by slug — agent-friendly JSON
 producthunt posts get notion --json
-
 
 # Backfill the local store so trajectories, benchmarks, and offline search work
 producthunt sync --resource posts --posted-after 2026-04-01
@@ -174,7 +192,6 @@ Public Atom feed of featured Product Hunt launches (no auth required)
 
 - **`producthunt-pp-cli feed get`** - Fetch the public Atom feed of recent featured launches; needs no token
 
-
 ## Output Formats
 
 ```bash
@@ -234,29 +251,6 @@ claude mcp add producthunt producthunt-pp-mcp -e PRODUCT_HUNT_TOKEN=<your-token>
 ```
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-producthunt --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-producthunt --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-producthunt skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-producthunt. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 

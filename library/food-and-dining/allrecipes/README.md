@@ -34,6 +34,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/allrecipes-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-allrecipes --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-allrecipes --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-allrecipes skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-allrecipes. The skill defines how its required CLI can be installed.
+```
+
 ## Authentication
 
 Browse and search work without any auth. Recipe detail pages need a Cloudflare clearance cookie — run `allrecipes-pp-cli auth login --chrome` once to capture one from your browser. This is bot-protection clearance, not an Allrecipes account login: no username, no password, no token tied to a user. The CLI does not support saved-recipes / meal-plan / profile features that require an actual Allrecipes account.
@@ -44,18 +67,14 @@ Browse and search work without any auth. Recipe detail pages need a Cloudflare c
 # One-time: capture a Cloudflare clearance cookie from your browser. Required for recipe detail pages.
 allrecipes-pp-cli auth login --chrome
 
-
 # Search the live site; results land in your local cache for offline reuse. Browse/search work without clearance.
 allrecipes-pp-cli search "brownies" --limit 5 --agent
-
 
 # Fetch a full recipe as parsed JSON-LD; --select narrows the payload.
 allrecipes-pp-cli recipe https://www.allrecipes.com/recipe/9599/quick-and-easy-brownies/ --agent --select recipeIngredient,totalTime,aggregateRating
 
-
 # Rescale ingredients by servings.
 allrecipes-pp-cli scale https://www.allrecipes.com/recipe/9599/quick-and-easy-brownies/ --servings 16
-
 
 # Match cached recipes against what you already have.
 allrecipes-pp-cli pantry --pantry-file ~/pantry.txt --query chicken --agent
@@ -271,29 +290,6 @@ claude mcp add allrecipes allrecipes-pp-mcp
 ```
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-allrecipes --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-allrecipes --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-allrecipes skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-allrecipes. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 

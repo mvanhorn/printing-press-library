@@ -77,6 +77,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/company-goat-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-company-goat --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-company-goat --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-company-goat skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-company-goat. The skill defines how its required CLI can be installed.
+```
+
 ## Authentication
 
 No API keys required for the killer feature. Optional GITHUB_TOKEN raises engineering-signal rate limits from 60/hr to 5000/hr (works with `gh auth token`). Optional COMPANIES_HOUSE_API_KEY enables UK legal entity lookup; without it, `legal --region uk` prints setup instructions and other commands work normally.
@@ -175,7 +198,6 @@ SEC EDGAR Form D filings — the primary data source for US private fundraising 
 
 - **`company-goat-pp-cli filings list`** - Fetch all SEC submissions for a given CIK (Central Index Key). Used as the seed call when resolving a company's filing history.
 
-
 ## Output Formats
 
 ```bash
@@ -235,29 +257,6 @@ claude mcp add company-goat company-goat-pp-mcp
 ```
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-company-goat --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-company-goat --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-company-goat skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-company-goat. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 

@@ -6,29 +6,6 @@ Most PokéAPI clients cache one request at a time. This CLI syncs the entire dat
 
 Learn more at [PokéAPI](https://pokeapi.co/docs/v2).
 
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-pokeapi --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-pokeapi --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-pokeapi skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-pokeapi. The skill defines how its required CLI can be installed.
-```
-
 ## Install
 
 The recommended path installs both the `pokeapi-pp-cli` binary and the `pp-pokeapi` agent skill in one shot:
@@ -57,6 +34,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/pokeapi-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-pokeapi --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-pokeapi --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-pokeapi skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-pokeapi. The skill defines how its required CLI can be installed.
+```
+
 ## Authentication
 
 PokéAPI is a public, read-only API. No keys, no tokens, no login. Run `pokeapi-pp-cli sync` once and you have the whole Pokédex on disk.
@@ -67,18 +67,14 @@ PokéAPI is a public, read-only API. No keys, no tokens, no login. Run `pokeapi-
 # First — fetch every resource into the local SQLite store. Takes a few minutes; you only do this once per release of the API.
 pokeapi-pp-cli sync
 
-
 # Core agent-friendly profile: types, abilities, stats, key moves — one local query.
 pokeapi-pp-cli pokemon profile pikachu --json
-
 
 # Build a balanced team starting from a partial roster. Selects only the high-gravity fields.
 pokeapi-pp-cli team suggest pikachu,charizard --slots 6 --json --select name,types,score
 
-
 # Reverse search by effect — moves that paralyze a Steel-type. The live API can't do this in any single call.
 pokeapi-pp-cli move find --effect paralyze --type-target steel --json
-
 
 # Damage calculator — expected damage range factoring in STAB, type effectiveness, level, and stats.
 pokeapi-pp-cli damage charizard blastoise hydro-pump --json
@@ -533,7 +529,6 @@ Manage version group
 
 - **`pokeapi-pp-cli version-group list`** - Version groups categorize highly similar versions of the games.
 - **`pokeapi-pp-cli version-group retrieve`** - Version groups categorize highly similar versions of the games.
-
 
 ## Output Formats
 

@@ -34,6 +34,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/apartments-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-apartments --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-apartments --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-apartments skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-apartments. The skill defines how its required CLI can be installed.
+```
+
 ## Authentication
 
 No authentication required. Apartments.com's anonymous search and listing pages are the entire API surface this CLI uses; saved-search login (cookie session) is intentionally out of scope. Surf with Chrome TLS fingerprint clears the Akamai-style protection at runtime — no clearance cookie capture, no resident browser.
@@ -44,18 +67,14 @@ No authentication required. Apartments.com's anonymous search and listing pages 
 # First search — verifies Surf transport clears protection and JSON output is well-formed.
 apartments-pp-cli rentals --city austin --state TX --beds 2 --price-max 2500 --pets dog --json
 
-
 # Persist that search to the local store under the slug 'austin-2br' so transcendence commands can read it.
 apartments-pp-cli sync-search austin-2br --city austin --state TX --beds 2 --price-max 2500 --pets dog
-
 
 # Rank the synced listings by $/sqft — the ratio metric apartments.com's sort omits.
 apartments-pp-cli rank --by sqft --beds 2 --price-max 2500 --json --limit 10
 
-
 # After a few days, run this — `watch` diffs against the previous sync and emits NEW / REMOVED / PRICE-CHANGED sets.
 apartments-pp-cli watch austin-2br --since 7d --json
-
 
 # The Monday-morning digest: new + removed + price drops + top-by-$/sqft + stale + phantoms in one structured output.
 apartments-pp-cli digest --saved-search austin-2br --since 7d --format md
@@ -237,7 +256,6 @@ Run `apartments-pp-cli --help` for the full command reference and flag list.
 | `feedback` | Record feedback about this CLI (local by default; upstream opt-in). |
 | `version` | Print version. |
 
-
 ## Cookbook
 
 Recipes use verified flag names and the local store. Run `apartments-pp-cli sync-search <slug> --city <city> --state <st>` once before any "synced data" recipe.
@@ -360,29 +378,6 @@ claude mcp add apartments apartments-pp-mcp
 ```
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-apartments --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-apartments --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-apartments skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-apartments. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 

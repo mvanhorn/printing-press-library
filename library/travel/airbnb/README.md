@@ -36,6 +36,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/airbnb-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-airbnb --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-airbnb --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-airbnb skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-airbnb. The skill defines how its required CLI can be installed.
+```
+
 ## Authentication
 
 Public search and listing detail need no auth. Authenticated features (Airbnb wishlists, trip history) use cookie import via auth login --chrome. The web-search backend is pluggable: Parallel.ai (paid, best), DuckDuckGo HTML (free default), Brave Search API (free tier), or Tavily (free tier).
@@ -46,18 +69,14 @@ Public search and listing detail need no auth. Authenticated features (Airbnb wi
 # Verify reachability and which search backend is active.
 airbnb-pp-cli doctor
 
-
 # Find listings on Airbnb.
 airbnb-pp-cli airbnb search 'Lake Tahoe' --checkin 2026-05-16 --checkout 2026-05-19 --guests 4
-
 
 # Same query, VRBO side.
 airbnb-pp-cli vrbo search 'Lake Tahoe' --checkin 2026-05-16 --checkout 2026-05-19 --guests 4
 
-
 # The headline command. Find the host's direct booking site and the cheapest of three sources.
 airbnb-pp-cli cheapest 'https://www.airbnb.com/rooms/37124493?check_in=2026-05-16&check_out=2026-05-19'
-
 
 # One call: search both platforms, find direct sites, return ranked-by-savings list.
 airbnb-pp-cli plan 'Lake Tahoe' --checkin 2026-05-16 --checkout 2026-05-19 --guests 4 --budget 1500
@@ -171,7 +190,6 @@ VRBO listings (search and detail) via /graphql with Akamai warmup pattern.
 - **`airbnb-pp-cli vrbo_listing get`** - Get full VRBO property detail via the propertyDetail GraphQL operation (operation name discovered at runtime). Falls back to __PLUGIN_STATE__ SSR scrape for basic fields.
 - **`airbnb-pp-cli vrbo_listing search`** - Search VRBO properties via the propertySearch GraphQL operation. Uses Akamai warmup (GET / first, wait 1.5s, then POST).
 
-
 ## Output Formats
 
 ```bash
@@ -247,29 +265,6 @@ claude mcp add airbnb-pp airbnb-pp-mcp
 ```
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-airbnb --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-airbnb --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-airbnb skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-airbnb. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 

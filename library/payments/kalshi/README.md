@@ -32,6 +32,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/kalshi-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-kalshi --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-kalshi --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-kalshi skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-kalshi. The skill defines how its required CLI can be installed.
+```
+
 ## Authentication
 
 Kalshi requires composed RSA-PSS signature auth: a UUID access key id (KALSHI_API_KEY) plus an RSA private key file (KALSHI_PRIVATE_KEY_PATH or KALSHI_PRIVATE_KEY). Kalshi issues two key tiers — read-only and read/write — and the CLI honors KALSHI_READ_ONLY=1 (or --read-only) as a client-side lock that blocks every POST/PUT/PATCH/DELETE before signing, regardless of which tier is loaded. Write commands run against a read-only key will surface a 403 from Kalshi; pair with --dry-run while debugging.
@@ -42,18 +65,14 @@ Kalshi requires composed RSA-PSS signature auth: a UUID access key id (KALSHI_AP
 # verify your key id + private key are loaded; reports configured/source
 kalshi-pp-cli auth status
 
-
 # populate the local SQLite store including the market_price_history snapshot table
 kalshi-pp-cli sync
-
 
 # browse open markets from the live API (sync first for offline filtering)
 kalshi-pp-cli markets get --status open --limit 10 --json
 
-
 # render the captured price history with an inline sparkline
 kalshi-pp-cli markets history KXPRES-2028-DJT --sparkline
-
 
 # compute realized P&L by Kalshi taxonomy
 kalshi-pp-cli portfolio attribution --by category --since 2026-01-01 --json
@@ -284,7 +303,6 @@ Structured targets endpoints
 - **`kalshi-pp-cli structured-targets get`** - Page size (min: 1, max: 2000)
 - **`kalshi-pp-cli structured-targets get-structuredtargets`** - Endpoint for getting data about a specific structured target by its ID.
 
-
 ## Output Formats
 
 ```bash
@@ -346,29 +364,6 @@ claude mcp add kalshi kalshi-pp-mcp -e KALSHI_API_KEY=<your-key>
 ```
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-kalshi --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-kalshi --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-kalshi skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-kalshi. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 

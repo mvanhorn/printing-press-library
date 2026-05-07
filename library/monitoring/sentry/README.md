@@ -34,6 +34,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/sentry-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-sentry --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-sentry --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-sentry skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-sentry. The skill defines how its required CLI can be installed.
+```
+
 ## Authentication
 
 Set SENTRY_AUTH_TOKEN to a Sentry user or organization token with read scopes such as org:read, project:read, and event:read. Set SENTRY_REGION=de for EU-region SaaS organizations, or configure the base URL for self-hosted Sentry if supported by the generated config.
@@ -44,18 +67,14 @@ Set SENTRY_AUTH_TOKEN to a Sentry user or organization token with read scopes su
 # Confirm token and API reachability before running endpoint commands.
 sentry-pp-cli doctor --json
 
-
 # Find the organization slug used by most Sentry API calls.
 sentry-pp-cli organizations list --json --select slug,name
-
 
 # List projects once you know the organization slug.
 sentry-pp-cli organizations projects list-an-organization-s my-org --json --select slug,name
 
-
 # Start incident triage with organization issues.
 sentry-pp-cli organizations issues list-an-organization-s my-org --json --select shortId,title,count,userCount
-
 
 # Search synced local data when you need offline or repeated context.
 sentry-pp-cli search timeout --json --select title,url,resource
@@ -132,7 +151,6 @@ eg. `us.sentry.io` or `de.sentry.io`
 
 Manage sentry app installations
 
-
 ### sentry-apps
 
 Manage sentry apps
@@ -152,7 +170,6 @@ immediate. Teams will have their slug released while waiting for deletion.
 - **`sentry-pp-cli teams retrieve-a`** - Return details on an individual team.
 - **`sentry-pp-cli teams update-a`** - Update various attributes and configurable settings for the given
 team.
-
 
 ## Output Formats
 
@@ -215,29 +232,6 @@ claude mcp add sentry sentry-pp-mcp -e SENTRY_AUTH_TOKEN=<your-token>
 ```
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-sentry --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-sentry --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-sentry skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-sentry. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 

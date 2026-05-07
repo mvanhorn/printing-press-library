@@ -4,29 +4,6 @@ Safe v1 CLI and MCP server for confirmed TikTok Shop Seller APIs.
 
 This package intentionally exposes a conservative surface based only on official TikTok Shop Partner Center docs: auth readiness, token exchange and refresh, shop discovery, read-only orders, products, inventory search, fulfillment packages, and warehouses. Inventory update is documented as confirmed but remains deferred until idempotency, retry, and operator-confirmation safety are designed.
 
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-tiktok-shop --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-tiktok-shop --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-tiktok-shop skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-tiktok-shop. The skill defines how its required CLI can be installed.
-```
-
 ## Install
 
 The recommended path installs both the `tiktok-shop-pp-cli` binary and the `pp-tiktok-shop` agent skill in one shot:
@@ -54,6 +31,29 @@ This installs the CLI only — no skill.
 ### Pre-built binary
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/tiktok-shop-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
+
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-tiktok-shop --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-tiktok-shop --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-tiktok-shop skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-tiktok-shop. The skill defines how its required CLI can be installed.
+```
 
 ## Configure
 

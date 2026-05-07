@@ -32,6 +32,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/pagliacci-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-pagliacci --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-pagliacci --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-pagliacci skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-pagliacci. The skill defines how its required CLI can be installed.
+```
+
 ## Authentication
 
 Pagliacci has no public API and uses a custom composed `PagliacciAuth {customerId}|{authToken}` header constructed from cookies. Run `pagliacci-pp-cli auth login --chrome` while logged into pagliacci.com in Chrome — the CLI reads the auth cookies and constructs the header for you. Public commands (menu, stores, slices, time-windows) work without login; authenticated commands (order history, rewards, saved addresses) require the Chrome session.
@@ -42,18 +65,14 @@ Pagliacci has no public API and uses a custom composed `PagliacciAuth {customerI
 # Log in by reading cookies from your active Chrome session
 pagliacci-pp-cli auth login --chrome
 
-
 # Sync stores, menu, slices, orders, rewards into the local SQLite store
 pagliacci-pp-cli sync --full
-
 
 # See what slices are available right now across every Seattle store
 pagliacci-pp-cli slices today --agent
 
-
 # Plan a small-party order: store, time slot, cart contents, best discount
 pagliacci-pp-cli orders plan --people 6 --address-label home --json
-
 
 # Re-create the household's last order as a priced cart, without sending
 pagliacci-pp-cli orders reorder --last --dry-run
@@ -253,7 +272,6 @@ System information and announcements
 
 - **`pagliacci-pp-cli system site_wide_message`** - Get site-wide announcement banner text (closures, holiday hours, etc.)
 - **`pagliacci-pp-cli system version`** - Get the current API version
-
 
 ## Output Formats
 
@@ -469,29 +487,6 @@ claude mcp add pagliacci pagliacci-pp-mcp
 ```
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-pagliacci --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-pagliacci --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-pagliacci skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-pagliacci. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 

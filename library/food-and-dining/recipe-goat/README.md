@@ -30,6 +30,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/recipe-goat-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-recipe-goat --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-recipe-goat --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-recipe-goat skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-recipe-goat. The skill defines how its required CLI can be installed.
+```
+
 ## Quick Start
 
 ### 1. Install
@@ -73,7 +96,6 @@ USDA FoodData Central — ingredient nutrition lookups
 - **`recipe-goat-pp-cli foods get`** - Get a specific food by FDC ID
 - **`recipe-goat-pp-cli foods list`** - List foods paginated
 - **`recipe-goat-pp-cli foods search`** - Search USDA FoodData Central for foods matching a query
-
 
 ## Output Formats
 
@@ -134,29 +156,6 @@ claude mcp add recipe-goat recipe-goat-pp-mcp -e USDA_FDC_API_KEY=<your-key>
 ```
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-recipe-goat --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-recipe-goat --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-recipe-goat skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-recipe-goat. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 

@@ -34,6 +34,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/postman-explore-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-postman-explore --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-postman-explore --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-postman-explore skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-postman-explore. The skill defines how its required CLI can be installed.
+```
+
 ## Authentication
 
 No authentication required. The CLI uses a Surf HTTP transport with Chrome TLS fingerprinting to clear Cloudflare's HTML challenge gate; the proxy API itself is open.
@@ -44,22 +67,17 @@ No authentication required. The CLI uses a Surf HTTP transport with Chrome TLS f
 # Confirm reachability and see network-wide entity counts in one call.
 postman-explore-pp-cli networkentity get-network-entity-counts
 
-
 # Populate the local store so search, top, drift, canonical, and publishers all work offline.
 postman-explore-pp-cli sync --all-types --limit 200
-
 
 # The headline command — the best community Postman Collection for a known vendor.
 postman-explore-pp-cli canonical stripe
 
-
 # Trend ranking by metric, narrowed to a category.
 postman-explore-pp-cli top --metric weekForkCount --type collection --category payments --limit 5 --json
 
-
 # Compare publishers across a category by aggregate fork count.
 postman-explore-pp-cli publishers top --category developer-productivity --limit 5
-
 
 # What changed on the network this week?
 postman-explore-pp-cli drift --since 7d --type collection
@@ -191,7 +209,6 @@ For full workspace listing use `/v1/api/team?publicHandle=`.
 its `publicHandle` (e.g., `stripedev`, `salesforce-developers`,
 `meta`). Use `/v1/api/networkentity/{id}` for individual entity detail.
 
-
 ## Output Formats
 
 ```bash
@@ -251,29 +268,6 @@ claude mcp add postman-explore postman-explore-pp-mcp
 ```
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-postman-explore --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-postman-explore --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-postman-explore skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-postman-explore. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 

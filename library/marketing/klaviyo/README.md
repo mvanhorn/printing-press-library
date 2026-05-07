@@ -34,6 +34,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/klaviyo-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-klaviyo --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-klaviyo --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-klaviyo skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-klaviyo. The skill defines how its required CLI can be installed.
+```
+
 ## Authentication
 
 Set KLAVIYO_API_KEY to a private Klaviyo API key. Requests send Authorization: Klaviyo-API-Key <token> and use the revision pinned by the generated OpenAPI spec.
@@ -44,14 +67,11 @@ Set KLAVIYO_API_KEY to a private Klaviyo API key. Requests send Authorization: K
 # Check that KLAVIYO_API_KEY is present and accepted.
 klaviyo-pp-cli auth doctor
 
-
 # Fetch one profile and keep the response small for agents.
 klaviyo-pp-cli profiles list --limit 1 --json --select data.id,data.email
 
-
 # Populate local metric data for search and analytics.
 klaviyo-pp-cli sync metrics
-
 
 # Use the local mirror for a compound revenue view.
 klaviyo-pp-cli attribution --metric "Placed Order" --group-by flow --since 2026-01-01 --json
@@ -1681,7 +1701,6 @@ webhooks
 **Scopes:**
 `webhooks:write`
 
-
 ## Output Formats
 
 ```bash
@@ -1743,29 +1762,6 @@ claude mcp add klaviyo klaviyo-pp-mcp -e KLAVIYO_API_KEY=<your-key>
 ```
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-klaviyo --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-klaviyo --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-klaviyo skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-klaviyo. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 

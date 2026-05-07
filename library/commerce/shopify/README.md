@@ -4,29 +4,6 @@ Ecommerce orders, products, customers, inventory, fulfillment orders, and bulk o
 
 Learn more at [Shopify](https://shopify.dev/docs/api/admin-graphql).
 
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-shopify --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-shopify --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-shopify skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-shopify. The skill defines how its required CLI can be installed.
-```
-
 ## Install
 
 The recommended path installs both the `shopify-pp-cli` binary and the `pp-shopify` agent skill in one shot:
@@ -54,6 +31,29 @@ This installs the CLI only — no skill.
 ### Pre-built binary
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/shopify-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
+
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-shopify --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-shopify --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-shopify skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-shopify. The skill defines how its required CLI can be installed.
+```
 
 ## Quick Start
 

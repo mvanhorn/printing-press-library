@@ -24,29 +24,6 @@ This CLI combines:
 - derived workflows like `digest`, `compare`, `sparkline`, `fx`, and filtered `options-chain`
 - a Chrome-session import fallback when Yahoo blocks the automatic crumb bootstrap from your IP
 
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-yahoo-finance --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-yahoo-finance --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-yahoo-finance skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-yahoo-finance. The skill defines how its required CLI can be installed.
-```
-
 ## Install
 
 The recommended path installs both the `yahoo-finance-pp-cli` binary and the `pp-yahoo-finance` agent skill in one shot:
@@ -74,6 +51,29 @@ This installs the CLI only — no skill.
 ### Pre-built binary
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/yahoo-finance-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
+
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-yahoo-finance --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-yahoo-finance --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-yahoo-finance skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-yahoo-finance. The skill defines how its required CLI can be installed.
+```
 
 ## Session Bootstrap
 

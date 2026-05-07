@@ -250,29 +250,6 @@ available for offline reads.
   top result may not match your intent. Use `instacart search` first to see
   the ranked list, then pass `--item-id` to `add` for precision.
 
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-instacart --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-instacart --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-instacart skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-instacart. The skill defines how its required CLI can be installed.
-```
-
 ## Install
 
 The recommended path installs both the `instacart-pp-cli` binary and the `pp-instacart` agent skill in one shot:
@@ -300,4 +277,28 @@ This installs the CLI only — no skill.
 ### Pre-built binary
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/instacart-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
+
+
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-instacart --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-instacart --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-instacart skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-instacart. The skill defines how its required CLI can be installed.
+```
 

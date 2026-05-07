@@ -34,6 +34,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/cal-com-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-cal-com --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-cal-com --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-cal-com skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-cal-com. The skill defines how its required CLI can be installed.
+```
+
 ## Authentication
 
 Cal.com uses bearer tokens prefixed with `cal_live_` (live) or `cal_test_` (test). Set `CAL_COM_TOKEN` in your environment, or run `auth set-token` once. The CLI also accepts managed-user access tokens and OAuth access tokens through the same Authorization header. Per-resource API-version pinning via `cal-api-version` is handled automatically by the client.
@@ -44,22 +67,17 @@ Cal.com uses bearer tokens prefixed with `cal_live_` (live) or `cal_test_` (test
 # Confirm CAL_COM_TOKEN is loaded; use auth set-token <token> to save one to the config
 cal-com-pp-cli auth status
 
-
 # Confirm the token works against /v2/me
 cal-com-pp-cli doctor
-
 
 # Pull bookings, event types, schedules, teams, and webhooks into the local store
 cal-com-pp-cli sync
 
-
 # See today's bookings without an API call
 cal-com-pp-cli agenda --window today --json
 
-
 # Fan out the slot search across event-type IDs
 cal-com-pp-cli slots find --event-type-ids 96531 --start tomorrow --end "tomorrow 23:59" --json
-
 
 # Compose slot check + reservation + create + confirm in one call
 cal-com-pp-cli book --event-type-id 96531 --start 2026-05-06T17:00:00Z --attendee-name Guest --attendee-email guest@example.com --dry-run
@@ -445,7 +463,6 @@ Manage notifications
 
 Manage oauth
 
-
 ### oauth-clients
 
 Manage oauth clients
@@ -460,11 +477,9 @@ Manage oauth clients
 
 Manage organizations
 
-
 ### routing-forms
 
 Manage routing forms
-
 
 ### schedules
 
@@ -596,7 +611,6 @@ Manage webhooks
 - **`cal-com-pp-cli webhooks get-webhookid`** - If accessed using an OAuth access token, the `WEBHOOK_READ` scope is required.
 - **`cal-com-pp-cli webhooks update`** - If accessed using an OAuth access token, the `WEBHOOK_WRITE` scope is required.
 
-
 ## Output Formats
 
 ```bash
@@ -658,29 +672,6 @@ claude mcp add cal-com cal-com-pp-mcp -e CAL_COM_TOKEN=<your-token>
 ```
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-cal-com --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-cal-com --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-cal-com skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-cal-com. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 

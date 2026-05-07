@@ -32,6 +32,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/dominos-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-dominos --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-dominos --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-dominos skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-dominos. The skill defines how its required CLI can be installed.
+```
+
 ## Authentication
 
 Most commands work without authentication: store locator, menu browse, cart building, anonymous order placement, and tracking-by-phone all succeed unauthenticated. For loyalty rewards, member-exclusive deals, and order history, run `dominos-pp-cli auth login` — it spawns a Chrome window pointed at dominos.com sign-in, waits for you to complete a normal login (handles captcha and 2FA), then reads the bearer token from sessionStorage and saves it to `~/.config/dominos-pp-cli/config.toml`. The token persists until Domino's expires it (~1 hour). Run `auth status` to confirm; `auth logout` to clear.
@@ -80,7 +103,6 @@ dominos-pp-cli track --phone 2065551234 --watch --interval 30s
 dominos-pp-cli order-quick --template friday-night --json
 dominos-pp-cli order-quick --template friday-night --confirm --eta-watch --json
 ```
-
 
 ## Unique Features
 
@@ -211,7 +233,6 @@ Track active orders
 
 - **`dominos-pp-cli tracking track`** - Track an order by phone number
 
-
 ## Output Formats
 
 ```bash
@@ -272,29 +293,6 @@ claude mcp add dominos dominos-pp-mcp -e DOMINOS_USERNAME=<your-token>
 ```
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-dominos --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-dominos --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-dominos skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-dominos. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 

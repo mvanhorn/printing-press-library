@@ -34,6 +34,29 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/fedex-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-fedex --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-fedex --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-fedex skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-fedex. The skill defines how its required CLI can be installed.
+```
+
 ## Authentication
 
 FedEx uses OAuth2 client_credentials. Run `fedex auth login` once with your sandbox or production Client ID and Client Secret; the CLI mints a 1-hour bearer token, caches it on disk, and refreshes proactively before expiry. Production label printing requires per-project Bar Code Analysis Group (BAG) approval from FedEx — `fedex doctor` surfaces approval status before you hit it.
@@ -44,18 +67,14 @@ FedEx uses OAuth2 client_credentials. Run `fedex auth login` once with your sand
 # Mint a bearer token from FedEx OAuth2 client_credentials and cache it
 fedex auth login --client-id $FEDEX_API_KEY --client-secret $FEDEX_SECRET_KEY --env sandbox
 
-
 # Verify auth, sandbox/prod routing, and surface any BAG approval gaps before you hit them at ship-time
 fedex doctor
-
 
 # Compare every applicable service type ranked by cost — the most useful one-liner this CLI offers
 fedex rate shop --from 90210 --to 10001 --weight 5lb --json --select rates.serviceType,rates.totalNetCharge
 
-
 # Save a recipient to the local address book so you do not retype it for every shipment
 fedex address save --name acme --street '500 Main St' --city Denver --state CO --zip 80202 --country US
-
 
 # Batch-create labels with adaptive rate limiting; resumable on partial failure
 fedex ship bulk --csv orders.csv --service GROUND --resume
@@ -294,7 +313,6 @@ Track shipments by tracking number, reference, TCN, or associated shipment; retr
 - **`fedex-pp-cli track reference`** - Track by reference number (PO/customer ref/RMA)
 - **`fedex-pp-cli track tcn`** - Track by Transportation Control Number (military/government use)
 
-
 ## Cookbook
 
 Patterns combining multiple commands to solve real shipping workflows.
@@ -476,29 +494,6 @@ claude mcp add fedex fedex-pp-mcp -e FEDEX_API_KEY=<your-token>
 ```
 
 </details>
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-fedex --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-fedex --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-fedex skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-fedex. The skill defines how its required CLI can be installed.
-```
 
 ## Use with Claude Desktop
 
