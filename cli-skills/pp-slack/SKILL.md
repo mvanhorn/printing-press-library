@@ -1,6 +1,9 @@
 ---
 name: pp-slack
 description: "Slack workspace CLI for the terminal. Send messages, search channels and DMs, list conversations, get user/bot/emoji info, analyze channel health, find stale threads, and sync the workspace locally for fast offline queries. Two auth surfaces coexist: SLACK_BOT_TOKEN (xoxb-, for workspace-wide read + post) and SLACK_USER_TOKEN (xoxp-, for user-scoped actions like DM history or search). Use when the user asks to send a Slack message, search Slack, check channel activity, summarize a digest, find who's on a team, find stale threads, analyze channel health, list users / emoji / reminders / pinned items, or wants offline-capable Slack queries."
+version: "1.2.1"
+author: "Matt Van Horn"
+license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata:
@@ -8,9 +11,6 @@ metadata:
     requires:
       bins:
         - slack-pp-cli
-      env:
-        - SLACK_BOT_TOKEN
-    primaryEnv: SLACK_BOT_TOKEN
     install:
       - kind: go
         bins: [slack-pp-cli]
@@ -19,7 +19,24 @@ metadata:
 
 # Slack - Printing Press CLI
 
-Send messages, search conversations, monitor channels, and manage your Slack workspace from the terminal. Pairs live-API calls with a local SQLite sync so read-heavy analytics (activity trends, stale threads, channel health) run offline without burning your rate limit.
+## Prerequisites: Install the CLI
+
+This skill drives the `slack-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+
+1. Install via the Printing Press installer:
+   ```bash
+   npx -y @mvanhorn/printing-press install slack --cli-only
+   ```
+2. Verify: `slack-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/productivity/slack/cmd/slack-pp-cli@latest
+```
+
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 
@@ -54,24 +71,6 @@ Parse `$ARGUMENTS`:
 1. **Empty, `help`, or `--help`** -> show `slack-pp-cli --help`
 2. **Starts with `install`** -> ends with `mcp` -> MCP installation; otherwise -> CLI installation
 3. **Anything else** -> Direct Use (map to the best command and run it)
-
-## CLI Installation
-
-1. Check Go is installed: `go version` (requires Go 1.23+).
-2. Install:
-   ```bash
-   go install github.com/mvanhorn/printing-press-library/library/productivity/slack/cmd/slack-pp-cli@latest
-   ```
-3. Verify: `slack-pp-cli --version`.
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
-5. Auth setup:
-   ```bash
-   export SLACK_BOT_TOKEN="xoxb-..."
-   # optional, enables user-scoped endpoints (DM history, search-as-user):
-   export SLACK_USER_TOKEN="xoxp-..."
-   ```
-6. Verify: `slack-pp-cli doctor` reports token status and workspace identity.
-
 ## MCP Server Installation
 
 The CLI also ships an MCP server at `slack-pp-mcp`. Install and register:

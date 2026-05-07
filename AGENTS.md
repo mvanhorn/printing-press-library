@@ -183,6 +183,12 @@ Known pitfalls the verifier handles:
 - A subcommand sharing a leaf name with a top-level command (e.g. `profile save` vs. top-level `save`) — resolved via `rootCmd.AddCommand` lookup + constructor naming convention (`new{Parent1}{Parent2}{Leaf}Cmd`).
 - `$(...)` command substitution in recipes can look like positional args — reported as `[likely false positive]` and not blocking.
 
+**Watch out for: external-tool flags embedded in SKILL.md install instructions.** Every `--flag` token anywhere in SKILL.md is checked against the printed CLI's source. SKILL.md sometimes embeds install commands from *other* tools (the `npx -y @mvanhorn/printing-press install ... --cli-only` line in the Prerequisites section, `hermes skills install ... --force`, `claude mcp add`, `go install`, etc.) whose flags don't exist in the printed CLI's `internal/cli/*.go`. The verifier's `COMMON_FLAGS` set in `.github/scripts/verify-skill/verify_skill.py` is the allowlist of flags that don't need a CLI-source declaration.
+
+**When you add a new install/usage instruction to SKILL.md that introduces a new `--flag`, add it to `COMMON_FLAGS` in the same change.** Otherwise the verifier will fail across every CLI on the next regen with `[flag-names] (any): --your-flag is referenced in SKILL.md but not declared in any internal/cli/*.go`. Currently allowlisted external flags: `cli-only`, `skill-only`, `registry-url` (npm installer), `force` (hermes).
+
+The check is intentionally broad — it catches typos in real CLI flags by scanning the whole document rather than just bash code blocks. The tradeoff is that external-tool flags need explicit allowlisting.
+
 ## Preflight before opening a PR
 
 The following checks run in CI on every PR. Run them locally first; CI failures on these are slow-feedback (~minutes per push) and routinely catch the same drift you can catch in seconds.

@@ -1,6 +1,9 @@
 ---
 name: pp-trigger-dev
 description: "Trigger.dev background-job monitoring and observability from the terminal. List runs, analyze failures, watch live for failures, inspect queues, schedules, deployments, batches, cost by task, and task health. Use when the user wants to check Trigger.dev status, find failing tasks, watch runs live, audit schedules, look up a specific run, compare cost across tasks or machine types, or debug a stuck batch. Offline search via local SQLite sync."
+version: "1.2.1"
+author: "Matt Van Horn"
+license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata:
@@ -8,9 +11,6 @@ metadata:
     requires:
       bins:
         - trigger-dev-pp-cli
-      env:
-        - TRIGGER_SECRET_KEY
-    primaryEnv: TRIGGER_SECRET_KEY
     install:
       - kind: go
         bins: [trigger-dev-pp-cli]
@@ -19,7 +19,24 @@ metadata:
 
 # Trigger.dev - Printing Press CLI
 
-Monitor runs, trigger tasks, manage schedules, and detect failures via the Trigger.dev API. The CLI pairs live API calls with a local SQLite sync so failure analysis and cost breakdowns run fast across large run histories.
+## Prerequisites: Install the CLI
+
+This skill drives the `trigger-dev-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+
+1. Install via the Printing Press installer:
+   ```bash
+   npx -y @mvanhorn/printing-press install trigger-dev --cli-only
+   ```
+2. Verify: `trigger-dev-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/trigger-dev/cmd/trigger-dev-pp-cli@latest
+```
+
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 
@@ -44,25 +61,6 @@ Parse `$ARGUMENTS`:
 1. **Empty, `help`, or `--help`** -> show `trigger-dev-pp-cli --help`
 2. **Starts with `install`** -> ends with `mcp` -> MCP installation; otherwise -> CLI installation
 3. **Anything else** -> Direct Use (map to the best command and run it)
-
-## CLI Installation
-
-1. Check Go is installed: `go version` (requires Go 1.23+).
-2. Install:
-   ```bash
-   go install github.com/mvanhorn/printing-press-library/library/developer-tools/trigger-dev/cmd/trigger-dev-pp-cli@latest
-   ```
-3. Verify: `trigger-dev-pp-cli --version`.
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
-5. Auth setup (project-scoped secret key):
-   ```bash
-   export TRIGGER_SECRET_KEY="tr_dev_..."    # or tr_prod_... for production
-   # Alternative (older deployments):
-   export TRIGGER_DEV_API_KEY="..."
-   ```
-   Create a project API key at https://cloud.trigger.dev/projects/<project>/settings/api-keys.
-6. Verify: `trigger-dev-pp-cli doctor` reports key status and project identity.
-
 ## MCP Server Installation
 
 The CLI ships an MCP server at `trigger-dev-pp-mcp`:

@@ -1,6 +1,9 @@
 ---
 name: pp-producthunt
 description: "Read Product Hunt from your terminal — works token-free for the daily skim, unlocks a launch-day cockpit and a marketer research desk in one onboarding step. Trigger phrases: `what launched on product hunt today`, `find ai launches on product hunt this week`, `how is my product hunt launch tracking`, `compare these product hunt launches`, `summarize the comments on this product hunt post`, `what does a good product hunt launch look like at hour 6`, `use producthunt`, `run producthunt`."
+version: "3.2.1"
+author: "Trevin Chow"
+license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata:
@@ -16,7 +19,24 @@ metadata:
 
 # Product Hunt — Printing Press CLI
 
-A two-tier CLI for Product Hunt. The public Atom feed works with zero setup. A single `producthunt auth onboard` walks you through generating a free personal developer token (callback-URL trick included) to unlock the full GraphQL surface — posts, topics, collections, comments, viewer — plus the launch-day cockpit (trajectories, benchmarks, side-by-side compare, comment question-triage) and the marketer research desk (category snapshot, brand-mention grep, lookalike, launch calendar) that PH's UI has never offered.
+## Prerequisites: Install the CLI
+
+This skill drives the `producthunt-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+
+1. Install via the Printing Press installer:
+   ```bash
+   npx -y @mvanhorn/printing-press install producthunt --cli-only
+   ```
+2. Verify: `producthunt-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/marketing/producthunt/cmd/producthunt-pp-cli@latest
+```
+
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 
@@ -319,19 +339,8 @@ Explicit flags always win over profile values; profile values win over defaults.
 Parse `$ARGUMENTS`:
 
 1. **Empty, `help`, or `--help`** → show `producthunt-pp-cli --help` output
-2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → CLI installation
+2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → see Prerequisites above
 3. **Anything else** → Direct Use (execute as CLI command with `--agent`)
-
-## CLI Installation
-
-1. Check Go is installed: `go version` (requires Go 1.23+)
-2. Install:
-   ```bash
-   go install github.com/mvanhorn/printing-press-library/library/marketing/producthunt/cmd/producthunt-pp-cli@latest
-   ```
-3. Verify: `producthunt-pp-cli --version`
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
-
 ## MCP Server Installation
 
 1. Install the MCP server:
@@ -347,7 +356,7 @@ Parse `$ARGUMENTS`:
 ## Direct Use
 
 1. Check if installed: `which producthunt-pp-cli`
-   If not found, offer to install (see CLI Installation above).
+   If not found, offer to install (see Prerequisites at the top of this skill).
 2. Match the user query to the best command from the Unique Capabilities and Command Reference above.
 3. Execute with the `--agent` flag:
    ```bash

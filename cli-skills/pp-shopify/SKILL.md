@@ -1,6 +1,9 @@
 ---
 name: pp-shopify
 description: "Printing Press CLI for Shopify. Ecommerce orders, products, customers, inventory, fulfillment orders, and bulk operations via the Shopify Admin..."
+version: "3.2.1"
+author: "Cathryn Lavery"
+license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata:
@@ -16,7 +19,24 @@ metadata:
 
 # Shopify — Printing Press CLI
 
-Ecommerce orders, products, customers, inventory, fulfillment orders, and bulk operations via the Shopify Admin GraphQL API.
+## Prerequisites: Install the CLI
+
+This skill drives the `shopify-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+
+1. Install via the Printing Press installer:
+   ```bash
+   npx -y @mvanhorn/printing-press install shopify --cli-only
+   ```
+2. Verify: `shopify-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/commerce/shopify/cmd/shopify-pp-cli@latest
+```
+
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When Not to Use This CLI
 
@@ -189,19 +209,8 @@ Explicit flags always win over profile values; profile values win over defaults.
 Parse `$ARGUMENTS`:
 
 1. **Empty, `help`, or `--help`** → show `shopify-pp-cli --help` output
-2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → CLI installation
+2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → see Prerequisites above
 3. **Anything else** → Direct Use (execute as CLI command with `--agent`)
-
-## CLI Installation
-
-1. Check Go is installed: `go version` (requires Go 1.23+)
-2. Install:
-   ```bash
-   go install github.com/mvanhorn/printing-press-library/library/commerce/shopify/cmd/shopify-pp-cli@latest
-   ```
-3. Verify: `shopify-pp-cli --version`
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
-
 ## MCP Server Installation
 
 1. Install the MCP server:
@@ -217,7 +226,7 @@ Parse `$ARGUMENTS`:
 ## Direct Use
 
 1. Check if installed: `which shopify-pp-cli`
-   If not found, offer to install (see CLI Installation above).
+   If not found, offer to install (see Prerequisites at the top of this skill).
 2. Match the user query to the best command from the Unique Capabilities and Command Reference above.
 3. Execute with the `--agent` flag:
    ```bash

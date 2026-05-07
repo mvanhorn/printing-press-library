@@ -1,6 +1,9 @@
 ---
 name: pp-scrape-creators
 description: "Every Scrape Creators endpoint, plus offline search, cross-platform compounding, and a local store no other Scrape Creators tool ships with. Trigger phrases: `scrape creators`, `tiktok profile`, `instagram profile`, `youtube channel`, `facebook ad library`, `creator on every platform`, `social media transcript search`, `use scrape-creators`, `run scrape-creators`."
+version: "3.2.1"
+author: "Adrian Horning"
+license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata:
@@ -16,7 +19,24 @@ metadata:
 
 # Scrape Creators — Printing Press CLI
 
-Wrap all 114 Scrape Creators endpoints across 23 platforms — TikTok, Instagram, YouTube, Facebook, LinkedIn, Twitter, Reddit, Threads, Bluesky, Pinterest, and more — and add a SQLite-backed store with full-text transcript search, cross-platform presence checks, ad-library unified search, and credit-burn projection. Read-only across the board, agent-native by default, every command a typed MCP tool.
+## Prerequisites: Install the CLI
+
+This skill drives the `scrape-creators-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+
+1. Install via the Printing Press installer:
+   ```bash
+   npx -y @mvanhorn/printing-press install scrape-creators --cli-only
+   ```
+2. Verify: `scrape-creators-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/cmd/scrape-creators-pp-cli@latest
+```
+
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 
@@ -457,19 +477,8 @@ Explicit flags always win over profile values; profile values win over defaults.
 Parse `$ARGUMENTS`:
 
 1. **Empty, `help`, or `--help`** → show `scrape-creators-pp-cli --help` output
-2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → CLI installation
+2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → see Prerequisites above
 3. **Anything else** → Direct Use (execute as CLI command with `--agent`)
-
-## CLI Installation
-
-1. Check Go is installed: `go version` (requires Go 1.23+)
-2. Install:
-   ```bash
-   go install github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/cmd/scrape-creators-pp-cli@latest
-   ```
-3. Verify: `scrape-creators-pp-cli --version`
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
-
 ## MCP Server Installation
 
 1. Install the MCP server:
@@ -485,7 +494,7 @@ Parse `$ARGUMENTS`:
 ## Direct Use
 
 1. Check if installed: `which scrape-creators-pp-cli`
-   If not found, offer to install (see CLI Installation above).
+   If not found, offer to install (see Prerequisites at the top of this skill).
 2. Match the user query to the best command from the Unique Capabilities and Command Reference above.
 3. Execute with the `--agent` flag:
    ```bash

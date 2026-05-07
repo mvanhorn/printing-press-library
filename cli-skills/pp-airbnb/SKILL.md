@@ -1,6 +1,9 @@
 ---
 name: pp-airbnb
 description: "Skip the Airbnb platform fee. Find the host's direct booking site for any Airbnb listing. Trigger phrases: `find the direct booking site`, `skip the airbnb fee`, `vacation rental cheapest`, `book direct`, `use airbnb-pp`, `run airbnb-pp`. NOTE: VRBO support is currently disabled — pending Akamai workaround."
+version: "3.6.1"
+author: "Matt Van Horn"
+license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata:
@@ -16,11 +19,24 @@ metadata:
 
 # Airbnb — Printing Press CLI
 
-Search Airbnb from the terminal, run cheapest on a listing to extract the host's brand, web-search for their direct booking site, and report the lowest of three prices side-by-side. Price-drop watchlist, host portfolio analysis, and trip planning all built on a local store that compounds over time.
+## Prerequisites: Install the CLI
 
-> **VRBO support is currently disabled.** VRBO's Akamai bot challenge blocks the scraper. Every VRBO entry point (`vrbo-listing search/get`, `match` from a VRBO URL, `find-twin` from VRBO, the VRBO branch of `cheapest` and `plan`) returns the disabled error. The VRBO source code stays in the tree so re-enabling is a flag flip once an Akamai workaround lands.
+This skill drives the `airbnb-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-> **Renamed from `airbnb-vrbo-pp-cli` to `airbnb-pp-cli` (this release).** State directories migrate automatically on first run. `AIRBNB_VRBO_*` env vars are still read but emit a one-time deprecation warning; use `AIRBNB_PP_*` going forward.
+1. Install via the Printing Press installer:
+   ```bash
+   npx -y @mvanhorn/printing-press install airbnb --cli-only
+   ```
+2. Verify: `airbnb-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/travel/airbnb/cmd/airbnb-pp-cli@latest
+```
+
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 
@@ -292,19 +308,8 @@ Explicit flags always win over profile values; profile values win over defaults.
 Parse `$ARGUMENTS`:
 
 1. **Empty, `help`, or `--help`** → show `airbnb-pp-cli --help` output
-2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → CLI installation
+2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → see Prerequisites above
 3. **Anything else** → Direct Use (execute as CLI command with `--agent`)
-
-## CLI Installation
-
-1. Check Go is installed: `go version` (requires Go 1.23+)
-2. Install:
-   ```bash
-   go install github.com/mvanhorn/printing-press-library/library/travel/airbnb/cmd/airbnb-pp-cli@latest
-   ```
-3. Verify: `airbnb-pp-cli --version`
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
-
 ## MCP Server Installation
 
 1. Install the MCP server:
@@ -320,7 +325,7 @@ Parse `$ARGUMENTS`:
 ## Direct Use
 
 1. Check if installed: `which airbnb-pp-cli`
-   If not found, offer to install (see CLI Installation above).
+   If not found, offer to install (see Prerequisites at the top of this skill).
 2. Match the user query to the best command from the Unique Capabilities and Command Reference above.
 3. Execute with the `--agent` flag:
    ```bash

@@ -1,6 +1,9 @@
 ---
 name: pp-yahoo-finance
 description: "Use Yahoo Finance CLI for stock and ETF quotes, charts, fundamentals, options chains, symbol search, trending tickers, local watchlists, portfolio lots, and market digests. Use when the user asks about a ticker, portfolio performance, option filtering, market movers, or wants Yahoo Finance data in a terminal or agent-friendly format."
+version: "1.3.2"
+author: "Trevin Chow"
+license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata:
@@ -16,9 +19,24 @@ metadata:
 
 # Yahoo Finance — Printing Press CLI
 
-Yahoo Finance CLI wraps Yahoo market data in a terminal-first interface and adds a local SQLite layer for watchlists, portfolio lots, SQL queries, and derived workflows like `digest`, `compare`, `sparkline`, `fx`, and filtered `options-chain`.
+## Prerequisites: Install the CLI
 
-It uses Yahoo's crumb/cookie session model automatically. No API key is required.
+This skill drives the `yahoo-finance-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+
+1. Install via the Printing Press installer:
+   ```bash
+   npx -y @mvanhorn/printing-press install yahoo-finance --cli-only
+   ```
+2. Verify: `yahoo-finance-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/cmd/yahoo-finance-pp-cli@latest
+```
+
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 
@@ -263,14 +281,6 @@ Given `$ARGUMENTS`:
 2. `install` → install CLI
 3. `install mcp` → install MCP server
 4. Anything else → map the user request to the best command above and run it with `--agent`
-
-## CLI Installation
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/commerce/yahoo-finance/cmd/yahoo-finance-pp-cli@latest
-yahoo-finance-pp-cli --version
-```
-
 ## MCP Server Installation
 
 ```bash

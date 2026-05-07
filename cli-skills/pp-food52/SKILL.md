@@ -1,6 +1,9 @@
 ---
 name: pp-food52
 description: "Search, browse, and read Food52 from your terminal — with offline FTS, pantry matching, recipe scaling, and the editorial signals other tools throw away. Trigger phrases: `find me a food52 recipe for X`, `scale this food52 recipe to N servings`, `what can I cook from food52 with what's in my pantry`, `use food52`, `run food52`."
+version: "3.2.1"
+author: "Trevin Chow"
+license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata:
@@ -16,7 +19,24 @@ metadata:
 
 # Food52 — Printing Press CLI
 
-Every recipe and article on Food52, queryable without a browser. Ships with `pantry match` (find recipes from what you already have), `search` (offline FTS over your synced cookbook), `recipes top` (Test-Kitchen approved + rating-floored), and `scale` (resize ingredient lists via JSON-LD). The only existing Food52 CLI is a 2018-era Ruby HTML scraper that no longer runs against today's Vercel-protected site; this is a clean rebuild on Surf with Chrome TLS impersonation.
+## Prerequisites: Install the CLI
+
+This skill drives the `food52-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+
+1. Install via the Printing Press installer:
+   ```bash
+   npx -y @mvanhorn/printing-press install food52 --cli-only
+   ```
+2. Verify: `food52-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/food-and-dining/food52/cmd/food52-pp-cli@latest
+```
+
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 
@@ -266,19 +286,8 @@ Explicit flags always win over profile values; profile values win over defaults.
 Parse `$ARGUMENTS`:
 
 1. **Empty, `help`, or `--help`** → show `food52-pp-cli --help` output
-2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → CLI installation
+2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → see Prerequisites above
 3. **Anything else** → Direct Use (execute as CLI command with `--agent`)
-
-## CLI Installation
-
-1. Check Go is installed: `go version` (requires Go 1.25+)
-2. Install:
-   ```bash
-   go install github.com/mvanhorn/printing-press-library/library/food-and-dining/food52/cmd/food52-pp-cli@latest
-   ```
-3. Verify: `food52-pp-cli --version`
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
-
 ## MCP Server Installation
 
 1. Install the MCP server:
@@ -294,7 +303,7 @@ Parse `$ARGUMENTS`:
 ## Direct Use
 
 1. Check if installed: `which food52-pp-cli`
-   If not found, offer to install (see CLI Installation above).
+   If not found, offer to install (see Prerequisites at the top of this skill).
 2. Match the user query to the best command from the Unique Capabilities and Command Reference above.
 3. Execute with the `--agent` flag:
    ```bash

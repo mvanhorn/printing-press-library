@@ -1,6 +1,9 @@
 ---
 name: pp-contact-goat
 description: "Super LinkedIn for the terminal. Search, enrich, and map warm-intro paths across LinkedIn (stickerdaniel/linkedin-mcp-server subprocess), Happenstance (cookie-first free quota with bearer-API fallback), and Deepline (paid enrichment). Two Happenstance auth surfaces coexist: Chrome cookie session (free monthly allocation) and HAPPENSTANCE_API_KEY bearer (paid credits, deeper schema). Use when the user asks who they know at a company, how to get a warm intro, who to prospect, or wants cross-source dossiers, network diffs, or waterfall enrichment."
+version: "1.3.2"
+author: "Matt Van Horn"
+license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata:
@@ -16,7 +19,24 @@ metadata:
 
 # Contact Goat - Printing Press CLI
 
-Super LinkedIn for the terminal. One CLI that fans out across three sources to answer "who do I know at X", "who can intro me to Y", and "who should I prospect for Z" - then enriches, dedupes, and ranks the answers without you stitching three tools together.
+## Prerequisites: Install the CLI
+
+This skill drives the `contact-goat-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+
+1. Install via the Printing Press installer:
+   ```bash
+   npx -y @mvanhorn/printing-press install contact-goat --cli-only
+   ```
+2. Verify: `contact-goat-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/cmd/contact-goat-pp-cli@latest
+```
+
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 
@@ -52,26 +72,6 @@ Parse `$ARGUMENTS`:
 2. Starts with `install` and ends with `mcp` -> MCP installation (see below)
 3. Starts with `install` -> CLI installation (see below)
 4. Anything else -> Direct Use (map the request to the best command and run it)
-
-## CLI Installation
-
-1. Check Go is installed: `go version` (requires Go 1.23+).
-2. Install:
-   ```bash
-   go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/contact-goat/cmd/contact-goat-pp-cli@latest
-   ```
-3. Verify: `contact-goat-pp-cli --version`.
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
-5. Auth setup - both Happenstance surfaces are optional; configure either or both:
-   ```bash
-   # Cookie surface (free monthly allocation, requires Chrome on macOS)
-   contact-goat-pp-cli auth login --chrome --service happenstance
-
-   # Bearer surface (paid credits, deeper schema, no browser required)
-   export HAPPENSTANCE_API_KEY="hpn_live_personal_..."
-   ```
-6. Verify: `contact-goat-pp-cli doctor` reports both surfaces' status side by side.
-
 ## MCP Server Installation
 
 1. Install the MCP server:

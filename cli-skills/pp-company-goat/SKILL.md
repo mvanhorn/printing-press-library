@@ -1,6 +1,9 @@
 ---
 name: pp-company-goat
 description: "Look up startups across SEC Form D, GitHub, Hacker News, Companies House, YC, and Wikidata in one command — including the SEC fundraising data hidden behind paid Crunchbase tiers. Trigger phrases: `look up this startup`, `research <company>`, `what does <company> do`, `form D for <company>`, `is <company> still active`, `compare <a> and <b>`, `use company-goat`, `run company-goat-pp-cli`."
+version: "2.3.9"
+author: "Trevin Chow"
+license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata:
@@ -16,7 +19,24 @@ metadata:
 
 # Company GOAT — Printing Press CLI
 
-company-goat-pp-cli fans out across seven free authoritative sources to research small and midsize startups in seconds. The killer feature is SEC Form D extraction: most US startups raising priced rounds file Form D with the SEC, and almost nobody outside finance knows this is queryable for free. After one snapshot, you know whether they raised, are shipping code, are talked about on HN, and are a real legal entity — without eight browser tabs.
+## Prerequisites: Install the CLI
+
+This skill drives the `company-goat-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+
+1. Install via the Printing Press installer:
+   ```bash
+   npx -y @mvanhorn/printing-press install company-goat --cli-only
+   ```
+2. Verify: `company-goat-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/company-goat/cmd/company-goat-pp-cli@latest
+```
+
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 
@@ -274,19 +294,8 @@ Explicit flags always win over profile values; profile values win over defaults.
 Parse `$ARGUMENTS`:
 
 1. **Empty, `help`, or `--help`** → show `company-goat-pp-cli --help` output
-2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → CLI installation
+2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → see Prerequisites above
 3. **Anything else** → Direct Use (execute as CLI command with `--agent`)
-
-## CLI Installation
-
-1. Check Go is installed: `go version` (requires Go 1.23+)
-2. Install:
-   ```bash
-   go install github.com/mvanhorn/printing-press-library/library/developer-tools/company-goat/cmd/company-goat-pp-cli@latest
-   ```
-3. Verify: `company-goat-pp-cli --version`
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
-
 ## MCP Server Installation
 
 1. Install the MCP server:
@@ -302,7 +311,7 @@ Parse `$ARGUMENTS`:
 ## Direct Use
 
 1. Check if installed: `which company-goat-pp-cli`
-   If not found, offer to install (see CLI Installation above).
+   If not found, offer to install (see Prerequisites at the top of this skill).
 2. Match the user query to the best command from the Unique Capabilities and Command Reference above.
 3. Execute with the `--agent` flag:
    ```bash

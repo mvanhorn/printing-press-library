@@ -1,6 +1,9 @@
 ---
 name: pp-hubspot
 description: "Use this skill whenever the user asks about HubSpot CRM contacts, companies, deals, tickets, tasks, calls, emails, meetings, engagements, pipelines, deal velocity / stale deals / coverage, or wants to search across their CRM data. Also for creating / updating / deleting any HubSpot record or managing associations between objects. HubSpot CLI covering 15 HubSpot APIs with offline SQLite search and pipeline analytics. Requires a HubSpot access token. Triggers on phrasings like 'find contacts at Acme', 'show deals closing this month', 'which deals are stale', 'pipeline velocity this quarter', 'log a call for contact X', 'create a task for tomorrow'."
+version: "1.2.1"
+author: "Matt Van Horn"
+license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata:
@@ -8,9 +11,6 @@ metadata:
     requires:
       bins:
         - hubspot-pp-cli
-      env:
-        - HUBSPOT_ACCESS_TOKEN
-    primaryEnv: HUBSPOT_ACCESS_TOKEN
     install:
       - kind: go
         bins: [hubspot-pp-cli]
@@ -19,7 +19,24 @@ metadata:
 
 # HubSpot — Printing Press CLI
 
-Manage HubSpot CRM contacts, companies, deals, tickets, engagements, pipelines, and associations with offline search and pipeline analytics. Derived from 15 official HubSpot OpenAPI specs, covering the core CRM + engagements + marketing objects.
+## Prerequisites: Install the CLI
+
+This skill drives the `hubspot-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+
+1. Install via the Printing Press installer:
+   ```bash
+   npx -y @mvanhorn/printing-press install hubspot --cli-only
+   ```
+2. Verify: `hubspot-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/hubspot/cmd/hubspot-pp-cli@latest
+```
+
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 

@@ -1,6 +1,9 @@
 ---
 name: pp-steam-web
 description: "Steam player and game lookup via the Steam Web API. Look up player profiles, owned games, recent playtime, achievements, stats, badges, friend lists, VAC/game ban status, and game schemas. Use when the user asks about their Steam library, a friend's achievements, who's playing a game, compare two players' stats, a player's Steam level or badges, VAC status, or wants to resolve a vanity URL to a Steam ID."
+version: "0.4.0"
+author: "Trevin Chow"
+license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata:
@@ -8,9 +11,6 @@ metadata:
     requires:
       bins:
         - steam-web-pp-cli
-      env:
-        - STEAM_WEB_API_KEY
-    primaryEnv: STEAM_WEB_API_KEY
     install:
       - kind: go
         bins: [steam-web-pp-cli]
@@ -19,7 +19,24 @@ metadata:
 
 # Steam Web - Printing Press CLI
 
-Look up Steam players, games, achievements, friends, and stats from the command line. The CLI wraps 170+ Steam Web API endpoints and pairs them with a local SQLite sync so repeat queries about the same library don't burn rate limit.
+## Prerequisites: Install the CLI
+
+This skill drives the `steam-web-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+
+1. Install via the Printing Press installer:
+   ```bash
+   npx -y @mvanhorn/printing-press install steam-web --cli-only
+   ```
+2. Verify: `steam-web-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/steam-web/cmd/steam-web-pp-cli@latest
+```
+
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 
@@ -46,23 +63,6 @@ Parse `$ARGUMENTS`:
 1. **Empty, `help`, or `--help`** -> show `steam-web-pp-cli --help`
 2. **Starts with `install`** -> ends with `mcp` -> MCP installation; otherwise -> CLI installation
 3. **Anything else** -> Direct Use (map to the best command and run it)
-
-## CLI Installation
-
-1. Check Go is installed: `go version` (requires Go 1.23+).
-2. Install:
-   ```bash
-   go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/steam-web/cmd/steam-web-pp-cli@latest
-   ```
-3. Verify: `steam-web-pp-cli --version`.
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
-5. Auth setup:
-   ```bash
-   export STEAM_WEB_API_KEY="..."
-   ```
-   Request a key at https://steamcommunity.com/dev/apikey (free; requires a Steam account).
-6. Verify: `steam-web-pp-cli doctor` reports key status.
-
 ## MCP Server Installation
 
 The CLI ships an MCP server at `steam-web-pp-mcp`:

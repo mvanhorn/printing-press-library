@@ -1,6 +1,9 @@
 ---
 name: pp-weather-goat
 description: "Use this skill whenever the user asks about weather, forecasts, temperature, rain, storms, severe weather alerts, air quality, pollen, UV, or wants an activity recommendation (can I walk / bike / hike / commute / drive given the weather). Weather CLI powered by Open-Meteo (global, no auth, unlimited) + NWS (US severe weather). No API key. Triggers on phrasings like 'what's the weather', 'is it going to rain today', 'any storms coming', 'should I bike to work', 'how's the air quality', 'compare NYC and LA weather this weekend', 'is this unusually hot for April'."
+version: "1.3.3-0.20260411222622-065697576de1+dirty"
+author: "Trevin Chow"
+license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata:
@@ -16,7 +19,24 @@ metadata:
 
 # Weather Goat — Printing Press CLI
 
-Weather forecasts, severe weather alerts, air quality, and activity verdicts. Powered by Open-Meteo (global, unlimited, no auth) and the US National Weather Service (severe alerts, no auth). No API key.
+## Prerequisites: Install the CLI
+
+This skill drives the `weather-goat-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+
+1. Install via the Printing Press installer:
+   ```bash
+   npx -y @mvanhorn/printing-press install weather-goat --cli-only
+   ```
+2. Verify: `weather-goat-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/other/weather-goat/cmd/weather-goat-pp-cli@latest
+```
+
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 

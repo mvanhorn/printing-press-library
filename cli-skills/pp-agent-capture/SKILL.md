@@ -1,6 +1,9 @@
 ---
 name: pp-agent-capture
 description: "macOS screen capture, window recording, GIF conversion, and agent evidence bundles from the terminal. Built on ScreenCaptureKit for window-level targeting ffmpeg cannot do. Use when the user wants a screenshot of a specific window or app, a screen recording, a GIF conversion, a before/after diff, an evidence bundle for a PR, OCR text from a window, a terminal VHS recording, a Remotion render, or wants to watch a UI for changes. Requires macOS Screen Recording permission on first run."
+version: "0.4.0"
+author: "Matt Van Horn"
+license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata:
@@ -16,7 +19,24 @@ metadata:
 
 # Agent Capture - Printing Press CLI
 
-Consolidates macOS screen capture, window recording, GIF conversion, frame stitching, and styled code screenshots into one agent-native CLI. Built on ScreenCaptureKit for window-level targeting that ffmpeg alone cannot do. Every command supports `--json` for machine parsing.
+## Prerequisites: Install the CLI
+
+This skill drives the `agent-capture-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+
+1. Install via the Printing Press installer:
+   ```bash
+   npx -y @mvanhorn/printing-press install agent-capture --cli-only
+   ```
+2. Verify: `agent-capture-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/agent-capture/cmd/agent-capture-pp-cli@latest
+```
+
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 
@@ -45,23 +65,6 @@ Parse `$ARGUMENTS`:
 1. **Empty, `help`, or `--help`** -> show `agent-capture --help`
 2. **Starts with `install`** -> CLI installation (no MCP server ships today)
 3. **Anything else** -> Direct Use (map to the best command and run it)
-
-## CLI Installation
-
-1. Check Go is installed: `go version` (requires Go 1.23+).
-2. Install:
-   ```bash
-   go install github.com/mvanhorn/printing-press-library/library/developer-tools/agent-capture/cmd/agent-capture-pp-cli@latest
-   ```
-3. Verify: `agent-capture --version`.
-4. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
-5. Grant macOS Screen Recording permission:
-   ```bash
-   agent-capture permissions
-   ```
-   The CLI opens System Settings -> Privacy & Security -> Screen & System Audio Recording and walks the grant. The first capture after granting permission succeeds; the process does not need a restart.
-6. Verify: `agent-capture health` (machine-readable) or `agent-capture doctor`.
-
 ## Direct Use
 
 1. Check installed: `which agent-capture`. If missing, offer CLI installation.

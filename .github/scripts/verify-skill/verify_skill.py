@@ -59,6 +59,15 @@ COMMON_FLAGS = {
     "no-color", "human-friendly", "config", "base-url", "rate-limit",
     "timeout", "data-source", "stdin", "limit", "format", "output",
     "no-prompt", "days",
+    # Flags from external tools whose install/usage commands are
+    # embedded in SKILL.md prose. These are NOT flags of the printed
+    # CLI being verified — they belong to the npm installer, hermes
+    # CLI, claude mcp, etc. — and the verifier shouldn't expect them
+    # in internal/cli/*.go.
+    "cli-only",     # @mvanhorn/printing-press install ... --cli-only
+    "skill-only",   # @mvanhorn/printing-press install ... --skill-only
+    "registry-url", # @mvanhorn/printing-press --registry-url
+    "force",        # hermes skills install ... --force
 }
 
 CODEBLOCK_BASH = re.compile(r"```bash\n(.*?)\n```", re.DOTALL)

@@ -1,6 +1,9 @@
 ---
 name: pp-instacart
 description: "Printing Press CLI for Instacart. Natural-language Instacart CLI that talks directly to the web GraphQL API. Add items to your cart, search products, and manage carts across retailers without browser automation. Also caches your purchase history locally so 'add' resolves items you have bought before instead of guessing from live search. Trigger phrases: 'install instacart', 'use instacart', 'run instacart', 'add X to my Safeway cart', 'what did I buy last time', 'order the usual', 'add my regulars to Costco', 'backfill my instacart history', 'sync my instacart orders', 'download my order history', 'save my instacart history locally'."
+version: "1.2.1"
+author: "Matt Van Horn"
+license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp | backfill"
 allowed-tools: "Read Bash WebFetch"
 metadata:
@@ -16,7 +19,24 @@ metadata:
 
 # Instacart - Printing Press CLI
 
-Natural-language Instacart CLI that talks directly to the web GraphQL API. Add items to your cart, search products, and manage carts across retailers without browser automation. Caches your purchase history locally so `add` resolves items you have bought before instead of picking whatever live search ranks first.
+## Prerequisites: Install the CLI
+
+This skill drives the `instacart-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+
+1. Install via the Printing Press installer:
+   ```bash
+   npx -y @mvanhorn/printing-press install instacart --cli-only
+   ```
+2. Verify: `instacart-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/commerce/instacart/cmd/instacart-pp-cli@latest
+```
+
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 
@@ -238,16 +258,6 @@ Error surfaces worth translating for the user:
 - Extractor `cache_key_missing` on every order -> Instacart rotated their web bundle. Report the observed cache keys and point at the rotation-recovery section of the walkthrough doc.
 - Dumper reports fewer IDs than the user expected -> probably on a multi-profile account; ensure the selected profile is the one with purchase history.
 - `history import` shows 0 orders imported -> the JSONL is empty (only skip records). Re-run the extractor loop with fresh tabs.
-
-## CLI Installation
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/commerce/instacart/cmd/instacart-pp-cli@latest
-instacart-pp-cli --version
-```
-
-Ensure `$HOME/go/bin` is on `$PATH`.
-
 ## Direct Use
 
 1. Check installed: `which instacart-pp-cli`

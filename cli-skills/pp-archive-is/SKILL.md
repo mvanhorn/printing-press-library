@@ -1,6 +1,9 @@
 ---
 name: pp-archive-is
 description: "Use this skill whenever the user wants to archive a URL, bypass a paywall, look up an existing archive, view a cached version of a webpage, pull article text from archive.today or the Wayback Machine, or batch-archive a list of URLs. archive.today + Wayback Machine CLI with lookup-before-submit, automatic fallback when one backend is down, and agent-friendly output. No API key required. Triggers on phrasings like 'archive this article', 'bypass the paywall on this link', 'grab the cached text', 'save this url to archive.today', 'check if this was already archived', 'bulk archive these 20 URLs'."
+version: "1.2.1"
+author: "Matt Van Horn"
+license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata:
@@ -16,7 +19,24 @@ metadata:
 
 # archive.today — Printing Press CLI
 
-Bypass paywalls and look up web archives via archive.today — reverse-engineered from the Memento timegate, `/submit/` endpoint, and CDX index into a proper CLI. Wayback Machine fallback is wired in automatically: if archive.today is CAPTCHA-gating or down, the CLI transparently queries `web.archive.org/cdx/search/cdx` and returns the Wayback snapshot text.
+## Prerequisites: Install the CLI
+
+This skill drives the `archive-is-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+
+1. Install via the Printing Press installer:
+   ```bash
+   npx -y @mvanhorn/printing-press install archive-is --cli-only
+   ```
+2. Verify: `archive-is-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/archive-is/cmd/archive-is-pp-cli@latest
+```
+
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 
