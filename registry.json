@@ -886,21 +886,20 @@
       "name": "trigger-dev",
       "category": "developer-tools",
       "api": "Trigger.dev",
-      "description": "Durable background jobs and AI agent orchestration — runs, schedules, deployments, batches, queues, waitpoints, env vars, and TRQL analytics",
+      "description": "Monitor runs, trigger tasks, manage schedules, and detect failures via the Trigger.dev API",
       "path": "library/developer-tools/trigger-dev",
       "mcp": {
         "binary": "trigger-dev-pp-mcp",
-        "tool_count": 47,
-        "public_tool_count": 1,
-        "auth_type": "bearer_token",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 41,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
         "env_vars": [
           "TRIGGER_SECRET_KEY"
         ],
-        "mcp_ready": "full",
-        "spec_format": "openapi3",
-        "transports": [
-          "stdio"
-        ]
+        "mcp_ready": "full"
       }
     },
     {
