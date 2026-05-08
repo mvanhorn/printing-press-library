@@ -2,6 +2,8 @@
   "schema_version": 1,
   "api_name": "dominos",
   "cli_name": "dominos-pp-cli",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
   "display_name": "Domino's",
   "description": "Order pizza, browse menus, optimize deals, and track delivery from your terminal \u2014 with a local SQLite store that powers reorder, price comparison, and deal stacking no other Domino's tool offers.",
   "category": "food-and-dining",

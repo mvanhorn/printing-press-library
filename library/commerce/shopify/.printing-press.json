@@ -6,6 +6,8 @@
   "display_name": "Shopify",
   "cli_name": "shopify-pp-cli",
   "owner": "user",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
   "spec_path": "catalog/specs/shopify-2026-04-wrapper.yaml",
   "spec_format": "internal",
   "spec_checksum": "sha256:4e5ca1c0c251eed7ac5fce5c7bcf974c584bcdea07ffb495eb6c5dd37fe00d69",

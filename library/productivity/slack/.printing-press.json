@@ -1,6 +1,8 @@
 {
   "api_name": "slack",
   "cli_name": "slack-pp-cli",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
   "printing_press_version": "1.2.1",
   "generated_at": "2026-04-09T23:03:49Z",
   "spec_source": "internal-yaml",

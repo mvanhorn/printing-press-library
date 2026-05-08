@@ -6,6 +6,8 @@
   "display_name": "Seats Aero Partner",
   "cli_name": "seats-aero-pp-cli",
   "owner": "cathryn-lavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
   "spec_url": "https://developers.seats.aero/reference",
   "spec_path": "/Users/knox/Developer/PrintingPress/seats-specs/seats-aero-openapi.yaml",
   "spec_format": "openapi3",

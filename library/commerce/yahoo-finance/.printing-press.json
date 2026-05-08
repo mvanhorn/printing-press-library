@@ -4,6 +4,8 @@
   "printing_press_version": "1.3.2",
   "api_name": "yahoo-finance",
   "cli_name": "yahoo-finance-pp-cli",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
   "spec_path": "/Users/tmchow/printing-press/.runstate/cli-printing-press-8bdedb85/runs/20260411-210148/research/yahoo-finance-spec.yaml",
   "run_id": "20260411-210148",
   "mcp_binary": "yahoo-finance-pp-mcp",

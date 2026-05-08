@@ -1,5 +1,7 @@
 {
   "cli_name": "agent-capture-pp-cli",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
   "api_name": "agent-capture",
   "printing_press_version": "0.4.0",
   "generated_at": "2026-04-05T19:25:10Z",

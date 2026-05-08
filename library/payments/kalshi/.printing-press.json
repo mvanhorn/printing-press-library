@@ -5,6 +5,8 @@
   "api_name": "kalshi",
   "display_name": "Kalshi Trade Manual",
   "cli_name": "kalshi-pp-cli",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:dfcfa4e1d9ee14ad69c5c68f2407b132684c306616c62a0de7935250a15bac80",
   "run_id": "20260504-204550",

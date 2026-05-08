@@ -6,6 +6,8 @@
   "display_name": "Firecrawl",
   "cli_name": "firecrawl-pp-cli",
   "owner": "hiten-shah",
+  "printer": "hnshah",
+  "printer_name": "Hiten Shah",
   "spec_path": "/Users/tmchow/Code/printing-press-library/library/developer-tools/firecrawl/spec.json",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:49990c59f5e6ddccc24dd2deff027166cacc5cb19ff41b1e954d87838ce88be2",

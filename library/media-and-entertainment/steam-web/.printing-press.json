@@ -5,6 +5,8 @@
   "api_name": "steam-web",
   "display_name": "Steam Web",
   "cli_name": "steam-web-pp-cli",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
   "spec_path": "/Users/tmchow/printing-press/manuscripts/steam-web-pp-cli/20260404-003212/research/steam-public-spec.json",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:33ba9314554101d758965dcd8d023f6333add0492dd67e21c1e25c1f4fb08082",

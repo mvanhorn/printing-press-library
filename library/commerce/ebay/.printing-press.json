@@ -5,6 +5,8 @@
   "api_name": "ebay",
   "display_name": "eBay",
   "cli_name": "ebay-pp-cli",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
   "spec_format": "internal",
   "spec_checksum": "sha256:007a051ab0034a82890f11831ab713349e0335fb31526abcf82dcb6df5805fce",
   "mcp_binary": "ebay-pp-mcp",

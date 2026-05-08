@@ -5,6 +5,8 @@
   "api_name": "movie-goat",
   "display_name": "Movie Goat",
   "cli_name": "movie-goat-pp-cli",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
   "spec_format": "internal",
   "spec_checksum": "sha256:968d04f13cef942f404e0dcd7f9d5a4c5fe70858be8fdecad480a12e93a84198",
   "run_id": "20260504-004256",

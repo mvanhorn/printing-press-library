@@ -5,6 +5,8 @@
   "api_name": "pokeapi",
   "display_name": "Pokeapi",
   "cli_name": "pokeapi-pp-cli",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
   "spec_url": "https://raw.githubusercontent.com/PokeAPI/pokeapi/master/openapi.yml",
   "spec_path": "/Users/tmchow/printing-press/.runstate/lazy-hugging-lighthouse-2520149b/runs/20260429-230641/research/pokeapi-spec.yaml",
   "spec_format": "openapi3",

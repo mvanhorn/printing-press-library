@@ -6,6 +6,8 @@
   "display_name": "Flight GOAT",
   "cli_name": "flight-goat-pp-cli",
   "owner": "matt-van-horn",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
   "spec_path": "/Users/tmchow/Code/printing-press-library/library/travel/flight-goat/spec.yaml",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:94fe4ec3b81edf5bb13ecf259afde3f7f17a83af4d6feb3cba28a51385009e4c",

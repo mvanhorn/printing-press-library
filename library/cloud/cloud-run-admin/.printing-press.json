@@ -6,6 +6,8 @@
   "display_name": "Google Cloud Run",
   "cli_name": "cloud-run-admin-pp-cli",
   "owner": "user",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
   "spec_url": "https://api.apis.guru/v2/specs/googleapis.com/run/v2/openapi.yaml",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:1fcc20da6d89b529216363e66a4e8fd916b2cd0e096da2c02603c9f8fff61c2c",

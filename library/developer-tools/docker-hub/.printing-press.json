@@ -6,6 +6,8 @@
   "display_name": "Docker Hub",
   "cli_name": "docker-hub-pp-cli",
   "owner": "hiten-shah",
+  "printer": "hnshah",
+  "printer_name": "Hiten Shah",
   "spec_path": "/Users/tmchow/Code/printing-press-library/library/developer-tools/docker-hub/spec.yaml",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:e8a403eb6f13e16107c7fcdc32074ab006cbe6a28327a0ae8498a25533d521e5",

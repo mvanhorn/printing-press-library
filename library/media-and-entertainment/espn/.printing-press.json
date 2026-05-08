@@ -4,6 +4,8 @@
   "printing_press_version": "1.2.1-0.20260409145412-b1128d0e07fd+dirty",
   "api_name": "espn",
   "cli_name": "espn-pp-cli",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
   "spec_path": "/tmp/espn-spec.yaml",
   "run_id": "20260409-121709",
   "mcp_binary": "espn-pp-mcp",

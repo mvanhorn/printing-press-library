@@ -5,6 +5,8 @@
   "api_name": "cal-com",
   "display_name": "Cal.com",
   "cli_name": "cal-com-pp-cli",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
   "spec_path": "/Users/tmchow/printing-press/.runstate/calm-scribbling-glacier-fb2ca6fd/runs/20260504-205634/research/cal-com-openapi-enriched.json",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:569c5b2d8a7bf1efa931662520f6153f0f0904528b2bc73e00cd4a1fe8240e22",

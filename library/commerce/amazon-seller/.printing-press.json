@@ -6,6 +6,8 @@
   "display_name": "Amazon Seller",
   "cli_name": "amazon-seller-pp-cli",
   "owner": "user",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
   "spec_path": "catalog/specs/amazon-seller.yaml",
   "spec_format": "internal",
   "spec_checksum": "sha256:ba9358084b986d7a89f96663d04cd0f66ab78f724b905db5aa98bd6a867715e4",

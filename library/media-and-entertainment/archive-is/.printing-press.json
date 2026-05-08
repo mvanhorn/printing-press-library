@@ -1,6 +1,8 @@
 {
   "api_name": "archive-is",
   "cli_name": "archive-is-pp-cli",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
   "printing_press_version": "1.2.1",
   "generated_at": "2026-04-11T04:05:33Z",
   "run_id": "20260410-233336",

@@ -5,6 +5,8 @@
   "api_name": "sentry",
   "display_name": "Sentry",
   "cli_name": "sentry-pp-cli",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
   "spec_url": "https://raw.githubusercontent.com/getsentry/sentry-api-schema/main/openapi-derefed.json",
   "spec_path": "/Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260502-124520/research/sentry-openapi-normalized.json",
   "spec_format": "openapi3",

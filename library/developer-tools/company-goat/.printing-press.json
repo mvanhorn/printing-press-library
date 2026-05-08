@@ -4,6 +4,8 @@
   "printing_press_version": "2.3.9",
   "api_name": "company-goat",
   "cli_name": "company-goat-pp-cli",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
   "spec_path": "/Users/tmchow/printing-press/.runstate/purring-leaping-taco-1b9d73bb/runs/20260427-121015/research/company-spec.yaml",
   "spec_format": "internal",
   "spec_checksum": "sha256:ac94644063a200514928b494b035d020c1b94efd27e96d6d73d1bd445f16a2a8",

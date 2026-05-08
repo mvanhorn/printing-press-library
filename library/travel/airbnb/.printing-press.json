@@ -6,6 +6,8 @@
   "display_name": "Airbnb Vrbo",
   "cli_name": "airbnb-pp-cli",
   "owner": "matt-van-horn",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
   "spec_path": "/Users/mvanhorn/printing-press/.runstate/mvanhorn-eb6a05f2/runs/20260502-210359/discovery/airbnb-vrbo-synthetic-spec.yaml",
   "spec_format": "internal",
   "spec_checksum": "sha256:50d48d1dd906565680c69eb5cffda6d7d605d751410e83368790efcca48bae04",

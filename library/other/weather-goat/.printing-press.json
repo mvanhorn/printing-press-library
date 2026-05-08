@@ -4,6 +4,8 @@
   "printing_press_version": "1.3.3-0.20260411222622-065697576de1+dirty",
   "api_name": "weather-goat",
   "cli_name": "weather-goat-pp-cli",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
   "spec_path": "/Users/tmchow/printing-press/.runstate/cli-printing-press-8bdedb85/runs/20260411-153728/research/weather-spec.yaml",
   "run_id": "20260411-153728",
   "mcp_binary": "weather-goat-pp-mcp",

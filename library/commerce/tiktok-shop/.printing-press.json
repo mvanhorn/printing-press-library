@@ -6,6 +6,8 @@
   "display_name": "TikTok Shop",
   "cli_name": "tiktok-shop-pp-cli",
   "owner": "cathryn-lavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
   "spec_path": "library/commerce/tiktok-shop/spec.yaml",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:81f4420a65ed74b213a5512ac56073aab47a2b21d425b459957b0fa9e483783f",

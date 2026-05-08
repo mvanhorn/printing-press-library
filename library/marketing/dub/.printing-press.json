@@ -5,6 +5,8 @@
   "api_name": "dub",
   "display_name": "Dub",
   "cli_name": "dub-pp-cli",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
   "spec_path": "/Users/tmchow/printing-press/.runstate/majestic-giggling-lollipop-a96356fc/runs/20260502-153038/research/dub-openapi.yaml",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:fd86be0f4bd214c47fe2720a40ed0074c774b225cde931b11d49be31e56ae386",

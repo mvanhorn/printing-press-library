@@ -6,6 +6,8 @@
   "display_name": "PP Clarity",
   "cli_name": "clarity-pp-cli",
   "owner": "user",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
   "spec_path": "/Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/current/clarity/clarity.yaml",
   "spec_format": "internal",
   "spec_checksum": "sha256:fddb81e9af3a7ab38cd7dd8b5d0f70479791d87b5e535e7c2cf7cd9edf56c02f",

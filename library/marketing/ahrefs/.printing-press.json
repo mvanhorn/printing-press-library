@@ -6,6 +6,8 @@
   "display_name": "Ahrefs",
   "cli_name": "ahrefs-pp-cli",
   "owner": "user",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
   "spec_path": "catalog/specs/ahrefs-v3.yaml",
   "spec_format": "internal",
   "spec_checksum": "sha256:ec46e6814b3488f73dbd28e779bc2bcdc88c8ed4cba54141b0d9d5b28a4c14cc",

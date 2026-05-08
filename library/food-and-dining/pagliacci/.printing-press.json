@@ -5,6 +5,8 @@
   "api_name": "pagliacci",
   "display_name": "Pagliacci Pizza",
   "cli_name": "pagliacci-pp-cli",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
   "spec_path": "/Users/tmchow/printing-press/.runstate/eager-crafting-bengio-5a1d4594/runs/20260503-000558/research/pagliacci-spec.yaml",
   "spec_format": "internal",
   "spec_checksum": "sha256:667b9f080b678cf797a833ebde38348eed7882d47b4c7ab14a2df954a091bbb8",

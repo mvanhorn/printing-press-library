@@ -5,6 +5,8 @@
   "api_name": "linear",
   "display_name": "Linear",
   "cli_name": "linear-pp-cli",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
   "spec_url": "https://github.com/linear/linear/blob/master/packages/sdk/src/schema.graphql",
   "run_id": "20260507-000328",
   "mcp_binary": "linear-pp-mcp",

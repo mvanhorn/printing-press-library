@@ -6,6 +6,8 @@
   "display_name": "Klaviyo",
   "cli_name": "klaviyo-pp-cli",
   "owner": "cathryn-lavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
   "spec_url": "https://raw.githubusercontent.com/klaviyo/openapi/3fb87e6042183f6c790c60f2473e4c254efe81b3/openapi/stable.json",
   "spec_path": "/Users/cathrynlavery/printing-press/.runstate/cli-printing-press-klaviyo-b1952ca2/runs/20260502T175749Z-699b4af1/specs/klaviyo-stable.preprocessed.json",
   "spec_format": "openapi3",
