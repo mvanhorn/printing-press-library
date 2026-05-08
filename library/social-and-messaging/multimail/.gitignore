@@ -1,0 +1,12 @@
+# Binary (root only, not cmd/ dir)
+/multimail-pp-cli
+build/
+
+# OS
+.DS_Store
+
+# Cache
+.cache/
+
+# Raw OpenAPI spec (used locally by printing-press, not for public repo)
+spec.json
