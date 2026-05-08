@@ -7,6 +7,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-seller/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-seller/internal/cliutil"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"io"
 	"os"
 	"path/filepath"
@@ -16,10 +20,6 @@ import (
 	"text/tabwriter"
 	"time"
 	"unicode"
-	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-seller/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-seller/internal/client"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 )
 
 var As = errors.As
@@ -93,11 +93,11 @@ type cliError struct {
 func (e *cliError) Error() string { return e.err.Error() }
 func (e *cliError) Unwrap() error { return e.err }
 
-func usageErr(err error) error    { return &cliError{code: 2, err: err} }
-func notFoundErr(err error) error { return &cliError{code: 3, err: err} }
-func authErr(err error) error     { return &cliError{code: 4, err: err} }
-func apiErr(err error) error      { return &cliError{code: 5, err: err} }
-func configErr(err error) error   { return &cliError{code: 10, err: err} }
+func usageErr(err error) error     { return &cliError{code: 2, err: err} }
+func notFoundErr(err error) error  { return &cliError{code: 3, err: err} }
+func authErr(err error) error      { return &cliError{code: 4, err: err} }
+func apiErr(err error) error       { return &cliError{code: 5, err: err} }
+func configErr(err error) error    { return &cliError{code: 10, err: err} }
 func rateLimitErr(err error) error { return &cliError{code: 7, err: err} }
 
 // dryRunOK reports whether the command should short-circuit without doing any
@@ -287,7 +287,7 @@ func paginatedGet(c interface {
 	}
 
 	// Fetch all pages
-	var allItems []json.RawMessage
+	allItems := make([]json.RawMessage, 0)
 	page := 0
 	for {
 		page++
@@ -310,20 +310,16 @@ func paginatedGet(c interface {
 			// Response is an object - look for array inside
 			var obj map[string]json.RawMessage
 			if json.Unmarshal(data, &obj) == nil {
-				// Try common data fields
-				for _, field := range []string{"data", "items", "results", "messages", "members", "values"} {
-					if arr, ok := obj[field]; ok {
-						var nested []json.RawMessage
-						if json.Unmarshal(arr, &nested) == nil {
-							allItems = append(allItems, nested...)
-							break
-						}
-					}
+				// PATCH(upstream cli-printing-press#731): support Amazon SP-API
+				// response wrappers such as inventorySummaries/orders plus dotted
+				// cursor paths like pagination.nextToken.
+				if nested, ok := extractPaginatedItems(obj); ok {
+					allItems = append(allItems, nested...)
 				}
 
 				// Check for next cursor
 				if nextCursorPath != "" {
-					if tokenRaw, ok := obj[nextCursorPath]; ok {
+					if tokenRaw, ok := rawAtPath(obj, nextCursorPath); ok {
 						var token string
 						if json.Unmarshal(tokenRaw, &token) == nil && token != "" {
 							clean[cursorParam] = token
@@ -334,7 +330,7 @@ func paginatedGet(c interface {
 
 				// Check has_more
 				if hasMoreField != "" {
-					if moreRaw, ok := obj[hasMoreField]; ok {
+					if moreRaw, ok := rawAtPath(obj, hasMoreField); ok {
 						var more bool
 						if json.Unmarshal(moreRaw, &more) == nil && more {
 							continue
@@ -357,6 +353,53 @@ func paginatedGet(c interface {
 	}
 	result, _ := json.Marshal(allItems)
 	return json.RawMessage(result), nil
+}
+
+func extractPaginatedItems(obj map[string]json.RawMessage) ([]json.RawMessage, bool) {
+	for _, field := range []string{"data", "items", "results", "messages", "members", "values"} {
+		if arr, ok := obj[field]; ok {
+			var nested []json.RawMessage
+			if json.Unmarshal(arr, &nested) == nil {
+				return nested, true
+			}
+		}
+	}
+
+	var onlyArray []json.RawMessage
+	arrayCount := 0
+	for _, raw := range obj {
+		var candidate []json.RawMessage
+		if json.Unmarshal(raw, &candidate) == nil {
+			onlyArray = candidate
+			arrayCount++
+		}
+	}
+	if arrayCount == 1 {
+		return onlyArray, true
+	}
+	return nil, false
+}
+
+func rawAtPath(obj map[string]json.RawMessage, path string) (json.RawMessage, bool) {
+	if raw, ok := obj[path]; ok {
+		return raw, true
+	}
+
+	current := obj
+	parts := strings.Split(path, ".")
+	for i, part := range parts {
+		raw, ok := current[part]
+		if !ok {
+			return nil, false
+		}
+		if i == len(parts)-1 {
+			return raw, true
+		}
+		if err := json.Unmarshal(raw, &current); err != nil {
+			return nil, false
+		}
+	}
+	return nil, false
 }
 
 // printJSONFiltered marshals a Go-typed value through the same output
@@ -1120,12 +1163,13 @@ func findField(obj map[string]any, names ...string) string {
 	}
 	return ""
 }
+
 // DataProvenance describes where data came from and when it was last synced.
 type DataProvenance struct {
 	Source       string     `json:"source"`                  // "live" or "local"
-	SyncedAt    *time.Time `json:"synced_at,omitempty"`     // when local data was last synced
-	Reason      string     `json:"reason,omitempty"`        // why local was used: "user_requested", "api_unreachable", "no_search_endpoint"
-	ResourceType string    `json:"resource_type,omitempty"` // which resource type was queried
+	SyncedAt     *time.Time `json:"synced_at,omitempty"`     // when local data was last synced
+	Reason       string     `json:"reason,omitempty"`        // why local was used: "user_requested", "api_unreachable", "no_search_endpoint"
+	ResourceType string     `json:"resource_type,omitempty"` // which resource type was queried
 	Freshness    any        `json:"freshness,omitempty"`     // optional machine-owned freshness metadata for covered command paths
 }
 

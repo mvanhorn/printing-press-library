@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-08",
+  "base_run_id": "2026-05-06T17:12:38.566433Z",
+  "base_printing_press_version": "3.10.0",
+  "patches": [
+    {
+      "id": "296-fba-pagination-wrapper",
+      "summary": "Teach paginatedGet to collect resource-named arrays and follow dotted cursor paths.",
+      "reason": "Amazon SP-API FBA inventory returns rows under inventorySummaries and the next page cursor under pagination.nextToken, but the generated helper only checked generic array keys and literal top-level cursor keys.",
+      "files": [
+        "internal/cli/helpers.go"
+      ],
+      "validated_outcome": "go test ./internal/cli -run TestPaginatedGetFollowsNestedNextTokenAndCollectsResourceArray -count=1",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/pull/731"
+    }
+  ]
+}
