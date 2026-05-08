@@ -1,0 +1,147 @@
+name: Govulncheck
+
+# Keep this gate scoped. The published library is a catalog of many independent
+# CLIs, not a single app with one freshness SLA. PRs scan only CLIs whose Go
+# source or dependency files changed, plus newly added CLIs. Maintainers can run
+# workflow_dispatch with scope=all for deliberate baseline sweeps.
+#
+# The scan intentionally uses govulncheck's default package reachability mode.
+# Do not switch this to module/SBOM scanning unless the repo explicitly wants
+# dependency-presence hygiene rather than reachable vulnerability blocking.
+
+on:
+  pull_request:
+    paths:
+      - 'library/**/*.go'
+      - 'library/**/go.mod'
+      - 'library/**/go.sum'
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: 'Run against changed-code library CLIs or every library CLI'
+        required: true
+        default: changed
+        type: choice
+        options:
+          - changed
+          - all
+
+permissions:
+  contents: read
+
+jobs:
+  govulncheck:
+    name: Govulncheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.26.3'
+          # This workflow may scan several unrelated standalone modules. There
+          # is no single dependency file that produces a useful setup-go cache.
+          cache: false
+
+      - name: Install govulncheck
+        run: go install golang.org/x/vuln/cmd/govulncheck@v1.3.0
+
+      - name: Select library CLIs
+        id: modules
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          DISPATCH_SCOPE: ${{ inputs.scope }}
+        run: |
+          set -euo pipefail
+          dirs="${RUNNER_TEMP}/govulncheck-dirs.txt"
+          changed="${RUNNER_TEMP}/govulncheck-changed.txt"
+          : > "$dirs"
+          : > "$changed"
+
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "${DISPATCH_SCOPE:-changed}" = "all" ]; then
+            find library -mindepth 3 -maxdepth 3 -name go.mod -print \
+              | sed 's#/go.mod$##' \
+              | sort > "$dirs"
+          else
+            if [ "$EVENT_NAME" = "pull_request" ]; then
+              git diff --name-status "${PR_BASE_SHA}...HEAD" -- library > "$changed"
+            else
+              git fetch origin main --depth=1
+              base=$(git merge-base origin/main HEAD)
+              git diff --name-status "${base}...HEAD" -- library > "$changed"
+            fi
+
+            awk '
+              function emit(path, parts) {
+                split(path, parts, "/")
+                if (parts[1] == "library" && parts[2] != "" && parts[3] != "") {
+                  print parts[1] "/" parts[2] "/" parts[3]
+                }
+              }
+              function is_go_dep(path) {
+                return path ~ /\/go\.(mod|sum)$/
+              }
+              function is_go_source(path) {
+                return path ~ /\.go$/
+              }
+              $1 == "A" && $2 ~ /\/go\.mod$/ {
+                emit($2)
+              }
+              $1 !~ /^(D|R)/ && (is_go_source($2) || is_go_dep($2)) {
+                emit($2)
+              }
+              $1 == "D" && (is_go_source($2) || is_go_dep($2)) {
+                emit($2)
+              }
+              $1 ~ /^R/ && (is_go_source($2) || is_go_dep($2)) {
+                emit($2)
+              }
+              $1 ~ /^R/ && (is_go_source($3) || is_go_dep($3)) {
+                emit($3)
+              }
+            ' "$changed" \
+              | sort -u \
+              | while IFS= read -r dir; do
+                  if [ -f "${dir}/go.mod" ]; then
+                    echo "$dir"
+                  fi
+                done > "$dirs"
+
+          fi
+
+          count=$(wc -l < "$dirs" | tr -d ' ')
+          echo "Selected ${count} library CLI module(s)."
+          cat "$dirs"
+
+          echo "dirs_path=${dirs}" >> "$GITHUB_OUTPUT"
+
+      - name: Run govulncheck
+        run: |
+          set -uo pipefail
+          fail=0
+          count=0
+
+          while IFS= read -r dir; do
+            if [ -z "$dir" ]; then
+              continue
+            fi
+            count=$((count + 1))
+            echo "::group::${dir}"
+            # govulncheck's default package scan fails for reachable findings.
+            # It may still report non-reachable dependency warnings without
+            # failing; do not use -scan=module here unless the repo explicitly
+            # wants stricter dependency hygiene.
+            if ! (cd "$dir" && govulncheck ./...); then
+              fail=1
+            fi
+            echo "::endgroup::"
+          done < "${{ steps.modules.outputs.dirs_path }}"
+
+          if [ "$count" -eq 0 ]; then
+            echo "No changed library CLI modules to scan."
+          fi
+
+          exit "$fail"

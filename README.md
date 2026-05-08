@@ -134,7 +134,7 @@ Tools grouped by category, sourced from [`registry.json`](registry.json). Each r
 
 ## Binary-only install
 
-If you only want the binary and not the companion skill, install directly with [Go 1.23+](https://go.dev/dl/):
+If you only want the binary and not the companion skill, install directly with [Go 1.26.3 or newer](https://go.dev/dl/):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/<path>/cmd/<binary>@latest
@@ -188,10 +188,10 @@ Each published tool is self-contained: source code, a local README, a `.printing
 
 ## What endorsed means
 
-Every published tool in this repo has passed:
+Published tools in this repo are validated at publication time and during deliberate baseline sweeps against:
 
 1. Generation from an API spec or captured interface through the [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)
-2. Validation checks: build, vet, help, version, plus the structural dogfood and runtime verify gates
+2. Validation checks: build, vet, reachable Go vulnerability scan, help, version, plus the structural dogfood and runtime verify gates
 3. Provenance capture through `.printing-press.json` and `.manuscripts/`
 
 Some tools are refined after generation. The generated artifacts remain in the tool directory so the provenance stays inspectable.

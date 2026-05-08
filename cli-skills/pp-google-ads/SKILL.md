@@ -612,7 +612,7 @@ Parse `$ARGUMENTS`:
 
 ## CLI Installation
 
-1. Check Go is installed: `go version` (requires Go 1.23+)
+1. Check Go is installed: `go version` (requires Go 1.26.3 or newer)
 2. Install:
    ```bash
    go install github.com/mvanhorn/printing-press-library/library/marketing/google-ads/cmd/google-ads-pp-cli@latest

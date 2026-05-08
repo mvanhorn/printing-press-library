@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/other/redfin
 
-go 1.25.0
+go 1.26.3
 
 require (
 	github.com/enetx/surf v1.0.199

@@ -22,7 +22,7 @@ item is waiting for you next time you open the app.
 ## Quick Start
 
 ```bash
-# 1. Build (requires Go 1.23+)
+# 1. Build (requires Go 1.26.3 or newer)
 go build -o instacart ./cmd/instacart
 
 # 2. Seed the persisted-query hash cache
@@ -266,7 +266,7 @@ npx -y @mvanhorn/printing-press install instacart --cli-only
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/commerce/instacart/cmd/instacart-pp-cli@latest

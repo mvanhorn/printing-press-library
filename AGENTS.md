@@ -15,6 +15,7 @@ When deciding where a change belongs:
 - **Do not silently fork generated conventions here.** If you hand-edit a generated CLI in `library/`, decide whether the same fix should be upstreamed to `cli-printing-press`. If it should and you have a local checkout, make the generator change there; if you do not, open or draft an upstream issue with the affected CLI path, the generated code pattern, the expected generator behavior, and the local patch you applied here.
 - **Do not rerun broad generation casually from this repo.** Regeneration is owned by the generator pipeline. For small, surgical fixes to an already-published CLI, prefer the `printing-press patch` workflow from the generator repo when it applies.
 - **When working cross-repo, obey both repos' instructions.** Start in this repo for published artifacts, switch to the local `cli-printing-press` checkout for generator changes if one is available, and keep commits scoped so generated output and generator logic are not mixed accidentally.
+- **Vulnerability gates are split by lifecycle.** The generator/publish flow in `cli-printing-press` should block newly printed CLIs on reachable `govulncheck` findings before they enter this repo. This public library keeps a clean baseline when practical, but it is a catalog of many independent CLIs — do not turn every unrelated PR into a full-library dependency-freshness campaign.
 
 The normal flow is:
 
@@ -220,8 +221,11 @@ python3 .github/scripts/verify-skill/verify_skill.py --dir library/<category>/<s
 cd library/<category>/<slug>/
 go build ./...
 go vet ./...
+govulncheck ./...
 go test ./...
 ```
+
+`govulncheck` should stay in package reachability mode (`govulncheck ./...`). Do not switch the PR gate to module/SBOM scanning unless the repo intentionally chooses stricter dependency-presence hygiene. The public-library CI gate is deliberately scoped to CLIs whose Go source or dependency files changed, plus newly added CLIs; use the workflow's manual `scope=all` dispatch only for deliberate baseline sweeps.
 
 Common failure shapes that CI surfaces but local runs catch first:
 - Resource renames driven by framework collisions (e.g., `search` → `<api>-search`, `auth` → `<api>-auth`) leave SKILL.md / README.md referencing the old command path. The verifier flags `[unknown-command]`.

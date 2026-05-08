@@ -218,11 +218,13 @@ func findCLIDirs(libraryRoot string) ([]string, error) {
 type sweepStatus string
 
 const (
-	statusUnchanged sweepStatus = "unchanged" // both files already at canonical shape
-	statusSkillOnly sweepStatus = "skill-only"
+	statusUnchanged  sweepStatus = "unchanged" // both files already at canonical shape
+	statusSkillOnly  sweepStatus = "skill-only"
 	statusReadmeOnly sweepStatus = "readme-only"
-	statusBoth      sweepStatus = "both"
+	statusBoth       sweepStatus = "both"
 )
+
+const minimumGoVersion = "Go 1.26.3 or newer"
 
 // sweepCLI applies the canonical shape to one library/<cat>/<api>/. The
 // snapshot-restore guarantees: on any error from patchSkill or patchReadme,
@@ -306,7 +308,10 @@ func sweepCLI(cliDir, ownerName string) (sweepStatus, error) {
 
 	// Snapshot-restore: track which files we've written so we can roll
 	// back on later failures within this CLI's patch set.
-	var written []struct{ path string; before []byte }
+	var written []struct {
+		path   string
+		before []byte
+	}
 	defer func() {
 		// no-op on success path; the named return below clears this on success
 	}()
@@ -322,14 +327,20 @@ func sweepCLI(cliDir, ownerName string) (sweepStatus, error) {
 		if err := os.WriteFile(skillPath, []byte(skillAfter), 0o644); err != nil {
 			return statusUnchanged, fmt.Errorf("write SKILL.md: %w", err)
 		}
-		written = append(written, struct{ path string; before []byte }{skillPath, skillBefore})
+		written = append(written, struct {
+			path   string
+			before []byte
+		}{skillPath, skillBefore})
 	}
 	if readmeChanged {
 		if err := os.WriteFile(readmePath, []byte(readmeAfter), 0o644); err != nil {
 			rollback()
 			return statusUnchanged, fmt.Errorf("write README.md: %w", err)
 		}
-		written = append(written, struct{ path string; before []byte }{readmePath, readmeBefore})
+		written = append(written, struct {
+			path   string
+			before []byte
+		}{readmePath, readmeBefore})
 	}
 
 	switch {
@@ -456,10 +467,10 @@ func leadingSpaces(s string) int {
 // the canonical "after description" position. Both are stripped first
 // and re-inserted as a contiguous block, so:
 //
-//   * Author always reflects the per-CLI authorship mapping
+//   - Author always reflects the per-CLI authorship mapping
 //     (cliAuthorByAPIName) — overrides any stale value from a
 //     previous sweep run with a wrong default.
-//   * License is always "Apache-2.0" — the constant for every printed
+//   - License is always "Apache-2.0" — the constant for every printed
 //     CLI per LICENSE.tmpl.
 //
 // Also strips any pre-existing `version:` line (legacy from an earlier
@@ -595,7 +606,7 @@ This skill drives the `+"`%s`"+` binary. **You must verify the CLI is installed 
 2. Verify: `+"`%s --version`"+`
 3. Ensure `+"`$GOPATH/bin`"+` (or `+"`$HOME/go/bin`"+`) is on `+"`$PATH`"+`.
 
-If the `+"`npx`"+` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+If the `+"`npx`"+` install fails (no Node, offline, etc.), fall back to a direct Go install (requires %s):
 
 `+"```bash"+`
 go install %s@latest
@@ -603,7 +614,7 @@ go install %s@latest
 
 If `+"`--version`"+` reports "command not found" after install, the install step did not put the binary on `+"`$PATH`"+`. Do not proceed with skill commands until verification succeeds.
 
-`, ctx.CLIName, ctx.APIName, ctx.CLIName, module)
+`, ctx.CLIName, ctx.APIName, ctx.CLIName, minimumGoVersion, module)
 }
 
 // removeCLIInstallationSection strips the existing `## CLI Installation`
@@ -746,7 +757,7 @@ npx -y @mvanhorn/printing-press install %s --cli-only
 
 ### Without Node (Go fallback)
 
-If `+"`npx`"+` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
+If `+"`npx`"+` isn't available (no Node, offline), install the CLI directly via Go (requires %s):
 
 `+"```bash"+`
 go install %s@latest
@@ -758,7 +769,7 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/%s-current). On macOS, clear the Gatekeeper quarantine: `+"`xattr -d com.apple.quarantine <binary>`"+`. On Unix, mark it executable: `+"`chmod +x <binary>`"+`.
 
-`, ctx.CLIName, ctx.APIName, ctx.APIName, ctx.APIName, module, ctx.APIName)
+`, ctx.CLIName, ctx.APIName, ctx.APIName, ctx.APIName, minimumGoVersion, module, ctx.APIName)
 }
 
 // patchReadmeHermesOpenClaw enforces the canonical position and

@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/food-and-dining/dominos
 
-go 1.26
+go 1.26.3
 
 require (
 	github.com/enetx/surf v1.0.199

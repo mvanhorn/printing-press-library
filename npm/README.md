@@ -73,7 +73,7 @@ More bundles will be added over time. To suggest one, open an issue at the [prin
 ## Requirements
 
 - Node.js 20+
-- Go 1.23+ (for `go install`)
+- Go 1.26.3 or newer (for `go install`)
 - `$(go env GOPATH)/bin` on `$PATH` (usually `$HOME/go/bin`) so installed CLIs are runnable
 
 While the catalog repository is private, also set `GITHUB_TOKEN` or `GH_TOKEN` for catalog and skill fetches, and ensure Go can read private `github.com/mvanhorn/*` modules.

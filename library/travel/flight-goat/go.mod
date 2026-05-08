@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/travel/flight-goat
 
-go 1.25.0
+go 1.26.3
 
 require (
 	github.com/krisukox/google-flights-api v0.0.0-20250222190543-733976a7234f
@@ -23,7 +23,7 @@ require (
 	github.com/google/jsonschema-go v0.4.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
-	github.com/hashicorp/go-retryablehttp v0.7.4 // indirect
+	github.com/hashicorp/go-retryablehttp v0.7.7 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/klauspost/compress v1.17.4 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

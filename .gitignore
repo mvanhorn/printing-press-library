@@ -11,6 +11,9 @@ __debug_bin*
 # Go build cache
 .cache/
 
+# Local vulnerability scan reports
+.govulncheck/
+
 # Build artifacts from printing-press verify/scorecard
 *-validation
 

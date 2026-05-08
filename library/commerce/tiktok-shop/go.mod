@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/commerce/tiktok-shop
 
-go 1.23.0
+go 1.26.3
 
 require (
 	github.com/mark3labs/mcp-go v0.47.0
