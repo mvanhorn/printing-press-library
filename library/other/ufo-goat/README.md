@@ -1,4 +1,4 @@
-# War.gov UFO CLI
+# UFO Goat CLI
 
 **The declassified UAP file archive in your terminal — browse, search, and download 162+ files from the PURSUE initiative**
 
@@ -9,13 +9,13 @@ The first CLI for the War.gov/UFO declassified files portal. Search across all f
 The recommended path installs both the `ufo-goat-pp-cli` binary and the `pp-ufo-goat` agent skill in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install ufo
+npx -y @mvanhorn/printing-press install ufo-goat
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install ufo --cli-only
+npx -y @mvanhorn/printing-press install ufo-goat --cli-only
 ```
 
 ### Without Node (Go fallback)
@@ -30,7 +30,7 @@ This installs the CLI only — no skill.
 
 ### Pre-built binary
 
-Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/ufo-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/ufo-goat-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 <!-- pp-hermes-install-anchor -->
 ## Install for Hermes
@@ -261,7 +261,7 @@ This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle �
 
 To install:
 
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/ufo-current).
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/ufo-goat-current).
 2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
 
 Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
