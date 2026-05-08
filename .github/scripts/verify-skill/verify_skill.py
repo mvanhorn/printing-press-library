@@ -3,8 +3,10 @@
 
 Four checks run in sequence:
 
-  1. flag-names — every `--flag` in SKILL.md is declared as a cobra flag
-     somewhere in internal/cli/*.go.
+  1. flag-names — every `--flag` used on a `<cli_binary> ...` invocation in
+     SKILL.md is declared as a cobra flag somewhere in internal/cli/*.go.
+     Flags on lines that invoke other tools (npx installers, gh, go,
+     curl, etc.) are out of scope and ignored.
   2. flag-commands — every `--flag` used on a specific command is declared
      on that command (or as a persistent/root flag).
   3. positional-args — positional args in bash recipes match the command's
@@ -13,7 +15,7 @@ Four checks run in sequence:
      recipes and inline backticks under `## Command Reference`) maps to a
      real cobra `Use:` declaration in internal/cli/*.go. Catches docs that
      promise commands the binary does not implement (e.g. SKILL.md lists
-     `boxscore <game_id>` but the CLI only has `summary`).
+     `qr get-qrcode` but the CLI only registers a leaf `qr` after promotion).
 
 The checks are pattern-matching heuristics against Go AST-adjacent text.
 False positives are possible for edge cases:
@@ -49,6 +51,7 @@ import re
 import shlex
 import sys
 from dataclasses import dataclass, field
+from functools import lru_cache
 from pathlib import Path
 from typing import Iterable
 
@@ -59,15 +62,6 @@ COMMON_FLAGS = {
     "no-color", "human-friendly", "config", "base-url", "rate-limit",
     "timeout", "data-source", "stdin", "limit", "format", "output",
     "no-prompt", "days",
-    # Flags from external tools whose install/usage commands are
-    # embedded in SKILL.md prose. These are NOT flags of the printed
-    # CLI being verified — they belong to the npm installer, hermes
-    # CLI, claude mcp, etc. — and the verifier shouldn't expect them
-    # in internal/cli/*.go.
-    "cli-only",     # @mvanhorn/printing-press install ... --cli-only
-    "skill-only",   # @mvanhorn/printing-press install ... --skill-only
-    "registry-url", # @mvanhorn/printing-press --registry-url
-    "force",        # hermes skills install ... --force
 }
 
 CODEBLOCK_BASH = re.compile(r"```bash\n(.*?)\n```", re.DOTALL)
@@ -90,9 +84,6 @@ FLAG_DECL_RE = re.compile(
     r'StringSliceVar|StringArrayVar|UintVar|Uint64Var)P?\('
     r'&[^,]+,\s*"([a-z][a-z0-9-]*)"'
 )
-FLAG_TOKEN_RE = re.compile(r"(?:^|\s)(--[a-z][a-z0-9-]*)")
-
-
 @dataclass
 class Finding:
     check: str
@@ -141,18 +132,259 @@ def parse_use(use_str: str) -> tuple[str, int, int, bool]:
     return name, required, optional, variadic
 
 
-def find_command_source(cli_dir: Path, cmd_path: list[str]):
-    """Locate source file(s) whose cobra.Command matches this path.
+# CONSTRUCTOR_RE matches `func newXxxCmd(...) *cobra.Command {`. The
+# parameter list pattern `\([^()]*(?:\([^()]*\)[^()]*)*\)` handles one
+# level of nested parens — the case that matters in practice is a
+# function-typed parameter like `func newFooCmd(handler func() error)
+# *cobra.Command`. Without the nested-paren handling the regex stops
+# at the first `)` (the closer of `func()`) and the constructor is
+# silently dropped from the constructor map. Two-level nesting (e.g.
+# `func()` inside another `func()`) would still fail; flag for the
+# legacy fallback when that pathological shape appears.
+CONSTRUCTOR_RE = re.compile(
+    r'^func\s+(new[A-Z]\w*Cmd)\s*'
+    r'\([^()]*(?:\([^()]*\)[^()]*)*\)'
+    r'\s*\*cobra\.Command\s*\{',
+    re.MULTILINE,
+)
+ADDCMD_CHILD_RE = re.compile(r'\.AddCommand\s*\(\s*(new[A-Z]\w*Cmd)\s*\(')
+ROOT_ADDCMD_RE = re.compile(r'rootCmd\.AddCommand\s*\(\s*(new[A-Z]\w*Cmd)\s*\(')
 
-    Returns (go_files, use_str, args_info) where go_files is a list.
-    Why a list: CLIs sometimes declare the same Use in two files (historical
-    artifact or generator + transcendence both shipping a version of the
-    same command). Cobra only registers one at runtime, but we don't know
-    which without parsing root.go's AddCommand calls. Returning all matching
-    files lets callers union their flags when checking declarations.
+
+def _extract_function_body(text: str, start_offset: int) -> str | None:
+    """Given the offset just after the opening `{` of a function body,
+    return the body text (excluding the closing `}`). Tracks string and
+    comment state so braces inside string literals or comments don't
+    confuse the depth counter. Returns None if the body is unclosed.
+    """
+    depth = 1
+    i = start_offset
+    n = len(text)
+    in_string: str | None = None  # holds the active string opener: '"', '`', or "'"
+    in_line_comment = False
+    in_block_comment = False
+    while i < n and depth > 0:
+        c = text[i]
+        if in_line_comment:
+            if c == '\n':
+                in_line_comment = False
+            i += 1
+            continue
+        if in_block_comment:
+            if c == '*' and i + 1 < n and text[i + 1] == '/':
+                in_block_comment = False
+                i += 2
+                continue
+            i += 1
+            continue
+        if in_string is not None:
+            if c == '\\' and in_string != '`' and i + 1 < n:
+                # Skip the escaped char (still inside the string)
+                i += 2
+                continue
+            if c == in_string:
+                in_string = None
+            i += 1
+            continue
+        if c == '/' and i + 1 < n:
+            if text[i + 1] == '/':
+                in_line_comment = True
+                i += 2
+                continue
+            if text[i + 1] == '*':
+                in_block_comment = True
+                i += 2
+                continue
+        if c in ('"', '`', "'"):
+            in_string = c
+            i += 1
+            continue
+        if c == '{':
+            depth += 1
+        elif c == '}':
+            depth -= 1
+        i += 1
+    if depth != 0:
+        return None
+    return text[start_offset:i - 1]
+
+
+@dataclass
+class CommandConstructor:
+    name: str
+    file: Path
+    use: str
+    args_info: tuple | None
+    children: list[str] = field(default_factory=list)
+
+
+@lru_cache(maxsize=None)
+def collect_command_constructors(cli_dir: Path) -> dict[str, CommandConstructor]:
+    """Scan internal/cli/*.go for `func newXxxCmd(...) *cobra.Command`
+    declarations. For each, capture the Use string, the cobra.Args
+    validator, and the list of child constructor names called via
+    `<var>.AddCommand(newYyyCmd(...))` within the function body.
+
+    Result maps constructor name → CommandConstructor.
+
+    Cached per cli_dir for the lifetime of the process. verify-skill
+    invokes find_command_source once per recipe in SKILL.md (typically
+    5-15) and the source tree doesn't change mid-run, so the
+    file-system scan only needs to happen once. Callers must not
+    mutate the returned dict (it's the cache's storage).
+    """
+    src = cli_dir / "internal/cli"
+    if not src.exists():
+        return {}
+    constructors: dict[str, CommandConstructor] = {}
+    for go_file in src.glob("*.go"):
+        if go_file.name.endswith("_test.go"):
+            continue
+        try:
+            text = go_file.read_text()
+        except Exception:
+            continue
+        for m in CONSTRUCTOR_RE.finditer(text):
+            fn_name = m.group(1)
+            body = _extract_function_body(text, m.end())
+            if body is None:
+                continue
+            use_match = USE_RE.search(body)
+            if not use_match:
+                continue
+            args_match = ARGS_RE.search(body)
+            args_info = (args_match.group(1), args_match.group(2)) if args_match else None
+            children = list(dict.fromkeys(
+                child.group(1) for child in ADDCMD_CHILD_RE.finditer(body)
+            ))
+            constructors[fn_name] = CommandConstructor(
+                name=fn_name,
+                file=go_file,
+                use=use_match.group(1),
+                args_info=args_info,
+                children=children,
+            )
+    return constructors
+
+
+@lru_cache(maxsize=None)
+def find_root_children(cli_dir: Path) -> list[str]:
+    """Return the constructor names called from `rootCmd.AddCommand(...)`
+    anywhere in internal/cli/*.go. The ordering follows source order, but
+    the result is deduplicated.
+
+    Cached per cli_dir; callers must not mutate the returned list.
+    See collect_command_constructors for rationale."""
+    src = cli_dir / "internal/cli"
+    if not src.exists():
+        return []
+    seen: dict[str, None] = {}
+    for go_file in src.glob("*.go"):
+        if go_file.name.endswith("_test.go"):
+            continue
+        try:
+            text = go_file.read_text()
+        except Exception:
+            continue
+        for m in ROOT_ADDCMD_RE.finditer(text):
+            seen.setdefault(m.group(1), None)
+    return list(seen)
+
+
+def resolve_command_path(
+    cli_dir: Path,
+    cmd_path: list[str],
+    constructors: dict[str, CommandConstructor] | None = None,
+    root_children: list[str] | None = None,
+):
+    """Walk the AddCommand graph to find the canonical declaring file for
+    cmd_path. Returns (file, use_str, args_info) or (None, None, None) if
+    the path can't be resolved (unknown command, unconventional CLI).
+
+    This is the durable replacement for the old specificity-based
+    disambiguation in find_command_source. It picks the file based on
+    actual command-tree structure rather than guessing from `Use:` token
+    counts. See retro #301 finding F1.
+    """
+    if not cmd_path:
+        return None, None, None
+    if constructors is None:
+        constructors = collect_command_constructors(cli_dir)
+    if root_children is None:
+        root_children = find_root_children(cli_dir)
+    if not constructors or not root_children:
+        return None, None, None
+
+    current = None
+    for fn_name in root_children:
+        info = constructors.get(fn_name)
+        if info is None:
+            continue
+        leaf, _, _, _ = parse_use(info.use)
+        if leaf == cmd_path[0]:
+            current = info
+            break
+    if current is None:
+        return None, None, None
+
+    for token in cmd_path[1:]:
+        next_info = None
+        for child_fn in current.children:
+            child = constructors.get(child_fn)
+            if child is None:
+                continue
+            leaf, _, _, _ = parse_use(child.use)
+            if leaf == token:
+                next_info = child
+                break
+        if next_info is None:
+            return None, None, None
+        current = next_info
+
+    return current.file, current.use, current.args_info
+
+
+def find_command_source(cli_dir: Path, cmd_path: list[str]):
+    """Locate the source file whose cobra.Command matches this path.
+
+    Returns (go_files, use_str, args_info) where go_files is a list (kept
+    list-shaped for backwards compatibility — most callers iterate it for
+    `flag_declared_in` lookups).
+
+    Resolution strategy:
+
+      1. Walk the rootCmd.AddCommand graph (the durable approach added in
+         retro #301 F1). When the CLI follows the standard `func newXxxCmd`
+         + `<parent>.AddCommand(newXxxCmd(...))` convention, this returns
+         exactly one file per command path with no false positives, even
+         when two different commands share a leaf name (e.g.,
+         `recipe-goat-pp-cli save` vs `recipe-goat-pp-cli profile save`).
+
+      2. If the graph walk fails (unconventional CLI, missing rootCmd,
+         constructor functions not named `newXxxCmd`), fall back to a
+         legacy specificity heuristic that scans every Go file for any
+         `Use:` whose first token matches the leaf. The legacy path is
+         imperfect (it can pick the wrong file when leaves collide) but
+         keeps the tool useful on CLIs that don't follow the standard
+         convention.
     """
     if not cmd_path:
         return [], None, None
+
+    file, use_str, args_info = resolve_command_path(cli_dir, cmd_path)
+    if file is not None:
+        return [file], use_str, args_info
+
+    # Legacy fallback — kept to preserve behavior for unconventional CLIs.
+    return _legacy_find_command_source(cli_dir, cmd_path)
+
+
+def _legacy_find_command_source(cli_dir: Path, cmd_path: list[str]):
+    """Pre-retro-#301 specificity-based heuristic. Retained as a fallback
+    for CLIs whose command structure doesn't match the standard
+    `rootCmd.AddCommand(newXxxCmd(...))` pattern resolve_command_path
+    expects (e.g., commands constructed via local helpers, or files that
+    declare cobra.Commands without going through a `newXxxCmd` factory)."""
     leaf = cmd_path[-1]
     src = cli_dir / "internal/cli"
     if not src.exists():
@@ -181,109 +413,16 @@ def find_command_source(cli_dir: Path, cmd_path: list[str]):
     if not candidates:
         return [], None, None
 
-    # Multi-token paths: prefer filename-match (e.g., contacts_search.go for
-    # cmd_path ["contacts", "search"]).
     if len(cmd_path) >= 2:
         expected_basename = "_".join(cmd_path).replace("-", "_") + ".go"
         for spec, go_file, use_str, args_info in candidates:
             if go_file.name == expected_basename:
                 return [go_file], use_str, args_info
 
-    # Disambiguation: multiple cobra.Commands can share a `Use:` leaf when
-    # one is a top-level domain command and another is a subcommand under
-    # an unrelated parent (e.g. both the top-level `save` and PR #218's
-    # `profile save` subcommand use `Use: "save..."`). The specificity
-    # tiebreaker below is not enough — the subcommand sometimes has MORE
-    # positional tokens than the top-level. Resolve via the constructor
-    # naming convention printing-press follows:
-    #
-    #   top-level:  newXxxCmd   (registered via rootCmd.AddCommand)
-    #   subcommand: new{Parent1}{Parent2}...{Leaf}Cmd
-    #
-    # Single-token path ["save"]  -> prefer enclosing fn in root_ctors
-    # Multi-token path  ["profile", "delete"] -> prefer enclosing fn that
-    #                                           matches "newProfileDeleteCmd"
-    root_ctors = root_level_constructors(cli_dir)
-    if root_ctors:
-        if len(cmd_path) == 1:
-            preferred = [
-                c for c in candidates
-                if enclosing_constructor(c[1], c[2]) in root_ctors
-            ]
-        else:
-            expected_ctor = (
-                "new"
-                + "".join(_title(seg) for seg in cmd_path)
-                + "Cmd"
-            )
-            preferred = [
-                c for c in candidates
-                if enclosing_constructor(c[1], c[2]) == expected_ctor
-            ]
-        if preferred:
-            preferred.sort(key=lambda c: -c[0])
-            top_spec = preferred[0][0]
-            top_files = [c[1] for c in preferred if c[0] == top_spec]
-            return top_files, preferred[0][2], preferred[0][3]
-
-    # Fallback: take all files at the highest specificity tier. For flag
-    # verification, any one of them declaring the flag counts. For Use
-    # string, pick the representative.
     candidates.sort(key=lambda c: -c[0])
     top_spec = candidates[0][0]
     top_files = [c[1] for c in candidates if c[0] == top_spec]
     return top_files, candidates[0][2], candidates[0][3]
-
-
-def _title(seg: str) -> str:
-    """Title-case a command path segment, mirroring printing-press's Go
-    identifier convention. Hyphens split into separate title-cased parts:
-    `agent-context` → `AgentContext`. `save` → `Save`."""
-    return "".join(w.capitalize() for w in seg.split("-") if w)
-
-
-# Matches `rootCmd.AddCommand(newFooCmd(...))` or `root.AddCommand(...)`,
-# capturing the constructor function name.
-_ROOT_ADDCOMMAND_RE = re.compile(r"\brootCmd\.AddCommand\(\s*(\w+)\s*\(")
-
-
-def root_level_constructors(cli_dir: Path) -> set[str]:
-    """Return the set of constructor function names registered via
-    rootCmd.AddCommand(...) in root.go. Used to disambiguate top-level
-    commands from same-named subcommands that live in other files.
-    Returns empty set if root.go can't be read or doesn't use rootCmd."""
-    root_go = cli_dir / "internal/cli/root.go"
-    try:
-        text = root_go.read_text()
-    except Exception:
-        return set()
-    return set(_ROOT_ADDCOMMAND_RE.findall(text))
-
-
-def enclosing_constructor(go_file: Path, use_str: str) -> str:
-    """Return the name of the `func newXxxCmd(...) *cobra.Command {` that
-    lexically contains the `Use: "<use_str>"` declaration in go_file.
-    Empty string if not found — caller treats that as "not a constructor"
-    and excludes it from root-level matching."""
-    try:
-        text = go_file.read_text()
-    except Exception:
-        return ""
-    needle = f'Use:'
-    # Find the specific Use declaration matching this use_str.
-    target_idx = -1
-    for m in re.finditer(r'Use:\s*(?:=\s*)?"([^"]*)"', text):
-        if m.group(1) == use_str:
-            target_idx = m.start()
-            break
-    if target_idx < 0:
-        return ""
-    # Walk backwards for the nearest `func newXxxCmd(` preceding this Use.
-    preceding = text[:target_idx]
-    funcs = list(re.finditer(r"func\s+(\w+)\s*\(", preceding))
-    if not funcs:
-        return ""
-    return funcs[-1].group(1)
 
 
 def flag_declared_in(files: Iterable[Path], flag_name: str) -> bool:
@@ -295,6 +434,143 @@ def flag_declared_in(files: Iterable[Path], flag_name: str) -> bool:
         for m in FLAG_DECL_RE.finditer(text):
             if m.group(3) == flag_name:
                 return True
+    return False
+
+
+# Matches a function call whose first positional arg is `cmd` (or `cmd.Flags()`).
+# Captures the function name so the verifier can look up its body.
+HELPER_CALL_RE = re.compile(
+    r"\b([a-zA-Z_]\w*)\s*\(\s*cmd(?:\b|\.Flags\(\))"
+)
+
+# Cobra/stdlib methods that take cmd as first arg but never declare flags.
+_HELPER_CALL_IGNORE = frozenset({
+    "AddCommand", "Run", "Execute", "Help", "Usage",
+    "Print", "Printf", "Println",
+})
+
+
+def go_block_body(text: str, open_brace: int) -> str:
+    """Return the body for the Go block whose `{` starts at open_brace.
+
+    This is intentionally a small scanner rather than a Go parser. It handles
+    nested braces and skips comments/strings so adjacent helper functions do
+    not leak into the matched helper body.
+    """
+    if open_brace < 0 or open_brace >= len(text) or text[open_brace] != "{":
+        return ""
+
+    depth = 0
+    i = open_brace
+    state = "code"
+    while i < len(text):
+        ch = text[i]
+        nxt = text[i + 1] if i + 1 < len(text) else ""
+
+        if state == "line_comment":
+            if ch == "\n":
+                state = "code"
+            i += 1
+            continue
+        if state == "block_comment":
+            if ch == "*" and nxt == "/":
+                state = "code"
+                i += 2
+            else:
+                i += 1
+            continue
+        if state == "double_string":
+            if ch == "\\":
+                i += 2
+                continue
+            if ch == '"':
+                state = "code"
+            i += 1
+            continue
+        if state == "raw_string":
+            if ch == "`":
+                state = "code"
+            i += 1
+            continue
+        if state == "rune":
+            if ch == "\\":
+                i += 2
+                continue
+            if ch == "'":
+                state = "code"
+            i += 1
+            continue
+
+        if ch == "/" and nxt == "/":
+            state = "line_comment"
+            i += 2
+            continue
+        if ch == "/" and nxt == "*":
+            state = "block_comment"
+            i += 2
+            continue
+        if ch == '"':
+            state = "double_string"
+            i += 1
+            continue
+        if ch == "`":
+            state = "raw_string"
+            i += 1
+            continue
+        if ch == "'":
+            state = "rune"
+            i += 1
+            continue
+
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return text[open_brace + 1:i]
+        i += 1
+
+    return ""
+
+
+def flag_declared_via_helper(cli_dir: Path, cmd_files: Iterable[Path], flag_name: str) -> bool:
+    """Return True if any helper called from cmd_files (with cmd as first arg)
+    declares flag_name in its body. One level of indirection only — no recursive
+    resolution."""
+    helper_names: set[str] = set()
+    for f in cmd_files:
+        try:
+            text = f.read_text()
+        except Exception:
+            continue
+        for m in HELPER_CALL_RE.finditer(text):
+            name = m.group(1)
+            if name not in _HELPER_CALL_IGNORE:
+                helper_names.add(name)
+    if not helper_names:
+        return False
+
+    src = cli_dir / "internal/cli"
+    if not src.exists():
+        return False
+
+    func_re = re.compile(
+        r"func\s+("
+        + "|".join(re.escape(n) for n in helper_names)
+        + r")\s*\([^)]*\)\s*(?:\w+\s*)?\{"
+    )
+    for go_file in src.glob("*.go"):
+        if go_file.name.endswith("_test.go"):
+            continue
+        try:
+            text = go_file.read_text()
+        except Exception:
+            continue
+        for m in func_re.finditer(text):
+            body = go_block_body(text, m.end() - 1)
+            for fm in FLAG_DECL_RE.finditer(body):
+                if fm.group(3) == flag_name:
+                    return True
     return False
 
 
@@ -317,12 +593,6 @@ def persistent_flag_declared(cli_dir: Path, flag_name: str) -> bool:
 # ---------------------------------------------------------------------------
 # SKILL.md extraction
 # ---------------------------------------------------------------------------
-
-
-def extract_all_flags(skill: Path) -> set[str]:
-    """Return every `--flag-name` token (without `--`) used anywhere in SKILL.md."""
-    text = skill.read_text()
-    return {t.lstrip("-") for t in FLAG_TOKEN_RE.findall(text)}
 
 
 def extract_recipes(skill: Path, cli_binary: str, cli_dir: Path | None = None) -> list[tuple[list[str], list[str], list[str]]]:
@@ -392,7 +662,7 @@ def extract_recipes(skill: Path, cli_binary: str, cli_dir: Path | None = None) -
                     or re.match(r"^\d", t)
                 ):
                     break
-                if len(cmd_path) < 3 and re.match(r"^[a-z][a-z0-9_-]*$", t):
+                if len(cmd_path) < 3 and re.match(r"^[a-z][a-z0-9-]*$", t):
                     # Verify adding this token still maps to a valid command.
                     # If the extended path has no source match (e.g. the
                     # parent command's Use documents <positional> and this
@@ -433,16 +703,28 @@ def extract_recipes(skill: Path, cli_binary: str, cli_dir: Path | None = None) -
 # ---------------------------------------------------------------------------
 
 
-def check_flag_names(cli_dir: Path, skill: Path, report: Report) -> None:
+def check_flag_names(cli_dir: Path, skill: Path, cli_binary: str, report: Report) -> None:
+    # Scoped to recipes so flags belonging to other tools invoked from
+    # SKILL.md (npx installers, gh, go, curl, ...) don't get reported as
+    # missing declarations on the printed CLI. extract_recipes already
+    # filters to lines starting with `cli_binary + " "`.
     all_files = list((cli_dir / "internal/cli").glob("*.go"))
-    flags = extract_all_flags(skill) - COMMON_FLAGS
-    for flag in sorted(flags):
-        if not flag_declared_in(all_files, flag):
+    recipes = extract_recipes(skill, cli_binary, cli_dir)
+    seen: set[str] = set()
+    for cmd_path, _positional, flags in recipes:
+        for raw_flag in flags:
+            flag = raw_flag.lstrip("-")
+            if flag in COMMON_FLAGS or flag in seen:
+                continue
+            if flag_declared_in(all_files, flag):
+                continue
+            seen.add(flag)
+            path_str = " ".join(cmd_path)
             report.findings.append(
                 Finding(
                     check="flag-names",
                     severity="error",
-                    command="(any)",
+                    command=f"{cli_binary} {path_str}",
                     detail=f"--{flag} is referenced in SKILL.md but not declared in any internal/cli/*.go",
                 )
             )
@@ -456,35 +738,12 @@ def check_flag_commands(cli_dir: Path, skill: Path, cli_binary: str, report: Rep
             flag = raw_flag.lstrip("-")
             if flag in COMMON_FLAGS:
                 continue
-            # Walk cmd_path from longest to shortest prefix looking for a
-            # command that declares --flag. This mirrors cobra's runtime
-            # behavior and compensates for the recipe parser's greedy
-            # path promotion: when a positional arg (e.g. `bookings` in
-            # `tail bookings --interval`) happens to match a valid
-            # sibling command name, extract_recipes treats it as part of
-            # the command path. If the flag isn't on the greedy path but
-            # IS on a shorter prefix whose Use: accepts the extra tokens
-            # as positional args, accept the recipe.
-            matched = False
-            for k in range(len(cmd_path), 0, -1):
-                prefix = cmd_path[:k]
-                files, use_str, _args = find_command_source(cli_dir, prefix)
-                if not files or not flag_declared_in(files, flag):
-                    continue
-                if k == len(cmd_path):
-                    matched = True
-                    break
-                # Shorter prefix: require that the Use: signature can
-                # absorb the extra cmd_path tokens as positional args.
-                _, req, opt, variadic = parse_use(use_str or "")
-                extra = len(cmd_path) - k
-                max_positional = req + opt + (99 if variadic else 0)
-                if extra <= max_positional:
-                    matched = True
-                    break
-            if matched:
+            cmd_files, _, _ = find_command_source(cli_dir, cmd_path)
+            if cmd_files and flag_declared_in(cmd_files, flag):
                 continue
             if persistent_flag_declared(cli_dir, flag):
+                continue
+            if cmd_files and flag_declared_via_helper(cli_dir, cmd_files, flag):
                 continue
             path_str = " ".join(cmd_path)
             if flag_declared_in(all_files, flag):
@@ -547,7 +806,9 @@ def check_positional_args(cli_dir: Path, skill: Path, cli_binary: str, report: R
         if any(p.startswith("$") for p in positional):
             fp = True
         # For single-token cmd_path where positional[0] is lowercase+alpha,
-        # the parser may have under-counted cmd_path.
+        # the parser may have under-counted cmd_path. Accept hyphens AND
+        # underscores so snake_case subcommands (e.g. category_page_query
+        # from a GraphQL BFF expansion) classify as false positives.
         if len(cmd_path) == 1 and positional and re.match(r"^[a-z][a-z0-9_-]+$", positional[0]):
             fp = True
 
@@ -611,6 +872,10 @@ def check_unknown_commands(cli_dir: Path, skill: Path, cli_binary: str, report: 
       - Inline backtick references inside the `## Command Reference` section
 
     Each unique cmd_path is reported at most once per SKILL.md.
+
+    Uses the in-repo find_command_source which walks the rootCmd.AddCommand
+    graph and resolves multi-level command paths (e.g., `links stale` vs
+    `profile save`) without false-positive collisions on shared leaf names.
     """
     skill_text = skill.read_text()
     seen: set[tuple[str, ...]] = set()
@@ -643,6 +908,7 @@ def check_unknown_commands(cli_dir: Path, skill: Path, cli_binary: str, report: 
         if files:
             continue
         # Walk back to the longest existing prefix for a clearer error.
+        detail = "command path not found in internal/cli/*.go (no matching Use: declaration)"
         for k in range(len(cmd_path) - 1, 0, -1):
             prefix_files, _, _ = find_command_source(cli_dir, cmd_path[:k])
             if prefix_files:
@@ -651,8 +917,6 @@ def check_unknown_commands(cli_dir: Path, skill: Path, cli_binary: str, report: 
                     f"closest existing prefix is `{cli_binary} {' '.join(cmd_path[:k])}`"
                 )
                 break
-        else:
-            detail = "command path not found in internal/cli/*.go (no matching Use: declaration)"
         report.findings.append(
             Finding(
                 check="unknown-command",
@@ -698,7 +962,7 @@ def run_checks(cli_dir: Path, only: set[str] | None) -> Report:
     checks = only or {"flag-names", "flag-commands", "positional-args", "unknown-command"}
     if "flag-names" in checks:
         report.checks_run.append("flag-names")
-        check_flag_names(cli_dir, skill, report)
+        check_flag_names(cli_dir, skill, cli_binary, report)
     if "flag-commands" in checks:
         report.checks_run.append("flag-commands")
         check_flag_commands(cli_dir, skill, cli_binary, report)
