@@ -66,11 +66,23 @@ type Registry struct {
 }
 
 type RegistryEntry struct {
-	Name        string    `json:"name"`
-	Category    string    `json:"category"`
-	API         string    `json:"api"`
-	Description string    `json:"description"`
-	Path        string    `json:"path"`
+	Name        string `json:"name"`
+	Category    string `json:"category"`
+	API         string `json:"api"`
+	Description string `json:"description"`
+	Path        string `json:"path"`
+	// Printer is the GitHub @handle of the human who originally ran the
+	// press for this CLI. Sourced verbatim from .printing-press.json's
+	// `printer` field; never derived from operator git config or curated
+	// from a prior registry value. Manifest is the only source of
+	// truth so attribution survives across regenerations and across
+	// operator changes.
+	Printer string `json:"printer,omitempty"`
+	// PrinterName is the prose-shaped display name of the printer.
+	// Sourced from .printing-press.json's `printer_name` field. Empty
+	// values are valid; the per-CLI README byline renders without a
+	// parenthetical and the catalog row renders only the @handle.
+	PrinterName string    `json:"printer_name,omitempty"`
 	MCP         *MCPBlock `json:"mcp,omitempty"`
 }
 
@@ -104,6 +116,8 @@ type MCPBlock struct {
 type printingPressManifest struct {
 	APIName            string   `json:"api_name"`
 	DisplayName        string   `json:"display_name"`
+	Printer            string   `json:"printer"`
+	PrinterName        string   `json:"printer_name"`
 	MCPBinary          string   `json:"mcp_binary"`
 	MCPToolCount       int      `json:"mcp_tool_count"`
 	MCPPublicToolCount *int     `json:"mcp_public_tool_count"`
@@ -283,6 +297,15 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry) (
 		Category: category,
 		API:      apiDisplayName(pp, prior, slug),
 		Path:     filepath.ToSlash(dir),
+		// Printer attribution: always derive from the manifest. Do not
+		// honor a curated prior.Printer value — the manifest is the
+		// only source of truth, and a curated map would re-introduce
+		// the multi-author retrofit footgun the cliAuthorByAPIName map
+		// in tools/sweep-canonical/ exists to manage carefully.
+		// Existing CLIs without a printer field in their manifest will
+		// emit registry entries with omitempty (no printer key).
+		Printer:     pp.Printer,
+		PrinterName: pp.PrinterName,
 	}
 
 	// Description preference: existing registry value (curated) > goreleaser
@@ -569,11 +592,25 @@ func renderCatalogTable(entries []RegistryEntry) string {
 	buf.WriteString("|------|-------|---------|--------------|\n")
 	for _, e := range entries {
 		fmt.Fprintf(&buf,
-			"| [`%s`](%s/) | [`/pp-%s`](cli-skills/pp-%s/SKILL.md) | [latest](%s%s-current) | %s |\n",
-			e.Name, e.Path, e.Name, e.Name, releaseTagURLBase, e.Name, formatDescription(e.Description),
+			"| [`%s`](%s/) | [`/pp-%s`](cli-skills/pp-%s/SKILL.md) | [latest](%s%s-current) | %s%s |\n",
+			e.Name, e.Path, e.Name, e.Name, releaseTagURLBase, e.Name, formatDescription(e.Description), printerSuffix(e),
 		)
 	}
 	return buf.String()
+}
+
+// printerSuffix returns the markdown suffix that visibly credits the
+// printer in the catalog row's description cell. Renders as
+// `<br><sub>Printed by @handle</sub>` when a Printer is set; empty
+// otherwise. Folded into the description cell rather than added as a
+// new column to avoid widening the existing 4-column table (every
+// entry has a description; not every entry has a printer until the
+// backfill follow-up issue ships).
+func printerSuffix(e RegistryEntry) string {
+	if e.Printer == "" {
+		return ""
+	}
+	return fmt.Sprintf("<br><sub>Printed by [@%s](https://github.com/%s)</sub>", e.Printer, e.Printer)
 }
 
 // renderCatalogCounts returns the "N CLIs across M categories." line
