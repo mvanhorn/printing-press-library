@@ -15,7 +15,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"google-search-console-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/google-search-console/internal/store"
 )
 
 // -------- coverage-drift: url_inspection state flips ---------------------
