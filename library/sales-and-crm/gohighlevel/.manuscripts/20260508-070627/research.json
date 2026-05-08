@@ -1,0 +1,347 @@
+{
+  "api_name": "gohighlevel",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "BusyBee3333/Go-High-Level-MCP-2026-Complete",
+      "url": "https://github.com/BusyBee3333/Go-High-Level-MCP-2026-Complete",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 520,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mastanley13/GoHighLevel-MCP",
+      "url": "https://github.com/mastanley13/GoHighLevel-MCP",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 269,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "basicmachines-co/open-ghl-mcp",
+      "url": "https://github.com/basicmachines-co/open-ghl-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 80,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tenfoldmarc/ghl-mcp",
+      "url": "https://github.com/tenfoldmarc/ghl-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 70,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "GoHighLevel/highlevel-api-sdk",
+      "url": "https://github.com/GoHighLevel/highlevel-api-sdk",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "drausal/gohighlevel-mcp",
+      "url": "https://github.com/drausal/gohighlevel-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ThinkBeDo/gohighlevel_mcp",
+      "url": "https://github.com/ThinkBeDo/gohighlevel_mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "CryptoJym/gohighlevel-mcp",
+      "url": "https://github.com/CryptoJym/gohighlevel-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 21,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-08T11:14:00Z",
+  "novel_features": [
+    {
+      "name": "Multi-location roster",
+      "command": "roster",
+      "description": "One table summarizing operational health metrics (new leads, unread conversations, unpaid invoices, stale opportunities) across every sub-account in one row each.",
+      "rationale": "Requires joins across contacts, conversations, messages, invoices, and opportunities keyed by location_id — a per-call MCP can't do it.",
+      "example": "gohighlevel-pp-cli roster --metric leads-24h,unread,unpaid-invoices,stale-opps --json",
+      "why_it_matters": "When a user asks 'how are all my locations doing this morning', this is the one command that answers it without 50 round-trips.",
+      "group": "Cross-location aggregation"
+    },
+    {
+      "name": "Cross-location unread triage",
+      "command": "unread",
+      "description": "List inbound conversations that have no outbound reply, optionally filtered by location, recency, and assignee.",
+      "rationale": "Joins messages + conversations and applies a NOT EXISTS subquery — a single API call can't express it across locations.",
+      "example": "gohighlevel-pp-cli unread --location all --since 1h --assigned-to me --json",
+      "why_it_matters": "Answers 'what conversation actually needs me right now' without paging through 10 inbox tabs.",
+      "group": "Cross-location aggregation"
+    },
+    {
+      "name": "Stale opportunities with activity check",
+      "command": "stale-opps",
+      "description": "Find pipeline opportunities with no stage change AND no message/note activity in N days, grouped by stage.",
+      "rationale": "LEFT JOIN against messages and notes by contact_id, scoped to a pipeline — no MCP today does this join.",
+      "example": "gohighlevel-pp-cli stale-opps --pipeline 'Sales 2026' --threshold 14 --no-activity --json",
+      "why_it_matters": "Replaces the manual Tuesday-morning kanban hunt for 'who's stuck and forgotten'.",
+      "group": "Pipeline analytics"
+    },
+    {
+      "name": "Pipeline stage velocity",
+      "command": "velocity",
+      "description": "Mean/p50/p90 time-in-stage per pipeline stage, plus count entered/exited and conversion percentage.",
+      "rationale": "Requires a stage-history table populated via incremental sync polling — pure API has no historical view.",
+      "example": "gohighlevel-pp-cli velocity --pipeline 'Sales 2026' --json",
+      "why_it_matters": "Replaces a $300/mo Airtable+Zapier mirror with a one-line shell command.",
+      "group": "Pipeline analytics"
+    },
+    {
+      "name": "SLA breach detector",
+      "command": "sla-breach",
+      "description": "Conversations across all locations where the last inbound message has no outbound reply within a threshold, optionally restricted to business hours.",
+      "rationale": "Joins conversations + messages + locations.business_hours — competing MCPs cannot do this join.",
+      "example": "gohighlevel-pp-cli sla-breach --threshold 30m --business-hours --location all --json",
+      "why_it_matters": "Catches SLA breaches in real time instead of after the client complains.",
+      "group": "Triage and SLA"
+    },
+    {
+      "name": "Contact dedup with merge",
+      "command": "contacts dedup",
+      "description": "Find duplicate contacts by phone or email, output merge candidates, optionally apply via the contacts merge endpoint.",
+      "rationale": "GROUP BY over normalized phone/email on local contacts — only feasible after a sync, no native dedup endpoint.",
+      "example": "gohighlevel-pp-cli contacts dedup --by phone,email --json",
+      "why_it_matters": "Cleans up the post-migration mess that plagues every reseller migration.",
+      "group": "Bulk operations"
+    },
+    {
+      "name": "Bulk tag from search with dry-run",
+      "command": "contacts bulk-tag",
+      "description": "Apply or remove a tag across the results of a contact search, with dry-run preview and rate-limit-aware progress.",
+      "rationale": "Composes the canonical contact search with per-contact tag updates while respecting the documented 100/10s rate limit.",
+      "example": "gohighlevel-pp-cli contacts bulk-tag --from-search 'campaign:spring-2026' tested --json",
+      "why_it_matters": "One-line 'retag this campaign cohort' instead of 500 manual UI clicks.",
+      "group": "Bulk operations"
+    },
+    {
+      "name": "Migration reconcile",
+      "command": "contacts reconcile",
+      "description": "Diff a source CSV against the synced local contact set on a key column, output created/updated/missing/extra rows.",
+      "rationale": "Pure local LEFT JOIN — only meaningful after a sync, doesn't fit any single API call.",
+      "example": "gohighlevel-pp-cli contacts reconcile --source migration-source.csv --key email --json",
+      "why_it_matters": "Closes the loop on every reseller migration so nothing falls through the cracks.",
+      "group": "Bulk operations"
+    },
+    {
+      "name": "Agent context delta",
+      "command": "agent-context",
+      "description": "Structured JSON description of every command, flag, and auth env var so agents can introspect the live CLI without parsing --help or reading source.",
+      "rationale": "Reflects the cobra command tree at runtime via --help walks; no API call needed, no store access required, no per-invocation watermark.",
+      "example": "gohighlevel-pp-cli agent-context --pretty",
+      "why_it_matters": "Lets an agent discover what actions are available without scraping help text — the schema_version field signals breaking shape changes.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Multi-location roster",
+      "command": "roster",
+      "description": "One table summarizing operational health metrics (new leads, unread conversations, unpaid invoices, stale opportunities) across every sub-account in one row each.",
+      "rationale": "Requires joins across contacts, conversations, messages, invoices, and opportunities keyed by location_id — a per-call MCP can't do it.",
+      "example": "gohighlevel-pp-cli roster --metric leads-24h,unread,unpaid-invoices,stale-opps --json",
+      "why_it_matters": "When a user asks 'how are all my locations doing this morning', this is the one command that answers it without 50 round-trips.",
+      "group": "Cross-location aggregation"
+    },
+    {
+      "name": "Cross-location unread triage",
+      "command": "unread",
+      "description": "List inbound conversations that have no outbound reply, optionally filtered by location, recency, and assignee.",
+      "rationale": "Joins messages + conversations and applies a NOT EXISTS subquery — a single API call can't express it across locations.",
+      "example": "gohighlevel-pp-cli unread --location all --since 1h --assigned-to me --json",
+      "why_it_matters": "Answers 'what conversation actually needs me right now' without paging through 10 inbox tabs.",
+      "group": "Cross-location aggregation"
+    },
+    {
+      "name": "Stale opportunities with activity check",
+      "command": "stale-opps",
+      "description": "Find pipeline opportunities with no stage change AND no message/note activity in N days, grouped by stage.",
+      "rationale": "LEFT JOIN against messages and notes by contact_id, scoped to a pipeline — no MCP today does this join.",
+      "example": "gohighlevel-pp-cli stale-opps --pipeline 'Sales 2026' --threshold 14 --no-activity --json",
+      "why_it_matters": "Replaces the manual Tuesday-morning kanban hunt for 'who's stuck and forgotten'.",
+      "group": "Pipeline analytics"
+    },
+    {
+      "name": "Pipeline stage velocity",
+      "command": "velocity",
+      "description": "Mean/p50/p90 time-in-stage per pipeline stage, plus count entered/exited and conversion percentage.",
+      "rationale": "Requires a stage-history table populated via incremental sync polling — pure API has no historical view.",
+      "example": "gohighlevel-pp-cli velocity --pipeline 'Sales 2026' --json",
+      "why_it_matters": "Replaces a $300/mo Airtable+Zapier mirror with a one-line shell command.",
+      "group": "Pipeline analytics"
+    },
+    {
+      "name": "SLA breach detector",
+      "command": "sla-breach",
+      "description": "Conversations across all locations where the last inbound message has no outbound reply within a threshold, optionally restricted to business hours.",
+      "rationale": "Joins conversations + messages + locations.business_hours — competing MCPs cannot do this join.",
+      "example": "gohighlevel-pp-cli sla-breach --threshold 30m --business-hours --location all --json",
+      "why_it_matters": "Catches SLA breaches in real time instead of after the client complains.",
+      "group": "Triage and SLA"
+    },
+    {
+      "name": "Contact dedup with merge",
+      "command": "contacts dedup",
+      "description": "Find duplicate contacts by phone or email, output merge candidates, optionally apply via the contacts merge endpoint.",
+      "rationale": "GROUP BY over normalized phone/email on local contacts — only feasible after a sync, no native dedup endpoint.",
+      "example": "gohighlevel-pp-cli contacts dedup --by phone,email --json",
+      "why_it_matters": "Cleans up the post-migration mess that plagues every reseller migration.",
+      "group": "Bulk operations"
+    },
+    {
+      "name": "Bulk tag from search with dry-run",
+      "command": "contacts bulk-tag",
+      "description": "Apply or remove a tag across the results of a contact search, with dry-run preview and rate-limit-aware progress.",
+      "rationale": "Composes the canonical contact search with per-contact tag updates while respecting the documented 100/10s rate limit.",
+      "example": "gohighlevel-pp-cli contacts bulk-tag --from-search 'campaign:spring-2026' tested --json",
+      "why_it_matters": "One-line 'retag this campaign cohort' instead of 500 manual UI clicks.",
+      "group": "Bulk operations"
+    },
+    {
+      "name": "Migration reconcile",
+      "command": "contacts reconcile",
+      "description": "Diff a source CSV against the synced local contact set on a key column, output created/updated/missing/extra rows.",
+      "rationale": "Pure local LEFT JOIN — only meaningful after a sync, doesn't fit any single API call.",
+      "example": "gohighlevel-pp-cli contacts reconcile --source migration-source.csv --key email --json",
+      "why_it_matters": "Closes the loop on every reseller migration so nothing falls through the cracks.",
+      "group": "Bulk operations"
+    },
+    {
+      "name": "Agent context delta",
+      "command": "agent-context",
+      "description": "Structured JSON description of every command, flag, and auth env var so agents can introspect the live CLI without parsing --help or reading source.",
+      "rationale": "Reflects the cobra command tree at runtime via --help walks; no API call needed, no store access required, no per-invocation watermark.",
+      "example": "gohighlevel-pp-cli agent-context --pretty",
+      "why_it_matters": "Lets an agent discover what actions are available without scraping help text — the schema_version field signals breaking shape changes.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "HighLevel",
+    "headline": "Every HighLevel feature, plus offline state, multi-location rollups, SLA detection, and pipeline velocity that no MCP server can answer.",
+    "value_prop": "gohighlevel-pp-cli mirrors all 409 HighLevel REST endpoints as typed Cobra commands and MCP tools, then layers a local SQLite store on top so cross-location triage (`roster`, `unread`, `sla-breach`), pipeline analytics (`velocity`, `stale-opps`), and bulk operations with `--dry-run` (`bulk-tag`, `dedup`, `reconcile`) become one-line shell commands instead of 50 tab-opens.",
+    "auth_narrative": "HighLevel uses OAuth 2.0 Bearer tokens or Private Integration Tokens (PITs). PITs are the simplest path: create one in Settings → Private Integrations, then `export HIGHLEVEL_TOKEN=\u003cpit\u003e`. Every request also requires a `Version: 2021-07-28` header — the CLI sets it automatically.",
+    "quickstart": [
+      {
+        "command": "export HIGHLEVEL_TOKEN=\u003cyour-private-integration-token\u003e",
+        "comment": "Set up auth — PITs avoid the OAuth dance entirely"
+      },
+      {
+        "command": "gohighlevel-pp-cli doctor",
+        "comment": "Verify auth and reachability"
+      },
+      {
+        "command": "gohighlevel-pp-cli locations list --json",
+        "comment": "Discover the locations your token can reach"
+      },
+      {
+        "command": "gohighlevel-pp-cli sync --full --location loc_abc123",
+        "comment": "Pull contacts, conversations, opportunities, invoices into local SQLite"
+      },
+      {
+        "command": "gohighlevel-pp-cli roster --metric unread,stale-opps --json",
+        "comment": "Cross-location operational health in one row per sub-account"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 'version header was not found'",
+        "fix": "Token works but `Version` header is missing — upgrade the CLI; this is set automatically in every release."
+      },
+      {
+        "symptom": "401 with valid token",
+        "fix": "Token may be agency-scoped; commands targeting locations need a Location-scoped PIT or an OAuth token with the right scope."
+      },
+      {
+        "symptom": "Rate limit (429) during bulk ops",
+        "fix": "Use `--dry-run` first; bulk commands self-throttle to the 100/10s budget but parallel CLIs share none of that state."
+      },
+      {
+        "symptom": "`stale-opps` returns nothing",
+        "fix": "Run `sync --resource opportunities,messages,notes` first — stale detection joins against the local store."
+      }
+    ],
+    "when_to_use": "Use this CLI when you need real cross-location analytics, scriptable bulk ops, or agent-native triage against HighLevel. The MCP servers in the ecosystem are excellent for per-call lookups inside Claude Desktop. This CLI is for the Monday-standup roster, the Tuesday pipeline review, the migration reconcile, and any agent that needs 'what changed since I last looked.'",
+    "recipes": [
+      {
+        "title": "Monday-standup roster across all locations",
+        "command": "gohighlevel-pp-cli roster --metric leads-24h,unread,unpaid-invoices,stale-opps --json --select rows.location_name,rows.unread,rows.stale_opps",
+        "explanation": "Use `--select` with dotted paths to grab only the columns the standup deck needs — full roster output is verbose JSON."
+      },
+      {
+        "title": "Triage what needs you right now",
+        "command": "gohighlevel-pp-cli unread --location all --since 1h --assigned-to me --json",
+        "explanation": "One shell command instead of 10 inbox tabs."
+      },
+      {
+        "title": "Stale-opp hunt before pipeline review",
+        "command": "gohighlevel-pp-cli stale-opps --pipeline 'Sales 2026' --threshold 14d --no-activity",
+        "explanation": "Joins messages + notes locally so 'no activity' actually means no activity."
+      },
+      {
+        "title": "Migration reconcile after bulk import",
+        "command": "gohighlevel-pp-cli contacts reconcile --source migration-source.csv --key email --json",
+        "explanation": "Pure local diff between source CSV and synced contacts — closes the migration loop."
+      },
+      {
+        "title": "Bulk-retag a campaign cohort with dry-run",
+        "command": "gohighlevel-pp-cli contacts bulk-tag --from-search 'campaign:spring-2026' tested --dry-run",
+        "explanation": "Always dry-run first; bulk ops respect the 100/10s rate limit."
+      }
+    ],
+    "trigger_phrases": [
+      "show me unread across all my GoHighLevel locations",
+      "find stale opportunities in HighLevel",
+      "GHL pipeline velocity",
+      "bulk tag GoHighLevel contacts",
+      "GHL SLA breach",
+      "use gohighlevel",
+      "run gohighlevel"
+    ]
+  }
+}

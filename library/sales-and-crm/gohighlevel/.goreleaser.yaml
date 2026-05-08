@@ -1,0 +1,51 @@
+version: 2
+project_name: gohighlevel-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: gohighlevel-pp-cli
+    main: ./cmd/gohighlevel-pp-cli
+    binary: gohighlevel-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/sales-and-crm/gohighlevel/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: gohighlevel-pp-mcp
+    main: ./cmd/gohighlevel-pp-mcp
+    binary: gohighlevel-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: gohighlevel-pp-cli
+    repository:
+      owner: user
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every HighLevel feature, plus offline state, multi-location rollups, SLA detection, and pipeline velocity that no..."
+    install: |
+      bin.install "gohighlevel-pp-cli"
+      bin.install "gohighlevel-pp-mcp"
