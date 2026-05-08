@@ -16,11 +16,12 @@ import (
 const clarityExportEndpoint = "https://www.clarity.ms/export-data/api/v1/project-live-insights"
 
 var clarityDimensionNames = map[string]string{
-	"browser":        "Browser",
-	"device":         "Device",
-	"country/region": "Country/Region",
-	"country":        "Country/Region",
-	"region":         "Country/Region",
+	"browser": "Browser",
+	"device":  "Device",
+	// PATCH(printing-press-library#308): Clarity documents Country/Region, but the live API only returns the requested geography for Country.
+	"country/region": "Country",
+	"country":        "Country",
+	"region":         "Country",
 	"os":             "OS",
 	"source":         "Source",
 	"medium":         "Medium",
@@ -123,7 +124,7 @@ The API token is generated in Microsoft Clarity under Settings -> Data Export
 		},
 	}
 	cmd.Flags().IntVar(&days, "days", 1, "Number of recent days to export: 1, 2, or 3")
-	cmd.Flags().StringArrayVar(&dimensions, "dimension", nil, "Dimension to break down insights by; repeat up to three times")
+	cmd.Flags().StringArrayVar(&dimensions, "dimension", nil, "Dimension to break down insights by; repeat up to three times; country aliases send Country because Clarity drops Country/Region")
 	return cmd
 }
 
@@ -154,7 +155,7 @@ func normalizeClarityDimension(value string) (string, error) {
 	if canonical, ok := clarityDimensionNames[strings.ToLower(value)]; ok {
 		return canonical, nil
 	}
-	return "", fmt.Errorf("invalid --dimension %q: use Browser, Device, Country/Region, OS, Source, Medium, Campaign, Channel, or URL", value)
+	return "", fmt.Errorf("invalid --dimension %q: use Browser, Device, Country, OS, Source, Medium, Campaign, Channel, or URL", value)
 }
 
 func clarityAPITokenFromEnv() (string, string) {

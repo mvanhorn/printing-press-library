@@ -60,7 +60,19 @@ func TestBuildInsightsQuery(t *testing.T) {
 	if got.Get("dimension1") != "OS" {
 		t.Fatalf("dimension1 = %q, want OS", got.Get("dimension1"))
 	}
-	if got.Get("dimension2") != "Country/Region" {
-		t.Fatalf("dimension2 = %q, want Country/Region", got.Get("dimension2"))
+	if got.Get("dimension2") != "Country" {
+		t.Fatalf("dimension2 = %q, want Country", got.Get("dimension2"))
+	}
+}
+
+func TestNormalizeClarityCountryDimensionAliases(t *testing.T) {
+	for _, input := range []string{"Country", "country/region", "region"} {
+		got, err := normalizeClarityDimension(input)
+		if err != nil {
+			t.Fatalf("normalizeClarityDimension(%q) returned error: %v", input, err)
+		}
+		if got != "Country" {
+			t.Fatalf("normalizeClarityDimension(%q) = %q, want Country", input, got)
+		}
 	}
 }

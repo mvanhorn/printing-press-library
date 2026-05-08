@@ -3,5 +3,15 @@
   "applied_at": "2026-05-08",
   "base_run_id": "20260508-113436",
   "base_printing_press_version": "4.0.1",
-  "patches": []
+  "patches": [
+    {
+      "id": "308-clarity-country-dimension",
+      "upstream_issue": "https://github.com/mvanhorn/printing-press-library/issues/308",
+      "files": [
+        "internal/cli/insights.go"
+      ],
+      "summary": "Send Country on the wire for country dimension aliases.",
+      "reason": "Microsoft Clarity documents Country/Region, but the live Data Export API silently drops that dimension; empirical verification shows Country is the working wire value."
+    }
+  ]
 }
