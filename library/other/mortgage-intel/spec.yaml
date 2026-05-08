@@ -1,0 +1,23 @@
+name: mortgage-intel
+description: "Live mortgage rates from Freddie Mac via FRED (Federal Reserve). No API key required. Weekly 30yr, 15yr, ARM rates with trend analysis and affordability calculator."
+cli_description: "Freddie Mac mortgage rates from the terminal — free, no API key."
+version: "1.0.0"
+kind: api
+spec_source: public
+http_transport: standard
+website_url: "https://fred.stlouisfed.org"
+category: other
+base_url: "https://fred.stlouisfed.org"
+
+auth:
+  type: none
+
+commands:
+  - name: current
+    description: Latest 30yr, 15yr, 5/1 ARM rates with weekly change
+  - name: history
+    description: Rate history table (configurable weeks)
+  - name: trend
+    description: 4-week trend direction with lock/float guidance
+  - name: afford
+    description: Monthly payment and income requirement calculator

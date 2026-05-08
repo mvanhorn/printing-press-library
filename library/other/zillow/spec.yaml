@@ -1,0 +1,26 @@
+name: zillow
+description: "Zestimate + deal intelligence CLI. Surfaces underpriced listings, rent estimates, and tax assessed values from Zillow using Chrome TLS fingerprinting."
+cli_description: "Zillow Zestimate and deal finder for the terminal."
+version: "1.0.0"
+kind: synthetic
+spec_source: sniffed
+http_transport: browser-chrome
+website_url: "https://www.zillow.com"
+category: other
+base_url: "https://www.zillow.com"
+
+auth:
+  type: none
+
+cache:
+  enabled: false
+
+commands:
+  - name: search
+    description: List homes with Zestimate for a city
+  - name: deals
+    description: Find properties where Zestimate exceeds list price
+  - name: zestimate
+    description: Get Zestimate for a specific property URL or address
+  - name: compare
+    description: Side-by-side Zestimate comparison for multiple properties

@@ -1,0 +1,21 @@
+name: rate-compare
+description: "Mortgage rate scenario comparison: live FRED market rates + Fannie Mae LLPA matrix for FICO/LTV-based pricing. Shows payment impact across credit scores, loan products (30yr/15yr/ARM), and scenarios. No API key required."
+cli_description: "Mortgage rate scenarios by FICO score and loan type — live rates, real pricing."
+version: "1.0.0"
+kind: api
+spec_source: public
+http_transport: standard
+website_url: "https://fred.stlouisfed.org"
+category: other
+base_url: "https://fred.stlouisfed.org"
+
+auth:
+  type: none
+
+commands:
+  - name: compare
+    description: Rate and payment comparison across FICO scores and loan products
+  - name: scenario
+    description: Single scenario with full PITI payment breakdown
+  - name: fico-impact
+    description: Dollar impact of improving credit score across all FICO bands
