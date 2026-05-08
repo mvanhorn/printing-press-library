@@ -134,7 +134,8 @@ Run 'sync' first; this command reads the local store.`,
 	}
 	cmd.Flags().StringVar(&entityType, "type", "collection", "Entity type (collection, workspace, api, flow)")
 	cmd.Flags().IntVar(&top, "top", 10, "How many top accelerating entities to return")
-	cmd.Flags().StringVar(&categoryRef, "category", "", "Category to narrow results — accepts a slug (payments-apis) or a numeric id (7)")
+	// PATCH: use the short slug form accepted by the category resolver in help text.
+	cmd.Flags().StringVar(&categoryRef, "category", "", "Category to narrow results — accepts a slug (payments) or a numeric id (7)")
 	cmd.Flags().Int64Var(&minMonth, "min-monthly", 0, "Drop entities with monthForkCount below this floor (denoising)")
 	return cmd
 }

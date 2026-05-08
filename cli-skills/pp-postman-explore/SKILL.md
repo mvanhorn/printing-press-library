@@ -85,9 +85,10 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Time-windowed signals
-- **`drift`** — Compare two synced snapshots and report new entities, removed entities, and entities whose updatedAt advanced.
+<!-- PATCH: describe current drift implementation accurately as updated-within-window, not snapshot diff. -->
+- **`drift`** — Report locally synced entities whose API-side `updatedAt` timestamp falls inside a time window.
 
-  _Agents tracking when a vendor publishes a new collection or updates an existing one rely on this; there is no other way to know._
+  _Agents tracking recently updated vendor collections rely on this after a periodic `sync`; it is an updated-within-window view, not a two-snapshot removed-entity diff._
 
   ```bash
   postman-explore-pp-cli drift --since 7d --type collection --json
@@ -177,10 +178,10 @@ Aggregate fork counts across each publisher's full portfolio in the payments cat
 ### What changed on the network this week
 
 ```bash
-postman-explore-pp-cli sync && postman-explore-pp-cli drift --since 7d --type collection --json
+postman-explore-pp-cli sync --resources collection,workspace,api,flow,category && postman-explore-pp-cli drift --since 7d --type collection --json
 ```
 
-Sync, then diff against the previous snapshot to find newly added or recently updated collections.
+Sync, then query the local store for collections whose API-side `updatedAt` falls inside the requested window.
 
 ### Browse top developer-productivity collections, narrow to verified publishers
 

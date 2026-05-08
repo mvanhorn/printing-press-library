@@ -18,26 +18,27 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "1.0.0"
+// PATCH: keep runtime --version aligned with the generated manifest version.
+var version = "3.0.1"
 
 type rootFlags struct {
-	asJSON       bool
-	compact      bool
-	csv          bool
-	plain        bool
-	quiet        bool
-	dryRun       bool
-	noCache      bool
-	noInput      bool
-	yes          bool
-	agent        bool
-	selectFields string
-	configPath   string
-	profileName  string
-	deliverSpec  string
-	timeout      time.Duration
-	rateLimit    float64
-	dataSource   string
+	asJSON        bool
+	compact       bool
+	csv           bool
+	plain         bool
+	quiet         bool
+	dryRun        bool
+	noCache       bool
+	noInput       bool
+	yes           bool
+	agent         bool
+	selectFields  string
+	configPath    string
+	profileName   string
+	deliverSpec   string
+	timeout       time.Duration
+	rateLimit     float64
+	dataSource    string
 	freshnessMeta any
 
 	// deliverBuf captures command output when --deliver is set to a
@@ -79,6 +80,7 @@ func Execute() error {
 }
 
 func newRootCmd(flags *rootFlags) *cobra.Command {
+	// PATCH: root help mirrors current drift behavior rather than a future snapshot-diff feature.
 	rootCmd := &cobra.Command{
 		Use:   "postman-explore-pp-cli",
 		Short: `Postman Explore CLI — The CLI for the public API directory at postman.com/explore — search, rank, and watch community-contributed Postman Col…`,
@@ -88,7 +90,7 @@ Highlights (not in the official API docs):
   • canonical   One command finds the best community Postman Collection for a vendor, ranked by…
   • top   Rank entities by any metric (weekForks, monthViewCount, etc.) with category and…
   • publishers top   Aggregate fork counts across every entity per publisher within a category; rank…
-  • drift   Compare two synced snapshots and report new entities, removed entities, and ent…
+  • drift   Report locally synced entities whose updatedAt timestamp falls inside…
   • browse   When passed --verified-only, the browse command filters to entities owned by pu…
   • velocity   Rank collections by acceleration ratio: (weekForkCount × 4) / monthForkCount. S…
   • similar   Given an entity numeric id, return collections with overlapping name, summary, …

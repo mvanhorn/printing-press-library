@@ -63,15 +63,20 @@ No authentication required. The CLI uses a Surf HTTP transport with Chrome TLS f
 
 ## Quick Start
 
+<!-- PATCH: align generated examples with current sync flags and local/live command behavior. -->
+
 ```bash
 # Confirm reachability and see network-wide entity counts in one call.
 postman-explore-pp-cli networkentity get-network-entity-counts
 
-# Populate the local store so search, top, drift, canonical, and publishers all work offline.
-postman-explore-pp-cli sync --all-types --limit 200
+# Populate the local store so top, drift, publishers, similar, and landscape can run offline.
+postman-explore-pp-cli sync --resources collection,workspace,api,flow,category --max-pages 10
 
 # The headline command — the best community Postman Collection for a known vendor.
 postman-explore-pp-cli canonical stripe
+
+# Discover valid category slugs and IDs.
+postman-explore-pp-cli category list-categories --json --select id,name,slug
 
 # Trend ranking by metric, narrowed to a category.
 postman-explore-pp-cli top --metric weekForkCount --type collection --category payments --limit 5 --json
@@ -128,9 +133,10 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Time-windowed signals
-- **`drift`** — Compare two synced snapshots and report new entities, removed entities, and entities whose updatedAt advanced.
+<!-- PATCH: describe current drift implementation accurately as updated-within-window, not snapshot diff. -->
+- **`drift`** — Report locally synced entities whose API-side `updatedAt` timestamp falls inside a time window.
 
-  _Agents tracking when a vendor publishes a new collection or updates an existing one rely on this; there is no other way to know._
+  _Agents tracking recently updated vendor collections rely on this after a periodic `sync`; it is an updated-within-window view, not a two-snapshot removed-entity diff._
 
   ```bash
   postman-explore-pp-cli drift --since 7d --type collection --json
@@ -322,8 +328,10 @@ Config file: `~/.config/postman-explore-pp-cli/config.toml`
 
 ### API-specific
 
+<!-- PATCH: clarify which commands require a populated local store. -->
+
 - **HTTP 403 with Cloudflare challenge HTML** — Confirm the binary is using Surf transport (the default in v3). Run `postman-explore-pp-cli doctor --json` to verify; reinstall via `go install github.com/mvanhorn/printing-press-library/library/developer-tools/postman-explore/cmd/postman-explore-pp-cli@latest` if Surf is missing.
-- **search or canonical returns empty results after install** — Run `postman-explore-pp-cli sync --all-types` first — those commands query the local store, which is empty until sync populates it.
+- **top, drift, publishers, similar, or category landscape returns empty results after install** — Run `postman-explore-pp-cli sync --resources collection,workspace,api,flow,category --max-pages 10` first; those commands rely on the local store. `canonical` and live `search` call the public search endpoint directly.
 - **top returns 0 results despite sync** — Confirm `--metric` matches one of: forkCount, monthForkCount, monthViewCount, monthWatchCount, publicViewCount, viewCount, watchCount, weekForkCount, weekViewCount, weekWatchCount. Other names produce empty result sets.
 - **browse returns 'Invalid sort type provided'** — Only `--sort popular` is accepted by the proxy. The web UI's other sort options (recent, week, alltime) return HTTP 400 against the API.
 

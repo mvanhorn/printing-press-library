@@ -36,6 +36,7 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var maxPages int
 	var latestOnly bool
 
+	// PATCH: generated help examples use real Postman Explore resources.
 	cmd := &cobra.Command{
 		Use:   "sync",
 		Short: "Sync API data to local SQLite for offline search and analysis",
@@ -55,7 +56,7 @@ Exit codes & warnings:
   postman-explore-pp-cli sync
 
   # Sync specific resources only
-  postman-explore-pp-cli sync --resources channels,messages
+  postman-explore-pp-cli sync --resources collection,category,workspace
 
   # Full resync (ignore previous checkpoint)
   postman-explore-pp-cli sync --full
@@ -551,12 +552,13 @@ func parseSinceDuration(s string) (time.Time, error) {
 }
 
 func defaultSyncResources() []string {
+	// PATCH: omit bare networkentity from the default sync set because useful
+	// network entity syncs need an explicit entityType-specific endpoint.
 	return []string{
 		"api",
 		"category",
 		"collection",
 		"flow",
-		"networkentity",
 		"workspace",
 	}
 }
@@ -566,12 +568,12 @@ func defaultSyncResources() []string {
 // this preserves the actual endpoint path like "/ISteamApps/GetAppList/v2".
 func syncResourcePath(resource string) string {
 	paths := map[string]string{
-		"api": "/v1/api/networkentity?entityType=api",
-		"category": "/v2/api/category",
-		"collection": "/v1/api/networkentity?entityType=collection",
-		"flow": "/v1/api/networkentity?entityType=flow",
+		"api":           "/v1/api/networkentity?entityType=api",
+		"category":      "/v2/api/category",
+		"collection":    "/v1/api/networkentity?entityType=collection",
+		"flow":          "/v1/api/networkentity?entityType=flow",
 		"networkentity": "/v1/api/networkentity",
-		"workspace": "/v1/api/networkentity?entityType=workspace",
+		"workspace":     "/v1/api/networkentity?entityType=workspace",
 	}
 	if p, ok := paths[resource]; ok {
 		return p

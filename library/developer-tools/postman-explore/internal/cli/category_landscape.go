@@ -17,6 +17,7 @@ import (
 func newCategoryLandscapeCmd(flags *rootFlags) *cobra.Command {
 	var topEntities int
 	var topPublishers int
+	// PATCH: category landscape examples prefer short slugs accepted by the resolver and show slug discovery.
 	cmd := &cobra.Command{
 		Use:         "landscape <slug>",
 		Short:       "Per-category snapshot: counts, top publishers, top entities",
@@ -29,10 +30,13 @@ single structured JSON payload (or human-readable summary).
 Run 'sync' first; the publisher and entity rankings come from the local store.`,
 		Example: strings.Trim(`
   # Snapshot for the payments category
-  postman-explore-pp-cli category landscape payments-apis
+  postman-explore-pp-cli category landscape payments
 
   # JSON output
-  postman-explore-pp-cli category landscape e-commerce-apis --json`, "\n"),
+  postman-explore-pp-cli category landscape developer-productivity --json
+
+  # Discover valid category slugs and IDs
+  postman-explore-pp-cli category list-categories --json --select id,name,slug`, "\n"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -161,10 +165,10 @@ Run 'sync' first; the publisher and entity rankings come from the local store.`,
 					"slug":    catResp.Data.Slug,
 					"summary": catResp.Data.Summary,
 				},
-				"localCounts":    counts,
-				"localTotal":     len(items),
-				"topPublishers":  pubs,
-				"topEntities":    topViews,
+				"localCounts":   counts,
+				"localTotal":    len(items),
+				"topPublishers": pubs,
+				"topEntities":   topViews,
 			}
 			if flags.asJSON {
 				return printJSONFiltered(cmd, report, flags)

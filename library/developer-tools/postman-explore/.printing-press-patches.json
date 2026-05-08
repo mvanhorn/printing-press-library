@@ -3,5 +3,23 @@
   "applied_at": "2026-05-08",
   "base_run_id": "20260429-230407",
   "base_printing_press_version": "3.0.1",
-  "patches": []
+  "patches": [
+    {
+      "id": "docs-dx-drift-alignment",
+      "summary": "Aligned README, skill, help text, and metadata with the current postman-explore implementation.",
+      "reason": "The generated docs advertised unsupported sync flags and described drift as a two-snapshot diff even though the current command reports locally synced entities updated within a time window.",
+      "files": [
+        "README.md",
+        "SKILL.md",
+        "internal/cli/root.go",
+        "internal/cli/sync.go",
+        "internal/cli/category_landscape.go",
+        "internal/cli/velocity.go",
+        "internal/cli/which.go",
+        ".printing-press.json",
+        "workflow-verify-report.json"
+      ],
+      "validated_outcome": "go test ./... passed; go build ./cmd/postman-explore-pp-cli succeeded; --version reports 3.0.1; sync help shows Postman Explore resource examples."
+    }
+  ]
 }

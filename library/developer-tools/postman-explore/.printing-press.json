@@ -15,6 +15,14 @@
   "mcp_binary": "postman-explore-pp-mcp",
   "mcp_tool_count": 8,
   "mcp_public_tool_count": 8,
+  "mcp_typed_api_tool_count": 8,
+  "mcp_public_typed_api_tool_count": 8,
+  "mcp_additional_runtime_tools": [
+    "search",
+    "sql",
+    "context",
+    "cobra command mirror"
+  ],
   "mcp_ready": "full",
   "auth_type": "none",
   "novel_features": [
@@ -34,9 +42,9 @@
       "description": "Aggregate fork counts across every entity per publisher within a category; rank teams by total community gravity."
     },
     {
-      "name": "Drift / changelog since last sync",
+      "name": "Updated-within-window drift",
       "command": "drift",
-      "description": "Compare two synced snapshots and report new entities, removed entities, and entities whose updatedAt advanced."
+      "description": "Report locally synced entities whose API-side updatedAt timestamp falls inside a time window."
     },
     {
       "name": "Verified publishers only",
