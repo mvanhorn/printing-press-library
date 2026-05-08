@@ -247,6 +247,23 @@ func syncResource(c interface {
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("fetching %s: %w", resource, err), Duration: time.Since(started)}
 		}
 
+		// PATCH: detect Slack ok:false errors (e.g. missing_scope) before attempting to store.
+		// Without this, error objects get stored as a single "record" and silently corrupt the store.
+		var slackStatus struct {
+			OK    bool   `json:"ok"`
+			Error string `json:"error"`
+		}
+		if err := json.Unmarshal(data, &slackStatus); err == nil && !slackStatus.OK {
+			errMsg := slackStatus.Error
+			if errMsg == "" {
+				errMsg = "unknown Slack API error"
+			}
+			if !humanFriendly {
+				fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, errMsg)
+			}
+			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("Slack API error for %s: %s", resource, errMsg), Duration: time.Since(started)}
+		}
+
 		// Try to extract items from the response.
 		// Strategy: try array first, then common wrapper keys.
 		items, nextCursor, hasMore := extractPageItems(data, pageSize.cursorParam)
@@ -329,11 +346,11 @@ type paginationDefaults struct {
 	limit       int
 }
 
-// determinePaginationDefaults returns the pagination parameter names to use.
-// Values are detected from the API spec by the profiler at generation time.
+// PATCH: Slack uses "cursor" as the pagination param for conversations.list, not "after".
+// Using "after" causes Slack to ignore the cursor and re-fetch the first page on every request.
 func determinePaginationDefaults() paginationDefaults {
 	return paginationDefaults{
-		cursorParam: "after",
+		cursorParam: "cursor",
 		limitParam:  "limit",
 		limit:       100,
 	}
@@ -498,7 +515,9 @@ func defaultSyncResources() []string {
 // this preserves the actual endpoint path like "/ISteamApps/GetAppList/v2".
 func syncResourcePath(resource string) string {
 	paths := map[string]string{
-		"conversations": "/conversations.list?types=public_channel,private_channel,mpim,im",
+		// PATCH: exclude mpim,im types — they require mpim:read scope which typical bot tokens lack.
+		// Slack returns ok:false with missing_scope error for those types, causing a corrupt single-record store.
+		"conversations": "/conversations.list?types=public_channel,private_channel",
 		"emoji":         "/emoji.list",
 		"files":         "/files.list",
 		"reactions":     "/reactions.list",

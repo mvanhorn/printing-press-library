@@ -3,5 +3,25 @@
   "applied_at": "2026-05-08",
   "base_run_id": "20260409-073625",
   "base_printing_press_version": "1.2.1",
-  "patches": []
+  "patches": [
+    {
+      "id": "fix-conversations-types-scope",
+      "summary": "Remove mpim,im from conversations.list types to avoid missing_scope errors.",
+      "reason": "Bot tokens typically lack mpim:read scope. Including mpim,im in the types param causes Slack to return ok:false with missing_scope, which was silently stored as a single corrupt record instead of surfacing as an error. Removing those types allows public_channel and private_channel to sync correctly.",
+      "files": ["internal/cli/sync.go"],
+      "validated_outcome": "conversations sync went from 1 (corrupt error object) to 56 real channels including private ones."
+    },
+    {
+      "id": "fix-ok-false-detection",
+      "summary": "Detect Slack ok:false API errors before attempting to store the response as a record.",
+      "reason": "The generic syncResource loop had no Slack-specific error detection. When Slack returned {ok:false, error:\"missing_scope\"}, it was stored as a valid record and counted as a successful sync. This masked real failures and corrupted the store.",
+      "files": ["internal/cli/sync.go"]
+    },
+    {
+      "id": "fix-cursor-pagination-param",
+      "summary": "Change pagination cursor param from 'after' to 'cursor' for Slack API compatibility.",
+      "reason": "The generated determinePaginationDefaults() returned cursorParam: 'after', but Slack's conversations.list uses 'cursor'. This caused pagination to silently restart from page 1 on every request, making it impossible to sync more than one page of results.",
+      "files": ["internal/cli/sync.go"]
+    }
+  ]
 }
