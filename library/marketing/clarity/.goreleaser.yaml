@@ -1,0 +1,51 @@
+version: 2
+project_name: clarity-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: clarity-pp-cli
+    main: ./cmd/clarity-pp-cli
+    binary: clarity-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/clarity/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: clarity-pp-mcp
+    main: ./cmd/clarity-pp-mcp
+    binary: clarity-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: clarity-pp-cli
+    repository:
+      owner: user
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Client-side instrumentation helpers for Microsoft Clarity."
+    install: |
+      bin.install "clarity-pp-cli"
+      bin.install "clarity-pp-mcp"

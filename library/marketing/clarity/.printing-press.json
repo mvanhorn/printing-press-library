@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-08T16:22:19.253591Z",
+  "printing_press_version": "4.0.1",
+  "api_name": "clarity",
+  "display_name": "PP Clarity",
+  "cli_name": "clarity-pp-cli",
+  "owner": "user",
+  "spec_path": "/Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/current/clarity/clarity.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:fddb81e9af3a7ab38cd7dd8b5d0f70479791d87b5e535e7c2cf7cd9edf56c02f",
+  "run_id": "20260508-113436",
+  "description": "Generate Microsoft Clarity client API snippets and inspect the Clarity tag script.",
+  "mcp_binary": "clarity-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Snippet renderer",
+      "command": "snippet install",
+      "description": "Render a complete Clarity tracking snippet for a project ID, plus focused snippets for every documented client API call."
+    },
+    {
+      "name": "Local HTML audit",
+      "command": "audit html",
+      "description": "Inspect an HTML file for a Clarity tag script, masking attributes, and common window.clarity client API calls."
+    }
+  ]
+}

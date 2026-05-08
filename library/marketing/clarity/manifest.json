@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "clarity-pp-mcp",
+  "display_name": "PP Clarity",
+  "version": "4.0.1",
+  "description": "Generate Microsoft Clarity client API snippets and inspect the Clarity tag script.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/clarity-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/clarity-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
