@@ -60,15 +60,15 @@ type Source struct {
 type Intent string
 
 const (
-	IntentFood     Intent = "food"
-	IntentCoffee   Intent = "coffee"
-	IntentCulture  Intent = "culture"
-	IntentHistoric Intent = "historic"
+	IntentFood      Intent = "food"
+	IntentCoffee    Intent = "coffee"
+	IntentCulture   Intent = "culture"
+	IntentHistoric  Intent = "historic"
 	IntentViewpoint Intent = "viewpoint"
-	IntentShopping Intent = "shopping"
-	IntentNature   Intent = "nature"
-	IntentDrinks   Intent = "drinks"
-	IntentLodging  Intent = "lodging"
+	IntentShopping  Intent = "shopping"
+	IntentNature    Intent = "nature"
+	IntentDrinks    Intent = "drinks"
+	IntentLodging   Intent = "lodging"
 )
 
 // Registry is the v1 source list. Every typed Client in the build registers

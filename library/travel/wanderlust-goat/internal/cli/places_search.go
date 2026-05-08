@@ -96,7 +96,7 @@ func newPlacesSearchCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagQ, "query", "", "Free-text address, business name, or place (e.g. 'Park Hyatt Tokyo', '1600 Pennsylvania Ave').")
 	cmd.Flags().StringVar(&flagQ, "q", "", "Free-text address, business name, or place (e.g. 'Park Hyatt Tokyo', '1600 Pennsylvania Ave').")
 	_ = cmd.Flags().MarkHidden("q")
-	cmd.Flags().IntVar(&flagLimit, "limit", 0, "Maximum candidate results (1–50). Default: 5.")
+	cmd.Flags().IntVar(&flagLimit, "limit", 0, "Maximum candidate results (1-50). Default: 5.")
 	cmd.Flags().StringVar(&flagFormat, "format", "json", "Response format. Always 'json' in this CLI.")
 	cmd.Flags().IntVar(&flagAddressdetails, "addressdetails", 1, "Return structured address parts (1=on, 0=off). Default: 1.")
 	cmd.Flags().StringVar(&flagCountrycodes, "countrycodes", "", "Comma-separated ISO 3166-1 alpha-2 codes to constrain results (e.g. 'jp,kr,fr').")

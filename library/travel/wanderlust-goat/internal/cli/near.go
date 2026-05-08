@@ -2,94 +2,126 @@ package cli
 
 import (
 	"context"
-	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/spf13/cobra"
 
-	"github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/goatstore"
+	"github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/dispatch"
+	"github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/googleplaces"
 )
 
+// newNearCmd is the headline two-stage funnel command. Stage 1 seeds from
+// Google Places; Stage 2 deep-researches via the regions table; Stage 3
+// ranks with trust weights and returns the top N.
 func newNearCmd(flags *rootFlags) *cobra.Command {
 	var (
-		criteria string
-		identity string
-		minutes  int
+		criteria      string
+		identity      string
+		minutes       float64
+		top           int
+		seedLimit     int
+		includedTypes []string
+		useLLM        bool
+		anchorFlag    string
 	)
 	cmd := &cobra.Command{
-		Use:   "near <anchor>",
-		Short: "Find the 3-5 amazing things within walking distance that match your stated identity and criteria — not the 40 closest things.",
-		Long: `Persona-shaped local fanout. Geocodes the anchor (address or "lat,lng"),
-then fans out to every source eligible for the location's country. Scores by
-trust × (1 + country_match_boost) × intent_match × walking-time-decay against
-the local SQLite store + live source results, returning 3-5 ranked picks
-with local-language names preserved alongside transliterations.`,
-		Example: strings.Trim(`
-  # Persona-shaped 15-minute walk near a Tokyo hotel
-  wanderlust-goat-pp-cli near "Park Hyatt Tokyo" \
-    --criteria "vintage jazz kissaten, no tourists, great pour-over" \
-    --identity "coffee snob, into 70s Japanese kissaten culture" \
-    --minutes 15
+		Use:   "near [anchor]",
+		Short: "Find 3-5 amazing things within walking distance — two-stage funnel",
+		Long: `near runs the two-stage funnel:
+  Stage 1: seed candidates via Google Places (within walking minutes)
+  Stage 2: deep-research each candidate against locale-aware sources
+  Stage 3: trust-weighted rank with closed-signal kill-gate
 
-  # By lat,lng with --agent for JSON output
-  wanderlust-goat-pp-cli near 35.6895,139.6917 \
-    --criteria "viewpoint, blue hour" --identity "photographer" \
-    --minutes 20 --agent --select results.name,results.walking_min`, "\n"),
+Anchor accepts a free-text address ("Park Hyatt Tokyo"), or "<lat>,<lng>".
+Walking radius is computed as minutes × 4.5 km/h ÷ 1.3 tortuosity, not crow-flies meters.`,
+		Example: strings.Trim(`
+  wanderlust-goat-pp-cli near "Park Hyatt Tokyo" --criteria "vintage jazz kissaten with no tourists" --identity "coffee snob into 70s kissaten culture" --minutes 15
+  wanderlust-goat-pp-cli near 35.6895,139.6917 --criteria "high-end seafood with counter seating" --minutes 12 --json
+`, "\n"),
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Args:        cobra.ArbitraryArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
+			anchor := anchorFlag
+			if anchor == "" && len(args) > 0 {
+				anchor = args[0]
+			}
+			if anchor == "" {
 				return cmd.Help()
 			}
-			anchor := strings.Join(args, " ")
 			if dryRunOK(flags) {
 				return nil
 			}
 			ctx := cmd.Context()
-			res, err := resolveAnchor(ctx, anchor)
-			if err != nil {
-				return err
+			if ctx == nil {
+				ctx = context.Background()
 			}
-			store, err := openGoatStore(cmd, flags)
+			res, err := dispatch.ResolveAnchor(ctx, anchor)
 			if err != nil {
-				return err
+				return apiErr(err)
 			}
-			defer store.Close()
-			out := Fanout(ctx, res, criteria, identity, minutes, store)
-			return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+			d, err := dispatch.New()
+			if err != nil {
+				if errors.Is(err, googleplaces.ErrMissingAPIKey) {
+					return authErr(fmt.Errorf("%w (set GOOGLE_PLACES_API_KEY; doctor will show the setup)", err))
+				}
+				return configErr(err)
+			}
+			effectiveTypes := includedTypes
+			if len(effectiveTypes) == 0 {
+				effectiveTypes = defaultIncludedTypesFromCriteria(criteria, identity)
+			}
+			plan := dispatch.Plan{
+				Anchor:        anchor,
+				Resolved:      res,
+				Criteria:      criteria,
+				Identity:      identity,
+				RadiusMinutes: minutes,
+				SeedLimit:     seedLimit,
+				IncludedTypes: effectiveTypes,
+				UseLLM:        useLLM,
+			}
+			results, trace, err := d.Run(ctx, plan)
+			if err != nil {
+				return apiErr(err)
+			}
+			if top > 0 && len(results) > top {
+				results = results[:top]
+			}
+			out := struct {
+				Anchor  dispatch.AnchorResolution `json:"anchor"`
+				Region  string                    `json:"region"`
+				Results []dispatch.Result         `json:"results"`
+				Trace   dispatch.Trace            `json:"trace"`
+			}{
+				Anchor: res, Region: trace.Region.PrimaryLanguage, Results: results, Trace: trace,
+			}
+			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+			}
+			renderResultsTable(cmd, out.Results, out.Anchor)
+			return nil
 		},
 	}
-	cmd.Flags().StringVar(&criteria, "criteria", "", "Free-text criteria (e.g. \"vintage jazz kissaten, no tourists\").")
-	cmd.Flags().StringVar(&identity, "identity", "", "Free-text identity (e.g. \"coffee snob, into 70s kissaten culture\") — boosts local-language sources.")
-	cmd.Flags().IntVar(&minutes, "minutes", 15, "Walking-time radius in minutes (default 15, max 60).")
+	cmd.Flags().StringVar(&anchorFlag, "anchor", "", "anchor as <lat>,<lng> or address (positional also accepted)")
+	cmd.Flags().StringVar(&criteria, "criteria", "", "free-text criteria (e.g. \"vintage jazz kissaten with no tourists\")")
+	cmd.Flags().StringVar(&identity, "identity", "", "free-text identity / persona (e.g. \"coffee snob into 70s kissaten culture\")")
+	cmd.Flags().Float64Var(&minutes, "minutes", 15, "walking-time radius in minutes (4.5 km/h × 1.3 tortuosity)")
+	cmd.Flags().IntVar(&top, "top", 5, "return top N results (default 5)")
+	cmd.Flags().IntVar(&seedLimit, "seed-limit", 20, "max Google Places candidates to seed (1-20)")
+	cmd.Flags().StringSliceVar(&includedTypes, "type", nil, "Google Places type filter, repeatable (cafe, restaurant, etc.)")
+	cmd.Flags().BoolVar(&useLLM, "llm", false, "use ANTHROPIC_API_KEY for sharper criteria judgment (default heuristic)")
 	return cmd
 }
 
-// openGoatStore opens the shared goatstore at the canonical path.
-func openGoatStore(cmd *cobra.Command, flags *rootFlags) (*goatstore.Store, error) {
-	path := goatstore.DefaultPath("wanderlust-goat-pp-cli")
-	return goatstore.Open(cmd.Context(), path)
-}
-
-// renderFanoutJSON marshals a fanout result for printJSONFiltered.
-// Kept as a method so future commands can share a common envelope.
-func renderFanoutJSON(_ context.Context, out FanoutResult) ([]byte, error) {
-	return json.Marshal(out)
-}
-
-// fanoutEnvelope wraps multi-command output for `--agent`-friendly shape.
-// Currently unused outside near; kept here so other compound commands can
-// share the same field names without redeclaring.
-type fanoutEnvelope struct {
-	Anchor   AnchorResolution `json:"anchor"`
-	Criteria string           `json:"criteria,omitempty"`
-	Minutes  int              `json:"minutes"`
-	Picks    []Pick           `json:"results"`
-	Notes    []string         `json:"notes,omitempty"`
-}
-
-func init() {
-	// silence unused warnings if a refactor drops one of the helpers.
-	_ = fmt.Sprintf
+// renderResultsTable is the compact human view used when stdout is a TTY
+// and --json is not set.
+func renderResultsTable(cmd *cobra.Command, results []dispatch.Result, anchor dispatch.AnchorResolution) {
+	w := newTabWriter(cmd.OutOrStdout())
+	defer w.Flush()
+	fmt.Fprintf(w, "%s\nresults near %s (%.4f, %.4f, country %s):\n", bold("wanderlust-goat"), anchor.Display, anchor.Lat, anchor.Lng, anchor.Country)
+	fmt.Fprintln(w, "RANK\tNAME\tWALK (min)\tSCORE\tWHY")
+	for i, r := range results {
+		fmt.Fprintf(w, "%d\t%s\t%.1f\t%.2f\t%s\n", i+1, truncate(r.Name, 40), r.WalkingMinutes, r.Score.Total, truncate(r.Why, 60))
+	}
 }

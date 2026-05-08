@@ -32,8 +32,6 @@ type Client struct {
 	limiter    *cliutil.AdaptiveLimiter
 }
 
-
-
 // APIError carries HTTP status information for structured exit codes.
 type APIError struct {
 	Method     string
@@ -225,7 +223,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		for k, v := range headerOverrides {
 			req.Header.Set(k, v)
 		}
-		req.Header.Set("User-Agent", "wanderlust-goat-pp-cli/0.1.0")
+		req.Header.Set("User-Agent", "wanderlust-goat-pp-cli/0.2.0")
 
 		resp, err := c.HTTPClient.Do(req)
 		if err != nil {
@@ -427,7 +425,6 @@ func sanitizeJSONResponse(body []byte) []byte {
 	}
 	return body
 }
-
 
 // maskToken redacts all but the last 4 characters of a token for safe display.
 func maskToken(token string) string {

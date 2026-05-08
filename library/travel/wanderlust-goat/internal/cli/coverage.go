@@ -2,145 +2,124 @@ package cli
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
 
-	"github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/sources"
+	"github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/dispatch"
+	"github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/regions"
+	"github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/sourcetypes"
 )
 
+// newCoverageCmd: per-tier row counts + which v1 sources are missing for
+// a synced city. Pure offline: reads the regions table and the dispatcher
+// registry, no live calls.
 func newCoverageCmd(flags *rootFlags) *cobra.Command {
+	var country string
 	cmd := &cobra.Command{
-		Use:   "coverage <city-slug>",
-		Short: "Per-tier row counts, last-sync ages, country-match boost, and which v1 sources are missing for a synced city.",
-		Long: `Local-store aggregation that tells you whether a 'near' or 'goat' query
-on this city is running on thin data. For each registered v1 source, prints
-the row count from the last sync, the last-synced timestamp, the trust
-weight, and (for regional sources) whether the country-match boost applies.
-Missing sources surface as zero rows so an agent can decide to call
-sync-city before querying.`,
+		Use:   "coverage [city]",
+		Short: "Per-region source coverage report (real impl vs stubs)",
+		Long: `coverage shows which Stage-2 sources are wired for the given country (or
+city → country). Includes per-source slug, locale, real-vs-stub status, and
+the stub reason for sources that are deferred. Useful for confirming what
+will actually get queried by near/goat for a given trip.`,
 		Example: strings.Trim(`
-  # Quick coverage check for Tokyo
-  wanderlust-goat-pp-cli coverage tokyo
-
-  # Pipe to jq for agent consumption
-  wanderlust-goat-pp-cli coverage paris --json --select coverage.source,coverage.row_count`, "\n"),
+  wanderlust-goat-pp-cli coverage --country JP --json
+  wanderlust-goat-pp-cli coverage Seoul --country KR
+  wanderlust-goat-pp-cli coverage --country US        # falls back to English-Reddit only
+`, "\n"),
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Args:        cobra.ArbitraryArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
-				return cmd.Help()
-			}
-			slug := strings.ToLower(strings.TrimSpace(strings.Join(args, " ")))
 			if dryRunOK(flags) {
 				return nil
 			}
-			ctx := cmd.Context()
-			store, err := openGoatStore(cmd, flags)
-			if err != nil {
-				return err
+			city := ""
+			if len(args) > 0 {
+				city = strings.TrimSpace(args[0])
 			}
-			defer store.Close()
-			rows, err := store.Coverage(ctx, slug)
-			if err != nil {
-				return err
+			cc := strings.ToUpper(strings.TrimSpace(country))
+			if cc == "" {
+				cc = "*"
 			}
-			byName := map[string]int{}
-			lastSyncByName := map[string]string{}
-			for _, r := range rows {
-				byName[r.Source] = r.RowCount
-				if r.LastSyncedAt.Valid {
-					lastSyncByName[r.Source] = r.LastSyncedAt.String
+			region := regions.Lookup(cc)
+			reg := dispatch.DefaultRegistry()
+
+			report := CoverageReport{City: city, Country: cc, Region: region}
+			for _, slug := range region.LocalReviewSites {
+				cli := reg.Get(slug)
+				if cli == nil {
+					report.NotRegistered = append(report.NotRegistered, slug)
+					continue
+				}
+				row := CoverageRow{
+					Slug:   slug,
+					Locale: cli.Locale(),
+					Stub:   cli.IsStub(),
+				}
+				if cli.IsStub() {
+					row.StubReason = sourcetypes.StubReason(cli)
+					report.Stubbed = append(report.Stubbed, row)
+				} else {
+					report.Real = append(report.Real, row)
 				}
 			}
-			country := ""
-			if c := lookupCity(slug); c != nil {
-				country = string(c.Country)
+			report.Forums = region.LocalForums
+			report.GoogleTLD = region.GoogleTLD
+
+			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+				return printJSONFiltered(cmd.OutOrStdout(), report, flags)
 			}
-			report := coverageReport{City: slug, Country: country}
-			for _, s := range sources.Registry {
-				report.Coverage = append(report.Coverage, coverageEntry{
-					Source:            s.Slug,
-					Tier:              tierName(s.Tier),
-					Trust:             s.Trust,
-					CountryMatchBoost: boostMaybe(s, country),
-					RowCount:          byName[s.Slug],
-					LastSyncedAt:      lastSyncByName[s.Slug],
-					Stub:              s.Stub,
-					StubReason:        s.StubReason,
-				})
-			}
-			report.Summary = summarize(report)
-			if report.Summary.TotalRows == 0 && lookupCity(slug) == nil {
-				_ = printJSONFiltered(cmd.OutOrStdout(), report, flags)
-				return notFoundErr(fmt.Errorf("no synced data for %q (unknown city slug); run 'sync-city <slug>'", slug))
-			}
-			return printJSONFiltered(cmd.OutOrStdout(), report, flags)
+			renderCoverage(cmd, report)
+			return nil
 		},
 	}
+	cmd.Flags().StringVar(&country, "country", "", "ISO 3166-1 alpha-2 country code (e.g. JP, KR, FR)")
 	return cmd
 }
 
-type coverageReport struct {
-	City     string          `json:"city"`
-	Country  string          `json:"country,omitempty"`
-	Coverage []coverageEntry `json:"coverage"`
-	Summary  coverageSummary `json:"summary"`
+type CoverageReport struct {
+	City          string         `json:"city,omitempty"`
+	Country       string         `json:"country"`
+	Region        regions.Region `json:"region"`
+	Real          []CoverageRow  `json:"real_sources"`
+	Stubbed       []CoverageRow  `json:"stubbed_sources"`
+	NotRegistered []string       `json:"not_registered,omitempty"`
+	Forums        []string       `json:"forums"`
+	GoogleTLD     string         `json:"google_tld"`
 }
 
-type coverageEntry struct {
-	Source            string  `json:"source"`
-	Tier              string  `json:"tier"`
-	Trust             float64 `json:"trust"`
-	CountryMatchBoost float64 `json:"country_match_boost"`
-	RowCount          int     `json:"row_count"`
-	LastSyncedAt      string  `json:"last_synced_at,omitempty"`
-	Stub              bool    `json:"stub,omitempty"`
-	StubReason        string  `json:"stub_reason,omitempty"`
+type CoverageRow struct {
+	Slug       string `json:"slug"`
+	Locale     string `json:"locale"`
+	Stub       bool   `json:"stub"`
+	StubReason string `json:"stub_reason,omitempty"`
 }
 
-type coverageSummary struct {
-	TotalRows  int `json:"total_rows"`
-	WithData   int `json:"sources_with_data"`
-	Empty      int `json:"sources_empty"`
-	StubsTotal int `json:"stubs_total"`
-}
+func renderCoverage(cmd *cobra.Command, r CoverageReport) {
+	w := cmd.OutOrStdout()
+	fmt.Fprintf(w, "%s coverage for country %s\n", bold("wanderlust-goat"), r.Country)
+	fmt.Fprintf(w, "  primary lang: %s, languages: %s, google.%s\n", r.Region.PrimaryLanguage, strings.Join(r.Region.Languages, ","), r.Region.GoogleTLD)
 
-func summarize(r coverageReport) coverageSummary {
-	s := coverageSummary{}
-	for _, e := range r.Coverage {
-		s.TotalRows += e.RowCount
-		if e.RowCount > 0 {
-			s.WithData++
-		} else {
-			s.Empty++
-		}
-		if e.Stub {
-			s.StubsTotal++
+	if len(r.Real) > 0 {
+		fmt.Fprintf(w, "  %s sources (Stage-2 real impl):\n", green("wired"))
+		sort.Slice(r.Real, func(i, j int) bool { return r.Real[i].Slug < r.Real[j].Slug })
+		for _, row := range r.Real {
+			fmt.Fprintf(w, "    - %s (%s)\n", row.Slug, row.Locale)
 		}
 	}
-	return s
-}
-
-func boostMaybe(s sources.Source, country string) float64 {
-	if s.CountryMatchBoost > 0 && string(s.Country) == country {
-		return s.CountryMatchBoost
+	if len(r.Stubbed) > 0 {
+		fmt.Fprintf(w, "  %s sources (deferred to v2.x):\n", yellow("stubs"))
+		sort.Slice(r.Stubbed, func(i, j int) bool { return r.Stubbed[i].Slug < r.Stubbed[j].Slug })
+		for _, row := range r.Stubbed {
+			fmt.Fprintf(w, "    - %s (%s) — %s\n", row.Slug, row.Locale, row.StubReason)
+		}
 	}
-	return 0
-}
-
-func tierName(t sources.Tier) string {
-	switch t {
-	case sources.TierFoundation:
-		return "foundation"
-	case sources.TierEditorial:
-		return "editorial"
-	case sources.TierRegional:
-		return "regional"
-	case sources.TierHidden:
-		return "hidden"
-	case sources.TierCrowd:
-		return "crowd"
+	if len(r.NotRegistered) > 0 {
+		fmt.Fprintf(w, "  %s — slug present in regions table but no client:\n", red("not registered"))
+		for _, slug := range r.NotRegistered {
+			fmt.Fprintf(w, "    - %s\n", slug)
+		}
 	}
-	return "unknown"
+	fmt.Fprintf(w, "  forums: %s\n", strings.Join(r.Forums, ", "))
 }

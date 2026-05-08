@@ -1,45 +1,27 @@
-// Package notecom is a v1 stub for Note.com (Japanese long-form blog
-// platform). v1 ships search-only URL emitter; body extraction deferred to v2.
+// Package notecom is a Stage-2 stub source. Real implementation deferred per
+// the v2 brief — package exists so the regions table can name it without
+// breaking the wiring test. Promoting to a real source = (a) replace this
+// file with a real Client; (b) remove StubReason from the dispatcher's
+// trace output.
 package notecom
 
-import (
-	"context"
-	"errors"
-	"fmt"
-	"net/http"
-	"net/url"
-	"time"
-)
+import "github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/sourcetypes"
 
-var ErrV1Stub = errors.New("notecom: v1 ships search-URL surface only; body extraction deferred to v2")
+// StubReason is the user-facing explanation in coverage / status output.
+const StubReason = "note.com long-form article scraping deferred (HTML structure varies per author)"
 
-const defaultUA = "wanderlust-goat-pp-cli/0.1 (+https://github.com/mvanhorn/printing-press-library)"
-
+// Client is a stub source; embeds sourcetypes.StubClient.
 type Client struct {
-	http *http.Client
-	ua   string
+	*sourcetypes.StubClient
 }
 
-func New(httpClient *http.Client, ua string) *Client {
-	if httpClient == nil {
-		httpClient = &http.Client{Timeout: 10 * time.Second}
+// NewClient returns the stub client.
+func NewClient() *Client {
+	return &Client{
+		StubClient: &sourcetypes.StubClient{
+			SlugName:   "notecom",
+			LocaleCode: "ja",
+			Reason:     StubReason,
+		},
 	}
-	if ua == "" {
-		ua = defaultUA
-	}
-	return &Client{http: httpClient, ua: ua}
-}
-
-func (c *Client) SearchURL(query string) string {
-	return "https://note.com/search?q=" + url.QueryEscape(query)
-}
-
-func (c *Client) Search(ctx context.Context, query string) ([]Post, error) {
-	return nil, fmt.Errorf("%w (search query was %q)", ErrV1Stub, query)
-}
-
-type Post struct {
-	Title  string `json:"title"`
-	URL    string `json:"url"`
-	Author string `json:"author,omitempty"`
 }

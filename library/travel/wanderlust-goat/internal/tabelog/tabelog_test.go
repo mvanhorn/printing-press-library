@@ -6,181 +6,107 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/sourcetypes"
 )
 
-const fixtureListingHTML = `<html><body>
-<ul class="list-rst-list">
-  <li class="list-rst">
-    <a class="list-rst__rst-name-target" href="https://tabelog.com/en/tokyo/A1301/A130101/13000001/">
-      Sushi Saito
-    </a>
-    <p class="list-rst__area-genre">Roppongi / Sushi</p>
-    <span class="list-rst__rating-val">4.31</span>
-  </li>
-  <li class="list-rst">
-    <a class="list-rst__rst-name-target" href="https://tabelog.com/en/tokyo/A1301/A130101/13000002/">
-      Casual Diner
-    </a>
-    <p class="list-rst__area-genre">Tokyo / Diner</p>
-    <span class="list-rst__rating-val">3.20</span>
-  </li>
-  <li class="list-rst">
-    <a class="list-rst__rst-name-target" href="https://tabelog.com/en/tokyo/A1301/A130101/13000003/">
-      Mid Tier Coffee
-    </a>
-    <p class="list-rst__area-genre">Shibuya / Cafe</p>
-    <span class="list-rst__rating-val">3.55</span>
-  </li>
-</ul>
-</body></html>`
-
-const fixtureDetailHTML = `<html><head>
-<script type="application/ld+json">
-{
-  "@context":"http://schema.org",
-  "@type":"Restaurant",
-  "name":"Sushi Saito",
-  "alternateName":"鮨 さいとう",
-  "url":"https://tabelog.com/en/tokyo/A1301/A130101/13000001/",
-  "address":{
-    "@type":"PostalAddress",
-    "streetAddress":"1-4-5 Roppongi",
-    "addressLocality":"Minato-ku",
-    "addressRegion":"Tokyo",
-    "postalCode":"106-0032"
-  },
-  "priceRange":"¥¥¥¥",
-  "servesCuisine":["Sushi"],
-  "aggregateRating":{
-    "@type":"AggregateRating",
-    "ratingValue":"4.31",
-    "reviewCount":"412"
-  },
-  "geo":{
-    "@type":"GeoCoordinates",
-    "latitude":35.6627,
-    "longitude":139.7314
-  }
-}
-</script>
-</head><body><h1>Sushi Saito</h1></body></html>`
-
-func newTestClient(srvURL string) *Client {
-	c := New(nil, "test-ua")
-	c.BaseURL = srvURL
-	return c
+func TestSlugLocaleStub(t *testing.T) {
+	c := NewClient()
+	if c.Slug() != "tabelog" {
+		t.Errorf("Slug() = %q, want tabelog", c.Slug())
+	}
+	if c.Locale() != "ja" {
+		t.Errorf("Locale() = %q, want ja", c.Locale())
+	}
+	if c.IsStub() {
+		t.Error("real tabelog client must not be a stub")
+	}
+	var _ sourcetypes.Client = c // interface compliance
 }
 
-func TestRestaurantsByPrefecture_FiltersUnderHighQualityBar(t *testing.T) {
+func TestExtractTabelogHits_ListingMarkup(t *testing.T) {
+	html := `
+		<div class="list-rst">
+			<a href="/tokyo/A1303/A130301/13123456/" class="list-rst__rst-name-target cpy-rst-name">鮨善</a>
+		</div>
+		<div class="list-rst">
+			<a href="/tokyo/A1303/A130301/13234567/" class="list-rst__rst-name-target cpy-rst-name">珈琲館</a>
+		</div>
+	`
+	hits := extractTabelogHits(html, "https://tabelog.com", 10)
+	if len(hits) != 2 {
+		t.Fatalf("got %d hits, want 2", len(hits))
+	}
+	if hits[0].Title != "鮨善" {
+		t.Errorf("hit[0].Title = %q, want 鮨善", hits[0].Title)
+	}
+	if !strings.HasPrefix(hits[0].URL, "https://tabelog.com/tokyo/") {
+		t.Errorf("hit[0].URL = %q, want https://tabelog.com/tokyo/...", hits[0].URL)
+	}
+	if hits[0].Locale != "ja" {
+		t.Errorf("hit[0].Locale = %q, want ja", hits[0].Locale)
+	}
+}
+
+func TestExtractTabelogHits_DedupesURLs(t *testing.T) {
+	html := `
+		<a href="/tokyo/A1/A1/13456/" class="list-rst__rst-name-target">A</a>
+		<a href="/tokyo/A1/A1/13456/" class="list-rst__rst-name-target">A duplicate</a>
+	`
+	hits := extractTabelogHits(html, "https://tabelog.com", 10)
+	if len(hits) != 1 {
+		t.Errorf("expected dedupe to 1, got %d", len(hits))
+	}
+}
+
+func TestLookupByName_HTTPMock(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !strings.HasPrefix(r.URL.Path, "/en/tokyo/cuisine/sushi") {
-			t.Errorf("path: %q", r.URL.Path)
+		if !strings.Contains(r.URL.Path, "/rstLst/") {
+			t.Errorf("unexpected path: %s", r.URL.Path)
 		}
-		w.Header().Set("Content-Type", "text/html")
-		_, _ = w.Write([]byte(fixtureListingHTML))
-	}))
-	defer srv.Close()
-
-	c := newTestClient(srv.URL)
-	results, err := c.RestaurantsByPrefecture(context.Background(), "tokyo", "sushi")
-	if err != nil {
-		t.Fatalf("RestaurantsByPrefecture: %v", err)
-	}
-	// Saito (4.31) and Mid Tier Coffee (3.55) should pass; Casual Diner (3.20) drops.
-	if len(results) != 2 {
-		t.Fatalf("expected 2 high-quality, got %d (%+v)", len(results), results)
-	}
-	for _, r := range results {
-		if r.Rating < MinHighQualityRating {
-			t.Errorf("rating below bar slipped through: %+v", r)
+		if r.Header.Get("User-Agent") == "" {
+			t.Error("missing User-Agent")
 		}
-	}
-	if results[0].Cuisine != "Sushi" {
-		t.Errorf("cuisine: %q", results[0].Cuisine)
-	}
-	if results[0].Address != "Roppongi" {
-		t.Errorf("address: %q", results[0].Address)
-	}
-}
-
-func TestRestaurantsByPrefecture_NoCuisineSlug(t *testing.T) {
-	var seenPath string
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		seenPath = r.URL.Path
-		w.Header().Set("Content-Type", "text/html")
-		_, _ = w.Write([]byte(`<html><body></body></html>`))
+		_, _ = w.Write([]byte(`<a href="/tokyo/A1303/A130301/13999999/" class="list-rst__rst-name-target">Test 鮨</a>`))
 	}))
 	defer srv.Close()
 
-	c := newTestClient(srv.URL)
-	if _, err := c.RestaurantsByPrefecture(context.Background(), "tokyo", ""); err != nil {
-		t.Fatalf("RestaurantsByPrefecture: %v", err)
-	}
-	if seenPath != "/en/tokyo/" {
-		t.Errorf("path: %q", seenPath)
-	}
-}
-
-func TestRestaurantsByPrefecture_EmptySlug(t *testing.T) {
-	c := New(nil, "")
-	if _, err := c.RestaurantsByPrefecture(context.Background(), "  ", "sushi"); err == nil {
-		t.Fatal("expected error for empty prefecture")
-	}
-}
-
-func TestRestaurant_ParsesJSONLD(t *testing.T) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/html")
-		_, _ = w.Write([]byte(fixtureDetailHTML))
-	}))
-	defer srv.Close()
-
-	c := newTestClient(srv.URL)
-	r, err := c.Restaurant(context.Background(), srv.URL+"/en/tokyo/A1301/A130101/13000001/")
+	c := NewClientWithBase(srv.URL, time.Millisecond) // no throttle delay in tests
+	hits, err := c.LookupByName(context.Background(), "Test 鮨", "Tokyo", 5)
 	if err != nil {
-		t.Fatalf("Restaurant: %v", err)
+		t.Fatal(err)
 	}
-	if r.Name != "Sushi Saito" {
-		t.Errorf("name: %q", r.Name)
-	}
-	if r.NameLocal != "鮨 さいとう" {
-		t.Errorf("name local: %q", r.NameLocal)
-	}
-	if !strings.Contains(r.Address, "Roppongi") {
-		t.Errorf("address: %q", r.Address)
-	}
-	if r.Rating != 4.31 {
-		t.Errorf("rating: %v", r.Rating)
-	}
-	if r.RatingCount != 412 {
-		t.Errorf("rating count: %v", r.RatingCount)
-	}
-	if r.Lat == 0 || r.Lng == 0 {
-		t.Errorf("geo: %+v", r)
-	}
-	if r.Cuisine != "Sushi" {
-		t.Errorf("cuisine: %q", r.Cuisine)
-	}
-	if r.PriceRange != "¥¥¥¥" {
-		t.Errorf("price range: %q", r.PriceRange)
+	if len(hits) != 1 || hits[0].Title != "Test 鮨" {
+		t.Errorf("got %+v, want one hit titled Test 鮨", hits)
 	}
 }
 
-func TestRestaurant_HTTPError(t *testing.T) {
+func TestLookupByName_RejectsEmpty(t *testing.T) {
+	c := NewClient()
+	_, err := c.LookupByName(context.Background(), "", "", 5)
+	if err == nil {
+		t.Error("empty name should error")
+	}
+}
+
+func TestCheckClosed_DetectsKanji(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusNotFound)
+		_, _ = w.Write([]byte(`<title>店名 - 閉店しました</title>`))
 	}))
 	defer srv.Close()
 
-	c := newTestClient(srv.URL)
-	if _, err := c.Restaurant(context.Background(), srv.URL+"/en/tokyo/x"); err == nil {
-		t.Fatal("expected error")
+	c := NewClientWithBase(srv.URL, time.Millisecond)
+	v := c.CheckClosed(context.Background(), sourcetypes.Hit{URL: srv.URL + "/restaurant/123/"})
+	if !v.Closed {
+		t.Errorf("expected Closed verdict, got %+v", v)
 	}
 }
 
-func TestRestaurant_EmptyURL(t *testing.T) {
-	c := New(nil, "")
-	if _, err := c.Restaurant(context.Background(), ""); err == nil {
-		t.Fatal("expected error")
+func TestCheckClosed_EmptyURL(t *testing.T) {
+	c := NewClient()
+	v := c.CheckClosed(context.Background(), sourcetypes.Hit{})
+	if v.Closed {
+		t.Error("empty URL should be Open")
 	}
 }

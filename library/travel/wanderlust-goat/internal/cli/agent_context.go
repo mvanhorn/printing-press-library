@@ -116,7 +116,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
 			Name:        "wanderlust-goat-pp-cli",
-			Description: "Wanderlust GOAT — what a knowledgeable local with great taste would tell you to walk to from here, fused across...",
+			Description: "Two-stage funnel place discovery: Google Places seeds candidates, then locale-aware deep research (Tabelog/Naver/Le...",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{

@@ -1,8 +1,8 @@
 # Wanderlust GOAT CLI
 
-**What a knowledgeable local with great taste would tell you to walk to from here — fused across editorial, local-language, and crowd layers no single tool ranks together.**
+**What a knowledgeable local with great taste would tell you to walk to from here.**
 
-Most 'near me' tools return the 40 closest results. Wanderlust GOAT returns the 3 results that match your stated identity and criteria. It fuses Nominatim, OSRM walking time, OSM Overpass, Wikipedia, Wikivoyage, Atlas Obscura, Reddit, editorial scrapes (Eater, Time Out, NYT 36 Hours, Michelin), and language-aware regional sources (Tabelog, Naver, Le Fooding) through one trust-weighted score, with local-language names preserved alongside transliterations. Free, no API keys, with an offline SQLite store and a JSON `research-plan` surface for agent orchestration.
+Two-stage funnel: seed candidates from Google Places, then deep-research each against locale-aware sources (Tabelog/Naver/Le Fooding for the country you're in), trust-weight by source authority, kill-gate anything that's permanently closed, and return the 3-5 amazing things — not the comprehensive 40-row dump.
 
 ## Install
 
@@ -20,7 +20,7 @@ npx -y @mvanhorn/printing-press install wanderlust-goat --cli-only
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/cmd/wanderlust-goat-pp-cli@latest
@@ -57,29 +57,33 @@ Install the pp-wanderlust-goat skill from https://github.com/mvanhorn/printing-p
 
 ## Authentication
 
-wanderlust-goat is intentionally key-less. Every v1 source is a free public API or a politely-rate-limited public scrape. OSRM uses the project-osrm.org public demo; the README documents how to point at a self-hosted OSRM. Set a contact-bearing User-Agent via `WANDERLUST_GOAT_UA` env var (Nominatim policy requires a real contact URL or email).
+GOOGLE_PLACES_API_KEY is required for live Stage-1 seeding. Get a key at https://developers.google.com/maps/documentation/places/web-service/get-api-key (free $200/mo credit). ANTHROPIC_API_KEY is optional and enables sharper criteria judgment via --llm; without it, the free heuristic path runs.
 
 ## Quick Start
 
 ```bash
-# Pre-cache Tokyo's editorial + Reddit + Wikipedia + OSM + Tabelog layers into the local SQLite store.
-wanderlust-goat-pp-cli sync-city tokyo --layers all
+# verify Nominatim/OSRM reachable and required env vars set
+wanderlust-goat-pp-cli doctor
 
 
-# Persona-shaped 15-minute walk: 3-5 ranked picks with local-language names and one-line 'why it's special'.
-wanderlust-goat-pp-cli near "Park Hyatt Tokyo" --criteria "vintage jazz kissaten, no tourists, great pour-over" --identity "coffee snob, into 70s Japanese kissaten culture" --minutes 15
+# the headline workflow: identity + criteria + walking radius
+wanderlust-goat-pp-cli near "Park Hyatt Tokyo" --criteria "vintage jazz kissaten with no tourists" --identity "coffee snob into 70s Japanese kissaten culture" --minutes 15
 
 
-# Emit the typed JSON query plan an agent should execute — narrowed to client and source list.
-wanderlust-goat-pp-cli research-plan "Bukchon Hanok Village" --criteria "hand-pulled noodles, locals only" --json --select sources,calls.client
+# no-LLM path; same shape, free, deterministic
+wanderlust-goat-pp-cli goat 35.6895,139.6917 --criteria "high-end seafood with counter seating" --minutes 12
 
 
-# Tonight's blue-hour windows + the photographer-known viewpoints inside a 20-minute walking radius.
-wanderlust-goat-pp-cli golden-hour "Eiffel Tower" --date 2026-06-15 --minutes 20
+# audit a ranking — every source, weight, and contribution
+wanderlust-goat-pp-cli why "Bear Pond Espresso" --json
 
 
-# Audit the goat-score breakdown for any place the persona is curious about.
-wanderlust-goat-pp-cli why "珈琲 美美"
+# is this place still open? cross-source verdict
+wanderlust-goat-pp-cli status "Sushi Saito" --json
+
+
+# pre-cache before the trip — offline-ready
+wanderlust-goat-pp-cli sync-city "Tokyo" --country JP
 
 ```
 
@@ -109,7 +113,7 @@ These capabilities aren't available in any other tool for this API.
   _Drop this into an agent loop to let the agent run multi-source travel research without re-deriving the fanout plan every call._
 
   ```bash
-  wanderlust-goat-pp-cli research-plan "Bukchon Hanok Village, Seoul" --criteria "hand-pulled noodles, locals only" --identity "food traveler" --json
+  wanderlust-goat-pp-cli research-plan "hand-pulled noodles, locals only" --anchor "Bukchon Hanok Village, Seoul" --country KR --json
   ```
 
 ### Cross-source walks
@@ -148,7 +152,7 @@ These capabilities aren't available in any other tool for this API.
   _Agents working offline or with flaky connectivity need a synced local store; this populates it._
 
   ```bash
-  wanderlust-goat-pp-cli sync-city tokyo --layers all --agent
+  wanderlust-goat-pp-cli sync-city "Tokyo" --country JP --json
   ```
 - **`why`** — Print every source that mentioned a place, the trust weight, country boost, walking time, criteria match, and the final goat-score breakdown.
 
@@ -180,7 +184,7 @@ Run `wanderlust-goat-pp-cli --help` for the full command reference and flag list
 
 ### places
 
-Geocode addresses and look up canonical place coordinates via Nominatim (foundation layer for the multi-source GOAT stack).
+Geocode addresses and look up canonical place coordinates via Nominatim (anchor-resolution layer for the two-stage GOAT funnel).
 
 - **`wanderlust-goat-pp-cli places reverse`** - Reverse geocode lat/lng to a structured address.
 - **`wanderlust-goat-pp-cli places search`** - Forward geocode an address, place name, or business to lat/lng candidates.
@@ -299,25 +303,11 @@ Config file: `~/.config/wanderlust-goat-pp-cli/config.toml`
 
 ### API-specific
 
-- **Nominatim returns 403** — Set WANDERLUST_GOAT_UA to a string with your real contact URL or email — Nominatim blocks placeholder UAs (no `example.com`).
-- **Tabelog or Michelin returns 202/AWS-WAF challenge** — These sources use Surf (Chrome TLS fingerprint) by default; if a corporate proxy strips TLS extensions, run `wanderlust-goat-pp-cli doctor` to confirm Surf transport.
-- **Atlas Obscura entries empty** — AO sometimes adds Cloudflare gates regionally; rerun with `--data-source local` to use cached entries from the last `sync-city` pass.
-- **OSRM public demo is slow or 5xx** — Set WANDERLUST_GOAT_OSRM_BASE_URL to a self-hosted OSRM endpoint; instructions in README under 'Self-host OSRM'.
-- **near returns 40 results instead of 3-5** — Add a stronger --criteria — narrow phrasing forces persona-shaped scoring. Add --identity for a +0.05 trust boost on local-language sources.
+- **exit code 4: Google Places auth missing** — export GOOGLE_PLACES_API_KEY=<your-key>; get one at https://developers.google.com/maps/documentation/places/web-service/get-api-key
+- **near returns 0 results in country X** — country X may not have a Stage-2 region row yet — run `coverage <city> --json` to see the active region; add a row to internal/regions/regions.go to extend
+- **Atlas Obscura returns nothing for my city** — Atlas Obscura's slug index doesn't cover every city; this is expected, the dispatcher falls through silently
+- **Tabelog/Naver/Le Fooding returns nothing for a place that exists** — Stage-2 lookup is by name; the source's anti-bot mitigation may have intercepted. Run with --verbose to see per-source HTTP status; rate-limit backoff is per-source
 
 ---
-
-## Sources & Inspiration
-
-This CLI was built by studying these projects and resources:
-
-- [**Mapbox MCP Server**](https://github.com/mapbox/mapbox-mcp-server) — TypeScript
-- [**AWS Location MCP Server**](https://github.com/awslabs/mcp) — Python
-- [**google-maps-mcp**](https://github.com/modelcontextprotocol/servers) — TypeScript
-- [**atlas-obscura-api**](https://github.com/bartholomej/atlas-obscura-api) — JavaScript
-- [**gurume**](https://github.com/narumiruna/gurume) — Python
-- [**Naver-Place-scraper**](https://github.com/seolhalee/Naver-Place-scraper) — Python
-- [**trip-planner**](https://github.com/adl1995/trip-planner) — Python
-- [**query-overpass**](https://github.com/perliedman/query-overpass) — JavaScript
 
 Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)

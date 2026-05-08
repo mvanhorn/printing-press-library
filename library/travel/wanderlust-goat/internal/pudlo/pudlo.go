@@ -1,44 +1,27 @@
-// Package pudlo is a v1 stub for Pudlo (French restaurant editorial).
-// v1 ships sitemap discovery only; body extraction deferred to v2.
+// Package pudlo is a Stage-2 stub source. Real implementation deferred per
+// the v2 brief — package exists so the regions table can name it without
+// breaking the wiring test. Promoting to a real source = (a) replace this
+// file with a real Client; (b) remove StubReason from the dispatcher's
+// trace output.
 package pudlo
 
-import (
-	"context"
-	"errors"
-	"fmt"
-	"net/http"
-	"net/url"
-	"time"
-)
+import "github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/sourcetypes"
 
-var ErrV1Stub = errors.New("pudlo: v1 ships sitemap discovery only; body extraction deferred to v2")
+// StubReason is the user-facing explanation in coverage / status output.
+const StubReason = "Le Pudlo guide is editorial-only (no public search); deferred"
 
-const defaultUA = "wanderlust-goat-pp-cli/0.1 (+https://github.com/mvanhorn/printing-press-library)"
-
+// Client is a stub source; embeds sourcetypes.StubClient.
 type Client struct {
-	http *http.Client
-	ua   string
+	*sourcetypes.StubClient
 }
 
-func New(httpClient *http.Client, ua string) *Client {
-	if httpClient == nil {
-		httpClient = &http.Client{Timeout: 10 * time.Second}
+// NewClient returns the stub client.
+func NewClient() *Client {
+	return &Client{
+		StubClient: &sourcetypes.StubClient{
+			SlugName:   "pudlo",
+			LocaleCode: "fr",
+			Reason:     StubReason,
+		},
 	}
-	if ua == "" {
-		ua = defaultUA
-	}
-	return &Client{http: httpClient, ua: ua}
-}
-
-func (c *Client) SearchURL(query string) string {
-	return "https://www.gaultmillau.fr/recherche?q=" + url.QueryEscape(query)
-}
-
-func (c *Client) Search(ctx context.Context, query string) ([]Restaurant, error) {
-	return nil, fmt.Errorf("%w (search query was %q)", ErrV1Stub, query)
-}
-
-type Restaurant struct {
-	Name string `json:"name"`
-	URL  string `json:"url"`
 }

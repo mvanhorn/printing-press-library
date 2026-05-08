@@ -16,7 +16,7 @@ func newRouteViewCmd(flags *rootFlags) *cobra.Command {
 		minTrust  float64
 	)
 	cmd := &cobra.Command{
-		Use:   "route-view <from> <to>",
+		Use:   "route-view [from] [to]",
 		Short: "Walking polyline from A to B, then everything interesting along the path — not just at the endpoints.",
 		Long: `OSRM walking polyline (cached) + spatial buffer query against the local
 goat_places store. Returns places within --buffer meters of the polyline
@@ -84,7 +84,7 @@ no single API can answer.`,
 			}
 			report := routeReport{
 				From: from, To: to,
-				Buffer: buf,
+				Buffer:         buf,
 				DistanceMeters: poly.DistanceMeters, WalkingMin: poly.DurationSeconds / 60.0,
 			}
 			for _, c := range candidates {
@@ -120,13 +120,13 @@ no single API can answer.`,
 }
 
 type routeReport struct {
-	From            AnchorResolution `json:"from"`
-	To              AnchorResolution `json:"to"`
-	Buffer          int              `json:"buffer_meters"`
-	DistanceMeters  float64          `json:"distance_meters"`
-	WalkingMin      float64          `json:"walking_minutes"`
-	AlongRoute      []alongPick      `json:"along_route"`
-	Note            string           `json:"note,omitempty"`
+	From           AnchorResolution `json:"from"`
+	To             AnchorResolution `json:"to"`
+	Buffer         int              `json:"buffer_meters"`
+	DistanceMeters float64          `json:"distance_meters"`
+	WalkingMin     float64          `json:"walking_minutes"`
+	AlongRoute     []alongPick      `json:"along_route"`
+	Note           string           `json:"note,omitempty"`
 }
 
 type alongPick struct {

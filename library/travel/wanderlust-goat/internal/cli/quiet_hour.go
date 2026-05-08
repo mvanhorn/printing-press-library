@@ -15,7 +15,7 @@ func newQuietHourCmd(flags *rootFlags) *cobra.Command {
 		hhmm    string
 	)
 	cmd := &cobra.Command{
-		Use:   "quiet-hour <anchor>",
+		Use:   "quiet-hour [anchor]",
 		Short: "Places that locals describe as quiet at the requested time, intersected with OSM opening hours and walking radius.",
 		Long: `Cross-source content pattern: matches goat_reddit_threads body + title for
 quiet-signal phrases (dead before, empty weekday, quiet on, never crowded,

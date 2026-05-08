@@ -10,7 +10,7 @@ import (
 func newPlacesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "places",
-		Short: "Geocode addresses and look up canonical place coordinates via Nominatim (foundation layer for the multi-source GOAT...",
+		Short: "Geocode addresses and look up canonical place coordinates via Nominatim (anchor-resolution layer for the two-stage...",
 	}
 
 	cmd.AddCommand(newPlacesReverseCmd(flags))

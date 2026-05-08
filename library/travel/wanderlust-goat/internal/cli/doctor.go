@@ -87,7 +87,26 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			// Check auth
 			report["auth"] = "not required"
 
-			// Check auth environment variables
+			// v2 env-var checks. Google Places is REQUIRED for Stage-1
+			// seeding; without it `near`/`goat` exit 4 (auth). Anthropic
+			// and Hot Pepper are optional.
+			envVars := map[string]string{}
+			if v := strings.TrimSpace(os.Getenv("GOOGLE_PLACES_API_KEY")); v != "" {
+				envVars["GOOGLE_PLACES_API_KEY"] = "set"
+			} else {
+				envVars["GOOGLE_PLACES_API_KEY"] = "MISSING — required for `near`/`goat` Stage-1 seed (https://developers.google.com/maps/documentation/places/web-service/get-api-key)"
+			}
+			if v := strings.TrimSpace(os.Getenv("ANTHROPIC_API_KEY")); v != "" {
+				envVars["ANTHROPIC_API_KEY"] = "set (enables --llm criteria match)"
+			} else {
+				envVars["ANTHROPIC_API_KEY"] = "unset (optional; --llm falls back to heuristic)"
+			}
+			if v := strings.TrimSpace(os.Getenv("HOTPEPPER_API_KEY")); v != "" {
+				envVars["HOTPEPPER_API_KEY"] = "set (hotpepper uses Recruit API)"
+			} else {
+				envVars["HOTPEPPER_API_KEY"] = "unset (optional; hotpepper falls back to HTML scrape)"
+			}
+			report["env_vars"] = envVars
 
 			// Check API connectivity and validate credentials.
 			//

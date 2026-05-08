@@ -3,7 +3,7 @@
   "name": "wanderlust-goat-pp-mcp",
   "display_name": "Wanderlust GOAT",
   "version": "4.0.1",
-  "description": "Persona-shaped place discovery within walking distance — fused across editorial, local-language, Reddit, Wikipedia, OSM, and Atlas Obscura.",
+  "description": "Persona-shaped place discovery within walking distance — two-stage funnel that seeds from Google Places and deep-researches each candidate against locale-specific sources.",
   "author": {
     "name": "CLI Printing Press"
   },

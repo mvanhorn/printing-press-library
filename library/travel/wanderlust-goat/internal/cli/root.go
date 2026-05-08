@@ -13,32 +13,32 @@ import (
 	"text/tabwriter"
 	"time"
 
+	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/internal/config"
-	"github.com/spf13/cobra"
 )
 
 var version = "1.0.0"
 
 type rootFlags struct {
-	asJSON       bool
-	compact      bool
-	csv          bool
-	plain        bool
-	quiet        bool
-	dryRun       bool
-	noCache      bool
-	noInput      bool
-	idempotent   bool
-	yes          bool
-	agent        bool
-	selectFields string
-	configPath   string
-	profileName  string
-	deliverSpec  string
-	timeout      time.Duration
-	rateLimit    float64
-	dataSource   string
+	asJSON        bool
+	compact       bool
+	csv           bool
+	plain         bool
+	quiet         bool
+	dryRun        bool
+	noCache       bool
+	noInput       bool
+	idempotent    bool
+	yes           bool
+	agent         bool
+	selectFields  string
+	configPath    string
+	profileName   string
+	deliverSpec   string
+	timeout       time.Duration
+	rateLimit     float64
+	dataSource    string
 	freshnessMeta any
 
 	// deliverBuf captures command output when --deliver is set to a
@@ -82,8 +82,8 @@ func Execute() error {
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "wanderlust-goat-pp-cli",
-		Short: `Persona-shaped place discovery within walking distance — fused across editorial, local-language, Reddit, Wikipedia, OSM, and Atlas Obscura.`,
-		Long: `Persona-shaped place discovery within walking distance — fused across editorial, local-language, Reddit, Wikipedia, OSM, and Atlas Obscura.
+		Short: `Persona-shaped place discovery within walking distance — two-stage funnel that seeds from Google Places and deep-researches each candidate against locale-specific sources.`,
+		Long: `Persona-shaped place discovery within walking distance — two-stage funnel that seeds from Google Places and deep-researches each candidate against locale-specific sources.
 
 Highlights (not in the official API docs):
   • near   Find the 3-5 amazing things within walking distance that match your stated identity and criteria — not the 40 closest things.
@@ -191,18 +191,19 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newWorkflowCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
-	// GOAT transcendence commands.
+	// v2 compound commands — the two-stage funnel and friends.
 	rootCmd.AddCommand(newNearCmd(flags))
 	rootCmd.AddCommand(newGoatCmd(flags))
 	rootCmd.AddCommand(newResearchPlanCmd(flags))
-	rootCmd.AddCommand(newSyncCityCmd(flags))
-	rootCmd.AddCommand(newCoverageCmd(flags))
+	rootCmd.AddCommand(newStatusCmd(flags))
 	rootCmd.AddCommand(newWhyCmd(flags))
+	rootCmd.AddCommand(newCoverageCmd(flags))
+	rootCmd.AddCommand(newSyncCityCmd(flags))
+	rootCmd.AddCommand(newGoldenHourCmd(flags))
 	rootCmd.AddCommand(newRedditQuotesCmd(flags))
 	rootCmd.AddCommand(newCrossoverCmd(flags))
-	rootCmd.AddCommand(newGoldenHourCmd(flags))
-	rootCmd.AddCommand(newRouteViewCmd(flags))
 	rootCmd.AddCommand(newQuietHourCmd(flags))
+	rootCmd.AddCommand(newRouteViewCmd(flags))
 
 	return rootCmd
 }

@@ -35,13 +35,13 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/reverse", []mcpParamBinding{{PublicName: "lat", WireName: "lat", Location: "query"},{PublicName: "lng", WireName: "lon", Location: "query"},{PublicName: "format", WireName: "format", Location: "query"},{PublicName: "addressdetails", WireName: "addressdetails", Location: "query"},{PublicName: "zoom", WireName: "zoom", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/reverse", []mcpParamBinding{{PublicName: "lat", WireName: "lat", Location: "query"}, {PublicName: "lng", WireName: "lon", Location: "query"}, {PublicName: "format", WireName: "format", Location: "query"}, {PublicName: "addressdetails", WireName: "addressdetails", Location: "query"}, {PublicName: "zoom", WireName: "zoom", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("places_search",
 			mcplib.WithDescription("Forward geocode an address, place name, or business to lat/lng candidates. Required: query. Optional: limit, format (default: json), addressdetails (default: 1) (plus 1 more). Returns array of GeocodeResult."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Free-text address, business name, or place (e.g. 'Park Hyatt Tokyo', '1600 Pennsylvania Ave').")),
-			mcplib.WithString("limit", mcplib.Description("Maximum candidate results (1–50). Default: 5.")),
+			mcplib.WithString("limit", mcplib.Description("Maximum candidate results (1-50). Default: 5.")),
 			mcplib.WithString("format", mcplib.Description("Response format. Always 'json' in this CLI.")),
 			mcplib.WithString("addressdetails", mcplib.Description("Return structured address parts (1=on, 0=off). Default: 1.")),
 			mcplib.WithString("countrycodes", mcplib.Description("Comma-separated ISO 3166-1 alpha-2 codes to constrain results (e.g. 'jp,kr,fr').")),
@@ -49,7 +49,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/search", []mcpParamBinding{{PublicName: "query", WireName: "q", Location: "query"},{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "format", WireName: "format", Location: "query"},{PublicName: "addressdetails", WireName: "addressdetails", Location: "query"},{PublicName: "countrycodes", WireName: "countrycodes", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/search", []mcpParamBinding{{PublicName: "query", WireName: "q", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "format", WireName: "format", Location: "query"}, {PublicName: "addressdetails", WireName: "addressdetails", Location: "query"}, {PublicName: "countrycodes", WireName: "countrycodes", Location: "query"}}, []string{}),
 	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
@@ -229,6 +229,7 @@ func dbPath() string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", "wanderlust-goat-pp-cli", "data.db")
 }
+
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
 
@@ -282,17 +283,17 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
 		"api":         "wanderlust-goat",
-		"description": "Wanderlust GOAT — what a knowledgeable local with great taste would tell you to walk to from here, fused across...",
+		"description": "Two-stage funnel place discovery: Google Places seeds candidates, then locale-aware deep research (Tabelog/Naver/Le...",
 		"archetype":   "generic",
 		"tool_count":  2,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion wanderlust-goat-pp-cli binary.",
 		"resources": []map[string]any{
 			{
-				"name": "places",
-				"description": "Geocode addresses and look up canonical place coordinates via Nominatim (foundation layer for the multi-source GOAT...",
-				"endpoints": []string{"reverse", "search",  },
-				"searchable": true,
+				"name":        "places",
+				"description": "Geocode addresses and look up canonical place coordinates via Nominatim (anchor-resolution layer for the two-stage...",
+				"endpoints":   []string{"reverse", "search"},
+				"searchable":  true,
 			},
 		},
 		"query_tips": []string{
@@ -305,30 +306,32 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Persona-shaped local fanout", "command": "near", "description": "Find the 3-5 amazing things within walking distance that match your stated identity and criteria — not the 40...", "rationale": "Geocodes the anchor, fans out to every source eligible for the country, scores against `places` + `reddit_threads`...", "via": "mcp-command-mirror"},
-			{"name": "Heuristic GOAT compound (no LLM)", "command": "goat", "description": "Same fanout as `near` but with no LLM in the runtime path — criteria-to-source mapping uses static lookup tables...", "rationale": "Brief mandate: 'CLI is the muscle, calling agent is the brain... ships a `goat` compound that runs heuristic...", "via": "mcp-command-mirror"},
-			{"name": "Agent research-plan emitter", "command": "research-plan", "description": "Output a JSON query plan agents execute in a loop — typed, country-aware, ordered by trust, ready to fan out.", "rationale": "Reads the country dispatch + intent→source-set table; emits ordered JSON [{client, method, params, locale,...", "via": "mcp-command-mirror"},
-			{"name": "Crossover walks", "command": "crossover", "description": "Find pairs where a high-trust restaurant sits within 200m of a Wikipedia-notable historic site or Atlas Obscura...", "rationale": "Spatial cross-entity SQL: SELECT a, b FROM places a JOIN places b WHERE distance(a, b) < 200m AND a.intent='food'...", "via": "mcp-command-mirror"},
-			{"name": "Golden-hour viewpoint hunt", "command": "golden-hour", "description": "Compute sunrise/sunset/blue-hour locally (pure Go, no API) and pair with viewpoints photographers know about within...", "rationale": "SunCalc-style sun-position math + Overpass `tourism=viewpoint` + Atlas Obscura viewpoint entries + Reddit...", "via": "mcp-command-mirror"},
-			{"name": "Route-view exploration", "command": "route-view", "description": "Walking polyline from A to B, then everything interesting along the path — not just at the endpoints.", "rationale": "OSRM walking polyline (cached in `routes`) + spatial buffer query against local `places` along the polyline...", "via": "mcp-command-mirror"},
-			{"name": "City pre-trip sync", "command": "sync-city", "description": "Pre-cache editorial best-of, Reddit threads, Wikipedia, Wikivoyage, OSM POIs, Atlas Obscura, and regional-language...", "rationale": "Iterates the country dispatch table and writes to `places`, `cities`, `reddit_threads`, `sync_state`; populates...", "via": "mcp-command-mirror"},
-			{"name": "Trust-weighted score explanation", "command": "why", "description": "Print every source that mentioned a place, the trust weight, country boost, walking time, criteria match, and the...", "rationale": "Pure local-store inspection + step-by-step formula breakdown. Auditable agent-shaped explanation of opaque ranking;...", "via": "mcp-command-mirror"},
-			{"name": "Reddit-quote extractor", "command": "reddit-quotes", "description": "Surface the highest-scored Reddit comment snippets that mention a place — verbatim quotes, no LLM summarization.", "rationale": "SELECT title, url, score, body FROM reddit_threads WHERE body LIKE '%<name>%' OR body LIKE '%<name_local>%' ORDER BY...", "via": "mcp-command-mirror"},
-			{"name": "Sync coverage report", "command": "coverage", "description": "Per-tier row counts, last-sync ages, country-match boost, and which v1 sources are missing for a synced city.", "rationale": "SELECT source, tier, count(*), max(synced_at) FROM places JOIN sync_state — local SQL aggregation. Agents need it...", "via": "mcp-command-mirror"},
-			{"name": "Quiet-hour discovery", "command": "quiet-hour", "description": "Places that locals describe as quiet at the requested time, intersected with OSM opening hours and walking radius.", "rationale": "Reddit body keyword match (`dead before`, `empty weekday`, `quiet on`) joined to `places`, intersected with OSM...", "via": "mcp-command-mirror"},
+			{"name": "Two-stage funnel: seed → deep research", "command": "near", "description": "Seed candidates from Google Places, then deep-research each against locale-specific review sites, forums, and search...", "rationale": "No existing tool does Stage-1 (real geo-search) → Stage-2 (locale-aware criteria research) → Stage-3...", "via": "mcp-command-mirror"},
+			{"name": "Heuristic GOAT (no LLM)", "command": "goat", "description": "Same two-stage funnel as `near` but explicitly no-LLM — keyword-overlap criteria match runs locally, free.", "rationale": "Identity-aware ranking shouldn't require an API key. The heuristic path uses static criteria→source mappings +...", "via": "mcp-command-mirror"},
+			{"name": "Closed-signal kill-gate", "command": "status", "description": "Explicit operational/closed lookup across every Stage-2 source for one place — surfaces conflicting signals and...", "rationale": "Restaurant/cafe data is famously stale. Google business_status alone misses 'permanently closed' signals that show...", "via": "mcp-command-mirror"},
+			{"name": "Walking-time radius (not crow-flies)", "command": "near", "description": "Radius is computed as walking minutes × 4.5 km/h ÷ 1.3 tortuosity, not haversine meters — matches the actual...", "rationale": "A 500m crow-flies radius in Tokyo is 800-900m of actual walking. A user asking for '15-minute walk' wants what they...", "via": "mcp-command-mirror"},
+			{"name": "Trust-weighted ranking", "command": "why", "description": "Print every source that mentioned a place, the trust weight, country boost, walking time, criteria match, and the...", "rationale": "The score is auditable. Google base + Tabelog/Naver +0.10 in-country + Wikipedia notability +0.05 + Reddit (≥10...", "via": "mcp-command-mirror"},
+			{"name": "Country → research-stage map (data table)", "command": "coverage", "description": "Single struct slice in internal/regions/regions.go drives every regional dispatch decision. Adding a country =...", "rationale": "v1 scattered switch statements across the orchestrator and per-source clients. v2 has one source of truth. The...", "via": "mcp-command-mirror"},
+			{"name": "Agent research-plan emitter", "command": "research-plan", "description": "Output a typed JSON query plan agents execute in a loop — country-aware, ordered by trust, ready to fan out to...", "rationale": "Frontier-model agents already have web-search tools. Give them the right plan instead of the answer; they fan out...", "via": "mcp-command-mirror"},
+			{"name": "Crossover walks", "command": "crossover", "description": "Restaurants near (within 200m of) Wikipedia-notable historic sites or Atlas Obscura entries — food + culture in...", "rationale": "The intersection of editorial food and notable culture is a richer signal than either alone. Local SQLite join finds...", "via": "mcp-command-mirror"},
+			{"name": "Golden-hour viewpoint hunt", "command": "golden-hour", "description": "Compute sunrise/sunset/blue-hour locally (pure Go, no API) and pair with viewpoints photographers know about within...", "rationale": "Time + place + viewpoint signal isn't combined anywhere. SunCalc + OSM tourism=viewpoint + walking-radius gives the...", "via": "mcp-command-mirror"},
+			{"name": "Route-view exploration", "command": "route-view", "description": "Walking polyline from A to B, then everything interesting along the path — not just at the endpoints.", "rationale": "OSRM gives the route; OSM tags + editorial sources score the segments. The journey is the product.", "via": "mcp-command-mirror"},
+			{"name": "City pre-trip sync", "command": "sync-city", "description": "Pre-cache editorial best-of, Reddit threads, Wikipedia, OSM POIs, Atlas Obscura, and every implemented Stage-2...", "rationale": "Travel happens with bad wifi. Pre-caching the local SQLite store means the heavy commands work offline.", "via": "mcp-command-mirror"},
+			{"name": "Quiet-hour discovery", "command": "quiet-hour", "description": "Places that locals describe as quiet at the requested time, intersected with OSM opening hours and walking radius.", "rationale": "Reddit and forum threads contain 'dead before 6, packed after 8' signals nobody surfaces. SQLite + keyword...", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Persona-shaped local fanout", "insight": "Geocodes the anchor, fans out to every source eligible for the country, scores against `places` + `reddit_threads` in local SQLite using `trust × (1 + country_boost) × intent_match × 1/(1 + walking_min/15)`. No competing tool composes editorial + Wikipedia + Reddit + OSM + local-language signals through one trust-weighted formula."},
-			{"topic": "Heuristic GOAT compound (no LLM)", "insight": "Brief mandate: 'CLI is the muscle, calling agent is the brain... ships a `goat` compound that runs heuristic orchestration without an LLM.' Static maps in `internal/criteria/` translate criteria phrases to OSM tags and Reddit keywords mechanically."},
-			{"topic": "Agent research-plan emitter", "insight": "Reads the country dispatch + intent→source-set table; emits ordered JSON [{client, method, params, locale, expected_trust}] the agent runs. No other CLI emits a typed call graph; brief Workflow #2."},
-			{"topic": "Crossover walks", "insight": "Spatial cross-entity SQL: SELECT a, b FROM places a JOIN places b WHERE distance(a, b) < 200m AND a.intent='food' AND b.intent='culture' AND trust ≥ 0.85. Cross-entity join no single source can answer."},
-			{"topic": "Golden-hour viewpoint hunt", "insight": "SunCalc-style sun-position math + Overpass `tourism=viewpoint` + Atlas Obscura viewpoint entries + Reddit accessibility keyword match. Service-specific photographer ritual; no competing tool fuses sun math with multi-source viewpoint ranking."},
-			{"topic": "Route-view exploration", "insight": "OSRM walking polyline (cached in `routes`) + spatial buffer query against local `places` along the polyline geometry, ranked by trust × proximity-to-path. Geometric local-store query no single API can answer."},
-			{"topic": "City pre-trip sync", "insight": "Iterates the country dispatch table and writes to `places`, `cities`, `reddit_threads`, `sync_state`; populates `places_fts`. Substrate every other transcendence command queries."},
-			{"topic": "Trust-weighted score explanation", "insight": "Pure local-store inspection + step-by-step formula breakdown. Auditable agent-shaped explanation of opaque ranking; no competing tool exposes its scoring math."},
-			{"topic": "Reddit-quote extractor", "insight": "SELECT title, url, score, body FROM reddit_threads WHERE body LIKE '%<name>%' OR body LIKE '%<name_local>%' ORDER BY score DESC. Cross-table join places ↔ reddit_threads; service-specific content pattern (Reddit's r/[city] tradition)."},
-			{"topic": "Sync coverage report", "insight": "SELECT source, tier, count(*), max(synced_at) FROM places JOIN sync_state — local SQL aggregation. Agents need it to know if `near` calls run on thin data."},
-			{"topic": "Quiet-hour discovery", "insight": "Reddit body keyword match (`dead before`, `empty weekday`, `quiet on`) joined to `places`, intersected with OSM `opening_hours` and walking-radius reachability. Cross-source content pattern + tag filter."},
+			{"topic": "Two-stage funnel: seed → deep research", "insight": "No existing tool does Stage-1 (real geo-search) → Stage-2 (locale-aware criteria research) → Stage-3 (trust-weighted rank with closed-signal kill-gate). v1 fanned out blindly; v2 inverts to a funnel."},
+			{"topic": "Heuristic GOAT (no LLM)", "insight": "Identity-aware ranking shouldn't require an API key. The heuristic path uses static criteria→source mappings + evidence-keyword overlap."},
+			{"topic": "Closed-signal kill-gate", "insight": "Restaurant/cafe data is famously stale. Google business_status alone misses 'permanently closed' signals that show up in Tabelog headers, Naver status, Le Fooding deletions, OSM disused: tags, and recent Reddit threads."},
+			{"topic": "Walking-time radius (not crow-flies)", "insight": "A 500m crow-flies radius in Tokyo is 800-900m of actual walking. A user asking for '15-minute walk' wants what they can actually reach."},
+			{"topic": "Trust-weighted ranking", "insight": "The score is auditable. Google base + Tabelog/Naver +0.10 in-country + Wikipedia notability +0.05 + Reddit (≥10 upvotes, ≥3 comments) +0.05 — every contribution is reproducible."},
+			{"topic": "Country → research-stage map (data table)", "insight": "v1 scattered switch statements across the orchestrator and per-source clients. v2 has one source of truth. The wiring test asserts every source in internal/<source>/ is invoked from cli/, so 'scaffolded but never wired' regressions are impossible."},
+			{"topic": "Agent research-plan emitter", "insight": "Frontier-model agents already have web-search tools. Give them the right plan instead of the answer; they fan out and dedupe themselves."},
+			{"topic": "Crossover walks", "insight": "The intersection of editorial food and notable culture is a richer signal than either alone. Local SQLite join finds it free; no API has this surface."},
+			{"topic": "Golden-hour viewpoint hunt", "insight": "Time + place + viewpoint signal isn't combined anywhere. SunCalc + OSM tourism=viewpoint + walking-radius gives the photographer's right spot at the right hour."},
+			{"topic": "Route-view exploration", "insight": "OSRM gives the route; OSM tags + editorial sources score the segments. The journey is the product."},
+			{"topic": "City pre-trip sync", "insight": "Travel happens with bad wifi. Pre-caching the local SQLite store means the heavy commands work offline."},
+			{"topic": "Quiet-hour discovery", "insight": "Reddit and forum threads contain 'dead before 6, packed after 8' signals nobody surfaces. SQLite + keyword extraction makes it queryable."},
 		},
 	}
 	data, _ := json.MarshalIndent(ctx, "", "  ")

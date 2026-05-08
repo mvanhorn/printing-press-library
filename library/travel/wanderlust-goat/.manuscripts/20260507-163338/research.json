@@ -1,0 +1,317 @@
+{
+  "api_name": "wanderlust-goat",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-07T16:36:30Z",
+  "novel_features": [
+    {
+      "name": "Two-stage funnel: seed → deep research",
+      "command": "near",
+      "description": "Seed candidates from Google Places, then deep-research each against locale-specific review sites, forums, and search engines — return only the 3-5 amazing matches.",
+      "rationale": "No existing tool does Stage-1 (real geo-search) → Stage-2 (locale-aware criteria research) → Stage-3 (trust-weighted rank with closed-signal kill-gate). v1 fanned out blindly; v2 inverts to a funnel.",
+      "example": "wanderlust-goat-pp-cli near \"Park Hyatt Tokyo\" --criteria \"vintage jazz kissaten with no tourists\" --identity \"coffee snob into 70s Japanese kissaten culture\" --minutes 15",
+      "why_it_matters": "When the user asks for an opinionated walking-distance recommendation matching stated identity + criteria, this is the single command to invoke. Returns evidence-cited picks, not a 40-row dump.",
+      "group": "Two-stage funnel"
+    },
+    {
+      "name": "Heuristic GOAT (no LLM)",
+      "command": "goat",
+      "description": "Same two-stage funnel as `near` but explicitly no-LLM — keyword-overlap criteria match runs locally, free.",
+      "rationale": "Identity-aware ranking shouldn't require an API key. The heuristic path uses static criteria→source mappings + evidence-keyword overlap.",
+      "example": "wanderlust-goat-pp-cli goat 35.6895,139.6917 --criteria \"bouldering gym\" --identity \"climber\" --minutes 20",
+      "why_it_matters": "Pick `goat` when ANTHROPIC_API_KEY is absent or you want determinism. Same shape as `near`, no external LLM calls.",
+      "group": "Two-stage funnel"
+    },
+    {
+      "name": "Closed-signal kill-gate",
+      "command": "status",
+      "description": "Explicit operational/closed lookup across every Stage-2 source for one place — surfaces conflicting signals and recent RIP keywords.",
+      "rationale": "Restaurant/cafe data is famously stale. Google business_status alone misses 'permanently closed' signals that show up in Tabelog headers, Naver status, Le Fooding deletions, OSM disused: tags, and recent Reddit threads.",
+      "example": "wanderlust-goat-pp-cli status \"Sushi Saito\" --json",
+      "why_it_matters": "When deciding whether to recommend a place to a user, run this first. Conflicting signals are explicit, not silently averaged.",
+      "group": "Trust + freshness"
+    },
+    {
+      "name": "Walking-time radius (not crow-flies)",
+      "command": "near",
+      "description": "Radius is computed as walking minutes × 4.5 km/h ÷ 1.3 tortuosity, not haversine meters — matches the actual experience of walking a city grid.",
+      "rationale": "A 500m crow-flies radius in Tokyo is 800-900m of actual walking. A user asking for '15-minute walk' wants what they can actually reach.",
+      "example": "wanderlust-goat-pp-cli near 'Hotel Okura' --criteria 'kissaten' --minutes 12",
+      "why_it_matters": "When the user's input is time-bounded, use minutes-based commands. The CLI applies the tortuosity multiplier internally.",
+      "group": "Trust + freshness"
+    },
+    {
+      "name": "Trust-weighted ranking",
+      "command": "why",
+      "description": "Print every source that mentioned a place, the trust weight, country boost, walking time, criteria match, and the final goat-score breakdown.",
+      "rationale": "The score is auditable. Google base + Tabelog/Naver +0.10 in-country + Wikipedia notability +0.05 + Reddit (≥10 upvotes, ≥3 comments) +0.05 — every contribution is reproducible.",
+      "example": "wanderlust-goat-pp-cli why \"Bear Pond Espresso\" --json",
+      "why_it_matters": "When the user disagrees with a ranking, run why to see the score components. When the user wants to share evidence, the same output is the citation list.",
+      "group": "Trust + freshness"
+    },
+    {
+      "name": "Country → research-stage map (data table)",
+      "command": "coverage",
+      "description": "Single struct slice in internal/regions/regions.go drives every regional dispatch decision. Adding a country = adding one row.",
+      "rationale": "v1 scattered switch statements across the orchestrator and per-source clients. v2 has one source of truth. The wiring test asserts every source in internal/\u003csource\u003e/ is invoked from cli/, so 'scaffolded but never wired' regressions are impossible.",
+      "example": "wanderlust-goat-pp-cli coverage \"Tokyo\" --json",
+      "why_it_matters": "When the user asks 'why did I get a JP source for a KR query?' or 'which sources cover Italy?', `coverage` shows the active region row for the synced city.",
+      "group": "Architecture"
+    },
+    {
+      "name": "Agent research-plan emitter",
+      "command": "research-plan",
+      "description": "Output a typed JSON query plan agents execute in a loop — country-aware, ordered by trust, ready to fan out to MCP/agent loops.",
+      "rationale": "Frontier-model agents already have web-search tools. Give them the right plan instead of the answer; they fan out and dedupe themselves.",
+      "example": "wanderlust-goat-pp-cli research-plan \"vintage kissaten\" --anchor 'Shibuya Station' --country JP --json",
+      "why_it_matters": "When the agent has its own search tools, this is the right surface — emit the plan, let the agent loop. Don't burn tokens on Stage-2 if the caller has better tooling.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Crossover walks",
+      "command": "crossover",
+      "description": "Restaurants near (within 200m of) Wikipedia-notable historic sites or Atlas Obscura entries — food + culture in one walk.",
+      "rationale": "The intersection of editorial food and notable culture is a richer signal than either alone. Local SQLite join finds it free; no API has this surface.",
+      "example": "wanderlust-goat-pp-cli crossover --anchor 'Tsukiji' --radius 1km",
+      "why_it_matters": "When the user wants the trip to feel like more than just lunch, crossover finds the food/culture pairings within walking distance.",
+      "group": "Compound discovery"
+    },
+    {
+      "name": "Golden-hour viewpoint hunt",
+      "command": "golden-hour",
+      "description": "Compute sunrise/sunset/blue-hour locally (pure Go, no API) and pair with viewpoints photographers know about within walking distance.",
+      "rationale": "Time + place + viewpoint signal isn't combined anywhere. SunCalc + OSM tourism=viewpoint + walking-radius gives the photographer's right spot at the right hour.",
+      "example": "wanderlust-goat-pp-cli golden-hour 'Eiffel Tower' --date 2026-09-15 --minutes 15",
+      "why_it_matters": "When the user is a photographer or specifically wants 'sunset spots,' golden-hour combines the three signals locally.",
+      "group": "Compound discovery"
+    },
+    {
+      "name": "Route-view exploration",
+      "command": "route-view",
+      "description": "Walking polyline from A to B, then everything interesting along the path — not just at the endpoints.",
+      "rationale": "OSRM gives the route; OSM tags + editorial sources score the segments. The journey is the product.",
+      "example": "wanderlust-goat-pp-cli route-view 'Shibuya' 'Yoyogi Park'",
+      "why_it_matters": "When the user is walking somewhere specific, route-view layers the discovery onto the path they're already taking.",
+      "group": "Compound discovery"
+    },
+    {
+      "name": "City pre-trip sync",
+      "command": "sync-city",
+      "description": "Pre-cache editorial best-of, Reddit threads, Wikipedia, OSM POIs, Atlas Obscura, and every implemented Stage-2 source for offline use. Wires ALL implemented Stage-2 clients (the v1 silent-drop bug is now a wiring-test failure, not a runtime miss).",
+      "rationale": "Travel happens with bad wifi. Pre-caching the local SQLite store means the heavy commands work offline.",
+      "example": "wanderlust-goat-pp-cli sync-city \"Tokyo\" --country JP",
+      "why_it_matters": "When the user is about to travel, run sync-city for offline depth. Coverage report tells them what landed.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Quiet-hour discovery",
+      "command": "quiet-hour",
+      "description": "Places that locals describe as quiet at the requested time, intersected with OSM opening hours and walking radius.",
+      "rationale": "Reddit and forum threads contain 'dead before 6, packed after 8' signals nobody surfaces. SQLite + keyword extraction makes it queryable.",
+      "example": "wanderlust-goat-pp-cli quiet-hour 'Roppongi' --time 14:00 --minutes 10",
+      "why_it_matters": "When the user wants to avoid crowds, quiet-hour pulls Reddit/forum quiet-hour signals and intersects with hours and radius.",
+      "group": "Compound discovery"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Two-stage funnel: seed → deep research",
+      "command": "near",
+      "description": "Seed candidates from Google Places, then deep-research each against locale-specific review sites, forums, and search engines — return only the 3-5 amazing matches.",
+      "rationale": "No existing tool does Stage-1 (real geo-search) → Stage-2 (locale-aware criteria research) → Stage-3 (trust-weighted rank with closed-signal kill-gate). v1 fanned out blindly; v2 inverts to a funnel.",
+      "example": "wanderlust-goat-pp-cli near \"Park Hyatt Tokyo\" --criteria \"vintage jazz kissaten with no tourists\" --identity \"coffee snob into 70s Japanese kissaten culture\" --minutes 15",
+      "why_it_matters": "When the user asks for an opinionated walking-distance recommendation matching stated identity + criteria, this is the single command to invoke. Returns evidence-cited picks, not a 40-row dump.",
+      "group": "Two-stage funnel"
+    },
+    {
+      "name": "Heuristic GOAT (no LLM)",
+      "command": "goat",
+      "description": "Same two-stage funnel as `near` but explicitly no-LLM — keyword-overlap criteria match runs locally, free.",
+      "rationale": "Identity-aware ranking shouldn't require an API key. The heuristic path uses static criteria→source mappings + evidence-keyword overlap.",
+      "example": "wanderlust-goat-pp-cli goat 35.6895,139.6917 --criteria \"bouldering gym\" --identity \"climber\" --minutes 20",
+      "why_it_matters": "Pick `goat` when ANTHROPIC_API_KEY is absent or you want determinism. Same shape as `near`, no external LLM calls.",
+      "group": "Two-stage funnel"
+    },
+    {
+      "name": "Closed-signal kill-gate",
+      "command": "status",
+      "description": "Explicit operational/closed lookup across every Stage-2 source for one place — surfaces conflicting signals and recent RIP keywords.",
+      "rationale": "Restaurant/cafe data is famously stale. Google business_status alone misses 'permanently closed' signals that show up in Tabelog headers, Naver status, Le Fooding deletions, OSM disused: tags, and recent Reddit threads.",
+      "example": "wanderlust-goat-pp-cli status \"Sushi Saito\" --json",
+      "why_it_matters": "When deciding whether to recommend a place to a user, run this first. Conflicting signals are explicit, not silently averaged.",
+      "group": "Trust + freshness"
+    },
+    {
+      "name": "Walking-time radius (not crow-flies)",
+      "command": "near",
+      "description": "Radius is computed as walking minutes × 4.5 km/h ÷ 1.3 tortuosity, not haversine meters — matches the actual experience of walking a city grid.",
+      "rationale": "A 500m crow-flies radius in Tokyo is 800-900m of actual walking. A user asking for '15-minute walk' wants what they can actually reach.",
+      "example": "wanderlust-goat-pp-cli near 'Hotel Okura' --criteria 'kissaten' --minutes 12",
+      "why_it_matters": "When the user's input is time-bounded, use minutes-based commands. The CLI applies the tortuosity multiplier internally.",
+      "group": "Trust + freshness"
+    },
+    {
+      "name": "Trust-weighted ranking",
+      "command": "why",
+      "description": "Print every source that mentioned a place, the trust weight, country boost, walking time, criteria match, and the final goat-score breakdown.",
+      "rationale": "The score is auditable. Google base + Tabelog/Naver +0.10 in-country + Wikipedia notability +0.05 + Reddit (≥10 upvotes, ≥3 comments) +0.05 — every contribution is reproducible.",
+      "example": "wanderlust-goat-pp-cli why \"Bear Pond Espresso\" --json",
+      "why_it_matters": "When the user disagrees with a ranking, run why to see the score components. When the user wants to share evidence, the same output is the citation list.",
+      "group": "Trust + freshness"
+    },
+    {
+      "name": "Country → research-stage map (data table)",
+      "command": "coverage",
+      "description": "Single struct slice in internal/regions/regions.go drives every regional dispatch decision. Adding a country = adding one row.",
+      "rationale": "v1 scattered switch statements across the orchestrator and per-source clients. v2 has one source of truth. The wiring test asserts every source in internal/\u003csource\u003e/ is invoked from cli/, so 'scaffolded but never wired' regressions are impossible.",
+      "example": "wanderlust-goat-pp-cli coverage \"Tokyo\" --json",
+      "why_it_matters": "When the user asks 'why did I get a JP source for a KR query?' or 'which sources cover Italy?', `coverage` shows the active region row for the synced city.",
+      "group": "Architecture"
+    },
+    {
+      "name": "Agent research-plan emitter",
+      "command": "research-plan",
+      "description": "Output a typed JSON query plan agents execute in a loop — country-aware, ordered by trust, ready to fan out to MCP/agent loops.",
+      "rationale": "Frontier-model agents already have web-search tools. Give them the right plan instead of the answer; they fan out and dedupe themselves.",
+      "example": "wanderlust-goat-pp-cli research-plan \"vintage kissaten\" --anchor 'Shibuya Station' --country JP --json",
+      "why_it_matters": "When the agent has its own search tools, this is the right surface — emit the plan, let the agent loop. Don't burn tokens on Stage-2 if the caller has better tooling.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Crossover walks",
+      "command": "crossover",
+      "description": "Restaurants near (within 200m of) Wikipedia-notable historic sites or Atlas Obscura entries — food + culture in one walk.",
+      "rationale": "The intersection of editorial food and notable culture is a richer signal than either alone. Local SQLite join finds it free; no API has this surface.",
+      "example": "wanderlust-goat-pp-cli crossover --anchor 'Tsukiji' --radius 1km",
+      "why_it_matters": "When the user wants the trip to feel like more than just lunch, crossover finds the food/culture pairings within walking distance.",
+      "group": "Compound discovery"
+    },
+    {
+      "name": "Golden-hour viewpoint hunt",
+      "command": "golden-hour",
+      "description": "Compute sunrise/sunset/blue-hour locally (pure Go, no API) and pair with viewpoints photographers know about within walking distance.",
+      "rationale": "Time + place + viewpoint signal isn't combined anywhere. SunCalc + OSM tourism=viewpoint + walking-radius gives the photographer's right spot at the right hour.",
+      "example": "wanderlust-goat-pp-cli golden-hour 'Eiffel Tower' --date 2026-09-15 --minutes 15",
+      "why_it_matters": "When the user is a photographer or specifically wants 'sunset spots,' golden-hour combines the three signals locally.",
+      "group": "Compound discovery"
+    },
+    {
+      "name": "Route-view exploration",
+      "command": "route-view",
+      "description": "Walking polyline from A to B, then everything interesting along the path — not just at the endpoints.",
+      "rationale": "OSRM gives the route; OSM tags + editorial sources score the segments. The journey is the product.",
+      "example": "wanderlust-goat-pp-cli route-view 'Shibuya' 'Yoyogi Park'",
+      "why_it_matters": "When the user is walking somewhere specific, route-view layers the discovery onto the path they're already taking.",
+      "group": "Compound discovery"
+    },
+    {
+      "name": "City pre-trip sync",
+      "command": "sync-city",
+      "description": "Pre-cache editorial best-of, Reddit threads, Wikipedia, OSM POIs, Atlas Obscura, and every implemented Stage-2 source for offline use. Wires ALL implemented Stage-2 clients (the v1 silent-drop bug is now a wiring-test failure, not a runtime miss).",
+      "rationale": "Travel happens with bad wifi. Pre-caching the local SQLite store means the heavy commands work offline.",
+      "example": "wanderlust-goat-pp-cli sync-city \"Tokyo\" --country JP",
+      "why_it_matters": "When the user is about to travel, run sync-city for offline depth. Coverage report tells them what landed.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Quiet-hour discovery",
+      "command": "quiet-hour",
+      "description": "Places that locals describe as quiet at the requested time, intersected with OSM opening hours and walking radius.",
+      "rationale": "Reddit and forum threads contain 'dead before 6, packed after 8' signals nobody surfaces. SQLite + keyword extraction makes it queryable.",
+      "example": "wanderlust-goat-pp-cli quiet-hour 'Roppongi' --time 14:00 --minutes 10",
+      "why_it_matters": "When the user wants to avoid crowds, quiet-hour pulls Reddit/forum quiet-hour signals and intersects with hours and radius.",
+      "group": "Compound discovery"
+    }
+  ],
+  "narrative": {
+    "display_name": "Wanderlust GOAT",
+    "headline": "What a knowledgeable local with great taste would tell you to walk to from here.",
+    "value_prop": "Two-stage funnel: seed candidates from Google Places, then deep-research each against locale-aware sources (Tabelog/Naver/Le Fooding for the country you're in), trust-weight by source authority, kill-gate anything that's permanently closed, and return the 3-5 amazing things — not the comprehensive 40-row dump.",
+    "auth_narrative": "GOOGLE_PLACES_API_KEY is required for live Stage-1 seeding. Get a key at https://developers.google.com/maps/documentation/places/web-service/get-api-key (free $200/mo credit). ANTHROPIC_API_KEY is optional and enables sharper criteria judgment via --llm; without it, the free heuristic path runs.",
+    "quickstart": [
+      {
+        "command": "wanderlust-goat-pp-cli doctor",
+        "comment": "verify Nominatim/OSRM reachable and required env vars set"
+      },
+      {
+        "command": "wanderlust-goat-pp-cli near \"Park Hyatt Tokyo\" --criteria \"vintage jazz kissaten with no tourists\" --identity \"coffee snob into 70s Japanese kissaten culture\" --minutes 15",
+        "comment": "the headline workflow: identity + criteria + walking radius"
+      },
+      {
+        "command": "wanderlust-goat-pp-cli goat 35.6895,139.6917 --criteria \"high-end seafood with counter seating\" --minutes 12",
+        "comment": "no-LLM path; same shape, free, deterministic"
+      },
+      {
+        "command": "wanderlust-goat-pp-cli why \"Bear Pond Espresso\" --json",
+        "comment": "audit a ranking — every source, weight, and contribution"
+      },
+      {
+        "command": "wanderlust-goat-pp-cli status \"Sushi Saito\" --json",
+        "comment": "is this place still open? cross-source verdict"
+      },
+      {
+        "command": "wanderlust-goat-pp-cli sync-city \"Tokyo\" --country JP",
+        "comment": "pre-cache before the trip — offline-ready"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "exit code 4: Google Places auth missing",
+        "fix": "export GOOGLE_PLACES_API_KEY=\u003cyour-key\u003e; get one at https://developers.google.com/maps/documentation/places/web-service/get-api-key"
+      },
+      {
+        "symptom": "near returns 0 results in country X",
+        "fix": "country X may not have a Stage-2 region row yet — run `coverage \u003ccity\u003e --json` to see the active region; add a row to internal/regions/regions.go to extend"
+      },
+      {
+        "symptom": "Atlas Obscura returns nothing for my city",
+        "fix": "Atlas Obscura's slug index doesn't cover every city; this is expected, the dispatcher falls through silently"
+      },
+      {
+        "symptom": "Tabelog/Naver/Le Fooding returns nothing for a place that exists",
+        "fix": "Stage-2 lookup is by name; the source's anti-bot mitigation may have intercepted. Run with --verbose to see per-source HTTP status; rate-limit backoff is per-source"
+      }
+    ],
+    "when_to_use": "Reach for wanderlust-goat when an agent or user wants opinionated walking-distance recommendations matching stated identity and criteria — not a comprehensive list. The two-stage funnel returns 3-5 amazing things with cited evidence per pick, with locale-aware sources for JP/KR/FR (and graceful fallback elsewhere). Closed-signal kill-gate means stale results don't ship.",
+    "recipes": [
+      {
+        "title": "Find vintage kissaten near a Tokyo hotel",
+        "command": "wanderlust-goat-pp-cli near \"Park Hyatt Tokyo\" --criteria \"vintage 50-year-old kissaten with award-winning pour-over, no tourists\" --identity \"coffee snob into 70s Japanese kissaten culture\" --minutes 15 --json --select results.name,results.evidence,results.walking_minutes",
+        "explanation": "Identity + criteria + radius produces a ranked, evidence-cited shortlist; --select narrows the deeply nested response."
+      },
+      {
+        "title": "Audit why a place ranked",
+        "command": "wanderlust-goat-pp-cli why \"Bear Pond Espresso\" --json",
+        "explanation": "Every source, trust weight, country boost, walking-time, and criteria-match score in one breakdown."
+      },
+      {
+        "title": "Confirm operational status",
+        "command": "wanderlust-goat-pp-cli status \"Le Coucou\" --json",
+        "explanation": "Conflicting closed signals (Google operational, Tabelog 閉店, recent Reddit RIP keywords) are surfaced explicitly."
+      },
+      {
+        "title": "Pre-cache a city for offline trip use",
+        "command": "wanderlust-goat-pp-cli sync-city \"Seoul\" --country KR \u0026\u0026 wanderlust-goat-pp-cli coverage \"Seoul\" --json",
+        "explanation": "sync-city pulls every implemented Stage-2 source plus shared sources into the local store; coverage shows what landed."
+      },
+      {
+        "title": "Hand off the plan to an agent loop",
+        "command": "wanderlust-goat-pp-cli research-plan \"vintage seafood\" --anchor 'Tsukiji' --country JP --json",
+        "explanation": "When the caller has its own web-search tooling, emit the plan instead of running it; the JSON is country-aware and trust-ordered."
+      }
+    ],
+    "trigger_phrases": [
+      "what should I walk to from here",
+      "find me a kissaten",
+      "amazing places near me",
+      "is \u003cplace\u003e still open",
+      "sunset photo spots near",
+      "sync this city for offline",
+      "use wanderlust-goat",
+      "run wanderlust-goat"
+    ]
+  }
+}

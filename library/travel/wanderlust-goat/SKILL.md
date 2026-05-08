@@ -1,6 +1,6 @@
 ---
 name: pp-wanderlust-goat
-description: "What a knowledgeable local with great taste would tell you to walk to from here — fused across editorial, local-language, and crowd layers no single tool ranks together. Trigger phrases: `what should I walk to from here`, `near me with great taste`, `find the 3 places not the 40`, `kissaten near my hotel`, `viewpoint within walking distance`, `blue hour photo spot`, `use wanderlust-goat`, `run wanderlust-goat`."
+description: "What a knowledgeable local with great taste would tell you to walk to from here. Trigger phrases: `what should I walk to from here`, `find me a kissaten`, `amazing places near me`, `is <place> still open`, `sunset photo spots near`, `sync this city for offline`, `use wanderlust-goat`, `run wanderlust-goat`."
 author: "Joe Heitzeberg"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -29,7 +29,7 @@ This skill drives the `wanderlust-goat-pp-cli` binary. **You must verify the CLI
 2. Verify: `wanderlust-goat-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/travel/wanderlust-goat/cmd/wanderlust-goat-pp-cli@latest
@@ -37,11 +37,11 @@ go install github.com/mvanhorn/printing-press-library/library/travel/wanderlust-
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-Most 'near me' tools return the 40 closest results. Wanderlust GOAT returns the 3 results that match your stated identity and criteria. It fuses Nominatim, OSRM walking time, OSM Overpass, Wikipedia, Wikivoyage, Atlas Obscura, Reddit, editorial scrapes (Eater, Time Out, NYT 36 Hours, Michelin), and language-aware regional sources (Tabelog, Naver, Le Fooding) through one trust-weighted score, with local-language names preserved alongside transliterations. Free, no API keys, with an offline SQLite store and a JSON `research-plan` surface for agent orchestration.
+Two-stage funnel: seed candidates from Google Places, then deep-research each against locale-aware sources (Tabelog/Naver/Le Fooding for the country you're in), trust-weight by source authority, kill-gate anything that's permanently closed, and return the 3-5 amazing things — not the comprehensive 40-row dump.
 
 ## When to Use This CLI
 
-Reach for wanderlust-goat when you need persona-shaped place discovery within walking distance, especially for cross-cultural travel where English search dominates and the local-language gems are hidden. Best for trip prep (sync-city), in-the-moment 'what should I walk to from here' (near, goat), photographer routing (golden-hour, route-view), and agent-orchestrated travel research (research-plan). Prefer Mapbox/Google MCPs only if you have their keys and need raw geocoding without persona scoring.
+Reach for wanderlust-goat when an agent or user wants opinionated walking-distance recommendations matching stated identity and criteria — not a comprehensive list. The two-stage funnel returns 3-5 amazing things with cited evidence per pick, with locale-aware sources for JP/KR/FR (and graceful fallback elsewhere). Closed-signal kill-gate means stale results don't ship.
 
 ## When Not to Use This CLI
 
@@ -73,7 +73,7 @@ These capabilities aren't available in any other tool for this API.
   _Drop this into an agent loop to let the agent run multi-source travel research without re-deriving the fanout plan every call._
 
   ```bash
-  wanderlust-goat-pp-cli research-plan "Bukchon Hanok Village, Seoul" --criteria "hand-pulled noodles, locals only" --identity "food traveler" --json
+  wanderlust-goat-pp-cli research-plan "hand-pulled noodles, locals only" --anchor "Bukchon Hanok Village, Seoul" --country KR --json
   ```
 
 ### Cross-source walks
@@ -112,7 +112,7 @@ These capabilities aren't available in any other tool for this API.
   _Agents working offline or with flaky connectivity need a synced local store; this populates it._
 
   ```bash
-  wanderlust-goat-pp-cli sync-city tokyo --layers all --agent
+  wanderlust-goat-pp-cli sync-city "Tokyo" --country JP --json
   ```
 - **`why`** — Print every source that mentioned a place, the trust weight, country boost, walking time, criteria match, and the final goat-score breakdown.
 
@@ -138,7 +138,7 @@ These capabilities aren't available in any other tool for this API.
 
 ## Command Reference
 
-**places** — Geocode addresses and look up canonical place coordinates via Nominatim (foundation layer for the multi-source GOAT stack).
+**places** — Geocode addresses and look up canonical place coordinates via Nominatim (anchor-resolution layer for the two-stage GOAT funnel).
 
 - `wanderlust-goat-pp-cli places reverse` — Reverse geocode lat/lng to a structured address.
 - `wanderlust-goat-pp-cli places search` — Forward geocode an address, place name, or business to lat/lng candidates.
@@ -157,57 +157,49 @@ wanderlust-goat-pp-cli which "<capability in your own words>"
 ## Recipes
 
 
-### Kissaten hunt in Tokyo (Mira's morning)
+### Find vintage kissaten near a Tokyo hotel
 
 ```bash
-wanderlust-goat-pp-cli near "Park Hyatt Tokyo" --criteria "vintage jazz kissaten, no tourists, great pour-over" --identity "coffee snob, into 70s Japanese kissaten culture" --minutes 15 --agent --select results.name,results.name_local,results.why_special,results.sources,results.walking_min
+wanderlust-goat-pp-cli near "Park Hyatt Tokyo" --criteria "vintage 50-year-old kissaten with award-winning pour-over, no tourists" --identity "coffee snob into 70s Japanese kissaten culture" --minutes 15 --json --select results.name,results.evidence,results.walking_minutes
 ```
 
-Returns 3-5 picks with local-language names preserved (e.g. 珈琲 美美), trust-weighted across Tabelog 3.5+, jp.wikipedia history, /r/japan threads, Time Out Tokyo's vintage-cafe list, and OSM `cafe + cuisine=japanese` tagging. The dotted --select narrows the JSON to the fields the persona cares about so an agent doesn't burn context on raw payload.
+Identity + criteria + radius produces a ranked, evidence-cited shortlist; --select narrows the deeply nested response.
 
-### Photographer's blue-hour route in Seoul (Felix's evening)
+### Audit why a place ranked
 
 ```bash
-wanderlust-goat-pp-cli golden-hour "Bukchon Hanok Village, Seoul" --date 2026-06-15 --minutes 25 --agent
+wanderlust-goat-pp-cli why "Bear Pond Espresso" --json
 ```
 
-Computes blue-hour and golden-hour windows for the date locally (no API), then ranks viewpoints from OSM `tourism=viewpoint` + Atlas Obscura viewpoint entries + ko.wikipedia notable-views by elevation tag and Reddit-accessibility keyword match. Agent can plan the walk in one call.
+Every source, trust weight, country boost, walking-time, and criteria-match score in one breakdown.
 
-### Agent-orchestrated research plan for a friend's Paris weekend
+### Confirm operational status
 
 ```bash
-wanderlust-goat-pp-cli research-plan "Marais, Paris" --criteria "natural wine, neighborhood spot, no scene" --identity "food writer" --json
+wanderlust-goat-pp-cli status "Le Coucou" --json
 ```
 
-Emits typed JSON describing which clients to call (Le Fooding, Pudlo, fr.wikivoyage, /r/Paris, Eater Paris, Michelin Bib Gourmand) with parameters pre-filled. Drop into an agent loop: agent executes each, then you call `near` with `--data-source local` to fuse the cached results.
+Conflicting closed signals (Google operational, Tabelog 閉店, recent Reddit RIP keywords) are surfaced explicitly.
 
-### Crossover walk: a great meal next to something interesting
+### Pre-cache a city for offline trip use
 
 ```bash
-wanderlust-goat-pp-cli crossover --anchor "Asakusa, Tokyo" --radius 800m --pair food+culture --agent --csv
+wanderlust-goat-pp-cli sync-city "Seoul" --country KR && wanderlust-goat-pp-cli coverage "Seoul" --json
 ```
 
-Spatial join finds high-trust restaurants within 200m of a Wikipedia-notable historic site or Atlas Obscura entry. CSV output lets you paste pairs into a planning doc; --agent forces structured exit codes for cron scripts.
+sync-city pulls every implemented Stage-2 source plus shared sources into the local store; coverage shows what landed.
 
-### Pre-trip city sync (Priya's two-weeks-out workflow)
+### Hand off the plan to an agent loop
 
 ```bash
-wanderlust-goat-pp-cli sync-city paris --layers all --concurrency 2 --since 30d
+wanderlust-goat-pp-cli research-plan "vintage seafood" --anchor 'Tsukiji' --country JP --json
 ```
 
-Polite-rate-limited fanout: editorial scrapes + multilingual Wikipedia + Wikivoyage + OSM Overpass POIs + Le Fooding + Pudlo + /r/Paris top threads ≥10 upvotes, all into local SQLite. After this, every other command can run with `--data-source local` (or `auto`) — no internet needed in the cafe with bad wifi.
+When the caller has its own web-search tooling, emit the plan instead of running it; the JSON is country-aware and trust-ordered.
 
 ## Auth Setup
 
-No API keys. Every v1 source is free and key-less.
-
-**One environment variable matters:** Nominatim's usage policy requires every client to send a User-Agent that includes a real contact URL or email — placeholder UAs (`example.com`) are blocked at the edge. Set it once:
-
-```bash
-export WANDERLUST_GOAT_UA="wanderlust-goat-pp-cli/0.1 (+https://github.com/<you>/<repo>)"
-```
-
-If unset, the CLI falls back to a generic UA that may receive 403s from Nominatim. The same UA flows through to Wikipedia, Wikivoyage, Reddit, and Overpass — being a polite citizen across the public stack.
+No authentication required.
 
 Run `wanderlust-goat-pp-cli doctor` to verify setup.
 

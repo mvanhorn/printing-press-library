@@ -45,7 +45,7 @@ brews:
       owner: joe-heitzeberg
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Wanderlust GOAT — what a knowledgeable local with great taste would tell you to walk to from here, fused across editorial, local-language, and crowd layers no single tool ranks together."
+    description: "Two-stage funnel place discovery: Google Places seeds candidates, then locale-aware deep research (Tabelog/Naver/Le Fooding/Reddit/Wikipedia/OSM) ranks the 3-5 amazing things you should walk to, with a closed-signal kill-gate so dead places don't ship."
     install: |
       bin.install "wanderlust-goat-pp-cli"
       bin.install "wanderlust-goat-pp-mcp"
