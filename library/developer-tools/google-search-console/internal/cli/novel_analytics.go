@@ -107,7 +107,9 @@ ORDER BY ABS(click_delta) DESC LIMIT ?`,
 			})
 		},
 	}
-	bindCommonFlags(cmd, &cf, "7d")
+	cmd.Flags().StringVar(&cf.site, "site", "", "Site URL (e.g. sc-domain:example.com). Required.")
+	cmd.Flags().StringVar(&cf.window, "window", "7d", "Analysis window: Nd, Nw, or Nm.")
+	cmd.Flags().StringVar(&cf.db, "db", "", "SQLite path (default ~/.config/google-search-console-pp-cli/store.sqlite).")
 	cmd.Flags().IntVar(&top, "top", 25, "Maximum movers to return.")
 	return cmd
 }
@@ -190,7 +192,9 @@ ORDER BY t.total_impressions DESC LIMIT ?`,
 			})
 		},
 	}
-	bindCommonFlags(cmd, &cf, "28d")
+	cmd.Flags().StringVar(&cf.site, "site", "", "Site URL (e.g. sc-domain:example.com). Required.")
+	cmd.Flags().StringVar(&cf.window, "window", "28d", "Analysis window: Nd, Nw, or Nm.")
+	cmd.Flags().StringVar(&cf.db, "db", "", "SQLite path (default ~/.config/google-search-console-pp-cli/store.sqlite).")
 	cmd.Flags().IntVar(&top, "top", 20, "Maximum cannibalized queries to return.")
 	cmd.Flags().Float64Var(&minImpressions, "min-impressions", 100, "Skip queries below this total impression count.")
 	return cmd
@@ -295,7 +299,9 @@ ORDER BY query, date`,
 			})
 		},
 	}
-	bindCommonFlags(cmd, &cf, "12w")
+	cmd.Flags().StringVar(&cf.site, "site", "", "Site URL (e.g. sc-domain:example.com). Required.")
+	cmd.Flags().StringVar(&cf.window, "window", "12w", "Analysis window: Nd, Nw, or Nm.")
+	cmd.Flags().StringVar(&cf.db, "db", "", "SQLite path (default ~/.config/google-search-console-pp-cli/store.sqlite).")
 	cmd.Flags().Float64Var(&minLoss, "min-loss", 100, "Filter out queries whose estimated click loss over the window is below this.")
 	return cmd
 }
@@ -402,7 +408,9 @@ SELECT MIN(date) FROM (
 			})
 		},
 	}
-	bindCommonFlags(cmd, &cf, "28d")
+	cmd.Flags().StringVar(&cf.site, "site", "", "Site URL (e.g. sc-domain:example.com). Required.")
+	cmd.Flags().StringVar(&cf.window, "window", "28d", "Analysis window: Nd, Nw, or Nm.")
+	cmd.Flags().StringVar(&cf.db, "db", "", "SQLite path (default ~/.config/google-search-console-pp-cli/store.sqlite).")
 	cmd.Flags().StringVar(&newSince, "new-since", "14d", "Mark pages that entered the opportunity zone within this window as new.")
 	cmd.Flags().Float64Var(&minImpressions, "min-impressions", 100, "Filter out pages below this impression threshold.")
 	return cmd
@@ -506,7 +514,9 @@ SELECT base.page, 0, base.c FROM base LEFT JOIN recent USING(page) WHERE recent.
 			})
 		},
 	}
-	bindCommonFlags(cmd, &cf, "7d")
+	cmd.Flags().StringVar(&cf.site, "site", "", "Site URL (e.g. sc-domain:example.com). Required.")
+	cmd.Flags().StringVar(&cf.window, "window", "7d", "Analysis window: Nd, Nw, or Nm.")
+	cmd.Flags().StringVar(&cf.db, "db", "", "SQLite path (default ~/.config/google-search-console-pp-cli/store.sqlite).")
 	cmd.Flags().StringVar(&vs, "vs", "28d", "Baseline window length to compare against.")
 	cmd.Flags().Float64Var(&minLift, "min-lift", 0.5, "Only show pages whose absolute lift is at least this (e.g. 0.5 = ±50%).")
 	return cmd
@@ -611,7 +621,9 @@ ORDER BY prev.impressions DESC`,
 			})
 		},
 	}
-	bindCommonFlags(cmd, &cf, "7d")
+	cmd.Flags().StringVar(&cf.site, "site", "", "Site URL (e.g. sc-domain:example.com). Required.")
+	cmd.Flags().StringVar(&cf.window, "window", "7d", "Analysis window: Nd, Nw, or Nm.")
+	cmd.Flags().StringVar(&cf.db, "db", "", "SQLite path (default ~/.config/google-search-console-pp-cli/store.sqlite).")
 	cmd.Flags().Float64Var(&minImpressions, "min-impressions", 50, "Filter queries below this impression count.")
 	cmd.Flags().BoolVar(&lost, "lost", false, "Invert: show queries that vanished from the recent window.")
 	return cmd
@@ -719,7 +731,9 @@ ORDER BY curr.query, curr.dim`, groupKey, groupKey)
 			})
 		},
 	}
-	bindCommonFlags(cmd, &cf, "7d")
+	cmd.Flags().StringVar(&cf.site, "site", "", "Site URL (e.g. sc-domain:example.com). Required.")
+	cmd.Flags().StringVar(&cf.window, "window", "7d", "Analysis window: Nd, Nw, or Nm.")
+	cmd.Flags().StringVar(&cf.db, "db", "", "SQLite path (default ~/.config/google-search-console-pp-cli/store.sqlite).")
 	cmd.Flags().StringVar(&by, "by", "country", "Dimension(s) to pivot on: country, device, or country,device.")
 	cmd.Flags().Float64Var(&minShift, "min-shift", 0.05, "Skip rows whose share delta is below this absolute value (0.05 = 5 percentage points).")
 	return cmd
@@ -821,7 +835,9 @@ ORDER BY curr_impressions DESC`,
 			})
 		},
 	}
-	bindCommonFlags(cmd, &cf, "28d")
+	cmd.Flags().StringVar(&cf.site, "site", "", "Site URL (e.g. sc-domain:example.com). Required.")
+	cmd.Flags().StringVar(&cf.window, "window", "28d", "Analysis window: Nd, Nw, or Nm.")
+	cmd.Flags().StringVar(&cf.db, "db", "", "SQLite path (default ~/.config/google-search-console-pp-cli/store.sqlite).")
 	cmd.Flags().StringVar(&vs, "vs", "prior", "Comparison baseline: 'prior' (the matching prior window) is the only supported value today.")
 	return cmd
 }

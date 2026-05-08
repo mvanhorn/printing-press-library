@@ -14,7 +14,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/google-search-console/internal/store"
+	"google-search-console-pp-cli/internal/store"
 )
 
 // openStoreFromFlag opens the local SQLite store. dbFlag overrides the
@@ -129,19 +129,13 @@ func rowsToMaps(rows *sql.Rows) ([]map[string]any, error) {
 }
 
 // commonFlags collects the --site/--window/--db trio shared by every
-// transcendence command. Bind it via bindCommonFlags(cmd, &cf, ...).
+// transcendence command. Each command declares the three flags inline so
+// verify-skill (which scans Go source for cmd.Flags() declarations on the
+// same function as the cobra.Command literal) can see them directly.
 type commonFlags struct {
 	site   string
 	window string
 	db     string
-}
-
-// bindCommonFlags wires --site, --window, and --db onto cmd. Free function
-// (not a method) so verify-skill's helper-resolution regex picks it up.
-func bindCommonFlags(cmd *cobra.Command, cf *commonFlags, defaultWindow string) {
-	cmd.Flags().StringVar(&cf.site, "site", "", "Site URL (e.g. sc-domain:example.com). Required.")
-	cmd.Flags().StringVar(&cf.window, "window", defaultWindow, "Analysis window: Nd, Nw, or Nm.")
-	cmd.Flags().StringVar(&cf.db, "db", "", "SQLite path (default ~/.config/google-search-console-pp-cli/store.sqlite).")
 }
 
 // requireSite returns a usage error if site is empty.
