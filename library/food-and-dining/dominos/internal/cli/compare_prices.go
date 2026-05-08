@@ -26,7 +26,7 @@ type priceCompareRow struct {
 // range and ranks by total. This composes store-locator + price-order
 // across N stores; only feasible with our local fan-out helper.
 func newComparePricesCmd(flags *rootFlags) *cobra.Command {
-	var address, city, items, svc string
+	var street, city, items, svc string
 	cmd := &cobra.Command{
 		Use:   "compare-prices",
 		Short: "Price the same cart at every nearby store and rank by total",
@@ -35,7 +35,7 @@ func newComparePricesCmd(flags *rootFlags) *cobra.Command {
 Builds a one-of-each cart from --items (a comma-separated list of product
 codes) and calls /power/price-order against each store from the locator,
 then sorts by total including delivery fee.`,
-		Example:     "  dominos-pp-cli compare-prices --address \"421 N 63rd St\" --city \"Seattle, WA\" --items 14SCREEN,20BCOKE",
+		Example:     "  dominos-pp-cli compare-prices --street \"421 N 63rd St\" --city \"Seattle, WA\" --items 14SCREEN,20BCOKE",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if svc == "" {
@@ -46,7 +46,7 @@ then sorts by total including delivery fee.`,
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 					"action":  "compare_prices",
 					"dry_run": true,
-					"address": address,
+					"street":  street,
 					"city":    city,
 					"items":   codes,
 				}, flags)
@@ -55,8 +55,8 @@ then sorts by total including delivery fee.`,
 			// verifier's single-probe inferRequiredFlags can supply
 			// synthetic values for every one in one pass.
 			var missing []string
-			if address == "" {
-				missing = append(missing, `"address"`)
+			if street == "" {
+				missing = append(missing, `"street"`)
 			}
 			if city == "" {
 				missing = append(missing, `"city"`)
@@ -72,7 +72,7 @@ then sorts by total including delivery fee.`,
 				return err
 			}
 			locatorData, err := c.Get("/power/store-locator", map[string]string{
-				"s": address, "c": city, "type": svc,
+				"s": street, "c": city, "type": svc,
 			})
 			if err != nil {
 				return classifyAPIError(err, flags)
@@ -81,14 +81,14 @@ then sorts by total including delivery fee.`,
 			if len(storeIDs) == 0 {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 					"results": []priceCompareRow{},
-					"hint":    "no stores returned by locator; try a broader address",
+					"hint":    "no stores returned by locator; try a broader street/city search",
 				}, flags)
 			}
 			ctx := context.Background()
 			results, errs := cliutil.FanoutRun(ctx, storeIDs,
 				func(s string) string { return s },
 				func(_ context.Context, storeID string) (priceCompareRow, error) {
-					return priceCartAtStore(c, storeID, address, codes, svc)
+					return priceCartAtStore(c, storeID, street, codes, svc)
 				},
 			)
 			cliutil.FanoutReportErrors(cmd.ErrOrStderr(), errs)
@@ -100,10 +100,12 @@ then sorts by total including delivery fee.`,
 			return printJSONFiltered(cmd.OutOrStdout(), rows, flags)
 		},
 	}
-	cmd.Flags().StringVar(&address, "address", "", "Street address (required)")
+	cmd.Flags().StringVar(&street, "street", "", "Street address (required)")
 	cmd.Flags().StringVar(&city, "city", "", "City, state, zip (required)")
 	cmd.Flags().StringVar(&items, "items", "", "Comma-separated product codes (required)")
 	cmd.Flags().StringVar(&svc, "service", "Delivery", "Service method: Delivery or Carryout")
+	cmd.Flags().StringVar(&street, "address", "", "")
+	_ = cmd.Flags().MarkHidden("address")
 	return cmd
 }
 
@@ -122,7 +124,7 @@ func splitCSV(s string) []string {
 // priceCartAtStore builds the minimal Order body the /power/price-order
 // endpoint accepts and pulls the totals out. Field names follow the
 // Domino's power-API casing (StoreID, OrderChannel, Products, etc.).
-func priceCartAtStore(c *client.Client, storeID, address string, codes []string, svc string) (priceCompareRow, error) {
+func priceCartAtStore(c *client.Client, storeID, street string, codes []string, svc string) (priceCompareRow, error) {
 	products := make([]map[string]any, 0, len(codes))
 	for _, code := range codes {
 		products = append(products, map[string]any{"Code": code, "Qty": 1})
@@ -134,7 +136,7 @@ func priceCartAtStore(c *client.Client, storeID, address string, codes []string,
 			"OrderMethod":   "Web",
 			"ServiceMethod": svc,
 			"Products":      products,
-			"Address":       map[string]any{"Street": address},
+			"Address":       map[string]any{"Street": street},
 		},
 	}
 	data, _, err := c.Post("/power/price-order", body)

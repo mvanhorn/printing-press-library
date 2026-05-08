@@ -66,7 +66,7 @@ Most commands work without authentication: store locator, menu browse, cart buil
 dominos-pp-cli auth login
 
 # 2. Find your closest stores (no auth needed)
-dominos-pp-cli stores find --address "709 19th Ave" --city "Seattle WA 98122"
+dominos-pp-cli stores find --street "709 19th Ave" --city "Seattle WA 98122"
 
 # 3. Get a specific store's profile
 dominos-pp-cli stores get 7144
@@ -144,14 +144,14 @@ These capabilities aren't available in any other tool for this API.
   _Reach for this when latency-or-price tradeoffs across nearby stores matter (delivery fee + wait time can offset a cheaper menu)._
 
   ```bash
-  dominos-pp-cli compare-prices --address "421 N 63rd St" --city "Seattle WA" --items S_PIZPH,S_LAVA --agent
+  dominos-pp-cli compare-prices --street "421 N 63rd St" --city "Seattle WA" --items S_PIZPH,S_LAVA --agent
   ```
 - **`stores wait`** — Pull CartEtaMinutes for every store in radius and rank by ETA — the unique GraphQL BFF op every other wrapper ignores.
 
   _Reach for this when busy-hour delivery decisions need accurate wait estimates rather than a phone call to the store._
 
   ```bash
-  dominos-pp-cli stores wait --address "421 N 63rd St" --city "Seattle WA" --agent
+  dominos-pp-cli stores wait --street "421 N 63rd St" --city "Seattle WA" --agent
   ```
 - **`deals eligible`** — List which advertised deals actually apply to your current cart and explain why each non-matching one fails.
 
@@ -224,7 +224,7 @@ Create, validate, price, and place orders
 
 Find and get information about Domino's stores
 
-- **`dominos-pp-cli stores find`** - Find nearby Domino's stores by address
+- **`dominos-pp-cli stores find`** - Find nearby Domino's stores by street and city
 - **`dominos-pp-cli stores get`** - Get detailed store information including hours, capabilities, and wait times
 
 ### tracking
@@ -362,7 +362,7 @@ Environment variables:
 
 ### API-specific
 
-- **Store finder returns no results** — Domino's geocoder is strict; pass street and city/state separately: `--address "350 5th Ave" --city "New York NY 10118"`.
+- **Store finder returns no results** — Domino's geocoder is strict; pass street and city/state separately: `--street "350 5th Ave" --city "New York NY 10118"`.
 - **Authenticated commands return 401** — Bearer token expired or missing. Run `auth login` again (token TTL is ~1 hour). Check with `auth status`.
 - **auth login times out without harvesting** — Increase `--timeout` (default 5m). Make sure you're actually completing sign-in in the spawned Chrome window.
 - **Track command shows order not found** — Use the phone number tied to the order, not your account phone. The tracker is keyed on the order phone field.

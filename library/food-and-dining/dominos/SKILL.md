@@ -81,14 +81,14 @@ These capabilities aren't available in any other tool for this API.
   _Reach for this when latency-or-price tradeoffs across nearby stores matter (delivery fee + wait time can offset a cheaper menu)._
 
   ```bash
-  dominos-pp-cli compare-prices --address "421 N 63rd St" --city "Seattle WA" --items S_PIZPH,S_LAVA --agent
+  dominos-pp-cli compare-prices --street "421 N 63rd St" --city "Seattle WA" --items S_PIZPH,S_LAVA --agent
   ```
 - **`stores wait`** — Pull CartEtaMinutes for every store in radius and rank by ETA — the unique GraphQL BFF op every other wrapper ignores.
 
   _Reach for this when busy-hour delivery decisions need accurate wait estimates rather than a phone call to the store._
 
   ```bash
-  dominos-pp-cli stores wait --address "421 N 63rd St" --city "Seattle WA" --agent
+  dominos-pp-cli stores wait --street "421 N 63rd St" --city "Seattle WA" --agent
   ```
 - **`deals eligible`** — List which advertised deals actually apply to your current cart and explain why each non-matching one fails.
 
@@ -157,7 +157,7 @@ This CLI was generated with browser-observed traffic context.
 
 **stores** — Find and get information about Domino's stores
 
-- `dominos-pp-cli stores find` — Find nearby Domino's stores by address
+- `dominos-pp-cli stores find` — Find nearby Domino's stores by street and city
 - `dominos-pp-cli stores get` — Get detailed store information including hours, capabilities, and wait times
 
 **tracking** — Track active orders
@@ -182,7 +182,7 @@ dominos-pp-cli which "<capability in your own words>"
 
 ```bash
 # 1. Find closest store (no auth needed)
-dominos-pp-cli stores find --address "709 19th Ave" --city "Seattle WA 98122" --json
+dominos-pp-cli stores find --street "709 19th Ave" --city "Seattle WA 98122" --json
 
 # 2. List all coupons available at that store (no auth needed; 58 coupons)
 dominos-pp-cli deals list --store-id 7144 --json
@@ -222,7 +222,7 @@ Customer ID is the long base64-style identifier from your sign-in. Once `auth lo
 ### Find the cheapest store for tonight's order (agent + select for narrow output)
 
 ```bash
-dominos-pp-cli compare-prices --address "421 N 63rd St" --city "Seattle WA" --items S_PIZPH,S_LAVA --agent --select results[].store_id,results[].total_cents
+dominos-pp-cli compare-prices --street "421 N 63rd St" --city "Seattle WA" --items S_PIZPH,S_LAVA --agent --select results[].store_id,results[].total_cents
 ```
 
 Surveys nearby stores and returns only the comparison fields the agent needs.

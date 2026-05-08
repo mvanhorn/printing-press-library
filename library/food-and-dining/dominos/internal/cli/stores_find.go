@@ -12,23 +12,23 @@ import (
 )
 
 func newStoresFindCmd(flags *rootFlags) *cobra.Command {
-	var flagS string
+	var flagStreet string
 	var flagC string
 	var flagType string
 
 	cmd := &cobra.Command{
-		Use:   "find",
-		Short: "Find nearby Domino's stores by address",
-		Example: "  dominos-pp-cli stores find",
+		Use:         "find",
+		Short:       "Find nearby Domino's stores by street and city",
+		Example:     "  dominos-pp-cli stores find",
 		Annotations: map[string]string{"pp:endpoint": "stores.find", "pp:method": "GET", "pp:path": "/power/store-locator", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Friendly aliases (--address / --city) bind to the same vars as
-			// --s / --c. Either flag form satisfies the required-flag check;
-			// agents reading --help will pick the descriptive long names.
+			// Friendly aliases (--street / --city) bind to the same vars as
+			// --s / --c. Compat aliases also work, but agents reading --help
+			// should pick the descriptive long names.
 			// Manual back-port of the proposed Param.Aliases generator field
 			// (see PR #639 handoff doc, Bug G).
-			if !cmd.Flags().Changed("s") && !cmd.Flags().Changed("address") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set (alias: --address)", "s")
+			if !cmd.Flags().Changed("s") && !cmd.Flags().Changed("street") && !cmd.Flags().Changed("address") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set (alias: --street)", "s")
 			}
 			if !cmd.Flags().Changed("c") && !cmd.Flags().Changed("city") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set (alias: --city)", "c")
@@ -40,8 +40,8 @@ func newStoresFindCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/power/store-locator"
 			params := map[string]string{}
-			if flagS != "" {
-				params["s"] = fmt.Sprintf("%v", flagS)
+			if flagStreet != "" {
+				params["s"] = fmt.Sprintf("%v", flagStreet)
 			}
 			if flagC != "" {
 				params["c"] = fmt.Sprintf("%v", flagC)
@@ -69,7 +69,7 @@ func newStoresFindCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	// User-facing flags — what --help shows. Agents and humans should use these.
-	cmd.Flags().StringVar(&flagS, "address", "", "Street address (e.g., '350 5th Ave')")
+	cmd.Flags().StringVar(&flagStreet, "street", "", "Street address (e.g., '350 5th Ave')")
 	cmd.Flags().StringVar(&flagC, "city", "", "City, state, zip (e.g., 'New York NY 10118')")
 	cmd.Flags().StringVar(&flagType, "type", "Delivery", "Service type: Delivery, Carryout, or DriveUpCarryout")
 	// Hidden backward-compat aliases — bind to the same variables as their
@@ -77,8 +77,10 @@ func newStoresFindCmd(flags *rootFlags) *cobra.Command {
 	// query params; we keep them functional but hide from --help so agents
 	// see the descriptive long names. The API call sends ?s=...&c=...
 	// regardless of which flag form the user passed.
-	cmd.Flags().StringVar(&flagS, "s", "", "")
+	cmd.Flags().StringVar(&flagStreet, "address", "", "")
+	cmd.Flags().StringVar(&flagStreet, "s", "", "")
 	cmd.Flags().StringVar(&flagC, "c", "", "")
+	_ = cmd.Flags().MarkHidden("address")
 	_ = cmd.Flags().MarkHidden("s")
 	_ = cmd.Flags().MarkHidden("c")
 

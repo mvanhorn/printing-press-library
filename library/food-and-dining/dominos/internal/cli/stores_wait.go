@@ -25,19 +25,19 @@ type storeWaitRow struct {
 // CartEtaMinutes operation but uses the public REST profile endpoint so it
 // works without auth.
 func newStoresWaitCmd(flags *rootFlags) *cobra.Command {
-	var address, city, svc string
+	var street, city, svc string
 	cmd := &cobra.Command{
 		Use:   "wait",
 		Short: "Rank nearby stores by estimated wait time",
 		Long: `Rank nearby stores by estimated wait time.
 
-Calls the public store-locator with the supplied address, then fans out to
+Calls the public store-locator with the supplied street and city, then fans out to
 each store's profile endpoint and sorts by EstimatedWaitMinutes.`,
-		Example:     "  dominos-pp-cli stores wait --address \"421 N 63rd St\" --city \"Seattle, WA\"",
+		Example:     "  dominos-pp-cli stores wait --street \"421 N 63rd St\" --city \"Seattle, WA\"",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if address == "" {
-				return usageErr(fmt.Errorf("--address is required"))
+			if street == "" {
+				return usageErr(fmt.Errorf("--street is required"))
 			}
 			if city == "" {
 				return usageErr(fmt.Errorf("--city is required (city, state, zip)"))
@@ -49,7 +49,7 @@ each store's profile endpoint and sorts by EstimatedWaitMinutes.`,
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 					"action":  "stores_wait",
 					"dry_run": true,
-					"address": address,
+					"street":  street,
 					"city":    city,
 					"type":    svc,
 				}, flags)
@@ -58,7 +58,7 @@ each store's profile endpoint and sorts by EstimatedWaitMinutes.`,
 			if err != nil {
 				return err
 			}
-			locatorParams := map[string]string{"s": address, "c": city, "type": svc}
+			locatorParams := map[string]string{"s": street, "c": city, "type": svc}
 			locatorData, err := c.Get("/power/store-locator", locatorParams)
 			if err != nil {
 				return classifyAPIError(err, flags)
@@ -67,7 +67,7 @@ each store's profile endpoint and sorts by EstimatedWaitMinutes.`,
 			if len(storeIDs) == 0 {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 					"results": []storeWaitRow{},
-					"hint":    "no stores returned by locator; try a broader address",
+					"hint":    "no stores returned by locator; try a broader street/city search",
 				}, flags)
 			}
 			ctx := context.Background()
@@ -86,9 +86,11 @@ each store's profile endpoint and sorts by EstimatedWaitMinutes.`,
 			return printJSONFiltered(cmd.OutOrStdout(), rows, flags)
 		},
 	}
-	cmd.Flags().StringVar(&address, "address", "", "Street address (required)")
+	cmd.Flags().StringVar(&street, "street", "", "Street address (required)")
 	cmd.Flags().StringVar(&city, "city", "", "City, state, zip (required)")
 	cmd.Flags().StringVar(&svc, "type", "Delivery", "Service type: Delivery or Carryout")
+	cmd.Flags().StringVar(&street, "address", "", "")
+	_ = cmd.Flags().MarkHidden("address")
 	return cmd
 }
 

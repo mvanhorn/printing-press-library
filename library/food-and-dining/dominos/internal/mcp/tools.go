@@ -171,15 +171,18 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("stores_find",
-			mcplib.WithDescription("Find nearby Domino's stores by address. Required: s, c. Optional: type (default: Delivery). Returns array of Store. (public)"),
-			mcplib.WithString("s", mcplib.Required(), mcplib.Description("Street address (e.g., '350 5th Ave')")),
-			mcplib.WithString("c", mcplib.Required(), mcplib.Description("City, state, zip (e.g., 'New York NY 10118')")),
+			mcplib.WithDescription("Find nearby Domino's stores by street and city. Required: street, city. Optional: type (default: Delivery). Returns array of Store. (public)"),
+			mcplib.WithString("street", mcplib.Required(), mcplib.Description("Street address (e.g., '350 5th Ave')")),
+			mcplib.WithString("city", mcplib.Required(), mcplib.Description("City, state, zip (e.g., 'New York NY 10118')")),
 			mcplib.WithString("type", mcplib.Description("Service type: Delivery, Carryout, or DriveUpCarryout")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/power/store-locator", []string{ }),
+		makeAPIHandlerWithQueryAliases("GET", "/power/store-locator", []string{ }, map[string]string{
+			"street": "s",
+			"city":   "c",
+		}),
 	)
 	s.AddTool(
 		mcplib.NewTool("stores_get",
@@ -220,6 +223,10 @@ func RegisterTools(s *server.MCPServer) {
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
 func makeAPIHandler(method, pathTemplate string, positionalParams []string) server.ToolHandlerFunc {
+	return makeAPIHandlerWithQueryAliases(method, pathTemplate, positionalParams, nil)
+}
+
+func makeAPIHandlerWithQueryAliases(method, pathTemplate string, positionalParams []string, queryAliases map[string]string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		c, err := newMCPClient()
 		if err != nil {
@@ -252,7 +259,17 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 			if pathParams[k] {
 				continue
 			}
+			if _, ok := queryAliases[k]; ok {
+				continue
+			}
 			params[k] = fmt.Sprintf("%v", v)
+		}
+		for publicName, queryName := range queryAliases {
+			v, ok := args[publicName]
+			if !ok {
+				continue
+			}
+			params[queryName] = fmt.Sprintf("%v", v)
 		}
 
 		var data json.RawMessage
