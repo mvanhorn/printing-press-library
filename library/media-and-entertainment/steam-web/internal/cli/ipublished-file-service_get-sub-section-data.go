@@ -19,11 +19,23 @@ func newIpublishedFileServiceGetSubSectionDataCmd(flags *rootFlags) *cobra.Comma
 	var flagDesiredRevision string
 
 	cmd := &cobra.Command{
-		Use:     "get-sub-section-data",
-		Short:   "GetSubSectionData operation of IPublishedFileService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli ipublished-file-service get-sub-section-data",
+		Use:         "get-sub-section-data",
+		Short:       "GetSubSectionData operation of IPublishedFileService",
+		Example:     "  steam-web-pp-cli ipublished-file-service get-sub-section-data --key your-token-here --publishedfileid 42 --for-table-of-contents true --specific-sectionid 42",
+		Annotations: map[string]string{"pp:endpoint": "ipublished-file-service.get-sub-section-data", "pp:method": "GET", "pp:path": "/IPublishedFileService/GetSubSectionData/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("key") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "key")
+			}
+			if !cmd.Flags().Changed("publishedfileid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "publishedfileid")
+			}
+			if !cmd.Flags().Changed("for-table-of-contents") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "for-table-of-contents")
+			}
+			if !cmd.Flags().Changed("specific-sectionid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "specific-sectionid")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -46,9 +58,9 @@ func newIpublishedFileServiceGetSubSectionDataCmd(flags *rootFlags) *cobra.Comma
 			if flagDesiredRevision != "" {
 				params["desired_revision"] = fmt.Sprintf("%v", flagDesiredRevision)
 			}
-			data, prov, err := resolveRead(c, flags, "ipublished-file-service", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "ipublished-file-service", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -56,14 +68,15 @@ func newIpublishedFileServiceGetSubSectionDataCmd(flags *rootFlags) *cobra.Comma
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -89,11 +102,8 @@ func newIpublishedFileServiceGetSubSectionDataCmd(flags *rootFlags) *cobra.Comma
 	}
 	cmd.Flags().StringVar(&flagKey, "key", "", "Access key")
 	cmd.Flags().StringVar(&flagPublishedfileid, "publishedfileid", "", "Publishedfileid")
-	_ = cmd.MarkFlagRequired("publishedfileid")
 	cmd.Flags().BoolVar(&flagForTableOfContents, "for-table-of-contents", false, "For table of contents")
-	_ = cmd.MarkFlagRequired("for-table-of-contents")
 	cmd.Flags().StringVar(&flagSpecificSectionid, "specific-sectionid", "", "Specific sectionid")
-	_ = cmd.MarkFlagRequired("specific-sectionid")
 	cmd.Flags().StringVar(&flagDesiredRevision, "desired-revision", "", "Return the data for the specified revision.")
 
 	return cmd

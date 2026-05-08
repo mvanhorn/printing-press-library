@@ -20,11 +20,14 @@ func newIdota2Match570GetTournamentPlayerStatsIdota2match570Cmd(flags *rootFlags
 	var flagPhaseId string
 
 	cmd := &cobra.Command{
-		Use:     "get-tournament-player-stats-idota2match570",
-		Short:   "GetTournamentPlayerStats operation of IDOTA2Match_570",
-		Hidden: true,
-		Example: "  steam-web-pp-cli idota2-match-570 get-tournament-player-stats-idota2match570",
+		Use:         "get-tournament-player-stats-idota2match570",
+		Short:       "GetTournamentPlayerStats operation of IDOTA2Match_570",
+		Example:     "  steam-web-pp-cli idota2-match-570 get-tournament-player-stats-idota2match570 --account-id 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "idota2-match-570.get-tournament-player-stats-idota2match570", "pp:method": "GET", "pp:path": "/IDOTA2Match_570/GetTournamentPlayerStats/v2", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("account-id") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "account-id")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -50,9 +53,9 @@ func newIdota2Match570GetTournamentPlayerStatsIdota2match570Cmd(flags *rootFlags
 			if flagPhaseId != "" {
 				params["phase_id"] = fmt.Sprintf("%v", flagPhaseId)
 			}
-			data, prov, err := resolveRead(c, flags, "idota2-match-570", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "idota2-match-570", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -60,14 +63,15 @@ func newIdota2Match570GetTournamentPlayerStatsIdota2match570Cmd(flags *rootFlags
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -92,7 +96,6 @@ func newIdota2Match570GetTournamentPlayerStatsIdota2match570Cmd(flags *rootFlags
 		},
 	}
 	cmd.Flags().StringVar(&flagAccountId, "account-id", "", "Account id")
-	_ = cmd.MarkFlagRequired("account-id")
 	cmd.Flags().StringVar(&flagLeagueId, "league-id", "", "League id")
 	cmd.Flags().StringVar(&flagHeroId, "hero-id", "", "Hero id")
 	cmd.Flags().StringVar(&flagTimeFrame, "time-frame", "", "Time frame")

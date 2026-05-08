@@ -15,10 +15,10 @@ func newIeconItems620GetSchemaCmd(flags *rootFlags) *cobra.Command {
 	var flagLanguage string
 
 	cmd := &cobra.Command{
-		Use:     "get-schema",
-		Short:   "GetSchema operation of IEconItems_620",
-		Hidden: true,
-		Example: "  steam-web-pp-cli iecon-items-620 get-schema",
+		Use:         "get-schema",
+		Short:       "GetSchema operation of IEconItems_620",
+		Example:     "  steam-web-pp-cli iecon-items-620 get-schema",
+		Annotations: map[string]string{"pp:endpoint": "iecon-items-620.get-schema", "pp:method": "GET", "pp:path": "/IEconItems_620/GetSchema/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -30,9 +30,9 @@ func newIeconItems620GetSchemaCmd(flags *rootFlags) *cobra.Command {
 			if flagLanguage != "" {
 				params["language"] = fmt.Sprintf("%v", flagLanguage)
 			}
-			data, prov, err := resolveRead(c, flags, "iecon-items-620", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "iecon-items-620", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -40,14 +40,15 @@ func newIeconItems620GetSchemaCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

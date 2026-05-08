@@ -11,7 +11,6 @@ func newIdota2Match570Cmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "idota2-match-570",
 		Short: "Manage idota2 match 570",
-		Hidden: true,
 	}
 
 	cmd.AddCommand(newIdota2Match570GetLiveLeagueGamesCmd(flags))

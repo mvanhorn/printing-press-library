@@ -11,7 +11,6 @@ func newIstoreServiceCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "istore-service",
 		Short: "Manage istore service",
-		Hidden: true,
 	}
 
 	cmd.AddCommand(newIstoreServiceGetAppListCmd(flags))

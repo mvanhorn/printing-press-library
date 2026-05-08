@@ -18,12 +18,20 @@ func newIdota2Ticket570SetSteamAccountPurchasedCmd(flags *rootFlags) *cobra.Comm
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "set-steam-account-purchased",
-		Aliases: []string{"create"},
-		Short:   "SetSteamAccountPurchased operation of IDOTA2Ticket_570",
-		Hidden: true,
-		Example: "  steam-web-pp-cli idota2-ticket-570 set-steam-account-purchased",
+		Use:         "set-steam-account-purchased",
+		Aliases:     []string{"create"},
+		Short:       "SetSteamAccountPurchased operation of IDOTA2Ticket_570",
+		Example:     "  steam-web-pp-cli idota2-ticket-570 set-steam-account-purchased",
+		Annotations: map[string]string{"pp:endpoint": "idota2-ticket-570.set-steam-account-purchased", "pp:method": "POST", "pp:path": "/IDOTA2Ticket_570/SetSteamAccountPurchased/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				if !cmd.Flags().Changed("badge-type") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "badge-type")
+				}
+				if !cmd.Flags().Changed("steamid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "steamid")
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -52,7 +60,7 @@ func newIdota2Ticket570SetSteamAccountPurchasedCmd(flags *rootFlags) *cobra.Comm
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -80,13 +88,15 @@ func newIdota2Ticket570SetSteamAccountPurchasedCmd(flags *rootFlags) *cobra.Comm
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",
@@ -116,9 +126,7 @@ func newIdota2Ticket570SetSteamAccountPurchasedCmd(flags *rootFlags) *cobra.Comm
 		},
 	}
 	cmd.Flags().IntVar(&bodyBadgeType, "badge-type", 0, "Badge Type")
-	_ = cmd.MarkFlagRequired("badge-type")
 	cmd.Flags().IntVar(&bodySteamid, "steamid", 0, "The 64-bit Steam ID")
-	_ = cmd.MarkFlagRequired("steamid")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

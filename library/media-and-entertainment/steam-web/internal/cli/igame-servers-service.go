@@ -11,7 +11,6 @@ func newIgameServersServiceCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "igame-servers-service",
 		Short: "Manage igame servers service",
-		Hidden: true,
 	}
 
 	cmd.AddCommand(newIgameServersServiceCreateAccountCmd(flags))

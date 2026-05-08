@@ -15,12 +15,15 @@ func newIdota2Ticket570GetSteamIdforBadgeIdCmd(flags *rootFlags) *cobra.Command 
 	var flagBadgeID string
 
 	cmd := &cobra.Command{
-		Use:     "get-steam-idfor-badge-id",
-		Aliases: []string{"list"},
-		Short:   "GetSteamIDForBadgeID operation of IDOTA2Ticket_570",
-		Hidden: true,
-		Example: "  steam-web-pp-cli idota2-ticket-570 get-steam-idfor-badge-id",
+		Use:         "get-steam-idfor-badge-id",
+		Aliases:     []string{"list"},
+		Short:       "GetSteamIDForBadgeID operation of IDOTA2Ticket_570",
+		Example:     "  steam-web-pp-cli idota2-ticket-570 get-steam-idfor-badge-id --badge-id 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "idota2-ticket-570.get-steam-idfor-badge-id", "pp:method": "GET", "pp:path": "/IDOTA2Ticket_570/GetSteamIDForBadgeID/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("badge-id") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "badge-id")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -31,9 +34,9 @@ func newIdota2Ticket570GetSteamIdforBadgeIdCmd(flags *rootFlags) *cobra.Command 
 			if flagBadgeID != "" {
 				params["BadgeID"] = fmt.Sprintf("%v", flagBadgeID)
 			}
-			data, prov, err := resolveRead(c, flags, "idota2-ticket-570", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "idota2-ticket-570", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -41,14 +44,15 @@ func newIdota2Ticket570GetSteamIdforBadgeIdCmd(flags *rootFlags) *cobra.Command 
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -73,7 +77,6 @@ func newIdota2Ticket570GetSteamIdforBadgeIdCmd(flags *rootFlags) *cobra.Command 
 		},
 	}
 	cmd.Flags().StringVar(&flagBadgeID, "badge-id", "", "The badge ID")
-	_ = cmd.MarkFlagRequired("badge-id")
 
 	return cmd
 }

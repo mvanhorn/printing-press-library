@@ -17,12 +17,21 @@ func newIcsgoservers730GetGameMapsPlaytimeCmd(flags *rootFlags) *cobra.Command {
 	var flagMapgroup string
 
 	cmd := &cobra.Command{
-		Use:     "get-game-maps-playtime",
-		Aliases: []string{"list"},
-		Short:   "GetGameMapsPlaytime operation of ICSGOServers_730",
-		Hidden: true,
-		Example: "  steam-web-pp-cli icsgoservers-730 get-game-maps-playtime",
+		Use:         "get-game-maps-playtime",
+		Aliases:     []string{"list"},
+		Short:       "GetGameMapsPlaytime operation of ICSGOServers_730",
+		Example:     "  steam-web-pp-cli icsgoservers-730 get-game-maps-playtime --interval example-value --gamemode example-value --mapgroup example-value",
+		Annotations: map[string]string{"pp:endpoint": "icsgoservers-730.get-game-maps-playtime", "pp:method": "GET", "pp:path": "/ICSGOServers_730/GetGameMapsPlaytime/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("interval") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "interval")
+			}
+			if !cmd.Flags().Changed("gamemode") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "gamemode")
+			}
+			if !cmd.Flags().Changed("mapgroup") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "mapgroup")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -39,9 +48,9 @@ func newIcsgoservers730GetGameMapsPlaytimeCmd(flags *rootFlags) *cobra.Command {
 			if flagMapgroup != "" {
 				params["mapgroup"] = fmt.Sprintf("%v", flagMapgroup)
 			}
-			data, prov, err := resolveRead(c, flags, "icsgoservers-730", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "icsgoservers-730", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -49,14 +58,15 @@ func newIcsgoservers730GetGameMapsPlaytimeCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -81,11 +91,8 @@ func newIcsgoservers730GetGameMapsPlaytimeCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagInterval, "interval", "", "What recent interval is requested, possible values: day, week, month")
-	_ = cmd.MarkFlagRequired("interval")
 	cmd.Flags().StringVar(&flagGamemode, "gamemode", "", "What game mode is requested, possible values: competitive, casual")
-	_ = cmd.MarkFlagRequired("gamemode")
 	cmd.Flags().StringVar(&flagMapgroup, "mapgroup", "", "What maps are requested, possible values: operation")
-	_ = cmd.MarkFlagRequired("mapgroup")
 
 	return cmd
 }

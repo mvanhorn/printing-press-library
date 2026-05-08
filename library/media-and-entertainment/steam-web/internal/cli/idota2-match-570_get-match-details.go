@@ -16,11 +16,14 @@ func newIdota2Match570GetMatchDetailsCmd(flags *rootFlags) *cobra.Command {
 	var flagIncludePersonaNames bool
 
 	cmd := &cobra.Command{
-		Use:     "get-match-details",
-		Short:   "GetMatchDetails operation of IDOTA2Match_570",
-		Hidden: true,
-		Example: "  steam-web-pp-cli idota2-match-570 get-match-details",
+		Use:         "get-match-details",
+		Short:       "GetMatchDetails operation of IDOTA2Match_570",
+		Example:     "  steam-web-pp-cli idota2-match-570 get-match-details --match-id 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "idota2-match-570.get-match-details", "pp:method": "GET", "pp:path": "/IDOTA2Match_570/GetMatchDetails/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("match-id") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "match-id")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -34,9 +37,9 @@ func newIdota2Match570GetMatchDetailsCmd(flags *rootFlags) *cobra.Command {
 			if flagIncludePersonaNames != false {
 				params["include_persona_names"] = fmt.Sprintf("%v", flagIncludePersonaNames)
 			}
-			data, prov, err := resolveRead(c, flags, "idota2-match-570", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "idota2-match-570", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -44,14 +47,15 @@ func newIdota2Match570GetMatchDetailsCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -76,7 +80,6 @@ func newIdota2Match570GetMatchDetailsCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagMatchId, "match-id", "", "Match id")
-	_ = cmd.MarkFlagRequired("match-id")
 	cmd.Flags().BoolVar(&flagIncludePersonaNames, "include-persona-names", false, "Include persona names as part of the response")
 
 	return cmd

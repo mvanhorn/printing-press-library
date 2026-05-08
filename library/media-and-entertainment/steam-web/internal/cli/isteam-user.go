@@ -11,7 +11,6 @@ func newIsteamUserCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "isteam-user",
 		Short: "Manage isteam user",
-		Hidden: true,
 	}
 
 	cmd.AddCommand(newIsteamUserGetFriendListCmd(flags))

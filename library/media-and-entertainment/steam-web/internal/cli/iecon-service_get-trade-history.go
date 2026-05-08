@@ -23,12 +23,39 @@ func newIeconServiceGetTradeHistoryCmd(flags *rootFlags) *cobra.Command {
 	var flagIncludeTotal bool
 
 	cmd := &cobra.Command{
-		Use:     "get-trade-history",
-		Aliases: []string{"list"},
-		Short:   "GetTradeHistory operation of IEconService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli iecon-service get-trade-history",
+		Use:         "get-trade-history",
+		Aliases:     []string{"list"},
+		Short:       "GetTradeHistory operation of IEconService",
+		Example:     "  steam-web-pp-cli iecon-service get-trade-history --key your-token-here --max-trades 42 --start-after-time 2026-01-15T09:00:00Z --start-after-tradeid 42 --navigating-back true --get-descriptions true --language example-value --include-failed true --include-total true",
+		Annotations: map[string]string{"pp:endpoint": "iecon-service.get-trade-history", "pp:method": "GET", "pp:path": "/IEconService/GetTradeHistory/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("key") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "key")
+			}
+			if !cmd.Flags().Changed("max-trades") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "max-trades")
+			}
+			if !cmd.Flags().Changed("start-after-time") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "start-after-time")
+			}
+			if !cmd.Flags().Changed("start-after-tradeid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "start-after-tradeid")
+			}
+			if !cmd.Flags().Changed("navigating-back") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "navigating-back")
+			}
+			if !cmd.Flags().Changed("get-descriptions") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "get-descriptions")
+			}
+			if !cmd.Flags().Changed("language") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "language")
+			}
+			if !cmd.Flags().Changed("include-failed") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "include-failed")
+			}
+			if !cmd.Flags().Changed("include-total") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "include-total")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -63,9 +90,9 @@ func newIeconServiceGetTradeHistoryCmd(flags *rootFlags) *cobra.Command {
 			if flagIncludeTotal != false {
 				params["include_total"] = fmt.Sprintf("%v", flagIncludeTotal)
 			}
-			data, prov, err := resolveRead(c, flags, "iecon-service", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "iecon-service", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -73,14 +100,15 @@ func newIeconServiceGetTradeHistoryCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -106,21 +134,13 @@ func newIeconServiceGetTradeHistoryCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagKey, "key", "", "Access key")
 	cmd.Flags().IntVar(&flagMaxTrades, "max-trades", 0, "The number of trades to return information for")
-	_ = cmd.MarkFlagRequired("max-trades")
 	cmd.Flags().IntVar(&flagStartAfterTime, "start-after-time", 0, "The time of the last trade shown on the previous page of results, or the time of the first trade if navigating back")
-	_ = cmd.MarkFlagRequired("start-after-time")
 	cmd.Flags().StringVar(&flagStartAfterTradeid, "start-after-tradeid", "", "The tradeid shown on the previous page of results, or the ID of the first trade if navigating back")
-	_ = cmd.MarkFlagRequired("start-after-tradeid")
 	cmd.Flags().BoolVar(&flagNavigatingBack, "navigating-back", false, "The user wants the previous page of results, so return the previous max_trades trades before the start time and ID")
-	_ = cmd.MarkFlagRequired("navigating-back")
 	cmd.Flags().BoolVar(&flagGetDescriptions, "get-descriptions", false, "If set, the item display data for the items included in the returned trades will also be returned")
-	_ = cmd.MarkFlagRequired("get-descriptions")
 	cmd.Flags().StringVar(&flagLanguage, "language", "", "The language to use when loading item display data")
-	_ = cmd.MarkFlagRequired("language")
 	cmd.Flags().BoolVar(&flagIncludeFailed, "include-failed", false, "Include failed")
-	_ = cmd.MarkFlagRequired("include-failed")
 	cmd.Flags().BoolVar(&flagIncludeTotal, "include-total", false, "If set, the total number of trades the account has participated in will be included in the response")
-	_ = cmd.MarkFlagRequired("include-total")
 
 	return cmd
 }

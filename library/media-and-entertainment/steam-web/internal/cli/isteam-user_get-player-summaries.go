@@ -16,11 +16,17 @@ func newIsteamUserGetPlayerSummariesCmd(flags *rootFlags) *cobra.Command {
 	var flagSteamids string
 
 	cmd := &cobra.Command{
-		Use:     "get-player-summaries",
-		Short:   "GetPlayerSummaries operation of ISteamUser",
-		Hidden: true,
-		Example: "  steam-web-pp-cli isteam-user get-player-summaries",
+		Use:         "get-player-summaries",
+		Short:       "GetPlayerSummaries operation of ISteamUser",
+		Example:     "  steam-web-pp-cli isteam-user get-player-summaries --key your-token-here --steamids example-value",
+		Annotations: map[string]string{"pp:endpoint": "isteam-user.get-player-summaries", "pp:method": "GET", "pp:path": "/ISteamUser/GetPlayerSummaries/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("key") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "key")
+			}
+			if !cmd.Flags().Changed("steamids") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "steamids")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -34,9 +40,9 @@ func newIsteamUserGetPlayerSummariesCmd(flags *rootFlags) *cobra.Command {
 			if flagSteamids != "" {
 				params["steamids"] = fmt.Sprintf("%v", flagSteamids)
 			}
-			data, prov, err := resolveRead(c, flags, "isteam-user", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "isteam-user", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -44,14 +50,15 @@ func newIsteamUserGetPlayerSummariesCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -77,7 +84,6 @@ func newIsteamUserGetPlayerSummariesCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagKey, "key", "", "access key")
 	cmd.Flags().StringVar(&flagSteamids, "steamids", "", "Comma-delimited list of SteamIDs")
-	_ = cmd.MarkFlagRequired("steamids")
 
 	return cmd
 }

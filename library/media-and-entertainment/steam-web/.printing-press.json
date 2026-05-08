@@ -1,9 +1,76 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-04-04T07:53:59.403718Z",
-  "printing_press_version": "0.4.0",
+  "generated_at": "2026-05-08T20:16:49.082165Z",
+  "printing_press_version": "4.0.6",
   "api_name": "steam-web",
+  "display_name": "Steam Web",
   "cli_name": "steam-web-pp-cli",
   "spec_path": "/Users/tmchow/printing-press/manuscripts/steam-web-pp-cli/20260404-003212/research/steam-public-spec.json",
-  "run_id": "20260404-004424"
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:33ba9314554101d758965dcd8d023f6333add0492dd67e21c1e25c1f4fb08082",
+  "run_id": "20260508-073948",
+  "mcp_binary": "steam-web-pp-mcp",
+  "mcp_tool_count": 169,
+  "mcp_ready": "full",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "STEAM_WEB_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Library backlog audit",
+      "command": "library audit",
+      "description": "Surface never-launched games, paid titles you bounced off in under 2 hours, and where your hours actually went by genre."
+    },
+    {
+      "name": "Friend playtime comparison on one app",
+      "command": "friends compare",
+      "description": "Rank everyone in your friend list by hours spent in a specific game, with throttled fan-out so you don't trip Steam's 25 req/s budget."
+    },
+    {
+      "name": "Next easiest achievement to unlock (cross-library)",
+      "command": "next-achievement",
+      "description": "Across your entire library, surface the achievement with the highest global unlock percentage that you still don't have."
+    },
+    {
+      "name": "Per-app achievement workbench",
+      "command": "achievement-hunt",
+      "description": "Render the full achievement schema for one app side-by-side with your unlock state and the global rarity of each achievement in one table."
+    },
+    {
+      "name": "Rarest unlocked achievements (flex view)",
+      "command": "rare-achievements",
+      "description": "Surface your rarest achievement unlocks across all owned games — the inverse of the next-achievement query, sorted by ascending global percentage."
+    },
+    {
+      "name": "Library diff between two SteamIDs",
+      "command": "library compare",
+      "description": "Set operations across two libraries — what's mine-only, what's theirs-only, what's shared with playtime delta."
+    },
+    {
+      "name": "Currently-playing friends",
+      "command": "currently-playing",
+      "description": "Show which friends are in-game right now and what they're playing — one batched API call across the friend list, no fanout."
+    },
+    {
+      "name": "Achievement leaderboard among friends",
+      "command": "achievement-leaderboard",
+      "description": "Rank your friends by achievement completion percentage for one app, throttled fan-out via the same limiter that powers friends compare."
+    },
+    {
+      "name": "Review velocity for one app",
+      "command": "review-velocity",
+      "description": "Reviews per day and voted-up share over a rolling window for one app — date-bucket aggregation over the cursor-paginated appreviews stream."
+    },
+    {
+      "name": "News full-text search across tracked apps",
+      "command": "news search",
+      "description": "FTS5 search across the title and contents of every news post you've synced, optionally scoped by appid or date range."
+    },
+    {
+      "name": "Concurrent-player trend for one app",
+      "command": "play-trend",
+      "description": "Show concurrent-player count over time for one app as a sparkline plus min/max/last over a rolling window — value scales with how often you sample."
+    }
+  ]
 }

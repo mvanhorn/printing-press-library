@@ -16,10 +16,17 @@ func newIplayerServiceGetSteamLevelCmd(flags *rootFlags) *cobra.Command {
 	var flagSteamid string
 
 	cmd := &cobra.Command{
-		Use:     "get-steam-level",
-		Short:   "GetSteamLevel operation of IPlayerService",
-		Example: "  steam-web-pp-cli iplayer-service get-steam-level",
+		Use:         "get-steam-level",
+		Short:       "GetSteamLevel operation of IPlayerService",
+		Example:     "  steam-web-pp-cli iplayer-service get-steam-level --key your-token-here --steamid 42",
+		Annotations: map[string]string{"pp:endpoint": "iplayer-service.get-steam-level", "pp:method": "GET", "pp:path": "/IPlayerService/GetSteamLevel/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("key") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "key")
+			}
+			if !cmd.Flags().Changed("steamid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "steamid")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -33,9 +40,9 @@ func newIplayerServiceGetSteamLevelCmd(flags *rootFlags) *cobra.Command {
 			if flagSteamid != "" {
 				params["steamid"] = fmt.Sprintf("%v", flagSteamid)
 			}
-			data, prov, err := resolveRead(c, flags, "iplayer-service", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "iplayer-service", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -43,14 +50,15 @@ func newIplayerServiceGetSteamLevelCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -76,7 +84,6 @@ func newIplayerServiceGetSteamLevelCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagKey, "key", "", "Access key")
 	cmd.Flags().StringVar(&flagSteamid, "steamid", "", "The player we're asking about")
-	_ = cmd.MarkFlagRequired("steamid")
 
 	return cmd
 }

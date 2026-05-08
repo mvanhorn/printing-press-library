@@ -11,7 +11,6 @@ func newIgameNotificationsServiceCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "igame-notifications-service",
 		Short: "Manage igame notifications service",
-		Hidden: true,
 	}
 
 	cmd.AddCommand(newIgameNotificationsServiceUserCreateSessionCmd(flags))

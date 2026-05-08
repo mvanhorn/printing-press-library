@@ -11,7 +11,6 @@ func newIsteamRemoteStorageCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "isteam-remote-storage",
 		Short: "Manage isteam remote storage",
-		Hidden: true,
 	}
 
 	cmd.AddCommand(newIsteamRemoteStorageGetCollectionDetailsCmd(flags))

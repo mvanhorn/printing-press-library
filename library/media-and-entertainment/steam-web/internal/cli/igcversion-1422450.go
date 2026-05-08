@@ -11,7 +11,6 @@ func newIgcversion1422450Cmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "igcversion-1422450",
 		Short: "Manage igcversion 1422450",
-		Hidden: true,
 	}
 
 	cmd.AddCommand(newIgcversion1422450GetClientVersionCmd(flags))

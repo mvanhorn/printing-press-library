@@ -16,10 +16,10 @@ func newIdota2Match570GetTeamInfoByTeamIdCmd(flags *rootFlags) *cobra.Command {
 	var flagTeamsRequested int
 
 	cmd := &cobra.Command{
-		Use:     "get-team-info-by-team-id",
-		Short:   "GetTeamInfoByTeamID operation of IDOTA2Match_570",
-		Hidden: true,
-		Example: "  steam-web-pp-cli idota2-match-570 get-team-info-by-team-id",
+		Use:         "get-team-info-by-team-id",
+		Short:       "GetTeamInfoByTeamID operation of IDOTA2Match_570",
+		Example:     "  steam-web-pp-cli idota2-match-570 get-team-info-by-team-id",
+		Annotations: map[string]string{"pp:endpoint": "idota2-match-570.get-team-info-by-team-id", "pp:method": "GET", "pp:path": "/IDOTA2Match_570/GetTeamInfoByTeamID/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -34,9 +34,9 @@ func newIdota2Match570GetTeamInfoByTeamIdCmd(flags *rootFlags) *cobra.Command {
 			if flagTeamsRequested != 0 {
 				params["teams_requested"] = fmt.Sprintf("%v", flagTeamsRequested)
 			}
-			data, prov, err := resolveRead(c, flags, "idota2-match-570", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "idota2-match-570", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -44,14 +44,15 @@ func newIdota2Match570GetTeamInfoByTeamIdCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

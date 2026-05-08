@@ -18,25 +18,28 @@ func newIstoreServiceGetAppListCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "get-app-list",
-		Aliases: []string{"list"},
-		Short:   "Gets a list of all apps available on the Steam Store",
-		Hidden: true,
-		Example: "  steam-web-pp-cli istore-service get-app-list",
+		Use:         "get-app-list",
+		Aliases:     []string{"list"},
+		Short:       "Gets a list of all apps available on the Steam Store",
+		Example:     "  steam-web-pp-cli istore-service get-app-list --key your-token-here",
+		Annotations: map[string]string{"pp:endpoint": "istore-service.get-app-list", "pp:method": "GET", "pp:path": "/IStoreService/GetAppList/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("key") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "key")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
 			path := "/IStoreService/GetAppList/v1"
-			data, prov, err := resolvePaginatedRead(c, flags, "istore-service", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "istore-service", path, map[string]string{
 				"key":         fmt.Sprintf("%v", flagKey),
 				"max_results": fmt.Sprintf("%v", flagMaxResults),
 				"last_appid":  fmt.Sprintf("%v", flagLastAppid),
-			}, flagAll, "", "", "")
+			}, nil, flagAll, "", "", "")
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -44,14 +47,15 @@ func newIstoreServiceGetAppListCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

@@ -18,11 +18,19 @@ func newIsteamRemoteStorageGetPublishedFileDetailsCmd(flags *rootFlags) *cobra.C
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "get-published-file-details",
-		Short:   "GetPublishedFileDetails operation of ISteamRemoteStorage",
-		Hidden: true,
-		Example: "  steam-web-pp-cli isteam-remote-storage get-published-file-details",
+		Use:         "get-published-file-details",
+		Short:       "GetPublishedFileDetails operation of ISteamRemoteStorage",
+		Example:     "  steam-web-pp-cli isteam-remote-storage get-published-file-details",
+		Annotations: map[string]string{"pp:endpoint": "isteam-remote-storage.get-published-file-details", "pp:method": "POST", "pp:path": "/ISteamRemoteStorage/GetPublishedFileDetails/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				if !cmd.Flags().Changed("itemcount") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "itemcount")
+				}
+				if !cmd.Flags().Changed("publishedfileids-0") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "publishedfileids-0")
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -51,7 +59,7 @@ func newIsteamRemoteStorageGetPublishedFileDetailsCmd(flags *rootFlags) *cobra.C
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -79,13 +87,15 @@ func newIsteamRemoteStorageGetPublishedFileDetailsCmd(flags *rootFlags) *cobra.C
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",
@@ -115,9 +125,7 @@ func newIsteamRemoteStorageGetPublishedFileDetailsCmd(flags *rootFlags) *cobra.C
 		},
 	}
 	cmd.Flags().IntVar(&bodyItemcount, "itemcount", 0, "Number of items being requested")
-	_ = cmd.MarkFlagRequired("itemcount")
 	cmd.Flags().IntVar(&bodyPublishedfileids0, "publishedfileids-0", 0, "published file id to look up")
-	_ = cmd.MarkFlagRequired("publishedfileids-0")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

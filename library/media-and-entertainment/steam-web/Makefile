@@ -16,9 +16,9 @@ clean:
 	rm -rf bin/
 
 build-mcp:
-	go build -o bin/steam-web-mcp ./cmd/steam-web-mcp
+	go build -o bin/steam-web-pp-mcp ./cmd/steam-web-pp-mcp
 
 install-mcp:
-	go install ./cmd/steam-web-mcp
+	go install ./cmd/steam-web-pp-mcp
 
 build-all: build build-mcp

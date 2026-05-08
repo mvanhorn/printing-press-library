@@ -18,11 +18,23 @@ func newIcontentServerDirectoryServiceGetDepotPatchInfoCmd(flags *rootFlags) *co
 	var flagTargetManifestid string
 
 	cmd := &cobra.Command{
-		Use:     "get-depot-patch-info",
-		Short:   "GetDepotPatchInfo operation of IContentServerDirectoryService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli icontent-server-directory-service get-depot-patch-info",
+		Use:         "get-depot-patch-info",
+		Short:       "GetDepotPatchInfo operation of IContentServerDirectoryService",
+		Example:     "  steam-web-pp-cli icontent-server-directory-service get-depot-patch-info --appid 42 --depotid 42 --source-manifestid 42 --target-manifestid 42",
+		Annotations: map[string]string{"pp:endpoint": "icontent-server-directory-service.get-depot-patch-info", "pp:method": "GET", "pp:path": "/IContentServerDirectoryService/GetDepotPatchInfo/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("appid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "appid")
+			}
+			if !cmd.Flags().Changed("depotid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "depotid")
+			}
+			if !cmd.Flags().Changed("source-manifestid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "source-manifestid")
+			}
+			if !cmd.Flags().Changed("target-manifestid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "target-manifestid")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -42,9 +54,9 @@ func newIcontentServerDirectoryServiceGetDepotPatchInfoCmd(flags *rootFlags) *co
 			if flagTargetManifestid != "" {
 				params["target_manifestid"] = fmt.Sprintf("%v", flagTargetManifestid)
 			}
-			data, prov, err := resolveRead(c, flags, "icontent-server-directory-service", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "icontent-server-directory-service", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -52,14 +64,15 @@ func newIcontentServerDirectoryServiceGetDepotPatchInfoCmd(flags *rootFlags) *co
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -84,13 +97,9 @@ func newIcontentServerDirectoryServiceGetDepotPatchInfoCmd(flags *rootFlags) *co
 		},
 	}
 	cmd.Flags().StringVar(&flagAppid, "appid", "", "Appid")
-	_ = cmd.MarkFlagRequired("appid")
 	cmd.Flags().StringVar(&flagDepotid, "depotid", "", "Depotid")
-	_ = cmd.MarkFlagRequired("depotid")
 	cmd.Flags().StringVar(&flagSourceManifestid, "source-manifestid", "", "Source manifestid")
-	_ = cmd.MarkFlagRequired("source-manifestid")
 	cmd.Flags().StringVar(&flagTargetManifestid, "target-manifestid", "", "Target manifestid")
-	_ = cmd.MarkFlagRequired("target-manifestid")
 
 	return cmd
 }

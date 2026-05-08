@@ -11,7 +11,6 @@ func newIsteamAppsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "isteam-apps",
 		Short: "Manage isteam apps",
-		Hidden: true,
 	}
 
 	cmd.AddCommand(newIsteamAppsGetSdrconfigCmd(flags))

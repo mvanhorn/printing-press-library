@@ -11,7 +11,6 @@ func newIeconServiceCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "iecon-service",
 		Short: "Manage iecon service",
-		Hidden: true,
 	}
 
 	cmd.AddCommand(newIeconServiceGetTradeHistoryCmd(flags))

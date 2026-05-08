@@ -17,12 +17,21 @@ func newIcontentServerDirectoryServiceGetCdnforVideoCmd(flags *rootFlags) *cobra
 	var flagClientRegion string
 
 	cmd := &cobra.Command{
-		Use:     "get-cdnfor-video",
-		Aliases: []string{"list"},
-		Short:   "GetCDNForVideo operation of IContentServerDirectoryService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli icontent-server-directory-service get-cdnfor-video",
+		Use:         "get-cdnfor-video",
+		Aliases:     []string{"list"},
+		Short:       "GetCDNForVideo operation of IContentServerDirectoryService",
+		Example:     "  steam-web-pp-cli icontent-server-directory-service get-cdnfor-video --property-type 42 --client-ip example-value --client-region example-value",
+		Annotations: map[string]string{"pp:endpoint": "icontent-server-directory-service.get-cdnfor-video", "pp:method": "GET", "pp:path": "/IContentServerDirectoryService/GetCDNForVideo/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("property-type") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "property-type")
+			}
+			if !cmd.Flags().Changed("client-ip") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "client-ip")
+			}
+			if !cmd.Flags().Changed("client-region") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "client-region")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -39,9 +48,9 @@ func newIcontentServerDirectoryServiceGetCdnforVideoCmd(flags *rootFlags) *cobra
 			if flagClientRegion != "" {
 				params["client_region"] = fmt.Sprintf("%v", flagClientRegion)
 			}
-			data, prov, err := resolveRead(c, flags, "icontent-server-directory-service", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "icontent-server-directory-service", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -49,14 +58,15 @@ func newIcontentServerDirectoryServiceGetCdnforVideoCmd(flags *rootFlags) *cobra
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -81,11 +91,8 @@ func newIcontentServerDirectoryServiceGetCdnforVideoCmd(flags *rootFlags) *cobra
 		},
 	}
 	cmd.Flags().IntVar(&flagPropertyType, "property-type", 0, "ECDNPropertyType")
-	_ = cmd.MarkFlagRequired("property-type")
 	cmd.Flags().StringVar(&flagClientIp, "client-ip", "", "client IP address")
-	_ = cmd.MarkFlagRequired("client-ip")
 	cmd.Flags().StringVar(&flagClientRegion, "client-region", "", "client region")
-	_ = cmd.MarkFlagRequired("client-region")
 
 	return cmd
 }

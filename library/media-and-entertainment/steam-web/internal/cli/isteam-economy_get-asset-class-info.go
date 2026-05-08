@@ -19,12 +19,21 @@ func newIsteamEconomyGetAssetClassInfoCmd(flags *rootFlags) *cobra.Command {
 	var flagInstanceid0 int
 
 	cmd := &cobra.Command{
-		Use:     "get-asset-class-info",
-		Aliases: []string{"list"},
-		Short:   "GetAssetClassInfo operation of ISteamEconomy",
-		Hidden: true,
-		Example: "  steam-web-pp-cli isteam-economy get-asset-class-info",
+		Use:         "get-asset-class-info",
+		Aliases:     []string{"list"},
+		Short:       "GetAssetClassInfo operation of ISteamEconomy",
+		Example:     "  steam-web-pp-cli isteam-economy get-asset-class-info --appid 42 --class-count 50 --classid0 42",
+		Annotations: map[string]string{"pp:endpoint": "isteam-economy.get-asset-class-info", "pp:method": "GET", "pp:path": "/ISteamEconomy/GetAssetClassInfo/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("appid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "appid")
+			}
+			if !cmd.Flags().Changed("class-count") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "class-count")
+			}
+			if !cmd.Flags().Changed("classid0") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "classid0")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -47,9 +56,9 @@ func newIsteamEconomyGetAssetClassInfoCmd(flags *rootFlags) *cobra.Command {
 			if flagInstanceid0 != 0 {
 				params["instanceid0"] = fmt.Sprintf("%v", flagInstanceid0)
 			}
-			data, prov, err := resolveRead(c, flags, "isteam-economy", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "isteam-economy", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -57,14 +66,15 @@ func newIsteamEconomyGetAssetClassInfoCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -89,12 +99,9 @@ func newIsteamEconomyGetAssetClassInfoCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagAppid, "appid", "", "Must be a steam economy app.")
-	_ = cmd.MarkFlagRequired("appid")
 	cmd.Flags().StringVar(&flagLanguage, "language", "", "The user's local language")
 	cmd.Flags().IntVar(&flagClassCount, "class-count", 0, "Number of classes requested. Must be at least one.")
-	_ = cmd.MarkFlagRequired("class-count")
 	cmd.Flags().IntVar(&flagClassid0, "classid0", 0, "Class ID of the nth class.")
-	_ = cmd.MarkFlagRequired("classid0")
 	cmd.Flags().IntVar(&flagInstanceid0, "instanceid0", 0, "Instance ID of the nth class.")
 
 	return cmd

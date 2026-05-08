@@ -16,12 +16,15 @@ func newIsteamDirectoryGetCmlistCmd(flags *rootFlags) *cobra.Command {
 	var flagMaxcount int
 
 	cmd := &cobra.Command{
-		Use:     "get-cmlist",
-		Aliases: []string{"list"},
-		Short:   "GetCMList operation of ISteamDirectory",
-		Hidden: true,
-		Example: "  steam-web-pp-cli isteam-directory get-cmlist",
+		Use:         "get-cmlist",
+		Aliases:     []string{"list"},
+		Short:       "GetCMList operation of ISteamDirectory",
+		Example:     "  steam-web-pp-cli isteam-directory get-cmlist --cellid 42",
+		Annotations: map[string]string{"pp:endpoint": "isteam-directory.get-cmlist", "pp:method": "GET", "pp:path": "/ISteamDirectory/GetCMList/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("cellid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "cellid")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -35,9 +38,9 @@ func newIsteamDirectoryGetCmlistCmd(flags *rootFlags) *cobra.Command {
 			if flagMaxcount != 0 {
 				params["maxcount"] = fmt.Sprintf("%v", flagMaxcount)
 			}
-			data, prov, err := resolveRead(c, flags, "isteam-directory", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "isteam-directory", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -45,14 +48,15 @@ func newIsteamDirectoryGetCmlistCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -77,7 +81,6 @@ func newIsteamDirectoryGetCmlistCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagCellid, "cellid", "", "Client's Steam cell ID")
-	_ = cmd.MarkFlagRequired("cellid")
 	cmd.Flags().IntVar(&flagMaxcount, "maxcount", 0, "Max number of servers to return")
 
 	return cmd

@@ -17,11 +17,17 @@ func newIsteamUserResolveVanityUrlCmd(flags *rootFlags) *cobra.Command {
 	var flagUrlType int
 
 	cmd := &cobra.Command{
-		Use:     "resolve-vanity-url",
-		Short:   "ResolveVanityURL operation of ISteamUser",
-		Hidden: true,
-		Example: "  steam-web-pp-cli isteam-user resolve-vanity-url",
+		Use:         "resolve-vanity-url",
+		Short:       "ResolveVanityURL operation of ISteamUser",
+		Example:     "  steam-web-pp-cli isteam-user resolve-vanity-url --key your-token-here --vanityurl https://example.com/resource",
+		Annotations: map[string]string{"pp:endpoint": "isteam-user.resolve-vanity-url", "pp:method": "GET", "pp:path": "/ISteamUser/ResolveVanityURL/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("key") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "key")
+			}
+			if !cmd.Flags().Changed("vanityurl") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "vanityurl")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -38,9 +44,9 @@ func newIsteamUserResolveVanityUrlCmd(flags *rootFlags) *cobra.Command {
 			if flagUrlType != 0 {
 				params["url_type"] = fmt.Sprintf("%v", flagUrlType)
 			}
-			data, prov, err := resolveRead(c, flags, "isteam-user", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "isteam-user", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -48,14 +54,15 @@ func newIsteamUserResolveVanityUrlCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -81,7 +88,6 @@ func newIsteamUserResolveVanityUrlCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagKey, "key", "", "access key")
 	cmd.Flags().StringVar(&flagVanityurl, "vanityurl", "", "The vanity URL to get a SteamID for")
-	_ = cmd.MarkFlagRequired("vanityurl")
 	cmd.Flags().IntVar(&flagUrlType, "url-type", 0, "The type of vanity URL. 1 (default): Individual profile, 2: Group, 3: Official game group")
 
 	return cmd

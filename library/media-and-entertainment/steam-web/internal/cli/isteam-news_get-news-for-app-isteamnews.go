@@ -20,11 +20,14 @@ func newIsteamNewsGetNewsForAppIsteamnewsCmd(flags *rootFlags) *cobra.Command {
 	var flagTags string
 
 	cmd := &cobra.Command{
-		Use:     "get-news-for-app-isteamnews",
-		Short:   "GetNewsForApp operation of ISteamNews",
-		Hidden: true,
-		Example: "  steam-web-pp-cli isteam-news get-news-for-app-isteamnews",
+		Use:         "get-news-for-app-isteamnews",
+		Short:       "GetNewsForApp operation of ISteamNews",
+		Example:     "  steam-web-pp-cli isteam-news get-news-for-app-isteamnews --appid 42",
+		Annotations: map[string]string{"pp:endpoint": "isteam-news.get-news-for-app-isteamnews", "pp:method": "GET", "pp:path": "/ISteamNews/GetNewsForApp/v2", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("appid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "appid")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -50,9 +53,9 @@ func newIsteamNewsGetNewsForAppIsteamnewsCmd(flags *rootFlags) *cobra.Command {
 			if flagTags != "" {
 				params["tags"] = fmt.Sprintf("%v", flagTags)
 			}
-			data, prov, err := resolveRead(c, flags, "isteam-news", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "isteam-news", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -60,14 +63,15 @@ func newIsteamNewsGetNewsForAppIsteamnewsCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -92,10 +96,9 @@ func newIsteamNewsGetNewsForAppIsteamnewsCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagAppid, "appid", "", "AppID to retrieve news for")
-	_ = cmd.MarkFlagRequired("appid")
 	cmd.Flags().IntVar(&flagMaxlength, "maxlength", 0, "Maximum length for the content to return, if this is 0 the full content is returned, if it's less then a blurb is...")
 	cmd.Flags().IntVar(&flagEnddate, "enddate", 0, "Retrieve posts earlier than this date (unix epoch timestamp)")
-	cmd.Flags().IntVar(&flagCount, "count", 0, "# of posts to retrieve (default 20)")
+	cmd.Flags().IntVar(&flagCount, "count", 0, "of posts to retrieve (default 20)")
 	cmd.Flags().StringVar(&flagFeeds, "feeds", "", "Comma-separated list of feed names to return news for")
 	cmd.Flags().StringVar(&flagTags, "tags", "", "Comma-separated list of tags to filter by (e.g. 'patchnodes')")
 

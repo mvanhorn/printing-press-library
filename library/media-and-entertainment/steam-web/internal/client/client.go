@@ -15,12 +15,11 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"strconv"
-	"strings"
-	"sync"
-	"time"
-
+	"sort"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/steam-web/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/steam-web/internal/config"
+	"strings"
+	"time"
 )
 
 type Client struct {
@@ -30,92 +29,7 @@ type Client struct {
 	DryRun     bool
 	NoCache    bool
 	cacheDir   string
-	limiter    *adaptiveLimiter
-}
-
-// adaptiveLimiter provides proactive rate limiting with adaptive ceiling discovery.
-// Starts at a conservative floor rate and ramps up after consecutive successes.
-// On 429, halves the rate and records a ceiling. Per-session only — not persisted.
-// Thread-safe: all methods are guarded by a mutex for concurrent sync workers.
-type adaptiveLimiter struct {
-	mu          sync.Mutex
-	rate        float64   // current requests per second
-	floor       float64   // starting/minimum rate
-	ceiling     float64   // discovered ceiling (0 = unknown)
-	successes   int       // consecutive successes since last 429
-	rampAfter   int       // successes needed before increasing rate
-	lastRequest time.Time // zero-value on init — first call skips wait (intentional)
-}
-
-func newAdaptiveLimiter(ratePerSec float64) *adaptiveLimiter {
-	if ratePerSec <= 0 {
-		return nil
-	}
-	return &adaptiveLimiter{
-		rate:      ratePerSec,
-		floor:     ratePerSec,
-		rampAfter: 10,
-	}
-}
-
-// Wait blocks until the rate limiter allows the next request.
-func (l *adaptiveLimiter) Wait() {
-	if l == nil {
-		return
-	}
-	l.mu.Lock()
-	delay := time.Duration(float64(time.Second) / l.rate)
-	elapsed := time.Since(l.lastRequest)
-	l.mu.Unlock()
-	if elapsed < delay {
-		time.Sleep(delay - elapsed)
-	}
-	l.mu.Lock()
-	l.lastRequest = time.Now()
-	l.mu.Unlock()
-}
-
-// OnSuccess records a successful request and ramps up the rate after enough consecutive successes.
-func (l *adaptiveLimiter) OnSuccess() {
-	if l == nil {
-		return
-	}
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	l.successes++
-	if l.successes >= l.rampAfter {
-		newRate := l.rate * 1.25
-		if l.ceiling > 0 && newRate > l.ceiling*0.9 {
-			newRate = l.ceiling * 0.9
-		}
-		l.rate = newRate
-		l.successes = 0
-	}
-}
-
-// OnRateLimit records a 429 response — halves the rate and discovers the ceiling.
-func (l *adaptiveLimiter) OnRateLimit() {
-	if l == nil {
-		return
-	}
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	l.ceiling = l.rate
-	l.rate = l.rate / 2
-	if l.rate < 0.5 {
-		l.rate = 0.5 // absolute minimum: 1 request per 2 seconds
-	}
-	l.successes = 0
-}
-
-// Rate returns the current rate in requests per second. Returns 0 if the limiter is nil.
-func (l *adaptiveLimiter) Rate() float64 {
-	if l == nil {
-		return 0
-	}
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	return l.rate
+	limiter    *cliutil.AdaptiveLimiter
 }
 
 // APIError carries HTTP status information for structured exit codes.
@@ -130,15 +44,20 @@ func (e *APIError) Error() string {
 	return fmt.Sprintf("%s %s returned HTTP %d: %s", e.Method, e.Path, e.StatusCode, e.Body)
 }
 
+func newHTTPClient(timeout time.Duration, jar http.CookieJar) *http.Client {
+	return &http.Client{Timeout: timeout, Jar: jar}
+}
+
 func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 	homeDir, _ := os.UserHomeDir()
 	cacheDir := filepath.Join(homeDir, ".cache", "steam-web-pp-cli")
+	httpClient := newHTTPClient(timeout, nil)
 	return &Client{
 		BaseURL:    strings.TrimRight(cfg.BaseURL, "/"),
 		Config:     cfg,
-		HTTPClient: &http.Client{Timeout: timeout},
+		HTTPClient: httpClient,
 		cacheDir:   cacheDir,
-		limiter:    newAdaptiveLimiter(rateLimit),
+		limiter:    cliutil.NewAdaptiveLimiter(rateLimit),
 	}
 }
 
@@ -148,17 +67,26 @@ func (c *Client) RateLimit() float64 {
 }
 
 func (c *Client) Get(path string, params map[string]string) (json.RawMessage, error) {
+	return c.GetWithHeaders(path, params, nil)
+}
+
+func (c *Client) GetWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
 	// Check cache for GET requests
 	if !c.NoCache && !c.DryRun && c.cacheDir != "" {
 		if cached, ok := c.readCache(path, params); ok {
 			return cached, nil
 		}
 	}
-	result, _, err := c.do("GET", path, params, nil)
+	result, _, err := c.do("GET", path, params, nil, headers)
 	if err == nil && !c.NoCache && !c.DryRun && c.cacheDir != "" {
 		c.writeCache(path, params, result)
 	}
 	return result, err
+}
+
+func (c *Client) ProbeGet(path string) (int, error) {
+	_, status, err := c.do("GET", path, nil, nil, nil)
+	return status, err
 }
 
 func (c *Client) cacheKey(path string, params map[string]string) string {
@@ -189,9 +117,9 @@ func (c *Client) writeCache(path string, params map[string]string, data json.Raw
 	os.WriteFile(cacheFile, []byte(data), 0o644)
 }
 
-// invalidateCache wholesale-removes the cache directory after a successful
-// non-GET request. Best-effort — ignores RemoveAll error per the design
-// pattern at https://github.com/mvanhorn/cli-printing-press/blob/main/docs/solutions/design-patterns/http-client-cache-invalidate-on-mutation-2026-05-05.md
+// invalidateCache wholesale-removes the cache directory so the next read
+// after a mutation cannot return a stale snapshot. Selective per-resource
+// invalidation rejected: cache keys are opaque sha256 hashes.
 func (c *Client) invalidateCache() {
 	if c.cacheDir == "" {
 		return
@@ -200,22 +128,40 @@ func (c *Client) invalidateCache() {
 }
 
 func (c *Client) Post(path string, body any) (json.RawMessage, int, error) {
-	return c.do("POST", path, nil, body)
+	return c.do("POST", path, nil, body, nil)
+}
+
+func (c *Client) PostWithHeaders(path string, body any, headers map[string]string) (json.RawMessage, int, error) {
+	return c.do("POST", path, nil, body, headers)
 }
 
 func (c *Client) Delete(path string) (json.RawMessage, int, error) {
-	return c.do("DELETE", path, nil, nil)
+	return c.do("DELETE", path, nil, nil, nil)
+}
+
+func (c *Client) DeleteWithHeaders(path string, headers map[string]string) (json.RawMessage, int, error) {
+	return c.do("DELETE", path, nil, nil, headers)
 }
 
 func (c *Client) Put(path string, body any) (json.RawMessage, int, error) {
-	return c.do("PUT", path, nil, body)
+	return c.do("PUT", path, nil, body, nil)
+}
+
+func (c *Client) PutWithHeaders(path string, body any, headers map[string]string) (json.RawMessage, int, error) {
+	return c.do("PUT", path, nil, body, headers)
 }
 
 func (c *Client) Patch(path string, body any) (json.RawMessage, int, error) {
-	return c.do("PATCH", path, nil, body)
+	return c.do("PATCH", path, nil, body, nil)
 }
 
-func (c *Client) do(method, path string, params map[string]string, body any) (json.RawMessage, int, error) {
+func (c *Client) PatchWithHeaders(path string, body any, headers map[string]string) (json.RawMessage, int, error) {
+	return c.do("PATCH", path, nil, body, headers)
+}
+
+// do executes an HTTP request. headerOverrides, when non-nil, override global
+// RequiredHeaders for this specific request (used for per-endpoint API versioning).
+func (c *Client) do(method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
 	targetURL := c.BaseURL + path
 
 	var bodyBytes []byte
@@ -227,9 +173,18 @@ func (c *Client) do(method, path string, params map[string]string, body any) (js
 		bodyBytes = b
 	}
 
+	// Resolve auth material before the dry-run branch so --dry-run can preview
+	// exactly what would be sent. Uses only cached credentials; a token that
+	// requires a network refresh will be re-fetched on the live request path,
+	// not during dry-run.
+	authHeader, err := c.authHeader()
+	if err != nil {
+		return nil, 0, err
+	}
+
 	// Build the request for dry-run display or actual execution
 	if c.DryRun {
-		return c.dryRun(method, targetURL, path, params, bodyBytes)
+		return c.dryRun(method, targetURL, path, params, bodyBytes, headerOverrides, authHeader)
 	}
 
 	const maxRetries = 3
@@ -261,15 +216,15 @@ func (c *Client) do(method, path string, params map[string]string, body any) (js
 			req.URL.RawQuery = q.Encode()
 		}
 
-		authHeader, err := c.authHeader()
-		if err != nil {
-			return nil, 0, err
-		}
 		if authHeader != "" {
 			// API key goes in query parameter
 			q := req.URL.Query()
 			q.Set("key", authHeader)
 			req.URL.RawQuery = q.Encode()
+		}
+		// Per-endpoint header overrides (e.g., different API version per resource)
+		for k, v := range headerOverrides {
+			req.Header.Set(k, v)
 		}
 		req.Header.Set("User-Agent", "steam-web-pp-cli/1.0.0")
 
@@ -289,9 +244,6 @@ func (c *Client) do(method, path string, params map[string]string, body any) (js
 		// Success
 		if resp.StatusCode < 400 {
 			c.limiter.OnSuccess()
-			// Cache-invalidate on successful non-GET requests. The !c.DryRun guard
-			// is structurally redundant (dry-run short-circuits before the retry
-			// loop) but defends against future refactors.
 			if method != http.MethodGet && !c.DryRun {
 				c.invalidateCache()
 			}
@@ -308,7 +260,7 @@ func (c *Client) do(method, path string, params map[string]string, body any) (js
 		// Rate limited - adjust adaptive limiter and retry
 		if resp.StatusCode == 429 && attempt < maxRetries {
 			c.limiter.OnRateLimit()
-			wait := retryAfter(resp)
+			wait := cliutil.RetryAfter(resp)
 			fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
 			time.Sleep(wait)
 			lastErr = apiErr
@@ -331,15 +283,40 @@ func (c *Client) do(method, path string, params map[string]string, body any) (js
 	return nil, 0, lastErr
 }
 
-func (c *Client) dryRun(method, targetURL, path string, params map[string]string, body []byte) (json.RawMessage, int, error) {
+// dryRun prints the outgoing request exactly as the live path would send it,
+// using the auth material already resolved in `do()`. Never triggers a network
+// call — the caller is responsible for passing cached auth material only.
+func (c *Client) dryRun(method, targetURL, path string, params map[string]string, body []byte, headerOverrides map[string]string, authHeader string) (json.RawMessage, int, error) {
 	fmt.Fprintf(os.Stderr, "%s %s\n", method, targetURL)
+	queryPrinted := false
 	if params != nil {
-		for k, v := range params {
-			if v != "" {
-				fmt.Fprintf(os.Stderr, "  ?%s=%s\n", k, v)
+		keys := make([]string, 0, len(params))
+		for k := range params {
+			if params[k] != "" {
+				keys = append(keys, k)
 			}
 		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			sep := "?"
+			if queryPrinted {
+				sep = "&"
+			}
+			fmt.Fprintf(os.Stderr, "  %s%s=%s\n", sep, k, params[k])
+			queryPrinted = true
+		}
 	}
+	// Auth material travels as a query parameter on the live request — surface
+	// it in the preview so users can verify wiring.
+	if authHeader != "" {
+		sep := "?"
+		if queryPrinted {
+			sep = "&"
+		}
+		fmt.Fprintf(os.Stderr, "  %s%s=%s\n", sep, "key", maskToken(authHeader))
+		queryPrinted = true
+	}
+	_ = queryPrinted
 	if body != nil {
 		var pretty json.RawMessage
 		if json.Unmarshal(body, &pretty) == nil {
@@ -349,20 +326,15 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 			enc.Encode(pretty)
 		}
 	}
-	authHeader, err := c.authHeader()
-	if err != nil {
-		return nil, 0, err
-	}
-	if authHeader != "" {
-		// Mask token for safety
-		auth := authHeader
-		if len(auth) > 20 {
-			auth = auth[:15] + "..."
-		}
-		fmt.Fprintf(os.Stderr, "  Authorization: %s\n", auth)
-	}
 	fmt.Fprintf(os.Stderr, "\n(dry run - no request sent)\n")
 	return json.RawMessage(`{"dry_run": true}`), 0, nil
+}
+
+func (c *Client) ConfiguredTimeout() time.Duration {
+	if c.HTTPClient != nil && c.HTTPClient.Timeout > 0 {
+		return c.HTTPClient.Timeout
+	}
+	return 30 * time.Second
 }
 
 func (c *Client) authHeader() (string, error) {
@@ -439,23 +411,6 @@ func (c *Client) refreshAccessToken() error {
 	return nil
 }
 
-func retryAfter(resp *http.Response) time.Duration {
-	header := resp.Header.Get("Retry-After")
-	if header == "" {
-		return 5 * time.Second
-	}
-	if seconds, err := strconv.Atoi(header); err == nil {
-		return time.Duration(seconds) * time.Second
-	}
-	if t, err := http.ParseTime(header); err == nil {
-		wait := time.Until(t)
-		if wait > 0 {
-			return wait
-		}
-	}
-	return 5 * time.Second
-}
-
 // sanitizeJSONResponse strips known JSONP/XSSI prefixes and UTF-8 BOM from
 // response bodies so that downstream JSON parsing succeeds. For clean JSON
 // responses these checks are no-ops.
@@ -479,6 +434,17 @@ func sanitizeJSONResponse(body []byte) []byte {
 		}
 	}
 	return body
+}
+
+// maskToken redacts all but the last 4 characters of a token for safe display.
+func maskToken(token string) string {
+	if token == "" {
+		return ""
+	}
+	if len(token) <= 4 {
+		return "****"
+	}
+	return "****" + token[len(token)-4:]
 }
 
 func truncateBody(b []byte) string {

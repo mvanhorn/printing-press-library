@@ -21,12 +21,29 @@ func newIgameNotificationsServiceUserCreateSessionCmd(flags *rootFlags) *cobra.C
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "user-create-session",
-		Aliases: []string{"create"},
-		Short:   "UserCreateSession operation of IGameNotificationsService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli igame-notifications-service user-create-session --title example-resource",
+		Use:         "user-create-session",
+		Aliases:     []string{"create"},
+		Short:       "UserCreateSession operation of IGameNotificationsService",
+		Example:     "  steam-web-pp-cli igame-notifications-service user-create-session --title example-resource",
+		Annotations: map[string]string{"pp:endpoint": "igame-notifications-service.user-create-session", "pp:method": "POST", "pp:path": "/IGameNotificationsService/UserCreateSession/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				if !cmd.Flags().Changed("appid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "appid")
+				}
+				if !cmd.Flags().Changed("context") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "context")
+				}
+				if !cmd.Flags().Changed("steamid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "steamid")
+				}
+				if !cmd.Flags().Changed("title") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "title")
+				}
+				if !cmd.Flags().Changed("users") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "users")
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -64,7 +81,7 @@ func newIgameNotificationsServiceUserCreateSessionCmd(flags *rootFlags) *cobra.C
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -92,13 +109,15 @@ func newIgameNotificationsServiceUserCreateSessionCmd(flags *rootFlags) *cobra.C
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",
@@ -128,15 +147,10 @@ func newIgameNotificationsServiceUserCreateSessionCmd(flags *rootFlags) *cobra.C
 		},
 	}
 	cmd.Flags().IntVar(&bodyAppid, "appid", 0, "The appid to create the session for.")
-	_ = cmd.MarkFlagRequired("appid")
 	cmd.Flags().IntVar(&bodyContext, "context", 0, "Game-specified context value the game can used to associate the session with some object on their backend.")
-	_ = cmd.MarkFlagRequired("context")
 	cmd.Flags().IntVar(&bodySteamid, "steamid", 0, "(Optional) steamid to make the request on behalf of -- if specified, the user must be in the session and all users...")
-	_ = cmd.MarkFlagRequired("steamid")
 	cmd.Flags().StringVar(&bodyTitle, "title", "", "The title of the session to be displayed within each user's list of sessions.")
-	_ = cmd.MarkFlagRequired("title")
 	cmd.Flags().StringVar(&bodyUsers, "users", "", "The initial state of all users in the session.")
-	_ = cmd.MarkFlagRequired("users")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

@@ -30,12 +30,56 @@ func newIcsgotournaments730UploadTournamentFantasyLineupCmd(flags *rootFlags) *c
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "upload-tournament-fantasy-lineup",
-		Aliases: []string{"create"},
-		Short:   "UploadTournamentFantasyLineup operation of ICSGOTournaments_730",
-		Hidden: true,
-		Example: "  steam-web-pp-cli icsgotournaments-730 upload-tournament-fantasy-lineup --steamidkey your-token-here",
+		Use:         "upload-tournament-fantasy-lineup",
+		Aliases:     []string{"create"},
+		Short:       "UploadTournamentFantasyLineup operation of ICSGOTournaments_730",
+		Example:     "  steam-web-pp-cli icsgotournaments-730 upload-tournament-fantasy-lineup --steamidkey your-token-here",
+		Annotations: map[string]string{"pp:endpoint": "icsgotournaments-730.upload-tournament-fantasy-lineup", "pp:method": "POST", "pp:path": "/ICSGOTournaments_730/UploadTournamentFantasyLineup/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				if !cmd.Flags().Changed("event") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "event")
+				}
+				if !cmd.Flags().Changed("itemid0") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "itemid0")
+				}
+				if !cmd.Flags().Changed("itemid1") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "itemid1")
+				}
+				if !cmd.Flags().Changed("itemid2") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "itemid2")
+				}
+				if !cmd.Flags().Changed("itemid3") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "itemid3")
+				}
+				if !cmd.Flags().Changed("itemid4") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "itemid4")
+				}
+				if !cmd.Flags().Changed("pickid0") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "pickid0")
+				}
+				if !cmd.Flags().Changed("pickid1") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "pickid1")
+				}
+				if !cmd.Flags().Changed("pickid2") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "pickid2")
+				}
+				if !cmd.Flags().Changed("pickid3") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "pickid3")
+				}
+				if !cmd.Flags().Changed("pickid4") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "pickid4")
+				}
+				if !cmd.Flags().Changed("sectionid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "sectionid")
+				}
+				if !cmd.Flags().Changed("steamid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "steamid")
+				}
+				if !cmd.Flags().Changed("steamidkey") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "steamidkey")
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -100,7 +144,7 @@ func newIcsgotournaments730UploadTournamentFantasyLineupCmd(flags *rootFlags) *c
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -128,13 +172,15 @@ func newIcsgotournaments730UploadTournamentFantasyLineupCmd(flags *rootFlags) *c
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",
@@ -164,33 +210,19 @@ func newIcsgotournaments730UploadTournamentFantasyLineupCmd(flags *rootFlags) *c
 		},
 	}
 	cmd.Flags().IntVar(&bodyEvent, "event", 0, "The event ID")
-	_ = cmd.MarkFlagRequired("event")
 	cmd.Flags().IntVar(&bodyItemid0, "itemid0", 0, "ItemID to lock in for the pick")
-	_ = cmd.MarkFlagRequired("itemid0")
 	cmd.Flags().IntVar(&bodyItemid1, "itemid1", 0, "ItemID to lock in for the pick")
-	_ = cmd.MarkFlagRequired("itemid1")
 	cmd.Flags().IntVar(&bodyItemid2, "itemid2", 0, "ItemID to lock in for the pick")
-	_ = cmd.MarkFlagRequired("itemid2")
 	cmd.Flags().IntVar(&bodyItemid3, "itemid3", 0, "ItemID to lock in for the pick")
-	_ = cmd.MarkFlagRequired("itemid3")
 	cmd.Flags().IntVar(&bodyItemid4, "itemid4", 0, "ItemID to lock in for the pick")
-	_ = cmd.MarkFlagRequired("itemid4")
 	cmd.Flags().IntVar(&bodyPickid0, "pickid0", 0, "PickID to select for the slot")
-	_ = cmd.MarkFlagRequired("pickid0")
 	cmd.Flags().IntVar(&bodyPickid1, "pickid1", 0, "PickID to select for the slot")
-	_ = cmd.MarkFlagRequired("pickid1")
 	cmd.Flags().IntVar(&bodyPickid2, "pickid2", 0, "PickID to select for the slot")
-	_ = cmd.MarkFlagRequired("pickid2")
 	cmd.Flags().IntVar(&bodyPickid3, "pickid3", 0, "PickID to select for the slot")
-	_ = cmd.MarkFlagRequired("pickid3")
 	cmd.Flags().IntVar(&bodyPickid4, "pickid4", 0, "PickID to select for the slot")
-	_ = cmd.MarkFlagRequired("pickid4")
 	cmd.Flags().IntVar(&bodySectionid, "sectionid", 0, "Event section id")
-	_ = cmd.MarkFlagRequired("sectionid")
 	cmd.Flags().IntVar(&bodySteamid, "steamid", 0, "The SteamID of the user inventory")
-	_ = cmd.MarkFlagRequired("steamid")
 	cmd.Flags().StringVar(&bodySteamidkey, "steamidkey", "", "Authentication obtained from the SteamID")
-	_ = cmd.MarkFlagRequired("steamidkey")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

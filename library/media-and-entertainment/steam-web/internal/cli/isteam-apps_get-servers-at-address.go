@@ -15,11 +15,14 @@ func newIsteamAppsGetServersAtAddressCmd(flags *rootFlags) *cobra.Command {
 	var flagAddr string
 
 	cmd := &cobra.Command{
-		Use:     "get-servers-at-address",
-		Short:   "GetServersAtAddress operation of ISteamApps",
-		Hidden: true,
-		Example: "  steam-web-pp-cli isteam-apps get-servers-at-address",
+		Use:         "get-servers-at-address",
+		Short:       "GetServersAtAddress operation of ISteamApps",
+		Example:     "  steam-web-pp-cli isteam-apps get-servers-at-address --addr example-value",
+		Annotations: map[string]string{"pp:endpoint": "isteam-apps.get-servers-at-address", "pp:method": "GET", "pp:path": "/ISteamApps/GetServersAtAddress/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("addr") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "addr")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -30,9 +33,9 @@ func newIsteamAppsGetServersAtAddressCmd(flags *rootFlags) *cobra.Command {
 			if flagAddr != "" {
 				params["addr"] = fmt.Sprintf("%v", flagAddr)
 			}
-			data, prov, err := resolveRead(c, flags, "isteam-apps", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "isteam-apps", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -40,14 +43,15 @@ func newIsteamAppsGetServersAtAddressCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -72,7 +76,6 @@ func newIsteamAppsGetServersAtAddressCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagAddr, "addr", "", "IP or IP:queryport to list")
-	_ = cmd.MarkFlagRequired("addr")
 
 	return cmd
 }

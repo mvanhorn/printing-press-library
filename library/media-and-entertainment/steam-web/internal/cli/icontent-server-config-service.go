@@ -11,7 +11,6 @@ func newIcontentServerConfigServiceCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "icontent-server-config-service",
 		Short: "Manage icontent server config service",
-		Hidden: true,
 	}
 
 	cmd.AddCommand(newIcontentServerConfigServiceGetSteamCacheNodeParamsCmd(flags))

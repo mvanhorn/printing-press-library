@@ -14,7 +14,7 @@ import (
 func newIpublishedFileServiceQueryFilesCmd(flags *rootFlags) *cobra.Command {
 	var flagKey string
 	var flagQueryType int
-	var flagPage int
+	var flagPage string
 	var flagCursor string
 	var flagNumperpage int
 	var flagCreatorAppid string
@@ -56,18 +56,120 @@ func newIpublishedFileServiceQueryFilesCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "query-files",
-		Short:   "QueryFiles operation of IPublishedFileService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli ipublished-file-service query-files",
+		Use:         "query-files",
+		Short:       "QueryFiles operation of IPublishedFileService",
+		Example:     "  steam-web-pp-cli ipublished-file-service query-files --key your-token-here --query-type 42 --page 42 --cursor example-value --creator-appid 42 --appid 42 --requiredtags example-value --excludedtags example-value --required-flags example-value --omitted-flags example-value --search-text example-value --filetype 42 --child-publishedfileid 42 --days 42 --include-recent-votes-only true --required-kv-tags example-value --taggroups example-value --date-range-created 2026-01-15 --date-range-updated 2026-01-15 --excluded-content-descriptors example-value --admin-query true --special-filter example-value --totalonly true --ids-only true --return-vote-data true --return-tags true --return-kv-tags true --return-previews true --return-children true --return-short-description true --return-for-sale-data true --return-playtime-stats 2026-01-15T09:00:00Z --return-details true --strip-description-bbcode true",
+		Annotations: map[string]string{"pp:endpoint": "ipublished-file-service.query-files", "pp:method": "GET", "pp:path": "/IPublishedFileService/QueryFiles/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("key") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "key")
+			}
+			if !cmd.Flags().Changed("query-type") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "query-type")
+			}
+			if !cmd.Flags().Changed("page") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "page")
+			}
+			if !cmd.Flags().Changed("cursor") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "cursor")
+			}
+			if !cmd.Flags().Changed("creator-appid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "creator-appid")
+			}
+			if !cmd.Flags().Changed("appid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "appid")
+			}
+			if !cmd.Flags().Changed("requiredtags") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "requiredtags")
+			}
+			if !cmd.Flags().Changed("excludedtags") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "excludedtags")
+			}
+			if !cmd.Flags().Changed("required-flags") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "required-flags")
+			}
+			if !cmd.Flags().Changed("omitted-flags") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "omitted-flags")
+			}
+			if !cmd.Flags().Changed("search-text") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "search-text")
+			}
+			if !cmd.Flags().Changed("filetype") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "filetype")
+			}
+			if !cmd.Flags().Changed("child-publishedfileid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "child-publishedfileid")
+			}
+			if !cmd.Flags().Changed("days") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "days")
+			}
+			if !cmd.Flags().Changed("include-recent-votes-only") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "include-recent-votes-only")
+			}
+			if !cmd.Flags().Changed("required-kv-tags") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "required-kv-tags")
+			}
+			if !cmd.Flags().Changed("taggroups") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "taggroups")
+			}
+			if !cmd.Flags().Changed("date-range-created") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "date-range-created")
+			}
+			if !cmd.Flags().Changed("date-range-updated") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "date-range-updated")
+			}
+			if !cmd.Flags().Changed("excluded-content-descriptors") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "excluded-content-descriptors")
+			}
+			if !cmd.Flags().Changed("admin-query") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "admin-query")
+			}
+			if !cmd.Flags().Changed("special-filter") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "special-filter")
+			}
+			if !cmd.Flags().Changed("totalonly") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "totalonly")
+			}
+			if !cmd.Flags().Changed("ids-only") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "ids-only")
+			}
+			if !cmd.Flags().Changed("return-vote-data") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "return-vote-data")
+			}
+			if !cmd.Flags().Changed("return-tags") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "return-tags")
+			}
+			if !cmd.Flags().Changed("return-kv-tags") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "return-kv-tags")
+			}
+			if !cmd.Flags().Changed("return-previews") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "return-previews")
+			}
+			if !cmd.Flags().Changed("return-children") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "return-children")
+			}
+			if !cmd.Flags().Changed("return-short-description") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "return-short-description")
+			}
+			if !cmd.Flags().Changed("return-for-sale-data") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "return-for-sale-data")
+			}
+			if !cmd.Flags().Changed("return-playtime-stats") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "return-playtime-stats")
+			}
+			if !cmd.Flags().Changed("return-details") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "return-details")
+			}
+			if !cmd.Flags().Changed("strip-description-bbcode") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "strip-description-bbcode")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
 			path := "/IPublishedFileService/QueryFiles/v1"
-			data, prov, err := resolvePaginatedRead(c, flags, "ipublished-file-service", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "ipublished-file-service", path, map[string]string{
 				"key":                          fmt.Sprintf("%v", flagKey),
 				"query_type":                   fmt.Sprintf("%v", flagQueryType),
 				"page":                         fmt.Sprintf("%v", flagPage),
@@ -109,9 +211,9 @@ func newIpublishedFileServiceQueryFilesCmd(flags *rootFlags) *cobra.Command {
 				"strip_description_bbcode":     fmt.Sprintf("%v", flagStripDescriptionBbcode),
 				"desired_revision":             fmt.Sprintf("%v", flagDesiredRevision),
 				"return_reactions":             fmt.Sprintf("%v", flagReturnReactions),
-			}, flagAll, "cursor", "", "")
+			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -119,14 +221,15 @@ func newIpublishedFileServiceQueryFilesCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -152,76 +255,43 @@ func newIpublishedFileServiceQueryFilesCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagKey, "key", "", "Access key")
 	cmd.Flags().IntVar(&flagQueryType, "query-type", 0, "enumeration EPublishedFileQueryType in clientenums.h")
-	_ = cmd.MarkFlagRequired("query-type")
-	cmd.Flags().IntVar(&flagPage, "page", 0, "Current page")
-	_ = cmd.MarkFlagRequired("page")
+	cmd.Flags().StringVar(&flagPage, "page", "", "Current page")
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Cursor to paginate through the results (set to '*' for the first request). Prefer this over using the page...")
-	_ = cmd.MarkFlagRequired("cursor")
 	cmd.Flags().IntVar(&flagNumperpage, "numperpage", 0, "(Optional) The number of results, per page to return.")
 	cmd.Flags().StringVar(&flagCreatorAppid, "creator-appid", "", "App that created the files")
-	_ = cmd.MarkFlagRequired("creator-appid")
 	cmd.Flags().StringVar(&flagAppid, "appid", "", "App that consumes the files")
-	_ = cmd.MarkFlagRequired("appid")
 	cmd.Flags().StringVar(&flagRequiredtags, "requiredtags", "", "Tags to match on. See match_all_tags parameter below")
-	_ = cmd.MarkFlagRequired("requiredtags")
 	cmd.Flags().StringVar(&flagExcludedtags, "excludedtags", "", "(Optional) Tags that must NOT be present on a published file to satisfy the query.")
-	_ = cmd.MarkFlagRequired("excludedtags")
 	cmd.Flags().BoolVar(&flagMatchAllTags, "match-all-tags", false, "If true, then items must have all the tags specified, otherwise they must have at least one of the tags.")
 	cmd.Flags().StringVar(&flagRequiredFlags, "required-flags", "", "Required flags that must be set on any returned items")
-	_ = cmd.MarkFlagRequired("required-flags")
 	cmd.Flags().StringVar(&flagOmittedFlags, "omitted-flags", "", "Flags that must not be set on any returned items")
-	_ = cmd.MarkFlagRequired("omitted-flags")
 	cmd.Flags().StringVar(&flagSearchText, "search-text", "", "Text to match in the item's title or description")
-	_ = cmd.MarkFlagRequired("search-text")
 	cmd.Flags().IntVar(&flagFiletype, "filetype", 0, "EPublishedFileInfoMatchingFileType")
-	_ = cmd.MarkFlagRequired("filetype")
 	cmd.Flags().StringVar(&flagChildPublishedfileid, "child-publishedfileid", "", "Find all items that reference the given item.")
-	_ = cmd.MarkFlagRequired("child-publishedfileid")
 	cmd.Flags().IntVar(&flagDays, "days", 0, "If query_type is k_PublishedFileQueryType_RankedByTrend, then this is the number of days to get votes for [1,7].")
-	_ = cmd.MarkFlagRequired("days")
 	cmd.Flags().BoolVar(&flagIncludeRecentVotesOnly, "include-recent-votes-only", false, "If query_type is k_PublishedFileQueryType_RankedByTrend, then limit result set just to items that have votes within...")
-	_ = cmd.MarkFlagRequired("include-recent-votes-only")
 	cmd.Flags().IntVar(&flagCacheMaxAgeSeconds, "cache-max-age-seconds", 0, "Allow stale data to be returned for the specified number of seconds.")
 	cmd.Flags().IntVar(&flagLanguage, "language", 0, "Language to search in and also what gets returned. Defaults to English.")
 	cmd.Flags().StringVar(&flagRequiredKvTags, "required-kv-tags", "", "Required key-value tags to match on.")
-	_ = cmd.MarkFlagRequired("required-kv-tags")
 	cmd.Flags().StringVar(&flagTaggroups, "taggroups", "", "(Optional) At least one of the tags must be present on a published file to satisfy the query.")
-	_ = cmd.MarkFlagRequired("taggroups")
 	cmd.Flags().StringVar(&flagDateRangeCreated, "date-range-created", "", "(Optional) Filter to items created within this range.")
-	_ = cmd.MarkFlagRequired("date-range-created")
 	cmd.Flags().StringVar(&flagDateRangeUpdated, "date-range-updated", "", "(Optional) Filter to items updated within this range.")
-	_ = cmd.MarkFlagRequired("date-range-updated")
 	cmd.Flags().StringVar(&flagExcludedContentDescriptors, "excluded-content-descriptors", "", "(Optional) Filter out items that have these content descriptors.")
-	_ = cmd.MarkFlagRequired("excluded-content-descriptors")
 	cmd.Flags().BoolVar(&flagAdminQuery, "admin-query", false, "Admin tool is doing a query, return hidden items")
-	_ = cmd.MarkFlagRequired("admin-query")
 	cmd.Flags().StringVar(&flagSpecialFilter, "special-filter", "", "Additional special filtering")
-	_ = cmd.MarkFlagRequired("special-filter")
 	cmd.Flags().BoolVar(&flagTotalonly, "totalonly", false, "(Optional) If true, only return the total number of files that satisfy this query.")
-	_ = cmd.MarkFlagRequired("totalonly")
 	cmd.Flags().BoolVar(&flagIdsOnly, "ids-only", false, "(Optional) If true, only return the published file ids of files that satisfy this query.")
-	_ = cmd.MarkFlagRequired("ids-only")
 	cmd.Flags().BoolVar(&flagReturnVoteData, "return-vote-data", false, "Return vote data")
-	_ = cmd.MarkFlagRequired("return-vote-data")
 	cmd.Flags().BoolVar(&flagReturnTags, "return-tags", false, "Return tags in the file details")
-	_ = cmd.MarkFlagRequired("return-tags")
 	cmd.Flags().BoolVar(&flagReturnKvTags, "return-kv-tags", false, "Return key-value tags in the file details")
-	_ = cmd.MarkFlagRequired("return-kv-tags")
 	cmd.Flags().BoolVar(&flagReturnPreviews, "return-previews", false, "Return preview image and video details in the file details")
-	_ = cmd.MarkFlagRequired("return-previews")
 	cmd.Flags().BoolVar(&flagReturnChildren, "return-children", false, "Return child item ids in the file details")
-	_ = cmd.MarkFlagRequired("return-children")
 	cmd.Flags().BoolVar(&flagReturnShortDescription, "return-short-description", false, "Populate the short_description field instead of file_description")
-	_ = cmd.MarkFlagRequired("return-short-description")
 	cmd.Flags().BoolVar(&flagReturnForSaleData, "return-for-sale-data", false, "Return pricing information, if applicable")
-	_ = cmd.MarkFlagRequired("return-for-sale-data")
 	cmd.Flags().BoolVar(&flagReturnMetadata, "return-metadata", false, "Populate the metadata")
 	cmd.Flags().IntVar(&flagReturnPlaytimeStats, "return-playtime-stats", 0, "Return playtime stats for the specified number of days before today.")
-	_ = cmd.MarkFlagRequired("return-playtime-stats")
 	cmd.Flags().BoolVar(&flagReturnDetails, "return-details", false, "By default, if none of the other 'return_*' fields are set, only some voting details are returned. Set this to true...")
-	_ = cmd.MarkFlagRequired("return-details")
 	cmd.Flags().BoolVar(&flagStripDescriptionBbcode, "strip-description-bbcode", false, "Strips BBCode from descriptions.")
-	_ = cmd.MarkFlagRequired("strip-description-bbcode")
 	cmd.Flags().StringVar(&flagDesiredRevision, "desired-revision", "", "Return the data for the specified revision.")
 	cmd.Flags().BoolVar(&flagReturnReactions, "return-reactions", false, "If true, then reactions to items will be returned.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")

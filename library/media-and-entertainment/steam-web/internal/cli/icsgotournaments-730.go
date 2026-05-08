@@ -11,7 +11,6 @@ func newIcsgotournaments730Cmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "icsgotournaments-730",
 		Short: "Manage icsgotournaments 730",
-		Hidden: true,
 	}
 
 	cmd.AddCommand(newIcsgotournaments730GetTournamentFantasyLineupCmd(flags))

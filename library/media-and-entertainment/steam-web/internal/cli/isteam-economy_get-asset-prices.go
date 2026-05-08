@@ -17,11 +17,14 @@ func newIsteamEconomyGetAssetPricesCmd(flags *rootFlags) *cobra.Command {
 	var flagLanguage string
 
 	cmd := &cobra.Command{
-		Use:     "get-asset-prices",
-		Short:   "GetAssetPrices operation of ISteamEconomy",
-		Hidden: true,
-		Example: "  steam-web-pp-cli isteam-economy get-asset-prices",
+		Use:         "get-asset-prices",
+		Short:       "GetAssetPrices operation of ISteamEconomy",
+		Example:     "  steam-web-pp-cli isteam-economy get-asset-prices --appid 42",
+		Annotations: map[string]string{"pp:endpoint": "isteam-economy.get-asset-prices", "pp:method": "GET", "pp:path": "/ISteamEconomy/GetAssetPrices/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("appid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "appid")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -38,9 +41,9 @@ func newIsteamEconomyGetAssetPricesCmd(flags *rootFlags) *cobra.Command {
 			if flagLanguage != "" {
 				params["language"] = fmt.Sprintf("%v", flagLanguage)
 			}
-			data, prov, err := resolveRead(c, flags, "isteam-economy", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "isteam-economy", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -48,14 +51,15 @@ func newIsteamEconomyGetAssetPricesCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -80,7 +84,6 @@ func newIsteamEconomyGetAssetPricesCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagAppid, "appid", "", "Must be a steam economy app.")
-	_ = cmd.MarkFlagRequired("appid")
 	cmd.Flags().StringVar(&flagCurrency, "currency", "", "The currency to filter for")
 	cmd.Flags().StringVar(&flagLanguage, "language", "", "The user's local language")
 

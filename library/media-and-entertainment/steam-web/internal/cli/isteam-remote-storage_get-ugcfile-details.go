@@ -17,12 +17,18 @@ func newIsteamRemoteStorageGetUgcfileDetailsCmd(flags *rootFlags) *cobra.Command
 	var flagAppid string
 
 	cmd := &cobra.Command{
-		Use:     "get-ugcfile-details",
-		Aliases: []string{"list"},
-		Short:   "GetUGCFileDetails operation of ISteamRemoteStorage",
-		Hidden: true,
-		Example: "  steam-web-pp-cli isteam-remote-storage get-ugcfile-details",
+		Use:         "get-ugcfile-details",
+		Aliases:     []string{"list"},
+		Short:       "GetUGCFileDetails operation of ISteamRemoteStorage",
+		Example:     "  steam-web-pp-cli isteam-remote-storage get-ugcfile-details --ugcid 42 --appid 42",
+		Annotations: map[string]string{"pp:endpoint": "isteam-remote-storage.get-ugcfile-details", "pp:method": "GET", "pp:path": "/ISteamRemoteStorage/GetUGCFileDetails/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("ugcid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "ugcid")
+			}
+			if !cmd.Flags().Changed("appid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "appid")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -39,9 +45,9 @@ func newIsteamRemoteStorageGetUgcfileDetailsCmd(flags *rootFlags) *cobra.Command
 			if flagAppid != "" {
 				params["appid"] = fmt.Sprintf("%v", flagAppid)
 			}
-			data, prov, err := resolveRead(c, flags, "isteam-remote-storage", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "isteam-remote-storage", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -49,14 +55,15 @@ func newIsteamRemoteStorageGetUgcfileDetailsCmd(flags *rootFlags) *cobra.Command
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -82,9 +89,7 @@ func newIsteamRemoteStorageGetUgcfileDetailsCmd(flags *rootFlags) *cobra.Command
 	}
 	cmd.Flags().StringVar(&flagSteamid, "steamid", "", "If specified, only returns details if the file is owned by the SteamID specified")
 	cmd.Flags().StringVar(&flagUgcid, "ugcid", "", "ID of UGC file to get info for")
-	_ = cmd.MarkFlagRequired("ugcid")
 	cmd.Flags().StringVar(&flagAppid, "appid", "", "appID of product")
-	_ = cmd.MarkFlagRequired("appid")
 
 	return cmd
 }

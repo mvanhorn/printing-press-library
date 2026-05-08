@@ -11,7 +11,6 @@ func newIpublishedFileServiceCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "ipublished-file-service",
 		Short: "Manage ipublished file service",
-		Hidden: true,
 	}
 
 	cmd.AddCommand(newIpublishedFileServiceGetDetailsCmd(flags))

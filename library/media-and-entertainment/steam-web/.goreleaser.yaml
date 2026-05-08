@@ -17,9 +17,9 @@ builds:
       - linux_arm64
       - windows_amd64
       - windows_arm64
-  - id: steam-web-mcp
-    main: ./cmd/steam-web-mcp
-    binary: steam-web-mcp
+  - id: steam-web-pp-mcp
+    main: ./cmd/steam-web-pp-mcp
+    binary: steam-web-pp-mcp
     env:
       - CGO_ENABLED=0
     ldflags:
@@ -45,7 +45,7 @@ brews:
       owner: trevin-chow
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Official Steam Web API. Get your API key at https://steamcommunity.com/dev/apikey"
+    description: "Every Steam Web API endpoint, plus a local SQLite store that turns friend playtimes, achievement progress, and..."
     install: |
       bin.install "steam-web-pp-cli"
-      bin.install "steam-web-mcp"
+      bin.install "steam-web-pp-mcp"

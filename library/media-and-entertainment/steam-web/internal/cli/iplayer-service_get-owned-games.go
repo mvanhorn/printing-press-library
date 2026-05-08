@@ -23,10 +23,35 @@ func newIplayerServiceGetOwnedGamesCmd(flags *rootFlags) *cobra.Command {
 	var flagIncludeExtendedAppinfo bool
 
 	cmd := &cobra.Command{
-		Use:     "get-owned-games",
-		Short:   "GetOwnedGames operation of IPlayerService",
-		Example: "  steam-web-pp-cli iplayer-service get-owned-games",
+		Use:         "get-owned-games",
+		Short:       "GetOwnedGames operation of IPlayerService",
+		Example:     "  steam-web-pp-cli iplayer-service get-owned-games --key your-token-here --steamid 42 --include-appinfo true --include-played-free-games true --appids-filter 42 --include-free-sub true --language example-value --include-extended-appinfo true",
+		Annotations: map[string]string{"pp:endpoint": "iplayer-service.get-owned-games", "pp:method": "GET", "pp:path": "/IPlayerService/GetOwnedGames/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("key") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "key")
+			}
+			if !cmd.Flags().Changed("steamid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "steamid")
+			}
+			if !cmd.Flags().Changed("include-appinfo") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "include-appinfo")
+			}
+			if !cmd.Flags().Changed("include-played-free-games") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "include-played-free-games")
+			}
+			if !cmd.Flags().Changed("appids-filter") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "appids-filter")
+			}
+			if !cmd.Flags().Changed("include-free-sub") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "include-free-sub")
+			}
+			if !cmd.Flags().Changed("language") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "language")
+			}
+			if !cmd.Flags().Changed("include-extended-appinfo") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "include-extended-appinfo")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -61,9 +86,9 @@ func newIplayerServiceGetOwnedGamesCmd(flags *rootFlags) *cobra.Command {
 			if flagIncludeExtendedAppinfo != false {
 				params["include_extended_appinfo"] = fmt.Sprintf("%v", flagIncludeExtendedAppinfo)
 			}
-			data, prov, err := resolveRead(c, flags, "iplayer-service", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "iplayer-service", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -71,14 +96,15 @@ func newIplayerServiceGetOwnedGamesCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -104,20 +130,13 @@ func newIplayerServiceGetOwnedGamesCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagKey, "key", "", "Access key")
 	cmd.Flags().StringVar(&flagSteamid, "steamid", "", "The player we're asking about")
-	_ = cmd.MarkFlagRequired("steamid")
 	cmd.Flags().BoolVar(&flagIncludeAppinfo, "include-appinfo", false, "true if we want additional details (name, icon) about each game")
-	_ = cmd.MarkFlagRequired("include-appinfo")
 	cmd.Flags().BoolVar(&flagIncludePlayedFreeGames, "include-played-free-games", false, "Free games are excluded by default. If this is set, free games the user has played will be returned.")
-	_ = cmd.MarkFlagRequired("include-played-free-games")
 	cmd.Flags().IntVar(&flagAppidsFilter, "appids-filter", 0, "if set, restricts result set to the passed in apps")
-	_ = cmd.MarkFlagRequired("appids-filter")
 	cmd.Flags().BoolVar(&flagIncludeFreeSub, "include-free-sub", false, "Some games are in the free sub, which are excluded by default.")
-	_ = cmd.MarkFlagRequired("include-free-sub")
 	cmd.Flags().BoolVar(&flagSkipUnvettedApps, "skip-unvetted-apps", false, "if set, skip unvetted store apps")
 	cmd.Flags().StringVar(&flagLanguage, "language", "", "Will return appinfo in this language")
-	_ = cmd.MarkFlagRequired("language")
 	cmd.Flags().BoolVar(&flagIncludeExtendedAppinfo, "include-extended-appinfo", false, "true if we want even more details (capsule, sortas, and capabilities) about each game. include_appinfo must also be...")
-	_ = cmd.MarkFlagRequired("include-extended-appinfo")
 
 	return cmd
 }

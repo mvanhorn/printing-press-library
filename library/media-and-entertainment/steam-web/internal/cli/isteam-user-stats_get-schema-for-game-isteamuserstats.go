@@ -17,11 +17,17 @@ func newIsteamUserStatsGetSchemaForGameIsteamuserstatsCmd(flags *rootFlags) *cob
 	var flagL string
 
 	cmd := &cobra.Command{
-		Use:     "get-schema-for-game-isteamuserstats",
-		Short:   "GetSchemaForGame operation of ISteamUserStats",
-		Hidden: true,
-		Example: "  steam-web-pp-cli isteam-user-stats get-schema-for-game-isteamuserstats",
+		Use:         "get-schema-for-game-isteamuserstats",
+		Short:       "GetSchemaForGame operation of ISteamUserStats",
+		Example:     "  steam-web-pp-cli isteam-user-stats get-schema-for-game-isteamuserstats --key your-token-here --appid 42",
+		Annotations: map[string]string{"pp:endpoint": "isteam-user-stats.get-schema-for-game-isteamuserstats", "pp:method": "GET", "pp:path": "/ISteamUserStats/GetSchemaForGame/v2", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("key") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "key")
+			}
+			if !cmd.Flags().Changed("appid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "appid")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -38,9 +44,9 @@ func newIsteamUserStatsGetSchemaForGameIsteamuserstatsCmd(flags *rootFlags) *cob
 			if flagL != "" {
 				params["l"] = fmt.Sprintf("%v", flagL)
 			}
-			data, prov, err := resolveRead(c, flags, "isteam-user-stats", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "isteam-user-stats", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -48,14 +54,15 @@ func newIsteamUserStatsGetSchemaForGameIsteamuserstatsCmd(flags *rootFlags) *cob
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -81,7 +88,6 @@ func newIsteamUserStatsGetSchemaForGameIsteamuserstatsCmd(flags *rootFlags) *cob
 	}
 	cmd.Flags().StringVar(&flagKey, "key", "", "access key")
 	cmd.Flags().StringVar(&flagAppid, "appid", "", "appid of game")
-	_ = cmd.MarkFlagRequired("appid")
 	cmd.Flags().StringVar(&flagL, "l", "", "localized language to return (english, french, etc.)")
 
 	return cmd

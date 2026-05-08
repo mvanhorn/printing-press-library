@@ -11,7 +11,6 @@ func newIsteamBroadcastCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "isteam-broadcast",
 		Short: "Manage isteam broadcast",
-		Hidden: true,
 	}
 
 	cmd.AddCommand(newIsteamBroadcastPlayerStatsCmd(flags))

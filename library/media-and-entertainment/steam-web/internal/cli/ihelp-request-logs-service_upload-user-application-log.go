@@ -21,11 +21,28 @@ func newIhelpRequestLogsServiceUploadUserApplicationLogCmd(flags *rootFlags) *co
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "upload-user-application-log",
-		Short:   "UploadUserApplicationLog operation of IHelpRequestLogsService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli ihelp-request-logs-service upload-user-application-log --log-contents example-value",
+		Use:         "upload-user-application-log",
+		Short:       "UploadUserApplicationLog operation of IHelpRequestLogsService",
+		Example:     "  steam-web-pp-cli ihelp-request-logs-service upload-user-application-log --log-contents example-value",
+		Annotations: map[string]string{"pp:endpoint": "ihelp-request-logs-service.upload-user-application-log", "pp:method": "POST", "pp:path": "/IHelpRequestLogsService/UploadUserApplicationLog/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				if !cmd.Flags().Changed("appid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "appid")
+				}
+				if !cmd.Flags().Changed("log-contents") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "log-contents")
+				}
+				if !cmd.Flags().Changed("log-type") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "log-type")
+				}
+				if !cmd.Flags().Changed("request-id") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "request-id")
+				}
+				if !cmd.Flags().Changed("version-string") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "version-string")
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -63,7 +80,7 @@ func newIhelpRequestLogsServiceUploadUserApplicationLogCmd(flags *rootFlags) *co
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -91,13 +108,15 @@ func newIhelpRequestLogsServiceUploadUserApplicationLogCmd(flags *rootFlags) *co
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",
@@ -127,15 +146,10 @@ func newIhelpRequestLogsServiceUploadUserApplicationLogCmd(flags *rootFlags) *co
 		},
 	}
 	cmd.Flags().IntVar(&bodyAppid, "appid", 0, "Appid")
-	_ = cmd.MarkFlagRequired("appid")
 	cmd.Flags().StringVar(&bodyLogContents, "log-contents", "", "Log contents")
-	_ = cmd.MarkFlagRequired("log-contents")
 	cmd.Flags().StringVar(&bodyLogType, "log-type", "", "Log type")
-	_ = cmd.MarkFlagRequired("log-type")
 	cmd.Flags().IntVar(&bodyRequestId, "request-id", 0, "Request id")
-	_ = cmd.MarkFlagRequired("request-id")
 	cmd.Flags().StringVar(&bodyVersionString, "version-string", "", "Version string")
-	_ = cmd.MarkFlagRequired("version-string")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

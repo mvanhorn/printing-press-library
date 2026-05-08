@@ -17,11 +17,20 @@ func newIstoreServiceGetRecommendedTagsForUserCmd(flags *rootFlags) *cobra.Comma
 	var flagFavorRarerTags bool
 
 	cmd := &cobra.Command{
-		Use:     "get-recommended-tags-for-user",
-		Short:   "GetRecommendedTagsForUser operation of IStoreService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli istore-service get-recommended-tags-for-user",
+		Use:         "get-recommended-tags-for-user",
+		Short:       "GetRecommendedTagsForUser operation of IStoreService",
+		Example:     "  steam-web-pp-cli istore-service get-recommended-tags-for-user --language example-value --country-code example-value --favor-rarer-tags true",
+		Annotations: map[string]string{"pp:endpoint": "istore-service.get-recommended-tags-for-user", "pp:method": "GET", "pp:path": "/IStoreService/GetRecommendedTagsForUser/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("language") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "language")
+			}
+			if !cmd.Flags().Changed("country-code") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "country-code")
+			}
+			if !cmd.Flags().Changed("favor-rarer-tags") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "favor-rarer-tags")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -38,9 +47,9 @@ func newIstoreServiceGetRecommendedTagsForUserCmd(flags *rootFlags) *cobra.Comma
 			if flagFavorRarerTags != false {
 				params["favor_rarer_tags"] = fmt.Sprintf("%v", flagFavorRarerTags)
 			}
-			data, prov, err := resolveRead(c, flags, "istore-service", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "istore-service", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -48,14 +57,15 @@ func newIstoreServiceGetRecommendedTagsForUserCmd(flags *rootFlags) *cobra.Comma
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -80,11 +90,8 @@ func newIstoreServiceGetRecommendedTagsForUserCmd(flags *rootFlags) *cobra.Comma
 		},
 	}
 	cmd.Flags().StringVar(&flagLanguage, "language", "", "Language")
-	_ = cmd.MarkFlagRequired("language")
 	cmd.Flags().StringVar(&flagCountryCode, "country-code", "", "Country code")
-	_ = cmd.MarkFlagRequired("country-code")
 	cmd.Flags().BoolVar(&flagFavorRarerTags, "favor-rarer-tags", false, "Biases tags towards tags that are less common. e.g. Favor Zombies over Action if the user plays the same number of...")
-	_ = cmd.MarkFlagRequired("favor-rarer-tags")
 
 	return cmd
 }

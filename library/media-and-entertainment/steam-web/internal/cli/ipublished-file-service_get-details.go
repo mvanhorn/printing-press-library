@@ -31,12 +31,54 @@ func newIpublishedFileServiceGetDetailsCmd(flags *rootFlags) *cobra.Command {
 	var flagAdminQuery bool
 
 	cmd := &cobra.Command{
-		Use:     "get-details",
-		Aliases: []string{"list"},
-		Short:   "GetDetails operation of IPublishedFileService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli ipublished-file-service get-details",
+		Use:         "get-details",
+		Aliases:     []string{"list"},
+		Short:       "GetDetails operation of IPublishedFileService",
+		Example:     "  steam-web-pp-cli ipublished-file-service get-details --key your-token-here --publishedfileids 42 --includetags true --includeadditionalpreviews true --includechildren true --includekvtags true --includevotes true --short-description true --includeforsaledata true --includemetadata true --return-playtime-stats 2026-01-15T09:00:00Z --appid 42 --strip-description-bbcode true --admin-query true",
+		Annotations: map[string]string{"pp:endpoint": "ipublished-file-service.get-details", "pp:method": "GET", "pp:path": "/IPublishedFileService/GetDetails/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("key") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "key")
+			}
+			if !cmd.Flags().Changed("publishedfileids") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "publishedfileids")
+			}
+			if !cmd.Flags().Changed("includetags") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "includetags")
+			}
+			if !cmd.Flags().Changed("includeadditionalpreviews") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "includeadditionalpreviews")
+			}
+			if !cmd.Flags().Changed("includechildren") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "includechildren")
+			}
+			if !cmd.Flags().Changed("includekvtags") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "includekvtags")
+			}
+			if !cmd.Flags().Changed("includevotes") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "includevotes")
+			}
+			if !cmd.Flags().Changed("short-description") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "short-description")
+			}
+			if !cmd.Flags().Changed("includeforsaledata") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "includeforsaledata")
+			}
+			if !cmd.Flags().Changed("includemetadata") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "includemetadata")
+			}
+			if !cmd.Flags().Changed("return-playtime-stats") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "return-playtime-stats")
+			}
+			if !cmd.Flags().Changed("appid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "appid")
+			}
+			if !cmd.Flags().Changed("strip-description-bbcode") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "strip-description-bbcode")
+			}
+			if !cmd.Flags().Changed("admin-query") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "admin-query")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -95,9 +137,9 @@ func newIpublishedFileServiceGetDetailsCmd(flags *rootFlags) *cobra.Command {
 			if flagAdminQuery != false {
 				params["admin_query"] = fmt.Sprintf("%v", flagAdminQuery)
 			}
-			data, prov, err := resolveRead(c, flags, "ipublished-file-service", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "ipublished-file-service", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -105,14 +147,15 @@ func newIpublishedFileServiceGetDetailsCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -138,34 +181,21 @@ func newIpublishedFileServiceGetDetailsCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagKey, "key", "", "Access key")
 	cmd.Flags().StringVar(&flagPublishedfileids, "publishedfileids", "", "Set of published file Ids to retrieve details for.")
-	_ = cmd.MarkFlagRequired("publishedfileids")
 	cmd.Flags().BoolVar(&flagIncludetags, "includetags", false, "If true, return tag information in the returned details.")
-	_ = cmd.MarkFlagRequired("includetags")
 	cmd.Flags().BoolVar(&flagIncludeadditionalpreviews, "includeadditionalpreviews", false, "If true, return preview information in the returned details.")
-	_ = cmd.MarkFlagRequired("includeadditionalpreviews")
 	cmd.Flags().BoolVar(&flagIncludechildren, "includechildren", false, "If true, return children in the returned details.")
-	_ = cmd.MarkFlagRequired("includechildren")
 	cmd.Flags().BoolVar(&flagIncludekvtags, "includekvtags", false, "If true, return key value tags in the returned details.")
-	_ = cmd.MarkFlagRequired("includekvtags")
 	cmd.Flags().BoolVar(&flagIncludevotes, "includevotes", false, "If true, return vote data in the returned details.")
-	_ = cmd.MarkFlagRequired("includevotes")
 	cmd.Flags().BoolVar(&flagShortDescription, "short-description", false, "If true, return a short description instead of the full description.")
-	_ = cmd.MarkFlagRequired("short-description")
 	cmd.Flags().BoolVar(&flagIncludeforsaledata, "includeforsaledata", false, "If true, return pricing data, if applicable.")
-	_ = cmd.MarkFlagRequired("includeforsaledata")
 	cmd.Flags().BoolVar(&flagIncludemetadata, "includemetadata", false, "If true, populate the metadata field.")
-	_ = cmd.MarkFlagRequired("includemetadata")
 	cmd.Flags().IntVar(&flagLanguage, "language", 0, "Specifies the localized text to return. Defaults to English.")
 	cmd.Flags().IntVar(&flagReturnPlaytimeStats, "return-playtime-stats", 0, "Return playtime stats for the specified number of days before today.")
-	_ = cmd.MarkFlagRequired("return-playtime-stats")
 	cmd.Flags().StringVar(&flagAppid, "appid", "", "Appid")
-	_ = cmd.MarkFlagRequired("appid")
 	cmd.Flags().BoolVar(&flagStripDescriptionBbcode, "strip-description-bbcode", false, "Strips BBCode from descriptions.")
-	_ = cmd.MarkFlagRequired("strip-description-bbcode")
 	cmd.Flags().StringVar(&flagDesiredRevision, "desired-revision", "", "Return the data for the specified revision.")
 	cmd.Flags().BoolVar(&flagIncludereactions, "includereactions", false, "If true, then reactions to items will be returned.")
 	cmd.Flags().BoolVar(&flagAdminQuery, "admin-query", false, "Admin tool is doing a query, return hidden items")
-	_ = cmd.MarkFlagRequired("admin-query")
 
 	return cmd
 }

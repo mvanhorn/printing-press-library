@@ -11,7 +11,6 @@ func newItfitems440Cmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "itfitems-440",
 		Short: "Manage itfitems 440",
-		Hidden: true,
 	}
 
 	cmd.AddCommand(newItfitems440GetGoldenWrenchesCmd(flags))

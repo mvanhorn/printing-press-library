@@ -28,11 +28,41 @@ func newIauthenticationServiceBeginAuthSessionViaCredentialsCmd(flags *rootFlags
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "begin-auth-session-via-credentials",
-		Aliases: []string{"create"},
-		Short:   "BeginAuthSessionViaCredentials operation of IAuthenticationService",
-		Example: "  steam-web-pp-cli iauthentication-service begin-auth-session-via-credentials --account-name example-resource",
+		Use:         "begin-auth-session-via-credentials",
+		Aliases:     []string{"create"},
+		Short:       "BeginAuthSessionViaCredentials operation of IAuthenticationService",
+		Example:     "  steam-web-pp-cli iauthentication-service begin-auth-session-via-credentials --account-name example-resource",
+		Annotations: map[string]string{"pp:endpoint": "iauthentication-service.begin-auth-session-via-credentials", "pp:method": "POST", "pp:path": "/IAuthenticationService/BeginAuthSessionViaCredentials/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				if !cmd.Flags().Changed("account-name") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "account-name")
+				}
+				if !cmd.Flags().Changed("device-details") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "device-details")
+				}
+				if !cmd.Flags().Changed("device-friendly-name") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "device-friendly-name")
+				}
+				if !cmd.Flags().Changed("encrypted-password") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "encrypted-password")
+				}
+				if !cmd.Flags().Changed("encryption-timestamp") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "encryption-timestamp")
+				}
+				if !cmd.Flags().Changed("guard-data") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "guard-data")
+				}
+				if !cmd.Flags().Changed("language") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "language")
+				}
+				if !cmd.Flags().Changed("platform-type") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "platform-type")
+				}
+				if !cmd.Flags().Changed("remember-login") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "remember-login")
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -91,7 +121,7 @@ func newIauthenticationServiceBeginAuthSessionViaCredentialsCmd(flags *rootFlags
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -119,13 +149,15 @@ func newIauthenticationServiceBeginAuthSessionViaCredentialsCmd(flags *rootFlags
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",
@@ -155,25 +187,16 @@ func newIauthenticationServiceBeginAuthSessionViaCredentialsCmd(flags *rootFlags
 		},
 	}
 	cmd.Flags().StringVar(&bodyAccountName, "account-name", "", "Account name")
-	_ = cmd.MarkFlagRequired("account-name")
 	cmd.Flags().StringVar(&bodyDeviceDetails, "device-details", "", "User-supplied details about the device attempting to sign in")
-	_ = cmd.MarkFlagRequired("device-details")
 	cmd.Flags().StringVar(&bodyDeviceFriendlyName, "device-friendly-name", "", "Device friendly name")
-	_ = cmd.MarkFlagRequired("device-friendly-name")
 	cmd.Flags().StringVar(&bodyEncryptedPassword, "encrypted-password", "", "password, RSA encrypted client side")
-	_ = cmd.MarkFlagRequired("encrypted-password")
 	cmd.Flags().IntVar(&bodyEncryptionTimestamp, "encryption-timestamp", 0, "timestamp to map to a key - STime")
-	_ = cmd.MarkFlagRequired("encryption-timestamp")
 	cmd.Flags().StringVar(&bodyGuardData, "guard-data", "", "steam guard data for client login")
-	_ = cmd.MarkFlagRequired("guard-data")
 	cmd.Flags().IntVar(&bodyLanguage, "language", 0, "Language")
-	_ = cmd.MarkFlagRequired("language")
 	cmd.Flags().StringVar(&bodyPersistence, "persistence", "", "whether we are requesting a persistent or an ephemeral session")
 	cmd.Flags().StringVar(&bodyPlatformType, "platform-type", "", "Platform type")
-	_ = cmd.MarkFlagRequired("platform-type")
 	cmd.Flags().IntVar(&bodyQosLevel, "qos-level", 0, "[ENetQOSLevel] client-specified priority for this auth attempt")
 	cmd.Flags().BoolVar(&bodyRememberLogin, "remember-login", false, "deprecated")
-	_ = cmd.MarkFlagRequired("remember-login")
 	cmd.Flags().StringVar(&bodyWebsiteId, "website-id", "", "(EMachineAuthWebDomain) identifier of client requesting auth")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 

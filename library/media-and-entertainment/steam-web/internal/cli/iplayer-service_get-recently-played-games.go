@@ -17,10 +17,20 @@ func newIplayerServiceGetRecentlyPlayedGamesCmd(flags *rootFlags) *cobra.Command
 	var flagCount int
 
 	cmd := &cobra.Command{
-		Use:     "get-recently-played-games",
-		Short:   "GetRecentlyPlayedGames operation of IPlayerService",
-		Example: "  steam-web-pp-cli iplayer-service get-recently-played-games",
+		Use:         "get-recently-played-games",
+		Short:       "GetRecentlyPlayedGames operation of IPlayerService",
+		Example:     "  steam-web-pp-cli iplayer-service get-recently-played-games --key your-token-here --steamid 42 --count 50",
+		Annotations: map[string]string{"pp:endpoint": "iplayer-service.get-recently-played-games", "pp:method": "GET", "pp:path": "/IPlayerService/GetRecentlyPlayedGames/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("key") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "key")
+			}
+			if !cmd.Flags().Changed("steamid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "steamid")
+			}
+			if !cmd.Flags().Changed("count") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "count")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -37,9 +47,9 @@ func newIplayerServiceGetRecentlyPlayedGamesCmd(flags *rootFlags) *cobra.Command
 			if flagCount != 0 {
 				params["count"] = fmt.Sprintf("%v", flagCount)
 			}
-			data, prov, err := resolveRead(c, flags, "iplayer-service", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "iplayer-service", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -47,14 +57,15 @@ func newIplayerServiceGetRecentlyPlayedGamesCmd(flags *rootFlags) *cobra.Command
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -80,9 +91,7 @@ func newIplayerServiceGetRecentlyPlayedGamesCmd(flags *rootFlags) *cobra.Command
 	}
 	cmd.Flags().StringVar(&flagKey, "key", "", "Access key")
 	cmd.Flags().StringVar(&flagSteamid, "steamid", "", "The player we're asking about")
-	_ = cmd.MarkFlagRequired("steamid")
 	cmd.Flags().IntVar(&flagCount, "count", 0, "The number of games to return (0/unset: all)")
-	_ = cmd.MarkFlagRequired("count")
 
 	return cmd
 }

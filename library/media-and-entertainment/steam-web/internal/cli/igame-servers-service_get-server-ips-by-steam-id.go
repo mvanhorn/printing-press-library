@@ -16,11 +16,17 @@ func newIgameServersServiceGetServerIpsBySteamIdCmd(flags *rootFlags) *cobra.Com
 	var flagServerSteamids string
 
 	cmd := &cobra.Command{
-		Use:     "get-server-ips-by-steam-id",
-		Short:   "GetServerIPsBySteamID operation of IGameServersService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli igame-servers-service get-server-ips-by-steam-id",
+		Use:         "get-server-ips-by-steam-id",
+		Short:       "GetServerIPsBySteamID operation of IGameServersService",
+		Example:     "  steam-web-pp-cli igame-servers-service get-server-ips-by-steam-id --key your-token-here --server-steamids 42",
+		Annotations: map[string]string{"pp:endpoint": "igame-servers-service.get-server-ips-by-steam-id", "pp:method": "GET", "pp:path": "/IGameServersService/GetServerIPsBySteamID/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("key") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "key")
+			}
+			if !cmd.Flags().Changed("server-steamids") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "server-steamids")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -34,9 +40,9 @@ func newIgameServersServiceGetServerIpsBySteamIdCmd(flags *rootFlags) *cobra.Com
 			if flagServerSteamids != "" {
 				params["server_steamids"] = fmt.Sprintf("%v", flagServerSteamids)
 			}
-			data, prov, err := resolveRead(c, flags, "igame-servers-service", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "igame-servers-service", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -44,14 +50,15 @@ func newIgameServersServiceGetServerIpsBySteamIdCmd(flags *rootFlags) *cobra.Com
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -77,7 +84,6 @@ func newIgameServersServiceGetServerIpsBySteamIdCmd(flags *rootFlags) *cobra.Com
 	}
 	cmd.Flags().StringVar(&flagKey, "key", "", "Access key")
 	cmd.Flags().StringVar(&flagServerSteamids, "server-steamids", "", "Server steamids")
-	_ = cmd.MarkFlagRequired("server-steamids")
 
 	return cmd
 }

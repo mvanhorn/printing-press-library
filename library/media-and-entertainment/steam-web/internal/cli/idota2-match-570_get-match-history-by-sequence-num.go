@@ -16,10 +16,10 @@ func newIdota2Match570GetMatchHistoryBySequenceNumCmd(flags *rootFlags) *cobra.C
 	var flagMatchesRequested int
 
 	cmd := &cobra.Command{
-		Use:     "get-match-history-by-sequence-num",
-		Short:   "GetMatchHistoryBySequenceNum operation of IDOTA2Match_570",
-		Hidden: true,
-		Example: "  steam-web-pp-cli idota2-match-570 get-match-history-by-sequence-num",
+		Use:         "get-match-history-by-sequence-num",
+		Short:       "GetMatchHistoryBySequenceNum operation of IDOTA2Match_570",
+		Example:     "  steam-web-pp-cli idota2-match-570 get-match-history-by-sequence-num",
+		Annotations: map[string]string{"pp:endpoint": "idota2-match-570.get-match-history-by-sequence-num", "pp:method": "GET", "pp:path": "/IDOTA2Match_570/GetMatchHistoryBySequenceNum/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -34,9 +34,9 @@ func newIdota2Match570GetMatchHistoryBySequenceNumCmd(flags *rootFlags) *cobra.C
 			if flagMatchesRequested != 0 {
 				params["matches_requested"] = fmt.Sprintf("%v", flagMatchesRequested)
 			}
-			data, prov, err := resolveRead(c, flags, "idota2-match-570", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "idota2-match-570", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -44,14 +44,15 @@ func newIdota2Match570GetMatchHistoryBySequenceNumCmd(flags *rootFlags) *cobra.C
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

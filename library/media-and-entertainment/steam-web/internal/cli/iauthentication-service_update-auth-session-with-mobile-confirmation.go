@@ -22,10 +22,25 @@ func newIauthenticationServiceUpdateAuthSessionWithMobileConfirmationCmd(flags *
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "update-auth-session-with-mobile-confirmation",
-		Short:   "UpdateAuthSessionWithMobileConfirmation operation of IAuthenticationService",
-		Example: "  steam-web-pp-cli iauthentication-service update-auth-session-with-mobile-confirmation --signature example-value",
+		Use:         "update-auth-session-with-mobile-confirmation",
+		Short:       "UpdateAuthSessionWithMobileConfirmation operation of IAuthenticationService",
+		Example:     "  steam-web-pp-cli iauthentication-service update-auth-session-with-mobile-confirmation --signature example-value",
+		Annotations: map[string]string{"pp:endpoint": "iauthentication-service.update-auth-session-with-mobile-confirmation", "pp:method": "POST", "pp:path": "/IAuthenticationService/UpdateAuthSessionWithMobileConfirmation/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				if !cmd.Flags().Changed("client-id") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "client-id")
+				}
+				if !cmd.Flags().Changed("signature") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "signature")
+				}
+				if !cmd.Flags().Changed("steamid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "steamid")
+				}
+				if !cmd.Flags().Changed("version") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "version")
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -66,7 +81,7 @@ func newIauthenticationServiceUpdateAuthSessionWithMobileConfirmationCmd(flags *
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -94,13 +109,15 @@ func newIauthenticationServiceUpdateAuthSessionWithMobileConfirmationCmd(flags *
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",
@@ -130,15 +147,11 @@ func newIauthenticationServiceUpdateAuthSessionWithMobileConfirmationCmd(flags *
 		},
 	}
 	cmd.Flags().IntVar(&bodyClientId, "client-id", 0, "pending client ID, from scanned QR Code")
-	_ = cmd.MarkFlagRequired("client-id")
 	cmd.Flags().BoolVar(&bodyConfirm, "confirm", false, "Whether to confirm the login (true) or deny the login (false)")
 	cmd.Flags().StringVar(&bodyPersistence, "persistence", "", "whether we are requesting a persistent or an ephemeral session")
 	cmd.Flags().StringVar(&bodySignature, "signature", "", "HMAC digest over {version,client_id,steamid} via user's private key")
-	_ = cmd.MarkFlagRequired("signature")
 	cmd.Flags().IntVar(&bodySteamid, "steamid", 0, "user who wants to login")
-	_ = cmd.MarkFlagRequired("steamid")
 	cmd.Flags().IntVar(&bodyVersion, "version", 0, "version field")
-	_ = cmd.MarkFlagRequired("version")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

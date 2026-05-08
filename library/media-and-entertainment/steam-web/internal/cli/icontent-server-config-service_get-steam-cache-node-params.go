@@ -17,12 +17,21 @@ func newIcontentServerConfigServiceGetSteamCacheNodeParamsCmd(flags *rootFlags) 
 	var flagCacheKey string
 
 	cmd := &cobra.Command{
-		Use:     "get-steam-cache-node-params",
-		Aliases: []string{"list"},
-		Short:   "GetSteamCacheNodeParams operation of IContentServerConfigService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli icontent-server-config-service get-steam-cache-node-params",
+		Use:         "get-steam-cache-node-params",
+		Aliases:     []string{"list"},
+		Short:       "GetSteamCacheNodeParams operation of IContentServerConfigService",
+		Example:     "  steam-web-pp-cli icontent-server-config-service get-steam-cache-node-params --key your-token-here --cache-id 550e8400-e29b-41d4-a716-446655440000 --cache-key your-token-here",
+		Annotations: map[string]string{"pp:endpoint": "icontent-server-config-service.get-steam-cache-node-params", "pp:method": "GET", "pp:path": "/IContentServerConfigService/GetSteamCacheNodeParams/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("key") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "key")
+			}
+			if !cmd.Flags().Changed("cache-id") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "cache-id")
+			}
+			if !cmd.Flags().Changed("cache-key") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "cache-key")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -39,9 +48,9 @@ func newIcontentServerConfigServiceGetSteamCacheNodeParamsCmd(flags *rootFlags) 
 			if flagCacheKey != "" {
 				params["cache_key"] = fmt.Sprintf("%v", flagCacheKey)
 			}
-			data, prov, err := resolveRead(c, flags, "icontent-server-config-service", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "icontent-server-config-service", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -49,14 +58,15 @@ func newIcontentServerConfigServiceGetSteamCacheNodeParamsCmd(flags *rootFlags) 
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -82,9 +92,7 @@ func newIcontentServerConfigServiceGetSteamCacheNodeParamsCmd(flags *rootFlags) 
 	}
 	cmd.Flags().StringVar(&flagKey, "key", "", "Access key")
 	cmd.Flags().StringVar(&flagCacheId, "cache-id", "", "Unique ID number")
-	_ = cmd.MarkFlagRequired("cache-id")
 	cmd.Flags().StringVar(&flagCacheKey, "cache-key", "", "Valid current cache API key")
-	_ = cmd.MarkFlagRequired("cache-key")
 
 	return cmd
 }

@@ -11,7 +11,6 @@ func newIcsgoservers730Cmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "icsgoservers-730",
 		Short: "Manage icsgoservers 730",
-		Hidden: true,
 	}
 
 	cmd.AddCommand(newIcsgoservers730GetGameMapsPlaytimeCmd(flags))

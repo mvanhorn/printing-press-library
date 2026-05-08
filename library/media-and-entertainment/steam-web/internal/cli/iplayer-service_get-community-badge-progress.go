@@ -17,10 +17,20 @@ func newIplayerServiceGetCommunityBadgeProgressCmd(flags *rootFlags) *cobra.Comm
 	var flagBadgeid string
 
 	cmd := &cobra.Command{
-		Use:     "get-community-badge-progress",
-		Short:   "GetCommunityBadgeProgress operation of IPlayerService",
-		Example: "  steam-web-pp-cli iplayer-service get-community-badge-progress",
+		Use:         "get-community-badge-progress",
+		Short:       "GetCommunityBadgeProgress operation of IPlayerService",
+		Example:     "  steam-web-pp-cli iplayer-service get-community-badge-progress --key your-token-here --steamid 42 --badgeid 42",
+		Annotations: map[string]string{"pp:endpoint": "iplayer-service.get-community-badge-progress", "pp:method": "GET", "pp:path": "/IPlayerService/GetCommunityBadgeProgress/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("key") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "key")
+			}
+			if !cmd.Flags().Changed("steamid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "steamid")
+			}
+			if !cmd.Flags().Changed("badgeid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "badgeid")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -37,9 +47,9 @@ func newIplayerServiceGetCommunityBadgeProgressCmd(flags *rootFlags) *cobra.Comm
 			if flagBadgeid != "" {
 				params["badgeid"] = fmt.Sprintf("%v", flagBadgeid)
 			}
-			data, prov, err := resolveRead(c, flags, "iplayer-service", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "iplayer-service", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -47,14 +57,15 @@ func newIplayerServiceGetCommunityBadgeProgressCmd(flags *rootFlags) *cobra.Comm
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -80,9 +91,7 @@ func newIplayerServiceGetCommunityBadgeProgressCmd(flags *rootFlags) *cobra.Comm
 	}
 	cmd.Flags().StringVar(&flagKey, "key", "", "Access key")
 	cmd.Flags().StringVar(&flagSteamid, "steamid", "", "The player we're asking about")
-	_ = cmd.MarkFlagRequired("steamid")
 	cmd.Flags().StringVar(&flagBadgeid, "badgeid", "", "The badge we're asking about")
-	_ = cmd.MarkFlagRequired("badgeid")
 
 	return cmd
 }

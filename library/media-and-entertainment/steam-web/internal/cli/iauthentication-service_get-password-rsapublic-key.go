@@ -15,11 +15,15 @@ func newIauthenticationServiceGetPasswordRsapublicKeyCmd(flags *rootFlags) *cobr
 	var flagAccountName string
 
 	cmd := &cobra.Command{
-		Use:     "get-password-rsapublic-key",
-		Aliases: []string{"list"},
-		Short:   "GetPasswordRSAPublicKey operation of IAuthenticationService",
-		Example: "  steam-web-pp-cli iauthentication-service get-password-rsapublic-key",
+		Use:         "get-password-rsapublic-key",
+		Aliases:     []string{"list"},
+		Short:       "GetPasswordRSAPublicKey operation of IAuthenticationService",
+		Example:     "  steam-web-pp-cli iauthentication-service get-password-rsapublic-key --account-name example-resource",
+		Annotations: map[string]string{"pp:endpoint": "iauthentication-service.get-password-rsapublic-key", "pp:method": "GET", "pp:path": "/IAuthenticationService/GetPasswordRSAPublicKey/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("account-name") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "account-name")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -30,9 +34,9 @@ func newIauthenticationServiceGetPasswordRsapublicKeyCmd(flags *rootFlags) *cobr
 			if flagAccountName != "" {
 				params["account_name"] = fmt.Sprintf("%v", flagAccountName)
 			}
-			data, prov, err := resolveRead(c, flags, "iauthentication-service", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "iauthentication-service", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -40,14 +44,15 @@ func newIauthenticationServiceGetPasswordRsapublicKeyCmd(flags *rootFlags) *cobr
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -72,7 +77,6 @@ func newIauthenticationServiceGetPasswordRsapublicKeyCmd(flags *rootFlags) *cobr
 		},
 	}
 	cmd.Flags().StringVar(&flagAccountName, "account-name", "", "user-provided account name to get an RSA key for")
-	_ = cmd.MarkFlagRequired("account-name")
 
 	return cmd
 }

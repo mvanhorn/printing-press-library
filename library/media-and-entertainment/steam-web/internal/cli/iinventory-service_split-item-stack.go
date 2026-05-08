@@ -21,11 +21,28 @@ func newIinventoryServiceSplitItemStackCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "split-item-stack",
-		Short:   "SplitItemStack operation of IInventoryService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli iinventory-service split-item-stack --key your-token-here",
+		Use:         "split-item-stack",
+		Short:       "SplitItemStack operation of IInventoryService",
+		Example:     "  steam-web-pp-cli iinventory-service split-item-stack --key your-token-here",
+		Annotations: map[string]string{"pp:endpoint": "iinventory-service.split-item-stack", "pp:method": "POST", "pp:path": "/IInventoryService/SplitItemStack/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				if !cmd.Flags().Changed("appid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "appid")
+				}
+				if !cmd.Flags().Changed("itemid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "itemid")
+				}
+				if !cmd.Flags().Changed("key") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "key")
+				}
+				if !cmd.Flags().Changed("quantity") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "quantity")
+				}
+				if !cmd.Flags().Changed("steamid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "steamid")
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -63,7 +80,7 @@ func newIinventoryServiceSplitItemStackCmd(flags *rootFlags) *cobra.Command {
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -91,13 +108,15 @@ func newIinventoryServiceSplitItemStackCmd(flags *rootFlags) *cobra.Command {
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",
@@ -127,14 +146,10 @@ func newIinventoryServiceSplitItemStackCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().IntVar(&bodyAppid, "appid", 0, "Appid")
-	_ = cmd.MarkFlagRequired("appid")
 	cmd.Flags().IntVar(&bodyItemid, "itemid", 0, "Itemid")
-	_ = cmd.MarkFlagRequired("itemid")
 	cmd.Flags().StringVar(&bodyKey, "key", "", "Access key")
 	cmd.Flags().IntVar(&bodyQuantity, "quantity", 0, "Quantity")
-	_ = cmd.MarkFlagRequired("quantity")
 	cmd.Flags().IntVar(&bodySteamid, "steamid", 0, "Steamid")
-	_ = cmd.MarkFlagRequired("steamid")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

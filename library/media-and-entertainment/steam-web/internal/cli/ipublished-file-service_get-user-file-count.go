@@ -16,7 +16,7 @@ func newIpublishedFileServiceGetUserFileCountCmd(flags *rootFlags) *cobra.Comman
 	var flagSteamid string
 	var flagAppid string
 	var flagShortcutid string
-	var flagPage int
+	var flagPage string
 	var flagNumperpage int
 	var flagType string
 	var flagSortmethod string
@@ -50,11 +50,83 @@ func newIpublishedFileServiceGetUserFileCountCmd(flags *rootFlags) *cobra.Comman
 	var flagReturnApps bool
 
 	cmd := &cobra.Command{
-		Use:     "get-user-file-count",
-		Short:   "GetUserFileCount operation of IPublishedFileService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli ipublished-file-service get-user-file-count",
+		Use:         "get-user-file-count",
+		Short:       "GetUserFileCount operation of IPublishedFileService",
+		Example:     "  steam-web-pp-cli ipublished-file-service get-user-file-count --key your-token-here --steamid 42 --appid 42 --shortcutid 42 --privacy 42 --requiredtags example-value --excludedtags example-value --required-kv-tags example-value --filetype 42 --creator-appid 42 --match-cloud-filename example-resource --taggroups example-value --excluded-content-descriptors example-value --admin-query true --totalonly true --ids-only true --return-tags true --return-previews true --return-children true --return-for-sale-data true --return-playtime-stats 2026-01-15T09:00:00Z --strip-description-bbcode true --startindex-override 42 --return-apps true",
+		Annotations: map[string]string{"pp:endpoint": "ipublished-file-service.get-user-file-count", "pp:method": "GET", "pp:path": "/IPublishedFileService/GetUserFileCount/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("key") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "key")
+			}
+			if !cmd.Flags().Changed("steamid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "steamid")
+			}
+			if !cmd.Flags().Changed("appid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "appid")
+			}
+			if !cmd.Flags().Changed("shortcutid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "shortcutid")
+			}
+			if !cmd.Flags().Changed("privacy") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "privacy")
+			}
+			if !cmd.Flags().Changed("requiredtags") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "requiredtags")
+			}
+			if !cmd.Flags().Changed("excludedtags") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "excludedtags")
+			}
+			if !cmd.Flags().Changed("required-kv-tags") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "required-kv-tags")
+			}
+			if !cmd.Flags().Changed("filetype") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "filetype")
+			}
+			if !cmd.Flags().Changed("creator-appid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "creator-appid")
+			}
+			if !cmd.Flags().Changed("match-cloud-filename") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "match-cloud-filename")
+			}
+			if !cmd.Flags().Changed("taggroups") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "taggroups")
+			}
+			if !cmd.Flags().Changed("excluded-content-descriptors") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "excluded-content-descriptors")
+			}
+			if !cmd.Flags().Changed("admin-query") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "admin-query")
+			}
+			if !cmd.Flags().Changed("totalonly") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "totalonly")
+			}
+			if !cmd.Flags().Changed("ids-only") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "ids-only")
+			}
+			if !cmd.Flags().Changed("return-tags") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "return-tags")
+			}
+			if !cmd.Flags().Changed("return-previews") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "return-previews")
+			}
+			if !cmd.Flags().Changed("return-children") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "return-children")
+			}
+			if !cmd.Flags().Changed("return-for-sale-data") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "return-for-sale-data")
+			}
+			if !cmd.Flags().Changed("return-playtime-stats") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "return-playtime-stats")
+			}
+			if !cmd.Flags().Changed("strip-description-bbcode") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "strip-description-bbcode")
+			}
+			if !cmd.Flags().Changed("startindex-override") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "startindex-override")
+			}
+			if !cmd.Flags().Changed("return-apps") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "return-apps")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -74,7 +146,7 @@ func newIpublishedFileServiceGetUserFileCountCmd(flags *rootFlags) *cobra.Comman
 			if flagShortcutid != "" {
 				params["shortcutid"] = fmt.Sprintf("%v", flagShortcutid)
 			}
-			if flagPage != 0 {
+			if flagPage != "" {
 				params["page"] = fmt.Sprintf("%v", flagPage)
 			}
 			if flagNumperpage != 0 {
@@ -170,9 +242,9 @@ func newIpublishedFileServiceGetUserFileCountCmd(flags *rootFlags) *cobra.Comman
 			if flagReturnApps != false {
 				params["return_apps"] = fmt.Sprintf("%v", flagReturnApps)
 			}
-			data, prov, err := resolveRead(c, flags, "ipublished-file-service", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "ipublished-file-service", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -180,14 +252,15 @@ func newIpublishedFileServiceGetUserFileCountCmd(flags *rootFlags) *cobra.Comman
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -213,63 +286,40 @@ func newIpublishedFileServiceGetUserFileCountCmd(flags *rootFlags) *cobra.Comman
 	}
 	cmd.Flags().StringVar(&flagKey, "key", "", "Access key")
 	cmd.Flags().StringVar(&flagSteamid, "steamid", "", "Steam ID of the user whose files are being requested.")
-	_ = cmd.MarkFlagRequired("steamid")
 	cmd.Flags().StringVar(&flagAppid, "appid", "", "App Id of the app that the files were published to.")
-	_ = cmd.MarkFlagRequired("appid")
 	cmd.Flags().StringVar(&flagShortcutid, "shortcutid", "", "(Optional) Shortcut Id to retrieve published files from.")
-	_ = cmd.MarkFlagRequired("shortcutid")
-	cmd.Flags().IntVar(&flagPage, "page", 0, "(Optional) Starting page for results.")
+	cmd.Flags().StringVar(&flagPage, "page", "", "(Optional) Starting page for results.")
 	cmd.Flags().IntVar(&flagNumperpage, "numperpage", 0, "(Optional) The number of results, per page to return.")
 	cmd.Flags().StringVar(&flagType, "type", "", "(Optional) Type of files to be returned.")
 	cmd.Flags().StringVar(&flagSortmethod, "sortmethod", "", "(Optional) Sorting method to use on returned values.")
 	cmd.Flags().IntVar(&flagPrivacy, "privacy", 0, "(optional) Filter by privacy settings.")
-	_ = cmd.MarkFlagRequired("privacy")
 	cmd.Flags().StringVar(&flagRequiredtags, "requiredtags", "", "(Optional) Tags that must be present on a published file to satisfy the query.")
-	_ = cmd.MarkFlagRequired("requiredtags")
 	cmd.Flags().StringVar(&flagExcludedtags, "excludedtags", "", "(Optional) Tags that must NOT be present on a published file to satisfy the query.")
-	_ = cmd.MarkFlagRequired("excludedtags")
 	cmd.Flags().StringVar(&flagRequiredKvTags, "required-kv-tags", "", "Required key-value tags to match on.")
-	_ = cmd.MarkFlagRequired("required-kv-tags")
 	cmd.Flags().IntVar(&flagFiletype, "filetype", 0, "(Optional) File type to match files to.")
-	_ = cmd.MarkFlagRequired("filetype")
 	cmd.Flags().StringVar(&flagCreatorAppid, "creator-appid", "", "App Id of the app that published the files, only matched if specified.")
-	_ = cmd.MarkFlagRequired("creator-appid")
 	cmd.Flags().StringVar(&flagMatchCloudFilename, "match-cloud-filename", "", "Match this cloud filename if specified.")
-	_ = cmd.MarkFlagRequired("match-cloud-filename")
 	cmd.Flags().IntVar(&flagCacheMaxAgeSeconds, "cache-max-age-seconds", 0, "Allow stale data to be returned for the specified number of seconds.")
 	cmd.Flags().IntVar(&flagLanguage, "language", 0, "Specifies the localized text to return. Defaults to English.")
 	cmd.Flags().StringVar(&flagTaggroups, "taggroups", "", "(Optional) At least one of the tags must be present on a published file to satisfy the query.")
-	_ = cmd.MarkFlagRequired("taggroups")
 	cmd.Flags().StringVar(&flagExcludedContentDescriptors, "excluded-content-descriptors", "", "(Optional) Filter out items that have these content descriptors.")
-	_ = cmd.MarkFlagRequired("excluded-content-descriptors")
 	cmd.Flags().BoolVar(&flagAdminQuery, "admin-query", false, "Admin tool is doing a query, return hidden items")
-	_ = cmd.MarkFlagRequired("admin-query")
 	cmd.Flags().BoolVar(&flagTotalonly, "totalonly", false, "(Optional) If true, only return the total number of files that satisfy this query.")
-	_ = cmd.MarkFlagRequired("totalonly")
 	cmd.Flags().BoolVar(&flagIdsOnly, "ids-only", false, "(Optional) If true, only return the published file ids of files that satisfy this query.")
-	_ = cmd.MarkFlagRequired("ids-only")
 	cmd.Flags().BoolVar(&flagReturnVoteData, "return-vote-data", false, "Return vote data")
 	cmd.Flags().BoolVar(&flagReturnTags, "return-tags", false, "Return tags in the file details")
-	_ = cmd.MarkFlagRequired("return-tags")
 	cmd.Flags().BoolVar(&flagReturnKvTags, "return-kv-tags", false, "Return key-value tags in the file details")
 	cmd.Flags().BoolVar(&flagReturnPreviews, "return-previews", false, "Return preview image and video details in the file details")
-	_ = cmd.MarkFlagRequired("return-previews")
 	cmd.Flags().BoolVar(&flagReturnChildren, "return-children", false, "Return child item ids in the file details")
-	_ = cmd.MarkFlagRequired("return-children")
 	cmd.Flags().BoolVar(&flagReturnShortDescription, "return-short-description", false, "Populate the short_description field instead of file_description")
 	cmd.Flags().BoolVar(&flagReturnForSaleData, "return-for-sale-data", false, "Return pricing information, if applicable")
-	_ = cmd.MarkFlagRequired("return-for-sale-data")
 	cmd.Flags().BoolVar(&flagReturnMetadata, "return-metadata", false, "Populate the metadata field")
 	cmd.Flags().IntVar(&flagReturnPlaytimeStats, "return-playtime-stats", 0, "Return playtime stats for the specified number of days before today.")
-	_ = cmd.MarkFlagRequired("return-playtime-stats")
 	cmd.Flags().BoolVar(&flagStripDescriptionBbcode, "strip-description-bbcode", false, "Strips BBCode from descriptions.")
-	_ = cmd.MarkFlagRequired("strip-description-bbcode")
 	cmd.Flags().BoolVar(&flagReturnReactions, "return-reactions", false, "If true, then reactions to items will be returned.")
 	cmd.Flags().IntVar(&flagStartindexOverride, "startindex-override", 0, "Backwards compatible for the client.")
-	_ = cmd.MarkFlagRequired("startindex-override")
 	cmd.Flags().StringVar(&flagDesiredRevision, "desired-revision", "", "Return the data for the specified revision.")
 	cmd.Flags().BoolVar(&flagReturnApps, "return-apps", false, "Return list of apps the items belong to")
-	_ = cmd.MarkFlagRequired("return-apps")
 
 	return cmd
 }

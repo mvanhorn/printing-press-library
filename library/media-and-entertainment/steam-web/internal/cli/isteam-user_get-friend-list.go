@@ -17,12 +17,18 @@ func newIsteamUserGetFriendListCmd(flags *rootFlags) *cobra.Command {
 	var flagRelationship string
 
 	cmd := &cobra.Command{
-		Use:     "get-friend-list",
-		Aliases: []string{"list"},
-		Short:   "GetFriendList operation of ISteamUser",
-		Hidden: true,
-		Example: "  steam-web-pp-cli isteam-user get-friend-list",
+		Use:         "get-friend-list",
+		Aliases:     []string{"list"},
+		Short:       "GetFriendList operation of ISteamUser",
+		Example:     "  steam-web-pp-cli isteam-user get-friend-list --key your-token-here --steamid 42",
+		Annotations: map[string]string{"pp:endpoint": "isteam-user.get-friend-list", "pp:method": "GET", "pp:path": "/ISteamUser/GetFriendList/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("key") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "key")
+			}
+			if !cmd.Flags().Changed("steamid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "steamid")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -39,9 +45,9 @@ func newIsteamUserGetFriendListCmd(flags *rootFlags) *cobra.Command {
 			if flagRelationship != "" {
 				params["relationship"] = fmt.Sprintf("%v", flagRelationship)
 			}
-			data, prov, err := resolveRead(c, flags, "isteam-user", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "isteam-user", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -49,14 +55,15 @@ func newIsteamUserGetFriendListCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -82,7 +89,6 @@ func newIsteamUserGetFriendListCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagKey, "key", "", "access key")
 	cmd.Flags().StringVar(&flagSteamid, "steamid", "", "SteamID of user")
-	_ = cmd.MarkFlagRequired("steamid")
 	cmd.Flags().StringVar(&flagRelationship, "relationship", "", "relationship type (ex: friend)")
 
 	return cmd

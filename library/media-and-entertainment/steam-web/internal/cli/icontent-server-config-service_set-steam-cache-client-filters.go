@@ -21,12 +21,29 @@ func newIcontentServerConfigServiceSetSteamCacheClientFiltersCmd(flags *rootFlag
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "set-steam-cache-client-filters",
-		Aliases: []string{"create"},
-		Short:   "SetSteamCacheClientFilters operation of IContentServerConfigService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli icontent-server-config-service set-steam-cache-client-filters --allowed-ip-blocks example-value",
+		Use:         "set-steam-cache-client-filters",
+		Aliases:     []string{"create"},
+		Short:       "SetSteamCacheClientFilters operation of IContentServerConfigService",
+		Example:     "  steam-web-pp-cli icontent-server-config-service set-steam-cache-client-filters --allowed-ip-blocks example-value",
+		Annotations: map[string]string{"pp:endpoint": "icontent-server-config-service.set-steam-cache-client-filters", "pp:method": "POST", "pp:path": "/IContentServerConfigService/SetSteamCacheClientFilters/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				if !cmd.Flags().Changed("allowed-ip-blocks") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "allowed-ip-blocks")
+				}
+				if !cmd.Flags().Changed("cache-id") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "cache-id")
+				}
+				if !cmd.Flags().Changed("cache-key") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "cache-key")
+				}
+				if !cmd.Flags().Changed("change-notes") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "change-notes")
+				}
+				if !cmd.Flags().Changed("key") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "key")
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -64,7 +81,7 @@ func newIcontentServerConfigServiceSetSteamCacheClientFiltersCmd(flags *rootFlag
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -92,13 +109,15 @@ func newIcontentServerConfigServiceSetSteamCacheClientFiltersCmd(flags *rootFlag
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",
@@ -128,13 +147,9 @@ func newIcontentServerConfigServiceSetSteamCacheClientFiltersCmd(flags *rootFlag
 		},
 	}
 	cmd.Flags().StringVar(&bodyAllowedIpBlocks, "allowed-ip-blocks", "", "comma-separated list of allowed IP address blocks in CIDR format - blank to clear unfilter")
-	_ = cmd.MarkFlagRequired("allowed-ip-blocks")
 	cmd.Flags().IntVar(&bodyCacheId, "cache-id", 0, "Unique ID number")
-	_ = cmd.MarkFlagRequired("cache-id")
 	cmd.Flags().StringVar(&bodyCacheKey, "cache-key", "", "Valid current cache API key")
-	_ = cmd.MarkFlagRequired("cache-key")
 	cmd.Flags().StringVar(&bodyChangeNotes, "change-notes", "", "Notes")
-	_ = cmd.MarkFlagRequired("change-notes")
 	cmd.Flags().StringVar(&bodyKey, "key", "", "Access key")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 

@@ -18,12 +18,20 @@ func newIsteamRemoteStorageGetCollectionDetailsCmd(flags *rootFlags) *cobra.Comm
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "get-collection-details",
-		Aliases: []string{"create"},
-		Short:   "GetCollectionDetails operation of ISteamRemoteStorage",
-		Hidden: true,
-		Example: "  steam-web-pp-cli isteam-remote-storage get-collection-details",
+		Use:         "get-collection-details",
+		Aliases:     []string{"create"},
+		Short:       "GetCollectionDetails operation of ISteamRemoteStorage",
+		Example:     "  steam-web-pp-cli isteam-remote-storage get-collection-details",
+		Annotations: map[string]string{"pp:endpoint": "isteam-remote-storage.get-collection-details", "pp:method": "POST", "pp:path": "/ISteamRemoteStorage/GetCollectionDetails/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				if !cmd.Flags().Changed("collectioncount") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "collectioncount")
+				}
+				if !cmd.Flags().Changed("publishedfileids-0") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "publishedfileids-0")
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -52,7 +60,7 @@ func newIsteamRemoteStorageGetCollectionDetailsCmd(flags *rootFlags) *cobra.Comm
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -80,13 +88,15 @@ func newIsteamRemoteStorageGetCollectionDetailsCmd(flags *rootFlags) *cobra.Comm
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",
@@ -116,9 +126,7 @@ func newIsteamRemoteStorageGetCollectionDetailsCmd(flags *rootFlags) *cobra.Comm
 		},
 	}
 	cmd.Flags().IntVar(&bodyCollectioncount, "collectioncount", 0, "Number of collections being requested")
-	_ = cmd.MarkFlagRequired("collectioncount")
 	cmd.Flags().IntVar(&bodyPublishedfileids0, "publishedfileids-0", 0, "collection ids to get the details for")
-	_ = cmd.MarkFlagRequired("publishedfileids-0")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

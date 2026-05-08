@@ -24,11 +24,37 @@ func newIcsgotournaments730UploadTournamentPredictionsCmd(flags *rootFlags) *cob
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "upload-tournament-predictions",
-		Short:   "UploadTournamentPredictions operation of ICSGOTournaments_730",
-		Hidden: true,
-		Example: "  steam-web-pp-cli icsgotournaments-730 upload-tournament-predictions --steamidkey your-token-here",
+		Use:         "upload-tournament-predictions",
+		Short:       "UploadTournamentPredictions operation of ICSGOTournaments_730",
+		Example:     "  steam-web-pp-cli icsgotournaments-730 upload-tournament-predictions --steamidkey your-token-here",
+		Annotations: map[string]string{"pp:endpoint": "icsgotournaments-730.upload-tournament-predictions", "pp:method": "POST", "pp:path": "/ICSGOTournaments_730/UploadTournamentPredictions/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				if !cmd.Flags().Changed("event") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "event")
+				}
+				if !cmd.Flags().Changed("groupid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "groupid")
+				}
+				if !cmd.Flags().Changed("index") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "index")
+				}
+				if !cmd.Flags().Changed("itemid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "itemid")
+				}
+				if !cmd.Flags().Changed("pickid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "pickid")
+				}
+				if !cmd.Flags().Changed("sectionid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "sectionid")
+				}
+				if !cmd.Flags().Changed("steamid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "steamid")
+				}
+				if !cmd.Flags().Changed("steamidkey") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "steamidkey")
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -75,7 +101,7 @@ func newIcsgotournaments730UploadTournamentPredictionsCmd(flags *rootFlags) *cob
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -103,13 +129,15 @@ func newIcsgotournaments730UploadTournamentPredictionsCmd(flags *rootFlags) *cob
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",
@@ -139,21 +167,13 @@ func newIcsgotournaments730UploadTournamentPredictionsCmd(flags *rootFlags) *cob
 		},
 	}
 	cmd.Flags().IntVar(&bodyEvent, "event", 0, "The event ID")
-	_ = cmd.MarkFlagRequired("event")
 	cmd.Flags().IntVar(&bodyGroupid, "groupid", 0, "Event group id")
-	_ = cmd.MarkFlagRequired("groupid")
 	cmd.Flags().IntVar(&bodyIndex, "index", 0, "Index in group")
-	_ = cmd.MarkFlagRequired("index")
 	cmd.Flags().IntVar(&bodyItemid, "itemid", 0, "ItemID to lock in for the pick")
-	_ = cmd.MarkFlagRequired("itemid")
 	cmd.Flags().IntVar(&bodyPickid, "pickid", 0, "Pick ID to select")
-	_ = cmd.MarkFlagRequired("pickid")
 	cmd.Flags().IntVar(&bodySectionid, "sectionid", 0, "Event section id")
-	_ = cmd.MarkFlagRequired("sectionid")
 	cmd.Flags().IntVar(&bodySteamid, "steamid", 0, "The SteamID of the user inventory")
-	_ = cmd.MarkFlagRequired("steamid")
 	cmd.Flags().StringVar(&bodySteamidkey, "steamidkey", "", "Authentication obtained from the SteamID")
-	_ = cmd.MarkFlagRequired("steamidkey")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

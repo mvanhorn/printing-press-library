@@ -20,8 +20,9 @@ func newTailCmd(flags *rootFlags) *cobra.Command {
 	var follow bool
 
 	cmd := &cobra.Command{
-		Use:   "tail [resource]",
-		Short: "Stream live changes by polling the API at regular intervals",
+		Use:         "tail [resource]",
+		Short:       "Stream live changes by polling the API at regular intervals",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Long: `Tail streams live data changes by polling the API at configurable intervals.
 Events are emitted as NDJSON to stdout for piping to other tools.
 Gracefully shuts down on SIGTERM/SIGINT.
@@ -37,27 +38,28 @@ native streaming instead of polling.`,
   # Pipe to jq for filtering
   steam-web-pp-cli tail events --interval 30s | jq 'select(.type == "error")'`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) > 0 {
+				resource = args[0]
+			}
+			// JSON help envelope: when called with no resource AND --json,
+			// surface the list of known resources so agents can discover
+			// what to pass without parsing a usage error message.
+			// Envelope: {resources: [...], note}.
+			if resource == "" && flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"resources": tailKnownResources(),
+					"note":      "tail requires a resource name; pass one of the listed names",
+				}, flags)
+			}
+			if resource == "" {
+				return fmt.Errorf("resource name required (e.g., 'tail messages')")
+			}
+
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 			c.NoCache = true
-
-			if len(args) > 0 {
-				resource = args[0]
-			}
-			if resource == "" {
-				if flags.dryRun || flags.asJSON {
-					enc := json.NewEncoder(cmd.OutOrStdout())
-					enc.SetIndent("", "  ")
-					return enc.Encode(map[string]any{
-						"command": "tail",
-						"usage":   "tail <resource> [--interval 10s]",
-						"dry_run": true,
-					})
-				}
-				return cmd.Help()
-			}
 
 			path := "/" + resource
 
@@ -95,6 +97,68 @@ native streaming instead of polling.`,
 	cmd.Flags().BoolVar(&follow, "follow", true, "Keep running (set --follow=false for single poll)")
 
 	return cmd
+}
+
+// tailKnownResources returns the resource names this CLI exposes, so the
+// no-arg JSON help envelope can list them without depending on sync's
+// defaultSyncResources (which only exists when sync is generated).
+func tailKnownResources() []string {
+	return []string{
+		"iauthentication-service",
+		"ibroadcast-service",
+		"icheat-reporting-service",
+		"iclient-stats-1046930",
+		"icontent-server-config-service",
+		"icontent-server-directory-service",
+		"icsgoplayers-730",
+		"icsgoservers-730",
+		"icsgotournaments-730",
+		"idota2-match-570",
+		"idota2-match-stats-570",
+		"idota2-stream-system-570",
+		"idota2-ticket-570",
+		"iecon-dota2-570",
+		"iecon-items-1046930",
+		"iecon-items-1269260",
+		"iecon-items-440",
+		"iecon-items-570",
+		"iecon-items-583950",
+		"iecon-items-620",
+		"iecon-items-730",
+		"iecon-service",
+		"igame-notifications-service",
+		"igame-servers-service",
+		"igcversion-1046930",
+		"igcversion-1269260",
+		"igcversion-1422450",
+		"igcversion-440",
+		"igcversion-570",
+		"igcversion-583950",
+		"igcversion-730",
+		"ihelp-request-logs-service",
+		"iinventory-service",
+		"iplayer-service",
+		"iportal2-leaderboards-620",
+		"ipublished-file-service",
+		"isteam-apps",
+		"isteam-broadcast",
+		"isteam-cdn",
+		"isteam-directory",
+		"isteam-economy",
+		"isteam-news",
+		"isteam-remote-storage",
+		"isteam-user",
+		"isteam-user-auth",
+		"isteam-user-oauth",
+		"isteam-user-stats",
+		"isteam-web-apiutil",
+		"istore-service",
+		"itfitems-440",
+		"itfpromos-440",
+		"itfpromos-620",
+		"itfsystem-440",
+		"iwishlist-service",
+	}
 }
 
 func fetchAndEmit(c interface {

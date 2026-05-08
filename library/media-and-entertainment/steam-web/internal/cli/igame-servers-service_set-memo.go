@@ -19,11 +19,22 @@ func newIgameServersServiceSetMemoCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "set-memo",
-		Short:   "SetMemo operation of IGameServersService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli igame-servers-service set-memo --key your-token-here",
+		Use:         "set-memo",
+		Short:       "SetMemo operation of IGameServersService",
+		Example:     "  steam-web-pp-cli igame-servers-service set-memo --key your-token-here",
+		Annotations: map[string]string{"pp:endpoint": "igame-servers-service.set-memo", "pp:method": "POST", "pp:path": "/IGameServersService/SetMemo/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				if !cmd.Flags().Changed("key") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "key")
+				}
+				if !cmd.Flags().Changed("memo") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "memo")
+				}
+				if !cmd.Flags().Changed("steamid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "steamid")
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -55,7 +66,7 @@ func newIgameServersServiceSetMemoCmd(flags *rootFlags) *cobra.Command {
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -83,13 +94,15 @@ func newIgameServersServiceSetMemoCmd(flags *rootFlags) *cobra.Command {
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",
@@ -120,9 +133,7 @@ func newIgameServersServiceSetMemoCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&bodyKey, "key", "", "Access key")
 	cmd.Flags().StringVar(&bodyMemo, "memo", "", "The memo to set on the new account")
-	_ = cmd.MarkFlagRequired("memo")
 	cmd.Flags().IntVar(&bodySteamid, "steamid", 0, "The SteamID of the game server to set the memo on")
-	_ = cmd.MarkFlagRequired("steamid")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

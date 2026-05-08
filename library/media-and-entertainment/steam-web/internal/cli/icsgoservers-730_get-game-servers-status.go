@@ -14,10 +14,10 @@ import (
 func newIcsgoservers730GetGameServersStatusCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "get-game-servers-status",
-		Short:   "GetGameServersStatus operation of ICSGOServers_730",
-		Hidden: true,
-		Example: "  steam-web-pp-cli icsgoservers-730 get-game-servers-status",
+		Use:         "get-game-servers-status",
+		Short:       "GetGameServersStatus operation of ICSGOServers_730",
+		Example:     "  steam-web-pp-cli icsgoservers-730 get-game-servers-status",
+		Annotations: map[string]string{"pp:endpoint": "icsgoservers-730.get-game-servers-status", "pp:method": "GET", "pp:path": "/ICSGOServers_730/GetGameServersStatus/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -26,9 +26,9 @@ func newIcsgoservers730GetGameServersStatusCmd(flags *rootFlags) *cobra.Command 
 
 			path := "/ICSGOServers_730/GetGameServersStatus/v1"
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "icsgoservers-730", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "icsgoservers-730", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -36,14 +36,15 @@ func newIcsgoservers730GetGameServersStatusCmd(flags *rootFlags) *cobra.Command 
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

@@ -14,11 +14,11 @@ import (
 func newIsteamWebApiutilGetServerInfoCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "get-server-info",
-		Aliases: []string{"list"},
-		Short:   "GetServerInfo operation of ISteamWebAPIUtil",
-		Hidden: true,
-		Example: "  steam-web-pp-cli isteam-web-apiutil get-server-info",
+		Use:         "get-server-info",
+		Aliases:     []string{"list"},
+		Short:       "GetServerInfo operation of ISteamWebAPIUtil",
+		Example:     "  steam-web-pp-cli isteam-web-apiutil get-server-info",
+		Annotations: map[string]string{"pp:endpoint": "isteam-web-apiutil.get-server-info", "pp:method": "GET", "pp:path": "/ISteamWebAPIUtil/GetServerInfo/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -27,9 +27,9 @@ func newIsteamWebApiutilGetServerInfoCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/ISteamWebAPIUtil/GetServerInfo/v1"
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "isteam-web-apiutil", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "isteam-web-apiutil", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -37,14 +37,15 @@ func newIsteamWebApiutilGetServerInfoCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

@@ -19,11 +19,26 @@ func newIgameServersServiceQueryByFakeIpCmd(flags *rootFlags) *cobra.Command {
 	var flagQueryType string
 
 	cmd := &cobra.Command{
-		Use:     "query-by-fake-ip",
-		Short:   "QueryByFakeIP operation of IGameServersService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli igame-servers-service query-by-fake-ip",
+		Use:         "query-by-fake-ip",
+		Short:       "QueryByFakeIP operation of IGameServersService",
+		Example:     "  steam-web-pp-cli igame-servers-service query-by-fake-ip --key your-token-here --fake-ip 42 --fake-port 42 --app-id 550e8400-e29b-41d4-a716-446655440000 --query-type example-value",
+		Annotations: map[string]string{"pp:endpoint": "igame-servers-service.query-by-fake-ip", "pp:method": "GET", "pp:path": "/IGameServersService/QueryByFakeIP/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("key") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "key")
+			}
+			if !cmd.Flags().Changed("fake-ip") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "fake-ip")
+			}
+			if !cmd.Flags().Changed("fake-port") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "fake-port")
+			}
+			if !cmd.Flags().Changed("app-id") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "app-id")
+			}
+			if !cmd.Flags().Changed("query-type") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "query-type")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -46,9 +61,9 @@ func newIgameServersServiceQueryByFakeIpCmd(flags *rootFlags) *cobra.Command {
 			if flagQueryType != "" {
 				params["query_type"] = fmt.Sprintf("%v", flagQueryType)
 			}
-			data, prov, err := resolveRead(c, flags, "igame-servers-service", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "igame-servers-service", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -56,14 +71,15 @@ func newIgameServersServiceQueryByFakeIpCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -89,13 +105,9 @@ func newIgameServersServiceQueryByFakeIpCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagKey, "key", "", "Access key")
 	cmd.Flags().IntVar(&flagFakeIp, "fake-ip", 0, "FakeIP of server to query.")
-	_ = cmd.MarkFlagRequired("fake-ip")
 	cmd.Flags().IntVar(&flagFakePort, "fake-port", 0, "Fake port of server to query.")
-	_ = cmd.MarkFlagRequired("fake-port")
 	cmd.Flags().StringVar(&flagAppId, "app-id", "", "AppID to use. Each AppID has its own FakeIP address.")
-	_ = cmd.MarkFlagRequired("app-id")
 	cmd.Flags().StringVar(&flagQueryType, "query-type", "", "What type of query?")
-	_ = cmd.MarkFlagRequired("query-type")
 
 	return cmd
 }

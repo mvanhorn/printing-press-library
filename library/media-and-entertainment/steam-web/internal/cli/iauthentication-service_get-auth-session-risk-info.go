@@ -18,10 +18,19 @@ func newIauthenticationServiceGetAuthSessionRiskInfoCmd(flags *rootFlags) *cobra
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "get-auth-session-risk-info",
-		Short:   "GetAuthSessionRiskInfo operation of IAuthenticationService",
-		Example: "  steam-web-pp-cli iauthentication-service get-auth-session-risk-info",
+		Use:         "get-auth-session-risk-info",
+		Short:       "GetAuthSessionRiskInfo operation of IAuthenticationService",
+		Example:     "  steam-web-pp-cli iauthentication-service get-auth-session-risk-info",
+		Annotations: map[string]string{"pp:endpoint": "iauthentication-service.get-auth-session-risk-info", "pp:method": "POST", "pp:path": "/IAuthenticationService/GetAuthSessionRiskInfo/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				if !cmd.Flags().Changed("client-id") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "client-id")
+				}
+				if !cmd.Flags().Changed("language") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "language")
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -50,7 +59,7 @@ func newIauthenticationServiceGetAuthSessionRiskInfoCmd(flags *rootFlags) *cobra
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -78,13 +87,15 @@ func newIauthenticationServiceGetAuthSessionRiskInfoCmd(flags *rootFlags) *cobra
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",
@@ -114,9 +125,7 @@ func newIauthenticationServiceGetAuthSessionRiskInfoCmd(flags *rootFlags) *cobra
 		},
 	}
 	cmd.Flags().IntVar(&bodyClientId, "client-id", 0, "client ID from scanned QR Code, used for routing")
-	_ = cmd.MarkFlagRequired("client-id")
 	cmd.Flags().IntVar(&bodyLanguage, "language", 0, "language for optimistic localization of geoloc data")
-	_ = cmd.MarkFlagRequired("language")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

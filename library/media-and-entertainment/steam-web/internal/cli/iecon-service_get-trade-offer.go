@@ -18,11 +18,23 @@ func newIeconServiceGetTradeOfferCmd(flags *rootFlags) *cobra.Command {
 	var flagGetDescriptions bool
 
 	cmd := &cobra.Command{
-		Use:     "get-trade-offer",
-		Short:   "GetTradeOffer operation of IEconService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli iecon-service get-trade-offer",
+		Use:         "get-trade-offer",
+		Short:       "GetTradeOffer operation of IEconService",
+		Example:     "  steam-web-pp-cli iecon-service get-trade-offer --key your-token-here --tradeofferid 42 --language example-value --get-descriptions true",
+		Annotations: map[string]string{"pp:endpoint": "iecon-service.get-trade-offer", "pp:method": "GET", "pp:path": "/IEconService/GetTradeOffer/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("key") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "key")
+			}
+			if !cmd.Flags().Changed("tradeofferid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "tradeofferid")
+			}
+			if !cmd.Flags().Changed("language") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "language")
+			}
+			if !cmd.Flags().Changed("get-descriptions") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "get-descriptions")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -42,9 +54,9 @@ func newIeconServiceGetTradeOfferCmd(flags *rootFlags) *cobra.Command {
 			if flagGetDescriptions != false {
 				params["get_descriptions"] = fmt.Sprintf("%v", flagGetDescriptions)
 			}
-			data, prov, err := resolveRead(c, flags, "iecon-service", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "iecon-service", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -52,14 +64,15 @@ func newIeconServiceGetTradeOfferCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -85,11 +98,8 @@ func newIeconServiceGetTradeOfferCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagKey, "key", "", "Access key")
 	cmd.Flags().StringVar(&flagTradeofferid, "tradeofferid", "", "Tradeofferid")
-	_ = cmd.MarkFlagRequired("tradeofferid")
 	cmd.Flags().StringVar(&flagLanguage, "language", "", "Language")
-	_ = cmd.MarkFlagRequired("language")
 	cmd.Flags().BoolVar(&flagGetDescriptions, "get-descriptions", false, "If set, the item display data for the items included in the returned trade offers will also be returned. If one or...")
-	_ = cmd.MarkFlagRequired("get-descriptions")
 
 	return cmd
 }

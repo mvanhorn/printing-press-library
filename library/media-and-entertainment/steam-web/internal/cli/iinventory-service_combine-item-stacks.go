@@ -22,12 +22,32 @@ func newIinventoryServiceCombineItemStacksCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "combine-item-stacks",
-		Aliases: []string{"create"},
-		Short:   "CombineItemStacks operation of IInventoryService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli iinventory-service combine-item-stacks --key your-token-here",
+		Use:         "combine-item-stacks",
+		Aliases:     []string{"create"},
+		Short:       "CombineItemStacks operation of IInventoryService",
+		Example:     "  steam-web-pp-cli iinventory-service combine-item-stacks --key your-token-here",
+		Annotations: map[string]string{"pp:endpoint": "iinventory-service.combine-item-stacks", "pp:method": "POST", "pp:path": "/IInventoryService/CombineItemStacks/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				if !cmd.Flags().Changed("appid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "appid")
+				}
+				if !cmd.Flags().Changed("destitemid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "destitemid")
+				}
+				if !cmd.Flags().Changed("fromitemid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "fromitemid")
+				}
+				if !cmd.Flags().Changed("key") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "key")
+				}
+				if !cmd.Flags().Changed("quantity") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "quantity")
+				}
+				if !cmd.Flags().Changed("steamid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "steamid")
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -68,7 +88,7 @@ func newIinventoryServiceCombineItemStacksCmd(flags *rootFlags) *cobra.Command {
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -96,13 +116,15 @@ func newIinventoryServiceCombineItemStacksCmd(flags *rootFlags) *cobra.Command {
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",
@@ -132,16 +154,11 @@ func newIinventoryServiceCombineItemStacksCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().IntVar(&bodyAppid, "appid", 0, "Appid")
-	_ = cmd.MarkFlagRequired("appid")
 	cmd.Flags().IntVar(&bodyDestitemid, "destitemid", 0, "Destitemid")
-	_ = cmd.MarkFlagRequired("destitemid")
 	cmd.Flags().IntVar(&bodyFromitemid, "fromitemid", 0, "Fromitemid")
-	_ = cmd.MarkFlagRequired("fromitemid")
 	cmd.Flags().StringVar(&bodyKey, "key", "", "Access key")
 	cmd.Flags().IntVar(&bodyQuantity, "quantity", 0, "Quantity")
-	_ = cmd.MarkFlagRequired("quantity")
 	cmd.Flags().IntVar(&bodySteamid, "steamid", 0, "Steamid")
-	_ = cmd.MarkFlagRequired("steamid")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

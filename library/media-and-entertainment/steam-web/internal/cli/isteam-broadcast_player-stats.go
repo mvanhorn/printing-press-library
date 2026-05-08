@@ -16,12 +16,14 @@ func newIsteamBroadcastPlayerStatsCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "player-stats",
-		Aliases: []string{"create"},
-		Short:   "PlayerStats operation of ISteamBroadcast",
-		Hidden: true,
-		Example: "  steam-web-pp-cli isteam-broadcast player-stats",
+		Use:         "player-stats",
+		Aliases:     []string{"create"},
+		Short:       "PlayerStats operation of ISteamBroadcast",
+		Example:     "  steam-web-pp-cli isteam-broadcast player-stats",
+		Annotations: map[string]string{"pp:endpoint": "isteam-broadcast.player-stats", "pp:method": "POST", "pp:path": "/ISteamBroadcast/PlayerStats/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -44,7 +46,7 @@ func newIsteamBroadcastPlayerStatsCmd(flags *rootFlags) *cobra.Command {
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -72,13 +74,15 @@ func newIsteamBroadcastPlayerStatsCmd(flags *rootFlags) *cobra.Command {
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",

@@ -19,11 +19,20 @@ func newIsteamUserStatsGetGlobalStatsForGameCmd(flags *rootFlags) *cobra.Command
 	var flagEnddate int
 
 	cmd := &cobra.Command{
-		Use:     "get-global-stats-for-game",
-		Short:   "GetGlobalStatsForGame operation of ISteamUserStats",
-		Hidden: true,
-		Example: "  steam-web-pp-cli isteam-user-stats get-global-stats-for-game",
+		Use:         "get-global-stats-for-game",
+		Short:       "GetGlobalStatsForGame operation of ISteamUserStats",
+		Example:     "  steam-web-pp-cli isteam-user-stats get-global-stats-for-game --appid 42 --count 50 --name-0 example-resource",
+		Annotations: map[string]string{"pp:endpoint": "isteam-user-stats.get-global-stats-for-game", "pp:method": "GET", "pp:path": "/ISteamUserStats/GetGlobalStatsForGame/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("appid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "appid")
+			}
+			if !cmd.Flags().Changed("count") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "count")
+			}
+			if !cmd.Flags().Changed("name-0") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "name-0")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -46,9 +55,9 @@ func newIsteamUserStatsGetGlobalStatsForGameCmd(flags *rootFlags) *cobra.Command
 			if flagEnddate != 0 {
 				params["enddate"] = fmt.Sprintf("%v", flagEnddate)
 			}
-			data, prov, err := resolveRead(c, flags, "isteam-user-stats", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "isteam-user-stats", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -56,14 +65,15 @@ func newIsteamUserStatsGetGlobalStatsForGameCmd(flags *rootFlags) *cobra.Command
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -88,11 +98,8 @@ func newIsteamUserStatsGetGlobalStatsForGameCmd(flags *rootFlags) *cobra.Command
 		},
 	}
 	cmd.Flags().StringVar(&flagAppid, "appid", "", "AppID that we're getting global stats for")
-	_ = cmd.MarkFlagRequired("appid")
 	cmd.Flags().IntVar(&flagCount, "count", 0, "Number of stats get data for")
-	_ = cmd.MarkFlagRequired("count")
 	cmd.Flags().StringVar(&flagName0, "name-0", "", "Names of stat to get data for")
-	_ = cmd.MarkFlagRequired("name-0")
 	cmd.Flags().IntVar(&flagStartdate, "startdate", 0, "Start date for daily totals (unix epoch timestamp)")
 	cmd.Flags().IntVar(&flagEnddate, "enddate", 0, "End date for daily totals (unix epoch timestamp)")
 

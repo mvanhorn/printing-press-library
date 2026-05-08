@@ -14,10 +14,10 @@ import (
 func newIgcversion1269260GetServerVersionCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "get-server-version",
-		Short:   "GetServerVersion operation of IGCVersion_1269260",
-		Hidden: true,
-		Example: "  steam-web-pp-cli igcversion-1269260 get-server-version",
+		Use:         "get-server-version",
+		Short:       "GetServerVersion operation of IGCVersion_1269260",
+		Example:     "  steam-web-pp-cli igcversion-1269260 get-server-version",
+		Annotations: map[string]string{"pp:endpoint": "igcversion-1269260.get-server-version", "pp:method": "GET", "pp:path": "/IGCVersion_1269260/GetServerVersion/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -26,9 +26,9 @@ func newIgcversion1269260GetServerVersionCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/IGCVersion_1269260/GetServerVersion/v1"
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "igcversion-1269260", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "igcversion-1269260", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -36,14 +36,15 @@ func newIgcversion1269260GetServerVersionCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

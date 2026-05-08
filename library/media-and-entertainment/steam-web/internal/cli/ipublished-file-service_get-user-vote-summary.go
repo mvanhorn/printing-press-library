@@ -15,11 +15,14 @@ func newIpublishedFileServiceGetUserVoteSummaryCmd(flags *rootFlags) *cobra.Comm
 	var flagPublishedfileids string
 
 	cmd := &cobra.Command{
-		Use:     "get-user-vote-summary",
-		Short:   "GetUserVoteSummary operation of IPublishedFileService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli ipublished-file-service get-user-vote-summary",
+		Use:         "get-user-vote-summary",
+		Short:       "GetUserVoteSummary operation of IPublishedFileService",
+		Example:     "  steam-web-pp-cli ipublished-file-service get-user-vote-summary --publishedfileids 42",
+		Annotations: map[string]string{"pp:endpoint": "ipublished-file-service.get-user-vote-summary", "pp:method": "GET", "pp:path": "/IPublishedFileService/GetUserVoteSummary/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("publishedfileids") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "publishedfileids")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -30,9 +33,9 @@ func newIpublishedFileServiceGetUserVoteSummaryCmd(flags *rootFlags) *cobra.Comm
 			if flagPublishedfileids != "" {
 				params["publishedfileids"] = fmt.Sprintf("%v", flagPublishedfileids)
 			}
-			data, prov, err := resolveRead(c, flags, "ipublished-file-service", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "ipublished-file-service", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -40,14 +43,15 @@ func newIpublishedFileServiceGetUserVoteSummaryCmd(flags *rootFlags) *cobra.Comm
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -72,7 +76,6 @@ func newIpublishedFileServiceGetUserVoteSummaryCmd(flags *rootFlags) *cobra.Comm
 		},
 	}
 	cmd.Flags().StringVar(&flagPublishedfileids, "publishedfileids", "", "Publishedfileids")
-	_ = cmd.MarkFlagRequired("publishedfileids")
 
 	return cmd
 }

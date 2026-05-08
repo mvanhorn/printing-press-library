@@ -20,9 +20,6 @@ func newWorkflowCmd(flags *rootFlags) *cobra.Command {
 
 	cmd.AddCommand(newWorkflowArchiveCmd(flags))
 	cmd.AddCommand(newWorkflowStatusCmd(flags))
-	cmd.AddCommand(newWorkflowBacklogCmd(flags))
-	cmd.AddCommand(newWorkflowCompareCmd(flags))
-	cmd.AddCommand(newWorkflowPlaytimeCmd(flags))
 
 	return cmd
 }
@@ -52,13 +49,13 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			if dbPath == "" {
 				dbPath = defaultDBPath("steam-web-pp-cli")
 			}
-			s, err := store.Open(dbPath)
+			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
 			}
 			defer s.Close()
 
-			resources := []string{"iecon-service", "igame-servers-service", "ipublished-file-service", "isteam-directory", "isteam-web-apiutil", "istore-service"}
+			resources := []string{"icsgoservers-730", "idota2-match-570", "iecon-dota2-570", "iecon-items-440", "iecon-items-570", "iecon-items-620", "iecon-items-730", "iecon-service", "igame-servers-service", "igcversion-1046930", "igcversion-1269260", "igcversion-1422450", "igcversion-440", "igcversion-570", "igcversion-583950", "igcversion-730", "ipublished-file-service", "isteam-directory", "isteam-web-apiutil", "istore-service", "itfitems-440", "itfsystem-440", "iwishlist-service"}
 			totalSynced := 0
 
 			for _, resource := range resources {
@@ -150,8 +147,9 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 
 	cmd := &cobra.Command{
-		Use:   "status",
-		Short: "Show local archive status and sync state for all resources",
+		Use:         "status",
+		Short:       "Show local archive status and sync state for all resources",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		Example: `  # Show archive status
   steam-web-pp-cli workflow status
 
@@ -161,7 +159,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 			if dbPath == "" {
 				dbPath = defaultDBPath("steam-web-pp-cli")
 			}
-			s, err := store.Open(dbPath)
+			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
 			}

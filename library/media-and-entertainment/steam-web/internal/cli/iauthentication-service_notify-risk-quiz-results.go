@@ -20,10 +20,25 @@ func newIauthenticationServiceNotifyRiskQuizResultsCmd(flags *rootFlags) *cobra.
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "notify-risk-quiz-results",
-		Short:   "NotifyRiskQuizResults operation of IAuthenticationService",
-		Example: "  steam-web-pp-cli iauthentication-service notify-risk-quiz-results --results example-value",
+		Use:         "notify-risk-quiz-results",
+		Short:       "NotifyRiskQuizResults operation of IAuthenticationService",
+		Example:     "  steam-web-pp-cli iauthentication-service notify-risk-quiz-results --results example-value",
+		Annotations: map[string]string{"pp:endpoint": "iauthentication-service.notify-risk-quiz-results", "pp:method": "POST", "pp:path": "/IAuthenticationService/NotifyRiskQuizResults/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				if !cmd.Flags().Changed("client-id") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "client-id")
+				}
+				if !cmd.Flags().Changed("did-confirm-login") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "did-confirm-login")
+				}
+				if !cmd.Flags().Changed("results") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "results")
+				}
+				if !cmd.Flags().Changed("selected-action") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "selected-action")
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -58,7 +73,7 @@ func newIauthenticationServiceNotifyRiskQuizResultsCmd(flags *rootFlags) *cobra.
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -86,13 +101,15 @@ func newIauthenticationServiceNotifyRiskQuizResultsCmd(flags *rootFlags) *cobra.
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",
@@ -122,13 +139,9 @@ func newIauthenticationServiceNotifyRiskQuizResultsCmd(flags *rootFlags) *cobra.
 		},
 	}
 	cmd.Flags().IntVar(&bodyClientId, "client-id", 0, "client ID for the auth session, used for routing")
-	_ = cmd.MarkFlagRequired("client-id")
 	cmd.Flags().BoolVar(&bodyDidConfirmLogin, "did-confirm-login", false, "Whether or not the user went on to confirm the login or not in the case of a passed quiz")
-	_ = cmd.MarkFlagRequired("did-confirm-login")
 	cmd.Flags().StringVar(&bodyResults, "results", "", "Whether or not the user correctly answered each risk quiz question")
-	_ = cmd.MarkFlagRequired("results")
 	cmd.Flags().StringVar(&bodySelectedAction, "selected-action", "", "The action being taken selected by the user during the quiz")
-	_ = cmd.MarkFlagRequired("selected-action")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

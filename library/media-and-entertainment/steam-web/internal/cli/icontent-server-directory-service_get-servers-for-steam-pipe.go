@@ -20,11 +20,17 @@ func newIcontentServerDirectoryServiceGetServersForSteamPipeCmd(flags *rootFlags
 	var flagCurrentConnections string
 
 	cmd := &cobra.Command{
-		Use:     "get-servers-for-steam-pipe",
-		Short:   "GetServersForSteamPipe operation of IContentServerDirectoryService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli icontent-server-directory-service get-servers-for-steam-pipe",
+		Use:         "get-servers-for-steam-pipe",
+		Short:       "GetServersForSteamPipe operation of IContentServerDirectoryService",
+		Example:     "  steam-web-pp-cli icontent-server-directory-service get-servers-for-steam-pipe --cell-id 550e8400-e29b-41d4-a716-446655440000 --current-connections example-value",
+		Annotations: map[string]string{"pp:endpoint": "icontent-server-directory-service.get-servers-for-steam-pipe", "pp:method": "GET", "pp:path": "/IContentServerDirectoryService/GetServersForSteamPipe/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("cell-id") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "cell-id")
+			}
+			if !cmd.Flags().Changed("current-connections") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "current-connections")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -50,9 +56,9 @@ func newIcontentServerDirectoryServiceGetServersForSteamPipeCmd(flags *rootFlags
 			if flagCurrentConnections != "" {
 				params["current_connections"] = fmt.Sprintf("%v", flagCurrentConnections)
 			}
-			data, prov, err := resolveRead(c, flags, "icontent-server-directory-service", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "icontent-server-directory-service", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -60,14 +66,15 @@ func newIcontentServerDirectoryServiceGetServersForSteamPipeCmd(flags *rootFlags
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -92,13 +99,11 @@ func newIcontentServerDirectoryServiceGetServersForSteamPipeCmd(flags *rootFlags
 		},
 	}
 	cmd.Flags().StringVar(&flagCellId, "cell-id", "", "client Cell ID")
-	_ = cmd.MarkFlagRequired("cell-id")
 	cmd.Flags().IntVar(&flagMaxServers, "max-servers", 0, "max servers in response list")
 	cmd.Flags().StringVar(&flagIpOverride, "ip-override", "", "client IP address")
 	cmd.Flags().IntVar(&flagLauncherType, "launcher-type", 0, "launcher type")
 	cmd.Flags().StringVar(&flagIpv6Public, "ipv6-public", "", "client public ipv6 address if it knows it")
 	cmd.Flags().StringVar(&flagCurrentConnections, "current-connections", "", "what sources is the client currently using")
-	_ = cmd.MarkFlagRequired("current-connections")
 
 	return cmd
 }

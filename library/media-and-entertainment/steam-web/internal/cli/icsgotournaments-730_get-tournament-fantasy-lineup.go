@@ -17,12 +17,21 @@ func newIcsgotournaments730GetTournamentFantasyLineupCmd(flags *rootFlags) *cobr
 	var flagSteamidkey string
 
 	cmd := &cobra.Command{
-		Use:     "get-tournament-fantasy-lineup",
-		Aliases: []string{"list"},
-		Short:   "GetTournamentFantasyLineup operation of ICSGOTournaments_730",
-		Hidden: true,
-		Example: "  steam-web-pp-cli icsgotournaments-730 get-tournament-fantasy-lineup",
+		Use:         "get-tournament-fantasy-lineup",
+		Aliases:     []string{"list"},
+		Short:       "GetTournamentFantasyLineup operation of ICSGOTournaments_730",
+		Example:     "  steam-web-pp-cli icsgotournaments-730 get-tournament-fantasy-lineup --event 42 --steamid 42 --steamidkey your-token-here",
+		Annotations: map[string]string{"pp:endpoint": "icsgotournaments-730.get-tournament-fantasy-lineup", "pp:method": "GET", "pp:path": "/ICSGOTournaments_730/GetTournamentFantasyLineup/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("event") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "event")
+			}
+			if !cmd.Flags().Changed("steamid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "steamid")
+			}
+			if !cmd.Flags().Changed("steamidkey") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "steamidkey")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -39,9 +48,9 @@ func newIcsgotournaments730GetTournamentFantasyLineupCmd(flags *rootFlags) *cobr
 			if flagSteamidkey != "" {
 				params["steamidkey"] = fmt.Sprintf("%v", flagSteamidkey)
 			}
-			data, prov, err := resolveRead(c, flags, "icsgotournaments-730", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "icsgotournaments-730", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -49,14 +58,15 @@ func newIcsgotournaments730GetTournamentFantasyLineupCmd(flags *rootFlags) *cobr
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -81,11 +91,8 @@ func newIcsgotournaments730GetTournamentFantasyLineupCmd(flags *rootFlags) *cobr
 		},
 	}
 	cmd.Flags().IntVar(&flagEvent, "event", 0, "The event ID")
-	_ = cmd.MarkFlagRequired("event")
 	cmd.Flags().StringVar(&flagSteamid, "steamid", "", "The SteamID of the user inventory")
-	_ = cmd.MarkFlagRequired("steamid")
 	cmd.Flags().StringVar(&flagSteamidkey, "steamidkey", "", "Authentication obtained from the SteamID")
-	_ = cmd.MarkFlagRequired("steamidkey")
 
 	return cmd
 }

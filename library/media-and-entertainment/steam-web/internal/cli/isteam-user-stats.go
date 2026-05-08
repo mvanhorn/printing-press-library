@@ -11,7 +11,6 @@ func newIsteamUserStatsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "isteam-user-stats",
 		Short: "Manage isteam user stats",
-		Hidden: true,
 	}
 
 	cmd.AddCommand(newIsteamUserStatsGetGlobalAchievementPercentagesForAppCmd(flags))

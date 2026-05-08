@@ -20,22 +20,46 @@ func newIeconServiceGetTradeOffersCmd(flags *rootFlags) *cobra.Command {
 	var flagActiveOnly bool
 	var flagHistoricalOnly bool
 	var flagTimeHistoricalCutoff int
-	var flagCursor int
+	var flagCursor string
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:     "get-trade-offers",
-		Short:   "GetTradeOffers operation of IEconService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli iecon-service get-trade-offers",
+		Use:         "get-trade-offers",
+		Short:       "GetTradeOffers operation of IEconService",
+		Example:     "  steam-web-pp-cli iecon-service get-trade-offers --key your-token-here --get-sent-offers true --get-received-offers true --get-descriptions true --language example-value --active-only true --historical-only true --time-historical-cutoff 2026-01-15T09:00:00Z",
+		Annotations: map[string]string{"pp:endpoint": "iecon-service.get-trade-offers", "pp:method": "GET", "pp:path": "/IEconService/GetTradeOffers/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("key") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "key")
+			}
+			if !cmd.Flags().Changed("get-sent-offers") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "get-sent-offers")
+			}
+			if !cmd.Flags().Changed("get-received-offers") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "get-received-offers")
+			}
+			if !cmd.Flags().Changed("get-descriptions") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "get-descriptions")
+			}
+			if !cmd.Flags().Changed("language") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "language")
+			}
+			if !cmd.Flags().Changed("active-only") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "active-only")
+			}
+			if !cmd.Flags().Changed("historical-only") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "historical-only")
+			}
+			if !cmd.Flags().Changed("time-historical-cutoff") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "time-historical-cutoff")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
 			path := "/IEconService/GetTradeOffers/v1"
-			data, prov, err := resolvePaginatedRead(c, flags, "iecon-service", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "iecon-service", path, map[string]string{
 				"key":                    fmt.Sprintf("%v", flagKey),
 				"get_sent_offers":        fmt.Sprintf("%v", flagGetSentOffers),
 				"get_received_offers":    fmt.Sprintf("%v", flagGetReceivedOffers),
@@ -45,9 +69,9 @@ func newIeconServiceGetTradeOffersCmd(flags *rootFlags) *cobra.Command {
 				"historical_only":        fmt.Sprintf("%v", flagHistoricalOnly),
 				"time_historical_cutoff": fmt.Sprintf("%v", flagTimeHistoricalCutoff),
 				"cursor":                 fmt.Sprintf("%v", flagCursor),
-			}, flagAll, "cursor", "", "")
+			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -55,14 +79,15 @@ func newIeconServiceGetTradeOffersCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -88,20 +113,13 @@ func newIeconServiceGetTradeOffersCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagKey, "key", "", "Access key")
 	cmd.Flags().BoolVar(&flagGetSentOffers, "get-sent-offers", false, "Request the list of sent offers.")
-	_ = cmd.MarkFlagRequired("get-sent-offers")
 	cmd.Flags().BoolVar(&flagGetReceivedOffers, "get-received-offers", false, "Request the list of received offers.")
-	_ = cmd.MarkFlagRequired("get-received-offers")
 	cmd.Flags().BoolVar(&flagGetDescriptions, "get-descriptions", false, "If set, the item display data for the items included in the returned trade offers will also be returned. If one or...")
-	_ = cmd.MarkFlagRequired("get-descriptions")
 	cmd.Flags().StringVar(&flagLanguage, "language", "", "The language to use when loading item display data.")
-	_ = cmd.MarkFlagRequired("language")
 	cmd.Flags().BoolVar(&flagActiveOnly, "active-only", false, "Indicates we should only return offers which are still active, or offers that have changed in state since the...")
-	_ = cmd.MarkFlagRequired("active-only")
 	cmd.Flags().BoolVar(&flagHistoricalOnly, "historical-only", false, "Indicates we should only return offers which are not active.")
-	_ = cmd.MarkFlagRequired("historical-only")
 	cmd.Flags().IntVar(&flagTimeHistoricalCutoff, "time-historical-cutoff", 0, "When active_only is set, offers updated since this time will also be returned. When historical_only is set, only...")
-	_ = cmd.MarkFlagRequired("time-historical-cutoff")
-	cmd.Flags().IntVar(&flagCursor, "cursor", 0, "Cursor aka start index")
+	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Cursor aka start index")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

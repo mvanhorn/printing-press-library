@@ -22,11 +22,19 @@ func newIsteamCdnSetPerformanceStatsCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "set-performance-stats",
-		Short:   "SetPerformanceStats operation of ISteamCDN",
-		Hidden: true,
-		Example: "  steam-web-pp-cli isteam-cdn set-performance-stats --cdnname example-resource",
+		Use:         "set-performance-stats",
+		Short:       "SetPerformanceStats operation of ISteamCDN",
+		Example:     "  steam-web-pp-cli isteam-cdn set-performance-stats --cdnname example-resource",
+		Annotations: map[string]string{"pp:endpoint": "isteam-cdn.set-performance-stats", "pp:method": "POST", "pp:path": "/ISteamCDN/SetPerformanceStats/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				if !cmd.Flags().Changed("cdnname") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "cdnname")
+				}
+				if !cmd.Flags().Changed("key") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "key")
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -67,7 +75,7 @@ func newIsteamCdnSetPerformanceStatsCmd(flags *rootFlags) *cobra.Command {
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -95,13 +103,15 @@ func newIsteamCdnSetPerformanceStatsCmd(flags *rootFlags) *cobra.Command {
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",
@@ -132,7 +142,6 @@ func newIsteamCdnSetPerformanceStatsCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().IntVar(&bodyCacheHitPercent, "cache-hit-percent", 0, "Percent cache hits")
 	cmd.Flags().StringVar(&bodyCdnname, "cdnname", "", "Steam name of CDN property")
-	_ = cmd.MarkFlagRequired("cdnname")
 	cmd.Flags().IntVar(&bodyCpuPercent, "cpu-percent", 0, "Percent CPU load")
 	cmd.Flags().StringVar(&bodyKey, "key", "", "access key")
 	cmd.Flags().IntVar(&bodyMbpsRecv, "mbps-recv", 0, "Incoming network traffic in Mbps")

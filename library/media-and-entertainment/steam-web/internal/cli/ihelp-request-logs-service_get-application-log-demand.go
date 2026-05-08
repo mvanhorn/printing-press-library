@@ -17,12 +17,17 @@ func newIhelpRequestLogsServiceGetApplicationLogDemandCmd(flags *rootFlags) *cob
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "get-application-log-demand",
-		Aliases: []string{"create"},
-		Short:   "GetApplicationLogDemand operation of IHelpRequestLogsService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli ihelp-request-logs-service get-application-log-demand",
+		Use:         "get-application-log-demand",
+		Aliases:     []string{"create"},
+		Short:       "GetApplicationLogDemand operation of IHelpRequestLogsService",
+		Example:     "  steam-web-pp-cli ihelp-request-logs-service get-application-log-demand",
+		Annotations: map[string]string{"pp:endpoint": "ihelp-request-logs-service.get-application-log-demand", "pp:method": "POST", "pp:path": "/IHelpRequestLogsService/GetApplicationLogDemand/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				if !cmd.Flags().Changed("appid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "appid")
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -48,7 +53,7 @@ func newIhelpRequestLogsServiceGetApplicationLogDemandCmd(flags *rootFlags) *cob
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -76,13 +81,15 @@ func newIhelpRequestLogsServiceGetApplicationLogDemandCmd(flags *rootFlags) *cob
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",
@@ -112,7 +119,6 @@ func newIhelpRequestLogsServiceGetApplicationLogDemandCmd(flags *rootFlags) *cob
 		},
 	}
 	cmd.Flags().IntVar(&bodyAppid, "appid", 0, "Appid")
-	_ = cmd.MarkFlagRequired("appid")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

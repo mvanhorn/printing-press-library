@@ -19,11 +19,23 @@ func newIdota2Ticket570SteamAccountValidForBadgeTypeCmd(flags *rootFlags) *cobra
 	var flagValidBadgeType4 int
 
 	cmd := &cobra.Command{
-		Use:     "steam-account-valid-for-badge-type",
-		Short:   "SteamAccountValidForBadgeType operation of IDOTA2Ticket_570",
-		Hidden: true,
-		Example: "  steam-web-pp-cli idota2-ticket-570 steam-account-valid-for-badge-type",
+		Use:         "steam-account-valid-for-badge-type",
+		Short:       "SteamAccountValidForBadgeType operation of IDOTA2Ticket_570",
+		Example:     "  steam-web-pp-cli idota2-ticket-570 steam-account-valid-for-badge-type --steamid 42 --valid-badge-type1 42 --valid-badge-type2 42 --valid-badge-type3 42",
+		Annotations: map[string]string{"pp:endpoint": "idota2-ticket-570.steam-account-valid-for-badge-type", "pp:method": "GET", "pp:path": "/IDOTA2Ticket_570/SteamAccountValidForBadgeType/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("steamid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "steamid")
+			}
+			if !cmd.Flags().Changed("valid-badge-type1") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "valid-badge-type1")
+			}
+			if !cmd.Flags().Changed("valid-badge-type2") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "valid-badge-type2")
+			}
+			if !cmd.Flags().Changed("valid-badge-type3") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "valid-badge-type3")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -46,9 +58,9 @@ func newIdota2Ticket570SteamAccountValidForBadgeTypeCmd(flags *rootFlags) *cobra
 			if flagValidBadgeType4 != 0 {
 				params["ValidBadgeType4"] = fmt.Sprintf("%v", flagValidBadgeType4)
 			}
-			data, prov, err := resolveRead(c, flags, "idota2-ticket-570", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "idota2-ticket-570", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -56,14 +68,15 @@ func newIdota2Ticket570SteamAccountValidForBadgeTypeCmd(flags *rootFlags) *cobra
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -88,13 +101,9 @@ func newIdota2Ticket570SteamAccountValidForBadgeTypeCmd(flags *rootFlags) *cobra
 		},
 	}
 	cmd.Flags().StringVar(&flagSteamid, "steamid", "", "The 64-bit Steam ID")
-	_ = cmd.MarkFlagRequired("steamid")
 	cmd.Flags().IntVar(&flagValidBadgeType1, "valid-badge-type1", 0, "Valid Badge Type 1")
-	_ = cmd.MarkFlagRequired("valid-badge-type1")
 	cmd.Flags().IntVar(&flagValidBadgeType2, "valid-badge-type2", 0, "Valid Badge Type 2")
-	_ = cmd.MarkFlagRequired("valid-badge-type2")
 	cmd.Flags().IntVar(&flagValidBadgeType3, "valid-badge-type3", 0, "Valid Badge Type 3")
-	_ = cmd.MarkFlagRequired("valid-badge-type3")
 	cmd.Flags().IntVar(&flagValidBadgeType4, "valid-badge-type4", 0, "Valid Badge Type 4")
 
 	return cmd

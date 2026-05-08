@@ -16,11 +16,17 @@ func newIeconServiceGetTradeOffersSummaryCmd(flags *rootFlags) *cobra.Command {
 	var flagTimeLastVisit int
 
 	cmd := &cobra.Command{
-		Use:     "get-trade-offers-summary",
-		Short:   "GetTradeOffersSummary operation of IEconService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli iecon-service get-trade-offers-summary",
+		Use:         "get-trade-offers-summary",
+		Short:       "GetTradeOffersSummary operation of IEconService",
+		Example:     "  steam-web-pp-cli iecon-service get-trade-offers-summary --key your-token-here --time-last-visit 2026-01-15T09:00:00Z",
+		Annotations: map[string]string{"pp:endpoint": "iecon-service.get-trade-offers-summary", "pp:method": "GET", "pp:path": "/IEconService/GetTradeOffersSummary/v1", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("key") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "key")
+			}
+			if !cmd.Flags().Changed("time-last-visit") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "time-last-visit")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -34,9 +40,9 @@ func newIeconServiceGetTradeOffersSummaryCmd(flags *rootFlags) *cobra.Command {
 			if flagTimeLastVisit != 0 {
 				params["time_last_visit"] = fmt.Sprintf("%v", flagTimeLastVisit)
 			}
-			data, prov, err := resolveRead(c, flags, "iecon-service", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "iecon-service", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -44,14 +50,15 @@ func newIeconServiceGetTradeOffersSummaryCmd(flags *rootFlags) *cobra.Command {
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -77,7 +84,6 @@ func newIeconServiceGetTradeOffersSummaryCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagKey, "key", "", "Access key")
 	cmd.Flags().IntVar(&flagTimeLastVisit, "time-last-visit", 0, "The time the user last visited. If not passed, will use the time the user last visited the trade offer page.")
-	_ = cmd.MarkFlagRequired("time-last-visit")
 
 	return cmd
 }

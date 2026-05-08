@@ -20,10 +20,25 @@ func newIauthenticationServiceUpdateAuthSessionWithSteamGuardCodeCmd(flags *root
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "update-auth-session-with-steam-guard-code",
-		Short:   "UpdateAuthSessionWithSteamGuardCode operation of IAuthenticationService",
-		Example: "  steam-web-pp-cli iauthentication-service update-auth-session-with-steam-guard-code --code example-value",
+		Use:         "update-auth-session-with-steam-guard-code",
+		Short:       "UpdateAuthSessionWithSteamGuardCode operation of IAuthenticationService",
+		Example:     "  steam-web-pp-cli iauthentication-service update-auth-session-with-steam-guard-code --code example-value",
+		Annotations: map[string]string{"pp:endpoint": "iauthentication-service.update-auth-session-with-steam-guard-code", "pp:method": "POST", "pp:path": "/IAuthenticationService/UpdateAuthSessionWithSteamGuardCode/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				if !cmd.Flags().Changed("client-id") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "client-id")
+				}
+				if !cmd.Flags().Changed("code") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "code")
+				}
+				if !cmd.Flags().Changed("code-type") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "code-type")
+				}
+				if !cmd.Flags().Changed("steamid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "steamid")
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -58,7 +73,7 @@ func newIauthenticationServiceUpdateAuthSessionWithSteamGuardCodeCmd(flags *root
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -86,13 +101,15 @@ func newIauthenticationServiceUpdateAuthSessionWithSteamGuardCodeCmd(flags *root
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",
@@ -122,13 +139,9 @@ func newIauthenticationServiceUpdateAuthSessionWithSteamGuardCodeCmd(flags *root
 		},
 	}
 	cmd.Flags().IntVar(&bodyClientId, "client-id", 0, "pending client ID, from initialized session")
-	_ = cmd.MarkFlagRequired("client-id")
 	cmd.Flags().StringVar(&bodyCode, "code", "", "confirmation code")
-	_ = cmd.MarkFlagRequired("code")
 	cmd.Flags().StringVar(&bodyCodeType, "code-type", "", "type of confirmation code")
-	_ = cmd.MarkFlagRequired("code-type")
 	cmd.Flags().IntVar(&bodySteamid, "steamid", 0, "user who wants to login")
-	_ = cmd.MarkFlagRequired("steamid")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

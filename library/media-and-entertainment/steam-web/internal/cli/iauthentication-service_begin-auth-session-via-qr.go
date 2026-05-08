@@ -20,10 +20,22 @@ func newIauthenticationServiceBeginAuthSessionViaQrCmd(flags *rootFlags) *cobra.
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "begin-auth-session-via-qr",
-		Short:   "BeginAuthSessionViaQR operation of IAuthenticationService",
-		Example: "  steam-web-pp-cli iauthentication-service begin-auth-session-via-qr --device-details example-value",
+		Use:         "begin-auth-session-via-qr",
+		Short:       "BeginAuthSessionViaQR operation of IAuthenticationService",
+		Example:     "  steam-web-pp-cli iauthentication-service begin-auth-session-via-qr --device-details example-value",
+		Annotations: map[string]string{"pp:endpoint": "iauthentication-service.begin-auth-session-via-qr", "pp:method": "POST", "pp:path": "/IAuthenticationService/BeginAuthSessionViaQR/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				if !cmd.Flags().Changed("device-details") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "device-details")
+				}
+				if !cmd.Flags().Changed("device-friendly-name") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "device-friendly-name")
+				}
+				if !cmd.Flags().Changed("platform-type") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "platform-type")
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -58,7 +70,7 @@ func newIauthenticationServiceBeginAuthSessionViaQrCmd(flags *rootFlags) *cobra.
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -86,13 +98,15 @@ func newIauthenticationServiceBeginAuthSessionViaQrCmd(flags *rootFlags) *cobra.
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",
@@ -122,11 +136,8 @@ func newIauthenticationServiceBeginAuthSessionViaQrCmd(flags *rootFlags) *cobra.
 		},
 	}
 	cmd.Flags().StringVar(&bodyDeviceDetails, "device-details", "", "User-supplied details about the device attempting to sign in")
-	_ = cmd.MarkFlagRequired("device-details")
 	cmd.Flags().StringVar(&bodyDeviceFriendlyName, "device-friendly-name", "", "Device friendly name")
-	_ = cmd.MarkFlagRequired("device-friendly-name")
 	cmd.Flags().StringVar(&bodyPlatformType, "platform-type", "", "Platform type")
-	_ = cmd.MarkFlagRequired("platform-type")
 	cmd.Flags().StringVar(&bodyWebsiteId, "website-id", "", "(EMachineAuthWebDomain) identifier of client requesting auth")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 

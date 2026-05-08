@@ -11,7 +11,6 @@ func newIcontentServerDirectoryServiceCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "icontent-server-directory-service",
 		Short: "Manage icontent server directory service",
-		Hidden: true,
 	}
 
 	cmd.AddCommand(newIcontentServerDirectoryServiceGetCdnforVideoCmd(flags))

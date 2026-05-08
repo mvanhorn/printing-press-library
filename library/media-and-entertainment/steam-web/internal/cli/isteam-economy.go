@@ -11,7 +11,6 @@ func newIsteamEconomyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "isteam-economy",
 		Short: "Manage isteam economy",
-		Hidden: true,
 	}
 
 	cmd.AddCommand(newIsteamEconomyGetAssetClassInfoCmd(flags))

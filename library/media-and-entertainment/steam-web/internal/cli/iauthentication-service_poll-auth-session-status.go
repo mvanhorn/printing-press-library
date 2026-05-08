@@ -19,10 +19,22 @@ func newIauthenticationServicePollAuthSessionStatusCmd(flags *rootFlags) *cobra.
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "poll-auth-session-status",
-		Short:   "PollAuthSessionStatus operation of IAuthenticationService",
-		Example: "  steam-web-pp-cli iauthentication-service poll-auth-session-status --request-id 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "poll-auth-session-status",
+		Short:       "PollAuthSessionStatus operation of IAuthenticationService",
+		Example:     "  steam-web-pp-cli iauthentication-service poll-auth-session-status --request-id 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "iauthentication-service.poll-auth-session-status", "pp:method": "POST", "pp:path": "/IAuthenticationService/PollAuthSessionStatus/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				if !cmd.Flags().Changed("client-id") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "client-id")
+				}
+				if !cmd.Flags().Changed("request-id") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "request-id")
+				}
+				if !cmd.Flags().Changed("token-to-revoke") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "token-to-revoke")
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -54,7 +66,7 @@ func newIauthenticationServicePollAuthSessionStatusCmd(flags *rootFlags) *cobra.
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -82,13 +94,15 @@ func newIauthenticationServicePollAuthSessionStatusCmd(flags *rootFlags) *cobra.
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",
@@ -118,11 +132,8 @@ func newIauthenticationServicePollAuthSessionStatusCmd(flags *rootFlags) *cobra.
 		},
 	}
 	cmd.Flags().IntVar(&bodyClientId, "client-id", 0, "Client id")
-	_ = cmd.MarkFlagRequired("client-id")
 	cmd.Flags().StringVar(&bodyRequestId, "request-id", "", "Request id")
-	_ = cmd.MarkFlagRequired("request-id")
 	cmd.Flags().IntVar(&bodyTokenToRevoke, "token-to-revoke", 0, "If this is set to a token owned by this user, that token will be retired")
-	_ = cmd.MarkFlagRequired("token-to-revoke")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

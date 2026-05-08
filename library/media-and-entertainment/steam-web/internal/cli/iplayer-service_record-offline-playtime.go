@@ -19,11 +19,23 @@ func newIplayerServiceRecordOfflinePlaytimeCmd(flags *rootFlags) *cobra.Command 
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "record-offline-playtime",
-		Aliases: []string{"create"},
-		Short:   "RecordOfflinePlaytime operation of IPlayerService",
-		Example: "  steam-web-pp-cli iplayer-service record-offline-playtime --play-sessions example-value",
+		Use:         "record-offline-playtime",
+		Aliases:     []string{"create"},
+		Short:       "RecordOfflinePlaytime operation of IPlayerService",
+		Example:     "  steam-web-pp-cli iplayer-service record-offline-playtime --play-sessions example-value",
+		Annotations: map[string]string{"pp:endpoint": "iplayer-service.record-offline-playtime", "pp:method": "POST", "pp:path": "/IPlayerService/RecordOfflinePlaytime/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				if !cmd.Flags().Changed("play-sessions") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "play-sessions")
+				}
+				if !cmd.Flags().Changed("steamid") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "steamid")
+				}
+				if !cmd.Flags().Changed("ticket") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "ticket")
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -55,7 +67,7 @@ func newIplayerServiceRecordOfflinePlaytimeCmd(flags *rootFlags) *cobra.Command 
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -83,13 +95,15 @@ func newIplayerServiceRecordOfflinePlaytimeCmd(flags *rootFlags) *cobra.Command 
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",
@@ -119,11 +133,8 @@ func newIplayerServiceRecordOfflinePlaytimeCmd(flags *rootFlags) *cobra.Command 
 		},
 	}
 	cmd.Flags().StringVar(&bodyPlaySessions, "play-sessions", "", "Play sessions")
-	_ = cmd.MarkFlagRequired("play-sessions")
 	cmd.Flags().IntVar(&bodySteamid, "steamid", 0, "Steamid")
-	_ = cmd.MarkFlagRequired("steamid")
 	cmd.Flags().StringVar(&bodyTicket, "ticket", "", "Ticket")
-	_ = cmd.MarkFlagRequired("ticket")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

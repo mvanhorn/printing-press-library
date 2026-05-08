@@ -27,11 +27,46 @@ func newIcontentServerConfigServiceSetSteamCachePerformanceStatsCmd(flags *rootF
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:     "set-steam-cache-performance-stats",
-		Short:   "SetSteamCachePerformanceStats operation of IContentServerConfigService",
-		Hidden: true,
-		Example: "  steam-web-pp-cli icontent-server-config-service set-steam-cache-performance-stats --cache-key your-token-here",
+		Use:         "set-steam-cache-performance-stats",
+		Short:       "SetSteamCachePerformanceStats operation of IContentServerConfigService",
+		Example:     "  steam-web-pp-cli icontent-server-config-service set-steam-cache-performance-stats --cache-key your-token-here",
+		Annotations: map[string]string{"pp:endpoint": "icontent-server-config-service.set-steam-cache-performance-stats", "pp:method": "POST", "pp:path": "/IContentServerConfigService/SetSteamCachePerformanceStats/v1"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !stdinBody {
+				if !cmd.Flags().Changed("cache-hit-percent") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "cache-hit-percent")
+				}
+				if !cmd.Flags().Changed("cache-id") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "cache-id")
+				}
+				if !cmd.Flags().Changed("cache-key") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "cache-key")
+				}
+				if !cmd.Flags().Changed("cpu-percent") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "cpu-percent")
+				}
+				if !cmd.Flags().Changed("key") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "key")
+				}
+				if !cmd.Flags().Changed("mbps-recv") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "mbps-recv")
+				}
+				if !cmd.Flags().Changed("mbps-sent") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "mbps-sent")
+				}
+				if !cmd.Flags().Changed("num-connected-ips") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "num-connected-ips")
+				}
+				if !cmd.Flags().Changed("upstream-egress-utilization") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "upstream-egress-utilization")
+				}
+				if !cmd.Flags().Changed("upstream-peering-utilization") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "upstream-peering-utilization")
+				}
+				if !cmd.Flags().Changed("upstream-transit-utilization") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "upstream-transit-utilization")
+				}
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -87,7 +122,7 @@ func newIcontentServerConfigServiceSetSteamCachePerformanceStatsCmd(flags *rootF
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -115,13 +150,15 @@ func newIcontentServerConfigServiceSetSteamCachePerformanceStatsCmd(flags *rootF
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
 					"action":   "post",
@@ -151,26 +188,16 @@ func newIcontentServerConfigServiceSetSteamCachePerformanceStatsCmd(flags *rootF
 		},
 	}
 	cmd.Flags().IntVar(&bodyCacheHitPercent, "cache-hit-percent", 0, "Percent cache hits")
-	_ = cmd.MarkFlagRequired("cache-hit-percent")
 	cmd.Flags().IntVar(&bodyCacheId, "cache-id", 0, "Unique ID number")
-	_ = cmd.MarkFlagRequired("cache-id")
 	cmd.Flags().StringVar(&bodyCacheKey, "cache-key", "", "Valid current cache API key")
-	_ = cmd.MarkFlagRequired("cache-key")
 	cmd.Flags().IntVar(&bodyCpuPercent, "cpu-percent", 0, "Percent CPU load")
-	_ = cmd.MarkFlagRequired("cpu-percent")
 	cmd.Flags().StringVar(&bodyKey, "key", "", "Access key")
 	cmd.Flags().IntVar(&bodyMbpsRecv, "mbps-recv", 0, "Incoming network traffic in Mbps")
-	_ = cmd.MarkFlagRequired("mbps-recv")
 	cmd.Flags().IntVar(&bodyMbpsSent, "mbps-sent", 0, "Outgoing network traffic in Mbps")
-	_ = cmd.MarkFlagRequired("mbps-sent")
 	cmd.Flags().IntVar(&bodyNumConnectedIps, "num-connected-ips", 0, "Number of unique connected IP addresses")
-	_ = cmd.MarkFlagRequired("num-connected-ips")
 	cmd.Flags().IntVar(&bodyUpstreamEgressUtilization, "upstream-egress-utilization", 0, "(deprecated) What is the percent utilization of the busiest datacenter egress link?")
-	_ = cmd.MarkFlagRequired("upstream-egress-utilization")
 	cmd.Flags().IntVar(&bodyUpstreamPeeringUtilization, "upstream-peering-utilization", 0, "What is the percent utilization of the busiest peering link?")
-	_ = cmd.MarkFlagRequired("upstream-peering-utilization")
 	cmd.Flags().IntVar(&bodyUpstreamTransitUtilization, "upstream-transit-utilization", 0, "What is the percent utilization of the busiest transit link?")
-	_ = cmd.MarkFlagRequired("upstream-transit-utilization")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

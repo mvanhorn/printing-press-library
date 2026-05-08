@@ -11,7 +11,6 @@ func newIinventoryServiceCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "iinventory-service",
 		Short: "Manage iinventory service",
-		Hidden: true,
 	}
 
 	cmd.AddCommand(newIinventoryServiceCombineItemStacksCmd(flags))

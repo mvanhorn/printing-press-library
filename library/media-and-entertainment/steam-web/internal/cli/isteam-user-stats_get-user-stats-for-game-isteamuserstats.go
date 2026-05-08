@@ -17,11 +17,20 @@ func newIsteamUserStatsGetUserStatsForGameIsteamuserstatsCmd(flags *rootFlags) *
 	var flagAppid string
 
 	cmd := &cobra.Command{
-		Use:     "get-user-stats-for-game-isteamuserstats",
-		Short:   "GetUserStatsForGame operation of ISteamUserStats",
-		Hidden: true,
-		Example: "  steam-web-pp-cli isteam-user-stats get-user-stats-for-game-isteamuserstats",
+		Use:         "get-user-stats-for-game-isteamuserstats",
+		Short:       "GetUserStatsForGame operation of ISteamUserStats",
+		Example:     "  steam-web-pp-cli isteam-user-stats get-user-stats-for-game-isteamuserstats --key your-token-here --steamid 42 --appid 42",
+		Annotations: map[string]string{"pp:endpoint": "isteam-user-stats.get-user-stats-for-game-isteamuserstats", "pp:method": "GET", "pp:path": "/ISteamUserStats/GetUserStatsForGame/v2", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("key") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "key")
+			}
+			if !cmd.Flags().Changed("steamid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "steamid")
+			}
+			if !cmd.Flags().Changed("appid") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "appid")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -38,9 +47,9 @@ func newIsteamUserStatsGetUserStatsForGameIsteamuserstatsCmd(flags *rootFlags) *
 			if flagAppid != "" {
 				params["appid"] = fmt.Sprintf("%v", flagAppid)
 			}
-			data, prov, err := resolveRead(c, flags, "isteam-user-stats", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "isteam-user-stats", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -48,14 +57,15 @@ func newIsteamUserStatsGetUserStatsForGameIsteamuserstatsCmd(flags *rootFlags) *
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -81,9 +91,7 @@ func newIsteamUserStatsGetUserStatsForGameIsteamuserstatsCmd(flags *rootFlags) *
 	}
 	cmd.Flags().StringVar(&flagKey, "key", "", "access key")
 	cmd.Flags().StringVar(&flagSteamid, "steamid", "", "SteamID of user")
-	_ = cmd.MarkFlagRequired("steamid")
 	cmd.Flags().StringVar(&flagAppid, "appid", "", "appid of game")
-	_ = cmd.MarkFlagRequired("appid")
 
 	return cmd
 }
