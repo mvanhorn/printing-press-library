@@ -18,17 +18,23 @@ jobs:
   verify:
     name: Validate SKILL.md against shipped CLI source
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout library
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
-      - name: Run verifier against every CLI with a SKILL.md
+      - name: Run verifier against affected CLI skills
         id: verify
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
           set +e
           VERIFIER=".github/scripts/verify-skill/verify_skill.py"
@@ -36,11 +42,14 @@ jobs:
             echo "::error::Verifier not found at $VERIFIER"
             exit 2
           fi
+
           FAIL=0
           CLI_COUNT=0
-          for dir in library/*/*/; do
-            if [ ! -f "$dir/SKILL.md" ]; then continue; fi
-            if [ ! -d "$dir/internal/cli" ]; then continue; fi
+
+          verify_dir() {
+            local dir="$1"
+            if [ ! -f "$dir/SKILL.md" ]; then return; fi
+            if [ ! -d "$dir/internal/cli" ]; then return; fi
             CLI_COUNT=$((CLI_COUNT + 1))
             echo "::group::$dir"
             python3 "$VERIFIER" --dir "$dir"
@@ -50,7 +59,61 @@ jobs:
               echo "::error title=SKILL verification failed::$dir"
             fi
             echo "::endgroup::"
+          }
+
+          run_all() {
+            for dir in library/*/*/; do
+              verify_dir "$dir"
+            done
+          }
+
+          FULL_SCAN=0
+          if [ -z "$BASE_REF" ]; then
+            FULL_SCAN=1
+          fi
+
+          if [ "$FULL_SCAN" -eq 0 ]; then
+            if git rev-parse --verify "origin/$BASE_REF" >/dev/null 2>&1; then
+              mapfile -t changed_files < <(git diff --name-only "origin/$BASE_REF"...HEAD)
+            else
+              echo "::warning::Could not find origin/$BASE_REF; running full SKILL verification."
+              FULL_SCAN=1
+              changed_files=()
+            fi
+          else
+            changed_files=()
+          fi
+
+          declare -A target_dirs=()
+          for file in "${changed_files[@]}"; do
+            case "$file" in
+              .github/workflows/verify-skills.yml|.github/scripts/verify-skill/*)
+                FULL_SCAN=1
+                ;;
+              library/*/*/SKILL.md|library/*/*/internal/cli/*)
+                rest="${file#library/}"
+                category="${rest%%/*}"
+                rest="${rest#*/}"
+                slug="${rest%%/*}"
+                target_dirs["library/$category/$slug/"]=1
+                ;;
+            esac
           done
+
+          if [ "$FULL_SCAN" -eq 1 ]; then
+            echo "Running verifier against every CLI with a SKILL.md."
+            run_all
+          else
+            if [ "${#target_dirs[@]}" -eq 0 ]; then
+              echo "No affected CLI skill directories found."
+              exit 0
+            fi
+
+            while IFS= read -r dir; do
+              verify_dir "$dir"
+            done < <(printf '%s\n' "${!target_dirs[@]}" | sort)
+          fi
+
           echo "CLIs checked: $CLI_COUNT"
           echo "Failed: $FAIL"
           exit $FAIL
