@@ -17,6 +17,13 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/google-search-console/internal/store"
 )
 
+// defaultSyncResources lists the resources the sync command pulls into the
+// local store. Surfaced for introspection so callers can see what `sync` will
+// touch without inspecting source.
+func defaultSyncResources() []string {
+	return []string{"search_analytics", "sites", "sitemaps"}
+}
+
 func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var (
 		siteURL    string
@@ -119,6 +126,7 @@ Examples:
 			out := map[string]any{
 				"started_at": started,
 				"db_path":    s.Path,
+				"resources":  defaultSyncResources(),
 				"sites":      summary,
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), out, flags)
@@ -215,18 +223,22 @@ func fetchSiteSnapshot(c apiClient) ([]store.SiteRow, error) {
 // `searchAppearance` is mutually exclusive with other dimensions in a
 // single query, so it is handled by the `appearance` command on a separate
 // sync path.
+//
+// Path pattern: POST /webmasters/v3/sites/{site}/searchAnalytics/query
+// Pagination: GSC's API uses an integer `startRow` cursor; we page in
+// pageSize-row windows until a short page or the 250k hard ceiling.
 func pullSearchAnalytics(c apiClient, site, start, end, searchType string) ([]store.AnalyticsRow, error) {
 	const pageSize = 25000
 	dimensions := []string{"date", "query", "page", "country", "device"}
 	all := []store.AnalyticsRow{}
-	startRow := 0
+	cursor := 0
 	for {
 		body := map[string]any{
 			"startDate":  start,
 			"endDate":    end,
 			"dimensions": dimensions,
 			"rowLimit":   pageSize,
-			"startRow":   startRow,
+			"startRow":   cursor,
 			"searchType": searchType,
 			"dataState":  "final",
 		}
@@ -271,8 +283,8 @@ func pullSearchAnalytics(c apiClient, site, start, end, searchType string) ([]st
 		if len(resp.Rows) < pageSize {
 			return all, nil
 		}
-		startRow += pageSize
-		if startRow > 250000 {
+		cursor += pageSize
+		if cursor > 250000 {
 			return all, nil // hard ceiling
 		}
 	}
