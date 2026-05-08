@@ -25,10 +25,10 @@ func newSchedulesPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:   "schedules",
-		Short: "Returns scheduled flights that have been published by airlines. These schedules are available for up to three months...",
-		Long:  "Shortcut for 'schedules get-by-date'. Returns scheduled flights that have been published by airlines. These schedules are available for up to three months...",
-		Example: "  flight-goat-pp-cli schedules",
+		Use:         "schedules",
+		Short:       "Returns scheduled flights that have been published by airlines. These schedules are available for up to three months...",
+		Long:        "Shortcut for 'schedules get-by-date'. Returns scheduled flights that have been published by airlines. These schedules are available for up to three months...",
+		Example:     "  flight-goat-pp-cli schedules",
 		Annotations: map[string]string{"pp:endpoint": "schedules.get-by-date", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("date-start") && !flags.dryRun {
@@ -43,17 +43,19 @@ func newSchedulesPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/schedules/{date_start}/{date_end}"
+			// PATCH(upstream printing-press-library#293): promoted schedules gets date_start/date_end
+			// as flags, but AeroAPI requires them in the URL path rather than the query string.
+			path = replacePathParam(path, "date_start", flagDateStart)
+			path = replacePathParam(path, "date_end", flagDateEnd)
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "schedules", path, map[string]string{
-				"date_start": fmt.Sprintf("%v", flagDateStart),
-				"date_end": fmt.Sprintf("%v", flagDateEnd),
-				"origin": fmt.Sprintf("%v", flagOrigin),
-				"destination": fmt.Sprintf("%v", flagDestination),
-				"airline": fmt.Sprintf("%v", flagAirline),
-				"flight_number": fmt.Sprintf("%v", flagFlightNumber),
+				"origin":             fmt.Sprintf("%v", flagOrigin),
+				"destination":        fmt.Sprintf("%v", flagDestination),
+				"airline":            fmt.Sprintf("%v", flagAirline),
+				"flight_number":      fmt.Sprintf("%v", flagFlightNumber),
 				"include_codeshares": fmt.Sprintf("%v", flagIncludeCodeshares),
-				"include_regional": fmt.Sprintf("%v", flagIncludeRegional),
-				"max_pages": fmt.Sprintf("%v", flagMaxPages),
-				"cursor": fmt.Sprintf("%v", flagCursor),
+				"include_regional":   fmt.Sprintf("%v", flagIncludeRegional),
+				"max_pages":          fmt.Sprintf("%v", flagMaxPages),
+				"cursor":             fmt.Sprintf("%v", flagCursor),
 			}, nil, flagAll, "cursor", "", "")
 			if err != nil {
 				return classifyAPIError(err)

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-08",
+  "base_run_id": "2026-05-02T22:09:06.820184Z",
+  "base_printing_press_version": "3.6.0",
+  "upstream_tracking": [
+    "https://github.com/mvanhorn/printing-press-library/issues/293"
+  ],
+  "patches": [
+    {
+      "id": "293-schedules-date-path-params",
+      "upstream_issue": "https://github.com/mvanhorn/printing-press-library/issues/293",
+      "files": [
+        "internal/cli/promoted_schedules.go"
+      ],
+      "summary": "Substitute `date_start` and `date_end` into the schedules URL path.",
+      "reason": "The promoted schedules shortcut received these values as flags, but AeroAPI defines them as path parameters; sending them as query parameters left literal placeholders in the request URL.",
+      "validated_outcome": "go test ./internal/cli -run TestSchedulesDryRunSubstitutesDatePathParams -count=1"
+    }
+  ]
+}
