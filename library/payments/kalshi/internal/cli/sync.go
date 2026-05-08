@@ -822,6 +822,13 @@ func parseSinceDuration(s string) (time.Time, error) {
 }
 
 func defaultSyncResources() []string {
+	// PATCH(upstream cli-printing-press#689): Added "portfolio-settlements"
+	// as a sibling sync resource. The generator emits one endpoint per
+	// resource family, so `portfolio` was bound to /portfolio/fills only —
+	// settlements never landed in the store, leaving novel-feature commands
+	// (portfolio winrate / attribution) with nothing to query. The upstream
+	// fix is multi-endpoint resource families; until then, this entry plus
+	// its row in syncResourcePath is the manual workaround.
 	return []string{
 		"account",
 		"api-keys",
@@ -837,6 +844,7 @@ func defaultSyncResources() []string {
 		"milestones",
 		"multivariate-event-collections",
 		"portfolio",
+		"portfolio-settlements",
 		"series",
 		"structured-targets",
 	}
@@ -861,8 +869,14 @@ func syncResourcePath(resource string) (string, error) {
 		"milestones":                     "/milestones",
 		"multivariate-event-collections": "/multivariate_event_collections",
 		"portfolio":                      "/portfolio/fills",
-		"series":                         "/series",
-		"structured-targets":             "/structured_targets",
+		// PATCH(upstream cli-printing-press#689): sibling endpoint added so
+		// settlements get synced into the resources table; required by
+		// portfolio winrate / attribution. Remove if the upstream
+		// multi-endpoint-per-resource generator fix lands and this CLI is
+		// regenerated.
+		"portfolio-settlements": "/portfolio/settlements",
+		"series":                "/series",
+		"structured-targets":    "/structured_targets",
 	}
 	if p, ok := paths[resource]; ok {
 		return p, nil
@@ -879,14 +893,24 @@ func syncResourcePath(resource string) (string, error) {
 // Includes both flat resources and dependent (parent-child) resources so
 // annotations on a child path-item are honored at runtime, not just on
 // flat paths.
+//
+// PATCH(upstream cli-printing-press#689): The generator profiler picked
+// `cursor` (the pagination wrapper field) instead of descending into the
+// array-element schema. At runtime extractID looked for `cursor` on each
+// item, missed, fell through to generic fallbacks, missed those too, and
+// dropped every row. Hand-patched to the array-element PKs from spec.yaml
+// (Event.event_ticker, Market.ticker, Order.order_id, Settlement.ticker,
+// Fill.fill_id) until the upstream profiler fix lands and we regenerate.
 var resourceIDFieldOverrides = map[string]string{
-	"account":        "usage_tier",
-	"communications": "communications_id",
-	"events":         "cursor",
-	"fcm":            "cursor",
-	"historical":     "cursor",
-	"markets":        "cursor",
-	"portfolio":      "cursor",
+	"account":               "usage_tier",
+	"communications":        "communications_id",
+	"events":                "event_ticker",
+	"fcm":                   "order_id",
+	"historical":            "fill_id",
+	"markets":               "ticker",
+	"portfolio":             "fill_id",
+	"portfolio-settlements": "ticker",
+	"series":                "series_ticker",
 }
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did

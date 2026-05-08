@@ -118,17 +118,28 @@ func queryAttribution(db *sql.DB, byField, sinceTS string) ([]attributionRow, er
 		groupExpr = "COALESCE(json_extract(m.data, '$.category'), SUBSTR(m.id, 1, INSTR(m.id, '-')-1))"
 	}
 
+	// PATCH(upstream cli-printing-press#689 Bug 4): The generated SQL was
+	// written against a generic settlement mental model (`$.type='settlement'`,
+	// `$.settled_at`, `$.cost` in cents) that doesn't match Kalshi's Settlement
+	// schema. Real fields per spec.yaml: settled_time (date-time), revenue
+	// (integer cents), yes_total_cost_dollars + no_total_cost_dollars (string
+	// dollars-as-string via FixedPointDollars). Won = revenue > 0 (settlement
+	// paid out), lost = revenue == 0. Settlements live in their own
+	// resource_type now (see portfolio-settlements in sync.go).
 	query := fmt.Sprintf(`
 		SELECT
 			COALESCE(%s, 'unknown') as grp,
 			COUNT(*) as trades,
-			SUM(CASE WHEN json_extract(p.data, '$.revenue') > json_extract(p.data, '$.cost') THEN 1 ELSE 0 END) as won,
-			SUM(CASE WHEN json_extract(p.data, '$.revenue') <= json_extract(p.data, '$.cost') THEN 1 ELSE 0 END) as lost,
-			SUM(COALESCE(json_extract(p.data, '$.revenue'), 0) - COALESCE(json_extract(p.data, '$.cost'), 0)) / 100.0 as net_pnl
+			SUM(CASE WHEN COALESCE(json_extract(p.data, '$.revenue'), 0) > 0 THEN 1 ELSE 0 END) as won,
+			SUM(CASE WHEN COALESCE(json_extract(p.data, '$.revenue'), 0) = 0 THEN 1 ELSE 0 END) as lost,
+			SUM(
+				COALESCE(json_extract(p.data, '$.revenue'), 0) / 100.0
+				- COALESCE(CAST(json_extract(p.data, '$.yes_total_cost_dollars') AS REAL), 0)
+				- COALESCE(CAST(json_extract(p.data, '$.no_total_cost_dollars') AS REAL), 0)
+			) as net_pnl
 		FROM resources p
-		LEFT JOIN resources m ON m.resource_type = 'markets' AND json_extract(p.data, '$.market_ticker') = m.id
-		WHERE json_extract(p.data, '$.type') = 'settlement'
-			OR json_extract(p.data, '$.settled_at') IS NOT NULL
+		LEFT JOIN resources m ON m.resource_type = 'markets' AND p.id = m.id
+		WHERE p.resource_type = 'portfolio-settlements'
 	`, groupExpr)
 
 	if sinceTS != "" {
@@ -244,21 +255,28 @@ func queryWinRate(db *sql.DB, byField string) ([]winRateRow, error) {
 		groupExpr = "COALESCE(json_extract(m.data, '$.series_ticker'), 'unknown')"
 	}
 
+	// PATCH(upstream cli-printing-press#689 Bug 4): see queryAttribution above
+	// for the full note. Won = revenue > 0; cost is the sum of the two
+	// FixedPointDollars cost legs (already in dollars, parsed via CAST AS
+	// REAL); revenue is in cents and converted with /100.0. Settlements
+	// filter on resource_type rather than the synthetic $.type='settlement'.
 	query := fmt.Sprintf(`
 		SELECT
 			%s as grp,
 			COUNT(*) as total,
-			SUM(CASE WHEN json_extract(p.data, '$.revenue') > json_extract(p.data, '$.cost') THEN 1 ELSE 0 END) as won,
-			SUM(CASE WHEN json_extract(p.data, '$.revenue') <= json_extract(p.data, '$.cost') THEN 1 ELSE 0 END) as lost,
+			SUM(CASE WHEN COALESCE(json_extract(p.data, '$.revenue'), 0) > 0 THEN 1 ELSE 0 END) as won,
+			SUM(CASE WHEN COALESCE(json_extract(p.data, '$.revenue'), 0) = 0 THEN 1 ELSE 0 END) as lost,
 			CASE WHEN COUNT(*) > 0
-				THEN CAST(SUM(CASE WHEN json_extract(p.data, '$.revenue') > json_extract(p.data, '$.cost') THEN 1 ELSE 0 END) AS REAL) / COUNT(*) * 100
+				THEN CAST(SUM(CASE WHEN COALESCE(json_extract(p.data, '$.revenue'), 0) > 0 THEN 1 ELSE 0 END) AS REAL) / COUNT(*) * 100
 				ELSE 0 END as win_rate,
-			SUM(COALESCE(json_extract(p.data, '$.cost'), 0)) / 100.0 as total_cost,
+			SUM(
+				COALESCE(CAST(json_extract(p.data, '$.yes_total_cost_dollars') AS REAL), 0)
+				+ COALESCE(CAST(json_extract(p.data, '$.no_total_cost_dollars') AS REAL), 0)
+			) as total_cost,
 			SUM(COALESCE(json_extract(p.data, '$.revenue'), 0)) / 100.0 as total_revenue
 		FROM resources p
-		LEFT JOIN resources m ON m.resource_type = 'markets' AND json_extract(p.data, '$.market_ticker') = m.id
-		WHERE json_extract(p.data, '$.type') = 'settlement'
-			OR json_extract(p.data, '$.settled_at') IS NOT NULL
+		LEFT JOIN resources m ON m.resource_type = 'markets' AND p.id = m.id
+		WHERE p.resource_type = 'portfolio-settlements'
 		GROUP BY grp
 		ORDER BY win_rate DESC
 	`, groupExpr)

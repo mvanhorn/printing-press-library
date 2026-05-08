@@ -2072,14 +2072,22 @@ func (s *Store) UpsertApiKeys(data json.RawMessage) error {
 // Includes both flat resources and dependent (parent-child) resources so a
 // child path-item annotated with x-resource-id resolves the same as a flat
 // path-item.
+//
+// PATCH(upstream cli-printing-press#689): Mirror of the same map in
+// internal/cli/sync.go — must stay in sync. See that file for the full
+// note. The generator emitted `cursor` (a wrapper-level pagination token)
+// for these resources, which is not a per-item PK; rows were silently
+// dropped. Replaced with the real array-element PKs from spec.yaml.
 var resourceIDFieldOverrides = map[string]string{
-	"account":        "usage_tier",
-	"communications": "communications_id",
-	"events":         "cursor",
-	"fcm":            "cursor",
-	"historical":     "cursor",
-	"markets":        "cursor",
-	"portfolio":      "cursor",
+	"account":               "usage_tier",
+	"communications":        "communications_id",
+	"events":                "event_ticker",
+	"fcm":                   "order_id",
+	"historical":            "fill_id",
+	"markets":                "ticker",
+	"portfolio":             "fill_id",
+	"portfolio-settlements": "ticker",
+	"series":                "series_ticker",
 }
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did

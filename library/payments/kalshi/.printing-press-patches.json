@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-07",
+  "base_run_id": "20260504-204550",
+  "base_printing_press_version": "3.9.0",
+  "upstream_tracking": [
+    "https://github.com/mvanhorn/cli-printing-press/issues/689"
+  ],
+  "patches": [
+    {
+      "id": "689-bug1-resource-id-overrides",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/689",
+      "files": [
+        "internal/cli/sync.go",
+        "internal/store/store.go"
+      ],
+      "summary": "Replace `cursor` with real array-element PKs in resourceIDFieldOverrides.",
+      "reason": "Generator profiler picked the response-wrapper pagination field instead of descending into the array-element schema, so every synced row was silently dropped at upsert time.",
+      "validated_outcome": "events 0 → ~10000 rows, markets 0 → ~10000, portfolio 0 → ~2698, series 0 → ~10021, historical 0 → ~8878 (per upstream issue's debug session)."
+    },
+    {
+      "id": "689-bug2-portfolio-settlements-resource",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/689",
+      "files": [
+        "internal/cli/sync.go"
+      ],
+      "summary": "Add `portfolio-settlements` as a sibling sync resource bound to /portfolio/settlements.",
+      "reason": "resourcePathMap is 1:1 — `portfolio` only targets /portfolio/fills, so settlements never landed in the store and novel-feature commands had no data to query."
+    },
+    {
+      "id": "689-bug4-novel-feature-sql-fields",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/689",
+      "files": [
+        "internal/cli/transcendence.go"
+      ],
+      "summary": "Rewrite queryAttribution + queryWinRate against the real Settlement schema and filter on resource_type.",
+      "reason": "Generated SQL referenced fields that don't exist in Kalshi's response shape (`$.type='settlement'`, `$.settled_at`, `$.cost`); queries returned [] even after settlements were synced.",
+      "validated_outcome": "1404 settlements, 63.5% win rate, $226.04 revenue, $323.60 cost, net P&L -$97.56 (per upstream issue's debug session)."
+    }
+  ],
+  "deferred_to_upstream": [
+    {
+      "summary": "Bug 3 — multi-array envelope support for /portfolio/positions",
+      "reason": "Architectural; needs spec annotation or generator heuristic. `portfolio exposure` can't return real data until then."
+    },
+    {
+      "summary": "Bug 5 — Kalshi RSA-PSS auth specialization (doctor hint, set-token slot, auth_source labeling)",
+      "reason": "Cosmetic; touches generator auth-emission templates."
+    }
+  ]
+}
