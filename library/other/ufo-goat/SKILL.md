@@ -1,5 +1,5 @@
 ---
-name: pp-ufo
+name: pp-ufo-goat
 description: "The declassified UAP file archive in your terminal — browse, search, and download 162+ files from the PURSUE initiative Trigger phrases: `check UFO files`, `search declassified UAP`, `download PURSUE files`, `war.gov UFO`, `browse UFO archive`, `use ufo`."
 author: "Dave Morin"
 license: "Apache-2.0"
@@ -13,7 +13,7 @@ metadata:
     install:
       - kind: go
         bins: [ufo-goat-pp-cli]
-        module: github.com/mvanhorn/printing-press-library/library/other/ufo/cmd/ufo-goat-pp-cli
+        module: github.com/mvanhorn/printing-press-library/library/other/ufo-goat/cmd/ufo-goat-pp-cli
 ---
 
 # War.gov UFO — Printing Press CLI
@@ -273,7 +273,7 @@ Parse `$ARGUMENTS`:
    ```
 2. Register with Claude Code:
    ```bash
-   claude mcp add ufo-pp-mcp -- ufo-pp-mcp
+   claude mcp add ufo-goat-pp-mcp -- ufo-goat-pp-mcp
    ```
 3. Verify: `claude mcp list`
 

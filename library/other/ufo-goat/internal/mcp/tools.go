@@ -298,7 +298,7 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
-		"api":         "ufo",
+		"api":         "ufo-goat",
 		"description": "Browse, search, and download declassified UAP files from the War.gov PURSUE archive",
 		"archetype":   "generic",
 		"tool_count":  4,

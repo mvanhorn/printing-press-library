@@ -6,7 +6,7 @@ The first CLI for the War.gov/UFO declassified files portal. Search across all f
 
 ## Install
 
-The recommended path installs both the `ufo-goat-pp-cli` binary and the `pp-ufo` agent skill in one shot:
+The recommended path installs both the `ufo-goat-pp-cli` binary and the `pp-ufo-goat` agent skill in one shot:
 
 ```bash
 npx -y @mvanhorn/printing-press install ufo
@@ -23,7 +23,7 @@ npx -y @mvanhorn/printing-press install ufo --cli-only
 If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/other/ufo/cmd/ufo-goat-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/other/ufo-goat/cmd/ufo-goat-pp-cli@latest
 ```
 
 This installs the CLI only — no skill.
@@ -38,13 +38,13 @@ Download a pre-built binary for your platform from the [latest release](https://
 From the Hermes CLI:
 
 ```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-ufo --force
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-ufo-goat --force
 ```
 
 Inside a Hermes chat session:
 
 ```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-ufo --force
+/skills install mvanhorn/printing-press-library/cli-skills/pp-ufo-goat --force
 ```
 
 ## Install for OpenClaw
@@ -52,7 +52,7 @@ Inside a Hermes chat session:
 Tell your OpenClaw agent (copy this):
 
 ```
-Install the pp-ufo skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-ufo. The skill defines how its required CLI can be installed.
+Install the pp-ufo-goat skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-ufo-goat. The skill defines how its required CLI can be installed.
 ```
 
 ## Authentication
@@ -233,10 +233,10 @@ Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API
 Install the focused skill — it auto-installs the CLI on first invocation:
 
 ```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-ufo -g
+npx skills add mvanhorn/printing-press-library/cli-skills/pp-ufo-goat -g
 ```
 
-Then invoke `/pp-ufo <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
+Then invoke `/pp-ufo-goat <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
 
 <details>
 <summary>Use as an MCP server in Claude Code (advanced)</summary>
@@ -244,13 +244,13 @@ Then invoke `/pp-ufo <query>` in Claude Code. The skill is the most efficient pa
 If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/other/ufo/cmd/ufo-pp-mcp@latest
+go install github.com/mvanhorn/printing-press-library/library/other/ufo-goat/cmd/ufo-goat-pp-mcp@latest
 ```
 
 Then register it:
 
 ```bash
-claude mcp add ufo ufo-pp-mcp
+claude mcp add ufo-goat ufo-goat-pp-mcp
 ```
 
 </details>
@@ -272,7 +272,7 @@ Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple S
 If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/other/ufo/cmd/ufo-pp-mcp@latest
+go install github.com/mvanhorn/printing-press-library/library/other/ufo-goat/cmd/ufo-goat-pp-mcp@latest
 ```
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
@@ -280,8 +280,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 ```json
 {
   "mcpServers": {
-    "ufo": {
-      "command": "ufo-pp-mcp"
+    "ufo-goat": {
+      "command": "ufo-goat-pp-mcp"
     }
   }
 }

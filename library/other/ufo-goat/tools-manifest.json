@@ -1,5 +1,5 @@
 {
-  "api_name": "ufo",
+  "api_name": "ufo-goat",
   "base_url": "https://raw.githubusercontent.com/DenisSergeevitch/UFO-USA/main/metadata",
   "description": "Browse, search, and download declassified UAP files from the War.gov PURSUE archive",
   "mcp_ready": "full",
