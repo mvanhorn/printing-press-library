@@ -66,6 +66,23 @@ def validate(cli_dir: Path) -> list[str]:
     if "${__dirname}" not in cmd:
         problems.append(f'server.mcp_config.command should contain ${{__dirname}} (got {cmd!r})')
 
+    expected_mcp = pp.get("mcp_binary")
+    if expected_mcp:
+        if m.get("name") != expected_mcp:
+            problems.append(
+                f'manifest name {m.get("name")!r} mismatches .printing-press.json mcp_binary {expected_mcp!r}'
+            )
+        expected_entry = f"bin/{expected_mcp}"
+        if entry and entry != expected_entry:
+            problems.append(
+                f"server.entry_point {entry!r} mismatches expected {expected_entry!r}"
+            )
+        expected_cmd = f"${{__dirname}}/{expected_entry}"
+        if cmd and cmd != expected_cmd:
+            problems.append(
+                f"server.mcp_config.command {cmd!r} mismatches expected {expected_cmd!r}"
+            )
+
     # user_config keys must match declared auth env vars (when both present).
     declared_envs = set(pp.get("auth_env_vars") or [])
     user_config = m.get("user_config") or {}
