@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-08T17:52:31.44997Z",
+  "printing_press_version": "4.0.3",
+  "api_name": "ufo-goat",
+  "display_name": "War.gov UFO",
+  "cli_name": "ufo-goat-pp-cli",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:ec5d430ebefe8b5c7ca2ed4177fb00a1d2cdbefe8eac571baff38c116bac1464",
+  "mcp_binary": "ufo-goat-pp-mcp",
+  "mcp_tool_count": 4,
+  "mcp_public_tool_count": 4,
+  "mcp_ready": "full",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Release Sync",
+      "command": "sync",
+      "description": "Automatically detect and fetch new file tranches as the government releases them on a rolling basis"
+    },
+    {
+      "name": "What's New",
+      "command": "new",
+      "description": "See exactly which files were added since your last sync \u2014 the 'what did I miss' command for rolling releases"
+    },
+    {
+      "name": "Cross-Agency Timeline",
+      "command": "timeline",
+      "description": "View a chronological incident timeline spanning 1944-2025 across all four agencies"
+    },
+    {
+      "name": "Paired File Discovery",
+      "command": "pairs",
+      "description": "Find video-PDF pairings so researchers can locate the document that accompanies a video and vice versa"
+    },
+    {
+      "name": "Download Manager",
+      "command": "download",
+      "description": "Download files with resume support, verification, and progress tracking for the 2.3 GB archive"
+    },
+    {
+      "name": "Agency Breakdown",
+      "command": "agencies",
+      "description": "See which agency contributed what: file counts, types, date ranges, and coverage analysis"
+    },
+    {
+      "name": "Location Intelligence",
+      "command": "locations",
+      "description": "Aggregate incidents by geographic location for mapping and spatial analysis"
+    }
+  ],
+  "category": "other",
+  "run_id": "20260508-101534"
+}

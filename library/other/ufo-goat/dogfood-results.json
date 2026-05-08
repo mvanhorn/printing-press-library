@@ -1,0 +1,100 @@
+{
+  "dir": ".",
+  "spec_path": "/Users/davemorin/printing-press/.runstate/davemorin-2d86084d/runs/20260508-101534/research/ufo-spec.yaml",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "spec not provided or no bot/bearer scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "dead_flags": {
+    "total": 18,
+    "dead": 1,
+    "items": [
+      "plain"
+    ]
+  },
+  "dead_functions": {
+    "total": 44,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": false,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "detail": "sync Upsert calls not found; search methods not found; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 9,
+    "with_examples": 9,
+    "valid_examples": 9,
+    "detail": "9/9 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 32,
+      "registered": 32
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 0,
+    "found": 0,
+    "skipped": true
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 0,
+    "exempted_via_store": 0,
+    "skipped": true
+  },
+  "source_client_check": {
+    "checked": 1,
+    "findings": [
+      {
+        "package": "manifest",
+        "file": "internal/manifest/manifest.go",
+        "reason": "outbound HTTP without rate limiter (cliutil.AdaptiveLimiter or equivalent)"
+      }
+    ]
+  },
+  "print_json_filtered_check": {
+    "checked": 26
+  },
+  "test_presence": {
+    "checked": 1
+  },
+  "naming_check": {
+    "checked": 26
+  },
+  "issues": [
+    "1 dead flags found",
+    "sync uses generic Upsert only",
+    "1 source client file(s) without rate-limit handling: internal/manifest/manifest.go — outbound HTTP without rate limiter (cliutil.AdaptiveLimiter or equivalent)"
+  ]
+}

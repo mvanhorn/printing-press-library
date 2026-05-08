@@ -1,0 +1,51 @@
+version: 2
+project_name: ufo-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: ufo-pp-cli
+    main: ./cmd/ufo-pp-cli
+    binary: ufo-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X ufo-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: ufo-pp-mcp
+    main: ./cmd/ufo-pp-mcp
+    binary: ufo-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: ufo-pp-cli
+    repository:
+      owner: dave-morin
+      name: homebrew-tap
+    homepage: "https://github.com/dave-morin/ufo-pp-cli"
+    description: "Browse, search, and download declassified UAP files from the War.gov PURSUE archive"
+    install: |
+      bin.install "ufo-pp-cli"
+      bin.install "ufo-pp-mcp"

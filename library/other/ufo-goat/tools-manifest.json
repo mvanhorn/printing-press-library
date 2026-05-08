@@ -1,0 +1,98 @@
+{
+  "api_name": "ufo",
+  "base_url": "https://raw.githubusercontent.com/DenisSergeevitch/UFO-USA/main/metadata",
+  "description": "Browse, search, and download declassified UAP files from the War.gov PURSUE archive",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "agencies_list",
+      "description": "List all contributing agencies with file counts.",
+      "method": "GET",
+      "path": "/agencies",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "files_get",
+      "description": "Get details of a specific file. Required: id.",
+      "method": "GET",
+      "path": "/files/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "File ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_list",
+      "description": "List all declassified UAP files. Optional: agency, type, location (plus 3 more).",
+      "method": "GET",
+      "path": "/uap-csv.csv",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agency",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by agency"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by file type (PDF, VID, IMG)"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by incident location"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Show files with incident dates after this date"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Show files with incident dates before this date"
+        },
+        {
+          "name": "redacted",
+          "type": "boolean",
+          "location": "query",
+          "description": "Filter by redaction status"
+        }
+      ]
+    },
+    {
+      "name": "files_search",
+      "description": "Full-text search across file titles, descriptions, and locations. Required: q.",
+      "method": "GET",
+      "path": "/files/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        }
+      ]
+    }
+  ]
+}
