@@ -82,6 +82,8 @@ def validate(cli_dir: Path) -> list[str]:
             problems.append(
                 f"server.mcp_config.command {cmd!r} mismatches expected {expected_cmd!r}"
             )
+        if not (cli_dir / "cmd" / expected_mcp).is_dir():
+            problems.append(f"cmd/{expected_mcp} directory is missing")
 
     # user_config keys must match declared auth env vars (when both present).
     declared_envs = set(pp.get("auth_env_vars") or [])

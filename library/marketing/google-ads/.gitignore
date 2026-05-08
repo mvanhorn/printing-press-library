@@ -1,6 +1,6 @@
 .env
-google-ads
-google-ads-pp-cli
-google-ads-pp-mcp
+/google-ads
+/google-ads-pp-cli
+/google-ads-pp-mcp
 dogfood-results.json
 workflow-verify-report.json
