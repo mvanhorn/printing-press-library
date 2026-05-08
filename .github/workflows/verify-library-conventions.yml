@@ -1,6 +1,6 @@
 name: Verify library conventions
 
-# PR-time guards for two invariants that local builds and the existing
+# PR-time guards for three invariants that local builds and the existing
 # verify-skills.yml / verify-manifests.yml workflows do not catch:
 #
 # 1. cli-skills/<slug>/SKILL.md must equal what
@@ -11,7 +11,12 @@ name: Verify library conventions
 #    workflow fixes drift after the fact, but a PR can ship visibly
 #    drifted mirrors that real users consume in the meantime.
 #
-# 2. library/<cat>/<slug>/go.mod's declared `module` path must match
+# 2. registry.json is generated from library metadata on main. Older
+#    PR flows sometimes committed it directly; same-repo PRs should have
+#    that generated diff removed automatically, and fork PRs should get
+#    a direct failure explaining the source-of-truth boundary.
+#
+# 3. library/<cat>/<slug>/go.mod's declared `module` path must match
 #    its directory location (github.com/mvanhorn/printing-press-library/<dirpath>).
 #    A mismatch compiles fine locally because the package is internally
 #    self-consistent, but every public install via `go install …@latest`
@@ -25,12 +30,13 @@ on:
     paths:
       - 'library/**'
       - 'cli-skills/**'
+      - 'registry.json'
       - 'tools/generate-skills/**'
       - '.github/workflows/verify-library-conventions.yml'
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   verify:
@@ -38,11 +44,56 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check generated registry diff
+        id: registry-diff
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          BASE_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          git remote add base "https://github.com/${BASE_REPO}.git" 2>/dev/null || git remote set-url base "https://github.com/${BASE_REPO}.git"
+          base_remote_ref="refs/remotes/base/${BASE_REF}"
+          git fetch --no-tags base "${BASE_REF}:${base_remote_ref}"
+
+          if git diff --quiet "${base_remote_ref}...HEAD" -- registry.json; then
+            echo "registry.json is not changed by this PR."
+            echo "changed=false" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+
+          echo "changed=true" >> "${GITHUB_OUTPUT}"
+
+      - name: Reset generated registry diff
+        if: steps.registry-diff.outputs.changed == 'true' && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+          base_remote_ref="refs/remotes/base/${BASE_REF}"
+          git checkout "${base_remote_ref}" -- registry.json
+
+      - name: Fail on generated registry diff from fork
+        if: steps.registry-diff.outputs.changed == 'true' && github.event.pull_request.head.repo.full_name != github.repository
+        run: |
+          echo "::error file=registry.json::registry.json is generated on main from library metadata. Remove it from this fork PR and let generate-registry.yml update it after merge."
+          exit 1
+
       - uses: actions/setup-go@v6
         with:
           go-version: '1.26.3'
 
       - name: cli-skills mirror parity
+        id: skill-diff
+        env:
+          EVENT_NAME: ${{ github.event_name }}
         run: |
           set -euo pipefail
           go run ./tools/generate-skills/main.go > /dev/null
@@ -52,14 +103,60 @@ jobs:
           # its cli-skills/pp-<slug>/SKILL.md alongside).
           drift=$(git status --porcelain -- cli-skills/)
           if [ -n "$drift" ]; then
-            echo "::error::cli-skills/ is out of sync with what tools/generate-skills produces from library/<cat>/<slug>/SKILL.md."
-            echo "::error::Run \`go run ./tools/generate-skills/main.go\` locally and commit the result."
             echo
             echo "Out-of-sync entries:"
             echo "$drift"
+            echo "changed=true" >> "${GITHUB_OUTPUT}"
+
+            if [ "${EVENT_NAME}" = "pull_request" ]; then
+              exit 0
+            fi
+
+            echo "::error::cli-skills/ is out of sync with what tools/generate-skills produces from library/<cat>/<slug>/SKILL.md."
+            echo "::error::Run \`go run ./tools/generate-skills/main.go\` locally and commit the result."
             exit 1
           fi
+          echo "changed=false" >> "${GITHUB_OUTPUT}"
           echo "cli-skills/ matches generator output."
+
+      - name: Commit generated convention fixes
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && (steps.registry-diff.outputs.changed == 'true' || steps.skill-diff.outputs.changed == 'true')
+        env:
+          BASE_REPO: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ github.token }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          REGISTRY_CHANGED: ${{ steps.registry-diff.outputs.changed }}
+          SKILL_CHANGED: ${{ steps.skill-diff.outputs.changed }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add registry.json
+          git add -A cli-skills/
+
+          if git diff --staged --quiet; then
+            echo "No generated convention fixes to commit."
+            exit 0
+          fi
+
+          if [ "${REGISTRY_CHANGED}" = "true" ] && [ "${SKILL_CHANGED}" = "true" ]; then
+            message="chore: refresh generated library artifacts"
+          elif [ "${REGISTRY_CHANGED}" = "true" ]; then
+            message="chore(registry): drop generated registry changes"
+          else
+            message="chore(skills): regenerate per-app skills"
+          fi
+
+          git commit -m "${message}"
+          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${BASE_REPO}.git" "HEAD:${HEAD_REF}"
+          echo "Committed generated convention fixes to the PR branch."
+
+      - name: Fail on cli-skills drift from fork
+        if: steps.skill-diff.outputs.changed == 'true' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+        run: |
+          echo "::error::cli-skills/ is out of sync with what tools/generate-skills produces from library/<cat>/<slug>/SKILL.md."
+          echo "::error::Run \`go run ./tools/generate-skills/main.go\` locally and commit the result."
+          exit 1
 
       - name: go.mod module path matches directory
         run: |
