@@ -1,6 +1,6 @@
 name: Verify library conventions
 
-# PR-time guards for three invariants that local builds and the existing
+# PR-time guards for four invariants that local builds and the existing
 # verify-skills.yml / verify-manifests.yml workflows do not catch:
 #
 # 1. cli-skills/<slug>/SKILL.md must equal what
@@ -24,6 +24,12 @@ name: Verify library conventions
 #    required as Y" error after the proxy has already served the zip.
 #    The hubspot CLI shipped with this exact bug for some time before
 #    being caught.
+#
+# 4. Every published CLI manifest must carry printer attribution, and
+#    existing CLI attribution must not change in the same PR as CLI
+#    behavior or docs. The printer / author fields are reviewable when
+#    corrected in an attribution-only PR, but a normal CLI improvement
+#    PR should never accidentally claim ownership of someone else's CLI.
 
 on:
   pull_request:
@@ -32,6 +38,8 @@ on:
       - 'cli-skills/**'
       - 'registry.json'
       - 'tools/generate-skills/**'
+      - 'tools/sweep-canonical/**'
+      - '.github/scripts/verify-attribution/**'
       - '.github/workflows/verify-library-conventions.yml'
   workflow_dispatch:
 
@@ -85,6 +93,15 @@ jobs:
         run: |
           echo "::error file=registry.json::registry.json is generated on main from library metadata. Remove it from this fork PR and let generate-registry.yml update it after merge."
           exit 1
+
+      - name: Guard CLI attribution
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+          base_remote_ref="refs/remotes/base/${BASE_REF}"
+          python3 .github/scripts/verify-attribution/verify_attribution.py --base "${base_remote_ref}"
 
       - uses: actions/setup-go@v6
         with:

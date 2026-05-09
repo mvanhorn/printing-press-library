@@ -6,6 +6,8 @@
   "category": "productivity",
   "display_name": "Fireflies Pp Cli",
   "cli_name": "fireflies-pp-cli",
+  "printer": "neektza",
+  "printer_name": "Nikica Jokic",
   "spec_path": "/Users/neektza/printing-press/.runstate/cli-printing-press-c22e9309/runs/20260509-005754/fireflies.graphql",
   "spec_format": "graphql",
   "spec_checksum": "sha256:cdd93e3e4c75aede548dac509a8591939f9d0316e6a3cc8f507b2493dac98ba8",

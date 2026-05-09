@@ -14,6 +14,10 @@ __debug_bin*
 # Local vulnerability scan reports
 .govulncheck/
 
+# Python bytecode caches from local verifier runs
+__pycache__/
+*.py[cod]
+
 # Build artifacts from printing-press verify/scorecard
 *-validation
 
