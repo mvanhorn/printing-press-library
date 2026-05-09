@@ -66,6 +66,7 @@ func newPagesPostCmd(flags *rootFlags) *cobra.Command {
 					}
 					body["content"] = parsedContent
 				}
+				// PATCH(pages-object-flags-json-parse): generator emits raw-string for oneOf fields; Notion API requires objects
 				if bodyCover != "" {
 					var parsedCover any
 					if err := json.Unmarshal([]byte(bodyCover), &parsedCover); err != nil {

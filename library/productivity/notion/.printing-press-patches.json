@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260508-225745",
+  "base_printing_press_version": "4.0.6",
+  "patches": [
+    {
+      "id": "pages-object-flags-json-parse",
+      "summary": "JSON-parse --parent, --cover, --icon flags in pages create and pages update.",
+      "reason": "Generator emits raw-string assignment for oneOf/anyOf union fields in the spec; Notion's API requires these as JSON objects, not strings, causing a 400 on any flag-based call.",
+      "files": [
+        "internal/cli/pages_post.go",
+        "internal/cli/pages_patch.go"
+      ],
+      "validated_outcome": "pages create --parent '{\"type\":\"page_id\",\"page_id\":\"...\"}' now returns 200; previously returned HTTP 400 validation_error."
+    },
+    {
+      "id": "markdown-import-flag",
+      "summary": "Add --markdown flag to pages markdown import that wraps content in the required discriminated union body.",
+      "reason": "The only interface was --stdin, which required knowing the undiscoverable shape {\"type\":\"replace_content\",\"replace_content\":{\"new_str\":\"...\"}}. Not mentioned in --help, README, or SKILL.md.",
+      "files": [
+        "internal/cli/pages_markdown_update-page.go"
+      ],
+      "validated_outcome": "pages markdown import <id> --markdown '# Title\\n\\nBody' returns 200 and replaces page content."
+    }
+  ]
+}

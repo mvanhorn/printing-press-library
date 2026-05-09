@@ -23,7 +23,7 @@ npx -y @mvanhorn/printing-press install notion --cli-only
 If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/other/notion/cmd/notion-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/productivity/notion/cmd/notion-pp-cli@latest
 ```
 
 This installs the CLI only — no skill.
@@ -252,7 +252,7 @@ Then invoke `/pp-notion <query>` in Claude Code. The skill is the most efficient
 If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/other/notion/cmd/notion-pp-mcp@latest
+go install github.com/mvanhorn/printing-press-library/library/productivity/notion/cmd/notion-pp-mcp@latest
 ```
 
 Then register it:
@@ -281,7 +281,7 @@ Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple S
 If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/other/notion/cmd/notion-pp-mcp@latest
+go install github.com/mvanhorn/printing-press-library/library/productivity/notion/cmd/notion-pp-mcp@latest
 ```
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):

@@ -3,6 +3,7 @@
   "generated_at": "2026-05-08T21:26:56.658673Z",
   "printing_press_version": "4.0.6",
   "api_name": "notion",
+  "category": "productivity",
   "display_name": "Notion",
   "cli_name": "notion-pp-cli",
   "spec_path": "https://developers.notion.com/openapi.json",
