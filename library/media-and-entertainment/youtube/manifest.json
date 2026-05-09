@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "youtube-data-pp-mcp",
+  "display_name": "Youtube Data",
+  "version": "4.2.0",
+  "description": "Youtube Data API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/youtube-data-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/youtube-data-pp-mcp",
+      "args": [],
+      "env": {
+        "YOUTUBE_DATA_OAUTH2C": "${user_config.youtube_data_oauth2c}"
+      }
+    }
+  },
+  "user_config": {
+    "youtube_data_oauth2c": {
+      "type": "string",
+      "title": "YOUTUBE_DATA_OAUTH2C",
+      "description": "Sets YOUTUBE_DATA_OAUTH2C for the Youtube Data MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

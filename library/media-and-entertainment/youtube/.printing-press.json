@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T12:56:55.754632Z",
+  "printing_press_version": "4.2.0",
+  "api_name": "youtube",
+  "display_name": "Youtube Data",
+  "cli_name": "youtube-pp-cli",
+  "owner": "beomgithb",
+  "printer_name": "Beomgithb",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:d222bf372288311ccbdb358e7fd6a9d23a3962f1c8a4f54656d3e421eb5b8b8e",
+  "run_id": "20260509-200253",
+  "mcp_binary": "youtube-data-pp-mcp",
+  "mcp_tool_count": 76,
+  "mcp_ready": "full",
+  "api_version": "v3",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "YOUTUBE_DATA_OAUTH2C"
+  ],
+  "novel_features": [
+    {
+      "name": "Quota cost planner",
+      "command": "quota plan",
+      "description": "Dry-run any command sequence and see projected unit cost vs. your remaining 10K-unit daily budget before pressing enter."
+    },
+    {
+      "name": "Cross-corpus FTS search",
+      "command": "corpus search",
+      "description": "FTS5 search across all synced video metadata, transcripts, and comments in one query — no quota cost."
+    },
+    {
+      "name": "Channel digest with FTS",
+      "command": "digest",
+      "description": "For a tracked channel, list new uploads since a timestamp joined with transcript-FTS hits for a keyword set."
+    },
+    {
+      "name": "Trending list diff",
+      "command": "trending diff",
+      "description": "Diff today's `mostPopular` snapshot against an earlier date and show entries that entered, exited, or moved."
+    },
+    {
+      "name": "Per-video velocity",
+      "command": "velocity",
+      "description": "Compute Δviews, Δlikes, and Δcomments per day per video over a rolling window from your local snapshot history."
+    },
+    {
+      "name": "Topic-trending crossover",
+      "command": "topic crossover",
+      "description": "Find videos in trending snapshots whose title, description, or transcript mention a keyword, ranked by trending position."
+    },
+    {
+      "name": "Subscription feed rebuild",
+      "command": "subscriptions sweep",
+      "description": "OAuth-gated: rebuild the subscription feed locally — list subscribed channels' new uploads since a timestamp in chronological order."
+    },
+    {
+      "name": "Quota ledger audit",
+      "command": "cost ledger",
+      "description": "Show the rolling per-API-key ledger of every command's quota spend, aggregated by command, endpoint, and day."
+    }
+  ],
+  "printer": "Beomgithb"
+}

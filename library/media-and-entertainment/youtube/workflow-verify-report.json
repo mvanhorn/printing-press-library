@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/beom/printing-press/.runstate/cli-printing-press-85e93267/runs/20260509-200253/working/youtube-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

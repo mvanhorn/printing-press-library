@@ -1,0 +1,333 @@
+{
+  "api_name": "youtube",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "dannySubsense/youtube-mcp-server",
+      "url": "https://github.com/dannySubsense/youtube-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "anaisbetts/mcp-youtube",
+      "url": "https://github.com/anaisbetts/mcp-youtube",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "nattyraz/youtube-mcp",
+      "url": "https://github.com/nattyraz/youtube-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mourad-ghafiri/youtube-mcp-server",
+      "url": "https://github.com/mourad-ghafiri/youtube-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "yt-dlp/yt-dlp",
+      "url": "https://github.com/yt-dlp/yt-dlp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "happycod3r/YouTube-Data-API-v3-Tools",
+      "url": "https://github.com/happycod3r/YouTube-Data-API-v3-Tools",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "danvega/youtube-cli",
+      "url": "https://github.com/danvega/youtube-cli",
+      "language": "Java",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "0xPr0xy/youtube-cli",
+      "url": "https://github.com/0xPr0xy/youtube-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T20:08:00Z",
+  "novel_features": [
+    {
+      "name": "Quota cost planner",
+      "command": "quota plan",
+      "description": "Dry-run any command sequence and see projected unit cost vs. your remaining 10K-unit daily budget before pressing enter.",
+      "rationale": "Requires a local ledger of past spend keyed by API key plus a unit-cost map for every endpoint — no API exposes either.",
+      "example": "youtube-pp-cli quota plan search.list --times 5 --include-ledger --json --agent",
+      "why_it_matters": "Pick this when you need to know if a planned scrape will fit today's budget. Returns total units, per-endpoint breakdown, and remaining budget.",
+      "group": "Quota awareness"
+    },
+    {
+      "name": "Cross-corpus FTS search",
+      "command": "corpus search",
+      "description": "FTS5 search across all synced video metadata, transcripts, and comments in one query — no quota cost.",
+      "rationale": "Joins three local FTS5 indexes the API never exposes together; runs offline after sync.",
+      "example": "youtube-pp-cli corpus search 'inference latency' --since 30d --json --select hits.video_id,hits.channel,hits.snippet --agent",
+      "why_it_matters": "Reach for this when an agent needs to find which videos discuss a topic across a synced corpus without burning search.list quota (100 units per call).",
+      "group": "Local-state advantage"
+    },
+    {
+      "name": "Channel digest with FTS",
+      "command": "digest",
+      "description": "For a tracked channel, list new uploads since a timestamp joined with transcript-FTS hits for a keyword set.",
+      "rationale": "SQLite join of videos × transcripts × channels filtered by publishedAt and FTS in a single command — no MCP server does this.",
+      "example": "youtube-pp-cli digest UCBJycsmduvYEL83R_U4JriQ --since 7d --keywords inference,RAG,Sora --json --agent",
+      "why_it_matters": "Use this for weekly newsletter sweeps, agent research loops, or any 'what did this creator say about X this week' question.",
+      "group": "Local-state advantage"
+    },
+    {
+      "name": "Trending list diff",
+      "command": "trending diff",
+      "description": "Diff today's `mostPopular` snapshot against an earlier date and show entries that entered, exited, or moved.",
+      "rationale": "Powered by the trending_snapshots table the sync workflow populates; the API itself never returns historical trending.",
+      "example": "youtube-pp-cli trending diff --region US --since 2026-04-01 --json --agent",
+      "why_it_matters": "Pick this to detect rising or falling trending entries between two dates — useful for content trend reports and sentiment shifts.",
+      "group": "Trend tracking"
+    },
+    {
+      "name": "Per-video velocity",
+      "command": "velocity",
+      "description": "Compute Δviews, Δlikes, and Δcomments per day per video over a rolling window from your local snapshot history.",
+      "rationale": "Requires successive videos.list snapshots in the local store; the API only returns current totals.",
+      "example": "youtube-pp-cli velocity UCBJycsmduvYEL83R_U4JriQ --window 30d --json --agent",
+      "why_it_matters": "Use when you need 'which uploads from the last 30 days are accelerating or dying' — a question Studio shows piecemeal but agents can't extract.",
+      "group": "Trend tracking"
+    },
+    {
+      "name": "Topic-trending crossover",
+      "command": "topic crossover",
+      "description": "Find videos in trending snapshots whose title, description, or transcript mention a keyword, ranked by trending position.",
+      "rationale": "Three-table join of trending_snapshots × videos × transcripts that no API endpoint covers.",
+      "example": "youtube-pp-cli topic crossover 'AI safety' --regions US,GB --json --select results.video_id,results.title,results.trending_rank --agent",
+      "why_it_matters": "Use to spot when a niche topic crosses into mainstream trending lists — a signal for editorial timing.",
+      "group": "Trend tracking"
+    },
+    {
+      "name": "Subscription feed rebuild",
+      "command": "subscriptions sweep",
+      "description": "OAuth-gated: rebuild the subscription feed locally — list subscribed channels' new uploads since a timestamp in chronological order.",
+      "rationale": "Joins subscriptions.list with cached uploads playlists; the YouTube subscription feed itself is not exposed via the API.",
+      "example": "youtube-pp-cli subscriptions sweep --since 7d --json --agent",
+      "why_it_matters": "Pick this for an agent-readable replacement of the in-app subscription feed: filterable, sortable, replayable.",
+      "group": "Subscription mirror"
+    },
+    {
+      "name": "Quota ledger audit",
+      "command": "cost ledger",
+      "description": "Show the rolling per-API-key ledger of every command's quota spend, aggregated by command, endpoint, and day.",
+      "rationale": "Reads a local quota_log sidecar table populated by every command — no API exposes per-call billing detail.",
+      "example": "youtube-pp-cli cost ledger --last 24h --json --agent",
+      "why_it_matters": "Use after a quota-exceeded surprise to find the offending command, or daily to budget across multiple agents sharing one key.",
+      "group": "Quota awareness"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Quota cost planner",
+      "command": "quota plan",
+      "description": "Dry-run any command sequence and see projected unit cost vs. your remaining 10K-unit daily budget before pressing enter.",
+      "rationale": "Requires a local ledger of past spend keyed by API key plus a unit-cost map for every endpoint — no API exposes either.",
+      "example": "youtube-pp-cli quota plan search.list --times 5 --include-ledger --json --agent",
+      "why_it_matters": "Pick this when you need to know if a planned scrape will fit today's budget. Returns total units, per-endpoint breakdown, and remaining budget.",
+      "group": "Quota awareness"
+    },
+    {
+      "name": "Cross-corpus FTS search",
+      "command": "corpus search",
+      "description": "FTS5 search across all synced video metadata, transcripts, and comments in one query — no quota cost.",
+      "rationale": "Joins three local FTS5 indexes the API never exposes together; runs offline after sync.",
+      "example": "youtube-pp-cli corpus search 'inference latency' --since 30d --json --select hits.video_id,hits.channel,hits.snippet --agent",
+      "why_it_matters": "Reach for this when an agent needs to find which videos discuss a topic across a synced corpus without burning search.list quota (100 units per call).",
+      "group": "Local-state advantage"
+    },
+    {
+      "name": "Channel digest with FTS",
+      "command": "digest",
+      "description": "For a tracked channel, list new uploads since a timestamp joined with transcript-FTS hits for a keyword set.",
+      "rationale": "SQLite join of videos × transcripts × channels filtered by publishedAt and FTS in a single command — no MCP server does this.",
+      "example": "youtube-pp-cli digest UCBJycsmduvYEL83R_U4JriQ --since 7d --keywords inference,RAG,Sora --json --agent",
+      "why_it_matters": "Use this for weekly newsletter sweeps, agent research loops, or any 'what did this creator say about X this week' question.",
+      "group": "Local-state advantage"
+    },
+    {
+      "name": "Trending list diff",
+      "command": "trending diff",
+      "description": "Diff today's `mostPopular` snapshot against an earlier date and show entries that entered, exited, or moved.",
+      "rationale": "Powered by the trending_snapshots table the sync workflow populates; the API itself never returns historical trending.",
+      "example": "youtube-pp-cli trending diff --region US --since 2026-04-01 --json --agent",
+      "why_it_matters": "Pick this to detect rising or falling trending entries between two dates — useful for content trend reports and sentiment shifts.",
+      "group": "Trend tracking"
+    },
+    {
+      "name": "Per-video velocity",
+      "command": "velocity",
+      "description": "Compute Δviews, Δlikes, and Δcomments per day per video over a rolling window from your local snapshot history.",
+      "rationale": "Requires successive videos.list snapshots in the local store; the API only returns current totals.",
+      "example": "youtube-pp-cli velocity UCBJycsmduvYEL83R_U4JriQ --window 30d --json --agent",
+      "why_it_matters": "Use when you need 'which uploads from the last 30 days are accelerating or dying' — a question Studio shows piecemeal but agents can't extract.",
+      "group": "Trend tracking"
+    },
+    {
+      "name": "Topic-trending crossover",
+      "command": "topic crossover",
+      "description": "Find videos in trending snapshots whose title, description, or transcript mention a keyword, ranked by trending position.",
+      "rationale": "Three-table join of trending_snapshots × videos × transcripts that no API endpoint covers.",
+      "example": "youtube-pp-cli topic crossover 'AI safety' --regions US,GB --json --select results.video_id,results.title,results.trending_rank --agent",
+      "why_it_matters": "Use to spot when a niche topic crosses into mainstream trending lists — a signal for editorial timing.",
+      "group": "Trend tracking"
+    },
+    {
+      "name": "Subscription feed rebuild",
+      "command": "subscriptions sweep",
+      "description": "OAuth-gated: rebuild the subscription feed locally — list subscribed channels' new uploads since a timestamp in chronological order.",
+      "rationale": "Joins subscriptions.list with cached uploads playlists; the YouTube subscription feed itself is not exposed via the API.",
+      "example": "youtube-pp-cli subscriptions sweep --since 7d --json --agent",
+      "why_it_matters": "Pick this for an agent-readable replacement of the in-app subscription feed: filterable, sortable, replayable.",
+      "group": "Subscription mirror"
+    },
+    {
+      "name": "Quota ledger audit",
+      "command": "cost ledger",
+      "description": "Show the rolling per-API-key ledger of every command's quota spend, aggregated by command, endpoint, and day.",
+      "rationale": "Reads a local quota_log sidecar table populated by every command — no API exposes per-call billing detail.",
+      "example": "youtube-pp-cli cost ledger --last 24h --json --agent",
+      "why_it_matters": "Use after a quota-exceeded surprise to find the offending command, or daily to budget across multiple agents sharing one key.",
+      "group": "Quota awareness"
+    }
+  ],
+  "narrative": {
+    "display_name": "YouTube",
+    "headline": "Every YouTube Data API v3 endpoint, plus quota-aware planning, plus offline transcripts (no quota), plus an SQLite-backed store so channel and trending analysis cost zero quota after sync.",
+    "value_prop": "Existing tools split the surface — yt-dlp owns downloads, MCP servers own metadata reads, no one lets an operator do all three plus track quota plus query a cached corpus. youtube-pp-cli mirrors all 23 Data API resources, shells out to yt-dlp for transcripts, and ships a local SQLite store with FTS5 across video metadata, transcripts, and comments. Use `quota plan` before running expensive sweeps and `corpus search` to query everything you've already synced without touching the API.",
+    "auth_narrative": "Read commands need a YouTube Data API key (10K-unit/day quota by default). Set `YOUTUBE_API_KEY` or pass `--api-key`. Write commands (playlist edits, comments, ratings, uploads, channel section CRUD, subscriptions, captions, thumbnails) require OAuth2 — run `youtube-pp-cli auth login` to harvest a token into `~/.config/youtube-pp-cli/oauth.json`. Transcripts use yt-dlp and require neither.",
+    "quickstart": [
+      {
+        "command": "youtube-pp-cli doctor",
+        "comment": "Verify YOUTUBE_API_KEY is set, yt-dlp is on PATH, and the API is reachable"
+      },
+      {
+        "command": "youtube-pp-cli youtube search-list --q 'go generics' --part snippet --type video --max-results 25 --json",
+        "comment": "Search the API directly; JSON-piped to jq or stdout"
+      },
+      {
+        "command": "youtube-pp-cli sync-channel UCBJycsmduvYEL83R_U4JriQ --max-videos 50",
+        "comment": "Mirror a channel's uploads + stats into the local SQLite store"
+      },
+      {
+        "command": "youtube-pp-cli corpus search 'goroutine leak' --json",
+        "comment": "FTS across everything you've synced — zero quota"
+      },
+      {
+        "command": "youtube-pp-cli quota plan search.list videos.list --json",
+        "comment": "Preview projected quota cost before running real commands"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "quotaExceeded error mid-sweep",
+        "fix": "Run `youtube-pp-cli cost ledger --last 24h` to find the offending command. Use `--data-source local` on read commands to skip the API entirely after sync."
+      },
+      {
+        "symptom": "search.list returning no results",
+        "fix": "search.list won't surface videos older than ~6 months or unindexed regions. Try `youtube-pp-cli channels videos \u003cid\u003e` instead — it crawls the uploads playlist directly."
+      },
+      {
+        "symptom": "yt-dlp not found",
+        "fix": "Install yt-dlp via `brew install yt-dlp` (macOS) or `pip install yt-dlp`. The CLI prints an `oauth required` style error when it shells out and yt-dlp is missing."
+      },
+      {
+        "symptom": "OAuth-gated command rejects",
+        "fix": "Run `youtube-pp-cli auth login` to refresh the OAuth token. The token is stored at `~/.config/youtube-pp-cli/oauth.json`."
+      },
+      {
+        "symptom": "transcripts get returns empty",
+        "fix": "The video may have no captions. Try `--lang auto` to let yt-dlp pick auto-generated captions, or check `youtube-pp-cli captions list \u003cvideo\u003e` for available language codes."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or operator needs the full YouTube Data API surface plus offline analysis. It excels at multi-channel research sweeps, quota-aware bulk operations, transcript corpora for retrieval, and time-series questions Studio cannot answer (velocity, trending diffs, topic crossover). Reach for it any time a question requires joining videos, channels, transcripts, comments, or trending lists across time — those are the gaps every other YouTube tool leaves open.",
+    "recipes": [
+      {
+        "title": "Weekly research sweep with select narrowing",
+        "command": "youtube-pp-cli digest UCBJycsmduvYEL83R_U4JriQ --since 7d --keywords inference,RAG --json --agent --select hits.video_id,hits.title,hits.transcript_match.snippet,hits.transcript_match.ts_offset",
+        "explanation": "Joins last 7 days of uploads against transcript FTS for two keywords, then narrows the deeply-nested response to the four fields an agent actually needs — keeps payload under 4 KB even with 50 hits."
+      },
+      {
+        "title": "Plan before you scrape",
+        "command": "youtube-pp-cli quota plan search.list videos.list --include-ledger --json",
+        "explanation": "Sums the projected unit cost of a search.list (100u) plus a videos.list (1u) against your remaining daily budget so you know if today's run will fit."
+      },
+      {
+        "title": "Trending diff over a week",
+        "command": "youtube-pp-cli trending diff --region US --since 2026-04-01 --json",
+        "explanation": "Compares the latest trending_snapshots row against the snapshot taken on April 1st and emits entered/exited/moved buckets."
+      },
+      {
+        "title": "Cross-corpus search agent path",
+        "command": "youtube-pp-cli corpus search 'AI safety' --since 30d --agent --json --select hits.video_id,hits.channel,hits.snippet,hits.kind",
+        "explanation": "FTS5 union across videos, transcripts, and comments — `hits.kind` tells the agent whether each match came from metadata, a transcript, or a comment, so it can weight relevance accordingly."
+      },
+      {
+        "title": "Find rising videos in a channel",
+        "command": "youtube-pp-cli velocity UCBJycsmduvYEL83R_U4JriQ --window 30d --order delta_views --json",
+        "explanation": "Compares last 30 days of cached snapshots and ranks the channel's videos by view-velocity (views/day) so you can spot the breakouts."
+      }
+    ],
+    "trigger_phrases": [
+      "search YouTube for",
+      "transcript of YouTube video",
+      "what did \u003cchannel\u003e say about",
+      "what's trending on YouTube",
+      "channel digest for",
+      "use youtube",
+      "run youtube"
+    ]
+  }
+}
