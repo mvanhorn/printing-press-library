@@ -1,0 +1,523 @@
+
+
+<!DOCTYPE html>
+
+<html lang="zh-TW">
+<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge" /><meta http-equiv="CACHE-CONTROL" content="NO-CACHE" /><meta property="og:image" content="https://judgment.judicial.gov.tw/fblogo.png" /><meta name="google-site-verification" content="umNKShwdiOvOMfKadKfaFm-XU31CsqDXMNS7wbbX_ko" /><title>
+	裁判書查詢
+</title>
+    <!--[if lt IE 9]><script src="/js/html5shiv.min.js?20260509092824530"></script><![endif]-->
+    <link rel="stylesheet" href="/css/bootstrap.min.css?20260509092824530">
+    <link rel="stylesheet" href="/css/font-awesome.min.css?20260509092824530">
+    <link rel="stylesheet" href="/css/jquery.fancybox.css?20260509092824530" media="screen" />
+    <link rel="stylesheet" href="/css/layout.css?20260509092824530">
+    <link rel="stylesheet" href="/css/tinybox.css?20260509092824530" />
+    <script type="text/javascript" src="/js/jquery-3.6.0.min.js?20260509092824530"></script>
+  <!--引用司法院內網的網頁字型 javascript -->
+    <script type="text/javascript" src="https://tpjwebfont2.judicial.gov.tw/WebFont/cmexwebfont.js"></script>
+   
+    <script type="text/javascript" src="/js/isMobile.js?20260509092824530"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-100643133-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'UA-100643133-1');
+    </script>
+
+    <!-- Google tag (gtag.js) --> <script async src="https://www.googletagmanager.com/gtag/js?id=G-NB3N15LK5E"></script>
+	<script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-NB3N15LK5E'); </script>	
+	
+    
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" href="../css/search.css">
+    <link rel="stylesheet" href="../css/map.css" />
+    <link rel="stylesheet" href="../css/autocomplete.css">
+    <!--說明：
+        **全文、案由欄位需有關鍵詞推薦輔助功能、簡易檢索字詞功能
+        1.簡易查詢：一欄式檢索功能
+        2.進階查詢：(院外)與原功能相同(院內、法官)需再增加裁判類別、裁判金額、裁判刑度、承審法官姓名、當事人及相關法條查詢欄位
+        3.點選進階查詢後，一欄式檢索功能隱藏，僅利用下方欄位查詢
+        4.查詢欄位下顯示"熱門裁判"列表--合併顯示本日熱門裁判前5筆及本月熱門裁判前5筆，不提供後端設定功能。
+        5.地圖查詢
+
+        **簡易案件查詢/裁判書查詢功能異同
+           (1)查詢欄位一樣，僅法院不同
+           (2)簡易案件查詢無「熱門裁判」
+        -->
+</head>
+<body>
+    <form method="post" action="./Default_AD.aspx" id="form1">
+<div class="aspNetHidden">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="UAaLmui8XPCkx6mv7OhZcgGnEtMgki/HlHrv2Xr4/dEaXCNbTYIUX/0z68ALSOvTYEj72I/qOMpUMaKtkk4mAowfGbuhO6o7rOpuExPCb1GxPGlPLIzAyQjnBhHvbEdXs6E6yNiWqPrB3FnSU+iKzY7gl9esCWsrhdb6dP5e4OORU70WrC8MOP696sooYY6bIrdbgQ==" />
+</div>
+
+<div class="aspNetHidden">
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="1BCFD4C6" />
+	<input type="hidden" name="__VIEWSTATEENCRYPTED" id="__VIEWSTATEENCRYPTED" value="" />
+	<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="md7oOenTfcZQU0WZiLjn7P75BzutaZImNMvJ+JtN35J1jbGyVuvJSJhoUEIzoe0LSw+r8arMKr8H+P5vfsYtINv3cZg=" />
+</div>
+        <a href="#center" class="sr-only sr-only-focusable" title="跳至主要內容">跳至主要內容</a>
+        <div class="header">
+			<div class="header-top">
+				<div class="top-nav">
+					
+					<div class="header-sys">
+						<a href="https://lawsearch.judicial.gov.tw/default.aspx">法學資料檢索系統</a>
+						<a href="https://legal.judicial.gov.tw/FLAW/default.aspx">法令判解系統</a>
+						<a class="active" href="https://judgment.judicial.gov.tw/FJUD/default.aspx">裁判書系統</a>
+					</div>
+					
+					<div class="header-sub-nav">
+                    <ul>
+                        <a href="#U" id="AU" name="U" title="功能區塊" accesskey="U">:::</a>
+                        <li><a href="/sitemap.aspx"><i class="fa fa-sitemap fa-fw"></i>網站導覽</a></li>
+                        <li><a href="http://www.judicial.gov.tw" target="_blank" title="另開新視窗"><i class="fa fa-home fa-fw"></i>司法院首頁</a></li>
+                        <li><a href="/LAW_Mobile_FJUD/default.aspx" onclick="setCookie_trans()"><i class="fa fa-mobile fa-lg fa-fw"></i>行動版</a></li>
+                        <li><a href="#" rel="popover" data-popover-content=".font-size"><i class="fa fa-search-plus fa-fw"></i>網頁縮放</a>
+                            <div class="font-size hide">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-btn">
+                                        <a href="#" class="btn btn-default" type="button" id="PageZoomIn" title="網頁縮小"><i class="fa fa-minus"></i></a>
+                                    </span>
+                                    <input type="text" class="form-control" value="100%" size="5" maxlength="5" id="txtPageZoomSize" title="網頁縮放百分比" />
+                                    <span class="input-group-btn">
+                                        <a href="#" class="btn btn-default" type="button" id="PageZoomOut" title="網頁放大"><i class="fa fa-plus"></i></a>
+                                    </span>
+                                </div>
+                            </div>
+                        </li>
+                        <li><a target="_blank" href="https://www.judicial.gov.tw/tw/cp-1327-84701-eab68-1.html"><i class="fa fa-envelope"></i> 司法信箱</a></li>
+                    </ul>
+                </div>
+				</div>
+			</div>
+            <div class="header-nav">
+                <h1 class="logo"><a href="/FJUD/default.aspx" title="司法院裁判書系統">裁判書系統</a></h1>
+			
+
+
+			      
+
+            </div>
+        </div>
+        
+        <div class="navigation">
+            <div class="nav-menu">
+                <ul>
+                    <li><a href="https://lawsearch.judicial.gov.tw/default.aspx" title="首頁（法學資料檢索系統）">首頁</a></li>
+                    <li><a href="/FJUD/default.aspx" id="fjud">裁判書查詢</a></li>
+                    <li><a href="/FJUD/defaulte.aspx" id="fjude">簡易案件查詢</a></li>
+                    <li><a href="/FJUD/defaultk.aspx?ty=E" id="fjudk_E">除權判決查詢</a></li>
+                    <li><a href="/FJUD/defaultk.aspx?ty=V" id="fjudk_V">公示催告裁定查詢</a></li>
+                    <li><a href="/readme.aspx">系統說明</a></li>
+					<li><a target="_blank" href="https://opendata.judicial.gov.tw/">司法院資料開放平臺</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div id="center" class="container">
+            <div class="main">
+                <a href="#C" id="AC" name="C" title="內容區塊" accesskey="C">:::</a>
+                
+
+    <div class="search-area">
+        <div class="page-header">
+            <h2>
+                裁判書查詢（含部分簡易案件）
+                - <small>如您為無障礙網頁的使用者，請點擊<a href="default_accfree.aspx" title="連結至無障礙版的裁判書查詢頁面">這裡</a>進行查詢</small></h2>
+        </div>
+        
+        <div class="row" id="advQuery">
+            <div class="col-sm-3">
+                <div id="CourtContent" class="tab-content">
+                    <select multiple="multiple" name="jud_court" id="jud_court" size="15" class="form-control jub-items" style="height: 500px;">
+                        <option value="" selected="selected">所有法院</option>
+                        <option value="JCC">憲法法庭</option>
+                        <option value="TPC">司法院刑事補償法庭</option>
+                        <option value="TPU">司法院－訴願決定</option>
+                        <option value="TPS">最高法院</option>
+                        <option value="TPA">最高行政法院(含改制前行政法院)</option>
+                        <option value="TPP">懲戒法院－懲戒法庭</option>
+                        <option value="TPJ">懲戒法院－職務法庭</option>
+                        <option value="TPH">臺灣高等法院</option>
+                        <option value="001">臺灣高等法院－訴願決定</option>
+                        <option value="TPB" style="white-space: pre-wrap;">臺北高等行政法院 高等庭(含改制前臺北高等行政法院)</option>
+                        <option value="TPT">臺北高等行政法院 地方庭</option>
+                        <option value="TCB" style="white-space: pre-wrap;">臺中高等行政法院 高等庭(含改制前臺中高等行政法院)</option>
+                        <option value="TCT">臺中高等行政法院 地方庭</option>
+                        <option value="KSB" style="white-space: pre-wrap;">高雄高等行政法院 高等庭(含改制前高雄高等行政法院)</option>
+                        <option value="KST">高雄高等行政法院 地方庭</option>
+                        <option value="IPC">智慧財產及商業法院</option>
+                        <option value="TCH">臺灣高等法院 臺中分院</option>
+                        <option value="TNH">臺灣高等法院 臺南分院</option>
+                        <option value="KSH">臺灣高等法院 高雄分院</option>
+                        <option value="HLH">臺灣高等法院 花蓮分院</option>
+                        <option value="TPD">臺灣臺北地方法院</option>
+                        <option value="SLD">臺灣士林地方法院</option>
+                        <option value="PCD">臺灣新北地方法院</option>
+                        <option value="ILD">臺灣宜蘭地方法院</option>
+                        <option value="KLD">臺灣基隆地方法院</option>
+                        <option value="TYD">臺灣桃園地方法院</option>
+                        <option value="SCD">臺灣新竹地方法院</option>
+                        <option value="MLD">臺灣苗栗地方法院</option>
+                        <option value="TCD">臺灣臺中地方法院</option>
+                        <option value="CHD">臺灣彰化地方法院</option>
+                        <option value="NTD">臺灣南投地方法院</option>
+                        <option value="ULD">臺灣雲林地方法院</option>
+                        <option value="CYD">臺灣嘉義地方法院</option>
+                        <option value="TND">臺灣臺南地方法院</option>
+                        <option value="KSD">臺灣高雄地方法院</option>
+                        <option value="CTD">臺灣橋頭地方法院</option>
+                        <option value="HLD">臺灣花蓮地方法院</option>
+                        <option value="TTD">臺灣臺東地方法院</option>
+                        <option value="PTD">臺灣屏東地方法院</option>
+                        <option value="PHD">臺灣澎湖地方法院</option>
+                        <option value="KMH">福建高等法院金門分院</option>
+                        <option value="KMD">福建金門地方法院</option>
+                        <option value="LCD">福建連江地方法院</option>
+                        <option value="KSY">臺灣高雄少年及家事法院</option>
+                    </select>
+                </div>
+                <br />
+                <div>
+                    <a onclick="javascript:window.open('CourtHelp.htm','CourtHelp','scrollbars=yes,width=400,height=700')" href="#" class="btn btn-sm btn-success"><i class="fa fa-question-circle fa-fw"></i>複選法院方式說明</a>
+                </div>
+            </div>
+            <div class="col-sm-9">
+                <table class="search-table">
+                    <tr>
+                        <th>案件類別</th>
+                        <td>
+                            <label id="vtype_C">
+                                <input name="jud_sys" type="checkbox" value="C" />憲法</label>
+                            <label id="vtype_V">
+                                <input name="jud_sys" type="checkbox" value="V" />民事</label>
+                            <label id="vtype_M">
+                                <input name="jud_sys" type="checkbox" value="M" />刑事</label>
+                            <label id="vtype_A">
+                                <input name="jud_sys" type="checkbox" value="A" />行政</label>
+                            <label id="vtype_P">
+                                <input name="jud_sys" type="checkbox" value="P" />懲戒</label>
+                            
+                            <span class="redAlert">（未勾選預設為全選）</span>
+                            <span style="float:right;"><a href="https://legal.judicial.gov.tw/FINT/Default_AD.aspx" class="btn btn-primary btn-md btn-print">大法庭專區</a></span>
+                            <span style="float:right;margin-right:10px;"><a href="../combineInfo.html" style="background-color:#306f2d" class="btn btn-info" data-fancybox="iframe" data-type="iframe">行政裁判說明</a></span></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>裁判字號</th>
+                        <td>
+                            <input id="jud_year" size="3" name="jud_year" maxlength="3" />
+                            <label for="jud_year">年度</label>
+                            <select name="sel_judword" id="sel_judword">
+                                <!--常用字詞與現行功能相同(勾選法院->變動字別-->
+                                <option value="">常用字別</option>
+                            </select>
+                            <input id="jud_case" size="10" name="jud_case" maxlength="16" />
+                            <label for="jud_case">字</label>
+                            <label for="jud_no">第</label>
+                            <input id="jud_no" size="5" name="jud_no" maxlength="30" title="起始號" />
+                            —
+                                    <input id="jud_no_end" size="5" name="jud_no_end" maxlength="30" title="結束號" />
+                            <label for="jud_no_end">號</label>
+                            <span style="color:#ad1818"><br /><small>※如欲選擇常用字別，行政法院請單選法院，其他法院請單選法院及案件類別；其餘情況，請自行輸入字別。</small></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>裁判期間</th>
+                        <td>民國
+                            <input type="text" id="dy1" maxlength="3" size="3" name="dy1" title="開始日期的年度" />
+                            <label for="dy1">年</label>
+                            <input type="text" id="dm1" maxlength="2" size="2" name="dm1" title="開始日期的月份" />
+                            <label for="dm1">月</label>
+                            <input type="text" id="dd1" maxlength="2" size="2" name="dd1" title="開始日期的日" />
+                            <label for="dd1">日</label>
+                            至
+                            <input type="text" id="dy2" maxlength="3" size="3" name="dy2" title="結束日期的年度" />
+                            <label for="dy2">年</label>
+                            <input type="text" id="dm2" maxlength="2" size="2" name="dm2" title="結束日期的月份" />
+                            <label for="dm2">月</label>
+                            <input type="text" id="dd2" maxlength="2" size="2" name="dd2" title="結束日期的日" />
+                            <label for="dd2">日</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <label for="jud_title">裁判案由</label></th>
+                        <td>
+                            <input type="text" id="jud_title" name="jud_title" placeholder="請輸入檢索字詞" size="25" maxlength="32" /></td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <label for="jud_jmain">裁判主文</label></th>
+                        <td>
+                            <input type="text" id="jud_jmain" name="jud_jmain" placeholder="請輸入檢索字詞" size="50" maxlength="32" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <label for="jud_kw">全文內容</label></th>
+                        <td>
+                            <input type="text" id="jud_kw" name="jud_kw" placeholder="請輸入檢索字詞" size="50" maxlength="128" />
+                            <a href="../readme.aspx?ot=in#textHelp" class="btn btn-info" data-fancybox="iframe" data-type="iframe">檢索字詞說明<i class="fa fa-question-circle fa-fw"></i></a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="jud_kb">裁判大小</label></th>
+                        <td>
+                            <input type="text" id="KbStart" size="3" name="KbStart" title="裁判大小開始值" />
+                            <label for="KbStart">K～</label>
+                            <input type="text" id="KbEnd" size="3" name="KbEnd" title="裁判大小結束值" />
+                            <label for="KbEnd">K</label>
+                        </td>
+                    </tr>
+                </table>
+                <input type="hidden" name="judtype" id="judtype" value="JUDBOOK" />
+                <input type="hidden" name="whosub" id="whosub" value="0" />
+                <div class="search-submit">
+                    <input type="submit" name="ctl00$cp_content$btnQry" value="送出查詢" id="btnQry" class="btn btn-success" />
+                    <button id="btnReset" type="reset" class="btn btn-success">清除重填</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;<a href="Default.aspx" class="btn btn-warning">一欄式簡易查詢</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="footer-area">
+                <a href="#Z" id="AZ" name="Z" title="網站資訊區塊" accesskey="Z">:::</a>
+                <ul>
+                    <li>非本院主管法規請至行政院法務部<a href="http://law.moj.gov.tw" target="_blank">全國法規資料庫</a>查詢。</li>
+                    <li>審判相關法規資料若與機關公布文字有所不同，仍以各法規主管機關公布之書面資料為準。</li>
+                    <li>本站建議使用 IE10 以上瀏覽。</li>
+					<li><i class="fa fa-user-circle"></i>&nbsp;&nbsp;瀏覽人次：1,256,307,144</li>
+                    <li style="color:#3e3e3e">.</li>
+                </ul>
+            </div>
+            <div id="gotop"><a href="#">回上方</a></div>
+        </div>
+    </form>
+</body>
+</html>
+<script type="text/javascript" src="/js/bootstrap.min.js?20260509092824530"></script>
+<script type="text/javascript" src="/js/jquery.fancybox.min.js?20260509092824530"></script>
+<script type="text/javascript" src="/js/functions.js?20260509092824530"></script>
+<script type="text/javascript" src="/js/tinybox.js?20260509092824530"></script>
+<script type="text/javascript">
+    $(function () {
+        //避免XFS攻擊
+        if (top != self) { top.location = self.location; }
+        //setSearchPage();
+        $('[rel="popover"]').popover({
+            container: '.header-sub-nav',
+            html: true,
+            placement: "bottom",
+            content: function () {
+                var clone = $($(this).data('popover-content')).clone(true).removeClass('hide');
+                return clone;
+            }
+        }).click(function (e) {
+            e.preventDefault();
+        });
+
+
+        //網頁縮放
+        var maxZoom = 500;
+        var minZoom = 20;
+        var currZoom = 100;
+        var step = 10;
+        $("#PageZoomIn").on('click', function () {
+            currZoom -= step;
+            if (currZoom >= minZoom && currZoom <= maxZoom) {
+                $(".font-size input").val(currZoom + '%');
+                ChangePageZoom(currZoom);
+            }
+            else if (currZoom < minZoom) {
+                currZoom += step;
+            }
+            else if (currZoom > maxZoom) {
+                currZoom += step;
+            }
+        });
+
+        $("#PageZoomOut").on('click', function () {
+            currZoom += step;
+            if (currZoom >= minZoom && currZoom <= maxZoom) {
+                $(".font-size input").val(currZoom + '%');
+                ChangePageZoom(currZoom);
+            }
+            else if (currZoom < minZoom) {
+                currZoom -= step;
+            }
+            else if (currZoom > maxZoom) {
+                currZoom -= step;
+            }
+        });
+        $("#txtPageZoomSize").on("click", function () {
+            $(this).select();
+        });
+        $("#txtPageZoomSize").on('keyup', function (e) {
+            var code = e.which;
+            if (code == 13) e.preventDefault();
+            if (code == 32 || code == 13 || code == 188 || code == 186) {
+                if (parseInt($(this).val().replace("%", "")) >= minZoom && parseInt($(this).val().replace("%", "")) <= maxZoom) {
+                    currZoom = parseInt($(this).val().replace("%", ""));
+                    $(this).val(currZoom + '%');
+                    ChangePageZoom(currZoom);
+                }
+                else {
+                    $(this).val(currZoom + '%');
+                    ChangePageZoom(currZoom);
+                }
+            }
+        });
+        //Back To Top
+        $(window).scroll(function () {
+            if ($(this).scrollTop() > 63) {
+                $("#gotop").fadeIn();
+                $(".navigation").addClass("navigation-fixed");
+            } else {
+                $("#gotop").fadeOut();
+                $(".navigation").removeClass("navigation-fixed");
+            }
+        });
+        $('#gotop').on("click", function () { $("body,html").animate({ scrollTop: 0 }, 800); });
+
+        //fancybox
+        $("a[data-type='iframe']").fancybox({
+            arrows: false,
+            infobar: false,
+            buttons: ['close']
+        });
+		
+		
+        //停機公告
+        var end = Date.parse("2020/12/05");
+        var start = Date.parse("2020/11/30");
+        var currDate = Date.parse((new Date()).toDateString());
+        if (currDate >= start && currDate < end) {
+            var surveylog = getCookie("jud_ann");
+            if (surveylog != "1")//未顯示過滿意度調查
+            {
+                setCookieOnGlobal("jud_ann", "1", "32");
+                TINY.box.show({ iframe: 'https://judgment.judicial.gov.tw/ann/announce.html', boxid: 'frameless', width: 760, height: 250, fixed: false, maskid: 'bluemask', maskopacity: 40, closejs: function () { closeJS() } });
+            }
+        }
+    });
+    function ChangePageZoom(value) {
+        $(".main").css('zoom', ' ' + value + '%');
+        $("body", $("#iframe-data").contents()).css('zoom', ' ' + value + '%');
+    }
+    function setSearchPage()
+    {
+        if (isAdvancedSearch("fjud"))
+            $("#fjud").attr("href", "/FJUD/default_AD.aspx");
+        if (isAdvancedSearch("fjude"))
+            $("#fjude").attr("href", "/FJUD/defaulte_AD.aspx");
+        if (isAdvancedSearch("fjudkE"))
+            $("#fjudk_E").attr("href", "/FJUD/defaultk_AD.aspx?ty=E");
+        if (isAdvancedSearch("fjudkV"))
+            $("#fjudk_V").attr("href", "/FJUD/defaultk_AD.aspx?ty=V");
+    }
+</script>
+
+    <script type="text/javascript" src="../js/jquery-ui-autocomplete.min.js"></script>
+    <script type="text/javascript" src="../js/functions.js"></script>
+    <script type="text/javascript" src="../js/autocomplete.js"></script>
+    <script type="text/javascript" src="../js/fjudindex1.js"></script>
+    <script>
+
+        $(function () {
+            SetNavigationStatus(1);//功能選單
+            $("#whosub").val('1');
+            ShowFieldValue();
+            wordevent();
+            if (document.cookie.indexOf("closeAuto=1") == -1) {//推薦字詞
+                AutoTerms("", "1,2,3,5", "input[name='jud_kw']", "../controls/GetTermList.ashx");
+                AutoTerms("", "5", "input[name='jud_title']", "../controls/GetTermList.ashx");
+            }
+            //送出查詢
+            $("#btnQry").on("click", function (e) {
+                if (!checkForm()) {
+                    e.preventDefault();
+                    return false;
+                }
+                else {
+                    SaveFieldValue();
+                    searchByAdvanced("fjud", true);
+                    return true;
+                }
+            });
+
+        });
+
+        function ShowFieldValue() {
+            var jud_kw = getCookie("JUDBOOK_kw");
+            var jud_year = getCookie("JUDBOOK_year");
+            var jud_case = getCookie("JUDBOOK_case");
+            var jud_no = getCookie("JUDBOOK_no");
+            var jud_no_end = getCookie("JUDBOOK_no_end");
+            var dy1 = getCookie("JUDBOOK_dy1");
+            var dm1 = getCookie("JUDBOOK_dm1");
+            var dd1 = getCookie("JUDBOOK_dd1");
+            var dy2 = getCookie("JUDBOOK_dy2");
+            var dm2 = getCookie("JUDBOOK_dm2");
+            var dd2 = getCookie("JUDBOOK_dd2");
+            var kb_start = getCookie("JUDBOOK_kbStart");
+            var kb_end = getCookie("JUDBOOK_kbEnd");
+            var jud_title = getCookie("JUDBOOK_title");
+            var jud_jmain = getCookie("JUDBOOK_jmain");
+            var courtArray = getCookie("JUDBOOK_court").split(',');
+            $('#jud_kw').val(jud_kw);
+            $('#jud_year').val(jud_year);
+            $('#jud_case').val(jud_case);
+            $('#jud_no').val(jud_no);
+            $('#jud_no_end').val(jud_no_end);
+            $('#dy1').val(dy1);
+            $('#dm1').val(dm1);
+            $('#dd1').val(dd1);
+            $('#dy2').val(dy2);
+            $('#dm2').val(dm2);
+            $('#dd2').val(dd2);
+            $('#KbStart').val(kb_start);
+            $('#KbEnd').val(kb_end);
+            $('#jud_title').val(jud_title);
+            $('#jud_jmain').val(jud_jmain);
+            $('#jud_court').val(courtArray);
+            var sysValues = getCookie("JUDBOOK_jud_sys").split(',');
+            $.each(sysValues, function (i, val) { $('.search-table').find(':checkbox[name=\"jud_sys\"][value=\"' + val + '\"]').prop('checked', true); });
+        }
+
+        function SaveFieldValue()
+        {
+            setCookie("JUDBOOK_kw", $('#jud_kw').val(), "");
+            setCookie("JUDBOOK_year", $('#jud_year').val(), "");
+            setCookie("JUDBOOK_case", $('#jud_case').val(), "");
+            setCookie("JUDBOOK_no", $('#jud_no').val(), "");
+            setCookie("JUDBOOK_no_end", $('#jud_no_end').val(), "");
+            setCookie("JUDBOOK_dy1", $('#dy1').val(), "");
+            setCookie("JUDBOOK_dm1", $('#dm1').val(), "");
+            setCookie("JUDBOOK_dd1", $('#dd1').val(), "");
+            setCookie("JUDBOOK_dy2", $('#dy2').val(), "");
+            setCookie("JUDBOOK_dm2", $('#dm2').val(), "");
+            setCookie("JUDBOOK_dd2", $('#dd2').val(), "");
+            setCookie("JUDBOOK_kbStart", $('#KbStart').val(), "");
+            setCookie("JUDBOOK_kbEnd", $('#KbEnd').val(), "");
+            setCookie("JUDBOOK_title", $('#jud_title').val(), "");
+            setCookie("JUDBOOK_jmain", $('#jud_jmain').val(), "");
+            setCookie("JUDBOOK_court", $('#jud_court').val(), "");
+            var sysValues = $("input[name='jud_sys']:checked").map(function () { return $(this).val(); }).get();
+            setCookie("JUDBOOK_jud_sys", sysValues, "");
+        }
+
+    </script>
+
+

@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/kwl/printing-press/.runstate/cli-printing-press-55e57487/runs/20260509-091315/working/judgementtw-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

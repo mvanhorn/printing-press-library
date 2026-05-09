@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-05-09T02:36:30.793804Z",
+  "cli_dir": "/Users/kwl/printing-press/.runstate/cli-printing-press-55e57487/runs/20260509-091315/working/judgementtw-pp-cli",
+  "findings": [
+    {
+      "kind": "missing-read-only",
+      "command": "orphans",
+      "file": "novel_purge_window.go",
+      "line": 29,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "purge orphans is destructive: it deletes rows from judgments, citations, sentences, and jid_refs in the local store and writes a change_log entry. The 'orphans' name matches the read heuristic by accident; the body mutates state (lines 81-87 of novel_purge_window.go), so a readOnlyHint=true would be a real bug per AGENTS.md (\"Wrong annotations are worse than missing ones\"). Default destructive hint is correct."
+    }
+  ]
+}

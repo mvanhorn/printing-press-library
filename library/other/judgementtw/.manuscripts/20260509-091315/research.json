@@ -1,0 +1,354 @@
+{
+  "api_name": "judgementtw",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "samttoo22/judgement-scrawler",
+      "url": "https://github.com/samttoo22-MewCat/judgement-scrawler",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "GOV-TW/Judicial-OD",
+      "url": "https://github.com/GOV-TW/Judicial-OD",
+      "language": "Markdown",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "whiskyinsulo/Judicial_Judgements",
+      "url": "https://github.com/whiskyinsulo/Judicial_Judgements",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "biglawtw/biglaw",
+      "url": "https://github.com/biglawtw/biglaw",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "0xyd/SunnyJudge",
+      "url": "https://github.com/0xyd/SunnyJudge",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T01:32:00Z",
+  "novel_features": [
+    {
+      "name": "Statute-citation graph",
+      "command": "cites statute",
+      "description": "List every locally-synced judgment that cites a given statute article, broken down by court and year. Use this when you need 'every High Court drug case that ever invoked §17(2)' in one query.",
+      "rationale": "Requires extracting statute references from judgment text into a citations table at sync — no Taiwan judicial API exposes this cross-judgment view; only commercial Lawsnote does, and that path is currently chilled by the 2024 verdict.",
+      "example": "judgementtw-pp-cli cites statute 毒品危害防制條例 --article 17 --json",
+      "why_it_matters": "An agent answering 'has any court ever ruled X under statute Y?' can resolve it in one structured call instead of paginating through hundreds of HTML pages.",
+      "group": "Citation graph and precedent"
+    },
+    {
+      "name": "Reverse-citation precedent lookup",
+      "command": "cited-by",
+      "description": "Find judgments in the local store that cite a given JID. Surfaces appellate review, follow-on rulings, and precedent fan-out without re-querying the website.",
+      "rationale": "Reverse index of the citations table — needs the same extracted graph as the statute-citation feature plus a reverse lookup that no website page provides.",
+      "example": "judgementtw-pp-cli cited-by TPSM,115,台抗,703,20260430,1 --json",
+      "why_it_matters": "Agents tracking precedent can answer 'who cited this ruling?' instantly instead of guessing search terms.",
+      "group": "Citation graph and precedent"
+    },
+    {
+      "name": "Saved-query daily digest",
+      "command": "watch query",
+      "description": "Save a named query (court+type+keyword); on each invocation print only the JIDs newer than the last cursor. Replaces the missing RSS/email-digest on the Judicial Yuan site.",
+      "rationale": "The Judicial Yuan site has no RSS, no email digest, no webhook — Yi-Chen and Mei-Ling both check by hand weekly. A local `watchlist` table + cursor turns that into one command.",
+      "example": "judgementtw-pp-cli watch query corruption-cases --terms '貪污治罪條例' --type criminal --json",
+      "why_it_matters": "Use this to track ongoing topics or beats without polling the website yourself; the local cursor handles dedup.",
+      "group": "Watch and notify"
+    },
+    {
+      "name": "Watch a specific case",
+      "command": "watch case",
+      "description": "Track a single matter (defined by court + 案號 root) for new rulings, appeals, and supplements. Prints a diff against the local change_log.",
+      "rationale": "Diffing requires a persistent JID set; the website serves one HTML page per query. Local change_log makes this a single command.",
+      "example": "judgementtw-pp-cli watch case TPHM,110,毒抗 --json",
+      "why_it_matters": "Journalists and paralegals tracking specific cases get a single-command alert instead of manual tab-checking.",
+      "group": "Watch and notify"
+    },
+    {
+      "name": "Sentencing distribution",
+      "command": "sentences",
+      "description": "For criminal judgments matching a statute and optional court+year, parse 主文 sentence patterns (有期徒刑X年Y月, 拘役, 罰金) and print a histogram + min/median/max.",
+      "rationale": "The Judicial Yuan publishes raw text only; sentencing analytics require regex extraction at sync into a sentences table. Existing scrapers like samttoo22 produce only .txt files.",
+      "example": "judgementtw-pp-cli sentences --statute 毒品危害防制條例 --court TPH --json",
+      "why_it_matters": "Empirical legal scholars (Persona: Prof. Wu) get sentencing-disparity analysis in one command instead of a 40-minute pandas notebook.",
+      "group": "Court analytics"
+    },
+    {
+      "name": "Appeal-chain walker",
+      "command": "appeal-chain",
+      "description": "Walks lower court → appellate court → Supreme Court for the same matter (same parties, same 案號 root) and prints the chain.",
+      "rationale": "Requires the court-hierarchy map (built from the 41-court enum) plus 案號-root matching across tiers — neither comes from a single API call.",
+      "example": "judgementtw-pp-cli appeal-chain TPHM,110,毒抗,1212,20210831,1 --json",
+      "why_it_matters": "Paralegals reconstructing case history get the full procedural chain without guessing case numbers across courts.",
+      "group": "Court analytics"
+    },
+    {
+      "name": "Related-case discovery",
+      "command": "related",
+      "description": "Surfaces synced judgments that cite a similar set of statutes (Jaccard similarity over the citation set), filtered to the same court tier and ±2 years.",
+      "rationale": "Similarity over citation overlap is a local computation no API exposes; needs the citations table plus the court-tier map.",
+      "example": "judgementtw-pp-cli related TPSM,115,台抗,703,20260430,1 --threshold 0.4 --json",
+      "why_it_matters": "Paralegals and agents asking 'more like this' get a ranked list grounded in shared legal grounds, not keyword overlap.",
+      "group": "Court analytics"
+    },
+    {
+      "name": "Case-character (字別) catalog",
+      "command": "case-types list",
+      "description": "Aggregates the 字別 (case-character) field across the local corpus and groups by court, with counts and a sample JID per character.",
+      "rationale": "字別 is the key Taiwan judicial taxonomy (e.g. 台抗, 毒抗, 訴, 簡上) and varies per court; no single API call lists it. Aggregation over the local corpus exposes the full enum.",
+      "example": "judgementtw-pp-cli case-types list --court TPH --json",
+      "why_it_matters": "Agents discovering the right 字別 to filter on get the full per-court enum in one call.",
+      "group": "Court analytics"
+    },
+    {
+      "name": "Knowledge ↔ judgment linker",
+      "command": "knowledge link",
+      "description": "Given an FJUDKM commentary par-token, extract its statute references and find judgments in the local store that cite the same statutes.",
+      "rationale": "The only meaningful join across the two sources — FJUDKM commentaries reference statutes; judgments cite statutes; the local citations table bridges them.",
+      "example": "judgementtw-pp-cli knowledge link H4sF6HdN%2fbyjjMYJ42ZPATLh%2fu2Al%2f83pT2w0OTOytP6IvrcKVCjLQ%3d%3d --json",
+      "why_it_matters": "Researchers reading commentary instantly find the corpus of judgments that operationalize that doctrine.",
+      "group": "Cross-source intelligence"
+    },
+    {
+      "name": "Privacy-purge sweeper",
+      "command": "purge orphans",
+      "description": "Re-fetches synced JIDs through the website; on a `查無資料` response (judgment removed for privacy), deletes the local row and writes an audit-log entry.",
+      "rationale": "The Judicial Yuan ToS explicitly requires local copies of removed judgments to be deleted to protect party privacy. Mechanical compliance feature; required, not optional.",
+      "example": "judgementtw-pp-cli purge orphans --since 115/01/01 --json",
+      "why_it_matters": "Operators staying compliant with Taiwan privacy obligations don't have to write the purge logic themselves.",
+      "group": "Compliance and lifecycle"
+    },
+    {
+      "name": "Service-window reporter",
+      "command": "doctor window",
+      "description": "Compares current Taipei time to the 0–6 AM official-API service window; prints whether the API is reachable now and how many seconds until the next window.",
+      "rationale": "The official Judicial Yuan open-data API only serves 0–6 AM Taipei time. Even though this CLI defaults to website scraping, operators flipping on API support need to know when bulk syncs can run.",
+      "example": "judgementtw-pp-cli doctor window --json",
+      "why_it_matters": "Agents and ops planning a bulk sync get a clear go/no-go signal without learning Taiwan's API service-window rules.",
+      "group": "Compliance and lifecycle"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Statute-citation graph",
+      "command": "cites statute",
+      "description": "List every locally-synced judgment that cites a given statute article, broken down by court and year. Use this when you need 'every High Court drug case that ever invoked §17(2)' in one query.",
+      "rationale": "Requires extracting statute references from judgment text into a citations table at sync — no Taiwan judicial API exposes this cross-judgment view; only commercial Lawsnote does, and that path is currently chilled by the 2024 verdict.",
+      "example": "judgementtw-pp-cli cites statute 毒品危害防制條例 --article 17 --json",
+      "why_it_matters": "An agent answering 'has any court ever ruled X under statute Y?' can resolve it in one structured call instead of paginating through hundreds of HTML pages.",
+      "group": "Citation graph and precedent"
+    },
+    {
+      "name": "Reverse-citation precedent lookup",
+      "command": "cited-by",
+      "description": "Find judgments in the local store that cite a given JID. Surfaces appellate review, follow-on rulings, and precedent fan-out without re-querying the website.",
+      "rationale": "Reverse index of the citations table — needs the same extracted graph as the statute-citation feature plus a reverse lookup that no website page provides.",
+      "example": "judgementtw-pp-cli cited-by TPSM,115,台抗,703,20260430,1 --json",
+      "why_it_matters": "Agents tracking precedent can answer 'who cited this ruling?' instantly instead of guessing search terms.",
+      "group": "Citation graph and precedent"
+    },
+    {
+      "name": "Saved-query daily digest",
+      "command": "watch query",
+      "description": "Save a named query (court+type+keyword); on each invocation print only the JIDs newer than the last cursor. Replaces the missing RSS/email-digest on the Judicial Yuan site.",
+      "rationale": "The Judicial Yuan site has no RSS, no email digest, no webhook — Yi-Chen and Mei-Ling both check by hand weekly. A local `watchlist` table + cursor turns that into one command.",
+      "example": "judgementtw-pp-cli watch query corruption-cases --terms '貪污治罪條例' --type criminal --json",
+      "why_it_matters": "Use this to track ongoing topics or beats without polling the website yourself; the local cursor handles dedup.",
+      "group": "Watch and notify"
+    },
+    {
+      "name": "Watch a specific case",
+      "command": "watch case",
+      "description": "Track a single matter (defined by court + 案號 root) for new rulings, appeals, and supplements. Prints a diff against the local change_log.",
+      "rationale": "Diffing requires a persistent JID set; the website serves one HTML page per query. Local change_log makes this a single command.",
+      "example": "judgementtw-pp-cli watch case TPHM,110,毒抗 --json",
+      "why_it_matters": "Journalists and paralegals tracking specific cases get a single-command alert instead of manual tab-checking.",
+      "group": "Watch and notify"
+    },
+    {
+      "name": "Sentencing distribution",
+      "command": "sentences",
+      "description": "For criminal judgments matching a statute and optional court+year, parse 主文 sentence patterns (有期徒刑X年Y月, 拘役, 罰金) and print a histogram + min/median/max.",
+      "rationale": "The Judicial Yuan publishes raw text only; sentencing analytics require regex extraction at sync into a sentences table. Existing scrapers like samttoo22 produce only .txt files.",
+      "example": "judgementtw-pp-cli sentences --statute 毒品危害防制條例 --court TPH --json",
+      "why_it_matters": "Empirical legal scholars (Persona: Prof. Wu) get sentencing-disparity analysis in one command instead of a 40-minute pandas notebook.",
+      "group": "Court analytics"
+    },
+    {
+      "name": "Appeal-chain walker",
+      "command": "appeal-chain",
+      "description": "Walks lower court → appellate court → Supreme Court for the same matter (same parties, same 案號 root) and prints the chain.",
+      "rationale": "Requires the court-hierarchy map (built from the 41-court enum) plus 案號-root matching across tiers — neither comes from a single API call.",
+      "example": "judgementtw-pp-cli appeal-chain TPHM,110,毒抗,1212,20210831,1 --json",
+      "why_it_matters": "Paralegals reconstructing case history get the full procedural chain without guessing case numbers across courts.",
+      "group": "Court analytics"
+    },
+    {
+      "name": "Related-case discovery",
+      "command": "related",
+      "description": "Surfaces synced judgments that cite a similar set of statutes (Jaccard similarity over the citation set), filtered to the same court tier and ±2 years.",
+      "rationale": "Similarity over citation overlap is a local computation no API exposes; needs the citations table plus the court-tier map.",
+      "example": "judgementtw-pp-cli related TPSM,115,台抗,703,20260430,1 --threshold 0.4 --json",
+      "why_it_matters": "Paralegals and agents asking 'more like this' get a ranked list grounded in shared legal grounds, not keyword overlap.",
+      "group": "Court analytics"
+    },
+    {
+      "name": "Case-character (字別) catalog",
+      "command": "case-types list",
+      "description": "Aggregates the 字別 (case-character) field across the local corpus and groups by court, with counts and a sample JID per character.",
+      "rationale": "字別 is the key Taiwan judicial taxonomy (e.g. 台抗, 毒抗, 訴, 簡上) and varies per court; no single API call lists it. Aggregation over the local corpus exposes the full enum.",
+      "example": "judgementtw-pp-cli case-types list --court TPH --json",
+      "why_it_matters": "Agents discovering the right 字別 to filter on get the full per-court enum in one call.",
+      "group": "Court analytics"
+    },
+    {
+      "name": "Knowledge ↔ judgment linker",
+      "command": "knowledge link",
+      "description": "Given an FJUDKM commentary par-token, extract its statute references and find judgments in the local store that cite the same statutes.",
+      "rationale": "The only meaningful join across the two sources — FJUDKM commentaries reference statutes; judgments cite statutes; the local citations table bridges them.",
+      "example": "judgementtw-pp-cli knowledge link H4sF6HdN%2fbyjjMYJ42ZPATLh%2fu2Al%2f83pT2w0OTOytP6IvrcKVCjLQ%3d%3d --json",
+      "why_it_matters": "Researchers reading commentary instantly find the corpus of judgments that operationalize that doctrine.",
+      "group": "Cross-source intelligence"
+    },
+    {
+      "name": "Privacy-purge sweeper",
+      "command": "purge orphans",
+      "description": "Re-fetches synced JIDs through the website; on a `查無資料` response (judgment removed for privacy), deletes the local row and writes an audit-log entry.",
+      "rationale": "The Judicial Yuan ToS explicitly requires local copies of removed judgments to be deleted to protect party privacy. Mechanical compliance feature; required, not optional.",
+      "example": "judgementtw-pp-cli purge orphans --since 115/01/01 --json",
+      "why_it_matters": "Operators staying compliant with Taiwan privacy obligations don't have to write the purge logic themselves.",
+      "group": "Compliance and lifecycle"
+    },
+    {
+      "name": "Service-window reporter",
+      "command": "doctor window",
+      "description": "Compares current Taipei time to the 0–6 AM official-API service window; prints whether the API is reachable now and how many seconds until the next window.",
+      "rationale": "The official Judicial Yuan open-data API only serves 0–6 AM Taipei time. Even though this CLI defaults to website scraping, operators flipping on API support need to know when bulk syncs can run.",
+      "example": "judgementtw-pp-cli doctor window --json",
+      "why_it_matters": "Agents and ops planning a bulk sync get a clear go/no-go signal without learning Taiwan's API service-window rules.",
+      "group": "Compliance and lifecycle"
+    }
+  ],
+  "narrative": {
+    "display_name": "Taiwan Judgment Search \u0026 Judicial Knowledge",
+    "headline": "Search and analyze every Taiwan court judgment offline, with a citation graph, sentencing analytics, and watchlists no judicial.gov.tw page surfaces.",
+    "value_prop": "judgementTW wraps both judgment.judicial.gov.tw (judgment search across 41 courts and 5 case types) and fjudkm.judicial.gov.tw (462-topic Judicial Knowledge Base) behind one agent-native CLI. A local SQLite store turns every judgment into a queryable corpus: cross-judgment citation graphs, sentencing distributions, watchlists for ongoing cases, and appeal-chain walking — none of which the public website provides.",
+    "auth_narrative": "No API key, no account, no login. judgementTW scrapes the public website with a Chrome-style User-Agent over plain HTTPS. The official open-data API path (which requires opendata.judicial.gov.tw credentials and a 6-hour token) is intentionally not enabled by default — it is only available 0–6 AM Taipei time and is more restrictive than the website. The CLI auto-purges judgments that the Judicial Yuan removes for privacy reasons (`查無資料` responses), per the website's terms of use.",
+    "quickstart": [
+      {
+        "command": "judgementtw-pp-cli doctor",
+        "comment": "Confirm both judicial.gov.tw sub-sites are reachable from your network."
+      },
+      {
+        "command": "judgementtw-pp-cli search --court TPS --type criminal --keyword 毒品危害防制條例 --limit 10 --json",
+        "comment": "Search the Supreme Court for recent narcotics-control rulings, agent-shaped output."
+      },
+      {
+        "command": "judgementtw-pp-cli get TPSM,115,台抗,703,20260430,1 --json --select jid,jdate,jtitle,jfullcontent",
+        "comment": "Fetch a single judgment by JID, narrow to the fields an agent actually needs."
+      },
+      {
+        "command": "judgementtw-pp-cli find --court TPH --type criminal --year 115 --limit 50 --json | jq -r '.items[].jid' | xargs -I {} judgementtw-pp-cli judgments get {} --json --select jid",
+        "comment": "Bulk-load High Court criminal rulings into the local SQLite store: find returns JIDs, xargs feeds them to judgments get."
+      },
+      {
+        "command": "judgementtw-pp-cli cites statute 毒品危害防制條例 --article 17 --json",
+        "comment": "After syncing, ask cross-judgment questions the website cannot answer."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Search returns 0 results when the website shows hits",
+        "fix": "ASP.NET ViewState may have rotated since your last GET. Rerun the search — the CLI re-fetches the form on every call."
+      },
+      {
+        "symptom": "PDF download returns 404",
+        "fix": "Not every judgment ships a PDF. Use `get \u003cjid\u003e --json --select attachments` to confirm an attachment URL exists before requesting it."
+      },
+      {
+        "symptom": "ROC year filter rejects '2026'",
+        "fix": "All date flags expect 民國 (ROC) year. 2026 = 民國 115. The CLI also accepts `--from 115/04/01` and `--to 115/05/09`."
+      },
+      {
+        "symptom": "Bulk sync hits 429 from the website",
+        "fix": "Lower the rate: `--rate 0.5` (one request every 2 seconds). The adaptive limiter will back off automatically on persistent 429s."
+      },
+      {
+        "symptom": "Locally cached judgment is stale or removed",
+        "fix": "Run `judgementtw-pp-cli purge orphans` weekly. The Judicial Yuan removes judgments for privacy reasons; the CLI cleans the local copy to match."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent or operator needs to query Taiwan court judgments programmatically — single-judgment lookup, bulk corpus building, citation/precedent analysis, or watchlists for ongoing cases. It replaces the brittle Selenium scrapers used by empirical legal scholars and the manual tab-juggling done by paralegals and journalists. Do not use it for legally-binding citations (always confirm against the official Judicial Yuan record) or for redistributing corpora (the Lawsnote precedent makes commercial republication legally risky in Taiwan).",
+    "recipes": [
+      {
+        "title": "Build a one-year drug-case corpus and find sentencing patterns",
+        "command": "judgementtw-pp-cli find --court TPH --type criminal --keyword 毒品危害防制條例 --year 115 --limit 50 --json | jq -r '.items[].jid' | xargs -I {} judgementtw-pp-cli judgments get {} --json --select jid \u0026\u0026 judgementtw-pp-cli sentences --statute 毒品危害防制條例 --court TPH --json --select statute,total_count,prison_min_months,prison_median_months,prison_max_months",
+        "explanation": "find narrows to one year + topic, xargs streams JIDs into 'judgments get' to populate the local store, then sentences aggregates 主文 patterns into a histogram. --select keeps the JSON small enough for agent context."
+      },
+      {
+        "title": "Track every new ruling on an ongoing matter",
+        "command": "judgementtw-pp-cli watch case TPHM,110,毒抗 --json",
+        "explanation": "On each invocation, prints only JIDs added since the last call. Cron this hourly into a Slack webhook."
+      },
+      {
+        "title": "Find the appeal chain for a Supreme Court ruling",
+        "command": "judgementtw-pp-cli appeal-chain TPSM,115,台抗,703,20260430,1 --json --select court,jid,jdate,jtitle",
+        "explanation": "Walks the chain across court tiers. Requires the local store to have synced the lower-court rulings first."
+      },
+      {
+        "title": "Cross-source: find judgments operationalizing a knowledge-base commentary",
+        "command": "judgementtw-pp-cli knowledge search '不當得利' --limit 5 --json | jq -r '.[0].par' | xargs judgementtw-pp-cli knowledge link --json",
+        "explanation": "Pipes the top FJUDKM commentary on 不當得利 (unjust enrichment) into the linker, which surfaces local judgments citing the same statutes."
+      },
+      {
+        "title": "Compact agent output for a deeply-nested response",
+        "command": "judgementtw-pp-cli find --court TPS --type criminal --year 115 --json --select items.jid,items.jdate,items.jtitle",
+        "explanation": "When the result envelope is nested (find returns {total_count, page, limit, items: [...]}), dotted --select items.jid,items.jdate paths narrow JSON to three columns."
+      }
+    ],
+    "trigger_phrases": [
+      "search Taiwan court judgments",
+      "find Taiwan court ruling",
+      "Taiwan judicial knowledge base",
+      "司法院裁判書",
+      "Taiwan legal precedent",
+      "use judgementtw",
+      "run judgementtw"
+    ]
+  }
+}

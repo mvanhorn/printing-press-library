@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "judgementtw-pp-mcp",
+  "display_name": "Taiwan Judgment & Judicial Knowledge",
+  "version": "4.0.6",
+  "description": "Search and analyze every Taiwan court judgment offline, with a citation graph, sentencing analytics, and watchlists no judicial.gov.tw page surfaces.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/judgementtw-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/judgementtw-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

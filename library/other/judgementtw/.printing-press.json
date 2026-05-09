@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T02:40:31.356432Z",
+  "printing_press_version": "4.0.6",
+  "api_name": "judgementtw",
+  "display_name": "Taiwan Judgment & Judicial Knowledge",
+  "cli_name": "judgementtw-pp-cli",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:9479151f47df85d8a29ec17c6748216e5092c7692054cd926c530226d9445b34",
+  "run_id": "20260509-091315",
+  "description": "Search and analyze every Taiwan court judgment offline, with a citation graph, sentencing analytics, and watchlists no judicial.gov.tw page surfaces.",
+  "mcp_binary": "judgementtw-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_public_tool_count": 7,
+  "mcp_ready": "full",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Statute-citation graph",
+      "command": "cites statute",
+      "description": "List every locally-synced judgment that cites a given statute article, broken down by court and year. Use this when you need 'every High Court drug case that ever invoked §17(2)' in one query."
+    },
+    {
+      "name": "Reverse-citation precedent lookup",
+      "command": "cited-by",
+      "description": "Find judgments in the local store that cite a given JID. Surfaces appellate review, follow-on rulings, and precedent fan-out without re-querying the website."
+    },
+    {
+      "name": "Saved-query daily digest",
+      "command": "watch query",
+      "description": "Save a named query (court+type+keyword); on each invocation print only the JIDs newer than the last cursor. Replaces the missing RSS/email-digest on the Judicial Yuan site."
+    },
+    {
+      "name": "Watch a specific case",
+      "command": "watch case",
+      "description": "Track a single matter (defined by court + 案號 root) for new rulings, appeals, and supplements. Prints a diff against the local change_log."
+    },
+    {
+      "name": "Sentencing distribution",
+      "command": "sentences",
+      "description": "For criminal judgments matching a statute and optional court+year, parse 主文 sentence patterns (有期徒刑X年Y月, 拘役, 罰金) and print a histogram + min/median/max."
+    },
+    {
+      "name": "Appeal-chain walker",
+      "command": "appeal-chain",
+      "description": "Walks lower court → appellate court → Supreme Court for the same matter (same parties, same 案號 root) and prints the chain."
+    },
+    {
+      "name": "Related-case discovery",
+      "command": "related",
+      "description": "Surfaces synced judgments that cite a similar set of statutes (Jaccard similarity over the citation set), filtered to the same court tier and ±2 years."
+    },
+    {
+      "name": "Case-character (字別) catalog",
+      "command": "case-types list",
+      "description": "Aggregates the 字別 (case-character) field across the local corpus and groups by court, with counts and a sample JID per character."
+    },
+    {
+      "name": "Knowledge ↔ judgment linker",
+      "command": "knowledge link",
+      "description": "Given an FJUDKM commentary par-token, extract its statute references and find judgments in the local store that cite the same statutes."
+    },
+    {
+      "name": "Privacy-purge sweeper",
+      "command": "purge orphans",
+      "description": "Re-fetches synced JIDs through the website; on a `查無資料` response (judgment removed for privacy), deletes the local row and writes an audit-log entry."
+    },
+    {
+      "name": "Service-window reporter",
+      "command": "doctor window",
+      "description": "Compares current Taipei time to the 0–6 AM official-API service window; prints whether the API is reachable now and how many seconds until the next window."
+    }
+  ],
+  "printer": "wayne-lai",
+  "printer_name": "Wayne Lai"
+}

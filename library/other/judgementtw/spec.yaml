@@ -1,0 +1,285 @@
+name: judgementtw
+display_name: "Taiwan Judgment & Judicial Knowledge"
+description: "Search and analyze every Taiwan court judgment offline, with a citation graph, sentencing analytics, and watchlists no judicial.gov.tw page surfaces."
+cli_description: "Search and analyze every Taiwan court judgment offline, with a citation graph, sentencing analytics, and watchlists no judicial.gov.tw page surfaces."
+version: "0.1.0"
+base_url: "https://judgment.judicial.gov.tw"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/judgementtw-pp-cli/config.toml"
+
+resources:
+  find:
+    description: "Search Taiwan court judgments via the public judgment.judicial.gov.tw site"
+    endpoints:
+      run:
+        method: GET
+        path: "/FJUD/qryresultlst.aspx"
+        description: "Run a search across courts, case types, year, case-character, and keyword filters; returns judgment metadata"
+        params:
+          - name: court
+            flag_name: court
+            type: string
+            description: "Court code(s) — comma-separated, e.g. TPS,TPH,TPD. Use 'case-types courts' to list all 41 courts."
+          - name: type
+            flag_name: type
+            type: string
+            description: "Case type(s) — comma-separated. Long form: criminal,civil,administrative,disciplinary,constitutional. Short form: M,V,A,P,C."
+          - name: year
+            flag_name: year
+            type: int
+            description: "民國 (ROC) year, e.g. 115. Single year."
+          - name: case-char
+            flag_name: case-char
+            type: string
+            description: "字別 (case character), e.g. 台抗, 毒抗, 訴, 簡上"
+          - name: no
+            flag_name: no
+            type: int
+            description: "Case number (start of range)"
+          - name: no-end
+            flag_name: no-end
+            type: int
+            description: "Case number end of range (defaults to 'no' value)"
+          - name: from
+            flag_name: from
+            type: string
+            description: "Date range start (民國 YYY/MM/DD or Gregorian YYYY-MM-DD)"
+          - name: to
+            flag_name: to
+            type: string
+            description: "Date range end (民國 YYY/MM/DD or Gregorian YYYY-MM-DD)"
+          - name: reason
+            flag_name: reason
+            type: string
+            description: "裁判案由 (case reason) substring"
+          - name: verdict
+            flag_name: verdict
+            type: string
+            description: "主文 (verdict text) substring"
+          - name: keyword
+            flag_name: keyword
+            type: string
+            description: "Free-text keyword across the judgment body"
+          - name: limit
+            flag_name: limit
+            type: int
+            default: 20
+            description: "Max results to return (default 20, max 100 per page)"
+          - name: page
+            flag_name: page
+            type: int
+            default: 1
+            description: "Page number (1-indexed)"
+        response:
+          type: array
+          item: JudgmentRef
+
+  judgments:
+    description: "Fetch and store individual Taiwan court judgments by JID"
+    endpoints:
+      get:
+        method: GET
+        path: "/FJUD/data.aspx"
+        description: "Fetch a single judgment by JID (e.g. TPSM,115,台抗,703,20260430,1) with full text and metadata"
+        params:
+          - name: jid
+            flag_name: jid
+            type: string
+            required: true
+            positional: true
+            description: "Judgment ID — court+type,year,case-character,no,date,check (e.g. TPSM,115,台抗,703,20260430,1)"
+          - name: with-pdf
+            flag_name: with-pdf
+            type: bool
+            default: false
+            description: "Also download the PDF attachment (when present)"
+        response:
+          type: object
+          item: Judgment
+      list:
+        method: GET
+        path: "/FJUD/recent"
+        description: "List recently-synced judgments from the local store, with optional court/type/date filters"
+        params:
+          - name: court
+            flag_name: court
+            type: string
+            description: "Filter by court code(s)"
+          - name: type
+            flag_name: type
+            type: string
+            description: "Filter by case type"
+          - name: limit
+            flag_name: limit
+            type: int
+            default: 50
+            description: "Max rows to return"
+        response:
+          type: array
+          item: Judgment
+
+  knowledge:
+    description: "Browse and search the Judicial Knowledge Base (fjudkm.judicial.gov.tw) — 462 topics across civil, criminal, administrative, family, IP, and commercial law"
+    base_url: "https://fjudkm.judicial.gov.tw"
+    endpoints:
+      topics:
+        method: GET
+        path: "/Default.aspx"
+        description: "List all 462 knowledge-base topics with their IDs and titles"
+        response:
+          type: array
+          item: KnowledgeTopic
+      topic:
+        method: GET
+        path: "/index_title.aspx"
+        description: "Fetch a single knowledge-base topic with its case-commentary list"
+        params:
+          - name: id
+            flag_name: id
+            type: int
+            required: true
+            positional: true
+            description: "Topic ID (e.g. 474 for 法律行為)"
+        response:
+          type: object
+          item: KnowledgeTopicDetail
+      get:
+        method: GET
+        path: "/index_doc.aspx"
+        description: "Fetch a single knowledge-base case commentary by its par-token"
+        params:
+          - name: par
+            flag_name: par
+            type: string
+            required: true
+            positional: true
+            description: "Commentary par-token (URL-encoded base64)"
+        response:
+          type: object
+          item: KnowledgeDoc
+      search:
+        method: GET
+        path: "/searcher.aspx"
+        description: "Full-text search the Judicial Knowledge Base"
+        params:
+          - name: query
+            flag_name: query
+            type: string
+            required: true
+            positional: true
+            description: "Search query (free text)"
+          - name: court
+            flag_name: court
+            type: string
+            description: "Limit to a single court"
+          - name: case-char
+            flag_name: case-char
+            type: string
+            description: "Filter by 字別"
+          - name: no
+            flag_name: no
+            type: int
+            description: "Filter by case number"
+        response:
+          type: array
+          item: KnowledgeDocRef
+
+types:
+  JudgmentRef:
+    fields:
+      - name: jid
+        type: string
+      - name: court
+        type: string
+      - name: case_type
+        type: string
+      - name: year
+        type: int
+      - name: case_char
+        type: string
+      - name: no
+        type: int
+      - name: jdate
+        type: string
+      - name: jtitle
+        type: string
+      - name: detail_url
+        type: string
+
+  Judgment:
+    fields:
+      - name: jid
+        type: string
+      - name: court
+        type: string
+      - name: court_name
+        type: string
+      - name: case_type
+        type: string
+      - name: case_type_name
+        type: string
+      - name: year
+        type: int
+      - name: case_char
+        type: string
+      - name: no
+        type: int
+      - name: jdate
+        type: string
+      - name: jtitle
+        type: string
+      - name: jfullcontent
+        type: string
+      - name: pdf_url
+        type: string
+      - name: pdf_path
+        type: string
+      - name: source_url
+        type: string
+      - name: fetched_at
+        type: string
+
+  KnowledgeTopic:
+    fields:
+      - name: id
+        type: int
+      - name: title
+        type: string
+      - name: url
+        type: string
+
+  KnowledgeTopicDetail:
+    fields:
+      - name: id
+        type: int
+      - name: title
+        type: string
+      - name: docs
+        type: string
+
+  KnowledgeDoc:
+    fields:
+      - name: par
+        type: string
+      - name: title
+        type: string
+      - name: body
+        type: string
+      - name: source_url
+        type: string
+
+  KnowledgeDocRef:
+    fields:
+      - name: par
+        type: string
+      - name: title
+        type: string
+      - name: snippet
+        type: string
+      - name: url
+        type: string

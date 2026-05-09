@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "spec_source": "browser-sniffed",
+  "reachability": {
+    "mode": "standard_http",
+    "rationale": "Both judicial.gov.tw sub-sites respond 200 to plain stdlib HTTP with a Chrome User-Agent. ASP.NET session cookie is set on first GET; replaying it on POST works. No Cloudflare/CAPTCHA/clearance cookie observed."
+  },
+  "uses_browser_http_transport": false,
+  "uses_browser_clearance_http": false,
+  "needs_chrome_cookie_import": false,
+  "client_pattern": "html-scrape",
+  "html_scrape_notes": "Two ASP.NET WebForms sites. Search flow requires extracting __VIEWSTATE / __EVENTVALIDATION / __VIEWSTATEGENERATOR from the HTML before POSTing the form. Result-list URL is parsed out of the iframe src in the POST response.",
+  "auth_required_endpoints": [],
+  "rate_limit_signal": null
+}

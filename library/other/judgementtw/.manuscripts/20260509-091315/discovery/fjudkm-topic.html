@@ -1,0 +1,249 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head><title>
+	司法智識庫--專題
+</title><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><link href="A.css" rel="stylesheet" type="text/css" /></head>
+<script language="javascript">
+    function checkTXT(){
+            document.getElementById('hfSW').value = '';
+        if (document.form1.txtSearchText.value.indexOf("(") != -1 || document.form1.txtSearchText.value.indexOf(")") != -1){
+	        alert("再檢索字詞中請勿含有括號，請重新輸入！");
+		    return false;
+	    }
+	    else if (document.form1.txtSearchText.value == ''){
+	        alert("再檢索字詞請勿空白，請重新輸入！");
+		    return false;
+	    }else if (document.form1.txtSearchText.value != ''){
+	        var s = document.form1.txtSearchText.value;
+            var reg = new RegExp("(^[\\+\\-&\\)])|([\\+\\-&\\(]$)");
+            var result = s.match(reg);
+            if(result != null && result.length > 0) {
+	            alert("檢索字詞格式不正確，請重新輸入！！");
+	            return false;
+	        }
+	        reg = new RegExp("([^\u4e00-\u9fa5Ｏ0-9０-９一二三四五六七八九○零壹貳肆伍陸柒捌玖\+\-a-zA-Z&\(\)])");
+             var resultx = s.match(reg);
+             if(resultx != null && resultx.length > 0) {
+                alert("檢索字詞格式不正確，請重新輸入！！");
+                return false;
+             }
+            s = s.replace(/\+/g,"＋").replace(/\-/g,"－").replace(/\&/g,"＆");
+            document.getElementById('hfSW').value = s;
+	    }
+    }
+</script>
+<body class="noBorder">
+    <form name="form1" method="post" action="./index_title.aspx?id=474" onsubmit="javascript:return WebForm_OnSubmit();" id="form1">
+<div>
+<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="" />
+<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="" />
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="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" />
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['form1'];
+if (!theForm) {
+    theForm = document.form1;
+}
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</script>
+
+
+<script src="/WebResource.axd?d=shGs1NIpn0RmHkeNNfBKlcGgr8bb1OvMBY3nrxXXguki5P5JAR7AvYJTMNaLW-tFpLpB0O6Ed1AQqf190&amp;t=638942498805310136" type="text/javascript"></script>
+
+
+<script src="/WebResource.axd?d=l02pOlE44eJL47jLj6J2_LrAofyV2pSCBJNwPePfoZ2uI4_z_V0_jUnAkFEqUCByF8K-P9IIqNpdGvvJl5Dlx4YJYKs1&amp;t=638942498805310136" type="text/javascript"></script>
+<script type="text/javascript">
+//<![CDATA[
+function WebForm_OnSubmit() {
+if (typeof(ValidatorOnSubmit) == "function" && ValidatorOnSubmit() == false) return false;
+return true;
+}
+//]]>
+</script>
+
+<div>
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="B63082C9" />
+	<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="/wEdAARJUrUlrBOtOX8SYZngk2jnQxXniPf7Xwlbw+7CVAyR4wn8fpBxLE/6vST62FAfhRSO1N1XNFmfsMXJasjxX85jXhgbBeBAzhN5SVZYnmE60LzoyNc=" />
+</div>
+        <input type="hidden" name="hfSW" id="hfSW" />
+    <div>
+        <div id="CONTAINER">
+            <div id="HEADER">
+	<span class="TOP_MENU">
+		<ul>
+			<li><a href="ProjectList.aspx" title="專題清單"><span class="toplink1">專題清單</span></a></li>
+			<li><a href="SynonymsList.aspx" title="同義詞清單"><span class="toplink2">同義詞清單</span></a></li>
+			<li><a href="Default.aspx" title="回首頁"><span class="home1">回首頁</span></a></li>
+			<li><a href="http://www.judicial.gov.tw/" title="回司法院首頁"><span class="home2">回司法院首頁</span></a></li>
+		</ul>
+	</span>
+</div>
+            <div id="CONTENT"> 
+              <table width="85%" border="0" align="center" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF" style="margin-top:11px;" summary="此為排版表格">
+                <tr>
+                  <td width="25" height="30"><img src="images/table01_01.gif" alt="" width="25" height="30"></td>
+                  <td colspan="2" background="images/table01_02bg.gif">&nbsp;</td>
+                  <td width="25" height="30"><img src="images/table01_03.gif" alt="" width="25" height="30"></td>
+                </tr>
+                <tr>
+                  <td background="images/table01_04bg.gif">&nbsp;</td>
+                  <td width="382" valign="top" style="border-bottom:#d0d0d0 1px solid;" align="left">
+                  <!--專題名稱-->
+                      <ul class="title03">
+                        <li>法律行為(民法第71條~第98條)</li>
+                      </ul>
+                  </td>
+                  <td width="400" align="right" valign="top" style="border-bottom:#d0d0d0 1px solid;">
+                    <span class="qryMore01">本範圍內再檢索：<input name="txtSearchText" type="text" id="txtSearchText" style="width:150px;" />
+                        &nbsp;<input type="submit" name="btnSearch" value="查詢" onclick="return checkTXT();WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;btnSearch&quot;, &quot;&quot;, true, &quot;&quot;, &quot;&quot;, false, false))" id="btnSearch" /><span id="chkEmpty" style="color:Red;visibility:hidden;"></span>
+                    </span>
+                  </td>
+                  <td background="images/table01_05bg.gif">&nbsp;</td>
+                </tr>
+                <tr>
+                  <td background="images/table01_04bg.gif">&nbsp;</td>
+                  <td colspan="2">&nbsp;</td>
+                  <td background="images/table01_05bg.gif">&nbsp;</td>
+                </tr>
+                <tr>
+                  <td background="images/table01_04bg.gif">&nbsp;</td>
+                  <td colspan="2"><br>
+                  <table class="SearchList1">
+                    <!--關鍵詞-->
+                    <tr><th>關鍵詞：</th>
+                    </tr>
+                    <tr>
+                      <td style=" padding-left:40px;" align="left"><a href="index_kw.aspx?id=6746">土地法</a>、<a href="index_kw.aspx?id=6741">不動產抵押</a>、<a href="index_kw.aspx?id=6759">內容錯誤</a>、<a href="index_kw.aspx?id=6673">公共秩序</a>、<a href="index_kw.aspx?id=6700">公序良俗</a>、<a href="index_kw.aspx?id=6697">公寓大廈住戶公約</a>、<a href="index_kw.aspx?id=6698">公寓大廈住戶規約</a>、<a href="index_kw.aspx?id=6765">主給付義務</a>、<a href="index_kw.aspx?id=6750">代位權</a>、<a href="index_kw.aspx?id=6715">包攬訴訟</a>、<a href="index_kw.aspx?id=6716">成果報酬</a>、<a href="index_kw.aspx?id=6740">自用住宅放款</a>、<a href="index_kw.aspx?id=6693">住戶公約</a>、<a href="index_kw.aspx?id=6699">住戶規約</a>、<a href="index_kw.aspx?id=6713">作證義務</a>、<a href="index_kw.aspx?id=6734">取締規定</a>、<a href="index_kw.aspx?id=6709">定型化契約條款</a>、<a href="index_kw.aspx?id=6721">法定解除權</a>、<a href="index_kw.aspx?id=6726">物價波動</a>、<a href="index_kw.aspx?id=6727">物價調整</a>、<a href="index_kw.aspx?id=6763">物價調整原則</a>、<a href="index_kw.aspx?id=6762">物調原則</a>、<a href="index_kw.aspx?id=6724">表意決定自由</a>、<a href="index_kw.aspx?id=6702">返還股票</a>、<a href="index_kw.aspx?id=6764">附隨義務</a>、<a href="index_kw.aspx?id=6744">信託契約</a>、<a href="index_kw.aspx?id=6718">保固金</a>、<a href="index_kw.aspx?id=6717">保固期間</a>、<a href="index_kw.aspx?id=6707">契約補充</a>、<a href="index_kw.aspx?id=6706">契約解釋</a>、<a href="index_kw.aspx?id=6708">契約漏洞</a>、<a href="index_kw.aspx?id=6694">急迫</a>、<a href="index_kw.aspx?id=6722">約定解除權</a>、<a href="index_kw.aspx?id=6742">借名登記</a>、<a href="index_kw.aspx?id=6743">借名登記契約</a>、<a href="index_kw.aspx?id=6704">員工分紅配股</a>、<a href="index_kw.aspx?id=6705">員工分紅配股之限制約定</a>、<a href="index_kw.aspx?id=6733">效力規定</a>、<a href="index_kw.aspx?id=6678">書面詢問</a>、<a href="index_kw.aspx?id=6748">消極信託</a>、<a href="index_kw.aspx?id=6755">脅迫行為</a>、<a href="index_kw.aspx?id=6757">停止供貨</a>、<a href="index_kw.aspx?id=6760">動機錯誤</a>、<a href="index_kw.aspx?id=6747">區域計畫法</a>、<a href="index_kw.aspx?id=6737">強行法規</a>、<a href="index_kw.aspx?id=6712">強行規定</a>、<a href="index_kw.aspx?id=6735">強制規定</a>、<a href="index_kw.aspx?id=6766">從給付義務</a>、<a href="index_kw.aspx?id=6725">情事變更原則</a>、<a href="index_kw.aspx?id=6756">混凝土價格</a>、<a href="index_kw.aspx?id=6749">通謀虛偽意思表示</a>、<a href="index_kw.aspx?id=6739">連帶保證人</a>、<a href="index_kw.aspx?id=6738">連帶保證契約</a>、<a href="index_kw.aspx?id=6714">報酬約定</a>、<a href="index_kw.aspx?id=6696">無經驗</a>、<a href="index_kw.aspx?id=6745">無權處分</a>、<a href="index_kw.aspx?id=6674">善良風俗</a>、<a href="index_kw.aspx?id=6753">視為放棄</a>、<a href="index_kw.aspx?id=6677">詐欺</a>、<a href="index_kw.aspx?id=6711">訴訟權</a>、<a href="index_kw.aspx?id=6719">意思表示解釋</a>、<a href="index_kw.aspx?id=6690">意思表示錯誤</a>、<a href="index_kw.aspx?id=6754">當事人真意</a>、<a href="index_kw.aspx?id=6761">當事人資格或物之性質錯誤</a>、<a href="index_kw.aspx?id=6736">禁止規定</a>、<a href="index_kw.aspx?id=6720">解除契約</a>、<a href="index_kw.aspx?id=6683">解釋意思表示</a>、<a href="index_kw.aspx?id=6723">誇大不實陳述</a>、<a href="index_kw.aspx?id=6681">誠信原則</a>、<a href="index_kw.aspx?id=6767">誠實信用原則</a>、<a href="index_kw.aspx?id=6703">資遣員工</a>、<a href="index_kw.aspx?id=6680">違反告知義務</a>、<a href="index_kw.aspx?id=6679">撤銷承保</a>、<a href="index_kw.aspx?id=6695">輕率</a>、<a href="index_kw.aspx?id=6752">履約保證金保證書有效期間</a>、<a href="index_kw.aspx?id=6751">履約保證金連帶保證書</a>、<a href="index_kw.aspx?id=6685">暴利行為</a>、<a href="index_kw.aspx?id=6758">調漲價格</a>、<a href="index_kw.aspx?id=6710">衡平原則</a>、<a href="index_kw.aspx?id=6701">顯失公平</a></td>
+                    </tr>
+                    <!--裁判-->
+                    <tr>
+                      <th>裁判：</th>
+                    </tr>
+                    <tr>
+                      <td align="left">
+                        
+                                <ol>
+                             
+                                <li><a href="index_doc.aspx?par=8UdehHWAhiQf269blDBfQriVcvasIuyt6q3MnhDrk4nDXfUHOq3JVQ%3d%3d">最高法院民事99台上字第647號裁判</a> <span class="TEXT02">解釋意思表示、視為放棄、當事人真意</span></li>
+                             
+                                <li><a href="index_doc.aspx?par=bfcMVHcvOWWov7AyUJtbOnxilxkjFIt44Ju%2fnA5ee1w5%2bVaQHnc81Q%3d%3d">最高法院民事99台上字第2448號裁判</a> <span class="TEXT02">消極信託、通謀虛偽意思表示、代位權、借名登記、借名登記...</span></li>
+                             
+                                <li><a href="index_doc.aspx?par=6Ch2SmeCtaUW6WCV%2bVewdr%2baJnsxWhpvUFW2Sok9QbqZMWXNKzZA7A%3d%3d">最高法院民事99台上字第1987號裁判</a> <span class="TEXT02">強制規定、禁止規定、效力規定、取締規定、強行法規、連帶...</span></li>
+                             
+                                <li><a href="index_doc.aspx?par=aXXarpNMiKbOgQr4uqoW96%2f4Ah5muGpJHahOAdrASHqqY6E5EeHfiQ%3d%3d">最高法院民事99台上字第1908號裁判</a> <span class="TEXT02">脅迫行為、混凝土價格、停止供貨、調漲價格</span></li>
+                             
+                                <li><a href="index_doc.aspx?par=CiUS%2fk6DDaVasZaBoqTE53lQwEYbKqcOQchXS44TufyRS%2bP3%2bKTE6g%3d%3d">最高法院民事99台上字第1439號裁判</a> <span class="TEXT02">內容錯誤、動機錯誤、意思表示錯誤</span></li>
+                             
+                                <li><a href="index_doc.aspx?par=uBQPEyTUYDORVn1m3RUus5Sc8FU4h1Zw8tj1lXJH9yyvykZOUoqARw%3d%3d">最高法院民事98台上字第76號裁判</a> <span class="TEXT02">借名登記、借名登記契約、信託契約、無權處分</span></li>
+                             
+                                <li><a href="index_doc.aspx?par=0Us7mR1kIl6v8dWTH4j1YYKh3p%2fpgFv50jNvjhIqUcegNCC0sSI0kQ%3d%3d">最高法院民事98台上字第1925號裁判</a> <span class="TEXT02">解釋意思表示、履約保證金連帶保證書、履約保證金保證書有...</span></li>
+                             
+                                <li><a href="index_doc.aspx?par=qrlMzLIedLbl21GI0dwPoLAPQET8m5Br5Fv8TR6Gpby%2bTCPGkVdErA%3d%3d">最高法院民事98台上字第1493號裁判</a> <span class="TEXT02">強行規定、土地法、區域計畫法、禁止規定、取締規定、效力...</span></li>
+                             
+                                <li><a href="index_doc.aspx?par=NzaBhKqvpjCWiQO5oqr5Ve3inNlNAfptu%2fJv24%2bGtUPNvF%2f4cqGBBQ%3d%3d">最高法院民事98台上字第1469號裁判</a> <span class="TEXT02">意思表示錯誤、動機錯誤、當事人資格或物之性質錯誤、物調...</span></li>
+                             
+                                <li><a href="index_doc.aspx?par=%2fv5aswf7IuUYW76IPy8l1fV%2bUz6HrqmBmM85%2b%2bTzghK3fGf0vNz80Q%3d%3d">最高法院民事96台上字第790號裁判</a> <span class="TEXT02">契約解釋、解除契約、法定解除權、約定解除權</span></li>
+                             
+                                <li><a href="index_doc.aspx?par=Ta%2bcASFyy85Gacix0lVJ8JSiz6W%2fQdGvKtvF3aqVgFi7YlagFO%2bPUQ%3d%3d">最高法院民事96台上字第2470號裁判</a> <span class="TEXT02">暴利行為、住戶公約、急迫、輕率、無經驗、公寓大廈住戶公...</span></li>
+                             
+                                <li><a href="index_doc.aspx?par=H4sF6HdN%2fbyjjMYJ42ZPATLh%2fu2Al%2f83pT2w0OTOytP6IvrcKVCjLQ%3d%3d">最高法院民事96台上字第2237號裁判</a> <span class="TEXT02">契約解釋、意思表示解釋、情事變更原則、物價波動、物價調...</span></li>
+                             
+                                <li><a href="index_doc.aspx?par=5xKoSl5pPfQ33phICri23AF4j%2fC9%2b0WcQGRS%2bqMwbnAu8CYMzAsWsA%3d%3d">最高法院民事96台上字第165號裁判</a> <span class="TEXT02">公序良俗、顯失公平、返還股票、資遣員工、員工分紅配股、員...</span></li>
+                             
+                                <li><a href="index_doc.aspx?par=UEF5geYsA%2fes1N7%2bb8WaS9VZTzrocrFrdWSRiTuWPCY3b9czXCi7%2fQ%3d%3d">最高法院民事95台上字第2928號裁判</a> <span class="TEXT02">訴訟權、強行規定、公共秩序、善良風俗、作證義務、報酬約...</span></li>
+                             
+                                <li><a href="index_doc.aspx?par=6fyimx1eyU8nLlKCGDUR1cXsWK54v%2fccGKV8826KPF9la4IseW0B3A%3d%3d">最高法院民事95台上字第2256號裁判</a> <span class="TEXT02">保固期間、保固金、意思表示解釋、誠信原則</span></li>
+                             
+                                <li><a href="index_doc.aspx?par=Xa3Y2r7wmptqvhLd5vmlkmH3i96Nzvcaa%2fRHPB5HpybIwIcuklY2SQ%3d%3d">最高法院民事91台上字第438號裁判</a> <span class="TEXT02">契約解釋、附隨義務、主給付義務、從給付義務、誠實信用原則</span></li>
+                             
+                                <li><a href="index_doc.aspx?par=WIXrYcUnlSA%2f2MQ4pAUe%2bLMfE973kM4AjU91uFPFuqdSqotvYm8BCg%3d%3d">最高法院民事88台上字第1671號裁判</a> <span class="TEXT02">契約補充、契約漏洞、定型化契約條款、衡平原則、解釋意思...</span></li>
+                             
+                                <li><a href="index_doc.aspx?par=mvI5Y9shC7YCnvg17TsEv9qAymPe9Bq%2btw%2f1QvZRy3GoSw7n3N2LYA%3d%3d">最高法院民事86台上字第2113號判例</a> <span class="TEXT02">書面詢問、撤銷承保、違反告知義務、詐欺</span></li>
+                             
+                                <li><a href="index_doc.aspx?par=%2bX%2fylsCfs78DzMDJr2ebAB7j%2fF7nxiWPdU%2b3cevyYp4x9XzAGcONpw%3d%3d">最高法院民事100台上字第858號裁判</a> <span class="TEXT02">詐欺、誇大不實陳述、表意決定自由</span></li>
+                            
+                                </ol>
+                              
+                      </td>
+                    </tr>
+                  </table></td>
+                  <td background="images/table01_05bg.gif">&nbsp;</td>
+                </tr>
+                <tr>
+                  <td width="25" height="40"><img src="images/table01_06.gif" alt="" width="25" height="40"/></td>
+                  <td colspan="2" background="images/table01_07bg.gif">&nbsp;</td>
+                  <td width="25" height="40"><img src="images/table01_08.gif" alt="" width="25" height="40"/></td>
+                </tr>
+              </table>
+              </div>
+            <div id="FOOTER">
+  <div id="FOOTER">
+    <div id="DOWN">
+      <!--
+      <a href="#" onclick="openPrivacy();" title="版權宣告/隱私權保護/網站安全政策(另開視窗)">
+        版權宣告 / 隱私權保護 / 網站安全政策
+      </a><br/>-->
+      本系統由 司法院資訊管理處 製作 對於本系統功能有任何建議，歡迎<a href="http://www.judicial.gov.tw/email/write.htm" target="_blank">來信</a><br/>
+      建議您使用 1024*768 全彩及 Explorer 5.5 / Netscape 5.0 以上瀏覽器
+    </div>
+  </div>
+</div>
+<script language="javascript">
+  function openPrivacy(){
+  newWindow=window.open('http://www.judicial.gov.tw/privacy.asp','','width=1024,height=688,maximize=no,toolbar=no,directories=no,status=yes,scrollbars=yes,hscrollbars=no,resize=no,menubar=no,location=no');
+  }
+</script>
+
+        </div>
+    </div>
+    
+<script type="text/javascript">
+//<![CDATA[
+var Page_Validators =  new Array(document.getElementById("chkEmpty"));
+//]]>
+</script>
+
+<script type="text/javascript">
+//<![CDATA[
+var chkEmpty = document.all ? document.all["chkEmpty"] : document.getElementById("chkEmpty");
+chkEmpty.controltovalidate = "txtSearchText";
+chkEmpty.evaluationfunction = "RequiredFieldValidatorEvaluateIsValid";
+chkEmpty.initialvalue = "";
+//]]>
+</script>
+
+
+<script type="text/javascript">
+//<![CDATA[
+
+var Page_ValidationActive = false;
+if (typeof(ValidatorOnLoad) == "function") {
+    ValidatorOnLoad();
+}
+
+function ValidatorOnSubmit() {
+    if (Page_ValidationActive) {
+        return ValidatorCommonOnSubmit();
+    }
+    else {
+        return true;
+    }
+}
+        //]]>
+</script>
+</form>
+</body>
+</html>

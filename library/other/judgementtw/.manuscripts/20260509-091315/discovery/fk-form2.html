@@ -1,0 +1,851 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head><title>
+	全文檢索
+</title><link href="A.css" rel="stylesheet" type="text/css" />
+    <script src="Include/CookieHandle.js" type="text/javascript"></script>
+    <script src="Include/FormCookie.js" type="text/javascript"></script>
+    
+</head>
+<script language="JavaScript" type="text/JavaScript">
+<!--
+    function MM_openBrWindow(theURL,winName,features) { //v2.0
+      window.open(theURL,winName,features);
+    }
+    var lscode;
+	var lcolumn;
+	var input_ok;
+	
+	function get_lc_focus(lc){
+		lcolumn = lc;
+	}
+	
+	function set_lcolumn(){
+		if (lcolumn == null) {
+			lcolumn = document.form1.lc1a;
+		}
+	}
+	
+	//將司法院法規簡碼轉換成法規代碼
+	function lcode2lsid(lcode){
+	var law;
+		if(lcode=="10"){
+law = "中華民國憲法, 19470101";
+}
+else if(lcode=="11"){
+law = "中華民國憲法增修條文, 20050610";
+}
+else if(lcode=="20"){
+law = "司法院組織法, 20220119";
+}
+else if(lcode=="21"){
+law = "法院組織法, 20250716";
+}
+else if(lcode=="70"){
+law = "訴願法, 20120627";
+}
+else if(lcode=="71"){
+law = "行政執行法, 20100203";
+}
+else if(lcode=="72"){
+law = "行政訴訟法, 20220622";
+}
+else if(lcode=="23"){
+law = "憲法訴訟法, 20250123";
+}
+else if(lcode=="30"){
+law = "民法, 20210120";
+}
+else if(lcode=="3a"){
+law = "民法總則施行法, 20210113";
+}
+else if(lcode=="3b"){
+law = "民法債編施行法, 20210120";
+}
+else if(lcode=="3c"){
+law = "民法物權編施行法, 20100203";
+}
+else if(lcode=="3d"){
+law = "民法親屬編施行法, 20210113";
+}
+else if(lcode=="3e"){
+law = "民法繼承編施行法, 20130130";
+}
+else if(lcode=="39"){
+law = "涉外民事法律適用法, 20100526";
+}
+else if(lcode=="40"){
+law = "民事訴訟法, 20231129";
+}
+else if(lcode=="4a"){
+law = "民事訴訟法施行法, 20231129";
+}
+else if(lcode=="4b"){
+law = "民事訴訟費用法, 20030910";
+}
+else if(lcode=="41"){
+law = "強制執行法, 20190529";
+}
+else if(lcode=="42"){
+law = "破產法, 20180613";
+}
+else if(lcode=="4c"){
+law = "破產法施行法, 20180613";
+}
+else if(lcode=="44"){
+law = "非訟事件法, 20180613";
+}
+else if(lcode=="4e"){
+law = "非訟事件法施行細則, 20130619";
+}
+else if(lcode=="43"){
+law = "公證法, 20190403";
+}
+else if(lcode=="4d"){
+law = "公證法施行細則, 20221208";
+}
+else if(lcode=="45"){
+law = "提存法, 20071212";
+}
+else if(lcode=="4g"){
+law = "提存法施行細則, 20201109";
+}
+else if(lcode=="4f"){
+law = "法人及夫妻財產制契約登記規則, 20260504";
+}
+else if(lcode=="50"){
+law = "中華民國刑法, 20260313";
+}
+else if(lcode=="5a"){
+law = "中華民國刑法施行法, 20260313";
+}
+else if(lcode=="51"){
+law = "妨害國幣懲治條例, 20110629";
+}
+else if(lcode=="52"){
+law = "妨害國家總動員懲罰暫行條例, 20040107";
+}
+else if(lcode=="53"){
+law = "懲治盜匪條例, 20020130";
+}
+else if(lcode=="54"){
+law = "懲治走私條例, 20120613";
+}
+else if(lcode=="56"){
+law = "貪污治罪條例, 20160622";
+}
+else if(lcode=="57"){
+law = "毒品危害防制條例, 20220504";
+}
+else if(lcode=="60"){
+law = "刑事訴訟法, 20251111";
+}
+else if(lcode=="6a"){
+law = "刑事訴訟法施行法, 20231215";
+}
+else if(lcode=="61"){
+law = "刑事補償法, 20231215";
+}
+else if(lcode=="62"){
+law = "少年事件處理法, 20230621";
+}
+else if(lcode=="6b"){
+law = "少年事件處理法施行細則, 20240823";
+}
+else if(lcode=="6c"){
+law = "少年保護事件審理細則, 20210928";
+}
+else if(lcode=="73"){
+law = "國籍法, 20240524";
+}
+else if(lcode=="74"){
+law = "戶籍法, 20150121";
+}
+else if(lcode=="75"){
+law = "土地法, 20240807";
+}
+else if(lcode=="7c"){
+law = "土地法施行法, 20110615";
+}
+else if(lcode=="7d"){
+law = "土地登記規則, 20210713";
+}
+else if(lcode=="76"){
+law = "耕地三七五減租條例, 20020515";
+}
+else if(lcode=="77"){
+law = "平均地權條例, 20230208";
+}
+else if(lcode=="7f"){
+law = "平均地權條例施行細則, 20220816";
+}
+else if(lcode=="7h"){
+law = "農地重劃條例, 20110615";
+}
+else if(lcode=="7g"){
+law = "都市計畫法, 20210526";
+}
+else if(lcode=="78"){
+law = "建築法, 20220511";
+}
+else if(lcode=="58"){
+law = "槍砲彈藥刀械管制條例, 20240103";
+}
+else if(lcode=="79"){
+law = "集會遊行法, 20210127";
+}
+else if(lcode=="59"){
+law = "社會秩序維護法, 20250611";
+}
+else if(lcode=="5b"){
+law = "違反社會秩序維護法案件處理辦法, 20201116";
+}
+else if(lcode=="81"){
+law = "兵役法, 20230503";
+}
+else if(lcode=="8b"){
+law = "兵役法施行法, 20200513";
+}
+else if(lcode=="5d"){
+law = "陸海空軍刑法, 20231227";
+}
+else if(lcode=="5e"){
+law = "妨害兵役治罪條例, 20220518";
+}
+else if(lcode=="84"){
+law = "臺灣省內菸酒專賣暫行條例, 20020522";
+}
+else if(lcode=="85"){
+law = "稅捐稽徵法, 20211217";
+}
+else if(lcode=="86"){
+law = "銀行法, 20230628";
+}
+else if(lcode=="87"){
+law = "動產擔保交易法, 20070711";
+}
+else if(lcode=="36"){
+law = "票據法, 19870629";
+}
+else if(lcode=="3f"){
+law = "票據法施行細則, 19861230";
+}
+else if(lcode=="38"){
+law = "保險法, 20250618";
+}
+else if(lcode=="3j"){
+law = "保險法施行細則, 20080613";
+}
+else if(lcode=="97"){
+law = "證券交易法, 20240807";
+}
+else if(lcode=="48"){
+law = "仲裁法, 20151202";
+}
+else if(lcode=="47"){
+law = "鄉鎮市調解條例, 20230113";
+}
+else if(lcode=="88"){
+law = "國家賠償法, 20191218";
+}
+else if(lcode=="8e"){
+law = "國家賠償法施行細則, 20200608";
+}
+else if(lcode=="63"){
+law = "保安處分執行法, 20220218";
+}
+else if(lcode=="64"){
+law = "竊盜犯贓物犯保安處分條例, 20230503";
+}
+else if(lcode=="8f"){
+law = "礦業法, 20230621";
+}
+else if(lcode=="89"){
+law = "礦場安全法, 20001115";
+}
+else if(lcode=="90"){
+law = "商標法, 20230524";
+}
+else if(lcode=="9a"){
+law = "商標法施行細則, 20240501";
+}
+else if(lcode=="91"){
+law = "專利法, 20220504";
+}
+else if(lcode=="9b"){
+law = "專利法施行細則, 20230324";
+}
+else if(lcode=="80"){
+law = "著作權法, 20220615";
+}
+else if(lcode=="35"){
+law = "公司法, 20251226";
+}
+else if(lcode=="7e"){
+law = "水利法, 20231129";
+}
+else if(lcode=="96"){
+law = "公平交易法, 20170614";
+}
+else if(lcode=="9l"){
+law = "多層次傳銷管理辦法, 20140418";
+}
+else if(lcode=="9k"){
+law = "公平交易法施行細則, 20220407";
+}
+else if(lcode=="37"){
+law = "海商法, 20090708";
+}
+else if(lcode=="3h"){
+law = "船舶登記法, 19750605";
+}
+else if(lcode=="3i"){
+law = "引水法, 20020130";
+}
+else if(lcode=="93"){
+law = "藥事法, 20260304";
+}
+else if(lcode=="9d"){
+law = "藥事法施行細則, 20231020";
+}
+else if(lcode=="9e"){
+law = "管制藥品管理條例, 20170614";
+}
+else if(lcode=="94"){
+law = "違反糧食管理治罪條例, 19970530";
+}
+else if(lcode=="9f"){
+law = "森林法, 20210505";
+}
+else if(lcode=="99"){
+law = "山坡地保育利用條例, 20190109";
+}
+else if(lcode=="98"){
+law = "水土保持法, 20161130";
+}
+else if(lcode=="9g"){
+law = "漁業法, 20181226";
+}
+else if(lcode=="95"){
+law = "勞動基準法, 20240731";
+}
+else if(lcode=="9h"){
+law = "勞動基準法施行細則, 20240327";
+}
+else if(lcode=="9i"){
+law = "工廠法, 20181121";
+}
+else if(lcode=="9j"){
+law = "工廠法施行細則, 20190129";
+}
+else if(lcode=="92"){
+law = "出版法, 19990125";
+}
+else if(lcode=="22"){
+law = "司法人員人事條例, 20240103";
+}
+
+		else {
+			if ((lcode.charCodeAt(0)>127)) {
+				law = lcode;
+			} else {
+				alert("您所輸入的法規簡碼：" + lcode + " 錯誤！\n\n請重新輸入！");
+				law = false;
+			}
+		}
+		return law;
+	}
+	
+	function bindlaw(lcode, lno, lnod) {
+	var	law;
+		law = lcode2lsid(lcode);
+		if(law!=false)
+		{
+		    if (lnod != "") {
+			    law = law + ", " + lno + "-" + lnod;
+		    } else {
+			    law = law + ", " + lno;
+		    }
+		}
+		return law;
+	}
+	
+	function set_lscode(lcv){
+		lcolumn.value = lcv;
+		lcolumn.focus();
+	}
+	
+    function ChkData() {  
+        var regx = new RegExp("([^\u4e00-\u9fa5Ｏ0-9０-９一二三四五六七八九○零壹貳肆伍陸柒捌玖\+\-a-zA-Z&\(\)])");
+             var resultx = document.getElementById("txtSearchText").value.match(regx);
+             if(resultx != null && resultx.length > 0) {
+                alert("檢索字詞格式不正確，請重新輸入！！");
+                return false;
+             }
+                       
+         if (document.getElementById("txtyear").value != "" || document.getElementById("txtcase").value != "" || document.getElementById("txtno").value != "" || document.getElementById("ddlcourt").value != "0") {
+                 document.getElementById("chkbxSearch_1").checked=true;
+            
+         }
+         
+         if (document.getElementById("txtyear").value != "" || document.getElementById("txtcase").value != "" || document.getElementById("txtno").value != "") {
+             var reg = new RegExp("([^0-9])");
+             var result = document.getElementById("txtyear").value.match(reg);
+             if(result != null && result.length > 0) {
+                alert("裁判字號【年度】格式不正確，請重新輸入！！");
+                return false;
+             }
+             
+             var reg2 = new RegExp("([^\u4e00-\u9fa5一二三四五六七八九壹貳肆伍陸柒捌玖\(\)（）])");
+             result = document.getElementById("txtcase").value.match(reg2);
+             if(result != null && result.length > 0) {
+                alert("裁判字號【字別】格式不正確，請重新輸入！！");
+                return false;
+             }
+             
+             result = document.getElementById("txtno").value.match(reg);
+             if(result != null && result.length > 0) {
+                alert("裁判字號【案號】格式不正確，請重新輸入！！");
+                return false;
+             }
+             
+             if (!(document.getElementById("txtyear").value != "" && document.getElementById("txtcase").value != "" && document.getElementById("txtno").value != "")) {
+                 alert("請輸入完整裁判字號【年度、字別及案號】！");
+                 return false;
+             }
+         }
+
+     }
+	
+	function check_form(){
+	if (document.form1.txtSearchText.value.indexOf("(") != -1 || document.form1.txtSearchText.value.indexOf(")") != -1){
+	    alert("檢索字詞中請勿含有括號，請重新輸入！");
+		return false;
+	}
+	if(ChkData()==false)
+        return false;
+	var i;
+	var hasSelected = false;
+	var besideJ = false;
+	var q;
+		input_ok = true;
+		document.form1.lc1.value="";
+		document.form1.lc2.value="";
+		document.form1.lc3.value="";		
+		
+		var regLawname = new RegExp("([^0-9\u4e00-\u9fa5])");
+		var regLawno = new RegExp("([^0-9])");
+		if (document.form1.lc1a.value != "") {
+             var result = document.form1.lc1a.value.match(regLawname);
+             if(result != null && result.length > 0) {
+                alert("相關法條輸入錯誤，請重新輸入！！");
+                return false;
+             }
+		    if( document.form1.lc1b.value == "") {
+		        alert("相關法條第一行的法規名稱或條號不可為空白，請重新輸入！");
+		        return false;
+		    }
+		    if( document.form1.lc1b.value != "") {
+		        result = document.form1.lc1b.value.match(regLawno);
+                if(result != null && result.length > 0) {
+                    alert("相關法條輸入錯誤，請重新輸入！！");
+                    return false;
+                }
+		    }
+		    if( document.form1.lc1c.value != "") {
+		        result = document.form1.lc1c.value.match(regLawno);
+                if(result != null && result.length > 0) {
+                    alert("相關法條輸入錯誤，請重新輸入！！");
+                    return false;
+                }
+		    }
+			if(bindlaw(document.form1.lc1a.value, document.form1.lc1b.value, document.form1.lc1c.value) !=false)
+			    {
+			        document.form1.lc1.value = bindlaw(document.form1.lc1a.value, document.form1.lc1b.value, document.form1.lc1c.value);
+			    }
+			else
+			    {
+			        return false;
+			    }
+		}
+		if (document.form1.lc2a.value != "") {
+            var result = document.form1.lc2a.value.match(regLawname);
+             if(result != null && result.length > 0) {
+                alert("相關法條輸入錯誤，請重新輸入！！");
+                return false;
+             }
+		    if(document.form1.lc1a.value == "" || document.form1.lc1b.value == "") {
+		        alert("相關法條第一行的法規名稱或條號不可為空白，請重新輸入！");
+		        return false;
+		    }
+		    if(document.form1.lc2b.value == "") {
+		        alert("相關法條第二行的法規名稱或條號不可為空白，請重新輸入！");
+		        return false;
+		    }
+		    if( document.form1.lc2b.value != "") {
+		        result = document.form1.lc2b.value.match(regLawno);
+                if(result != null && result.length > 0) {
+                    alert("相關法條輸入錯誤，請重新輸入！！");
+                    return false;
+                }
+		    }
+		    if( document.form1.lc2c.value != "") {
+		        result = document.form1.lc2c.value.match(regLawno);
+                if(result != null && result.length > 0) {
+                    alert("相關法條輸入錯誤，請重新輸入！！");
+                    return false;
+                }
+		    }
+			if(bindlaw(document.form1.lc2a.value, document.form1.lc2b.value, document.form1.lc2c.value)!=false)
+			    {
+			    document.form1.lc2.value = bindlaw(document.form1.lc2a.value, document.form1.lc2b.value, document.form1.lc2c.value);
+			    }
+			else
+			    {
+			        return false;
+			    }
+			
+		}
+		if (document.form1.lc3a.value != "") {
+            var result = document.form1.lc3a.value.match(regLawname);
+             if(result != null && result.length > 0) {
+                alert("相關法條輸入錯誤，請重新輸入！！");
+                return false;
+             }
+		    if(document.form1.lc1a.value == "" || document.form1.lc1b.value == "") {
+		        alert("相關法條第一行的法規名稱或條號不可為空白，請重新輸入！");
+		        return false;
+		    }
+		    if(document.form1.lc2a.value == "" || document.form1.lc2b.value == "") {
+		        alert("相關法條第二行的法規名稱或條號不可為空白，請重新輸入！");
+		        return false;
+		    }
+		    if(document.form1.lc3b.value == "") {
+		        alert("相關法條第三行的法規名稱或條號不可為空白，請重新輸入！");
+		        return false;
+		    }
+		    if( document.form1.lc3b.value != "") {
+		        result = document.form1.lc3b.value.match(regLawno);
+                if(result != null && result.length > 0) {
+                    alert("相關法條輸入錯誤，請重新輸入！！");
+                    return false;
+                }
+		    }
+		    if( document.form1.lc3c.value != "") {
+		        result = document.form1.lc3c.value.match(regLawno);
+                if(result != null && result.length > 0) {
+                    alert("相關法條輸入錯誤，請重新輸入！！");
+                    return false;
+                }
+		    }
+		    if(bindlaw(document.form1.lc3a.value, document.form1.lc3b.value, document.form1.lc3c.value)!=false)
+		        {
+			    document.form1.lc3.value = bindlaw(document.form1.lc3a.value, document.form1.lc3b.value, document.form1.lc3c.value);
+			    }
+			else
+			    {
+			    return false;
+			    }
+		}
+		
+		if(!CheckSelectAll2()) return false;
+		setFormToCookie("searcher",document.getElementById("form1"));
+	}
+//-->
+</script>
+<body class="noBorder">
+    <form name="form1" method="post" action="./searcher.aspx" id="form1" onsubmit="return check_form()">
+<div>
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUKLTEzNTE5OTQ2MA9kFgICAQ9kFgICBA8QZBAVKAnoq4vpgbjmk4cY5Y+45rOV6Zmi77yN5YiR5LqL6KOc5YSfGOWPuOazlemZou+8jeiotOmhmOaxuuWumgzmnIDpq5jms5XpmaIS5pyA6auY6KGM5pS/5rOV6ZmiGOWFrOWLmeWToeaHsuaIkuWnlOWToeacgxLoh7rngaPpq5jnrYnms5XpmaIh6Ie654Gj6auY562J5rOV6Zmi77yN6Ki06aGY5rG65a6aGOiHuuWMl+mrmOetieihjOaUv+azlemZohjoh7rkuK3pq5jnrYnooYzmlL/ms5XpmaIY6auY6ZuE6auY562J6KGM5pS/5rOV6ZmiEuaZuuaFp+iyoeeUouazlemZoh/oh7rngaPpq5jnrYnms5XpmaIg6Ie65Lit5YiG6ZmiH+iHuueBo+mrmOetieazlemZoiDoh7rljZfliIbpmaIf6Ie654Gj6auY562J5rOV6ZmiIOmrmOmbhOWIhumZoh/oh7rngaPpq5jnrYnms5XpmaIg6Iqx6JOu5YiG6ZmiGOiHuueBo+iHuuWMl+WcsOaWueazlemZohjoh7rngaPlo6vmnpflnLDmlrnms5XpmaIY6Ie654Gj5p2/5qmL5Zyw5pa55rOV6ZmiGOiHuueBo+WunOiYreWcsOaWueazlemZohjoh7rngaPln7rpmoblnLDmlrnms5XpmaIY6Ie654Gj5qGD5ZyS5Zyw5pa55rOV6ZmiGOiHuueBo+aWsOerueWcsOaWueazlemZohjoh7rngaPoi5fmoJflnLDmlrnms5XpmaIY6Ie654Gj6Ie65Lit5Zyw5pa55rOV6ZmiGOiHuueBo+W9sOWMluWcsOaWueazlemZohjoh7rngaPljZfmipXlnLDmlrnms5XpmaIY6Ie654Gj6Zuy5p6X5Zyw5pa55rOV6ZmiGOiHuueBo+WYiee+qeWcsOaWueazlemZohjoh7rngaPoh7rljZflnLDmlrnms5XpmaIY6Ie654Gj6auY6ZuE5Zyw5pa55rOV6ZmiGOiHuueBo+iKseiTruWcsOaWueazlemZohjoh7rngaPoh7rmnbHlnLDmlrnms5XpmaIY6Ie654Gj5bGP5p2x5Zyw5pa55rOV6ZmiGOiHuueBo+a+jua5luWcsOaWueazlemZoh7npo/lu7rpq5jnrYnms5XpmaLph5HploDliIbpmaIY56aP5bu66YeR6ZaA5Zyw5pa55rOV6ZmiGOemj+W7uumAo+axn+WcsOaWueazlemZohjoh7rngaPoh7rljJflsJHlubTms5XpmaIh6Ie654Gj6auY6ZuE5bCR5bm05Y+K5a625LqL5rOV6ZmiFSgBMANUUEMDVFBVA1RQUwNUUEEDVFBQA1RQSANUUEgDVFBCA1RDQgNLU0IDSVBDA1RDSANUTkgDS1NIA0hMSANUUEQDU0xEA1BDRANJTEQDS0xEA1RZRANTQ0QDTUxEA1RDRANDSEQDTlREA1VMRANDWUQDVE5EA0tTRANITEQDVFREA1BURANQSEQDS01IA0tNRANMQ0QDVFBZA0tTWRQrAyhnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZGQYAQUeX19Db250cm9sc1JlcXVpcmVQb3N0QmFja0tleV9fFgUFBmNoa0FsbAUNY2hrYnhTZWFyY2gkMAUNY2hrYnhTZWFyY2gkMQUNY2hrYnhTZWFyY2gkMgUNY2hrYnhTZWFyY2gkMlNgxW5Lli1PILUx49zqM7y8YRzh" />
+</div>
+
+<div>
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="4988B8AF" />
+	<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="/wEdAD7ICUk60ZBQ0aK4mgoQk1GgQxXniPf7Xwlbw+7CVAyR43/6B+0DSx9d8NUCOHvFKoHkkn2mkTdgAtyxvh62ANGdLM1rIP6ckBvtPFKNlH6GlpwlnuLFYe8SBhMuePGcz0UJ/H6QcSxP+r0k+thQH4UUTYKHXNmPtwxTXdOFXDd0SL2DCwBoqr511lsTPsmyKSr9pRXF1Bd4SumiT8NPDGphUYv4SIDqClXu+H0z552V2QIaEPFEXe5jZucNpk2cq46mjteVcfNxqPAiykzeD2c1tJo+Ji473UClS0QOkb1OkUqBILHcJR5hmhHXU6mnuf1gBQshbqmKT4KhwthCs7gsrJ6LIeU+r3PJEafv0eZK58ewwcpSU2vCqf5nwj7okRygFljhvacpJs8GnLSq544t/wjL1VKwH38LC67f33ySeKdCS9AnAhIXlAhlGn0p43RDiFs7Jd/sfB08hZ3X4lApcbGJGPCPPJadbDUqpE6SKuo7Yx6cilLFRfi8sUoTWsfDZQAdXAT6bOr75hN1hHqHzRoq6DMsY9yL+z7GvFZuBNMlLlZrU3ZpMqQIpYjSF9YYUea+Zuxou263Q9J/53+dIjwr1gwvqAsPG7yp9oNhH+3df00Bn/qcyFLGQnq1GAU8Q3W5/CzqPRDNmryA9u/2RVH5u4kvmT7DLnUYTEsuQItG14i9gjVORh7YfC3TfDmXUhyGEHxLGQsxi7mwr1KhtXXu+8o11qpvSfhxGKiYP8gyACQNk7eFXfTRQXHMHQKbnayse3YNod3IHkwMWKEb3uARbwW40TAwmvlMxhiW232QMk6iKMDE5/3fpQ6aX+2tkkSTf6cXxRqAbc1edw4dQRHJbwE6fNA+hDl8TfNNZoPG9+JYaytgpqRPKV+xQ9LAYAjkNn6JyMRfR/UN5clbC+kswDp04Bql6G19PCOWFCu7vtvje2cnjSSdBDrCcYUt5NvOLDIcIu+Vcx42hQYgpWIvImSWEAvChbRtu73KWEtiYxYlMKvrrqVZF48ge3p8ycu3zkR2fPyWhWfeYakdlb/kMVwUBUmxO/ebAs3R6PcS5FBmweZSgU8KxjCuPoxjb2Jy4ZIQHIM5+vuQTIx9sKk3oipAdhhtOi+8CnYry36r3urr+V2htFtqidikkP8BF3L5lNHJ1fN7phcZvP+JnF2yk7QIXORTpimREhzw4aCdRngR+VYOglM4JqNFO9P4Kj+8Q5SWll0rvo5TwmwAjtTdVzRZn7DFyWrI8V/OY0rIALc2J/qbUm3v1z3aC2RXr4HrF7rw9lcbqJnUxp7TaJHy1wN0D/H1F0htv5pQLL7VMf2RbLW5Um8sHXlI70rR9GuA" />
+</div>
+    <input type="hidden" name="hfSW" id="hfSW" />
+    <div>
+        <div id="CONTAINER">
+            <div id="HEADER">
+	<span class="TOP_MENU">
+		<ul>
+			<li><a href="ProjectList.aspx" title="專題清單"><span class="toplink1">專題清單</span></a></li>
+			<li><a href="SynonymsList.aspx" title="同義詞清單"><span class="toplink2">同義詞清單</span></a></li>
+			<li><a href="Default.aspx" title="回首頁"><span class="home1">回首頁</span></a></li>
+			<li><a href="http://www.judicial.gov.tw/" title="回司法院首頁"><span class="home2">回司法院首頁</span></a></li>
+		</ul>
+	</span>
+</div>
+            <div id="CONTENT"> 
+            <div id="NEWS_MENU">
+              <table width="80%" border="0" align="center" cellpadding="0" cellspacing="0" style="margin-top:10px;" summary="此為排版表格">
+                <tr>
+                  <td width="15%" valign="bottom"><a href="Default.aspx"><img src="images/tab01_off.gif" alt="體系查詢" width="103" height="32" border="0"></a></td>
+                  <td width="10%" valign="bottom"><a href="searcher.aspx"><img src="images/tab02_on.gif" alt="全文檢索" width="100" height="32" border="0"></a></td>
+                  <td width="5%">&nbsp;</td>
+                  <td width="75%">
+                        <table border="0" width="100%" cellspacing="5" style="color:#7c6a2f;">
+		                    <tr>
+		                        <td valign="top"><SPAN class="big" style="FONT-SIZE: 80%">1. </SPAN></td>
+		                        <td align="left" valign="top"><SPAN class="big" style="FONT-SIZE: 80%">本智識庫收錄之裁判不以確定裁判或最高法院之統一見解為限，<br />
+	                            收錄內容僅供參考。</SPAN>
+		                        </td>
+		                    </tr>
+		                    <tr>
+		                        <td valign="top"><SPAN class="big" style="FONT-SIZE: 80%">2. </SPAN></td>
+		                        <td align="left" valign="top"><SPAN class="big" style="FONT-SIZE: 80%">解析為研究團隊之見解，不代表本院意見。</SPAN>
+		                        </td>
+		                    </tr>
+		                </table>
+                  </td>
+                </tr>
+              </table>
+            </div>
+              <table width="85%" border="0" align="center" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF" style="margin-top:0px;" summary="此為排版表格">
+                <tr>
+                  <td width="25" height="30"><img src="images/table01_01.gif" alt="" width="25" height="30"></td>
+                  <td background="images/table01_02bg.gif">&nbsp;</td>
+                  <td width="25" height="30"><img src="images/table01_03.gif" alt="" width="25" height="30"></td>
+                </tr>
+                <tr>
+                  <td background="images/table01_04bg.gif">&nbsp;</td>
+                  <td>
+                  <div class="title01">輸入檢索字詞查詢關鍵詞及精選裁判全文</div>
+                  <table width="95%" align="center" class="qry01" summary="此為排版表格">
+                    <tr>
+                      <td >
+                          <!--<input name="chkAll" type="checkbox" id="chkAll" onclick="CheckSelectAll()" />全選／全不選-->
+                          <!-- AutoPostBack="true" OnSelectedIndexChanged="chkbxSearch_SelectedIndexChnaged"-->
+                          <table id="chkbxSearch" border="0">
+	<tr>
+		<td><input id="chkbxSearch_0" type="checkbox" name="chkbxSearch$0" checked="checked" /><label for="chkbxSearch_0">專題名稱 \ 關鍵詞</label></td><td><input id="chkbxSearch_1" type="checkbox" name="chkbxSearch$1" /><label for="chkbxSearch_1">精選裁判</label></td><td><input id="chkbxSearch_2" type="checkbox" name="chkbxSearch$2" /><label for="chkbxSearch_2">主要爭點</label></td>
+	</tr>
+</table>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td >
+                            <table border="0" cellpadding="5" id="tbSearch">
+                                <tr>
+                                    <td>檢索字詞</td>
+                                    <td>
+                                        <input name="txtSearchText" type="text" id="txtSearchText" style="width:270px;" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>裁判字號</td>
+                                    <td>
+                                        <select name="ddlcourt" id="ddlcourt">
+	<option value="0">請選擇</option>
+	<option value="TPC">司法院－刑事補償</option>
+	<option value="TPU">司法院－訴願決定</option>
+	<option value="TPS">最高法院</option>
+	<option value="TPA">最高行政法院</option>
+	<option value="TPP">公務員懲戒委員會</option>
+	<option value="TPH">臺灣高等法院</option>
+	<option value="TPH">臺灣高等法院－訴願決定</option>
+	<option value="TPB">臺北高等行政法院</option>
+	<option value="TCB">臺中高等行政法院</option>
+	<option value="KSB">高雄高等行政法院</option>
+	<option value="IPC">智慧財產法院</option>
+	<option value="TCH">臺灣高等法院 臺中分院</option>
+	<option value="TNH">臺灣高等法院 臺南分院</option>
+	<option value="KSH">臺灣高等法院 高雄分院</option>
+	<option value="HLH">臺灣高等法院 花蓮分院</option>
+	<option value="TPD">臺灣臺北地方法院</option>
+	<option value="SLD">臺灣士林地方法院</option>
+	<option value="PCD">臺灣板橋地方法院</option>
+	<option value="ILD">臺灣宜蘭地方法院</option>
+	<option value="KLD">臺灣基隆地方法院</option>
+	<option value="TYD">臺灣桃園地方法院</option>
+	<option value="SCD">臺灣新竹地方法院</option>
+	<option value="MLD">臺灣苗栗地方法院</option>
+	<option value="TCD">臺灣臺中地方法院</option>
+	<option value="CHD">臺灣彰化地方法院</option>
+	<option value="NTD">臺灣南投地方法院</option>
+	<option value="ULD">臺灣雲林地方法院</option>
+	<option value="CYD">臺灣嘉義地方法院</option>
+	<option value="TND">臺灣臺南地方法院</option>
+	<option value="KSD">臺灣高雄地方法院</option>
+	<option value="HLD">臺灣花蓮地方法院</option>
+	<option value="TTD">臺灣臺東地方法院</option>
+	<option value="PTD">臺灣屏東地方法院</option>
+	<option value="PHD">臺灣澎湖地方法院</option>
+	<option value="KMH">福建高等法院金門分院</option>
+	<option value="KMD">福建金門地方法院</option>
+	<option value="LCD">福建連江地方法院</option>
+	<option value="TPY">臺灣臺北少年法院</option>
+	<option value="KSY">臺灣高雄少年及家事法院</option>
+
+</select>
+                                         <input name="txtyear" type="text" id="txtyear" style="width:50px;" />年
+                                         <input name="txtcase" type="text" id="txtcase" style="width:50px;" />字
+                                         <input name="txtno" type="text" id="txtno" style="width:50px;" />號
+                                         
+                                        
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>參考法條</td>
+                                    <td>
+                                        <input name="lc1a" type="text" id="lc1a" onFocus="get_lc_focus(this)" />第
+                                        <input name="lc1b" type="text" id="lc1b" style="width:40px;" />條之
+                                        <input name="lc1c" type="text" id="lc1c" style="width:20px;" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>
+                                       <input name="lc2a" type="text" id="lc2a" onFocus="get_lc_focus(this)" />第
+                                       <input name="lc2b" type="text" id="lc2b" style="width:40px;" />條之
+                                       <input name="lc2c" type="text" id="lc2c" style="width:20px;" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>
+                                       <input name="lc3a" type="text" id="lc3a" onFocus="get_lc_focus(this)" />第
+                                       <input name="lc3b" type="text" id="lc3b" style="width:40px;" />條之
+                                       <input name="lc3c" type="text" id="lc3c" style="width:20px;" />
+                                    </td>
+                                </tr>
+                              <tr> 
+                                <td>&nbsp;</td>
+                                <td>參考法條請輸入<a href="#" onClick="set_lcolumn();MM_openBrWindow('LSCODEINT.aspx','法規簡碼','status=yes,scrollbars=yes,width=400,height=350')">法規簡碼</a> 
+                                  或法規名稱 </td>
+                              </tr>
+                              <tr> 
+                                <td>&nbsp;</td>
+                                <td>
+                                &nbsp;<input type="submit" name="btnSearch" value="查詢" onclick="return checkST();" id="btnSearch" />
+                                &nbsp;<input type="reset" id="btnReset"/>
+                                </td>
+                              </tr>
+                            </table>
+                      </td>
+                    </tr>
+                  </table>
+                    </td>
+                  <td background="images/table01_05bg.gif">&nbsp;</td>
+                </tr>
+                <tr>
+                  <td width="25" height="40"><img src="images/table01_06.gif" alt="" width="25" height="40"></td>
+                  <td background="images/table01_07bg.gif">&nbsp;</td>
+                  <td width="25" height="40"><img src="images/table01_08.gif" alt="" width="25" height="40"></td>
+                </tr>
+              </table>
+              </div>
+		<DIV align="center">
+			        <CENTER>
+				        <TABLE cellPadding="1" width="100%" summary="排版用表格" border="0">
+					        <TBODY>
+						        <tr>
+						            <td><br/>
+						            </td>
+						        </tr>
+					        </TBODY>
+				        </TABLE>
+			        </CENTER>
+		        </DIV>
+            <div id="FOOTER">
+  <div id="FOOTER">
+    <div id="DOWN">
+      <!--
+      <a href="#" onclick="openPrivacy();" title="版權宣告/隱私權保護/網站安全政策(另開視窗)">
+        版權宣告 / 隱私權保護 / 網站安全政策
+      </a><br/>-->
+      本系統由 司法院資訊管理處 製作 對於本系統功能有任何建議，歡迎<a href="http://www.judicial.gov.tw/email/write.htm" target="_blank">來信</a><br/>
+      建議您使用 1024*768 全彩及 Explorer 5.5 / Netscape 5.0 以上瀏覽器
+    </div>
+  </div>
+</div>
+<script language="javascript">
+  function openPrivacy(){
+  newWindow=window.open('http://www.judicial.gov.tw/privacy.asp','','width=1024,height=688,maximize=no,toolbar=no,directories=no,status=yes,scrollbars=yes,hscrollbars=no,resize=no,menubar=no,location=no');
+  }
+</script>
+
+        </div>
+    </div>      
+    <input name="lc1" type="hidden" id="lc1" />
+    <input name="lc2" type="hidden" id="lc2" />
+    <input name="lc3" type="hidden" id="lc3" />
+    </form>
+</body>
+</html>
+<script language="javascript">
+function CheckSelectAll()
+{
+    document.form1.chkbxSearch$0.checked = true;
+    document.form1.chkbxSearch$1.checked = true;
+    document.form1.chkbxSearch$2.checked = true;
+//    document.form1.chkbxSearch$0.checked = document.form1.chkAll.checked;
+//    document.form1.chkbxSearch$1.checked = document.form1.chkAll.checked;
+//    document.form1.chkbxSearch$2.checked = document.form1.chkAll.checked;
+//    document.form1.chkbxSearch$3.checked = document.form1.chkAll.checked;
+//    document.form1.chkbxSearch$4.checked = document.form1.chkAll.checked;
+}
+
+function CheckSelectAll2()
+{
+    if(document.form1.chkbxSearch$0.checked == false &&
+        document.form1.chkbxSearch$1.checked == false && document.form1.chkbxSearch$2.checked == false 
+        ){
+        alert("請至少勾選一項！");
+        CheckSelectAll();
+		return false;
+     }
+     return true;
+     
+//    if(document.form1.chkbxSearch$0.checked == false &&
+//        document.form1.chkbxSearch$1.checked == false //&&
+//        document.form1.chkbxSearch$2.checked == false &&
+//        document.form1.chkbxSearch$3.checked == false &&
+//        document.form1.chkbxSearch$4.checked == false
+//        ){
+//        alert("請至少勾選一項！");
+//        document.form1.chkAll.checked = true;
+//        CheckSelectAll();
+//		return false;
+//     }
+//     else if(document.form1.chkbxSearch$0.checked == false ||
+//        document.form1.chkbxSearch$1.checked == false ||
+//        document.form1.chkbxSearch$2.checked == false ||
+//        document.form1.chkbxSearch$3.checked == false ||
+//        document.form1.chkbxSearch$4.checked == false
+//        ){
+//        document.form1.chkAll.checked = false;
+//		return true;
+//     }
+//     else if(document.form1.chkbxSearch$0.checked == true ||
+//        document.form1.chkbxSearch$1.checked == true ||
+//        document.form1.chkbxSearch$2.checked == true ||
+//        document.form1.chkbxSearch$3.checked == true ||
+//        document.form1.chkbxSearch$4.checked == true
+//        ){
+//        document.form1.chkAll.checked = true;
+//        return true;
+//     }
+}
+
+getFormFromCookie("searcher", document.getElementById("form1"));
+function checkST(){
+        document.getElementById('hfSW').value = '';
+    if (document.getElementById('txtSearchText').value != ""){
+        var s = document.getElementById('txtSearchText').value;
+        var reg = new RegExp("(^[\\+\\-&\\)])|([\\+\\-&\\(]$)");
+        var result = s.match(reg);
+        if(result != null && result.length > 0) {
+	        alert("檢索字詞格式不正確，請重新輸入！！");
+	        return false;
+	    }
+        s = s.replace(/\+/g,"＋").replace(/\-/g,"－").replace(/\&/g,"＆");
+        document.getElementById('hfSW').value = s;
+    }
+    return true;
+}
+</script>

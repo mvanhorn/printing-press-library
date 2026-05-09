@@ -632,6 +632,27 @@
       "printer_name": "Matt Van Horn"
     },
     {
+      "name": "judgementtw",
+      "category": "other",
+      "api": "Taiwan Judgment & Judicial Knowledge",
+      "description": "Search and analyze every Taiwan court judgment offline, with a citation graph, sentencing analytics, and watchlists no judicial.gov.tw page surfaces.",
+      "path": "library/other/judgementtw",
+      "printer": "wayne-lai",
+      "printer_name": "Wayne Lai",
+      "mcp": {
+        "binary": "judgementtw-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 7,
+        "public_tool_count": 7,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "kalshi",
       "category": "payments",
       "api": "Kalshi",
