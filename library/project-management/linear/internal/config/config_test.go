@@ -43,6 +43,42 @@ func TestSaveLinearAPIKey_persistsApiKeyAndClearsOAuthFields(t *testing.T) {
 	}
 }
 
+func TestSaveTokens_persistsAccessToken(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.toml")
+
+	cfg := &Config{
+		Path:        path,
+		BaseURL:     "https://api.linear.app/graphql",
+		LinearApiKey: "lin_api_existing",
+	}
+	if err := cfg.SaveLinearAPIKey(cfg.LinearApiKey); err != nil {
+		t.Fatalf("SaveLinearAPIKey: %v", err)
+	}
+
+	cfg2, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if err := cfg2.SaveTokens("", "", "oauth_access_example", "", cfg2.TokenExpiry); err != nil {
+		t.Fatalf("SaveTokens: %v", err)
+	}
+
+	cfg3, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load after SaveTokens: %v", err)
+	}
+	if cfg3.AccessToken != "oauth_access_example" {
+		t.Fatalf("access_token: got %q", cfg3.AccessToken)
+	}
+	if cfg3.LinearApiKey != "lin_api_existing" {
+		// set-token does not clear api_key; api_key still takes precedence in AuthHeader().
+		t.Fatalf("api_key: got %q", cfg3.LinearApiKey)
+	}
+}
+
 func TestLoad_authSourceConfigApiKey(t *testing.T) {
 	t.Parallel()
 

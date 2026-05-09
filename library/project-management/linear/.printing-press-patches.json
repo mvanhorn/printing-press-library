@@ -3,5 +3,12 @@
   "applied_at": "2026-05-08",
   "base_run_id": "20260507-000328",
   "base_printing_press_version": "3.10.0",
-  "patches": []
+  "patches": [
+    {
+      "id": "linear-auth-api-key-vs-oauth-token",
+      "summary": "Add auth set-api-key for Linear personal API keys; keep set-token for OAuth access_token.",
+      "reason": "AuthHeader reads api_key only. Saving lin_api keys via set-token wrote access_token so the CLI reported success but GraphQL returned 401.",
+      "files": ["internal/cli/auth.go", "internal/config/config.go"]
+    }
+  ]
 }

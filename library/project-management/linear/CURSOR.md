@@ -25,10 +25,10 @@ export LINEAR_API_KEY="lin_api_..."
 **Option B — config file (persists on disk):**
 
 ```bash
-linear-pp-cli auth set-token "lin_api_..."
+linear-pp-cli auth set-api-key "lin_api_..."
 ```
 
-Default path: `~/.config/linear-pp-cli/config.toml` (`api_key` field).
+Default path: `~/.config/linear-pp-cli/config.toml` (`api_key` field). The separate `auth set-token` command stores an OAuth-style value in `access_token` and is not for personal API keys.
 
 Verify:
 

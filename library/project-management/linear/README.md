@@ -48,10 +48,10 @@ export LINEAR_API_KEY="lin_api_abc123..."
 Or persist with:
 
 ```bash
-linear-pp-cli auth set-token "lin_api_abc123..."
+linear-pp-cli auth set-api-key "lin_api_abc123..."
 ```
 
-That writes `~/.config/linear-pp-cli/config.toml` (field `api_key`). You can also edit the file directly:
+That writes `~/.config/linear-pp-cli/config.toml` (field `api_key`). For OAuth-style **access tokens** (advanced), use `linear-pp-cli auth set-token` instead. You can also edit the file directly:
 
 ```toml
 api_key = "lin_api_abc123..."

@@ -40,7 +40,7 @@ If `--version` reports "command not found" after install, the install step did n
 
 ## Cursor
 
-Personal API keys are created under **Account → Security & access** in Linear, not under Integrations. For step-by-step Cursor setup (keys, `auth set-token`, optional MCP tradeoffs), see [CURSOR.md](./CURSOR.md) in this module.
+Personal API keys are created under **Account → Security & access** in Linear, not under Integrations. For step-by-step Cursor setup (keys, `auth set-api-key`, optional MCP tradeoffs), see [CURSOR.md](https://github.com/mvanhorn/printing-press-library/blob/main/library/project-management/linear/CURSOR.md) in the Linear module (mirrored verbatim under `cli-skills/pp-linear/`).
 
 ## When to Use This CLI
 
@@ -83,13 +83,14 @@ Ask the user for the actual key value before running.
 ## Direct Use
 
 1. Check installed: `which linear-pp-cli`. If missing, offer CLI installation.
-2. Run `linear-pp-cli sync` once (or when data is stale) to populate the local SQLite store. Analytics and search commands then run offline.
-3. Discover commands: `linear-pp-cli --help`; drill into `linear-pp-cli <cmd> --help`.
-4. Execute with `--agent` for structured output:
+2. Ensure auth: `export LINEAR_API_KEY=...` or `linear-pp-cli auth set-api-key lin_api_...` (not `auth set-token`, which is for OAuth access tokens). Run `linear-pp-cli doctor` to confirm.
+3. Run `linear-pp-cli sync` once (or when data is stale) to populate the local SQLite store. Analytics and search commands then run offline.
+4. Discover commands: `linear-pp-cli --help`; drill into `linear-pp-cli <cmd> --help`.
+5. Execute with `--agent` for structured output:
    ```bash
    linear-pp-cli <command> [args] --agent
    ```
-5. `--data-source auto` (default) hits the local store first with live fallback; use `--data-source live` to force a live call (e.g. for time-sensitive queries on unsynced fields).
+6. `--data-source auto` (default) hits the local store first with live fallback; use `--data-source live` to force a live call (e.g. for time-sensitive queries on unsynced fields).
 
 ## Notable Commands
 
