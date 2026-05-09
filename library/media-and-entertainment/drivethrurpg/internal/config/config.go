@@ -94,9 +94,6 @@ func (c *Config) AuthHeader() string {
 	if token == "" {
 		return ""
 	}
-	if c.DrivethrurpgDtrpgToken == "" {
-		return ""
-	}
 	return token
 }
 

@@ -737,12 +737,12 @@ func (s *Store) UpsertOrderProducts(data json.RawMessage) error {
 func (s *Store) upsertCheckTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
 		`INSERT INTO "check" (id, order_products_id, data, synced_at)
-		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET order_products_id = excluded.order_products_id, data = excluded.data, synced_at = excluded.synced_at`,
+			 VALUES (?, ?, ?, ?)
+			 ON CONFLICT(id) DO UPDATE SET order_products_id = excluded.order_products_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "order_products_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "order_products_id"),
 	); err != nil {
 		return fmt.Errorf("insert into check: %w", err)
 	}
@@ -788,12 +788,12 @@ func (s *Store) UpsertCheck(data json.RawMessage) error {
 func (s *Store) upsertPrepareTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
 		`INSERT INTO prepare (id, order_products_id, data, synced_at)
-		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET order_products_id = excluded.order_products_id, data = excluded.data, synced_at = excluded.synced_at`,
+			 VALUES (?, ?, ?, ?)
+			 ON CONFLICT(id) DO UPDATE SET order_products_id = excluded.order_products_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "order_products_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "order_products_id"),
 	); err != nil {
 		return fmt.Errorf("insert into prepare: %w", err)
 	}

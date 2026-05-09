@@ -347,9 +347,9 @@ func TestUpsertBatch_PopulatesCheckTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "order_products_id": "order-product-001", "status": "ready"}`),
+		json.RawMessage(`{"id": "test-002", "order_products_id": "order-product-002", "status": "pending"}`),
+		json.RawMessage(`{"id": "test-003", "order_products_id": "order-product-003", "status": "failed"}`),
 	}
 	if _, _, err := s.UpsertBatch("check", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -373,6 +373,17 @@ func TestUpsertBatch_PopulatesCheckTable(t *testing.T) {
 	if typed != len(items) {
 		t.Fatalf("check count = %d, want %d (typed table not populated by UpsertBatch)", typed, len(items))
 	}
+
+	var orderProductID, data string
+	if err := db.QueryRow(`SELECT order_products_id, data FROM "check" WHERE id = ?`, "test-001").Scan(&orderProductID, &data); err != nil {
+		t.Fatalf("select check row: %v", err)
+	}
+	if orderProductID != "order-product-001" {
+		t.Fatalf("check order_products_id = %q, want order-product-001", orderProductID)
+	}
+	if !strings.Contains(data, `"status": "ready"`) {
+		t.Fatalf("check data = %q, want original JSON payload", data)
+	}
 }
 
 // TestUpsertBatch_PopulatesPrepareTable verifies that UpsertBatch
@@ -389,9 +400,9 @@ func TestUpsertBatch_PopulatesPrepareTable(t *testing.T) {
 	defer s.Close()
 
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "order_products_id": "order-product-001", "status": "ready"}`),
+		json.RawMessage(`{"id": "test-002", "order_products_id": "order-product-002", "status": "pending"}`),
+		json.RawMessage(`{"id": "test-003", "order_products_id": "order-product-003", "status": "failed"}`),
 	}
 	if _, _, err := s.UpsertBatch("prepare", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -414,5 +425,16 @@ func TestUpsertBatch_PopulatesPrepareTable(t *testing.T) {
 	}
 	if typed != len(items) {
 		t.Fatalf("prepare count = %d, want %d (typed table not populated by UpsertBatch)", typed, len(items))
+	}
+
+	var orderProductID, data string
+	if err := db.QueryRow(`SELECT order_products_id, data FROM prepare WHERE id = ?`, "test-001").Scan(&orderProductID, &data); err != nil {
+		t.Fatalf("select prepare row: %v", err)
+	}
+	if orderProductID != "order-product-001" {
+		t.Fatalf("prepare order_products_id = %q, want order-product-001", orderProductID)
+	}
+	if !strings.Contains(data, `"status": "ready"`) {
+		t.Fatalf("prepare data = %q, want original JSON payload", data)
 	}
 }
