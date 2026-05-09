@@ -1,11 +1,11 @@
-# Compiled binaries
-stripe-pp-cli
-stripe-pp-mcp
-build/
+# Compiled binaries (root only — leading slash anchors to .gitignore dir)
+/stripe-pp-cli
+/stripe-pp-mcp
+/build/
 
 # Source spec (regenerable from upstream URL via printing-press)
-spec.json
-spec.yaml
+/spec.json
+/spec.yaml
 
 # Local SQLite store + WAL
 *.db
