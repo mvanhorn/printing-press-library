@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "substack-pp-mcp",
+  "display_name": "Substack",
+  "version": "4.2.0",
+  "description": "Run your Substack growth loop from the terminal — publish, schedule, engage, and measure with cross-table joins no single Substack API call can.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/substack-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/substack-pp-mcp",
+      "args": [],
+      "env": {
+        "SUBSTACK_PUBLICATION": "${user_config.substack_publication}"
+      }
+    }
+  },
+  "user_config": {
+    "substack_publication": {
+      "type": "string",
+      "title": "SUBSTACK_PUBLICATION",
+      "description": "Sets SUBSTACK_PUBLICATION for the endpoint template variable {publication}.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

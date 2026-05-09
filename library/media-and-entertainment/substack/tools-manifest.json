@@ -1,0 +1,15 @@
+{
+  "api_name": "substack",
+  "base_url": "https://substack.com/api/v1",
+  "description": "Newsletter platform with long-form posts, short-form Notes, and a publication-owner growth loop. Reverse-engineered from 8+ community wrappers.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "key_url": "https://substack.com/sign-in",
+    "cookie_domain": ".substack.com"
+  },
+  "required_headers": [],
+  "tools": []
+}

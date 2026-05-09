@@ -1,0 +1,641 @@
+name: substack
+display_name: Substack
+description: Newsletter platform with long-form posts, short-form Notes, and a publication-owner growth loop. Reverse-engineered from 8+ community wrappers.
+cli_description: Run your Substack growth loop from the terminal — publish, schedule, engage, and measure with cross-table joins no single Substack API call can.
+version: "0.1.0"
+spec_source: agent-curated
+
+# Default base = substack.com global surface (Notes, comment feed, search, profiles, recommendations).
+# Per-publication resources (posts/drafts/sections/tags/images/subs) override base_url
+# to https://{publication}.substack.com/api/v1 via endpoint_template_vars.
+base_url: "https://substack.com/api/v1"
+endpoint_template_vars:
+  - publication
+
+auth:
+  type: cookie
+  header: Cookie
+  cookie_domain: ".substack.com"
+  cookies:
+    - substack.sid
+    - connect.sid
+  key_url: "https://substack.com/sign-in"
+
+config:
+  format: toml
+  path: "~/.config/substack-pp-cli/config.toml"
+
+cache:
+  enabled: true
+  stale_after: "30m"
+  refresh_timeout: "20s"
+  env_opt_out: SUBSTACK_NO_AUTO_REFRESH
+
+# MCP enrichment: 50+ endpoints + ~30 hand-written novel commands. Use stdio+http
+# transport so cloud-hosted agents can connect; default endpoint-mirror surface.
+mcp:
+  transport: [stdio, http]
+
+resources:
+  # =====================================================================
+  # GLOBAL SURFACE (substack.com base)
+  # =====================================================================
+
+  categories:
+    description: Site-wide Substack category list — culture, technology, food, etc.
+    endpoints:
+      list:
+        method: GET
+        path: "/categories"
+        description: List all Substack categories
+        response:
+          type: array
+          item: Category
+      list-publications:
+        method: GET
+        path: "/category/public/{category_id}/all"
+        description: List publications in a category
+        params:
+          - name: category_id
+            type: int
+            required: true
+            positional: true
+            description: Category ID (use `categories list` to find one)
+          - name: page
+            type: int
+            description: Page number (1-indexed)
+        response:
+          type: array
+          item: PublicationSummary
+
+  profiles:
+    description: Substack profiles — your own and other writers'
+    endpoints:
+      self:
+        method: GET
+        path: "/user/profile/self"
+        description: Get the authenticated user's profile
+        response:
+          type: object
+          item: Profile
+      get-by-handle:
+        method: GET
+        path: "/user/{handle}/public_profile"
+        description: Get a public profile by handle (e.g. mvanhorn)
+        params:
+          - name: handle
+            type: string
+            required: true
+            positional: true
+            description: Substack handle (without @)
+        response:
+          type: object
+          item: Profile
+      get-by-id:
+        method: GET
+        path: "/user/{user_id}/public_profile"
+        description: Get a public profile by numeric user ID
+        params:
+          - name: user_id
+            flag_name: user-id
+            type: int
+            required: true
+            positional: true
+            description: Substack numeric user ID
+        response:
+          type: object
+          item: Profile
+      from-linkedin:
+        method: GET
+        path: "/profile/search/linkedin/{linkedin_handle}"
+        description: Look up a Substack profile from a LinkedIn handle
+        params:
+          - name: linkedin_handle
+            flag_name: linkedin-handle
+            type: string
+            required: true
+            positional: true
+            description: LinkedIn handle (without linkedin.com/in/ prefix)
+        response:
+          type: object
+          item: Profile
+      handle-options:
+        method: GET
+        path: "/handle/options"
+        description: Available handle suggestions for the current user
+        response:
+          type: array
+          item: HandleSuggestion
+      posts:
+        method: GET
+        path: "/profile/posts"
+        description: All posts by an author across publications
+        params:
+          - name: profile_user_id
+            flag_name: user-id
+            type: int
+            required: true
+            description: Author's numeric user ID
+          - name: limit
+            type: int
+            description: Max posts to return
+        response:
+          type: array
+          item: Post
+
+  notes:
+    description: Substack Notes — short-form posts (Substack treats Notes as comments internally)
+    endpoints:
+      get:
+        method: GET
+        path: "/reader/comment/{note_id}"
+        description: Get a single Note by ID
+        params:
+          - name: note_id
+            flag_name: note-id
+            type: string
+            required: true
+            positional: true
+            description: Note ID (the c-XXXXX from substack.com/note/c-XXXXX)
+        response:
+          type: object
+          item: Note
+      list-by-profile:
+        method: GET
+        path: "/reader/feed/profile/{profile_user_id}"
+        description: List Notes by a profile (cursor pagination)
+        params:
+          - name: profile_user_id
+            flag_name: user-id
+            type: int
+            required: true
+            positional: true
+            description: Profile user ID
+          - name: types
+            type: string
+            description: Comma-separated content types (default `note`)
+          - name: cursor
+            type: string
+            description: Opaque cursor from prior response (for pagination)
+        response:
+          type: array
+          item: Note
+      create:
+        method: POST
+        path: "/comment/feed"
+        description: Post a new Note (POST /comment/feed). Body is ProseMirror JSON.
+        body:
+          - name: bodyJson
+            type: object
+            required: true
+            description: ProseMirror JSON document. Use the `notes new --body <markdown>` helper which converts Markdown → ProseMirror.
+          - name: type
+            type: string
+            description: Content type (default `feed`)
+          - name: tabId
+            type: string
+            description: UI tab the Note is posted from (default `for-you`)
+        response:
+          type: object
+          item: Note
+      reply:
+        method: POST
+        path: "/comment/feed"
+        description: Reply to an existing Note (parent_id + ProseMirror body)
+        body:
+          - name: parent_id
+            type: string
+            required: true
+            description: Parent Note ID (the comment id from /reader/comment/{id})
+          - name: bodyJson
+            type: object
+            required: true
+            description: ProseMirror JSON document for the reply
+        response:
+          type: object
+          item: Note
+
+  comments:
+    description: Long-form post comments (distinct from Notes)
+    endpoints:
+      list:
+        method: GET
+        path: "/post/{post_id}/comments"
+        description: List comments on a post
+        params:
+          - name: post_id
+            flag_name: post-id
+            type: int
+            required: true
+            positional: true
+            description: Post ID
+        response:
+          type: array
+          item: Comment
+      get:
+        method: GET
+        path: "/reader/comment/{comment_id}"
+        description: Get a single comment by ID (same shape as a Note — Substack treats them uniformly)
+        params:
+          - name: comment_id
+            flag_name: comment-id
+            type: string
+            required: true
+            positional: true
+            description: Comment ID
+        response:
+          type: object
+          item: Comment
+
+  inbox:
+    description: Authenticated reader feed (home feed) — Notes + posts surfaced for the current user
+    endpoints:
+      home:
+        method: GET
+        path: "/reader/feed"
+        description: Authenticated home feed
+        params:
+          - name: types
+            type: string
+            description: Comma-separated content types to include (note, post)
+          - name: cursor
+            type: string
+            description: Opaque cursor from prior response
+        response:
+          type: array
+          item: FeedItem
+      reader-posts:
+        method: GET
+        path: "/reader/posts"
+        description: Posts feed for current user
+        response:
+          type: array
+          item: Post
+
+  discover:
+    description: Discovery surfaces — search publications, embed metadata
+    endpoints:
+      search-publications:
+        method: GET
+        path: "/publication/search"
+        description: Search Substack publications by query
+        params:
+          - name: query
+            flag_name: query
+            aliases: [q]
+            type: string
+            required: true
+            description: Search query
+          - name: limit
+            type: int
+            description: Max results to return
+        response:
+          type: array
+          item: PublicationSummary
+
+  settings:
+    description: Account settings + connectivity probe (used by doctor)
+    endpoints:
+      get:
+        method: GET
+        path: "/settings"
+        description: Get account settings
+        response:
+          type: object
+          item: AccountSettings
+      ping:
+        method: PUT
+        path: "/user-setting"
+        description: Connectivity probe (non-destructive PUT used by doctor)
+        body:
+          - name: type
+            type: string
+            description: Setting type (default `last_home_tab`)
+          - name: value_text
+            type: string
+            description: Setting value (default `inbox`)
+        response:
+          type: object
+          item: PingResponse
+
+  # =====================================================================
+  # PER-PUBLICATION SURFACE (https://{publication}.substack.com/api/v1)
+  # =====================================================================
+
+  posts:
+    description: Long-form posts and archives on a specific publication
+    base_url: "https://{publication}.substack.com/api/v1"
+    endpoints:
+      archive:
+        method: GET
+        path: "/archive"
+        description: Public archive of a publication's posts
+        params:
+          - name: sort
+            type: string
+            description: Sort order (`new` or `community`)
+          - name: limit
+            type: int
+            description: Max posts to return
+          - name: offset
+            type: int
+            description: Pagination offset
+        response:
+          type: array
+          item: Post
+      list-published:
+        method: GET
+        path: "/post_management/published"
+        description: List published posts on the publication (auth required)
+        params:
+          - name: limit
+            type: int
+            description: Max posts to return
+          - name: offset
+            type: int
+            description: Pagination offset
+        response:
+          type: array
+          item: Post
+      get-by-slug:
+        method: GET
+        path: "/posts/{slug}"
+        description: Get a published post by URL slug
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: Post URL slug (e.g. my-launch-post)
+        response:
+          type: object
+          item: Post
+      ranked-authors:
+        method: GET
+        path: "/publication/users/ranked"
+        description: Ranked list of authors for a publication
+        params:
+          - name: public
+            type: bool
+            description: Include only public-facing authors (default true)
+        response:
+          type: array
+          item: Profile
+
+  drafts:
+    description: Drafts CRUD + publish + schedule
+    base_url: "https://{publication}.substack.com/api/v1"
+    endpoints:
+      list:
+        method: GET
+        path: "/drafts"
+        description: List drafts
+        params:
+          - name: filter
+            type: string
+            description: Filter (`all`, `mine`, `team`)
+          - name: limit
+            type: int
+            description: Max drafts to return
+          - name: offset
+            type: int
+            description: Pagination offset
+        response:
+          type: array
+          item: Draft
+      get:
+        method: GET
+        path: "/drafts/{draft_id}"
+        description: Get a draft by ID
+        params:
+          - name: draft_id
+            flag_name: draft-id
+            type: int
+            required: true
+            positional: true
+            description: Draft ID
+        response:
+          type: object
+          item: Draft
+      create:
+        method: POST
+        path: "/drafts"
+        description: Create a new draft
+        body:
+          - name: draft_title
+            flag_name: title
+            type: string
+            description: Post title
+          - name: draft_subtitle
+            flag_name: subtitle
+            type: string
+            description: Post subtitle
+          - name: draft_body
+            flag_name: body
+            type: string
+            description: Post body (Markdown will be converted to ProseMirror)
+          - name: draft_section_id
+            flag_name: section-id
+            type: int
+            description: Section ID to publish into
+          - name: type
+            type: string
+            description: Post type (`newsletter`, `podcast`, `thread`, `discussion`)
+        response:
+          type: object
+          item: Draft
+      update:
+        method: PUT
+        path: "/drafts/{draft_id}"
+        description: Update an existing draft
+        params:
+          - name: draft_id
+            flag_name: draft-id
+            type: int
+            required: true
+            positional: true
+            description: Draft ID
+        body:
+          - name: draft_title
+            flag_name: title
+            type: string
+            description: New post title
+          - name: draft_subtitle
+            flag_name: subtitle
+            type: string
+            description: New post subtitle
+          - name: draft_body
+            flag_name: body
+            type: string
+            description: New post body
+        response:
+          type: object
+          item: Draft
+      delete:
+        method: DELETE
+        path: "/drafts/{draft_id}"
+        description: Delete a draft
+        params:
+          - name: draft_id
+            flag_name: draft-id
+            type: int
+            required: true
+            positional: true
+            description: Draft ID
+      prepublish:
+        method: POST
+        path: "/drafts/{draft_id}/prepublish"
+        description: Validate a draft for publication; returns blockers
+        params:
+          - name: draft_id
+            flag_name: draft-id
+            type: int
+            required: true
+            positional: true
+            description: Draft ID
+        response:
+          type: object
+          item: PrepublishReport
+      publish:
+        method: POST
+        path: "/drafts/{draft_id}/publish"
+        description: Publish a draft now
+        params:
+          - name: draft_id
+            flag_name: draft-id
+            type: int
+            required: true
+            positional: true
+            description: Draft ID
+        body:
+          - name: send
+            type: bool
+            description: Send to email subscribers (default true)
+          - name: share_automatically
+            type: bool
+            description: Auto-share on social (default true)
+        response:
+          type: object
+          item: Post
+      schedule:
+        method: POST
+        path: "/drafts/{draft_id}/schedule"
+        description: Schedule a draft for future publish (or unschedule with --post-date null)
+        params:
+          - name: draft_id
+            flag_name: draft-id
+            type: int
+            required: true
+            positional: true
+            description: Draft ID
+        body:
+          - name: post_date
+            flag_name: post-date
+            type: string
+            description: ISO 8601 timestamp; pass null to unschedule
+        response:
+          type: object
+          item: Draft
+
+  sections:
+    description: Sections of a publication (newsletters can have multiple)
+    base_url: "https://{publication}.substack.com/api/v1"
+    endpoints:
+      list:
+        method: GET
+        path: "/subscriptions"
+        description: List sections + subscriptions
+        response:
+          type: array
+          item: Section
+
+  tags:
+    description: Post tags
+    base_url: "https://{publication}.substack.com/api/v1"
+    endpoints:
+      list:
+        method: GET
+        path: "/publication/post-tag"
+        description: List all tags for the publication
+        response:
+          type: array
+          item: Tag
+      create:
+        method: POST
+        path: "/publication/post-tag"
+        description: Create a new tag
+        body:
+          - name: name
+            type: string
+            required: true
+            description: Tag name
+        response:
+          type: object
+          item: Tag
+
+  images:
+    description: Image upload (data-URI JSON, not multipart)
+    base_url: "https://{publication}.substack.com/api/v1"
+    endpoints:
+      upload:
+        method: POST
+        path: "/image"
+        description: "Upload an image; returns CDN URL. Body is data-URI JSON."
+        body:
+          - name: image
+            type: string
+            required: true
+            description: Data URI (data:image/<type>;base64,<base64-content>)
+        response:
+          type: object
+          item: ImageUploadResult
+
+  recommendations:
+    description: Substack Recommendations — outbound (publications I recommend)
+    base_url: "https://{publication}.substack.com/api/v1"
+    endpoints:
+      from:
+        method: GET
+        path: "/recommendations/from/{publication_id}"
+        description: List the publications a publication recommends
+        params:
+          - name: publication_id
+            flag_name: publication-id
+            type: int
+            required: true
+            positional: true
+            description: Publication ID
+        response:
+          type: array
+          item: Recommendation
+
+  subs:
+    description: Subscriber count + publication metadata
+    base_url: "https://{publication}.substack.com/api/v1"
+    endpoints:
+      count:
+        method: GET
+        path: "/publication_launch_checklist"
+        description: Get subscriber count (read off the launch-checklist payload)
+        response:
+          type: object
+          item: SubscriberCountSnapshot
+      authors:
+        method: GET
+        path: "/publication/users"
+        description: List bylined authors of a publication
+        response:
+          type: array
+          item: Profile
+
+  feed:
+    description: RSS feed for a publication
+    base_url: "https://{publication}.substack.com"
+    endpoints:
+      rss:
+        method: GET
+        path: "/feed"
+        description: RSS XML feed (returns XML; use `--raw` to dump)
+        response:
+          type: object
+          item: RSSFeed

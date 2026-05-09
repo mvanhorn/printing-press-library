@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T10:57:57.514349Z",
+  "printing_press_version": "4.2.0",
+  "api_name": "substack",
+  "display_name": "Substack",
+  "cli_name": "substack-pp-cli",
+  "owner": "user",
+  "spec_path": "/Users/chirantan/printing-press/.runstate/cli-printing-press-5afd2fcc/runs/20260509-103230/research/substack-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:30145d63a968758a9cf6e41eeaa6f0289cac74cc9615de6089f74fc86ff81b61",
+  "run_id": "20260509-103230",
+  "description": "Run your Substack growth loop from the terminal \u2014 publish, schedule, engage, and measure with cross-table joins no single Substack API call can.",
+  "mcp_binary": "substack-pp-mcp",
+  "mcp_tool_count": 39,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "endpoint_template_vars": [
+    "publication"
+  ],
+  "auth_key_url": "https://substack.com/sign-in",
+  "novel_features": [
+    {
+      "name": "Note-to-subscriber attribution ledger",
+      "command": "growth attribution",
+      "description": "Connect every Note you posted to the paid and free subscribers that actually arrived in the 24-hour window after, so you stop guessing which content drove growth."
+    },
+    {
+      "name": "Engagement reciprocity ledger",
+      "command": "engage reciprocity",
+      "description": "See net-give/net-take per writer you engage with \u2014 who reciprocates your restacks/comments, who quietly free-rides on yours."
+    },
+    {
+      "name": "Cadence guard",
+      "command": "notes schedule --guard",
+      "description": "Refuse to fire (or queue) a Note that lands less than 30 minutes after your last own-Note or violates your time-of-day rotation. Returns typed exit 2 with a JSON diagnosis."
+    },
+    {
+      "name": "Goal-aware best-time recommender",
+      "command": "growth best-time",
+      "description": "Top day-of-week \u00d7 hour cells ranked for whichever growth signal you pick (paid subs, likes, restacks, or comments) \u2014 not a single average."
+    },
+    {
+      "name": "Hook-pattern miner",
+      "command": "discover patterns",
+      "description": "Mechanically extracts which hook patterns (curiosity-gap colon, 3-sentence formula, em-dash reframe, question opener) actually rank in a niche, with restack/comment ratios."
+    },
+    {
+      "name": "Swap-partner finder",
+      "command": "recs find-partners",
+      "description": "Score candidate publications for a Substack Recommendations swap by mutual-overlap density across followee + recommendation graphs."
+    },
+    {
+      "name": "Pod restack scoreboard",
+      "command": "growth pod",
+      "description": "Given a list of handles, render a member \u00d7 member engagement matrix \u2014 last 30 days of restacks/comments/likes between every pair."
+    },
+    {
+      "name": "Voice fingerprint",
+      "command": "voice fingerprint",
+      "description": "Measurable voice profile \u2014 sentence length, em-dash rate, colon-hook rate, hook-line ratios, vocabulary uniqueness \u2014 for any handle, with --diff to compare against another writer."
+    }
+  ],
+  "printer": "chirantan",
+  "printer_name": "Chirantan Rajhans",
+  "owner_name": "Chirantan Rajhans",
+  "category": "media-and-entertainment"
+}
