@@ -38,6 +38,10 @@ go install github.com/mvanhorn/printing-press-library/library/project-management
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
+## Cursor
+
+Personal API keys are created under **Account → Security & access** in Linear, not under Integrations. For step-by-step Cursor setup (keys, `auth set-token`, optional MCP tradeoffs), see [CURSOR.md](./CURSOR.md) in this module.
+
 ## When to Use This CLI
 
 Reach for this when the user wants:

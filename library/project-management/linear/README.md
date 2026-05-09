@@ -39,17 +39,26 @@ Install the pp-linear skill from https://github.com/mvanhorn/printing-press-libr
 
 ## Authentication
 
-Get your API key from [Linear Settings > API](https://linear.app/settings/api).
+Create a **personal API key** under **Settings → Account → Security & access** while logged into Linear: [Security & access](https://linear.app/settings/account/security). (The **Integrations / Connected accounts** page is for linking Slack, GitHub, etc., not for API keys.)
 
 ```bash
 export LINEAR_API_KEY="lin_api_abc123..."
 ```
 
-You can also persist this in your config file at `~/.config/linear-pp-cli/config.toml`:
+Or persist with:
+
+```bash
+linear-pp-cli auth set-token "lin_api_abc123..."
+```
+
+That writes `~/.config/linear-pp-cli/config.toml` (field `api_key`). You can also edit the file directly:
 
 ```toml
 api_key = "lin_api_abc123..."
 ```
+
+**Cursor users:** see [CURSOR.md](./CURSOR.md) for a short setup guide (MCP vs skill, where keys live, verification).
+
 
 To override the API base URL (for self-hosted or proxied setups):
 

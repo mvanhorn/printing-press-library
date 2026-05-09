@@ -54,6 +54,8 @@ func Load(configPath string) (*Config, error) {
 	if v := os.Getenv("LINEAR_API_KEY"); v != "" {
 		cfg.LinearApiKey = v
 		cfg.AuthSource = "env:LINEAR_API_KEY"
+	} else if cfg.LinearApiKey != "" {
+		cfg.AuthSource = "config:api_key"
 	}
 
 	// Base URL override (used by printing-press verify to point at mock/test servers)
@@ -100,7 +102,20 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 	return c.save()
 }
 
+// SaveLinearAPIKey persists a Linear personal API key (GraphQL) under the api_key field.
+// It clears OAuth token fields so AuthHeader resolves to the API key.
+func (c *Config) SaveLinearAPIKey(key string) error {
+	c.LinearApiKey = key
+	c.AccessToken = ""
+	c.RefreshToken = ""
+	c.TokenExpiry = time.Time{}
+	c.ClientID = ""
+	c.ClientSecret = ""
+	return c.save()
+}
+
 func (c *Config) ClearTokens() error {
+	c.LinearApiKey = ""
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}

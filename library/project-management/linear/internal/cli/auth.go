@@ -66,8 +66,8 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 				return configErr(err)
 			}
 
-			// Save the token directly via the config's save mechanism
-			if err := cfg.SaveTokens("", "", args[0], "", cfg.TokenExpiry); err != nil {
+			// Personal API keys must live in api_key; AuthHeader() ignores access_token.
+			if err := cfg.SaveLinearAPIKey(args[0]); err != nil {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}
 
