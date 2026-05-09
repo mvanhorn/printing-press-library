@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09",
+  "notes": "Backend-readiness matrix consumed by hf backend-check / find-feature / vs-current. Each entry is one (feature \u00d7 backend) verdict with a citation. Override via --backend-support <path> or ~/.local/state/hf-cli/backend-support.override.json. Honest 'no' beats optimistic 'yes' \u2014 when unsure, omit the entry rather than fabricate.",
+  "entries": [
+    {
+      "feature": "moe",
+      "backend": "llama.cpp",
+      "supported": "yes",
+      "since": "build-3000",
+      "source": "https://github.com/ggerganov/llama.cpp/pull/4406",
+      "source_checked": "2026-05-02",
+      "wiki_pointer": ""
+    },
+    {
+      "feature": "moe",
+      "backend": "llama.cpp/turboquant",
+      "supported": "yes",
+      "since": "build-8970",
+      "source": "https://github.com/ikawrakow/llama.cpp",
+      "source_checked": "2026-05-02",
+      "wiki_pointer": ""
+    },
+    {
+      "feature": "moe",
+      "backend": "mlx",
+      "supported": "partial",
+      "since": "0.20.0",
+      "source": "https://github.com/ml-explore/mlx-lm",
+      "source_checked": "2026-05-08",
+      "notes": "MoE inference is functional in mlx-lm but throughput is below dense models of equivalent size; no apple-silicon MTP yet.",
+      "wiki_pointer": ""
+    },
+    {
+      "feature": "moe",
+      "backend": "transformers",
+      "supported": "yes",
+      "since": "4.40",
+      "source": "https://github.com/huggingface/transformers",
+      "source_checked": "2026-05-09",
+      "wiki_pointer": ""
+    },
+    {
+      "feature": "mtp",
+      "backend": "llama.cpp",
+      "supported": "no",
+      "since": "",
+      "source": "https://github.com/ggerganov/llama.cpp/issues",
+      "source_checked": "2026-05-08",
+      "notes": "MTP layers ignored at inference time; no speculative-decoding hookup. Treat MTP weights as training-only on llama.cpp.",
+      "wiki_pointer": ""
+    },
+    {
+      "feature": "mtp",
+      "backend": "llama.cpp/turboquant",
+      "supported": "no",
+      "since": "",
+      "source": "https://github.com/ikawrakow/llama.cpp",
+      "source_checked": "2026-05-08",
+      "notes": "Same as upstream llama.cpp; MTP not implemented.",
+      "wiki_pointer": ""
+    },
+    {
+      "feature": "mtp",
+      "backend": "mlx",
+      "supported": "no",
+      "since": "",
+      "source": "https://github.com/ml-explore/mlx-lm",
+      "source_checked": "2026-05-08",
+      "notes": "Apple Silicon MTP path immature; CUDA-derived perplexity numbers do not transfer.",
+      "wiki_pointer": ""
+    },
+    {
+      "feature": "mtp",
+      "backend": "transformers",
+      "supported": "training-only",
+      "since": "",
+      "source": "https://huggingface.co/docs/transformers",
+      "source_checked": "2026-05-09",
+      "notes": "MTP layers serve training objective; reference inference path uses standard greedy/beam decode. Speculative-decoding hookup is per-model and rare."
+    },
+    {
+      "feature": "mla",
+      "backend": "llama.cpp",
+      "supported": "yes",
+      "since": "build-3500",
+      "source": "https://github.com/ggerganov/llama.cpp/pull/8101",
+      "source_checked": "2026-05-09",
+      "notes": "DeepSeek-V2-style MLA supported; verify per-arch (V2/V3 differ slightly)."
+    },
+    {
+      "feature": "mla",
+      "backend": "llama.cpp/turboquant",
+      "supported": "yes",
+      "since": "build-8970",
+      "source": "https://github.com/ikawrakow/llama.cpp",
+      "source_checked": "2026-05-02",
+      "wiki_pointer": ""
+    },
+    {
+      "feature": "mla",
+      "backend": "mlx",
+      "supported": "partial",
+      "since": "0.21",
+      "source": "https://github.com/ml-explore/mlx-lm",
+      "source_checked": "2026-05-09",
+      "notes": "DeepSeek MLA path landed but is slower than equivalent dense attention on M-series; verify with bench-history before relying."
+    },
+    {
+      "feature": "gqa",
+      "backend": "llama.cpp",
+      "supported": "yes",
+      "since": "build-1500",
+      "source": "https://github.com/ggerganov/llama.cpp",
+      "source_checked": "2026-05-09",
+      "notes": "Universal \u2014 all modern Llama-arch variants."
+    },
+    {
+      "feature": "gqa",
+      "backend": "mlx",
+      "supported": "yes",
+      "since": "0.10",
+      "source": "https://github.com/ml-explore/mlx-lm",
+      "source_checked": "2026-05-09"
+    },
+    {
+      "feature": "sliding-window-attn",
+      "backend": "llama.cpp",
+      "supported": "yes",
+      "since": "build-2500",
+      "source": "https://github.com/ggerganov/llama.cpp",
+      "source_checked": "2026-05-09",
+      "notes": "Mistral / Qwen sliding-window supported."
+    },
+    {
+      "feature": "sliding-window-attn",
+      "backend": "mlx",
+      "supported": "yes",
+      "since": "0.18",
+      "source": "https://github.com/ml-explore/mlx-lm",
+      "source_checked": "2026-05-09"
+    },
+    {
+      "feature": "rope-yarn",
+      "backend": "llama.cpp",
+      "supported": "yes",
+      "since": "build-2200",
+      "source": "https://github.com/ggerganov/llama.cpp/pull/2268",
+      "source_checked": "2026-05-09"
+    },
+    {
+      "feature": "rope-yarn",
+      "backend": "mlx",
+      "supported": "yes",
+      "since": "0.19",
+      "source": "https://github.com/ml-explore/mlx-lm",
+      "source_checked": "2026-05-09"
+    },
+    {
+      "feature": "rope-yarn",
+      "backend": "transformers",
+      "supported": "yes",
+      "since": "4.42",
+      "source": "https://github.com/huggingface/transformers",
+      "source_checked": "2026-05-09"
+    }
+  ]
+}

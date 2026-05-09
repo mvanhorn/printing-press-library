@@ -1,0 +1,119 @@
+{
+  "api_name": "huggingface",
+  "novelty_score": 0,
+  "alternatives": [
+    {"name": "huggingface_hub", "url": "https://github.com/huggingface/huggingface_hub", "language": "Python", "stars": 2000, "command_count": 30}
+  ],
+  "novel_features": [
+    {
+      "name": "Architecture-feature search",
+      "command": "find-feature",
+      "description": "Search HF for models by architecture feature (mtp, mla, moe, gqa, sliding-window, rope-yarn) — fields HF doesn't index, recovered from config.json + card text.",
+      "rationale": "Requires fetching and parsing config.json per candidate; no HF endpoint surfaces these features as filters.",
+      "example": "huggingface-pp-cli find-feature mtp --size 20b-40b --backend llama.cpp --json",
+      "why_it_matters": "Reach for this when an agent needs models with specific architectural capabilities (MoE, MTP-readiness, long-context attention) that HF's search UI cannot filter on.",
+      "group": "Stack-aware verdicts"
+    },
+    {
+      "name": "vs-current diff",
+      "command": "vs-current",
+      "description": "Diff a candidate model against the model the named agent currently runs, by reading data/openclaw.json directly.",
+      "rationale": "Requires local config knowledge no HF tool has — answers 'would this replace what I run today?' which is the whole product premise.",
+      "example": "huggingface-pp-cli vs-current Qwen/Qwen3.6-35B-A3B --agent main --json",
+      "why_it_matters": "The single command that closes the loop between HF discovery and the operational decision to switch models.",
+      "group": "Stack-aware verdicts"
+    },
+    {
+      "name": "Backend-readiness oracle",
+      "command": "backend-check",
+      "description": "Verdict whether a model's architecture is supported by a target backend, citing PR numbers, commit SHAs, and wiki notes with source_checked dates.",
+      "rationale": "Bundled matrix with citations beats optimistic guesses; an honest 'no' beats discovering after a 30GB download.",
+      "example": "huggingface-pp-cli backend-check Qwen/Qwen3.6-VL --backend llama.cpp,mlx --json",
+      "why_it_matters": "Use before downloading any new model; catches incompatibility upfront.",
+      "group": "Stack-aware verdicts"
+    },
+    {
+      "name": "Bench-history join",
+      "command": "bench-history",
+      "description": "Join an HF model id with local model-eval-harness results to surface tasks run, scores, vs-baseline delta, and last-run date.",
+      "rationale": "Closes the discovery→eval loop by reading harness output the eval pipeline already produces; no other tool reaches into local eval state.",
+      "example": "huggingface-pp-cli bench-history Qwen/Qwen3.6-35B-A3B --json",
+      "why_it_matters": "Stops the eval pipeline from re-running known losers on every refresh.",
+      "group": "Stack-aware verdicts"
+    },
+    {
+      "name": "Eval-candidate emitter",
+      "command": "eval-candidates",
+      "description": "Emit a list of HF candidates in the model-eval-harness input format directly.",
+      "rationale": "Wires HF discovery into the existing local eval pipeline as a one-liner.",
+      "example": "huggingface-pp-cli eval-candidates --base Qwen/Qwen3.6-35B-A3B --target-size 25g --emit harness-input",
+      "why_it_matters": "Use when scouting a new base model — pipes directly into the harness without copy-paste.",
+      "group": "Stack-aware verdicts"
+    },
+    {
+      "name": "Watch + agent-notify",
+      "command": "watch",
+      "description": "State-file subscription with cron-callable poll; matches emit through the MC API alert pipeline as structured events.",
+      "rationale": "Passive intel, not just on-demand lookup; agents get notified about new uploads matching watched criteria without polling themselves.",
+      "example": "huggingface-pp-cli watch unsloth --kind uploader --notify jarvis",
+      "why_it_matters": "Reach for this when monitoring a specific uploader, base model, or feature for new releases as part of intel automation.",
+      "group": "Compounding intel loops"
+    },
+    {
+      "name": "Quant-variant browser",
+      "command": "find-quants",
+      "description": "Surface GGUF quant variants of a base model with uploader rep, effective size, and quant-type classification — sorted by trusted-uploader allowlist + size filter.",
+      "rationale": "HF has no first-class quant index; requires base_model:quantized: tag filter + GGUF sibling parse + uploader allowlist heuristic.",
+      "example": "huggingface-pp-cli find-quants Qwen/Qwen3.6-35B-A3B --prefer iq4_nl,q4_k_m --max-size 25g --json",
+      "why_it_matters": "Use when picking a quant for a target hardware budget; encodes Rick's trusted-uploader heuristic (unsloth, bartowski, mradermacher).",
+      "group": "Discovery"
+    },
+    {
+      "name": "Multi-runtime probe",
+      "command": "doctor",
+      "description": "Single-call structured runtime-shape covering TTY, JSON, state writability, live config presence, harness presence, backend-matrix age, rate-limit remaining, HF reachability, proxy presence.",
+      "rationale": "Agents call this once at session start and branch all subsequent calls on the result — replaces ~9 separate probes per session.",
+      "example": "huggingface-pp-cli doctor --json",
+      "why_it_matters": "Required first call for any agent script; tells the agent what runtime constraints apply.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Hugging Face",
+    "headline": "A stack-aware model-intel CLI for local-inference rigs and autonomous agent fleets — not just an API mirror.",
+    "value_prop": "Closes the loop between Hugging Face discovery and the operational decisions only you can make: would this replace what I run today, will it load on my backend, has it already been benched. Every command is multi-runtime safe (TTY-agnostic, --json + stable schemas, exit-code semantics, flock-guarded state) so the same binary serves Rick at the terminal and JARVIS in a container.",
+    "auth_narrative": "Anonymous read works for every public endpoint. Set HF_TOKEN (or use the cached token at ~/.cache/huggingface/token) for higher rate limits.",
+    "quickstart": [
+      {"command": "huggingface-pp-cli doctor --json", "comment": "Probe the runtime first — agents branch all subsequent calls on this output."},
+      {"command": "huggingface-pp-cli find-quants Qwen/Qwen3.6-35B-A3B --max-size 25g --uploaders unsloth,bartowski,mradermacher", "comment": "Find quant variants matching your hardware budget."},
+      {"command": "huggingface-pp-cli vs-current Qwen/Qwen3.6-35B-A3B --agent main --json", "comment": "Diff against the model the named agent runs today."},
+      {"command": "huggingface-pp-cli backend-check Qwen/Qwen3.6-35B-A3B --backend llama.cpp,mlx --json", "comment": "Verify backend support before a 30GB download."}
+    ],
+    "troubleshoots": [
+      {"symptom": "Exit code 5 (rate limit)", "fix": "Set HF_TOKEN to a Hugging Face read token from https://huggingface.co/settings/tokens. Anonymous limits are ~5K req/day; authed limits are much higher."},
+      {"symptom": "Exit code 6 from vs-current / bench-history", "fix": "Pass --config-path / --harness or run from a directory containing data/openclaw.json or workspace/scripts/model-eval-harness. The CLI exits cleanly rather than crash when context is missing."},
+      {"symptom": "doctor reports backend_matrix_age_days > 90", "fix": "Bundled backend-support.json is stale. Override via --backend-support <path> or ~/.local/state/hf-cli/backend-support.override.json."}
+    ],
+    "when_to_use": "Reach for this CLI whenever the answer to 'should I switch from what I run today?' would otherwise require a WebFetch dance through model cards, config.json files, GitHub PRs, and local config. The stack-aware commands (vs-current, backend-check, bench-history, find-feature) only make sense when the caller already has Rick's local-inference stack and eval pipeline available — at the cost of a tighter scope, every command answers an operational question that generic HF tools cannot.",
+    "recipes": [
+      {"title": "Should I switch?", "command": "huggingface-pp-cli vs-current Qwen/Qwen3.6-35B-A3B --agent main --json --select arch_delta,size_delta,license_delta,verdict", "explanation": "Diffs candidate against the running primary model and surfaces only the delta fields."},
+      {"title": "Find an MoE with MTP that runs on llama.cpp", "command": "huggingface-pp-cli find-feature mtp --size 20b-40b --backend llama.cpp --moe --json", "explanation": "Architecture-feature search HF doesn't expose; returns only entries with backend-readiness verdict YES."},
+      {"title": "Pick a quant for 25GB hardware budget", "command": "huggingface-pp-cli find-quants Qwen/Qwen3.6-35B-A3B --prefer iq4_nl,q4_k_m --max-size 25g --uploaders unsloth,bartowski,mradermacher --json --select id,quant,size_gb,uploader,uploader_rep", "explanation": "Sorted by uploader rep + size; --select trims output to the agent-relevant fields."},
+      {"title": "Has this been benched?", "command": "huggingface-pp-cli bench-history Qwen/Qwen3.6-35B-A3B --json", "explanation": "Joins HF id with local harness results — exits 6 cleanly if no harness data."}
+    ],
+    "trigger_phrases": [
+      "find quants of",
+      "should I switch to",
+      "will this run on llama.cpp",
+      "what's trending on HF",
+      "has this been benchmarked",
+      "watch this uploader",
+      "use huggingface",
+      "huggingface CLI"
+    ]
+  },
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T17:25:00Z"
+}

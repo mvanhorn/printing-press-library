@@ -623,6 +623,29 @@
       }
     },
     {
+      "name": "huggingface",
+      "category": "ai",
+      "api": "Hugging Face",
+      "description": "A stack-aware model-intel CLI for local-inference rigs and autonomous agent fleets — not just an API mirror.",
+      "path": "library/ai/huggingface",
+      "printer_name": "Rick van de Laar",
+      "mcp": {
+        "binary": "huggingface-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 5,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "HF_TOKEN",
+          "HUGGING_FACE_HUB_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "instacart",
       "category": "commerce",
       "api": "Instacart",
