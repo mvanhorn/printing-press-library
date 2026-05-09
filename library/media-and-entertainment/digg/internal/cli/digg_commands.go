@@ -1845,8 +1845,16 @@ func rosterOrderBy(by string) (string, error) {
 // /ai/1000 fetch + upsert (the same call `authors list` makes), then
 // re-queries. If both the cache is empty AND the live fetch fails,
 // the command still returns a useful payload — just without the
-// nearest_in_1000 / followers_gap fields, with meta.tier_status_resolved
-// set to false so callers can detect the partial result.
+// nearest_in_1000 / peer_follow_gap fields, with
+// meta.tier_status_resolved set to false so callers can detect the
+// partial result.
+//
+// The distance metric is `peer_follow_gap` — the difference in
+// `followed_by_count` (AI-1000 peer follows), which is what Digg
+// actually ranks the AI 1000 by. The subject's peer-follow count
+// comes from /u/x/<handle> (the page's <meta name="description">
+// reveals it). Total X followers are also surfaced for context but
+// are not used as the comparison metric.
 
 // searchUsersURLOverride lets tests redirect the live user-search
 // URL to a local httptest server. Empty string falls through to the
@@ -1868,45 +1876,64 @@ var roster1000URLOverride string
 //   - GithubURL: looked up from local digg_authors cache when present
 //     (the search endpoint doesn't return it; /ai/1000 does)
 //   - TierStatus: "in_1000" when CurrentRank != nil, else "off_1000"
-//   - NearestIn1000 / FollowersGap: present only on off-1000 path,
+//   - SubjectPeerFollowCount: the off-1000 subject's "followed by N
+//     tracked AI influencers" count, scraped from the
+//     /u/x/<handle> page meta description. Pointer so we can omit
+//     it cleanly when the page fetch / parse fails.
+//   - NearestIn1000 / PeerFollowGap: present only on off-1000 path,
 //     and only when the rank-1000 anchor was resolvable (cache or
 //     live fetch). Both omitted when neither source produced a record.
+//   - PeerFollowGap is computed as `nearest.peer_follow_count -
+//     subject.peer_follow_count`. Positive means "subject needs that
+//     many more AI-1000 peer-follows to catch rank 1000"; negative
+//     means the off-1000 subject has more peer-follows than the
+//     rank-1000 anchor (ranking isn't strictly peer-follow either —
+//     Digg uses a weighted score).
 //   - MatchType: "exact" or "fuzzy"; advertised separately at the
 //     envelope level (Meta.match_type) too — caller's choice which to
 //     read.
+//
+// `followers_count` (total X followers) is preserved verbatim from
+// upstream for context — useful to know who the user is — but is
+// no longer used as the comparison metric.
 //
 // CurrentRank stays a pointer so the JSON output can carry an explicit
 // `null` for off-1000 handles (matches upstream shape; downstream
 // jq pipelines that test `current_rank == null` keep working).
 type authorGetResult struct {
-	XID             string             `json:"x_id,omitempty"`
-	Username        string             `json:"username"`
-	DisplayName     string             `json:"display_name,omitempty"`
-	ProfileImageURL string             `json:"profile_image_url,omitempty"`
-	FollowersCount  int                `json:"followers_count"`
-	Category        *string            `json:"category"`
-	CurrentRank     *int               `json:"current_rank"`
-	SimilarityScore float64            `json:"similarity_score"`
-	IsPrefixMatch   bool               `json:"is_prefix_match"`
-	XURL            string             `json:"xUrl,omitempty"`
-	GithubURL       string             `json:"githubUrl,omitempty"`
-	TierStatus      string             `json:"tier_status,omitempty"`
-	NearestIn1000   *nearestIn1000Anch `json:"nearest_in_1000,omitempty"`
-	FollowersGap    *int               `json:"followers_gap,omitempty"`
-	MatchType       string             `json:"match_type,omitempty"`
+	XID                    string             `json:"x_id,omitempty"`
+	Username               string             `json:"username"`
+	DisplayName            string             `json:"display_name,omitempty"`
+	ProfileImageURL        string             `json:"profile_image_url,omitempty"`
+	FollowersCount         int                `json:"followers_count"`
+	Category               *string            `json:"category"`
+	CurrentRank            *int               `json:"current_rank"`
+	SimilarityScore        float64            `json:"similarity_score"`
+	IsPrefixMatch          bool               `json:"is_prefix_match"`
+	XURL                   string             `json:"xUrl,omitempty"`
+	GithubURL              string             `json:"githubUrl,omitempty"`
+	TierStatus             string             `json:"tier_status,omitempty"`
+	SubjectPeerFollowCount *int               `json:"subject_peer_follow_count,omitempty"`
+	NearestIn1000          *nearestIn1000Anch `json:"nearest_in_1000,omitempty"`
+	PeerFollowGap          *int               `json:"peer_follow_gap,omitempty"`
+	MatchType              string             `json:"match_type,omitempty"`
 }
 
 // nearestIn1000Anch is the rank-1000 author's stats, used as a
-// comparison anchor for off-1000 handles. Surfaces just the four
-// fields documented in the plan (R10) — `username`, `rank`,
-// `followers_count`, `score`. The anchor is rank=1000 by definition
-// (the cutoff into the 1000), but we still emit the field so callers
-// don't have to hard-code the constant.
+// comparison anchor for off-1000 handles. The anchor is rank=1000 by
+// definition (the cutoff into the 1000), but we still emit the field
+// so callers don't have to hard-code the constant.
+//
+// `peer_follow_count` is the rank-1000 author's `followed_by_count`
+// (how many of the AI 1000 follow them). This is the metric the AI
+// 1000 is actually ranked by; `followers_count` (total X followers)
+// is surfaced for context but is NOT the ranking signal.
 type nearestIn1000Anch struct {
-	Username       string  `json:"username"`
-	Rank           int     `json:"rank"`
-	FollowersCount int     `json:"followers_count"`
-	Score          float64 `json:"score,omitempty"`
+	Username        string  `json:"username"`
+	Rank            int     `json:"rank"`
+	FollowersCount  int     `json:"followers_count"`
+	PeerFollowCount int     `json:"peer_follow_count"`
+	Score           float64 `json:"score,omitempty"`
 }
 
 // authorGetEnvelopeExact is the JSON shape for an exact-match query.
@@ -1939,12 +1966,15 @@ similarity_score when the handle has no exact hit.
 
 For off-1000 handles (current_rank: null), the response also
 includes a "distance to the 1000" view: the rank-1000 author's
-stats as a comparison anchor and a signed followers_gap. The
-anchor is read from the local digg_authors cache (populated by
-` + "`digg-pp-cli authors list`" + `); on cache miss the command
-does a one-shot live /ai/1000 fetch and populates the cache before
-returning. If neither source resolves, the rest of the record is
-returned with meta.tier_status_resolved: false.`,
+stats as a comparison anchor and a signed peer_follow_gap (the
+difference in AI-1000 peer-follow counts — the metric Digg
+actually ranks by). The anchor is read from the local digg_authors
+cache (populated by ` + "`digg-pp-cli authors list`" + `); on cache
+miss the command does a one-shot live /ai/1000 fetch and populates
+the cache before returning. The subject's own peer-follow count is
+fetched from the /u/x/<handle> page. If either piece doesn't
+resolve, the rest of the record is returned with
+meta.tier_status_resolved: false.`,
 		Example: `  digg-pp-cli authors get logangraham
   digg-pp-cli authors get mvanhorn --json
   digg-pp-cli authors get LoganGraham --agent
@@ -1994,7 +2024,7 @@ returned with meta.tier_status_resolved: false.`,
 			}
 
 			if exact != nil {
-				record, resolved := buildAuthorGetResult(ctx, cmd, *exact, "exact")
+				record, resolved := buildAuthorGetResult(ctx, cmd, flags, *exact, "exact")
 				meta["match_type"] = "exact"
 				meta["count"] = 1
 				meta["tier_status_resolved"] = resolved
@@ -2012,7 +2042,7 @@ returned with meta.tier_status_resolved: false.`,
 			fuzzy := make([]authorGetResult, 0, len(resp.Results))
 			anyUnresolved := false
 			for _, r := range resp.Results {
-				record, resolved := buildAuthorGetResult(ctx, cmd, r, "fuzzy")
+				record, resolved := buildAuthorGetResult(ctx, cmd, flags, r, "fuzzy")
 				if !resolved && record.CurrentRank == nil {
 					anyUnresolved = true
 				}
@@ -2052,12 +2082,19 @@ returned with meta.tier_status_resolved: false.`,
 
 // buildAuthorGetResult promotes one UsersSearchResult into the CLI's
 // authorGetResult shape. Mints xUrl, computes tier_status, and (for
-// off-1000) loads the rank-1000 anchor for the distance view. Returns
-// the result and a `tierResolved` bool: true when in_1000 OR when
-// off_1000 with a successful anchor lookup; false when the off-1000
-// anchor couldn't be resolved (cache empty AND live /ai/1000 fetch
-// failed). Callers surface that bit on meta.tier_status_resolved.
-func buildAuthorGetResult(ctx context.Context, cmd *cobra.Command, src client.UsersSearchResult, matchType string) (authorGetResult, bool) {
+// off-1000) loads the rank-1000 anchor and the subject's
+// peer-follow count for the distance view. Returns the result and a
+// `tierResolved` bool: true when in_1000 OR when off_1000 with BOTH
+// a successful anchor lookup AND a successful subject peer-follow
+// fetch; false when either piece of the off-1000 distance view is
+// missing. Callers surface that bit on meta.tier_status_resolved.
+//
+// Failure modes are kept independent so partial data still flows:
+// if /u/x/<handle> fails we still emit nearest_in_1000 (caller sees
+// the rank-1000 anchor); if the anchor fails we still emit
+// subject_peer_follow_count (caller sees the subject's standing).
+// peer_follow_gap is only emitted when both sides resolve.
+func buildAuthorGetResult(ctx context.Context, cmd *cobra.Command, flags *rootFlags, src client.UsersSearchResult, matchType string) (authorGetResult, bool) {
 	out := authorGetResult{
 		XID:             src.XID,
 		Username:        src.Username,
@@ -2086,22 +2123,70 @@ func buildAuthorGetResult(ctx context.Context, cmd *cobra.Command, src client.Us
 		return out, true
 	}
 
-	// Off-1000 path: try to resolve the rank-1000 anchor. We allow a
-	// one-shot live fallback when the cache is cold so the very
-	// first invocation against a fresh install still produces a
-	// complete payload.
+	// Off-1000 path: try to resolve the rank-1000 anchor and the
+	// subject's peer-follow count independently. The two halves can
+	// fail separately; we surface whichever resolved and only emit
+	// peer_follow_gap when both did.
 	out.TierStatus = "off_1000"
 	if gh := lookupGithubURLForUser(ctx, src.Username); gh != "" {
 		out.GithubURL = gh
 	}
-	anchor, ok := loadRank1000Anchor(ctx, cmd, true /* allowLiveFallback */)
-	if !ok {
-		return out, false
+	anchor, anchorOK := loadRank1000Anchor(ctx, cmd, true /* allowLiveFallback */)
+	if anchorOK {
+		out.NearestIn1000 = anchor
 	}
-	out.NearestIn1000 = anchor
-	gap := anchor.FollowersCount - src.FollowersCount
-	out.FollowersGap = &gap
-	return out, true
+	subjectPeerFollow, subjectOK := fetchSubjectPeerFollowCount(ctx, cmd, flags, src.Username)
+	if subjectOK {
+		spf := subjectPeerFollow
+		out.SubjectPeerFollowCount = &spf
+	}
+	if anchorOK && subjectOK {
+		gap := anchor.PeerFollowCount - subjectPeerFollow
+		out.PeerFollowGap = &gap
+		return out, true
+	}
+	return out, false
+}
+
+// userPeerFollowURLOverride lets tests redirect the live
+// /u/x/<handle> fetch used to read the subject's
+// `followed_by_count` to a local httptest server. Empty string falls
+// through to the default base URL handled inside the client.
+// Production code never sets this.
+var userPeerFollowURLOverride string
+
+// fetchSubjectPeerFollowCount calls /u/x/<handle> via the client
+// helper and returns the parsed peer-follow count. Logs warnings to
+// stderr on failure (404 is silent — that's a legitimate "Digg
+// doesn't track this handle" zero, returned through the client) so
+// operators can debug without the rest of the response failing.
+//
+// Returns (n, true) on success, (0, false) on any kind of failure
+// (network, non-200/non-404 status, missing meta tag, bad parse).
+//
+// Reuses the same client construction the live /api/search/users
+// call already used so timeout, rate-limit, and impersonation match
+// the rest of the request flow.
+func fetchSubjectPeerFollowCount(ctx context.Context, cmd *cobra.Command, flags *rootFlags, username string) (int, bool) {
+	if username == "" {
+		return 0, false
+	}
+	c, err := flags.newClient()
+	if err != nil {
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: building client for /u/x/%s peer-follow fetch failed: %v\n", username, err)
+		return 0, false
+	}
+	var n int
+	if userPeerFollowURLOverride != "" {
+		n, err = c.FetchUserPeerFollowCountFrom(ctx, userPeerFollowURLOverride+"/"+username)
+	} else {
+		n, err = c.FetchUserPeerFollowCount(ctx, username)
+	}
+	if err != nil {
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: /u/x/%s peer-follow fetch failed: %v\n", username, err)
+		return 0, false
+	}
+	return n, true
 }
 
 // lookupGithubURLForUser checks the local digg_authors cache for a
@@ -2192,33 +2277,44 @@ func loadRank1000Anchor(ctx context.Context, cmd *cobra.Command, allowLiveFallba
 // the signal to the caller to attempt a live fallback. Errors other
 // than sql.ErrNoRows are also treated as "not present" so a flaky
 // SQLite issue doesn't crash the command.
+//
+// `followed_by_count` is the metric the AI 1000 is ranked by (how
+// many of the AI 1000 follow this user); it's surfaced as
+// `peer_follow_count` on the output anchor so the off-1000 distance
+// view compares apples to apples.
 func readRank1000FromDB(ctx context.Context, db *sql.DB) (*nearestIn1000Anch, bool) {
 	var (
-		username       sql.NullString
-		followersCount sql.NullInt64
-		score          sql.NullFloat64
+		username        sql.NullString
+		followersCount  sql.NullInt64
+		peerFollowCount sql.NullInt64
+		score           sql.NullFloat64
 	)
-	row := db.QueryRowContext(ctx, `SELECT username, COALESCE(followers_count,0), COALESCE(score,0)
+	row := db.QueryRowContext(ctx, `SELECT username, COALESCE(followers_count,0), COALESCE(followed_by_count,0), COALESCE(score,0)
 		FROM digg_authors WHERE rank = 1000 LIMIT 1`)
-	if err := row.Scan(&username, &followersCount, &score); err != nil {
+	if err := row.Scan(&username, &followersCount, &peerFollowCount, &score); err != nil {
 		return nil, false
 	}
 	if !username.Valid || username.String == "" {
 		return nil, false
 	}
 	return &nearestIn1000Anch{
-		Username:       username.String,
-		Rank:           1000,
-		FollowersCount: int(followersCount.Int64),
-		Score:          score.Float64,
+		Username:        username.String,
+		Rank:            1000,
+		FollowersCount:  int(followersCount.Int64),
+		PeerFollowCount: int(peerFollowCount.Int64),
+		Score:           score.Float64,
 	}, true
 }
 
 // printAuthorGetHuman renders one record in the table-y default
 // (non-JSON) shape. Mirrors the rest of the digg CLI: leading rank
 // or "off-1000" tag, then handle, display name, followers,
-// category, and (when off-1000) the followers_gap. Keep it dense so
-// `digg-pp-cli authors get foo` reads at a glance.
+// category, and (when off-1000) the peer-follow distance view.
+// Keep it dense so `digg-pp-cli authors get foo` reads at a glance.
+//
+// Distance view shows the AI-1000 peer-follow gap rather than the
+// raw X-followers gap because the AI 1000 is ranked by
+// `followed_by_count`, not total followers.
 func printAuthorGetHuman(cmd *cobra.Command, r authorGetResult) {
 	tierTag := "off-1000"
 	if r.CurrentRank != nil {
@@ -2231,9 +2327,17 @@ func printAuthorGetHuman(cmd *cobra.Command, r authorGetResult) {
 	dn := firstNonEmpty(r.DisplayName, r.Username)
 	fmt.Fprintf(cmd.OutOrStdout(), "%-9s @%-22s %s  followers=%d%s\n",
 		tierTag, r.Username, diggTruncate(dn, 28), r.FollowersCount, cat)
-	if r.NearestIn1000 != nil && r.FollowersGap != nil {
-		fmt.Fprintf(cmd.OutOrStdout(), "    nearest_in_1000=@%s (rank %d, followers=%d)  followers_gap=%+d\n",
-			r.NearestIn1000.Username, r.NearestIn1000.Rank, r.NearestIn1000.FollowersCount, *r.FollowersGap)
+	if r.NearestIn1000 != nil && r.PeerFollowGap != nil {
+		fmt.Fprintf(cmd.OutOrStdout(), "    nearest_in_1000=@%s (rank %d, peer_follows=%d)  peer_follow_gap=%+d\n",
+			r.NearestIn1000.Username, r.NearestIn1000.Rank, r.NearestIn1000.PeerFollowCount, *r.PeerFollowGap)
+	} else if r.NearestIn1000 != nil {
+		// Anchor resolved but subject's peer-follow fetch failed;
+		// still show the rank-1000 anchor so the caller has context.
+		fmt.Fprintf(cmd.OutOrStdout(), "    nearest_in_1000=@%s (rank %d, peer_follows=%d)\n",
+			r.NearestIn1000.Username, r.NearestIn1000.Rank, r.NearestIn1000.PeerFollowCount)
+	}
+	if r.SubjectPeerFollowCount != nil {
+		fmt.Fprintf(cmd.OutOrStdout(), "    subject_peer_follow_count=%d\n", *r.SubjectPeerFollowCount)
 	}
 	if r.XURL != "" {
 		fmt.Fprintf(cmd.OutOrStdout(), "    %s\n", r.XURL)

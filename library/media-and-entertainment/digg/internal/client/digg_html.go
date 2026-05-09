@@ -17,6 +17,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -331,4 +332,98 @@ func (c *Client) SearchUsersFrom(ctx context.Context, baseURL, query string, lim
 		return nil, fmt.Errorf("decoding /api/search/users: %w", err)
 	}
 	return &out, nil
+}
+
+// userPeerFollowURLBase is the base path for the per-handle profile
+// page on di.gg. The HTML response carries a <meta name="description">
+// tag whose copy reveals the count of AI-1000 peers that follow the
+// subject — the metric Digg actually ranks the AI 1000 by. We only
+// need the meta description (a few hundred bytes), so a regex over
+// the HTML is dramatically cheaper than parsing the full DOM. The
+// base URL is overridable in tests via FetchUserPeerFollowCountFrom.
+const userPeerFollowURLBase = "https://di.gg/u/x"
+
+// userPeerFollowMetaRegex extracts the "followed by N tracked AI
+// influencers" count from the /u/x/<handle> meta description.
+// Verified by curl probe 2026-05-09:
+//
+//	<meta name="description" content="<DisplayName> is tracked in
+//	  the latest Digg AI graph — followed by 19 tracked AI
+//	  influencers on X."/>
+//
+// Tolerant on the trailing copy: matches "followed by N tracked AI
+// influencers" anywhere in the meta tag, regardless of dash flavor
+// (em-dash, en-dash, hyphen) or whether the suffix is "on X" or
+// something else upstream may rev to.
+var userPeerFollowMetaRegex = regexp.MustCompile(`followed by (\d+) tracked AI influencers`)
+
+// FetchUserPeerFollowCount GETs https://di.gg/u/x/<handle> and parses
+// the <meta name="description"> tag for the "followed by N tracked
+// AI influencers" phrase, returning N. This is the off-1000 path's
+// equivalent of the in-1000 author's `followed_by_count` from the
+// /ai/1000 RSC payload — the metric the AI 1000 is ranked by.
+//
+// Tolerances mirror the rest of the page-fetch surface:
+//
+//   - 404 from upstream → returns (0, nil). Digg renders a stable
+//     /u/x/<handle> page for handles it doesn't track, but if a
+//     future upstream change starts 404'ing for fully-untracked
+//     handles, treat that as "zero peers track this user" rather
+//     than a fatal error so off-1000 lookups keep working.
+//   - Meta description present but no match → returns (-1, error)
+//     so the caller can omit the field gracefully without claiming
+//     the user has zero peer-follows.
+//   - Non-200, non-404 status → returns (-1, error).
+//
+// Same impersonation/timeout/rate-limit guarantees as the other
+// page-level fetchers in this file.
+func (c *Client) FetchUserPeerFollowCount(ctx context.Context, handle string) (int, error) {
+	return c.FetchUserPeerFollowCountFrom(ctx, userPeerFollowURLBase+"/"+handle)
+}
+
+// FetchUserPeerFollowCountFrom is FetchUserPeerFollowCount with a
+// caller-supplied URL. Exists so unit tests can point at a local
+// httptest server.
+func (c *Client) FetchUserPeerFollowCountFrom(ctx context.Context, url string) (int, error) {
+	cctx, cancel := context.WithTimeout(ctx, c.ConfiguredTimeout())
+	defer cancel()
+
+	c.limiter.Wait()
+
+	req, err := http.NewRequestWithContext(cctx, http.MethodGet, url, nil)
+	if err != nil {
+		return -1, err
+	}
+	req.Header.Set("User-Agent", "digg-pp-cli/0.1.0 (+https://github.com/mvanhorn/printing-press-library)")
+	req.Header.Set("Accept", "text/html")
+
+	httpClient := c.HTTPClient
+	if httpClient == nil {
+		httpClient = &http.Client{Timeout: 30 * time.Second}
+	}
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return -1, fmt.Errorf("GET %s: %w", url, err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusNotFound {
+		// Handle Digg doesn't track at all → zero peer-follows.
+		return 0, nil
+	}
+	if resp.StatusCode != 200 {
+		return -1, fmt.Errorf("GET %s: HTTP %d", url, resp.StatusCode)
+	}
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return -1, fmt.Errorf("reading /u/x/<handle> body: %w", err)
+	}
+	m := userPeerFollowMetaRegex.FindSubmatch(body)
+	if len(m) < 2 {
+		return -1, fmt.Errorf("/u/x meta description missing 'followed by N tracked AI influencers' phrase; page shape may have changed")
+	}
+	n, err := strconv.Atoi(string(m[1]))
+	if err != nil {
+		return -1, fmt.Errorf("/u/x meta description peer count not an integer: %w", err)
+	}
+	return n, nil
 }
