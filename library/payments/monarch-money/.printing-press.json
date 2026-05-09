@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T19:36:00Z",
+  "printing_press_version": "4.2.1",
+  "api_name": "monarch-money",
+  "cli_name": "monarch-money-pp-cli",
+  "printer": "count",
+  "printer_name": "Count",
+  "spec_path": "printing-press-monarch-plan.md",
+  "run_id": "manual-plan-20260509",
+  "auth_type": "token"
+}
