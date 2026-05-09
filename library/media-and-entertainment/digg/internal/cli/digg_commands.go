@@ -1651,20 +1651,34 @@ Sortable by:
 			if ds == "local" {
 				source = "local"
 			} else {
-				// Live fetch + upsert.
-				html, ferr := fetchURL(ctx, "https://di.gg/ai/1000")
-				if ferr != nil {
-					fmt.Fprintf(cmd.ErrOrStderr(), "warning: live /ai/1000 fetch failed (%v); falling back to local cache\n", ferr)
+				// Live fetch + upsert. Route through the shared Client
+				// so the request honors --rate-limit / --timeout and
+				// shares the impersonated transport with the rest of
+				// the digg CLI's page fetchers (FetchClusterPosts,
+				// SearchStories, SearchUsers, FetchUserPeerFollowCount).
+				// Bypassing the Client here used to skip the limiter,
+				// which is dangerous for a 200KB+ /ai/1000 page.
+				c, cerr := flags.newClient()
+				if cerr != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: building client for /ai/1000 fetch failed (%v); falling back to local cache\n", cerr)
 					source = "local"
 				} else {
-					authors, perr := diggparse.ParseRoster1000(html)
-					if perr != nil && len(authors) == 0 {
-						fmt.Fprintf(cmd.ErrOrStderr(), "warning: /ai/1000 parse failed (%v); falling back to local cache\n", perr)
+					var (
+						authors []diggparse.Roster1000Author
+						ferr    error
+					)
+					if roster1000URLOverride != "" {
+						authors, ferr = c.FetchRoster1000From(ctx, roster1000URLOverride)
+					} else {
+						authors, ferr = c.FetchRoster1000(ctx)
+					}
+					if ferr != nil && len(authors) == 0 {
+						fmt.Fprintf(cmd.ErrOrStderr(), "warning: live /ai/1000 fetch failed (%v); falling back to local cache\n", ferr)
 						source = "local"
 					} else {
-						if perr != nil {
+						if ferr != nil {
 							// Partial parse — keep going.
-							fmt.Fprintf(cmd.ErrOrStderr(), "warning: /ai/1000 partial parse: %v\n", perr)
+							fmt.Fprintf(cmd.ErrOrStderr(), "warning: /ai/1000 partial parse: %v\n", ferr)
 						}
 						if _, err := diggstore.UpsertRoster1000(db, authors, time.Now().UTC()); err != nil {
 							return fmt.Errorf("persisting roster: %w", err)
@@ -2023,14 +2037,21 @@ meta.tier_status_resolved: false.`,
 				"query":  handle,
 			}
 
+			// Hoist all per-candidate-shared work (DB open, rank-1000
+			// anchor with live fallback, HTTP client) out of the fuzzy
+			// loop so a 5-candidate fuzzy fallback pays for one of each
+			// rather than five.
+			env := computeAuthorGetEnv(ctx, cmd, flags)
+			defer env.closeFn()
+
 			if exact != nil {
-				record, resolved := buildAuthorGetResult(ctx, cmd, flags, *exact, "exact")
+				record, resolved := buildAuthorGetResult(ctx, cmd, env, *exact, "exact")
 				meta["match_type"] = "exact"
 				meta["count"] = 1
 				meta["tier_status_resolved"] = resolved
 				if flags.asJSON {
-					env := authorGetEnvelopeExact{Meta: meta, Result: record}
-					return printJSONFiltered(cmd.OutOrStdout(), env, flags)
+					out := authorGetEnvelopeExact{Meta: meta, Result: record}
+					return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 				}
 				printAuthorGetHuman(cmd, record)
 				return nil
@@ -2042,7 +2063,7 @@ meta.tier_status_resolved: false.`,
 			fuzzy := make([]authorGetResult, 0, len(resp.Results))
 			anyUnresolved := false
 			for _, r := range resp.Results {
-				record, resolved := buildAuthorGetResult(ctx, cmd, flags, r, "fuzzy")
+				record, resolved := buildAuthorGetResult(ctx, cmd, env, r, "fuzzy")
 				if !resolved && record.CurrentRank == nil {
 					anyUnresolved = true
 				}
@@ -2063,8 +2084,8 @@ meta.tier_status_resolved: false.`,
 			meta["tier_status_resolved"] = !anyUnresolved
 
 			if flags.asJSON {
-				env := authorGetEnvelopeFuzzy{Meta: meta, Results: fuzzy}
-				return printJSONFiltered(cmd.OutOrStdout(), env, flags)
+				out := authorGetEnvelopeFuzzy{Meta: meta, Results: fuzzy}
+				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 			}
 			if len(fuzzy) == 0 {
 				return emptyHint(cmd, fmt.Sprintf("no matches for %q on /api/search/users.", handle))
@@ -2080,9 +2101,69 @@ meta.tier_status_resolved: false.`,
 	return cmd
 }
 
+// authorGetEnv carries the per-invocation shared state used by
+// buildAuthorGetResult so a fuzzy-fallback list of N candidates only
+// pays for one DB open, one rank-1000 anchor lookup (with optional
+// live fallback), and one Client construction — not N of each.
+//
+// `anchor` is nil when the rank-1000 anchor couldn't be resolved
+// (cache cold + live fallback failure). `anchorOK` is the matching
+// resolved bit. Callers don't need to recompute either; they only
+// gate per-candidate decisions on them.
+//
+// `db` is owned by the caller (computeAuthorGetEnv's caller is
+// responsible for closing it via the returned closeFn). Per-candidate
+// reads (`lookupGithubURL`, `loadRank1000AnchorForDB`, FTS hits) all
+// share this single SQLite handle so we don't open one per candidate.
+//
+// `httpClient` is the shared *client.Client used for /u/x/<handle>
+// peer-follow fetches across candidates. nil means client construction
+// failed at env setup time; per-candidate paths fall back to "subject
+// peer-follow not available" rather than rebuilding it.
+type authorGetEnv struct {
+	db         *sql.DB
+	closeFn    func() error
+	anchor     *nearestIn1000Anch
+	anchorOK   bool
+	httpClient *client.Client
+}
+
+// computeAuthorGetEnv opens the shared store, resolves the rank-1000
+// anchor once (with live fallback when allowed), and constructs the
+// shared HTTP Client. The returned env's `closeFn` MUST be called by
+// the caller once the per-candidate loop is done.
+//
+// Failures degrade gracefully:
+//
+//   - DB open failure → env.db is nil; per-candidate DB lookups skip
+//     silently. The closeFn is still safe to call.
+//   - Anchor resolution failure (cache miss + live fetch failure) →
+//     env.anchor is nil and env.anchorOK is false. Per-candidate
+//     off-1000 paths will surface partial data without nearest_in_1000.
+//   - Client construction failure → env.httpClient is nil. Per-
+//     candidate off-1000 paths will skip the subject peer-follow fetch.
+func computeAuthorGetEnv(ctx context.Context, cmd *cobra.Command, flags *rootFlags) authorGetEnv {
+	env := authorGetEnv{closeFn: func() error { return nil }}
+	if _, db, closeFn, err := openStore(ctx); err == nil {
+		env.db = db
+		env.closeFn = closeFn
+	} else {
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: opening local store for authors get failed: %v\n", err)
+	}
+	if env.db != nil {
+		env.anchor, env.anchorOK = loadRank1000AnchorForDB(ctx, cmd, env.db, true /* allowLiveFallback */, flags)
+	}
+	if c, err := flags.newClient(); err == nil {
+		env.httpClient = c
+	} else {
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: building client for authors get peer-follow fetches failed: %v\n", err)
+	}
+	return env
+}
+
 // buildAuthorGetResult promotes one UsersSearchResult into the CLI's
 // authorGetResult shape. Mints xUrl, computes tier_status, and (for
-// off-1000) loads the rank-1000 anchor and the subject's
+// off-1000) attaches the rank-1000 anchor and the subject's
 // peer-follow count for the distance view. Returns the result and a
 // `tierResolved` bool: true when in_1000 OR when off_1000 with BOTH
 // a successful anchor lookup AND a successful subject peer-follow
@@ -2094,7 +2175,11 @@ meta.tier_status_resolved: false.`,
 // the rank-1000 anchor); if the anchor fails we still emit
 // subject_peer_follow_count (caller sees the subject's standing).
 // peer_follow_gap is only emitted when both sides resolve.
-func buildAuthorGetResult(ctx context.Context, cmd *cobra.Command, flags *rootFlags, src client.UsersSearchResult, matchType string) (authorGetResult, bool) {
+//
+// `env` carries shared state hoisted out of the fuzzy-candidate loop
+// so calling this for N candidates pays only one DB open, one anchor
+// lookup, and one client construction across the batch.
+func buildAuthorGetResult(ctx context.Context, cmd *cobra.Command, env authorGetEnv, src client.UsersSearchResult, matchType string) (authorGetResult, bool) {
 	out := authorGetResult{
 		XID:             src.XID,
 		Username:        src.Username,
@@ -2117,31 +2202,30 @@ func buildAuthorGetResult(ctx context.Context, cmd *cobra.Command, flags *rootFl
 	// githubUrl is normal and not a partial-result signal.
 	if src.CurrentRank != nil {
 		out.TierStatus = "in_1000"
-		if gh := lookupGithubURLForUser(ctx, src.Username); gh != "" {
+		if gh := lookupGithubURLForDB(ctx, env.db, src.Username); gh != "" {
 			out.GithubURL = gh
 		}
 		return out, true
 	}
 
-	// Off-1000 path: try to resolve the rank-1000 anchor and the
-	// subject's peer-follow count independently. The two halves can
-	// fail separately; we surface whichever resolved and only emit
+	// Off-1000 path: surface the pre-computed rank-1000 anchor and
+	// fetch the subject's peer-follow count. The two halves can fail
+	// separately; we surface whichever resolved and only emit
 	// peer_follow_gap when both did.
 	out.TierStatus = "off_1000"
-	if gh := lookupGithubURLForUser(ctx, src.Username); gh != "" {
+	if gh := lookupGithubURLForDB(ctx, env.db, src.Username); gh != "" {
 		out.GithubURL = gh
 	}
-	anchor, anchorOK := loadRank1000Anchor(ctx, cmd, true /* allowLiveFallback */)
-	if anchorOK {
-		out.NearestIn1000 = anchor
+	if env.anchorOK {
+		out.NearestIn1000 = env.anchor
 	}
-	subjectPeerFollow, subjectOK := fetchSubjectPeerFollowCount(ctx, cmd, flags, src.Username)
+	subjectPeerFollow, subjectOK := fetchSubjectPeerFollowCountWithClient(ctx, cmd, env.httpClient, src.Username)
 	if subjectOK {
 		spf := subjectPeerFollow
 		out.SubjectPeerFollowCount = &spf
 	}
-	if anchorOK && subjectOK {
-		gap := anchor.PeerFollowCount - subjectPeerFollow
+	if env.anchorOK && subjectOK {
+		gap := env.anchor.PeerFollowCount - subjectPeerFollow
 		out.PeerFollowGap = &gap
 		return out, true
 	}
@@ -2155,28 +2239,28 @@ func buildAuthorGetResult(ctx context.Context, cmd *cobra.Command, flags *rootFl
 // Production code never sets this.
 var userPeerFollowURLOverride string
 
-// fetchSubjectPeerFollowCount calls /u/x/<handle> via the client
-// helper and returns the parsed peer-follow count. Logs warnings to
-// stderr on failure (404 is silent — that's a legitimate "Digg
-// doesn't track this handle" zero, returned through the client) so
-// operators can debug without the rest of the response failing.
+// fetchSubjectPeerFollowCountWithClient calls /u/x/<handle> via the
+// caller-supplied shared *client.Client and returns the parsed
+// peer-follow count. Logs warnings to stderr on failure (404 is
+// silent — that's a legitimate "Digg doesn't track this handle"
+// zero, returned through the client) so operators can debug without
+// the rest of the response failing.
 //
 // Returns (n, true) on success, (0, false) on any kind of failure
-// (network, non-200/non-404 status, missing meta tag, bad parse).
+// (network, non-200/non-404 status, missing meta tag, bad parse, or
+// nil client passed in).
 //
-// Reuses the same client construction the live /api/search/users
-// call already used so timeout, rate-limit, and impersonation match
-// the rest of the request flow.
-func fetchSubjectPeerFollowCount(ctx context.Context, cmd *cobra.Command, flags *rootFlags, username string) (int, bool) {
-	if username == "" {
+// Reusing the caller-supplied client across candidates keeps the
+// rate limiter, timeout, and impersonated transport pool shared so
+// a 5-candidate fuzzy fallback doesn't construct 5 clients.
+func fetchSubjectPeerFollowCountWithClient(ctx context.Context, cmd *cobra.Command, c *client.Client, username string) (int, bool) {
+	if username == "" || c == nil {
 		return 0, false
 	}
-	c, err := flags.newClient()
-	if err != nil {
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: building client for /u/x/%s peer-follow fetch failed: %v\n", username, err)
-		return 0, false
-	}
-	var n int
+	var (
+		n   int
+		err error
+	)
 	if userPeerFollowURLOverride != "" {
 		n, err = c.FetchUserPeerFollowCountFrom(ctx, userPeerFollowURLOverride+"/"+username)
 	} else {
@@ -2189,19 +2273,18 @@ func fetchSubjectPeerFollowCount(ctx context.Context, cmd *cobra.Command, flags 
 	return n, true
 }
 
-// lookupGithubURLForUser checks the local digg_authors cache for a
-// stored github_url for the given username. Best-effort: returns ""
-// when the store is missing, the user isn't cached, or the column is
-// empty. Never panics, never blocks the live flow on a DB error.
-func lookupGithubURLForUser(ctx context.Context, username string) string {
-	if username == "" {
+// lookupGithubURLForDB checks the digg_authors row for a stored
+// github_url for the given username, using a caller-supplied SQLite
+// handle. Best-effort: returns "" when the DB handle is nil, the
+// user isn't cached, or the column is empty. Never panics, never
+// blocks the live flow on a DB error.
+//
+// Sharing the DB handle across candidates avoids opening one SQLite
+// connection per fuzzy-fallback row.
+func lookupGithubURLForDB(ctx context.Context, db *sql.DB, username string) string {
+	if username == "" || db == nil {
 		return ""
 	}
-	_, db, closeFn, err := openStore(ctx)
-	if err != nil {
-		return ""
-	}
-	defer closeFn()
 	var gh sql.NullString
 	row := db.QueryRowContext(ctx,
 		`SELECT github_url FROM digg_authors WHERE LOWER(username) = LOWER(?) LIMIT 1`, username)
@@ -2214,51 +2297,50 @@ func lookupGithubURLForUser(ctx context.Context, username string) string {
 	return gh.String
 }
 
-// loadRank1000Anchor returns the rank-1000 author from the local
-// digg_authors cache. When `allowLiveFallback` is true and the cache
-// has no rank=1000 row, it does a one-shot live /ai/1000 fetch +
-// upsert + re-query (the same path `authors list` would take).
+// loadRank1000AnchorForDB returns the rank-1000 author using the
+// caller-supplied SQLite handle. When `allowLiveFallback` is true and
+// the cache has no rank=1000 row, it does a one-shot live /ai/1000
+// fetch + upsert + re-query (the same path `authors list` would
+// take), routed through the shared *client.Client so the request
+// honors --rate-limit / --timeout.
 //
 // Returns (anchor, true) on success; (nil, false) when neither
 // source resolved a row. Logs the live fetch failure to stderr so
 // operators can debug without breaking the rest of the response.
 //
-// This function deliberately re-opens the store (rather than taking
-// a *sql.DB parameter) so the caller flow stays uniform regardless
-// of whether the rest of the command path needs DB access. The cost
-// is one extra Open per off-1000 result; in practice that's at most
-// once per `authors get` invocation since exact matches dominate.
-func loadRank1000Anchor(ctx context.Context, cmd *cobra.Command, allowLiveFallback bool) (*nearestIn1000Anch, bool) {
-	_, db, closeFn, err := openStore(ctx)
-	if err != nil {
-		// No store = nothing we can do; the live fallback would also
-		// need to upsert through this same path.
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: opening local store for rank-1000 anchor failed: %v\n", err)
+// Hoisted out of the per-candidate loop: a fuzzy fallback with N
+// candidates pays for at most one anchor lookup (and at most one
+// live fetch) instead of N.
+func loadRank1000AnchorForDB(ctx context.Context, cmd *cobra.Command, db *sql.DB, allowLiveFallback bool, flags *rootFlags) (*nearestIn1000Anch, bool) {
+	if db == nil {
 		return nil, false
 	}
-	defer closeFn()
-
 	if anchor, ok := readRank1000FromDB(ctx, db); ok {
 		return anchor, true
 	}
-
 	if !allowLiveFallback {
 		return nil, false
 	}
 
-	// Cache cold: do the same fetch + upsert `authors list` does.
-	url := "https://di.gg/ai/1000"
-	if roster1000URLOverride != "" {
-		url = roster1000URLOverride
-	}
-	html, ferr := fetchURL(ctx, url)
-	if ferr != nil {
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: live /ai/1000 fetch for rank-1000 anchor failed: %v\n", ferr)
+	// Cache cold: do the same fetch + upsert `authors list` does,
+	// through the shared Client so the request goes through the
+	// rate limiter and impersonated transport.
+	c, err := flags.newClient()
+	if err != nil {
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: building client for /ai/1000 anchor fetch failed: %v\n", err)
 		return nil, false
 	}
-	authors, perr := diggparse.ParseRoster1000(html)
+	var (
+		authors []diggparse.Roster1000Author
+		perr    error
+	)
+	if roster1000URLOverride != "" {
+		authors, perr = c.FetchRoster1000From(ctx, roster1000URLOverride)
+	} else {
+		authors, perr = c.FetchRoster1000(ctx)
+	}
 	if perr != nil && len(authors) == 0 {
-		fmt.Fprintf(cmd.ErrOrStderr(), "warning: /ai/1000 parse for rank-1000 anchor failed: %v\n", perr)
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: live /ai/1000 fetch for rank-1000 anchor failed: %v\n", perr)
 		return nil, false
 	}
 	if perr != nil {

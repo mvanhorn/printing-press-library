@@ -34,6 +34,7 @@ package diggparse
 import (
 	"encoding/json"
 	"fmt"
+	"html"
 	"regexp"
 	"sort"
 	"strings"
@@ -206,18 +207,18 @@ func xAnchorPosition(html []byte, postXID string) int {
 //     Failing that, retweets/quotes that look like the page's
 //     "primary" post get the strict-class body anchor as a last
 //     resort.
-func attachDOMFields(html []byte, posts []*ClusterPost) {
+func attachDOMFields(htmlBytes []byte, posts []*ClusterPost) {
 	type anchor struct {
 		offset int
 		idx    int // index in posts slice
 	}
-	htmlStr := string(html)
+	htmlStr := string(htmlBytes)
 
 	// Locate every post's anchor offset.
 	anchors := make([]anchor, 0, len(posts))
 	unresolved := make([]int, 0)
 	for i, p := range posts {
-		off := xAnchorPosition(html, p.PostXID)
+		off := xAnchorPosition(htmlBytes, p.PostXID)
 		if off < 0 {
 			unresolved = append(unresolved, i)
 			continue
@@ -270,6 +271,11 @@ func attachDOMFields(html []byte, posts []*ClusterPost) {
 		// Body: try the strict (top "Original post") class first within
 		// the window. If not found, fall back to the compact preview
 		// class. If neither matches, body stays nil (body_loaded=false).
+		//
+		// Bodies are run through html.UnescapeString because Next.js SSR
+		// HTML-encodes &, <, >, ", and ' in the rendered text. Without
+		// decoding, callers see &amp; / &lt; / &gt; / &quot; / &#39;
+		// instead of the original characters.
 		if i == 0 {
 			// The strict-class body for the top post may be rendered
 			// just BEFORE its anchor (inside the fieldset). Scan from
@@ -277,36 +283,41 @@ func attachDOMFields(html []byte, posts []*ClusterPost) {
 			// catch it.
 			topWindow := htmlStr[:end]
 			if m := bodyStrictRE.FindStringSubmatch(topWindow); len(m) > 1 {
-				body := m[1]
+				body := html.UnescapeString(m[1])
 				p.Body = &body
 				p.BodyLoaded = true
 			}
 		}
 		if p.Body == nil {
 			if m := bodyStrictRE.FindStringSubmatch(window); len(m) > 1 {
-				body := m[1]
+				body := html.UnescapeString(m[1])
 				p.Body = &body
 				p.BodyLoaded = true
 			}
 		}
 		if p.Body == nil {
 			if m := bodyCompactRE.FindStringSubmatch(window); len(m) > 1 {
-				body := m[1]
+				body := html.UnescapeString(m[1])
 				p.Body = &body
 				p.BodyLoaded = true
 			}
 		}
 
 		// Media: every pbs.twimg href anchor inside the window, deduped
-		// in first-appearance order.
+		// in first-appearance order. The capture is restricted to
+		// `[A-Za-z0-9_-]+\.[A-Za-z0-9]+` so it can't contain a literal
+		// `&amp;` query separator today, but we still decode entities
+		// defensively in case the regex is broadened to accept query
+		// strings later.
 		seen := make(map[string]bool)
 		for _, m := range mediaRE.FindAllStringSubmatch(window, -1) {
 			if len(m) < 2 {
 				continue
 			}
-			if !seen[m[1]] {
-				seen[m[1]] = true
-				p.MediaURLs = append(p.MediaURLs, m[1])
+			decoded := html.UnescapeString(m[1])
+			if !seen[decoded] {
+				seen[decoded] = true
+				p.MediaURLs = append(p.MediaURLs, decoded)
 			}
 		}
 	}

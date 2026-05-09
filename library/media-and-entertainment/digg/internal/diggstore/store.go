@@ -532,11 +532,31 @@ func nullableInt(v int) any {
 //
 // Each upsert also writes a parallel row into digg_authors_fts so that
 // `search "<keyword>" --data-source local` can match on bio text.
+//
+// All 3000+ statements (one main upsert + one FTS delete + one FTS
+// insert per author) run inside a single transaction. If any statement
+// fails mid-loop we ROLLBACK so digg_authors and digg_authors_fts can't
+// drift out of sync (e.g. main row updated but FTS row missing or
+// stale). Returns the count actually committed; on error returns 0
+// and the wrapped failure.
 func UpsertRoster1000(db *sql.DB, authors []diggparse.Roster1000Author, fetchedAt time.Time) (int, error) {
 	if len(authors) == 0 {
 		return 0, nil
 	}
 	now := fetchedAt.UTC().Format(time.RFC3339Nano)
+
+	tx, err := db.Begin()
+	if err != nil {
+		return 0, fmt.Errorf("begin roster transaction: %w", err)
+	}
+	// Deferred rollback is a no-op after a successful commit (sql.ErrTxDone).
+	committed := false
+	defer func() {
+		if !committed {
+			_ = tx.Rollback()
+		}
+	}()
+
 	written := 0
 	for _, a := range authors {
 		if a.Username == "" {
@@ -555,12 +575,12 @@ func UpsertRoster1000(db *sql.DB, authors []diggparse.Roster1000Author, fetchedA
 		}
 		var vibeJSON any
 		if len(a.VibeDistribution) > 0 {
-			b, err := json.Marshal(a.VibeDistribution)
-			if err == nil {
+			b, jerr := json.Marshal(a.VibeDistribution)
+			if jerr == nil {
 				vibeJSON = string(b)
 			}
 		}
-		_, err := db.Exec(`
+		_, err := tx.Exec(`
 			INSERT INTO digg_authors (
 				username, display_name, x_id, avatar_url,
 				rank, previous_rank, rank_change, score,
@@ -607,21 +627,26 @@ func UpsertRoster1000(db *sql.DB, authors []diggparse.Roster1000Author, fetchedA
 			a.ProfileImageURL, now,
 		)
 		if err != nil {
-			return written, fmt.Errorf("upsert roster author %s: %w", a.Username, err)
+			return 0, fmt.Errorf("upsert roster author %s: %w", a.Username, err)
 		}
 
 		// FTS row: refresh atomically.
-		if _, err := db.Exec(`DELETE FROM digg_authors_fts WHERE username = ?`, a.Username); err != nil {
-			return written, fmt.Errorf("fts delete @%s: %w", a.Username, err)
+		if _, err := tx.Exec(`DELETE FROM digg_authors_fts WHERE username = ?`, a.Username); err != nil {
+			return 0, fmt.Errorf("fts delete @%s: %w", a.Username, err)
 		}
-		if _, err := db.Exec(`
+		if _, err := tx.Exec(`
 			INSERT INTO digg_authors_fts (username, display_name, bio, category)
 			VALUES (?,?,?,?)
 		`, a.Username, a.DisplayName, a.Bio, a.Category); err != nil {
-			return written, fmt.Errorf("fts insert @%s: %w", a.Username, err)
+			return 0, fmt.Errorf("fts insert @%s: %w", a.Username, err)
 		}
 		written++
 	}
+
+	if err := tx.Commit(); err != nil {
+		return 0, fmt.Errorf("commit roster transaction: %w", err)
+	}
+	committed = true
 	return written, nil
 }
 

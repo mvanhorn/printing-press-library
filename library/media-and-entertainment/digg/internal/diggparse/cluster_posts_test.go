@@ -216,6 +216,72 @@ func TestParseClusterPosts_LazyLoadedBodyIsNullNotDropped(t *testing.T) {
 	}
 }
 
+func TestParseClusterPosts_BodyHTMLEntitiesDecoded(t *testing.T) {
+	// Next.js SSR HTML-encodes &, <, >, ", and ' inside the rendered
+	// body paragraph. Without entity decoding, callers see &amp; /
+	// &lt; / &gt; / &quot; / &#39; instead of the original characters.
+	// Synthesize a fixture-shaped page whose strict-class body contains
+	// every HTML-entity flavor we expect upstream to emit, then assert
+	// the parsed body comes back with those entities decoded.
+	html := []byte(`<html><body>` +
+		`<a href="https://x.com/foo/status/1111" target="_blank">link</a>` +
+		`<p class="wrap-anywhere whitespace-pre-wrap font-sans text-base leading-6 text-foreground">a &amp; b &lt; c &gt; d &quot;e&quot; &#39;f&#39;</p>` +
+		`<script>self.__next_f.push([1,"\"posts\":[{\"post_x_id\":\"1111\",\"posted_at\":\"2026-05-09T08:02:21+00:00\",\"post_type\":\"tweet\",\"author_username\":\"foo\",\"author_display_name\":\"Foo\",\"author_category\":\"Researcher\",\"author_profile_image_url\":\"\",\"author_rank\":1}]"])</script>` +
+		`</body></html>`)
+	posts, err := ParseClusterPosts(html)
+	if err != nil {
+		t.Fatalf("ParseClusterPosts: %v", err)
+	}
+	if len(posts) != 1 {
+		t.Fatalf("expected 1 post; got %d", len(posts))
+	}
+	p := posts[0]
+	if !p.BodyLoaded || p.Body == nil {
+		t.Fatalf("expected body to be loaded; got loaded=%v body=%v", p.BodyLoaded, p.Body)
+	}
+	want := `a & b < c > d "e" 'f'`
+	if *p.Body != want {
+		t.Errorf("body = %q, want %q (HTML entities should be decoded)", *p.Body, want)
+	}
+}
+
+func TestParseClusterPosts_BodyCompactClassEntitiesDecoded(t *testing.T) {
+	// Same coverage for the compact-class fallback used on the
+	// expand-on-hover row list. Two posts: the first with an X anchor
+	// the strict-class body matches against, the second whose body is
+	// rendered in the compact-class paragraph and contains entities.
+	html := []byte(`<html><body>` +
+		`<a href="https://x.com/foo/status/1111" target="_blank">link</a>` +
+		`<p class="wrap-anywhere whitespace-pre-wrap font-sans text-base leading-6 text-foreground">eager body</p>` +
+		`<a href="https://x.com/bar/status/2222" target="_blank">link</a>` +
+		`<p class="wrap-anywhere text-foreground">x &amp; y &lt; z &quot;ok&quot;</p>` +
+		`<script>self.__next_f.push([1,"\"posts\":[{\"post_x_id\":\"1111\",\"posted_at\":\"2026-05-09T08:02:21+00:00\",\"post_type\":\"tweet\",\"author_username\":\"foo\",\"author_display_name\":\"Foo\",\"author_category\":\"Researcher\",\"author_profile_image_url\":\"\",\"author_rank\":1},{\"post_x_id\":\"2222\",\"posted_at\":\"2026-05-09T08:03:21+00:00\",\"post_type\":\"reply\",\"author_username\":\"bar\",\"author_display_name\":\"Bar\",\"author_category\":\"Creator\",\"author_profile_image_url\":\"\",\"author_rank\":2}]"])</script>` +
+		`</body></html>`)
+	posts, err := ParseClusterPosts(html)
+	if err != nil {
+		t.Fatalf("ParseClusterPosts: %v", err)
+	}
+	if len(posts) != 2 {
+		t.Fatalf("expected 2 posts; got %d", len(posts))
+	}
+	var compact *ClusterPost
+	for i := range posts {
+		if posts[i].PostXID == "2222" {
+			compact = &posts[i]
+		}
+	}
+	if compact == nil {
+		t.Fatal("expected post 2222 in result")
+	}
+	if !compact.BodyLoaded || compact.Body == nil {
+		t.Fatalf("compact body not loaded; loaded=%v body=%v", compact.BodyLoaded, compact.Body)
+	}
+	want := `x & y < z "ok"`
+	if *compact.Body != want {
+		t.Errorf("compact body = %q, want %q", *compact.Body, want)
+	}
+}
+
 func TestExtractClusterPosts_MalformedChunkSurfacedNotPanic(t *testing.T) {
 	// Same shape as the roster_1000 test: keep braces balanced so the
 	// scanObjectsContaining helper hands the chunk to the JSON decoder,

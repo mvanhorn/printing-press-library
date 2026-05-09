@@ -285,6 +285,42 @@ func TestUpsertRoster1000_TwiceUpdatesNoDup(t *testing.T) {
 	}
 }
 
+func TestUpsertRoster1000_RollbackOnFTSFailure(t *testing.T) {
+	// Verify the whole roster upsert is atomic: if the FTS write fails
+	// mid-loop, the main digg_authors table must roll back too so
+	// digg_authors and digg_authors_fts can't drift out of sync.
+	//
+	// To force a failure, drop the digg_authors_fts table after schema
+	// init. The first author's main INSERT will succeed inside the
+	// transaction; the subsequent FTS DELETE will fail with "no such
+	// table"; the transaction rolls back; digg_authors must be empty.
+	db := openTempDB(t)
+	if _, err := db.Exec(`DROP TABLE digg_authors_fts`); err != nil {
+		t.Fatalf("dropping FTS table: %v", err)
+	}
+
+	now := time.Date(2026, 5, 9, 12, 0, 0, 0, time.UTC)
+	in := []diggparse.Roster1000Author{
+		{Rank: 5, Username: "alice", DisplayName: "Alice", Score: 1.0, Category: "Researcher"},
+		{Rank: 6, Username: "bob", DisplayName: "Bob", Score: 0.9, Category: "Founder"},
+	}
+	written, err := UpsertRoster1000(db, in, now)
+	if err == nil {
+		t.Fatal("expected UpsertRoster1000 to fail because the FTS table is gone")
+	}
+	if written != 0 {
+		t.Errorf("on rollback written should be 0; got %d", written)
+	}
+	// Main table must NOT contain partial rows from before the failure.
+	var n int
+	if err := db.QueryRow(`SELECT COUNT(*) FROM digg_authors`).Scan(&n); err != nil {
+		t.Fatalf("counting digg_authors: %v", err)
+	}
+	if n != 0 {
+		t.Errorf("rollback failed: digg_authors has %d rows, want 0 (transaction should have undone the main INSERT)", n)
+	}
+}
+
 func TestUpsertRoster1000_BioQueryableViaFTS5(t *testing.T) {
 	db := openTempDB(t)
 	now := time.Date(2026, 5, 9, 12, 0, 0, 0, time.UTC)
