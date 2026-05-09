@@ -816,3 +816,80 @@ func TestBackoff_NegativeAttemptClampsToZero(t *testing.T) {
 		t.Errorf("Backoff(-3) = %v, want 1s (clamped to 0)", got)
 	}
 }
+
+// ---- ParseDiggAge ----
+
+// TestParseDiggAge_ValidFormats covers every shape Digg's `firstPostAge`
+// field returns plus the `Nm` extension used by --since. Constants here
+// must match the values the search command compares against, so a
+// regression in arithmetic surfaces here rather than via a flaky
+// network-driven CLI test.
+func TestParseDiggAge_ValidFormats(t *testing.T) {
+	cases := []struct {
+		in   string
+		want time.Duration
+	}{
+		{"2d", 48 * time.Hour},
+		{"26d", 624 * time.Hour},
+		{"3w", 504 * time.Hour},
+		{"5h", 5 * time.Hour},
+		{"1m", 30 * 24 * time.Hour}, // 1 month = 30 days
+		{"30d", 30 * 24 * time.Hour},
+		{"1h", 1 * time.Hour},
+		// Case-insensitive: a typo'd capital letter must not error so
+		// callers that copy-paste from Digg's UI strings (which are
+		// usually lowercase but not guaranteed) work uniformly.
+		{"5H", 5 * time.Hour},
+		{"7D", 7 * 24 * time.Hour},
+		{"3W", 3 * 7 * 24 * time.Hour},
+		// Whitespace tolerated; trimmed before parse.
+		{" 7d ", 7 * 24 * time.Hour},
+	}
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.in, func(t *testing.T) {
+			got, err := ParseDiggAge(tc.in)
+			if err != nil {
+				t.Fatalf("ParseDiggAge(%q): unexpected error: %v", tc.in, err)
+			}
+			if got != tc.want {
+				t.Errorf("ParseDiggAge(%q) = %v, want %v", tc.in, got, tc.want)
+			}
+		})
+	}
+}
+
+// TestParseDiggAge_RejectsMalformed confirms every input that should
+// produce an error does — never silently. The search filter keeps
+// records whose firstPostAge fails to parse (better than dropping), so
+// the err return is the only signal the caller has that the value
+// wasn't understood.
+func TestParseDiggAge_RejectsMalformed(t *testing.T) {
+	bad := []string{
+		"forever",
+		"",
+		"   ",
+		"abc",
+		"5",        // no unit
+		"d",        // no number
+		"5y",       // unknown unit (years not supported)
+		"5x",       // unknown unit
+		"5.5d",     // not an integer
+		"five-d",   // not parseable as int
+		"5dd",      // double-suffix
+		"-3d",      // negative
+		"0d",       // zero
+		"0h",       // zero
+		"-1h",      // negative
+		"1.5h",     // non-integer
+	}
+	for _, in := range bad {
+		in := in
+		t.Run(in, func(t *testing.T) {
+			d, err := ParseDiggAge(in)
+			if err == nil {
+				t.Errorf("ParseDiggAge(%q) = %v, want error", in, d)
+			}
+		})
+	}
+}

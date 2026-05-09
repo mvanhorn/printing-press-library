@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggparse"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggstore"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/store"
@@ -340,6 +341,7 @@ type searchEnvelope struct {
 
 func newSearchCmd(flags *rootFlags) *cobra.Command {
 	var limit int
+	var sinceStr string
 	cmd := &cobra.Command{
 		Use:   "search [query]",
 		Short: "Cluster search: live /api/search/stories by default, local FTS5 fallback",
@@ -352,12 +354,18 @@ window, not just the locally-synced snapshot.
 
 Falls back to the local FTS5 store (digg_clusters_fts) on network error,
 or when --data-source local is passed. The local path searches today's
-synced clusters by title/label/TLDR.`,
+synced clusters by title/label/TLDR.
+
+The --since flag filters by how recently each cluster was first posted.
+Live mode parses Digg's own firstPostAge ("2d", "26d", "5h"); local
+mode filters by the digg_clusters.first_post_at column. Accepts the
+formats Digg returns (Nh, Nd, Nw) plus Nm for months (~30 days).`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Example: `  digg-pp-cli search "openai gpt-5"
+  digg-pp-cli search "<topic>" --since 30d --agent
+  digg-pp-cli search "claude" --since 7d --json
   digg-pp-cli search "robotics" --json --select clusterUrlId,title,rank,postCount
-  digg-pp-cli search "claude" --data-source local
-  digg-pp-cli search "<topic>" --agent`,
+  digg-pp-cli search "claude" --data-source local`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -371,6 +379,18 @@ synced clusters by title/label/TLDR.`,
 			}
 			ctx := cmd.Context()
 
+			// Parse --since once up front so a malformed value is surfaced
+			// as a usage error before we hit the network or the store. A
+			// zero `since` (when the flag is empty) signals "no filter."
+			var since time.Duration
+			if s := strings.TrimSpace(sinceStr); s != "" {
+				d, err := cliutil.ParseDiggAge(s)
+				if err != nil {
+					return usageErr(fmt.Errorf("--since %q: %w (accepts Nh, Nd, Nw, Nm; e.g. 30d)", sinceStr, err))
+				}
+				since = d
+			}
+
 			// Branch on --data-source.
 			ds := flags.dataSource
 			if ds == "" {
@@ -382,9 +402,13 @@ synced clusters by title/label/TLDR.`,
 				source  string
 			)
 
+			// Filter must run BEFORE limit so callers don't end up with
+			// fewer than --limit results when the upstream returned more.
+			// We pass `since` into both branches; live filters in-memory
+			// on `firstPostAge`, local filters in-SQL on first_post_at.
 			switch ds {
 			case "local":
-				lr, err := localSearch(ctx, query, limit)
+				lr, err := localSearch(ctx, query, limit, since)
 				if err != nil {
 					return err
 				}
@@ -392,7 +416,7 @@ synced clusters by title/label/TLDR.`,
 				source = "local"
 
 			case "live":
-				lr, err := liveSearch(ctx, flags, query, limit)
+				lr, err := liveSearch(ctx, flags, query, limit, since)
 				if err != nil {
 					return err
 				}
@@ -400,13 +424,13 @@ synced clusters by title/label/TLDR.`,
 				source = "live"
 
 			default: // "auto"
-				lr, err := liveSearch(ctx, flags, query, limit)
+				lr, err := liveSearch(ctx, flags, query, limit, since)
 				if err == nil {
 					results = lr
 					source = "live"
 				} else {
 					fmt.Fprintf(cmd.ErrOrStderr(), "falling back to local FTS5: %v\n", err)
-					fallback, ferr := localSearch(ctx, query, limit)
+					fallback, ferr := localSearch(ctx, query, limit, since)
 					if ferr != nil {
 						// Live failed and local failed too; surface the live error
 						// (more actionable than a "no synced data" hint when network
@@ -420,12 +444,16 @@ synced clusters by title/label/TLDR.`,
 
 			if len(results) == 0 {
 				if flags.asJSON {
+					meta := map[string]any{
+						"source": source,
+						"query":  query,
+						"count":  0,
+					}
+					if sinceStr != "" {
+						meta["since"] = sinceStr
+					}
 					env := searchEnvelope{
-						Meta: map[string]any{
-							"source": source,
-							"query":  query,
-							"count":  0,
-						},
+						Meta:    meta,
 						Results: []searchResult{},
 					}
 					return printJSONFiltered(cmd.OutOrStdout(), env, flags)
@@ -434,12 +462,16 @@ synced clusters by title/label/TLDR.`,
 			}
 
 			if flags.asJSON {
+				meta := map[string]any{
+					"source": source,
+					"query":  query,
+					"count":  len(results),
+				}
+				if sinceStr != "" {
+					meta["since"] = sinceStr
+				}
 				env := searchEnvelope{
-					Meta: map[string]any{
-						"source": source,
-						"query":  query,
-						"count":  len(results),
-					},
+					Meta:    meta,
 					Results: results,
 				}
 				return printJSONFiltered(cmd.OutOrStdout(), env, flags)
@@ -462,6 +494,7 @@ synced clusters by title/label/TLDR.`,
 		},
 	}
 	cmd.Flags().IntVar(&limit, "limit", 20, "Max number of results")
+	cmd.Flags().StringVar(&sinceStr, "since", "", "Filter to clusters first posted within this window. Accepts Nh, Nd, Nw, Nm (e.g. 30d, 1w, 12h, 1m). Default empty (no filter).")
 	return cmd
 }
 
@@ -471,25 +504,53 @@ synced clusters by title/label/TLDR.`,
 var searchStoriesURLOverride string
 
 // liveSearch hits /api/search/stories via the shared client and maps
-// the upstream envelope onto searchResult. Limit clamping happens both
-// upstream (sent as a query param) and client-side (defensive trim) so
-// `--limit 5` is honored even if the server ignores it.
-func liveSearch(ctx context.Context, flags *rootFlags, query string, limit int) ([]searchResult, error) {
+// the upstream envelope onto searchResult. The optional `since` window
+// is applied AFTER the upstream returns and BEFORE limit clamping so a
+// caller passing `--limit 5 --since 7d` gets up to 5 results that all
+// fall within the window — never fewer than 5 because some 26d-old
+// rows ate into the budget.
+//
+// Filter policy: a record whose firstPostAge fails to parse is KEPT.
+// Digg occasionally returns shapes the parser doesn't recognize and
+// silently dropping them is worse than surfacing them with the original
+// string so the caller can decide.
+func liveSearch(ctx context.Context, flags *rootFlags, query string, limit int, since time.Duration) ([]searchResult, error) {
 	c, err := flags.newClient()
 	if err != nil {
 		return nil, err
 	}
+	// When --since is active we have to over-fetch from upstream so the
+	// in-memory filter isn't capped by the server's `limit`. Without
+	// this, a user asking for `--limit 5 --since 7d` could get fewer
+	// than 5 in-window results when older rows were among the first 5
+	// the server returned. We don't pass `limit` to upstream in that
+	// case; the post-filter caller-side cap below applies instead.
+	upstreamLimit := limit
+	if since > 0 {
+		upstreamLimit = 0
+	}
 	var resp *client.StoriesSearchResponse
 	if searchStoriesURLOverride != "" {
-		resp, err = c.SearchStoriesFrom(ctx, searchStoriesURLOverride, query, limit)
+		resp, err = c.SearchStoriesFrom(ctx, searchStoriesURLOverride, query, upstreamLimit)
 	} else {
-		resp, err = c.SearchStories(ctx, query, limit)
+		resp, err = c.SearchStories(ctx, query, upstreamLimit)
 	}
 	if err != nil {
 		return nil, err
 	}
 	out := make([]searchResult, 0, len(resp.Results))
 	for _, r := range resp.Results {
+		if since > 0 {
+			// firstPostAge may be empty (never observed but defensive)
+			// or in a shape the parser doesn't recognize — both cases
+			// keep the record. Only successfully-parsed ages > since
+			// are dropped.
+			if age, perr := cliutil.ParseDiggAge(r.FirstPostAge); perr == nil {
+				if age > since {
+					continue
+				}
+			}
+		}
 		out = append(out, searchResult{
 			ClusterID:     r.ClusterID,
 			ClusterURLID:  r.ClusterURLID,
@@ -511,17 +572,33 @@ func liveSearch(ctx context.Context, flags *rootFlags, query string, limit int) 
 // Returns an empty slice (not an error) when there are no matches, so
 // the caller can render the empty-results envelope or the empty-hint
 // message uniformly.
-func localSearch(ctx context.Context, query string, limit int) ([]searchResult, error) {
+//
+// When `since > 0` the query is gated by digg_clusters.first_post_at
+// (NOT first_seen_at — that column doesn't exist on this schema; see
+// internal/diggstore/store.go EnsureSchema). We compare on the column
+// whose semantics match the live `firstPostAge` field: when the cluster
+// first observed a post. Records with a NULL or empty first_post_at
+// are kept (matching the live-mode "keep on parse failure" policy)
+// rather than silently filtered out.
+func localSearch(ctx context.Context, query string, limit int, since time.Duration) ([]searchResult, error) {
 	_, db, closeFn, err := openStore(ctx)
 	if err != nil {
 		return nil, err
 	}
 	defer closeFn()
-	rows, err := db.QueryContext(ctx,
-		`SELECT c.cluster_id, c.cluster_url_id, COALESCE(c.label,''), COALESCE(c.tldr,''), COALESCE(c.current_rank,0)
+	q := `SELECT c.cluster_id, c.cluster_url_id, COALESCE(c.label,''), COALESCE(c.tldr,''), COALESCE(c.current_rank,0)
 		 FROM digg_clusters_fts f JOIN digg_clusters c ON c.cluster_id = f.cluster_id
-		 WHERE digg_clusters_fts MATCH ?
-		 ORDER BY c.current_rank ASC LIMIT ?`, query, limit)
+		 WHERE digg_clusters_fts MATCH ?`
+	args := []any{query}
+	if since > 0 {
+		// Keep rows missing first_post_at — see comment above.
+		q += ` AND (c.first_post_at IS NULL OR c.first_post_at = '' OR c.first_post_at >= ?)`
+		args = append(args, time.Now().Add(-since).UTC().Format(time.RFC3339))
+	}
+	q += ` ORDER BY c.current_rank ASC LIMIT ?`
+	args = append(args, limit)
+
+	rows, err := db.QueryContext(ctx, q, args...)
 	if err != nil {
 		return nil, fmt.Errorf("FTS query: %w", err)
 	}
