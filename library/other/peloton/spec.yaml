@@ -1,0 +1,38 @@
+name: peloton
+display_name: Peloton
+description: Peloton workout, ride, and music history CLI — auth via Auth0 SPA browser harvest. No public API; reverse-engineered from members.onepeloton.com.
+version: 0.1.0
+base_url: https://api.onepeloton.com/api
+auth:
+  type: bearer_token
+  header: Authorization
+  format: Bearer {token}
+  in: header
+  env_vars:
+    - PELOTON_USERNAME
+    - PELOTON_PASSWORD
+    - PELOTON_TOKEN
+  env_var_specs:
+    - name: PELOTON_USERNAME
+      kind: auth_flow_input
+      required: false
+      sensitive: false
+      description: Peloton account email; consumed by `auth login` to pre-fill the sign-in form. Browser auth still works without it (you sign in interactively).
+    - name: PELOTON_PASSWORD
+      kind: auth_flow_input
+      required: false
+      sensitive: true
+      description: Peloton account password; consumed by `auth login`. Skip if you prefer to type it in the browser window each time.
+    - name: PELOTON_TOKEN
+      kind: harvested
+      required: false
+      sensitive: true
+      description: Bearer token populated by `auth login` (extracted from Auth0 SPA localStorage). Do not set manually.
+
+notes: |
+  Peloton uses Auth0 SPA — the access_token lives in browser localStorage at
+  @@auth0spajs@@::<client_id>::https://api.onepeloton.com/::openid offline_access
+  not in any cleanly-readable response body. This CLI spawns a chromedp Chrome
+  window, lets you sign in (handles captchas, 2FA, anything Auth0 throws), then
+  harvests the token by JS-evaluating against localStorage. Tokens last ~1 hour;
+  re-run `auth login` when expired (the persistent Chrome profile makes it fast).

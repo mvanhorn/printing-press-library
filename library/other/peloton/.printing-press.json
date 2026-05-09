@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T05:29:22Z",
+  "printing_press_version": "hand-rolled",
+  "run_id": "20260509-053353",
+  "api_name": "peloton",
+  "display_name": "Peloton",
+  "cli_name": "peloton-pp-cli",
+  "printer": "twidtwid",
+  "printer_name": "Todd Dailey",
+  "description": "Workout, ride, and music history from your Peloton account. First catalog CLI to harvest the Auth0 SPA bearer token from the members.onepeloton.com browser session, then mirror your history (workouts + ride playlists + liked songs) into a local SQLite store with FTS5 search.",
+  "category": "other",
+  "spec_format": "internal",
+  "spec_source": "reverse-engineered-from-spa-network-traffic",
+  "approach": "chromedp-auth0-spa-localstorage-harvest",
+  "auth": "bearer-token-from-auth0-spa-localstorage",
+  "auth_type": "composed",
+  "fragility": "Peloton ships no public API. Every endpoint and the Auth0 localStorage harvest are reverse-engineered from members.onepeloton.com SPA traffic. Endpoint paths, response shapes, the Auth0 client_id, the localStorage key format, and the login form selectors can change unannounced — expect occasional breakage and patch as needed.",
+  "killer_feature": "peloton discoveries — list every in-class song you liked across recent rides, deduped by song id with a times_played counter (no Peloton UI surfaces this)",
+  "novel_features": [
+    {
+      "name": "Auth0 SPA bearer-token harvest",
+      "command": "auth login",
+      "description": "First catalog CLI to extract the Auth0 SPA access_token by reading localStorage under @@auth0spajs@@::<client_id>::<audience> in a chromedp-controlled browser. Discovers the Auth0 client_id at runtime from the localStorage key prefix and strips the auth0|<id> prefix from the cached user profile so /api/user/{id}/workouts accepts the bare id."
+    },
+    {
+      "name": "Liked-songs cross-ride digest",
+      "command": "discoveries",
+      "description": "Walks the most-recent N workouts, fetches each ride's playlist in parallel, collects songs flagged liked=true in-class, and dedupes by song id with a times_played counter. No Peloton UI surfaces this view; likes are stored Peloton-side per ride playback rather than per-song globally."
+    },
+    {
+      "name": "Incremental sync with known-ids early-stop",
+      "command": "sync",
+      "description": "ListWorkouts pages newest-first and stops paginating the first time a full page is contained in the local store's already-known ids. The known set is fed back into the client so a daily sync touches only fresh workouts. --full disables the early-stop for explicit backfills."
+    },
+    {
+      "name": "Typed relational mirror with FTS5 search",
+      "command": "search",
+      "description": "Hand-rolled SQLite schema (workouts → rides → songs via ride_songs) with FTS5 virtual tables over workouts(title, instructor) and songs(title, artists, album). bm25-ranked search interleaves workout and song hits with kind tags, replacing the generator's generic resources(id, type, data JSON) bag for domain-specific indexes."
+    }
+  ]
+}
