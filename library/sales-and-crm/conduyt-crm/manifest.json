@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "conduyt-pp-mcp",
+  "display_name": "Conduyt",
+  "version": "4.2.0",
+  "description": "AI-native CRM for the terminal — manage contacts, deals, pipelines, automations, email sequences, SMS drip campaigns, invoices, and 70+ resource types. Local SQLite sync, compound insight queries (pipeline health, deal velocity, email stats), and MCP code-orchestration for agent integration.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/conduyt-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/conduyt-pp-mcp",
+      "args": [],
+      "env": {
+        "CONDUYT_BEARER_AUTH": "${user_config.conduyt_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "conduyt_bearer_auth": {
+      "type": "string",
+      "title": "CONDUYT_BEARER_AUTH",
+      "description": "Sets CONDUYT_BEARER_AUTH for the Conduyt MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
