@@ -52,6 +52,10 @@ def emit_error(problem: Problem) -> None:
     print(f"::error file={rel(problem.file)}::{message}")
 
 
+def emit_notice(message: str) -> None:
+    print(f"::notice::{annotation_escape(message)}")
+
+
 def rel(path: Path) -> str:
     return path.relative_to(REPO_ROOT).as_posix()
 
@@ -438,26 +442,54 @@ def read_pr_body(args: argparse.Namespace) -> str | None:
     return body if isinstance(body, str) else ""
 
 
-def validate_pr_body(body: str | None, new_dirs: list[Path]) -> list[Problem]:
+def markdown_table_cell(value: object) -> str:
+    return str(value or "").replace("\n", " ").replace("|", r"\|")
+
+
+def novel_commands_markdown(manifest: dict | None) -> str:
+    features = manifest.get("novel_features") if manifest else None
+    if not isinstance(features, list) or not features:
+        return "No novel commands recorded in .printing-press.json."
+
+    rows = ["| Command | Name | Description |", "|---------|------|-------------|"]
+    for feature in features:
+        if not isinstance(feature, dict):
+            continue
+        command = markdown_table_cell(feature.get("command"))
+        name = markdown_table_cell(feature.get("name"))
+        description = markdown_table_cell(feature.get("description") or feature.get("rationale"))
+        rows.append(f"| `{command}` | {name} | {description} |")
+    return "\n".join(rows)
+
+
+def pr_body_suggestions(body: str | None, new_dirs: list[Path]) -> list[str]:
     if not new_dirs or body is None:
         return []
 
-    problems: list[Problem] = []
-    if "### Novel Commands" not in body:
-        problems.append(
-            Problem(
-                None,
-                'PR body is missing "### Novel Commands". New CLI PRs should be created or updated with the current printing-press-publish skill so reviewers can inspect the verified novel command table from .printing-press.json.',
-            )
-        )
-    if "### Publication Path" not in body:
-        problems.append(
-            Problem(
-                None,
-                'PR body is missing "### Publication Path". Re-run the publish skill or update the PR body to state whether this is a new print, reprint, replacement, or existing-PR update.',
-            )
-        )
-    return problems
+    missing_publication_path = "### Publication Path" not in body
+    missing_novel_commands = "### Novel Commands" not in body
+    if not missing_publication_path and not missing_novel_commands:
+        return []
+
+    suggestions: list[str] = []
+    for cli_dir in new_dirs:
+        problems: list[Problem] = []
+        manifest = read_json(cli_dir / ".printing-press.json", problems)
+        if manifest is None:
+            continue
+
+        sections: list[str] = []
+        if missing_publication_path:
+            sections.extend(["### Publication Path", "", "New print"])
+        if missing_novel_commands:
+            if sections:
+                sections.append("")
+            sections.extend(["### Novel Commands", "", novel_commands_markdown(manifest)])
+
+        if sections:
+            suggestions.append(f"{rel(cli_dir)} PR body suggestion:\n" + "\n".join(sections))
+
+    return suggestions
 
 
 def validate_cli_dir(cli_dir: Path, strict: bool) -> list[Problem]:
@@ -504,10 +536,18 @@ def main(argv: list[str]) -> int:
         problems.extend(validate_cli_dir(cli_dir, strict))
         print("::endgroup::")
 
-    problems.extend(validate_pr_body(read_pr_body(args), new_dirs))
+    suggestions = pr_body_suggestions(read_pr_body(args), new_dirs)
 
     for problem in problems:
         emit_error(problem)
+    for suggestion in suggestions:
+        emit_notice(
+            "New CLI package artifacts are present, but the PR body does not include the current publish-summary sections. "
+            "This is advisory; CI gates the artifacts as the source of truth."
+        )
+        print("::group::Suggested PR body section")
+        print(suggestion)
+        print("::endgroup::")
 
     if problems:
         print(f"Publish-package verifier found {len(problems)} problem(s).")

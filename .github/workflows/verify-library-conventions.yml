@@ -34,8 +34,9 @@ name: Verify library conventions
 # 5. Newly added library CLI packages must include the publish-package
 #    artifacts and provenance that reviewers need to audit the print:
 #    per-CLI AGENTS.md, patch manifest, manuscripts tied to run_id,
-#    novel feature metadata, MCP manifests when advertised, and the
-#    publish-skill PR body sections.
+#    novel feature metadata, and MCP manifests when advertised. The
+#    publish-skill PR body sections are suggested from these artifacts,
+#    but artifact completeness remains the source of truth.
 
 on:
   pull_request:

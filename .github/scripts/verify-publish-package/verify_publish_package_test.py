@@ -96,7 +96,7 @@ class PublishPackageVerifierTest(unittest.TestCase):
         self.assertTrue(any(".printing-press-patches.json" in msg for msg in messages))
         self.assertTrue(any("run_id" in msg for msg in messages))
 
-    def test_valid_new_cli_and_pr_body_pass(self) -> None:
+    def test_valid_new_cli_and_pr_body_has_no_suggestions(self) -> None:
         self.write_valid_cli()
         self.git("add", ".")
         self.git("commit", "-m", "add example")
@@ -107,22 +107,24 @@ class PublishPackageVerifierTest(unittest.TestCase):
         problems = []
         for cli_dir in touched:
             problems.extend(verifier.validate_cli_dir(cli_dir, strict=cli_dir in new_dirs))
-        problems.extend(verifier.validate_pr_body(body, new_dirs))
+        suggestions = verifier.pr_body_suggestions(body, new_dirs)
 
         self.assertEqual([], problems)
+        self.assertEqual([], suggestions)
 
-    def test_pr_body_sections_required_for_new_cli(self) -> None:
+    def test_missing_pr_body_sections_are_advisory_for_new_cli(self) -> None:
         self.write_valid_cli()
         self.git("add", ".")
         self.git("commit", "-m", "add example")
 
         touched = verifier.changed_cli_dirs(self.base)
         new_dirs = [d for d in touched if verifier.is_new_cli(self.base, d)]
-        problems = verifier.validate_pr_body("", new_dirs)
+        suggestions = verifier.pr_body_suggestions("", new_dirs)
 
-        self.assertEqual(2, len(problems))
-        self.assertTrue(any("Novel Commands" in p.message for p in problems))
-        self.assertTrue(any("Publication Path" in p.message for p in problems))
+        self.assertEqual(1, len(suggestions))
+        self.assertIn("### Novel Commands", suggestions[0])
+        self.assertIn("### Publication Path", suggestions[0])
+        self.assertIn("| `search` | Example search | Searches example data. |", suggestions[0])
 
 
 if __name__ == "__main__":
