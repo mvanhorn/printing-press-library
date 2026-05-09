@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T15:22:41.715536755Z",
+  "printing_press_version": "4.1.0",
+  "api_name": "stripe",
+  "display_name": "Stripe",
+  "cli_name": "stripe-pp-cli",
+  "owner": "chris-rodriguez",
+  "printer_name": "Chris Rodriguez",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:bdc9bf582ffdedd2449c06c3f0c7261001ae7804debf459e93f8f11ca7e40976",
+  "run_id": "20260509-093200",
+  "catalog_entry": "stripe",
+  "category": "payments",
+  "description": "Payment processing and financial infrastructure API",
+  "mcp_binary": "stripe-pp-mcp",
+  "mcp_tool_count": 534,
+  "mcp_ready": "full",
+  "api_version": "2026-04-22.dahlia",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "STRIPE_SECRET_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Customer health score",
+      "command": "health",
+      "description": "Compute a 0-100 health score for one or many customers from local SQLite, factoring in failed-payment count, dispute history, MRR contribution, subscription status, and account age."
+    },
+    {
+      "name": "Dunning queue",
+      "command": "dunning-queue",
+      "description": "List invoices in past_due/uncollectible state ranked by days-overdue, with last failure reason and customer email pulled from the local store."
+    },
+    {
+      "name": "Cross-entity SQL",
+      "command": "sql",
+      "description": "Run read-only SQLite queries against the local Stripe mirror. All synced data lives in a generic 'resources' table — query with json_extract(data, '$.field') and filter by resource_type."
+    },
+    {
+      "name": "Payout reconciliation pivot",
+      "command": "payout-reconcile",
+      "description": "Join payouts to balance_transactions to charges to customers from local store; flag missing balance_transactions and mismatches; CSV export."
+    },
+    {
+      "name": "Customer 360 dossier",
+      "command": "customer-360",
+      "description": "One-shot dossier: customer profile + active subs + recent invoices + payment methods + recent charges + open disputes + lifetime spend."
+    },
+    {
+      "name": "Subscriptions at risk",
+      "command": "subs-at-risk",
+      "description": "List subscriptions whose default payment method's card expires in a window, sorted by current MRR contribution."
+    },
+    {
+      "name": "Agent-shaped events since cursor",
+      "command": "events-since",
+      "description": "Fetch all Events since a cursor, persist new cursor in profile, no daemon. One-shot replacement for stripe-cli's listen daemon."
+    },
+    {
+      "name": "Metadata grep",
+      "command": "metadata-grep",
+      "description": "Search every synced resource's metadata bag for a key/value across resource types; returns (resource_type, id, matched_kv) rows."
+    }
+  ],
+  "printer": "crodorg"
+}

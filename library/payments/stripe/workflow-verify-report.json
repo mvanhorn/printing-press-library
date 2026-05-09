@@ -1,0 +1,8 @@
+{
+  "dir": "/home/chris/printing-press/.runstate/claude-6fd887f6/runs/20260509-093200/working/stripe-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

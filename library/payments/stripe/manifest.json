@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "stripe-pp-mcp",
+  "display_name": "Stripe",
+  "version": "4.1.0",
+  "description": "Payment processing and financial infrastructure API",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/stripe-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/stripe-pp-mcp",
+      "args": [],
+      "env": {
+        "STRIPE_SECRET_KEY": "${user_config.stripe_secret_key}"
+      }
+    }
+  },
+  "user_config": {
+    "stripe_secret_key": {
+      "type": "string",
+      "title": "STRIPE_SECRET_KEY",
+      "description": "Sets STRIPE_SECRET_KEY for the Stripe MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
