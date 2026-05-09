@@ -1,0 +1,22 @@
+{
+  "manifest_version": "0.3",
+  "name": "obs-pp-cli",
+  "display_name": "OBS Studio",
+  "version": "0.1.0",
+  "description": "Control OBS Studio via WebSocket — scenes, layouts, VDO.Ninja guest sources, streaming, recording, and preflight checks",
+  "author": {
+    "name": "Ekello Harrid"
+  },
+  "license": "Apache-2.0",
+  "compatibility": {
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  },
+  "cli_binary": "obs-pp-cli",
+  "requires": {
+    "external": ["OBS Studio 28+ with WebSocket server enabled"]
+  }
+}

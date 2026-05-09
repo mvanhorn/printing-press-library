@@ -1,0 +1,69 @@
+name: obs
+display_name: OBS Studio
+description: "OBS Studio control CLI — scenes, layouts, VDO.Ninja guest sources, streaming, recording, and preflight checks via WebSocket"
+version: "0.1.0"
+
+auth:
+  type: optional_password
+  config_path: "~/.obs-pp/config.json"
+  note: "Authentication is optional. Enable in OBS → Tools → WebSocket Server Settings."
+
+config:
+  format: json
+  path: "~/.obs-pp/config.json"
+  fields:
+    - name: host
+      type: string
+      default: "localhost"
+    - name: port
+      type: int
+      default: 4455
+    - name: password
+      type: string
+      default: ""
+      sensitive: true
+
+resources:
+  scenes:
+    description: "OBS scene management"
+    commands:
+      - list
+      - current
+      - switch
+      - create
+
+  stream:
+    description: "OBS streaming control"
+    commands:
+      - start
+      - stop
+      - status
+
+  record:
+    description: "OBS recording control"
+    commands:
+      - start
+      - stop
+      - pause
+      - status
+
+  layout:
+    description: "Programmatic scene layout builder"
+    commands:
+      - interview
+      - solo
+      - screenshare
+      - brb
+
+  guest:
+    description: "VDO.Ninja browser source management"
+    commands:
+      - add
+      - remove
+      - list
+
+  preflight:
+    description: "Pre-show readiness check"
+
+  stats:
+    description: "OBS performance statistics"
