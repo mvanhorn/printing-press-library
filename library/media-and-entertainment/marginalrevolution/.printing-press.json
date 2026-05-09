@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T16:02:27Z",
+  "printing_press_version": "3.9.0",
+  "api_name": "marginalrevolution",
+  "display_name": "Marginal Revolution",
+  "cli_name": "marginalrevolution-pp-cli",
+  "printer": "hinuri",
+  "printer_name": "Nuri Chang",
+  "spec_format": "internal",
+  "run_id": "20260509-160227",
+  "description": "Read, filter, and extract links from Marginal Revolution through its public RSS feed",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Recent-feed search",
+      "command": "search",
+      "description": "Search the current public RSS feed by title, excerpt, body text, author, and category."
+    },
+    {
+      "name": "Outbound link extraction",
+      "command": "links",
+      "description": "Extract external links from recent posts so agents can quickly follow cited sources."
+    },
+    {
+      "name": "Feed taxonomy scan",
+      "command": "categories",
+      "description": "Summarize category counts in the current feed for quick topical orientation."
+    }
+  ]
+}
