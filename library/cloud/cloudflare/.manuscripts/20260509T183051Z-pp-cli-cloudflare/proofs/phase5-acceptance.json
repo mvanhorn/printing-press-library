@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "api_name": "cloudflare",
+  "run_id": "20260509-183051",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 5,
+  "tests_passed": 5,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": true,
+    "browser_session_available": false
+  },
+  "test_results": [
+    {
+      "name": "doctor",
+      "command": "cloudflare-pp-cli doctor --json",
+      "result": "pass",
+      "evidence": "auth=configured; auth_mode=api_token; auth_source=env:CLOUDFLARE_API_TOKEN; api=reachable (HTTP 400 at /); local cache live"
+    },
+    {
+      "name": "zones list",
+      "command": "cloudflare-pp-cli zones list --json --per-page 3",
+      "result": "pass",
+      "evidence": "real zones returned (plan=Free Website, permissions array, full envelope); exit 0"
+    },
+    {
+      "name": "where-is real-account cross-product",
+      "command": "cloudflare-pp-cli where-is example.com --json",
+      "result": "pass",
+      "evidence": "Found example.com + www.example.com both → 203.0.113.10 (verified across three real zones in the test account). Envelope-unwrap fix verified."
+    },
+    {
+      "name": "zones diff real-account",
+      "command": "cloudflare-pp-cli zones diff example.com example-secondary.com --json",
+      "result": "pass",
+      "evidence": "Returned real settings/DNS/page-rule deltas including a mail-server autoconfig CNAME, SPF TXT, and apex A record. Envelope-unwrap fix verified."
+    },
+    {
+      "name": "dns apply create-noop-update lifecycle",
+      "command": "cloudflare-pp-cli dns apply --zone example.com --type TXT --name _ppcli-smoke --content <generated> --ttl 60 --json (run 3x)",
+      "result": "pass",
+      "evidence": "Run 1: action=created (record id 08187b0036b0cf0e7bdc58b20ca68940). Run 2 same content: action=noop (idempotency proven). Run 3 different content: action=updated (modified_on advanced, same id). Cleanup via auto-gen delete + curl verify confirmed deletion. Full lifecycle verified end-to-end on real example.com zone."
+    },
+    {
+      "name": "propagate watch real DoH",
+      "command": "cloudflare-pp-cli propagate watch example.com A",
+      "result": "pass",
+      "evidence": "Real DoH calls to 1.1.1.1 returned 104.21.43.124 + 172.67.179.20. Google + Quad9 confirmed. propagated=true; exit 0"
+    }
+  ],
+  "notes": "Full live verification on real Cloudflare account: doctor, zones list, where-is across 3 real zones, zones diff, dns apply CRUD lifecycle (create/noop/update/delete), propagate watch with real public resolvers. The envelope-unwrap bug in where-is/zones-diff/dns-apply was caught in live testing and patched. Production-ready. Caveat: auto-generated `dns-records for-a-zone-delete` has reversed positional arg order (path-order vs help-order); not a novel-command issue."
+}

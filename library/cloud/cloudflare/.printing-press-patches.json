@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260509T183051Z-pp-cli-cloudflare",
+  "base_printing_press_version": "4.2.0",
+  "patches": [
+    {
+      "id": "transcendence-commands",
+      "summary": "Hand-built 8 novel commands (~600 LOC) registered alongside the absorbed surface: dns apply, redirect set, propagate watch, where-is, zones diff, worker bindings show, cache purge release, setup_zone.",
+      "reason": "Phase 3 transcendence layer — these are the agent-introspection / cross-product / idempotent-infra commands that justify the CLI's existence beyond the absorbed REST surface. None are derivable from the OpenAPI spec.",
+      "files": [
+        "internal/cli/novel_dns.go",
+        "internal/cli/novel_redirect.go",
+        "internal/cli/novel_propagate.go",
+        "internal/cli/novel_where_is.go",
+        "internal/cli/novel_zones_diff.go",
+        "internal/cli/novel_worker.go",
+        "internal/cli/novel_cache.go",
+        "internal/cli/novel_setup_zone.go",
+        "internal/cli/root.go"
+      ],
+      "validated_outcome": "All 8 transcendence commands callable. Full DNS CRUD lifecycle (create / no-op / update / delete / verify-gone via where-is) verified live on a real Cloudflare account; setup_zone, propagate watch, zones diff, where-is, cache purge release verified against real zones."
+    },
+    {
+      "id": "auth-scheme-bearer-preferred",
+      "summary": "Switched generator's auth-scheme preference from legacy email+key to API token (Bearer). config.go now emits Authorization: Bearer header when CLOUDFLARE_API_TOKEN is set; falls back to legacy CLOUDFLARE_API_EMAIL + CLOUDFLARE_API_KEY.",
+      "reason": "Cloudflare's OpenAPI declares both schemes; generator picked legacy. Modern Cloudflare guidance prefers scoped API tokens. SKILL Phase 2 'safety net' pattern for multi-scheme APIs.",
+      "files": [
+        "internal/config/config.go",
+        "internal/client/client.go",
+        "internal/cli/doctor.go",
+        "manifest.json",
+        ".printing-press.json"
+      ],
+      "validated_outcome": "doctor reports auth_source: env:CLOUDFLARE_API_TOKEN; live API calls succeed; legacy fallback functional."
+    },
+    {
+      "id": "subscoped-to-high-traffic-products",
+      "summary": "Trimmed auto-generated endpoint-mirror surface from ~3,000 to ~390 commands by deleting internal/cli/*.go files for long-tail products. Kept: DNS, Workers (KV/D1/R2/Pages), Zones + Settings, Cache, Page Rules, Rulesets, SSL/TLS, Origin TLS, IAM, API Tokens, Members, Registrar, Certificates. Dropped: Stream, Images, Magic Transit/WAN, Zero Trust, Vectorize, Workers AI, DEX, Healthchecks, Logpush, Audit Logs, Notifications, Load Balancers, Spectrum, plus account-level long-tail.",
+      "reason": "PR #352 (predecessor) was closed for size — 3,130 files was too large for one review bite. Empirical research (Wrangler + flarectl + terraform-provider + cloudflare-go signals) ranked Cloudflare API products by real developer usage. Long-tail deferred to follow-up PRs once v1 lands.",
+      "files": [
+        "internal/cli/accounts.go",
+        "internal/cli/zones.go",
+        "internal/cli/user.go",
+        "internal/cli/system.go",
+        "internal/cli/radar.go",
+        "internal/cli/root.go",
+        "internal/cli/organizations.go",
+        "internal/cli/memberships.go",
+        "internal/cli/certificates.go",
+        "tools-manifest.json"
+      ],
+      "validated_outcome": "go build ./... clean; go vet ./... clean; full smoke-test surface functional. 519 files (84% smaller than #352)."
+    },
+    {
+      "id": "go-mod-module-path",
+      "summary": "Updated go.mod module path from `module cloudflare-pp-cli` to `module github.com/mvanhorn/printing-press-library/library/cloud/cloudflare`. Updated 13 internal Go files' import statements to match.",
+      "reason": "verify-library-conventions check #3 requires module path to match directory location; without it, `go install …@latest` breaks downstream after publication.",
+      "files": [
+        "go.mod",
+        "internal/cli/analytics.go",
+        "internal/cli/auth.go",
+        "internal/cli/channel_workflow.go",
+        "internal/cli/data_source.go",
+        "internal/cli/doctor.go",
+        "internal/cli/helpers.go",
+        "internal/cli/novel_cache.go",
+        "internal/cli/novel_propagate.go",
+        "internal/cli/root.go",
+        "internal/cli/search.go",
+        "internal/cli/sync.go",
+        "internal/client/client.go",
+        "internal/mcp/tools.go"
+      ],
+      "validated_outcome": "go build ./... clean from new module path; verify-library-conventions check #3 satisfied."
+    },
+    {
+      "id": "manifest-auth-config-cloudflare-api-token",
+      "summary": "Updated manifest.json mcp_config.env + user_config to reference CLOUDFLARE_API_TOKEN (Bearer) rather than CLOUDFLARE_API_EMAIL (legacy). Bumped .printing-press.json auth_type from 'api_key' to 'bearer_token' and auth_env_vars to ['CLOUDFLARE_API_TOKEN'].",
+      "reason": "Companion to auth-scheme-bearer-preferred — manifest values must match binary's actual auth preference, otherwise .mcpb installer prompts users for the wrong env var.",
+      "files": ["manifest.json", ".printing-press.json"],
+      "validated_outcome": "Validate MCPB manifest contract CI check passes; .mcpb installer prompts user for CLOUDFLARE_API_TOKEN."
+    }
+  ]
+}

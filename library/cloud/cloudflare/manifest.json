@@ -1,0 +1,40 @@
+{
+  "manifest_version": "0.3",
+  "name": "cloudflare-pp-mcp",
+  "display_name": "Cloudflare",
+  "version": "4.2.0",
+  "description": "Cloudflare API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/cloudflare-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/cloudflare-pp-mcp",
+      "args": [],
+      "env": {
+        "CLOUDFLARE_API_TOKEN": "${user_config.cloudflare_api_token}"
+      }
+    }
+  },
+  "user_config": {
+    "cloudflare_api_token": {
+      "type": "string",
+      "title": "CLOUDFLARE_API_TOKEN",
+      "description": "Cloudflare scoped API token (Bearer auth, preferred). Create at https://dash.cloudflare.com/profile/api-tokens.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  },
+  "_patch_note": "PATCH manifest-auth-config-cloudflare-api-token: mcp_config.env + user_config switched from CLOUDFLARE_API_EMAIL (legacy) to CLOUDFLARE_API_TOKEN (Bearer) to match binary's actual auth preference."
+}
