@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T16:12:45.364007Z",
+  "printing_press_version": "4.2.0",
+  "api_name": "huggingface",
+  "display_name": "Hugging Face",
+  "cli_name": "huggingface-pp-cli",
+  "owner": "rick-van-de-laar",
+  "printer_name": "Rick van de Laar",
+  "spec_path": "research/huggingface-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:3f39d72d23ad5ad18ca17dfa7ae77bbc057a00db116bceb95fbdf3e5c41304c3",
+  "run_id": "20260509-171744",
+  "category": "ai",
+  "description": "Model-intel CLI for local-inference stacks — quants, backend-readiness, vs-current diffs, bench-history, and watch loops, all stack-aware.",
+  "mcp_binary": "huggingface-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "HF_TOKEN",
+    "HUGGING_FACE_HUB_TOKEN"
+  ],
+  "auth_key_url": "https://huggingface.co/settings/tokens",
+  "auth_description": "Optional. Anonymous read works for all public endpoints. With a token, rate\nlimits are significantly higher. CLI honors the cached token at\n~/.cache/huggingface/token (the path huggingface_hub uses).\n",
+  "novel_features": [
+    {
+      "name": "Architecture-feature search",
+      "command": "find-feature",
+      "description": "Search HF for models by architecture feature (mtp, mla, moe, gqa, sliding-window, rope-yarn) — fields HF doesn't index, recovered from config.json + card text."
+    },
+    {
+      "name": "vs-current diff",
+      "command": "vs-current",
+      "description": "Diff a candidate model against the model the named agent currently runs, by reading data/openclaw.json directly."
+    },
+    {
+      "name": "Backend-readiness oracle",
+      "command": "backend-check",
+      "description": "Verdict whether a model's architecture is supported by a target backend, citing PR numbers, commit SHAs, and wiki notes with source_checked dates."
+    },
+    {
+      "name": "Bench-history join",
+      "command": "bench-history",
+      "description": "Join an HF model id with local model-eval-harness results to surface tasks run, scores, vs-baseline delta, and last-run date."
+    },
+    {
+      "name": "Eval-candidate emitter",
+      "command": "eval-candidates",
+      "description": "Emit a list of HF candidates in the model-eval-harness input format directly."
+    },
+    {
+      "name": "Watch + agent-notify",
+      "command": "watch",
+      "description": "State-file subscription with cron-callable poll; matches emit through the MC API alert pipeline as structured events."
+    },
+    {
+      "name": "Quant-variant browser",
+      "command": "find-quants",
+      "description": "Surface GGUF quant variants of a base model with uploader rep, effective size, and quant-type classification — sorted by trusted-uploader allowlist + size filter."
+    },
+    {
+      "name": "Multi-runtime probe",
+      "command": "doctor",
+      "description": "Single-call structured runtime-shape covering TTY, JSON, state writability, live config presence, harness presence, backend-matrix age, rate-limit remaining, HF reachability, proxy presence."
+    }
+  ],
+  "printer": "rvdlaar"
+}

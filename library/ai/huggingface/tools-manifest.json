@@ -1,0 +1,191 @@
+{
+  "api_name": "huggingface",
+  "base_url": "https://huggingface.co",
+  "description": "Stack-aware model-intel CLI that uses the Hugging Face Hub as its primary data source. Closes the loop between model discovery and operational decisions for local-inference stacks and autonomous agent fleets.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "in": "header",
+    "env_vars": [
+      "HF_TOKEN",
+      "HUGGING_FACE_HUB_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "HF_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "HUGGING_FACE_HUB_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://huggingface.co/settings/tokens"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "models_get",
+      "description": "Get full model card metadata for one model. Required: id. Optional: blobs, revision. Returns the HFModel.",
+      "method": "GET",
+      "path": "/api/models/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Model id, e.g. 'Qwen/Qwen2.5-7B' or 'bartowski/Qwen2.5-7B-Instruct-GGUF'.",
+          "required": true
+        },
+        {
+          "name": "blobs",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include blob sizes in siblings (cheap; required for size queries)."
+        },
+        {
+          "name": "revision",
+          "type": "string",
+          "location": "query",
+          "description": "Branch, tag, or commit SHA. Default: main."
+        }
+      ]
+    },
+    {
+      "name": "models_list",
+      "description": "List or search models. Supports HF search/filter/sort/author params. Optional: search, author, filter (plus 5 more). Returns array of HFModel.",
+      "method": "GET",
+      "path": "/api/models",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text search query (matches id, tags, description)."
+        },
+        {
+          "name": "author",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by uploader/org."
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter expression (e.g. tag, library, language, license)."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key: downloads, likes, trending, lastModified, createdAt."
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction: -1 (desc) or 1 (asc)."
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Page size (HF caps at 1000)."
+        },
+        {
+          "name": "full",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include extended fields in response."
+        },
+        {
+          "name": "config",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include parsed config.json snippet in response."
+        }
+      ]
+    },
+    {
+      "name": "models_raw",
+      "description": "Fetch raw file contents (config.json, README.md, tokenizer_config.json, etc.). Required: id, revision (default: main), filepath.",
+      "method": "GET",
+      "path": "/api/models/{id}/raw/{revision}/{filepath}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Model id.",
+          "required": true
+        },
+        {
+          "name": "revision",
+          "type": "string",
+          "location": "path",
+          "description": "Revision. Default: main.",
+          "required": true
+        },
+        {
+          "name": "filepath",
+          "type": "string",
+          "location": "path",
+          "description": "File path within the repo (e.g. 'config.json').",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "models_tree",
+      "description": "List files in a model repo at a given revision. Required: id, revision (default: main). Optional: recursive. Returns array of HFTreeEntry.",
+      "method": "GET",
+      "path": "/api/models/{id}/tree/{revision}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Model id.",
+          "required": true
+        },
+        {
+          "name": "revision",
+          "type": "string",
+          "location": "path",
+          "description": "Revision (branch/tag/SHA). Default: main.",
+          "required": true
+        },
+        {
+          "name": "recursive",
+          "type": "boolean",
+          "location": "query",
+          "description": "Recurse into subdirectories."
+        }
+      ]
+    },
+    {
+      "name": "users_get",
+      "description": "User/org overview: aggregate downloads, model count, recent uploads. Required: user. Returns the HFUserOverview.",
+      "method": "GET",
+      "path": "/api/users/{user}/overview",
+      "params": [
+        {
+          "name": "user",
+          "type": "string",
+          "location": "path",
+          "description": "Username or organization handle.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

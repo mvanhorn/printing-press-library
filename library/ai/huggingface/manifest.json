@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "huggingface-pp-mcp",
+  "display_name": "Hugging Face",
+  "version": "4.2.0",
+  "description": "Model-intel CLI for local-inference stacks — quants, backend-readiness, vs-current diffs, bench-history, and watch loops, all stack-aware.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/huggingface-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/huggingface-pp-mcp",
+      "args": [],
+      "env": {
+        "HF_TOKEN": "${user_config.hf_token}",
+        "HUGGING_FACE_HUB_TOKEN": "${user_config.hugging_face_hub_token}"
+      }
+    }
+  },
+  "user_config": {
+    "hf_token": {
+      "type": "string",
+      "title": "HF_TOKEN",
+      "description": "Sets HF_TOKEN for the Hugging Face MCP server. Get a credential from https://huggingface.co/settings/tokens.",
+      "sensitive": true,
+      "required": true
+    },
+    "hugging_face_hub_token": {
+      "type": "string",
+      "title": "HUGGING_FACE_HUB_TOKEN",
+      "description": "Sets HUGGING_FACE_HUB_TOKEN for the Hugging Face MCP server. Get a credential from https://huggingface.co/settings/tokens.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

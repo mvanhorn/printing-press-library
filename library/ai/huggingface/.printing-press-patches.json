@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-171744",
+  "base_printing_press_version": "4.2.0",
+  "upstream_tracking": [
+    "https://github.com/mvanhorn/cli-printing-press/issues/845"
+  ],
+  "patches": [
+    {
+      "id": "verifier-false-positive-http-patch-verb",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/845",
+      "files": [
+        "internal/client/client.go",
+        "internal/mcp/tools.go"
+      ],
+      "summary": "(Not a real patch — verifier workaround.) Framework-generated REST client + MCP method-dispatch code uses 'PATCH' as a literal HTTP verb. The verifier's bare-substring scan flags this as if it were a hand-authored customization.",
+      "reason": "verify_publish_package.py:has_patch_marker() does substring scan for 'PATCH' in .go files, which false-positives on legitimate HTTP-verb usage. Both files are byte-identical to printing-press generate output. To be removed once cli-printing-press#845 lands a comment-anchored marker check.",
+      "validated_outcome": "Files are framework-emitted; this entry exists only to satisfy the post-#350 verifier without lying about the customization status."
+    }
+  ]
+}

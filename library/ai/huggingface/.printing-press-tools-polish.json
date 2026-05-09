@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-09T18:33:43.925836Z",
+  "cli_dir": "/Users/rick/printing-press/library/huggingface",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-09T18:29:18.333587Z"
+  }
+}

@@ -1,0 +1,207 @@
+name: huggingface
+display_name: Hugging Face
+description: Stack-aware model-intel CLI that uses the Hugging Face Hub as its primary data source. Closes the loop between model discovery and operational decisions for local-inference stacks and autonomous agent fleets.
+cli_description: Model-intel CLI for local-inference stacks — quants, backend-readiness, vs-current diffs, bench-history, and watch loops, all stack-aware.
+version: "0.1.0"
+kind: synthetic
+spec_source: official
+category: ai
+website_url: "https://huggingface.co"
+base_url: "https://huggingface.co"
+http_transport: standard
+
+auth:
+  type: bearer_token
+  header: Authorization
+  in: header
+  env_vars:
+    - HF_TOKEN
+    - HUGGING_FACE_HUB_TOKEN
+  key_url: "https://huggingface.co/settings/tokens"
+  description: |
+    Optional. Anonymous read works for all public endpoints. With a token, rate
+    limits are significantly higher. CLI honors the cached token at
+    ~/.cache/huggingface/token (the path huggingface_hub uses).
+
+config:
+  format: toml
+  path: "~/.config/huggingface-pp-cli/config.toml"
+
+cache:
+  enabled: true
+  stale_after: "24h"
+  refresh_timeout: "30s"
+  env_opt_out: HF_NO_AUTO_REFRESH
+  resources:
+    models: "1h"
+    users: "6h"
+
+resources:
+  models:
+    description: "Model repositories on the Hugging Face Hub. Includes card metadata, file tree, raw config.json."
+    endpoints:
+      list:
+        method: GET
+        path: "/api/models"
+        description: "List or search models. Supports HF search/filter/sort/author params."
+        params:
+          - name: search
+            type: string
+            description: "Free-text search query (matches id, tags, description)."
+          - name: author
+            type: string
+            description: "Filter by uploader/org."
+          - name: filter
+            type: string
+            description: "Filter expression (e.g. tag, library, language, license)."
+          - name: sort
+            type: string
+            description: "Sort key: downloads, likes, trending, lastModified, createdAt."
+          - name: direction
+            type: string
+            description: "Sort direction: -1 (desc) or 1 (asc)."
+          - name: limit
+            type: integer
+            default: 50
+            description: "Page size (HF caps at 1000)."
+          - name: full
+            type: boolean
+            description: "Include extended fields in response."
+          - name: config
+            type: boolean
+            description: "Include parsed config.json snippet in response."
+        response:
+          type: array
+          item: HFModel
+        pagination:
+          type: link_header
+          next_link_rel: "next"
+      get:
+        method: GET
+        path: "/api/models/{id}"
+        description: "Get full model card metadata for one model."
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Model id, e.g. 'Qwen/Qwen2.5-7B' or 'bartowski/Qwen2.5-7B-Instruct-GGUF'."
+          - name: blobs
+            type: boolean
+            description: "Include blob sizes in siblings (cheap; required for size queries)."
+          - name: revision
+            type: string
+            description: "Branch, tag, or commit SHA. Default: main."
+        response:
+          type: object
+          item: HFModel
+      tree:
+        method: GET
+        path: "/api/models/{id}/tree/{revision}"
+        description: "List files in a model repo at a given revision."
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Model id."
+          - name: revision
+            type: string
+            required: true
+            description: "Revision (branch/tag/SHA). Default: main."
+            default: "main"
+          - name: recursive
+            type: boolean
+            description: "Recurse into subdirectories."
+        response:
+          type: array
+          item: HFTreeEntry
+      raw:
+        method: GET
+        path: "/api/models/{id}/raw/{revision}/{filepath}"
+        description: "Fetch raw file contents (config.json, README.md, tokenizer_config.json, etc.)."
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Model id."
+          - name: revision
+            type: string
+            required: true
+            description: "Revision. Default: main."
+            default: "main"
+          - name: filepath
+            type: string
+            required: true
+            description: "File path within the repo (e.g. 'config.json')."
+        response:
+          type: text
+          item: string
+
+  users:
+    description: "Hugging Face users / organizations."
+    endpoints:
+      get:
+        method: GET
+        path: "/api/users/{user}/overview"
+        description: "User/org overview: aggregate downloads, model count, recent uploads."
+        params:
+          - name: user
+            type: string
+            required: true
+            positional: true
+            description: "Username or organization handle."
+        response:
+          type: object
+          item: HFUserOverview
+
+extra_commands:
+  # Group A — Discovery (8)
+  - name: find-quants
+    args: "<base-model>"
+    description: "Find quantized variants of a base model, sorted by uploader rep + size. Stack-aware allowlist + size-class filter built in."
+  - name: trending
+    description: "What's trending on Hugging Face. Size-class + library + window filters that HF doesn't expose."
+  - name: model-card
+    args: "<id>"
+    description: "Stack-relevant model card: MoE active params loud, effective GGUF size, training data summary."
+  - name: derivatives
+    args: "<base-id>"
+    description: "Discover models fine-tuned from a given base model."
+  - name: uploader-rep
+    args: "<user>"
+    description: "Uploader reputation: aggregate downloads, recency, model count, trusted-uploader flag."
+  - name: compare-quants
+    args: "<id1> <id2> [...]"
+    description: "Side-by-side comparison of multiple quant variants: size, quant type, uploader, MoE active-param ratio."
+  - name: eval-candidates
+    description: "Emit model-eval-harness-ready candidate list. Wires HF discovery into the eval loop."
+  - name: find-feature
+    args: "<feature>"
+    description: "Search models by architecture feature (mtp, mla, moe, gqa, sliding-window, rope-yarn, etc). Heuristic config.json + card-text classifier with backend-readiness verdict."
+
+  # Group B — Intel loop (5)
+  - name: vs-current
+    args: "<id>"
+    description: "Diff candidate against the model the named agent currently runs. Reads agents.defaults.models from openclaw.json."
+  - name: backend-check
+    args: "<id>"
+    description: "Backend-readiness oracle. Bundled support matrix with citations + source_checked dates. Catches the 'downloaded 30GB then can't load' failure class."
+  - name: bench-history
+    args: "<id>"
+    description: "Join HF id with local model-eval-harness results. Stops re-evaluating known losers."
+  - name: watch
+    args: "<target>"
+    description: "Add a target (uploader / base-model / feature) to the watch list for periodic polling."
+  - name: watch-poll
+    description: "Cron-callable: check watch targets for new matches since last poll, emit events."
+  - name: local
+    description: "List models already on disk + map to HF ids. Walks ~/.cache/huggingface/hub/ + custom dirs."
+
+  # Group C — Runtime utility (2)
+  - name: doctor
+    description: "Single-call structured runtime probe: TTY, JSON support, state writability, live config, harness, backend-matrix age, rate limit, HF reachability, proxy."
+  - name: schema
+    args: "[<command>]"
+    description: "Per-command JSON output schema with version field. Defends agents against output drift."

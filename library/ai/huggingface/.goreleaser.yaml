@@ -1,0 +1,51 @@
+version: 2
+project_name: huggingface-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: huggingface-pp-cli
+    main: ./cmd/huggingface-pp-cli
+    binary: huggingface-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/ai/huggingface/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: huggingface-pp-mcp
+    main: ./cmd/huggingface-pp-mcp
+    binary: huggingface-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: huggingface-pp-cli
+    repository:
+      owner: rick-van-de-laar
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "A stack-aware model-intel CLI for local-inference rigs and autonomous agent fleets — not just an API mirror."
+    install: |
+      bin.install "huggingface-pp-cli"
+      bin.install "huggingface-pp-mcp"
