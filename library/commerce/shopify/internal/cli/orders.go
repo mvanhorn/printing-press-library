@@ -15,5 +15,8 @@ func newOrdersCmd(flags *rootFlags) *cobra.Command {
 
 	cmd.AddCommand(newOrdersGetCmd(flags))
 	cmd.AddCommand(newOrdersListCmd(flags))
+	// PATCH: add native filtered search and exact human order-number resolution.
+	cmd.AddCommand(newOrdersSearchCmd(flags))
+	cmd.AddCommand(newOrdersResolveCmd(flags))
 	return cmd
 }

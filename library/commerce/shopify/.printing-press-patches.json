@@ -3,5 +3,19 @@
   "applied_at": "2026-05-08",
   "base_run_id": "2026-05-02T03:53:03.774005Z",
   "base_printing_press_version": "3.2.1",
-  "patches": []
+  "patches": [
+    {
+      "id": "orders-query-search-resolve",
+      "summary": "Expose Shopify order query filters and exact order-number resolution in the native CLI.",
+      "reason": "Agent and warehouse workflows often start from human order numbers like 1942, but the generated orders list command only paginated unfiltered orders. Native query/search/resolve support removes the need for a Maxi sidecar GraphQL resolver.",
+      "files": [
+        "internal/client/queries.go",
+        "internal/cli/orders.go",
+        "internal/cli/orders_list.go",
+        "internal/cli/orders_search_resolve.go",
+        "internal/cli/auto_refresh.go",
+        "internal/cli/which.go"
+      ]
+    }
+  ]
 }

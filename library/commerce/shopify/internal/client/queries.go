@@ -100,8 +100,9 @@ const OrdersGetQuery = `query($id: String!) {
   }
 }`
 
-const OrdersListQuery = `query($first: Int!, $after: String) {
-  orders(first: $first, after: $after) {
+// PATCH: expose Shopify's native orders(query:) search fields for filtered reads and exact order resolution.
+const OrdersListQuery = `query($first: Int!, $after: String, $query: String, $sortKey: OrderSortKeys, $reverse: Boolean) {
+  orders(first: $first, after: $after, query: $query, sortKey: $sortKey, reverse: $reverse) {
     nodes {
       id
       name
@@ -109,6 +110,7 @@ const OrdersListQuery = `query($first: Int!, $after: String) {
       processedAt
       displayFinancialStatus
       displayFulfillmentStatus
+      cancelledAt
       currencyCode
       totalPriceSet { shopMoney { amount currencyCode } }
       totalRefundedSet { shopMoney { amount currencyCode } }

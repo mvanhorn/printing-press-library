@@ -36,10 +36,12 @@ var readCommandResources = map[string][]string{
 	"shopify-pp-cli orders list":               {"orders"},
 	"shopify-pp-cli orders get":                {"orders"},
 	"shopify-pp-cli orders search":             {"orders"},
-	"shopify-pp-cli products":                  {"products"},
-	"shopify-pp-cli products list":             {"products"},
-	"shopify-pp-cli products get":              {"products"},
-	"shopify-pp-cli products search":           {"products"},
+	// PATCH: orders resolve is a read-only order lookup and should share order freshness policy.
+	"shopify-pp-cli orders resolve":  {"orders"},
+	"shopify-pp-cli products":        {"products"},
+	"shopify-pp-cli products list":   {"products"},
+	"shopify-pp-cli products get":    {"products"},
+	"shopify-pp-cli products search": {"products"},
 }
 
 // cachePolicy returns the cache freshness policy assembled from spec

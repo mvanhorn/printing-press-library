@@ -8,14 +8,18 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopify/internal/client"
+	"github.com/spf13/cobra"
 )
 
 func newOrdersListCmd(flags *rootFlags) *cobra.Command {
 	var flagFirst int
 	var flagAfter string
 	var flagAll bool
+	// PATCH: expose Shopify Admin GraphQL orders(query:) and sort controls on the native list command.
+	var flagQuery string
+	var flagSortKey string
+	var flagReverse bool
 
 	cmd := &cobra.Command{
 		Use:         "list",
@@ -32,6 +36,15 @@ func newOrdersListCmd(flags *rootFlags) *cobra.Command {
 			_ = path
 			variables := map[string]any{
 				"first": flagFirst,
+			}
+			if flagQuery != "" {
+				variables["query"] = flagQuery
+			}
+			if flagSortKey != "" {
+				variables["sortKey"] = flagSortKey
+			}
+			if cmd.Flags().Changed("reverse") {
+				variables["reverse"] = flagReverse
 			}
 			if flagAfter != "" {
 				variables["after"] = flagAfter
@@ -94,6 +107,9 @@ func newOrdersListCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&flagFirst, "first", 100, "Page size for Shopify cursor pagination.")
 	cmd.Flags().StringVar(&flagAfter, "after", "", "Cursor for the next page.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
+	cmd.Flags().StringVar(&flagQuery, "query", "", "Shopify orders search query, e.g. name:#1942 or fulfillment_status:unfulfilled")
+	cmd.Flags().StringVar(&flagSortKey, "sort-key", "", "Shopify order sort key, e.g. PROCESSED_AT, CREATED_AT, UPDATED_AT, ORDER_NUMBER")
+	cmd.Flags().BoolVar(&flagReverse, "reverse", false, "Reverse Shopify sort order")
 
 	return cmd
 }

@@ -35,7 +35,10 @@ var whichIndex = []whichEntry{
 	{Command: "inventory-items get", Description: "Get one Shopify inventory item by GraphQL ID.", Group: "inventory-items"},
 	{Command: "inventory-items list", Description: "List inventory items from the Shopify Admin GraphQL API.", Group: "inventory-items"},
 	{Command: "orders get", Description: "Get one Shopify order by GraphQL ID.", Group: "orders"},
-	{Command: "orders list", Description: "List orders from the Shopify Admin GraphQL API.", Group: "orders"},
+	{Command: "orders list", Description: "List orders from the Shopify Admin GraphQL API. Supports --query for Shopify order-search syntax.", Group: "orders"},
+	// PATCH: advertise native order search and exact number resolution for agent workflows.
+	{Command: "orders search", Description: "Search Shopify orders using Shopify Admin GraphQL order query syntax.", Group: "orders"},
+	{Command: "orders resolve", Description: "Resolve human order names or numbers like 1942 to exact Shopify order records and GraphQL IDs.", Group: "orders"},
 	{Command: "products get", Description: "Get one Shopify product by GraphQL ID.", Group: "products"},
 	{Command: "products list", Description: "List products from the Shopify Admin GraphQL API.", Group: "products"},
 }
