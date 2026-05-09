@@ -144,9 +144,9 @@ func newLonghaulCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 
 	cmd := &cobra.Command{
-		Use:   "longhaul <airport>",
+		Use:         "longhaul <airport>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "List nonstop departures from an airport that are at least N hours long",
+		Short:       "List nonstop departures from an airport that are at least N hours long",
 		Long: `longhaul answers the classic travel-hacker question: "show me every nonstop
 flight from my airport that's at least N hours long over a given period."
 
@@ -172,7 +172,6 @@ Pair with --json and pipe to jq for custom filtering.`,
 			if err != nil {
 				return err
 			}
-
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -255,9 +254,9 @@ func newExploreCmd(flags *rootFlags) *cobra.Command {
 	var minFrequency int
 
 	cmd := &cobra.Command{
-		Use:   "explore <airport>",
+		Use:         "explore <airport>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Every nonstop destination from an airport with duration, airlines, frequency",
+		Short:       "Every nonstop destination from an airport with duration, airlines, frequency",
 		Long: `explore is the Kayak /direct nonstop matrix in your terminal.
 
 Given an airport code, it aggregates scheduled departures into a destination
@@ -363,13 +362,16 @@ frequency. Answers "where can I fly nonstop from here, and how long does it take
 // ----- T3: cheapest-longhaul (requires fli for prices) -----
 
 func newCheapestLonghaulCmd(flags *rootFlags) *cobra.Command {
+	// PATCH(upstream cli-printing-press#804): let the Google-priced longhaul
+	// scan request native currency while leaving AeroAPI-only commands alone.
 	var minHours float64
 	var startDate, endDate string
+	var currencyCode string
 
 	cmd := &cobra.Command{
-		Use:   "cheapest-longhaul <airport>",
+		Use:         "cheapest-longhaul <airport>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Cheapest dates to fly long nonstop routes from an airport",
+		Short:       "Cheapest dates to fly long nonstop routes from an airport",
 		Long: `cheapest-longhaul joins two data sources nobody else joins:
   1. FlightAware route catalog (which nonstop routes are at least N hours)
   2. Google Flights price data via the 'fli' Python CLI (cheapest dates per route)
@@ -383,6 +385,9 @@ command lists the long routes and exits with a helpful message.`,
 			airport := upperCode(args[0])
 			start, end, err := resolveDateWindow("", startDate, endDate)
 			if err != nil {
+				return err
+			}
+			if _, err := gflights.NormalizeCurrencyCode(currencyCode); err != nil {
 				return err
 			}
 
@@ -432,6 +437,7 @@ command lists the long routes and exits with a helpful message.`,
 					Destination: dest,
 					From:        start[:10],
 					To:          end[:10],
+					Currency:    currencyCode,
 				})
 				cancel()
 				if err == nil && dr != nil && len(dr.Dates) > 0 {
@@ -443,7 +449,7 @@ command lists the long routes and exits with a helpful message.`,
 					}
 					if cheapest.Price > 0 {
 						r.CheapestDate = cheapest.DepartureDate
-						r.CheapestPrice = fmt.Sprintf("$%.0f", cheapest.Price)
+						r.CheapestPrice = formatPrice(cheapest.Currency, cheapest.Price)
 						r.Source = "google-flights-native"
 					}
 				}
@@ -466,6 +472,7 @@ command lists the long routes and exits with a helpful message.`,
 	cmd.Flags().Float64Var(&minHours, "min-hours", 8, "Minimum flight duration in hours")
 	cmd.Flags().StringVar(&startDate, "from", "", "Start date YYYY-MM-DD (required)")
 	cmd.Flags().StringVar(&endDate, "to", "", "End date YYYY-MM-DD (required)")
+	cmd.Flags().StringVar(&currencyCode, "currency", "", "Currency for Google Flights prices (ISO 4217, e.g. GBP, EUR, USD; default USD)")
 	return cmd
 }
 
@@ -473,9 +480,9 @@ command lists the long routes and exits with a helpful message.`,
 
 func newOntimeNowCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "ontime-now <airport>",
+		Use:         "ontime-now <airport>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Every departure from an airport today with live on-time status",
+		Short:       "Every departure from an airport today with live on-time status",
 		Example: `  flight-goat-pp-cli ontime-now SEA
   flight-goat-pp-cli ontime-now JFK --json`,
 		Args: cobra.ExactArgs(1),
@@ -555,9 +562,9 @@ func newOntimeNowCmd(flags *rootFlags) *cobra.Command {
 func newReliabilityCmd(flags *rootFlags) *cobra.Command {
 	var days int
 	cmd := &cobra.Command{
-		Use:   "reliability <origin> <destination>",
+		Use:         "reliability <origin> <destination>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Historical on-time percentage for a route over the last N days",
+		Short:       "Historical on-time percentage for a route over the last N days",
 		Long: `reliability queries FlightAware history for all flights on a route and
 computes an on-time percentage. On-time is defined as departure delay <= 15 minutes.`,
 		Example: `  flight-goat-pp-cli reliability SEA LHR --days 30
@@ -658,10 +665,14 @@ computes an on-time percentage. On-time is defined as departure delay <= 15 minu
 // ----- T6: compare (fli + reliability) -----
 
 func newCompareCmd(flags *rootFlags) *cobra.Command {
+	// PATCH(upstream cli-printing-press#804): compare joins Google prices with
+	// AeroAPI reliability, so the currency flag belongs on this command too.
+	var currencyCode string
+
 	cmd := &cobra.Command{
-		Use:   "compare <origin> <destination> <date>",
+		Use:         "compare <origin> <destination> <date>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Join Google Flights prices with AeroAPI reliability for the same route",
+		Short:       "Join Google Flights prices with AeroAPI reliability for the same route",
 		Long: `compare runs two queries in parallel: fli flights for Google Flights prices and
 reliability for AeroAPI historical on-time percentages. Output sorts by reliability
 so you can pick the cheapest flight that's likely to actually run on time.
@@ -675,7 +686,11 @@ Requires 'fli' (pipx install flights) for pricing.`,
 			date := args[2]
 
 			if flags.dryRun {
-				fmt.Fprintf(cmd.ErrOrStderr(), "gflights.Search(%s -> %s on %s)\n", origin, dest, date)
+				fmt.Fprintf(cmd.ErrOrStderr(), "gflights.Search(%s -> %s on %s", origin, dest, date)
+				if currencyCode != "" {
+					fmt.Fprintf(cmd.ErrOrStderr(), " currency=%s", strings.ToUpper(strings.TrimSpace(currencyCode)))
+				}
+				fmt.Fprintln(cmd.ErrOrStderr(), ")")
 				fmt.Fprintf(cmd.ErrOrStderr(), "GET /airports/%s/flights/to/%s?start=<last30d>&end=<now>&max_pages=3\n", origin, dest)
 				fmt.Fprintln(cmd.ErrOrStderr(), "\n(dry run - no requests sent; would join Google Flights prices with AeroAPI reliability)")
 				return nil
@@ -687,6 +702,7 @@ Requires 'fli' (pipx install flights) for pricing.`,
 				Origin:        origin,
 				Destination:   dest,
 				DepartureDate: date,
+				Currency:      currencyCode,
 			})
 			if err != nil {
 				return fmt.Errorf("google flights search failed: %w", err)
@@ -727,6 +743,7 @@ Requires 'fli' (pipx install flights) for pricing.`,
 
 			type row struct {
 				Price         float64 `json:"price"`
+				Currency      string  `json:"currency"`
 				Airline       string  `json:"airline"`
 				Duration      int     `json:"duration_minutes"`
 				Stops         int     `json:"stops"`
@@ -740,6 +757,7 @@ Requires 'fli' (pipx install flights) for pricing.`,
 				}
 				results = append(results, row{
 					Price:         f.Price,
+					Currency:      f.Currency,
 					Airline:       airline,
 					Duration:      f.DurationMinutes,
 					Stops:         f.Stops,
@@ -754,12 +772,13 @@ Requires 'fli' (pipx install flights) for pricing.`,
 				tw := tabwriter.NewWriter(w, 0, 0, 2, ' ', 0)
 				fmt.Fprintln(tw, "PRICE\tAIRLINE\tDURATION\tSTOPS\tON_TIME_%_30D")
 				for _, r := range results {
-					fmt.Fprintf(tw, "%v\t%s\t%v\t%v\t%.1f\n", r.Price, r.Airline, r.Duration, r.Stops, r.OnTimePercent)
+					fmt.Fprintf(tw, "%s\t%s\t%v\t%v\t%.1f\n", formatPrice(r.Currency, r.Price), r.Airline, r.Duration, r.Stops, r.OnTimePercent)
 				}
 				tw.Flush()
 			})
 		},
 	}
+	cmd.Flags().StringVar(&currencyCode, "currency", "", "Currency for Google Flights prices (ISO 4217, e.g. GBP, EUR, USD; default USD)")
 	return cmd
 }
 
@@ -771,9 +790,9 @@ func newMonitorCmd(flags *rootFlags) *cobra.Command {
 	var maxChecks int
 
 	cmd := &cobra.Command{
-		Use:   "monitor <ident>",
+		Use:         "monitor <ident>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Watch a flight through its lifecycle until landed",
+		Short:       "Watch a flight through its lifecycle until landed",
 		Long: `monitor polls FlightAware at regular intervals and prints status changes.
 When --until-arrival is set (default), it exits when the flight lands.`,
 		Example: `  flight-goat-pp-cli monitor UA123
@@ -838,9 +857,9 @@ When --until-arrival is set (default), it exits when the flight lands.`,
 func newHeatmapCmd(flags *rootFlags) *cobra.Command {
 	var region string
 	cmd := &cobra.Command{
-		Use:   "heatmap",
+		Use:         "heatmap",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Where are delays happening right now across major airports",
+		Short:       "Where are delays happening right now across major airports",
 		Long: `heatmap calls /airports/delays and returns a single sorted table showing
 every airport with active delays. Useful for operators, travel hackers, and
 anyone deciding whether to reroute.`,
@@ -892,11 +911,11 @@ anyone deciding whether to reroute.`,
 
 func newResolveCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "resolve <ident>",
+		Use:         "resolve <ident>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "Show every code (codeshare, canonical, operator) for one flight",
-		Example: `  flight-goat-pp-cli resolve UA123`,
-		Args:    cobra.ExactArgs(1),
+		Short:       "Show every code (codeshare, canonical, operator) for one flight",
+		Example:     `  flight-goat-pp-cli resolve UA123`,
+		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ident := args[0]
 			c, err := flags.newClient()
@@ -917,11 +936,11 @@ func newResolveCmd(flags *rootFlags) *cobra.Command {
 
 func newAircraftBioCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "aircraft-bio <registration>",
+		Use:         "aircraft-bio <registration>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "Full history of a tail number: recent flights + owner + last known flight",
-		Example: `  flight-goat-pp-cli aircraft-bio N12345`,
-		Args:    cobra.ExactArgs(1),
+		Short:       "Full history of a tail number: recent flights + owner + last known flight",
+		Example:     `  flight-goat-pp-cli aircraft-bio N12345`,
+		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			reg := args[0]
 			c, err := flags.newClient()
@@ -956,11 +975,11 @@ func newAircraftBioCmd(flags *rootFlags) *cobra.Command {
 
 func newEtaCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "eta <ident>",
+		Use:         "eta <ident>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short:   "Weather-adjusted ETA: foresight prediction plus destination weather",
-		Example: `  flight-goat-pp-cli eta AA100`,
-		Args:    cobra.ExactArgs(1),
+		Short:       "Weather-adjusted ETA: foresight prediction plus destination weather",
+		Example:     `  flight-goat-pp-cli eta AA100`,
+		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ident := args[0]
 
@@ -1011,11 +1030,14 @@ func newEtaCmd(flags *rootFlags) *cobra.Command {
 // ----- T12: gf-search (Google Flights via fli) -----
 
 func newGfSearchCmd(flags *rootFlags) *cobra.Command {
+	// PATCH(upstream cli-printing-press#804): legacy Google Flights search gets
+	// the same command-scoped currency behavior as the headline flights command.
 	var alertIfUnder float64
+	var currencyCode string
 	cmd := &cobra.Command{
-		Use:   "gf-search <origin> <destination> <date>",
+		Use:         "gf-search <origin> <destination> <date>",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Short: "Google Flights search (price + duration + airlines)",
+		Short:       "Google Flights search (price + duration + airlines)",
 		Long: `gf-search runs a Google Flights search through flight-goat's native
 Go backend (no Python dependency). Returns price, duration, airline, and
 leg details.
@@ -1027,9 +1049,13 @@ price is below the threshold.`,
 		Args: cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if flags.dryRun {
-				fmt.Fprintf(cmd.ErrOrStderr(), "gflights.Search(%s -> %s on %s)\n", args[0], args[1], args[2])
+				fmt.Fprintf(cmd.ErrOrStderr(), "gflights.Search(%s -> %s on %s", args[0], args[1], args[2])
+				if currencyCode != "" {
+					fmt.Fprintf(cmd.ErrOrStderr(), " currency=%s", strings.ToUpper(strings.TrimSpace(currencyCode)))
+				}
+				fmt.Fprintln(cmd.ErrOrStderr(), ")")
 				if alertIfUnder > 0 {
-					fmt.Fprintf(cmd.ErrOrStderr(), "(would emit alert if any result price < $%.0f)\n", alertIfUnder)
+					fmt.Fprintf(cmd.ErrOrStderr(), "(would emit alert if any result price < %s)\n", formatPrice(currencyCode, alertIfUnder))
 				}
 				fmt.Fprintln(cmd.ErrOrStderr(), "\n(dry run - no network call)")
 				return nil
@@ -1041,6 +1067,7 @@ price is below the threshold.`,
 				Origin:        args[0],
 				Destination:   args[1],
 				DepartureDate: args[2],
+				Currency:      currencyCode,
 			})
 			if err != nil {
 				return fmt.Errorf("google flights search failed: %w", err)
@@ -1053,8 +1080,8 @@ price is below the threshold.`,
 			if alertIfUnder > 0 {
 				for _, f := range result.Flights {
 					if f.Price > 0 && f.Price < alertIfUnder {
-						fmt.Fprintf(cmd.ErrOrStderr(), "Found %s %s %s at $%.0f (under $%.0f threshold)\n",
-							args[0], args[1], args[2], f.Price, alertIfUnder)
+						fmt.Fprintf(cmd.ErrOrStderr(), "Found %s %s %s at %s (under %s threshold)\n",
+							args[0], args[1], args[2], formatPrice(f.Currency, f.Price), formatPrice(f.Currency, alertIfUnder))
 						break
 					}
 				}
@@ -1063,6 +1090,7 @@ price is below the threshold.`,
 		},
 	}
 	cmd.Flags().Float64Var(&alertIfUnder, "alert-if-under", 0, "Emit a notice if a result is below this price")
+	cmd.Flags().StringVar(&currencyCode, "currency", "", "Currency for Google Flights prices (ISO 4217, e.g. GBP, EUR, USD; default USD)")
 	return cmd
 }
 

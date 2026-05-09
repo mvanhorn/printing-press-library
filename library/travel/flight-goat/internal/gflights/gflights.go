@@ -58,14 +58,14 @@ type Flight struct {
 
 // SearchResult is the normalized envelope returned by Search.
 type SearchResult struct {
-	Success    bool     `json:"success"`
-	Source     string   `json:"source"` // "native-go" — krisukox/google-flights-api
-	DataSource string   `json:"data_source"`
-	SearchType string   `json:"search_type"`
-	TripType   string   `json:"trip_type"`
+	Success    bool        `json:"success"`
+	Source     string      `json:"source"` // "native-go" — krisukox/google-flights-api
+	DataSource string      `json:"data_source"`
+	SearchType string      `json:"search_type"`
+	TripType   string      `json:"trip_type"`
 	Query      SearchQuery `json:"query"`
-	Count      int      `json:"count"`
-	Flights    []Flight `json:"flights"`
+	Count      int         `json:"count"`
+	Flights    []Flight    `json:"flights"`
 }
 
 // SearchQuery echoes the user's query back in the response envelope.
@@ -76,6 +76,7 @@ type SearchQuery struct {
 	ReturnDate    string `json:"return_date,omitempty"`
 	CabinClass    string `json:"cabin_class"`
 	MaxStops      string `json:"max_stops"`
+	Currency      string `json:"currency,omitempty"`
 }
 
 // DatePrice is one row in the cheapest-dates output.
@@ -110,6 +111,7 @@ type SearchOptions struct {
 	SortBy        string
 	Passengers    int
 	ExcludeBasic  bool
+	Currency      string
 }
 
 // Search runs a flight search via the native Go backend (krisukox).
@@ -171,6 +173,13 @@ func searchNative(ctx context.Context, opts SearchOptions) (*SearchResult, error
 		passengers = opts.Passengers
 	}
 
+	// PATCH(upstream cli-printing-press#804): honor per-command ISO 4217
+	// currency requests instead of hard-coding Google Flights searches to USD.
+	currencyUnit, currencyCode, err := normalizeCurrency(opts.Currency)
+	if err != nil {
+		return nil, err
+	}
+
 	offers, _, err := session.GetOffers(ctx, krisukox.Args{
 		Date:        depDate,
 		ReturnDate:  retDate,
@@ -178,7 +187,7 @@ func searchNative(ctx context.Context, opts SearchOptions) (*SearchResult, error
 		DstAirports: []string{opts.Destination},
 		Options: krisukox.Options{
 			Travelers: krisukox.Travelers{Adults: passengers},
-			Currency:  currency.USD,
+			Currency:  currencyUnit,
 			Stops:     stops,
 			Class:     cabin,
 			TripType:  tripType,
@@ -195,7 +204,7 @@ func searchNative(ctx context.Context, opts SearchOptions) (*SearchResult, error
 			DurationMinutes: int(o.FlightDuration.Minutes()),
 			Stops:           len(o.Flight) - 1,
 			Price:           o.Price,
-			Currency:        "USD",
+			Currency:        currencyCode,
 		}
 		for _, leg := range o.Flight {
 			f.Legs = append(f.Legs, Leg{
@@ -224,6 +233,7 @@ func searchNative(ctx context.Context, opts SearchOptions) (*SearchResult, error
 			ReturnDate:    opts.ReturnDate,
 			CabinClass:    strings.ToUpper(opts.CabinClass),
 			MaxStops:      strings.ToUpper(opts.MaxStops),
+			Currency:      currencyCode,
 		},
 		Count:   len(flights),
 		Flights: flights,
@@ -249,6 +259,7 @@ type DatesOptions struct {
 	MaxStops    string
 	CabinClass  string
 	Sort        bool
+	Currency    string
 }
 
 // Dates runs a cheapest-dates query against Google Flights' GetCalendarGraph
@@ -264,3 +275,29 @@ func Dates(ctx context.Context, opts DatesOptions) (*DatesResult, error) {
 	return datesNative(ctx, opts)
 }
 
+func normalizeCurrency(code string) (currency.Unit, string, error) {
+	normalized, err := NormalizeCurrencyCode(code)
+	if err != nil {
+		return currency.Unit{}, "", err
+	}
+	unit, err := currency.ParseISO(normalized)
+	if err != nil {
+		return currency.Unit{}, "", fmt.Errorf("invalid currency %q: must be an ISO 4217 code (e.g. USD, GBP, EUR)", code)
+	}
+	return unit, normalized, nil
+}
+
+func NormalizeCurrencyCode(code string) (string, error) {
+	normalized := strings.ToUpper(strings.TrimSpace(code))
+	if normalized == "" {
+		return "USD", nil
+	}
+	if _, err := currency.ParseISO(normalized); err != nil {
+		return "", fmt.Errorf("invalid currency %q: must be an ISO 4217 code (e.g. USD, GBP, EUR)", code)
+	}
+	return normalized, nil
+}
+
+func googleFlightsCurrencyHeader(code string) string {
+	return fmt.Sprintf(`["en-US","US","%s",1,null,[-120],null,[[48764689,47907128,48676280,48710756,48627726,48480739,48593234,48707380]],1,[]]`, code)
+}

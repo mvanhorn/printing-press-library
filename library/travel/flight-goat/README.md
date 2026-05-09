@@ -130,6 +130,22 @@ flight-goat-pp-cli airports get mock-value
 
 Run `flight-goat-pp-cli --help` for the full command reference and flag list.
 
+### Google Flights Currency
+
+Google Flights price commands accept `--currency <ISO-4217-code>` for native
+Google Flights prices in that currency. The default is USD when the flag is
+omitted.
+
+```bash
+flight-goat-pp-cli flights MAN AGP 2026-05-10 --currency GBP --sort cheapest
+flight-goat-pp-cli dates JFK CDG --from 2026-07-01 --to 2026-07-31 --currency EUR --sort
+flight-goat-pp-cli compare SEA LHR 2026-06-15 --currency GBP
+```
+
+`--currency` is intentionally command-scoped. It is available on commands that
+ask Google Flights for prices (`flights`, `dates`, `compare`, `gf-search`, and
+`cheapest-longhaul`), not on AeroAPI or Kayak-only commands.
+
 ## Commands
 
 ### aircraft

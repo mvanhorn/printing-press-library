@@ -35,7 +35,9 @@ func registerPrimaryCommands(rootCmd *cobra.Command, flags *rootFlags) {
 // ----- search: Google Flights one-shot search -----
 
 func newGfFlightsCmd(flags *rootFlags) *cobra.Command {
-	var returnDate, timeWindow, cabin, stops, sortBy string
+	// PATCH(upstream cli-printing-press#804): expose currency only on Google
+	// Flights-backed price commands, not as a misleading root flag.
+	var returnDate, timeWindow, cabin, stops, sortBy, currencyCode string
 	var airlines []string
 	var passengers int
 	var excludeBasic bool
@@ -56,6 +58,9 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
   # Morning departures on British Airways or KLM
   flight-goat-pp-cli flights JFK LHR 2026-07-01 --time 6-12 --airlines BA,KL
 
+  # Show prices in GBP
+  flight-goat-pp-cli flights MAN AGP 2026-05-10 --currency GBP --sort cheapest
+
   # Round trip with return date
   flight-goat-pp-cli flights SEA HNL 2026-08-01 --return 2026-08-10`,
 		Args: cobra.ExactArgs(3),
@@ -72,6 +77,7 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
 				SortBy:        sortBy,
 				Passengers:    passengers,
 				ExcludeBasic:  excludeBasic,
+				Currency:      currencyCode,
 			}
 			if flags.dryRun {
 				fmt.Fprintf(cmd.OutOrStdout(), "gflights.Search(%s -> %s on %s)", opts.Origin, opts.Destination, opts.DepartureDate)
@@ -83,6 +89,9 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
 				}
 				if len(opts.Airlines) > 0 {
 					fmt.Fprintf(cmd.OutOrStdout(), " airlines=%s", strings.Join(opts.Airlines, ","))
+				}
+				if opts.Currency != "" {
+					fmt.Fprintf(cmd.OutOrStdout(), " currency=%s", strings.ToUpper(strings.TrimSpace(opts.Currency)))
 				}
 				fmt.Fprintln(cmd.OutOrStdout(), "\n(dry run - no request sent)")
 				return nil
@@ -127,8 +136,8 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
 					depart = trimTime(f.Legs[0].DepartureTime)
 					arrive = trimTime(f.Legs[len(f.Legs)-1].ArrivalTime)
 				}
-				fmt.Fprintf(tw, "$%.0f\t%s\t%d\t%s\t%s\t%s\n",
-					f.Price, minutesToHM(f.DurationMinutes), f.Stops, strings.Join(carrierList, ","), depart, arrive)
+				fmt.Fprintf(tw, "%s\t%s\t%d\t%s\t%s\t%s\n",
+					formatPrice(f.Currency, f.Price), minutesToHM(f.DurationMinutes), f.Stops, strings.Join(carrierList, ","), depart, arrive)
 			}
 			tw.Flush()
 			return nil
@@ -142,13 +151,16 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
 	cmd.Flags().StringVar(&sortBy, "sort", "", "Sort by: cheapest, duration, departure_time, arrival_time")
 	cmd.Flags().IntVarP(&passengers, "passengers", "p", 1, "Number of passengers")
 	cmd.Flags().BoolVar(&excludeBasic, "exclude-basic", false, "Exclude basic economy fares")
+	cmd.Flags().StringVar(&currencyCode, "currency", "", "Currency for prices (ISO 4217, e.g. GBP, EUR, USD; default USD)")
 	return cmd
 }
 
 // ----- dates: cheapest-dates discovery -----
 
 func newGfDatesCmd(flags *rootFlags) *cobra.Command {
-	var from, to, cabin, stops string
+	// PATCH(upstream cli-printing-press#804): mirror the flights currency flag
+	// on the calendar-price command that uses the same Google Flights backend.
+	var from, to, cabin, stops, currencyCode string
 	var duration int
 	var round, doSort bool
 	var airlines []string
@@ -167,6 +179,9 @@ a range of dates. No API key required. Uses flight-goat's native Go backend
   # Non-stop business class, next month only
   flight-goat-pp-cli dates JFK CDG --from 2026-07-01 --to 2026-07-31 --stops non_stop --class business
 
+  # Cheapest dates priced in EUR
+  flight-goat-pp-cli dates JFK CDG --from 2026-07-01 --to 2026-07-31 --currency EUR --sort
+
   # Round trip with 7-day duration
   flight-goat-pp-cli dates SEA HNL --round --duration 7 --sort`,
 		Args: cobra.ExactArgs(2),
@@ -182,9 +197,14 @@ a range of dates. No API key required. Uses flight-goat's native Go backend
 				MaxStops:    stops,
 				CabinClass:  cabin,
 				Sort:        doSort,
+				Currency:    currencyCode,
 			}
 			if flags.dryRun {
-				fmt.Fprintf(cmd.OutOrStdout(), "gflights.Dates(%s -> %s from=%s to=%s)\n", opts.Origin, opts.Destination, opts.From, opts.To)
+				fmt.Fprintf(cmd.OutOrStdout(), "gflights.Dates(%s -> %s from=%s to=%s", opts.Origin, opts.Destination, opts.From, opts.To)
+				if opts.Currency != "" {
+					fmt.Fprintf(cmd.OutOrStdout(), " currency=%s", strings.ToUpper(strings.TrimSpace(opts.Currency)))
+				}
+				fmt.Fprintln(cmd.OutOrStdout(), ")")
 				fmt.Fprintln(cmd.OutOrStdout(), "(dry run - no request sent)")
 				return nil
 			}
@@ -218,7 +238,7 @@ a range of dates. No API key required. Uses flight-goat's native Go backend
 			tw := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
 			fmt.Fprintln(tw, "DATE\tPRICE")
 			for _, p := range dates {
-				fmt.Fprintf(tw, "%s\t$%.0f\n", p.DepartureDate, p.Price)
+				fmt.Fprintf(tw, "%s\t%s\n", p.DepartureDate, formatPrice(p.Currency, p.Price))
 			}
 			tw.Flush()
 			return nil
@@ -233,10 +253,19 @@ a range of dates. No API key required. Uses flight-goat's native Go backend
 	cmd.Flags().StringVarP(&cabin, "class", "c", "", "Cabin class: economy, premium_economy, business, first")
 	cmd.Flags().BoolVar(&doSort, "sort", false, "Sort by price ascending")
 	cmd.Flags().IntVarP(&limit, "limit", "l", 0, "Limit to top N dates (0 = all)")
+	cmd.Flags().StringVar(&currencyCode, "currency", "", "Currency for prices (ISO 4217, e.g. GBP, EUR, USD; default USD)")
 	return cmd
 }
 
 // ----- shared helpers -----
+
+func formatPrice(code string, price float64) string {
+	code = strings.ToUpper(strings.TrimSpace(code))
+	if code == "" {
+		code = "USD"
+	}
+	return fmt.Sprintf("%s %.0f", code, price)
+}
 
 func minutesToHM(m int) string {
 	if m <= 0 {

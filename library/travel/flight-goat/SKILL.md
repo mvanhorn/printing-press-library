@@ -48,6 +48,21 @@ discover.
 - History: Historical flight access for various endpoints
 - Miscellaneous: Flight disruption, future schedule information, and aircraft owner information
 
+## Google Flights Currency
+
+Use `--currency <ISO-4217-code>` when the user wants Google Flights prices in a
+specific currency. Omit it for the default USD behavior.
+
+```bash
+flight-goat-pp-cli flights MAN AGP 2026-05-10 --currency GBP --sort cheapest --agent
+flight-goat-pp-cli dates JFK CDG --from 2026-07-01 --to 2026-07-31 --currency EUR --sort --agent
+flight-goat-pp-cli compare SEA LHR 2026-06-15 --currency GBP --agent
+```
+
+The flag is only valid on Google Flights price commands: `flights`, `dates`,
+`compare`, `gf-search`, and `cheapest-longhaul`. Do not add it to AeroAPI or
+Kayak-only commands.
+
 ## Development Tools
 AeroAPI is defined using the OpenAPI Spec 3.0, which means it can be easily
 imported into tools like Postman. To get started try importing the API

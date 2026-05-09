@@ -61,6 +61,14 @@ const (
 // datesNative is the native-Go replacement for the fli subprocess. Returns
 // the same DatesResult shape so callers don't care which backend ran.
 func datesNative(ctx context.Context, opts DatesOptions) (*DatesResult, error) {
+	// PATCH(upstream cli-printing-press#804): the native calendar endpoint
+	// reads currency from Google's JSPB extension header, matching the
+	// krisukox PriceGraph path this code was ported around.
+	_, currencyCode, err := normalizeCurrency(opts.Currency)
+	if err != nil {
+		return nil, err
+	}
+
 	from, err := time.Parse("2006-01-02", opts.From)
 	if err != nil {
 		return nil, fmt.Errorf("parsing from date %q: %w", opts.From, err)
@@ -101,6 +109,7 @@ func datesNative(ctx context.Context, opts DatesOptions) (*DatesResult, error) {
 		Query: SearchQuery{
 			Origin:      opts.Origin,
 			Destination: opts.Destination,
+			Currency:    currencyCode,
 		},
 		Count: len(all),
 		Dates: all,
@@ -124,6 +133,8 @@ func datesChunk(ctx context.Context, opts DatesOptions, from, to time.Time) ([]D
 	req.Header.Set("User-Agent", chromeUserAgent)
 	req.Header.Set("Accept", "*/*")
 	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
+	_, currencyCode, _ := normalizeCurrency(opts.Currency)
+	req.Header.Set("x-goog-ext-259736195-jspb", googleFlightsCurrencyHeader(currencyCode))
 
 	resp, err := utlsClient().Do(req)
 	if err != nil {
@@ -143,7 +154,7 @@ func datesChunk(ctx context.Context, opts DatesOptions, from, to time.Time) ([]D
 		return nil, fmt.Errorf("calendar endpoint returned HTTP %d: %s", resp.StatusCode, snippet)
 	}
 
-	return parseDatesResponse(respBody)
+	return parseDatesResponse(respBody, currencyCode)
 }
 
 // buildDatesPayload constructs the URL-encoded `f.req` value for a single
@@ -273,7 +284,7 @@ func mapMaxStops(s string) (int, error) {
 // parseDatesResponse unwraps Google's )]}' prefix, drills into the wrb.fr
 // envelope, and returns one DatePrice per date that came back with a price.
 // Items with null price are silently skipped (mirrors fli).
-func parseDatesResponse(body []byte) ([]DatePrice, error) {
+func parseDatesResponse(body []byte, defaultCurrency string) ([]DatePrice, error) {
 	stripped := strings.TrimPrefix(string(body), googleResponsePrefix)
 	stripped = strings.TrimSpace(stripped)
 
@@ -316,6 +327,9 @@ func parseDatesResponse(body []byte) ([]DatePrice, error) {
 		price, currency := parsePriceAndCurrency(item[2])
 		if price <= 0 {
 			continue
+		}
+		if currency == "" {
+			currency = defaultCurrency
 		}
 		out = append(out, DatePrice{
 			DepartureDate: dateStr,
