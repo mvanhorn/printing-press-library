@@ -1,0 +1,267 @@
+name: rocket-league-tracker
+description: "Rocket League rank, MMR, and player-stats CLI backed by the RapidAPI rocket-league1 listing. Local SQLite store turns 'right now' into 'last 30 days'."
+version: "0.1.0"
+base_url: "https://rocket-league1.p.rapidapi.com"
+http_transport: standard
+health_check_path: "/"
+
+required_headers:
+  - name: X-RapidAPI-Host
+    value: "rocket-league1.p.rapidapi.com"
+
+auth:
+  type: api_key
+  header: "X-RapidAPI-Key"
+  format: "{token}"
+  env_vars:
+    - RAPIDAPI_KEY
+  in: header
+
+config:
+  format: toml
+  path: "~/.config/rocket-league-tracker-pp-cli/config.toml"
+
+resources:
+  player:
+    description: "Look up a player's profile (display name, tag, presence)."
+    endpoints:
+      get:
+        method: GET
+        path: "/profile/{playerId}"
+        description: "Fetch the profile for one player."
+        params:
+          - name: playerId
+            flag_name: player
+            aliases: [id, player-id]
+            type: string
+            required: true
+            positional: true
+            description: "Player identifier (Epic display name, Steam ID, PSN ID, or Xbox gamertag)."
+        response:
+          type: object
+          item: PlayerProfile
+
+  rank:
+    description: "Per-playlist competitive rank (tier, division, MMR, games, streak)."
+    endpoints:
+      get:
+        method: GET
+        path: "/ranks/{playerId}"
+        description: "All competitive playlists for one player."
+        params:
+          - name: playerId
+            flag_name: player
+            aliases: [id, player-id]
+            type: string
+            required: true
+            positional: true
+            description: "Player identifier."
+        response:
+          type: object
+          item: PlayerRanks
+
+  stat:
+    description: "Career stats (goals, wins, MVPs, saves, assists, shots, etc.)."
+    endpoints:
+      get:
+        method: GET
+        path: "/stat/{playerId}/{statName}"
+        description: "Single-stat lookup for one player."
+        params:
+          - name: playerId
+            flag_name: player
+            aliases: [id, player-id]
+            type: string
+            required: true
+            positional: true
+            description: "Player identifier."
+          - name: statName
+            flag_name: stat
+            aliases: [name, stat-name]
+            type: string
+            required: true
+            positional: true
+            description: "Stat key (e.g. goals, wins, mvps, saves, assists, shots)."
+        response:
+          type: object
+          item: PlayerStat
+
+  directory:
+    description: "Search the remote player directory by display name."
+    endpoints:
+      query:
+        method: GET
+        path: "/search/{query}"
+        description: "Find players whose names match the query."
+        params:
+          - name: query
+            flag_name: query
+            aliases: [q, name]
+            type: string
+            required: true
+            positional: true
+            description: "Name fragment to search for."
+        response:
+          type: array
+          item: SearchResult
+
+  shop:
+    description: "Current Rocket League item shop."
+    endpoints:
+      get:
+        method: GET
+        path: "/shop"
+        description: "List items currently in the in-game shop."
+        response:
+          type: array
+          item: ShopItem
+
+  tournaments:
+    description: "Active Rocket League tournaments."
+    endpoints:
+      list:
+        method: GET
+        path: "/tournaments"
+        description: "List tournaments currently scheduled or in progress."
+        response:
+          type: array
+          item: Tournament
+
+  announcements:
+    description: "Recent Rocket League announcements (patch notes, season changes)."
+    endpoints:
+      list:
+        method: GET
+        path: "/announcements"
+        description: "Latest Rocket League game announcements."
+        response:
+          type: array
+          item: Announcement
+
+  clubs:
+    description: "Rocket League clubs a player belongs to."
+    endpoints:
+      get:
+        method: GET
+        path: "/clubs/{playerId}"
+        description: "Clubs membership for one player."
+        params:
+          - name: playerId
+            flag_name: player
+            aliases: [id, player-id]
+            type: string
+            required: true
+            positional: true
+            description: "Player identifier."
+        response:
+          type: array
+          item: Club
+
+  titles:
+    description: "In-game titles a player has earned."
+    endpoints:
+      get:
+        method: GET
+        path: "/titles/{playerId}"
+        description: "List titles for one player."
+        params:
+          - name: playerId
+            flag_name: player
+            aliases: [id, player-id]
+            type: string
+            required: true
+            positional: true
+            description: "Player identifier."
+        response:
+          type: array
+          item: PlayerTitle
+
+  population:
+    description: "Current playlist population counts (players online per playlist)."
+    endpoints:
+      get:
+        method: GET
+        path: "/population"
+        description: "Snapshot of playlist populations across all regions."
+        response:
+          type: object
+          item: PopulationSnapshot
+
+types:
+  PlayerProfile:
+    fields:
+      - name: playerId
+        type: string
+      - name: name
+        type: string
+      - name: tag
+        type: string
+      - name: presence
+        type: string
+
+  PlayerRanks:
+    fields:
+      - name: playerId
+        type: string
+      - name: name
+        type: string
+
+  PlayerStat:
+    fields:
+      - name: name
+        type: string
+      - name: value
+        type: int
+
+  SearchResult:
+    fields:
+      - name: playerId
+        type: string
+      - name: name
+        type: string
+
+  ShopItem:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: rarity
+        type: string
+
+  Tournament:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: start
+        type: string
+
+  Announcement:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: date
+        type: string
+
+  Club:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+
+  PlayerTitle:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+
+  PopulationSnapshot:
+    fields:
+      - name: timestamp
+        type: string

@@ -1,0 +1,400 @@
+{
+  "api_name": "rocket-league-tracker",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "yataknemogy/rocket-league-api",
+      "url": "https://github.com/yataknemogy/rocket-league-api",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "PannH/trn-rocket-league",
+      "url": "https://github.com/PannH/trn-rocket-league",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "kilroy-2/rl-rank-stats-web-scrap",
+      "url": "https://github.com/kilroy-2/rl-rank-stats-web-scrap",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "BlancoLanda/LandasRLTracker",
+      "url": "https://github.com/BlancoLanda/LandasRLTracker",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "jubishop/Tusk",
+      "url": "https://github.com/jubishop/Tusk",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "luukdg/FlipReStat",
+      "url": "https://github.com/luukdg/FlipReStat",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Scetch/rlstats-cli",
+      "url": "https://github.com/Scetch/rlstats-cli",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Jackenmen/rlapi",
+      "url": "https://github.com/Jackenmen/rlapi",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T13:33:00Z",
+  "novel_features": [
+    {
+      "name": "Daily snapshot delta",
+      "command": "peek",
+      "description": "One-line 'where you stand right now' for every playlist with today vs yesterday MMR and tier delta.",
+      "rationale": "Reads the last two locally-stored playlist snapshots and diffs them in one line. No public RL site gives a day-over-day delta in a single shell-readable line.",
+      "example": "rocket-league-tracker-pp-cli peek SquishyMuffinz --platform epic --json",
+      "why_it_matters": "Use peek when an agent needs a one-line read of a player's current standing plus today's movement, without fetching a full profile or computing differences itself.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Time-series MMR curve",
+      "command": "trend",
+      "description": "Daily MMR series for one playlist over N days, suitable for piping into an agent or charting tool.",
+      "rationale": "Groups local SQLite snapshots by day for the chosen playlist_key. A single API call only returns 'right now' — the time series exists nowhere upstream.",
+      "example": "rocket-league-tracker-pp-cli trend SquishyMuffinz --playlist 2v2 --days 30 --json --select date,mmr,tier",
+      "why_it_matters": "Use trend when an agent needs the curve of a player's rank over time to coach playlist focus or detect tilt patterns.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Session summary",
+      "command": "session-summary",
+      "description": "Closes today's play session: start vs current MMR, W/L, most-played playlist.",
+      "rationale": "Filters locally-stored snapshots to rows captured since the local day boundary. Mirrors the surrounding rocket-league-stats project's explicit-boundary session model.",
+      "example": "rocket-league-tracker-pp-cli session-summary SquishyMuffinz --json",
+      "why_it_matters": "Use session-summary when an agent needs to summarize 'how did today go' for a player without re-querying the API for every match.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Group ranker",
+      "command": "group",
+      "description": "Multi-player diff for a saved friend group, sortable by MMR delta, win delta, or MVP delta over N days.",
+      "rationale": "Joins locally-stored group membership with per-member snapshots. No public site offers a friend-group diff view sortable by user-chosen dimension.",
+      "example": "rocket-league-tracker-pp-cli group sundaynightgang --rank-by mmr-delta-7d --json",
+      "why_it_matters": "Use group when an agent needs to answer 'who in my crew improved most this week' or 'who tilted the hardest' — the inputs are local-only.",
+      "group": "Cross-player insights"
+    },
+    {
+      "name": "Save a friend group",
+      "command": "group save",
+      "description": "Save a named friend group to local storage so the group ranker can query it.",
+      "rationale": "Pure local SQLite scaffolding. The grouping concept is unique to this CLI; no upstream API has it.",
+      "example": "rocket-league-tracker-pp-cli group save sundaynightgang SquishyMuffinz Apparently Vatira --platform epic",
+      "why_it_matters": "Use group save when setting up a tracked friend group; downstream commands like group and compare consume the saved set.",
+      "group": "Cross-player insights"
+    },
+    {
+      "name": "Agent context blob",
+      "command": "player-context",
+      "description": "Single agent-shaped JSON envelope: identity + last-30-day per-playlist MMR series + last 20 matches + current rank/tier + sweat-delta. Token-budgeted via --select.",
+      "rationale": "Joins three local tables into one envelope and exposes a flat selectable shape. Optimized for AI-agent ingestion; replaces hand-curated CSVs.",
+      "example": "rocket-league-tracker-pp-cli player-context SquishyMuffinz --days 30 --json --select identity.display_name,playlists.key,playlists.mmr",
+      "why_it_matters": "Use agent-context when an agent is asked to coach a player or recommend a playlist focus; this is the canonical structured input.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Promo distance",
+      "command": "promo",
+      "description": "How many MMR points and approximate wins until the next tier promotion, per playlist.",
+      "rationale": "Combines /ranks/{playerId} with a baked-in static MMR-ladder reference. No wrapper in the absorb landscape computes this.",
+      "example": "rocket-league-tracker-pp-cli promo SquishyMuffinz --json",
+      "why_it_matters": "Use promo when an agent needs an actionable 'how close to next rank' for a player without computing tier ladders itself.",
+      "group": "Cross-call insights"
+    },
+    {
+      "name": "Tournament fit",
+      "command": "tournament-fit",
+      "description": "Lists active tournaments whose skill bracket includes the player's current MMR for the relevant playlist.",
+      "rationale": "Joins /ranks/{playerId} with /tournaments and bracket thresholds. The cross-call filter is what no single endpoint supplies.",
+      "example": "rocket-league-tracker-pp-cli tournament-fit SquishyMuffinz --json",
+      "why_it_matters": "Use tournament-fit when an agent needs to recommend tournaments a player can actually queue for.",
+      "group": "Cross-call insights"
+    },
+    {
+      "name": "Best queue time",
+      "command": "population-best-time",
+      "description": "From historical population snapshots, the hour of week with the largest active queue for a playlist.",
+      "rationale": "Aggregates locally-stored /population snapshots by hour-of-week. A single call gives 'now' only.",
+      "example": "rocket-league-tracker-pp-cli population-best-time --playlist 3v3 --days 7 --json",
+      "why_it_matters": "Use population-best-time when an agent needs to recommend when a player should queue for fastest matches.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "MMR sparkline",
+      "command": "mmr-curve",
+      "description": "ASCII sparkline of MMR over the last 30 days for the chosen playlist.",
+      "rationale": "Same series as trend, formatted as a glanceable terminal sparkline. Cheap incremental cost.",
+      "example": "rocket-league-tracker-pp-cli mmr-curve SquishyMuffinz --playlist 2v2",
+      "why_it_matters": "Use mmr-curve when a human-readable terminal output beats JSON; agents should prefer trend.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Liar check",
+      "command": "liar-check",
+      "description": "Verifies a player's claimed rank against their actual current MMR; returns 'true' or 'overstated by N MMR'.",
+      "rationale": "Compares /ranks/{playerId} to the static MMR-ladder lower bound for the claimed tier. The ritual the friend-group sweat persona literally needs.",
+      "example": "rocket-league-tracker-pp-cli liar-check Ben --claimed-rank GC --json",
+      "why_it_matters": "Use liar-check when an agent needs to validate a claimed rank against ground truth without manually looking up tier thresholds.",
+      "group": "Cross-call insights"
+    },
+    {
+      "name": "Import collector snapshot",
+      "command": "import-collector-snapshot",
+      "description": "Pulls a JSON snapshot exported by the rocket-league-stats apps/collector process into the CLI's local store.",
+      "rationale": "The CLI shares the surrounding project's storage_key model, so collector data and RapidAPI data merge into one timeline. Unique to this CLI.",
+      "example": "rocket-league-tracker-pp-cli import-collector-snapshot ~/snapshots/2026-05-08.json",
+      "why_it_matters": "Use import-collector-snapshot when a user has both the rocket-league-stats collector running and this CLI; the merge unlocks unified history.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Daily snapshot delta",
+      "command": "peek",
+      "description": "One-line 'where you stand right now' for every playlist with today vs yesterday MMR and tier delta.",
+      "rationale": "Reads the last two locally-stored playlist snapshots and diffs them in one line. No public RL site gives a day-over-day delta in a single shell-readable line.",
+      "example": "rocket-league-tracker-pp-cli peek SquishyMuffinz --platform epic --json",
+      "why_it_matters": "Use peek when an agent needs a one-line read of a player's current standing plus today's movement, without fetching a full profile or computing differences itself.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Time-series MMR curve",
+      "command": "trend",
+      "description": "Daily MMR series for one playlist over N days, suitable for piping into an agent or charting tool.",
+      "rationale": "Groups local SQLite snapshots by day for the chosen playlist_key. A single API call only returns 'right now' — the time series exists nowhere upstream.",
+      "example": "rocket-league-tracker-pp-cli trend SquishyMuffinz --playlist 2v2 --days 30 --json --select date,mmr,tier",
+      "why_it_matters": "Use trend when an agent needs the curve of a player's rank over time to coach playlist focus or detect tilt patterns.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Session summary",
+      "command": "session-summary",
+      "description": "Closes today's play session: start vs current MMR, W/L, most-played playlist.",
+      "rationale": "Filters locally-stored snapshots to rows captured since the local day boundary. Mirrors the surrounding rocket-league-stats project's explicit-boundary session model.",
+      "example": "rocket-league-tracker-pp-cli session-summary SquishyMuffinz --json",
+      "why_it_matters": "Use session-summary when an agent needs to summarize 'how did today go' for a player without re-querying the API for every match.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Group ranker",
+      "command": "group",
+      "description": "Multi-player diff for a saved friend group, sortable by MMR delta, win delta, or MVP delta over N days.",
+      "rationale": "Joins locally-stored group membership with per-member snapshots. No public site offers a friend-group diff view sortable by user-chosen dimension.",
+      "example": "rocket-league-tracker-pp-cli group sundaynightgang --rank-by mmr-delta-7d --json",
+      "why_it_matters": "Use group when an agent needs to answer 'who in my crew improved most this week' or 'who tilted the hardest' — the inputs are local-only.",
+      "group": "Cross-player insights"
+    },
+    {
+      "name": "Save a friend group",
+      "command": "group save",
+      "description": "Save a named friend group to local storage so the group ranker can query it.",
+      "rationale": "Pure local SQLite scaffolding. The grouping concept is unique to this CLI; no upstream API has it.",
+      "example": "rocket-league-tracker-pp-cli group save sundaynightgang SquishyMuffinz Apparently Vatira --platform epic",
+      "why_it_matters": "Use group save when setting up a tracked friend group; downstream commands like group and compare consume the saved set.",
+      "group": "Cross-player insights"
+    },
+    {
+      "name": "Agent context blob",
+      "command": "player-context",
+      "description": "Single agent-shaped JSON envelope: identity + last-30-day per-playlist MMR series + last 20 matches + current rank/tier + sweat-delta. Token-budgeted via --select.",
+      "rationale": "Joins three local tables into one envelope and exposes a flat selectable shape. Optimized for AI-agent ingestion; replaces hand-curated CSVs.",
+      "example": "rocket-league-tracker-pp-cli player-context SquishyMuffinz --days 30 --json --select identity.display_name,playlists.key,playlists.mmr",
+      "why_it_matters": "Use agent-context when an agent is asked to coach a player or recommend a playlist focus; this is the canonical structured input.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Promo distance",
+      "command": "promo",
+      "description": "How many MMR points and approximate wins until the next tier promotion, per playlist.",
+      "rationale": "Combines /ranks/{playerId} with a baked-in static MMR-ladder reference. No wrapper in the absorb landscape computes this.",
+      "example": "rocket-league-tracker-pp-cli promo SquishyMuffinz --json",
+      "why_it_matters": "Use promo when an agent needs an actionable 'how close to next rank' for a player without computing tier ladders itself.",
+      "group": "Cross-call insights"
+    },
+    {
+      "name": "Tournament fit",
+      "command": "tournament-fit",
+      "description": "Lists active tournaments whose skill bracket includes the player's current MMR for the relevant playlist.",
+      "rationale": "Joins /ranks/{playerId} with /tournaments and bracket thresholds. The cross-call filter is what no single endpoint supplies.",
+      "example": "rocket-league-tracker-pp-cli tournament-fit SquishyMuffinz --json",
+      "why_it_matters": "Use tournament-fit when an agent needs to recommend tournaments a player can actually queue for.",
+      "group": "Cross-call insights"
+    },
+    {
+      "name": "Best queue time",
+      "command": "population-best-time",
+      "description": "From historical population snapshots, the hour of week with the largest active queue for a playlist.",
+      "rationale": "Aggregates locally-stored /population snapshots by hour-of-week. A single call gives 'now' only.",
+      "example": "rocket-league-tracker-pp-cli population-best-time --playlist 3v3 --days 7 --json",
+      "why_it_matters": "Use population-best-time when an agent needs to recommend when a player should queue for fastest matches.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "MMR sparkline",
+      "command": "mmr-curve",
+      "description": "ASCII sparkline of MMR over the last 30 days for the chosen playlist.",
+      "rationale": "Same series as trend, formatted as a glanceable terminal sparkline. Cheap incremental cost.",
+      "example": "rocket-league-tracker-pp-cli mmr-curve SquishyMuffinz --playlist 2v2",
+      "why_it_matters": "Use mmr-curve when a human-readable terminal output beats JSON; agents should prefer trend.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Liar check",
+      "command": "liar-check",
+      "description": "Verifies a player's claimed rank against their actual current MMR; returns 'true' or 'overstated by N MMR'.",
+      "rationale": "Compares /ranks/{playerId} to the static MMR-ladder lower bound for the claimed tier. The ritual the friend-group sweat persona literally needs.",
+      "example": "rocket-league-tracker-pp-cli liar-check Ben --claimed-rank GC --json",
+      "why_it_matters": "Use liar-check when an agent needs to validate a claimed rank against ground truth without manually looking up tier thresholds.",
+      "group": "Cross-call insights"
+    },
+    {
+      "name": "Import collector snapshot",
+      "command": "import-collector-snapshot",
+      "description": "Pulls a JSON snapshot exported by the rocket-league-stats apps/collector process into the CLI's local store.",
+      "rationale": "The CLI shares the surrounding project's storage_key model, so collector data and RapidAPI data merge into one timeline. Unique to this CLI.",
+      "example": "rocket-league-tracker-pp-cli import-collector-snapshot ~/snapshots/2026-05-08.json",
+      "why_it_matters": "Use import-collector-snapshot when a user has both the rocket-league-stats collector running and this CLI; the merge unlocks unified history.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Rocket League Tracker",
+    "headline": "Every Rocket League rank lookup, plus a local SQLite store that turns 'right now' into 'last 30 days' — without a website, without a scraper.",
+    "value_prop": "Rocket League Tracker CLI absorbs every command competing wrappers offer (profile, rank, stat, search, leaderboard, shop, tournaments) and adds local-only insights nobody else can: peek for daily MMR delta, trend for the time series, group for friend-group diff views, agent-context for an AI-agent-ready blob, promo for distance to the next tier, tournament-fit for matchmaking-aware tournament filters. Backed by RapidAPI's rocket-league1 listing; no scraping, no Cloudflare clearance, no TRN approval needed.",
+    "auth_narrative": "Authentication is a single RapidAPI key. Sign up at rapidapi.com, find 'Rocket League by Stannis', subscribe to BASIC (free), copy your key. Set RAPIDAPI_KEY in your env or run `rocket-league-tracker-pp-cli auth set-key` to write it to local config. The free tier permits roughly 50 requests per day; the CLI's adaptive limiter surfaces 429s as typed errors so you can see a throttle, not a silent empty result.",
+    "quickstart": [
+      {
+        "command": "rocket-league-tracker-pp-cli auth set-key",
+        "comment": "Write your RAPIDAPI_KEY to local config so subsequent commands work without env-var setup."
+      },
+      {
+        "command": "rocket-league-tracker-pp-cli rank SquishyMuffinz --json",
+        "comment": "Look up a known pro by Epic name; confirms key and reachability."
+      },
+      {
+        "command": "rocket-league-tracker-pp-cli peek SquishyMuffinz",
+        "comment": "One-line summary with day-over-day MMR delta after at least two snapshots exist."
+      },
+      {
+        "command": "rocket-league-tracker-pp-cli trend SquishyMuffinz --playlist 2v2 --days 30 --json --select date,mmr,tier",
+        "comment": "Time-series MMR for an agent loop; --select keeps token budget tight."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Every request returns 401 Unauthorized.",
+        "fix": "Set RAPIDAPI_KEY=\u003cyour-key\u003e in your env, or run `rocket-league-tracker-pp-cli auth set-key` to store it in the local config file."
+      },
+      {
+        "symptom": "Requests start returning 429 Too Many Requests.",
+        "fix": "RapidAPI's free tier caps requests around 50/day. Wait until tomorrow or upgrade to a paid plan in the RapidAPI dashboard. The CLI's adaptive limiter will back off automatically."
+      },
+      {
+        "symptom": "`peek` or `trend` returns no data.",
+        "fix": "Run `sync \u003cplayer\u003e` at least twice on different days to seed the local store; transcendence commands need at least two snapshots to compute a delta."
+      },
+      {
+        "symptom": "`doctor` reports 'API endpoint unreachable'.",
+        "fix": "The community RapidAPI listing may have been removed by the operator. Check https://rapidapi.com/rocket-league-rocket-league-default/api/rocket-league1; if the listing is gone, no replacement is currently available."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or terminal user wants Rocket League rank/MMR/playlist data for any player without opening a browser, and when the workflow benefits from a local time series (daily delta, weekly trend, friend-group diff). Prefer it over generic HTTP calls when the agent needs `--json --select` field-level control or typed exit codes for rate-limit errors. Skip it when the workflow is replay-based (use Ballchasing instead) or RLCS-pro-only (use Octane.gg).",
+    "recipes": [
+      {
+        "title": "Daily MMR check before standup",
+        "command": "rocket-league-tracker-pp-cli peek $RL_USER --json",
+        "explanation": "One-line snapshot suitable for a morning agent prompt; assumes RL_USER is set and the local store has at least two snapshots."
+      },
+      {
+        "title": "Save a friend group for Sunday recaps",
+        "command": "rocket-league-tracker-pp-cli group save sundaygang Mason Priya Theo --platform epic",
+        "explanation": "Save a named group once; it persists in local SQLite for reuse by the group ranker."
+      },
+      {
+        "title": "Rank the group by who improved most",
+        "command": "rocket-league-tracker-pp-cli group sundaygang --rank-by mmr-delta-7d --json",
+        "explanation": "Run after group save. Sorts saved members by 7-day MMR delta — pipes cleanly into a Discord webhook."
+      },
+      {
+        "title": "Agent context for AI coaching loop",
+        "command": "rocket-league-tracker-pp-cli player-context $RL_USER --days 30 --json --select identity.display_name,playlists.key,playlists.mmr",
+        "explanation": "Token-budgeted blob with dotted-path field selection — nested playlists arrays narrow to only what the agent needs."
+      },
+      {
+        "title": "Distance to next promo",
+        "command": "rocket-league-tracker-pp-cli promo $RL_USER --json --select playlist,mmr_to_next,wins_estimate",
+        "explanation": "Returns the gap to the next tier and an estimated win count to get there for every playlist."
+      },
+      {
+        "title": "Catch a friend overstating their rank",
+        "command": "rocket-league-tracker-pp-cli liar-check $FRIEND --claimed-rank GC --json",
+        "explanation": "Returns true or 'overstated by N MMR' against the static tier ladder."
+      }
+    ],
+    "trigger_phrases": [
+      "what's my rocket league rank",
+      "check rl mmr",
+      "peek rocket league",
+      "rl trend last week",
+      "use rocket-league-tracker"
+    ]
+  }
+}

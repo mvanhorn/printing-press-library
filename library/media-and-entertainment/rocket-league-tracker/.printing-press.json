@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T21:15:05.493715Z",
+  "printing_press_version": "4.2.1",
+  "api_name": "rocket-league-tracker",
+  "cli_name": "rocket-league-tracker-pp-cli",
+  "spec_path": "/Users/addisonkowalski/printing-press/.runstate/rocket-league-stats-bd8464ac/runs/20260509-132041/research/rocket-league-tracker-spec.yaml",
+  "run_id": "20260509-132041",
+  "novel_features": [
+    {
+      "name": "Daily snapshot delta",
+      "command": "peek",
+      "description": "One-line 'where you stand right now' for every playlist with today vs yesterday MMR and tier delta."
+    },
+    {
+      "name": "Time-series MMR curve",
+      "command": "trend",
+      "description": "Daily MMR series for one playlist over N days, suitable for piping into an agent or charting tool."
+    },
+    {
+      "name": "Session summary",
+      "command": "session-summary",
+      "description": "Closes today's play session: start vs current MMR, W/L, most-played playlist."
+    },
+    {
+      "name": "Group ranker",
+      "command": "group",
+      "description": "Multi-player diff for a saved friend group, sortable by MMR delta, win delta, or MVP delta over N days."
+    },
+    {
+      "name": "Save a friend group",
+      "command": "group save",
+      "description": "Save a named friend group to local storage so the group ranker can query it."
+    },
+    {
+      "name": "Agent context blob",
+      "command": "player-context",
+      "description": "Single agent-shaped JSON envelope: identity + last-30-day per-playlist MMR series + last 20 matches + current rank/tier + sweat-delta. Token-budgeted via --select."
+    },
+    {
+      "name": "Promo distance",
+      "command": "promo",
+      "description": "How many MMR points and approximate wins until the next tier promotion, per playlist."
+    },
+    {
+      "name": "Tournament fit",
+      "command": "tournament-fit",
+      "description": "Lists active tournaments whose skill bracket includes the player's current MMR for the relevant playlist."
+    },
+    {
+      "name": "Best queue time",
+      "command": "population-best-time",
+      "description": "From historical population snapshots, the hour of week with the largest active queue for a playlist."
+    },
+    {
+      "name": "MMR sparkline",
+      "command": "mmr-curve",
+      "description": "ASCII sparkline of MMR over the last 30 days for the chosen playlist."
+    },
+    {
+      "name": "Liar check",
+      "command": "liar-check",
+      "description": "Verifies a player's claimed rank against their actual current MMR; returns 'true' or 'overstated by N MMR'."
+    },
+    {
+      "name": "Import collector snapshot",
+      "command": "import-collector-snapshot",
+      "description": "Pulls a JSON snapshot exported by the rocket-league-stats apps/collector process into the CLI's local store."
+    }
+  ],
+  "category": "media-and-entertainment",
+  "printer": "addisonk",
+  "printer_name": "addisonk"
+}
