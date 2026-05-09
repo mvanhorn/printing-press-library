@@ -836,6 +836,7 @@ func newAuthorsCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"mcp:read-only": "true"},
 	}
 	cmd.AddCommand(newAuthorsTopCmd(flags))
+	cmd.AddCommand(newAuthorsListCmd(flags))
 	return cmd
 }
 
@@ -913,6 +914,267 @@ func newAuthorsTopCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&by, "by", "influence", "Sort by: influence | posts | reach")
 	cmd.Flags().IntVar(&limit, "limit", 25, "Max number of authors")
 	return cmd
+}
+
+// ============== authors list ==============
+//
+// `authors list` exposes the full ranked AI 1000 with rich per-author
+// fields (rank, previousRank, rankChange, score, category, categoryRank,
+// followers, bio, githubUrl, vibeDistribution). Live by default: hits
+// /ai/1000, parses the embedded RSC stream, upserts into digg_authors,
+// reads back from the local store. `--data-source local` skips the
+// fetch and reads only the cached roster.
+//
+// This is the load-bearing surface for "biggest movers", "newly listed",
+// and category-rank browsing — the upstream page renders all 1,000
+// accounts in one shot but has no JSON endpoint, so the RSC parser plus
+// local cache is the only way to make these views agent-friendly.
+
+type rosterAuthorRow struct {
+	Username           string             `json:"username"`
+	DisplayName        string             `json:"displayName,omitempty"`
+	XID                string             `json:"xId,omitempty"`
+	Rank               int                `json:"rank"`
+	PreviousRank       *int               `json:"previousRank"`
+	RankChange         *int               `json:"rankChange"`
+	Score              float64            `json:"score,omitempty"`
+	Category           string             `json:"category,omitempty"`
+	CategoryRank       int                `json:"categoryRank,omitempty"`
+	CategoryConfidence float64            `json:"categoryConfidence,omitempty"`
+	FollowersCount     int                `json:"followersCount,omitempty"`
+	FollowedByCount    int                `json:"followedByCount,omitempty"`
+	Bio                string             `json:"bio,omitempty"`
+	GithubURL          string             `json:"githubUrl,omitempty"`
+	ProfileImageURL    string             `json:"profileImageUrl,omitempty"`
+	VibeDistribution   map[string]float64 `json:"vibeDistribution,omitempty"`
+	VibeTweetCount     int                `json:"vibeTweetCount,omitempty"`
+	XURL               string             `json:"xUrl,omitempty"`
+	LastSeenAt         string             `json:"lastSeenAt,omitempty"`
+}
+
+type rosterEnvelope struct {
+	Meta    map[string]any    `json:"meta"`
+	Results []rosterAuthorRow `json:"results"`
+}
+
+func newAuthorsListCmd(flags *rootFlags) *cobra.Command {
+	var by string
+	var limit int
+	var category string
+	var onlyNew bool
+	var onlyFallers bool
+	cmd := &cobra.Command{
+		Use:         "list",
+		Short:       "Full ranked AI 1000 with rich fields (rank, category, bio, vibeDistribution); fetches /ai/1000 by default",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		Long: `List the full Digg AI 1000 with per-author rank, category, bio, GitHub URL, and vibe distribution.
+
+Live by default: fetches /ai/1000, parses the embedded RSC payload, upserts
+the roster into the local store, then reads back. Pass --data-source local
+to skip the network fetch and use only what's already cached.
+
+Sortable by:
+  rank          ascending (default)
+  rankChange    biggest movers first (positive=climbed, negative=fell)
+  category      grouped by category, then categoryRank ascending
+  followers     followers_count descending`,
+		Example: `  digg-pp-cli authors list --limit 20
+  digg-pp-cli authors list --by rankChange --limit 10 --json
+  digg-pp-cli authors list --only-new --json
+  digg-pp-cli authors list --category "AI Safety" --json
+  digg-pp-cli authors list --data-source local --limit 1000 --json`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if dryRunOK(flags) {
+				return nil
+			}
+			ctx := cmd.Context()
+			_, db, closeFn, err := openStore(ctx)
+			if err != nil {
+				return err
+			}
+			defer closeFn()
+
+			source := "live"
+			ds := flags.dataSource
+			if ds == "local" {
+				source = "local"
+			} else {
+				// Live fetch + upsert.
+				html, ferr := fetchURL(ctx, "https://di.gg/ai/1000")
+				if ferr != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: live /ai/1000 fetch failed (%v); falling back to local cache\n", ferr)
+					source = "local"
+				} else {
+					authors, perr := diggparse.ParseRoster1000(html)
+					if perr != nil && len(authors) == 0 {
+						fmt.Fprintf(cmd.ErrOrStderr(), "warning: /ai/1000 parse failed (%v); falling back to local cache\n", perr)
+						source = "local"
+					} else {
+						if perr != nil {
+							// Partial parse — keep going.
+							fmt.Fprintf(cmd.ErrOrStderr(), "warning: /ai/1000 partial parse: %v\n", perr)
+						}
+						if _, err := diggstore.UpsertRoster1000(db, authors, time.Now().UTC()); err != nil {
+							return fmt.Errorf("persisting roster: %w", err)
+						}
+					}
+				}
+			}
+
+			// When --category is set and the user didn't override --by,
+			// sort by category_rank within the filter — that's what the
+			// upstream "category leaderboard" view shows on di.gg/ai/1000.
+			effectiveBy := by
+			if category != "" && (by == "" || by == "rank") {
+				effectiveBy = "category"
+			}
+			orderBy, err := rosterOrderBy(effectiveBy)
+			if err != nil {
+				return err
+			}
+
+			var (
+				where  []string
+				params []any
+			)
+			where = append(where, "rank > 0")
+			if onlyNew {
+				where = append(where, "previous_rank IS NULL")
+			}
+			if onlyFallers {
+				where = append(where, "rank_change IS NOT NULL AND rank_change < 0")
+			}
+			if category != "" {
+				where = append(where, "category = ?")
+				params = append(params, category)
+			}
+
+			query := `SELECT
+				username, COALESCE(display_name,''), COALESCE(x_id,''),
+				COALESCE(rank,0), previous_rank, rank_change, COALESCE(score,0),
+				COALESCE(category,''), COALESCE(category_rank,0), COALESCE(category_confidence,0),
+				COALESCE(followers_count,0), COALESCE(followed_by_count,0),
+				COALESCE(bio,''), COALESCE(github_url,''), COALESCE(profile_image_url,''),
+				COALESCE(vibe_distribution_json,''), COALESCE(vibe_tweet_count,0),
+				COALESCE(last_seen_at,'')
+				FROM digg_authors WHERE ` + strings.Join(where, " AND ") + ` ORDER BY ` + orderBy + ` LIMIT ?`
+			params = append(params, limit)
+
+			rows, err := db.QueryContext(ctx, query, params...)
+			if err != nil {
+				return fmt.Errorf("querying digg_authors: %w", err)
+			}
+			defer rows.Close()
+			var out []rosterAuthorRow
+			for rows.Next() {
+				var r rosterAuthorRow
+				var prevRank, rankChange sql.NullInt64
+				var vibeJSON string
+				if err := rows.Scan(
+					&r.Username, &r.DisplayName, &r.XID,
+					&r.Rank, &prevRank, &rankChange, &r.Score,
+					&r.Category, &r.CategoryRank, &r.CategoryConfidence,
+					&r.FollowersCount, &r.FollowedByCount,
+					&r.Bio, &r.GithubURL, &r.ProfileImageURL,
+					&vibeJSON, &r.VibeTweetCount,
+					&r.LastSeenAt,
+				); err != nil {
+					return err
+				}
+				if prevRank.Valid {
+					v := int(prevRank.Int64)
+					r.PreviousRank = &v
+				}
+				if rankChange.Valid {
+					v := int(rankChange.Int64)
+					r.RankChange = &v
+				}
+				if vibeJSON != "" {
+					var m map[string]float64
+					if err := json.Unmarshal([]byte(vibeJSON), &m); err == nil {
+						r.VibeDistribution = m
+					}
+				}
+				if r.Username != "" {
+					r.XURL = "https://x.com/" + r.Username
+				}
+				out = append(out, r)
+			}
+			if err := rows.Err(); err != nil {
+				return err
+			}
+
+			if len(out) == 0 {
+				if source == "local" {
+					return emptyHint(cmd, "no authors in local store. Run `digg-pp-cli authors list` (without --data-source local) to ingest /ai/1000 first.")
+				}
+				return emptyHint(cmd, "no authors after applying filters. Try widening --category or dropping --only-new/--only-fallers.")
+			}
+
+			env := rosterEnvelope{
+				Meta: map[string]any{
+					"source": source,
+					"by":     effectiveBy,
+					"count":  len(out),
+				},
+				Results: out,
+			}
+			if onlyNew {
+				env.Meta["onlyNew"] = true
+			}
+			if onlyFallers {
+				env.Meta["onlyFallers"] = true
+			}
+			if category != "" {
+				env.Meta["category"] = category
+			}
+
+			if flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), env, flags)
+			}
+			// Human-readable table.
+			for i, a := range out {
+				dn := firstNonEmpty(a.DisplayName, a.Username)
+				prev := "-"
+				if a.PreviousRank != nil {
+					prev = fmt.Sprintf("%d", *a.PreviousRank)
+				}
+				change := ""
+				if a.RankChange != nil {
+					change = fmt.Sprintf(" (%+d)", *a.RankChange)
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "%4d. @%-22s %s  prev=%s%s  cat=%s\n",
+					i+1, a.Username, diggTruncate(dn, 28), prev, change, a.Category)
+			}
+			return nil
+		},
+	}
+	cmd.Flags().StringVar(&by, "by", "rank", "Sort by: rank | rankChange | category | followers")
+	cmd.Flags().IntVar(&limit, "limit", 1000, "Max number of authors to return")
+	cmd.Flags().StringVar(&category, "category", "", "Filter to authors with this category (e.g. \"AI Safety\")")
+	cmd.Flags().BoolVar(&onlyNew, "only-new", false, "Only authors with previous_rank IS NULL (newly-listed)")
+	cmd.Flags().BoolVar(&onlyFallers, "only-fallers", false, "Only authors with rank_change < 0")
+	return cmd
+}
+
+// rosterOrderBy maps the --by flag to a SQL ORDER BY clause.
+// Trailing tiebreaker on `rank ASC` keeps output stable.
+func rosterOrderBy(by string) (string, error) {
+	switch by {
+	case "", "rank":
+		return "rank ASC", nil
+	case "rankChange", "rank_change":
+		// Largest absolute movers first (positive climbs OR negative falls).
+		// Nulls sort last so newly-listed accounts don't dominate when the
+		// caller asked for movement.
+		return "CASE WHEN rank_change IS NULL THEN 1 ELSE 0 END ASC, ABS(rank_change) DESC, rank ASC", nil
+	case "category":
+		return "category ASC, category_rank ASC, rank ASC", nil
+	case "followers":
+		return "followers_count DESC, rank ASC", nil
+	default:
+		return "", fmt.Errorf("--by must be one of: rank, rankChange, category, followers")
+	}
 }
 
 // ============== author ==============

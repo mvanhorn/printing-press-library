@@ -159,10 +159,91 @@ func EnsureSchema(db *sql.DB) error {
 			source_title,
 			tokenize='porter unicode61'
 		)`,
+
+		// FTS5 over the AI 1000 author bio + display_name. Lets agents
+		// answer "who works on frontier red teaming?" against the cached
+		// roster (after a single `authors list` call) without a network
+		// round-trip.
+		`CREATE VIRTUAL TABLE IF NOT EXISTS digg_authors_fts USING fts5(
+			username UNINDEXED,
+			display_name,
+			bio,
+			category,
+			tokenize='porter unicode61'
+		)`,
 	}
 	for _, q := range stmts {
 		if _, err := db.Exec(q); err != nil {
 			return fmt.Errorf("ensuring digg schema: %w (stmt: %s)", err, firstLine(q))
+		}
+	}
+	// Migration: add the rich AI-1000-roster columns to digg_authors. The
+	// existing schema predates the /ai/1000 ingest; we add columns
+	// idempotently so older databases keep working.
+	if err := ensureAuthorsRosterColumns(db); err != nil {
+		return err
+	}
+	return nil
+}
+
+// ensureAuthorsRosterColumns adds the AI-1000-roster columns to
+// digg_authors if they don't already exist. SQLite has no `ADD COLUMN IF
+// NOT EXISTS`; we read PRAGMA table_info and only run the ALTERs we need.
+func ensureAuthorsRosterColumns(db *sql.DB) error {
+	rows, err := db.Query(`PRAGMA table_info(digg_authors)`)
+	if err != nil {
+		return fmt.Errorf("reading digg_authors columns: %w", err)
+	}
+	defer rows.Close()
+	have := map[string]bool{}
+	for rows.Next() {
+		var cid int
+		var name, typ string
+		var notnull, pk int
+		var dflt sql.NullString
+		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+			return fmt.Errorf("scanning digg_authors columns: %w", err)
+		}
+		have[name] = true
+	}
+	if err := rows.Err(); err != nil {
+		return err
+	}
+	wantCols := []struct{ name, ddl string }{
+		{"rank", "INTEGER"},
+		{"previous_rank", "INTEGER"},
+		{"rank_change", "INTEGER"},
+		{"score", "REAL"},
+		{"category", "TEXT"},
+		{"category_rank", "INTEGER"},
+		{"category_confidence", "REAL"},
+		{"followers_count", "INTEGER"},
+		{"followed_by_count", "INTEGER"},
+		{"bio", "TEXT"},
+		{"github_url", "TEXT"},
+		{"vibe_distribution_json", "TEXT"},
+		{"vibe_tweet_count", "INTEGER"},
+		{"profile_image_url", "TEXT"},
+	}
+	for _, c := range wantCols {
+		if have[c.name] {
+			continue
+		}
+		stmt := fmt.Sprintf(`ALTER TABLE digg_authors ADD COLUMN %s %s`, c.name, c.ddl)
+		if _, err := db.Exec(stmt); err != nil {
+			return fmt.Errorf("adding column %s: %w", c.name, err)
+		}
+	}
+	// Indexes used by `authors list` ranking + filters.
+	indexes := []string{
+		`CREATE INDEX IF NOT EXISTS idx_digg_authors_rank ON digg_authors(rank)`,
+		`CREATE INDEX IF NOT EXISTS idx_digg_authors_rank_change ON digg_authors(rank_change)`,
+		`CREATE INDEX IF NOT EXISTS idx_digg_authors_category ON digg_authors(category, category_rank)`,
+		`CREATE INDEX IF NOT EXISTS idx_digg_authors_followers ON digg_authors(followers_count DESC)`,
+	}
+	for _, q := range indexes {
+		if _, err := db.Exec(q); err != nil {
+			return fmt.Errorf("indexing digg_authors: %w", err)
 		}
 	}
 	return nil
@@ -422,4 +503,111 @@ func nullableInt(v int) any {
 		return nil
 	}
 	return v
+}
+
+// UpsertRoster1000 writes the parsed /ai/1000 roster into digg_authors.
+// One row per username; the rich roster columns (rank, previous_rank,
+// rank_change, score, category, category_rank, followers_count, bio,
+// github_url, vibe_distribution_json, etc.) are upserted on every call.
+//
+// The existing digg_authors columns from cluster ingest (display_name,
+// x_id, avatar_url, influence, podist, contributed_count) are preserved
+// when the roster row already had values populated by sync. The roster
+// path overwrites display_name, avatar_url (via profile_image_url), and
+// x_id (via target_x_id) only when the existing values are empty —
+// callers expect cluster-ingest data to be authoritative for those.
+//
+// Each upsert also writes a parallel row into digg_authors_fts so that
+// `search "<keyword>" --data-source local` can match on bio text.
+func UpsertRoster1000(db *sql.DB, authors []diggparse.Roster1000Author, fetchedAt time.Time) (int, error) {
+	if len(authors) == 0 {
+		return 0, nil
+	}
+	now := fetchedAt.UTC().Format(time.RFC3339Nano)
+	written := 0
+	for _, a := range authors {
+		if a.Username == "" {
+			continue
+		}
+		var prevRank, rankChange any
+		if a.PreviousRank != nil {
+			prevRank = *a.PreviousRank
+		}
+		if a.RankChange != nil {
+			rankChange = *a.RankChange
+		}
+		var githubURL any
+		if a.GithubURL != nil {
+			githubURL = *a.GithubURL
+		}
+		var vibeJSON any
+		if len(a.VibeDistribution) > 0 {
+			b, err := json.Marshal(a.VibeDistribution)
+			if err == nil {
+				vibeJSON = string(b)
+			}
+		}
+		_, err := db.Exec(`
+			INSERT INTO digg_authors (
+				username, display_name, x_id, avatar_url,
+				rank, previous_rank, rank_change, score,
+				category, category_rank, category_confidence,
+				followers_count, followed_by_count,
+				bio, github_url,
+				vibe_distribution_json, vibe_tweet_count,
+				profile_image_url, last_seen_at
+			) VALUES (
+				?,?,?,?,
+				?,?,?,?,
+				?,?,?,
+				?,?,
+				?,?,
+				?,?,
+				?,?
+			)
+			ON CONFLICT(username) DO UPDATE SET
+				display_name=COALESCE(NULLIF(digg_authors.display_name,''), excluded.display_name),
+				x_id=COALESCE(NULLIF(digg_authors.x_id,''), excluded.x_id),
+				avatar_url=COALESCE(NULLIF(digg_authors.avatar_url,''), excluded.avatar_url),
+				rank=excluded.rank,
+				previous_rank=excluded.previous_rank,
+				rank_change=excluded.rank_change,
+				score=excluded.score,
+				category=COALESCE(NULLIF(excluded.category,''), digg_authors.category),
+				category_rank=excluded.category_rank,
+				category_confidence=excluded.category_confidence,
+				followers_count=excluded.followers_count,
+				followed_by_count=excluded.followed_by_count,
+				bio=COALESCE(NULLIF(excluded.bio,''), digg_authors.bio),
+				github_url=COALESCE(excluded.github_url, digg_authors.github_url),
+				vibe_distribution_json=COALESCE(excluded.vibe_distribution_json, digg_authors.vibe_distribution_json),
+				vibe_tweet_count=excluded.vibe_tweet_count,
+				profile_image_url=COALESCE(NULLIF(excluded.profile_image_url,''), digg_authors.profile_image_url),
+				last_seen_at=excluded.last_seen_at
+		`,
+			a.Username, a.DisplayName, a.TargetXID, a.ProfileImageURL,
+			a.Rank, prevRank, rankChange, a.Score,
+			a.Category, nullableInt(a.CategoryRank), a.CategoryConfidence,
+			a.FollowersCount, a.FollowedByCount,
+			a.Bio, githubURL,
+			vibeJSON, nullableInt(a.VibeTweetCount),
+			a.ProfileImageURL, now,
+		)
+		if err != nil {
+			return written, fmt.Errorf("upsert roster author %s: %w", a.Username, err)
+		}
+
+		// FTS row: refresh atomically.
+		if _, err := db.Exec(`DELETE FROM digg_authors_fts WHERE username = ?`, a.Username); err != nil {
+			return written, fmt.Errorf("fts delete @%s: %w", a.Username, err)
+		}
+		if _, err := db.Exec(`
+			INSERT INTO digg_authors_fts (username, display_name, bio, category)
+			VALUES (?,?,?,?)
+		`, a.Username, a.DisplayName, a.Bio, a.Category); err != nil {
+			return written, fmt.Errorf("fts insert @%s: %w", a.Username, err)
+		}
+		written++
+	}
+	return written, nil
 }
