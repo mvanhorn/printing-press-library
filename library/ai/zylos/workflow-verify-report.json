@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/summingyu/printing-press/.runstate/pp-demo-31902382/runs/20260509-212941/working/zylos-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

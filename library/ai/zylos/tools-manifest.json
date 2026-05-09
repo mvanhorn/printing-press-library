@@ -1,0 +1,49 @@
+{
+  "api_name": "zylos",
+  "base_url": "http://127.0.0.1:3456",
+  "description": "",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "env_vars": [
+      "ZYLOS_PASSWORD"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ZYLOS_PASSWORD",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "session_check",
+      "description": "Check if authentication is required and if the current session is authenticated.",
+      "method": "GET",
+      "path": "/api/auth",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "session_login",
+      "description": "Authenticate with a password to establish a session.",
+      "method": "POST",
+      "path": "/api/auth",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "status_get",
+      "description": "Get the current status of the AI agent.",
+      "method": "GET",
+      "path": "/api/status",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

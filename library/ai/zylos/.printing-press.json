@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T23:27:06.072434Z",
+  "printing_press_version": "4.2.0",
+  "api_name": "zylos",
+  "display_name": "Zylos",
+  "cli_name": "zylos-pp-cli",
+  "owner": "summingyu",
+  "printer_name": "summingyu",
+  "spec_path": "/Users/summingyu/printing-press/.runstate/pp-demo-31902382/runs/20260509-212941/research/zylos-api-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:306cd8184abe98e602be8f3dec010ed75d2dbee40e39495b2fa32d095a4713c5",
+  "run_id": "20260509-212941",
+  "mcp_binary": "zylos-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "partial",
+  "auth_type": "cookie",
+  "auth_env_vars": [
+    "ZYLOS_PASSWORD"
+  ],
+  "auth_description": "Password-based session authentication. Login via POST /api/auth to receive a session cookie.",
+  "novel_features": [
+    {
+      "name": "Conversation Analytics",
+      "command": "stats",
+      "description": "See message counts, response patterns, and activity trends across all your Zylos conversations."
+    },
+    {
+      "name": "Message Timeline",
+      "command": "timeline",
+      "description": "View your conversation history as a chronological timeline with gap detection."
+    },
+    {
+      "name": "Context-Aware Search",
+      "command": "search",
+      "description": "Search conversation history with surrounding messages for context."
+    },
+    {
+      "name": "Response Time Tracking",
+      "command": "latency",
+      "description": "Analyze AI response times across conversations."
+    },
+    {
+      "name": "Conversation Export",
+      "command": "export",
+      "description": "Export conversations to JSON or Markdown for archival and sharing."
+    },
+    {
+      "name": "Status Watch Mode",
+      "command": "status watch",
+      "description": "Monitor AI agent status with state-change detection and auto-exit."
+    },
+    {
+      "name": "Message Streaming",
+      "command": "conversations follow",
+      "description": "Stream new messages in real-time, pipeable to other tools."
+    }
+  ],
+  "printer": "summingyu"
+}

@@ -1,0 +1,234 @@
+{
+  "api_name": "zylos",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "aichat",
+      "url": "https://github.com/sigoden/aichat",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 12000,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "llm",
+      "url": "https://github.com/simonw/llm",
+      "language": "Python",
+      "install_method": "",
+      "stars": 5000,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T21:29:41Z",
+  "novel_features": [
+    {
+      "name": "Conversation Analytics",
+      "command": "stats",
+      "description": "See message counts, response patterns, and activity trends across all your Zylos conversations.",
+      "rationale": "Requires local SQLite aggregation across all synced messages — no single API call provides this.",
+      "example": "zylos-pp-cli stats --days 7 --json",
+      "why_it_matters": "Use this to understand your interaction patterns and Zylos usage trends without manual counting.",
+      "group": "Local analytics"
+    },
+    {
+      "name": "Message Timeline",
+      "command": "timeline",
+      "description": "View your conversation history as a chronological timeline with gap detection.",
+      "rationale": "Requires temporal ordering and gap detection across synced conversation history in SQLite.",
+      "example": "zylos-pp-cli timeline --today --json",
+      "why_it_matters": "See the full arc of a conversation day at a glance, including gaps where the AI was idle.",
+      "group": "Local analytics"
+    },
+    {
+      "name": "Context-Aware Search",
+      "command": "search",
+      "description": "Search conversation history with surrounding messages for context.",
+      "rationale": "FTS5 returns surrounding messages for matched results — needs local store to join.",
+      "example": "zylos-pp-cli search \"deployment\" --context 3 --json",
+      "why_it_matters": "Find what was discussed around a keyword, not just the matching message alone.",
+      "group": "Local analytics"
+    },
+    {
+      "name": "Response Time Tracking",
+      "command": "latency",
+      "description": "Analyze AI response times across conversations.",
+      "rationale": "Timestamps on in/out messages enable per-conversation response time analysis in SQLite.",
+      "example": "zylos-pp-cli latency --last 10 --json",
+      "why_it_matters": "Track whether the AI agent is getting slower or faster over time.",
+      "group": "Local analytics"
+    },
+    {
+      "name": "Conversation Export",
+      "command": "export",
+      "description": "Export conversations to JSON or Markdown for archival and sharing.",
+      "rationale": "Round-trip archive format using local SQLite store.",
+      "example": "zylos-pp-cli export --format markdown --output ./conversations/",
+      "why_it_matters": "Archive important conversations before clearing history or migrating setups.",
+      "group": "Data portability"
+    },
+    {
+      "name": "Status Watch Mode",
+      "command": "status watch",
+      "description": "Monitor AI agent status with state-change detection and auto-exit.",
+      "rationale": "Periodic polling with state-change detection requires coordinated HTTP + timing logic.",
+      "example": "zylos-pp-cli status watch --watch --until idle",
+      "why_it_matters": "Wait for the AI to become available before sending a message, scriptable in CI.",
+      "group": "Monitoring"
+    },
+    {
+      "name": "Message Streaming",
+      "command": "conversations follow",
+      "description": "Stream new messages in real-time, pipeable to other tools.",
+      "rationale": "Long-poll streaming with structured output requires coordinated HTTP polling + output formatting.",
+      "example": "zylos-pp-cli conversations follow --follow --json | jq '.content'",
+      "why_it_matters": "Tail the AI conversation in real-time from scripts or other CLIs.",
+      "group": "Monitoring"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Conversation Analytics",
+      "command": "stats",
+      "description": "See message counts, response patterns, and activity trends across all your Zylos conversations.",
+      "rationale": "Requires local SQLite aggregation across all synced messages — no single API call provides this.",
+      "example": "zylos-pp-cli stats --days 7 --json",
+      "why_it_matters": "Use this to understand your interaction patterns and Zylos usage trends without manual counting.",
+      "group": "Local analytics"
+    },
+    {
+      "name": "Message Timeline",
+      "command": "timeline",
+      "description": "View your conversation history as a chronological timeline with gap detection.",
+      "rationale": "Requires temporal ordering and gap detection across synced conversation history in SQLite.",
+      "example": "zylos-pp-cli timeline --today --json",
+      "why_it_matters": "See the full arc of a conversation day at a glance, including gaps where the AI was idle.",
+      "group": "Local analytics"
+    },
+    {
+      "name": "Context-Aware Search",
+      "command": "search",
+      "description": "Search conversation history with surrounding messages for context.",
+      "rationale": "FTS5 returns surrounding messages for matched results — needs local store to join.",
+      "example": "zylos-pp-cli search \"deployment\" --context 3 --json",
+      "why_it_matters": "Find what was discussed around a keyword, not just the matching message alone.",
+      "group": "Local analytics"
+    },
+    {
+      "name": "Response Time Tracking",
+      "command": "latency",
+      "description": "Analyze AI response times across conversations.",
+      "rationale": "Timestamps on in/out messages enable per-conversation response time analysis in SQLite.",
+      "example": "zylos-pp-cli latency --last 10 --json",
+      "why_it_matters": "Track whether the AI agent is getting slower or faster over time.",
+      "group": "Local analytics"
+    },
+    {
+      "name": "Conversation Export",
+      "command": "export",
+      "description": "Export conversations to JSON or Markdown for archival and sharing.",
+      "rationale": "Round-trip archive format using local SQLite store.",
+      "example": "zylos-pp-cli export --format markdown --output ./conversations/",
+      "why_it_matters": "Archive important conversations before clearing history or migrating setups.",
+      "group": "Data portability"
+    },
+    {
+      "name": "Status Watch Mode",
+      "command": "status watch",
+      "description": "Monitor AI agent status with state-change detection and auto-exit.",
+      "rationale": "Periodic polling with state-change detection requires coordinated HTTP + timing logic.",
+      "example": "zylos-pp-cli status watch --watch --until idle",
+      "why_it_matters": "Wait for the AI to become available before sending a message, scriptable in CI.",
+      "group": "Monitoring"
+    },
+    {
+      "name": "Message Streaming",
+      "command": "conversations follow",
+      "description": "Stream new messages in real-time, pipeable to other tools.",
+      "rationale": "Long-poll streaming with structured output requires coordinated HTTP polling + output formatting.",
+      "example": "zylos-pp-cli conversations follow --follow --json | jq '.content'",
+      "why_it_matters": "Tail the AI conversation in real-time from scripts or other CLIs.",
+      "group": "Monitoring"
+    }
+  ],
+  "narrative": {
+    "display_name": "Zylos Console",
+    "headline": "Every Zylos conversation, from the terminal — with offline search, analytics, and streaming no other tool offers.",
+    "value_prop": "Zylos Console CLI connects to your local Zylos instance to send messages, monitor status, and sync conversations to a local SQLite database. Search past messages offline, analyze response patterns, and stream new messages in real-time.",
+    "quickstart": [
+      {
+        "command": "zylos-pp-cli session login",
+        "comment": "Authenticate with your Zylos instance (password or ZYLOS_PASSWORD env var)"
+      },
+      {
+        "command": "zylos-pp-cli status",
+        "comment": "Check if the AI agent is ready"
+      },
+      {
+        "command": "zylos-pp-cli conversations recent --dry-run",
+        "comment": "Preview fetching recent conversation history"
+      },
+      {
+        "command": "zylos-pp-cli conversations recent --limit 5",
+        "comment": "View recent conversation history"
+      },
+      {
+        "command": "zylos-pp-cli sync",
+        "comment": "Sync all conversations to local SQLite for offline search"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Authentication required error",
+        "fix": "Run zylos-pp-cli session login or set ZYLOS_PASSWORD env var"
+      },
+      {
+        "symptom": "Connection refused to 127.0.0.1:3456",
+        "fix": "Ensure Zylos is running: check Docker container or process"
+      },
+      {
+        "symptom": "Empty conversation history after sync",
+        "fix": "Verify auth session is valid with zylos-pp-cli doctor"
+      }
+    ],
+    "when_to_use": "Use the Zylos CLI when you need to interact with a local Zylos Console instance from scripts, automation pipelines, or a terminal. Ideal for monitoring AI agent status, archiving conversations, or piping messages between tools.",
+    "recipes": [
+      {
+        "title": "Wait for AI to be ready, then send",
+        "command": "zylos-pp-cli status watch --watch --until idle",
+        "explanation": "Blocks until the AI agent is idle — useful in automation scripts."
+      },
+      {
+        "title": "Search conversations and extract content",
+        "command": "zylos-pp-cli search \"error\" --context 2 --json --select content",
+        "explanation": "Search for messages mentioning 'error' with surrounding context, extract just the content field."
+      },
+      {
+        "title": "Stream new messages to a file",
+        "command": "zylos-pp-cli conversations follow --follow --json \u003e\u003e conversation-log.jsonl",
+        "explanation": "Append new messages as JSON lines to a log file for persistent monitoring."
+      },
+      {
+        "title": "Export conversations as Markdown",
+        "command": "zylos-pp-cli export --format markdown --output ./exports/",
+        "explanation": "Create a Markdown file with your full conversation for documentation."
+      }
+    ],
+    "trigger_phrases": [
+      "send message to zylos",
+      "check zylos status",
+      "zylos conversation history",
+      "search zylos messages",
+      "use zylos",
+      "run zylos"
+    ]
+  }
+}

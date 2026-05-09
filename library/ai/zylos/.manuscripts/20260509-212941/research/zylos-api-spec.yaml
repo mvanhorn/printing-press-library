@@ -1,0 +1,102 @@
+name: zylos
+
+info:
+  title: Zylos Console API
+  description: Local AI chat console API for managing conversations with Claude/AI agents. Provides authentication, messaging, conversation history, and real-time status updates.
+  version: "1.0.0"
+
+base_url: http://127.0.0.1:3456
+
+auth:
+  type: cookie
+  description: Password-based session authentication. Login via POST /api/auth to receive a session cookie.
+  login_endpoint: /api/auth
+  login_method: POST
+  env_vars:
+    - ZYLOS_PASSWORD
+
+resources:
+  session:
+    description: Authentication and session management
+    endpoints:
+      check:
+        method: GET
+        path: /api/auth
+        description: Check if authentication is required and if the current session is authenticated
+        no_auth: true
+        response:
+          required: boolean
+          authenticated: boolean
+          timezone: string
+      login:
+        method: POST
+        path: /api/auth
+        description: Authenticate with a password to establish a session
+        no_auth: true
+        request:
+          password: string
+        response:
+          success: boolean
+          timezone: string
+          error: string
+      logout:
+        method: POST
+        path: /api/logout
+        description: End the current authenticated session
+        response:
+          success: boolean
+
+  conversations:
+    description: Conversation history and messaging
+    endpoints:
+      recent:
+        method: GET
+        path: /api/conversations/recent
+        description: Get recent conversation messages
+        params:
+          - name: limit
+            type: integer
+            description: Maximum number of messages to return
+            default: 100
+        response:
+          type: array
+          items:
+            id: integer
+            direction: string
+            content: string
+            timestamp: string
+      poll:
+        method: GET
+        path: /api/poll
+        description: Poll for new messages since a given message ID
+        params:
+          - name: since_id
+            type: integer
+            description: Return messages with ID greater than this value
+        response:
+          type: array
+          items:
+            id: integer
+            direction: string
+            content: string
+            timestamp: string
+      send:
+        method: POST
+        path: /api/send
+        description: Send a message to the AI
+        request:
+          message: string
+        response:
+          success: boolean
+          error: string
+
+  status:
+    description: AI agent status monitoring
+    endpoints:
+      get:
+        method: GET
+        path: /api/status
+        description: Get the current status of the AI agent
+        no_auth: true
+        response:
+          state: string
