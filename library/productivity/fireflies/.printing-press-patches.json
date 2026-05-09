@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-005754",
+  "base_printing_press_version": "4.0.6",
+  "patches": [
+    {
+      "id": "graphql-client",
+      "summary": "Hand-authored GraphQL HTTP client in internal/gql/client.go replacing the generated REST client.",
+      "reason": "Fireflies exposes only a GraphQL API; the generator emits a REST client scaffold that cannot reach any real endpoint.",
+      "files": ["internal/gql/client.go"],
+      "validated_outcome": "fireflies-pp-cli sync --full fetches all 353 transcripts across 12 channels using real GraphQL pagination."
+    },
+    {
+      "id": "sync-no-from-date",
+      "summary": "Sync command never passes from_date to the API; all date filtering is client-side.",
+      "reason": "Fireflies API bug: the from_date parameter is silently ignored by the server. Client-side filtering on the epoch-ms date field is the only reliable approach.",
+      "files": ["internal/cli/sync.go"],
+      "validated_outcome": "Sync fetches all meetings and correctly filters by date on the client without triggering the broken API param."
+    },
+    {
+      "id": "novel-commands",
+      "summary": "Added novel commands not in the Fireflies API: transcripts find/status/export, digest, action-items, topics, speakers, summary, person timeline/complaints.",
+      "reason": "The Fireflies API returns rich transcript data but exposes no aggregation or search endpoints. All novel commands read from the local SQLite store populated by sync.",
+      "files": [
+        "internal/cli/transcripts_ff.go",
+        "internal/cli/topics_ff.go",
+        "internal/cli/speakers_ff.go",
+        "internal/cli/summary_ff.go",
+        "internal/cli/person_ff.go",
+        "internal/cli/digest_ff.go",
+        "internal/cli/action_items_ff.go"
+      ]
+    },
+    {
+      "id": "config-base-url",
+      "summary": "Set BaseURL default to https://api.fireflies.ai in internal/config/config.go.",
+      "reason": "Generator emits a placeholder base URL; Fireflies has a single well-known GraphQL endpoint.",
+      "files": ["internal/config/config.go"]
+    },
+    {
+      "id": "manifest-mcp-binary",
+      "summary": "Fixed mcp_binary in .printing-press.json and manifest.json to fireflies-pp-mcp.",
+      "reason": "Generator derived mcp_binary as fireflies-pp-cli-pp-mcp (double-suffixed); CI checks require exact match with the cmd/ directory name.",
+      "files": [".printing-press.json", "manifest.json"],
+      "validated_outcome": "All 4 CI checks pass on PR #317."
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "dir": "/Users/neektza/printing-press/.runstate/cli-printing-press-c22e9309/runs/20260509-005754/working/fireflies-pp-cli",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "",
+    "match": true,
+    "detail": "spec not provided; auth protocol check skipped"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "spec not provided; browser-session auth check skipped"
+  },
+  "dead_flags": {
+    "total": 19,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 53,
+    "dead": 5,
+    "items": [
+      "classifyDeleteError",
+      "isSyncAccessWarning",
+      "looksLikeAccessDenial",
+      "replacePathParam",
+      "truncateJSONArray"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 2,
+    "detail": "sync uses domain-specific Upsert methods; search methods not found; 2 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 55,
+      "registered": 55
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 8,
+    "found": 8
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 8,
+    "exempted_via_store": 8
+  },
+  "source_client_check": {
+    "checked": 1
+  },
+  "print_json_filtered_check": {
+    "checked": 27
+  },
+  "test_presence": {
+    "checked": 1
+  },
+  "naming_check": {
+    "checked": 27
+  },
+  "issues": [
+    "5 dead helper functions found"
+  ]
+}

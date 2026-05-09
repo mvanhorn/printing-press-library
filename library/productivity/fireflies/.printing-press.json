@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-08T23:49:35.852813Z",
+  "printing_press_version": "4.0.6",
+  "api_name": "fireflies",
+  "category": "productivity",
+  "display_name": "Fireflies Pp Cli",
+  "cli_name": "fireflies-pp-cli",
+  "spec_path": "/Users/neektza/printing-press/.runstate/cli-printing-press-c22e9309/runs/20260509-005754/fireflies.graphql",
+  "spec_format": "graphql",
+  "spec_checksum": "sha256:cdd93e3e4c75aede548dac509a8591939f9d0316e6a3cc8f507b2493dac98ba8",
+  "run_id": "20260509-005754",
+  "mcp_binary": "fireflies-pp-mcp",
+  "mcp_tool_count": 18,
+  "mcp_ready": "full",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "FIREFLIES_PP_CLI_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Offline Full-Text Search",
+      "command": "transcripts search",
+      "description": "Full-text search across all synced meeting transcripts without consuming any API quota."
+    },
+    {
+      "name": "Person Timeline",
+      "command": "person timeline",
+      "description": "Chronological meeting history with a specific person \u2014 topics, action items, and talk ratio per meeting."
+    },
+    {
+      "name": "Cross-Meeting Action Items",
+      "command": "action-items list",
+      "description": "Aggregate action items from all meetings in a date range \u2014 weekly commitment audit in one command."
+    },
+    {
+      "name": "Smart Meeting Discovery",
+      "command": "transcripts find",
+      "description": "Find meetings by participant email, channel name, keyword, or date range \u2014 all client-side, no broken API date filters."
+    },
+    {
+      "name": "Processing Status Check",
+      "command": "transcripts status",
+      "description": "Show PROCESSED / PROCESSING / FAILED status for recent meetings upfront \u2014 know before you fetch."
+    },
+    {
+      "name": "Topic Frequency Analysis",
+      "command": "topics list",
+      "description": "Most frequent topics across all meetings in a date range \u2014 what is actually consuming meeting time."
+    },
+    {
+      "name": "Morning Digest",
+      "command": "digest",
+      "description": "Aggregate view of all recent meetings: titles, gists, topics, and action items in one structured output."
+    },
+    {
+      "name": "Vault Export",
+      "command": "transcripts export",
+      "description": "Export a transcript as markdown to a vault directory with auto-generated YYYY-MM-DD_title.md filename."
+    }
+  ]
+}
