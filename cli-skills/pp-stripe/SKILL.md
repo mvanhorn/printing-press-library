@@ -47,7 +47,7 @@ Reach for stripe-pp-cli when you need to (1) run analytics across customers/subs
 
 Do not use stripe-pp-cli for:
 
-- **Live-mode mutating writes without manual audit.** v1 does not enforce a `--confirm-live` guard. Audit any `sk_live_...` invocation before running. Prefer `sk_test_...` for development.
+- **Live-mode bulk writes you have not audited.** Mutating commands (POST/PUT/PATCH/DELETE) against an `sk_live_...` key are blocked by default with a clear error; pass `--confirm-live` (or set `STRIPE_CONFIRM_LIVE=1`) once you have audited the invocation. Prefer `sk_test_...` for development regardless.
 - **In-person Terminal payments.** `terminal` resource commands are present but Stripe Terminal SDK is not in scope. Use the Terminal iOS/Android SDK.
 - **Stripe Issuing card management workflows.** `issuing` commands are REST passthrough only; spending controls, dispute evidence packages not built. Use the Stripe Dashboard.
 - **Stripe Tax registration.** `tax-rates` CRUD only; jurisdiction registration not in scope. Use Stripe Tax in Dashboard.
@@ -63,7 +63,6 @@ Do not use stripe-pp-cli for:
 | Stripe Tax registration | `tax-rates` CRUD only | Use Stripe Tax in Dashboard |
 | `localstripe` mock server | out of scope | Use `stripe-mock` via `STRIPE_BASE_URL` |
 | Connect account fan-out | single-account at a time | External script loops |
-| Live-mode write guard | not implemented | Manual audit |
 
 ## Unique Capabilities
 

@@ -60,13 +60,12 @@ Install the pp-stripe skill from https://github.com/mvanhorn/printing-press-libr
 
 ## Authentication
 
-Authenticate by exporting `STRIPE_SECRET_KEY=sk_test_...` (recommended) or running `stripe-pp-cli auth set-token <key>` to persist it. Test-mode keys (`sk_test_...`) and live-mode keys (`sk_live_...`) are accepted; this v1 does NOT yet enforce a live-mode write guard, so audit any live invocation before running mutating commands.
+Authenticate by exporting `STRIPE_SECRET_KEY=sk_test_...` (recommended) or running `stripe-pp-cli auth set-token <key>` to persist it. Test-mode keys (`sk_test_...`) and live-mode keys (`sk_live_...`) are accepted. Mutating commands against a live key are blocked by default; pass `--confirm-live` (or set `STRIPE_CONFIRM_LIVE=1`) once you have audited the invocation.
 
 ## Known Gaps (v1)
 
 These are deferred to v0.2:
 
-- **Live-mode write guard** (`--confirm-live`) — not implemented; audit every `sk_live_...` invocation manually
 - **Stripe Issuing full workflow** — endpoint passthrough only; spending controls / dispute evidence not built
 - **Stripe Terminal** — endpoint passthrough only; in-person SDK pairing out of scope
 - **Stripe Tax registration** — `tax-rates` CRUD only; jurisdiction registration not built

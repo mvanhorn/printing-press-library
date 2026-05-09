@@ -22,6 +22,7 @@ var version = "1.0.0"
 
 type rootFlags struct {
 	asJSON        bool
+	confirmLive   bool
 	compact       bool
 	csv           bool
 	plain         bool
@@ -125,8 +126,12 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'stripe-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
+	rootCmd.PersistentFlags().BoolVar(&flags.confirmLive, "confirm-live", false, "Confirm intent to run a mutating command against a live-mode key (sk_live_...). Also accepts STRIPE_CONFIRM_LIVE=1.")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		if err := checkLiveModeGuard(cmd, flags); err != nil {
+			return configErr(err)
+		}
 		if flags.deliverSpec != "" {
 			sink, err := ParseDeliverSink(flags.deliverSpec)
 			if err != nil {
