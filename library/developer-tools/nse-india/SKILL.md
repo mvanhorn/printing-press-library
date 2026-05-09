@@ -41,7 +41,7 @@ nse-india-pp-cli fetches real-time NSE equity quotes, index constituents, corpor
 
 ## When to Use This CLI
 
-Use nse-india-pp-cli when you need Indian equity data in a script, cron job, or AI agent workflow without Python dependencies. It is the right choice for portfolio monitoring, corporate action alerts, sector rotation analysis, and any workflow that needs to join quote data across multiple symbols or time periods. For options chain analysis, use after running 'auth login --chrome' to enable session-based endpoints.
+Use nse-india-pp-cli when you need Indian equity data in a script, cron job, or AI agent workflow without Python dependencies. It is the right choice for portfolio monitoring, corporate action alerts, sector rotation analysis, and any workflow that needs to join quote data across multiple symbols or time periods.
 
 ## When Not to Use This CLI
 
