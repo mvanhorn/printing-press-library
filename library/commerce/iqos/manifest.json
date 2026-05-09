@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "iqos-pp-mcp",
+  "display_name": "IQOS",
+  "version": "4.2.0",
+  "description": "Every IQOS product, store, and flavor across 30+ markets — synced locally, searchable offline.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/iqos-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/iqos-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

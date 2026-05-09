@@ -1,0 +1,159 @@
+name: iqos
+display_name: IQOS
+description: Browse the IQOS product catalog, find stores, explore HEETS and TEREA flavors, and track catalog changes across 30+ global markets — all offline after a sync.
+version: "1.0"
+base_url: https://www.iqos.com
+spec_source: browser-sniffed
+
+auth:
+  type: none
+
+cli_description: "Every IQOS product, store, and flavor across 30+ markets — synced locally, searchable offline."
+
+pagination:
+  style: none
+
+resources:
+  products:
+    description: IQOS product catalog — devices, sticks, accessories, and vaping products
+    response_format: html
+    endpoints:
+      list:
+        method: GET
+        path: /{country}/{lang}.sitemap_product.xml
+        description: List all products for a market by parsing the product sitemap
+        no_auth: true
+        params:
+          - name: country
+            flag_name: country
+            in: path
+            description: Two-letter country code (us, gb, de, fr, jp, etc.)
+            default: "us"
+          - name: lang
+            flag_name: lang
+            in: path
+            description: Language code (en, de, fr, etc.)
+            default: "en"
+      get:
+        method: GET
+        path: /{country}/{lang}/shop/{slug}.html
+        description: Get product details from its shop page, extracting schema.org JSON-LD
+        no_auth: true
+        params:
+          - name: country
+            flag_name: country
+            in: path
+            description: Country code
+          - name: lang
+            flag_name: lang
+            in: path
+            description: Language code
+          - name: slug
+            flag_name: slug
+            in: path
+            description: Product URL slug (e.g. heets-pack-amber)
+
+  stores:
+    description: Physical IQOS retail locations
+    response_format: html
+    endpoints:
+      list:
+        method: GET
+        path: /{country}/{lang}.sitemap_stores.xml
+        description: List all stores for a market from the stores sitemap
+        no_auth: true
+        params:
+          - name: country
+            flag_name: country
+            in: path
+            description: Country code
+            default: "us"
+          - name: lang
+            flag_name: lang
+            in: path
+            description: Language code
+            default: "en"
+      get:
+        method: GET
+        path: /{country}/{lang}/stores/{city}/{store-id}.html
+        description: Get store details including address, hours, and coordinates from schema.org/Store JSON-LD
+        no_auth: true
+        params:
+          - name: country
+            flag_name: country
+            in: path
+            description: Country code
+          - name: lang
+            flag_name: lang
+            in: path
+            description: Language code
+          - name: city
+            flag_name: city
+            in: path
+            description: City slug
+          - name: store-id
+            flag_name: store-id
+            in: path
+            description: Store ID hash from URL
+
+  flavors:
+    description: HEETS, TEREA, and other tobacco stick flavors
+    response_format: html
+    endpoints:
+      list:
+        method: GET
+        path: /{country}/{lang}.sitemap_product.xml
+        description: List consumable sticks filtered by type (heets, terea, levia)
+        no_auth: true
+        params:
+          - name: country
+            flag_name: country
+            in: path
+            description: Country code
+            default: "gb"
+          - name: lang
+            flag_name: lang
+            in: path
+            description: Language code
+            default: "en"
+          - name: type
+            flag_name: type
+            in: query
+            description: Stick type filter (heets, terea, levia, veev)
+
+  support:
+    description: IQOS support articles and FAQs
+    response_format: html
+    endpoints:
+      faqs:
+        method: GET
+        path: /{country}/{lang}/support/faqs.html
+        description: Get support FAQ content for a market
+        no_auth: true
+        params:
+          - name: country
+            flag_name: country
+            in: path
+            description: Country code
+            default: "us"
+          - name: lang
+            flag_name: lang
+            in: path
+            description: Language code
+            default: "en"
+      troubleshooting:
+        method: GET
+        path: /{country}/{lang}/support/troubleshooting.html
+        description: Get device troubleshooting guides
+        no_auth: true
+        params:
+          - name: country
+            flag_name: country
+            in: path
+            description: Country code
+            default: "us"
+          - name: lang
+            flag_name: lang
+            in: path
+            description: Language code
+            default: "en"

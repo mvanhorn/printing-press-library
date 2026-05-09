@@ -1,0 +1,200 @@
+{
+  "api_name": "iqos",
+  "base_url": "https://www.iqos.com",
+  "description": "Browse the IQOS product catalog, find stores, explore HEETS and TEREA flavors, and track catalog changes across 30+ global markets — all offline after a sync.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "flavors_list",
+      "description": "List consumable sticks filtered by type (heets, terea, levia). Required: country (default: gb), lang (default: en). Optional: type.",
+      "method": "GET",
+      "path": "/{country}/{lang}.sitemap_product.xml",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "path",
+          "description": "Country code",
+          "required": true
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "path",
+          "description": "Language code",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Stick type filter (heets, terea, levia, veev)"
+        }
+      ]
+    },
+    {
+      "name": "products_get",
+      "description": "Get product details from its shop page, extracting schema.org JSON-LD. Required: country, lang, slug.",
+      "method": "GET",
+      "path": "/{country}/{lang}/shop/{slug}.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "path",
+          "description": "Country code",
+          "required": true
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "path",
+          "description": "Language code",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Product URL slug (e.g. heets-pack-amber)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_list",
+      "description": "List all products for a market by parsing the product sitemap. Required: country (default: us), lang (default: en).",
+      "method": "GET",
+      "path": "/{country}/{lang}.sitemap_product.xml",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "path",
+          "description": "Two-letter country code (us, gb, de, fr, jp, etc.)",
+          "required": true
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "path",
+          "description": "Language code (en, de, fr, etc.)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "stores_get",
+      "description": "Get store details including address, hours, and coordinates from schema.org/Store JSON-LD. Required: country, lang, city. Optional: store-id.",
+      "method": "GET",
+      "path": "/{country}/{lang}/stores/{city}/{store-id}.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "path",
+          "description": "Country code",
+          "required": true
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "path",
+          "description": "Language code",
+          "required": true
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "location": "path",
+          "description": "City slug",
+          "required": true
+        },
+        {
+          "name": "store-id",
+          "type": "string",
+          "location": "query",
+          "description": "Store ID hash from URL"
+        }
+      ]
+    },
+    {
+      "name": "stores_list",
+      "description": "List all stores for a market from the stores sitemap. Required: country (default: us), lang (default: en).",
+      "method": "GET",
+      "path": "/{country}/{lang}.sitemap_stores.xml",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "path",
+          "description": "Country code",
+          "required": true
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "path",
+          "description": "Language code",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "support_faqs",
+      "description": "Get support FAQ content for a market. Required: country (default: us), lang (default: en).",
+      "method": "GET",
+      "path": "/{country}/{lang}/support/faqs.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "path",
+          "description": "Country code",
+          "required": true
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "path",
+          "description": "Language code",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "support_troubleshooting",
+      "description": "Get device troubleshooting guides. Required: country (default: us), lang (default: en).",
+      "method": "GET",
+      "path": "/{country}/{lang}/support/troubleshooting.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "path",
+          "description": "Country code",
+          "required": true
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "path",
+          "description": "Language code",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

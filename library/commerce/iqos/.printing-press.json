@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T11:31:26.956164Z",
+  "printing_press_version": "4.2.0",
+  "api_name": "iqos",
+  "display_name": "IQOS",
+  "cli_name": "iqos-pp-cli",
+  "owner": "nicolas-correa",
+  "printer": "nicocorrea",
+  "printer_name": "Nicolas Correa",
+  "category": "commerce",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:5e9a55e0cb7a52f407f134ea0fb9c582f508392eaa174d2ea2c78c3af4fc4070",
+  "run_id": "20260509-130744",
+  "description": "Every IQOS product, store, and flavor across 30+ markets — synced locally, searchable offline.",
+  "mcp_binary": "iqos-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_public_tool_count": 7,
+  "mcp_ready": "full",
+  "api_version": "1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Cross-Market Product Diff",
+      "command": "diff",
+      "description": "See which products exist in one country but not another — find market-exclusive devices, flavors, or accessories instantly."
+    },
+    {
+      "name": "Catalog Change Monitor",
+      "command": "changes",
+      "description": "Detect products added, removed, or changed in price since your last sync — track IQOS catalog evolution over time."
+    },
+    {
+      "name": "Flavor Finder",
+      "command": "flavors find",
+      "description": "Search HEETS and TEREA sticks by flavor profile across all markets — find menthol, tobacco, or fruity variants available near you."
+    },
+    {
+      "name": "Bulk Catalog Export",
+      "command": "products export",
+      "description": "Export the complete product catalog for one or all markets as CSV or JSON — aggregate 30+ sitemaps in one command."
+    },
+    {
+      "name": "Nearest Store Query",
+      "command": "stores nearest",
+      "description": "Find the closest IQOS stores to any GPS coordinate — offline, using geocoordinates extracted from store pages."
+    }
+  ]
+}

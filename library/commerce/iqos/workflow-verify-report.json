@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/nicolascorrea/printing-press/.runstate/cli-printing-press-c8c9b786/runs/20260509-130744/working/iqos-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}
