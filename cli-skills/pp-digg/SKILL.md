@@ -43,6 +43,56 @@ Do not activate this CLI for requests that require creating, updating, deleting,
 
 These capabilities aren't available in any other tool for this API.
 
+### Topic search and per-post citations
+- **`search`** — Topic search across Digg's full window. Live by default — hits `/api/search/stories`, the same server-side search that backs the di.gg/ai Cmd+K modal — with FTS5 fallback to the local store on network error or `--data-source local`.
+
+  _Returns ranked clusters with engagement metadata (postCount, uniqueAuthors, firstPostAge); the load-bearing recipe for last30days-style research workflows._
+
+  ```bash
+  digg-pp-cli search "<topic>" --since 30d --agent --select clusterUrlId,title,rank,postCount,uniqueAuthors,firstPostAge
+  ```
+  - **`--since Nh|Nd|Nw|Nm`** — filter to clusters first posted within the window (live mode parses Digg's own `firstPostAge`; local mode reads `digg_clusters.first_post_at`).
+- **`posts`** — X posts attached to one cluster, with author rank, body when rendered, media URLs, repost-context, and minted xUrl for one-click citation.
+
+  _The citations recipe: surface the highest-credibility AI 1000 voices on a story, sortable by rank, type, or time._
+
+  ```bash
+  digg-pp-cli posts <clusterUrlId> --by rank --limit 5 --agent --select author.username,author.rank,post_type,xUrl,body
+  ```
+
+### Author lookup and roster browse
+- **`authors get`** — Look up any X handle in Digg's full author universe (1000 + off-1000) via `/api/search/users`. For off-1000 handles, the response includes `subject_peer_follow_count`, the rank-1000 anchor's `peer_follow_count`, and a signed `peer_follow_gap` — the gap to the 1000 measured in AI-1000 peer follows (NOT raw X follower count).
+
+  _The credibility lookup: an agent can decide whether to quote a handle by reading one structured record._
+
+  ```bash
+  digg-pp-cli authors get <handle> --agent
+  ```
+
+  Trimmed off-1000 example for `mvanhorn`:
+  ```json
+  {
+    "username": "mvanhorn",
+    "current_rank": null,
+    "subject_peer_follow_count": 19,
+    "nearest_in_1000": {"rank": 1000, "username": "...", "peer_follow_count": 90},
+    "peer_follow_gap": 71
+  }
+  ```
+  `peer_follow_gap` is the gap to rank-1000's `followed_by_count` (peer follows from inside the AI 1000). Do not read it as a raw X follower delta.
+- **`authors list`** — Full ranked AI 1000 from `/ai/1000`, persisted with rich fields (rank, category, bio, vibeDistribution, GitHub URL).
+
+  _Identify rising voices in a category, find authors who just joined the 1000, see who's falling fast — sortable, filterable, scriptable._
+
+  ```bash
+  # Biggest movers since the last snapshot
+  digg-pp-cli authors list --by rankChange --limit 20 --agent
+
+  # Newly listed (first appearance in the 1000)
+  digg-pp-cli authors list --only-new --agent
+  ```
+  Sort with `--by rank|rankChange|category|followers`; filter with `--category "<name>"`, `--only-new`, `--only-fallers`.
+
 ### Live pipeline observability
 - **`events`** — Tail Digg's ingestion pipeline in real time — see clusters as they're detected, stories fast-climbing the leaderboard with explicit rank deltas, X posts being processed, batch breakdowns.
 
@@ -130,6 +180,22 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 - `digg-pp-cli feed raw` — Fetch the raw /ai HTML page. The CLI's sync command parses this; most users should run `sync` then `top` instead of...
 - `digg-pp-cli feed story_raw` — Fetch the raw /ai/{clusterUrlId} story detail page (HTML). The CLI's `story` command parses this; users should not...
 
+**search** — Topic search across the full Digg window
+
+- `digg-pp-cli search "<query>"` — Live by default (`/api/search/stories`); FTS5 fallback to the local store. Flags: `--since Nh|Nd|Nw|Nm`, `--data-source live|local|auto`, `--limit`.
+
+**authors** — Inspect the Digg AI 1000 leaderboard
+
+- `digg-pp-cli authors get <handle>` — Look up any X handle (1000 + off-1000); off-1000 records include `subject_peer_follow_count`, `nearest_in_1000` anchor, and `peer_follow_gap`. Flag: `--limit` (fuzzy fallback).
+- `digg-pp-cli authors list` — Full ranked AI 1000 from `/ai/1000`, persisted with rich fields. Flags: `--by rank|rankChange|category|followers`, `--category`, `--only-new`, `--only-fallers`, `--limit`.
+- `digg-pp-cli authors top` — Top contributors by influence, post count, or reach. Flags: `--by`, `--limit`.
+
+**posts** — X posts attached to one cluster
+
+- `digg-pp-cli posts <clusterUrlId>` — Origins, replies, quotes, retweets with author rank, body when rendered, media URLs, minted xUrl. Flags: `--by rank|type|time`, `--type tweet|reply|quote|retweet`, `--limit`, `--no-cache`.
+
+**story** — Full cluster detail. Envelope now includes `posts` and `postsMeta` fields populated by the U5 RSC parser.
+
 **trending** — Public ingestion-pipeline status and event stream
 
 - `digg-pp-cli trending` — Read the current pipeline status: storiesToday, clustersToday, isFetching, nextFetchAt, and the recent event stream...
@@ -147,6 +213,42 @@ digg-pp-cli which "<capability in your own words>"
 
 ## Recipes
 
+
+### Topic search for research workflows
+
+```bash
+digg-pp-cli search "<topic>" --since 30d --agent --select clusterUrlId,title,rank,postCount,uniqueAuthors,firstPostAge
+```
+
+Server-side search across Digg's full window via `/api/search/stories`; returns ranked clusters with engagement metadata (postCount, uniqueAuthors, firstPostAge). The load-bearing recipe for last30days-style consumers — pair with `posts` for citations.
+
+### Author credibility lookup (in or out of the 1000)
+
+```bash
+digg-pp-cli authors get <handle> --agent
+```
+
+Resolves any X handle to a structured record. For an off-1000 handle like `mvanhorn`, the response includes `subject_peer_follow_count: 19`, `nearest_in_1000.peer_follow_count: 90`, and `peer_follow_gap: 71`. `peer_follow_gap` is the distance to rank-1000 measured in AI-1000 peer follows (the metric Digg actually ranks by) — NOT a raw X follower-count delta.
+
+### Roster browse: biggest movers and newly listed
+
+```bash
+# Biggest movers since the last snapshot
+digg-pp-cli authors list --by rankChange --limit 20 --agent
+
+# Newly listed (first appearance in the 1000)
+digg-pp-cli authors list --only-new --agent
+```
+
+Identify rising voices in a category, find authors who just joined the 1000. Sort with `--by rank|rankChange|category|followers`; filter with `--category`, `--only-new`, `--only-fallers`.
+
+### Top comments per article (citations)
+
+```bash
+digg-pp-cli posts <clusterUrlId> --by rank --limit 5 --agent --select author.username,author.rank,post_type,xUrl,body
+```
+
+Surfaces the highest-credibility AI 1000 voices on a story; minted X URLs make citations one-click. Combine with `search` to go from topic → cluster → quotable posts in two commands.
 
 ### What climbed >=10 ranks in the last hour
 
