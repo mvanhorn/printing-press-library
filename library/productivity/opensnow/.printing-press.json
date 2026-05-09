@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T01:59:14.229616Z",
+  "printing_press_version": "4.0.3",
+  "api_name": "opensnow",
+  "display_name": "OpenSnow",
+  "cli_name": "opensnow-pp-cli",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:bf00f7a0b4c10e65ee683be92afdc5b7cbb200904e5a5eda9d11fb8e47a339e8",
+  "mcp_binary": "opensnow-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_ready": "full",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "OPENSNOW_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Powder Day Scorer",
+      "command": "powder-score",
+      "description": "Rate upcoming days 1-10 for powder quality by combining forecast snow totals, wind, temperature, and historical averages"
+    },
+    {
+      "name": "Multi-Resort Powder Ranker",
+      "command": "powder-rank",
+      "description": "Rank all synced resorts by powder potential, combining expected snowfall, base depth, and terrain openness"
+    },
+    {
+      "name": "Storm Tracker",
+      "command": "storm-track",
+      "description": "Show storm progression \u2014 when snow starts, peaks, and ends \u2014 by correlating rolling hourly forecasts over time"
+    },
+    {
+      "name": "Favorites Dashboard",
+      "command": "dashboard",
+      "description": "One-command view of all favorited locations with current temp, 24h snow, 5-day total, and operating status"
+    },
+    {
+      "name": "Overnight Snowfall Check",
+      "command": "overnight",
+      "description": "Check the semi-daily forecast for the overnight period at favorited resorts \u2014 the powder hunter's morning ritual"
+    },
+    {
+      "name": "Conditions Diff",
+      "command": "diff",
+      "description": "Compare current snow report against the last-synced version to see what changed: new snow, lifts opened or closed, status changes"
+    },
+    {
+      "name": "Daily Snow Digest",
+      "command": "digest",
+      "description": "Pull all Daily Snow posts for favorited regions, strip HTML to clean text, and show a summary digest"
+    },
+    {
+      "name": "Historical Snowfall Trends",
+      "command": "history",
+      "description": "Show snowfall trends, season totals vs averages, and base depth progression from cached report snapshots"
+    }
+  ],
+  "run_id": "20260508-183509",
+  "category": "productivity"
+}

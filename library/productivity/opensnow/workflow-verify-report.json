@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/davemorin/printing-press/.runstate/github-ff0ad441/runs/20260508-183509/working/opensnow-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}
