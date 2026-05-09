@@ -1,0 +1,952 @@
+{
+  "tools": [
+    {
+      "name": "case-multi-status_get-list",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/caseMultiStatus/sn?ids=78787878,76767676. Required: ids, type (default: sn). Optional: from, to. Returns the TransactionBag.",
+      "parameters": {
+        "properties": {
+          "from": {
+            "description": "from is one of the number types listed above",
+            "type": "string"
+          },
+          "ids": {
+            "description": "can be serial numbers, ref numbers, reg numbers seperated by commas",
+            "type": "string"
+          },
+          "to": {
+            "description": "to is one of the number types listed above",
+            "type": "string"
+          },
+          "type": {
+            "description": "type: * `sn` - serial number(s) * `rn` - registration number(s) * `ref` - reference number(s) * `ir` - Madrid number(s)",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ids"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "casedoc_content-pdf_get-document",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casedoc/sn78787878/NOA20070926100613/content.pdf. Required: caseid, docid. Returns the Document.",
+      "parameters": {
+        "properties": {
+          "caseid": {
+            "description": "one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and...",
+            "type": "string"
+          },
+          "docid": {
+            "description": "Auto generated Unique Document ID",
+            "type": "string"
+          }
+        },
+        "required": [
+          "caseid",
+          "docid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "casedoc_content-zip_get-document",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casedoc/sn78787878/NOA20070926100613/content.zip. Required: caseid, docid. Returns the Document.",
+      "parameters": {
+        "properties": {
+          "caseid": {
+            "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX...",
+            "type": "string"
+          },
+          "docid": {
+            "description": "Auto generated Unique Document ID",
+            "type": "string"
+          }
+        },
+        "required": [
+          "caseid",
+          "docid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "casedoc_download-pdf_get-document-content-pdf-download",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casedoc/sn78787878/NOA20070926100613/download.pdf. Required: caseid, docid. Returns the Document.",
+      "parameters": {
+        "properties": {
+          "caseid": {
+            "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+            "type": "string"
+          },
+          "docid": {
+            "description": "Auto generated Unique Document ID",
+            "type": "string"
+          }
+        },
+        "required": [
+          "caseid",
+          "docid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "casedoc_download-zip_get-document-content-zip-download",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casedoc/sn78787878/NOA20070926100613/download.zip. Required: caseid, docid. Returns the Document.",
+      "parameters": {
+        "properties": {
+          "caseid": {
+            "description": "one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+            "type": "string"
+          },
+          "docid": {
+            "description": "Auto generated Unique Document ID",
+            "type": "string"
+          }
+        },
+        "required": [
+          "caseid",
+          "docid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "casedoc_info_get-document-xml",
+      "description": "Returns the metadata of a Document in XML for case identified by case ID. Required: caseid, docid.",
+      "parameters": {
+        "properties": {
+          "caseid": {
+            "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+            "type": "string"
+          },
+          "docid": {
+            "description": "Auto generated Unique Document ID",
+            "type": "string"
+          }
+        },
+        "required": [
+          "caseid",
+          "docid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "casedoc_media_get-page-content",
+      "description": "Returns the page content as a NATIVE format. Required: caseid, docid, pageid.",
+      "parameters": {
+        "properties": {
+          "caseid": {
+            "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+            "type": "string"
+          },
+          "docid": {
+            "description": "Auto generated Unique Document ID",
+            "type": "string"
+          },
+          "pageid": {
+            "description": "Page Number",
+            "type": "string"
+          }
+        },
+        "required": [
+          "caseid",
+          "docid",
+          "pageid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "casedocs_bundle_get-case-content-xml",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casedocs/sn78787878/bundle. Required: caseid. Returns array of BundleGetCaseContentXmlItem.",
+      "parameters": {
+        "properties": {
+          "caseid": {
+            "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+            "type": "string"
+          }
+        },
+        "required": [
+          "caseid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "casedocs_content-pdf_get-case-docs-pdf",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casedocs/sn78787878/content.pdf. Required: caseid. Returns array of ContentPdfGetCaseDocsPdfItem.",
+      "parameters": {
+        "properties": {
+          "caseid": {
+            "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+            "type": "string"
+          }
+        },
+        "required": [
+          "caseid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "casedocs_content-zip_get-case-docs-zip",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casedocs/sn78787878/content.zip. Required: caseid. Returns array of ContentZipGetCaseDocsZipItem.",
+      "parameters": {
+        "properties": {
+          "caseid": {
+            "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+            "type": "string"
+          }
+        },
+        "required": [
+          "caseid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "casedocs_download-pdf_get-case-docs-pdf-download",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casedocs/sn78787878/download.pdf. Required: caseid. Returns array of DownloadPdfGetCaseDocsPdfDownloadItem.",
+      "parameters": {
+        "properties": {
+          "caseid": {
+            "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+            "type": "string"
+          }
+        },
+        "required": [
+          "caseid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "casedocs_download-zip_get-case-docs-zip-download",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casedocs/sn78787878/download.zip. Required: caseid. Returns array of DownloadZipGetCaseDocsZipDownloadItem.",
+      "parameters": {
+        "properties": {
+          "caseid": {
+            "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+            "type": "string"
+          }
+        },
+        "required": [
+          "caseid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "casedocs_get-bundle-info-pdf",
+      "description": "Digits can be entered in one of the first four parameters. rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Examples: https://tsdrapi.uspto.gov/ts/cd/casedocs/bundle.pdf?sn=75757575,78787878 or https://tsdrapi.uspto.gov/ts/cd/casedocs/bundle.pdf?sn=72131351,76515878&type=SPE Documents sent/received on Nov 30th, 2003 for Serial Number 72-131351 as a PDF https://tsdrapi.uspto.gov/ts/cd/casedocs/bundle.pdf?sn=72131351&date=2003-11-30 Note: exactly one of rn,sn,ref,ir must be specified, like sn in the examples. Optional: rn, sn, ref (plus 4 more).",
+      "parameters": {
+        "properties": {
+          "category": {
+            "description": "set to RC to retrieve only registration certificate(s)",
+            "type": "string"
+          },
+          "date": {
+            "description": "specific send/receive date",
+            "type": "string"
+          },
+          "ir": {
+            "description": "comma separated Madrid number(s)",
+            "type": "string"
+          },
+          "ref": {
+            "description": "comma separated Madrid number(s)",
+            "type": "string"
+          },
+          "rn": {
+            "description": "comma separated US registration nbr(s)",
+            "type": "string"
+          },
+          "sn": {
+            "description": "comma separated US serial number(s)",
+            "type": "string"
+          },
+          "type": {
+            "description": "set to SPE to retrieve only specimens",
+            "type": "string"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "casedocs_get-bundle-info-xml",
+      "description": "Digits can be entered in one of the first four parameters. rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Examples: https://tsdrapi.uspto.gov/ts/cd/casedocs/bundle.xml?sn=75757575,78787878 Metadata (in XML) about all documents for Serial Number 75008897 sent/received during 2006 https://tsdrapi.uspto.gov/ts/cd/casedocs/bundle.xml?sn=75008897&fromdate=2006-01-01&todate=2006-12-31 Metadata (in XML) about all documents for International Registration Number 0835690 sorted from earliest to latest https://tsdrapi.uspto.gov/ts/cd/casedocs/bundle.xml?ir=0835690&sort=date:A Note: exactly one of rn,sn,ref,ir must be specified, like sn or ir in the examples. Optional: rn, sn, ref (plus 4 more). Returns array of CasedocsGetBundleInfoXmlItem.",
+      "parameters": {
+        "properties": {
+          "fromdate": {
+            "description": "start of date range",
+            "type": "string"
+          },
+          "ir": {
+            "description": "comma separated Madrid number(s)",
+            "type": "string"
+          },
+          "ref": {
+            "description": "comma separated Madrid number(s)",
+            "type": "string"
+          },
+          "rn": {
+            "description": "comma separated US registration nbr(s)",
+            "type": "string"
+          },
+          "sn": {
+            "description": "comma separated US serial number(s)",
+            "type": "string"
+          },
+          "sort": {
+            "description": "sort field:[A|D] for ascending or descending",
+            "type": "string"
+          },
+          "todate": {
+            "description": "end of date range",
+            "type": "string"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "casedocs_get-bundle-info-zip",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casedocs/bundle.zip?sn=75757575,78787878 Note: only one parameter can be specified, like sn in the example. Optional: rn, sn, ref (plus 1 more). Returns array of CasedocsGetBundleInfoZipItem.",
+      "parameters": {
+        "properties": {
+          "ir": {
+            "description": "comma separated Madrid number(s)",
+            "type": "string"
+          },
+          "ref": {
+            "description": "comma separated Madrid number(s)",
+            "type": "string"
+          },
+          "rn": {
+            "description": "comma separated US registration nbr(s)",
+            "type": "string"
+          },
+          "sn": {
+            "description": "comma separated US serial number(s)",
+            "type": "string"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "casedocs_info_get-case-docs-xml",
+      "description": "Returns information about all documents in the case in XML format. Required: caseid.",
+      "parameters": {
+        "properties": {
+          "caseid": {
+            "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+            "type": "string"
+          }
+        },
+        "required": [
+          "caseid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "casestatus_content-html_get-case-status-info",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casestatus/sn78787878/content.html. Required: caseid. Returns the Transaction.",
+      "parameters": {
+        "properties": {
+          "caseid": {
+            "description": "one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+            "type": "string"
+          }
+        },
+        "required": [
+          "caseid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "casestatus_content-pdf_get-case-status-info",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casestatus/sn78787878/content.pdf. Required: caseid. Returns the Transaction.",
+      "parameters": {
+        "properties": {
+          "caseid": {
+            "description": "one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+            "type": "string"
+          }
+        },
+        "required": [
+          "caseid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "casestatus_content-zip_get-case-status-info",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casestatus/sn78787878/content.zip. Required: caseid. Returns the Transaction.",
+      "parameters": {
+        "properties": {
+          "caseid": {
+            "description": "one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+            "type": "string"
+          }
+        },
+        "required": [
+          "caseid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "casestatus_download-pdf_get-case-status-info-pdf-download",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casestatus/sn78787878/download.pdf. Required: caseid. Returns the Transaction.",
+      "parameters": {
+        "properties": {
+          "caseid": {
+            "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+            "type": "string"
+          }
+        },
+        "required": [
+          "caseid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "casestatus_download-zip_get-case-status-info-zip-download",
+      "description": "Parameters can be one of the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number, refXXXXXXXX and irXXXXXXX for Madrid numbers. Example: https://tsdrapi.uspto.gov/ts/cd/casestatus/sn78787878/download.zip. Required: caseid. Returns the Transaction.",
+      "parameters": {
+        "properties": {
+          "caseid": {
+            "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+            "type": "string"
+          }
+        },
+        "required": [
+          "caseid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "casestatus_info_load-xml",
+      "description": "Returns to the user the Trademark data for a specific serial number serialized into ST96 compliant XML. Required: caseid.",
+      "parameters": {
+        "properties": {
+          "caseid": {
+            "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+            "type": "string"
+          }
+        },
+        "required": [
+          "caseid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "casestatus_v1_load-old-xml",
+      "description": "Returns to the user the Trademark data for a specific serial number serialized into ST96 compliant XML. Required: caseid.",
+      "parameters": {
+        "properties": {
+          "caseid": {
+            "description": "one the following: rnXXXXXXX for US registration number, snXXXXXXXX for US serial number,...",
+            "type": "string"
+          }
+        },
+        "required": [
+          "caseid"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "context",
+      "description": "Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first.",
+      "parameters": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "import",
+      "description": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.",
+      "parameters": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "args": {
+            "description": "Additional positional arguments or raw CLI flags to append to the command.",
+            "type": "string"
+          },
+          "batch-size": {
+            "description": "Records per batch (future: batch API support) (default: 1)",
+            "type": "number"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Preview import without sending requests (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "input": {
+            "description": "Input JSONL file path (use - for stdin)",
+            "type": "string"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'uspto-tsdr-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "input"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "raw-image_get-image",
+      "description": "Parameter is the digits only of the serial number, no leading sn. Example: https://tsdrapi.uspto.gov/ts/cd/rawImage/78787878. Required: serial_number.",
+      "parameters": {
+        "properties": {
+          "serial_number": {
+            "description": "digits only",
+            "type": "string"
+          }
+        },
+        "required": [
+          "serial_number"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "search",
+      "description": "Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first.",
+      "parameters": {
+        "properties": {
+          "limit": {
+            "description": "Max results (default 25)",
+            "type": "number"
+          },
+          "query": {
+            "description": "Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "sql",
+      "description": "Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first.",
+      "parameters": {
+        "properties": {
+          "query": {
+            "description": "SQL query (SELECT or WITH...SELECT). Tables match resource names.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "sync",
+      "description": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes & warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.",
+      "parameters": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "concurrency": {
+            "description": "Number of parallel sync workers (default: 4)",
+            "type": "number"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "db": {
+            "description": "Database path (default: ~/.local/share/uspto-tsdr-pp-cli/data.db)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "full": {
+            "description": "Full resync (ignore previous checkpoint) (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "latest-only": {
+            "description": "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins). (default: false)",
+            "type": "boolean"
+          },
+          "max-pages": {
+            "description": "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event) (default: 100)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'uspto-tsdr-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "resources": {
+            "description": "Comma-separated resource types to sync",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "since": {
+            "description": "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)",
+            "type": "string"
+          },
+          "strict": {
+            "description": "Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero). (default: false)",
+            "type": "boolean"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "workflow_archive",
+      "description": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.",
+      "parameters": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "db": {
+            "description": "Database path (default: ~/.local/share/uspto-tsdr-pp-cli/data.db)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "full": {
+            "description": "Full re-archive (ignore previous sync state) (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'uspto-tsdr-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "workflow_status",
+      "description": "Show local archive status and sync state for all resources",
+      "parameters": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "db": {
+            "description": "Database path",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'uspto-tsdr-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    }
+  ]
+}

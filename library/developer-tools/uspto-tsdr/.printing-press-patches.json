@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-135942",
+  "base_printing_press_version": "4.2.0",
+  "patches": [
+    {
+      "id": "generated-http-method-references",
+      "summary": "Generated HTTP client and MCP tool router contain the string PATCH as an HTTP method verb, not a hand-edit marker.",
+      "reason": "The generator emits case branches for all HTTP methods including PATCH in both the base client and the MCP tool router. These are structural, not customizations.",
+      "files": [
+        "internal/client/client.go",
+        "internal/mcp/tools.go"
+      ],
+      "validated_outcome": "No hand-edits; PATCH references are HTTP method dispatch only."
+    }
+  ]
+}
