@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggparse"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/diggstore"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/internal/store"
@@ -301,15 +302,62 @@ func renderStoryText(w io.Writer, c clusterRow, scoreJSON, authorsJSON, hnJSON, 
 }
 
 // ============== search ==============
+//
+// `search` hits Digg's undocumented /api/search/stories endpoint by
+// default and falls back to the local FTS5 store on network error.
+// `--data-source live` forces live (errors propagate); `--data-source
+// local` forces FTS5 (no network call). The output envelope is shared
+// across both branches so existing --select flags keep working — the
+// live branch maps `description` → `tldr` and pulls through `rank`,
+// `postCount`, `uniqueAuthors`, `firstPostAge` (which U3 will filter on).
+
+// searchResult is the unified envelope row produced by both the live
+// (/api/search/stories) and local (FTS5) branches. JSON tags match the
+// upstream documented shape so agents can rely on a stable contract
+// regardless of source. Source-specific fields (PostCount, FirstPostAge)
+// stay zero/empty on the local path; rank lives on `rank` for live
+// (relevance rank) and `currentRank` for local (today's leaderboard
+// rank) so callers can tell them apart.
+type searchResult struct {
+	ClusterID     string `json:"clusterId"`
+	ClusterURLID  string `json:"clusterUrlId"`
+	Title         string `json:"title,omitempty"`
+	Label         string `json:"label,omitempty"`
+	TLDR          string `json:"tldr,omitempty"`
+	Rank          int    `json:"rank,omitempty"`
+	CurrentRank   int    `json:"currentRank,omitempty"`
+	PostCount     int    `json:"postCount,omitempty"`
+	UniqueAuthors int    `json:"uniqueAuthors,omitempty"`
+	FirstPostAge  string `json:"firstPostAge,omitempty"`
+}
+
+// searchEnvelope wraps the result list with provenance metadata. Shape
+// matches `authors list` so SDK consumers can reuse the parser.
+type searchEnvelope struct {
+	Meta    map[string]any `json:"meta"`
+	Results []searchResult `json:"results"`
+}
 
 func newSearchCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	cmd := &cobra.Command{
-		Use:         "search [query]",
-		Short:       "Full-text search over cluster titles, labels, and TLDRs",
+		Use:   "search [query]",
+		Short: "Cluster search: live /api/search/stories by default, local FTS5 fallback",
+		Long: `Search Digg's full cluster surface for matching stories.
+
+Live by default (--data-source auto): hits /api/search/stories — Digg's
+own server-side search backing the di.gg/ai Cmd+K modal. Returns rich
+fields (postCount, uniqueAuthors, firstPostAge) covering Digg's full
+window, not just the locally-synced snapshot.
+
+Falls back to the local FTS5 store (digg_clusters_fts) on network error,
+or when --data-source local is passed. The local path searches today's
+synced clusters by title/label/TLDR.`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Example: `  digg-pp-cli search "openai gpt-5"
-  digg-pp-cli search "robotics" --json --select clusterUrlId,label,tldr`,
+  digg-pp-cli search "robotics" --json --select clusterUrlId,title,rank,postCount
+  digg-pp-cli search "claude" --data-source local
+  digg-pp-cli search "<topic>" --agent`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -317,49 +365,97 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
-			query := strings.Join(args, " ")
-			_, db, closeFn, err := openStore(cmd.Context())
-			if err != nil {
-				return err
+			query := strings.TrimSpace(strings.Join(args, " "))
+			if query == "" {
+				return usageErr(fmt.Errorf("query is required (e.g. `digg-pp-cli search \"openai\"`)"))
 			}
-			defer closeFn()
-			rows, err := db.QueryContext(cmd.Context(),
-				`SELECT c.cluster_id, c.cluster_url_id, COALESCE(c.label,''), COALESCE(c.tldr,''), COALESCE(c.current_rank,0)
-				 FROM digg_clusters_fts f JOIN digg_clusters c ON c.cluster_id = f.cluster_id
-				 WHERE digg_clusters_fts MATCH ?
-				 ORDER BY c.current_rank ASC LIMIT ?`, query, limit)
-			if err != nil {
-				return fmt.Errorf("FTS query: %w", err)
+			ctx := cmd.Context()
+
+			// Branch on --data-source.
+			ds := flags.dataSource
+			if ds == "" {
+				ds = "auto"
 			}
-			defer rows.Close()
-			type result struct {
-				ClusterID    string `json:"clusterId"`
-				ClusterURLID string `json:"clusterUrlId"`
-				Label        string `json:"label"`
-				TLDR         string `json:"tldr,omitempty"`
-				CurrentRank  int    `json:"currentRank,omitempty"`
-			}
-			var results []result
-			for rows.Next() {
-				var r result
-				if err := rows.Scan(&r.ClusterID, &r.ClusterURLID, &r.Label, &r.TLDR, &r.CurrentRank); err != nil {
+
+			var (
+				results []searchResult
+				source  string
+			)
+
+			switch ds {
+			case "local":
+				lr, err := localSearch(ctx, query, limit)
+				if err != nil {
 					return err
 				}
-				results = append(results, r)
+				results = lr
+				source = "local"
+
+			case "live":
+				lr, err := liveSearch(ctx, flags, query, limit)
+				if err != nil {
+					return err
+				}
+				results = lr
+				source = "live"
+
+			default: // "auto"
+				lr, err := liveSearch(ctx, flags, query, limit)
+				if err == nil {
+					results = lr
+					source = "live"
+				} else {
+					fmt.Fprintf(cmd.ErrOrStderr(), "falling back to local FTS5: %v\n", err)
+					fallback, ferr := localSearch(ctx, query, limit)
+					if ferr != nil {
+						// Live failed and local failed too; surface the live error
+						// (more actionable than a "no synced data" hint when network
+						// is the actual problem) but include the local error context.
+						return fmt.Errorf("live search failed (%v) and local fallback failed: %w", err, ferr)
+					}
+					results = fallback
+					source = "local"
+				}
 			}
-			if err := rows.Err(); err != nil {
-				return err
-			}
+
 			if len(results) == 0 {
-				return emptyHint(cmd, fmt.Sprintf("no matches for %q. Try a different query, or `digg-pp-cli sync` if the local store is empty.", query))
+				if flags.asJSON {
+					env := searchEnvelope{
+						Meta: map[string]any{
+							"source": source,
+							"query":  query,
+							"count":  0,
+						},
+						Results: []searchResult{},
+					}
+					return printJSONFiltered(cmd.OutOrStdout(), env, flags)
+				}
+				return emptyHint(cmd, fmt.Sprintf("no matches for %q (source=%s). Try a different query, or `digg-pp-cli sync` if the local store is empty.", query, source))
 			}
+
 			if flags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), results, flags)
+				env := searchEnvelope{
+					Meta: map[string]any{
+						"source": source,
+						"query":  query,
+						"count":  len(results),
+					},
+					Results: results,
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), env, flags)
 			}
 			for _, r := range results {
-				fmt.Fprintf(cmd.OutOrStdout(), "#%d  %s  [%s]\n", r.CurrentRank, r.Label, r.ClusterURLID)
+				rank := r.Rank
+				if rank == 0 {
+					rank = r.CurrentRank
+				}
+				headline := firstNonEmpty(r.Title, r.Label, r.ClusterURLID)
+				fmt.Fprintf(cmd.OutOrStdout(), "#%d  %s  [%s]\n", rank, headline, r.ClusterURLID)
 				if r.TLDR != "" {
 					fmt.Fprintf(cmd.OutOrStdout(), "    %s\n", diggTruncate(r.TLDR, 200))
+				}
+				if r.FirstPostAge != "" {
+					fmt.Fprintf(cmd.OutOrStdout(), "    posts=%d  authors=%d  age=%s\n", r.PostCount, r.UniqueAuthors, r.FirstPostAge)
 				}
 			}
 			return nil
@@ -367,6 +463,81 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().IntVar(&limit, "limit", 20, "Max number of results")
 	return cmd
+}
+
+// searchStoriesURLOverride lets tests redirect the live search URL to
+// a local httptest server. Empty string falls through to the default
+// "https://di.gg/api/search/stories". Production code never sets this.
+var searchStoriesURLOverride string
+
+// liveSearch hits /api/search/stories via the shared client and maps
+// the upstream envelope onto searchResult. Limit clamping happens both
+// upstream (sent as a query param) and client-side (defensive trim) so
+// `--limit 5` is honored even if the server ignores it.
+func liveSearch(ctx context.Context, flags *rootFlags, query string, limit int) ([]searchResult, error) {
+	c, err := flags.newClient()
+	if err != nil {
+		return nil, err
+	}
+	var resp *client.StoriesSearchResponse
+	if searchStoriesURLOverride != "" {
+		resp, err = c.SearchStoriesFrom(ctx, searchStoriesURLOverride, query, limit)
+	} else {
+		resp, err = c.SearchStories(ctx, query, limit)
+	}
+	if err != nil {
+		return nil, err
+	}
+	out := make([]searchResult, 0, len(resp.Results))
+	for _, r := range resp.Results {
+		out = append(out, searchResult{
+			ClusterID:     r.ClusterID,
+			ClusterURLID:  r.ClusterURLID,
+			Title:         r.Title,
+			TLDR:          r.Description,
+			Rank:          r.Rank,
+			PostCount:     r.PostCount,
+			UniqueAuthors: r.UniqueAuthors,
+			FirstPostAge:  r.FirstPostAge,
+		})
+		if limit > 0 && len(out) >= limit {
+			break
+		}
+	}
+	return out, nil
+}
+
+// localSearch runs the existing FTS5 query against the local store.
+// Returns an empty slice (not an error) when there are no matches, so
+// the caller can render the empty-results envelope or the empty-hint
+// message uniformly.
+func localSearch(ctx context.Context, query string, limit int) ([]searchResult, error) {
+	_, db, closeFn, err := openStore(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer closeFn()
+	rows, err := db.QueryContext(ctx,
+		`SELECT c.cluster_id, c.cluster_url_id, COALESCE(c.label,''), COALESCE(c.tldr,''), COALESCE(c.current_rank,0)
+		 FROM digg_clusters_fts f JOIN digg_clusters c ON c.cluster_id = f.cluster_id
+		 WHERE digg_clusters_fts MATCH ?
+		 ORDER BY c.current_rank ASC LIMIT ?`, query, limit)
+	if err != nil {
+		return nil, fmt.Errorf("FTS query: %w", err)
+	}
+	defer rows.Close()
+	var results []searchResult
+	for rows.Next() {
+		var r searchResult
+		if err := rows.Scan(&r.ClusterID, &r.ClusterURLID, &r.Label, &r.TLDR, &r.CurrentRank); err != nil {
+			return nil, err
+		}
+		results = append(results, r)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return results, nil
 }
 
 // ============== events ==============
