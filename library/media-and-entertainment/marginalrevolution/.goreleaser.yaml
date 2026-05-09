@@ -1,0 +1,51 @@
+version: 2
+project_name: marginalrevolution-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: marginalrevolution-pp-cli
+    main: ./cmd/marginalrevolution-pp-cli
+    binary: marginalrevolution-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/marginalrevolution/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: marginalrevolution-pp-mcp
+    main: ./cmd/marginalrevolution-pp-mcp
+    binary: marginalrevolution-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: marginalrevolution-pp-cli
+    repository:
+      owner: hinuri
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Read, filter, and extract links from Marginal Revolution through its public RSS feed"
+    install: |
+      bin.install "marginalrevolution-pp-cli"
+      bin.install "marginalrevolution-pp-mcp"

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T21:42:03.682664Z",
+  "printing_press_version": "4.2.1",
+  "api_name": "marginalrevolution",
+  "display_name": "Marginal Revolution",
+  "cli_name": "marginalrevolution-pp-cli",
+  "owner": "",
+  "printer": "hinuri",
+  "printer_name": "Nuri Chang",
+  "owner_name": "hinuri",
+  "spec_url": "https://marginalrevolution.com/feed",
+  "spec_path": "spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:da6863cb5f11c18ed2827e7e6144428e7c6054b9f2c39201120b9d73eb511e6c",
+  "run_id": "20260509-214203",
+  "category": "media-and-entertainment",
+  "description": "Read, filter, and extract links from Marginal Revolution through its public RSS feed",
+  "mcp_binary": "marginalrevolution-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Recent-feed search",
+      "command": "search",
+      "description": "Search the current public RSS feed by title, excerpt, body text, author, and category."
+    },
+    {
+      "name": "Outbound link extraction",
+      "command": "links",
+      "description": "Extract external links from recent posts so agents can quickly follow cited sources."
+    },
+    {
+      "name": "Feed taxonomy scan",
+      "command": "categories",
+      "description": "Summarize category counts in the current feed for quick topical orientation."
+    }
+  ]
+}

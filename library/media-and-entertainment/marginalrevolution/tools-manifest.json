@@ -1,0 +1,21 @@
+{
+  "api_name": "marginalrevolution",
+  "base_url": "https://marginalrevolution.com",
+  "description": "Public RSS feed for Marginal Revolution.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "feed_get",
+      "description": "Returns the current public RSS feed. The feed is XML/RSS and does not require authentication.",
+      "method": "GET",
+      "path": "/feed",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

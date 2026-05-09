@@ -1,0 +1,20 @@
+openapi: 3.0.3
+info:
+  title: Marginal Revolution
+  version: 1.0.0
+  description: Public RSS feed for Marginal Revolution.
+servers:
+  - url: https://marginalrevolution.com
+paths:
+  /feed:
+    get:
+      operationId: feed_get
+      summary: Fetch the current Marginal Revolution RSS feed
+      description: Returns the current public RSS feed. The feed is XML/RSS and does not require authentication.
+      responses:
+        "200":
+          description: RSS feed
+          content:
+            application/rss+xml:
+              schema:
+                type: string
