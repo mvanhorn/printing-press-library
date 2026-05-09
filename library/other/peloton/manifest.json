@@ -1,0 +1,24 @@
+{
+  "manifest_version": "0.3",
+  "name": "peloton-pp-mcp",
+  "display_name": "Peloton",
+  "version": "0.1.0",
+  "description": "Workout, ride, and music history from your Peloton account. Reverse-engineered from members.onepeloton.com SPA traffic — Peloton ships no public API, expect occasional breakage.",
+  "author": {
+    "name": "Todd Dailey"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/peloton-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/peloton-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": ["darwin", "linux", "win32"]
+  },
+  "cli_binary": "peloton-pp-cli"
+}
