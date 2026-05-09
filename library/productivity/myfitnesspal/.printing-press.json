@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-08T21:44:13.941342Z",
+  "printing_press_version": "4.0.6",
+  "api_name": "myfitnesspal",
+  "display_name": "MyFitnessPal",
+  "cli_name": "myfitnesspal-pp-cli",
+  "owner": "user",
+  "spec_path": "<HOME>/printing-press/.runstate/cli-printing-press-26830562/runs/20260508-133559/research/myfitnesspal-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:409410cd084f92e68c3c02ba11d13349722cca99d4f3c5813063b2457b7e9875",
+  "run_id": "20260508-133559",
+  "description": "Pull your MyFitnessPal diary, foods, exercises, and measurements into a local SQLite store, run trend reports offline, and export per-food CSV that the official UI never gives you.",
+  "mcp_binary": "myfitnesspal-pp-mcp",
+  "mcp_tool_count": 15,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "auth_title": "MyFitnessPal browser session",
+  "auth_description": "MyFitnessPal closed their public API. This CLI reads cookies from your logged-in\nbrowser session (Chrome, Firefox, Safari, Brave) the same way python-myfitnesspal\nand AdamWalt's MCP server do. Log in at myfitnesspal.com, then run:\n\n  myfitnesspal-pp-cli auth login --chrome\n\nCookies are read from the .myfitnesspal.com domain. The api.myfitnesspal.com\nsubdomain receives them automatically because the session cookie is host-scoped\nto the parent domain. Some commands additionally need an mfp-user-id header,\nwhich the CLI bootstraps via /user/auth_token after first login.\n",
+  "novel_features": [
+    {
+      "name": "Per-food CSV export",
+      "command": "export csv",
+      "description": "Export your food diary to CSV with one row per logged food, not per meal. Premium MFP only ships per-meal CSVs."
+    },
+    {
+      "name": "Agent context dump",
+      "command": "context",
+      "description": "Single-call snapshot of the last N days: diary totals, weight trend, current goals, recent foods, macro deltas — sized for an agent context window."
+    },
+    {
+      "name": "Top foods by nutrient driver",
+      "command": "analytics top-foods",
+      "description": "Pareto query: which N foods drove X% of your protein/carbs/fat/fiber/sugar/calories over a window?"
+    },
+    {
+      "name": "Find food in diary (FTS)",
+      "command": "find",
+      "description": "Full-text search across every diary entry and food in the local store. Returns date, meal, servings, calories per match."
+    },
+    {
+      "name": "Adherence streak",
+      "command": "analytics streak",
+      "description": "Longest run of consecutive days where calorie totals fall within ±tolerance of your goal."
+    }
+  ]
+}

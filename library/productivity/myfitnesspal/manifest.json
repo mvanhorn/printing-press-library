@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "myfitnesspal-pp-mcp",
+  "display_name": "MyFitnessPal",
+  "version": "4.0.6",
+  "description": "Pull your MyFitnessPal diary, foods, exercises, and measurements into a local SQLite store, run trend reports offline, and export per-food CSV that the official UI never gives you.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/myfitnesspal-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/myfitnesspal-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

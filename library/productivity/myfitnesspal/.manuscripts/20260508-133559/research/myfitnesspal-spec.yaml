@@ -1,0 +1,446 @@
+name: myfitnesspal
+display_name: MyFitnessPal
+description: Calorie tracking, food logging, exercise tracking, and weight management. Reverse-engineered access using your logged-in browser session.
+cli_description: Pull your MyFitnessPal diary, foods, exercises, and measurements into a local SQLite store, run trend reports offline, and export per-food CSV that the official UI never gives you.
+version: 0.1.0
+base_url: https://www.myfitnesspal.com
+spec_source: sniffed
+http_transport: standard
+category: productivity
+website_url: https://www.myfitnesspal.com
+owner_name: Nick Scarabosio
+
+auth:
+  type: cookie
+  cookie_domain: ".myfitnesspal.com"
+  cookies:
+    - "__Secure-next-auth.session-token"
+  title: MyFitnessPal browser session
+  description: |
+    MyFitnessPal closed their public API. This CLI reads cookies from your logged-in
+    browser session (Chrome, Firefox, Safari, Brave) the same way python-myfitnesspal
+    and AdamWalt's MCP server do. Log in at myfitnesspal.com, then run:
+
+      myfitnesspal-pp-cli auth login --chrome
+
+    Cookies are read from the .myfitnesspal.com domain. The api.myfitnesspal.com
+    subdomain receives them automatically because the session cookie is host-scoped
+    to the parent domain. Some commands additionally need an mfp-user-id header,
+    which the CLI bootstraps via /user/auth_token after first login.
+  requires_browser_session: true
+  browser_session_reason: "MyFitnessPal has no public API key. Authenticated endpoints (diary, exercises, measurements, goals, reports) require cookies from a logged-in browser session."
+  browser_session_validation_path: "/user/auth_token"
+  browser_session_validation_method: GET
+  verify_path: "/user/auth_token"
+
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+
+config:
+  format: toml
+  path: "~/.config/myfitnesspal-pp-cli/config.toml"
+
+cache:
+  enabled: false
+
+mcp:
+  transport: [stdio]
+
+resources:
+  user:
+    description: Authenticated user account info, units, and preferences.
+    endpoints:
+      auth_token:
+        method: GET
+        path: /user/auth_token
+        description: Bootstrap a v2 bearer token from your session cookies.
+        no_auth: false
+        params: []
+        body: []
+        response:
+          type: object
+          item: AuthToken
+      top_foods_server:
+        method: GET
+        path: /api/services/top_foods
+        description: Get your top-logged foods over a date range, computed server-side (powers the "your most-eaten" insights).
+        params:
+          - name: from
+            type: string
+            required: true
+            description: Start date (YYYY-MM-DD).
+          - name: to
+            type: string
+            required: true
+            description: End date (YYYY-MM-DD).
+          - name: lists
+            type: string
+            required: false
+            description: Repeat for each list type (e.g. "frequent_foods"). On the wire this serializes as lists[]=...
+        response:
+          type: object
+          item: TopFoods
+
+  diary:
+    description: Daily food diary (per-meal entries with full nutrient panel).
+    endpoints:
+      get_day:
+        method: GET
+        path: /food/diary
+        description: Get one day's food diary as scraped HTML (legacy surface python-myfitnesspal uses).
+        params:
+          - name: username
+            type: string
+            required: false
+            description: Username to query (defaults to your own username from /v2/users/me).
+          - name: date
+            type: string
+            required: true
+            description: Date in YYYY-MM-DD format.
+        response:
+          type: object
+          format: html
+          item: DiaryDayHTML
+      load_recent:
+        method: POST
+        path: /food/load_recent
+        description: Load the recent-foods quick-pick list for a meal.
+        params: []
+        body:
+          - name: meal
+            type: integer
+            required: true
+            description: Meal index (0=breakfast, 1=lunch, 2=dinner, 3=snacks, 4+=custom).
+          - name: base_index
+            type: integer
+            required: false
+            description: Pagination base index (default 29).
+          - name: page
+            type: integer
+            required: false
+            description: Page number (default 1).
+        response:
+          type: object
+          format: html
+          item: RecentFoodsHTML
+
+  food:
+    description: Search the public food database, view food details, log custom foods.
+    endpoints:
+      search:
+        method: POST
+        path: /food/search
+        description: Search the food database.
+        params: []
+        body:
+          - name: search
+            flag_name: query
+            type: string
+            required: true
+            description: Food name or brand to search (e.g. "banana", "kirkland yogurt").
+          - name: meal
+            type: integer
+            required: false
+            description: Meal index for context (0=breakfast, 1=lunch, 2=dinner, 3=snacks).
+          - name: date
+            type: string
+            required: false
+            description: Date the search is for (YYYY-MM-DD).
+          - name: authenticity_token
+            type: string
+            required: false
+            description: Rails CSRF token (auto-extracted from /food/diary if omitted).
+        response:
+          type: object
+          format: html
+          item: FoodSearchHTML
+      details:
+        method: GET
+        path: /v2/foods/{food_id}
+        description: Get full nutrient panel for a single food by MFP food id.
+        params:
+          - name: food_id
+            type: string
+            required: true
+            description: MyFitnessPal food id (e.g. "5e0f6c28a9c0e80008d8c2c1").
+          - name: fields
+            type: string
+            required: false
+            description: Repeat for each field to include (e.g. "nutrients,serving_sizes,verified"). Serializes as fields[]= on the wire.
+        response:
+          type: object
+          item: Food
+      suggested_servings:
+        method: GET
+        path: /v2/foods/{food_id}/suggested_servings
+        description: Get common serving-size suggestions for a food (powers the "1 cup / 100g / medium" picker).
+        params:
+          - name: food_id
+            type: string
+            required: true
+            description: MyFitnessPal food id.
+          - name: version
+            type: string
+            required: false
+            description: Suggestion engine version.
+        response:
+          type: object
+          item: SuggestedServings
+
+  exercise:
+    description: Cardio and strength exercises logged on a given day.
+    endpoints:
+      get_day:
+        method: GET
+        path: /exercise/diary
+        description: Get one day's exercise log (cardio + strength) as scraped HTML.
+        params:
+          - name: username
+            type: string
+            required: false
+            description: Username (defaults to your own).
+          - name: date
+            type: string
+            required: true
+            description: Date in YYYY-MM-DD format.
+        response:
+          type: object
+          format: html
+          item: ExerciseDayHTML
+
+  water:
+    description: Daily water intake tracking.
+    endpoints:
+      get:
+        method: GET
+        path: /food/water
+        description: Get water intake for a single day.
+        params:
+          - name: date
+            type: string
+            required: true
+            description: Date in YYYY-MM-DD format.
+        response:
+          type: object
+          item: WaterEntry
+
+  note:
+    description: Free-text notes attached to a day's food or exercise diary.
+    endpoints:
+      get:
+        method: GET
+        path: /food/note
+        description: Get the food note for a single day.
+        params:
+          - name: date
+            type: string
+            required: true
+            description: Date in YYYY-MM-DD format.
+        response:
+          type: object
+          item: DayNote
+
+  measurement:
+    description: Weight, body fat, and other body measurements (time series).
+    endpoints:
+      types:
+        method: GET
+        path: /api/user-measurements/measurements/types
+        description: List the measurement types defined for your account (Weight, BodyFat, Neck, Waist, Hips, plus custom).
+        params: []
+        response:
+          type: array
+          item: MeasurementType
+      get_range:
+        method: GET
+        path: /measurements/edit
+        description: Get a date range of values for one measurement type as scraped HTML.
+        params:
+          - name: type
+            type: string
+            required: true
+            description: Measurement type ("Weight", "BodyFat", or any custom type defined for your account).
+          - name: from
+            type: string
+            required: false
+            description: Start date (YYYY-MM-DD). Defaults to 90 days ago.
+          - name: to
+            type: string
+            required: false
+            description: End date (YYYY-MM-DD). Defaults to today.
+        response:
+          type: object
+          format: html
+          item: MeasurementsHTML
+
+  goals:
+    description: Daily calorie / macro / water / weight goals.
+    endpoints:
+      get:
+        method: GET
+        path: /account/my-goals
+        description: Get your current daily goals (calorie target, macro split, water target) as scraped HTML.
+        params: []
+        response:
+          type: object
+          format: html
+          item: GoalsHTML
+
+  reports:
+    description: Aggregated time-series reports (any nutrient or weight as a date->value series).
+    endpoints:
+      get:
+        method: GET
+        path: /api/services/reports/results/{category}/{report_name}/{days}
+        description: Get a time-series report (e.g. nutrition/Net%20Calories/30 returns the last 30 days of net calories).
+        params:
+          - name: category
+            type: string
+            required: true
+            description: Report category - "nutrition" (Net Calories, Carbohydrates, Fat, Protein, Sodium, Sugar, Fiber) or "progress" (Weight, BodyFat, etc).
+          - name: report_name
+            type: string
+            required: true
+            description: Report name (URL-encoded). For nutrition use "Net%20Calories", "Carbohydrates", "Fat", "Protein", "Sodium". For progress use "Weight", "BodyFat".
+          - name: days
+            type: integer
+            required: true
+            description: Number of days back from today to include (e.g. 7, 30, 90).
+        response:
+          type: array
+          item: ReportPoint
+
+  api_user:
+    description: Authenticated user record on the v2 API (preferences, paid subs, profiles).
+    endpoints:
+      get:
+        method: GET
+        path: /v2/users/{user_id}
+        description: Get the v2 user record (units, goals preferences, paid subs, profiles).
+        params:
+          - name: user_id
+            type: string
+            required: true
+            description: Numeric MFP user id (visible in the /user/auth_token response, or pass "me" once we resolve it).
+          - name: fields
+            type: string
+            required: false
+            description: Repeat for each field (e.g. "diary_preferences,goal_preferences,unit_preferences,paid_subscriptions,account,profiles"). Serializes as fields[]= on the wire.
+        response:
+          type: object
+          item: ApiUser
+
+types:
+  AuthToken:
+    fields:
+      - name: access_token
+        type: string
+      - name: token_type
+        type: string
+      - name: user_id
+        type: string
+      - name: expires_in
+        type: integer
+
+  TopFoods:
+    fields:
+      - name: items
+        type: array
+
+  Food:
+    fields:
+      - name: id
+        type: string
+      - name: brand
+        type: string
+      - name: description
+        type: string
+      - name: nutrients
+        type: object
+      - name: serving_sizes
+        type: array
+      - name: verified
+        type: boolean
+      - name: public
+        type: boolean
+
+  SuggestedServings:
+    fields:
+      - name: items
+        type: array
+
+  WaterEntry:
+    fields:
+      - name: date
+        type: string
+      - name: amount
+        type: number
+      - name: unit
+        type: string
+
+  DayNote:
+    fields:
+      - name: date
+        type: string
+      - name: text
+        type: string
+
+  MeasurementType:
+    fields:
+      - name: name
+        type: string
+      - name: unit
+        type: string
+
+  ReportPoint:
+    fields:
+      - name: date
+        type: string
+      - name: value
+        type: number
+
+  ApiUser:
+    fields:
+      - name: id
+        type: string
+      - name: username
+        type: string
+      - name: diary_preferences
+        type: object
+      - name: goal_preferences
+        type: object
+      - name: unit_preferences
+        type: object
+      - name: paid_subscriptions
+        type: array
+
+  DiaryDayHTML:
+    fields:
+      - name: raw
+        type: string
+
+  ExerciseDayHTML:
+    fields:
+      - name: raw
+        type: string
+
+  MeasurementsHTML:
+    fields:
+      - name: raw
+        type: string
+
+  FoodSearchHTML:
+    fields:
+      - name: raw
+        type: string
+
+  RecentFoodsHTML:
+    fields:
+      - name: raw
+        type: string
+
+  GoalsHTML:
+    fields:
+      - name: raw
+        type: string
