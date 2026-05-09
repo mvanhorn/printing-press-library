@@ -14,21 +14,26 @@ import (
 
 // agentContextSchemaVersion is bumped on any breaking change to the JSON
 // shape emitted by `agent-context`. Agents should check this before
-// parsing. Shape at v3 adds kind-aware auth env var metadata.
-const agentContextSchemaVersion = "3"
+// parsing. Shape at v4 switches `commands` from an ordered array to a
+// flat object keyed by full command path (e.g. "search", "authors get",
+// "posts") with each command's `flags` keyed by `--<flag>` for
+// jq-friendly lookup. Subcommand parents still surface their children
+// under a `subcommands` map, so both flat-path and nested traversal
+// work.
+const agentContextSchemaVersion = "4"
 
 // agentContext is the structured description of this CLI consumed by AI
 // agents. Inspired by Cloudflare's /cdn-cgi/explorer/api runtime endpoint
 // (2026-04-13 Wrangler post): agents can introspect the live CLI without
 // parsing --help or reading source.
 type agentContext struct {
-	SchemaVersion              string                 `json:"schema_version"`
-	CLI                        agentContextCLI        `json:"cli"`
-	Auth                       agentContextAuth       `json:"auth"`
-	Discovery                  *agentContextDiscovery `json:"discovery,omitempty"`
-	Commands                   []agentContextCommand  `json:"commands"`
-	AvailableProfiles          []string               `json:"available_profiles"`
-	FeedbackEndpointConfigured bool                   `json:"feedback_endpoint_configured"`
+	SchemaVersion              string                          `json:"schema_version"`
+	CLI                        agentContextCLI                 `json:"cli"`
+	Auth                       agentContextAuth                `json:"auth"`
+	Discovery                  *agentContextDiscovery          `json:"discovery,omitempty"`
+	Commands                   map[string]agentContextCommand  `json:"commands"`
+	AvailableProfiles          []string                        `json:"available_profiles"`
+	FeedbackEndpointConfigured bool                            `json:"feedback_endpoint_configured"`
 }
 
 type agentContextCLI struct {
@@ -65,12 +70,14 @@ type agentContextDiscovery struct {
 }
 
 type agentContextCommand struct {
-	Name        string                `json:"name"`
-	Use         string                `json:"use,omitempty"`
-	Short       string                `json:"short,omitempty"`
-	Annotations map[string]string     `json:"annotations,omitempty"`
-	Flags       []agentContextFlag    `json:"flags,omitempty"`
-	Subcommands []agentContextCommand `json:"subcommands,omitempty"`
+	Name        string                         `json:"name"`
+	Path        string                         `json:"path,omitempty"`
+	Use         string                         `json:"use,omitempty"`
+	Short       string                         `json:"short,omitempty"`
+	Notes       string                         `json:"notes,omitempty"`
+	Annotations map[string]string              `json:"annotations,omitempty"`
+	Flags       map[string]agentContextFlag    `json:"flags,omitempty"`
+	Subcommands map[string]agentContextCommand `json:"subcommands,omitempty"`
 }
 
 type agentContextFlag struct {
@@ -78,6 +85,18 @@ type agentContextFlag struct {
 	Type    string `json:"type"`
 	Usage   string `json:"usage,omitempty"`
 	Default string `json:"default,omitempty"`
+}
+
+// commandNotes returns optional human-oriented notes for a command path
+// — surfaced in agent-context so introspecting agents discover envelope
+// changes and other shape evolutions that aren't captured by the cobra
+// flag tree alone.
+func commandNotes(path string) string {
+	switch path {
+	case "story":
+		return "Envelope now includes posts and postsMeta fields populated by the U5 RSC parser; use posts <clusterUrlId> for richer per-post detail."
+	}
+	return ""
 }
 
 func newAgentContextCmd(rootCmd *cobra.Command) *cobra.Command {
@@ -134,29 +153,53 @@ func buildAgentDiscoveryContext() *agentContextDiscovery {
 	return nil
 }
 
-// collectAgentCommands walks the cobra tree from the given command and
-// returns its direct children (skipping hidden commands and the
-// agent-context command itself to avoid self-reference). Each child is
-// recursed into if it has subcommands. Flags are captured via VisitAll.
-// Output is sorted by command name for stable diffs across regenerations.
-func collectAgentCommands(c *cobra.Command) []agentContextCommand {
+// collectAgentCommands walks the cobra tree from the given root command
+// and returns a flat map keyed by full command path (e.g. "search",
+// "authors get", "posts"). Each entry surfaces its own flags as a map
+// keyed by "--<flag>" for jq-friendly lookup. Subcommand parents
+// additionally include a nested `subcommands` map mirroring the
+// children, so both flat-path access (`.commands."authors get"`) and
+// nested traversal (`.commands.authors.subcommands.get`) work without
+// parsing --help or reading source.
+//
+// Hidden commands and the agent-context command itself are skipped to
+// avoid self-reference. Map iteration order is undefined; agents that
+// need stable diffs should sort by key on the consumer side. The
+// underlying flag walk uses VisitAll for completeness.
+func collectAgentCommands(c *cobra.Command) map[string]agentContextCommand {
+	out := map[string]agentContextCommand{}
+	collectAgentCommandsInto(c, "", out)
+	return out
+}
+
+func collectAgentCommandsInto(c *cobra.Command, prefix string, out map[string]agentContextCommand) {
 	children := c.Commands()
+	// Sorting children is not strictly necessary for a map, but doing
+	// it here keeps the recursion deterministic for any code that
+	// later iterates the result in insertion order during testing.
 	sort.Slice(children, func(i, j int) bool { return children[i].Name() < children[j].Name() })
 
-	out := make([]agentContextCommand, 0, len(children))
 	for _, sub := range children {
 		if sub.Hidden || sub.Name() == "agent-context" {
 			continue
 		}
+		path := sub.Name()
+		if prefix != "" {
+			path = prefix + " " + sub.Name()
+		}
 		entry := agentContextCommand{
 			Name:  sub.Name(),
+			Path:  path,
 			Use:   sub.Use,
 			Short: sub.Short,
 		}
-		// Surface Cobra annotations (e.g., pp:endpoint, mcp:read-only) so
-		// agents and the live-dogfood classifier can detect destructive-at-auth
-		// endpoints without parsing source. Empty maps are stripped via
-		// omitempty in the struct tag.
+		if note := commandNotes(path); note != "" {
+			entry.Notes = note
+		}
+		// Surface Cobra annotations (e.g., pp:endpoint, mcp:read-only)
+		// so agents and the live-dogfood classifier can detect
+		// destructive-at-auth endpoints without parsing source. Empty
+		// maps are stripped via omitempty in the struct tag.
 		if len(sub.Annotations) > 0 {
 			entry.Annotations = make(map[string]string, len(sub.Annotations))
 			for k, v := range sub.Annotations {
@@ -164,20 +207,35 @@ func collectAgentCommands(c *cobra.Command) []agentContextCommand {
 			}
 		}
 		sub.Flags().VisitAll(func(f *pflag.Flag) {
-			entry.Flags = append(entry.Flags, agentContextFlag{
+			if entry.Flags == nil {
+				entry.Flags = map[string]agentContextFlag{}
+			}
+			entry.Flags["--"+f.Name] = agentContextFlag{
 				Name:    f.Name,
 				Type:    f.Value.Type(),
 				Usage:   f.Usage,
 				Default: f.DefValue,
-			})
-		})
-		sort.Slice(entry.Flags, func(i, j int) bool {
-			return entry.Flags[i].Name < entry.Flags[j].Name
+			}
 		})
 		if len(sub.Commands()) > 0 {
-			entry.Subcommands = collectAgentCommands(sub)
+			// Recurse first so we can also embed the nested subcommands map.
+			nested := map[string]agentContextCommand{}
+			collectAgentCommandsInto(sub, path, out)
+			// Build the local nested view (children only, keyed by leaf
+			// name) for callers that prefer tree traversal.
+			for _, child := range sub.Commands() {
+				if child.Hidden || child.Name() == "agent-context" {
+					continue
+				}
+				childPath := path + " " + child.Name()
+				if c, ok := out[childPath]; ok {
+					nested[child.Name()] = c
+				}
+			}
+			if len(nested) > 0 {
+				entry.Subcommands = nested
+			}
 		}
-		out = append(out, entry)
+		out[path] = entry
 	}
-	return out
 }
