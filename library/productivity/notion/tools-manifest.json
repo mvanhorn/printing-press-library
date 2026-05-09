@@ -1,0 +1,1319 @@
+{
+  "api_name": "notion",
+  "base_url": "https://api.notion.com",
+  "description": "",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "NOTION_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "NOTION_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "Notion-Version",
+      "value": "2026-03-11"
+    }
+  ],
+  "tools": [
+    {
+      "name": "blocks_delete-a",
+      "description": "Delete a block. Required: block_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/blocks/{block_id}",
+      "params": [
+        {
+          "name": "block_id",
+          "type": "string",
+          "location": "path",
+          "description": "Block id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "blocks_query-meeting-notes",
+      "description": "Query meeting notes. Optional: filter, limit, sort. Returns the new BlocksQueryMeetingNotesResponse.",
+      "method": "POST",
+      "path": "/v1/blocks/meeting_notes/query",
+      "params": [
+        {
+          "name": "filter",
+          "type": "object",
+          "location": "body",
+          "description": "Optional filter for querying meeting notes. Supports combinator (and/or) and property filters on title, attendees, created_time, created_by, last_edited_time, last_edited_by."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of results to return. Defaults to 50."
+        },
+        {
+          "name": "sort",
+          "type": "array",
+          "location": "body",
+          "description": "Optional sort order for the results. Each entry specifies a property name and direction."
+        }
+      ]
+    },
+    {
+      "name": "blocks_retrieve-a",
+      "description": "Retrieve a block. Required: block_id.",
+      "method": "GET",
+      "path": "/v1/blocks/{block_id}",
+      "params": [
+        {
+          "name": "block_id",
+          "type": "string",
+          "location": "path",
+          "description": "Block id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "blocks_update-a",
+      "description": "Update a block. Required: block_id. Partial update.",
+      "method": "PATCH",
+      "path": "/v1/blocks/{block_id}",
+      "params": [
+        {
+          "name": "block_id",
+          "type": "string",
+          "location": "path",
+          "description": "Block id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "blocks_children_get-block",
+      "description": "Retrieve block children. Required: block_id. Optional: start_cursor, page_size. Returns the Block.",
+      "method": "GET",
+      "path": "/v1/blocks/{block_id}/children",
+      "params": [
+        {
+          "name": "block_id",
+          "type": "string",
+          "location": "path",
+          "description": "Block id",
+          "required": true
+        },
+        {
+          "name": "start_cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Start cursor"
+        },
+        {
+          "name": "page_size",
+          "type": "float",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "blocks_children_patch-block",
+      "description": "Append block children. Required: block_id, children. Optional: position. Returns the updated Block.",
+      "method": "PATCH",
+      "path": "/v1/blocks/{block_id}/children",
+      "params": [
+        {
+          "name": "block_id",
+          "type": "string",
+          "location": "path",
+          "description": "Block id",
+          "required": true
+        },
+        {
+          "name": "children",
+          "type": "array",
+          "location": "body",
+          "description": "Children",
+          "required": true
+        },
+        {
+          "name": "position",
+          "type": "string",
+          "location": "body",
+          "description": "Position"
+        }
+      ]
+    },
+    {
+      "name": "comments_create-a",
+      "description": "Create a comment.",
+      "method": "POST",
+      "path": "/v1/comments",
+      "params": []
+    },
+    {
+      "name": "comments_delete-a",
+      "description": "Delete a comment. Required: comment_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/comments/{comment_id}",
+      "params": [
+        {
+          "name": "comment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Comment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "comments_list",
+      "description": "List comments. Required: block_id. Optional: start_cursor, page_size. Returns the CommentsListResponse.",
+      "method": "GET",
+      "path": "/v1/comments",
+      "params": [
+        {
+          "name": "block_id",
+          "type": "string",
+          "location": "query",
+          "description": "Block id",
+          "required": true
+        },
+        {
+          "name": "start_cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Start cursor"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "comments_retrieve",
+      "description": "Retrieve a comment. Required: comment_id.",
+      "method": "GET",
+      "path": "/v1/comments/{comment_id}",
+      "params": [
+        {
+          "name": "comment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Comment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "comments_update-a",
+      "description": "Update a comment. Required: comment_id. Partial update.",
+      "method": "PATCH",
+      "path": "/v1/comments/{comment_id}",
+      "params": [
+        {
+          "name": "comment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Comment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "custom-emojis_list",
+      "description": "List custom emojis. Optional: start_cursor, page_size, name. Returns the CustomEmojisListResponse.",
+      "method": "GET",
+      "path": "/v1/custom_emojis",
+      "params": [
+        {
+          "name": "start_cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Start cursor"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "data-sources_create-a-database",
+      "description": "Create a data source. Required: parent, properties. Optional: icon, title.",
+      "method": "POST",
+      "path": "/v1/data_sources",
+      "params": [
+        {
+          "name": "icon",
+          "type": "string",
+          "location": "body",
+          "description": "Page icon."
+        },
+        {
+          "name": "parent",
+          "type": "object",
+          "location": "body",
+          "description": "An object specifying the parent of the new data source to be created.",
+          "required": true
+        },
+        {
+          "name": "properties",
+          "type": "object",
+          "location": "body",
+          "description": "Property schema of data source.",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "array",
+          "location": "body",
+          "description": "Title of data source as it appears in Notion."
+        }
+      ]
+    },
+    {
+      "name": "data-sources_retrieve-a",
+      "description": "Retrieve a data source. Required: data_source_id.",
+      "method": "GET",
+      "path": "/v1/data_sources/{data_source_id}",
+      "params": [
+        {
+          "name": "data_source_id",
+          "type": "string",
+          "location": "path",
+          "description": "Data source id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data-sources_update-a",
+      "description": "Update a data source. Required: data_source_id. Optional: icon, in_trash, parent (plus 2 more). Partial update.",
+      "method": "PATCH",
+      "path": "/v1/data_sources/{data_source_id}",
+      "params": [
+        {
+          "name": "data_source_id",
+          "type": "string",
+          "location": "path",
+          "description": "Data source id",
+          "required": true
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "location": "body",
+          "description": "Page icon."
+        },
+        {
+          "name": "in_trash",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the database should be moved to or from the trash. If not provided, the trash status will not be updated."
+        },
+        {
+          "name": "parent",
+          "type": "object",
+          "location": "body",
+          "description": "The parent of the data source, when moving it to a different database. If not provided, the parent will not be updated."
+        },
+        {
+          "name": "properties",
+          "type": "object",
+          "location": "body",
+          "description": "The property schema of the data source. The keys are property names or IDs, and the values are property configuration objects. Properties set to null will be removed."
+        },
+        {
+          "name": "title",
+          "type": "array",
+          "location": "body",
+          "description": "Title of data source as it appears in Notion."
+        }
+      ]
+    },
+    {
+      "name": "data-sources_query_post-database",
+      "description": "Query a data source. Required: data_source_id. Optional: filter_properties, filter, in_trash (plus 4 more). Returns the new PageOrDataSource.",
+      "method": "POST",
+      "path": "/v1/data_sources/{data_source_id}/query",
+      "params": [
+        {
+          "name": "data_source_id",
+          "type": "string",
+          "location": "path",
+          "description": "Data source id",
+          "required": true
+        },
+        {
+          "name": "filter_properties",
+          "type": "array",
+          "location": "query",
+          "description": "Filter properties"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "body",
+          "description": "Filter"
+        },
+        {
+          "name": "in_trash",
+          "type": "bool",
+          "location": "body",
+          "description": "In trash"
+        },
+        {
+          "name": "page_size",
+          "type": "float",
+          "location": "body",
+          "description": "Page size"
+        },
+        {
+          "name": "result_type",
+          "type": "string",
+          "location": "body",
+          "description": "Optionally filter the results to only include pages or data sources. Regular, non-wiki databases only support page children. The default behavior is no result type filtering, in other words, returning both pages and data sources for wikis."
+        },
+        {
+          "name": "sorts",
+          "type": "array",
+          "location": "body",
+          "description": "Sorts"
+        },
+        {
+          "name": "start_cursor",
+          "type": "string",
+          "location": "body",
+          "description": "Start cursor"
+        }
+      ]
+    },
+    {
+      "name": "data-sources_templates_list-data-source",
+      "description": "List templates in a data source. Required: data_source_id. Optional: name, start_cursor, page_size. Returns the TemplatesListDataSourceResponse.",
+      "method": "GET",
+      "path": "/v1/data_sources/{data_source_id}/templates",
+      "params": [
+        {
+          "name": "data_source_id",
+          "type": "string",
+          "location": "path",
+          "description": "Data source id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Name"
+        },
+        {
+          "name": "start_cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Start cursor"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "databases_create",
+      "description": "Create a database. Required: parent. Optional: cover, description, icon (plus 3 more).",
+      "method": "POST",
+      "path": "/v1/databases",
+      "params": [
+        {
+          "name": "cover",
+          "type": "string",
+          "location": "body",
+          "description": "The cover image for the database."
+        },
+        {
+          "name": "description",
+          "type": "array",
+          "location": "body",
+          "description": "The description of the database."
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "location": "body",
+          "description": "The icon for the database."
+        },
+        {
+          "name": "initial_data_source",
+          "type": "object",
+          "location": "body",
+          "description": "Initial data source configuration for the database."
+        },
+        {
+          "name": "is_inline",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the database should be displayed inline in the parent page. Defaults to false."
+        },
+        {
+          "name": "parent",
+          "type": "object",
+          "location": "body",
+          "description": "The parent page or workspace where the database will be created.",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "array",
+          "location": "body",
+          "description": "The title of the database."
+        }
+      ]
+    },
+    {
+      "name": "databases_retrieve",
+      "description": "Retrieve a database. Required: database_id.",
+      "method": "GET",
+      "path": "/v1/databases/{database_id}",
+      "params": [
+        {
+          "name": "database_id",
+          "type": "string",
+          "location": "path",
+          "description": "Database id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "databases_update",
+      "description": "Update a database. Required: database_id. Optional: cover, description, icon (plus 5 more). Partial update.",
+      "method": "PATCH",
+      "path": "/v1/databases/{database_id}",
+      "params": [
+        {
+          "name": "database_id",
+          "type": "string",
+          "location": "path",
+          "description": "Database id",
+          "required": true
+        },
+        {
+          "name": "cover",
+          "type": "string",
+          "location": "body",
+          "description": "The updated cover image for the database, if any. If not provided, the cover will not be updated."
+        },
+        {
+          "name": "description",
+          "type": "array",
+          "location": "body",
+          "description": "The updated description of the database, if any. If not provided, the description will not be updated."
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "location": "body",
+          "description": "The updated icon for the database, if any. If not provided, the icon will not be updated."
+        },
+        {
+          "name": "in_trash",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the database should be moved to or from the trash. If not provided, the trash status will not be updated."
+        },
+        {
+          "name": "is_inline",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the database should be displayed inline in the parent page. If not provided, the inline status will not be updated."
+        },
+        {
+          "name": "is_locked",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the database should be locked from editing in the Notion app UI. If not provided, the locked state will not be updated."
+        },
+        {
+          "name": "parent",
+          "type": "object",
+          "location": "body",
+          "description": "The parent page or workspace to move the database to. If not provided, the database will not be moved."
+        },
+        {
+          "name": "title",
+          "type": "array",
+          "location": "body",
+          "description": "The updated title of the database, if any. If not provided, the title will not be updated."
+        }
+      ]
+    },
+    {
+      "name": "file-uploads_create-file",
+      "description": "Create a file upload. Optional: content_type, external_url, filename (plus 2 more). Returns the new FileUploadObjectResponse.",
+      "method": "POST",
+      "path": "/v1/file_uploads",
+      "params": [
+        {
+          "name": "content_type",
+          "type": "string",
+          "location": "body",
+          "description": "MIME type of the file to be created. Recommended when sending the file in multiple parts. Must match the content type of the file that's sent, and the extension of the `filename` parameter if any."
+        },
+        {
+          "name": "external_url",
+          "type": "string",
+          "location": "body",
+          "description": "When `mode` is `external_url`, provide the HTTPS URL of a publicly accessible file to import into your workspace."
+        },
+        {
+          "name": "filename",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the file to be created. Required when `mode` is `multi_part`. Otherwise optional, and used to override the filename. Must include an extension, or have one inferred from the `content_type` parameter."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "body",
+          "description": "How the file is being sent. Use `multi_part` for files larger than 20MB. Use `external_url` for files that are temporarily hosted publicly elsewhere. Default is `single_part`."
+        },
+        {
+          "name": "number_of_parts",
+          "type": "int",
+          "location": "body",
+          "description": "When `mode` is `multi_part`, the number of parts you are uploading. This must match the number of parts as well as the final `part_number` you send."
+        }
+      ]
+    },
+    {
+      "name": "file-uploads_list",
+      "description": "List file uploads. Optional: status, start_cursor, page_size. Returns the FileUploadsListResponse.",
+      "method": "GET",
+      "path": "/v1/file_uploads",
+      "params": [
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        },
+        {
+          "name": "start_cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Start cursor"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "file-uploads_retrieve",
+      "description": "Retrieve a file upload. Required: file_upload_id. Returns the FileUploadObjectResponse.",
+      "method": "GET",
+      "path": "/v1/file_uploads/{file_upload_id}",
+      "params": [
+        {
+          "name": "file_upload_id",
+          "type": "string",
+          "location": "path",
+          "description": "File upload id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "file-uploads_complete_file-upload",
+      "description": "Complete a multi-part file upload. Required: file_upload_id. Returns the new FileUploadObjectResponse.",
+      "method": "POST",
+      "path": "/v1/file_uploads/{file_upload_id}/complete",
+      "params": [
+        {
+          "name": "file_upload_id",
+          "type": "string",
+          "location": "path",
+          "description": "File upload id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "file-uploads_send_upload-file",
+      "description": "Upload a file. Required: file_upload_id, file. Optional: part_number. Returns the new FileUploadObjectResponse.",
+      "method": "POST",
+      "path": "/v1/file_uploads/{file_upload_id}/send",
+      "params": [
+        {
+          "name": "file_upload_id",
+          "type": "string",
+          "location": "path",
+          "description": "File upload id",
+          "required": true
+        },
+        {
+          "name": "file",
+          "type": "object",
+          "location": "body",
+          "description": "The raw binary file contents to upload.",
+          "required": true
+        },
+        {
+          "name": "part_number",
+          "type": "string",
+          "location": "body",
+          "description": "When uploading files greater than 20MB in parts, this is the current part number. Must be an integer between 1 and 1,000."
+        }
+      ]
+    },
+    {
+      "name": "notion-search_post",
+      "description": "Search by title. Optional: filter, page_size, query (plus 2 more). Returns the new PageOrDataSource.",
+      "method": "POST",
+      "path": "/v1/search",
+      "params": [
+        {
+          "name": "filter",
+          "type": "object",
+          "location": "body",
+          "description": "Filter"
+        },
+        {
+          "name": "page_size",
+          "type": "float",
+          "location": "body",
+          "description": "Page size"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Query"
+        },
+        {
+          "name": "sort",
+          "type": "object",
+          "location": "body",
+          "description": "Sort"
+        },
+        {
+          "name": "start_cursor",
+          "type": "string",
+          "location": "body",
+          "description": "Start cursor"
+        }
+      ]
+    },
+    {
+      "name": "oauth_create-a-token",
+      "description": "Exchange an authorization code for an access and refresh token. Returns the new OauthCreateATokenResponse.",
+      "method": "POST",
+      "path": "/v1/oauth/token",
+      "params": []
+    },
+    {
+      "name": "oauth_introspect-token",
+      "description": "Introspect a token. Required: token. Returns the new OauthIntrospectTokenResponse.",
+      "method": "POST",
+      "path": "/v1/oauth/introspect",
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Token",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "oauth_revoke-token",
+      "description": "Revoke a token. Required: token. Returns the new OauthRevokeTokenResponse.",
+      "method": "POST",
+      "path": "/v1/oauth/revoke",
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Token",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pages_patch",
+      "description": "Update page. Required: page_id. Optional: cover, erase_content, icon (plus 5 more). Partial update.",
+      "method": "PATCH",
+      "path": "/v1/pages/{page_id}",
+      "params": [
+        {
+          "name": "page_id",
+          "type": "string",
+          "location": "path",
+          "description": "Page id",
+          "required": true
+        },
+        {
+          "name": "cover",
+          "type": "string",
+          "location": "body",
+          "description": "Cover"
+        },
+        {
+          "name": "erase_content",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to erase all existing content from the page. When used with a template, the template content replaces the existing content. When used without a template, simply clears the page content."
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "location": "body",
+          "description": "Icon"
+        },
+        {
+          "name": "in_trash",
+          "type": "bool",
+          "location": "body",
+          "description": "In trash"
+        },
+        {
+          "name": "is_archived",
+          "type": "bool",
+          "location": "body",
+          "description": "Is archived"
+        },
+        {
+          "name": "is_locked",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the page should be locked from editing in the Notion app UI. If not provided, the locked state will not be updated."
+        },
+        {
+          "name": "properties",
+          "type": "object",
+          "location": "body",
+          "description": "Properties"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "location": "body",
+          "description": "Template"
+        }
+      ]
+    },
+    {
+      "name": "pages_post",
+      "description": "Create a page. Optional: children, content, cover (plus 6 more).",
+      "method": "POST",
+      "path": "/v1/pages",
+      "params": [
+        {
+          "name": "children",
+          "type": "array",
+          "location": "body",
+          "description": "Children"
+        },
+        {
+          "name": "content",
+          "type": "array",
+          "location": "body",
+          "description": "Content"
+        },
+        {
+          "name": "cover",
+          "type": "string",
+          "location": "body",
+          "description": "Cover"
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "location": "body",
+          "description": "Icon"
+        },
+        {
+          "name": "markdown",
+          "type": "string",
+          "location": "body",
+          "description": "Page content as Notion-flavored Markdown. Mutually exclusive with content/children."
+        },
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "body",
+          "description": "Parent"
+        },
+        {
+          "name": "position",
+          "type": "string",
+          "location": "body",
+          "description": "Position"
+        },
+        {
+          "name": "properties",
+          "type": "object",
+          "location": "body",
+          "description": "Properties"
+        },
+        {
+          "name": "template",
+          "type": "string",
+          "location": "body",
+          "description": "Template"
+        }
+      ]
+    },
+    {
+      "name": "pages_retrieve-a",
+      "description": "Retrieve a page. Required: page_id. Optional: filter_properties.",
+      "method": "GET",
+      "path": "/v1/pages/{page_id}",
+      "params": [
+        {
+          "name": "page_id",
+          "type": "string",
+          "location": "path",
+          "description": "Page id",
+          "required": true
+        },
+        {
+          "name": "filter_properties",
+          "type": "array",
+          "location": "query",
+          "description": "Filter properties"
+        }
+      ]
+    },
+    {
+      "name": "pages_markdown_retrieve-page",
+      "description": "Retrieve a page as markdown. Required: page_id. Optional: include_transcript. Returns the PageMarkdownResponse.",
+      "method": "GET",
+      "path": "/v1/pages/{page_id}/markdown",
+      "params": [
+        {
+          "name": "page_id",
+          "type": "string",
+          "location": "path",
+          "description": "Page id",
+          "required": true
+        },
+        {
+          "name": "include_transcript",
+          "type": "bool",
+          "location": "query",
+          "description": "Include transcript"
+        }
+      ]
+    },
+    {
+      "name": "pages_markdown_update-page",
+      "description": "Update a page's content as markdown. Required: page_id. Returns the updated PageMarkdownResponse.",
+      "method": "PATCH",
+      "path": "/v1/pages/{page_id}/markdown",
+      "params": [
+        {
+          "name": "page_id",
+          "type": "string",
+          "location": "path",
+          "description": "Page id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pages_move_page",
+      "description": "Move a page. Required: page_id, parent.",
+      "method": "POST",
+      "path": "/v1/pages/{page_id}/move",
+      "params": [
+        {
+          "name": "page_id",
+          "type": "string",
+          "location": "path",
+          "description": "Page id",
+          "required": true
+        },
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "body",
+          "description": "The new parent of the page.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pages_properties_retrieve-a-page-property",
+      "description": "Retrieve a page property item. Required: page_id, property_id. Optional: start_cursor, page_size.",
+      "method": "GET",
+      "path": "/v1/pages/{page_id}/properties/{property_id}",
+      "params": [
+        {
+          "name": "page_id",
+          "type": "string",
+          "location": "path",
+          "description": "Page id",
+          "required": true
+        },
+        {
+          "name": "property_id",
+          "type": "string",
+          "location": "path",
+          "description": "Property id",
+          "required": true
+        },
+        {
+          "name": "start_cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Start cursor"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "users_get",
+      "description": "List all users. Optional: start_cursor, page_size. Returns the User.",
+      "method": "GET",
+      "path": "/v1/users",
+      "params": [
+        {
+          "name": "start_cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Start cursor"
+        },
+        {
+          "name": "page_size",
+          "type": "float",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "users_get-self",
+      "description": "Retrieve your token's bot user. Returns the UserObjectResponse.",
+      "method": "GET",
+      "path": "/v1/users/me",
+      "params": []
+    },
+    {
+      "name": "users_get-userid",
+      "description": "Retrieve a user. Required: user_id. Returns the UserObjectResponse.",
+      "method": "GET",
+      "path": "/v1/users/{user_id}",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "views_create",
+      "description": "Create a view. Required: data_source_id, name, type. Optional: configuration, create_database, database_id (plus 6 more).",
+      "method": "POST",
+      "path": "/v1/views",
+      "params": [
+        {
+          "name": "configuration",
+          "type": "string",
+          "location": "body",
+          "description": "View presentation configuration. The type field must match the view type."
+        },
+        {
+          "name": "create_database",
+          "type": "object",
+          "location": "body",
+          "description": "Create a new linked database block on a page and add the view to it. Mutually exclusive with database_id and view_id."
+        },
+        {
+          "name": "data_source_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the data source this view should be scoped to.",
+          "required": true
+        },
+        {
+          "name": "database_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the database to create a view in. Mutually exclusive with view_id and create_database."
+        },
+        {
+          "name": "filter",
+          "type": "object",
+          "location": "body",
+          "description": "Filter to apply to the view. Uses the same format as the data source query filter."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the view.",
+          "required": true
+        },
+        {
+          "name": "placement",
+          "type": "string",
+          "location": "body",
+          "description": "Where to place the new widget in a dashboard view. Only applicable when view_id is provided. Defaults to creating a new row at the end."
+        },
+        {
+          "name": "position",
+          "type": "string",
+          "location": "body",
+          "description": "Where to place the new view in the database's view tab bar. Only applicable when database_id is provided. Defaults to 'end' (append)."
+        },
+        {
+          "name": "quick_filters",
+          "type": "object",
+          "location": "body",
+          "description": "Quick filters to pin in the view's filter bar. Keys are property names or IDs. Values are filter conditions (same shape as a property filter but without the property field). Each quick filter appears as a clickable pill above the view, independent of the advanced filter."
+        },
+        {
+          "name": "sorts",
+          "type": "array",
+          "location": "body",
+          "description": "Sorts to apply to the view. Uses the same format as the data source query sorts."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of view to create.",
+          "required": true
+        },
+        {
+          "name": "view_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of a dashboard view to add this view to as a widget. Mutually exclusive with database_id and create_database."
+        }
+      ]
+    },
+    {
+      "name": "views_delete",
+      "description": "Delete a view. Required: view_id. Returns the PartialDataSourceViewObjectResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/views/{view_id}",
+      "params": [
+        {
+          "name": "view_id",
+          "type": "string",
+          "location": "path",
+          "description": "View id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "views_list",
+      "description": "List views. Optional: database_id, data_source_id, start_cursor (plus 1 more). Returns the ViewsListResponse.",
+      "method": "GET",
+      "path": "/v1/views",
+      "params": [
+        {
+          "name": "database_id",
+          "type": "string",
+          "location": "query",
+          "description": "Database id"
+        },
+        {
+          "name": "data_source_id",
+          "type": "string",
+          "location": "query",
+          "description": "Data source id"
+        },
+        {
+          "name": "start_cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Start cursor"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "views_retrieve-a",
+      "description": "Retrieve a view. Required: view_id.",
+      "method": "GET",
+      "path": "/v1/views/{view_id}",
+      "params": [
+        {
+          "name": "view_id",
+          "type": "string",
+          "location": "path",
+          "description": "View id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "views_update-a",
+      "description": "Update a view. Required: view_id. Optional: configuration, filter, name (plus 2 more). Partial update.",
+      "method": "PATCH",
+      "path": "/v1/views/{view_id}",
+      "params": [
+        {
+          "name": "view_id",
+          "type": "string",
+          "location": "path",
+          "description": "View id",
+          "required": true
+        },
+        {
+          "name": "configuration",
+          "type": "string",
+          "location": "body",
+          "description": "View presentation configuration. The type field must match the view type. Individual nullable fields within the configuration can be set to null to clear them."
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "body",
+          "description": "Filter to apply to the view. Uses the same format as the data source query filter. Pass null to clear the filter."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New name for the view."
+        },
+        {
+          "name": "quick_filters",
+          "type": "string",
+          "location": "body",
+          "description": "Quick filters for the view's filter bar. Keys are property names or IDs. Set a key to a filter condition to add/update that quick filter. Set a key to null to remove it. Pass null for the entire field to clear all quick filters. Unmentioned quick filters are preserved."
+        },
+        {
+          "name": "sorts",
+          "type": "string",
+          "location": "body",
+          "description": "Property sorts to apply to the view. Only property-based sorts are supported. Pass null to clear the sorts."
+        }
+      ]
+    },
+    {
+      "name": "views_queries_create-view-query",
+      "description": "Create a view query. Required: view_id. Optional: page_size. Returns the new ViewQueryResponse.",
+      "method": "POST",
+      "path": "/v1/views/{view_id}/queries",
+      "params": [
+        {
+          "name": "view_id",
+          "type": "string",
+          "location": "path",
+          "description": "View id",
+          "required": true
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "body",
+          "description": "The number of results to return per page. Maximum: 100"
+        }
+      ]
+    },
+    {
+      "name": "views_queries_delete-view-query",
+      "description": "Delete a view query. Required: view_id, query_id. Returns the DeletedViewQueryResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/views/{view_id}/queries/{query_id}",
+      "params": [
+        {
+          "name": "view_id",
+          "type": "string",
+          "location": "path",
+          "description": "View id",
+          "required": true
+        },
+        {
+          "name": "query_id",
+          "type": "string",
+          "location": "path",
+          "description": "Query id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "views_queries_get-view-query-results",
+      "description": "Get view query results. Required: view_id, query_id. Optional: start_cursor, page_size. Returns the QueriesGetViewQueryResultsResponse.",
+      "method": "GET",
+      "path": "/v1/views/{view_id}/queries/{query_id}",
+      "params": [
+        {
+          "name": "view_id",
+          "type": "string",
+          "location": "path",
+          "description": "View id",
+          "required": true
+        },
+        {
+          "name": "query_id",
+          "type": "string",
+          "location": "path",
+          "description": "Query id",
+          "required": true
+        },
+        {
+          "name": "start_cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Start cursor"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    }
+  ]
+}

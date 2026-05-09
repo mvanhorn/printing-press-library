@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-08T21:26:56.658673Z",
+  "printing_press_version": "4.0.6",
+  "api_name": "notion",
+  "display_name": "Notion",
+  "cli_name": "notion-pp-cli",
+  "spec_path": "https://developers.notion.com/openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:ce5ab87e48809531d4553438d3fb8655716cd527740dda1e99f6b03f1fd214c7",
+  "run_id": "20260508-225745",
+  "mcp_binary": "notion-pp-mcp",
+  "mcp_tool_count": 47,
+  "mcp_ready": "full",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "NOTION_BEARER_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Workspace Change Diff",
+      "command": "changed",
+      "description": "Show everything in the workspace added, edited, or deleted since your last sync or a given timestamp."
+    },
+    {
+      "name": "Stale Page Detection",
+      "command": "stale",
+      "description": "List pages and records not edited in N days, filterable by database, parent, or tag."
+    }
+  ]
+}
