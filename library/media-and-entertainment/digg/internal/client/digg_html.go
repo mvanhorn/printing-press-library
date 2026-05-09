@@ -213,6 +213,61 @@ type UsersSearchResponse struct {
 	DurationMS int                 `json:"duration_ms"`
 }
 
+// clusterPostsURLBase is the base path for /ai/<clusterUrlId> page
+// fetches. Joined with the caller-supplied clusterUrlId by
+// FetchClusterPosts. Defined as a const so tests can substitute via
+// FetchClusterPostsFrom.
+const clusterPostsURLBase = "https://di.gg/ai"
+
+// FetchClusterPosts GETs the /ai/<clusterUrlId> page, hands the HTML
+// to the parser, and returns the structured posts (RSC array enriched
+// with DOM-extracted bodies, media URLs, and repost-context chips).
+//
+// Same impersonation/timeout/rate-limit guarantees as the other
+// page-level fetchers in this file. The parser may return partial
+// results plus an error on a partial parse; we surface both so the
+// caller can decide whether to render the partial slice or short-
+// circuit.
+func (c *Client) FetchClusterPosts(ctx context.Context, clusterUrlID string) ([]diggparse.ClusterPost, error) {
+	return c.FetchClusterPostsFrom(ctx, clusterPostsURLBase+"/"+clusterUrlID)
+}
+
+// FetchClusterPostsFrom is FetchClusterPosts with a caller-supplied
+// URL. Exists so unit tests can point at a local httptest server.
+func (c *Client) FetchClusterPostsFrom(ctx context.Context, url string) ([]diggparse.ClusterPost, error) {
+	cctx, cancel := context.WithTimeout(ctx, c.ConfiguredTimeout())
+	defer cancel()
+
+	c.limiter.Wait()
+
+	req, err := http.NewRequestWithContext(cctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("User-Agent", "digg-pp-cli/0.1.0 (+https://github.com/mvanhorn/printing-press-library)")
+	req.Header.Set("Accept", "text/html")
+
+	httpClient := c.HTTPClient
+	if httpClient == nil {
+		httpClient = &http.Client{Timeout: 30 * time.Second}
+	}
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("GET %s: %w", url, err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("GET %s: HTTP %d", url, resp.StatusCode)
+	}
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("reading /ai/<id> body: %w", err)
+	}
+	posts, err := diggparse.ParseClusterPosts(body)
+	// Parser returns partial results + error on partial parse; surface both.
+	return posts, err
+}
+
 // SearchUsers hits Digg's undocumented /api/search/users endpoint —
 // the JSON surface that powers handle lookups across the full
 // 1000-plus-off-1000 author universe. Returns the upstream envelope

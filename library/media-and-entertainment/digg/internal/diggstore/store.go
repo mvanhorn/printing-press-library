@@ -171,6 +171,19 @@ func EnsureSchema(db *sql.DB) error {
 			category,
 			tokenize='porter unicode61'
 		)`,
+
+		// Per-cluster posts cache. One row per clusterUrlId; the parsed
+		// posts are stored as a JSON-encoded blob so the schema doesn't
+		// have to track the structured-post-plus-DOM-correlation shape
+		// in normalized form. fetched_at is the cache freshness anchor;
+		// `posts <id>` and `story <id>` honor a 1h TTL by default and
+		// can bypass via --no-cache.
+		`CREATE TABLE IF NOT EXISTS digg_cluster_posts (
+			cluster_url_id TEXT PRIMARY KEY,
+			posts_json TEXT NOT NULL,
+			fetched_at TEXT NOT NULL
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_digg_cluster_posts_at ON digg_cluster_posts(fetched_at)`,
 	}
 	for _, q := range stmts {
 		if _, err := db.Exec(q); err != nil {
@@ -610,4 +623,75 @@ func UpsertRoster1000(db *sql.DB, authors []diggparse.Roster1000Author, fetchedA
 		written++
 	}
 	return written, nil
+}
+
+// UpsertClusterPosts caches the parsed posts for a single cluster.
+// One row per clusterUrlId; subsequent calls overwrite. The posts
+// blob is JSON-marshalled directly from the slice so the structured
+// shape (per-post body / media_urls / repost_context) round-trips
+// untouched on the read side.
+//
+// fetchedAt is the cache anchor — readers compare it to time.Now()
+// against a TTL (1h by default; `--no-cache` bypasses entirely).
+// We store the timestamp in RFC3339Nano UTC so SQL ordering stays
+// monotonic.
+func UpsertClusterPosts(db *sql.DB, clusterUrlID string, posts []diggparse.ClusterPost, fetchedAt time.Time) error {
+	if clusterUrlID == "" {
+		return fmt.Errorf("UpsertClusterPosts: clusterUrlID required")
+	}
+	body, err := json.Marshal(posts)
+	if err != nil {
+		return fmt.Errorf("marshalling cluster posts: %w", err)
+	}
+	now := fetchedAt.UTC().Format(time.RFC3339Nano)
+	_, err = db.Exec(`
+		INSERT INTO digg_cluster_posts (cluster_url_id, posts_json, fetched_at)
+		VALUES (?,?,?)
+		ON CONFLICT(cluster_url_id) DO UPDATE SET
+			posts_json = excluded.posts_json,
+			fetched_at = excluded.fetched_at
+	`, clusterUrlID, string(body), now)
+	if err != nil {
+		return fmt.Errorf("upsert cluster posts %s: %w", clusterUrlID, err)
+	}
+	return nil
+}
+
+// GetClusterPosts reads the cached posts for one clusterUrlId,
+// honoring the supplied TTL. Returns:
+//
+//   - (posts, true, fetchedAt, nil) when a fresh row exists.
+//   - (nil, false, time.Time{}, nil) when no row exists OR the row
+//     has aged past the TTL. The caller refetches in either case.
+//   - (nil, false, time.Time{}, err) on a SQL or JSON-decode error
+//     — surfaced rather than swallowed so flaky storage doesn't
+//     silently look like a cache miss.
+//
+// A zero-or-negative ttl disables the cache (always returns miss).
+func GetClusterPosts(db *sql.DB, clusterUrlID string, ttl time.Duration) ([]diggparse.ClusterPost, bool, time.Time, error) {
+	if clusterUrlID == "" || ttl <= 0 {
+		return nil, false, time.Time{}, nil
+	}
+	var body, fetchedStr string
+	row := db.QueryRow(`SELECT posts_json, fetched_at FROM digg_cluster_posts WHERE cluster_url_id = ?`, clusterUrlID)
+	if err := row.Scan(&body, &fetchedStr); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, false, time.Time{}, nil
+		}
+		return nil, false, time.Time{}, fmt.Errorf("read cluster posts %s: %w", clusterUrlID, err)
+	}
+	fetchedAt, perr := time.Parse(time.RFC3339Nano, fetchedStr)
+	if perr != nil {
+		// Defensive: if the timestamp is unparseable, treat as a miss
+		// rather than crashing. A subsequent upsert will fix the row.
+		return nil, false, time.Time{}, nil
+	}
+	if time.Since(fetchedAt) > ttl {
+		return nil, false, fetchedAt, nil
+	}
+	var posts []diggparse.ClusterPost
+	if err := json.Unmarshal([]byte(body), &posts); err != nil {
+		return nil, false, fetchedAt, fmt.Errorf("decode cluster posts %s: %w", clusterUrlID, err)
+	}
+	return posts, true, fetchedAt, nil
 }

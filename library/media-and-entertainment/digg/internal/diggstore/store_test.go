@@ -344,6 +344,125 @@ func indexOf(s, sub string) int {
 	return -1
 }
 
+func TestUpsertClusterPosts_RoundTrip(t *testing.T) {
+	db := openTempDB(t)
+	// Use real wall-clock now so the TTL math reflects the live
+	// time.Since(fetchedAt) check the production reader uses.
+	now := time.Now().UTC().Truncate(time.Second)
+	body := "hmm"
+	posts := []diggparse.ClusterPost{
+		{
+			PostXID:  "1111",
+			PostType: "tweet",
+			PostedAt: "2026-05-09T08:02:21+00:00",
+			Author: diggparse.ClusterPostAuthor{
+				Username: "tszzl", DisplayName: "roon",
+				Category: "Researcher", Rank: 32,
+			},
+			XURL:       "https://x.com/tszzl/status/1111",
+			Body:       &body,
+			BodyLoaded: true,
+			MediaURLs:  []string{"https://pbs.twimg.com/media/AAA.jpg"},
+		},
+	}
+	if err := UpsertClusterPosts(db, "65idu2x5", posts, now); err != nil {
+		t.Fatalf("UpsertClusterPosts: %v", err)
+	}
+	got, ok, fetchedAt, err := GetClusterPosts(db, "65idu2x5", time.Hour)
+	if err != nil {
+		t.Fatalf("GetClusterPosts: %v", err)
+	}
+	if !ok {
+		t.Fatal("expected cache hit, got miss")
+	}
+	if !fetchedAt.Equal(now) {
+		t.Errorf("fetched_at round-trip mismatch: got %v, want %v", fetchedAt, now)
+	}
+	if len(got) != 1 || got[0].PostXID != "1111" {
+		t.Errorf("round-trip mismatch: got %+v", got)
+	}
+	if got[0].Body == nil || *got[0].Body != "hmm" {
+		t.Errorf("body round-trip lost: got %v", got[0].Body)
+	}
+	if len(got[0].MediaURLs) != 1 {
+		t.Errorf("media URL round-trip mismatch: %v", got[0].MediaURLs)
+	}
+}
+
+func TestUpsertClusterPosts_TTLMiss(t *testing.T) {
+	db := openTempDB(t)
+	stale := time.Now().Add(-2 * time.Hour) // older than 1h TTL
+	posts := []diggparse.ClusterPost{
+		{
+			PostXID: "1", PostType: "tweet",
+			Author: diggparse.ClusterPostAuthor{Username: "alice"},
+		},
+	}
+	if err := UpsertClusterPosts(db, "abc", posts, stale); err != nil {
+		t.Fatalf("UpsertClusterPosts: %v", err)
+	}
+	// 1h TTL: a row from 2h ago should miss.
+	got, ok, _, err := GetClusterPosts(db, "abc", time.Hour)
+	if err != nil {
+		t.Fatalf("GetClusterPosts: %v", err)
+	}
+	if ok {
+		t.Errorf("expected TTL miss for stale row; got hit with %d posts", len(got))
+	}
+	// But a 365d TTL should hit (used by the live-fail-with-stale-cache fallback).
+	_, ok2, _, err := GetClusterPosts(db, "abc", 365*24*time.Hour)
+	if err != nil {
+		t.Fatalf("GetClusterPosts (long TTL): %v", err)
+	}
+	if !ok2 {
+		t.Error("long TTL should still find the cached row")
+	}
+}
+
+func TestUpsertClusterPosts_OverwriteSameKey(t *testing.T) {
+	db := openTempDB(t)
+	// Anchor on real wall-clock so TTL math reflects production.
+	t1 := time.Now().UTC().Add(-30 * time.Minute).Truncate(time.Second)
+	t2 := t1.Add(20 * time.Minute)
+	body1, body2 := "first", "second"
+	v1 := []diggparse.ClusterPost{
+		{PostXID: "1", Author: diggparse.ClusterPostAuthor{Username: "a"}, Body: &body1, MediaURLs: []string{}},
+	}
+	v2 := []diggparse.ClusterPost{
+		{PostXID: "1", Author: diggparse.ClusterPostAuthor{Username: "a"}, Body: &body2, MediaURLs: []string{}},
+		{PostXID: "2", Author: diggparse.ClusterPostAuthor{Username: "b"}, MediaURLs: []string{}},
+	}
+	if err := UpsertClusterPosts(db, "k", v1, t1); err != nil {
+		t.Fatal(err)
+	}
+	if err := UpsertClusterPosts(db, "k", v2, t2); err != nil {
+		t.Fatal(err)
+	}
+	got, ok, fetchedAt, err := GetClusterPosts(db, "k", time.Hour)
+	if err != nil || !ok {
+		t.Fatalf("hit failed: ok=%v err=%v", ok, err)
+	}
+	if len(got) != 2 {
+		t.Errorf("expected 2 posts after overwrite, got %d", len(got))
+	}
+	if got[0].Body == nil || *got[0].Body != "second" {
+		t.Errorf("overwrite did not update body; got %v", got[0].Body)
+	}
+	if !fetchedAt.Equal(t2) {
+		t.Errorf("fetched_at not refreshed; got %v want %v", fetchedAt, t2)
+	}
+}
+
+func TestGetClusterPosts_EmptyKeyOrTTLReturnsMiss(t *testing.T) {
+	db := openTempDB(t)
+	if _, ok, _, err := GetClusterPosts(db, "", time.Hour); ok || err != nil {
+		t.Errorf("empty key should return (miss, nil); got ok=%v err=%v", ok, err)
+	}
+	if _, ok, _, err := GetClusterPosts(db, "x", 0); ok || err != nil {
+		t.Errorf("zero TTL should return (miss, nil); got ok=%v err=%v", ok, err)
+	}
+}
+
 func TestRecordReplacementsDropsClustersNotSeen(t *testing.T) {
 	db := openTempDB(t)
 	old := time.Date(2026, 5, 9, 11, 0, 0, 0, time.UTC)

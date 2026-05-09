@@ -29,6 +29,7 @@ func registerDiggCommands(root *cobra.Command, flags *rootFlags) {
 	root.AddCommand(newTopCmd(flags))
 	root.AddCommand(newRisingCmd(flags))
 	root.AddCommand(newStoryCmd(flags))
+	root.AddCommand(newPostsCmd(flags))
 	root.AddCommand(newSearchCmd(flags))
 	root.AddCommand(newEventsCmd(flags))
 	root.AddCommand(newEvidenceCmd(flags))
@@ -239,12 +240,27 @@ func newStoryCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			c.PeakRank = int(peakRank.Int64)
+
+			// Per R9: grow the story envelope with a `posts` field so a
+			// single fetch covers ranking + citations. Reuses the same
+			// loader as the standalone `posts` command (cache-first
+			// with 1h TTL; honors --no-cache; falls back to live
+			// fetch). On any error we surface an empty array and a
+			// stderr warning rather than failing the whole story view
+			// — old story callers shouldn't break when the parser hits
+			// an upstream-shape change.
+			postsRows, postsMeta := loadPostsForCluster(cmd.Context(), cmd, flags, db, c.ClusterURLID, postsLoadOptions{
+				honorNoCache: flags.noCache,
+				cacheTTL:     defaultClusterPostsTTL,
+			})
 			full := map[string]any{
 				"cluster":         c,
 				"scoreComponents": asJSONString(scoreJSON),
 				"authors":         asJSONString(authorsJSON),
 				"hackerNews":      asJSONString(hnJSON),
 				"techmeme":        asJSONString(tmJSON),
+				"posts":           postsRows,
+				"postsMeta":       postsMeta,
 			}
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), full, flags)
@@ -300,6 +316,393 @@ func renderStoryText(w io.Writer, c clusterRow, scoreJSON, authorsJSON, hnJSON, 
 		}
 	}
 	return nil
+}
+
+// ============== posts ==============
+//
+// `posts <clusterUrlId>` returns the X posts attached to one cluster:
+// origins, replies, quotes, retweets — with author rank, body text,
+// image URLs, repost-context chips, and minted X URLs. Live by default
+// (fetch /ai/<id> + parse + cache + return); --data-source local reads
+// from cache only. Cache TTL is 1h; --no-cache bypasses entirely.
+//
+// This is the load-bearing surface for `last30days` citations — it's
+// what surfaces "top comments on this story." The structured-array
+// shape mirrors the JSON-friendly contract documented in the plan; a
+// caller can `jq '.results[] | select(.author.rank <= 100)'` to filter
+// to high-credibility AI 1000 voices and get clean citation rows.
+//
+// The same parser feeds the `story` command's new `posts` envelope
+// field via loadPostsForCluster, so a single fetch covers both
+// surfaces (R9).
+
+// clusterPostsURLOverride lets tests redirect the live /ai/<id> fetch
+// to a local httptest server. Empty string falls through to the
+// production base URL. Production code never sets this.
+var clusterPostsURLOverride string
+
+// defaultClusterPostsTTL is the in-store cache freshness window for
+// per-cluster posts. One hour matches the upstream activity cadence on
+// trending clusters: shorter and we'd hammer Digg on legitimate page
+// reloads; longer and the citation freshness drifts. --no-cache
+// bypasses the read; --data-source local skips the fetch even on a
+// stale cache (returns the stored snapshot regardless of age).
+const defaultClusterPostsTTL = time.Hour
+
+// postsAuthorRow mirrors diggparse.ClusterPostAuthor for output. We
+// declare a CLI-side row type rather than reusing the parser type so
+// JSON tags stay independently controllable (e.g. omitempty rules
+// differ between the parser layer's "raw" view and the CLI's "agent"
+// view).
+type postsAuthorRow struct {
+	Username        string `json:"username"`
+	DisplayName     string `json:"display_name,omitempty"`
+	Category        string `json:"category,omitempty"`
+	Rank            int    `json:"rank,omitempty"`
+	ProfileImageURL string `json:"profile_image_url,omitempty"`
+}
+
+type postsRepostContextRow struct {
+	RepostingHandle string `json:"reposting_handle"`
+	OriginalHandle  string `json:"original_handle"`
+}
+
+// postRow is the per-post output shape. Body is a *string so the JSON
+// preserves the null-vs-empty distinction documented in the plan;
+// jq pipelines that test `select(.body != null)` need this. MediaURLs
+// is always an array (possibly empty) so the JSON shape stays
+// uniform across posts.
+type postRow struct {
+	PostXID    string                 `json:"post_x_id"`
+	PostType   string                 `json:"post_type,omitempty"`
+	PostedAt   string                 `json:"posted_at,omitempty"`
+	Author     postsAuthorRow         `json:"author"`
+	XURL       string                 `json:"xUrl,omitempty"`
+	Body       *string                `json:"body"`
+	BodyLoaded bool                   `json:"body_loaded"`
+	MediaURLs  []string               `json:"media_urls"`
+	Repost     *postsRepostContextRow `json:"repost_context"`
+}
+
+// postsEnvelope wraps the result list with provenance metadata.
+// meta.source records "live" or "local"; meta.from_cache flags whether
+// the rows were served from the in-store cache (vs a fresh fetch).
+type postsEnvelope struct {
+	Meta    map[string]any `json:"meta"`
+	Results []postRow      `json:"results"`
+}
+
+// postsLoadOptions controls how loadPostsForCluster sources posts.
+// honorNoCache reflects the user's --no-cache flag (bypass cache read,
+// always refetch live). cacheTTL is the staleness budget; pass 0 to
+// always refetch. forceLocal pins to cache-only (no network) — used
+// when the user passes --data-source local on the posts command.
+type postsLoadOptions struct {
+	honorNoCache bool
+	cacheTTL     time.Duration
+	forceLocal   bool
+}
+
+// loadPostsForCluster is the shared loader used by both the `posts`
+// command and the `story` command's new `posts` envelope field. It
+// implements the live/cache/local data-source policy described above.
+// Returns the slice of postRow + a meta map (source, from_cache,
+// fetched_at, parser_warning when applicable). Errors are NOT
+// returned here: callers are expected to surface partial-results
+// gracefully so a transient parse hiccup doesn't fail the whole
+// command. Errors are logged to stderr via cmd.ErrOrStderr().
+func loadPostsForCluster(ctx context.Context, cmd *cobra.Command, flags *rootFlags, db *sql.DB, clusterUrlID string, opts postsLoadOptions) ([]postRow, map[string]any) {
+	meta := map[string]any{
+		"clusterUrlId": clusterUrlID,
+	}
+	if clusterUrlID == "" {
+		meta["source"] = "none"
+		meta["error"] = "clusterUrlId is empty; cannot load posts"
+		return []postRow{}, meta
+	}
+
+	// Cache read (skipped when --no-cache or TTL <= 0).
+	if !opts.honorNoCache && opts.cacheTTL > 0 {
+		if cached, ok, fetchedAt, cerr := diggstore.GetClusterPosts(db, clusterUrlID, opts.cacheTTL); ok && cerr == nil {
+			meta["source"] = "local"
+			meta["from_cache"] = true
+			meta["fetched_at"] = fetchedAt.UTC().Format(time.RFC3339)
+			return promotePostsToRows(cached), meta
+		} else if cerr != nil {
+			fmt.Fprintf(cmd.ErrOrStderr(), "warning: reading cached cluster posts failed: %v\n", cerr)
+		}
+	}
+
+	// --data-source local: never hit the network. Read whatever is
+	// in cache regardless of TTL; if there's nothing, return empty.
+	if opts.forceLocal {
+		if cached, ok, fetchedAt, _ := diggstore.GetClusterPosts(db, clusterUrlID, 365*24*time.Hour); ok {
+			meta["source"] = "local"
+			meta["from_cache"] = true
+			meta["fetched_at"] = fetchedAt.UTC().Format(time.RFC3339)
+			return promotePostsToRows(cached), meta
+		}
+		meta["source"] = "local"
+		meta["from_cache"] = false
+		meta["empty_reason"] = "no cached posts for cluster; rerun without --data-source local to fetch"
+		return []postRow{}, meta
+	}
+
+	// Live fetch.
+	c, cerr := flags.newClient()
+	if cerr != nil {
+		meta["source"] = "live"
+		meta["error"] = cerr.Error()
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: building client for /ai/<id> fetch failed: %v\n", cerr)
+		return []postRow{}, meta
+	}
+	url := clusterPostsURLBaseFromOverride() + "/" + clusterUrlID
+	posts, perr := c.FetchClusterPostsFrom(ctx, url)
+	if perr != nil && len(posts) == 0 {
+		meta["source"] = "live"
+		meta["error"] = perr.Error()
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: live /ai/%s fetch/parse failed: %v\n", clusterUrlID, perr)
+		// Try to fall back to whatever's cached, ignoring TTL — better
+		// to return a stale snapshot than nothing.
+		if cached, ok, fetchedAt, _ := diggstore.GetClusterPosts(db, clusterUrlID, 365*24*time.Hour); ok {
+			meta["source"] = "local"
+			meta["from_cache"] = true
+			meta["fetched_at"] = fetchedAt.UTC().Format(time.RFC3339)
+			meta["fallback_reason"] = "live fetch failed; serving stale cache"
+			return promotePostsToRows(cached), meta
+		}
+		return []postRow{}, meta
+	}
+	if perr != nil {
+		// Partial parse: log the warning, keep the records we got.
+		meta["parser_warning"] = perr.Error()
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: /ai/%s partial parse: %v\n", clusterUrlID, perr)
+	}
+
+	// Cache the fresh slice for next time.
+	if cerr := diggstore.UpsertClusterPosts(db, clusterUrlID, posts, time.Now().UTC()); cerr != nil {
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: caching cluster posts failed: %v\n", cerr)
+	}
+
+	meta["source"] = "live"
+	meta["from_cache"] = false
+	meta["fetched_at"] = time.Now().UTC().Format(time.RFC3339)
+	return promotePostsToRows(posts), meta
+}
+
+// clusterPostsURLBaseFromOverride returns the base /ai URL, honoring
+// the test override when set. Production code never sets the
+// override; tests substitute a local httptest server.
+func clusterPostsURLBaseFromOverride() string {
+	if clusterPostsURLOverride != "" {
+		return clusterPostsURLOverride
+	}
+	return "https://di.gg/ai"
+}
+
+// promotePostsToRows converts diggparse.ClusterPost values into the
+// CLI's postRow output shape. Defensive about MediaURLs: ensures the
+// slice is non-nil so the JSON encodes as `[]` instead of `null`.
+func promotePostsToRows(in []diggparse.ClusterPost) []postRow {
+	out := make([]postRow, 0, len(in))
+	for _, p := range in {
+		row := postRow{
+			PostXID:    p.PostXID,
+			PostType:   p.PostType,
+			PostedAt:   p.PostedAt,
+			XURL:       p.XURL,
+			Body:       p.Body,
+			BodyLoaded: p.BodyLoaded,
+			MediaURLs:  p.MediaURLs,
+			Author: postsAuthorRow{
+				Username:        p.Author.Username,
+				DisplayName:     p.Author.DisplayName,
+				Category:        p.Author.Category,
+				Rank:            p.Author.Rank,
+				ProfileImageURL: p.Author.ProfileImageURL,
+			},
+		}
+		if row.MediaURLs == nil {
+			row.MediaURLs = []string{}
+		}
+		if p.Repost != nil {
+			row.Repost = &postsRepostContextRow{
+				RepostingHandle: p.Repost.RepostingHandle,
+				OriginalHandle:  p.Repost.OriginalHandle,
+			}
+		}
+		out = append(out, row)
+	}
+	return out
+}
+
+// sortPostsBy applies the --by ordering to the slice in place. The
+// default ("rank") sorts by author rank ascending, with chronological
+// (posted_at ASC) as the tiebreaker so ties / null-rank rows still
+// produce deterministic output. "type" prioritizes original tweets
+// (the page-prominent posts) and pushes retweets to the bottom. "time"
+// is straight chronological.
+func sortPostsBy(rows []postRow, by string) error {
+	switch by {
+	case "", "rank":
+		sort.SliceStable(rows, func(i, j int) bool {
+			ri, rj := rows[i].Author.Rank, rows[j].Author.Rank
+			// Treat 0/missing rank as "below all ranked authors" (largest
+			// effective rank) so the highest-credibility voices float to
+			// the top.
+			if ri == 0 {
+				ri = 1<<31 - 1
+			}
+			if rj == 0 {
+				rj = 1<<31 - 1
+			}
+			if ri != rj {
+				return ri < rj
+			}
+			return rows[i].PostedAt < rows[j].PostedAt
+		})
+	case "type":
+		order := map[string]int{"tweet": 0, "quote": 1, "reply": 2, "retweet": 3}
+		sort.SliceStable(rows, func(i, j int) bool {
+			oi, oki := order[rows[i].PostType]
+			oj, okj := order[rows[j].PostType]
+			if !oki {
+				oi = 99
+			}
+			if !okj {
+				oj = 99
+			}
+			if oi != oj {
+				return oi < oj
+			}
+			return rows[i].PostedAt < rows[j].PostedAt
+		})
+	case "time":
+		sort.SliceStable(rows, func(i, j int) bool { return rows[i].PostedAt < rows[j].PostedAt })
+	default:
+		return fmt.Errorf("--by must be one of: rank, type, time")
+	}
+	return nil
+}
+
+func newPostsCmd(flags *rootFlags) *cobra.Command {
+	var by string
+	var typeFilter string
+	var limit int
+	cmd := &cobra.Command{
+		Use:         "posts <clusterUrlId>",
+		Short:       "X posts attached to one cluster: rank, body, media, repost-context, X URLs",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		Long: `List the X posts attached to one cluster, with author rank, body
+text, image URLs, repost-context, and minted X URLs.
+
+Live by default — fetches /ai/<clusterUrlId>, parses the embedded RSC
+posts array, attaches DOM-rendered bodies and media, caches the result
+for 1 hour. --data-source local reads from the cache only (no
+network). --no-cache bypasses the cache entirely and forces a fresh
+fetch.
+
+Sort options:
+  rank   author rank ascending (default; ties broken by posted_at)
+  type   originals first (tweet, then quote, then reply, then retweet)
+  time   chronological ascending by posted_at`,
+		Example: `  digg-pp-cli posts 65idu2x5
+  digg-pp-cli posts 65idu2x5 --by rank --limit 5 --json
+  digg-pp-cli posts 65idu2x5 --type tweet --json
+  digg-pp-cli posts 65idu2x5 --by time --agent
+  digg-pp-cli posts 65idu2x5 --no-cache --json`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) == 0 {
+				return cmd.Help()
+			}
+			if dryRunOK(flags) {
+				return nil
+			}
+			id := strings.TrimSpace(args[0])
+			if id == "" {
+				return usageErr(fmt.Errorf("clusterUrlId is required (e.g. `digg-pp-cli posts 65idu2x5`)"))
+			}
+			ctx := cmd.Context()
+			_, db, closeFn, err := openStore(ctx)
+			if err != nil {
+				return err
+			}
+			defer closeFn()
+
+			rows, meta := loadPostsForCluster(ctx, cmd, flags, db, id, postsLoadOptions{
+				honorNoCache: flags.noCache,
+				cacheTTL:     defaultClusterPostsTTL,
+				forceLocal:   flags.dataSource == "local",
+			})
+
+			// --type filter runs BEFORE sort so the limit applies to the
+			// filtered list (a caller asking for `--type tweet --limit 5`
+			// gets up to 5 originals, never fewer because retweets ate
+			// into the budget).
+			if typeFilter != "" {
+				filtered := make([]postRow, 0, len(rows))
+				for _, r := range rows {
+					if r.PostType == typeFilter {
+						filtered = append(filtered, r)
+					}
+				}
+				rows = filtered
+			}
+
+			if err := sortPostsBy(rows, by); err != nil {
+				return err
+			}
+
+			if limit > 0 && len(rows) > limit {
+				rows = rows[:limit]
+			}
+
+			env := postsEnvelope{
+				Meta: map[string]any{
+					"clusterUrlId": id,
+					"by":           by,
+					"count":        len(rows),
+				},
+				Results: rows,
+			}
+			// Hoist the loader's source/cache metadata into the envelope.
+			for k, v := range meta {
+				if k == "clusterUrlId" {
+					continue // already set
+				}
+				env.Meta[k] = v
+			}
+			if typeFilter != "" {
+				env.Meta["type"] = typeFilter
+			}
+
+			if flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), env, flags)
+			}
+			if len(rows) == 0 {
+				return emptyHint(cmd, fmt.Sprintf("no posts surfaced for cluster %s.", id))
+			}
+			for _, r := range rows {
+				name := firstNonEmpty(r.Author.DisplayName, r.Author.Username)
+				rankStr := "-"
+				if r.Author.Rank > 0 {
+					rankStr = fmt.Sprintf("#%d", r.Author.Rank)
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "[%s] @%-20s %s  %s\n", r.PostType, r.Author.Username, diggTruncate(name, 24), rankStr)
+				if r.Body != nil && *r.Body != "" {
+					fmt.Fprintf(cmd.OutOrStdout(), "  %s\n", diggTruncate(*r.Body, 200))
+				}
+				if r.XURL != "" {
+					fmt.Fprintf(cmd.OutOrStdout(), "  %s\n", r.XURL)
+				}
+			}
+			return nil
+		},
+	}
+	cmd.Flags().StringVar(&by, "by", "rank", "Sort: rank | type | time")
+	cmd.Flags().StringVar(&typeFilter, "type", "", "Filter to one post type: tweet | reply | quote | retweet")
+	cmd.Flags().IntVar(&limit, "limit", 0, "Cap results (0 = no cap)")
+	return cmd
 }
 
 // ============== search ==============
