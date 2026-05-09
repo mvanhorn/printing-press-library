@@ -1,0 +1,41 @@
+{
+  "cli_name": "govprocure-pp-cli",
+  "api_name": "U.S. Government Procurement (grants.gov + SAM.gov + USASpending.gov)",
+  "display_name": "GovProcure",
+  "description": "Offline-first CLI for U.S. federal procurement intelligence. Mirrors grants.gov, SAM.gov, and USASpending.gov into a local SQLite database with FTS5 full-text search. Cross-source compound queries, MCP server (9 tools), and agent-native JSON output. Built for small businesses, veteran-owned firms, and government contractors.",
+  "version": "1.0.0",
+  "category": "government",
+  "license": "MIT",
+  "author": "silent-northwest",
+  "author_name": "Don Alexander / Silent Northwest LLC",
+  "repository": "https://github.com/silent-northwest/govprocure-pp-cli",
+  "language": "go",
+  "binary_name": "govprocure-pp-cli",
+  "apis": {
+    "primary": ["grants.gov", "sam.gov", "usaspending.gov"],
+    "auth_required": ["sam.gov"],
+    "free_apis": ["grants.gov", "usaspending.gov"]
+  },
+  "mcp": {
+    "binary": "govprocure-pp-cli",
+    "args": ["mcp"],
+    "transports": ["stdio"],
+    "tool_count": 9,
+    "auth_type": "optional",
+    "env_vars": [],
+    "mcp_ready": "full"
+  },
+  "capabilities": {
+    "local_mirror": true,
+    "fts5_search": true,
+    "mcp_server": true,
+    "compound_commands": true,
+    "agent_native": true,
+    "offline_first": true
+  },
+  "commands": {
+    "namespaces": ["grants", "sam", "usaspending", "compound"],
+    "top_level": ["doctor", "sync", "auth", "mcp"]
+  },
+  "tags": ["government", "procurement", "grants", "federal", "sdvosb", "veteran-owned", "sam-gov", "usaspending", "sqlite", "mcp-server"]
+}
