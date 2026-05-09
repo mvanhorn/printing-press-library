@@ -5,7 +5,8 @@
 // future regeneration doesn't blow these methods away.
 //
 // PATCH(library-side): added by U4 of the digg search/roster plan, then
-// extended by U1 to host /api/search/stories alongside /ai/1000.
+// extended by U1 to host /api/search/stories alongside /ai/1000, then
+// extended by U2 to host /api/search/users.
 
 package client
 
@@ -170,4 +171,109 @@ func truncate(s string, n int) string {
 		return s
 	}
 	return s[:n] + "..."
+}
+
+// searchUsersURL is the upstream user-search endpoint backing
+// `authors get <handle>` lookups. Same host shape as
+// /api/search/stories; verified by curl probe 2026-05-09. The base
+// URL is overridable in tests via SearchUsersFrom.
+const searchUsersURL = "https://di.gg/api/search/users"
+
+// UsersSearchResult is one entry in a /api/search/users response.
+//
+// `CurrentRank` and `Category` are pointers because the endpoint
+// returns JSON null for off-1000 handles (verified via probe with
+// `mvanhorn`: `current_rank: null`, `category: null`). Using *int /
+// *string preserves the null-vs-zero distinction so the CLI can
+// branch on tier_status without inferring it from a sentinel.
+//
+// `IsPrefixMatch` and `SimilarityScore` are returned for both
+// in-1000 and off-1000 results; we surface them so callers can
+// distinguish exact-prefix matches from fuzzier vector hits.
+type UsersSearchResult struct {
+	XID             string  `json:"x_id"`
+	Username        string  `json:"username"`
+	DisplayName     string  `json:"display_name"`
+	ProfileImageURL string  `json:"profile_image_url"`
+	FollowersCount  int     `json:"followers_count"`
+	Category        *string `json:"category"`
+	CurrentRank     *int    `json:"current_rank"`
+	SimilarityScore float64 `json:"similarity_score"`
+	IsPrefixMatch   bool    `json:"is_prefix_match"`
+}
+
+// UsersSearchResponse is the full envelope returned by
+// /api/search/users. count and duration_ms are top-level upstream and
+// preserved here for parity with /api/search/stories so doctor / smoke
+// checks can flag drift uniformly across the two endpoints.
+type UsersSearchResponse struct {
+	Query      string              `json:"query"`
+	Results    []UsersSearchResult `json:"results"`
+	Count      int                 `json:"count"`
+	DurationMS int                 `json:"duration_ms"`
+}
+
+// SearchUsers hits Digg's undocumented /api/search/users endpoint —
+// the JSON surface that powers handle lookups across the full
+// 1000-plus-off-1000 author universe. Returns the upstream envelope
+// unchanged so callers can use `current_rank` / `category` /
+// `is_prefix_match` / `similarity_score` directly.
+//
+// query is required; an empty query is the caller's responsibility
+// (upstream returns an empty results array, not an error). limit is
+// sent as an upstream query param when > 0 — same shape as
+// SearchStories; small limits are common here because the call site
+// usually wants exact-or-top-fuzzy and capped fan-out.
+func (c *Client) SearchUsers(ctx context.Context, query string, limit int) (*UsersSearchResponse, error) {
+	return c.SearchUsersFrom(ctx, searchUsersURL, query, limit)
+}
+
+// SearchUsersFrom is SearchUsers with a caller-supplied base URL.
+// Exists so unit tests can point at a local httptest server. Mirrors
+// SearchStoriesFrom byte-for-byte except for the path constant; if
+// the request shape ever diverges (auth headers, alt encoding,
+// pagination cursor) split the helpers; until then keep them paired
+// so a fix to one is obvious for the other.
+func (c *Client) SearchUsersFrom(ctx context.Context, baseURL, query string, limit int) (*UsersSearchResponse, error) {
+	cctx, cancel := context.WithTimeout(ctx, c.ConfiguredTimeout())
+	defer cancel()
+
+	c.limiter.Wait()
+
+	q := url.Values{}
+	q.Set("q", query)
+	if limit > 0 {
+		q.Set("limit", strconv.Itoa(limit))
+	}
+	full := baseURL + "?" + q.Encode()
+
+	req, err := http.NewRequestWithContext(cctx, http.MethodGet, full, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("User-Agent", "digg-pp-cli/0.1.0 (+https://github.com/mvanhorn/printing-press-library)")
+	req.Header.Set("Accept", "application/json")
+
+	httpClient := c.HTTPClient
+	if httpClient == nil {
+		httpClient = &http.Client{Timeout: 30 * time.Second}
+	}
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("GET %s: %w", baseURL, err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("GET %s: HTTP %d: %s", baseURL, resp.StatusCode, truncate(string(body), 200))
+	}
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("reading /api/search/users body: %w", err)
+	}
+	var out UsersSearchResponse
+	if err := json.Unmarshal(body, &out); err != nil {
+		return nil, fmt.Errorf("decoding /api/search/users: %w", err)
+	}
+	return &out, nil
 }

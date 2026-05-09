@@ -1085,6 +1085,7 @@ func newAuthorsCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.AddCommand(newAuthorsTopCmd(flags))
 	cmd.AddCommand(newAuthorsListCmd(flags))
+	cmd.AddCommand(newAuthorsGetCmd(flags))
 	return cmd
 }
 
@@ -1422,6 +1423,417 @@ func rosterOrderBy(by string) (string, error) {
 		return "followers_count DESC, rank ASC", nil
 	default:
 		return "", fmt.Errorf("--by must be one of: rank, rankChange, category, followers")
+	}
+}
+
+// ============== authors get ==============
+//
+// `authors get <handle>` is the per-handle lookup surface backed by
+// /api/search/users. It is a sibling of `authors top` (today's
+// leaderboard from the local store) and `authors list` (full
+// /ai/1000 ingest). `authors get` is *live-only* by design: the
+// upstream endpoint is the authority on whether a handle is in the
+// 1000, and caching that answer would let stale tier_status leak
+// into the output.
+//
+// The off-1000 path adds a "distance to the 1000" view by reading
+// the rank-1000 row from the local digg_authors cache (populated by
+// `authors list`). On cache miss the command does a one-shot live
+// /ai/1000 fetch + upsert (the same call `authors list` makes), then
+// re-queries. If both the cache is empty AND the live fetch fails,
+// the command still returns a useful payload — just without the
+// nearest_in_1000 / followers_gap fields, with meta.tier_status_resolved
+// set to false so callers can detect the partial result.
+
+// searchUsersURLOverride lets tests redirect the live user-search
+// URL to a local httptest server. Empty string falls through to the
+// default "https://di.gg/api/search/users". Production code never
+// sets this.
+var searchUsersURLOverride string
+
+// roster1000URLOverride lets tests redirect the live /ai/1000 fetch
+// used on the off-1000 cache-cold fallback path to a local httptest
+// server. Empty string falls through to the default
+// "https://di.gg/ai/1000". Production code never sets this.
+var roster1000URLOverride string
+
+// authorGetResult is the per-author payload returned by
+// `authors get`. Field naming mirrors UsersSearchResult upstream
+// where it makes sense, with CLI-side additions:
+//
+//   - XURL: minted from username
+//   - GithubURL: looked up from local digg_authors cache when present
+//     (the search endpoint doesn't return it; /ai/1000 does)
+//   - TierStatus: "in_1000" when CurrentRank != nil, else "off_1000"
+//   - NearestIn1000 / FollowersGap: present only on off-1000 path,
+//     and only when the rank-1000 anchor was resolvable (cache or
+//     live fetch). Both omitted when neither source produced a record.
+//   - MatchType: "exact" or "fuzzy"; advertised separately at the
+//     envelope level (Meta.match_type) too — caller's choice which to
+//     read.
+//
+// CurrentRank stays a pointer so the JSON output can carry an explicit
+// `null` for off-1000 handles (matches upstream shape; downstream
+// jq pipelines that test `current_rank == null` keep working).
+type authorGetResult struct {
+	XID             string             `json:"x_id,omitempty"`
+	Username        string             `json:"username"`
+	DisplayName     string             `json:"display_name,omitempty"`
+	ProfileImageURL string             `json:"profile_image_url,omitempty"`
+	FollowersCount  int                `json:"followers_count"`
+	Category        *string            `json:"category"`
+	CurrentRank     *int               `json:"current_rank"`
+	SimilarityScore float64            `json:"similarity_score"`
+	IsPrefixMatch   bool               `json:"is_prefix_match"`
+	XURL            string             `json:"xUrl,omitempty"`
+	GithubURL       string             `json:"githubUrl,omitempty"`
+	TierStatus      string             `json:"tier_status,omitempty"`
+	NearestIn1000   *nearestIn1000Anch `json:"nearest_in_1000,omitempty"`
+	FollowersGap    *int               `json:"followers_gap,omitempty"`
+	MatchType       string             `json:"match_type,omitempty"`
+}
+
+// nearestIn1000Anch is the rank-1000 author's stats, used as a
+// comparison anchor for off-1000 handles. Surfaces just the four
+// fields documented in the plan (R10) — `username`, `rank`,
+// `followers_count`, `score`. The anchor is rank=1000 by definition
+// (the cutoff into the 1000), but we still emit the field so callers
+// don't have to hard-code the constant.
+type nearestIn1000Anch struct {
+	Username       string  `json:"username"`
+	Rank           int     `json:"rank"`
+	FollowersCount int     `json:"followers_count"`
+	Score          float64 `json:"score,omitempty"`
+}
+
+// authorGetEnvelopeExact is the JSON shape for an exact-match query.
+// `result` is a single object so callers don't have to index into an
+// array for the common case. Fuzzy matches use authorGetEnvelopeFuzzy
+// (results array) — the two shapes are intentionally distinct so a
+// jq pipeline can `.result // .results[0]` unambiguously.
+type authorGetEnvelopeExact struct {
+	Meta   map[string]any  `json:"meta"`
+	Result authorGetResult `json:"result"`
+}
+
+type authorGetEnvelopeFuzzy struct {
+	Meta    map[string]any    `json:"meta"`
+	Results []authorGetResult `json:"results"`
+}
+
+func newAuthorsGetCmd(flags *rootFlags) *cobra.Command {
+	var limit int
+	cmd := &cobra.Command{
+		Use:         "get <handle>",
+		Short:       "Look up a handle on /api/search/users; off-1000 results include distance to the 1000",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		Long: `Look up an X handle in Digg's full author universe (1000 + off-1000).
+
+Live by default — hits /api/search/users, the same vector+prefix
+search that backs the di.gg/ai handle picker. Returns a single rich
+record on exact match, or an array of fuzzy candidates sorted by
+similarity_score when the handle has no exact hit.
+
+For off-1000 handles (current_rank: null), the response also
+includes a "distance to the 1000" view: the rank-1000 author's
+stats as a comparison anchor and a signed followers_gap. The
+anchor is read from the local digg_authors cache (populated by
+` + "`digg-pp-cli authors list`" + `); on cache miss the command
+does a one-shot live /ai/1000 fetch and populates the cache before
+returning. If neither source resolves, the rest of the record is
+returned with meta.tier_status_resolved: false.`,
+		Example: `  digg-pp-cli authors get logangraham
+  digg-pp-cli authors get mvanhorn --json
+  digg-pp-cli authors get LoganGraham --agent
+  digg-pp-cli authors get logan --limit 10 --json`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) == 0 {
+				return cmd.Help()
+			}
+			if dryRunOK(flags) {
+				return nil
+			}
+			handle := strings.TrimSpace(args[0])
+			if handle == "" {
+				return usageErr(fmt.Errorf("handle is required (e.g. `digg-pp-cli authors get logangraham`)"))
+			}
+			ctx := cmd.Context()
+
+			// Live call to /api/search/users.
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			var resp *client.UsersSearchResponse
+			if searchUsersURLOverride != "" {
+				resp, err = c.SearchUsersFrom(ctx, searchUsersURLOverride, handle, limit)
+			} else {
+				resp, err = c.SearchUsers(ctx, handle, limit)
+			}
+			if err != nil {
+				return fmt.Errorf("live /api/search/users failed: %w", err)
+			}
+
+			// Pick the exact case-insensitive username match if any;
+			// fall back to the upstream-sorted fuzzy list otherwise.
+			lowerHandle := strings.ToLower(handle)
+			var exact *client.UsersSearchResult
+			for i := range resp.Results {
+				if strings.ToLower(resp.Results[i].Username) == lowerHandle {
+					exact = &resp.Results[i]
+					break
+				}
+			}
+
+			meta := map[string]any{
+				"source": "live",
+				"query":  handle,
+			}
+
+			if exact != nil {
+				record, resolved := buildAuthorGetResult(ctx, cmd, *exact, "exact")
+				meta["match_type"] = "exact"
+				meta["count"] = 1
+				meta["tier_status_resolved"] = resolved
+				if flags.asJSON {
+					env := authorGetEnvelopeExact{Meta: meta, Result: record}
+					return printJSONFiltered(cmd.OutOrStdout(), env, flags)
+				}
+				printAuthorGetHuman(cmd, record)
+				return nil
+			}
+
+			// No exact match — emit fuzzy envelope, possibly empty.
+			// upstream already sorts by similarity_score desc, but we
+			// re-sort defensively in case a future probe shows otherwise.
+			fuzzy := make([]authorGetResult, 0, len(resp.Results))
+			anyUnresolved := false
+			for _, r := range resp.Results {
+				record, resolved := buildAuthorGetResult(ctx, cmd, r, "fuzzy")
+				if !resolved && record.CurrentRank == nil {
+					anyUnresolved = true
+				}
+				fuzzy = append(fuzzy, record)
+			}
+			sort.SliceStable(fuzzy, func(i, j int) bool {
+				return fuzzy[i].SimilarityScore > fuzzy[j].SimilarityScore
+			})
+			if limit > 0 && len(fuzzy) > limit {
+				fuzzy = fuzzy[:limit]
+			}
+
+			meta["match_type"] = "fuzzy"
+			meta["count"] = len(fuzzy)
+			// For fuzzy lists tier_status_resolved means "every off-1000
+			// row in the list got its anchor". A single unresolved row
+			// flips it to false so callers can see the partial result.
+			meta["tier_status_resolved"] = !anyUnresolved
+
+			if flags.asJSON {
+				env := authorGetEnvelopeFuzzy{Meta: meta, Results: fuzzy}
+				return printJSONFiltered(cmd.OutOrStdout(), env, flags)
+			}
+			if len(fuzzy) == 0 {
+				return emptyHint(cmd, fmt.Sprintf("no matches for %q on /api/search/users.", handle))
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "no exact match for %q; showing %d fuzzy result(s):\n", handle, len(fuzzy))
+			for _, r := range fuzzy {
+				printAuthorGetHuman(cmd, r)
+			}
+			return nil
+		},
+	}
+	cmd.Flags().IntVar(&limit, "limit", 5, "Cap fuzzy results to this many candidates (exact-match path always returns one record)")
+	return cmd
+}
+
+// buildAuthorGetResult promotes one UsersSearchResult into the CLI's
+// authorGetResult shape. Mints xUrl, computes tier_status, and (for
+// off-1000) loads the rank-1000 anchor for the distance view. Returns
+// the result and a `tierResolved` bool: true when in_1000 OR when
+// off_1000 with a successful anchor lookup; false when the off-1000
+// anchor couldn't be resolved (cache empty AND live /ai/1000 fetch
+// failed). Callers surface that bit on meta.tier_status_resolved.
+func buildAuthorGetResult(ctx context.Context, cmd *cobra.Command, src client.UsersSearchResult, matchType string) (authorGetResult, bool) {
+	out := authorGetResult{
+		XID:             src.XID,
+		Username:        src.Username,
+		DisplayName:     src.DisplayName,
+		ProfileImageURL: src.ProfileImageURL,
+		FollowersCount:  src.FollowersCount,
+		Category:        src.Category,
+		CurrentRank:     src.CurrentRank,
+		SimilarityScore: src.SimilarityScore,
+		IsPrefixMatch:   src.IsPrefixMatch,
+		MatchType:       matchType,
+	}
+	if src.Username != "" {
+		out.XURL = "https://x.com/" + src.Username
+	}
+
+	// In-1000 path: tier_status fixed; we still try a quick local
+	// lookup for githubUrl since /api/search/users doesn't return it
+	// but the /ai/1000 ingest does. Failure is silent — a missing
+	// githubUrl is normal and not a partial-result signal.
+	if src.CurrentRank != nil {
+		out.TierStatus = "in_1000"
+		if gh := lookupGithubURLForUser(ctx, src.Username); gh != "" {
+			out.GithubURL = gh
+		}
+		return out, true
+	}
+
+	// Off-1000 path: try to resolve the rank-1000 anchor. We allow a
+	// one-shot live fallback when the cache is cold so the very
+	// first invocation against a fresh install still produces a
+	// complete payload.
+	out.TierStatus = "off_1000"
+	if gh := lookupGithubURLForUser(ctx, src.Username); gh != "" {
+		out.GithubURL = gh
+	}
+	anchor, ok := loadRank1000Anchor(ctx, cmd, true /* allowLiveFallback */)
+	if !ok {
+		return out, false
+	}
+	out.NearestIn1000 = anchor
+	gap := anchor.FollowersCount - src.FollowersCount
+	out.FollowersGap = &gap
+	return out, true
+}
+
+// lookupGithubURLForUser checks the local digg_authors cache for a
+// stored github_url for the given username. Best-effort: returns ""
+// when the store is missing, the user isn't cached, or the column is
+// empty. Never panics, never blocks the live flow on a DB error.
+func lookupGithubURLForUser(ctx context.Context, username string) string {
+	if username == "" {
+		return ""
+	}
+	_, db, closeFn, err := openStore(ctx)
+	if err != nil {
+		return ""
+	}
+	defer closeFn()
+	var gh sql.NullString
+	row := db.QueryRowContext(ctx,
+		`SELECT github_url FROM digg_authors WHERE LOWER(username) = LOWER(?) LIMIT 1`, username)
+	if err := row.Scan(&gh); err != nil {
+		return ""
+	}
+	if !gh.Valid {
+		return ""
+	}
+	return gh.String
+}
+
+// loadRank1000Anchor returns the rank-1000 author from the local
+// digg_authors cache. When `allowLiveFallback` is true and the cache
+// has no rank=1000 row, it does a one-shot live /ai/1000 fetch +
+// upsert + re-query (the same path `authors list` would take).
+//
+// Returns (anchor, true) on success; (nil, false) when neither
+// source resolved a row. Logs the live fetch failure to stderr so
+// operators can debug without breaking the rest of the response.
+//
+// This function deliberately re-opens the store (rather than taking
+// a *sql.DB parameter) so the caller flow stays uniform regardless
+// of whether the rest of the command path needs DB access. The cost
+// is one extra Open per off-1000 result; in practice that's at most
+// once per `authors get` invocation since exact matches dominate.
+func loadRank1000Anchor(ctx context.Context, cmd *cobra.Command, allowLiveFallback bool) (*nearestIn1000Anch, bool) {
+	_, db, closeFn, err := openStore(ctx)
+	if err != nil {
+		// No store = nothing we can do; the live fallback would also
+		// need to upsert through this same path.
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: opening local store for rank-1000 anchor failed: %v\n", err)
+		return nil, false
+	}
+	defer closeFn()
+
+	if anchor, ok := readRank1000FromDB(ctx, db); ok {
+		return anchor, true
+	}
+
+	if !allowLiveFallback {
+		return nil, false
+	}
+
+	// Cache cold: do the same fetch + upsert `authors list` does.
+	url := "https://di.gg/ai/1000"
+	if roster1000URLOverride != "" {
+		url = roster1000URLOverride
+	}
+	html, ferr := fetchURL(ctx, url)
+	if ferr != nil {
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: live /ai/1000 fetch for rank-1000 anchor failed: %v\n", ferr)
+		return nil, false
+	}
+	authors, perr := diggparse.ParseRoster1000(html)
+	if perr != nil && len(authors) == 0 {
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: /ai/1000 parse for rank-1000 anchor failed: %v\n", perr)
+		return nil, false
+	}
+	if perr != nil {
+		// Partial parse — keep going.
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: /ai/1000 partial parse for rank-1000 anchor: %v\n", perr)
+	}
+	if _, err := diggstore.UpsertRoster1000(db, authors, time.Now().UTC()); err != nil {
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: upserting /ai/1000 roster for rank-1000 anchor failed: %v\n", err)
+		return nil, false
+	}
+	return readRank1000FromDB(ctx, db)
+}
+
+// readRank1000FromDB pulls just the rank-1000 row's anchor fields.
+// Returns (nil, false) when no row exists with rank=1000 — that's
+// the signal to the caller to attempt a live fallback. Errors other
+// than sql.ErrNoRows are also treated as "not present" so a flaky
+// SQLite issue doesn't crash the command.
+func readRank1000FromDB(ctx context.Context, db *sql.DB) (*nearestIn1000Anch, bool) {
+	var (
+		username       sql.NullString
+		followersCount sql.NullInt64
+		score          sql.NullFloat64
+	)
+	row := db.QueryRowContext(ctx, `SELECT username, COALESCE(followers_count,0), COALESCE(score,0)
+		FROM digg_authors WHERE rank = 1000 LIMIT 1`)
+	if err := row.Scan(&username, &followersCount, &score); err != nil {
+		return nil, false
+	}
+	if !username.Valid || username.String == "" {
+		return nil, false
+	}
+	return &nearestIn1000Anch{
+		Username:       username.String,
+		Rank:           1000,
+		FollowersCount: int(followersCount.Int64),
+		Score:          score.Float64,
+	}, true
+}
+
+// printAuthorGetHuman renders one record in the table-y default
+// (non-JSON) shape. Mirrors the rest of the digg CLI: leading rank
+// or "off-1000" tag, then handle, display name, followers,
+// category, and (when off-1000) the followers_gap. Keep it dense so
+// `digg-pp-cli authors get foo` reads at a glance.
+func printAuthorGetHuman(cmd *cobra.Command, r authorGetResult) {
+	tierTag := "off-1000"
+	if r.CurrentRank != nil {
+		tierTag = fmt.Sprintf("#%d", *r.CurrentRank)
+	}
+	cat := ""
+	if r.Category != nil && *r.Category != "" {
+		cat = "  cat=" + *r.Category
+	}
+	dn := firstNonEmpty(r.DisplayName, r.Username)
+	fmt.Fprintf(cmd.OutOrStdout(), "%-9s @%-22s %s  followers=%d%s\n",
+		tierTag, r.Username, diggTruncate(dn, 28), r.FollowersCount, cat)
+	if r.NearestIn1000 != nil && r.FollowersGap != nil {
+		fmt.Fprintf(cmd.OutOrStdout(), "    nearest_in_1000=@%s (rank %d, followers=%d)  followers_gap=%+d\n",
+			r.NearestIn1000.Username, r.NearestIn1000.Rank, r.NearestIn1000.FollowersCount, *r.FollowersGap)
+	}
+	if r.XURL != "" {
+		fmt.Fprintf(cmd.OutOrStdout(), "    %s\n", r.XURL)
 	}
 }
 
