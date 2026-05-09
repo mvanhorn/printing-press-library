@@ -1,6 +1,6 @@
 name: Verify library conventions
 
-# PR-time guards for four invariants that local builds and the existing
+# PR-time guards for five invariants that local builds and the existing
 # verify-skills.yml / verify-manifests.yml workflows do not catch:
 #
 # 1. cli-skills/<slug>/SKILL.md must equal what
@@ -30,6 +30,12 @@ name: Verify library conventions
 #    behavior or docs. The printer / author fields are reviewable when
 #    corrected in an attribution-only PR, but a normal CLI improvement
 #    PR should never accidentally claim ownership of someone else's CLI.
+#
+# 5. Newly added library CLI packages must include the publish-package
+#    artifacts and provenance that reviewers need to audit the print:
+#    per-CLI AGENTS.md, patch manifest, manuscripts tied to run_id,
+#    novel feature metadata, MCP manifests when advertised, and the
+#    publish-skill PR body sections.
 
 on:
   pull_request:
@@ -40,6 +46,7 @@ on:
       - 'tools/generate-skills/**'
       - 'tools/sweep-canonical/**'
       - '.github/scripts/verify-attribution/**'
+      - '.github/scripts/verify-publish-package/**'
       - '.github/workflows/verify-library-conventions.yml'
   workflow_dispatch:
 
@@ -102,6 +109,22 @@ jobs:
           set -euo pipefail
           base_remote_ref="refs/remotes/base/${BASE_REF}"
           python3 .github/scripts/verify-attribution/verify_attribution.py --base "${base_remote_ref}"
+
+      - name: Publish package completeness
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          BASE_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          git remote add base "https://github.com/${BASE_REPO}.git" 2>/dev/null || git remote set-url base "https://github.com/${BASE_REPO}.git"
+          base_remote_ref="refs/remotes/base/${BASE_REF}"
+          if ! git show-ref --verify --quiet "${base_remote_ref}"; then
+            git fetch --no-tags base "${BASE_REF}:${base_remote_ref}"
+          fi
+
+          python3 .github/scripts/verify-publish-package/verify_publish_package.py --base-ref "${base_remote_ref}"
 
       - uses: actions/setup-go@v6
         with:
