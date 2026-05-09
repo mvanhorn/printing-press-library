@@ -5,6 +5,8 @@
   "api_name": "opensnow",
   "display_name": "OpenSnow",
   "cli_name": "opensnow-pp-cli",
+  "printer": "davemorin",
+  "printer_name": "Dave Morin",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:bf00f7a0b4c10e65ee683be92afdc5b7cbb200904e5a5eda9d11fb8e47a339e8",
   "mcp_binary": "opensnow-pp-mcp",

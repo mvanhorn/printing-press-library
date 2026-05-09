@@ -68,6 +68,7 @@
     }
   ],
   "printer": "bossriceshark",
+  "printer_name": "Matt",
   "owner": "bossriceshark",
   "category": "marketing",
   "description": "Every Google Search Console feature you'd reach for, plus an offline SQLite cache that powers quick-wins, cannibalization, period compare, and historical queries beyond the 16-month API window.",
