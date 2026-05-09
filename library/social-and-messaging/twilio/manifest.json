@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "twilio-pp-mcp",
+  "display_name": "Twilio",
+  "version": "4.2.0",
+  "description": "Communication APIs for SMS, voice, and messaging",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/twilio-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/twilio-pp-mcp",
+      "args": [],
+      "env": {
+        "TWILIO_ACCOUNT_SID_AUTH_TOKEN": "${user_config.twilio_account_sid_auth_token}"
+      }
+    }
+  },
+  "user_config": {
+    "twilio_account_sid_auth_token": {
+      "type": "string",
+      "title": "TWILIO_ACCOUNT_SID_AUTH_TOKEN",
+      "description": "Sets TWILIO_ACCOUNT_SID_AUTH_TOKEN for the Twilio MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

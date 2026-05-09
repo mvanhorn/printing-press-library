@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/studio/printing-press/.runstate/memoized-conjuring-owl-80434e12/runs/20260509-120941/working/twilio-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

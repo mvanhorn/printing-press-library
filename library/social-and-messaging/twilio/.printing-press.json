@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T15:46:43.44284Z",
+  "printing_press_version": "4.2.0",
+  "api_name": "twilio",
+  "display_name": "Twilio",
+  "cli_name": "twilio-pp-cli",
+  "owner": "user",
+  "spec_path": "https://raw.githubusercontent.com/twilio/twilio-oai/main/spec/json/twilio_api_v2010.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:2274915c88e74c8de9998022d5ae42386c54715b30eee761cbe2f0e5f2e78c73",
+  "run_id": "20260509-120941",
+  "catalog_entry": "twilio",
+  "category": "social-and-messaging",
+  "description": "Communication APIs for SMS, voice, and messaging",
+  "mcp_binary": "twilio-pp-mcp",
+  "mcp_tool_count": 197,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "TWILIO_ACCOUNT_SID_AUTH_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Failed-message breakdown",
+      "command": "delivery-failures",
+      "description": "See why messages failed last week, grouped by error code and destination country, with the dollar cost of those failures totaled."
+    },
+    {
+      "name": "Subaccount spend matrix",
+      "command": "subaccount-spend",
+      "description": "One CSV with every subaccount's last-month spend pivoted across SMS, MMS, voice, and recording categories \u2014 the agency-billing report nobody else ships."
+    },
+    {
+      "name": "Call timeline stitch",
+      "command": "call-trace",
+      "description": "Given a CallSid, return everything that happened on that call: metadata, recordings, transcriptions, conference participation \u2014 in one structured output."
+    },
+    {
+      "name": "TCPA opt-out reconciliation",
+      "command": "opt-out-violations",
+      "description": "Find numbers that texted STOP/UNSUBSCRIBE/END/QUIT and any messages your account sent to them afterwards \u2014 the TCPA exposure check the Twilio API has no resource for."
+    },
+    {
+      "name": "Message status funnel",
+      "command": "message-status-funnel",
+      "description": "Distribution of message terminal statuses (delivered, failed, undelivered, sent) with delivery-rate percentages and median time-to-delivery."
+    },
+    {
+      "name": "Call disposition cross-tab",
+      "command": "call-disposition",
+      "description": "Cross-tab of call Status (completed, busy, no-answer, failed, canceled) by AnsweredBy (human, machine_start, fax), with dollar cost per bucket."
+    },
+    {
+      "name": "Idle number reclamation",
+      "command": "idle-numbers",
+      "description": "Phone numbers you are paying for but have not used to send or receive in N days \u2014 with the dollar amount you are wasting per month."
+    },
+    {
+      "name": "Webhook orphan audit",
+      "command": "webhook-audit",
+      "description": "Group your IncomingPhoneNumbers by their Voice/SMS webhook URL to find single-use URLs that may be orphans pointing at deleted endpoints. Add --probe for a live HEAD check."
+    },
+    {
+      "name": "Number conversation feed",
+      "command": "conversation",
+      "description": "All messages and calls involving one phone number, merged into a single timestamped timeline with in/out arrows, body, and duration."
+    },
+    {
+      "name": "Error code explainer",
+      "command": "error-code-explain",
+      "description": "Top error codes from your recent messages and calls, with curated one-line explanations and fixes for the most common Twilio errors."
+    },
+    {
+      "name": "Sync watermark inspector",
+      "command": "sync-status",
+      "description": "Last sync timestamp and row count per resource in the local store \u2014 so you know how fresh every other analytic command is."
+    },
+    {
+      "name": "Live failure tail",
+      "command": "tail-messages",
+      "description": "Stream new messages with a status filter as they happen \u2014 twilio-pp-cli's --follow that twilio-cli does not ship."
+    }
+  ],
+  "printer": "CleverAI-ZH",
+  "printer_name": "Stephan Stoeber",
+  "owner_name": "CleverAI-ZH"
+}
