@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "openrouter-pp-mcp",
+  "display_name": "Openrouter",
+  "version": "4.2.0",
+  "description": "Openrouter API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/openrouter-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/openrouter-pp-mcp",
+      "args": [],
+      "env": {
+        "OPENROUTER_API_KEY": "${user_config.openrouter_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "openrouter_api_key": {
+      "type": "string",
+      "title": "OPENROUTER_API_KEY",
+      "description": "Sets OPENROUTER_API_KEY for the Openrouter MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

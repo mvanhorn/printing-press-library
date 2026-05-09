@@ -1,0 +1,51 @@
+version: 2
+project_name: openrouter-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: openrouter-pp-cli
+    main: ./cmd/openrouter-pp-cli
+    binary: openrouter-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/ai/openrouter/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: openrouter-pp-mcp
+    main: ./cmd/openrouter-pp-mcp
+    binary: openrouter-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: openrouter-pp-cli
+    repository:
+      owner: rick-van-de-laar
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Agent-first OpenRouter introspection — terse output for cron and AI agents (--agent and --llm modes), local SQLite..."
+    install: |
+      bin.install "openrouter-pp-cli"
+      bin.install "openrouter-pp-mcp"

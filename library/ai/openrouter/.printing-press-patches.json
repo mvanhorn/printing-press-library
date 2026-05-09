@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-165428",
+  "base_printing_press_version": "4.2.0",
+  "patches": [
+    {
+      "id": "mcp-http-transport",
+      "summary": "Hand-extended cmd/openrouter-pp-mcp/main.go to add `--http :addr` flag for Streamable HTTP transport (NewStreamableHTTPServer).",
+      "reason": "Spec sets `mcp.transport: [stdio, http]` per the printing-press SKILL's Phase 2 MCP enrichment guidance, but printing-press v4.2.0 silently ignores that field and emits stdio-only main.go. HTTP transport is required for in-container agents (e.g., JARVIS at host.docker.internal:8092) to reach the host MCP. Tracked upstream as cli-printing-press#825.",
+      "files": ["cmd/openrouter-pp-mcp/main.go"],
+      "validated_outcome": "MCP `initialize` + `tools/list` handshake verified end-to-end from inside a host container at http://host.docker.internal:8092/mcp."
+    },
+    {
+      "id": "transcendence-commands",
+      "summary": "Added 8 hand-built novel commands (~1,300 LOC): usage cost-by, usage anomaly, models query, providers degraded, generation explain, key eta, budget set/check, endpoints failover. Plus 2 new parent group commands (usage, budget) and patches to 5 generated parents (root.go, models.go, generation.go, promoted_key.go, promoted_providers.go, promoted_endpoints.go) to register new subcommands.",
+      "reason": "Phase 3 mandate (transcendence layer) — these are the agent-introspection commands that justify the CLI's existence beyond the absorbed REST surface. None are derivable from the spec.",
+      "files": [
+        "internal/cli/usage.go",
+        "internal/cli/usage_cost_by.go",
+        "internal/cli/usage_anomaly.go",
+        "internal/cli/models_query.go",
+        "internal/cli/providers_degraded.go",
+        "internal/cli/generation_explain.go",
+        "internal/cli/key_eta.go",
+        "internal/cli/budget.go",
+        "internal/cli/budget_set.go",
+        "internal/cli/budget_check.go",
+        "internal/cli/endpoints_failover.go",
+        "internal/cli/root.go",
+        "internal/cli/models.go",
+        "internal/cli/generation.go",
+        "internal/cli/promoted_key.go",
+        "internal/cli/promoted_providers.go",
+        "internal/cli/promoted_endpoints.go"
+      ],
+      "validated_outcome": "All 8 transcendence commands callable; behavioral assertions in shipcheck dogfood (96/102 PASS) + post-publish validation."
+    },
+    {
+      "id": "models-query-tests",
+      "summary": "Added unit tests for the models query DSL parser (parseSizeSuffix, queryTokenRe, jsonPathExpr).",
+      "reason": "models_query.go is the only pure-logic transcendence component (DSL → SQL compiler). Defends against silent OpenRouter schema drift.",
+      "files": ["internal/cli/models_query_test.go"],
+      "validated_outcome": "13 test cases pass under `go test ./internal/cli/`."
+    },
+    {
+      "id": "spec-example-tokens-sanitized",
+      "summary": "Replaced `sk-or-v1-<token>` example values in spec.json (and the same strings in .manuscripts/.../openrouter-openapi.json + openrouter-trimmed.json) with `sk-or-v1-EXAMPLE-KEY-REDACTED` placeholder.",
+      "reason": "OpenRouter's published OpenAPI spec embeds illustrative bearer tokens in its `examples:` blocks. Whether they're revoked or live, they match the OpenRouter vendor-prefix shape and triggered GitHub Push Protection. The spec field semantics (request shape, schema) are unchanged; only docs strings were redacted. Tracked upstream as cli-printing-press#829 (publish secret-scan should be pattern-based, not exact-value-only).",
+      "files": [
+        "spec.json",
+        ".manuscripts/20260509-165428/research/openrouter-openapi.json",
+        ".manuscripts/20260509-165428/research/openrouter-trimmed.json"
+      ],
+      "validated_outcome": "Vendor-prefix scan shows zero real-shaped tokens remaining in this CLI dir. CLI behavior unchanged (example values are docs strings, not consumed by client code)."
+    },
+    {
+      "id": "manifest-schema-and-printer-name",
+      "summary": "Bumped `.printing-press.json` schema_version 0 → 1 and added `printer_name: \"Rick van de Laar\"`.",
+      "reason": "Post-generation tooling (dogfood --write-acceptance and/or polish skill) wrote a skeleton manifest at schema_version 0 without printer_name, even though the original printing-press v4.2.0 manifest writer should produce schema_version 1 with printer_name populated. Hand-restored to satisfy the library's attribution guard.",
+      "files": [".printing-press.json"],
+      "validated_outcome": "manifest.printer_name == 'Rick van de Laar'; manifest.schema_version == 1; library attribution guard satisfied."
+    }
+  ]
+}

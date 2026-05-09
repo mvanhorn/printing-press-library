@@ -1,0 +1,300 @@
+{
+  "api_name": "openrouter",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "mrgoonie/openrouter-cli",
+      "url": "https://github.com/mrgoonie/openrouter-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 18,
+      "last_updated": "",
+      "command_count": 24,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "grahamking/ort",
+      "url": "https://github.com/grahamking/ort",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 36,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "simonw/llm-openrouter",
+      "url": "https://github.com/simonw/llm-openrouter",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "oop7/OrChat",
+      "url": "https://github.com/oop7/OrChat",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "physics91/openrouter-mcp",
+      "url": "https://github.com/physics91/openrouter-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T17:03:30Z",
+  "novel_features": [
+    {
+      "name": "Cost-by-cron rollup",
+      "command": "usage cost-by",
+      "description": "Group your OpenRouter spend by which cron/agent fired the call, not just by model. Joins local generations with caller tags from your tool-call logger.",
+      "rationale": "OpenRouter's /activity groups by model+provider only. Per-caller attribution requires a local join across generations and a caller-tag table that no upstream endpoint provides.",
+      "example": "openrouter usage cost-by --group cron --since 7d --llm",
+      "why_it_matters": "Use this when an agent needs to answer 'which automated job is burning my OpenRouter budget?' before deciding what to throttle.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Models query DSL",
+      "command": "models query",
+      "description": "Query the model catalog with structured filters (tools=true, cost.completion\u003c1, ctx\u003e=64k) — compiled to SQL over a local SQLite cache. Works offline.",
+      "rationale": "/models has no query parameters. The full catalog is ~425KB JSON; LLM agents run out of context parsing it. A local FTS5+structured DSL turns a 425KB read into a 200-token answer.",
+      "example": "openrouter models query \"tools=true cost.completion\u003c1 ctx\u003e=64k modality=text\" --llm",
+      "why_it_matters": "Use this when an agent needs to shortlist models for an experiment without hallucinating pricing or pasting 400 model rows into context.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Providers degraded watch",
+      "command": "providers degraded",
+      "description": "Returns the set of currently-degraded provider/model pairs by polling /providers and per-model /endpoints. Pipe into your router to preempt 429s.",
+      "rationale": "Without this, providers are only learned-bad reactively after a 429. The status signal exists upstream but no other CLI surfaces it as a degraded set.",
+      "example": "openrouter providers degraded --json | jq -r '.[].model_id'",
+      "why_it_matters": "Use this in a router or fallback chain when an agent needs to skip degraded provider/model pairs before dispatch instead of after a failed call.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Generation cost forensics",
+      "command": "generation explain",
+      "description": "For a generation id, returns the cost, latency, prompt/completion token counts, AND a delta vs the cheapest provider for the same model+token-count.",
+      "rationale": "Mrgoonie's CLI returns raw /generation JSON. The cost-vs-baseline delta requires joining the generation record against the local /models pricing table.",
+      "example": "openrouter generation explain gen-abc123 --llm",
+      "why_it_matters": "Use this when an agent needs to decide whether a generation was expensive because of the model choice, the prompt size, or the provider markup.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cost regression alarm",
+      "command": "usage anomaly",
+      "description": "Flags days where per-model cost exceeds 2σ of the trailing 7-day mean. Deterministic z-score, no LLM in the loop. Designed for cron.",
+      "rationale": "OpenRouter's only built-in alarm is 'credits low' — reactive on absolute balance. This is the leading indicator: catches a runaway loop before it depletes credits.",
+      "example": "openrouter usage anomaly --since 24h --baseline 7d --llm",
+      "why_it_matters": "Use this in a daily cron when an agent needs to detect cost regressions before a credit-low alarm fires.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Weekly-cap ETA",
+      "command": "key eta",
+      "description": "Projects when your weekly OpenRouter cap will trip, based on /key.limit_reset, current usage, and your trailing 7-day burn rate.",
+      "rationale": "OpenRouter shows current usage but doesn't project. Mid-week cap-trips are a known failure mode that this surfaces 1-3 days in advance.",
+      "example": "openrouter key eta --llm",
+      "why_it_matters": "Use this in a daily cron when an agent needs to know whether scheduled work will fit in the remaining weekly cap.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Per-cron budget contract",
+      "command": "budget",
+      "description": "Set a weekly USD cap per cron job (budget set scan-pipeline 2usd). Pre-flight check returns exit 0 (under cap) or 8 (over) from tagged generations.",
+      "rationale": "Quotas in env vars are aspirational. A local contract table + tagged generations makes per-agent budgets structural and pipe-composable.",
+      "example": "openrouter budget check scan-pipeline \u0026\u0026 ./scan-pipeline.mjs",
+      "why_it_matters": "Use this when an agent needs structural budget enforcement per sub-agent or per cron, not aspirational env-var quotas.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Endpoint failover map",
+      "command": "endpoints failover",
+      "description": "For a model id, lists all providers serving it ranked by current status, pricing, and observed p50 latency from local cache. Pipe-feeds routers.",
+      "rationale": "Multi-provider routing is OpenRouter's defining pattern. /models/{a}/{s}/endpoints returns the list; nothing ranks it for router consumption.",
+      "example": "openrouter endpoints failover anthropic/claude-opus-4-7 --json",
+      "why_it_matters": "Use this when an agent needs to choose a provider for a given model based on current availability, not the static config order.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cost-by-cron rollup",
+      "command": "usage cost-by",
+      "description": "Group your OpenRouter spend by which cron/agent fired the call, not just by model. Joins local generations with caller tags from your tool-call logger.",
+      "rationale": "OpenRouter's /activity groups by model+provider only. Per-caller attribution requires a local join across generations and a caller-tag table that no upstream endpoint provides.",
+      "example": "openrouter usage cost-by --group cron --since 7d --llm",
+      "why_it_matters": "Use this when an agent needs to answer 'which automated job is burning my OpenRouter budget?' before deciding what to throttle.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Models query DSL",
+      "command": "models query",
+      "description": "Query the model catalog with structured filters (tools=true, cost.completion\u003c1, ctx\u003e=64k) — compiled to SQL over a local SQLite cache. Works offline.",
+      "rationale": "/models has no query parameters. The full catalog is ~425KB JSON; LLM agents run out of context parsing it. A local FTS5+structured DSL turns a 425KB read into a 200-token answer.",
+      "example": "openrouter models query \"tools=true cost.completion\u003c1 ctx\u003e=64k modality=text\" --llm",
+      "why_it_matters": "Use this when an agent needs to shortlist models for an experiment without hallucinating pricing or pasting 400 model rows into context.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Providers degraded watch",
+      "command": "providers degraded",
+      "description": "Returns the set of currently-degraded provider/model pairs by polling /providers and per-model /endpoints. Pipe into your router to preempt 429s.",
+      "rationale": "Without this, providers are only learned-bad reactively after a 429. The status signal exists upstream but no other CLI surfaces it as a degraded set.",
+      "example": "openrouter providers degraded --json | jq -r '.[].model_id'",
+      "why_it_matters": "Use this in a router or fallback chain when an agent needs to skip degraded provider/model pairs before dispatch instead of after a failed call.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Generation cost forensics",
+      "command": "generation explain",
+      "description": "For a generation id, returns the cost, latency, prompt/completion token counts, AND a delta vs the cheapest provider for the same model+token-count.",
+      "rationale": "Mrgoonie's CLI returns raw /generation JSON. The cost-vs-baseline delta requires joining the generation record against the local /models pricing table.",
+      "example": "openrouter generation explain gen-abc123 --llm",
+      "why_it_matters": "Use this when an agent needs to decide whether a generation was expensive because of the model choice, the prompt size, or the provider markup.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cost regression alarm",
+      "command": "usage anomaly",
+      "description": "Flags days where per-model cost exceeds 2σ of the trailing 7-day mean. Deterministic z-score, no LLM in the loop. Designed for cron.",
+      "rationale": "OpenRouter's only built-in alarm is 'credits low' — reactive on absolute balance. This is the leading indicator: catches a runaway loop before it depletes credits.",
+      "example": "openrouter usage anomaly --since 24h --baseline 7d --llm",
+      "why_it_matters": "Use this in a daily cron when an agent needs to detect cost regressions before a credit-low alarm fires.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Weekly-cap ETA",
+      "command": "key eta",
+      "description": "Projects when your weekly OpenRouter cap will trip, based on /key.limit_reset, current usage, and your trailing 7-day burn rate.",
+      "rationale": "OpenRouter shows current usage but doesn't project. Mid-week cap-trips are a known failure mode that this surfaces 1-3 days in advance.",
+      "example": "openrouter key eta --llm",
+      "why_it_matters": "Use this in a daily cron when an agent needs to know whether scheduled work will fit in the remaining weekly cap.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Per-cron budget contract",
+      "command": "budget",
+      "description": "Set a weekly USD cap per cron job (budget set scan-pipeline 2usd). Pre-flight check returns exit 0 (under cap) or 8 (over) from tagged generations.",
+      "rationale": "Quotas in env vars are aspirational. A local contract table + tagged generations makes per-agent budgets structural and pipe-composable.",
+      "example": "openrouter budget check scan-pipeline \u0026\u0026 ./scan-pipeline.mjs",
+      "why_it_matters": "Use this when an agent needs structural budget enforcement per sub-agent or per cron, not aspirational env-var quotas.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Endpoint failover map",
+      "command": "endpoints failover",
+      "description": "For a model id, lists all providers serving it ranked by current status, pricing, and observed p50 latency from local cache. Pipe-feeds routers.",
+      "rationale": "Multi-provider routing is OpenRouter's defining pattern. /models/{a}/{s}/endpoints returns the list; nothing ranks it for router consumption.",
+      "example": "openrouter endpoints failover anthropic/claude-opus-4-7 --json",
+      "why_it_matters": "Use this when an agent needs to choose a provider for a given model based on current availability, not the static config order.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "OpenRouter",
+    "headline": "Agent-first OpenRouter introspection — terse output for cron and AI agents (--agent and --llm modes), local SQLite catalog, free MCP server, per-caller cost attribution.",
+    "value_prop": "Other OpenRouter CLIs are chat REPLs. This one is built for the cron job and the AI agent calling out to `Bash`. Absorbed introspection commands (`credits`, `models`, `key`, `generation`, `providers`) honor the global `--agent` flag (sets --json --compact --no-input). Eight novel commands (`usage cost-by`, `models query`, `key eta`, `providers degraded`, `generation explain`, `usage anomaly`, `endpoints failover`, `budget`) ship a `--llm` mode that returns under 200 tokens of key:value output. A local SQLite catalog lets you query the 400+ model list with `models query \"tools=true cost.completion\u003c1\"` instead of pasting 425KB of JSON into context.",
+    "auth_narrative": "Set `OPENROUTER_API_KEY` for per-call operations (creds, models, usage, generation lookup). For sub-key management (`keys list/create/delete`), set `OPENROUTER_MANAGEMENT_KEY` separately — OpenRouter's API splits these intentionally and this CLI honors the split. Both variables are read fresh per command; nothing is persisted to disk by default.",
+    "quickstart": [
+      {
+        "command": "openrouter doctor",
+        "comment": "Verify auth, network, and local store. Run this first."
+      },
+      {
+        "command": "openrouter credits --agent",
+        "comment": "Terse balance output for cron and agent consumers (--agent = --json --compact --no-input)."
+      },
+      {
+        "command": "openrouter sync",
+        "comment": "Refresh the local SQLite catalog from /models, /providers, /key, /activity."
+      },
+      {
+        "command": "openrouter models query \"tools=true cost.completion\u003c1 ctx\u003e=64k\" --llm",
+        "comment": "Shortlist tool-capable cheap deep-context models from local catalog (no 425KB JSON dump)."
+      },
+      {
+        "command": "openrouter key eta --llm",
+        "comment": "Project when the weekly cap will trip from /key + 7d burn rate."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "exit code 4 on credits/key",
+        "fix": "OPENROUTER_API_KEY is missing or malformed. Run `openrouter auth status` to see resolved sources."
+      },
+      {
+        "symptom": "exit code 5 on keys list",
+        "fix": "Sub-key management requires OPENROUTER_MANAGEMENT_KEY (separate from OPENROUTER_API_KEY). Set it: `export OPENROUTER_MANAGEMENT_KEY=...`."
+      },
+      {
+        "symptom": "models query returns empty",
+        "fix": "Run `openrouter sync --resources models` first — local catalog must be populated."
+      },
+      {
+        "symptom": "usage cost-by returns 'no data'",
+        "fix": "Caller tagging requires the tier-2.0 effect-tool-call logger to be writing to ~/.openclaw/tool-call-log/. Verify with `ls ~/.openclaw/tool-call-log/`."
+      },
+      {
+        "symptom": "providers degraded returns empty arrays",
+        "fix": "Set-diff requires a previous snapshot at ~/.local/share/openrouter-pp-cli/providers-prev.json. Run twice (once to seed, once to compare)."
+      }
+    ],
+    "when_to_use": "Use this CLI when an AI agent needs OpenRouter introspection data and you're optimizing for token efficiency. Absorbed commands accept `--agent` for compact JSON; the 8 novel commands ship `--llm` mode for terse key:value output. Use it when you need cost attribution beyond model+provider (which-cron-fired-the-call). Use it for pre-flight gates in bash compositions and for local-catalog querying that would otherwise blow context. Skip it for chat — use `grahamking/ort` for chat ergonomics.",
+    "recipes": [
+      {
+        "title": "Pre-flight gate before expensive cron",
+        "command": "openrouter budget check scan-pipeline --json",
+        "explanation": "Returns exit 0 if under cap or 8 if over. Compose with \u0026\u0026 in bash to gate expensive jobs without half-execution."
+      },
+      {
+        "title": "Cost attribution for the week",
+        "command": "openrouter usage cost-by --group cron --since 7d --llm",
+        "explanation": "Returns one row per cron name with total cost — answers 'which automated job is burning my OpenRouter budget'."
+      },
+      {
+        "title": "Shortlist tool-capable cheap deep-context models (with --select narrowing)",
+        "command": "openrouter models query \"tools=true cost.completion\u003c1 ctx\u003e=64k\" --agent --select id,context_length,pricing.completion",
+        "explanation": "Local SQLite + dotted --select narrows ~400 models to a handful of fields. Agent context cost: ~150 tokens vs ~425KB raw."
+      },
+      {
+        "title": "Detect cost regression before credit-low alarm fires",
+        "command": "openrouter usage anomaly --since 24h --baseline 7d --llm",
+        "explanation": "Flags per-model days exceeding 2σ over trailing 7-day mean. Daily cron catches runaway loops 1-3 days before /credits hits zero."
+      },
+      {
+        "title": "Pre-empt 429s by skipping degraded providers",
+        "command": "openrouter providers degraded --json",
+        "explanation": "Returns {added, degraded, removed} arrays from set-diff vs prior snapshot. Pipe-feeds your router/suspension logic. Replaces reactive 429-and-learn with leading-indicator polling."
+      }
+    ],
+    "trigger_phrases": [
+      "openrouter credits",
+      "check openrouter budget",
+      "openrouter cost by cron",
+      "shortlist openrouter models",
+      "openrouter providers degraded",
+      "use openrouter",
+      "run openrouter"
+    ]
+  }
+}

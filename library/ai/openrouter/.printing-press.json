@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T17:28:02Z",
+  "printing_press_version": "4.2.0",
+  "api_name": "openrouter",
+  "cli_name": "openrouter-pp-cli",
+  "run_id": "20260509-165428",
+  "novel_features": [
+    {
+      "name": "Cost-by-cron rollup",
+      "command": "usage cost-by",
+      "description": "Group your OpenRouter spend by which cron/agent fired the call, not just by model. Joins local generations with caller tags from your tool-call logger."
+    },
+    {
+      "name": "Models query DSL",
+      "command": "models query",
+      "description": "Query the model catalog with structured filters (tools=true, cost.completion<1, ctx>=64k) \u2014 compiled to SQL over a local SQLite cache. Works offline."
+    },
+    {
+      "name": "Providers degraded watch",
+      "command": "providers degraded",
+      "description": "Returns the set of currently-degraded provider/model pairs by polling /providers and per-model /endpoints. Pipe into your router to preempt 429s."
+    },
+    {
+      "name": "Generation cost forensics",
+      "command": "generation explain",
+      "description": "For a generation id, returns the cost, latency, prompt/completion token counts, AND a delta vs the cheapest provider for the same model+token-count."
+    },
+    {
+      "name": "Cost regression alarm",
+      "command": "usage anomaly",
+      "description": "Flags days where per-model cost exceeds 2\u03c3 of the trailing 7-day mean. Deterministic z-score, no LLM in the loop. Designed for cron."
+    },
+    {
+      "name": "Weekly-cap ETA",
+      "command": "key eta",
+      "description": "Projects when your weekly OpenRouter cap will trip, based on /key.limit_reset, current usage, and your trailing 7-day burn rate."
+    },
+    {
+      "name": "Per-cron budget contract",
+      "command": "budget",
+      "description": "Set a weekly USD cap per cron job (budget set scan-pipeline 2usd). Pre-flight check returns exit 0 (under cap) or 8 (over) from tagged generations."
+    },
+    {
+      "name": "Endpoint failover map",
+      "command": "endpoints failover",
+      "description": "For a model id, lists all providers serving it ranked by current status, pricing, and observed p50 latency from local cache. Pipe-feeds routers."
+    }
+  ],
+  "printer": "rvdlaar",
+  "description": "Agent-first OpenRouter introspection \u2014 terse output for cron and AI agents (--agent and --llm modes), local SQLite catalog, free MCP server, per-caller cost attribution.",
+  "category": "ai",
+  "spec_url": "https://openrouter.ai/openapi.json",
+  "printer_name": "Rick van de Laar",
+  "_patch_note": "PATCH manifest-schema-and-printer-name: schema_version 0\u21921 + printer_name added (post-generation tooling reset the manifest to skeleton state)."
+}
