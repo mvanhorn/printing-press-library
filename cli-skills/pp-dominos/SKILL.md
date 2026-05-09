@@ -1,7 +1,7 @@
 ---
 name: pp-dominos
 description: "Order pizza, browse menus, optimize deals, and track delivery from the terminal — with a local SQLite store that powers reorder, price comparison, and deal stacking no other Domino's tool offers. Trigger phrases: `order a pizza`, `find a domino's near me`, `track my pizza`, `what's my pizza usual`, `best deal on my pizza order`, `compare pizza prices`, `use dominos`, `run dominos`."
-author: "Trevin Chow"
+author: "Matt Van Horn"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
