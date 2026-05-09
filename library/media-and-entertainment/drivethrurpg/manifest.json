@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "drivethrurpg-pp-mcp",
+  "display_name": "DriveThruRPG",
+  "version": "4.2.0",
+  "description": "Search the DriveThruRPG catalog and download purchased library files as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/drivethrurpg-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/drivethrurpg-pp-mcp",
+      "args": [],
+      "env": {
+        "DRIVETHRURPG_APPLICATION_KEY": "${user_config.drivethrurpg_application_key}",
+        "DRIVETHRURPG_DTRPG_TOKEN": "${user_config.drivethrurpg_dtrpg_token}"
+      }
+    }
+  },
+  "user_config": {
+    "drivethrurpg_application_key": {
+      "type": "string",
+      "title": "DRIVETHRURPG_APPLICATION_KEY",
+      "description": "Preferred DriveThruRPG Library App Application Key. Enable My Library Access for library and download tools.",
+      "sensitive": true,
+      "required": false
+    },
+    "drivethrurpg_dtrpg_token": {
+      "type": "string",
+      "title": "DRIVETHRURPG_DTRPG_TOKEN",
+      "description": "Optional already-exchanged DriveThruRPG API token for MCP hosts that cannot run auth login.",
+      "sensitive": true,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
