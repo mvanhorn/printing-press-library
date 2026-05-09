@@ -6,54 +6,15 @@ Learn more at [Gemini](https://developers.generativeai.google/api).
 
 ## Install
 
-The recommended path installs both the `gemini-pp-cli` binary and the `pp-gemini` agent skill in one shot:
+### Go
 
-```bash
-npx -y @mvanhorn/printing-press install gemini
 ```
-
-For CLI only (no skill):
-
-```bash
-npx -y @mvanhorn/printing-press install gemini --cli-only
-```
-
-### Without Node (Go fallback)
-
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
-
-```bash
 go install github.com/mvanhorn/printing-press-library/library/ai/gemini/cmd/gemini-pp-cli@latest
 ```
 
-This installs the CLI only — no skill.
+### Binary
 
-### Pre-built binary
-
-Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/gemini-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
-
-<!-- pp-hermes-install-anchor -->
-## Install for Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-gemini --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-gemini --force
-```
-
-## Install for OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-gemini skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-gemini. The skill defines how its required CLI can be installed.
-```
+Download from [Releases](https://github.com/mvanhorn/printing-press-library/releases).
 
 ## Quick Start
 
@@ -72,12 +33,12 @@ This checks your configuration.
 ### 3. Try Your First Command
 
 ```bash
-gemini-pp-cli model-async-batch-embed-content mock-value
+gemini-pp-cli model-async-batch-embed-content list
 ```
 
 ## Usage
 
-Run `gemini-pp-cli --help` for the full command reference and flag list.
+<!-- HELP_OUTPUT -->
 
 ## Commands
 
@@ -85,86 +46,86 @@ Run `gemini-pp-cli --help` for the full command reference and flag list.
 
 Manage model async batch embed content
 
-- **`gemini-pp-cli model-async-batch-embed-content generativelanguage-tuned-models-async-batch-embed-content`** - Enqueues a batch of `EmbedContent` requests for batch processing. We have a `BatchEmbedContents` handler in `GenerativeService`, but it was synchronized. So we name this one to be `Async` to avoid confusion.
+- **`gemini-pp-cli model-async-batch-embed-content generativelanguage-tuned-models-async-batch-embed-content`** - Enqueues a batch of `EmbedContent` requests for batch processing
 
 ### model-batch-embed-contents
 
 Manage model batch embed contents
 
-- **`gemini-pp-cli model-batch-embed-contents generativelanguage-models-batch-embed-contents`** - Generates multiple embedding vectors from the input `Content` which consists of a batch of strings represented as `EmbedContentRequest` objects.
+- **`gemini-pp-cli model-batch-embed-contents generativelanguage-models-batch-embed-contents`** - Generates multiple embedding vectors from the input `Content` which consists of a batch of strings r
 
 ### model-batch-generate-content
 
 Manage model batch generate content
 
-- **`gemini-pp-cli model-batch-generate-content generativelanguage-tuned-models-batch-generate-content`** - Enqueues a batch of `GenerateContent` requests for batch processing.
+- **`gemini-pp-cli model-batch-generate-content generativelanguage-tuned-models-batch-generate-content`** - Enqueues a batch of `GenerateContent` requests for batch processing
 
 ### model-count-tokens
 
 Manage model count tokens
 
-- **`gemini-pp-cli model-count-tokens generativelanguage-models-count-tokens`** - Runs a model's tokenizer on input `Content` and returns the token count. Refer to the [tokens guide](https://ai.google.dev/gemini-api/docs/tokens) to learn more about tokens.
+- **`gemini-pp-cli model-count-tokens generativelanguage-models-count-tokens`** - Runs a model's tokenizer on input `Content` and returns the token count
 
 ### model-embed-content
 
 Manage model embed content
 
-- **`gemini-pp-cli model-embed-content generativelanguage-models-embed-content`** - Generates a text embedding vector from the input `Content` using the specified [Gemini Embedding model](https://ai.google.dev/gemini-api/docs/models/gemini#text-embedding).
+- **`gemini-pp-cli model-embed-content generativelanguage-models-embed-content`** - Generates a text embedding vector from the input `Content` using the specified [Gemini Embedding mod
 
 ### model-generate-content
 
 Manage model generate content
 
-- **`gemini-pp-cli model-generate-content generativelanguage-tuned-models-generate-content`** - Generates a model response given an input `GenerateContentRequest`. Refer to the [text generation guide](https://ai.google.dev/gemini-api/docs/text-generation) for detailed usage information. Input capabilities differ between models, including tuned models. Refer to the [model guide](https://ai.google.dev/gemini-api/docs/models/gemini) and [tuning guide](https://ai.google.dev/gemini-api/docs/model-tuning) for details.
+- **`gemini-pp-cli model-generate-content generativelanguage-tuned-models-generate-content`** - Generates a model response given an input `GenerateContentRequest`
 
 ### model-stream-generate-content
 
 Manage model stream generate content
 
-- **`gemini-pp-cli model-stream-generate-content generativelanguage-tuned-models-stream-generate-content`** - Generates a [streamed response](https://ai.google.dev/gemini-api/docs/text-generation?lang=python#generate-a-text-stream) from the model given an input `GenerateContentRequest`.
+- **`gemini-pp-cli model-stream-generate-content generativelanguage-tuned-models-stream-generate-content`** - Generates a [streamed response](https://ai
 
 ### models
 
 Models
 
-- **`gemini-pp-cli models generativelanguage-list`** - Lists the [`Model`s](https://ai.google.dev/gemini-api/docs/models/gemini) available through the Gemini API.
+- **`gemini-pp-cli models generativelanguage-list`** - Lists the [`Model`s](https://ai
 
 ### name-cancel
 
 Manage name cancel
 
-- **`gemini-pp-cli name-cancel generativelanguage-tuned-models-operations-cancel`** - Starts asynchronous cancellation on a long-running operation. The server makes a best effort to cancel the operation, but success is not guaranteed. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`. Clients can use Operations.GetOperation or other methods to check whether the cancellation succeeded or whether the operation completed despite cancellation. On successful cancellation, the operation is not deleted; instead, it becomes an operation with an Operation.error value with a google.rpc.Status.code of `1`, corresponding to `Code.CANCELLED`.
+- **`gemini-pp-cli name-cancel generativelanguage-tuned-models-operations-cancel`** - Starts asynchronous cancellation on a long-running operation
 
 ### name-update-embed-content-batch
 
 Manage name update embed content batch
 
-- **`gemini-pp-cli name-update-embed-content-batch generativelanguage-batches-update-embed-content-batch`** - Updates a batch of EmbedContent requests for batch processing.
+- **`gemini-pp-cli name-update-embed-content-batch generativelanguage-batches-update-embed-content-batch`** - Updates a batch of EmbedContent requests for batch processing
 
 ### name-update-generate-content-batch
 
 Manage name update generate content batch
 
-- **`gemini-pp-cli name-update-generate-content-batch generativelanguage-batches-update-generate-content-batch`** - Updates a batch of GenerateContent requests for batch processing.
+- **`gemini-pp-cli name-update-generate-content-batch generativelanguage-batches-update-generate-content-batch`** - Updates a batch of GenerateContent requests for batch processing
 
 
 ## Output Formats
 
 ```bash
 # Human-readable table (default in terminal, JSON when piped)
-gemini-pp-cli model-async-batch-embed-content mock-value
+gemini-pp-cli model-async-batch-embed-content list
 
 # JSON for scripting and agents
-gemini-pp-cli model-async-batch-embed-content mock-value --json
+gemini-pp-cli model-async-batch-embed-content list --json
 
 # Filter to specific fields
-gemini-pp-cli model-async-batch-embed-content mock-value --json --select id,name,status
+gemini-pp-cli model-async-batch-embed-content list --json --select id,name,status
 
 # Dry run — show the request without sending
-gemini-pp-cli model-async-batch-embed-content mock-value --dry-run
+gemini-pp-cli model-async-batch-embed-content list --dry-run
 
 # Agent mode — JSON + compact + no prompts in one flag
-gemini-pp-cli model-async-batch-embed-content mock-value --agent
+gemini-pp-cli model-async-batch-embed-content list --agent
 ```
 
 ## Agent Usage
@@ -175,60 +136,26 @@ This CLI is designed for AI agent consumption:
 - **Pipeable** - `--json` output to stdout, errors to stderr
 - **Filterable** - `--select id,name` returns only fields you need
 - **Previewable** - `--dry-run` shows the request without sending
-- **Explicit retries** - add `--idempotent` to create retries when a no-op success is acceptable
+- **Retryable** - creates return "already exists" on retry, deletes return "already deleted"
 - **Confirmable** - `--yes` for explicit confirmation of destructive actions
-- **Piped input** - write commands can accept structured input when their help lists `--stdin`
-- **Offline-friendly** - sync/search commands can use the local SQLite store when available
+- **Piped input** - `echo '{"key":"value"}' | gemini-pp-cli <resource> create --stdin`
+- **Cacheable** - GET responses cached for 5 minutes, bypass with `--no-cache`
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
+- **Progress events** - paginated commands emit NDJSON events to stderr in default mode
 
-Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate limited, `10` config error.
+Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
 
-## Use with Claude Code
+## Use as MCP Server
 
-Install the focused skill — it auto-installs the CLI on first invocation:
+This CLI ships a companion MCP server for use with Claude Desktop, Cursor, and other MCP-compatible tools.
 
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-gemini -g
-```
-
-Then invoke `/pp-gemini <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/other/gemini/cmd/gemini-pp-mcp@latest
-```
-
-Then register it:
+### Claude Code
 
 ```bash
 claude mcp add gemini gemini-pp-mcp
 ```
 
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/gemini-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/other/gemini/cmd/gemini-pp-mcp@latest
-```
+### Claude Desktop
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 
@@ -242,7 +169,29 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 }
 ```
 
-</details>
+## Cookbook
+
+Common workflows and recipes:
+
+```bash
+# List resources as JSON for scripting
+gemini-pp-cli model-async-batch-embed-content list --json
+
+# Filter to specific fields
+gemini-pp-cli model-async-batch-embed-content list --json --select id,name,status
+
+# Dry run to preview the request
+gemini-pp-cli model-async-batch-embed-content list --dry-run
+
+# Sync data locally for offline search
+gemini-pp-cli sync
+
+# Search synced data
+gemini-pp-cli search "query"
+
+# Export for backup
+gemini-pp-cli export --format jsonl > backup.jsonl
+```
 
 ## Health Check
 
@@ -250,16 +199,26 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 gemini-pp-cli doctor
 ```
 
-Verifies configuration and connectivity to the API.
+<!-- DOCTOR_OUTPUT -->
 
 ## Configuration
 
 Config file: `~/.config/gemini-pp-cli/config.toml`
 
+Environment variables:
+
 ## Troubleshooting
+
+**Authentication errors (exit code 4)**
+- Run `gemini-pp-cli doctor` to check credentials
+
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items
+
+**Rate limit errors (exit code 7)**
+- The CLI auto-retries with exponential backoff
+- If persistent, wait a few minutes and try again
 
 ---
 

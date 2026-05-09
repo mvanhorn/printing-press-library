@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "cli_name": "gemini-pp-cli",
+  "run_id": "20260509-162032",
+  "checked_at": "2026-05-09T16:20:32.125449Z",
+  "legs": [
+    {
+      "name": "go build",
+      "status": "pass"
+    },
+    {
+      "name": "go vet",
+      "status": "pass"
+    },
+    {
+      "name": "binary runnable",
+      "status": "pass"
+    },
+    {
+      "name": "--help output",
+      "status": "pass"
+    },
+    {
+      "name": "--version output",
+      "status": "pass"
+    },
+    {
+      "name": "doctor",
+      "status": "pass"
+    }
+  ],
+  "summary": "6/6 legs PASS"
+}

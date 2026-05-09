@@ -1,0 +1,51 @@
+version: 2
+project_name: gemini-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: gemini-pp-cli
+    main: ./cmd/gemini-pp-cli
+    binary: gemini-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X gemini-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: gemini-pp-mcp
+    main: ./cmd/gemini-pp-mcp
+    binary: gemini-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: gemini-pp-cli
+    repository:
+      owner: krishna-vardhan
+      name: homebrew-tap
+    homepage: "https://github.com/krishna-vardhan/gemini-pp-cli"
+    description: "The Gemini API allows developers to build generative AI applications using Gemini models. Gemini is our most capable model, built from the ground up to be multimodal. It can generalize and seamlessly understand, operate across, and combine different types of information including language, images, audio, video, and code. You can use the Gemini API for use cases like reasoning across text and images, content generation, dialogue agents, summarization and classification systems, and more."
+    install: |
+      bin.install "gemini-pp-cli"
+      bin.install "gemini-pp-mcp"

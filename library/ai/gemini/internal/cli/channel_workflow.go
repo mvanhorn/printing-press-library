@@ -49,7 +49,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			if dbPath == "" {
 				dbPath = defaultDBPath("gemini-pp-cli")
 			}
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := store.Open(dbPath)
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
 			}
@@ -145,9 +145,8 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 
 	cmd := &cobra.Command{
-		Use:         "status",
-		Short:       "Show local archive status and sync state for all resources",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Use:   "status",
+		Short: "Show local archive status and sync state for all resources",
 		Example: `  # Show archive status
   gemini-pp-cli workflow status
 
@@ -157,7 +156,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 			if dbPath == "" {
 				dbPath = defaultDBPath("gemini-pp-cli")
 			}
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			s, err := store.Open(dbPath)
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
 			}

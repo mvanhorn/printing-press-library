@@ -15,6 +15,7 @@ import (
 	"text/tabwriter"
 	"time"
 	"unicode"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -97,83 +98,21 @@ func apiErr(err error) error      { return &cliError{code: 5, err: err} }
 func configErr(err error) error   { return &cliError{code: 10, err: err} }
 func rateLimitErr(err error) error { return &cliError{code: 7, err: err} }
 
-// dryRunOK reports whether the command should short-circuit without doing any
-// real work because --dry-run was set. The verify pipeline probes hand-written
-// commands with --dry-run; commands that put validation in cobra's `Args:` or
-// `MarkFlagRequired` cannot reach a dry-run guard inside RunE because cobra
-// runs those checks before RunE. The verify-friendly pattern for hand-written
-// commands is:
-//
-//	RunE: func(cmd *cobra.Command, args []string) error {
-//	    if len(args) == 0 {
-//	        return cmd.Help()
-//	    }
-//	    if dryRunOK(flags) {
-//	        return nil
-//	    }
-//	    // ... real work ...
-//	}
-//
-// See SKILL.md "Phase 3: Build The GOAT" for the full pattern.
-func dryRunOK(flags *rootFlags) bool {
-	return flags != nil && flags.dryRun
-}
-
-// accessWarning describes an API access-denial that sync converts into a
-// non-fatal warning. It carries enough structured data for the sync_warning
-// JSON event without parsing free-form error strings downstream.
-type accessWarning struct {
-	Status  int    // HTTP status when applicable; 0 for GraphQL field-level denials.
-	Reason  string // "forbidden" | "insufficient_access" | "unauthenticated"
-	Message string // human-readable detail (the API's body or GraphQL error message)
-}
-
-// isSyncAccessWarning is a stub: this CLI has no auth, so the API cannot
-// reject sync requests on access-policy grounds. Every error stays a hard
-// failure. Defining the function unconditionally keeps sync.go agnostic to
-// auth presence.
-func isSyncAccessWarning(err error) (*accessWarning, bool) { return nil, false }
-
-type noopResult struct {
-	Status string `json:"status"`
-	Reason string `json:"reason"`
-}
-
-func writeNoop(flags *rootFlags, reason, prose string) error {
-	if flags != nil && flags.asJSON {
-		return json.NewEncoder(os.Stdout).Encode(noopResult{Status: "noop", Reason: reason})
-	}
-	fmt.Fprintln(os.Stderr, prose)
-	return nil
-}
-
-func writeAPIErrorEnvelope(flags *rootFlags, err error, code int) {
-	if flags == nil || !flags.asJSON {
-		return
-	}
-	_ = json.NewEncoder(os.Stdout).Encode(map[string]any{
-		"error": err.Error(),
-		"code":  code,
-	})
-}
-
 // classifyAPIError maps API errors to structured exit codes with actionable hints.
-func classifyAPIError(err error, flags *rootFlags) error {
+func classifyAPIError(err error) error {
 	msg := err.Error()
 	switch {
 	case strings.Contains(msg, "HTTP 409"):
-		if flags != nil && flags.idempotent {
-			return writeNoop(flags, "already_exists", "already exists (no-op)")
-		}
-		classified := apiErr(err)
-		writeAPIErrorEnvelope(flags, classified, ExitCode(classified))
-		return classified
+		// 409 Conflict = resource already exists. For agents retrying creates, this is success.
+		fmt.Fprintln(os.Stderr, "already exists (no-op)")
+		return nil
 	case strings.Contains(msg, "HTTP 401"):
 		return authErr(fmt.Errorf("%w\nhint: check your API credentials."+
 			"\n      Run 'gemini-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 403"):
-		return authErr(fmt.Errorf("%w\nhint: permission denied. This API is configured without credentials, so the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy."+
-			"\n      Run 'gemini-pp-cli doctor' to check connectivity.", err))
+		return authErr(fmt.Errorf("%w\nhint: permission denied. Your credentials are valid but lack access to this resource."+
+			"\n      Check that your API key has the required permissions."+
+			"\n      Run 'gemini-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 404"):
 		return notFoundErr(fmt.Errorf("%w\nhint: resource not found. Run the 'list' command to see available items", err))
 	case strings.Contains(msg, "HTTP 429"):
@@ -200,13 +139,10 @@ func replacePathParam(path, name, value string) string {
 	return strings.ReplaceAll(path, "{"+name+"}", value)
 }
 
-// paginatedGet fetches pages and concatenates array results. The headers
-// argument carries per-endpoint required headers (e.g. cal-api-version) that
-// must be sent on every page request, including the first; pass nil when the
-// endpoint has no per-endpoint header overrides.
+// paginatedGet fetches pages and concatenates array results.
 func paginatedGet(c interface {
-	GetWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, error)
-}, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, nextCursorPath, hasMoreField string) (json.RawMessage, error) {
+	Get(path string, params map[string]string) (json.RawMessage, error)
+}, path string, params map[string]string, fetchAll bool, cursorParam, nextCursorPath, hasMoreField string) (json.RawMessage, error) {
 	// Clean zero-value params
 	clean := map[string]string{}
 	for k, v := range params {
@@ -216,7 +152,7 @@ func paginatedGet(c interface {
 	}
 
 	if !fetchAll {
-		return c.GetWithHeaders(path, clean, headers)
+		return c.Get(path, clean)
 	}
 
 	// Fetch all pages
@@ -230,7 +166,7 @@ func paginatedGet(c interface {
 			fmt.Fprintf(os.Stderr, `{"event":"page_fetch","page":%d}`+"\n", page)
 		}
 
-		data, err := c.GetWithHeaders(path, clean, headers)
+		data, err := c.Get(path, clean)
 		if err != nil {
 			return nil, err
 		}
@@ -292,101 +228,68 @@ func paginatedGet(c interface {
 	return json.RawMessage(result), nil
 }
 
-// printJSONFiltered marshals a Go-typed value through the same output
-// pipeline endpoint-mirror commands use. Hand-written novel commands that
-// build a typed slice/struct call this so --select, --compact, --csv, and
-// --quiet all behave the same way as on generator-emitted commands.
-func printJSONFiltered(w io.Writer, v any, flags *rootFlags) error {
-	raw, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-	return printOutputWithFlags(w, json.RawMessage(raw), flags)
-}
-
-// filterFields keeps only the specified fields (comma-separated) from JSON objects/arrays.
-// Supports dotted paths like "events.shortName" to descend into nested structures.
-// Arrays are traversed element-wise: "events.shortName" keeps shortName on each event.
+// filterFields keeps only the specified comma-separated fields from JSON objects/arrays.
 func filterFields(data json.RawMessage, fields string) json.RawMessage {
-	var paths [][]string
+	wanted := map[string]bool{}
 	for _, f := range strings.Split(fields, ",") {
 		f = strings.TrimSpace(f)
-		if f == "" {
-			continue
+		if f != "" {
+			// Normalize to lowercase for case-insensitive matching
+			wanted[strings.ToLower(f)] = true
 		}
-		parts := strings.Split(f, ".")
-		for i := range parts {
-			parts[i] = strings.ToLower(parts[i])
-		}
-		paths = append(paths, parts)
 	}
-	if len(paths) == 0 {
+	if len(wanted) == 0 {
 		return data
 	}
-	return filterFieldsRec(data, paths)
-}
 
-// filterFieldsRec applies path filters to a JSON value. Each path is a list of
-// lowercase segments; arrays descend element-wise.
-func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
-	var arr []json.RawMessage
-	if err := json.Unmarshal(data, &arr); err == nil {
-		out := make([]json.RawMessage, len(arr))
-		for i, el := range arr {
-			out[i] = filterFieldsRec(el, paths)
+	// Try array of objects
+	var items []map[string]json.RawMessage
+	if json.Unmarshal(data, &items) == nil {
+		filtered := make([]map[string]json.RawMessage, len(items))
+		for i, item := range items {
+			m := map[string]json.RawMessage{}
+			for k, v := range item {
+				if fieldMatchesSelect(k, wanted) {
+					m[k] = v
+				}
+			}
+			filtered[i] = m
 		}
-		result, _ := json.Marshal(out)
-		return result
+		out, _ := json.Marshal(filtered)
+		return out
 	}
 
+	// Try single object
 	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(data, &obj); err == nil {
-		keepWhole := map[string]bool{}
-		subPaths := map[string][][]string{}
-		for _, p := range paths {
-			if len(p) == 0 {
-				continue
-			}
-			head := p[0]
-			if len(p) == 1 {
-				keepWhole[head] = true
-			} else {
-				subPaths[head] = append(subPaths[head], p[1:])
-			}
-		}
-		filtered := map[string]json.RawMessage{}
+	if json.Unmarshal(data, &obj) == nil {
+		m := map[string]json.RawMessage{}
 		for k, v := range obj {
-			matched := matchSelectSegment(k, keepWhole, subPaths)
-			if matched == "" {
-				continue
-			}
-			if keepWhole[matched] {
-				filtered[k] = v
-				continue
-			}
-			if subs := subPaths[matched]; subs != nil {
-				filtered[k] = filterFieldsRec(v, subs)
+			if fieldMatchesSelect(k, wanted) {
+				m[k] = v
 			}
 		}
-		result, _ := json.Marshal(filtered)
-		return result
+		out, _ := json.Marshal(m)
+		return out
 	}
 
 	return data
 }
 
-// matchSelectSegment returns the matching lowercase segment, or "" if no match.
-// Supports direct case-insensitive match and camelCase→kebab-case conversion.
-func matchSelectSegment(fieldName string, keepWhole map[string]bool, subPaths map[string][][]string) string {
+// fieldMatchesSelect checks if a field name matches any of the wanted select fields.
+// Matches case-insensitively and converts camelCase/PascalCase to kebab-case for comparison.
+// "OrderDate" matches "orderdate", "order-date", or "OrderDate".
+func fieldMatchesSelect(fieldName string, wanted map[string]bool) bool {
 	lower := strings.ToLower(fieldName)
-	if keepWhole[lower] || subPaths[lower] != nil {
-		return lower
+	// Direct case-insensitive match: "ID" matches "id"
+	if wanted[lower] {
+		return true
 	}
+	// Convert original casing to kebab-case: "OrderDate" → "order-date"
 	kebab := camelToKebab(fieldName)
-	if kebab != lower && (keepWhole[kebab] || subPaths[kebab] != nil) {
-		return kebab
+	if kebab != lower && wanted[kebab] {
+		return true
 	}
-	return ""
+	return false
 }
 
 // camelToKebab converts "orderDate" or "orderdate" to "order-date" by splitting on
@@ -405,15 +308,13 @@ func camelToKebab(s string) string {
 
 // printOutputWithFlags routes output through the right format based on flags.
 func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) error {
-	// --select wins over --compact when both are set: an explicit field list
-	// is the user's authoritative request, so the high-gravity allow-list
-	// must not strip those fields out before --select can pick them. When
-	// only --compact is set (e.g., --agent without --select), the allow-list
-	// still runs.
+	// Apply --compact: filter to high-gravity fields only
+	if flags.compact {
+		data = compactFields(data)
+	}
+	// Apply --select field filtering
 	if flags.selectFields != "" {
 		data = filterFields(data, flags.selectFields)
-	} else if flags.compact {
-		data = compactFields(data)
 	}
 	// --quiet: suppress all output, exit code communicates result
 	if flags.quiet {
@@ -1059,17 +960,10 @@ type DataProvenance struct {
 	SyncedAt    *time.Time `json:"synced_at,omitempty"`     // when local data was last synced
 	Reason      string     `json:"reason,omitempty"`        // why local was used: "user_requested", "api_unreachable", "no_search_endpoint"
 	ResourceType string    `json:"resource_type,omitempty"` // which resource type was queried
-	Freshness    any        `json:"freshness,omitempty"`     // optional machine-owned freshness metadata for covered command paths
 }
 
-// printProvenance writes a one-line provenance message to stderr for TTY users.
-// Suppressed when stdout is piped or redirected — the JSON response envelope
-// already carries meta.source, so the stderr line is redundant and becomes
-// noise in agent flows that merge stderr into stdout.
+// printProvenance writes a one-line provenance message to stderr.
 func printProvenance(cmd *cobra.Command, count int, prov DataProvenance) {
-	if !isTerminal(cmd.OutOrStdout()) {
-		return
-	}
 	if prov.Source == "live" {
 		fmt.Fprintf(cmd.ErrOrStderr(), "%d results (live)\n", count)
 		return
@@ -1095,12 +989,7 @@ func printProvenance(cmd *cobra.Command, count int, prov DataProvenance) {
 	fmt.Fprintf(cmd.ErrOrStderr(), "%s%d results (cached, synced %s)\n", prefix, count, age)
 }
 
-// wrapWithProvenance wraps response data in a provenance envelope:
-// {"results": ..., "meta": {...}}. When data is valid JSON, it embeds as
-// the parsed shape; when data is non-JSON (e.g., XML/RSS responses, plain
-// text), it embeds as a JSON string so json.Marshal doesn't choke on
-// "invalid character '<'" while still passing the raw payload through to
-// the consumer.
+// wrapWithProvenance wraps JSON data in a provenance envelope: {"results": ..., "meta": {...}}.
 func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMessage, error) {
 	meta := map[string]any{"source": prov.Source}
 	if prov.SyncedAt != nil {
@@ -1112,15 +1001,8 @@ func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMess
 	if prov.ResourceType != "" {
 		meta["resource_type"] = prov.ResourceType
 	}
-	if prov.Freshness != nil {
-		meta["freshness"] = prov.Freshness
-	}
-	var results any = json.RawMessage(data)
-	if !json.Valid(data) {
-		results = string(data)
-	}
 	envelope := map[string]any{
-		"results": results,
+		"results": json.RawMessage(data),
 		"meta":    meta,
 	}
 	return json.Marshal(envelope)

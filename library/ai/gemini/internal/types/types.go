@@ -7,7 +7,7 @@ import "encoding/json"
 
 
 type AsyncBatchEmbedContentRequest struct {
-	Batch json.RawMessage `json:"batch"`
+	Batch string `json:"batch"`
 }
 
 type BatchEmbedContentsRequest struct {
@@ -16,11 +16,11 @@ type BatchEmbedContentsRequest struct {
 
 type BatchEmbedContentsResponse struct {
 	Embeddings json.RawMessage `json:"embeddings"`
-	UsageMetadata json.RawMessage `json:"usageMetadata"`
+	UsageMetadata string `json:"usageMetadata"`
 }
 
 type BatchGenerateContentRequest struct {
-	Batch json.RawMessage `json:"batch"`
+	Batch string `json:"batch"`
 }
 
 type BatchStats struct {
@@ -40,16 +40,16 @@ type CancelOperationRequest struct {
 
 type Candidate struct {
 	AvgLogprobs float64 `json:"avgLogprobs"`
-	CitationMetadata json.RawMessage `json:"citationMetadata"`
-	Content json.RawMessage `json:"content"`
+	CitationMetadata string `json:"citationMetadata"`
+	Content string `json:"content"`
 	FinishMessage string `json:"finishMessage"`
 	FinishReason string `json:"finishReason"`
-	GroundingMetadata json.RawMessage `json:"groundingMetadata"`
+	GroundingMetadata string `json:"groundingMetadata"`
 	Index int `json:"index"`
-	LogprobsResult json.RawMessage `json:"logprobsResult"`
+	LogprobsResult string `json:"logprobsResult"`
 	SafetyRatings json.RawMessage `json:"safetyRatings"`
 	TokenCount int `json:"tokenCount"`
-	UrlContextMetadata json.RawMessage `json:"urlContextMetadata"`
+	UrlContextMetadata string `json:"urlContextMetadata"`
 }
 
 type CitationMetadata struct {
@@ -75,7 +75,7 @@ type ContentEmbedding struct {
 
 type CountTokensRequest struct {
 	Contents json.RawMessage `json:"contents"`
-	GenerateContentRequest json.RawMessage `json:"generateContentRequest"`
+	GenerateContentRequest string `json:"generateContentRequest"`
 }
 
 type CountTokensResponse struct {
@@ -93,21 +93,21 @@ type CreateTunedModelMetadata struct {
 }
 
 type EmbedContentBatch struct {
-	BatchStats json.RawMessage `json:"batchStats"`
+	BatchStats string `json:"batchStats"`
 	CreateTime string `json:"createTime"`
 	DisplayName string `json:"displayName"`
 	EndTime string `json:"endTime"`
-	InputConfig json.RawMessage `json:"inputConfig"`
+	InputConfig string `json:"inputConfig"`
 	Model string `json:"model"`
 	Name string `json:"name"`
-	Output json.RawMessage `json:"output"`
+	Output string `json:"output"`
 	Priority int `json:"priority"`
 	State string `json:"state"`
 	UpdateTime string `json:"updateTime"`
 }
 
 type EmbedContentBatchOutput struct {
-	InlinedResponses json.RawMessage `json:"inlinedResponses"`
+	InlinedResponses string `json:"inlinedResponses"`
 	ResponsesFile string `json:"responsesFile"`
 }
 
@@ -128,8 +128,8 @@ type EmbedContentConfig struct {
 }
 
 type EmbedContentRequest struct {
-	Content json.RawMessage `json:"content"`
-	EmbedContentConfig json.RawMessage `json:"embedContentConfig"`
+	Content string `json:"content"`
+	EmbedContentConfig string `json:"embedContentConfig"`
 	Model string `json:"model"`
 	OutputDimensionality int `json:"outputDimensionality"`
 	TaskType string `json:"taskType"`
@@ -137,8 +137,8 @@ type EmbedContentRequest struct {
 }
 
 type EmbedContentResponse struct {
-	Embedding json.RawMessage `json:"embedding"`
-	UsageMetadata json.RawMessage `json:"usageMetadata"`
+	Embedding string `json:"embedding"`
+	UsageMetadata string `json:"usageMetadata"`
 }
 
 type EmbeddingUsageMetadata struct {
@@ -150,27 +150,27 @@ type Empty struct {
 }
 
 type GenerateContentBatch struct {
-	BatchStats json.RawMessage `json:"batchStats"`
+	BatchStats string `json:"batchStats"`
 	CreateTime string `json:"createTime"`
 	DisplayName string `json:"displayName"`
 	EndTime string `json:"endTime"`
-	InputConfig json.RawMessage `json:"inputConfig"`
+	InputConfig string `json:"inputConfig"`
 	Model string `json:"model"`
 	Name string `json:"name"`
-	Output json.RawMessage `json:"output"`
+	Output string `json:"output"`
 	Priority int `json:"priority"`
 	State string `json:"state"`
 	UpdateTime string `json:"updateTime"`
 }
 
 type GenerateContentBatchOutput struct {
-	InlinedResponses json.RawMessage `json:"inlinedResponses"`
+	InlinedResponses string `json:"inlinedResponses"`
 	ResponsesFile string `json:"responsesFile"`
 }
 
 type GenerateContentRequest struct {
 	Contents json.RawMessage `json:"contents"`
-	GenerationConfig json.RawMessage `json:"generationConfig"`
+	GenerationConfig string `json:"generationConfig"`
 	Model string `json:"model"`
 	SafetySettings json.RawMessage `json:"safetySettings"`
 	ServiceTier string `json:"serviceTier"`
@@ -179,11 +179,11 @@ type GenerateContentRequest struct {
 
 type GenerateContentResponse struct {
 	Candidates json.RawMessage `json:"candidates"`
-	ModelStatus json.RawMessage `json:"modelStatus"`
+	ModelStatus string `json:"modelStatus"`
 	ModelVersion string `json:"modelVersion"`
-	PromptFeedback json.RawMessage `json:"promptFeedback"`
+	PromptFeedback string `json:"promptFeedback"`
 	ResponseId string `json:"responseId"`
-	UsageMetadata json.RawMessage `json:"usageMetadata"`
+	UsageMetadata string `json:"usageMetadata"`
 }
 
 type GenerationConfig struct {
@@ -193,7 +193,7 @@ type GenerationConfig struct {
 	Logprobs int `json:"logprobs"`
 	MaxOutputTokens int `json:"maxOutputTokens"`
 	PresencePenalty float64 `json:"presencePenalty"`
-	ResponseJsonSchema json.RawMessage `json:"responseJsonSchema"`
+	ResponseJsonSchema string `json:"responseJsonSchema"`
 	ResponseLogprobs bool `json:"responseLogprobs"`
 	Seed int `json:"seed"`
 	StopSequences json.RawMessage `json:"stopSequences"`
@@ -203,7 +203,7 @@ type GenerationConfig struct {
 }
 
 type GroundingChunk struct {
-	Web json.RawMessage `json:"web"`
+	Web string `json:"web"`
 }
 
 type GroundingMetadata struct {
@@ -211,8 +211,8 @@ type GroundingMetadata struct {
 	GroundingChunks json.RawMessage `json:"groundingChunks"`
 	GroundingSupports json.RawMessage `json:"groundingSupports"`
 	ImageSearchQueries json.RawMessage `json:"imageSearchQueries"`
-	RetrievalMetadata json.RawMessage `json:"retrievalMetadata"`
-	SearchEntryPoint json.RawMessage `json:"searchEntryPoint"`
+	RetrievalMetadata string `json:"retrievalMetadata"`
+	SearchEntryPoint string `json:"searchEntryPoint"`
 	WebSearchQueries json.RawMessage `json:"webSearchQueries"`
 }
 
@@ -220,12 +220,12 @@ type GroundingSupport struct {
 	ConfidenceScores json.RawMessage `json:"confidenceScores"`
 	GroundingChunkIndices json.RawMessage `json:"groundingChunkIndices"`
 	RenderedParts json.RawMessage `json:"renderedParts"`
-	Segment json.RawMessage `json:"segment"`
+	Segment string `json:"segment"`
 }
 
 type InlinedEmbedContentRequest struct {
-	Metadata json.RawMessage `json:"metadata"`
-	Request json.RawMessage `json:"request"`
+	Metadata string `json:"metadata"`
+	Request string `json:"request"`
 }
 
 type InlinedEmbedContentRequests struct {
@@ -233,9 +233,9 @@ type InlinedEmbedContentRequests struct {
 }
 
 type InlinedEmbedContentResponse struct {
-	Error json.RawMessage `json:"error"`
-	Metadata json.RawMessage `json:"metadata"`
-	Response json.RawMessage `json:"response"`
+	Error string `json:"error"`
+	Metadata string `json:"metadata"`
+	Response string `json:"response"`
 }
 
 type InlinedEmbedContentResponses struct {
@@ -243,8 +243,8 @@ type InlinedEmbedContentResponses struct {
 }
 
 type InlinedRequest struct {
-	Metadata json.RawMessage `json:"metadata"`
-	Request json.RawMessage `json:"request"`
+	Metadata string `json:"metadata"`
+	Request string `json:"request"`
 }
 
 type InlinedRequests struct {
@@ -252,9 +252,9 @@ type InlinedRequests struct {
 }
 
 type InlinedResponse struct {
-	Error json.RawMessage `json:"error"`
-	Metadata json.RawMessage `json:"metadata"`
-	Response json.RawMessage `json:"response"`
+	Error string `json:"error"`
+	Metadata string `json:"metadata"`
+	Response string `json:"response"`
 }
 
 type InlinedResponses struct {
@@ -263,12 +263,12 @@ type InlinedResponses struct {
 
 type InputConfig struct {
 	FileName string `json:"fileName"`
-	Requests json.RawMessage `json:"requests"`
+	Requests string `json:"requests"`
 }
 
 type InputEmbedContentConfig struct {
 	FileName string `json:"fileName"`
-	Requests json.RawMessage `json:"requests"`
+	Requests string `json:"requests"`
 }
 
 type ListModelsResponse struct {
@@ -323,16 +323,16 @@ type ModelStatus struct {
 
 type Operation struct {
 	Done bool `json:"done"`
-	Error json.RawMessage `json:"error"`
-	Metadata json.RawMessage `json:"metadata"`
+	Error string `json:"error"`
+	Metadata string `json:"metadata"`
 	Name string `json:"name"`
-	Response json.RawMessage `json:"response"`
+	Response string `json:"response"`
 }
 
 type Part struct {
-	InlineData json.RawMessage `json:"inlineData"`
+	InlineData string `json:"inlineData"`
 	Text string `json:"text"`
-	VideoMetadata json.RawMessage `json:"videoMetadata"`
+	VideoMetadata string `json:"videoMetadata"`
 }
 
 type PromptFeedback struct {
@@ -416,3 +416,4 @@ type Web struct {
 	Title string `json:"title"`
 	Uri string `json:"uri"`
 }
+

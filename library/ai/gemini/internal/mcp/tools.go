@@ -14,10 +14,8 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"gemini-pp-cli/internal/cli"
 	"gemini-pp-cli/internal/client"
 	"gemini-pp-cli/internal/config"
-	"gemini-pp-cli/internal/mcp/cobratree"
 	"gemini-pp-cli/internal/store"
 )
 
@@ -25,152 +23,99 @@ import (
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("model-async-batch-embed-content_generativelanguage-tuned-models-async-batch-embed-content",
-			mcplib.WithDescription("Enqueues a batch of `EmbedContent` requests for batch processing. We have a `BatchEmbedContents` handler in `GenerativeService`, but it was synchronized. So we name this one to be `Async` to avoid confusion. Required: model. Optional: batch. Returns the new Operation."),
+			mcplib.WithDescription("Enqueues a batch of `EmbedContent` requests for batch processing Returns Operation."),
 			mcplib.WithString("model", mcplib.Required(), mcplib.Description("Required. The name of the `Model` to use for generating the completion. Format: `models/{model}`.")),
-			mcplib.WithString("batch", mcplib.Description("A resource representing a batch of `EmbedContent` requests.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/{model}:asyncBatchEmbedContent", []mcpParamBinding{{PublicName: "model", WireName: "model", Location: "path"},{PublicName: "batch", WireName: "batch", Location: "body"}, }, []string{"model", }),
+		makeAPIHandler("POST", "/v1/{model}:asyncBatchEmbedContent", []string{"model", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("model-batch-embed-contents_generativelanguage-models-batch-embed-contents",
-			mcplib.WithDescription("Generates multiple embedding vectors from the input `Content` which consists of a batch of strings represented as `EmbedContentRequest` objects. Required: model. Optional: requests. Returns the new BatchEmbedContentsResponse."),
-			mcplib.WithString("model", mcplib.Required(), mcplib.Description("Required. The model's resource name. This serves as an ID for the Model to use. This name...")),
-			mcplib.WithString("requests", mcplib.Description("Required. Embed requests for the batch. The model in each of these requests must match the model specified...")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
+			mcplib.WithDescription("Generates multiple embedding vectors from the input `Content` which consists of a batch of strings r Returns BatchEmbedContentsResponse."),
+			mcplib.WithString("model", mcplib.Required(), mcplib.Description("Required. The model's resource name. This serves as an ID for the Model to use. This name should match a model name...")),
 		),
-		makeAPIHandler("POST", "/v1/{model}:batchEmbedContents", []mcpParamBinding{{PublicName: "model", WireName: "model", Location: "path"},{PublicName: "requests", WireName: "requests", Location: "body"}, }, []string{"model", }),
+		makeAPIHandler("POST", "/v1/{model}:batchEmbedContents", []string{"model", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("model-batch-generate-content_generativelanguage-tuned-models-batch-generate-content",
-			mcplib.WithDescription("Enqueues a batch of `GenerateContent` requests for batch processing. Required: model. Optional: batch. Returns the new Operation."),
+			mcplib.WithDescription("Enqueues a batch of `GenerateContent` requests for batch processing Returns Operation."),
 			mcplib.WithString("model", mcplib.Required(), mcplib.Description("Required. The name of the `Model` to use for generating the completion. Format: `models/{model}`.")),
-			mcplib.WithString("batch", mcplib.Description("A resource representing a batch of `GenerateContent` requests.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/{model}:batchGenerateContent", []mcpParamBinding{{PublicName: "model", WireName: "model", Location: "path"},{PublicName: "batch", WireName: "batch", Location: "body"}, }, []string{"model", }),
+		makeAPIHandler("POST", "/v1/{model}:batchGenerateContent", []string{"model", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("model-count-tokens_generativelanguage-models-count-tokens",
-			mcplib.WithDescription("Runs a model's tokenizer on input `Content` and returns the token count. Refer to the [tokens guide](https://ai.google.dev/gemini-api/docs/tokens) to learn more about tokens. Required: model. Optional: contents, generateContentRequest."),
-			mcplib.WithString("model", mcplib.Required(), mcplib.Description("Required. The model's resource name. This serves as an ID for the Model to use. This name...")),
-			mcplib.WithString("contents", mcplib.Description("Optional. The input given to the model as a prompt. This field is ignored when `generate_content_request` is set.")),
-			mcplib.WithString("generateContentRequest", mcplib.Description("Request to generate a completion from the model.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
+			mcplib.WithDescription("Runs a model's tokenizer on input `Content` and returns the token count Returns CountTokensResponse."),
+			mcplib.WithString("model", mcplib.Required(), mcplib.Description("Required. The model's resource name. This serves as an ID for the Model to use. This name should match a model name...")),
 		),
-		makeAPIHandler("POST", "/v1/{model}:countTokens", []mcpParamBinding{{PublicName: "model", WireName: "model", Location: "path"},{PublicName: "contents", WireName: "contents", Location: "body"},{PublicName: "generateContentRequest", WireName: "generateContentRequest", Location: "body"}, }, []string{"model", }),
+		makeAPIHandler("POST", "/v1/{model}:countTokens", []string{"model", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("model-embed-content_generativelanguage-models-embed-content",
-			mcplib.WithDescription("Generates a text embedding vector from the input `Content` using the specified [Gemini Embedding model](https://ai.google.dev/gemini-api/docs/models/gemini#text-embedding). Required: model. Optional: content, embedContentConfig, outputDimensionality (plus 2 more). Returns the new EmbedContentResponse."),
-			mcplib.WithString("model", mcplib.Required(), mcplib.Description("Required. The model's resource name. This serves as an ID for the Model to use. This name...")),
-			mcplib.WithString("content", mcplib.Description("The base structured datatype containing multi-part content of a message. A `Content` includes a `role` field...")),
-			mcplib.WithString("embedContentConfig", mcplib.Description("Configurations for the EmbedContent request.")),
-			mcplib.WithString("outputDimensionality", mcplib.Description("Optional. Deprecated: Please use EmbedContentConfig.output_dimensionality instead. Optional reduced dimension for...")),
-			mcplib.WithString("taskType", mcplib.Description("Optional. Deprecated: Please use EmbedContentConfig.task_type instead. Optional task type for which the embeddings...")),
-			mcplib.WithString("title", mcplib.Description("Optional. Deprecated: Please use EmbedContentConfig.title instead. An optional title for the text. Only applicable...")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
+			mcplib.WithDescription("Generates a text embedding vector from the input `Content` using the specified [Gemini Embedding mod Returns EmbedContentResponse."),
+			mcplib.WithString("model", mcplib.Required(), mcplib.Description("Required. The model's resource name. This serves as an ID for the Model to use. This name should match a model name...")),
 		),
-		makeAPIHandler("POST", "/v1/{model}:embedContent", []mcpParamBinding{{PublicName: "model", WireName: "model", Location: "path"},{PublicName: "content", WireName: "content", Location: "body"},{PublicName: "embedContentConfig", WireName: "embedContentConfig", Location: "body"},{PublicName: "outputDimensionality", WireName: "outputDimensionality", Location: "body"},{PublicName: "taskType", WireName: "taskType", Location: "body"},{PublicName: "title", WireName: "title", Location: "body"}, }, []string{"model", }),
+		makeAPIHandler("POST", "/v1/{model}:embedContent", []string{"model", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("model-generate-content_generativelanguage-tuned-models-generate-content",
-			mcplib.WithDescription("Generates a model response given an input `GenerateContentRequest`. Refer to the [text generation guide](https://ai.google.dev/gemini-api/docs/text-generation) for detailed usage information. Input capabilities differ between models, including tuned models. Refer to the [model guide](https://ai.google.dev/gemini-api/docs/models/gemini) and [tuning guide](https://ai.google.dev/gemini-api/docs/model-tuning) for details. Required: model. Optional: contents, generationConfig, safetySettings (plus 2 more). Returns the new GenerateContentResponse."),
+			mcplib.WithDescription("Generates a model response given an input `GenerateContentRequest` Returns GenerateContentResponse."),
 			mcplib.WithString("model", mcplib.Required(), mcplib.Description("Required. The name of the `Model` to use for generating the completion. Format: `models/{model}`.")),
-			mcplib.WithString("contents", mcplib.Description("Required. The content of the current conversation with the model. For single-turn queries, this is a single...")),
-			mcplib.WithString("generationConfig", mcplib.Description("Configuration options for model generation and outputs. Not all parameters are configurable for every model.")),
-			mcplib.WithString("safetySettings", mcplib.Description("Optional. A list of unique `SafetySetting` instances for blocking unsafe content. This will be enforced on the...")),
-			mcplib.WithString("serviceTier", mcplib.Description("Optional. The service tier of the request.")),
-			mcplib.WithString("store", mcplib.Description("Optional. Configures the logging behavior for a given request. If set, it takes precedence over the project-level...")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/{model}:generateContent", []mcpParamBinding{{PublicName: "model", WireName: "model", Location: "path"},{PublicName: "contents", WireName: "contents", Location: "body"},{PublicName: "generationConfig", WireName: "generationConfig", Location: "body"},{PublicName: "safetySettings", WireName: "safetySettings", Location: "body"},{PublicName: "serviceTier", WireName: "serviceTier", Location: "body"},{PublicName: "store", WireName: "store", Location: "body"}, }, []string{"model", }),
+		makeAPIHandler("POST", "/v1/{model}:generateContent", []string{"model", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("model-stream-generate-content_generativelanguage-tuned-models-stream-generate-content",
-			mcplib.WithDescription("Generates a [streamed response](https://ai.google.dev/gemini-api/docs/text-generation?lang=python#generate-a-text-stream) from the model given an input `GenerateContentRequest`. Required: model. Optional: contents, generationConfig, safetySettings (plus 2 more). Returns the new GenerateContentResponse."),
+			mcplib.WithDescription("Generates a [streamed response](https://ai Returns GenerateContentResponse."),
 			mcplib.WithString("model", mcplib.Required(), mcplib.Description("Required. The name of the `Model` to use for generating the completion. Format: `models/{model}`.")),
-			mcplib.WithString("contents", mcplib.Description("Required. The content of the current conversation with the model. For single-turn queries, this is a single...")),
-			mcplib.WithString("generationConfig", mcplib.Description("Configuration options for model generation and outputs. Not all parameters are configurable for every model.")),
-			mcplib.WithString("safetySettings", mcplib.Description("Optional. A list of unique `SafetySetting` instances for blocking unsafe content. This will be enforced on the...")),
-			mcplib.WithString("serviceTier", mcplib.Description("Optional. The service tier of the request.")),
-			mcplib.WithString("store", mcplib.Description("Optional. Configures the logging behavior for a given request. If set, it takes precedence over the project-level...")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/{model}:streamGenerateContent", []mcpParamBinding{{PublicName: "model", WireName: "model", Location: "path"},{PublicName: "contents", WireName: "contents", Location: "body"},{PublicName: "generationConfig", WireName: "generationConfig", Location: "body"},{PublicName: "safetySettings", WireName: "safetySettings", Location: "body"},{PublicName: "serviceTier", WireName: "serviceTier", Location: "body"},{PublicName: "store", WireName: "store", Location: "body"}, }, []string{"model", }),
+		makeAPIHandler("POST", "/v1/{model}:streamGenerateContent", []string{"model", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("models_generativelanguage-list",
-			mcplib.WithDescription("Lists the [`Model`s](https://ai.google.dev/gemini-api/docs/models/gemini) available through the Gemini API. Optional: pageToken, pageSize. Returns the ListModelsResponse."),
+			mcplib.WithDescription("Lists the [`Model`s](https://ai Returns ListModelsResponse."),
 			mcplib.WithString("pageToken", mcplib.Description("A page token, received from a previous `ListModels` call. Provide the `page_token` returned by one request as an...")),
 			mcplib.WithString("pageSize", mcplib.Description("The maximum number of `Models` to return (per page). If unspecified, 50 models will be returned per page. This...")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/models", []mcpParamBinding{{PublicName: "pageToken", WireName: "pageToken", Location: "query"},{PublicName: "pageSize", WireName: "pageSize", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/v1/models", []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("name-cancel_generativelanguage-tuned-models-operations-cancel",
-			mcplib.WithDescription("Starts asynchronous cancellation on a long-running operation. The server makes a best effort to cancel the operation, but success is not guaranteed. If the server doesn't support this method, it returns `google.rpc.Code.UNIMPLEMENTED`. Clients can use Operations.GetOperation or other methods to check whether the cancellation succeeded or whether the operation completed despite cancellation. On successful cancellation, the operation is not deleted; instead, it becomes an operation with an Operation.error value with a google.rpc.Status.code of `1`, corresponding to `Code.CANCELLED`. Required: name."),
+			mcplib.WithDescription("Starts asynchronous cancellation on a long-running operation Returns Empty."),
 			mcplib.WithString("name", mcplib.Required(), mcplib.Description("The name of the operation resource to be cancelled.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/{name}:cancel", []mcpParamBinding{{PublicName: "name", WireName: "name", Location: "path"}, }, []string{"name", }),
+		makeAPIHandler("POST", "/v1/{name}:cancel", []string{"name", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("name-update-embed-content-batch_generativelanguage-batches-update-embed-content-batch",
-			mcplib.WithDescription("Updates a batch of EmbedContent requests for batch processing. Required: name. Optional: updateMask, batchStats, createTime (plus 8 more). Returns the updated EmbedContentBatch."),
+			mcplib.WithDescription("Updates a batch of EmbedContent requests for batch processing Returns EmbedContentBatch."),
 			mcplib.WithString("name", mcplib.Required(), mcplib.Description("Output only. Identifier. Resource name of the batch. Format: `batches/{batch_id}`.")),
 			mcplib.WithString("updateMask", mcplib.Description("Optional. The list of fields to update.")),
-			mcplib.WithString("batchStats", mcplib.Description("Stats about the batch.")),
-			mcplib.WithString("createTime", mcplib.Description("Output only. The time at which the batch was created.")),
-			mcplib.WithString("displayName", mcplib.Description("Required. The user-defined name of this batch.")),
-			mcplib.WithString("endTime", mcplib.Description("Output only. The time at which the batch processing completed.")),
-			mcplib.WithString("inputConfig", mcplib.Description("Configures the input to the batch request.")),
-			mcplib.WithString("model", mcplib.Description("Required. The name of the `Model` to use for generating the completion. Format: `models/{model}`.")),
-			mcplib.WithString("output", mcplib.Description("The output of a batch request. This is returned in the `AsyncBatchEmbedContentResponse` or the...")),
-			mcplib.WithString("priority", mcplib.Description("Optional. The priority of the batch. Batches with a higher priority value will be processed before batches with a...")),
-			mcplib.WithString("state", mcplib.Description("Output only. The state of the batch.")),
-			mcplib.WithString("updateTime", mcplib.Description("Output only. The time at which the batch was last updated.")),
-			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v1/{name}:updateEmbedContentBatch", []mcpParamBinding{{PublicName: "name", WireName: "name", Location: "path"},{PublicName: "updateMask", WireName: "updateMask", Location: "query"},{PublicName: "batchStats", WireName: "batchStats", Location: "body"},{PublicName: "createTime", WireName: "createTime", Location: "body"},{PublicName: "displayName", WireName: "displayName", Location: "body"},{PublicName: "endTime", WireName: "endTime", Location: "body"},{PublicName: "inputConfig", WireName: "inputConfig", Location: "body"},{PublicName: "model", WireName: "model", Location: "body"},{PublicName: "output", WireName: "output", Location: "body"},{PublicName: "priority", WireName: "priority", Location: "body"},{PublicName: "state", WireName: "state", Location: "body"},{PublicName: "updateTime", WireName: "updateTime", Location: "body"}, }, []string{"name", }),
+		makeAPIHandler("PATCH", "/v1/{name}:updateEmbedContentBatch", []string{"name", }),
 	)
 	s.AddTool(
 		mcplib.NewTool("name-update-generate-content-batch_generativelanguage-batches-update-generate-content-batch",
-			mcplib.WithDescription("Updates a batch of GenerateContent requests for batch processing. Required: name. Optional: updateMask, batchStats, createTime (plus 8 more). Returns the updated GenerateContentBatch."),
+			mcplib.WithDescription("Updates a batch of GenerateContent requests for batch processing Returns GenerateContentBatch."),
 			mcplib.WithString("name", mcplib.Required(), mcplib.Description("Output only. Identifier. Resource name of the batch. Format: `batches/{batch_id}`.")),
 			mcplib.WithString("updateMask", mcplib.Description("Optional. The list of fields to update.")),
-			mcplib.WithString("batchStats", mcplib.Description("Stats about the batch.")),
-			mcplib.WithString("createTime", mcplib.Description("Output only. The time at which the batch was created.")),
-			mcplib.WithString("displayName", mcplib.Description("Required. The user-defined name of this batch.")),
-			mcplib.WithString("endTime", mcplib.Description("Output only. The time at which the batch processing completed.")),
-			mcplib.WithString("inputConfig", mcplib.Description("Configures the input to the batch request.")),
-			mcplib.WithString("model", mcplib.Description("Required. The name of the `Model` to use for generating the completion. Format: `models/{model}`.")),
-			mcplib.WithString("output", mcplib.Description("The output of a batch request. This is returned in the `BatchGenerateContentResponse` or the...")),
-			mcplib.WithString("priority", mcplib.Description("Optional. The priority of the batch. Batches with a higher priority value will be processed before batches with a...")),
-			mcplib.WithString("state", mcplib.Description("Output only. The state of the batch.")),
-			mcplib.WithString("updateTime", mcplib.Description("Output only. The time at which the batch was last updated.")),
-			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v1/{name}:updateGenerateContentBatch", []mcpParamBinding{{PublicName: "name", WireName: "name", Location: "path"},{PublicName: "updateMask", WireName: "updateMask", Location: "query"},{PublicName: "batchStats", WireName: "batchStats", Location: "body"},{PublicName: "createTime", WireName: "createTime", Location: "body"},{PublicName: "displayName", WireName: "displayName", Location: "body"},{PublicName: "endTime", WireName: "endTime", Location: "body"},{PublicName: "inputConfig", WireName: "inputConfig", Location: "body"},{PublicName: "model", WireName: "model", Location: "body"},{PublicName: "output", WireName: "output", Location: "body"},{PublicName: "priority", WireName: "priority", Location: "body"},{PublicName: "state", WireName: "state", Location: "body"},{PublicName: "updateTime", WireName: "updateTime", Location: "body"}, }, []string{"name", }),
+		makeAPIHandler("PATCH", "/v1/{name}:updateGenerateContentBatch", []string{"name", }),
+	)
+	// Sync tool — populates local database for offline search and sql queries
+	s.AddTool(
+		mcplib.NewTool("sync",
+			mcplib.WithDescription("Sync API data to local SQLite database. Run this before using search or sql tools. Supports incremental sync."),
+			mcplib.WithString("resources", mcplib.Description("Comma-separated resource types to sync (omit for all)")),
+			mcplib.WithString("since", mcplib.Description("Incremental sync since duration (e.g. 7d, 24h, 1w)")),
+			mcplib.WithBoolean("full", mcplib.Description("Full resync ignoring checkpoints")),
+		),
+		handleSync,
 	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
 			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT only). Tables match resource names.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleSQL,
 	)
@@ -180,80 +125,38 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("context",
 			mcplib.WithDescription("Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
 		),
 		handleContext,
 	)
-
-	// Runtime Cobra-tree mirror — exposes every user-facing command that is
-	// not already covered by a typed endpoint or framework MCP tool.
-	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
-}
-
-type mcpParamBinding struct {
-	PublicName string
-	WireName   string
-	Location   string
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
-func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
+func makeAPIHandler(method, pathTemplate string, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		c, err := newMCPClient()
 		if err != nil {
 			return mcplib.NewToolResultError(err.Error()), nil
 		}
 
-		// mcp-go v0.47+ made CallToolParams.Arguments an `any` to support
-		// non-map payloads; GetArguments() returns the map[string]any shape
-		// we rely on here (or an empty map when the payload is something else).
-		args := req.GetArguments()
-
-		// positionalParams mixes real URL path params with CLI positional
-		// args that map to query params (e.g. `search <query>` -> ?query=);
-		// the placeholder check below disambiguates them at runtime.
+		// Build path by substituting positional params
 		path := pathTemplate
-		knownArgs := make(map[string]bool, len(bindings))
-		pathParams := make(map[string]bool, len(positionalParams))
-		params := make(map[string]string)
-		bodyArgs := make(map[string]any)
-		for _, binding := range bindings {
-			knownArgs[binding.PublicName] = true
-			v, ok := args[binding.PublicName]
-			if !ok {
-				continue
-			}
-			switch binding.Location {
-			case "path":
-				placeholder := "{" + binding.WireName + "}"
-				pathParams[binding.PublicName] = true
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
-			case "body":
-				bodyArgs[binding.WireName] = v
-			default:
-				params[binding.WireName] = fmt.Sprintf("%v", v)
-			}
-		}
 		for _, p := range positionalParams {
-			placeholder := "{" + p + "}"
-			if !strings.Contains(pathTemplate, placeholder) {
-				continue
-			}
-			pathParams[p] = true
-			if v, ok := args[p]; ok {
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
+			if v, ok := req.Params.Arguments[p]; ok {
+				path = strings.Replace(path, "{"+p+"}", fmt.Sprintf("%v", v), 1)
 			}
 		}
 
-		for k, v := range args {
-			if pathParams[k] || knownArgs[k] {
-				continue
+		// Collect non-positional params as query params
+		params := make(map[string]string)
+		for k, v := range req.Params.Arguments {
+			isPositional := false
+			for _, p := range positionalParams {
+				if k == p {
+					isPositional = true
+					break
+				}
 			}
-			switch method {
-			case "POST", "PUT", "PATCH":
-				bodyArgs[k] = v
-			default:
+			if !isPositional {
 				params[k] = fmt.Sprintf("%v", v)
 			}
 		}
@@ -263,13 +166,13 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 		case "GET":
 			data, err = c.Get(path, params)
 		case "POST":
-			body, _ := json.Marshal(bodyArgs)
+			body, _ := json.Marshal(req.Params.Arguments)
 			data, _, err = c.Post(path, body)
 		case "PUT":
-			body, _ := json.Marshal(bodyArgs)
+			body, _ := json.Marshal(req.Params.Arguments)
 			data, _, err = c.Put(path, body)
 		case "PATCH":
-			body, _ := json.Marshal(bodyArgs)
+			body, _ := json.Marshal(req.Params.Arguments)
 			data, _, err = c.Patch(path, body)
 		case "DELETE":
 			data, _, err = c.Delete(path)
@@ -288,7 +191,7 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 					"\n      Run 'gemini-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcplib.NewToolResultError("permission denied: " + msg +
-					"\nhint: this API is configured without credentials; the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy." +
+					"\nhint: your credentials are valid but lack access to this resource." +
 					"\n      Run 'gemini-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
@@ -328,14 +231,7 @@ func newMCPClient() (*client.Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
-	c := client.New(cfg, 30*time.Second, 0)
-	// Agents calling through MCP need fresh data every call. The on-disk
-	// response cache survives across MCP server invocations, so a
-	// DELETE/PATCH followed by a GET would otherwise return the
-	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
-	// constructs its own client and is unaffected.
-	c.NoCache = true
-	return c, nil
+	return client.New(cfg, 30*time.Second, 0), nil
 }
 
 func dbPath() string {
@@ -345,9 +241,12 @@ func dbPath() string {
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
 
+func handleSync(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	return mcplib.NewToolResultText("sync not yet implemented via MCP - use the CLI: gemini-pp-cli sync"), nil
+}
+
 func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	args := req.GetArguments()
-	query, ok := args["query"].(string)
+	query, ok := req.Params.Arguments["query"].(string)
 	if !ok || query == "" {
 		return mcplib.NewToolResultError("query is required"), nil
 	}
@@ -360,7 +259,7 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		}
 	}
 
-	db, err := store.OpenWithContext(ctx, dbPath())
+	db, err := store.Open(dbPath())
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
@@ -398,14 +297,11 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"description": "The Gemini API allows developers to build generative AI applications using Gemini models. Gemini is our most capable...",
 		"archetype":   "content",
 		"tool_count":  11,
-		// tool_surface tells agents which surface a capability lives on.
-		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion gemini-pp-cli binary.",
 		"resources": []map[string]any{
 			{
 				"name": "model-async-batch-embed-content",
 				"description": "Manage model async batch embed content",
 				"endpoints": []string{"generativelanguage-tuned-models-async-batch-embed-content",  },
-				"searchable": true,
 			},
 			{
 				"name": "model-batch-embed-contents",
@@ -416,13 +312,11 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"name": "model-batch-generate-content",
 				"description": "Manage model batch generate content",
 				"endpoints": []string{"generativelanguage-tuned-models-batch-generate-content",  },
-				"searchable": true,
 			},
 			{
 				"name": "model-count-tokens",
 				"description": "Manage model count tokens",
 				"endpoints": []string{"generativelanguage-models-count-tokens",  },
-				"searchable": true,
 			},
 			{
 				"name": "model-embed-content",
@@ -477,11 +371,4 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 	}
 	data, _ := json.MarshalIndent(ctx, "", "  ")
 	return mcplib.NewToolResultText(string(data)), nil
-}
-
-// RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP
-// mains. New generated mains call RegisterTools only; RegisterTools now
-// includes the runtime Cobra-tree mirror.
-func RegisterNovelFeatureTools(s *server.MCPServer) {
-	_ = s
 }

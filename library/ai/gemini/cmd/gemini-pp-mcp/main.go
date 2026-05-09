@@ -13,7 +13,7 @@ import (
 
 func main() {
 	s := server.NewMCPServer(
-		"Gemini",
+		"gemini-pp-mcp",
 		"1.0.0",
 		server.WithToolCapabilities(false),
 	)

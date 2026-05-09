@@ -1,0 +1,32 @@
+{
+  "title": "Gemini API",
+  "version": "v1",
+  "description": "Gemini API allows developers to build generative AI applications using Gemini models. Built ground-up to be multimodal - can understand text, images, audio, video, and code.",
+  "api_capabilities": [
+    "Generate content from text/image/audio/video input",
+    "Streaming content generation",
+    "Batch content generation",
+    "Text embedding",
+    "Token counting",
+    "Model listing and metadata",
+    "Fine-tuned model support"
+  ],
+  "non_obvious_insight": "The Gemini API isn't just an LLM API. It's a multimodal reasoning engine. Every generateContent call is a signal about what combination of modalities, safety settings, and model capabilities produce the best output for a given task. The local cache of responses enables offline analysis of model behavior, response quality comparison, and prompt engineering iteration without repeated API calls.",
+  "target_audience": [
+    "AI/ML engineers building generative AI applications",
+    "Developers needing multimodal understanding",
+    "Researchers comparing model outputs"
+  ],
+  "archetype": "ai",
+  "competitor_clis": [
+    "google-gemini-cli",
+    "gemini-cli"
+  ],
+  "auto_generated_workflow_commands": [
+    "sync - Pull model metadata and cache responses locally",
+    "search - FTS5 search across cached data",
+    "sql - Direct SQL queries on local store",
+    "analytics - Usage patterns and token consumption"
+  ],
+  "verified_date": "2026-05-08"
+}

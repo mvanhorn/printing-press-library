@@ -18,10 +18,9 @@ func newModelsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "models",
-		Short: "Lists the [`Model`s](https://ai.google.dev/gemini-api/docs/models/gemini) available through the Gemini API.",
-		Long:  "Shortcut for 'models generativelanguage-list'. Lists the [`Model`s](https://ai.google.dev/gemini-api/docs/models/gemini) available through the Gemini API.",
+		Short: "Lists the [`Model`s](https://ai",
+		Long:  "Shortcut for 'models generativelanguage-list'. Lists the [`Model`s](https://ai",
 		Example: "  gemini-pp-cli models",
-		Annotations: map[string]string{"pp:endpoint": "models.generativelanguage-list", "pp:method": "GET", "pp:path": "/v1/models", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -29,12 +28,12 @@ func newModelsPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/models"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "models", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(c, flags, "models", path, map[string]string{
 				"pageToken": fmt.Sprintf("%v", flagPageToken),
 				"pageSize": fmt.Sprintf("%v", flagPageSize),
-			}, nil, flagAll, "pagetoken", "nextPageToken", "")
+			}, flagAll, "pagetoken", "nextPageToken", "")
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyAPIError(err)
 			}
 			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
 			// so output helpers see the inner data, not the wrapper.
@@ -53,15 +52,14 @@ func newModelsPromotedCmd(flags *rootFlags) *cobra.Command {
 			if flags.csv {
 				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 			}
-			// For JSON output, wrap with provenance envelope. --select wins over
-			// --compact when both are set; --compact only runs when no explicit
-			// fields were requested.
+			// For JSON output, wrap with provenance envelope
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
+				if flags.compact {
+					filtered = compactFields(filtered)
+				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
-				} else if flags.compact {
-					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

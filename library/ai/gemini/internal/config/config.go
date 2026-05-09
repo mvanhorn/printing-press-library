@@ -55,6 +55,7 @@ func Load(configPath string) (*Config, error) {
 	if v := os.Getenv("GEMINI_BASE_URL"); v != "" {
 		cfg.BaseURL = v
 	}
+
 	return cfg, nil
 }
 

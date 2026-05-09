@@ -4,11 +4,8 @@
 package cli
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
-	"os"
 	"strings"
 	"text/tabwriter"
 	"time"
@@ -18,7 +15,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "1.0.0"
+var version = "v1"
 
 type rootFlags struct {
 	asJSON       bool
@@ -29,64 +26,22 @@ type rootFlags struct {
 	dryRun       bool
 	noCache      bool
 	noInput      bool
-	idempotent   bool
 	yes          bool
 	agent        bool
 	selectFields string
 	configPath   string
-	profileName  string
-	deliverSpec  string
 	timeout      time.Duration
 	rateLimit    float64
 	dataSource   string
-	freshnessMeta any
-
-	// deliverBuf captures command output when --deliver is set to a
-	// non-stdout sink. Flushed to the sink after Execute returns.
-	deliverBuf  *bytes.Buffer
-	deliverSink DeliverSink
-}
-
-// RootCmd returns the Cobra command tree without executing it. The MCP server
-// uses this to mirror every user-facing command as an agent tool.
-func RootCmd() *cobra.Command {
-	var flags rootFlags
-	return newRootCmd(&flags)
 }
 
 // Execute runs the CLI in non-interactive mode: never prompts, all values via flags or stdin.
 func Execute() error {
 	var flags rootFlags
-	rootCmd := newRootCmd(&flags)
 
-	err := rootCmd.Execute()
-	if err != nil && strings.Contains(err.Error(), "unknown flag") {
-		msg := err.Error()
-		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
-		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
-			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
-			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
-				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
-			}
-		}
-	}
-	if err == nil && flags.deliverBuf != nil {
-		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
-			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
-			return derr
-		}
-	}
-	return err
-}
-
-func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:   "gemini-pp-cli",
-		Short: "Manage gemini resources via the gemini API",
-		Long: `Manage gemini resources via the gemini API.
-
-Add --agent to any command for JSON output + non-interactive mode.
-Run 'gemini-pp-cli doctor' to verify auth and connectivity.`,
+		Use:           "gemini-pp-cli",
+		Short:         "Manage gemini resources via the gemini API",
 		SilenceUsage: true,
 		Version:      version,
 	}
@@ -102,45 +57,15 @@ Run 'gemini-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.PersistentFlags().BoolVar(&flags.dryRun, "dry-run", false, "Show request without sending")
 	rootCmd.PersistentFlags().BoolVar(&flags.noCache, "no-cache", false, "Bypass response cache")
 	rootCmd.PersistentFlags().BoolVar(&flags.noInput, "no-input", false, "Disable all interactive prompts (for CI/agents)")
-	rootCmd.PersistentFlags().BoolVar(&flags.idempotent, "idempotent", false, "Treat already-existing create results as a successful no-op")
 	rootCmd.PersistentFlags().StringVar(&flags.selectFields, "select", "", "Comma-separated fields to include in output (e.g. --select id,name,status)")
 	rootCmd.PersistentFlags().BoolVar(&flags.yes, "yes", false, "Skip confirmation prompts (for agents and scripts)")
 	rootCmd.PersistentFlags().BoolVar(&noColor, "no-color", false, "Disable colored output")
 	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
 	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
-	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'gemini-pp-cli profile list')")
-	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
-		if flags.deliverSpec != "" {
-			sink, err := ParseDeliverSink(flags.deliverSpec)
-			if err != nil {
-				return err
-			}
-			flags.deliverSink = sink
-			if sink.Scheme != "stdout" && sink.Scheme != "" {
-				flags.deliverBuf = &bytes.Buffer{}
-				cmd.SetOut(io.MultiWriter(os.Stdout, flags.deliverBuf))
-			}
-		}
-		if flags.profileName != "" {
-			profile, err := GetProfile(flags.profileName)
-			if err != nil {
-				return err
-			}
-			if profile == nil {
-				available := ListProfileNames()
-				if len(available) == 0 {
-					return fmt.Errorf("profile %q not found (no profiles saved yet; run '%s profile save <name> --<flag> <value>')", flags.profileName, cmd.Root().Name())
-				}
-				return fmt.Errorf("profile %q not found; available: %s", flags.profileName, strings.Join(available, ", "))
-			}
-			if err := ApplyProfileToFlags(cmd, profile); err != nil {
-				return err
-			}
-		}
 		if flags.agent {
 			if !cmd.Flags().Changed("json") {
 				flags.asJSON = true
@@ -166,30 +91,39 @@ Run 'gemini-pp-cli doctor' to verify auth and connectivity.`,
 		}
 		return nil
 	}
-	rootCmd.AddCommand(newDoctorCmd(flags))
-	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
-	rootCmd.AddCommand(newProfileCmd(flags))
-	rootCmd.AddCommand(newFeedbackCmd(flags))
-	rootCmd.AddCommand(newWhichCmd(flags))
-	rootCmd.AddCommand(newImportCmd(flags))
-	rootCmd.AddCommand(newSyncCmd(flags))
-	rootCmd.AddCommand(newAnalyticsCmd(flags))
-	rootCmd.AddCommand(newWorkflowCmd(flags))
-	rootCmd.AddCommand(newAPICmd(flags))
-	rootCmd.AddCommand(newModelAsyncBatchEmbedContentPromotedCmd(flags))
-	rootCmd.AddCommand(newModelBatchEmbedContentsPromotedCmd(flags))
-	rootCmd.AddCommand(newModelBatchGenerateContentPromotedCmd(flags))
-	rootCmd.AddCommand(newModelCountTokensPromotedCmd(flags))
-	rootCmd.AddCommand(newModelEmbedContentPromotedCmd(flags))
-	rootCmd.AddCommand(newModelGenerateContentPromotedCmd(flags))
-	rootCmd.AddCommand(newModelStreamGenerateContentPromotedCmd(flags))
-	rootCmd.AddCommand(newModelsPromotedCmd(flags))
-	rootCmd.AddCommand(newNameCancelPromotedCmd(flags))
-	rootCmd.AddCommand(newNameUpdateEmbedContentBatchPromotedCmd(flags))
-	rootCmd.AddCommand(newNameUpdateGenerateContentBatchPromotedCmd(flags))
+	rootCmd.AddCommand(newModelAsyncBatchEmbedContentCmd(&flags))
+	rootCmd.AddCommand(newModelBatchEmbedContentsCmd(&flags))
+	rootCmd.AddCommand(newModelBatchGenerateContentCmd(&flags))
+	rootCmd.AddCommand(newModelCountTokensCmd(&flags))
+	rootCmd.AddCommand(newModelEmbedContentCmd(&flags))
+	rootCmd.AddCommand(newModelGenerateContentCmd(&flags))
+	rootCmd.AddCommand(newModelStreamGenerateContentCmd(&flags))
+	rootCmd.AddCommand(newNameCancelCmd(&flags))
+	rootCmd.AddCommand(newNameUpdateEmbedContentBatchCmd(&flags))
+	rootCmd.AddCommand(newNameUpdateGenerateContentBatchCmd(&flags))
+	rootCmd.AddCommand(newDoctorCmd(&flags))
+	rootCmd.AddCommand(newAuthCmd(&flags))
+	rootCmd.AddCommand(newExportCmd(&flags))
+	rootCmd.AddCommand(newImportCmd(&flags))
+	rootCmd.AddCommand(newSyncCmd(&flags))
+	rootCmd.AddCommand(newAnalyticsCmd(&flags))
+	rootCmd.AddCommand(newWorkflowCmd(&flags))
+	rootCmd.AddCommand(newAPICmd(&flags))
+	rootCmd.AddCommand(newModelsPromotedCmd(&flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
-	return rootCmd
+	err := rootCmd.Execute()
+	if err != nil && strings.Contains(err.Error(), "unknown flag") {
+		msg := err.Error()
+		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
+		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
+			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
+			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
+				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
+			}
+		}
+	}
+	return err
 }
 
 func ExitCode(err error) int {

@@ -20,9 +20,8 @@ func newAnalyticsCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 
 	cmd := &cobra.Command{
-		Use:         "analytics",
-		Short:       "Run analytics queries on locally synced data",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Use:   "analytics",
+		Short: "Run analytics queries on locally synced data",
 		Long: `Analyze locally synced data with count, group-by, and summary operations.
 Data must be synced first with the sync command.`,
 		Example: `  # Count records by type
@@ -38,7 +37,7 @@ Data must be synced first with the sync command.`,
 				dbPath = defaultDBPath("gemini-pp-cli")
 			}
 
-			db, err := store.OpenWithContext(cmd.Context(), dbPath)
+			db, err := store.Open(dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'gemini-pp-cli sync' first.", err)
 			}

@@ -1,11 +1,14 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-07T19:04:27.888592Z",
-  "printing_press_version": "4.0.2",
+  "generated_at": "2026-05-09T16:20:32.125449Z",
+  "printing_press_version": "4.2.0",
   "api_name": "gemini",
   "display_name": "Gemini",
   "cli_name": "gemini-pp-cli",
   "owner": "krishna-vardhan",
+  "printer": "Mamidi7",
+  "printer_name": "Krishna Vardhan Mamidi",
+  "owner_name": "Krishna Vardhan Mamidi",
   "spec_path": "/tmp/gemini-openapi.json",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:5a9a386c43615cd38ea96155ea0a655cd6206c0ee8be730069c25180c380574d",
@@ -13,17 +16,22 @@
   "mcp_tool_count": 11,
   "mcp_public_tool_count": 11,
   "mcp_ready": "full",
-  "api_version": "v1",
-  "auth_type": "none",
-  "run_id": "gen-20260508-003732",
+  "api_version": "v1beta",
+  "auth_type": "api_key",
+  "auth_env_vars": ["GEMINI_API_KEY"],
+  "run_id": "20260509-162032",
+  "category": "ai",
+  "description": "Google Gemini API — generate content, stream responses, embed text, count tokens, and manage batch jobs from the terminal. The first AI/ML API in the Printing Press ecosystem.",
   "novel_features": [
     {
       "name": "compound-insight",
+      "command": "compound-insight",
       "description": "Ask domain-level questions across all Gemini resources with cached local data"
     },
     {
       "name": "offline-search",
-      "description": "FTS5 full-text search across synced models and responses"
+      "command": "sync search",
+      "description": "FTS5 full-text search across synced models and responses, enabling offline query of previous generations and embeddings"
     }
   ],
   "research_brief_path": "research.json"
