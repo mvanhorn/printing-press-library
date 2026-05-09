@@ -1,0 +1,32 @@
+[cli]
+name = "govprocure"
+display_name = "Government Procurement CLI"
+description = "Search grants.gov, SAM.gov, and USASpending.gov — offline-first with SQLite local mirror, FTS5 search, and compound cross-source queries. The only open-source CLI for U.S. government procurement intelligence."
+version = "1.0.0"
+category = "government"
+printed_by = "@silentnw"
+license = "MIT"
+repo = "https://github.com/silentnw/govprocure-pp-cli"
+
+[cli.apis]
+primary = ["grants.gov", "sam.gov", "usaspending.gov"]
+auth_required = ["sam.gov"]
+free_apis = ["grants.gov", "usaspending.gov"]
+
+[cli.capabilities]
+local_mirror = true
+fts5_search = true
+mcp_server = true
+compound_commands = true
+agent_native = true
+
+[cli.commands]
+namespaces = ["grants", "sam", "usaspending", "compound"]
+top_level = ["doctor", "sync", "auth"]
+
+[cli.install]
+binary = "govprocure-pp-cli"
+skill = "pp-govprocure"
+
+[cli.tags]
+tags = ["government", "procurement", "grants", "federal", "sdvosb", "sam-gov", "usaspending", "compliance"]

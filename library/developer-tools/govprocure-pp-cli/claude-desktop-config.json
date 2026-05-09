@@ -1,0 +1,10 @@
+{
+  "_comment": "Add this to your Claude Desktop config at: %APPDATA%\\Claude\\claude_desktop_config.json",
+  "mcpServers": {
+    "govprocure": {
+      "command": "C:\\Users\\silent\\go\\bin\\govprocure-pp-cli.exe",
+      "args": ["mcp"],
+      "_note": "Run 'govprocure sync all' first to populate the local database"
+    }
+  }
+}

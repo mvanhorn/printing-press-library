@@ -1,0 +1,64 @@
+# Smithery.ai listing for govprocure-pp-cli MCP server
+# https://smithery.ai
+
+name: govprocure
+displayName: GovProcure — Federal Procurement Intelligence
+description: |
+  Search and analyze federal procurement data from grants.gov, SAM.gov, and USASpending.gov.
+  Maintains a local SQLite mirror with FTS5 full-text search for fast, offline-capable queries.
+  Built for government contractors, grant writers, and procurement professionals.
+
+version: "1.0.0"
+author: Silent Northwest LLC
+license: MIT
+homepage: https://northwest.net/govprocure/
+repository: https://github.com/silentnw/govprocure-pp-cli
+
+categories:
+  - government
+  - procurement
+  - research
+  - data
+
+tools:
+  - name: search_grants
+    description: Full-text search grants.gov opportunities
+
+  - name: search_sam
+    description: Full-text search SAM.gov contract opportunities
+
+  - name: search_awards
+    description: Full-text search USASpending.gov historical awards
+
+  - name: get_grant
+    description: Fetch a single grant by opportunity ID
+
+  - name: get_sam_notice
+    description: Fetch a single SAM notice by notice ID
+
+  - name: grants_closing_soon
+    description: List grants closing within N days
+
+  - name: sam_by_set_aside
+    description: Filter SAM opportunities by set-aside type (SDVOSB, WOSB, 8a, HUBZone)
+
+  - name: agency_profile
+    description: Full agency intelligence card with awards history
+
+  - name: sync_status
+    description: Show data freshness for each source
+
+startCommand:
+  type: stdio
+  command: govprocure-pp-cli
+  args: ["mcp"]
+
+# Claude Desktop config snippet (add to claude_desktop_config.json):
+# {
+#   "mcpServers": {
+#     "govprocure": {
+#       "command": "C:/path/to/govprocure-pp-cli.exe",
+#       "args": ["mcp"]
+#     }
+#   }
+# }
