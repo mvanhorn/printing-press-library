@@ -9,7 +9,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/peloton/internal/cli.Version={{ .Version }}
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/peloton/internal/cli.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -39,3 +39,13 @@ archives:
         formats: [zip]
 checksum:
   name_template: checksums.txt
+brews:
+  - name: peloton-pp-cli
+    repository:
+      owner: twidtwid
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Workout, ride, and music history from your Peloton account in the terminal. First catalog CLI to harvest the Auth0..."
+    install: |
+      bin.install "peloton-pp-cli"
+      bin.install "peloton-pp-mcp"

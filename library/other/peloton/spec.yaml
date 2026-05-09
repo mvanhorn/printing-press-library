@@ -1,8 +1,16 @@
 name: peloton
 display_name: Peloton
-description: Peloton workout, ride, and music history CLI — auth via Auth0 SPA browser harvest. No public API; reverse-engineered from members.onepeloton.com.
+description: Peloton workout, ride, and music history API. No public spec — reverse-engineered from the members.onepeloton.com Auth0 SPA. Endpoint paths and response shapes can shift unannounced; the auth bearer token is harvested from Auth0 SPA localStorage rather than a documented OAuth flow.
+cli_description: Workout, ride, and music history from your Peloton account in the terminal. First catalog CLI to harvest the Auth0 SPA bearer token from a browser session, then mirror history into a local SQLite store with FTS5 search.
 version: 0.1.0
 base_url: https://api.onepeloton.com/api
+spec_source: sniffed
+category: other
+owner: twidtwid
+owner_name: Todd Dailey
+printer: twidtwid
+printer_name: Todd Dailey
+
 auth:
   type: bearer_token
   header: Authorization
@@ -17,22 +25,194 @@ auth:
       kind: auth_flow_input
       required: false
       sensitive: false
-      description: Peloton account email; consumed by `auth login` to pre-fill the sign-in form. Browser auth still works without it (you sign in interactively).
+      description: Peloton account email or username consumed by `auth login` to pre-fill the Auth0 sign-in form. Optional — you can sign in by hand inside the spawned Chrome window.
     - name: PELOTON_PASSWORD
       kind: auth_flow_input
       required: false
       sensitive: true
-      description: Peloton account password; consumed by `auth login`. Skip if you prefer to type it in the browser window each time.
+      description: Peloton account password consumed by `auth login` to pre-fill the Auth0 sign-in form. Optional — you can sign in by hand.
     - name: PELOTON_TOKEN
       kind: harvested
       required: false
       sensitive: true
-      description: Bearer token populated by `auth login` (extracted from Auth0 SPA localStorage). Do not set manually.
+      description: Bearer token populated automatically by `auth login` and read by authenticated commands. Do not set manually — use `auth login` instead. The token is the Auth0 SPA `body.access_token` extracted from the `@@auth0spajs@@::<client_id>::https://api.onepeloton.com/::openid offline_access` localStorage entry; lifetime is ~1 hour Peloton-side.
+  requires_browser_session: true
+  browser_session_reason: |
+    Peloton ships no public API. Authentication flows through Auth0's
+    `@auth0/auth0-spa-js` SDK on members.onepeloton.com, which caches the
+    OAuth response in localStorage under
+    `@@auth0spajs@@::<client_id>::https://api.onepeloton.com/::openid offline_access`.
+    `auth login` spawns Chrome via chromedp, lets the user sign in
+    interactively, then reads `body.access_token` from that cache key.
+    The Auth0 client_id is discovered at runtime so a Peloton client
+    rotation doesn't break the harvester. There is no programmatic
+    alternative — a direct OAuth token endpoint is not exposed.
+  browser_session_validation_path: /me
+  browser_session_validation_method: GET
 
-notes: |
-  Peloton uses Auth0 SPA — the access_token lives in browser localStorage at
-  @@auth0spajs@@::<client_id>::https://api.onepeloton.com/::openid offline_access
-  not in any cleanly-readable response body. This CLI spawns a chromedp Chrome
-  window, lets you sign in (handles captchas, 2FA, anything Auth0 throws), then
-  harvests the token by JS-evaluating against localStorage. Tokens last ~1 hour;
-  re-run `auth login` when expired (the persistent Chrome profile makes it fast).
+config:
+  format: toml
+  path: ~/.config/peloton-pp-cli/config.toml
+
+resources:
+  identity:
+    description: Authenticated user identity
+    endpoints:
+      me:
+        method: GET
+        path: /me
+        description: Get the authenticated user's identity (id, username, profile fields). Used implicitly by every workout query to resolve the user_id.
+        params: []
+        body: []
+        response:
+          type: object
+          item: User
+        pagination: null
+        no_auth: false
+
+  workouts:
+    description: Workout history (list, show)
+    endpoints:
+      list:
+        method: GET
+        path: /user/{userID}/workouts
+        description: List the authenticated user's workouts, newest-first. Uses joins=ride,ride.instructor to pull the ride title, instructor name, and ride id alongside each workout.
+        params:
+          - name: userID
+            type: string
+            required: true
+            positional: true
+            description: Peloton user id (32-char hex from `me`). The auth0|<id> prefix on the Auth0 sub claim is stripped — pass the bare id only.
+          - name: page
+            type: integer
+            required: false
+            positional: false
+            default: 0
+            description: Zero-indexed page number
+          - name: limit
+            type: integer
+            required: false
+            positional: false
+            default: 20
+            description: Page size (Peloton caps around 50)
+          - name: joins
+            type: string
+            required: false
+            positional: false
+            default: "ride,ride.instructor"
+            description: Comma-separated entity joins. The default pulls ride metadata + instructor name with the same shape the SPA uses.
+        body: []
+        response:
+          type: array
+          item: Workout
+        pagination:
+          type: page
+        no_auth: false
+
+      get:
+        method: GET
+        path: /workout/{workoutID}
+        description: Get a single workout by id, with the same ride/instructor join surface as `list`.
+        params:
+          - name: workoutID
+            type: string
+            required: true
+            positional: true
+            description: Workout id (32-char hex)
+          - name: joins
+            type: string
+            required: false
+            positional: false
+            default: "ride,ride.instructor"
+            description: Entity joins
+        body: []
+        response:
+          type: object
+          item: Workout
+        pagination: null
+        no_auth: false
+
+  rides:
+    description: Ride metadata and playlists
+    endpoints:
+      details:
+        method: GET
+        path: /ride/{rideID}/details
+        description: "Get a ride's metadata and playlist (song order, artists, in-class liked-flag, start-time offsets). The workout's ride_id from `workouts list` is the input here. Some on-demand rides ship with empty playlists (instructor talk-only) — that's a normal `playlist.songs: []`, not an error."
+        params:
+          - name: rideID
+            type: string
+            required: true
+            positional: true
+            description: Ride id (32-char hex)
+        body: []
+        response:
+          type: object
+          item: RideDetails
+        pagination: null
+        no_auth: false
+
+types:
+  User:
+    fields:
+      - name: id
+        type: string
+      - name: username
+        type: string
+
+  Workout:
+    fields:
+      - name: id
+        type: string
+      - name: ride_id
+        type: string
+      - name: workout_date
+        type: string
+      - name: workout_time
+        type: string
+      - name: fitness_discipline
+        type: string
+      - name: title
+        type: string
+      - name: instructor
+        type: string
+      - name: duration_seconds
+        type: integer
+      - name: total_output_kj
+        type: number
+      - name: calories
+        type: integer
+      - name: avg_heart_rate
+        type: integer
+      - name: max_heart_rate
+        type: integer
+
+  Song:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: artists
+        type: array
+      - name: album
+        type: string
+      - name: genres
+        type: array
+      - name: liked
+        type: boolean
+      - name: index
+        type: integer
+      - name: start_time_offset
+        type: integer
+
+  RideDetails:
+    fields:
+      - name: ride_id
+        type: string
+      - name: title
+        type: string
+      - name: duration
+        type: integer
+      - name: songs
+        type: array

@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-172619",
+  "base_printing_press_version": "4.0.6",
+  "patches": [
+    {
+      "id": "auth-login-chromedp-auth0",
+      "summary": "Add `auth login` chromedp + Auth0 SPA localStorage harvest as a sibling to press-emitted auth.go.",
+      "reason": "The press's auth_simple.go.tmpl emits set-token/status/logout for bearer_token auth, but Peloton's bearer is gated behind Auth0 SPA login — there is no public token-issue endpoint, and pasting from DevTools is the only manual alternative. Mirrors the dominos pattern (auth_login.go alongside auth.go).",
+      "files": [
+        "internal/cli/auth_login.go",
+        "internal/cli/auth.go"
+      ],
+      "validated_outcome": "`peloton-pp-cli auth login` opens Chrome via chromedp, polls localStorage for the Auth0 SPA cache key, extracts body.access_token, saves via cfg.SaveTokens. The bare auth.go AddCommand list now includes newAuthLoginCmd."
+    },
+    {
+      "id": "novel-feature-discoveries",
+      "summary": "Add `discoveries` novel command — walks recent workouts, fetches each ride's playlist in parallel, collects songs flagged liked=true in-class, dedupes by song id with a times_played counter.",
+      "reason": "No Peloton UI surfaces this view; likes are stored Peloton-side per ride playback rather than per-song globally. This is the original peloton-pp-cli's headline novel feature and the kind of compound use case the catalog's transcendence rubric expects. Uses the press's typed Cobra flags + agent-output helpers (printJSONFiltered) so --agent / --select / --json / --compact all work.",
+      "files": [
+        "internal/cli/discoveries.go",
+        "internal/cli/root.go"
+      ],
+      "validated_outcome": "`peloton-pp-cli discoveries --help` registers cleanly. RunE uses flags.newClient() + the press's generic Get(path, params) client, mirroring the press-emitted endpoint commands."
+    }
+  ],
+  "upstream_tracking": [
+    {
+      "issue": "press lacks localStorage-harvest auth template",
+      "context": "auth_browser.go.tmpl currently handles browser-cookie auth only (cookie/composed types via pycookiecheat). Auth0 SPA APIs that cache tokens in localStorage (Peloton, plausibly others) need a chromedp + localStorage-key-scan template path. Until then, sites in this class fall back to the dominos pattern of hand-adding auth_login.go."
+    },
+    {
+      "issue": "auth_simple.go.tmpl AuthHeader() treats auth_flow_input env vars as candidate bearer tokens",
+      "context": "When auth.type=bearer_token and the spec declares auth_flow_input env vars (PELOTON_USERNAME, PELOTON_PASSWORD), the emitted AuthHeader() checks them BEFORE falling through to AccessToken. With PELOTON_USERNAME exported in the shell, every API call sends `Authorization: Bearer <username>` and 401s, even when a valid access_token is saved. Reproduced on this CLI: `export PELOTON_USERNAME=anything; peloton-pp-cli identity me` → HTTP 401. Workaround documented in README (inline-scope env vars on `auth login` only, never `export`). Suggested fix upstream: respect AuthEnvVarKind — `auth_flow_input` and `harvested` should never be tried as the bearer token; only `per_call`-kind vars and AccessToken should populate AuthHeader."
+    }
+  ]
+}

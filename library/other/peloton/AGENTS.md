@@ -1,91 +1,71 @@
-# peloton-pp-cli — Agent Guide
+# Peloton Printed CLI Agent Guide
 
-This directory ships a hand-rolled `peloton-pp-cli` printed CLI. It is
-**not** generator-emitted — there is no Peloton OpenAPI spec to feed
-[CLI Printing Press](https://github.com/mvanhorn/cli-printing-press), so
-every endpoint is reverse-engineered from the `members.onepeloton.com`
-SPA and the cobra command tree is hand-written. Treat shape changes
-(SKILL.md frontmatter, README sections, exit-code conventions) as
-upstream Printing Press conventions worth aligning with; treat
-endpoint / field changes as local Peloton-SPA-shifted-on-us bugs to fix
-in `internal/client/`.
+This directory is a generated `peloton-pp-cli` printed CLI. It was produced by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press), so treat systemic fixes as upstream Printing Press fixes first. Keep local edits narrow and document why a generated-tree patch belongs here.
 
 ## Local Operating Contract
 
-This CLI does **not** ship the generator-template `--agent` /
-`--select` / `--deliver` / `--profile` / `feedback` / `doctor` /
-`agent-context` / `which` suite. The contract is leaner; agents should
-rely on:
-
-- **Auto-JSON when piped.** Every list/show/search command emits JSON
-  to stdout when stdout is not a TTY. `--json` forces it on a TTY.
-- **`--compact`** projects to high-gravity fields (one-line JSON,
-  60–80% token reduction). Implies `--json`.
-- **Typed exit codes** (0 / 2 / 3 / 4 / 5 / 7) — see SKILL.md.
-- **`peloton-pp-cli --help`** + `peloton-pp-cli <command> --help`
-  for runtime discovery. There is no `which` or `agent-context`
-  subcommand.
-
-Before touching local state, prefer to read first:
+Start by asking the generated CLI for current runtime truth:
 
 ```bash
-peloton-pp-cli auth status     # is a token even saved?
-peloton-pp-cli me              # who's it for, how old is it?
-peloton-pp-cli sync --limit 1  # tiny smoke before a full backfill
+peloton-pp-cli doctor --json
+peloton-pp-cli agent-context --pretty
 ```
 
-`auth login` is the **only** command that spawns Chrome; do not run it
-from a long-lived agent loop. Bootstrap interactively, then run
-everything else against the saved token.
+Use runtime discovery instead of relying on a copied command list:
 
-## Reverse-engineering posture
+```bash
+peloton-pp-cli which "<capability>" --json
+peloton-pp-cli <command> --help
+```
 
-Every endpoint and the Auth0 localStorage harvest are reverse-engineered
-from members.onepeloton.com SPA traffic. When something breaks:
+Add `--agent` to command invocations for JSON, compact output, non-interactive defaults, no color, and confirmation-safe scripting:
 
-1. Open `members.onepeloton.com` in a real browser, open DevTools
-   Network tab, and reproduce the action that's broken (load workouts,
-   open a ride detail page, etc.).
-2. Compare the live SPA request/response shape against the on-the-wire
-   types in `internal/client/client.go` (`rawWorkout`, `rawRideDetails`,
-   `rawList`).
-3. Patch the `raw*` types and the projection in `fromRaw` /
-   `GetRideDetails`; keep the public `Workout` / `RideDetails` /
-   `Song` shapes stable so callers (CLI, MCP, store) don't have to
-   move in lockstep.
+```bash
+peloton-pp-cli <command> --agent
+```
 
-If the Auth0 SPA cache key format itself changes, fix
-`readTokenExpr` in `internal/cli/auth_login.go` — the JS scans
-`localStorage` for the prefix and the `body.access_token` shape, so a
-key-format shift is the most likely break.
+Before running an unfamiliar command that may mutate remote state, inspect its help and prefer a dry run:
+
+```bash
+peloton-pp-cli <command> --help
+peloton-pp-cli <command> --dry-run --agent
+```
+
+Use `--yes --no-input` only after the target, arguments, and side effects are clear.
+
+For install, auth, examples, and longer product guidance, read `README.md` and `SKILL.md`. This file intentionally stays small so repo-local agents get invariant local guidance without duplicating the generated docs.
 
 ## Local Customizations
 
-This CLI was hand-rolled, so the
-`.printing-press-patches.json` convention used by generator-emitted
-CLIs does not apply here directly. Code-level customizations should
-still be marked at the call site with a one-line comment:
+If you modify this CLI beyond what the generator produced, record each customization so it isn't lost on the next regen and is visible to the next reader.
 
-```go
-// PATCH: <one-line summary of why this differs from the obvious shape>
-```
+1. **Mark every changed site** in source with a comment summarizing the deviation:
 
-…so a future maintainer can `grep -rn 'PATCH' .` and surface every
-intentional deviation. There's no separate manifest to update beyond
-that.
+    ```
+    // PATCH: <one-line summary>
+    ```
 
-## Testing against a real account
+    Include an upstream reference inline when there is one (e.g. `// PATCH(upstream cli-printing-press#<issue>): ...`). `grep -rn 'PATCH' .` from this directory then surfaces every customization.
 
-Live tests need a Peloton account. The smoke loop is:
+2. **Catalog the change** in a `.printing-press-patches.json` at this CLI's root (parallel to `.printing-press.json`). Minimum shape:
 
-```bash
-go build ./... && go vet ./...
-go build -o /tmp/peloton-pp-cli ./cmd/peloton-pp-cli
-/tmp/peloton-pp-cli auth status                 # exits 4 if no token
-/tmp/peloton-pp-cli workouts list --limit 3     # newest-first, JSON when piped
-/tmp/peloton-pp-cli sync --limit 5              # populate the local store
-/tmp/peloton-pp-cli search 'house' --limit 5    # FTS5 sanity
-```
+    ```json
+    {
+      "schema_version": 1,
+      "applied_at": "YYYY-MM-DD",
+      "base_run_id": "<copy from .printing-press.json>",
+      "base_printing_press_version": "<copy from .printing-press.json>",
+      "patches": [
+        {
+          "id": "short-identifier",
+          "summary": "What changed (one sentence).",
+          "reason": "Why this customization was needed (one or two sentences).",
+          "files": ["internal/cli/foo.go"],
+          "validated_outcome": "Optional: non-obvious test result that confirms the fix.",
+          "upstream_issue": "Optional: https://github.com/mvanhorn/cli-printing-press/issues/<n>"
+        }
+      ]
+    }
+    ```
 
-If `workouts list` returns an empty array but `me` looks healthy, the
-saved token is probably stale — `auth login` again.
+This file is an **index of customizations**, not a second copy of the diff. Diffs live in `git`; code lives in the source files; the inline `// PATCH:` comment carries the local semantics. Keep `summary` and `reason` short -- if you find yourself writing tables of field renames or code transformations, that detail belongs in the source comment or commit message, not here.

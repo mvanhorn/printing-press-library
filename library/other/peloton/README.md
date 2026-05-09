@@ -1,157 +1,265 @@
-# peloton-pp-cli
+# Peloton CLI
 
-Workout, ride, and music history from your Peloton account in the terminal.
+Peloton workout, ride, and music history API. No public spec — reverse-engineered from the members.onepeloton.com Auth0 SPA. Endpoint paths and response shapes can shift unannounced; the auth bearer token is harvested from Auth0 SPA localStorage rather than a documented OAuth flow.
 
-The first catalog CLI to harvest the Auth0 SPA bearer token from the
-`members.onepeloton.com` browser session, then mirror your history
-(workouts → rides → liked songs) into a local SQLite store with FTS5 search.
+Learn more at [Peloton](https://api.onepeloton.com).
 
-## Fragility notice
-
-Peloton ships **no public API**. Every endpoint and the Auth0 localStorage
-harvest are reverse-engineered from members.onepeloton.com SPA traffic.
-Endpoint paths, response shapes, the Auth0 client_id, the localStorage key
-format, and the login form selectors can change unannounced — expect
-occasional breakage and patch as needed. If a previously-working command
-starts returning HTTP errors or unexpected JSON shapes, the upstream
-likely shifted; open an issue or send a patch.
-
-## Quick start
-
-```bash
-# 1. Install (Go 1.26.3 or newer)
-go install github.com/mvanhorn/printing-press-library/library/other/peloton/cmd/peloton-pp-cli@latest
-
-# 2. Sign in. Spawns a Chrome window; sign in normally — the CLI
-#    extracts the Auth0 bearer token from localStorage.
-export PELOTON_USERNAME='you@example.com' PELOTON_PASSWORD='…'   # optional, prefills form
-peloton-pp-cli auth login
-
-# 3. Confirm
-peloton-pp-cli me
-
-# 4. Browse, sync, search
-peloton-pp-cli workouts list --limit 10
-peloton-pp-cli sync --limit 500          # mirror to ~/.local/share/peloton-pp-cli/peloton.db
-peloton-pp-cli search 'cody rigsby'      # FTS5 over the local mirror
-```
-
-## Commands
-
-| Command | Purpose |
-|---|---|
-| `auth login` | Spawn Chrome, sign in, harvest the Auth0 SPA token |
-| `auth status` | Show whether a token is saved and how old it is |
-| `me [--refresh]` | Print cached identity; `--refresh` re-fetches `/api/me` |
-| `workouts list [--limit N]` | Recent workouts, newest-first |
-| `workouts show <id>` | One workout's full details |
-| `ride show <ride-id>` | Ride metadata + playlist (song order, artists, liked-flag) |
-| `discoveries [--limit N]` | Liked-in-class songs across recent rides, deduped with `times_played` |
-| `sync [--limit N] [--full] [--no-rides]` | Mirror workouts (and ride playlists) into local SQLite |
-| `search <query> [--limit N]` | FTS5 over synced workouts + songs, interleaved by bm25 |
-| `version` | Print version |
-
-Every list/show/search command auto-emits JSON when stdout is not a TTY,
-or with `--json`. `--compact` projects to high-gravity fields and one-line
-JSON (typical 60–80% token reduction). All commands return typed exit
-codes (0 / 2 / 3 / 4 / 5 / 7) — see SKILL.md.
-
-## How auth works
-
-`auth login` uses [chromedp](https://github.com/chromedp/chromedp) to spawn
-a Chrome window pointed at `members.onepeloton.com/login`. Once you sign
-in, Auth0 caches the OAuth response in `localStorage` under a key shaped
-like:
-
-```
-@@auth0spajs@@::<client_id>::https://api.onepeloton.com/::openid offline_access
-```
-
-The CLI scans `localStorage` for that prefix, reads the `body.access_token`,
-and writes it to `~/.config/peloton-pp-cli/config.toml` (mode 0600). The
-client_id is discovered at runtime from the localStorage key, not
-hardcoded — so a Peloton client rotation doesn't break the harvester.
-
-The Chrome profile persists at `~/.config/peloton-pp-cli/chrome/`, so once
-you've signed in once, subsequent `auth login` calls reuse session cookies
-and finish in seconds (still need a fresh token because Auth0 expires the
-access token after about an hour).
-
-## How sync works
-
-`peloton sync` walks `/api/user/{id}/workouts` newest-first, upserts every
-workout into the local SQLite store, then by default fetches
-`/api/ride/{id}/details` for every ride not already hydrated. Concurrency
-is capped at 4 in flight (matches what the SPA does when prefetching
-adjacent ride pages).
-
-The walk is **incremental**: pagination stops the first time a page is
-fully contained in the already-stored ids — Peloton ships
-reverse-chronological, so the rest of the feed is older still. Use
-`--full` to disable the early-stop and walk every page up to `--limit`.
-
-The schema (`internal/store/store.go`) is hand-rolled relational, not
-the generator's generic `resources(id, type, data JSON)` bag:
-`workouts → rides → ride_songs → songs`, with FTS5 virtual tables over
-`workouts(title, instructor)` and `songs(title, artists, album)`.
-Driver is [`modernc.org/sqlite`](https://gitlab.com/cznic/sqlite) (pure
-Go, no CGO) so `go install` works on stock toolchains.
-
-## Files this CLI writes
-
-| Path | What |
-|---|---|
-| `~/.config/peloton-pp-cli/config.toml` | Bearer token + cached user_id/username (mode 0600) |
-| `~/.config/peloton-pp-cli/chrome/` | Persistent Chrome profile for `auth login` |
-| `~/.local/share/peloton-pp-cli/peloton.db` | SQLite store populated by `sync` |
-
-Delete any of these to start fresh; nothing is sent off-machine besides
-authenticated requests to `api.onepeloton.com`.
-
-## Known gaps
-
-- **No mutation surface.** This CLI is read-only. It cannot start
-  workouts, mark workouts complete, like songs, follow members, or
-  change any account state. Mutations are out of scope.
-- **No music-stream URL.** The ride playlist surfaces title, artists,
-  album, and Peloton's in-class liked-flag, but not the actual streaming
-  URL — Peloton stores tracks behind their own catalog and the SPA
-  fetches a per-session `stream_url` we don't surface.
-- **No FTP / power-zone / cycling-segment data.** The trimmed `Workout`
-  shape drops 50+ fields the SPA uses for the in-class UI. Add what you
-  need to `internal/client/client.go` if a downstream workflow wants more.
-- **No multi-account.** Token + db live in fixed config paths; running
-  against more than one Peloton account at the same time isn't supported.
+Printed by [@twidtwid](https://github.com/twidtwid) (Todd Dailey).
 
 ## Install
 
-### Via the Printing Press installer (recommended)
+The recommended path installs both the `peloton-pp-cli` binary and the `pp-peloton` agent skill in one shot:
+
+```bash
+npx -y @mvanhorn/printing-press install peloton
+```
+
+For CLI only (no skill):
 
 ```bash
 npx -y @mvanhorn/printing-press install peloton --cli-only
 ```
 
-Adds the CLI to `$GOPATH/bin` and installs the agent skill to your
-default skills directory.
 
-### Via `go install`
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/other/peloton/cmd/peloton-pp-cli@latest
 ```
 
-### MCP server
+This installs the CLI only — no skill.
 
-Once the MCP binary lands, register it with Claude Code:
+### Pre-built binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/peloton-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
+
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-peloton --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-peloton --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-peloton skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-peloton. The skill defines how its required CLI can be installed.
+```
+
+## Quick Start
+
+### 1. Install
+
+See [Install](#install) above.
+
+### 2. Sign in (Auth0 SPA browser harvest)
+
+Peloton publishes no token portal — every endpoint sits behind a bearer token issued by Auth0's SPA on `members.onepeloton.com`. The fastest path is `auth login`, which spawns Chrome via chromedp, lets you sign in interactively (handles 2FA / captcha / "verify it's you"), then extracts the token from `localStorage` and saves it to `~/.config/peloton-pp-cli/config.toml`:
+
+```bash
+peloton-pp-cli auth login
+```
+
+Optionally pre-fill the form. **Pass these inline (single-command scope), don't `export` them** — the generated CLI tries `PELOTON_USERNAME` as a bearer token if it stays in the env:
+
+```bash
+PELOTON_USERNAME='you@onepeloton.com' PELOTON_PASSWORD='…' peloton-pp-cli auth login
+```
+
+The Chrome profile persists at `~/.config/peloton-pp-cli/chrome/`, so subsequent logins reuse session cookies and finish in seconds (form prefill isn't even needed once cookies are set). Tokens last about an hour Peloton-side; re-run `auth login` when they expire.
+
+**Manual fallback:** if you'd rather not use the browser harvest, sign in to `members.onepeloton.com` in your own browser, open DevTools → Network, copy the `Authorization: Bearer …` value off any API request, then paste it:
+
+```bash
+peloton-pp-cli auth set-token <paste-token-here>
+```
+
+### 3. Verify Setup
+
+```bash
+peloton-pp-cli doctor
+```
+
+This checks your configuration and credentials.
+
+### 4. Try Your First Command
+
+```bash
+peloton-pp-cli workouts list mock-value
+```
+
+## Usage
+
+Run `peloton-pp-cli --help` for the full command reference and flag list.
+
+## Commands
+
+### identity
+
+Authenticated user identity
+
+- **`peloton-pp-cli identity me`** - Get the authenticated user's identity (id, username, profile fields). Used implicitly by every workout query to resolve the user_id.
+
+### rides
+
+Ride metadata and playlists
+
+- **`peloton-pp-cli rides details`** - Get a ride's metadata and playlist (song order, artists, in-class liked-flag, start-time offsets). The workout's ride_id from `workouts list` is the input here. Some on-demand rides ship with empty playlists (instructor talk-only) — that's a normal `playlist.songs: []`, not an error.
+
+### workouts
+
+Workout history (list, show)
+
+- **`peloton-pp-cli workouts get`** - Get a single workout by id, with the same ride/instructor join surface as `list`.
+- **`peloton-pp-cli workouts list`** - List the authenticated user's workouts, newest-first. Uses joins=ride,ride.instructor to pull the ride title, instructor name, and ride id alongside each workout.
+
+
+## Output Formats
+
+```bash
+# Human-readable table (default in terminal, JSON when piped)
+peloton-pp-cli workouts list mock-value
+
+# JSON for scripting and agents
+peloton-pp-cli workouts list mock-value --json
+
+# Filter to specific fields
+peloton-pp-cli workouts list mock-value --json --select id,name,status
+
+# Dry run — show the request without sending
+peloton-pp-cli workouts list mock-value --dry-run
+
+# Agent mode — JSON + compact + no prompts in one flag
+peloton-pp-cli workouts list mock-value --agent
+```
+
+## Agent Usage
+
+This CLI is designed for AI agent consumption:
+
+- **Non-interactive** - never prompts, every input is a flag
+- **Pipeable** - `--json` output to stdout, errors to stderr
+- **Filterable** - `--select id,name` returns only fields you need
+- **Previewable** - `--dry-run` shows the request without sending
+- **Read-only by default** - this CLI does not create, update, delete, publish, send, or mutate remote resources
+- **Offline-friendly** - sync/search commands can use the local SQLite store when available
+- **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
+
+Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
+
+## Use with Claude Code
+
+Install the focused skill — it auto-installs the CLI on first invocation:
+
+```bash
+npx skills add mvanhorn/printing-press-library/cli-skills/pp-peloton -g
+```
+
+Then invoke `/pp-peloton <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
+
+<details>
+<summary>Use as an MCP server in Claude Code (advanced)</summary>
+
+If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
+
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/other/peloton/cmd/peloton-pp-mcp@latest
-claude mcp add peloton-pp-mcp -- peloton-pp-mcp
 ```
 
-The MCP server expects `auth login` to have already saved a token; it
-cannot itself drive the browser.
+Then register it:
 
-## License
+```bash
+claude mcp add peloton peloton-pp-mcp -e PELOTON_USERNAME=<your-token>
+```
 
-Apache-2.0. See `LICENSE` and `NOTICE`.
+</details>
+
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/peloton-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `PELOTON_USERNAME` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/other/peloton/cmd/peloton-pp-mcp@latest
+```
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "peloton": {
+      "command": "peloton-pp-mcp",
+      "env": {
+        "PELOTON_USERNAME": "<your-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+## Health Check
+
+```bash
+peloton-pp-cli doctor
+```
+
+Verifies configuration, credentials, and connectivity to the API.
+
+## Configuration
+
+Config file: `~/.config/peloton-pp-cli/config.toml`
+
+Static request headers can be configured under `headers`; per-command header overrides take precedence.
+
+Environment variables:
+
+| Name | Kind | Required | Description |
+| --- | --- | --- | --- |
+| `PELOTON_USERNAME` | auth_flow_input | No | Peloton account email or username consumed by `auth login` to pre-fill the Auth0 sign-in form. Optional — you can sign in by hand inside the spawned Chrome window. |
+| `PELOTON_PASSWORD` | auth_flow_input | No | Set during initial auth setup. |
+| `PELOTON_TOKEN` | harvested | No | Populated automatically by auth login. |
+
+## Troubleshooting
+**Authentication errors (exit code 4)**
+- Run `peloton-pp-cli doctor` to check credentials
+- Verify the environment variable is set: `echo $PELOTON_USERNAME`
+**Not found errors (exit code 3)**
+- Check the resource ID is correct
+- Run the `list` command to see available items
+
+## HTTP Transport
+
+This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It does not require a resident browser process for normal API calls.
+
+---
+
+Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)

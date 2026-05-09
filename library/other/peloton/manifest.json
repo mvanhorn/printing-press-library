@@ -2,10 +2,10 @@
   "manifest_version": "0.3",
   "name": "peloton-pp-mcp",
   "display_name": "Peloton",
-  "version": "0.1.0",
-  "description": "Workout, ride, and music history from your Peloton account. Reverse-engineered from members.onepeloton.com SPA traffic — Peloton ships no public API, expect occasional breakage.",
+  "version": "4.2.0",
+  "description": "Workout, ride, and music history from your Peloton account in the terminal. First catalog CLI to harvest the Auth0 SPA bearer token from a browser session, then mirror history into a local SQLite store with FTS5 search.",
   "author": {
-    "name": "Todd Dailey"
+    "name": "CLI Printing Press"
   },
   "license": "Apache-2.0",
   "server": {
@@ -18,7 +18,34 @@
   },
   "compatibility": {
     "claude_desktop": ">=1.0.0",
-    "platforms": ["darwin", "linux", "win32"]
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  },
+  "user_config": {
+    "peloton_username": {
+      "type": "string",
+      "title": "PELOTON_USERNAME",
+      "description": "Peloton account email or username consumed by `auth login` to pre-fill the Auth0 sign-in form. Optional — you can sign in by hand inside the spawned Chrome window. Pass inline-scope only (do not export); `auth_simple.go.tmpl AuthHeader()` precedence currently treats this as a candidate bearer token.",
+      "sensitive": false,
+      "required": false
+    },
+    "peloton_password": {
+      "type": "string",
+      "title": "PELOTON_PASSWORD",
+      "description": "Peloton account password consumed by `auth login` to pre-fill the Auth0 sign-in form. Optional. Inline-scope only.",
+      "sensitive": true,
+      "required": false
+    },
+    "peloton_token": {
+      "type": "string",
+      "title": "PELOTON_TOKEN",
+      "description": "Bearer token populated automatically by `auth login` (extracted from Auth0 SPA localStorage); read by authenticated commands. Do not set manually — use `auth login` instead. Lifetime ~1 hour Peloton-side.",
+      "sensitive": true,
+      "required": false
+    }
   },
   "cli_binary": "peloton-pp-cli"
 }

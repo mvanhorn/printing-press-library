@@ -1,4 +1,13 @@
-// Copyright 2026 Todd Dailey. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 twidtwid. Licensed under Apache-2.0. See LICENSE.
+//
+// PATCH(catalog/peloton): adds `auth login` chromedp + Auth0 SPA localStorage
+// harvest. The press's auth_simple.go.tmpl emits set-token/status/logout for
+// bearer_token auth, but Peloton's bearer is gated behind Auth0 SPA login —
+// users can't paste it without first scraping it from DevTools. This file
+// adds a press-spec-friendly browser harvest so the standard `auth login`
+// catalog convention works. Mirrors the dominos pattern (auth_login.go
+// sibling to press-emitted auth.go). Recorded in
+// .printing-press-patches.json.
 
 package cli
 
@@ -23,7 +32,7 @@ import (
 const loginURL = "https://members.onepeloton.com/login"
 
 // readTokenExpr scans localStorage for the Auth0 SPA cache key and returns
-// the access_token + cached user profile as a JSON envelope. Discovers the
+// the access_token + cached user id as a JSON envelope. Discovers the
 // client_id at evaluation time rather than hardcoding so a Peloton client
 // rotation doesn't break the harvest. Auth0 stores the OAuth response under:
 //
@@ -31,7 +40,7 @@ const loginURL = "https://members.onepeloton.com/login"
 //
 // with shape {"body": {"access_token": "...", "expires_in": 3600, ...}, ...}.
 const readTokenExpr = `(function(){
-  var out = {token:'', user_id:'', username:''};
+  var out = {token:'', user_id:''};
   for (var i = 0; i < localStorage.length; i++) {
     var k = localStorage.key(i);
     if (k && k.indexOf('@@auth0spajs@@::') === 0 && k.indexOf('api.onepeloton.com') !== -1) {
@@ -42,14 +51,13 @@ const readTokenExpr = `(function(){
         }
       } catch (e) {}
     }
-    // Auth0 also caches a user profile under @@auth0spajs@@::...::@@user@@
+    // Auth0 also caches a user profile under @@auth0spajs@@::...::@@user@@.
     // Peloton's API expects the bare ID (no "auth0|" prefix that JWT subs carry).
     if (k && k.indexOf('@@auth0spajs@@::') === 0 && k.indexOf('@@user@@') !== -1) {
       try {
         var u = JSON.parse(localStorage.getItem(k));
         if (u && u.decodedToken && u.decodedToken.user) {
           var sub = u.decodedToken.user.sub || '';
-          // Strip "auth0|" — the bare ID is what /api/user/{id}/workouts wants.
           out.user_id = sub.indexOf('|') !== -1 ? sub.split('|').pop() : sub;
         }
       } catch (e) {}
@@ -60,7 +68,7 @@ const readTokenExpr = `(function(){
 
 // fillLoginExpr is best-effort prefill of the login form when env credentials
 // are available. The user can also type in the window themselves; this just
-// saves a step for headless / scripted use. Selectors as of 2026-05.
+// saves a step. Selectors as of 2026-05.
 const fillLoginExpr = `(function(u, p){
   var ue = document.querySelector('input[name="usernameOrEmail"]');
   var pe = document.querySelector('input[name="password"]');
@@ -71,24 +79,11 @@ const fillLoginExpr = `(function(u, p){
   return !!(ue && pe);
 })('%s', '%s')`
 
-// pollInterval is the gap between localStorage probes during the wait loop.
-// Short enough to feel responsive when the user signs in, long enough to not
-// hammer chromedp's CDP socket.
 const pollInterval = 1500 * time.Millisecond
 
 type harvestEnvelope struct {
-	Token    string `json:"token"`
-	UserID   string `json:"user_id"`
-	Username string `json:"username"`
-}
-
-func newAuthCmd(flags *rootFlags) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "auth",
-		Short: "Authentication commands (login, status)",
-	}
-	cmd.AddCommand(newAuthLoginCmd(flags), newAuthStatusCmd(flags))
-	return cmd
+	Token  string `json:"token"`
+	UserID string `json:"user_id"`
 }
 
 func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
@@ -97,24 +92,24 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "login",
-		Short: "Open Chrome, sign in to Peloton, harvest the Auth0 SPA token",
+		Short: "Open Chrome, sign in to Peloton, harvest the Auth0 SPA bearer token",
 		Long: `Spawns a chromedp-controlled Chrome window pointed at members.onepeloton.com/login.
 If PELOTON_USERNAME and PELOTON_PASSWORD are set in the environment, the form is
-pre-filled. You complete the sign-in (handles captchas, 2FA, anything Auth0 throws),
-then the CLI extracts the bearer token from localStorage and saves it to
-~/.config/peloton-pp-cli/config.toml.
+pre-filled. You complete the sign-in (handles captchas, 2FA, anything Auth0
+throws), then the CLI extracts the bearer token from localStorage and saves
+it to ~/.config/peloton-pp-cli/config.toml.
 
-The Chrome profile persists at ~/.config/peloton-pp-cli/chrome/, so subsequent logins
-reuse session cookies and finish in seconds. Tokens last about an hour Peloton-side;
-re-run when expired.`,
+The Chrome profile persists at ~/.config/peloton-pp-cli/chrome/, so subsequent
+logins reuse session cookies and finish in seconds. Tokens last about an hour
+Peloton-side; re-run when expired.`,
 		Example: `  peloton-pp-cli auth login
-  peloton-pp-cli auth login --headless                  # CI / cron use
+  peloton-pp-cli auth login --headless
   peloton-pp-cli auth login --timeout 10m`,
 		Annotations: map[string]string{"mcp:read-only": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			env, err := harvestTokenViaChrome(cmd.Context(), cmd.ErrOrStderr(), headless, timeout)
 			if err != nil {
-				return Errf(CodeAuth, "browser harvest failed: %w", err)
+				return authErr(fmt.Errorf("browser harvest failed: %w", err))
 			}
 			return saveHarvestedAuth(cmd.OutOrStdout(), flags, env)
 		},
@@ -124,32 +119,10 @@ re-run when expired.`,
 	return cmd
 }
 
-func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
-	return &cobra.Command{
-		Use:   "status",
-		Short: "Show whether a saved token exists and how old it is",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			cfg, err := config.Load(flags.configPath)
-			if err != nil {
-				return Errf(CodeAPI, "loading config: %w", err)
-			}
-			if cfg.Token == "" {
-				return Errf(CodeAuth, "no token saved at %s — run `peloton-pp-cli auth login`", cfg.Path)
-			}
-			age := time.Since(cfg.HarvestedAt).Round(time.Second)
-			fmt.Fprintf(cmd.OutOrStdout(),
-				"token saved at %s (%s old, user_id=%s, username=%s)\n",
-				cfg.Path, age, cfg.UserID, cfg.Username,
-			)
-			return nil
-		},
-	}
-}
-
 // harvestTokenViaChrome spawns Chrome, navigates to the login page, optionally
 // pre-fills credentials, then polls localStorage every pollInterval until the
 // Auth0 SPA cache key shows up with an access_token. Returns immediately on
-// first non-empty harvest; that's our signal that the redirect chain settled.
+// first non-empty harvest; that's the signal the redirect chain settled.
 func harvestTokenViaChrome(parent context.Context, w io.Writer, headless bool, timeout time.Duration) (harvestEnvelope, error) {
 	var empty harvestEnvelope
 	if timeout <= 0 {
@@ -186,11 +159,7 @@ func harvestTokenViaChrome(parent context.Context, w io.Writer, headless bool, t
 		return empty, fmt.Errorf("navigating to %s: %w", loginURL, err)
 	}
 
-	// Best-effort prefill. If creds are present, this saves the user a step;
-	// they still have to click "Log in" themselves (Auth0 + CAPTCHA handling
-	// is fragile to script-induced submits).
 	if u, p := os.Getenv("PELOTON_USERNAME"), os.Getenv("PELOTON_PASSWORD"); u != "" && p != "" {
-		// Let the page hydrate before reaching for the form fields.
 		time.Sleep(1500 * time.Millisecond)
 		var ok bool
 		_ = chromedp.Run(browserCtx, chromedp.Evaluate(fmt.Sprintf(fillLoginExpr, u, p), &ok))
@@ -229,25 +198,21 @@ func harvestTokenViaChrome(parent context.Context, w io.Writer, headless bool, t
 
 func saveHarvestedAuth(w io.Writer, flags *rootFlags, env harvestEnvelope) error {
 	if env.Token == "" {
-		return Errf(CodeAuth, "harvest returned no token; aborting save")
+		return authErr(fmt.Errorf("harvest returned no token; aborting save"))
 	}
 	if len(env.Token) < 20 {
-		return Errf(CodeAuth, "harvested token suspiciously short (%d chars); aborting", len(env.Token))
+		return authErr(fmt.Errorf("harvested token suspiciously short (%d chars); aborting", len(env.Token)))
 	}
 	cfg, err := config.Load(flags.configPath)
 	if err != nil {
-		return Errf(CodeAPI, "loading config: %w", err)
+		return configErr(fmt.Errorf("loading config: %w", err))
 	}
-	cfg.Token = env.Token
-	if env.UserID != "" {
-		cfg.UserID = env.UserID
-	}
-	if env.Username != "" {
-		cfg.Username = env.Username
-	}
-	cfg.HarvestedAt = time.Now()
-	if err := cfg.Save(); err != nil {
-		return Errf(CodeAPI, "saving config: %w", err)
+	// Auth0 SPA tokens are nominally 1 hour Peloton-side. SaveTokens stamps
+	// expiry so doctor can warn when stale; we don't have a refresh-token
+	// flow (Peloton's Auth0 SDK manages refresh internally and we'd need to
+	// re-spawn Chrome anyway), so refreshToken is empty.
+	if err := cfg.SaveTokens("", "", env.Token, "", time.Now().Add(time.Hour)); err != nil {
+		return configErr(fmt.Errorf("saving config: %w", err))
 	}
 	fmt.Fprintf(w, "Saved Peloton bearer token to %s.\n", cfg.Path)
 	return nil

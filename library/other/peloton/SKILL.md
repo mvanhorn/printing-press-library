@@ -1,6 +1,6 @@
 ---
 name: pp-peloton
-description: "Workout, ride, and music history from your Peloton account in the terminal. First catalog CLI to harvest the Auth0 SPA bearer token from a browser session, then mirror your history (workouts + ride playlists + liked songs) into a local SQLite store with FTS5 search. Reverse-engineered from members.onepeloton.com SPA traffic — Peloton ships no public API, expect occasional breakage. Trigger phrases: `list my Peloton workouts`, `what did I ride yesterday`, `find songs I liked on Peloton`, `search my Peloton history`, `sync my Peloton workouts`, `what did Cody Rigsby teach me`, `use peloton`, `run peloton`."
+description: "Workout, ride, and music history from your Peloton account in the terminal. First catalog CLI to harvest the Auth0..."
 author: "Todd Dailey"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -37,102 +37,137 @@ go install github.com/mvanhorn/printing-press-library/library/other/peloton/cmd/
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-## When to Use This CLI
+Peloton workout, ride, and music history API. No public spec — reverse-engineered from the members.onepeloton.com Auth0 SPA. Endpoint paths and response shapes can shift unannounced; the auth bearer token is harvested from Auth0 SPA localStorage rather than a documented OAuth flow.
 
-Use this CLI when an agent or user wants structured access to a Peloton account's workout, ride, and music history outside the members.onepeloton.com browser. Good for: pulling recent workouts as JSON, listing the songs that played in a specific ride, finding every liked-in-class song across a window of workouts, or searching the local mirror for an instructor / song / artist by name. Read-only against Peloton — this CLI does not start workouts, mark workouts complete, or change any account state.
+## When Not to Use This CLI
 
-## Fragility Notice
+Do not activate this CLI for requests that require creating, updating, deleting, publishing, commenting, upvoting, inviting, ordering, sending messages, booking, purchasing, or changing remote state. This printed CLI exposes read-only commands for inspection, export, sync, and analysis.
 
-Peloton ships **no public API**. Every endpoint and the Auth0 localStorage harvest are reverse-engineered from members.onepeloton.com SPA traffic, which means:
+## HTTP Transport
 
-- The bearer-token harvest reads `localStorage` under the Auth0 SPA cache key (`@@auth0spajs@@::<client_id>::<audience>`). Peloton can change the client_id, the cache key format, the audience, or the login form selectors without notice.
-- Endpoint paths (`/api/me`, `/api/user/{id}/workouts`, `/api/workout/{id}`, `/api/ride/{id}/details`) and response shapes (`ride.id`, `ride.title`, `playlist.songs[].liked`, etc.) are SPA implementation details, not contract.
-- Auth0 tokens last about an hour; re-run `peloton-pp-cli auth login` when one expires.
+This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It does not require a resident browser process for normal API calls.
 
-If a command starts returning HTTP errors or unexpected shapes after a previously-working session, the upstream likely shifted. File an issue or open a patch — this CLI is best-effort against a moving target.
+## Unique Capabilities
+
+These capabilities aren't available in any other tool for this API.
+
+- **`auth login`** — chromedp-driven Auth0 SPA token harvest. Spawns Chrome at `members.onepeloton.com/login`, lets the user sign in interactively, then extracts the bearer token from `localStorage` under `@@auth0spajs@@::<client_id>::https://api.onepeloton.com/::openid offline_access`. The Auth0 client_id is discovered at runtime so a Peloton client rotation doesn't break the harvester. Pre-fill the form via `PELOTON_USERNAME` / `PELOTON_PASSWORD` env (inline-scope only — see Auth Setup). Profile persists at `~/.config/peloton-pp-cli/chrome/` so subsequent sign-ins reuse cookies.
+
+  ```bash
+  peloton-pp-cli auth login --timeout 5m
+  ```
+
+- **`discoveries`** — list every in-class song you liked across recent rides, deduped by song id with a `times_played` counter. No Peloton UI surfaces this view; likes are stored Peloton-side per ride playback rather than per-song globally.
+
+  ```bash
+  peloton-pp-cli discoveries --limit 30 --agent
+  ```
 
 ## Command Reference
 
-### Auth
+**identity** — Authenticated user identity
 
-- `peloton-pp-cli auth login` — Spawn Chrome, open `members.onepeloton.com/login`, harvest the Auth0 SPA access token from `localStorage` once you sign in, save to `~/.config/peloton-pp-cli/config.toml`. Pre-fills the form from `PELOTON_USERNAME` / `PELOTON_PASSWORD` if set; otherwise sign in by hand. Profile persists at `~/.config/peloton-pp-cli/chrome/` so subsequent logins are quick.
-- `peloton-pp-cli auth status` — Show whether a saved token exists and how old it is. Exits 4 if no token.
+- `peloton-pp-cli identity` — Get the authenticated user's identity (id, username, profile fields). Used implicitly by every workout query to...
 
-### Identity
+**rides** — Ride metadata and playlists
 
-- `peloton-pp-cli me` — Print the cached identity (user_id, username, token age) without spawning Chrome. Add `--refresh` to re-hit `/api/me` and update the cache.
+- `peloton-pp-cli rides <rideID>` — Get a ride's metadata and playlist (song order, artists, in-class liked-flag, start-time offsets). The workout's...
 
-### Workouts
+**workouts** — Workout history (list, show)
 
-- `peloton-pp-cli workouts list` — Recent workouts, newest-first. `--limit N` (default 50). Pages `/api/user/{id}/workouts` with the same ride/instructor joins the SPA uses.
-- `peloton-pp-cli workouts show <workout-id>` — One workout with the same shape as a list element. Useful for piping into `jq` after grabbing an id from list output.
+- `peloton-pp-cli workouts get` — Get a single workout by id, with the same ride/instructor join surface as `list`.
+- `peloton-pp-cli workouts list` — List the authenticated user's workouts, newest-first. Uses joins=ride,ride.instructor to pull the ride title,...
 
-### Ride detail
 
-- `peloton-pp-cli ride show <ride-id>` — Ride metadata + playlist (song order, artists, liked-flag, start-time offsets). Pair with `workouts show`: the workout's `ride_id` is the input here. Some on-demand rides ship empty playlists (instructor talk-only) — that's a normal `"songs": []`, not an error.
+### Finding the right command
 
-### Discoveries
+When you know what you want to do but not which command does it, ask the CLI directly:
 
-- `peloton-pp-cli discoveries` — Walks your most-recent workouts (default `--limit 30`), fetches each ride's playlist in parallel, collects songs flagged `liked=true` in-class, dedupes by song id with a `times_played` counter. Likes are stored Peloton-side per ride playback, not per-song globally — this is the closest stand-in for "songs I discovered through Peloton."
-
-### Local store
-
-- `peloton-pp-cli sync` — Mirror new workouts (and their ride playlists) into a local SQLite store at `~/.local/share/peloton-pp-cli/peloton.db`. Incremental: stops paginating once a page is fully contained in already-stored ids. `--full` disables the early-stop. `--no-rides` skips playlist hydration (faster). `--limit N` caps the workout walk (default 200).
-- `peloton-pp-cli search <query>` — FTS5 across the synced store: workouts (title + instructor) and songs (title + artists + album), interleaved by bm25. Phrases (`"low impact"`), prefixes (`cure*`), and `NEAR( )` all work. Run `sync` first to populate the store.
-
-### Version
-
-- `peloton-pp-cli version` — Print version. (`--version` works too.)
-
-## Recipes
-
-### First-time setup
 ```bash
-export PELOTON_USERNAME='you@example.com' PELOTON_PASSWORD='…'
-peloton-pp-cli auth login           # or just `auth login` and sign in by hand
-peloton-pp-cli me                   # confirm identity / token freshness
-peloton-pp-cli sync --limit 500     # full backfill of the last 500 workouts + their playlists
+peloton-pp-cli which "<capability in your own words>"
 ```
 
-### Browse recent rides as JSON
-```bash
-peloton-pp-cli workouts list --limit 10 --compact | jq '.[] | {date: .workout_date, title, instructor: .instructor}'
-```
-
-### Liked-songs digest from the last 60 rides
-```bash
-peloton-pp-cli discoveries --limit 60 --compact | jq '.[] | "\(.title) — \(.artists | join(", "))"'
-```
-
-### Find every workout featuring an instructor
-```bash
-peloton-pp-cli sync                  # ensure local store is fresh
-peloton-pp-cli search 'cody rigsby' --json | jq '.[] | select(.kind=="workout")'
-```
-
-### Pull the playlist of a specific workout
-```bash
-RIDE=$(peloton-pp-cli workouts show <workout-id> --compact | jq -r .ride_id)
-peloton-pp-cli ride show "$RIDE" --json
-```
+`which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
 ## Auth Setup
 
-Auth is bearer-token-via-browser-harvest. `peloton-pp-cli auth login` spawns a chromedp-controlled Chrome window pointed at `members.onepeloton.com/login`. If `PELOTON_USERNAME` and `PELOTON_PASSWORD` are set, the form is pre-filled — you still complete sign-in (Auth0 may show a CAPTCHA, 2FA, or a "verify it's you" interstitial; doing it by hand is fine). The CLI reads the Auth0 SPA access token from `localStorage` once it lands and writes it to `~/.config/peloton-pp-cli/config.toml`.
+Store your access token:
 
-Tokens last about an hour. `peloton-pp-cli auth status` shows the saved token's age. Re-run `auth login` when expired — the persistent Chrome profile at `~/.config/peloton-pp-cli/chrome/` keeps session cookies, so subsequent logins finish in seconds.
+```bash
+peloton-pp-cli auth set-token YOUR_TOKEN_HERE
+```
 
-`peloton-pp-cli auth login --headless` runs Chrome headless (rare; use only when you've validated headless completes the Auth0 dance — many CAPTCHAs require a visible window).
+Or set `PELOTON_USERNAME` as an environment variable.
+
+Run `peloton-pp-cli doctor` to verify setup.
 
 ## Agent Mode
 
-This is a hand-rolled CLI; it does **not** ship the generator-template `--agent` / `--select` / `--deliver` / `--profile` / feedback suite. The agent contract is leaner:
+Add `--agent` to any command. Expands to: `--json --compact --no-input --no-color --yes`.
 
-- **Auto-JSON when piped.** Every list/show command emits indented JSON to stdout when stdout is not a TTY. On a TTY, output is human-friendly text.
-- **`--json`** forces JSON even on a TTY.
-- **`--compact`** projects to high-gravity fields only and emits one-line JSON. Implies `--json`. Typical token reduction is 60–80% on `workouts list` and `ride show`.
-- **stderr for progress, stdout for data.** Sync and discoveries print progress on stderr; pipe stdout cleanly into `jq`.
-- **Typed exit codes** (see below) so callers branch on `$?` without parsing strings.
+- **Pipeable** — JSON on stdout, errors on stderr
+- **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
+
+  ```bash
+  peloton-pp-cli workouts list mock-value --agent --select id,name,status
+  ```
+- **Previewable** — `--dry-run` shows the request without sending
+- **Offline-friendly** — sync/search commands can use the local SQLite store when available
+- **Non-interactive** — never prompts, every input is a flag
+- **Read-only** — do not use this CLI for create, update, delete, publish, comment, upvote, invite, order, send, or other mutating requests
+
+### Response envelope
+
+Commands that read from the local store or the API wrap output in a provenance envelope:
+
+```json
+{
+  "meta": {"source": "live" | "local", "synced_at": "...", "reason": "..."},
+  "results": <data>
+}
+```
+
+Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal — piped/agent consumers get pure JSON on stdout.
+
+## Agent Feedback
+
+When you (or the agent) notice something off about this CLI, record it:
+
+```
+peloton-pp-cli feedback "the --since flag is inclusive but docs say exclusive"
+peloton-pp-cli feedback --stdin < notes.txt
+peloton-pp-cli feedback list --json --limit 10
+```
+
+Entries are stored locally at `~/.peloton-pp-cli/feedback.jsonl`. They are never POSTed unless `PELOTON_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `PELOTON_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
+
+Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
+
+## Output Delivery
+
+Every command accepts `--deliver <sink>`. The output goes to the named sink in addition to (or instead of) stdout, so agents can route command results without hand-piping. Three sinks are supported:
+
+| Sink | Effect |
+|------|--------|
+| `stdout` | Default; write to stdout only |
+| `file:<path>` | Atomically write output to `<path>` (tmp + rename) |
+| `webhook:<url>` | POST the output body to the URL (`application/json` or `application/x-ndjson` when `--compact`) |
+
+Unknown schemes are refused with a structured error naming the supported set. Webhook failures return non-zero and log the URL + HTTP status on stderr.
+
+## Named Profiles
+
+A profile is a saved set of flag values, reused across invocations. Use it when a scheduled agent calls the same command every run with the same configuration - HeyGen's "Beacon" pattern.
+
+```
+peloton-pp-cli profile save briefing --json
+peloton-pp-cli --profile briefing workouts list mock-value
+peloton-pp-cli profile list --json
+peloton-pp-cli profile show briefing
+peloton-pp-cli profile delete briefing --yes
+```
+
+Explicit flags always win over profile values; profile values win over defaults. `agent-context` lists all available profiles under `available_profiles` so introspecting agents discover them at runtime.
 
 ## Exit Codes
 
@@ -140,10 +175,11 @@ This is a hand-rolled CLI; it does **not** ship the generator-template `--agent`
 |------|---------|
 | 0 | Success |
 | 2 | Usage error (wrong arguments) |
-| 3 | Resource not found (e.g., unknown workout id, 404 on ride) |
-| 4 | Authentication required (no saved token, or upstream 401/403) |
-| 5 | API error (upstream issue, non-2xx other than 401/403/404/429) |
-| 7 | Rate limited (HTTP 429) |
+| 3 | Resource not found |
+| 4 | Authentication required |
+| 5 | API error (upstream issue) |
+| 7 | Rate limited (wait and retry) |
+| 10 | Config error |
 
 ## Argument Parsing
 
@@ -151,7 +187,7 @@ Parse `$ARGUMENTS`:
 
 1. **Empty, `help`, or `--help`** → show `peloton-pp-cli --help` output
 2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → see Prerequisites above
-3. **Anything else** → Direct Use (execute as CLI command)
+3. **Anything else** → Direct Use (execute as CLI command with `--agent`)
 
 ## MCP Server Installation
 
@@ -165,12 +201,13 @@ Parse `$ARGUMENTS`:
    ```
 3. Verify: `claude mcp list`
 
-Note: the MCP server expects `peloton-pp-cli auth login` to have already saved a token to `~/.config/peloton-pp-cli/config.toml`. The MCP cannot itself drive the browser — bootstrap the token from a CLI shell first.
-
 ## Direct Use
 
 1. Check if installed: `which peloton-pp-cli`
    If not found, offer to install (see Prerequisites at the top of this skill).
-2. Bootstrap auth once with `peloton-pp-cli auth login`. Confirm with `peloton-pp-cli me`.
-3. Match the user query to the best command from the Command Reference above. Pipe stdout into `jq` for structured downstream consumption.
-4. If you need many calls (e.g., walking history for analysis), run `peloton-pp-cli sync` once, then use `peloton-pp-cli search` and the local store rather than re-hitting the upstream every time.
+2. Match the user query to the best command from the Unique Capabilities and Command Reference above.
+3. Execute with the `--agent` flag:
+   ```bash
+   peloton-pp-cli <command> [subcommand] [args] --agent
+   ```
+4. If ambiguous, drill into subcommand help: `peloton-pp-cli <command> --help`.

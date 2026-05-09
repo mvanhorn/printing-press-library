@@ -1,0 +1,123 @@
+{
+  "api_name": "peloton",
+  "base_url": "https://api.onepeloton.com/api",
+  "description": "Peloton workout, ride, and music history API. No public spec — reverse-engineered from the members.onepeloton.com Auth0 SPA. Endpoint paths and response shapes can shift unannounced; the auth bearer token is harvested from Auth0 SPA localStorage rather than a documented OAuth flow.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {PELOTON_TOKEN}",
+    "in": "header",
+    "env_vars": [
+      "PELOTON_USERNAME",
+      "PELOTON_PASSWORD",
+      "PELOTON_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "PELOTON_USERNAME",
+        "kind": "auth_flow_input",
+        "required": false,
+        "sensitive": false,
+        "description": "Peloton account email or username consumed by `auth login` to pre-fill the Auth0 sign-in form. Optional — you can sign in by hand inside the spawned Chrome window."
+      },
+      {
+        "name": "PELOTON_PASSWORD",
+        "kind": "auth_flow_input",
+        "required": false,
+        "sensitive": true,
+        "description": "Peloton account password consumed by `auth login` to pre-fill the Auth0 sign-in form. Optional — you can sign in by hand."
+      },
+      {
+        "name": "PELOTON_TOKEN",
+        "kind": "harvested",
+        "required": false,
+        "sensitive": true,
+        "description": "Bearer token populated automatically by `auth login` and read by authenticated commands. Do not set manually — use `auth login` instead. The token is the Auth0 SPA `body.access_token` extracted from the `@@auth0spajs@@::\u003cclient_id\u003e::https://api.onepeloton.com/::openid offline_access` localStorage entry; lifetime is ~1 hour Peloton-side."
+      }
+    ],
+    "requires_browser_session": true,
+    "browser_session_validation_path": "/me",
+    "browser_session_validation_method": "GET"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "identity_me",
+      "description": "Get the authenticated user's identity (id, username, profile fields). Used implicitly by every workout query to resolve the user_id. Returns the User.",
+      "method": "GET",
+      "path": "/me",
+      "params": []
+    },
+    {
+      "name": "rides_details",
+      "description": "Get a ride's metadata and playlist (song order, artists, in-class liked-flag, start-time offsets). The workout's ride_id from `workouts list` is the input here. Some on-demand rides ship with empty playlists (instructor talk-only) — that's a normal `playlist.songs: []`, not an error. Required: rideID. Returns the RideDetails.",
+      "method": "GET",
+      "path": "/ride/{rideID}/details",
+      "params": [
+        {
+          "name": "rideID",
+          "type": "string",
+          "location": "path",
+          "description": "Ride id (32-char hex)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workouts_get",
+      "description": "Get a single workout by id, with the same ride/instructor join surface as `list`. Required: workoutID. Optional: joins (default: ride,ride.instructor). Returns the Workout.",
+      "method": "GET",
+      "path": "/workout/{workoutID}",
+      "params": [
+        {
+          "name": "workoutID",
+          "type": "string",
+          "location": "path",
+          "description": "Workout id (32-char hex)",
+          "required": true
+        },
+        {
+          "name": "joins",
+          "type": "string",
+          "location": "query",
+          "description": "Entity joins"
+        }
+      ]
+    },
+    {
+      "name": "workouts_list",
+      "description": "List the authenticated user's workouts, newest-first. Uses joins=ride,ride.instructor to pull the ride title, instructor name, and ride id alongside each workout. Required: userID. Optional: page (default: 0), limit (default: 20), joins (default: ride,ride.instructor). Returns array of Workout.",
+      "method": "GET",
+      "path": "/user/{userID}/workouts",
+      "params": [
+        {
+          "name": "userID",
+          "type": "string",
+          "location": "path",
+          "description": "Peloton user id (32-char hex from `me`). The auth0|\u003cid\u003e prefix on the Auth0 sub claim is stripped — pass the bare id only.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query",
+          "description": "Zero-indexed page number"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Page size (Peloton caps around 50)"
+        },
+        {
+          "name": "joins",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated entity joins. The default pulls ride metadata + instructor name with the same shape the SPA uses."
+        }
+      ]
+    }
+  ]
+}
