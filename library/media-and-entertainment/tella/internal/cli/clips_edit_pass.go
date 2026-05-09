@@ -1,0 +1,214 @@
+// Copyright 2026 gregce. Licensed under Apache-2.0. See LICENSE.
+
+package cli
+
+import (
+	"encoding/json"
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/tella/internal/client"
+
+	"github.com/spf13/cobra"
+)
+
+// newClipsCmd is the parent for clips-bulk operations that don't fit naturally
+// under `videos clips` (which is keyed on a single video).
+func newClipsCmd(flags *rootFlags) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "clips",
+		Short: "Bulk and cross-video clip operations",
+	}
+	cmd.AddCommand(newClipsEditPassCmd(flags))
+	cmd.AddCommand(newClipsTranscriptDiffCmd(flags))
+	cmd.AddCommand(newClipsCaptionsCmd(flags))
+	return cmd
+}
+
+// newClipsEditPassCmd applies a chained set of standard edits across every
+// clip in a playlist. Default mode is dry-run: it prints the planned set of
+// operations as structured JSON. `--apply` flips it to fire the mutations.
+func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
+	var playlistID string
+	var removeFillers bool
+	var trimSilencesGT string
+	var apply bool
+	cmd := &cobra.Command{
+		Use:     "edit-pass",
+		Short:   "Apply remove-fillers and trim-silences across every clip in a playlist",
+		Example: "  tella-pp-cli clips edit-pass --playlist plst_42 --remove-fillers --trim-silences-gt 1s --json",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if dryRunOK(flags) {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"dry_run":     true,
+					"playlist_id": playlistID,
+					"planned":     []any{},
+					"applied":     false,
+				}, flags)
+			}
+			if playlistID == "" {
+				fmt.Fprintln(cmd.ErrOrStderr(), "hint: pass --playlist <id> to plan edits across that playlist's clips")
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"error":       "missing-playlist",
+					"hint":        "pass --playlist <id>",
+					"playlist_id": "",
+					"total_clips": 0,
+					"planned":     []any{},
+					"applied":     false,
+				}, flags)
+			}
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+
+			minSilence, _ := time.ParseDuration(trimSilencesGT)
+			minSilenceMS := int(minSilence / time.Millisecond)
+
+			videoIDs, err := listPlaylistVideoIDs(c, playlistID)
+			if err != nil {
+				return classifyAPIError(err, flags)
+			}
+
+			type op struct {
+				Op   string         `json:"op"`
+				Args map[string]any `json:"args,omitempty"`
+			}
+			type clipPlan struct {
+				VideoID string `json:"video_id"`
+				ClipID  string `json:"clip_id"`
+				Ops     []op   `json:"ops"`
+			}
+			plans := []clipPlan{}
+			totalClips := 0
+
+			for _, vid := range videoIDs {
+				clipIDs, err := listClipIDs(c, vid)
+				if err != nil {
+					continue
+				}
+				for _, cid := range clipIDs {
+					totalClips++
+					p := clipPlan{VideoID: vid, ClipID: cid}
+					if removeFillers {
+						p.Ops = append(p.Ops, op{Op: "remove-fillers"})
+					}
+					if minSilenceMS > 0 {
+						silData, err := c.Get(fmt.Sprintf("/v1/videos/%s/clips/%s/silences", vid, cid), nil)
+						if err == nil {
+							for _, sil := range extractSilenceRanges(silData) {
+								if sil.End-sil.Start >= minSilenceMS {
+									p.Ops = append(p.Ops, op{
+										Op:   "cut",
+										Args: map[string]any{"start": sil.Start, "end": sil.End},
+									})
+								}
+							}
+						}
+					}
+					if len(p.Ops) > 0 {
+						plans = append(plans, p)
+					}
+				}
+			}
+
+			result := map[string]any{
+				"playlist_id": playlistID,
+				"total_clips": totalClips,
+				"planned":     plans,
+				"applied":     false,
+			}
+			if apply {
+				applied := 0
+				for _, p := range plans {
+					for _, o := range p.Ops {
+						switch o.Op {
+						case "remove-fillers":
+							_, _, _ = c.Post(fmt.Sprintf("/v1/videos/%s/clips/%s/remove-fillers", p.VideoID, p.ClipID), map[string]any{})
+						case "cut":
+							_, _, _ = c.Post(fmt.Sprintf("/v1/videos/%s/clips/%s/cut", p.VideoID, p.ClipID), o.Args)
+						}
+						applied++
+					}
+				}
+				result["applied"] = true
+				result["applied_ops"] = applied
+			}
+			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
+		},
+	}
+	cmd.Flags().StringVar(&playlistID, "playlist", "", "Playlist ID to iterate")
+	cmd.Flags().BoolVar(&removeFillers, "remove-fillers", false, "Plan a remove-fillers pass for every clip")
+	cmd.Flags().StringVar(&trimSilencesGT, "trim-silences-gt", "", "Plan cuts for silences longer than this duration (e.g. 1s)")
+	cmd.Flags().BoolVar(&apply, "apply", false, "Actually fire the planned mutations (default off — print plan only)")
+	return cmd
+}
+
+// listPlaylistVideoIDs returns every video ID belonging to a playlist by
+// querying `GET /v1/videos?playlistId=<id>`. Tella's playlist GET returns
+// only a count under `videos`, not an array, so the membership listing has
+// to come from the videos endpoint.
+func listPlaylistVideoIDs(c *client.Client, playlistID string) ([]string, error) {
+	data, err := c.Get("/v1/videos", map[string]string{"playlistId": playlistID})
+	if err != nil {
+		return nil, err
+	}
+	return extractIDs(data, "videos"), nil
+}
+
+type silenceRange struct {
+	Start int
+	End   int
+}
+
+func extractSilenceRanges(data json.RawMessage) []silenceRange {
+	var out []silenceRange
+	candidates := []json.RawMessage{data}
+	var env map[string]json.RawMessage
+	if err := json.Unmarshal(data, &env); err == nil {
+		for _, k := range []string{"silences", "data", "ranges"} {
+			if r, ok := env[k]; ok {
+				candidates = append(candidates, r)
+			}
+		}
+	}
+	for _, c := range candidates {
+		var arr []map[string]any
+		if err := json.Unmarshal(c, &arr); err == nil {
+			for _, item := range arr {
+				start := intField(item, "start", "from", "begin", "startMs")
+				end := intField(item, "end", "to", "stop", "endMs")
+				if end > start {
+					out = append(out, silenceRange{Start: start, End: end})
+				}
+			}
+			if len(out) > 0 {
+				return out
+			}
+		}
+	}
+	return out
+}
+
+func intField(m map[string]any, keys ...string) int {
+	for _, k := range keys {
+		if v, ok := m[k]; ok {
+			switch x := v.(type) {
+			case float64:
+				return int(x)
+			case int:
+				return x
+			case string:
+				// Best-effort parse like "1500ms"
+				x = strings.TrimSuffix(x, "ms")
+				var n int
+				_, err := fmt.Sscanf(x, "%d", &n)
+				if err == nil {
+					return n
+				}
+			}
+		}
+	}
+	return 0
+}
