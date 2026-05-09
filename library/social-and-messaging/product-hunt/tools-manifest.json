@@ -1,0 +1,273 @@
+{
+  "api_name": "product-hunt",
+  "base_url": "https://api.producthunt.com/v2/api",
+  "description": "Discover, track, and analyze Product Hunt launches, topics, and makers — with offline search and launch-day momentum tracking",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "PRODUCT_HUNT_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "PRODUCT_HUNT_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "collections_get",
+      "description": "Get a collection by slug or numeric ID. Required: slug. Returns the Collection.",
+      "method": "GET",
+      "path": "/graphql/collections/{slug}",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Collection slug or numeric ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_list",
+      "description": "List collections. Optional: featured, user, limit (plus 1 more). Returns array of Collection.",
+      "method": "GET",
+      "path": "/graphql/collections",
+      "params": [
+        {
+          "name": "featured",
+          "type": "bool",
+          "location": "query",
+          "description": "Only show featured collections"
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by user ID"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum collections to return (default: 20)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order: NEWEST, FOLLOWERS_COUNT, FEATURED_AT (default: FOLLOWERS_COUNT)"
+        }
+      ]
+    },
+    {
+      "name": "comments_get",
+      "description": "Get a comment by ID. Required: id. Returns the Comment.",
+      "method": "GET",
+      "path": "/graphql/comments/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Comment numeric ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "posts_comments",
+      "description": "List comments for a post. Required: slug. Optional: sort, limit. Returns array of Comment.",
+      "method": "GET",
+      "path": "/graphql/{slug}/comments",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Post slug or numeric ID",
+          "required": true
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order: NEWEST, VOTES (default: VOTES)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum comments to return (default: 20)"
+        }
+      ]
+    },
+    {
+      "name": "posts_get",
+      "description": "Get a specific post by slug or numeric ID. Required: slug. Returns the Post.",
+      "method": "GET",
+      "path": "/graphql/{slug}",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Post slug or numeric ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "posts_list",
+      "description": "List posts with optional topic, sort, and date filters. Optional: topic, sort, featured (plus 3 more). Returns array of Post.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "topic",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by topic slug (e.g. developer-tools)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order: RANKING, NEWEST, VOTES, FEATURED_AT (default: RANKING)"
+        },
+        {
+          "name": "featured",
+          "type": "bool",
+          "location": "query",
+          "description": "Only show featured posts"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Show posts after this date (ISO 8601)"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Show posts before this date (ISO 8601)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of posts to return (default: 20)"
+        }
+      ]
+    },
+    {
+      "name": "topics_get",
+      "description": "Get a topic by slug or numeric ID. Required: slug. Returns the Topic.",
+      "method": "GET",
+      "path": "/graphql/topics/{slug}",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Topic slug or numeric ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "topics_list",
+      "description": "List topics with optional search query. Optional: query, limit, sort. Returns array of Topic.",
+      "method": "GET",
+      "path": "/graphql/topics",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Filter topics by name"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum topics to return (default: 20)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order: NEWEST, FOLLOWERS_COUNT (default: FOLLOWERS_COUNT)"
+        }
+      ]
+    },
+    {
+      "name": "users_follow",
+      "description": "Follow a user. Required: username. Returns the new User.",
+      "method": "POST",
+      "path": "/graphql/users/{username}/follow",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Username to follow",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_get",
+      "description": "Get a user profile by username or numeric ID. Required: username. Optional: posts_limit. Returns the User.",
+      "method": "GET",
+      "path": "/graphql/users/{username}",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Username or numeric ID",
+          "required": true
+        },
+        {
+          "name": "posts_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of recent posts to include (default: 10)"
+        }
+      ]
+    },
+    {
+      "name": "users_me",
+      "description": "Get the authenticated user's profile. Returns the User.",
+      "method": "GET",
+      "path": "/graphql/viewer",
+      "params": []
+    },
+    {
+      "name": "users_unfollow",
+      "description": "Unfollow a user. Required: username. Returns the User. Destructive.",
+      "method": "DELETE",
+      "path": "/graphql/users/{username}/follow",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Username to unfollow",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

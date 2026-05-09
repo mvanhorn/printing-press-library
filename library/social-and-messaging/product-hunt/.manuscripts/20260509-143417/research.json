@@ -1,0 +1,325 @@
+{
+  "api_name": "product-hunt",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "producthunt-mcp-server",
+      "url": "https://github.com/jaipandya/producthunt-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "product-hunt-cli",
+      "url": "https://github.com/sunilkumarc/product-hunt-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "producthunt-cli",
+      "url": "https://github.com/sibis/producthunt-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Spear",
+      "url": "https://github.com/karan/Spear",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T14:34:17Z",
+  "novel_features": [
+    {
+      "name": "Launch Momentum Tracker",
+      "command": "posts momentum",
+      "description": "See live vote and comment deltas for any post since your last check — no browser required on launch day.",
+      "rationale": "Requires diffing a live GraphQL query against a SQLite snapshot; no existing PH tool has a named momentum command.",
+      "example": "product-hunt-pp-cli posts momentum developer-tools-daily --json",
+      "why_it_matters": "Use this to track launch-day rank changes or monitor a competitor's post in real time without polling a browser.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Competitor Audit",
+      "command": "topics audit",
+      "description": "Get every recent launch in a topic ranked by votes, with maker overlap detection across top posts.",
+      "rationale": "Requires joining live API results with the synced maker table; no existing CLI exposes this as a named command.",
+      "example": "product-hunt-pp-cli topics audit developer-tools --limit 20 --agent",
+      "why_it_matters": "Use before launching to understand competitive density and identify which makers dominate your category.",
+      "group": "Launch intelligence"
+    },
+    {
+      "name": "Daily Digest",
+      "command": "digest",
+      "description": "Structured summary of yesterday's or today's top launches per topic — works offline after sync.",
+      "rationale": "Requires time-windowed aggregation from the local store; the output shape is designed for LLM pipelines.",
+      "example": "product-hunt-pp-cli digest developer-tools --yesterday --json",
+      "why_it_matters": "Use in morning briefing scripts or LLM pipelines to get a structured feed of top launches without hitting rate limits.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Watchlist",
+      "command": "watchlist",
+      "description": "Pin any posts (yours, competitors), then batch-refresh all of them at once to see current stats and deltas.",
+      "rationale": "Requires local JSON state for the pinned list plus GraphQL queries for each; no existing PH CLI has a named watchlist.",
+      "example": "product-hunt-pp-cli watchlist refresh --json",
+      "why_it_matters": "Use to track your own launch and a handful of competitors without opening the browser.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Topic Subscription Inbox",
+      "command": "topics inbox",
+      "description": "See only posts that are new since you last checked for each subscribed topic — cursor-based, never re-shows seen launches.",
+      "rationale": "Requires storing a per-topic last-seen cursor locally and querying the API for posts newer than that cursor.",
+      "example": "product-hunt-pp-cli topics inbox --json --select posts.name,posts.votesCount",
+      "why_it_matters": "Use for competitive monitoring workflows where you want exactly the delta since last run, not a full topic dump.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Topic Velocity",
+      "command": "topics velocity",
+      "description": "Week-over-week post count and average vote delta for a topic — is your category heating up or cooling down?",
+      "rationale": "Requires time-windowed aggregation grouped by week from the synced store; not computable from a single API call.",
+      "example": "product-hunt-pp-cli topics velocity developer-tools --weeks 4 --agent",
+      "why_it_matters": "Use to decide whether a category is worth entering or to track how competitive dynamics are shifting over time.",
+      "group": "Launch intelligence"
+    },
+    {
+      "name": "Post Vote-Rate",
+      "command": "posts vote-rate",
+      "description": "Rank posts by votes-per-day-since-launch instead of raw vote totals — surfaces underrated recent launches.",
+      "rationale": "Requires computing votes ÷ days-since-launch for each synced post; raw-votes ranking buries recent products under old ones.",
+      "example": "product-hunt-pp-cli posts vote-rate --topic developer-tools --days 30 --json",
+      "why_it_matters": "Use to find products with strong launch momentum that raw vote leaderboards don't surface.",
+      "group": "Launch intelligence"
+    },
+    {
+      "name": "Trending Topics",
+      "command": "topics trending",
+      "description": "Which topics have the fastest-growing post count and vote volume this week versus last week?",
+      "rationale": "Requires comparing this week vs prior week grouped by topic from the synced store; a single API call cannot return this.",
+      "example": "product-hunt-pp-cli topics trending --days 7 --agent",
+      "why_it_matters": "Use to identify emerging categories before they peak, or to find where to launch for maximum visibility.",
+      "group": "Launch intelligence"
+    },
+    {
+      "name": "Cross-Topic Post Finder",
+      "command": "posts cross-topic",
+      "description": "Find posts that appear in multiple specified topics simultaneously — 'AI tools that are also productivity tools'.",
+      "rationale": "Requires a SQLite JOIN on the post_topics table across multiple topic slugs; not a trivial query for non-SQL users.",
+      "example": "product-hunt-pp-cli posts cross-topic --topics artificial-intelligence,productivity --json",
+      "why_it_matters": "Use to find products in your exact market niche where multiple category labels intersect.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Maker Portfolio Summary",
+      "command": "makers portfolio",
+      "description": "Aggregate stats across a maker's full product history: total votes, avg per launch, best launch, days since last launch.",
+      "rationale": "Requires fetching all user posts from the API and aggregating across them; no existing CLI surfaces these combined stats.",
+      "example": "product-hunt-pp-cli makers portfolio rrhoover --json",
+      "why_it_matters": "Use to research prolific makers before collaborating, or track your own cumulative launch impact.",
+      "group": "Launch intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Launch Momentum Tracker",
+      "command": "posts momentum",
+      "description": "See live vote and comment deltas for any post since your last check — no browser required on launch day.",
+      "rationale": "Requires diffing a live GraphQL query against a SQLite snapshot; no existing PH tool has a named momentum command.",
+      "example": "product-hunt-pp-cli posts momentum developer-tools-daily --json",
+      "why_it_matters": "Use this to track launch-day rank changes or monitor a competitor's post in real time without polling a browser.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Competitor Audit",
+      "command": "topics audit",
+      "description": "Get every recent launch in a topic ranked by votes, with maker overlap detection across top posts.",
+      "rationale": "Requires joining live API results with the synced maker table; no existing CLI exposes this as a named command.",
+      "example": "product-hunt-pp-cli topics audit developer-tools --limit 20 --agent",
+      "why_it_matters": "Use before launching to understand competitive density and identify which makers dominate your category.",
+      "group": "Launch intelligence"
+    },
+    {
+      "name": "Daily Digest",
+      "command": "digest",
+      "description": "Structured summary of yesterday's or today's top launches per topic — works offline after sync.",
+      "rationale": "Requires time-windowed aggregation from the local store; the output shape is designed for LLM pipelines.",
+      "example": "product-hunt-pp-cli digest developer-tools --yesterday --json",
+      "why_it_matters": "Use in morning briefing scripts or LLM pipelines to get a structured feed of top launches without hitting rate limits.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Watchlist",
+      "command": "watchlist",
+      "description": "Pin any posts (yours, competitors), then batch-refresh all of them at once to see current stats and deltas.",
+      "rationale": "Requires local JSON state for the pinned list plus GraphQL queries for each; no existing PH CLI has a named watchlist.",
+      "example": "product-hunt-pp-cli watchlist refresh --json",
+      "why_it_matters": "Use to track your own launch and a handful of competitors without opening the browser.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Topic Subscription Inbox",
+      "command": "topics inbox",
+      "description": "See only posts that are new since you last checked for each subscribed topic — cursor-based, never re-shows seen launches.",
+      "rationale": "Requires storing a per-topic last-seen cursor locally and querying the API for posts newer than that cursor.",
+      "example": "product-hunt-pp-cli topics inbox --json --select posts.name,posts.votesCount",
+      "why_it_matters": "Use for competitive monitoring workflows where you want exactly the delta since last run, not a full topic dump.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Topic Velocity",
+      "command": "topics velocity",
+      "description": "Week-over-week post count and average vote delta for a topic — is your category heating up or cooling down?",
+      "rationale": "Requires time-windowed aggregation grouped by week from the synced store; not computable from a single API call.",
+      "example": "product-hunt-pp-cli topics velocity developer-tools --weeks 4 --agent",
+      "why_it_matters": "Use to decide whether a category is worth entering or to track how competitive dynamics are shifting over time.",
+      "group": "Launch intelligence"
+    },
+    {
+      "name": "Post Vote-Rate",
+      "command": "posts vote-rate",
+      "description": "Rank posts by votes-per-day-since-launch instead of raw vote totals — surfaces underrated recent launches.",
+      "rationale": "Requires computing votes ÷ days-since-launch for each synced post; raw-votes ranking buries recent products under old ones.",
+      "example": "product-hunt-pp-cli posts vote-rate --topic developer-tools --days 30 --json",
+      "why_it_matters": "Use to find products with strong launch momentum that raw vote leaderboards don't surface.",
+      "group": "Launch intelligence"
+    },
+    {
+      "name": "Trending Topics",
+      "command": "topics trending",
+      "description": "Which topics have the fastest-growing post count and vote volume this week versus last week?",
+      "rationale": "Requires comparing this week vs prior week grouped by topic from the synced store; a single API call cannot return this.",
+      "example": "product-hunt-pp-cli topics trending --days 7 --agent",
+      "why_it_matters": "Use to identify emerging categories before they peak, or to find where to launch for maximum visibility.",
+      "group": "Launch intelligence"
+    },
+    {
+      "name": "Cross-Topic Post Finder",
+      "command": "posts cross-topic",
+      "description": "Find posts that appear in multiple specified topics simultaneously — 'AI tools that are also productivity tools'.",
+      "rationale": "Requires a SQLite JOIN on the post_topics table across multiple topic slugs; not a trivial query for non-SQL users.",
+      "example": "product-hunt-pp-cli posts cross-topic --topics artificial-intelligence,productivity --json",
+      "why_it_matters": "Use to find products in your exact market niche where multiple category labels intersect.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Maker Portfolio Summary",
+      "command": "makers portfolio",
+      "description": "Aggregate stats across a maker's full product history: total votes, avg per launch, best launch, days since last launch.",
+      "rationale": "Requires fetching all user posts from the API and aggregating across them; no existing CLI surfaces these combined stats.",
+      "example": "product-hunt-pp-cli makers portfolio rrhoover --json",
+      "why_it_matters": "Use to research prolific makers before collaborating, or track your own cumulative launch impact.",
+      "group": "Launch intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Product Hunt",
+    "headline": "Every Product Hunt feature, plus launch-day momentum tracking, offline search, and a local database no other Product Hunt tool has.",
+    "value_prop": "product-hunt-pp-cli syncs launches, topics, and makers to a local SQLite store so you can query them offline, track vote momentum in real time, and pipe structured JSON into your own scripts. Whether you're researching a launch, monitoring a topic, or building a daily briefing, this CLI gives you PH data without the browser.",
+    "auth_narrative": "Get a free developer token from your Product Hunt API Dashboard (producthunt.com → Settings → API Dashboard → Create Application → Developer Token). Set PRODUCT_HUNT_TOKEN in your environment. The token never expires.",
+    "quickstart": [
+      {
+        "command": "product-hunt-pp-cli auth set-token $PRODUCT_HUNT_TOKEN",
+        "comment": "Store your developer token once"
+      },
+      {
+        "command": "product-hunt-pp-cli doctor",
+        "comment": "Verify token and API connectivity"
+      },
+      {
+        "command": "product-hunt-pp-cli sync --since 7d",
+        "comment": "Sync the last 7 days of launches to your local store"
+      },
+      {
+        "command": "product-hunt-pp-cli posts today --json",
+        "comment": "See today's top launches as structured JSON"
+      },
+      {
+        "command": "product-hunt-pp-cli digest developer-tools --yesterday",
+        "comment": "Structured briefing of yesterday's developer-tools launches"
+      },
+      {
+        "command": "product-hunt-pp-cli watchlist add ray-so \u0026\u0026 product-hunt-pp-cli watchlist refresh",
+        "comment": "Track a post and see its current stats"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on any command",
+        "fix": "Run `product-hunt-pp-cli auth set-token \u003ctoken\u003e` with your developer token from the PH API Dashboard"
+      },
+      {
+        "symptom": "Rate limit errors (429)",
+        "fix": "The API allows ~60 req/min. Use `sync` once, then rely on offline commands (`digest`, `topics velocity`, `posts vote-rate`)"
+      },
+      {
+        "symptom": "Empty results from `digest` or `posts vote-rate`",
+        "fix": "Run `product-hunt-pp-cli sync --since 30d` first to populate the local store"
+      },
+      {
+        "symptom": "Cloudflare challenge on API calls",
+        "fix": "This only affects unauthenticated access. A valid PRODUCT_HUNT_TOKEN bypasses the challenge"
+      }
+    ],
+    "when_to_use": "Use product-hunt-pp-cli when you need structured Product Hunt data in scripts, LLM pipelines, or CI workflows. Best for founders tracking launch-day momentum, developers monitoring topic velocity, and agents running daily briefings. Prefer this over manual PH browsing for any repeatable data workflow.",
+    "recipes": [
+      {
+        "title": "Morning launch briefing",
+        "command": "product-hunt-pp-cli digest developer-tools --yesterday --json | jq '.posts[] | {name, votes: .votesCount, tagline}'",
+        "explanation": "Get yesterday's developer-tools launches as a structured JSON feed for your morning script or LLM pipeline"
+      },
+      {
+        "title": "Track your own launch",
+        "command": "product-hunt-pp-cli watchlist add my-product-slug \u0026\u0026 product-hunt-pp-cli posts momentum my-product-slug",
+        "explanation": "Pin your launch and see live vote+comment deltas since your last check"
+      },
+      {
+        "title": "Pre-launch competitive audit",
+        "command": "product-hunt-pp-cli topics audit developer-tools --limit 20 --agent --select posts.name,posts.votesCount,posts.makers.username",
+        "explanation": "Get every recent launch in developer-tools ranked by votes with maker overlap — use --select to narrow the response for agents"
+      },
+      {
+        "title": "Topic trend analysis",
+        "command": "product-hunt-pp-cli topics velocity developer-tools --weeks 4 --agent",
+        "explanation": "See week-over-week post count and avg vote delta to understand whether your target category is heating up"
+      },
+      {
+        "title": "New-only topic feed",
+        "command": "product-hunt-pp-cli topics subscribe developer-tools \u0026\u0026 product-hunt-pp-cli topics inbox --json",
+        "explanation": "Subscribe to a topic and see only posts you haven't seen yet — advances the cursor so next run shows only newer launches"
+      }
+    ],
+    "trigger_phrases": [
+      "what launched on Product Hunt today",
+      "track my Product Hunt launch",
+      "competitor research on Product Hunt",
+      "Product Hunt topic monitoring",
+      "which topics are trending on Product Hunt",
+      "use product-hunt",
+      "run product-hunt-pp-cli"
+    ]
+  }
+}

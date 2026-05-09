@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "product-hunt-pp-mcp",
+  "display_name": "Product Hunt",
+  "version": "4.2.0",
+  "description": "Product Hunt API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/product-hunt-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/product-hunt-pp-mcp",
+      "args": [],
+      "env": {
+        "PRODUCT_HUNT_TOKEN": "${user_config.product_hunt_token}"
+      }
+    }
+  },
+  "user_config": {
+    "product_hunt_token": {
+      "type": "string",
+      "title": "PRODUCT_HUNT_TOKEN",
+      "description": "Sets PRODUCT_HUNT_TOKEN for the Product Hunt MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,225 @@
+name: product-hunt
+description: "Discover, track, and analyze Product Hunt launches, topics, and makers — with offline search and launch-day momentum tracking"
+version: "0.1.0"
+base_url: "https://api.producthunt.com/v2/api"
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  env_vars:
+    - PRODUCT_HUNT_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/product-hunt-pp-cli/config.toml"
+
+resources:
+  posts:
+    description: "Browse and track Product Hunt launches"
+    endpoints:
+      list:
+        method: GET
+        path: "/graphql"
+        description: "List posts with optional topic, sort, and date filters"
+        params:
+          - name: topic
+            type: string
+            description: "Filter by topic slug (e.g. developer-tools)"
+          - name: sort
+            type: string
+            description: "Sort order: RANKING, NEWEST, VOTES, FEATURED_AT (default: RANKING)"
+          - name: featured
+            type: bool
+            description: "Only show featured posts"
+          - name: after
+            type: string
+            description: "Show posts after this date (ISO 8601)"
+          - name: before
+            type: string
+            description: "Show posts before this date (ISO 8601)"
+          - name: limit
+            type: int
+            description: "Maximum number of posts to return (default: 20)"
+        response:
+          type: array
+          item: Post
+
+      get:
+        method: GET
+        path: "/graphql/{slug}"
+        description: "Get a specific post by slug or numeric ID"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Post slug or numeric ID"
+        response:
+          type: object
+          item: Post
+
+      comments:
+        method: GET
+        path: "/graphql/{slug}/comments"
+        description: "List comments for a post"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Post slug or numeric ID"
+          - name: sort
+            type: string
+            description: "Sort order: NEWEST, VOTES (default: VOTES)"
+          - name: limit
+            type: int
+            description: "Maximum comments to return (default: 20)"
+        response:
+          type: array
+          item: Comment
+
+  topics:
+    description: "Browse and monitor Product Hunt topic categories"
+    endpoints:
+      list:
+        method: GET
+        path: "/graphql/topics"
+        description: "List topics with optional search query"
+        params:
+          - name: query
+            type: string
+            description: "Filter topics by name"
+          - name: limit
+            type: int
+            description: "Maximum topics to return (default: 20)"
+          - name: sort
+            type: string
+            description: "Sort order: NEWEST, FOLLOWERS_COUNT (default: FOLLOWERS_COUNT)"
+        response:
+          type: array
+          item: Topic
+
+      get:
+        method: GET
+        path: "/graphql/topics/{slug}"
+        description: "Get a topic by slug or numeric ID"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Topic slug or numeric ID"
+        response:
+          type: object
+          item: Topic
+
+  users:
+    description: "Look up Product Hunt maker and hunter profiles"
+    endpoints:
+      get:
+        method: GET
+        path: "/graphql/users/{username}"
+        description: "Get a user profile by username or numeric ID"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Username or numeric ID"
+          - name: posts_limit
+            type: int
+            description: "Number of recent posts to include (default: 10)"
+        response:
+          type: object
+          item: User
+
+      me:
+        method: GET
+        path: "/graphql/viewer"
+        description: "Get the authenticated user's profile"
+        response:
+          type: object
+          item: User
+
+      follow:
+        method: POST
+        path: "/graphql/users/{username}/follow"
+        description: "Follow a user"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Username to follow"
+        response:
+          type: object
+          item: User
+
+      unfollow:
+        method: DELETE
+        path: "/graphql/users/{username}/follow"
+        description: "Unfollow a user"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Username to unfollow"
+        response:
+          type: object
+          item: User
+
+  collections:
+    description: "Browse Product Hunt curated collections"
+    endpoints:
+      list:
+        method: GET
+        path: "/graphql/collections"
+        description: "List collections"
+        params:
+          - name: featured
+            type: bool
+            description: "Only show featured collections"
+          - name: user
+            type: string
+            description: "Filter by user ID"
+          - name: limit
+            type: int
+            description: "Maximum collections to return (default: 20)"
+          - name: sort
+            type: string
+            description: "Sort order: NEWEST, FOLLOWERS_COUNT, FEATURED_AT (default: FOLLOWERS_COUNT)"
+        response:
+          type: array
+          item: Collection
+
+      get:
+        method: GET
+        path: "/graphql/collections/{slug}"
+        description: "Get a collection by slug or numeric ID"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Collection slug or numeric ID"
+        response:
+          type: object
+          item: Collection
+
+  comments:
+    description: "Look up individual Product Hunt comments"
+    endpoints:
+      get:
+        method: GET
+        path: "/graphql/comments/{id}"
+        description: "Get a comment by ID"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Comment numeric ID"
+        response:
+          type: object
+          item: Comment
