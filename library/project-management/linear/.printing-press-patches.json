@@ -7,7 +7,7 @@
     {
       "id": "linear-auth-api-key-vs-oauth-token",
       "summary": "Add auth set-api-key for Linear personal API keys; keep set-token for OAuth access_token.",
-      "reason": "AuthHeader reads api_key only. Saving lin_api keys via set-token wrote access_token so the CLI reported success but GraphQL returned 401.",
+      "reason": "AuthHeader must use api_key for personal keys and Bearer access_token for OAuth. set-api-key vs set-token; lin_api keys must not use set-token alone without Bearer wiring.",
       "files": ["internal/cli/auth.go", "internal/config/config.go"]
     }
   ]

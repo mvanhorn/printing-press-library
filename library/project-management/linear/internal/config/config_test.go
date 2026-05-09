@@ -77,6 +77,44 @@ func TestSaveTokens_persistsAccessToken(t *testing.T) {
 		// set-token does not clear api_key; api_key still takes precedence in AuthHeader().
 		t.Fatalf("api_key: got %q", cfg3.LinearApiKey)
 	}
+	if got := cfg3.AuthHeader(); got != "lin_api_existing" {
+		t.Fatalf("AuthHeader: want api_key value, got %q", got)
+	}
+}
+
+func TestAuthHeader_oauthAccessTokenOnly_usesBearerScheme(t *testing.T) {
+	t.Parallel()
+
+	cfg := &Config{
+		Path:         "/dev/null",
+		BaseURL:      "https://api.linear.app/graphql",
+		AccessToken:  "oauth_access_example",
+		LinearApiKey: "",
+	}
+	if got := cfg.AuthHeader(); got != "Bearer oauth_access_example" {
+		t.Fatalf("AuthHeader: got %q", got)
+	}
+}
+
+func TestLoad_authSourceConfigAccessToken(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.toml")
+	if err := os.WriteFile(path, []byte("access_token = 'oauth_from_file'\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if cfg.AuthSource != "config:access_token" {
+		t.Fatalf("AuthSource: got %q", cfg.AuthSource)
+	}
+	if got := cfg.AuthHeader(); got != "Bearer oauth_from_file" {
+		t.Fatalf("AuthHeader: got %q", got)
+	}
 }
 
 func TestLoad_authSourceConfigApiKey(t *testing.T) {

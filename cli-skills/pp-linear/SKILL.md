@@ -40,7 +40,7 @@ If `--version` reports "command not found" after install, the install step did n
 
 ## Cursor
 
-Personal API keys are created under **Account → Security & access** in Linear, not under Integrations. For step-by-step Cursor setup (keys, `auth set-api-key`, optional MCP tradeoffs), see [CURSOR.md](https://github.com/mvanhorn/printing-press-library/blob/main/library/project-management/linear/CURSOR.md) in the Linear module (mirrored verbatim under `cli-skills/pp-linear/`).
+Personal API keys are created under **Account → Security & access** in Linear, not under Integrations. For step-by-step Cursor setup (keys, `auth set-api-key`, optional MCP tradeoffs), see [CURSOR.md](https://github.com/mvanhorn/printing-press-library/blob/main/library/project-management/linear/CURSOR.md) in the Linear module.
 
 ## When to Use This CLI
 
