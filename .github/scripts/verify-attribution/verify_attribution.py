@@ -4,7 +4,7 @@
 This check is intentionally PR-scoped. It compares the pull request head to
 the base branch and enforces three rules:
 
-1. Every CLI manifest in the PR head must include non-empty printer fields.
+1. Every touched CLI manifest in the PR head must include non-empty printer fields.
 2. Existing CLIs may not change attribution fields in the same PR that changes
    the CLI surface. Attribution corrections are allowed, but they must be
    reviewable as attribution-only changes.
@@ -85,11 +85,6 @@ def read_json(ref: str, path: str) -> dict[str, Any] | None:
 def changed_files(base: str, head: str) -> list[str]:
     out = git("diff", "--name-only", f"{base}...{head}")
     return [line for line in out.splitlines() if line]
-
-
-def manifest_paths(head: str) -> list[str]:
-    out = git("ls-tree", "-r", "--name-only", head, "--", "library")
-    return [line for line in out.splitlines() if line.endswith("/.printing-press.json")]
 
 
 def cli_root_for_path(path: str) -> tuple[str, str] | None:
@@ -261,9 +256,12 @@ def validate_new_cli(head: str, change: CLIChange) -> list[str]:
     return problems
 
 
-def validate_manifest_attribution_presence(head: str) -> list[str]:
+def validate_manifest_attribution_presence(head: str, roots: list[str]) -> list[str]:
     problems: list[str] = []
-    for manifest_path in manifest_paths(head):
+    for root in roots:
+        manifest_path = f"{root}/.printing-press.json"
+        if not path_exists(head, manifest_path):
+            continue
         manifest = read_json(head, manifest_path)
         if manifest is None:
             problems.append(
@@ -283,7 +281,7 @@ def validate_manifest_attribution_presence(head: str) -> list[str]:
 def run(base: str, head: str) -> int:
     files = changed_files(base, head)
     changes_by_api: dict[str, CLIChange] = {}
-    failures = validate_manifest_attribution_presence(head)
+    failures: list[str] = []
 
     for path in files:
         root_info = cli_root_for_path(path)
@@ -303,6 +301,11 @@ def run(base: str, head: str) -> int:
             analyze_library_file(base, head, change, path, rest)
         elif rest != ".printing-press.json" or path_exists(head, head_manifest_path):
             change.surface_changes.append(path)
+
+    changed_existing_roots = sorted(
+        {change.root for change in changes_by_api.values() if change.existing}
+    )
+    failures.extend(validate_manifest_attribution_presence(head, changed_existing_roots))
 
     # cli-skills mirrors are generated, but an author flip there is still an
     # attribution-sensitive change. Pair it with library surface changes below.
