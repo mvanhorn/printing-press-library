@@ -1,5 +1,5 @@
 {
-  "api_name": "fireflies-pp-cli",
+  "api_name": "fireflies",
   "base_url": "https://api.example.com",
   "description": "Generated from GraphQL schema",
   "mcp_ready": "full",
@@ -8,11 +8,11 @@
     "type": "api_key",
     "header": "Authorization",
     "env_vars": [
-      "FIREFLIES_PP_CLI_API_KEY"
+      "FIREFLIES_API_KEY"
     ],
     "env_var_specs": [
       {
-        "name": "FIREFLIES_PP_CLI_API_KEY",
+        "name": "FIREFLIES_API_KEY",
         "kind": "per_call",
         "required": true,
         "sensitive": true,
@@ -202,7 +202,7 @@
     },
     {
       "name": "contacts_get",
-      "description": "Get a single contact. Returns the Contact.",
+      "description": "List all team contacts from the Fireflies workspace. No required parameters. Returns each contact's email, name, and last_meeting date. Use this to enumerate people your team has met with — useful for building participant filters or checking relationship history.",
       "method": "GET",
       "path": "/graphql",
       "params": []
@@ -296,14 +296,14 @@
     },
     {
       "name": "user-groups_get",
-      "description": "Get a single usergroup. Returns the UserGroup.",
+      "description": "List all user groups in the Fireflies workspace. No required parameters. Returns each group's id, name, and members array (each member has user_id, email, name). Use this to see how the team is organized before filtering transcripts by group membership.",
       "method": "GET",
       "path": "/graphql",
       "params": []
     },
     {
       "name": "users_get",
-      "description": "Get a single user. Returns the User.",
+      "description": "List all team members in the Fireflies workspace. No required parameters. Returns each member's user_id, email, name, num_transcripts, minutes_consumed, is_admin, integrations, and is_calendar_in_sync. Use this to find team member IDs for transcript filtering or to audit workspace membership.",
       "method": "GET",
       "path": "/graphql",
       "params": []

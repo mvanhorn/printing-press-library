@@ -15,8 +15,8 @@ import (
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/productivity/fireflies/internal/cli"
-	"github.com/mvanhorn/printing-press-library/library/productivity/fireflies/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/fireflies/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/productivity/fireflies/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/fireflies/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/productivity/fireflies/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/productivity/fireflies/internal/store"
@@ -33,7 +33,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "email", WireName: "email", Location: "query"},{PublicName: "states", WireName: "states", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "email", WireName: "email", Location: "query"}, {PublicName: "states", WireName: "states", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("active-meetings_update",
@@ -42,7 +42,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("state", mcplib.Required(), mcplib.Description("")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"},{PublicName: "state", WireName: "state", Location: "query"}, }, []string{"id", }),
+		makeAPIHandler("PATCH", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}, {PublicName: "state", WireName: "state", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("analyticses_get",
@@ -53,7 +53,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "start_time", WireName: "start_time", Location: "query"},{PublicName: "end_time", WireName: "end_time", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("app-outputs_get",
@@ -64,7 +64,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "transcript_id", WireName: "transcript_id", Location: "query"},{PublicName: "limit", WireName: "limit", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "transcript_id", WireName: "transcript_id", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("ask-fred-responses_create",
@@ -75,7 +75,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/graphql", []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"},{PublicName: "transcript_id", WireName: "transcript_id", Location: "query"},{PublicName: "response_language", WireName: "response_language", Location: "query"}, }, []string{ }),
+		makeAPIHandler("POST", "/graphql", []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"}, {PublicName: "transcript_id", WireName: "transcript_id", Location: "query"}, {PublicName: "response_language", WireName: "response_language", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("ask-fred-thread-summaries_get",
@@ -84,7 +84,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{ }, []string{ }),
+		makeAPIHandler("GET", "/graphql", []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("ask-fred-threads_get",
@@ -94,7 +94,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}, }, []string{"id", }),
+		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bites_create",
@@ -106,7 +106,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/graphql", []mcpParamBinding{{PublicName: "transcript_id", WireName: "transcript_id", Location: "query"},{PublicName: "start_time", WireName: "start_time", Location: "query"},{PublicName: "end_time", WireName: "end_time", Location: "query"},{PublicName: "title", WireName: "title", Location: "query"}, }, []string{ }),
+		makeAPIHandler("POST", "/graphql", []mcpParamBinding{{PublicName: "transcript_id", WireName: "transcript_id", Location: "query"}, {PublicName: "start_time", WireName: "start_time", Location: "query"}, {PublicName: "end_time", WireName: "end_time", Location: "query"}, {PublicName: "title", WireName: "title", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bites_get",
@@ -116,7 +116,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}, }, []string{"id", }),
+		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("channels_get",
@@ -126,16 +126,16 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}, }, []string{"id", }),
+		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("contacts_get",
-			mcplib.WithDescription("Get a single contact. Returns the Contact."),
+			mcplib.WithDescription("List all team contacts from the Fireflies workspace. No required parameters. Returns each contact's email, name, and last_meeting date. Use this to enumerate people your team has met with — useful for building participant filters or checking relationship history."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{ }, []string{ }),
+		makeAPIHandler("GET", "/graphql", []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("live-action-items_create",
@@ -146,7 +146,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/graphql", []mcpParamBinding{{PublicName: "meeting_id", WireName: "meeting_id", Location: "query"},{PublicName: "description", WireName: "description", Location: "query"},{PublicName: "assigned_to", WireName: "assigned_to", Location: "query"}, }, []string{ }),
+		makeAPIHandler("POST", "/graphql", []mcpParamBinding{{PublicName: "meeting_id", WireName: "meeting_id", Location: "query"}, {PublicName: "description", WireName: "description", Location: "query"}, {PublicName: "assigned_to", WireName: "assigned_to", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("live-action-items_get",
@@ -156,7 +156,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "meeting_id", WireName: "meeting_id", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "meeting_id", WireName: "meeting_id", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mutation-results_delete",
@@ -165,7 +165,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/graphql", []mcpParamBinding{{PublicName: "thread_id", WireName: "thread_id", Location: "query"}, }, []string{ }),
+		makeAPIHandler("DELETE", "/graphql", []mcpParamBinding{{PublicName: "thread_id", WireName: "thread_id", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mutation-results_update",
@@ -174,7 +174,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("channel_id", mcplib.Required(), mcplib.Description("")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"},{PublicName: "channel_id", WireName: "channel_id", Location: "query"}, }, []string{"id", }),
+		makeAPIHandler("PATCH", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}, {PublicName: "channel_id", WireName: "channel_id", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("transcripts_get",
@@ -184,25 +184,25 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}, }, []string{"id", }),
+		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("user-groups_get",
-			mcplib.WithDescription("Get a single usergroup. Returns the UserGroup."),
+			mcplib.WithDescription("List all user groups in the Fireflies workspace. No required parameters. Returns each group's id, name, and members array (each member has user_id, email, name). Use this to see how the team is organized before filtering transcripts by group membership."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{ }, []string{ }),
+		makeAPIHandler("GET", "/graphql", []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("users_get",
-			mcplib.WithDescription("Get a single user. Returns the User."),
+			mcplib.WithDescription("List all team members in the Fireflies workspace. No required parameters. Returns each member's user_id, email, name, num_transcripts, minutes_consumed, is_admin, integrations, and is_calendar_in_sync. Use this to find team member IDs for transcript filtering or to audit workspace membership."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{ }, []string{ }),
+		makeAPIHandler("GET", "/graphql", []mcpParamBinding{}, []string{}),
 	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
@@ -389,6 +389,7 @@ func dbPath() string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", "fireflies-pp-cli", "data.db")
 }
+
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
 
@@ -492,7 +493,7 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
 		"api":         "fireflies",
-		"description": "Every Fireflies meeting feature, plus offline search, cross-meeting intelligence, and a local database no other tool...",
+		"description": "Generated from GraphQL schema",
 		"archetype":   "communication",
 		"tool_count":  18,
 		// tool_surface tells agents which surface a capability lives on.
@@ -501,92 +502,92 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"type": "api_key",
 			"env_vars": []map[string]any{
 				{
-					"name": "FIREFLIES_API_KEY",
-					"kind": "per_call",
-					"required": true,
-					"sensitive": true,
+					"name":        "FIREFLIES_API_KEY",
+					"kind":        "per_call",
+					"required":    true,
+					"sensitive":   true,
 					"description": "Set to your API credential.",
 				},
 			},
 		},
 		"resources": []map[string]any{
 			{
-				"name": "active-meetings",
+				"name":        "active-meetings",
 				"description": "Manage active-meetings",
-				"endpoints": []string{"get", "update",  },
-				"searchable": true,
+				"endpoints":   []string{"get", "update"},
+				"searchable":  true,
 			},
 			{
-				"name": "analyticses",
+				"name":        "analyticses",
 				"description": "Manage analyticses",
-				"endpoints": []string{"get",  },
-				"searchable": true,
+				"endpoints":   []string{"get"},
+				"searchable":  true,
 			},
 			{
-				"name": "app-outputs",
+				"name":        "app-outputs",
 				"description": "Manage app-outputs",
-				"endpoints": []string{"get",  },
-				"searchable": true,
+				"endpoints":   []string{"get"},
+				"searchable":  true,
 			},
 			{
-				"name": "ask-fred-responses",
+				"name":        "ask-fred-responses",
 				"description": "Manage ask-fred-responses",
-				"endpoints": []string{"create",  },
+				"endpoints":   []string{"create"},
 			},
 			{
-				"name": "ask-fred-thread-summaries",
+				"name":        "ask-fred-thread-summaries",
 				"description": "Manage ask-fred-thread-summaries",
-				"endpoints": []string{"get",  },
+				"endpoints":   []string{"get"},
 			},
 			{
-				"name": "ask-fred-threads",
+				"name":        "ask-fred-threads",
 				"description": "Manage ask-fred-threads",
-				"endpoints": []string{"get",  },
-				"searchable": true,
+				"endpoints":   []string{"get"},
+				"searchable":  true,
 			},
 			{
-				"name": "bites",
+				"name":        "bites",
 				"description": "Manage bites",
-				"endpoints": []string{"create", "get",  },
-				"searchable": true,
+				"endpoints":   []string{"create", "get"},
+				"searchable":  true,
 			},
 			{
-				"name": "channels",
+				"name":        "channels",
 				"description": "Manage channels",
-				"endpoints": []string{"get",  },
-				"searchable": true,
+				"endpoints":   []string{"get"},
+				"searchable":  true,
 			},
 			{
-				"name": "contacts",
+				"name":        "contacts",
 				"description": "Manage contacts",
-				"endpoints": []string{"get",  },
+				"endpoints":   []string{"get"},
 			},
 			{
-				"name": "live-action-items",
+				"name":        "live-action-items",
 				"description": "Manage live-action-items",
-				"endpoints": []string{"create", "get",  },
-				"searchable": true,
+				"endpoints":   []string{"create", "get"},
+				"searchable":  true,
 			},
 			{
-				"name": "mutation-results",
+				"name":        "mutation-results",
 				"description": "Manage mutation-results",
-				"endpoints": []string{"delete", "update",  },
+				"endpoints":   []string{"delete", "update"},
 			},
 			{
-				"name": "transcripts",
+				"name":        "transcripts",
 				"description": "Manage transcripts",
-				"endpoints": []string{"get",  },
-				"searchable": true,
+				"endpoints":   []string{"get"},
+				"searchable":  true,
 			},
 			{
-				"name": "user-groups",
+				"name":        "user-groups",
 				"description": "Manage user-groups",
-				"endpoints": []string{"get",  },
+				"endpoints":   []string{"get"},
 			},
 			{
-				"name": "users",
+				"name":        "users",
 				"description": "Manage users",
-				"endpoints": []string{"get",  },
+				"endpoints":   []string{"get"},
 			},
 		},
 		"query_tips": []string{
@@ -599,26 +600,24 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Stale Action Items", "command": "action-items stale", "description": "Surface action items from past meetings that were never referenced in any subsequent meeting — dropped commitments...", "rationale": "Requires joining action item text across all transcripts for recurrence detection; no single API call returns...", "via": "mcp-command-mirror"},
-			{"name": "Person Timeline", "command": "person timeline", "description": "Chronological history of every meeting with a specific person — topics, action items, talk ratio, sentiment per...", "rationale": "Requires joining speakers + summaries + transcripts across arbitrary date ranges by participant name; the API...", "via": "mcp-command-mirror"},
-			{"name": "Pre-Meeting Brief", "command": "brief upcoming", "description": "Generates a context brief from prior meetings with today's participants — no new API calls needed.", "rationale": "Offline participant matching against local store to generate history brief; requires cross-meeting join on speaker...", "via": "mcp-command-mirror"},
-			{"name": "Offline Full-Text Search", "command": "search", "description": "Full-text search across all synced meeting transcripts without consuming any API quota.", "rationale": "FTS5 across sentences table — runs entirely offline after sync; API has no equivalent cross-meeting sentence search.", "via": "mcp-command-mirror"},
-			{"name": "Talk Ratio Trend", "command": "analytics talk-trend", "description": "Tracks a person's talk ratio per meeting over time — reveals coaching outcomes or disengagement.", "rationale": "Requires joining speakers table across meetings ordered by date; the API has no trend endpoint, only per-meeting stats.", "via": "mcp-command-mirror"},
-			{"name": "Topic Drift", "command": "topic drift", "description": "Plots how frequently a topic appeared across meetings over time — shows whether an issue is escalating or resolving.", "rationale": "Requires full-text sentence search aggregated by calendar week across the full corpus; no API equivalent.", "via": "mcp-command-mirror"},
-			{"name": "Dead-End Decisions", "command": "decisions stale", "description": "Surfaces sentences containing decision language that were never referenced in any subsequent meeting.", "rationale": "Requires full-text pattern matching on decision-language sentences with temporal join across corpus; no API endpoint...", "via": "mcp-command-mirror"},
-			{"name": "Meeting Load", "command": "analytics meeting-load", "description": "Shows each team member's total meeting hours per week over a rolling window — burnout risk signal.", "rationale": "Requires aggregating transcript duration across participants by calendar week; metric absent from all API analytics...", "via": "mcp-command-mirror"},
-			{"name": "Recurring Complaints", "command": "person complaints", "description": "Extracts negative-sentiment sentences from a specific person across all meetings, ranked by recurrence.", "rationale": "Requires joining ai_filters (sentiment=NEGATIVE) on sentences table filtered by speaker_name across all meetings.", "via": "mcp-command-mirror"},
+			{"name": "Offline Full-Text Search", "command": "transcripts search", "description": "Full-text search across all synced meeting transcripts without consuming any API quota.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Person Timeline", "command": "person timeline", "description": "Chronological meeting history with a specific person — topics, action items, and talk ratio per meeting.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Cross-Meeting Action Items", "command": "action-items list", "description": "Aggregate action items from all meetings in a date range — weekly commitment audit in one command.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Smart Meeting Discovery", "command": "transcripts find", "description": "Find meetings by participant email, channel name, keyword, or date range — all client-side, no broken API date...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Processing Status Check", "command": "transcripts status", "description": "Show PROCESSED / PROCESSING / FAILED status for recent meetings upfront — know before you fetch.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Topic Frequency Analysis", "command": "topics list", "description": "Most frequent topics across all meetings in a date range — what is actually consuming meeting time.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Morning Digest", "command": "digest", "description": "Aggregate view of all recent meetings: titles, gists, topics, and action items in one structured output.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Vault Export", "command": "transcripts export", "description": "Export a transcript as markdown to a vault directory with auto-generated YYYY-MM-DD_title.md filename.", "rationale": "", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Stale Action Items", "insight": "Requires joining action item text across all transcripts for recurrence detection; no single API call returns cross-meeting action item tracking."},
-			{"topic": "Person Timeline", "insight": "Requires joining speakers + summaries + transcripts across arbitrary date ranges by participant name; the API returns only per-meeting data."},
-			{"topic": "Pre-Meeting Brief", "insight": "Offline participant matching against local store to generate history brief; requires cross-meeting join on speaker emails against today's attendees."},
-			{"topic": "Offline Full-Text Search", "insight": "FTS5 across sentences table — runs entirely offline after sync; API has no equivalent cross-meeting sentence search."},
-			{"topic": "Talk Ratio Trend", "insight": "Requires joining speakers table across meetings ordered by date; the API has no trend endpoint, only per-meeting stats."},
-			{"topic": "Topic Drift", "insight": "Requires full-text sentence search aggregated by calendar week across the full corpus; no API equivalent."},
-			{"topic": "Dead-End Decisions", "insight": "Requires full-text pattern matching on decision-language sentences with temporal join across corpus; no API endpoint exists."},
-			{"topic": "Meeting Load", "insight": "Requires aggregating transcript duration across participants by calendar week; metric absent from all API analytics endpoints."},
-			{"topic": "Recurring Complaints", "insight": "Requires joining ai_filters (sentiment=NEGATIVE) on sentences table filtered by speaker_name across all meetings."},
+			{"topic": "Offline Full-Text Search", "insight": ""},
+			{"topic": "Person Timeline", "insight": ""},
+			{"topic": "Cross-Meeting Action Items", "insight": ""},
+			{"topic": "Smart Meeting Discovery", "insight": ""},
+			{"topic": "Processing Status Check", "insight": ""},
+			{"topic": "Topic Frequency Analysis", "insight": ""},
+			{"topic": "Morning Digest", "insight": ""},
+			{"topic": "Vault Export", "insight": ""},
 			{"topic": "Message search", "insight": "Use the search tool on synced data rather than paginating through message history. Message APIs often have aggressive rate limits."},
 			{"topic": "Channel health", "insight": "When analyzing channel activity, use the channel-health command or sql aggregation on synced messages. Don't iterate individual messages via API."},
 		},

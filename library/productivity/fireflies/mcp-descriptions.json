@@ -1,0 +1,7 @@
+{
+  "descriptions": {
+    "contacts_get": "List all team contacts from the Fireflies workspace. No required parameters. Returns each contact's email, name, and last_meeting date. Use this to enumerate people your team has met with — useful for building participant filters or checking relationship history.",
+    "user-groups_get": "List all user groups in the Fireflies workspace. No required parameters. Returns each group's id, name, and members array (each member has user_id, email, name). Use this to see how the team is organized before filtering transcripts by group membership.",
+    "users_get": "List all team members in the Fireflies workspace. No required parameters. Returns each member's user_id, email, name, num_transcripts, minutes_consumed, is_admin, integrations, and is_calendar_in_sync. Use this to find team member IDs for transcript filtering or to audit workspace membership."
+  }
+}

@@ -3,6 +3,7 @@
 package gql
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -27,7 +28,7 @@ func TestClientQuery(t *testing.T) {
 		limiter:    nil,
 	}
 
-	data, err := c.Do(t.Context(), `query { transcripts { id title } }`, nil)
+	data, err := c.Do(context.Background(), `query { transcripts { id title } }`, nil)
 	if err != nil {
 		t.Fatalf("Do: %v", err)
 	}
@@ -59,7 +60,7 @@ func TestClientQueryFieldExtraction(t *testing.T) {
 		limiter:    nil,
 	}
 
-	field, err := c.Query(t.Context(), `query { transcript(id: "xyz") { id title } }`, nil, "transcript")
+	field, err := c.Query(context.Background(), `query { transcript(id: "xyz") { id title } }`, nil, "transcript")
 	if err != nil {
 		t.Fatalf("Query: %v", err)
 	}
@@ -87,7 +88,7 @@ func TestClientRateLimit(t *testing.T) {
 		limiter:    nil,
 	}
 
-	_, err := c.Do(t.Context(), `query { transcripts { id } }`, nil)
+	_, err := c.Do(context.Background(), `query { transcripts { id } }`, nil)
 	if err == nil {
 		t.Fatal("expected rate limit error, got nil")
 	}

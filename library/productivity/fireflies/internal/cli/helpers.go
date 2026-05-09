@@ -7,19 +7,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/productivity/fireflies/internal/cliutil"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"io"
 	"os"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strings"
 	"text/tabwriter"
 	"time"
 	"unicode"
-	"github.com/mvanhorn/printing-press-library/library/productivity/fireflies/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/productivity/fireflies/internal/client"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 )
 
 var As = errors.As
@@ -93,11 +91,11 @@ type cliError struct {
 func (e *cliError) Error() string { return e.err.Error() }
 func (e *cliError) Unwrap() error { return e.err }
 
-func usageErr(err error) error    { return &cliError{code: 2, err: err} }
-func notFoundErr(err error) error { return &cliError{code: 3, err: err} }
-func authErr(err error) error     { return &cliError{code: 4, err: err} }
-func apiErr(err error) error      { return &cliError{code: 5, err: err} }
-func configErr(err error) error   { return &cliError{code: 10, err: err} }
+func usageErr(err error) error     { return &cliError{code: 2, err: err} }
+func notFoundErr(err error) error  { return &cliError{code: 3, err: err} }
+func authErr(err error) error      { return &cliError{code: 4, err: err} }
+func apiErr(err error) error       { return &cliError{code: 5, err: err} }
+func configErr(err error) error    { return &cliError{code: 10, err: err} }
 func rateLimitErr(err error) error { return &cliError{code: 7, err: err} }
 
 // dryRunOK reports whether the command should short-circuit without doing any
@@ -120,78 +118,6 @@ func rateLimitErr(err error) error { return &cliError{code: 7, err: err} }
 // See SKILL.md "Phase 3: Build The GOAT" for the full pattern.
 func dryRunOK(flags *rootFlags) bool {
 	return flags != nil && flags.dryRun
-}
-
-// accessWarning describes an API access-denial that sync converts into a
-// non-fatal warning. It carries enough structured data for the sync_warning
-// JSON event without parsing free-form error strings downstream.
-type accessWarning struct {
-	Status  int    // HTTP status when applicable; 0 for GraphQL field-level denials.
-	Reason  string // "forbidden" | "insufficient_access" | "unauthenticated"
-	Message string // human-readable detail (the API's body or GraphQL error message)
-}
-
-// accessDenialPatterns matches API error bodies that indicate the request was
-// rejected for access-policy reasons rather than for input validity. Matching
-// is case-insensitive and uses word boundaries so common substrings inside
-// unrelated tokens (e.g. "author", "pagination_token", "insufficient_funds")
-// do not produce false positives. The set deliberately excludes brand names —
-// vendor-specific phrasings should be addressed at the spec/profiler level,
-// not in this universal classifier.
-var accessDenialPatterns = []*regexp.Regexp{
-	regexp.MustCompile(`\bforbidden\b`),
-	regexp.MustCompile(`\bunauthorized\b`),
-	regexp.MustCompile(`\bnot[\s_-]?authorized\b`),
-	regexp.MustCompile(`\bpermission[\s_-]?denied\b`),
-	regexp.MustCompile(`\baccess[\s_-]?denied\b`),
-	regexp.MustCompile(`\binsufficient[\s_-]?(scope|permission|privilege)`),
-	regexp.MustCompile(`\binvalid[\s_-]?scope\b`),
-	regexp.MustCompile(`\bmissing[\s_-]?scope\b`),
-	regexp.MustCompile(`\brequires?\s+(elevated|admin|enterprise|business|workspace|enterprise[\s_-]?tier)`),
-}
-
-// looksLikeAccessDenial reports whether body text describes an access-policy
-// rejection. Use it on response-body content (apiErr.Body), not on the full
-// error string — the request path can contain words like "auth" or "tokens"
-// that would produce false positives if the whole error message were scanned.
-func looksLikeAccessDenial(body string) bool {
-	lower := strings.ToLower(body)
-	for _, p := range accessDenialPatterns {
-		if p.MatchString(lower) {
-			return true
-		}
-	}
-	return false
-}
-
-// isSyncAccessWarning classifies err as an access-denial warning suitable for
-// sync's warn-and-continue path. It returns nil, false for any error that
-// should remain a hard sync failure: HTTP 401 (token-level auth failure
-// requiring re-auth), 5xx, network errors, and HTTP 400 responses whose
-// bodies do not match an access-policy pattern.
-//
-// Recognized warning shapes:
-//   - HTTP 403 (per-resource ACL rejection)
-//   - HTTP 400 + access-denial body keyword (insufficient scope, etc.)
-//   - GraphQL response carrying only access-denial extension codes
-func isSyncAccessWarning(err error) (*accessWarning, bool) {
-	if err == nil {
-		return nil, false
-	}
-
-	var apiErr *client.APIError
-	if errors.As(err, &apiErr) {
-		switch apiErr.StatusCode {
-		case 403:
-			return &accessWarning{Status: 403, Reason: "forbidden", Message: apiErr.Body}, true
-		case 400:
-			if looksLikeAccessDenial(apiErr.Body) {
-				return &accessWarning{Status: 400, Reason: "insufficient_access", Message: apiErr.Body}, true
-			}
-		}
-	}
-
-	return nil, false
 }
 
 type noopResult struct {
@@ -250,14 +176,6 @@ func classifyAPIError(err error, flags *rootFlags) error {
 		return apiErr(err)
 	}
 }
-// classifyDeleteError maps DELETE errors and supports explicit idempotent no-op handling.
-func classifyDeleteError(err error, flags *rootFlags) error {
-	msg := err.Error()
-	if strings.Contains(msg, "HTTP 404") && flags != nil && flags.ignoreMissing {
-		return writeNoop(flags, "already_deleted", "already deleted (no-op)")
-	}
-	return classifyAPIError(err, flags)
-}
 
 func truncate(s string, max int) string {
 	if len(s) <= max {
@@ -271,9 +189,6 @@ func truncate(s string, max int) string {
 
 func newTabWriter(w io.Writer) *tabwriter.Writer {
 	return tabwriter.NewWriter(w, 2, 4, 2, ' ', 0)
-}
-func replacePathParam(path, name, value string) string {
-	return strings.ReplaceAll(path, "{"+name+"}", value)
 }
 
 // paginatedGet fetches pages and concatenates array results. The headers
@@ -1129,12 +1044,13 @@ func findField(obj map[string]any, names ...string) string {
 	}
 	return ""
 }
+
 // DataProvenance describes where data came from and when it was last synced.
 type DataProvenance struct {
 	Source       string     `json:"source"`                  // "live" or "local"
-	SyncedAt    *time.Time `json:"synced_at,omitempty"`     // when local data was last synced
-	Reason      string     `json:"reason,omitempty"`        // why local was used: "user_requested", "api_unreachable", "no_search_endpoint"
-	ResourceType string    `json:"resource_type,omitempty"` // which resource type was queried
+	SyncedAt     *time.Time `json:"synced_at,omitempty"`     // when local data was last synced
+	Reason       string     `json:"reason,omitempty"`        // why local was used: "user_requested", "api_unreachable", "no_search_endpoint"
+	ResourceType string     `json:"resource_type,omitempty"` // which resource type was queried
 	Freshness    any        `json:"freshness,omitempty"`     // optional machine-owned freshness metadata for covered command paths
 }
 
@@ -1200,35 +1116,6 @@ func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMess
 		"meta":    meta,
 	}
 	return json.Marshal(envelope)
-}
-
-// truncateJSONArray returns a JSON array containing at most n elements
-// from the input. When n <= 0, when the input isn't a JSON array, or
-// when the array is already at-or-below the limit, the input is
-// returned unchanged.
-//
-// Used by list-endpoint commands whose API ignores the ?limit=N query
-// param (e.g. Firebase-style endpoints that return the full collection
-// regardless of the param). The truncation is idempotent — calling it
-// when the API already honored the limit is a no-op. The generator
-// only emits the call when the spec declares a `limit` param without a
-// Pagination block, so paginated APIs are unaffected.
-func truncateJSONArray(data json.RawMessage, n int) json.RawMessage {
-	if n <= 0 {
-		return data
-	}
-	var arr []json.RawMessage
-	if err := json.Unmarshal(data, &arr); err != nil {
-		return data
-	}
-	if len(arr) <= n {
-		return data
-	}
-	out, err := json.Marshal(arr[:n])
-	if err != nil {
-		return data
-	}
-	return out
 }
 
 // defaultDBPath returns the canonical path for the local SQLite database.

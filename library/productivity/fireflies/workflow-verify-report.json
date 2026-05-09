@@ -1,5 +1,5 @@
 {
-  "dir": "/Users/neektza/printing-press/.runstate/cli-printing-press-c22e9309/runs/20260509-005754/working/fireflies-pp-cli",
+  "dir": ".",
   "workflows": null,
   "verdict": "workflow-pass",
   "issues": [

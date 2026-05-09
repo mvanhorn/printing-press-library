@@ -592,7 +592,6 @@ func newTranscriptsPullCmd(flags *rootFlags) *cobra.Command {
 		Example: strings.Trim(`
   fireflies-pp-cli transcripts pull abc123
   fireflies-pp-cli transcripts pull abc123 --json`, "\n"),
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -718,7 +717,6 @@ using the auto-generated filename: YYYY-MM-DD_<sanitized-title>.md`,
 		Example: strings.Trim(`
   fireflies-pp-cli transcripts export abc123 --vault ~/vaults/VBT/Projects/1_Active/Ryder/transcripts/
   fireflies-pp-cli transcripts export abc123 --output ./meeting-notes.md`, "\n"),
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -814,6 +812,10 @@ func newTranscriptsDeleteCmd(flags *rootFlags) *cobra.Command {
 			const q = `mutation DeleteTranscript($id: String!) { deleteTranscript(id: $id) { success message } }`
 			data, err := client.Query(cmd.Context(), q, map[string]any{"id": args[0]}, "deleteTranscript")
 			if err != nil {
+				msg := err.Error()
+				if strings.Contains(msg, "HTTP 404") && flags != nil && flags.ignoreMissing {
+					return writeNoop(flags, "already_deleted", "transcript already deleted (no-op)")
+				}
 				return fmt.Errorf("deleting transcript: %w", err)
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), data, flags)
@@ -882,8 +884,8 @@ func newTranscriptsShareCmd(flags *rootFlags) *cobra.Command {
 	var expiryDays int
 
 	cmd := &cobra.Command{
-		Use:   "share <id>",
-		Short: "Share a transcript with external email addresses",
+		Use:     "share <id>",
+		Short:   "Share a transcript with external email addresses",
 		Example: `  fireflies-pp-cli transcripts share abc123 --emails user@company.com --expiry 7`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -929,20 +931,20 @@ func newTranscriptsShareCmd(flags *rootFlags) *cobra.Command {
 
 // transcriptRow is a minimal struct for parsing transcript JSON from the store.
 type transcriptRow struct {
-	ID          string          `json:"id"`
-	Title       string          `json:"title"`
-	Date        float64         `json:"date"`
-	DateString  string          `json:"dateString"`
-	Duration    float64         `json:"duration"`
-	Privacy     string          `json:"privacy"`
-	OrgEmail    string          `json:"organizer_email"`
-	Participants []string       `json:"participants"`
-	MeetingInfo *meetingInfo    `json:"meeting_info"`
-	Summary     *summaryFields  `json:"summary"`
-	Channels    []channelRef    `json:"channels"`
-	Speakers    []speakerRef    `json:"speakers"`
-	Analytics   json.RawMessage `json:"analytics"`
-	Sentences   json.RawMessage `json:"sentences"`
+	ID           string          `json:"id"`
+	Title        string          `json:"title"`
+	Date         float64         `json:"date"`
+	DateString   string          `json:"dateString"`
+	Duration     float64         `json:"duration"`
+	Privacy      string          `json:"privacy"`
+	OrgEmail     string          `json:"organizer_email"`
+	Participants []string        `json:"participants"`
+	MeetingInfo  *meetingInfo    `json:"meeting_info"`
+	Summary      *summaryFields  `json:"summary"`
+	Channels     []channelRef    `json:"channels"`
+	Speakers     []speakerRef    `json:"speakers"`
+	Analytics    json.RawMessage `json:"analytics"`
+	Sentences    json.RawMessage `json:"sentences"`
 }
 
 type meetingInfo struct {
@@ -952,14 +954,14 @@ type meetingInfo struct {
 }
 
 type summaryFields struct {
-	ActionItems    string   `json:"action_items"`
-	Keywords       []string `json:"keywords"`
-	Overview       string   `json:"overview"`
-	ShorthandBullet string  `json:"shorthand_bullet"`
-	Gist           string   `json:"gist"`
-	Topics         []string `json:"topics_discussed"`
-	Outline        string   `json:"outline"`
-	Notes          string   `json:"notes"`
+	ActionItems     string   `json:"action_items"`
+	Keywords        []string `json:"keywords"`
+	Overview        string   `json:"overview"`
+	ShorthandBullet string   `json:"shorthand_bullet"`
+	Gist            string   `json:"gist"`
+	Topics          []string `json:"topics_discussed"`
+	Outline         string   `json:"outline"`
+	Notes           string   `json:"notes"`
 }
 
 type channelRef struct {
@@ -1136,4 +1138,3 @@ func renderTranscriptMarkdown(t *transcriptRow) string {
 	}
 	return sb.String()
 }
-

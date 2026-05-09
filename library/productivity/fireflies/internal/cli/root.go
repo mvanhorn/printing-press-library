@@ -21,25 +21,25 @@ import (
 var version = "1.0.0"
 
 type rootFlags struct {
-	asJSON       bool
-	compact      bool
-	csv          bool
-	plain        bool
-	quiet        bool
-	dryRun       bool
-	noCache      bool
-	noInput      bool
-	idempotent   bool
+	asJSON        bool
+	compact       bool
+	csv           bool
+	plain         bool
+	quiet         bool
+	dryRun        bool
+	noCache       bool
+	noInput       bool
+	idempotent    bool
 	ignoreMissing bool
-	yes          bool
-	agent        bool
-	selectFields string
-	configPath   string
-	profileName  string
-	deliverSpec  string
-	timeout      time.Duration
-	rateLimit    float64
-	dataSource   string
+	yes           bool
+	agent         bool
+	selectFields  string
+	configPath    string
+	profileName   string
+	deliverSpec   string
+	timeout       time.Duration
+	rateLimit     float64
+	dataSource    string
 	freshnessMeta any
 
 	// deliverBuf captures command output when --deliver is set to a
@@ -83,8 +83,8 @@ func Execute() error {
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "fireflies-pp-cli",
-		Short: `Fireflies CLI — Every Fireflies meeting feature, plus offline search, cross-meeting intelligence, and a local database no other tool ha…`,
-		Long: `Fireflies CLI — Every Fireflies meeting feature, plus offline search, cross-meeting intelligence, and a local database no other tool ha…
+		Short: `Fireflies CLI with offline full-text search, cross-meeting intelligence, morning digest, and a local cache no other tool has.`,
+		Long: `Fireflies CLI with offline full-text search, cross-meeting intelligence, morning digest, and a local cache no other tool has.
 
 Highlights (not in the official API docs):
   • transcripts search   Full-text search across all synced meeting transcripts without consuming any API quota.

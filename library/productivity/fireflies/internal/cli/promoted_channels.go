@@ -14,10 +14,10 @@ import (
 func newChannelsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "channels <id>",
-		Short: "Get a single channel",
-		Long:  "Shortcut for 'channels get'. Get a single channel",
-		Example: "  fireflies-pp-cli channels 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "channels <id>",
+		Short:       "Get a single channel",
+		Long:        "Shortcut for 'channels get'. Get a single channel",
+		Example:     "  fireflies-pp-cli channels 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "channels.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

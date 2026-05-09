@@ -70,7 +70,6 @@ date field on each transcript.`,
   fireflies-pp-cli sync
   fireflies-pp-cli sync --full
   fireflies-pp-cli sync --resources transcripts,channels`, "\n"),
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil

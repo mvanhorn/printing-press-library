@@ -1,9 +1,9 @@
 {
   "manifest_version": "0.3",
   "name": "fireflies-pp-mcp",
-  "display_name": "Fireflies Pp Cli",
+  "display_name": "Fireflies",
   "version": "4.0.6",
-  "description": "Fireflies API surface as MCP tools.",
+  "description": "Fireflies meeting intelligence CLI — offline search, cross-meeting action items, morning digest, and speaker analytics synced to a local cache.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -15,15 +15,15 @@
       "command": "${__dirname}/bin/fireflies-pp-mcp",
       "args": [],
       "env": {
-        "FIREFLIES_PP_CLI_API_KEY": "${user_config.fireflies_pp_cli_api_key}"
+        "FIREFLIES_API_KEY": "${user_config.fireflies_api_key}"
       }
     }
   },
   "user_config": {
-    "fireflies_pp_cli_api_key": {
+    "fireflies_api_key": {
       "type": "string",
-      "title": "FIREFLIES_PP_CLI_API_KEY",
-      "description": "Sets FIREFLIES_PP_CLI_API_KEY for the Fireflies Pp Cli MCP server.",
+      "title": "FIREFLIES_API_KEY",
+      "description": "Sets FIREFLIES_API_KEY for the Fireflies MCP server.",
       "sensitive": true,
       "required": true
     }
