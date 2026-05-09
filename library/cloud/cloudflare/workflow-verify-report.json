@@ -1,0 +1,8 @@
+{
+  "dir": "C:/Users/david/printing-press/.runstate/imperium-85f79c9f/runs/20260509-183051/working/cloudflare-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

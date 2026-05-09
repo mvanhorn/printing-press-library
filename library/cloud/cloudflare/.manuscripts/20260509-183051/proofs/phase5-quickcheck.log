@@ -1,0 +1,73 @@
+=== Test 1: doctor (auth + reachability) ===
+{
+  "api": "reachable (HTTP 400 at /)",
+  "auth": "configured",
+  "auth_mode": "api_token",
+  "auth_source": "env:CLOUDFLARE_API_TOKEN",
+  "base_url": "https://api.cloudflare.com/client/v4",
+  "cache": {
+    "db_bytes": 8146944,
+    "db_path": "C:\\Users\\david\\.local\\share\\cloudflare-pp-cli\\data.db",
+    "resources": [
+      {
+        "last_synced_at": "2026-05-09T17:28:47Z",
+        "rows": 0,
+        "staleness": "30m0s",
+        "type": "accounts"
+      },
+      {
+        "last_synced_at": "2026-05-09T17:28:47Z",
+        "rows": 1,
+        "staleness": "30m0s",
+        "type": "ips"
+      },
+      {
+        "last_synced_at": "2026-05-09T17:28:47Z",
+        "rows": 0,
+exit=0
+
+=== Test 2: zones list (real read) ===
+Error: unknown flag: --limit
+exit=0
+
+=== Test 3: dns apply --dry-run ===
+{
+  "action": "would_apply",
+  "content": "157.173.102.165",
+  "dry_run": true,
+  "name": "@",
+  "proxied": true,
+  "ttl": 1,
+  "type": "A",
+  "zone": "klinikalarm.dk"
+}
+exit=0
+
+=== Test 4: setup_zone --dry-run ===
+{
+  "dry_run": true,
+  "steps": [
+    {
+      "action": "would_apply",
+      "content": "157.173.102.165",
+      "name": "klinikalarm.dk",
+      "step": "dns_a_record"
+exit=0
+
+=== Test 5: propagate watch (live DoH, no Cloudflare auth needed) ===
+{
+  "expect": "",
+  "name": "makertoo.com",
+  "propagated": true,
+  "resolvers": [
+    {
+      "resolver": "cloudflare",
+      "values": [
+        "104.21.43.124",
+        "172.67.179.20"
+      ],
+      "match": true
+    },
+    {
+      "resolver": "google",
+exit=0

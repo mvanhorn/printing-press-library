@@ -1,0 +1,94 @@
+{
+  "dir": "C:/Users/david/printing-press/.runstate/imperium-85f79c9f/runs/20260509-183051/working/cloudflare-pp-cli",
+  "spec_path": "C:/Users/david/printing-press/.runstate/imperium-85f79c9f/runs/20260509-183051/cloudflare-spec.json",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 7,
+    "valid": 7,
+    "valid_pct": 100
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "Bearer ",
+    "match": true,
+    "detail": "spec not provided or no bot/bearer scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "dead_flags": {
+    "total": 19,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 54,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 0,
+    "with_examples": 0,
+    "valid_examples": 0,
+    "skipped": true,
+    "detail": "failed to run --help: exec: \"C:\\\\Users\\\\david\\\\printing-press\\\\.runstate\\\\imperium-85f79c9f\\\\runs\\\\20260509-183051\\\\working\\\\cloudflare-pp-cli\\\\cloudflare-pp-cli-dogfood\": executable file not found in %PATH%"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 3087,
+      "registered": 3087
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 8,
+    "found": 8
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 8,
+    "exempted_via_store": 0,
+    "suspicious": [
+      {
+        "command": "propagate watch",
+        "file": "novel_propagate.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      }
+    ]
+  },
+  "source_client_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "print_json_filtered_check": {
+    "checked": 3072
+  },
+  "test_presence": {
+    "checked": 0
+  },
+  "naming_check": {
+    "checked": 3072
+  },
+  "issues": [
+    "example check skipped: failed to run --help: exec: \"C:\\\\Users\\\\david\\\\printing-press\\\\.runstate\\\\imperium-85f79c9f\\\\runs\\\\20260509-183051\\\\working\\\\cloudflare-pp-cli\\\\cloudflare-pp-cli-dogfood\": executable file not found in %PATH%",
+    "1/8 novel features look reimplemented: propagate watch (novel_propagate.go) — hand-rolled response: no API client call, no store access"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "cloudflare-pp-mcp",
+  "display_name": "Cloudflare",
+  "version": "4.2.0",
+  "description": "Cloudflare API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/cloudflare-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/cloudflare-pp-mcp",
+      "args": [],
+      "env": {
+        "CLOUDFLARE_API_EMAIL": "${user_config.cloudflare_api_email}"
+      }
+    }
+  },
+  "user_config": {
+    "cloudflare_api_email": {
+      "type": "string",
+      "title": "CLOUDFLARE_API_EMAIL",
+      "description": "Sets CLOUDFLARE_API_EMAIL for the Cloudflare MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

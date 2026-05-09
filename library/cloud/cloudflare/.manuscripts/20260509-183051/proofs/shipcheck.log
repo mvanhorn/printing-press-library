@@ -1,0 +1,871 @@
+shipcheck starting at Sat May  9 19:18:47 RDT 2026
+
+=== dogfood ===
+shipcheck: running dogfood: exec: "C:\\Users\\david\\go\\bin\\printing-press": executable file not found in %PATH%
+
+=== verify ===
+shipcheck: running verify: exec: "C:\\Users\\david\\go\\bin\\printing-press": executable file not found in %PATH%
+
+=== workflow-verify ===
+shipcheck: running workflow-verify: exec: "C:\\Users\\david\\go\\bin\\printing-press": executable file not found in %PATH%
+
+=== verify-skill ===
+shipcheck: running verify-skill: exec: "C:\\Users\\david\\go\\bin\\printing-press": executable file not found in %PATH%
+
+=== validate-narrative ===
+shipcheck: running validate-narrative: exec: "C:\\Users\\david\\go\\bin\\printing-press": executable file not found in %PATH%
+
+=== scorecard ===
+shipcheck: running scorecard: exec: "C:\\Users\\david\\go\\bin\\printing-press": executable file not found in %PATH%
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  dogfood           FAIL    4         0s
+  verify            FAIL    4         0s
+  workflow-verify   FAIL    4         0s
+  verify-skill      FAIL    4         0s
+  validate-narrative  FAIL    4         0s
+  scorecard         FAIL    4         0s
+
+Verdict: FAIL (6/6 legs failed)
+---shipcheck exit=4---
+Sat May  9 19:18:47 RDT 2026
+=== shipcheck restart at Sat May  9 19:19:50 RDT 2026 ===
+
+=== dogfood ===
+Error: running dogfood: reading spec: open https://raw.githubusercontent.com/cloudflare/api-schemas/main/openapi.json: The filename, directory name, or volume label syntax is incorrect.
+running dogfood: reading spec: open https://raw.githubusercontent.com/cloudflare/api-schemas/main/openapi.json: The filename, directory name, or volume label syntax is incorrect.
+
+=== verify ===
+Error: running verify: loading spec: reading spec: open https://raw.githubusercontent.com/cloudflare/api-schemas/main/openapi.json: The filename, directory name, or volume label syntax is incorrect.
+running verify: loading spec: reading spec: open https://raw.githubusercontent.com/cloudflare/api-schemas/main/openapi.json: The filename, directory name, or volume label syntax is incorrect.
+
+=== workflow-verify ===
+Workflow Verification: cloudflare-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== verify-skill ===
+running verifier: exec: "python3": executable file not found in %PATH%
+
+=== validate-narrative ===
+FAILED [quickstart]: cloudflare-pp-cli setup_zone klinikalarm.dk --origin 157.173.102.165 → full example failed: C:\Users\david\printing-press\.runstate\imperium-85f79c9f\runs\20260509-183051\working\cloudflare-pp-cli\cloudflare-pp-cli setup_zone klinikalarm.dk --origin 157.173.102.165 --dry-run: exit status 3: GET https://api.cloudflare.com/client/v4/zones
+  ?name=klinikalarm.dk
+  Authorization: ****3e43
+
+(dry run - no request sent)
+Error: zone "klinikalarm.dk" not found
+zone "klinikalarm.dk" not found
+FAILED [recipes]: cloudflare-pp-cli setup_zone klinikalarm.dk --origin 157.173.102.165 --redirect-from "mitlæge.dk/*" --json → full example failed: C:\Users\david\printing-press\.runstate\imperium-85f79c9f\runs\20260509-183051\working\cloudflare-pp-cli\cloudflare-pp-cli setup_zone klinikalarm.dk --origin 157.173.102.165 --redirect-from mitlæge.dk/* --json --dry-run: exit status 3: GET https://api.cloudflare.com/client/v4/zones
+  ?name=klinikalarm.dk
+  Authorization: ****3e43
+
+(dry run - no request sent)
+Error: zone "klinikalarm.dk" not found
+zone "klinikalarm.dk" not found
+FAILED [recipes]: cloudflare-pp-cli zones diff staging.makertoo.win prod.makertoo.win --json --select drift,settings,page_rules,dns → full example failed: C:\Users\david\printing-press\.runstate\imperium-85f79c9f\runs\20260509-183051\working\cloudflare-pp-cli\cloudflare-pp-cli zones diff staging.makertoo.win prod.makertoo.win --json --select drift,settings,page_rules,dns --dry-run: exit status 3: GET https://api.cloudflare.com/client/v4/zones
+  ?name=staging.makertoo.win
+  Authorization: ****3e43
+
+(dry run - no request sent)
+Error: zone-a: zone "staging.makertoo.win" not found
+zone-a: zone "staging.makertoo.win" not found
+FAILED [recipes]: cloudflare-pp-cli dns apply --zone klinikalarm.dk --type A --name @ --content 157.173.102.165 --proxied=false --dry-run → full example failed: C:\Users\david\printing-press\.runstate\imperium-85f79c9f\runs\20260509-183051\working\cloudflare-pp-cli\cloudflare-pp-cli dns apply --zone klinikalarm.dk --type A --name @ --content 157.173.102.165 --proxied=false --dry-run: exit status 3: GET https://api.cloudflare.com/client/v4/zones
+  ?name=klinikalarm.dk
+  Authorization: ****3e43
+
+(dry run - no request sent)
+Error: zone "klinikalarm.dk" not found
+zone "klinikalarm.dk" not found
+FAILED [recipes]: cloudflare-pp-cli cache purge release --zone klinikalarm.dk --tags release-v1 --probe https://klinikalarm.dk/ --json → full example failed: C:\Users\david\printing-press\.runstate\imperium-85f79c9f\runs\20260509-183051\working\cloudflare-pp-cli\cloudflare-pp-cli cache purge release --zone klinikalarm.dk --tags release-v1 --probe https://klinikalarm.dk/ --json --dry-run: exit status 3: GET https://api.cloudflare.com/client/v4/zones
+  ?name=klinikalarm.dk
+  Authorization: ****3e43
+
+(dry run - no request sent)
+Error: zone "klinikalarm.dk" not found
+zone "klinikalarm.dk" not found
+DONE: 5 ok, 0 missing, 0 empty-words, 5 failed-examples, 0 unsupported
+narrative validation failed
+
+=== scorecard ===
+Error: running scorecard: reading spec: open https://raw.githubusercontent.com/cloudflare/api-schemas/main/openapi.json: The filename, directory name, or volume label syntax is incorrect.
+running scorecard: reading spec: open https://raw.githubusercontent.com/cloudflare/api-schemas/main/openapi.json: The filename, directory name, or volume label syntax is incorrect.
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  dogfood           FAIL    3         277ms
+  verify            FAIL    4         224ms
+  workflow-verify   PASS    0         219ms
+  verify-skill      FAIL    4         232ms
+  validate-narrative  FAIL    1         4.555s
+  scorecard         FAIL    3         1.534s
+
+Verdict: FAIL (5/6 legs failed)
+---shipcheck exit=4---
+Sat May  9 19:19:58 RDT 2026
+=== shipcheck retry 2 at Sat May  9 19:23:58 RDT 2026 ===
+
+=== dogfood ===
+warning: skipping request body for POST "/accounts/{account_id}/members": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/pcaps": contains oneOf/anyOf
+warning: skipping request body for DELETE "/accounts/{account_id}/tags": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/tags": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/bot_management": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/dns_records": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/purge_cache": contains oneOf/anyOf
+warning: skipping request body for DELETE "/zones/{zone_id}/tags": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/tags": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/abuse-reports/{report_param}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/access/apps": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/access/identity_providers": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/content": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/crawl": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/json": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/links": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/markdown": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/pdf": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/scrape": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/screenshot": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/snapshot": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/cni/interconnects": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/gateway/proxy_endpoints": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/magic/apps": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/members/{member_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/stream/copy": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/stream/webhook": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/vuln_scanner/scans": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/access/apps": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/access/identity_providers": contains oneOf/anyOf
+warning: skipping request body for PATCH "/zones/{zone_id}/dns_records/{dns_record_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/dns_records/{dns_record_id}": contains oneOf/anyOf
+warning: skipping request body for PATCH "/zones/{zone_id}/settings/{setting_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/spectrum/apps": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/access/apps/{app_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/access/identity_providers/{identity_provider_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/{model_name}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/connectivity/directory/services": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/dlp/entries/{entry_id}": contains oneOf/anyOf
+warning: skipping request body for PATCH "/accounts/{account_id}/magic/apps/{account_app_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/magic/apps/{account_app_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/queues/{queue_id}/consumers": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/queues/{queue_id}/messages": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/rulesets/{ruleset_id}/rules": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/security-center/insights/scans": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/slurper/source/connectivity-precheck": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/access/apps/{app_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/access/identity_providers/{identity_provider_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/environments/{environment_id}/purge_cache": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/rulesets/{ruleset_id}/rules": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/security-center/insights/scans": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/spectrum/apps/{app_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/builds/triggers/{trigger_uuid}/builds": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/connectivity/directory/services/{service_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/d1/database/{database_id}/import": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/d1/database/{database_id}/query": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/d1/database/{database_id}/raw": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/magic/sites/{site_id}/app_configs": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/queues/{queue_id}/consumers/{consumer_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/r2/buckets/{bucket_name}/sippy": contains oneOf/anyOf
+warning: skipping request body for PATCH "/accounts/{account_id}/rulesets/{ruleset_id}/rules/{rule_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/workers/scripts/{script_name}/secrets": contains oneOf/anyOf
+warning: skipping request body for PATCH "/zones/{zone_id}/rulesets/{ruleset_id}/rules/{rule_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/aisingapore/gemma-sea-lion-v4-27b-it": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/bge-base-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/bge-large-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/bge-m3": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/bge-small-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/nonomni-bge-base-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/nonomni-bge-large-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/nonomni-bge-m3": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/nonomni-bge-small-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/deepseek-ai/deepseek-math-7b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/deepseek-ai/deepseek-r1-distill-qwen-32b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/defog/sqlcoder-7b-2": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/fblgit/una-cybertron-7b-v2-bf16": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/google/gemma-2b-it-lora": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/google/gemma-3-12b-it": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/google/gemma-4-26b-a4b-it": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/google/gemma-7b-it-lora": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/ibm-granite/granite-4.0-h-micro": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta-llama/llama-2-7b-chat-hf-lora": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-2-7b-chat-fp16": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-2-7b-chat-int8": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3-8b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3-8b-instruct-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.1-70b-instruct-fp8-fast": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.1-8b-instruct-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.1-8b-instruct-fp8": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.1-8b-instruct-fp8-fast": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.2-11b-vision-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.2-1b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.2-3b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.3-70b-instruct-fp8-fast": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-4-scout-17b-16e-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/m2m100-1.2b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/microsoft/phi-2": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/mistral/mistral-7b-instruct-v0.1": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/mistral/mistral-7b-instruct-v0.2-lora": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/mistralai/mistral-small-3.1-24b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/moonshotai/kimi-k2.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/moonshotai/kimi-k2.6": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/nvidia/nemotron-3-120b-a12b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/openai/gpt-oss-120b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/openai/gpt-oss-20b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/openchat/openchat-3.5-0106": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen1.5-0.5b-chat": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen1.5-1.8b-chat": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen1.5-14b-chat-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen1.5-7b-chat-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen2.5-coder-32b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen3-30b-a3b-fp8": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwq-32b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/thebloke/discolm-german-7b-v1-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/tiiuae/falcon-7b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/tinyllama/tinyllama-1.1b-chat-v1.0": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/zai-org/glm-4.7-flash": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/google/gemma-7b-it": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/mistral/mistral-7b-instruct-v0.2": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/nexusflow/starling-lm-7b-beta": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/nousresearch/hermes-2-pro-mistral-7b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/deepseek-coder-6.7b-base-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/deepseek-coder-6.7b-instruct-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/llama-2-13b-chat-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/mistral-7b-instruct-v0.1-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/neural-chat-7b-v3-1-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/openhermes-2.5-mistral-7b-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/zephyr-7b-beta-awq": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/storage/kv/namespaces/{namespace_id}/values/{key_name}": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts/{script_name}/secrets": contains oneOf/anyOf
+dogfood: synced .printing-press.json (novel_features) from novel_features_built
+dogfood: synced README.md (Unique Features) from novel_features_built
+dogfood: synced SKILL.md (Unique Capabilities) from novel_features_built
+Dogfood Report: cloudflare-pp-cli
+================================
+
+Path Validity:     7/7 valid (PASS)
+
+Auth Protocol:     MATCH
+  Generated: Uses "Bearer" prefix
+  Detail: spec not provided or no bot/bearer scheme detected
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     PARTIAL
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: uses generic Search only or direct SQL
+  Domain tables: 1
+
+Examples:          SKIP (failed to run --help: exec: "C:\\Users\\david\\printing-press\\.runstate\\imperium-85f79c9f\\runs\\20260509-183051\\working\\cloudflare-pp-cli\\cloudflare-pp-cli-dogfood": executable file not found in %PATH%)
+
+Novel Features:    8/8 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: WARN
+  - example check skipped: failed to run --help: exec: "C:\\Users\\david\\printing-press\\.runstate\\imperium-85f79c9f\\runs\\20260509-183051\\working\\cloudflare-pp-cli\\cloudflare-pp-cli-dogfood": executable file not found in %PATH%
+  - 1/8 novel features look reimplemented: propagate watch (novel_propagate.go) — hand-rolled response: no API client call, no store access
+
+=== verify ===
+warning: skipping request body for POST "/accounts/{account_id}/members": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/pcaps": contains oneOf/anyOf
+warning: skipping request body for DELETE "/accounts/{account_id}/tags": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/tags": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/bot_management": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/dns_records": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/purge_cache": contains oneOf/anyOf
+warning: skipping request body for DELETE "/zones/{zone_id}/tags": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/tags": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/abuse-reports/{report_param}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/access/apps": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/access/identity_providers": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/content": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/crawl": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/json": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/links": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/markdown": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/pdf": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/scrape": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/screenshot": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/snapshot": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/cni/interconnects": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/gateway/proxy_endpoints": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/magic/apps": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/members/{member_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/stream/copy": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/stream/webhook": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/vuln_scanner/scans": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/access/apps": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/access/identity_providers": contains oneOf/anyOf
+warning: skipping request body for PATCH "/zones/{zone_id}/dns_records/{dns_record_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/dns_records/{dns_record_id}": contains oneOf/anyOf
+warning: skipping request body for PATCH "/zones/{zone_id}/settings/{setting_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/spectrum/apps": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/access/apps/{app_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/access/identity_providers/{identity_provider_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/{model_name}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/connectivity/directory/services": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/dlp/entries/{entry_id}": contains oneOf/anyOf
+warning: skipping request body for PATCH "/accounts/{account_id}/magic/apps/{account_app_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/magic/apps/{account_app_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/queues/{queue_id}/consumers": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/queues/{queue_id}/messages": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/rulesets/{ruleset_id}/rules": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/security-center/insights/scans": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/slurper/source/connectivity-precheck": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/access/apps/{app_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/access/identity_providers/{identity_provider_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/environments/{environment_id}/purge_cache": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/rulesets/{ruleset_id}/rules": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/security-center/insights/scans": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/spectrum/apps/{app_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/builds/triggers/{trigger_uuid}/builds": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/connectivity/directory/services/{service_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/d1/database/{database_id}/import": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/d1/database/{database_id}/query": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/d1/database/{database_id}/raw": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/magic/sites/{site_id}/app_configs": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/queues/{queue_id}/consumers/{consumer_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/r2/buckets/{bucket_name}/sippy": contains oneOf/anyOf
+warning: skipping request body for PATCH "/accounts/{account_id}/rulesets/{ruleset_id}/rules/{rule_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/workers/scripts/{script_name}/secrets": contains oneOf/anyOf
+warning: skipping request body for PATCH "/zones/{zone_id}/rulesets/{ruleset_id}/rules/{rule_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/aisingapore/gemma-sea-lion-v4-27b-it": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/bge-base-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/bge-large-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/bge-m3": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/bge-small-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/nonomni-bge-base-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/nonomni-bge-large-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/nonomni-bge-m3": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/nonomni-bge-small-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/deepseek-ai/deepseek-math-7b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/deepseek-ai/deepseek-r1-distill-qwen-32b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/defog/sqlcoder-7b-2": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/fblgit/una-cybertron-7b-v2-bf16": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/google/gemma-2b-it-lora": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/google/gemma-3-12b-it": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/google/gemma-4-26b-a4b-it": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/google/gemma-7b-it-lora": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/ibm-granite/granite-4.0-h-micro": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta-llama/llama-2-7b-chat-hf-lora": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-2-7b-chat-fp16": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-2-7b-chat-int8": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3-8b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3-8b-instruct-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.1-70b-instruct-fp8-fast": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.1-8b-instruct-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.1-8b-instruct-fp8": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.1-8b-instruct-fp8-fast": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.2-11b-vision-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.2-1b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.2-3b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.3-70b-instruct-fp8-fast": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-4-scout-17b-16e-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/m2m100-1.2b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/microsoft/phi-2": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/mistral/mistral-7b-instruct-v0.1": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/mistral/mistral-7b-instruct-v0.2-lora": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/mistralai/mistral-small-3.1-24b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/moonshotai/kimi-k2.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/moonshotai/kimi-k2.6": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/nvidia/nemotron-3-120b-a12b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/openai/gpt-oss-120b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/openai/gpt-oss-20b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/openchat/openchat-3.5-0106": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen1.5-0.5b-chat": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen1.5-1.8b-chat": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen1.5-14b-chat-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen1.5-7b-chat-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen2.5-coder-32b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen3-30b-a3b-fp8": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwq-32b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/thebloke/discolm-german-7b-v1-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/tiiuae/falcon-7b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/tinyllama/tinyllama-1.1b-chat-v1.0": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/zai-org/glm-4.7-flash": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/google/gemma-7b-it": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/mistral/mistral-7b-instruct-v0.2": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/nexusflow/starling-lm-7b-beta": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/nousresearch/hermes-2-pro-mistral-7b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/deepseek-coder-6.7b-base-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/deepseek-coder-6.7b-instruct-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/llama-2-13b-chat-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/mistral-7b-instruct-v0.1-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/neural-chat-7b-v3-1-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/openhermes-2.5-mistral-7b-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/zephyr-7b-beta-awq": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/storage/kv/namespaces/{namespace_id}/values/{key_name}": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts/{script_name}/secrets": contains oneOf/anyOf
+Runtime Verification: C:\Users\david\printing-press\.runstate\imperium-85f79c9f\runs\20260509-183051\working\cloudflare-pp-cli\cloudflare-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+accounts                       read         PASS   PASS     PASS     3/3
+agent-context                  read         PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+cache                          read         PASS   PASS     PASS     3/3
+certificates                   read         PASS   PASS     PASS     3/3
+dns                            read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+internal                       read         PASS   PASS     PASS     3/3
+ips                            read         PASS   PASS     PASS     3/3
+live                           read         PASS   PASS     PASS     3/3
+memberships                    read         PASS   PASS     PASS     3/3
+organizations                  read         PASS   PASS     PASS     3/3
+profile                        read         PASS   PASS     PASS     3/3
+propagate                      read         PASS   PASS     PASS     3/3
+radar                          read         PASS   PASS     PASS     3/3
+ready                          read         PASS   PASS     PASS     3/3
+redirect                       read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+setup_zone                     read         PASS   PASS     PASS     3/3
+signed-url                     read         PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+system                         read         PASS   PASS     PASS     3/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+tenants                        read         PASS   PASS     PASS     3/3
+user                           read         PASS   PASS     PASS     3/3
+users                          read         PASS   PASS     PASS     3/3
+where-is                       read         PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+worker                         read         PASS   PASS     PASS     3/3
+workers                        read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     PASS     3/3
+zones                          read         PASS   PASS     PASS     3/3
+
+Data Pipeline: PASS: sync completed (table validation skipped — sql command unavailable)
+Pass Rate: 100% (37/37 passed, 0 critical)
+Verdict: PASS
+
+=== workflow-verify ===
+Workflow Verification: cloudflare-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== verify-skill ===
+Traceback (most recent call last):
+  File "C:\Users\david\AppData\Local\Temp\verify-skill-3237278567.py", line 1050, in <module>
+    main()
+  File "C:\Users\david\AppData\Local\Temp\verify-skill-3237278567.py", line 1037, in main
+    report = run_checks(Path(args.dir).resolve(), only)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\david\AppData\Local\Temp\verify-skill-3237278567.py", line 965, in run_checks
+    check_flag_names(cli_dir, skill, cli_binary, report)
+  File "C:\Users\david\AppData\Local\Temp\verify-skill-3237278567.py", line 712, in check_flag_names
+    recipes = extract_recipes(skill, cli_binary, cli_dir)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\david\AppData\Local\Temp\verify-skill-3237278567.py", line 605, in extract_recipes
+    text = skill.read_text()
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\david\AppData\Local\Programs\Python\Python312\Lib\pathlib.py", line 1028, in read_text
+    return f.read()
+           ^^^^^^^^
+  File "C:\Users\david\AppData\Local\Programs\Python\Python312\Lib\encodings\cp1252.py", line 23, in decode
+    return codecs.charmap_decode(input,self.errors,decoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'charmap' codec can't decode byte 0x8f in position 5352: character maps to <undefined>
+  ✓ canonical-sections passed
+
+=== validate-narrative ===
+OK: 10 narrative commands resolved and full examples passed
+
+=== scorecard ===
+Error: running scorecard: spec references undefined security scheme "bearerAuth"
+running scorecard: spec references undefined security scheme "bearerAuth"
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  dogfood           PASS    0         27.261s
+  verify            PASS    0         41.827s
+  workflow-verify   PASS    0         213ms
+  verify-skill      FAIL    1         368ms
+  validate-narrative  PASS    0         4.647s
+  scorecard         FAIL    3         1.644s
+
+Verdict: FAIL (2/6 legs failed)
+---shipcheck exit=3---
+Sat May  9 19:25:15 RDT 2026
+=== shipcheck retry 3 at Sat May  9 19:27:29 RDT 2026 ===
+
+=== dogfood ===
+warning: skipping request body for POST "/accounts/{account_id}/members": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/pcaps": contains oneOf/anyOf
+warning: skipping request body for DELETE "/accounts/{account_id}/tags": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/tags": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/bot_management": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/dns_records": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/purge_cache": contains oneOf/anyOf
+warning: skipping request body for DELETE "/zones/{zone_id}/tags": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/tags": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/abuse-reports/{report_param}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/access/apps": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/access/identity_providers": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/content": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/crawl": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/json": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/links": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/markdown": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/pdf": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/scrape": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/screenshot": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/snapshot": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/cni/interconnects": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/gateway/proxy_endpoints": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/magic/apps": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/members/{member_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/stream/copy": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/stream/webhook": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/vuln_scanner/scans": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/access/apps": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/access/identity_providers": contains oneOf/anyOf
+warning: skipping request body for PATCH "/zones/{zone_id}/dns_records/{dns_record_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/dns_records/{dns_record_id}": contains oneOf/anyOf
+warning: skipping request body for PATCH "/zones/{zone_id}/settings/{setting_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/spectrum/apps": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/access/apps/{app_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/access/identity_providers/{identity_provider_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/{model_name}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/connectivity/directory/services": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/dlp/entries/{entry_id}": contains oneOf/anyOf
+warning: skipping request body for PATCH "/accounts/{account_id}/magic/apps/{account_app_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/magic/apps/{account_app_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/queues/{queue_id}/consumers": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/queues/{queue_id}/messages": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/rulesets/{ruleset_id}/rules": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/security-center/insights/scans": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/slurper/source/connectivity-precheck": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/access/apps/{app_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/access/identity_providers/{identity_provider_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/environments/{environment_id}/purge_cache": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/rulesets/{ruleset_id}/rules": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/security-center/insights/scans": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/spectrum/apps/{app_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/builds/triggers/{trigger_uuid}/builds": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/connectivity/directory/services/{service_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/d1/database/{database_id}/import": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/d1/database/{database_id}/query": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/d1/database/{database_id}/raw": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/magic/sites/{site_id}/app_configs": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/queues/{queue_id}/consumers/{consumer_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/r2/buckets/{bucket_name}/sippy": contains oneOf/anyOf
+warning: skipping request body for PATCH "/accounts/{account_id}/rulesets/{ruleset_id}/rules/{rule_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/workers/scripts/{script_name}/secrets": contains oneOf/anyOf
+warning: skipping request body for PATCH "/zones/{zone_id}/rulesets/{ruleset_id}/rules/{rule_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/aisingapore/gemma-sea-lion-v4-27b-it": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/bge-base-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/bge-large-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/bge-m3": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/bge-small-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/nonomni-bge-base-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/nonomni-bge-large-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/nonomni-bge-m3": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/nonomni-bge-small-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/deepseek-ai/deepseek-math-7b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/deepseek-ai/deepseek-r1-distill-qwen-32b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/defog/sqlcoder-7b-2": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/fblgit/una-cybertron-7b-v2-bf16": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/google/gemma-2b-it-lora": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/google/gemma-3-12b-it": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/google/gemma-4-26b-a4b-it": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/google/gemma-7b-it-lora": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/ibm-granite/granite-4.0-h-micro": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta-llama/llama-2-7b-chat-hf-lora": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-2-7b-chat-fp16": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-2-7b-chat-int8": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3-8b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3-8b-instruct-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.1-70b-instruct-fp8-fast": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.1-8b-instruct-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.1-8b-instruct-fp8": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.1-8b-instruct-fp8-fast": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.2-11b-vision-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.2-1b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.2-3b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.3-70b-instruct-fp8-fast": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-4-scout-17b-16e-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/m2m100-1.2b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/microsoft/phi-2": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/mistral/mistral-7b-instruct-v0.1": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/mistral/mistral-7b-instruct-v0.2-lora": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/mistralai/mistral-small-3.1-24b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/moonshotai/kimi-k2.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/moonshotai/kimi-k2.6": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/nvidia/nemotron-3-120b-a12b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/openai/gpt-oss-120b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/openai/gpt-oss-20b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/openchat/openchat-3.5-0106": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen1.5-0.5b-chat": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen1.5-1.8b-chat": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen1.5-14b-chat-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen1.5-7b-chat-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen2.5-coder-32b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen3-30b-a3b-fp8": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwq-32b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/thebloke/discolm-german-7b-v1-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/tiiuae/falcon-7b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/tinyllama/tinyllama-1.1b-chat-v1.0": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/zai-org/glm-4.7-flash": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/google/gemma-7b-it": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/mistral/mistral-7b-instruct-v0.2": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/nexusflow/starling-lm-7b-beta": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/nousresearch/hermes-2-pro-mistral-7b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/deepseek-coder-6.7b-base-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/deepseek-coder-6.7b-instruct-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/llama-2-13b-chat-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/mistral-7b-instruct-v0.1-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/neural-chat-7b-v3-1-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/openhermes-2.5-mistral-7b-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/zephyr-7b-beta-awq": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/storage/kv/namespaces/{namespace_id}/values/{key_name}": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts/{script_name}/secrets": contains oneOf/anyOf
+Dogfood Report: cloudflare-pp-cli
+================================
+
+Path Validity:     7/7 valid (PASS)
+
+Auth Protocol:     MATCH
+  Generated: Uses "Bearer" prefix
+  Detail: spec not provided or no bot/bearer scheme detected
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     PARTIAL
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: uses generic Search only or direct SQL
+  Domain tables: 1
+
+Examples:          SKIP (failed to run --help: exec: "C:\\Users\\david\\printing-press\\.runstate\\imperium-85f79c9f\\runs\\20260509-183051\\working\\cloudflare-pp-cli\\cloudflare-pp-cli-dogfood": executable file not found in %PATH%)
+
+Novel Features:    8/8 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: WARN
+  - example check skipped: failed to run --help: exec: "C:\\Users\\david\\printing-press\\.runstate\\imperium-85f79c9f\\runs\\20260509-183051\\working\\cloudflare-pp-cli\\cloudflare-pp-cli-dogfood": executable file not found in %PATH%
+  - 1/8 novel features look reimplemented: propagate watch (novel_propagate.go) — hand-rolled response: no API client call, no store access
+
+=== verify ===
+warning: skipping request body for POST "/accounts/{account_id}/members": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/pcaps": contains oneOf/anyOf
+warning: skipping request body for DELETE "/accounts/{account_id}/tags": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/tags": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/bot_management": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/dns_records": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/purge_cache": contains oneOf/anyOf
+warning: skipping request body for DELETE "/zones/{zone_id}/tags": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/tags": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/abuse-reports/{report_param}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/access/apps": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/access/identity_providers": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/content": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/crawl": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/json": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/links": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/markdown": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/pdf": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/scrape": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/screenshot": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/browser-rendering/snapshot": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/cni/interconnects": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/gateway/proxy_endpoints": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/magic/apps": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/members/{member_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/stream/copy": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/stream/webhook": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/vuln_scanner/scans": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/access/apps": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/access/identity_providers": contains oneOf/anyOf
+warning: skipping request body for PATCH "/zones/{zone_id}/dns_records/{dns_record_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/dns_records/{dns_record_id}": contains oneOf/anyOf
+warning: skipping request body for PATCH "/zones/{zone_id}/settings/{setting_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/spectrum/apps": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/access/apps/{app_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/access/identity_providers/{identity_provider_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/{model_name}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/connectivity/directory/services": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/dlp/entries/{entry_id}": contains oneOf/anyOf
+warning: skipping request body for PATCH "/accounts/{account_id}/magic/apps/{account_app_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/magic/apps/{account_app_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/queues/{queue_id}/consumers": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/queues/{queue_id}/messages": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/rulesets/{ruleset_id}/rules": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/security-center/insights/scans": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/slurper/source/connectivity-precheck": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/access/apps/{app_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/access/identity_providers/{identity_provider_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/environments/{environment_id}/purge_cache": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/rulesets/{ruleset_id}/rules": contains oneOf/anyOf
+warning: skipping request body for POST "/zones/{zone_id}/security-center/insights/scans": contains oneOf/anyOf
+warning: skipping request body for PUT "/zones/{zone_id}/spectrum/apps/{app_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/builds/triggers/{trigger_uuid}/builds": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/connectivity/directory/services/{service_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/d1/database/{database_id}/import": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/d1/database/{database_id}/query": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/d1/database/{database_id}/raw": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/magic/sites/{site_id}/app_configs": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/queues/{queue_id}/consumers/{consumer_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/r2/buckets/{bucket_name}/sippy": contains oneOf/anyOf
+warning: skipping request body for PATCH "/accounts/{account_id}/rulesets/{ruleset_id}/rules/{rule_id}": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/workers/scripts/{script_name}/secrets": contains oneOf/anyOf
+warning: skipping request body for PATCH "/zones/{zone_id}/rulesets/{ruleset_id}/rules/{rule_id}": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/aisingapore/gemma-sea-lion-v4-27b-it": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/bge-base-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/bge-large-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/bge-m3": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/bge-small-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/nonomni-bge-base-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/nonomni-bge-large-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/nonomni-bge-m3": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/baai/nonomni-bge-small-en-v1.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/deepseek-ai/deepseek-math-7b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/deepseek-ai/deepseek-r1-distill-qwen-32b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/defog/sqlcoder-7b-2": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/fblgit/una-cybertron-7b-v2-bf16": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/google/gemma-2b-it-lora": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/google/gemma-3-12b-it": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/google/gemma-4-26b-a4b-it": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/google/gemma-7b-it-lora": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/ibm-granite/granite-4.0-h-micro": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta-llama/llama-2-7b-chat-hf-lora": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-2-7b-chat-fp16": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-2-7b-chat-int8": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3-8b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3-8b-instruct-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.1-70b-instruct-fp8-fast": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.1-8b-instruct-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.1-8b-instruct-fp8": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.1-8b-instruct-fp8-fast": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.2-11b-vision-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.2-1b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.2-3b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-3.3-70b-instruct-fp8-fast": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/llama-4-scout-17b-16e-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/meta/m2m100-1.2b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/microsoft/phi-2": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/mistral/mistral-7b-instruct-v0.1": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/mistral/mistral-7b-instruct-v0.2-lora": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/mistralai/mistral-small-3.1-24b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/moonshotai/kimi-k2.5": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/moonshotai/kimi-k2.6": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/nvidia/nemotron-3-120b-a12b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/openai/gpt-oss-120b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/openai/gpt-oss-20b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/openchat/openchat-3.5-0106": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen1.5-0.5b-chat": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen1.5-1.8b-chat": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen1.5-14b-chat-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen1.5-7b-chat-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen2.5-coder-32b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwen3-30b-a3b-fp8": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/qwen/qwq-32b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/thebloke/discolm-german-7b-v1-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/tiiuae/falcon-7b-instruct": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/tinyllama/tinyllama-1.1b-chat-v1.0": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@cf/zai-org/glm-4.7-flash": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/google/gemma-7b-it": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/mistral/mistral-7b-instruct-v0.2": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/nexusflow/starling-lm-7b-beta": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/nousresearch/hermes-2-pro-mistral-7b": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/deepseek-coder-6.7b-base-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/deepseek-coder-6.7b-instruct-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/llama-2-13b-chat-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/mistral-7b-instruct-v0.1-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/neural-chat-7b-v3-1-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/openhermes-2.5-mistral-7b-awq": contains oneOf/anyOf
+warning: skipping request body for POST "/accounts/{account_id}/ai/run/@hf/thebloke/zephyr-7b-beta-awq": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/storage/kv/namespaces/{namespace_id}/values/{key_name}": contains oneOf/anyOf
+warning: skipping request body for PUT "/accounts/{account_id}/workers/dispatch/namespaces/{dispatch_namespace}/scripts/{script_name}/secrets": contains oneOf/anyOf
+Runtime Verification: C:\Users\david\printing-press\.runstate\imperium-85f79c9f\runs\20260509-183051\working\cloudflare-pp-cli\cloudflare-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+accounts                       read         PASS   PASS     PASS     3/3
+agent-context                  read         PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+cache                          read         PASS   PASS     PASS     3/3
+certificates                   read         PASS   PASS     PASS     3/3
+dns                            read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+internal                       read         PASS   PASS     PASS     3/3
+ips                            read         PASS   PASS     PASS     3/3
+live                           read         PASS   PASS     PASS     3/3
+memberships                    read         PASS   PASS     PASS     3/3
+organizations                  read         PASS   PASS     PASS     3/3
+profile                        read         PASS   PASS     PASS     3/3
+propagate                      read         PASS   PASS     PASS     3/3
+radar                          read         PASS   PASS     PASS     3/3
+ready                          read         PASS   PASS     PASS     3/3
+redirect                       read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+setup_zone                     read         PASS   PASS     PASS     3/3
+signed-url                     read         PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+system                         read         PASS   PASS     PASS     3/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+tenants                        read         PASS   PASS     PASS     3/3
+user                           read         PASS   PASS     PASS     3/3
+users                          read         PASS   PASS     PASS     3/3
+where-is                       read         PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+worker                         read         PASS   PASS     PASS     3/3
+workers                        read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     PASS     3/3
+zones                          read         PASS   PASS     PASS     3/3
+
+Data Pipeline: PASS: sync completed (table validation skipped — sql command unavailable)
+Pass Rate: 100% (37/37 passed, 0 critical)
+Verdict: PASS
+
+=== workflow-verify ===
+Workflow Verification: cloudflare-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== verify-skill ===
+=== cloudflare-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, unknown-command)
+  ✓ canonical-sections passed
+
+=== validate-narrative ===
+OK: 10 narrative commands resolved and full examples passed
+
+=== scorecard ===
+Error: running scorecard: spec references undefined security scheme "bearerAuth"
+running scorecard: spec references undefined security scheme "bearerAuth"
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  dogfood           PASS    0         27.436s
+  verify            PASS    0         40.476s
+  workflow-verify   PASS    0         214ms
+  verify-skill      PASS    0         8.655s
+  validate-narrative  PASS    0         4.681s
+  scorecard         FAIL    3         1.633s
+
+Verdict: FAIL (1/6 legs failed)
+---shipcheck retry-3 exit=3---
+Sat May  9 19:28:52 RDT 2026

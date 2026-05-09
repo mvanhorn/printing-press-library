@@ -1,0 +1,5 @@
+=== phase 5 full dogfood at Sat May  9 19:45:57 RDT 2026 ===
+Error: running live dogfood: agent-context failed: exec: "C:\\Users\\david\\printing-press\\.runstate\\imperium-85f79c9f\\runs\\20260509-183051\\working\\cloudflare-pp-cli\\cloudflare-pp-cli-dogfood": executable file not found in %PATH%
+running live dogfood: agent-context failed: exec: "C:\\Users\\david\\printing-press\\.runstate\\imperium-85f79c9f\\runs\\20260509-183051\\working\\cloudflare-pp-cli\\cloudflare-pp-cli-dogfood": executable file not found in %PATH%
+=== phase 5 live dogfood retry Sat May  9 19:47:18 RDT 2026 ===
+---live-dogfood-exit=137---
