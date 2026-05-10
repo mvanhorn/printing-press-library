@@ -20,6 +20,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/enetx/surf"
 )
 
 type Client struct {
@@ -45,12 +47,23 @@ func (e *APIError) Error() string {
 }
 
 func newHTTPClient(timeout time.Duration, jar http.CookieJar) *http.Client {
-	// HAND-MODIFIED: install MFPTransport so /v2/ paths route to
-	// api.myfitnesspal.com and the required mfp-client-id / mfp-user-id /
-	// origin / referer headers are injected on every request.
+	// PATCH(upstream cli-printing-press#787, fix #822): wrap Surf's Chrome-fingerprinted
+	// transport with MFPTransport. Surf provides the TLS fingerprint that clears MFP's
+	// anti-bot; MFPTransport adds the host rewrite (/v2/ → api.myfitnesspal.com) and the
+	// mfp-client-id / mfp-user-id / origin headers required by the v2 API surface.
+	// Composition order matters: MFPTransport is the outer layer (sees the original request,
+	// rewrites host + adds headers) → Surf is the inner layer (provides fingerprint at TLS).
 	homeDir, _ := os.UserHomeDir()
 	statePath := filepath.Join(homeDir, ".config", "myfitnesspal-pp-cli", "mfp-state.json")
-	transport := NewMFPTransport(http.DefaultTransport, statePath)
+
+	surfClient := surf.NewClient().Builder().Impersonate().Chrome().Timeout(timeout).Build().Unwrap()
+	surfHTTPClient := surfClient.Std()
+	surfTransport := surfHTTPClient.Transport
+	if surfTransport == nil {
+		surfTransport = http.DefaultTransport
+	}
+
+	transport := NewMFPTransport(surfTransport, statePath)
 	return &http.Client{Timeout: timeout, Jar: jar, Transport: transport}
 }
 
@@ -222,15 +235,20 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			req.URL.RawQuery = q.Encode()
 		}
 
+		// PATCH(local): MFP uses cookie auth — send the auth header as Cookie:, not Authorization:.
+		// Authorization: <cookie-string> gets ignored by MFP and the request is treated as
+		// unauthenticated (302 → /account/login).
 		if authHeader != "" {
-			req.Header.Set("Authorization", authHeader)
+			req.Header.Set("Cookie", authHeader)
 		}
-		req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36")
+		req.Header.Set("Accept", "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8")
 		// Per-endpoint header overrides (e.g., different API version per resource)
 		for k, v := range headerOverrides {
 			req.Header.Set(k, v)
 		}
-		req.Header.Set("User-Agent", "myfitnesspal-pp-cli/0.1.0")
+		// PATCH(local): do not overwrite User-Agent — Surf's Impersonate().Chrome() sets
+		// the right one at the TLS layer; setting "myfitnesspal-pp-cli/0.1.0" here was
+		// triggering MFP's bot detection on every shared-client request.
 
 		resp, err := c.HTTPClient.Do(req)
 		if err != nil {
