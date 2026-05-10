@@ -6,6 +6,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"os/signal"
 	"syscall"
@@ -61,7 +62,7 @@ native streaming instead of polling.`,
 			}
 			c.NoCache = true
 
-			path := "/" + resource
+			path := "/" + url.PathEscape(resource)
 
 			sig := make(chan os.Signal, 1)
 			signal.Notify(sig, syscall.SIGTERM, syscall.SIGINT)
@@ -76,6 +77,9 @@ native streaming instead of polling.`,
 			// Initial fetch
 			if err := fetchAndEmit(c, path, enc); err != nil {
 				fmt.Fprintf(os.Stderr, "warning: initial fetch failed: %v\n", err)
+			}
+			if !follow {
+				return nil
 			}
 
 			for {
