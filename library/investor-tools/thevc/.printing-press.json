@@ -1,0 +1,21 @@
+{
+  "api_name": "thevc",
+  "cli_name": "thevc-pp-cli",
+  "api_source": "https://thevc.kr",
+  "api_description": "Korean startup investment database. Public REST API — no authentication required.",
+  "category": "investor-tools",
+  "openapi_spec": "thevc-openapi.yaml",
+  "printer": "allenwlee",
+  "printer_name": "Allen Lee",
+  "binary_name": "thevc-pp-cli",
+  "version": "0.1.0",
+  "mcp_ready": false,
+  "features": ["local-sqlite", "rankings", "profiles", "export"],
+  "endpoints": [
+    "/api/interaction/hits/organizations/rankings/{kind}",
+    "/api/information/organizations/latest-registered",
+    "/api/information/organizations/profiles/{slug}",
+    "/api/information/organizations/profiles/{slug}/news-article/items",
+    "/api/information/organizations/profiles/{slug}/news-article/stats"
+  ]
+}

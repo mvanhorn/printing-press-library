@@ -1,0 +1,412 @@
+openapi: "3.0.3"
+info:
+  title: THE VC — Korean Startup Database API
+  description: |
+    더브이씨 (THE VC) is Korea's leading startup investment database. This API provides
+    access to Korean startup profiles, funding rounds, investor data, rankings, and
+    company-specific news articles. All endpoints are public — no authentication required.
+    Designed for the Korean startup ecosystem: track funding, discover companies,
+    analyze investment patterns.
+
+    Example CLI usage:
+      thevc rankings
+      thevc profile revolut
+      thevc export --format csv
+  version: "1.0.0"
+  contact:
+    name: Allen Lee
+    url: https://github.com/allenwlee
+  x-printing-press:
+    category: investor-tools
+    printer: allenwlee
+    printer_name: Allen Lee
+    binary_name: thevc-pp-cli
+
+servers:
+  - url: https://thevc.kr
+    description: Production server
+
+paths:
+  /api/interaction/hits/organizations/rankings/{kind}:
+    get:
+      operationId: getRankings
+      summary: Get organization rankings by popularity
+      description: Returns organizations ranked by weekly view counts. "ALL" includes all org types, "STARTUP" filters to startups only.
+      parameters:
+        - name: kind
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [ALL, STARTUP]
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  DATE:
+                    type: array
+                    description: Weekly rankings (most common key)
+                    items:
+                      $ref: "#/components/schemas/RankedOrganization"
+                  WEEK:
+                    type: array
+                    description: Weekly rankings (alternate key)
+                    items:
+                      $ref: "#/components/schemas/RankedOrganization"
+                  MONTH:
+                    type: array
+                    description: Monthly rankings (alternate key)
+                    items:
+                      $ref: "#/components/schemas/RankedOrganization"
+
+  /api/information/organizations/latest-registered:
+    get:
+      operationId: getLatestRegistered
+      summary: Get recently registered organizations
+      description: Returns the most recently registered organizations in the database.
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OrganizationSummary"
+
+  /api/information/organizations/profiles/{slug}:
+    get:
+      operationId: getOrganizationProfile
+      summary: Get full organization profile
+      description: Returns complete profile for a Korean organization including funding, employees, products, investors, patents, and financial data. The most comprehensive single endpoint.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Organization profile slug (e.g., "anthropic", "rebellions")
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationProfile"
+        "404":
+          description: Organization not found
+
+  /api/information/organizations/profiles/{slug}/news-article/items:
+    get:
+      operationId: getNewsArticles
+      summary: Get news articles for an organization
+      description: Returns news articles related to the organization, including Korean-language media coverage.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/NewsArticle"
+                  totalCount:
+                    type: integer
+
+  /api/information/organizations/profiles/{slug}/news-article/stats:
+    get:
+      operationId: getNewsStats
+      summary: Get news article statistics
+      description: Returns news article statistics including topic distribution and publication timeline for the organization.
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalCount:
+                    type: integer
+                  topics:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        count:
+                          type: integer
+                        topic:
+                          type: string
+
+components:
+  schemas:
+    RankedOrganization:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Organization name in Korean
+        profilePage:
+          type: string
+          description: URL slug for the organization profile
+        type:
+          type: string
+          description: Organization type (e.g., "스타트업" for startup)
+        productName:
+          type: string
+          description: Primary product name
+        logo:
+          type: string
+          description: Logo image hash
+        tenWeeksHit:
+          type: array
+          description: View count per week for last 10 weeks
+          items:
+            type: object
+            properties:
+              year:
+                type: integer
+              week:
+                type: integer
+              count:
+                type: integer
+
+    OrganizationSummary:
+      type: object
+      properties:
+        name:
+          type: string
+        profilePage:
+          type: string
+        type:
+          type: string
+        foundedOn:
+          type: string
+          format: date-time
+
+    OrganizationProfile:
+      type: object
+      required: [name, profilePage]
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+          description: Korean name
+        nameEn:
+          type: string
+          description: English name
+        profilePage:
+          type: string
+          description: URL slug
+        type:
+          type: string
+          description: Organization type (스타트업, 중소기업, 금융회사, 사모투자회사, 액셀러레이터)
+        corpType:
+          type: string
+          description: Legal structure (주식회사, etc.)
+        foundedOn:
+          type: string
+          format: date-time
+          description: Founding date
+        website:
+          type: string
+          description: Company website URL
+        nationality:
+          type: object
+          properties:
+            country:
+              type: string
+        district:
+          type: object
+          description: Geographic district (country > region > city)
+        status:
+          type: string
+          description: Current operational status
+        totalFundingAmount:
+          type: number
+          description: Total funding raised (KRW)
+        totalFundingCount:
+          type: integer
+          description: Number of funding rounds
+        lastFundedOn:
+          type: string
+          format: date-time
+        lastRound:
+          type: string
+          description: Most recent round type
+        investorCount:
+          type: integer
+        avgAmount:
+          type: number
+          description: Average funding amount per round
+        maxAmount:
+          type: number
+          description: Largest single round amount
+        minAmount:
+          type: number
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+        fundings:
+          type: array
+          items:
+            $ref: "#/components/schemas/Funding"
+        portfolios:
+          type: array
+          description: Investment portfolio (for VCs/accelerators)
+          items:
+            $ref: "#/components/schemas/PortfolioItem"
+        employeeHistory:
+          type: array
+          description: Historical employee count data
+          items:
+            $ref: "#/components/schemas/EmployeeCount"
+        capitalHistory:
+          type: object
+          description: Capital history including latest capital amount
+        similarOrganizations:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrganizationSummary"
+        similarInvestors:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrganizationSummary"
+        coInvestors:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrganizationSummary"
+        coVisitOrganizations:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrganizationSummary"
+        hasFinancialStatement:
+          type: boolean
+        latestFinancialStatementYear:
+          type: integer
+        patentOverview:
+          type: object
+          description: Patent filing overview
+        contact:
+          type: object
+          description: Contact information
+        logo:
+          type: string
+          description: Logo image hash
+        ir:
+          type: object
+          description: Investor relations documents
+        grant:
+          type: object
+          description: Government grants received
+
+    Product:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Product name
+        description:
+          type: string
+          description: Product description
+        logo:
+          type: string
+          description: Product logo image hash
+        desc:
+          type: string
+          description: Alternative description field
+
+    Funding:
+      type: object
+      properties:
+        round:
+          type: string
+          description: Funding round (Seed, Series A, Series B, Series C, etc.)
+        amount:
+          type: string
+          description: Amount raised (KRW)
+        announcedDate:
+          type: string
+          format: date-time
+          description: Announcement date
+        investorTypes:
+          type: array
+          items:
+            type: string
+          description: Types of investors in this round
+        investors:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrganizationSummary"
+
+    PortfolioItem:
+      type: object
+      properties:
+        name:
+          type: string
+        profilePage:
+          type: string
+        type:
+          type: string
+
+    EmployeeCount:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Number of employees
+        date:
+          type: string
+          format: date-time
+
+    NewsArticle:
+      type: object
+      properties:
+        _id:
+          type: string
+        title:
+          type: string
+          description: Article title (Korean)
+        source:
+          type: string
+          description: News source URL
+        publisher:
+          type: object
+          properties:
+            name:
+              type: string
+            domain:
+              type: string
+        description:
+          type: string
+          description: Article summary
+        createdAt:
+          type: string
+          format: date-time
+        thumbnail:
+          type: string
+          description: Article thumbnail URL
+        topic:
+          type: string
+          description: Article topic category
