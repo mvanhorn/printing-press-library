@@ -23,7 +23,11 @@ func TestResolveEarliestForVenue_TockNumericRejected(t *testing.T) {
 	}{
 		{"bare numeric on tock", "tock:3688", "Tock venues are addressed by domain-name slug"},
 		{"large numeric", "tock:1183597", "domain-name slug"},
-		{"trailing whitespace tolerated", "tock:42", "domain-name slug"},
+		// Small two-digit numeric — verifies the rejection isn't gated
+		// on a minimum ID length. (Prior label "trailing whitespace
+		// tolerated" was wrong: strconv.Atoi("42 ") errors, so the
+		// rejection here is purely about the digit-shape predicate.)
+		{"small numeric rejected", "tock:42", "domain-name slug"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
