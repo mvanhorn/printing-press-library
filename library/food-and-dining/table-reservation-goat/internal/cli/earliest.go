@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -200,6 +201,19 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 	tryOT := network == "" || network == "opentable"
 	tryTock := network == "" || network == "tock"
 
+	// Tock uses domain-name slugs (`canlis`, `farzi-cafe-bellevue`), not
+	// numeric IDs. If the caller passed `tock:<digits>` it's a category
+	// mismatch — surface a typed error rather than running the Calendar
+	// fetch against a non-existent slug.
+	if tryTock && network == "tock" {
+		if _, err := strconv.Atoi(slug); err == nil {
+			row.Network = "tock"
+			row.Available = false
+			row.Reason = fmt.Sprintf("tock: %q looks like a numeric ID, but Tock venues are addressed by domain-name slug (e.g. 'canlis', 'farzi-cafe-bellevue'). Numeric IDs are an OpenTable-only convention; try 'opentable:%s' instead.", slug, slug)
+			return row
+		}
+	}
+
 	// Try Tock first because it has working availability via SSR
 	// `calendar.offerings`. Many venues (Canlis, Alinea, Atomix) exist on
 	// both networks; preferring Tock means the user gets a real
@@ -271,20 +285,43 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 		c, err := opentable.New(s)
 		if err == nil {
 			row.Network = "opentable"
-			// Resolve slug → restaurant ID via Autocomplete. The OT
-			// `RestaurantsAvailability` GraphQL takes a numeric
-			// restaurantId, not a slug. Slug-format queries
-			// (`le-bernardin`) are converted to spaced names.
-			// OT's Autocomplete is broken when called with lat=0/lng=0 — its
-			// `personalizer-autocomplete/v4` upstream returns INTERNAL_SERVER_ERROR
-			// without a coordinate to anchor on. Defaulting to NYC (which has
-			// the largest OT footprint) lets the GraphQL search the global
-			// index and still match restaurants in any metro.
-			restID, restName, restSlug, rerr := c.RestaurantIDFromQuery(ctx, slug, 40.7128, -74.0060)
-			if rerr != nil {
-				row.Available = false
-				row.Reason = fmt.Sprintf("opentable: could not resolve %q (%v)", slug, rerr)
-				return row
+			// Numeric-ID short-circuit (issue #406, failure 2): `restaurants
+			// list` emits numeric OpenTable IDs (e.g. id=3688 for "Daniel's
+			// Broiler - Bellevue") but the Autocomplete-based slug resolver
+			// can't match them — it does name-similarity search, not ID
+			// lookup. Without this shortcut, agents who try
+			// `availability check opentable:3688` get "could not resolve"
+			// even though the ID came directly from this CLI's own output.
+			// When the slug is pure digits, skip Autocomplete and pass the
+			// ID straight to RestaurantsAvailability. Slug-resolver
+			// misfires (the well-known global-fuzzy-match bug) are also
+			// bypassed on this path, so agents can route around the
+			// resolver via the numeric ID.
+			var restID int
+			var restName, restSlug string
+			if numID, numErr := strconv.Atoi(slug); numErr == nil && numID > 0 {
+				restID = numID
+				// restName/restSlug stay empty; row.URL still resolves
+				// canonically below from the numeric ID. The downstream
+				// chrome-avail SSR fetch can hydrate the name later if
+				// needed, but for agents the URL is the canonical anchor.
+			} else {
+				// Resolve slug → restaurant ID via Autocomplete. The OT
+				// `RestaurantsAvailability` GraphQL takes a numeric
+				// restaurantId, not a slug. Slug-format queries
+				// (`le-bernardin`) are converted to spaced names.
+				// OT's Autocomplete is broken when called with lat=0/lng=0 — its
+				// `personalizer-autocomplete/v4` upstream returns INTERNAL_SERVER_ERROR
+				// without a coordinate to anchor on. Defaulting to NYC (which has
+				// the largest OT footprint) lets the GraphQL search the global
+				// index and still match restaurants in any metro.
+				var rerr error
+				restID, restName, restSlug, rerr = c.RestaurantIDFromQuery(ctx, slug, 40.7128, -74.0060)
+				if rerr != nil {
+					row.Available = false
+					row.Reason = fmt.Sprintf("opentable: could not resolve %q (%v)", slug, rerr)
+					return row
+				}
 			}
 			row.URL = fmt.Sprintf("%s/restaurant/profile/%d", opentable.Origin, restID)
 			// New OT gateway (May 2026) returns single-day availability per
@@ -319,10 +356,17 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 				}
 				avail = append(avail, dayAvail...)
 			}
+			// When the caller passed a numeric ID, restName is empty (we
+			// didn't hit Autocomplete). Fall back to "restaurant #<id>" so
+			// Reason strings read naturally instead of "opentable : ...".
+			venueLabel := restName
+			if venueLabel == "" {
+				venueLabel = fmt.Sprintf("restaurant #%d", restID)
+			}
 			if aerr != nil {
 				row.Available = false
 				row.Reason = fmt.Sprintf("opentable %s (id=%d): %v; venue exists, book directly at %s",
-					restName, restID, aerr, row.URL)
+					venueLabel, restID, aerr, row.URL)
 				return row
 			}
 			// Find the earliest slot with isAvailable=true across all
@@ -399,10 +443,10 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 			if earliestSlotAt != "" {
 				row.Available = true
 				row.SlotAt = earliestSlotAt
-				row.Reason = fmt.Sprintf("opentable %s: earliest slot at %s%s", restName, earliestSlotAt, cacheNote)
+				row.Reason = fmt.Sprintf("opentable %s: earliest slot at %s%s", venueLabel, earliestSlotAt, cacheNote)
 			} else {
 				row.Available = false
-				row.Reason = fmt.Sprintf("opentable %s: no open slots in %d-day window for party=%d%s", restName, within, party, cacheNote)
+				row.Reason = fmt.Sprintf("opentable %s: no open slots in %d-day window for party=%d%s", venueLabel, within, party, cacheNote)
 			}
 			return row
 		}

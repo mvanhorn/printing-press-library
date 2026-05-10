@@ -26,8 +26,17 @@ func newAvailabilityCheckCmd(flags *rootFlags) *cobra.Command {
 		Use:   "check <restaurant>",
 		Short: "Check open slots for a restaurant on a specific date and party size",
 		Long: "Per-venue availability across both networks. Resolves the venue on OpenTable " +
-			"or Tock and returns the earliest matching slot per the requested date/party.",
-		Example:     "  table-reservation-goat-pp-cli availability check 'tock:alinea' --party 2 --date 2026-06-15 --json",
+			"or Tock and returns the earliest matching slot per the requested date/party.\n\n" +
+			"Restaurant identifier accepts three shapes:\n" +
+			"  • Bare slug — 'canlis' (searches both networks)\n" +
+			"  • Network-prefixed slug — 'opentable:le-bernardin', 'tock:alinea'\n" +
+			"  • Numeric OpenTable ID — '3688' or 'opentable:3688'. IDs come from\n" +
+			"    `restaurants list --json` (the `id` field) and bypass the\n" +
+			"    name-based slug resolver entirely, so they're the most\n" +
+			"    reliable input shape for agents composing `list → check`.\n" +
+			"    Tock has no numeric-ID convention; use the domain-name slug.",
+		Example: "  table-reservation-goat-pp-cli availability check 'tock:alinea' --party 2 --date 2026-06-15 --json\n" +
+			"  table-reservation-goat-pp-cli availability check 3688 --party 6 --date 2026-12-25 --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
