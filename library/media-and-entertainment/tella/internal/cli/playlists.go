@@ -11,6 +11,7 @@ func newPlaylistsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "playlists",
 		Short: "Playlist operations",
+		RunE: rejectUnknownSubcommand,
 	}
 
 	cmd.AddCommand(newPlaylistsCreateCmd(flags))

@@ -24,7 +24,8 @@ func newPlaylistsVideosAddToPlaylistCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"pp:endpoint": "videos.add-to-playlist", "pp:method": "POST", "pp:path": "/v1/playlists/{id}/videos"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				_ = cmd.Help()
+				return usageErr(fmt.Errorf("missing required positional argument"))
 			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("video-id") && !flags.dryRun {

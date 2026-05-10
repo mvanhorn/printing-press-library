@@ -11,6 +11,7 @@ func newVideosCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "videos",
 		Short: "Video operations",
+		RunE: rejectUnknownSubcommand,
 	}
 
 	cmd.AddCommand(newVideosDeleteCmd(flags))

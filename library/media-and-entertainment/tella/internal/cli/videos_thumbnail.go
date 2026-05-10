@@ -11,6 +11,7 @@ func newVideosThumbnailCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "thumbnail",
 		Short: "Manage thumbnail",
+		RunE: rejectUnknownSubcommand,
 	}
 
 	cmd.AddCommand(newVideosThumbnailGetVideoCmd(flags))

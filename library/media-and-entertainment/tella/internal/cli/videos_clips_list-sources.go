@@ -20,7 +20,8 @@ func newVideosClipsListSourcesCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"pp:endpoint": "clips.list-sources", "pp:method": "GET", "pp:path": "/v1/videos/{id}/clips/{clipId}/sources", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				_ = cmd.Help()
+				return usageErr(fmt.Errorf("missing required positional argument"))
 			}
 			c, err := flags.newClient()
 			if err != nil {

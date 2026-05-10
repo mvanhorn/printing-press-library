@@ -28,7 +28,8 @@ func newVideosThumbnailGetVideoCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"pp:endpoint": "thumbnail.get-video", "pp:method": "GET", "pp:path": "/v1/videos/{id}/thumbnail", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				_ = cmd.Help()
+				return usageErr(fmt.Errorf("missing required positional argument"))
 			}
 			if cmd.Flags().Changed("format") {
 				allowedFormat := []string{"jpg", "png", "webp", "gif", "mp4"}
@@ -100,6 +101,11 @@ func newVideosThumbnailGetVideoCmd(flags *rootFlags) *cobra.Command {
 			// no explicit fields were requested.
 			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
+				// Unwrap single-resource envelopes (e.g. {"video": {...}}) so --select
+				// and --compact apply to the resource fields, not the wrapper.
+				if flags.selectFields != "" || flags.compact {
+					filtered = unwrapSingleEnvelope(filtered)
+				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
 				} else if flags.compact {

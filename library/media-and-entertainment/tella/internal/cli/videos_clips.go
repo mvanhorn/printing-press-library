@@ -11,6 +11,7 @@ func newVideosClipsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "clips",
 		Short: "Sections of a video",
+		RunE: rejectUnknownSubcommand,
 	}
 
 	cmd.AddCommand(newVideosClipsAddBlurCmd(flags))

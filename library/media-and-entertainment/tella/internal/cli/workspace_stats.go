@@ -18,6 +18,7 @@ func newWorkspaceCmd(flags *rootFlags) *cobra.Command {
 		Use:         "workspace",
 		Short:       "Workspace-wide aggregations against the local store",
 		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        rejectUnknownSubcommand,
 	}
 	cmd.AddCommand(newWorkspaceStatsCmd(flags))
 	return cmd

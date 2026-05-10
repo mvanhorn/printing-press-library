@@ -108,7 +108,8 @@ In local mode: searches locally synced data only.`,
 		Annotations: map[string]string{"mcp:hidden": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				_ = cmd.Help()
+				return usageErr(fmt.Errorf("missing required positional argument"))
 			}
 			query := args[0]
 			// This API has no search endpoint.

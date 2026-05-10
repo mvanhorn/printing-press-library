@@ -23,7 +23,8 @@ func newVideosClipsReorderCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"pp:endpoint": "clips.reorder", "pp:method": "POST", "pp:path": "/v1/videos/{id}/clips/{clipId}/reorder"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				_ = cmd.Help()
+				return usageErr(fmt.Errorf("missing required positional argument"))
 			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("order") && !flags.dryRun {

@@ -111,7 +111,8 @@ func newWebhooksReplayCmd(flags *rootFlags) *cobra.Command {
 		Example: "  tella-pp-cli webhooks replay msg_abc --to http://localhost:8080/webhooks",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				_ = cmd.Help()
+				return usageErr(fmt.Errorf("missing required positional argument"))
 			}
 			if dryRunOK(flags) {
 				return nil

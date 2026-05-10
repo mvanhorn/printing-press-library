@@ -100,6 +100,17 @@ func apiErr(err error) error       { return &cliError{code: 5, err: err} }
 func configErr(err error) error    { return &cliError{code: 10, err: err} }
 func rateLimitErr(err error) error { return &cliError{code: 7, err: err} }
 
+// rejectUnknownSubcommand returns a helpful error when a parent command is
+// invoked with positional args that don't match any registered subcommand.
+// Used as the RunE for parent commands so unknown subcommands exit non-zero
+// instead of silently printing help with exit code 0.
+func rejectUnknownSubcommand(cmd *cobra.Command, args []string) error {
+	if len(args) == 0 {
+		return cmd.Help()
+	}
+	return notFoundErr(fmt.Errorf("unknown command %q for %q\n\nRun '%s --help' for available subcommands.", args[0], cmd.CommandPath(), cmd.CommandPath()))
+}
+
 // dryRunOK reports whether the command should short-circuit without doing any
 // real work because --dry-run was set. The verify pipeline probes hand-written
 // commands with --dry-run; commands that put validation in cobra's `Args:` or
@@ -547,6 +558,27 @@ func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) e
 		return printPlain(w, data)
 	}
 	return printOutput(w, data, flags.asJSON)
+}
+
+// unwrapSingleEnvelope returns the inner value when data is a strict
+// single-key wrapper (e.g. {"playlist": {...}}, {"video": {...}}, {"clip": {...}}).
+// Returns data unchanged when there are multiple top-level keys (already flat),
+// when the inner value is a primitive, or when data is not an object.
+func unwrapSingleEnvelope(data json.RawMessage) json.RawMessage {
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return data
+	}
+	if len(obj) != 1 {
+		return data
+	}
+	for _, raw := range obj {
+		s := string(raw)
+		if len(s) > 0 && (s[0] == '{' || s[0] == '[') {
+			return raw
+		}
+	}
+	return data
 }
 
 // unwrapResultsArray returns the inner array when data is a single-array-bearing

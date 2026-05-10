@@ -22,6 +22,7 @@ func newTranscriptsCmd(flags *rootFlags) *cobra.Command {
 		Use:         "transcripts",
 		Short:       "FTS5 search and sync across cached clip transcripts",
 		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        rejectUnknownSubcommand,
 	}
 	cmd.AddCommand(newTranscriptsSearchCmd(flags))
 	cmd.AddCommand(newTranscriptsSyncCmd(flags))
@@ -38,7 +39,8 @@ func newTranscriptsSearchCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				_ = cmd.Help()
+				return usageErr(fmt.Errorf("missing required positional argument"))
 			}
 			if dryRunOK(flags) {
 				return nil

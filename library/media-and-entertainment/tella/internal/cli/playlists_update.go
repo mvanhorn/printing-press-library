@@ -27,7 +27,8 @@ func newPlaylistsUpdateCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"pp:endpoint": "playlists.update", "pp:method": "PATCH", "pp:path": "/v1/playlists/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				_ = cmd.Help()
+				return usageErr(fmt.Errorf("missing required positional argument"))
 			}
 			if !stdinBody {
 			}

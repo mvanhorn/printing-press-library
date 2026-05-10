@@ -25,7 +25,8 @@ func newVideosCollaboratorsAddToVideoCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"pp:endpoint": "collaborators.add-to-video", "pp:method": "POST", "pp:path": "/v1/videos/{id}/collaborators"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				_ = cmd.Help()
+				return usageErr(fmt.Errorf("missing required positional argument"))
 			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("email") && !flags.dryRun {
