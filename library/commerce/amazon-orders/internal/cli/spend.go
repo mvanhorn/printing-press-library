@@ -4,10 +4,18 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/parser"
 	"github.com/spf13/cobra"
 )
+
+// defaultYearWindow returns "year-YYYY" for the current calendar year. Used as
+// the default value for --window flags so the CLI does not silently query an
+// empty result set after the year ends.
+func defaultYearWindow() string {
+	return fmt.Sprintf("year-%d", time.Now().Year())
+}
 
 // SpendBucket is one row of a spending rollup.
 type SpendBucket struct {
@@ -60,7 +68,7 @@ Use --year YYYY as a shortcut for --window year-YYYY.
 		},
 	}
 	cmd.Flags().StringVar(&by, "by", "month", "Dimension to roll up by: month, year, ship-to, status.")
-	cmd.Flags().StringVar(&window, "window", "year-2026", "Time window to scan: year-YYYY, last30days, months-3, months-6, archived.")
+	cmd.Flags().StringVar(&window, "window", defaultYearWindow(), "Time window to scan: year-YYYY, last30days, months-3, months-6, archived (defaults to the current calendar year).")
 	cmd.Flags().IntVar(&year, "year", 0, "Convenience: roll up the given calendar year (overrides --window).")
 	cmd.Flags().IntVar(&maxPages, "max-pages", 12, "Maximum order-history pages to walk (10 orders/page).")
 	return cmd

@@ -52,7 +52,7 @@ SQLite store after a 'sync' run.`,
 			return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 		},
 	}
-	cmd.Flags().StringVar(&window, "window", "year-2026", "Time window to scan: year-YYYY, last30days, months-3, months-6, archived.")
+	cmd.Flags().StringVar(&window, "window", defaultYearWindow(), "Time window to scan: year-YYYY, last30days, months-3, months-6, archived (defaults to the current calendar year).")
 	cmd.Flags().IntVar(&maxPages, "max-pages", 10, "Maximum order-history pages to walk (10 orders/page).")
 	return cmd
 }
