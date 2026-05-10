@@ -39,7 +39,7 @@ func newOrderProductsCheckDownloadCmd(flags *rootFlags) *cobra.Command {
 			if flagSiteId != "" {
 				params["siteId"] = fmt.Sprintf("%v", flagSiteId)
 			}
-			if flagIndex != 0 {
+			if cmd.Flags().Changed("index") {
 				params["index"] = fmt.Sprintf("%v", flagIndex)
 			}
 			if flagGetChecksums != 0 {

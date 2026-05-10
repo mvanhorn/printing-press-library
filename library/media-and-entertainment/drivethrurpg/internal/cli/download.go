@@ -150,9 +150,10 @@ func waitForDownload(ctx context.Context, c *client.Client, orderProductID strin
 		return nil, err
 	}
 
-	for strings.HasPrefix(strings.ToLower(status.Status), "preparing") || status.URL == "" {
-		if status.URL != "" {
-			break
+	for status.URL == "" {
+		statusText := strings.ToLower(strings.TrimSpace(status.Status))
+		if statusText != "" && !strings.HasPrefix(statusText, "preparing") {
+			return nil, fmt.Errorf("download failed with status %q", status.Status)
 		}
 		if time.Since(start) > maxWait {
 			return nil, fmt.Errorf("timed out waiting for download after %s; last status=%q", maxWait, status.Status)
