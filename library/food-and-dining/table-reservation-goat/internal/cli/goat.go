@@ -117,7 +117,13 @@ func newGoatCmd(flags *rootFlags) *cobra.Command {
 			}
 			if net == "" || net == "tock" {
 				sources = append(sources, "tock")
-				tockRes, tockErr := goatQueryTock(ctx, session, query)
+				cityName := metroCityName(metro)
+				if cityName == "" {
+					cityName = "New York City"
+				}
+				date := time.Now().UTC().Format("2006-01-02")
+				hhmm := "19:00"
+				tockRes, tockErr := goatQueryTock(ctx, session, query, cityName, date, hhmm, party, latitude, longitude)
 				if tockErr != nil {
 					errors = append(errors, fmt.Sprintf("tock: %v", tockErr))
 				} else {
@@ -151,7 +157,6 @@ func newGoatCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&limit, "limit", 20, "Max merged results to return")
 	cmd.Flags().IntVar(&party, "party", 2, "Party size (informational; OT autocomplete does not filter on this)")
 	cmd.Flags().StringVar(&when, "when", "", "Time hint for search (e.g., 'fri 7-9pm', 'tonight', 'this weekend'); informational in v1")
-	_ = party
 	_ = when
 	return cmd
 }
@@ -203,6 +208,59 @@ func metroLatLng(slug string) (lat, lng float64, ok bool) {
 		return 36.1699, -115.1398, true
 	}
 	return 0, 0, false
+}
+
+// metroCityName resolves a metro slug to its display name. Tock's city-search
+// URL accepts both: the slug appears as the path segment (`/city/seattle/`)
+// while the display name appears as the `?city=` query param (`?city=Seattle`).
+// Returns "" on unknown slug so callers can fall back.
+func metroCityName(slug string) string {
+	switch strings.ToLower(strings.TrimSpace(slug)) {
+	case "seattle":
+		return "Seattle"
+	case "chicago":
+		return "Chicago"
+	case "new-york", "new-york-city", "nyc", "manhattan":
+		// Tock's canonical slug is `new-york-city`; the display name `New York City`
+		// produces that slug via citySlugFromName, which matches the URL the
+		// /city/new-york-city/search SSR responds at.
+		return "New York City"
+	case "san-francisco", "sf":
+		return "San Francisco"
+	case "los-angeles", "la":
+		return "Los Angeles"
+	case "miami":
+		return "Miami"
+	case "boston":
+		return "Boston"
+	case "washington-dc", "dc", "washington":
+		return "Washington DC"
+	case "austin":
+		return "Austin"
+	case "portland":
+		return "Portland"
+	case "denver":
+		return "Denver"
+	case "philadelphia", "philly":
+		return "Philadelphia"
+	case "atlanta":
+		return "Atlanta"
+	case "houston":
+		return "Houston"
+	case "dallas":
+		return "Dallas"
+	case "san-diego":
+		return "San Diego"
+	case "minneapolis":
+		return "Minneapolis"
+	case "nashville":
+		return "Nashville"
+	case "new-orleans", "nola":
+		return "New Orleans"
+	case "las-vegas", "vegas":
+		return "Las Vegas"
+	}
+	return ""
 }
 
 func knownMetros() []string {
@@ -276,49 +334,110 @@ func firstToken(s string) string {
 	return s
 }
 
-func goatQueryTock(ctx context.Context, s *auth.Session, query string) ([]goatResult, error) {
-	// Tock has no public search endpoint. The viable read path is to
-	// resolve the query as a venue slug directly (`canlis`, `alinea`,
-	// `le-bernardin`) against `/<slug>`. If the SSR Redux state has a
-	// `business` slice, the venue exists on Tock. v0.2 will also scrape
-	// metro pages (e.g., /seattle) for broader discovery.
-	slug := slugify(query)
-	if slug == "" {
-		return nil, nil
-	}
+func goatQueryTock(ctx context.Context, s *auth.Session, query, cityName, date, hhmm string, partySize int, lat, lng float64) ([]goatResult, error) {
+	// Tock's read paths are both SSR-rendered:
+	//   1. Slug-direct (`/<slug>`): cheap canonical resolution when the user
+	//      types an exact venue slug. Returns 404 for free-text queries.
+	//   2. City-search (`/city/<slug>/search?...`): geo-search returning
+	//      ~60 venues per metro+date+time+party. Powers broader queries
+	//      like `goat 'tasting menu chicago'`.
+	// We run slug-direct first (cheap, canonical) and city-search after,
+	// then dedupe by slug so a venue surfaced by both paths returns once.
 	c, err := tock.New(s)
 	if err != nil {
 		return nil, err
 	}
-	detail, err := c.VenueDetail(ctx, slug)
-	if err != nil {
-		// 404 / no Tock venue under that slug. Don't fail the whole goat
-		// call — just contribute zero rows from this source.
-		return []goatResult{}, nil
+
+	out := []goatResult{}
+	seenSlugs := map[string]struct{}{}
+
+	// Slug-direct path.
+	if slug := slugify(query); slug != "" {
+		if detail, derr := c.VenueDetail(ctx, slug); derr == nil {
+			if biz, ok := detail["business"].(map[string]any); ok && len(biz) > 0 {
+				row := goatResult{
+					Network:    "tock",
+					MatchScore: 0.95,
+					URL:        tock.Origin + "/" + slug,
+					Slug:       slug,
+				}
+				if name, ok := biz["name"].(string); ok {
+					row.Name = name
+				}
+				if id, ok := biz["id"].(float64); ok {
+					row.ID = fmt.Sprintf("%d", int(id))
+				}
+				if city, ok := biz["city"].(string); ok {
+					row.Metro = city
+				}
+				if cuisine, ok := biz["cuisine"].(string); ok {
+					row.Cuisine = cuisine
+				}
+				out = append(out, row)
+				seenSlugs[slug] = struct{}{}
+			}
+		}
+		// 404 / non-Tock slug → don't fail; just contribute zero rows from this leg.
 	}
-	biz, ok := detail["business"].(map[string]any)
-	if !ok || len(biz) == 0 {
-		return []goatResult{}, nil
+
+	// City-search path. Fall back to NYC defaults when --metro is unset, matching
+	// goatQueryOpenTable's existing behavior.
+	if cityName == "" {
+		cityName = "New York City"
 	}
-	row := goatResult{
-		Network:    "tock",
-		MatchScore: 0.95,
-		URL:        tock.Origin + "/" + slug,
-		Slug:       slug,
+	if lat == 0 && lng == 0 {
+		// Match goatQueryOpenTable's NYC fallback. Tock's canonical NYC centroid
+		// is ~(40.7128, -74.0060) but the ?city= query param drives metro selection,
+		// so midtown coords work fine.
+		lat, lng = 40.7589, -73.9851
 	}
-	if name, ok := biz["name"].(string); ok {
-		row.Name = name
+	if partySize <= 0 {
+		partySize = 2
 	}
-	if id, ok := biz["id"].(float64); ok {
-		row.ID = fmt.Sprintf("%d", int(id))
+	venues, serr := c.SearchCity(ctx, tock.SearchParams{
+		City:      cityName,
+		Date:      date,
+		Time:      hhmm,
+		PartySize: partySize,
+		Lat:       lat,
+		Lng:       lng,
+	})
+	if serr != nil {
+		// Surface SearchCity errors but keep slug-direct results — partial
+		// success beats a hard failure that hides what we did find.
+		return out, fmt.Errorf("tock search-city: %w", serr)
 	}
-	if city, ok := biz["city"].(string); ok {
-		row.Metro = city
+	q := strings.ToLower(query)
+	for _, v := range venues {
+		if _, dup := seenSlugs[v.Slug]; dup {
+			continue
+		}
+		// Score by query match against name + cuisine. Mirror goatQueryOpenTable's
+		// scoring so cross-network ranking stays consistent.
+		nameLower := strings.ToLower(v.Name)
+		cuisineLower := strings.ToLower(v.Cuisine)
+		score := 0.4
+		if strings.Contains(nameLower, q) {
+			score = 0.95
+		} else if firstTok := firstToken(q); firstTok != "" && (strings.Contains(nameLower, firstTok) || strings.Contains(cuisineLower, firstTok)) {
+			score = 0.65
+		}
+		out = append(out, goatResult{
+			Network:      "tock",
+			ID:           fmt.Sprintf("%d", v.ID),
+			Name:         v.Name,
+			Slug:         v.Slug,
+			Cuisine:      v.Cuisine,
+			Neighborhood: v.Neighborhood,
+			Metro:        v.City,
+			Latitude:     v.Latitude,
+			Longitude:    v.Longitude,
+			URL:          v.URL,
+			MatchScore:   score,
+		})
+		seenSlugs[v.Slug] = struct{}{}
 	}
-	if cuisine, ok := biz["cuisine"].(string); ok {
-		row.Cuisine = cuisine
-	}
-	return []goatResult{row}, nil
+	return out, nil
 }
 
 func slugify(s string) string {

@@ -36,7 +36,7 @@ func newRestaurantsListCmd(flags *rootFlags) *cobra.Command {
 		Long: "Cross-network restaurant search backed by Surf-cleared OpenTable SSR " +
 			"and Tock SSR. Identical underlying data path as `goat`; this command " +
 			"is the resource-style entry point.",
-		Example: "  table-reservation-goat-pp-cli restaurants list --query 'omakase' --party 2 --json",
+		Example:     "  table-reservation-goat-pp-cli restaurants list --query 'omakase' --party 2 --json",
 		Annotations: map[string]string{"pp:endpoint": "restaurants.list", "pp:method": "GET", "pp:path": "/restaurants", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
@@ -68,7 +68,11 @@ func newRestaurantsListCmd(flags *rootFlags) *cobra.Command {
 			}
 			if net == "" || net == "tock" {
 				sources = append(sources, "tock")
-				if r, err := goatQueryTock(ctx, session, query); err != nil {
+				// restaurants_list doesn't carry a metro/date/time/party context,
+				// so fall back to NYC defaults — goatQueryTock applies the same
+				// fallbacks internally when these are zero/empty.
+				date := time.Now().UTC().Format("2006-01-02")
+				if r, err := goatQueryTock(ctx, session, query, "", date, "19:00", 2, lat, lng); err != nil {
 					errors = append(errors, "tock: "+err.Error())
 				} else {
 					results = append(results, r...)
