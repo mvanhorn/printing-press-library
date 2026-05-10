@@ -4,6 +4,7 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"strings"
 	"testing"
 )
@@ -56,5 +57,126 @@ func TestResolveEarliestForVenue_BareNumericIsAmbiguous(t *testing.T) {
 	row := resolveEarliestForVenue(context.Background(), nil, "3688", 2, "2026-05-15", 1, false)
 	if strings.Contains(row.Reason, "Tock venues are addressed") {
 		t.Errorf("bare numeric should not trigger the Tock-numeric category error; got %q", row.Reason)
+	}
+}
+
+// TestSummarizeEarliest covers issue #406 failure 4: zero-resolution
+// requests previously rendered as `{}` (via the --select path), making
+// "couldn't resolve any input" look identical to "checked, no slots."
+// The new meta envelope and unresolved[] always carry the distinction.
+func TestSummarizeEarliest(t *testing.T) {
+	cases := []struct {
+		name                string
+		venues              []string
+		rows                []earliestRow
+		wantRequested       int
+		wantResolved        int
+		wantUnresolved      int
+		wantAvailable       int
+		wantUnresolvedNames []string
+	}{
+		{
+			name:   "all resolved, none available",
+			venues: []string{"canlis", "spinasse"},
+			rows: []earliestRow{
+				{Venue: "canlis", Network: "tock", Available: false, Reason: "tock canlis: no open slots for party=2"},
+				{Venue: "spinasse", Network: "opentable", Available: false, Reason: "opentable spinasse: no open slots in 14-day window for party=2"},
+			},
+			wantRequested: 2, wantResolved: 2, wantUnresolved: 0, wantAvailable: 0,
+		},
+		{
+			name:   "all resolved, all available",
+			venues: []string{"canlis", "alinea"},
+			rows: []earliestRow{
+				{Venue: "canlis", Network: "tock", Available: true, SlotAt: "2026-05-15T17:00"},
+				{Venue: "alinea", Network: "tock", Available: true, SlotAt: "2026-05-15T19:00"},
+			},
+			wantRequested: 2, wantResolved: 2, wantUnresolved: 0, wantAvailable: 2,
+		},
+		{
+			name:   "all unresolved",
+			venues: []string{"daniels-broiler-bellevue", "joey-bellevue"},
+			rows: []earliestRow{
+				{Venue: "daniels-broiler-bellevue", Network: "unknown", Available: false, Reason: "could not resolve venue on OpenTable or Tock"},
+				{Venue: "joey-bellevue", Network: "", Available: false, Reason: "auth error"},
+			},
+			wantRequested: 2, wantResolved: 0, wantUnresolved: 2, wantAvailable: 0,
+			wantUnresolvedNames: []string{"daniels-broiler-bellevue", "joey-bellevue"},
+		},
+		{
+			name:   "mixed: some resolve, some don't, one has slots",
+			venues: []string{"canlis", "fake-venue", "spinasse"},
+			rows: []earliestRow{
+				{Venue: "canlis", Network: "tock", Available: true, SlotAt: "..."},
+				{Venue: "fake-venue", Network: "unknown", Reason: "could not resolve"},
+				{Venue: "spinasse", Network: "opentable", Available: false, Reason: "no slots"},
+			},
+			wantRequested: 3, wantResolved: 2, wantUnresolved: 1, wantAvailable: 1,
+			wantUnresolvedNames: []string{"fake-venue"},
+		},
+		{
+			name:          "empty input",
+			venues:        []string{},
+			rows:          []earliestRow{},
+			wantRequested: 0,
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			meta, unresolved := summarizeEarliest(tc.venues, tc.rows)
+			if meta.VenuesRequested != tc.wantRequested {
+				t.Errorf("VenuesRequested = %d; want %d", meta.VenuesRequested, tc.wantRequested)
+			}
+			if meta.Resolved != tc.wantResolved {
+				t.Errorf("Resolved = %d; want %d", meta.Resolved, tc.wantResolved)
+			}
+			if meta.Unresolved != tc.wantUnresolved {
+				t.Errorf("Unresolved = %d; want %d", meta.Unresolved, tc.wantUnresolved)
+			}
+			if meta.Available != tc.wantAvailable {
+				t.Errorf("Available = %d; want %d", meta.Available, tc.wantAvailable)
+			}
+			if len(unresolved) != len(tc.wantUnresolvedNames) {
+				t.Errorf("unresolved len = %d (%v); want %d (%v)", len(unresolved), unresolved, len(tc.wantUnresolvedNames), tc.wantUnresolvedNames)
+			}
+			for i, name := range tc.wantUnresolvedNames {
+				if i >= len(unresolved) {
+					break
+				}
+				if unresolved[i].Venue != name {
+					t.Errorf("unresolved[%d].Venue = %q; want %q", i, unresolved[i].Venue, name)
+				}
+			}
+		})
+	}
+}
+
+// TestEarliestResponse_JSONShapeContractsMeta verifies that the meta
+// envelope is ALWAYS present in JSON output, even when results is empty.
+// The user's original symptom was `--select results.X` returning `{}` on
+// zero-resolution — the new shape makes meta.* available at the top level
+// so agents can branch on it even when results is filtered out.
+func TestEarliestResponse_JSONShapeContractsMeta(t *testing.T) {
+	resp := earliestResponse{
+		Venues:     []string{"x"},
+		Party:      2,
+		Within:     1,
+		Meta:       earliestMeta{VenuesRequested: 1, Resolved: 0, Unresolved: 1, Available: 0},
+		Results:    []earliestRow{},
+		Unresolved: []unresolvedRow{{Venue: "x", Reason: "could not resolve"}},
+		QueriedAt:  "2026-05-10T12:00:00Z",
+	}
+	raw, err := json.Marshal(resp)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	body := string(raw)
+	for _, want := range []string{
+		`"meta":`, `"venues_requested":1`, `"resolved":0`, `"unresolved":1`, `"available":0`,
+		`"results":[]`, `"unresolved":[`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("JSON missing %q; got %s", want, body)
+		}
 	}
 }
