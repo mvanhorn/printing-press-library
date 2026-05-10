@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	_ "modernc.org/sqlite"
@@ -37,6 +38,9 @@ const StoreSchemaVersion = 1
 type Store struct {
 	db   *sql.DB
 	path string
+
+	// PATCH: serialize SQLite write transactions so default parallel sync does not trip SQLITE_BUSY.
+	writeMu sync.Mutex
 }
 
 func Open(dbPath string) (*Store, error) {
@@ -318,6 +322,9 @@ func (s *Store) upsertGenericResourceTx(tx *sql.Tx, resourceType, id string, dat
 }
 
 func (s *Store) Upsert(resourceType, id string, data json.RawMessage) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
@@ -434,6 +441,7 @@ func lookupFieldValue(obj map[string]any, snakeKey string) any {
 	}
 	return nil
 }
+
 // upsertSearchAllTx writes the typed-table portion of a search_all upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -462,6 +470,9 @@ func (s *Store) upsertSearchAllTx(tx *sql.Tx, id string, obj map[string]any, dat
 
 // UpsertSearchAll inserts or updates a search_all record with domain-specific columns.
 func (s *Store) UpsertSearchAll(data json.RawMessage) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+
 	var obj map[string]any
 	if err := json.Unmarshal(data, &obj); err != nil {
 		return fmt.Errorf("unmarshaling search_all: %w", err)
@@ -487,6 +498,7 @@ func (s *Store) UpsertSearchAll(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertNetworkentityTx writes the typed-table portion of a networkentity upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -516,6 +528,9 @@ func (s *Store) upsertNetworkentityTx(tx *sql.Tx, id string, obj map[string]any,
 
 // UpsertNetworkentity inserts or updates a networkentity record with domain-specific columns.
 func (s *Store) UpsertNetworkentity(data json.RawMessage) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+
 	var obj map[string]any
 	if err := json.Unmarshal(data, &obj); err != nil {
 		return fmt.Errorf("unmarshaling networkentity: %w", err)
@@ -541,6 +556,7 @@ func (s *Store) UpsertNetworkentity(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertTeamTx writes the typed-table portion of a team upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -564,6 +580,9 @@ func (s *Store) upsertTeamTx(tx *sql.Tx, id string, obj map[string]any, data jso
 
 // UpsertTeam inserts or updates a team record with domain-specific columns.
 func (s *Store) UpsertTeam(data json.RawMessage) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+
 	var obj map[string]any
 	if err := json.Unmarshal(data, &obj); err != nil {
 		return fmt.Errorf("unmarshaling team: %w", err)
@@ -589,6 +608,7 @@ func (s *Store) UpsertTeam(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertCategoryTx writes the typed-table portion of a category upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -613,6 +633,9 @@ func (s *Store) upsertCategoryTx(tx *sql.Tx, id string, obj map[string]any, data
 
 // UpsertCategory inserts or updates a category record with domain-specific columns.
 func (s *Store) UpsertCategory(data json.RawMessage) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+
 	var obj map[string]any
 	if err := json.Unmarshal(data, &obj); err != nil {
 		return fmt.Errorf("unmarshaling category: %w", err)
@@ -656,6 +679,10 @@ func (s *Store) UpsertCategory(data json.RawMessage) error {
 // only populate the generic resources table — typed tables (and indexed
 // columns like parent_id added by dependent-resource sync) would stay empty.
 func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, error) {
+	// PATCH: batch writes are the hot path hit by parallel sync workers.
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+
 	tx, err := s.db.Begin()
 	if err != nil {
 		return 0, fmt.Errorf("starting batch transaction: %w", err)
@@ -723,6 +750,9 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 }
 
 func (s *Store) SaveSyncState(resourceType, cursor string, count int) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+
 	_, err := s.db.Exec(
 		`INSERT INTO sync_state (resource_type, last_cursor, last_synced_at, total_count)
 		 VALUES (?, ?, ?, ?)
@@ -746,6 +776,9 @@ func (s *Store) GetSyncState(resourceType string) (cursor string, lastSynced tim
 
 // SaveSyncCursor stores the pagination cursor for a resource type.
 func (s *Store) SaveSyncCursor(resourceType, cursor string) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+
 	_, err := s.db.Exec(
 		`INSERT INTO sync_state (resource_type, last_cursor, last_synced_at, total_count)
 		 VALUES (?, ?, CURRENT_TIMESTAMP, 0)
@@ -803,6 +836,9 @@ func (s *Store) GetLastSyncedAt(resourceType string) string {
 
 // ClearSyncCursors resets all sync state for a full resync.
 func (s *Store) ClearSyncCursors() error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+
 	_, err := s.db.Exec("DELETE FROM sync_state")
 	return err
 }

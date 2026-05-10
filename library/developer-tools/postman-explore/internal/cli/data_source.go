@@ -46,8 +46,8 @@ func isNetworkError(err error) bool {
 
 // openStoreForRead opens the local SQLite store for reading.
 // Returns nil, nil if the database file does not exist (no sync has been run).
-func openStoreForRead(cliName string) (*store.Store, error) {
-	dbPath := defaultDBPath(cliName)
+func openStoreForRead(flags *rootFlags) (*store.Store, error) {
+	dbPath := localStorePath(flags)
 	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 		return nil, nil
 	}
@@ -93,7 +93,7 @@ func attachFreshness(prov DataProvenance, flags *rootFlags) DataProvenance {
 func resolveRead(c *client.Client, flags *rootFlags, resourceType string, isList bool, path string, params map[string]string, headers map[string]string) (json.RawMessage, DataProvenance, error) {
 	switch flags.dataSource {
 	case "local":
-		data, prov, err := resolveLocal(resourceType, isList, path, params, "user_requested")
+		data, prov, err := resolveLocal(flags, resourceType, isList, path, params, "user_requested")
 		return data, attachFreshness(prov, flags), err
 
 	case "live":
@@ -106,7 +106,7 @@ func resolveRead(c *client.Client, flags *rootFlags, resourceType string, isList
 	default: // "auto"
 		data, err := c.GetWithHeaders(path, params, headers)
 		if err == nil {
-			writeThroughCache(resourceType, data)
+			writeThroughCache(flags, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		if !isNetworkError(err) {
@@ -114,7 +114,7 @@ func resolveRead(c *client.Client, flags *rootFlags, resourceType string, isList
 			return nil, DataProvenance{}, err
 		}
 		// Network error — try local fallback
-		fallbackData, fallbackProv, fallbackErr := resolveLocal(resourceType, isList, path, params, "api_unreachable")
+		fallbackData, fallbackProv, fallbackErr := resolveLocal(flags, resourceType, isList, path, params, "api_unreachable")
 		if fallbackErr != nil {
 			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'postman-explore-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
 		}
@@ -129,7 +129,7 @@ func resolveRead(c *client.Client, flags *rootFlags, resourceType string, isList
 func resolvePaginatedRead(c *client.Client, flags *rootFlags, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, nextCursorPath, hasMoreField string) (json.RawMessage, DataProvenance, error) {
 	switch flags.dataSource {
 	case "local":
-		data, prov, err := resolveLocal(resourceType, true, path, params, "user_requested")
+		data, prov, err := resolveLocal(flags, resourceType, true, path, params, "user_requested")
 		return data, attachFreshness(prov, flags), err
 
 	case "live":
@@ -142,13 +142,13 @@ func resolvePaginatedRead(c *client.Client, flags *rootFlags, resourceType strin
 	default: // "auto"
 		data, err := paginatedGet(c, path, params, headers, fetchAll, cursorParam, nextCursorPath, hasMoreField)
 		if err == nil {
-			writeThroughCache(resourceType, data)
+			writeThroughCache(flags, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		if !isNetworkError(err) {
 			return nil, DataProvenance{}, err
 		}
-		fallbackData, fallbackProv, fallbackErr := resolveLocal(resourceType, true, path, params, "api_unreachable")
+		fallbackData, fallbackProv, fallbackErr := resolveLocal(flags, resourceType, true, path, params, "api_unreachable")
 		if fallbackErr != nil {
 			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'postman-explore-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
 		}
@@ -159,8 +159,8 @@ func resolvePaginatedRead(c *client.Client, flags *rootFlags, resourceType strin
 // writeThroughCache upserts live API results into the local SQLite store so
 // FTS search covers everything the user has looked up — not just explicit syncs.
 // Best-effort: failures are silently ignored (the live result already succeeded).
-func writeThroughCache(resourceType string, data json.RawMessage) {
-	db, err := store.Open(defaultDBPath("postman-explore-pp-cli"))
+func writeThroughCache(flags *rootFlags, resourceType string, data json.RawMessage) {
+	db, err := store.Open(localStorePath(flags))
 	if err != nil {
 		return
 	}
@@ -212,8 +212,8 @@ func writeThroughCache(resourceType string, data json.RawMessage) {
 // Note: local reads return ALL synced data for the resource type. Endpoint-specific
 // filters (query params, path scoping like /teams/{id}/users) are NOT applied locally.
 // The provenance metadata includes "unscoped":true when params were present but not applied.
-func resolveLocal(resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
-	db, err := openStoreForRead("postman-explore-pp-cli")
+func resolveLocal(flags *rootFlags, resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
+	db, err := openStoreForRead(flags)
 	if err != nil {
 		return nil, DataProvenance{}, fmt.Errorf("opening local database: %w\nRun 'postman-explore-pp-cli sync' first.", err)
 	}

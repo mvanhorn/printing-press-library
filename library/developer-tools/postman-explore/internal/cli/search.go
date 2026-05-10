@@ -82,7 +82,6 @@ func extractSearchResults(data json.RawMessage) []json.RawMessage {
 func newSearchCmd(flags *rootFlags) *cobra.Command {
 	var resourceType string
 	var limit int
-	var dbPath string
 
 	cmd := &cobra.Command{
 		Use:   "search <query>",
@@ -118,13 +117,13 @@ In local mode: searches locally synced data only.`,
 					return err
 				}
 				data, _, getErr := c.Post("/search-all", map[string]any{
-					"queryText": query,
-					"domain": "public",
-					"from": 0,
-					"mergeEntities": true,
+					"queryText":         query,
+					"domain":            "public",
+					"from":              0,
+					"mergeEntities":     true,
 					"nonNestedRequests": true,
-					"queryIndices": []any{"runtime.collection", "collaboration.workspace", "apinetwork.team", "flow.flow", "runtime.request"},
-					"size": 10,
+					"queryIndices":      []any{"runtime.collection", "collaboration.workspace", "apinetwork.team", "flow.flow", "runtime.request"},
+					"size":              10,
 				})
 				if getErr == nil {
 					// Live search succeeded
@@ -141,9 +140,7 @@ In local mode: searches locally synced data only.`,
 			}
 
 			// Local FTS search
-			if dbPath == "" {
-				dbPath = defaultDBPath("postman-explore-pp-cli")
-			}
+			dbPath := localStorePath(flags)
 
 			db, err := store.Open(dbPath)
 			if err != nil {
@@ -177,7 +174,6 @@ In local mode: searches locally synced data only.`,
 
 	cmd.Flags().StringVar(&resourceType, "type", "", "Filter by resource type")
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum results to return")
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/postman-explore-pp-cli/data.db)")
 
 	return cmd
 }

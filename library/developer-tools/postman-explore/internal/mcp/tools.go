@@ -31,7 +31,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/api/category/{slug}", []string{"slug", }),
+		makeAPIHandler("GET", "/v2/api/category/{slug}", []string{"slug"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("category_list-categories",
@@ -41,7 +41,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v2/api/category", []string{ }),
+		makeAPIHandler("GET", "/v2/api/category", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("networkentity_get-network-entity",
@@ -51,7 +51,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/api/networkentity/{id}", []string{"id", }),
+		makeAPIHandler("GET", "/v1/api/networkentity/{id}", []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("networkentity_get-network-entity-counts",
@@ -61,7 +61,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/api/networkentity/count", []string{ }),
+		makeAPIHandler("GET", "/v1/api/networkentity/count", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("networkentity_list-network-entities",
@@ -76,7 +76,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/api/networkentity", []string{ }),
+		makeAPIHandler("GET", "/v1/api/networkentity", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("search-all_search_all",
@@ -84,7 +84,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/search-all", []string{ }),
+		makeAPIHandler("POST", "/search-all", []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("team_get",
@@ -94,7 +94,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/api/team/{id}", []string{"id", }),
+		makeAPIHandler("GET", "/v1/api/team/{id}", []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("team_get-workspaces",
@@ -104,7 +104,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/api/team", []string{ }),
+		makeAPIHandler("GET", "/v1/api/team", []string{}),
 	)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
@@ -260,12 +260,10 @@ func newMCPClient() (*client.Client, error) {
 	return c, nil
 }
 
+// PATCH: MCP shares the same default/env-overridden SQLite path as the CLI.
 func dbPath() string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".local", "share", "postman-explore-pp-cli", "data.db")
+	return store.DefaultPath("postman-explore-pp-cli")
 }
-// Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
-// The CLI's defaultDBPath() in the cli package uses the same canonical path.
 
 func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
@@ -351,30 +349,30 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion postman-explore-pp-cli binary.",
 		"resources": []map[string]any{
 			{
-				"name": "category",
+				"name":        "category",
 				"description": "Manage category",
-				"endpoints": []string{"get", "list-categories",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"get", "list-categories"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "networkentity",
+				"name":        "networkentity",
 				"description": "Manage networkentity",
-				"endpoints": []string{"get-network-entity", "get-network-entity-counts", "list-network-entities",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"get-network-entity", "get-network-entity-counts", "list-network-entities"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "search-all",
+				"name":        "search-all",
 				"description": "Manage search all",
-				"endpoints": []string{"search_all",  },
-				"searchable": true,
+				"endpoints":   []string{"search_all"},
+				"searchable":  true,
 			},
 			{
-				"name": "team",
+				"name":        "team",
 				"description": "Publisher teams on the API network",
-				"endpoints": []string{"get", "get-workspaces",  },
-				"searchable": true,
+				"endpoints":   []string{"get", "get-workspaces"},
+				"searchable":  true,
 			},
 		},
 		"query_tips": []string{

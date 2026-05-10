@@ -51,7 +51,7 @@ Run 'sync' first; this command reads the local store.`,
 			}
 			cutoff := time.Now().Add(-window)
 
-			db, err := openLocalStore()
+			db, err := openLocalStore(flags)
 			if err != nil {
 				return fmt.Errorf("opening local store: %w", err)
 			}

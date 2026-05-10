@@ -72,7 +72,7 @@ Run 'sync' first; the publisher and entity rankings come from the local store.`,
 				return notFoundErr(fmt.Errorf("category %q not found on the network", slug))
 			}
 
-			db, err := openLocalStore()
+			db, err := openLocalStore(flags)
 			if err != nil {
 				return fmt.Errorf("opening local store: %w", err)
 			}

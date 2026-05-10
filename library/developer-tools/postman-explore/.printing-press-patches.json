@@ -20,6 +20,32 @@
         "workflow-verify-report.json"
       ],
       "validated_outcome": "go test ./... passed; go build ./cmd/postman-explore-pp-cli succeeded; --version reports 3.0.1; sync help shows Postman Explore resource examples."
+    },
+    {
+      "id": "shared-db-path-root-env-mcp",
+      "summary": "Made the local SQLite DB path shared across CLI root flags, local read commands, doctor/workflow helpers, and MCP.",
+      "reason": "Previously sync/search/workflow could use one DB while novel commands and MCP silently read the default DB, making --db unreliable for agents and tests.",
+      "files": [
+        "internal/cli/root.go",
+        "internal/cli/novel_helpers.go",
+        "internal/cli/data_source.go",
+        "internal/cli/search.go",
+        "internal/cli/sync.go",
+        "internal/cli/doctor.go",
+        "internal/cli/channel_workflow.go",
+        "internal/mcp/tools.go",
+        "internal/store/path.go"
+      ],
+      "validated_outcome": "go test ./... passed; live smoke confirmed top --db reads the DB populated by sync --db; POSTMAN_EXPLORE_DB works for sync and top."
+    },
+    {
+      "id": "sqlite-write-serialization",
+      "summary": "Serialized Store write transactions to prevent SQLITE_BUSY failures during default parallel sync.",
+      "reason": "Default sync concurrency can run multiple resource writers against the same SQLite database; WAL does not allow concurrent writers, so one resource can fail with database is locked.",
+      "files": [
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "Fresh-head repro failed with SQLITE_BUSY; patched live smoke synced category,collection,workspace,api,flow with default concurrency: success=5 errored=0 total_records=412."
     }
   ]
 }

@@ -25,7 +25,6 @@ func newWorkflowCmd(flags *rootFlags) *cobra.Command {
 }
 
 func newWorkflowArchiveCmd(flags *rootFlags) *cobra.Command {
-	var dbPath string
 	var full bool
 
 	cmd := &cobra.Command{
@@ -46,16 +45,14 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 			c.NoCache = true
 
-			if dbPath == "" {
-				dbPath = defaultDBPath("postman-explore-pp-cli")
-			}
+			dbPath := localStorePath(flags)
 			s, err := store.Open(dbPath)
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
 			}
 			defer s.Close()
 
-			resources := []string{"api", "category", "collection", "flow", "networkentity", "workspace",  }
+			resources := []string{"api", "category", "collection", "flow", "networkentity", "workspace"}
 			totalSynced := 0
 
 			for _, resource := range resources {
@@ -94,7 +91,9 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 						break
 					}
 					for _, item := range items {
-						var obj struct{ ID string `json:"id"` }
+						var obj struct {
+							ID string `json:"id"`
+						}
 						json.Unmarshal(item, &obj)
 						id := obj.ID
 						if id == "" {
@@ -135,14 +134,12 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/postman-explore-pp-cli/data.db)")
 	cmd.Flags().BoolVar(&full, "full", false, "Full re-archive (ignore previous sync state)")
 
 	return cmd
 }
 
 func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
-	var dbPath string
 
 	cmd := &cobra.Command{
 		Use:         "status",
@@ -154,9 +151,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
   # Show status as JSON
   postman-explore-pp-cli workflow status --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if dbPath == "" {
-				dbPath = defaultDBPath("postman-explore-pp-cli")
-			}
+			dbPath := localStorePath(flags)
 			s, err := store.Open(dbPath)
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
@@ -190,8 +185,6 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 
 	return cmd
 }

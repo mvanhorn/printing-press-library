@@ -32,7 +32,6 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var full bool
 	var since string
 	var concurrency int
-	var dbPath string
 	var maxPages int
 	var latestOnly bool
 
@@ -76,9 +75,7 @@ Exit codes & warnings:
 			}
 			c.NoCache = true
 
-			if dbPath == "" {
-				dbPath = defaultDBPath("postman-explore-pp-cli")
-			}
+			dbPath := localStorePath(flags)
 
 			db, err := store.Open(dbPath)
 			if err != nil {
@@ -216,7 +213,6 @@ Exit codes & warnings:
 	cmd.Flags().BoolVar(&full, "full", false, "Full resync (ignore previous checkpoint)")
 	cmd.Flags().StringVar(&since, "since", "", "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)")
 	cmd.Flags().IntVar(&concurrency, "concurrency", 4, "Number of parallel sync workers")
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/postman-explore-pp-cli/data.db)")
 	cmd.Flags().IntVar(&maxPages, "max-pages", 10, "Maximum pages to fetch per resource (0 = unlimited)")
 	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).")
 
