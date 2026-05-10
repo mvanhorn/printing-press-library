@@ -84,7 +84,7 @@ func newVideosClipsReorderCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 			}
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				if flags.quiet {
 					return nil
 				}

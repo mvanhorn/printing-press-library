@@ -48,6 +48,11 @@ func newVideosListCmd(flags *rootFlags) *cobra.Command {
 			// no explicit fields were requested.
 			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
+				// Unwrap {videos:[...], pagination:{...}} so --select / --compact
+				// see the items rather than the envelope wrapper.
+				if flags.selectFields != "" || flags.compact {
+					filtered = unwrapResultsArray(filtered)
+				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
 				} else if flags.compact {
