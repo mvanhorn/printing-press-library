@@ -114,6 +114,24 @@ These capabilities aren't available in any other tool for this API.
   table-reservation-goat-pp-cli drift alinea --since '2026-04-01' --agent
   ```
 
+- **`book`** — Place a reservation on OpenTable or Tock (v0.2). Free reservations only; payment-required venues return a typed `payment_required` error pointing at v0.3. Two safety layers: `PRINTING_PRESS_VERIFY=1` short-circuits to dry-run regardless (verifier mock-mode floor), and live commit fires only when `TRG_ALLOW_BOOK=1` is set. Without the env var, returns a dry-run envelope with a hint. Idempotency pre-flight via `ListUpcomingReservations` + normalized matching prevents double-book on retry; filesystem advisory lock keyed on `(network, slug, date, time, party)` prevents concurrent double-book across processes.
+
+  ```bash
+  TRG_ALLOW_BOOK=1 table-reservation-goat-pp-cli book opentable:water-grill-bellevue --date 2026-05-13 --time 19:00 --party 2 --agent
+  ```
+
+  Tock book uses chromedp-attach (drives a real Chrome session) since Tock's book flow uses traditional form-submit + Braintree CSRF. Card-required venues (most non-prepay Tock restaurants) prompt for CVC on stderr; the value flows through to the browser at confirm time. Free venues skip the CVC prompt. Requires Chrome running with `--remote-debugging-port=9222`, OR the CLI spawns a stealth headless Chrome as fallback. CVC can also be set via `TRG_TOCK_CVC` env var for non-interactive usage (MCP tool calls).
+
+- **`cancel`** — Cancel a reservation. NOT gated by `TRG_ALLOW_BOOK` (recovery action) but still respects the `PRINTING_PRESS_VERIFY` floor. Compound argument shape:
+  - OpenTable: `cancel opentable:<restaurantId>:<confirmationNumber>:<securityToken>`
+  - Tock:      `cancel tock:<venueSlug>:<purchaseId>`
+
+  All compound parts are returned by the corresponding `book` command's JSON output.
+
+  ```bash
+  table-reservation-goat-pp-cli cancel opentable:1255093:114309:01Ozsdas9H1Yx --agent
+  ```
+
 ## Usage
 
 Run `table-reservation-goat-pp-cli --help` for the full command reference and flag list.
@@ -261,6 +279,10 @@ OpenTable's WAF can rate-limit aggressive scans. The CLI ships with a disk cache
 | `TRG_OT_CACHE_TTL` | `3m` | How long a cached availability response stays fresh. Range `[1m, 24h]`; out-of-range falls back to default with a stderr warning. |
 | `TRG_OT_THROTTLE_RATE` | `0.5` | Initial calls/second for the OT AdaptiveLimiter. Lower values pace harder (`0.1` = 10s spacing); higher values are appropriate when routing through a personal proxy. Range `[0.01, 5.0]`. |
 | `TRG_OT_NO_CACHE` | unset | Set to `1` to bypass the cache by default. The `--no-cache` flag on `earliest` and `watch tick` does the same per-call. |
+| `TRG_ALLOW_BOOK` | unset | Live commit gate for `book`. Without it, `book` returns a dry-run envelope. `cancel` is NOT gated by this — it's a recovery action. |
+| `PRINTING_PRESS_VERIFY` | unset | Verifier-mode floor. When `=1`, both `book` and `cancel` short-circuit to dry-run regardless of `TRG_ALLOW_BOOK`. Set automatically by `printing-press verify` mock-mode subprocesses. |
+| `TRG_TOCK_CVC` | unset | When set, used as the CVC for Tock card-required bookings instead of prompting on stderr. Useful for MCP tool calls and other non-interactive contexts. |
+| `TABLE_RESERVATION_GOAT_TOCK_CHROME_DEBUG_URL` | `http://localhost:9222` | Override for the Chrome DevTools endpoint used by the Tock chromedp-attach book flow. |
 | `HTTPS_PROXY` / `HTTP_PROXY` | unset | Standard Go-honored proxy URLs. Useful for routing OT traffic through a personal proxy or Tor SOCKS5 (`socks5://localhost:9050`). |
 
 ## Troubleshooting

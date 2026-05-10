@@ -367,8 +367,23 @@ func pollOneWatch(ctx context.Context, s *auth.Session, id, venue, network, slug
 			restID, restName, _, rerr := c.RestaurantIDFromQuery(ctx, slug, 40.7128, -74.0060)
 			if rerr == nil && restID != 0 {
 				todayT := time.Now()
-				today := todayT.Format("2006-01-02")
-				avail, aerr := c.RestaurantsAvailability(ctx, []int{restID}, today, "19:00", party, 7, 150, 5, noCache)
+				// Loop one call per day. The new OT GraphQL gateway hardcodes
+				// `forwardDays: 0` in the request body and silently discards
+				// any larger value passed here, so a single call with
+				// forwardDays=7 only returns today's slots. Mirror earliest.go's
+				// per-day loop to actually scan a 7-day horizon.
+				const watchHorizonDays = 7
+				var avail []opentable.RestaurantAvailability
+				var aerr error
+				for d := 0; d < watchHorizonDays; d++ {
+					dayStr := todayT.AddDate(0, 0, d).Format("2006-01-02")
+					dayAvail, derr := c.RestaurantsAvailability(ctx, []int{restID}, dayStr, "19:00", party, 0, 210, 0, noCache)
+					if derr != nil {
+						aerr = derr
+						break
+					}
+					avail = append(avail, dayAvail...)
+				}
 				if aerr == nil {
 					r.Polled = true
 					r.Network = "opentable"

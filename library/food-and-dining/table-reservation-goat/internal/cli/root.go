@@ -195,6 +195,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newWatchCmd(flags))
 	rootCmd.AddCommand(newEarliestCmd(flags))
 	rootCmd.AddCommand(newDriftCmd(flags))
+	rootCmd.AddCommand(newBookCmd(flags))
+	rootCmd.AddCommand(newCancelCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
 	return rootCmd
