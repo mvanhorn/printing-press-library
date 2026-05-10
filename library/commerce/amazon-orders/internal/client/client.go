@@ -452,15 +452,19 @@ func sanitizeJSONResponse(body []byte) []byte {
 	return body
 }
 
-// maskToken redacts all but the last 4 characters of a token for safe display.
+// maskToken returns a fully-redacted placeholder for safe display of auth
+// material in dry-run / debug output. Reports the length so an operator can
+// distinguish "no token" from "I have one" without leaking any raw bytes.
+//
+// Earlier versions kept the last 4 characters visible. That convention works
+// for short bearer tokens but is dangerous for the long semicolon-joined
+// Cookie headers this CLI passes (the last 4 chars reveal the trailing bytes
+// of the final cookie value verbatim).
 func maskToken(token string) string {
 	if token == "" {
 		return ""
 	}
-	if len(token) <= 4 {
-		return "****"
-	}
-	return "****" + token[len(token)-4:]
+	return fmt.Sprintf("[redacted %d chars]", len(token))
 }
 
 func truncateBody(b []byte) string {

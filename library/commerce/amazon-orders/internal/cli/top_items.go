@@ -50,7 +50,7 @@ the listing page does not break out unit prices. For per-item spend run
 	}
 	cmd.Flags().StringVar(&by, "by", "count", "Sort by 'count' (most ordered) or 'total-spend' (highest total).")
 	cmd.Flags().IntVar(&limit, "limit", 20, "Maximum number of items to return.")
-	cmd.Flags().StringVar(&window, "window", "year-2026", "Time window to scan: year-YYYY, last30days, months-3, months-6, archived.")
+	cmd.Flags().StringVar(&window, "window", defaultYearWindow(), "Time window to scan: year-YYYY, last30days, months-3, months-6, archived (defaults to the current calendar year).")
 	cmd.Flags().IntVar(&maxPages, "max-pages", 12, "Maximum order-history pages to walk (10 orders/page).")
 	return cmd
 }

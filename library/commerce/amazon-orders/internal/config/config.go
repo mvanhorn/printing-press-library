@@ -83,13 +83,21 @@ func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
 	}
-	// Env-var token wins over file-stored AccessToken (env > config convention).
+	// AuthSource is authoritative as set by Load(): "env:AMAZON_COOKIES" when
+	// the env var was the source, "config" when the cookies/token came from the
+	// TOML file. Do NOT re-stamp here — Load() already classified the source,
+	// and overwriting it falsely reports config-file cookies as env-var cookies
+	// (and breaks `auth status` for users who persist cookies on disk).
 	if c.AmazonCookies != "" {
-		c.AuthSource = "env:AMAZON_COOKIES"
+		if c.AuthSource == "" {
+			c.AuthSource = "env:AMAZON_COOKIES"
+		}
 		return c.AmazonCookies
 	}
 	if c.AccessToken != "" {
-		c.AuthSource = "browser"
+		if c.AuthSource == "" {
+			c.AuthSource = "browser"
+		}
 		return c.AccessToken
 	}
 	return ""

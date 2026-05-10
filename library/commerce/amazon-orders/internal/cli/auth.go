@@ -10,6 +10,7 @@ import (
 	"bufio"
 	"bytes"
 	"crypto/sha256"
+	"database/sql"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -24,6 +25,11 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	// Register the modernc.org/sqlite driver under the "sqlite" name so
+	// countCookiesForDomain can use a parameterized database/sql query
+	// against the cookie store copy.
+	_ "modernc.org/sqlite"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
@@ -575,8 +581,14 @@ func readProfileDisplayName(prefsPath string) string {
 	return prefs.Profile.Name
 }
 
-// countCookiesForDomain copies the Cookies DB (plus WAL/SHM) to temp and counts matching rows.
-// Uses sqlite3 when available; host_key is plaintext so no decryption is needed.
+// countCookiesForDomain copies the Cookies DB (plus WAL/SHM) to temp and counts
+// matching rows via a parameterized read-only query through the in-binary
+// SQLite driver. host_key is plaintext so no decryption is needed.
+//
+// Previously this shelled out to the `sqlite3` binary with a Sprintf-built
+// query. While the only current caller passes a hardcoded domain pattern, the
+// pattern is fragile: any future caller passing untrusted input would expose a
+// SQL injection. The Go-driver path is parameterized end-to-end.
 func countCookiesForDomain(cookiesDB, domainPattern string) int {
 	tmpFile, err := os.CreateTemp("", "cookies-probe-*.db")
 	if err != nil {
@@ -596,14 +608,18 @@ func countCookiesForDomain(cookiesDB, domainPattern string) int {
 	_ = copyFileIfExists(cookiesDB+"-wal", tmpPath+"-wal")
 	_ = copyFileIfExists(cookiesDB+"-shm", tmpPath+"-shm")
 
-	query := fmt.Sprintf("SELECT COUNT(*) FROM cookies WHERE host_key LIKE '%s'", domainPattern)
-	out, err := exec.Command("sqlite3", tmpPath, query).Output()
+	// Open the temp copy read-only. The file: URI prefix is required so
+	// modernc.org/sqlite honors the mode=ro and _journal_mode=OFF params.
+	db, err := sql.Open("sqlite", "file:"+tmpPath+"?mode=ro&_journal_mode=OFF&_busy_timeout=2000")
 	if err != nil {
 		return 0
 	}
+	defer db.Close()
 
-	count := 0
-	fmt.Sscanf(strings.TrimSpace(string(out)), "%d", &count)
+	var count int
+	if err := db.QueryRow("SELECT COUNT(*) FROM cookies WHERE host_key LIKE ?", domainPattern).Scan(&count); err != nil {
+		return 0
+	}
 	return count
 }
 
