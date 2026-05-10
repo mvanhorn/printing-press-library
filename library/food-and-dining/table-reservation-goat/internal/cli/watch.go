@@ -9,6 +9,9 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"os"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -221,22 +224,26 @@ func newWatchCancelCmd(flags *rootFlags) *cobra.Command {
 }
 
 type tickResult struct {
-	WatchID  string `json:"watch_id"`
-	Venue    string `json:"venue"`
-	Network  string `json:"network"`
-	Polled   bool   `json:"polled"`
-	HasMatch bool   `json:"has_match"`
-	Reason   string `json:"reason,omitempty"`
-	PolledAt string `json:"polled_at"`
+	WatchID    string `json:"watch_id"`
+	Venue      string `json:"venue"`
+	Network    string `json:"network"`
+	Polled     bool   `json:"polled"`
+	HasMatch   bool   `json:"has_match"`
+	Reason     string `json:"reason,omitempty"`
+	PolledAt   string `json:"polled_at"`
+	WindowSpec string `json:"window_spec,omitempty"`
 }
 
 func newWatchTickCmd(flags *rootFlags) *cobra.Command {
+	var noCache bool
 	cmd := &cobra.Command{
 		Use:   "tick",
 		Short: "Run one polling cycle across active watches (designed for cron)",
 		Long: "Polls each active watch on its source network and updates the local " +
 			"watches.last_polled_at and match_count columns. Emits one JSON line per " +
-			"watch with the polling outcome.",
+			"watch with the polling outcome.\n\n" +
+			"OpenTable availability is cached on disk for 3 minutes by default; pass " +
+			"`--no-cache` (or set `TRG_OT_NO_CACHE=1`) to force fresh fetches every tick.",
 		Example: "  table-reservation-goat-pp-cli watch tick --json",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
@@ -250,7 +257,7 @@ func newWatchTickCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer db.Close()
 			rows, err := db.QueryContext(cmd.Context(),
-				`SELECT id, venue, network, slug, party_size FROM watches WHERE state = 'active' ORDER BY created_at`)
+				`SELECT id, venue, network, slug, party_size, COALESCE(window_spec, '') FROM watches WHERE state = 'active' ORDER BY created_at`)
 			if err != nil {
 				return fmt.Errorf("listing active watches: %w", err)
 			}
@@ -263,13 +270,13 @@ func newWatchTickCmd(flags *rootFlags) *cobra.Command {
 			results := []tickResult{}
 			for rows.Next() {
 				var (
-					id, venue, network, slug string
-					party                    int
+					id, venue, network, slug, windowSpec string
+					party                                int
 				)
-				if err := rows.Scan(&id, &venue, &network, &slug, &party); err != nil {
+				if err := rows.Scan(&id, &venue, &network, &slug, &party, &windowSpec); err != nil {
 					return fmt.Errorf("scan watch: %w", err)
 				}
-				r := pollOneWatch(ctx, session, id, venue, network, slug, party)
+				r := pollOneWatch(ctx, session, id, venue, network, slug, party, windowSpec, noCache)
 				results = append(results, r)
 				now := time.Now().UTC()
 				if r.HasMatch {
@@ -284,11 +291,12 @@ func newWatchTickCmd(flags *rootFlags) *cobra.Command {
 			return printJSONFiltered(cmd.OutOrStdout(), results, flags)
 		},
 	}
+	cmd.Flags().BoolVar(&noCache, "no-cache", os.Getenv("TRG_OT_NO_CACHE") == "1", "Bypass the OT availability cache and force a fresh network fetch (env: TRG_OT_NO_CACHE=1).")
 	return cmd
 }
 
-func pollOneWatch(ctx context.Context, s *auth.Session, id, venue, network, slug string, party int) tickResult {
-	r := tickResult{WatchID: id, Venue: venue, Network: network, PolledAt: time.Now().UTC().Format(time.RFC3339)}
+func pollOneWatch(ctx context.Context, s *auth.Session, id, venue, network, slug string, party int, windowSpec string, noCache bool) tickResult {
+	r := tickResult{WatchID: id, Venue: venue, Network: network, PolledAt: time.Now().UTC().Format(time.RFC3339), WindowSpec: windowSpec}
 	tryOT := network == "auto" || network == "opentable"
 	tryTock := network == "auto" || network == "tock"
 	if tryTock {
@@ -319,16 +327,26 @@ func pollOneWatch(ctx context.Context, s *auth.Session, id, venue, network, slug
 					if sl.AvailableTickets < int32(party) {
 						continue
 					}
+					if !slotMatchesWindowSpec(sl.Date, sl.Time, windowSpec) {
+						continue
+					}
 					ts := sl.Date + "T" + sl.Time
 					if openSlot == "" || ts < openSlot {
 						openSlot = ts
 					}
 				}
 				r.Polled = true
-				if openSlot != "" {
+				switch {
+				case openSlot != "":
 					r.HasMatch = true
-					r.Reason = fmt.Sprintf("tock %s: open slot for party=%d at %s (7-day horizon)", slug, party, openSlot)
-				} else {
+					if windowSpec != "" {
+						r.Reason = fmt.Sprintf("tock %s: open slot for party=%d matching %q at %s (7-day horizon)", slug, party, windowSpec, openSlot)
+					} else {
+						r.Reason = fmt.Sprintf("tock %s: open slot for party=%d at %s (7-day horizon)", slug, party, openSlot)
+					}
+				case windowSpec != "":
+					r.Reason = fmt.Sprintf("tock %s: no open slots for party=%d matching %q in 7-day window from %s", slug, party, windowSpec, dateFrom)
+				default:
 					r.Reason = fmt.Sprintf("tock %s: no open slots for party=%d in 7-day window from %s", slug, party, dateFrom)
 				}
 				return r
@@ -342,10 +360,14 @@ func pollOneWatch(ctx context.Context, s *auth.Session, id, venue, network, slug
 	if tryOT && !r.Polled {
 		c, err := opentable.New(s)
 		if err == nil {
-			restID, restName, _, rerr := c.RestaurantIDFromQuery(ctx, slug, 0, 0)
+			// OT's Autocomplete returns INTERNAL_SERVER_ERROR with lat=0/lng=0
+			// (the upstream `personalizer-autocomplete/v4` requires a coordinate
+			// to anchor on). Default to NYC — same approach earliest.go uses.
+			// The matcher still finds the venue regardless of metro.
+			restID, restName, _, rerr := c.RestaurantIDFromQuery(ctx, slug, 40.7128, -74.0060)
 			if rerr == nil && restID != 0 {
 				today := time.Now().Format("2006-01-02")
-				avail, aerr := c.RestaurantsAvailability(ctx, []int{restID}, today, "19:00", party, 7, 150, 5)
+				avail, aerr := c.RestaurantsAvailability(ctx, []int{restID}, today, "19:00", party, 7, 150, 5, noCache)
 				if aerr == nil {
 					r.Polled = true
 					r.Network = "opentable"
@@ -408,3 +430,98 @@ var (
 	_ = strings.TrimSpace
 	_ = json.Marshal
 )
+
+// slotMatchesWindowSpec applies a minimal v1 matcher against the user's
+// `--window` spec. Returns true when the spec is empty (no filter) OR
+// when the slot's day-of-week and hour fall within the spec.
+//
+// Supported spec shapes (v1 — free-form strings stored from `watch add`):
+//   - empty / blank → no filter (true for any slot)
+//   - day-of-week prefix: "sat", "sun", "mon", "tue", "wed", "thu", "fri"
+//     (case-insensitive; matches when slot's date falls on that day)
+//   - hour range: "7pm-9pm", "7-9pm", "19:00-21:00" (24h or 12h, inclusive)
+//   - combined: "sat 7-9pm" (both must match)
+//
+// A spec the matcher can't parse (e.g., "next saturday around dinner")
+// returns true — better to over-fire a match than silently drop watches
+// the user explicitly wanted polled. Date and time arguments are
+// "YYYY-MM-DD" and "HH:MM"; malformed inputs return true.
+func slotMatchesWindowSpec(date, hhmm, spec string) bool {
+	spec = strings.ToLower(strings.TrimSpace(spec))
+	if spec == "" {
+		return true
+	}
+	t, err := time.Parse("2006-01-02", date)
+	if err != nil {
+		return true
+	}
+	hr, mn, perr := parseHHMM(hhmm)
+	if perr != nil {
+		return true
+	}
+	// Day-of-week filter — accept first 3 chars of day name as prefix.
+	dayPrefix := strings.ToLower(t.Weekday().String()[:3])
+	dayFilters := map[string]bool{}
+	for _, p := range []string{"sun", "mon", "tue", "wed", "thu", "fri", "sat"} {
+		if strings.Contains(spec, p) {
+			dayFilters[p] = true
+		}
+	}
+	if len(dayFilters) > 0 && !dayFilters[dayPrefix] {
+		return false
+	}
+	// Hour range filter — look for "<hr>(am|pm)?-<hr>(am|pm)?" or "HH:MM-HH:MM".
+	rangeRE := regexp.MustCompile(`(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*[-–to ]+\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)?`)
+	m := rangeRE.FindStringSubmatch(spec)
+	if m == nil {
+		// No parseable range — day-of-week filter alone passed (or spec was DOW-only).
+		return true
+	}
+	startMin := hourMinute(m[1], m[2], m[3], m[6])
+	endMin := hourMinute(m[4], m[5], m[6], m[6])
+	slotMin := hr*60 + mn
+	if startMin <= endMin {
+		return slotMin >= startMin && slotMin <= endMin
+	}
+	// Range wraps midnight (rare for restaurants but defensive).
+	return slotMin >= startMin || slotMin <= endMin
+}
+
+// parseHHMM parses an "HH:MM" 24-hour time string.
+func parseHHMM(s string) (int, int, error) {
+	parts := strings.SplitN(s, ":", 2)
+	if len(parts) != 2 {
+		return 0, 0, fmt.Errorf("invalid time %q", s)
+	}
+	hr, err := strconv.Atoi(parts[0])
+	if err != nil {
+		return 0, 0, err
+	}
+	mn, err := strconv.Atoi(parts[1])
+	if err != nil {
+		return 0, 0, err
+	}
+	return hr, mn, nil
+}
+
+// hourMinute converts a (hour-string, minute-string, period, fallback-period)
+// quad from the rangeRE submatches into total minutes since midnight.
+// The fallback-period covers ranges like "7-9pm" where only the second
+// boundary carries an explicit am/pm.
+func hourMinute(hStr, mStr, period, fallback string) int {
+	h, _ := strconv.Atoi(hStr)
+	m := 0
+	if mStr != "" {
+		m, _ = strconv.Atoi(mStr)
+	}
+	p := period
+	if p == "" {
+		p = fallback
+	}
+	if p == "pm" && h < 12 {
+		h += 12
+	} else if p == "am" && h == 12 {
+		h = 0
+	}
+	return h*60 + m
+}
