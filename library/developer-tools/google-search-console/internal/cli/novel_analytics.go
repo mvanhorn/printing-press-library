@@ -20,6 +20,7 @@ func timeParse(layout, value string) (time.Time, error) { return time.Parse(layo
 // -------- book: cross-property mover board --------------------------------
 
 func newBookCmd(flags *rootFlags) *cobra.Command {
+	// book is intentionally cross-property; no --site flag. Only --window and --db are bound.
 	cf := commonFlags{}
 	var top int
 	cmd := &cobra.Command{
@@ -107,7 +108,6 @@ ORDER BY ABS(click_delta) DESC LIMIT ?`,
 			})
 		},
 	}
-	cmd.Flags().StringVar(&cf.site, "site", "", "Site URL (e.g. sc-domain:example.com). Required.")
 	cmd.Flags().StringVar(&cf.window, "window", "7d", "Analysis window: Nd, Nw, or Nm.")
 	cmd.Flags().StringVar(&cf.db, "db", "", "SQLite path (default ~/.config/google-search-console-pp-cli/store.sqlite).")
 	cmd.Flags().IntVar(&top, "top", 25, "Maximum movers to return.")
@@ -267,6 +267,9 @@ ORDER BY query, date`,
 				ser.dates = append(ser.dates, float64(dateToEpochDays(date)-startEpoch))
 				ser.clicks = append(ser.clicks, clicks)
 			}
+			if err := rows.Err(); err != nil {
+				return apiErr(err)
+			}
 			out := []map[string]any{}
 			for q, ser := range perQuery {
 				if len(ser.dates) < 5 {
@@ -347,16 +350,35 @@ opportunities from chronic ones.
 			newWindow := parseWindow(newSince, 14)
 			cutoff := mustAddDays(end, -newWindow+1)
 
-			// Today's opportunity set.
+			// Today's opportunity set joined to entry date in one query.
+			// `entry` materializes earliest date each page landed in the
+			// 4-20 zone (across the entire stored history, not just this
+			// window). LEFT JOIN means a page with no historical zone-entry
+			// stays in the result with a NULL entry — current-zone state
+			// alone qualifies it.
 			rows, err := s.DB().QueryContext(cmd.Context(), `
-SELECT page, SUM(clicks) AS clicks, SUM(impressions) AS impressions,
-       AVG(position) AS avg_position
-FROM search_analytics_rows
-WHERE site_url = ? AND date BETWEEN ? AND ? AND page <> ''
-GROUP BY page
-HAVING avg_position BETWEEN 4 AND 20 AND impressions >= ?
-ORDER BY impressions DESC`,
-				cf.site, start, end, minImpressions)
+WITH curr AS (
+  SELECT page, SUM(clicks) AS clicks, SUM(impressions) AS impressions,
+         AVG(position) AS avg_position
+  FROM search_analytics_rows
+  WHERE site_url = ? AND date BETWEEN ? AND ? AND page <> ''
+  GROUP BY page
+  HAVING avg_position BETWEEN 4 AND 20 AND impressions >= ?
+),
+entry AS (
+  SELECT page, MIN(date) AS first_entered FROM (
+    SELECT page, date, AVG(position) AS pos
+    FROM search_analytics_rows
+    WHERE site_url = ?
+    GROUP BY page, date
+    HAVING pos BETWEEN 4 AND 20
+  ) GROUP BY page
+)
+SELECT curr.page, curr.clicks, curr.impressions, curr.avg_position,
+       COALESCE(entry.first_entered, '') AS entered_zone
+FROM curr LEFT JOIN entry USING (page)
+ORDER BY curr.impressions DESC`,
+				cf.site, start, end, minImpressions, cf.site)
 			if err != nil {
 				return apiErr(err)
 			}
@@ -373,30 +395,19 @@ ORDER BY impressions DESC`,
 			var data []oppRow
 			for rows.Next() {
 				var r oppRow
-				if err := rows.Scan(&r.Page, &r.Clicks, &r.Impressions, &r.AvgPosition); err != nil {
+				if err := rows.Scan(&r.Page, &r.Clicks, &r.Impressions, &r.AvgPosition, &r.EnteredZone); err != nil {
 					return apiErr(err)
 				}
 				if r.Impressions > 0 {
 					r.CTR = r.Clicks / r.Impressions
 				}
+				if r.EnteredZone != "" {
+					r.IsNew = r.EnteredZone >= cutoff
+				}
 				data = append(data, r)
 			}
-			// Compute entry date per page (earliest date the page first
-			// landed inside positions 4-20 for this site).
-			for i := range data {
-				var first string
-				err := s.DB().QueryRowContext(cmd.Context(), `
-SELECT MIN(date) FROM (
-  SELECT date, AVG(position) AS pos
-  FROM search_analytics_rows
-  WHERE site_url = ? AND page = ?
-  GROUP BY date
-  HAVING pos BETWEEN 4 AND 20
-)`, cf.site, data[i].Page).Scan(&first)
-				if err == nil {
-					data[i].EnteredZone = first
-					data[i].IsNew = first >= cutoff
-				}
+			if err := rows.Err(); err != nil {
+				return apiErr(err)
 			}
 			return emit(cmd, flags, map[string]any{
 				"site":       cf.site,
@@ -503,6 +514,9 @@ SELECT base.page, 0, base.c FROM base LEFT JOIN recent USING(page) WHERE recent.
 						"direction":       directionOf(lift),
 					})
 				}
+			}
+			if err := rows.Err(); err != nil {
+				return apiErr(err)
 			}
 			sortByFloatDesc(out, "lift")
 			return emit(cmd, flags, map[string]any{
@@ -720,6 +734,9 @@ ORDER BY curr.query, curr.dim`, groupKey, groupKey)
 				if math.Abs(sh.Delta) >= minShift {
 					out = append(out, sh)
 				}
+			}
+			if err := rows.Err(); err != nil {
+				return apiErr(err)
 			}
 			return emit(cmd, flags, map[string]any{
 				"site":       cf.site,
