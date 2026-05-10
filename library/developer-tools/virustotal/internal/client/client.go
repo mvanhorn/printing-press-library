@@ -279,8 +279,14 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			Body:       truncateBody(respBody),
 		}
 
-		// Rate limited - adjust adaptive limiter and retry
+		// Rate limited - check if quota exhausted or rate limit
 		if resp.StatusCode == 429 && attempt < maxRetries {
+			// QuotaExceededError means daily/hourly cap hit - don't retry
+			if strings.Contains(string(respBody), "QuotaExceededError") {
+				return nil, resp.StatusCode, apiErr
+			}
+
+			// Temporary rate limit - retry with backoff
 			c.limiter.OnRateLimit()
 			wait := cliutil.RetryAfter(resp)
 			fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
