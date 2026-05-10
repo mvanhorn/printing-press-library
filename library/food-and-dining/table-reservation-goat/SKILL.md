@@ -162,6 +162,64 @@ Numeric IDs route through a separate code path that doesn't touch the
 Autocomplete-based resolver, so they're the most reliable input shape when
 the agent already has the ID in hand.
 
+## Error Recovery for Agents
+
+The CLI surfaces a typed `error_kind` field on availability rows so agents
+can branch on the recovery strategy without parsing free-text `reason`
+strings. Three cases the agent should handle distinctly:
+
+### `error_kind: "session_blocked"`
+
+The entire OpenTable session is shadow-banned (Akamai sees the cookies as
+expired/invalid). **All** OT operations will fail until cookies are refreshed.
+
+**Recovery:** ask the user to run `auth login --chrome` (interactive). The
+CLI's in-memory cooldown will clear once the new cookies pass through
+Bootstrap. The disk-persisted cooldown auto-expires (5min → 60min exponential
+backoff per consecutive 403).
+
+### `error_kind: "operation_blocked"`
+
+A specific GraphQL opname (typically `RestaurantsAvailability` or
+`Autocomplete`) is on a WAF blocklist. **Sibling operations on the same
+session still work.**
+
+**Recovery paths, in order of preference:**
+
+1. **Pivot to a numeric OpenTable ID.** `restaurants list` returns ids like
+   `3688`. Passing `availability check 3688` bypasses the Autocomplete-based
+   resolver entirely, so an `Autocomplete`-specific WAF rule doesn't apply:
+
+   ```bash
+   table-reservation-goat-pp-cli availability check 3688 --party 6 --agent
+   ```
+
+2. **Use the chromedp escape hatch.** When Chrome is running with remote-
+   debugging enabled, the CLI routes blocked requests through the real
+   browser's TLS stack:
+
+   ```bash
+   # Launch Chrome with debugging once per session
+   open -a "Google Chrome" --args --remote-debugging-port=9222
+   # Or point at a custom port via env var
+   export TABLE_RESERVATION_GOAT_OT_CHROME_DEBUG_URL=http://localhost:9222
+   ```
+
+   The CLI auto-falls-back to chromedp on `BotDetectionError`s in the
+   availability path.
+
+3. **Surface the venue URL to the user.** Every row carries `url` (e.g.,
+   `https://www.opentable.com/restaurant/profile/3688`). When both code
+   paths are blocked, the agent should hand the user the URL so they can
+   click through to OpenTable directly.
+
+### No `error_kind` field (Tock errors, non-WAF errors)
+
+Tock doesn't have a Kind discriminator yet — its errors arrive as plain
+text in `reason`. The reason strings name the upstream condition
+(`venue not found`, `calendar empty`, etc.); agents should surface them
+to the user without retry.
+
 ## Recipes
 
 

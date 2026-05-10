@@ -24,11 +24,18 @@ import (
 )
 
 type earliestRow struct {
-	Venue     string  `json:"venue"`
-	Network   string  `json:"network"`
-	SlotAt    string  `json:"slot_at,omitempty"`
-	Available bool    `json:"available"`
-	Reason    string  `json:"reason,omitempty"`
+	Venue     string `json:"venue"`
+	Network   string `json:"network"`
+	SlotAt    string `json:"slot_at,omitempty"`
+	Available bool   `json:"available"`
+	Reason    string `json:"reason,omitempty"`
+	// ErrorKind discriminates anti-bot block types so agents can branch
+	// on the recovery strategy without parsing Reason. Issue #406
+	// failure 5. Values: "session_blocked" → run `auth login --chrome`;
+	// "operation_blocked" → pivot to a numeric OT ID via
+	// `restaurants list` to bypass the blocked GraphQL op. Empty for
+	// non-bot errors.
+	ErrorKind string  `json:"error_kind,omitempty"`
 	URL       string  `json:"url,omitempty"`
 	Latitude  float64 `json:"latitude,omitempty"`
 	Longitude float64 `json:"longitude,omitempty"`
@@ -441,6 +448,13 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 					// `unresolved[]` (PR #424 round-3 fix).
 					row.Available = false
 					row.Reason = fmt.Sprintf("opentable: could not resolve %q (%v)", slug, rerr)
+					// If the slug-resolve itself failed because Autocomplete
+					// is WAF-blocked, surface the typed kind so the agent knows
+					// to pivot to a numeric ID (which bypasses Autocomplete
+					// entirely) — issue #406 failure 5.
+					if bde, isBot := opentable.IsBotDetection(rerr); isBot {
+						row.ErrorKind = string(bde.Kind)
+					}
 					return row
 				}
 				_ = metroUsed // hooks into future per-row geo annotation
@@ -505,6 +519,12 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 				row.Available = false
 				row.Reason = fmt.Sprintf("opentable %s (id=%d): %v; venue exists, book directly at %s",
 					venueLabel, restID, aerr, row.URL)
+				// Surface typed kind so the agent can branch — operation_blocked
+				// means "try a different op/numeric ID"; session_blocked means
+				// "run auth login --chrome". Issue #406 failure 5.
+				if bde, isBot := opentable.IsBotDetection(aerr); isBot {
+					row.ErrorKind = string(bde.Kind)
+				}
 				return row
 			}
 			// Find the earliest slot with isAvailable=true across all
