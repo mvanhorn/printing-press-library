@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-05-09T20:16:30.186611Z",
-  "printing_press_version": "4.2.1",
+  "printing_press_version": "4.2.2",
   "api_name": "table-reservation-goat",
   "display_name": "Table Reservation GOAT",
   "cli_name": "table-reservation-goat-pp-cli",
