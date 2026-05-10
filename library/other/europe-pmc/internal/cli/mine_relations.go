@@ -72,10 +72,14 @@ and chemicals across articles. Stores relation pairs with article counts.`,
 
 			// Build a search query combining entities
 			query := ""
-			if flagGene != "" && flagDisease != "" {
+			if flagGene != "" && flagDisease != "" && flagChemical != "" {
+				return fmt.Errorf("specify at most two entity flags at a time; got --gene, --disease, and --chemical")
+			} else if flagGene != "" && flagDisease != "" {
 				query = fmt.Sprintf(`"%s" AND "%s"`, flagGene, flagDisease)
 			} else if flagGene != "" && flagChemical != "" {
 				query = fmt.Sprintf(`"%s" AND "%s"`, flagGene, flagChemical)
+			} else if flagDisease != "" && flagChemical != "" {
+				query = fmt.Sprintf(`"%s" AND "%s"`, flagDisease, flagChemical)
 			} else {
 				query = fmt.Sprintf(`"%s" AND "%s"`, entities[0], entities[1])
 			}
