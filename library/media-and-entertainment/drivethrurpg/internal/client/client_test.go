@@ -3,7 +3,17 @@
 
 package client
 
-import "testing"
+import (
+	"context"
+	"errors"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/drivethrurpg/internal/config"
+)
 
 func TestCacheKeySortsParams(t *testing.T) {
 	c := &Client{}
@@ -26,5 +36,23 @@ func TestCacheKeySortsParams(t *testing.T) {
 	}
 	if gotAgain := c.cacheKey("/order_products/123/prepare", reordered); gotAgain != got {
 		t.Fatalf("cacheKey changed for equivalent params: %q != %q", gotAgain, got)
+	}
+}
+
+func TestGetWithHeadersContextHonorsCancellation(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, `{}`)
+	}))
+	defer server.Close()
+
+	c := New(&config.Config{BaseURL: server.URL}, 10*time.Second, 0)
+	c.NoCache = true
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	_, err := c.GetWithHeadersContext(ctx, "/cancelled", nil, nil)
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("GetWithHeadersContext error = %v, want context.Canceled", err)
 	}
 }

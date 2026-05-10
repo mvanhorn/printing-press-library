@@ -31,6 +31,7 @@ func TestWaitForDownloadExitsOnTerminalStatusWithoutURL(t *testing.T) {
 	defer server.Close()
 
 	c := client.New(&config.Config{BaseURL: server.URL}, time.Second, 0)
+	c.NoCache = true
 	_, err := waitForDownload(context.Background(), c, "42", nil, time.Millisecond, time.Second)
 	if err == nil {
 		t.Fatal("waitForDownload returned nil error for terminal status without URL")
@@ -94,5 +95,17 @@ func TestLibraryDownloadSubcommandsSendExplicitZeroIndex(t *testing.T) {
 				t.Fatal("test server was not called")
 			}
 		})
+	}
+}
+
+func TestFilenameFromResponseDecodesRFC5987Filename(t *testing.T) {
+	if got := filenameFromResponse(`attachment; filename*=UTF-8''my%20file.pdf`, "https://example.invalid/fallback.pdf"); got != "my file.pdf" {
+		t.Fatalf("UTF-8 filename* = %q, want my file.pdf", got)
+	}
+	if got := filenameFromResponse(`attachment; filename*=ISO-8859-1''caf%E9.pdf`, "https://example.invalid/fallback.pdf"); got != "café.pdf" {
+		t.Fatalf("ISO-8859-1 filename* = %q, want café.pdf", got)
+	}
+	if got := filenameFromResponse(`attachment; filename="plain.pdf"; filename*=UTF-8''encoded.pdf`, "https://example.invalid/fallback.pdf"); got != "plain.pdf" {
+		t.Fatalf("plain filename precedence = %q, want plain.pdf", got)
 	}
 }

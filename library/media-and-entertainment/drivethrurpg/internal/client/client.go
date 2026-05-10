@@ -5,6 +5,7 @@ package client
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -68,17 +69,25 @@ func (c *Client) RateLimit() float64 {
 }
 
 func (c *Client) Get(path string, params map[string]string) (json.RawMessage, error) {
-	return c.GetWithHeaders(path, params, nil)
+	return c.GetContext(context.Background(), path, params)
+}
+
+func (c *Client) GetContext(ctx context.Context, path string, params map[string]string) (json.RawMessage, error) {
+	return c.GetWithHeadersContext(ctx, path, params, nil)
 }
 
 func (c *Client) GetWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
+	return c.GetWithHeadersContext(context.Background(), path, params, headers)
+}
+
+func (c *Client) GetWithHeadersContext(ctx context.Context, path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
 	// Check cache for GET requests
 	if !c.NoCache && !c.DryRun && c.cacheDir != "" {
 		if cached, ok := c.readCache(path, params); ok {
 			return cached, nil
 		}
 	}
-	result, _, err := c.do("GET", path, params, nil, headers)
+	result, _, err := c.do(ctx, "GET", path, params, nil, headers)
 	if err == nil && !c.NoCache && !c.DryRun && c.cacheDir != "" {
 		c.writeCache(path, params, result)
 	}
@@ -86,7 +95,7 @@ func (c *Client) GetWithHeaders(path string, params map[string]string, headers m
 }
 
 func (c *Client) ProbeGet(path string) (int, error) {
-	_, status, err := c.do("GET", path, nil, nil, nil)
+	_, status, err := c.do(context.Background(), "GET", path, nil, nil, nil)
 	return status, err
 }
 
@@ -134,44 +143,47 @@ func (c *Client) invalidateCache() {
 }
 
 func (c *Client) Post(path string, body any) (json.RawMessage, int, error) {
-	return c.do("POST", path, nil, body, nil)
+	return c.do(context.Background(), "POST", path, nil, body, nil)
 }
 
 func (c *Client) PostQuery(path string, params map[string]string, body any) (json.RawMessage, int, error) {
-	return c.do("POST", path, params, body, nil)
+	return c.do(context.Background(), "POST", path, params, body, nil)
 }
 
 func (c *Client) PostWithHeaders(path string, body any, headers map[string]string) (json.RawMessage, int, error) {
-	return c.do("POST", path, nil, body, headers)
+	return c.do(context.Background(), "POST", path, nil, body, headers)
 }
 
 func (c *Client) Delete(path string) (json.RawMessage, int, error) {
-	return c.do("DELETE", path, nil, nil, nil)
+	return c.do(context.Background(), "DELETE", path, nil, nil, nil)
 }
 
 func (c *Client) DeleteWithHeaders(path string, headers map[string]string) (json.RawMessage, int, error) {
-	return c.do("DELETE", path, nil, nil, headers)
+	return c.do(context.Background(), "DELETE", path, nil, nil, headers)
 }
 
 func (c *Client) Put(path string, body any) (json.RawMessage, int, error) {
-	return c.do("PUT", path, nil, body, nil)
+	return c.do(context.Background(), "PUT", path, nil, body, nil)
 }
 
 func (c *Client) PutWithHeaders(path string, body any, headers map[string]string) (json.RawMessage, int, error) {
-	return c.do("PUT", path, nil, body, headers)
+	return c.do(context.Background(), "PUT", path, nil, body, headers)
 }
 
 func (c *Client) Patch(path string, body any) (json.RawMessage, int, error) {
-	return c.do("PATCH", path, nil, body, nil)
+	return c.do(context.Background(), "PATCH", path, nil, body, nil)
 }
 
 func (c *Client) PatchWithHeaders(path string, body any, headers map[string]string) (json.RawMessage, int, error) {
-	return c.do("PATCH", path, nil, body, headers)
+	return c.do(context.Background(), "PATCH", path, nil, body, headers)
 }
 
 // do executes an HTTP request. headerOverrides, when non-nil, override global
 // RequiredHeaders for this specific request (used for per-endpoint API versioning).
-func (c *Client) do(method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
+func (c *Client) do(ctx context.Context, method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	targetURL := c.BaseURL + path
 
 	var bodyBytes []byte
@@ -208,7 +220,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			bodyReader = strings.NewReader(string(bodyBytes))
 		}
 
-		req, err := http.NewRequest(method, targetURL, bodyReader)
+		req, err := http.NewRequestWithContext(ctx, method, targetURL, bodyReader)
 		if err != nil {
 			return nil, 0, fmt.Errorf("creating request: %w", err)
 		}
@@ -244,6 +256,9 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 
 		resp, err := c.HTTPClient.Do(req)
 		if err != nil {
+			if ctxErr := ctx.Err(); ctxErr != nil {
+				return nil, 0, ctxErr
+			}
 			lastErr = fmt.Errorf("%s %s: %s", method, path, c.redactErrorText(err))
 			continue
 		}

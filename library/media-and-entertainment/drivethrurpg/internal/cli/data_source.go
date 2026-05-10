@@ -97,14 +97,14 @@ func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resour
 		return data, attachFreshness(prov, flags), err
 
 	case "live":
-		data, err := c.GetWithHeaders(path, params, headers)
+		data, err := c.GetWithHeadersContext(ctx, path, params, headers)
 		if err != nil {
 			return nil, DataProvenance{}, err
 		}
 		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"
-		data, err := c.GetWithHeaders(path, params, headers)
+		data, err := c.GetWithHeadersContext(ctx, path, params, headers)
 		if err == nil {
 			writeThroughCache(ctx, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
@@ -133,14 +133,14 @@ func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlag
 		return data, attachFreshness(prov, flags), err
 
 	case "live":
-		data, err := paginatedGet(c, path, params, headers, fetchAll, cursorParam, nextCursorPath, hasMoreField)
+		data, err := paginatedGet(c, ctx, path, params, headers, fetchAll, cursorParam, nextCursorPath, hasMoreField)
 		if err != nil {
 			return nil, DataProvenance{}, err
 		}
 		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"
-		data, err := paginatedGet(c, path, params, headers, fetchAll, cursorParam, nextCursorPath, hasMoreField)
+		data, err := paginatedGet(c, ctx, path, params, headers, fetchAll, cursorParam, nextCursorPath, hasMoreField)
 		if err == nil {
 			writeThroughCache(ctx, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil

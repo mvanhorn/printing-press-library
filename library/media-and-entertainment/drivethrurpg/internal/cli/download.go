@@ -84,7 +84,7 @@ Authentication uses DRIVETHRURPG_APPLICATION_KEY, a saved token from
 			}
 			preparePath := "/order_products/" + url.PathEscape(orderProductID) + "/prepare"
 			if flags.dryRun {
-				data, getErr := c.Get(preparePath, params)
+				data, getErr := c.GetContext(cmd.Context(), preparePath, params)
 				if getErr != nil {
 					return classifyAPIError(getErr, flags)
 				}
@@ -145,7 +145,7 @@ Authentication uses DRIVETHRURPG_APPLICATION_KEY, a saved token from
 func waitForDownload(ctx context.Context, c *client.Client, orderProductID string, params map[string]string, pollInterval, maxWait time.Duration) (*preparedDownload, error) {
 	start := time.Now()
 	pathBase := "/order_products/" + url.PathEscape(orderProductID)
-	status, err := fetchDownloadStatus(c, pathBase+"/prepare", params)
+	status, err := fetchDownloadStatus(ctx, c, pathBase+"/prepare", params)
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +163,7 @@ func waitForDownload(ctx context.Context, c *client.Client, orderProductID strin
 			return nil, ctx.Err()
 		case <-time.After(pollInterval):
 		}
-		status, err = fetchDownloadStatus(c, pathBase+"/check", params)
+		status, err = fetchDownloadStatus(ctx, c, pathBase+"/check", params)
 		if err != nil {
 			return nil, err
 		}
@@ -171,8 +171,8 @@ func waitForDownload(ctx context.Context, c *client.Client, orderProductID strin
 	return status, nil
 }
 
-func fetchDownloadStatus(c *client.Client, requestPath string, params map[string]string) (*preparedDownload, error) {
-	data, err := c.Get(requestPath, params)
+func fetchDownloadStatus(ctx context.Context, c *client.Client, requestPath string, params map[string]string) (*preparedDownload, error) {
+	data, err := c.GetContext(ctx, requestPath, params)
 	if err != nil {
 		return nil, err
 	}
@@ -259,12 +259,22 @@ func downloadPreparedURL(ctx context.Context, httpClient *http.Client, rawURL, o
 
 func filenameFromResponse(contentDisposition, rawURL string) string {
 	if contentDisposition != "" {
+		if name := contentDispositionParam(contentDisposition, "filename"); name != "" {
+			return name
+		}
 		if _, params, err := mime.ParseMediaType(contentDisposition); err == nil {
 			if name := params["filename"]; name != "" {
 				return name
 			}
 			if name := params["filename*"]; name != "" {
-				return name
+				if decoded := decodeRFC5987Filename(name); decoded != "" {
+					return decoded
+				}
+			}
+		}
+		if name := contentDispositionParam(contentDisposition, "filename*"); name != "" {
+			if decoded := decodeRFC5987Filename(name); decoded != "" {
+				return decoded
 			}
 		}
 	}
@@ -275,6 +285,76 @@ func filenameFromResponse(contentDisposition, rawURL string) string {
 		}
 	}
 	return ""
+}
+
+func contentDispositionParam(contentDisposition, key string) string {
+	for _, part := range splitContentDispositionParams(contentDisposition)[1:] {
+		name, value, ok := strings.Cut(part, "=")
+		if !ok || !strings.EqualFold(strings.TrimSpace(name), key) {
+			continue
+		}
+		value = strings.TrimSpace(value)
+		if unquoted, err := strconv.Unquote(value); err == nil {
+			return unquoted
+		}
+		return strings.Trim(value, `"`)
+	}
+	return ""
+}
+
+func splitContentDispositionParams(contentDisposition string) []string {
+	var parts []string
+	var part strings.Builder
+	inQuote := false
+	escaped := false
+	for _, r := range contentDisposition {
+		if escaped {
+			part.WriteRune(r)
+			escaped = false
+			continue
+		}
+		if r == '\\' && inQuote {
+			part.WriteRune(r)
+			escaped = true
+			continue
+		}
+		if r == '"' {
+			inQuote = !inQuote
+		}
+		if r == ';' && !inQuote {
+			parts = append(parts, part.String())
+			part.Reset()
+			continue
+		}
+		part.WriteRune(r)
+	}
+	parts = append(parts, part.String())
+	return parts
+}
+
+func decodeRFC5987Filename(value string) string {
+	value = strings.TrimSpace(value)
+	parts := strings.SplitN(value, "'", 3)
+	if len(parts) != 3 {
+		return value
+	}
+	decoded, err := url.PathUnescape(parts[2])
+	if err != nil {
+		return ""
+	}
+	switch strings.ToLower(parts[0]) {
+	case "", "utf-8", "us-ascii":
+		return decoded
+	case "iso-8859-1":
+		bytes := []byte(decoded)
+		runes := make([]rune, len(bytes))
+		for i, b := range bytes {
+			runes[i] = rune(b)
+		}
+		return string(runes)
+	default:
+		return decoded
+	}
 }
 
 func safeFilename(name string) string {

@@ -4,11 +4,12 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/drivethrurpg/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/drivethrurpg/internal/cliutil"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/drivethrurpg/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/drivethrurpg/internal/cliutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"
@@ -275,8 +276,8 @@ func replacePathParam(path, name, value string) string {
 // must be sent on every page request, including the first; pass nil when the
 // endpoint has no per-endpoint header overrides.
 func paginatedGet(c interface {
-	GetWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, error)
-}, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, nextCursorPath, hasMoreField string) (json.RawMessage, error) {
+	GetWithHeadersContext(ctx context.Context, path string, params map[string]string, headers map[string]string) (json.RawMessage, error)
+}, ctx context.Context, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, nextCursorPath, hasMoreField string) (json.RawMessage, error) {
 	// Clean zero-value params
 	clean := map[string]string{}
 	for k, v := range params {
@@ -286,7 +287,7 @@ func paginatedGet(c interface {
 	}
 
 	if !fetchAll {
-		return c.GetWithHeaders(path, clean, headers)
+		return c.GetWithHeadersContext(ctx, path, clean, headers)
 	}
 
 	// Fetch all pages
@@ -300,7 +301,7 @@ func paginatedGet(c interface {
 			fmt.Fprintf(os.Stderr, `{"event":"page_fetch","page":%d}`+"\n", page)
 		}
 
-		data, err := c.GetWithHeaders(path, clean, headers)
+		data, err := c.GetWithHeadersContext(ctx, path, clean, headers)
 		if err != nil {
 			return nil, err
 		}

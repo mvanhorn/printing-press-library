@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/drivethrurpg/internal/store"
@@ -151,7 +152,7 @@ Exit codes & warnings:
 				go func() {
 					defer wg.Done()
 					for resource := range work {
-						res := syncResource(c, db, resource, sinceTS, full, maxPages)
+						res := syncResource(cmd.Context(), c, db, resource, sinceTS, full, maxPages)
 						results <- res
 					}
 				}()
@@ -262,8 +263,8 @@ Exit codes & warnings:
 
 // syncResource handles the full paginated sync of a single resource.
 // It resumes from the last cursor unless sinceTS or full mode overrides it.
-func syncResource(c interface {
-	Get(string, map[string]string) (json.RawMessage, error)
+func syncResource(ctx context.Context, c interface {
+	GetContext(context.Context, string, map[string]string) (json.RawMessage, error)
 	RateLimit() float64
 }, db *store.Store, resource, sinceTS string, full bool, maxPages int) syncResult {
 	started := time.Now()
@@ -324,7 +325,7 @@ func syncResource(c interface {
 			params[sinceParam] = effectiveSince
 		}
 
-		data, err := c.Get(path, params)
+		data, err := c.GetContext(ctx, path, params)
 		if err != nil {
 			if w, ok := isSyncAccessWarning(err); ok {
 				if !humanFriendly {

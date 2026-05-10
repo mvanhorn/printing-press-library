@@ -37,7 +37,7 @@ func autoRefreshIfStale(ctx context.Context, flags *rootFlags, cmd *cobra.Comman
 	defer db.Close()
 
 	var liveClient interface {
-		Get(string, map[string]string) (json.RawMessage, error)
+		GetContext(context.Context, string, map[string]string) (json.RawMessage, error)
 		RateLimit() float64
 	}
 	var clientErr error
@@ -121,7 +121,7 @@ func autoRefreshDBPath(cmd *cobra.Command) string {
 }
 
 func refreshResourceHead(ctx context.Context, c interface {
-	Get(string, map[string]string) (json.RawMessage, error)
+	GetContext(context.Context, string, map[string]string) (json.RawMessage, error)
 	RateLimit() float64
 }, db *store.Store, resource string) error {
 	if err := ctx.Err(); err != nil {
@@ -133,7 +133,7 @@ func refreshResourceHead(ctx context.Context, c interface {
 	}
 
 	page := determinePaginationDefaults()
-	data, err := c.Get(path, map[string]string{page.limitParam: strconv.Itoa(page.limit)})
+	data, err := c.GetContext(ctx, path, map[string]string{page.limitParam: strconv.Itoa(page.limit)})
 	if err != nil {
 		if warning, ok := isSyncAccessWarning(err); ok {
 			return fmt.Errorf("refresh skipped: %s", warning.Reason)
