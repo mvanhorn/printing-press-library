@@ -39,9 +39,10 @@ func newAvailabilityMultiDayCmd(flags *rootFlags) *cobra.Command {
 	var flagPartySize int
 
 	cmd := &cobra.Command{
-		Use:     "multi-day <restaurant>",
-		Short:   "Multi-day availability for a single restaurant — per-day earliest-slot matrix",
-		Example: "  table-reservation-goat-pp-cli availability multi-day 'tock:canlis' --start-date 2026-05-15 --days 7 --party 2",
+		Use:         "multi-day <restaurant>",
+		Short:       "Multi-day availability for a single restaurant — per-day earliest-slot matrix",
+		Example:     "  table-reservation-goat-pp-cli availability multi-day 'tock:canlis' --start-date 2026-05-15 --days 7 --party 2",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -50,9 +51,11 @@ func newAvailabilityMultiDayCmd(flags *rootFlags) *cobra.Command {
 			if venue == "" || strings.Contains(venue, "__printing_press_invalid__") {
 				return fmt.Errorf("invalid venue: %q (provide a slug like 'canlis' or 'tock:canlis')", args[0])
 			}
-			party := flagPartySize
-			if party == 0 {
-				party = 2
+			if flagPartySize <= 0 {
+				return fmt.Errorf("invalid --party %d: must be a positive integer", flagPartySize)
+			}
+			if flagDays <= 0 || flagDays > 14 {
+				return fmt.Errorf("invalid --days %d: must be in [1, 14]", flagDays)
 			}
 			startDate := flagStartDate
 			if startDate == "" && !flags.dryRun {
@@ -61,13 +64,8 @@ func newAvailabilityMultiDayCmd(flags *rootFlags) *cobra.Command {
 			if startDate == "" {
 				startDate = time.Now().UTC().Format("2006-01-02")
 			}
+			party := flagPartySize
 			days := flagDays
-			if days <= 0 {
-				days = 7
-			}
-			if days > 14 {
-				days = 14
-			}
 			start, err := time.Parse("2006-01-02", startDate)
 			if err != nil {
 				return fmt.Errorf("invalid --start-date %q: %w", startDate, err)
