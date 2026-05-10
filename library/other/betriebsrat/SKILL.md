@@ -22,19 +22,32 @@ Full knowledge base of betriebsrat.de — with decision support that no website 
 
 One tool answers both sides.
 
-## Prerequisites: Install the CLI
+## CLI: Optional but Recommended
 
-This skill drives the `betriebsrat` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, tell the user:
+This skill works in two modes:
+
+**Without CLI** — Claude answers using its embedded BetrVG knowledge. All advisory logic, legal deadlines, Munich formula calculations, and scenario playbooks are available. No install required.
+
+**With CLI installed** — Every response is enhanced with: live betriebsrat.de articles and case law, precise `sozialplan-calc` outputs, structured JSON for chaining, and `sync`-fresh knowledge base. Install via:
 
 > Ask Claude to install it: **https://github.com/googlarz/betriebsrat**
 
-Then verify with `betriebsrat doctor`.
+Verify with `betriebsrat doctor`.
 
 ---
 
 ## Auto-Session Protocol (Always Follow This)
 
 **When this skill is activated with any situation described, do the following immediately — without waiting to be asked:**
+
+### A-1 — Detect CLI availability
+
+```bash
+which betriebsrat 2>/dev/null && echo "CLI_AVAILABLE" || echo "CLI_ABSENT"
+```
+
+- **CLI_AVAILABLE** → use `betriebsrat <command> --agent` throughout. Responses include live betriebsrat.de citations and structured JSON.
+- **CLI_ABSENT** → use embedded knowledge below. Do NOT mention the missing CLI unless the user asks about installation or live data. Advisory quality is equivalent for all situations covered by the playbooks.
 
 ### A0 — Detect user type and onboard if needed
 
@@ -75,14 +88,18 @@ This changes how advice is framed — but Modes 2 and 3 run the same underlying 
 
 ### A — Auto-classify the situation
 
-Run all three classification commands in parallel before saying anything.
-Detect the user's language from their message and add `--lang en` if they're writing in English:
+**If CLI_AVAILABLE** — run all three in parallel before saying anything:
 
 ```bash
 betriebsrat rights-check "<situation>" --agent [--lang en]
 betriebsrat decide "<situation>" --agent [--lang en]
 betriebsrat consequences "<situation_type>" --agent [--lang en]  # if situation type is clear
 ```
+
+**If CLI_ABSENT** — reason directly from embedded knowledge:
+1. Map the situation to a scenario playbook (Kündigung / Betriebsänderung / Software-Einführung / Einstellung / Massenentlassung / Homeoffice)
+2. Apply the Key Facts block for that scenario: applicable §§, co-determination type, deadlines
+3. Use the Munich formula table and deadline matrix below for calculations
 
 Then present findings: applicable §§, co-determination type, key deadlines, and what happens if the BR misses the window.
 
@@ -796,6 +813,70 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
 | 5 | API error (upstream issue) |
 | 7 | Rate limited (wait and retry) |
 | 10 | Config error |
+
+---
+
+## Embedded Reference (CLI_ABSENT Mode)
+
+Use these tables when the CLI is not installed.
+
+### Deadline Matrix
+
+| Situation | § | Deadline | Silence means |
+|-----------|---|----------|---------------|
+| Ordentliche Kündigung | § 102 Abs. 2 | **1 week** from receipt | Consent |
+| Außerordentliche Kündigung | § 102 Abs. 2 S. 3 | **3 days** from receipt | Consent |
+| Einstellung / Versetzung | § 99 Abs. 3 | **1 week** from receipt | Consent |
+| Provisional Einstellung (§ 100 employer app) | § 100 Abs. 2 | **3 days** for employer to apply to court | Reversal |
+| § 17 KSchG Anzeige (Massenentlassung) | § 17 KSchG | File with Agentur für Arbeit **before** notice period begins; 1-month Sperrfrist (extendable to 2) | All terminations void |
+| Betriebsänderung consultation | § 111 | Before implementation — no fixed deadline, but employer cannot act unilaterally | Nachteilsausgleich claim |
+| BR election objection | § 19 | **2 weeks** from posting of electoral list | |
+
+### Munich Formula (Sozialplan)
+
+`Betriebszugehörigkeit (Jahre) × Monatsgehalt (brutto) × Faktor`
+
+| Factor | Context |
+|--------|---------|
+| 0.5 | Weak BR position, first negotiation |
+| 0.75 | Standard |
+| 1.0 | Typical industry benchmark |
+| 1.5 | Strong BR position, leverage available |
+
+**Adjustments (cumulative):**
+- +25% if severely disabled (GdB ≥ 50)
+- +10% per child (max 3 children → +30%)
+- +5% if age ≥ 55
+
+**Statutory cap:** No legal cap; parties agree. Common: 12–18 × monthly salary or fixed EUR amount.
+
+**Nachteilsausgleich cap (§ 113):** 12 × monthly salary (§ 10 KSchG analogy). Sozialplan payments are offset.
+
+### § 17 KSchG Threshold Table
+
+| Company size | Dismissals in 30 days that trigger notification |
+|-------------|------------------------------------------------|
+| 21 – 59 AN | ≥ 6 |
+| 60 – 499 AN | ≥ 10% **or** ≥ 26 (whichever is lower) |
+| ≥ 500 AN | ≥ 30 |
+
+### Company Size Thresholds
+
+| Employees | Unlocked rights |
+|-----------|----------------|
+| ≥ 5 | BR can be elected |
+| ≥ 20 | § 111 Betriebsänderung rights |
+| ≥ 100 | § 106 Wirtschaftsausschuss mandatory |
+| ≥ 200 | § 38 Abs. 1 full-time BR member release required |
+
+### Co-determination Types
+
+| Type | German | What it means |
+|------|--------|---------------|
+| Erzwingbare Mitbestimmung | § 87, § 112 | BR can block; dispute goes to Einigungsstelle; employer cannot act without agreement |
+| Zustimmungsvorbehalt | § 99, § 103 | Employer needs BR consent; court can substitute consent |
+| Mitwirkung / Beratung | § 111 (Interessenausgleich) | Employer must consult; BR cannot block; failure → Nachteilsausgleich |
+| Unterrichtung | § 80, § 106 | Employer must inform; no blocking right |
 
 ---
 
