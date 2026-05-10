@@ -211,6 +211,14 @@ def validate_manifest_identity(cli_dir: Path, manifest: dict | None, strict: boo
         )
 
     if strict:
+        if slug.endswith("-pp-cli") or slug.endswith("-pp-mcp"):
+            problems.append(
+                Problem(
+                    manifest_path,
+                    f"new library CLI directory {slug!r} uses the -pp-cli/-pp-mcp binary suffix in its directory name. The slug-only convention is library/<category>/<slug>/; the -pp-cli infix belongs to cmd/<slug>-pp-cli/, not the parent directory. Re-run the publish package step or rename the directory to drop the suffix.",
+                )
+            )
+
         run_id = manifest.get("run_id")
         if not run_id:
             problems.append(

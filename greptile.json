@@ -1,0 +1,42 @@
+{
+  "customContext": {
+    "files": [
+      {
+        "scope": ["library/**/.printing-press.json", "library/**", "registry.json", "cli-skills/**"],
+        "path": "AGENTS.md"
+      }
+    ],
+    "rules": [
+      {
+        "scope": ["library/**/.printing-press.json"],
+        "rule": "When this manifest is added, the directory containing it must be named with the slug only — e.g. library/<cat>/<slug>/, never library/<cat>/<slug>-pp-cli/ or library/<cat>/<slug>-pp-mcp/. The -pp-cli / -pp-mcp infix belongs to binary names, not directory names. Flag any directory whose name ends in -pp-cli or -pp-mcp."
+      },
+      {
+        "scope": ["library/**/.printing-press.json"],
+        "rule": "When this manifest is added, it must declare api_name matching the directory slug, cli_name matching cmd/<cli_name>/main.go, a non-empty run_id with a matching .manuscripts/<run_id>/ directory, a printer that is not USER/unknown/changeme, a non-empty printing_press_version, and a non-empty novel_features array. Flag any of these missing on a new submission."
+      },
+      {
+        "scope": ["cli-skills/pp-*/SKILL.md", "registry.json"],
+        "rule": "These files are auto-regenerated post-merge by tools/generate-skills/ and tools/generate-registry/. A PR that hand-edits them in the same change as adding library/<cat>/<slug>/.printing-press.json indicates the author is bypassing the printing-press publish flow. Flag and recommend re-running /printing-press."
+      },
+      {
+        "scope": ["library/**/.printing-press.json"],
+        "rule": "For PRs adding this manifest, the branch name must be exactly feat/<slug> and the PR title must be exactly feat(<slug>): add <slug>. Flag titles like feat(library): add <slug>, feat(<slug>): add <slug> — <description>, branches like add-<slug>, and Co-Authored-By or 🤖 Generated with Claude Code trailers."
+      },
+      {
+        "scope": ["library/**/.printing-press.json"],
+        "rule": "For PRs adding this manifest, the PR body must follow the publish-skill template: ## <slug> heading, **API:** … | **Category:** … | **Press version:** … line, **Spec:** line, ### CLI Shape with --help output, ### What This CLI Does, ### Manuscripts, ### Validation Results table, optionally ### Publication Path / ### Novel Commands / ### Gaps. Flag bodies that use generic ## Summary / ## Why This Matters / ## What It Does / ## Endpoints / ## Test plan templates instead."
+      }
+    ],
+    "other": [
+      {
+        "scope": ["library/**/.manuscripts/**"],
+        "rule": "When a PR adds .manuscripts/<run-id>/research/ and .manuscripts/<run-id>/proofs/ files for a new library/<cat>/<slug>/ directory, judge whether the files contain real research output (API endpoints discussed, generation decisions documented, dogfood/shipcheck evidence with concrete numbers and command output) or whether they are stubs / placeholders / single-paragraph summaries. Stub manuscripts strongly suggest the author hand-built the tree without running the printing-press generator and dropped a sketch into .manuscripts/ to satisfy CI's file-existence check. Flag and recommend re-running /printing-press end-to-end."
+      },
+      {
+        "scope": ["library/**/.printing-press.json"],
+        "rule": "When this manifest is modified (not added) and printing_press_version changed, judge whether the surrounding diff looks like a full reprint (most files in the same library/<cat>/<slug>/ regenerated, fresh .manuscripts/<run-id>/ directory, dogfood-results.json updated) or just a metadata fix (one or two field tweaks only). If the diff looks like a reprint, apply the same expectations as a new-CLI PR: feat/<slug> branch, feat(<slug>): add <slug> title, validation-table-bearing PR body, populated manuscripts. Flag reprints that drop any of these. Do not flag genuine metadata-only fixes."
+      }
+    ]
+  }
+}
