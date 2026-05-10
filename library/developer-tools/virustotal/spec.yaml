@@ -1,0 +1,142 @@
+openapi: 3.0.0
+info:
+  title: VirusTotal API
+  version: v3
+  description: Malware analysis and threat intelligence platform
+  contact:
+    url: https://developers.virustotal.com/reference/overview
+servers:
+  - url: https://www.virustotal.com/api/v3
+    description: Production API
+security:
+  - ApiKeyAuth: []
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-apikey
+      description: API key from virustotal.com/gui/my-apikey
+paths:
+  /files/{id}:
+    get:
+      operationId: getFile
+      summary: Get file report
+      description: Retrieve scan results for a file hash
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: File hash (MD5, SHA-1, or SHA-256)
+      responses:
+        '200':
+          description: File report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        type: object
+  /files:
+    post:
+      operationId: scanFile
+      summary: Scan a file
+      description: Submit a file for scanning
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Scan initiated
+  /urls/{id}:
+    get:
+      operationId: getUrl
+      summary: Get URL report
+      description: Retrieve scan results for a URL
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: URL identifier (base64 encoded URL without padding)
+      responses:
+        '200':
+          description: URL report
+  /urls:
+    post:
+      operationId: scanUrl
+      summary: Scan a URL
+      description: Submit a URL for scanning
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+      responses:
+        '200':
+          description: Scan initiated
+  /domains/{domain}:
+    get:
+      operationId: getDomain
+      summary: Get domain report
+      description: Retrieve information about a domain
+      parameters:
+        - name: domain
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Domain report
+  /ip_addresses/{ip}:
+    get:
+      operationId: getIpAddress
+      summary: Get IP address report
+      description: Retrieve information about an IP address
+      parameters:
+        - name: ip
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: IP address report
+  /search:
+    get:
+      operationId: search
+      summary: Search VirusTotal
+      description: Search using VirusTotal query syntax
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Search query
+      responses:
+        '200':
+          description: Search results

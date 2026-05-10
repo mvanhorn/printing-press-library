@@ -1,0 +1,39 @@
+# Binaries
+virustotal
+virustotal-pp-cli
+virustotal-pp-mcp
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Go build artifacts
+*.test
+*.out
+vendor/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local config/data
+*.db
+*.db-journal
+config.toml
+.env
+.env.local
+
+# Build directory
+dist/
+build/*.mcpb
+
+# Testing
+coverage.txt
+*.prof
