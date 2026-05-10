@@ -1,0 +1,373 @@
+{
+  "api_name": "drivethrurpg",
+  "base_url": "https://api.drivethrurpg.com/api/vBeta",
+  "description": "Search the DriveThruRPG catalog and download purchased library files as MCP tools.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "env_vars": [
+      "DRIVETHRURPG_APPLICATION_KEY",
+      "DRIVETHRURPG_DTRPG_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "DRIVETHRURPG_APPLICATION_KEY",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "DRIVETHRURPG_DTRPG_TOKEN",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "auth-key_create-token-from-application-key",
+      "description": "Exchange a DriveThruRPG Library App Application Key for API tokens. Required: applicationKey. Returns the new AuthToken.",
+      "method": "POST",
+      "path": "/auth_key",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "applicationKey",
+          "type": "string",
+          "location": "query",
+          "description": "DriveThruRPG Library App Application Key.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_get-category",
+      "description": "Get public category details. Required: categoryId. Returns the JsonApiResource.",
+      "method": "GET",
+      "path": "/categories/{categoryId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "categoryId",
+          "type": "string",
+          "location": "path",
+          "description": "Category id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_list",
+      "description": "List public categories. Optional: page (default: 1), pageSize (default: 20). Returns array of JsonApiItem.",
+      "method": "GET",
+      "path": "/categories",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "pageSize",
+          "type": "string",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "filters_get",
+      "description": "Get public filter details. Required: filterId. Returns the JsonApiResource.",
+      "method": "GET",
+      "path": "/filters/{filterId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "filterId",
+          "type": "string",
+          "location": "path",
+          "description": "Filter id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "filters_list",
+      "description": "List public filters. Optional: page (default: 1), pageSize (default: 20). Returns array of JsonApiItem.",
+      "method": "GET",
+      "path": "/filters",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "pageSize",
+          "type": "string",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "library_list-products",
+      "description": "List products in the authenticated DriveThruRPG library, including file indexes for downloads. Optional: getChecksum (default: 1), getFilters (default: 0), page (default: 1) (plus 2 more). Returns array of LibraryProduct.",
+      "method": "GET",
+      "path": "/order_products",
+      "params": [
+        {
+          "name": "getChecksum",
+          "type": "string",
+          "location": "query",
+          "description": "Get checksum"
+        },
+        {
+          "name": "getFilters",
+          "type": "string",
+          "location": "query",
+          "description": "Get filters"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "pageSize",
+          "type": "string",
+          "location": "query",
+          "description": "Page size"
+        },
+        {
+          "name": "archived",
+          "type": "string",
+          "location": "query",
+          "description": "Archived"
+        }
+      ]
+    },
+    {
+      "name": "library_check_download",
+      "description": "Check whether a prepared library download is ready. Required: libraryProductId, index. Optional: siteId (default: 10), getChecksums (default: 0). Returns the DownloadStatus.",
+      "method": "GET",
+      "path": "/order_products/{orderProductId}/check",
+      "params": [
+        {
+          "name": "libraryProductId",
+          "wire_name": "orderProductId",
+          "type": "string",
+          "location": "path",
+          "description": "Library product id from the library list",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "query",
+          "description": "DriveThruRPG site id. The public Library App uses 10."
+        },
+        {
+          "name": "index",
+          "type": "string",
+          "location": "query",
+          "description": "File index from the owned product's files array.",
+          "required": true
+        },
+        {
+          "name": "getChecksums",
+          "type": "string",
+          "location": "query",
+          "description": "Get checksums"
+        }
+      ]
+    },
+    {
+      "name": "library_prepare_download",
+      "description": "Prepare a download URL for a product in the authenticated library. Required: libraryProductId, index. Optional: siteId (default: 10), getChecksums (default: 0). Returns the DownloadStatus.",
+      "method": "GET",
+      "path": "/order_products/{orderProductId}/prepare",
+      "params": [
+        {
+          "name": "libraryProductId",
+          "wire_name": "orderProductId",
+          "type": "string",
+          "location": "path",
+          "description": "Library product id from the library list",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "query",
+          "description": "DriveThruRPG site id. The public Library App uses 10."
+        },
+        {
+          "name": "index",
+          "type": "string",
+          "location": "query",
+          "description": "File index from the owned product's files array.",
+          "required": true
+        },
+        {
+          "name": "getChecksums",
+          "type": "string",
+          "location": "query",
+          "description": "Get checksums"
+        }
+      ]
+    },
+    {
+      "name": "products_get",
+      "description": "Get public product details. Required: productId. Returns the JsonApiResource.",
+      "method": "GET",
+      "path": "/products/{productId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "productId",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_search",
+      "description": "Search and list public DriveThruRPG products. Optional: page (default: 1), pageSize (default: 20), keyword (plus 2 more). Returns array of JsonApiItem.",
+      "method": "GET",
+      "path": "/products",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "pageSize",
+          "type": "string",
+          "location": "query",
+          "description": "Page size"
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Search keyword."
+        },
+        {
+          "name": "publisherId",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict results to a publisher id."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "API-native sort key."
+        }
+      ]
+    },
+    {
+      "name": "publishers_get",
+      "description": "Get public publisher details. Required: publisherId. Returns the JsonApiResource.",
+      "method": "GET",
+      "path": "/publishers/{publisherId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "publisherId",
+          "type": "string",
+          "location": "path",
+          "description": "Publisher id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reviews_list",
+      "description": "List public reviews, optionally for a product. Optional: page (default: 1), pageSize (default: 20), productId. Returns array of JsonApiItem.",
+      "method": "GET",
+      "path": "/reviews",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "pageSize",
+          "type": "string",
+          "location": "query",
+          "description": "Page size"
+        },
+        {
+          "name": "productId",
+          "type": "string",
+          "location": "query",
+          "description": "Product id to filter reviews by."
+        }
+      ]
+    },
+    {
+      "name": "search-ahead_search_ahead",
+      "description": "Search ahead across products, publishers, categories, and filters. Required: keyword. Optional: pageSize (default: 20). Returns array of JsonApiItem.",
+      "method": "GET",
+      "path": "/search_ahead",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword",
+          "required": true
+        },
+        {
+          "name": "pageSize",
+          "type": "string",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "special-offers_list",
+      "description": "List active public special offers. Optional: page (default: 1), pageSize (default: 20). Returns array of JsonApiItem.",
+      "method": "GET",
+      "path": "/special_offers",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "pageSize",
+          "type": "string",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    }
+  ]
+}

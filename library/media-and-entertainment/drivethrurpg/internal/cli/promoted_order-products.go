@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// PATCH: Wrap DriveThruRPG's /order_products API vocabulary behind the user-facing library command.
 func newOrderProductsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagGetChecksum int
 	var flagGetFilters int
