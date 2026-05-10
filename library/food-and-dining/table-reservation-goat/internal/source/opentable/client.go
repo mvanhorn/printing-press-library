@@ -209,11 +209,8 @@ func (c *Client) do429Aware(req *http.Request) (*http.Response, error) {
 				Reason: fmt.Sprintf("403 from %s; cooldown not persisted: %v", req.URL.Path, sErr),
 			}
 		}
-		// setCooldown returns a session-wide cooldown error; ensure Kind is set
-		// even if the cooldown layer doesn't have the constant available.
-		if bde != nil && bde.Kind == "" {
-			bde.Kind = BotKindSessionBlocked
-		}
+		// setCooldown sets Kind = BotKindSessionBlocked unconditionally;
+		// no patch needed here.
 		return nil, bde
 	}
 	if resp.StatusCode != http.StatusTooManyRequests {
