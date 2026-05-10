@@ -10,6 +10,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"os"
 	"sort"
 	"strings"
 	"time"
@@ -36,6 +37,14 @@ type earliestRow struct {
 	// fit; one entry when only one slot fits; many entries when the venue
 	// has broad availability. Format: "YYYY-MM-DDTHH:MM".
 	BookableTimes []string `json:"bookable_times,omitempty"`
+
+	// CachedAt / Stale / Source surface OT stale-cache-fallback metadata.
+	// `Source: "cache_fallback"` means this row came from disk cache after
+	// the live network path was blocked by Akamai. `Stale` indicates the
+	// cache entry is past TTL. All zero/empty on fresh fetches.
+	CachedAt string `json:"cached_at,omitempty"`
+	Stale    bool   `json:"stale,omitempty"`
+	Source   string `json:"source,omitempty"`
 }
 
 type earliestResponse struct {
@@ -57,6 +66,7 @@ func newEarliestCmd(flags *rootFlags) *cobra.Command {
 		within  string
 		date    string
 		tonight bool
+		noCache bool
 	)
 	cmd := &cobra.Command{
 		Use:   "earliest <slug1,slug2,...>",
@@ -65,7 +75,11 @@ func newEarliestCmd(flags *rootFlags) *cobra.Command {
 			"earliest open slot per venue within `--within N days`. Slugs may be " +
 			"network-prefixed (`opentable:le-bernardin`, `tock:alinea`) for " +
 			"explicit routing, otherwise both networks are tried. Use `--tonight` " +
-			"as shorthand for `--date <today> --within 1d`.",
+			"as shorthand for `--date <today> --within 1d`.\n\n" +
+			"OpenTable availability is cached on disk for 3 minutes by default; " +
+			"pass `--no-cache` (or set `TRG_OT_NO_CACHE=1`) to force a fresh fetch. " +
+			"To route OT traffic through a personal proxy or Tor SOCKS5, set " +
+			"`HTTPS_PROXY`. Other env knobs: `TRG_OT_CACHE_TTL`, `TRG_OT_THROTTLE_RATE`.",
 		Example: "  table-reservation-goat-pp-cli earliest 'canlis,spinasse,altura' --party 6 --tonight --agent",
 		Annotations: map[string]string{
 			"mcp:read-only": "true",
@@ -112,7 +126,7 @@ func newEarliestCmd(flags *rootFlags) *cobra.Command {
 			ctx := cmd.Context()
 			rows := make([]earliestRow, 0, len(venues))
 			for _, v := range venues {
-				row := resolveEarliestForVenue(ctx, session, v, party, startDate, withinDays)
+				row := resolveEarliestForVenue(ctx, session, v, party, startDate, withinDays, noCache)
 				rows = append(rows, row)
 			}
 			// Available rows first, then alphabetical
@@ -135,6 +149,7 @@ func newEarliestCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&within, "within", "14d", "Search horizon (e.g., '14d', '7d', '30d' or a bare integer of days)")
 	cmd.Flags().StringVar(&date, "date", "", "Start date YYYY-MM-DD (defaults to today)")
 	cmd.Flags().BoolVar(&tonight, "tonight", false, "Shorthand for --date <today> --within 1d. Mutually exclusive with --date.")
+	cmd.Flags().BoolVar(&noCache, "no-cache", os.Getenv("TRG_OT_NO_CACHE") == "1", "Bypass the OT availability cache and force a fresh network fetch (env: TRG_OT_NO_CACHE=1).")
 	return cmd
 }
 
@@ -178,7 +193,7 @@ func parseNetworkSlug(input string) (network, slug string) {
 	return "", input
 }
 
-func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string, party int, date string, within int) earliestRow {
+func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string, party int, date string, within int, noCache bool) earliestRow {
 	network, slug := parseNetworkSlug(venue)
 	row := earliestRow{Venue: venue}
 
@@ -283,7 +298,7 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 			var aerr error
 			for d := 0; d < within; d++ {
 				dayStr := startDate.AddDate(0, 0, d).Format("2006-01-02")
-				dayAvail, derr := c.RestaurantsAvailability(ctx, []int{restID}, dayStr, "19:00", party, 0, 210, 0)
+				dayAvail, derr := c.RestaurantsAvailability(ctx, []int{restID}, dayStr, "19:00", party, 0, 210, 0, noCache)
 				if derr != nil {
 					// Akamai's WAF blocks `opname=RestaurantsAvailability` at the
 					// edge for any non-real-Chrome client. Fall back to a brief
@@ -359,13 +374,35 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 				earliestSlotAt = bookable[0]
 				row.BookableTimes = bookable
 			}
+			// Surface OT stale-cache-fallback metadata when present. The
+			// underlying client tags rows with Source="cache_fallback"
+			// when it served from disk after Akamai blocked the network.
+			// Take metadata from the first availability chunk; all
+			// chunks of a single response carry the same flags.
+			cacheNote := ""
+			for _, ra := range avail {
+				if ra.Source != "" {
+					row.Source = ra.Source
+					row.Stale = ra.Stale
+					if !ra.CachedAt.IsZero() {
+						row.CachedAt = ra.CachedAt.Format(time.RFC3339)
+						mins := int(time.Since(ra.CachedAt).Round(time.Minute).Minutes())
+						if ra.Stale {
+							cacheNote = fmt.Sprintf(" (served from cache fallback; data %dm old, past TTL — Akamai blocked the live fetch)", mins)
+						} else {
+							cacheNote = fmt.Sprintf(" (served from cache fallback; data %dm old — Akamai blocked the live fetch)", mins)
+						}
+					}
+					break
+				}
+			}
 			if earliestSlotAt != "" {
 				row.Available = true
 				row.SlotAt = earliestSlotAt
-				row.Reason = fmt.Sprintf("opentable %s: earliest slot at %s", restName, earliestSlotAt)
+				row.Reason = fmt.Sprintf("opentable %s: earliest slot at %s%s", restName, earliestSlotAt, cacheNote)
 			} else {
 				row.Available = false
-				row.Reason = fmt.Sprintf("opentable %s: no open slots in %d-day window for party=%d", restName, within, party)
+				row.Reason = fmt.Sprintf("opentable %s: no open slots in %d-day window for party=%d%s", restName, within, party, cacheNote)
 			}
 			return row
 		}

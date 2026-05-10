@@ -252,6 +252,17 @@ Config file: `~/.config/table-reservation-goat-pp-cli/config.toml`
 
 Static request headers can be configured under `headers`; per-command header overrides take precedence.
 
+### Power-user knobs (env vars)
+
+OpenTable's WAF can rate-limit aggressive scans. The CLI ships with a disk cache, singleflight dedupe, and an AdaptiveLimiter so typical use never hits the limit. These env vars override the defaults:
+
+| Env var | Default | Effect |
+|---|---|---|
+| `TRG_OT_CACHE_TTL` | `3m` | How long a cached availability response stays fresh. Range `[1m, 24h]`; out-of-range falls back to default with a stderr warning. |
+| `TRG_OT_THROTTLE_RATE` | `0.5` | Initial calls/second for the OT AdaptiveLimiter. Lower values pace harder (`0.1` = 10s spacing); higher values are appropriate when routing through a personal proxy. Range `[0.01, 5.0]`. |
+| `TRG_OT_NO_CACHE` | unset | Set to `1` to bypass the cache by default. The `--no-cache` flag on `earliest` and `watch tick` does the same per-call. |
+| `HTTPS_PROXY` / `HTTP_PROXY` | unset | Standard Go-honored proxy URLs. Useful for routing OT traffic through a personal proxy or Tor SOCKS5 (`socks5://localhost:9050`). |
+
 ## Troubleshooting
 **Not found errors (exit code 3)**
 - Check the resource ID is correct

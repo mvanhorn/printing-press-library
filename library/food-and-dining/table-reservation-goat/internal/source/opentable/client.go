@@ -19,7 +19,9 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -75,6 +77,12 @@ type Client struct {
 	// in-flight request whose result every waiter receives.
 	bootstrapSF singleflight.Group
 
+	// availSF dedupes concurrent RestaurantsAvailability calls for the
+	// same logical request. The key includes restID/date/time/party,
+	// the request window, and noCache so callers asking for explicitly
+	// fresh data don't piggyback on cache-allowed leaders' results.
+	availSF singleflight.Group
+
 	csrfToken      string
 	csrfFetchedAt  time.Time
 	csrfTTL        time.Duration
@@ -115,14 +123,12 @@ func New(s *auth.Session) (*Client, error) {
 	return &Client{
 		http:    std,
 		session: s,
-		// Conservative default rate: OpenTable's Akamai begins flagging
-		// Surf fingerprints after a burst of requests. 0.5 req/s is one
-		// request every 2 seconds — slow enough that home-page bootstrap
-		// and a few GraphQL calls per CLI invocation never approach the
-		// soft cap. AdaptiveLimiter ramps up after 10 consecutive
-		// successes, so steady-state usage will reach a higher rate
-		// naturally; bursts are paced.
-		limiter:       cliutil.NewAdaptiveLimiter(0.5),
+		// Default rate: 0.5 req/s (1 every 2s) — conservative against
+		// Akamai's WAF on this client. AdaptiveLimiter ramps up after 10
+		// consecutive successes and halves on rate-limit signals. Power
+		// users can override the initial rate via TRG_OT_THROTTLE_RATE
+		// (calls per second, clamped to [0.01, 5.0]).
+		limiter:       cliutil.NewAdaptiveLimiter(readThrottleRate()),
 		csrfTTL:       30 * time.Minute,
 		autocompleteH: AutocompleteHash,
 	}, nil
@@ -161,11 +167,18 @@ func (c *Client) do429Aware(req *http.Request) (*http.Response, error) {
 		if req.URL.Path != bootstrapPath {
 			// Akamai's opname-specific WAF rule is PROBABILISTIC — same
 			// request retried 750ms later often goes through. Single retry
-			// caps the cost; more retries would just compound the session's
-			// reputation hit and trigger genuine bans.
+			// caps the cost; more retries here would compound the session's
+			// reputation hit. Callers needing a longer retry budget (e.g.
+			// `RestaurantsAvailability`) layer their own second retry on
+			// top of the BotDetectionError this returns.
 			if req.GetBody != nil {
-				time.Sleep(750 * time.Millisecond)
-				retry := req.Clone(req.Context())
+				ctx := req.Context()
+				select {
+				case <-time.After(750 * time.Millisecond):
+				case <-ctx.Done():
+					return nil, ctx.Err()
+				}
+				retry := req.Clone(ctx)
 				if newBody, gerr := req.GetBody(); gerr == nil {
 					retry.Body = newBody
 				}
@@ -443,16 +456,134 @@ type AvailabilityDay struct {
 
 // RestaurantAvailability is the per-restaurant chunk of the response: one
 // restaurant's availability across N days starting from `date`.
+//
+// `CachedAt`, `Stale`, and `Source` are stale-cache-fallback metadata:
+//   - CachedAt: when the entry was originally fetched (set on cache write).
+//   - Stale: true when the entry is past TTL (independent of how it was reached).
+//   - Source: "cache_fallback" when the data came from the BotDetectionError
+//     fallback path; empty when fresh-from-network or fresh-cache-hit.
+//
+// All three are zero/empty on fresh network responses.
 type RestaurantAvailability struct {
 	RestaurantID     int               `json:"restaurantId"`
 	AvailabilityDays []AvailabilityDay `json:"availabilityDays"`
+	CachedAt         time.Time         `json:"cached_at,omitempty"`
+	Stale            bool              `json:"stale,omitempty"`
+	Source           string            `json:"source,omitempty"`
 }
 
 // RestaurantsAvailability calls the documented `RestaurantsAvailability`
 // GraphQL persisted-query and returns one chunk per requested restaurant ID.
 // Slot tokens in the response are short-lived (~minutes) and are required
 // for the actual booking POST.
-func (c *Client) RestaurantsAvailability(ctx context.Context, restaurantIDs []int, date, hhmm string, partySize, forwardDays, forwardMinutes, forwardSlots int) ([]RestaurantAvailability, error) {
+//
+// Wraps the network call with three resilience layers:
+//   - Disk cache (per-key, schema+hash invalidated, default 3min TTL)
+//   - Singleflight dedupe (concurrent same-key calls share one fetch)
+//   - Two-attempt retry budget (750ms in do429Aware, 5s here for the
+//     second attempt) — only `RestaurantsAvailability` pays the second
+//     retry; sibling ops keep their existing single-retry behavior
+//
+// `noCache=true` bypasses the cache read but still writes on success.
+// Singleflight key includes `noCache` so cache-bypass callers don't
+// piggyback on cache-allowed leaders' fresh-fetch results.
+func (c *Client) RestaurantsAvailability(ctx context.Context, restaurantIDs []int, date, hhmm string, partySize, forwardDays, forwardMinutes, forwardSlots int, noCache bool) ([]RestaurantAvailability, error) {
+	if forwardMinutes <= 0 {
+		forwardMinutes = 150
+	}
+	if hhmm == "" {
+		hhmm = "19:00"
+	}
+	if partySize <= 0 {
+		partySize = 2
+	}
+	// Cache + singleflight only meaningful for single-restaurant calls
+	// (the typical caller pattern). Multi-restaurant calls bypass — they
+	// represent a batch fetch whose cache key shape would differ.
+	if len(restaurantIDs) != 1 {
+		return c.restaurantsAvailabilityNetwork(ctx, restaurantIDs, date, hhmm, partySize, forwardDays, forwardMinutes, forwardSlots)
+	}
+	restID := restaurantIDs[0]
+	key := availCacheKey{
+		RestID:          restID,
+		Date:            date,
+		Time:            hhmm,
+		PartySize:       partySize,
+		ForwardMinutes:  forwardMinutes,
+		BackwardMinutes: forwardMinutes,
+	}
+
+	// Cache check (skip when noCache).
+	if !noCache {
+		if hit := loadAvailCache(key, RestaurantsAvailabilityHash); hit != nil && hit.Fresh {
+			return hit.Entry.Response, nil
+		}
+	}
+
+	// Singleflight dedupe — key includes noCache so cache-bypass callers
+	// don't share a flight with cache-allowed callers (semantics differ
+	// on cache-write side and on what they consider acceptable).
+	sfKey := fmt.Sprintf("avail:%d:%s:%s:%d:%d:%d:%t",
+		restID, date, hhmm, partySize, forwardMinutes, forwardMinutes, noCache)
+	v, err, _ := c.availSF.Do(sfKey, func() (any, error) {
+		// Fire network call (which goes through do429Aware → AdaptiveLimiter).
+		// On BotDetectionError after the in-do429Aware 750ms retry, sleep 5s
+		// (ctx-aware) and retry once more before surfacing.
+		resp, nerr := c.restaurantsAvailabilityNetwork(ctx, restaurantIDs, date, hhmm, partySize, forwardDays, forwardMinutes, forwardSlots)
+		if nerr != nil {
+			if _, isBot := IsBotDetection(nerr); isBot {
+				select {
+				case <-time.After(5 * time.Second):
+				case <-ctx.Done():
+					return nil, ctx.Err()
+				}
+				resp, nerr = c.restaurantsAvailabilityNetwork(ctx, restaurantIDs, date, hhmm, partySize, forwardDays, forwardMinutes, forwardSlots)
+			}
+			if nerr != nil {
+				// U5 stale-cache fallback: when the network is genuinely
+				// blocked (BotDetectionError after both retries), serve
+				// the cached entry IF one exists within the 24h hard cap.
+				// Tag with `source: "cache_fallback"` so consumers can
+				// distinguish this from a fresh fetch. `Stale` is set
+				// when the entry is past TTL.
+				if _, isBot := IsBotDetection(nerr); isBot {
+					if hit := loadAvailCache(key, RestaurantsAvailabilityHash); hit != nil {
+						return enrichWithCacheMetadata(hit.Entry.Response, hit.Entry.CachedAt, !hit.Fresh), nil
+					}
+				}
+				return nil, nerr
+			}
+		}
+		// Always write cache on success — even when noCache=true. A user
+		// asking for fresh data is also willing to update what's cached.
+		saveAvailCache(key, RestaurantsAvailabilityHash, resp)
+		return resp, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return v.([]RestaurantAvailability), nil
+}
+
+// enrichWithCacheMetadata stamps Source="cache_fallback", Stale, and
+// CachedAt onto each row of a cached response so JSON consumers can see
+// the data came from the U5 stale-fallback path rather than a fresh
+// fetch. Mutates a copy — the cache entry itself isn't modified.
+func enrichWithCacheMetadata(resp []RestaurantAvailability, cachedAt time.Time, stale bool) []RestaurantAvailability {
+	out := make([]RestaurantAvailability, len(resp))
+	for i, r := range resp {
+		r.CachedAt = cachedAt
+		r.Stale = stale
+		r.Source = "cache_fallback"
+		out[i] = r
+	}
+	return out
+}
+
+// restaurantsAvailabilityNetwork is the bare network call that
+// RestaurantsAvailability wraps. Kept private so callers go through the
+// cache+singleflight+retry envelope rather than bypassing it.
+func (c *Client) restaurantsAvailabilityNetwork(ctx context.Context, restaurantIDs []int, date, hhmm string, partySize, forwardDays, forwardMinutes, forwardSlots int) ([]RestaurantAvailability, error) {
 	if forwardDays <= 0 {
 		forwardDays = 1
 	}
@@ -621,36 +752,21 @@ func (c *Client) gqlCall(ctx context.Context, opname string, body any) ([]byte, 
 	if err != nil {
 		return nil, fmt.Errorf("reading %s response: %w", opname, err)
 	}
+	// Note: 403 retry happens inside `do429Aware` (single 750ms attempt).
+	// `do429Aware` returns either a 200 response on success/retry-success,
+	// or a typed `*BotDetectionError` after retry exhausted — never a 403
+	// response with a nil error. The `RestaurantsAvailability` wrapper
+	// adds a SECOND retry attempt at 5s on top of the BotDetectionError.
+	// This block exists as defense-in-depth: if a future change in
+	// `do429Aware` were to surface a raw 403 here, surface it as
+	// BotDetectionError so callers' downstream handling stays correct.
 	if resp.StatusCode == 403 {
-		// Akamai's WAF rule on this opname is probabilistic — sometimes
-		// blocks, sometimes lets through. Retry once after a short
-		// wait; if both attempts 403 we surface a typed BotDetectionError.
-		// Single retry only: more retries would compound Akamai's
-		// session reputation against us.
-		time.Sleep(750 * time.Millisecond)
-		retryReq, _ := http.NewRequestWithContext(ctx, http.MethodPost, u, strings.NewReader(string(js)))
-		for k, vals := range req.Header {
-			for _, v := range vals {
-				retryReq.Header.Add(k, v)
-			}
-		}
-		retryResp, retryErr := c.do429Aware(retryReq)
-		if retryErr == nil && retryResp.StatusCode == 200 {
-			defer retryResp.Body.Close()
-			retryData, rerr := io.ReadAll(retryResp.Body)
-			if rerr == nil {
-				return retryData, nil
-			}
-		}
-		if retryResp != nil {
-			retryResp.Body.Close()
-		}
 		return nil, &BotDetectionError{
 			URL:    u,
 			Status: 403,
 			Streak: 1,
-			Until:  time.Now().Add(2 * time.Minute),
-			Reason: "GraphQL " + opname + " 403'd twice by Akamai WAF (probabilistic opname rule); other operations on the same session may still work",
+			Until:  time.Now().Add(1 * time.Minute),
+			Reason: "GraphQL " + opname + " returned 403 (unexpected — do429Aware should have converted to BotDetectionError before reaching gqlCall)",
 		}
 	}
 	if resp.StatusCode != 200 {
@@ -690,4 +806,37 @@ func truncate(s string, n int) string {
 		return s
 	}
 	return s[:n] + "..."
+}
+
+// throttleRateMin and throttleRateMax bound the TRG_OT_THROTTLE_RATE
+// override so a misconfigured value can't disable rate limiting entirely
+// (rate=0 would division-by-zero in AdaptiveLimiter) or set rates so high
+// that bursts hit Akamai instantly. 0.01 ≈ 100s spacing (paranoid mode);
+// 5.0 = 200ms spacing (private-proxy or test environments).
+const (
+	throttleRateMin     = 0.01
+	throttleRateMax     = 5.0
+	throttleRateDefault = 0.5
+)
+
+// readThrottleRate returns the AdaptiveLimiter initial rate from
+// TRG_OT_THROTTLE_RATE. Returns the default on unset, unparseable, or
+// out-of-range values, with a stderr warning so misconfigurations are
+// noticed.
+func readThrottleRate() float64 {
+	v := strings.TrimSpace(os.Getenv("TRG_OT_THROTTLE_RATE"))
+	if v == "" {
+		return throttleRateDefault
+	}
+	r, err := strconv.ParseFloat(v, 64)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "TRG_OT_THROTTLE_RATE=%q is not a valid number; using default %.2f\n", v, throttleRateDefault)
+		return throttleRateDefault
+	}
+	if r < throttleRateMin || r > throttleRateMax {
+		fmt.Fprintf(os.Stderr, "TRG_OT_THROTTLE_RATE=%.4f out of range [%.2f, %.2f]; using default %.2f\n",
+			r, throttleRateMin, throttleRateMax, throttleRateDefault)
+		return throttleRateDefault
+	}
+	return r
 }

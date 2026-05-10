@@ -27,7 +27,7 @@ func newAvailabilityCheckCmd(flags *rootFlags) *cobra.Command {
 		Short: "Check open slots for a restaurant on a specific date and party size",
 		Long: "Per-venue availability across both networks. Resolves the venue on OpenTable " +
 			"or Tock and returns the earliest matching slot per the requested date/party.",
-		Example: "  table-reservation-goat-pp-cli availability check 'tock:alinea' --party 2 --date 2026-06-15 --json",
+		Example:     "  table-reservation-goat-pp-cli availability check 'tock:alinea' --party 2 --date 2026-06-15 --json",
 		Annotations: map[string]string{"pp:endpoint": "availability.check", "pp:method": "GET", "pp:path": "/availability", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -59,7 +59,7 @@ func newAvailabilityCheckCmd(flags *rootFlags) *cobra.Command {
 			if withinDays == 0 {
 				withinDays = 1
 			}
-			row := resolveEarliestForVenue(cmd.Context(), session, venue, party, startDate, withinDays)
+			row := resolveEarliestForVenue(cmd.Context(), session, venue, party, startDate, withinDays, false)
 			return printJSONFiltered(cmd.OutOrStdout(), row, flags)
 		},
 	}
