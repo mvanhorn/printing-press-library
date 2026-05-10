@@ -12,14 +12,14 @@ import (
 	"strings"
 	"time"
 
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/drivethrurpg/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/drivethrurpg/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/drivethrurpg/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/drivethrurpg/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/drivethrurpg/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/drivethrurpg/internal/store"
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterTools registers all API operations as MCP tools.
@@ -76,24 +76,23 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("GET", "/filters", []mcpParamBinding{{PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "pageSize", WireName: "pageSize", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
-		mcplib.NewTool("order-products_list-library-products",
-			mcplib.WithDescription("List authenticated user's purchased library products. Optional: getChecksum (default: 1), getFilters (default: 0), page (default: 1) (plus 3 more). Returns array of LibraryProduct."),
+		mcplib.NewTool("library_list-products",
+			mcplib.WithDescription("List products in the authenticated DriveThruRPG library, including file indexes for downloads. Optional: getChecksum (default: 1), getFilters (default: 0), page (default: 1) (plus 2 more). Returns array of LibraryProduct."),
 			mcplib.WithString("getChecksum", mcplib.Description("Get checksum")),
 			mcplib.WithString("getFilters", mcplib.Description("Get filters")),
 			mcplib.WithString("page", mcplib.Description("Page")),
 			mcplib.WithString("pageSize", mcplib.Description("Page size")),
-			mcplib.WithString("library", mcplib.Description("Library")),
 			mcplib.WithString("archived", mcplib.Description("Archived")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/order_products", []mcpParamBinding{{PublicName: "getChecksum", WireName: "getChecksum", Location: "query"}, {PublicName: "getFilters", WireName: "getFilters", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "pageSize", WireName: "pageSize", Location: "query"}, {PublicName: "library", WireName: "library", Location: "query"}, {PublicName: "archived", WireName: "archived", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/order_products", []mcpParamBinding{{PublicName: "getChecksum", WireName: "getChecksum", Location: "query"}, {PublicName: "getFilters", WireName: "getFilters", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "pageSize", WireName: "pageSize", Location: "query"}, {PublicName: "archived", WireName: "archived", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
-		mcplib.NewTool("order-products_check_download",
-			mcplib.WithDescription("Poll for a prepared purchased file download URL. Required: orderProductId, index. Optional: siteId (default: 10), getChecksums (default: 0). Returns the DownloadStatus."),
-			mcplib.WithString("orderProductId", mcplib.Required(), mcplib.Description("Order product id")),
+		mcplib.NewTool("library_check_download",
+			mcplib.WithDescription("Check whether a prepared library download is ready. Required: libraryProductId, index. Optional: siteId (default: 10), getChecksums (default: 0). Returns the DownloadStatus."),
+			mcplib.WithString("libraryProductId", mcplib.Required(), mcplib.Description("Library product id from the library list")),
 			mcplib.WithString("siteId", mcplib.Description("DriveThruRPG site id. The public Library App uses 10.")),
 			mcplib.WithString("index", mcplib.Required(), mcplib.Description("File index from the owned product's files array.")),
 			mcplib.WithString("getChecksums", mcplib.Description("Get checksums")),
@@ -101,12 +100,12 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/order_products/{orderProductId}/check", []mcpParamBinding{{PublicName: "orderProductId", WireName: "orderProductId", Location: "path"}, {PublicName: "siteId", WireName: "siteId", Location: "query"}, {PublicName: "index", WireName: "index", Location: "query"}, {PublicName: "getChecksums", WireName: "getChecksums", Location: "query"}}, []string{"orderProductId"}),
+		makeAPIHandler("GET", "/order_products/{orderProductId}/check", []mcpParamBinding{{PublicName: "libraryProductId", WireName: "orderProductId", Location: "path"}, {PublicName: "siteId", WireName: "siteId", Location: "query"}, {PublicName: "index", WireName: "index", Location: "query"}, {PublicName: "getChecksums", WireName: "getChecksums", Location: "query"}}, []string{"libraryProductId"}),
 	)
 	s.AddTool(
-		mcplib.NewTool("order-products_prepare_download",
-			mcplib.WithDescription("Prepare a purchased file download URL. Required: orderProductId, index. Optional: siteId (default: 10), getChecksums (default: 0). Returns the DownloadStatus."),
-			mcplib.WithString("orderProductId", mcplib.Required(), mcplib.Description("Order product id")),
+		mcplib.NewTool("library_prepare_download",
+			mcplib.WithDescription("Prepare a download URL for a product in the authenticated library. Required: libraryProductId, index. Optional: siteId (default: 10), getChecksums (default: 0). Returns the DownloadStatus."),
+			mcplib.WithString("libraryProductId", mcplib.Required(), mcplib.Description("Library product id from the library list")),
 			mcplib.WithString("siteId", mcplib.Description("DriveThruRPG site id. The public Library App uses 10.")),
 			mcplib.WithString("index", mcplib.Required(), mcplib.Description("File index from the owned product's files array.")),
 			mcplib.WithString("getChecksums", mcplib.Description("Get checksums")),
@@ -114,7 +113,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/order_products/{orderProductId}/prepare", []mcpParamBinding{{PublicName: "orderProductId", WireName: "orderProductId", Location: "path"}, {PublicName: "siteId", WireName: "siteId", Location: "query"}, {PublicName: "index", WireName: "index", Location: "query"}, {PublicName: "getChecksums", WireName: "getChecksums", Location: "query"}}, []string{"orderProductId"}),
+		makeAPIHandler("GET", "/order_products/{orderProductId}/prepare", []mcpParamBinding{{PublicName: "libraryProductId", WireName: "orderProductId", Location: "path"}, {PublicName: "siteId", WireName: "siteId", Location: "query"}, {PublicName: "index", WireName: "index", Location: "query"}, {PublicName: "getChecksums", WireName: "getChecksums", Location: "query"}}, []string{"libraryProductId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("products_get",
@@ -556,9 +555,9 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"syncable":    true,
 			},
 			{
-				"name":        "order-products",
-				"description": "Manage order products",
-				"endpoints":   []string{"list-library-products"},
+				"name":        "library",
+				"description": "List authenticated library products",
+				"endpoints":   []string{"list-products", "prepare-download", "check-download"},
 				"syncable":    true,
 			},
 			{

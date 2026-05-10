@@ -253,7 +253,7 @@ paths:
     get:
       operationId: listLibraryProducts
       tags: [Library]
-      summary: List authenticated user's purchased library products
+      summary: List products in the authenticated user's library
       security:
         - DtrpgToken: []
       parameters:
@@ -294,13 +294,14 @@ paths:
     get:
       operationId: prepareDownload
       tags: [Downloads]
-      summary: Prepare a purchased file download URL
+      summary: Prepare a download URL for a library product
       security:
         - DtrpgToken: []
       parameters:
         - name: orderProductId
           in: path
           required: true
+          description: DriveThruRPG API library product identifier.
           schema:
             type: integer
         - $ref: "#/components/parameters/SiteId"
@@ -317,13 +318,14 @@ paths:
     get:
       operationId: checkDownload
       tags: [Downloads]
-      summary: Poll for a prepared purchased file download URL
+      summary: Check whether a prepared library download URL is ready
       security:
         - DtrpgToken: []
       parameters:
         - name: orderProductId
           in: path
           required: true
+          description: DriveThruRPG API library product identifier.
           schema:
             type: integer
         - $ref: "#/components/parameters/SiteId"

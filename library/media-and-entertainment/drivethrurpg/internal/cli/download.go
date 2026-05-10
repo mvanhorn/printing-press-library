@@ -38,7 +38,7 @@ func newDownloadCmd(flags *rootFlags) *cobra.Command {
 	var force bool
 
 	cmd := &cobra.Command{
-		Use:   "download <orderProductId> [fileIndex]",
+		Use:   "download <libraryProductId> [fileIndex]",
 		Short: "Download a purchased DriveThruRPG file",
 		Long: `Download a file from your authenticated DriveThruRPG library.
 
@@ -51,7 +51,7 @@ Authentication uses DRIVETHRURPG_APPLICATION_KEY, a saved token from
 			if len(args) > 2 {
 				return usageErr(fmt.Errorf("expected at most 2 arguments, got %d", len(args)))
 			}
-			orderProductID := "ORDER_PRODUCT_ID"
+			orderProductID := "LIBRARY_PRODUCT_ID"
 			if len(args) == 0 {
 				if !flags.dryRun {
 					return cmd.Help()
@@ -102,10 +102,10 @@ Authentication uses DRIVETHRURPG_APPLICATION_KEY, a saved token from
 			if urlOnly {
 				if flags.asJSON {
 					return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-						"order_product_id": orderProductID,
-						"index":            index,
-						"status":           status.Status,
-						"url":              status.URL,
+						"library_product_id": orderProductID,
+						"index":              index,
+						"status":             status.Status,
+						"url":                status.URL,
 					}, flags)
 				}
 				fmt.Fprintln(cmd.OutOrStdout(), status.URL)
@@ -118,12 +118,12 @@ Authentication uses DRIVETHRURPG_APPLICATION_KEY, a saved token from
 			}
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-					"downloaded":       true,
-					"order_product_id": orderProductID,
-					"index":            index,
-					"status":           status.Status,
-					"path":             path,
-					"bytes":            bytesWritten,
+					"downloaded":         true,
+					"library_product_id": orderProductID,
+					"index":              index,
+					"status":             status.Status,
+					"path":               path,
+					"bytes":              bytesWritten,
 				}, flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Downloaded %d bytes to %s\n", bytesWritten, path)

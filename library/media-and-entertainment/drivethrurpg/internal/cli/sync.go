@@ -4,9 +4,9 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/drivethrurpg/internal/store"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/drivethrurpg/internal/store"
 	"github.com/spf13/cobra"
 	"net/url"
 	"os"
@@ -61,7 +61,7 @@ Exit codes & warnings:
   drivethrurpg-pp-cli sync
 
   # Sync specific resources only
-  drivethrurpg-pp-cli sync --resources channels,messages
+  drivethrurpg-pp-cli sync --resources products,library
 
   # Full resync (ignore previous checkpoint)
   drivethrurpg-pp-cli sync --full
@@ -753,7 +753,7 @@ func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) 
 	}
 
 	switch resource {
-	case "order-products", "order_products":
+	case "library", "order-products", "order_products":
 		return db.UpsertOrderProducts(data)
 	case "check":
 		return db.UpsertCheck(data)
@@ -797,7 +797,7 @@ func defaultSyncResources() []string {
 	return []string{
 		"categories",
 		"filters",
-		"order-products",
+		"library",
 		"products",
 		"reviews",
 		"special-offers",
@@ -811,6 +811,7 @@ func syncResourcePath(resource string) (string, error) {
 	paths := map[string]string{
 		"categories":     "/categories",
 		"filters":        "/filters",
+		"library":        "/order_products",
 		"order-products": "/order_products",
 		"products":       "/products",
 		"reviews":        "/reviews",
@@ -834,6 +835,7 @@ func syncResourcePath(resource string) (string, error) {
 var resourceIDFieldOverrides = map[string]string{
 	"categories":     "id",
 	"filters":        "id",
+	"library":        "name",
 	"order_products": "name",
 	"order-products": "name",
 	"products":       "id",

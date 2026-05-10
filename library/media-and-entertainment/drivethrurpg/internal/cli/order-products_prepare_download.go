@@ -17,11 +17,10 @@ func newOrderProductsPrepareDownloadCmd(flags *rootFlags) *cobra.Command {
 	var flagGetChecksums int
 
 	cmd := &cobra.Command{
-		Use:   "download <orderProductId>",
-		Aliases: []string{"get"},
-		Short: "Prepare a purchased file download URL",
-		Example: "  drivethrurpg-pp-cli order-products prepare download 42 --index 42",
-		Annotations: map[string]string{"pp:endpoint": "prepare.download", "pp:method": "GET", "pp:path": "/order_products/{orderProductId}/prepare", "mcp:read-only": "true"},
+		Use:         "prepare-download <libraryProductId>",
+		Short:       "Prepare a download URL for a product in your library",
+		Example:     "  drivethrurpg-pp-cli library prepare-download 42 --index 0",
+		Annotations: map[string]string{"pp:endpoint": "library.prepare-download", "pp:method": "GET", "pp:path": "/order_products/{orderProductId}/prepare", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

@@ -86,9 +86,9 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 		Long: `Search the public DriveThruRPG catalog and download purchased files from your authenticated library.
 
 Highlights (not in the official API docs):
-  • search   Search DriveThruRPG's public product catalog by keyword while keeping JSON output agent-friendly.
-  • order-products   List owned DriveThruRPG order products and file indexes using the Library App Application Key flow.
-  • download   Prepare, poll, and save a purchased DriveThruRPG file from a single command.
+  • search    Search DriveThruRPG's public product catalog by keyword while keeping JSON output agent-friendly.
+  • library   List products in your DriveThruRPG library, including file indexes for downloads.
+  • download  Prepare, poll, and save a purchased DriveThruRPG file from a single command.
 
 Add --agent to any command for JSON output + non-interactive mode.
 Run 'drivethrurpg-pp-cli doctor' to verify auth and connectivity.`,

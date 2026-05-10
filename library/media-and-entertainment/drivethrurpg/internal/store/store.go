@@ -843,6 +843,7 @@ func (s *Store) UpsertPrepare(data json.RawMessage) error {
 var resourceIDFieldOverrides = map[string]string{
 	"categories":     "id",
 	"filters":        "id",
+	"library":        "name",
 	"order_products": "name",
 	"order-products": "name",
 	"products":       "id",
@@ -919,7 +920,7 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 		}
 
 		switch resourceType {
-		case "order-products", "order_products":
+		case "library", "order-products", "order_products":
 			if err := s.upsertOrderProductsTx(tx, id, obj, item); err != nil {
 				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
 			}

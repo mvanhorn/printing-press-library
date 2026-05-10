@@ -159,8 +159,8 @@ func buildAgentDiscoveryContext() *agentContextDiscovery {
 		},
 		GenerationHints: []string{
 			"Start with `search` or `products search` for public catalog discovery.",
-			"Use `library` to inspect owned order products before calling `download`.",
-			"Use `download <orderProductId> <fileIndex>` for owned files; it prepares, polls, and saves the file.",
+			"Use `library` to inspect products in the authenticated DriveThruRPG library before calling `download`.",
+			"Use `download <libraryProductId> <fileIndex>` for owned files; it prepares, polls, and saves the file.",
 			"Use `sync` before local `search --data-source local` or `analytics`.",
 		},
 		Warnings: []string{
@@ -172,7 +172,7 @@ func buildAgentDiscoveryContext() *agentContextDiscovery {
 			"search \"Cyberpunk\" --agent --limit 5",
 			"products search --keyword \"Legend of the Five Rings\" --agent --page-size 5",
 			"library --agent --page-size 10",
-			"download <orderProductId> <fileIndex> --output-dir ~/Downloads --agent",
+			"download <libraryProductId> <fileIndex> --output-dir ~/Downloads --agent",
 			"special-offers --agent --page-size 10",
 		},
 	}
@@ -208,6 +208,9 @@ func collectAgentCommands(c *cobra.Command) []agentContextCommand {
 			}
 		}
 		sub.Flags().VisitAll(func(f *pflag.Flag) {
+			if f.Hidden {
+				return
+			}
 			entry.Flags = append(entry.Flags, agentContextFlag{
 				Name:    f.Name,
 				Type:    f.Value.Type(),

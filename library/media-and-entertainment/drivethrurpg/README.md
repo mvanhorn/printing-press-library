@@ -51,7 +51,7 @@ drivethrurpg-pp-cli doctor
 drivethrurpg-pp-cli search "Cyberpunk" --json --limit 5 --data-source live
 drivethrurpg-pp-cli products search --keyword "Legend of the Five Rings" --page-size 5 --json
 drivethrurpg-pp-cli library --page-size 10 --json
-drivethrurpg-pp-cli download <orderProductId> <fileIndex> --output-dir ~/Downloads
+drivethrurpg-pp-cli download <libraryProductId> <fileIndex> --output-dir ~/Downloads
 ```
 
 ## Commands
@@ -76,10 +76,10 @@ drivethrurpg-pp-cli download <orderProductId> <fileIndex> --output-dir ~/Downloa
 | --- | --- |
 | `auth login` | Exchange a Library App Application Key for a saved API token. |
 | `auth status` | Show whether credentials are configured without printing secrets. |
-| `library` | Alias for `order-products`; lists owned library products and file indexes. |
-| `download <orderProductId> [fileIndex]` | Prepare, poll, and save a purchased file. |
-| `order-products prepare download <orderProductId> --index <n>` | Advanced: prepare a download URL only. |
-| `order-products check download <orderProductId> --index <n>` | Advanced: poll a prepared download URL. |
+| `library` | List products in your DriveThruRPG library, including file indexes for downloads. |
+| `download <libraryProductId> [fileIndex]` | Prepare, poll, and save a purchased file. |
+| `library prepare-download <libraryProductId> --index <n>` | Advanced: prepare a download URL only. |
+| `library check-download <libraryProductId> --index <n>` | Advanced: poll a prepared download URL. |
 
 ### Local Data
 
@@ -138,11 +138,11 @@ drivethrurpg-pp-cli search-ahead --keyword "Mothership" --page-size 5 --json
 # List the first page of your library
 drivethrurpg-pp-cli library --page-size 10 --json
 
-# Download the first file from an owned order product
-drivethrurpg-pp-cli download <orderProductId> 0 --output-dir ~/Downloads
+# Download the first file from a product in your library
+drivethrurpg-pp-cli download <libraryProductId> 0 --output-dir ~/Downloads
 
 # Prepare a URL without saving the file
-drivethrurpg-pp-cli download <orderProductId> 0 --url-only --json
+drivethrurpg-pp-cli download <libraryProductId> 0 --url-only --json
 
 # List public reviews for a product
 drivethrurpg-pp-cli reviews --product-id 257004 --json
@@ -241,7 +241,7 @@ At least one of `DRIVETHRURPG_APPLICATION_KEY`, `DRIVETHRURPG_DTRPG_TOKEN`, or a
 
 **Download times out**
 
-- Run `drivethrurpg-pp-cli order-products prepare download <orderProductId> --index <n> --json --no-cache` to inspect the raw prepare status.
+- Run `drivethrurpg-pp-cli library prepare-download <libraryProductId> --index <n> --json --no-cache` to inspect the raw prepare status.
 - Increase `--max-wait` if DriveThruRPG is still watermarking the file.
 
 **No local search results**
@@ -266,17 +266,17 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Authenticated library
-- **`order-products`** — List owned DriveThruRPG order products and file indexes using the Library App Application Key flow.
+- **`library`** — List products in your DriveThruRPG library, including file indexes for downloads.
 
   _Agents can inspect owned purchases and choose the right file index without scraping website pages._
 
   ```bash
-  drivethrurpg-pp-cli order-products --agent --page-size 10
+  drivethrurpg-pp-cli library --agent --page-size 10
   ```
 - **`download`** — Prepare, poll, and save a purchased DriveThruRPG file from a single command.
 
   _Agents can execute the full authenticated file retrieval workflow without hand-rolling polling logic._
 
   ```bash
-  drivethrurpg-pp-cli download ORDER_PRODUCT_ID --dry-run --agent
+  drivethrurpg-pp-cli download LIBRARY_PRODUCT_ID --dry-run --agent
   ```

@@ -21,12 +21,11 @@ func newOrderProductsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:         "order-products",
-		Aliases:     []string{"library"},
-		Short:       "List authenticated user's purchased library products",
-		Long:        "Shortcut for 'order-products list-library-products'. List authenticated user's purchased library products",
-		Example:     "  drivethrurpg-pp-cli order-products",
-		Annotations: map[string]string{"pp:endpoint": "order-products.list-library-products", "pp:method": "GET", "pp:path": "/order_products", "mcp:read-only": "true"},
+		Use:         "library",
+		Short:       "List products in your DriveThruRPG library",
+		Long:        "List products in your authenticated DriveThruRPG library, including the file indexes needed for downloads.",
+		Example:     "  drivethrurpg-pp-cli library --page-size 10",
+		Annotations: map[string]string{"pp:endpoint": "library.list-products", "pp:method": "GET", "pp:path": "/order_products", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -34,7 +33,7 @@ func newOrderProductsPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/order_products"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "order-products", path, map[string]string{
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "library", path, map[string]string{
 				"getChecksum": fmt.Sprintf("%v", flagGetChecksum),
 				"getFilters":  fmt.Sprintf("%v", flagGetFilters),
 				"page":        fmt.Sprintf("%v", flagPage),
@@ -93,23 +92,23 @@ func newOrderProductsPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().IntVar(&flagGetChecksum, "get-checksum", 1, "Get checksum")
-	cmd.Flags().IntVar(&flagGetFilters, "get-filters", 0, "Get filters")
+	cmd.Flags().IntVar(&flagGetChecksum, "get-checksum", 1, "Include file checksum metadata")
+	cmd.Flags().IntVar(&flagGetFilters, "get-filters", 0, "Include DriveThruRPG filter metadata")
 	cmd.Flags().StringVar(&flagPage, "page", "1", "Page")
 	cmd.Flags().IntVar(&flagPageSize, "page-size", 20, "Page size")
-	cmd.Flags().IntVar(&flagLibrary, "library", 1, "Library")
-	cmd.Flags().IntVar(&flagArchived, "archived", 0, "Archived")
+	cmd.Flags().IntVar(&flagLibrary, "library", 1, "DriveThruRPG library filter value")
+	cmd.Flags().IntVar(&flagArchived, "archived", 0, "Include archived library products")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
+	_ = cmd.Flags().MarkHidden("library")
 
-	// Wire sibling endpoints and sub-resources as subcommands
 	{
-		sub := newOrderProductsCheckCmd(flags)
-		sub.Hidden = false // unhide: the raw parent is hidden but these are useful under the promoted command
+		sub := newOrderProductsPrepareDownloadCmd(flags)
+		sub.Hidden = false
 		cmd.AddCommand(sub)
 	}
 	{
-		sub := newOrderProductsPrepareCmd(flags)
-		sub.Hidden = false // unhide: the raw parent is hidden but these are useful under the promoted command
+		sub := newOrderProductsCheckDownloadCmd(flags)
+		sub.Hidden = false
 		cmd.AddCommand(sub)
 	}
 

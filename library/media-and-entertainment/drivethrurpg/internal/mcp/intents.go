@@ -12,10 +12,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/drivethrurpg/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/drivethrurpg/internal/store"
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/drivethrurpg/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/drivethrurpg/internal/store"
 )
 
 // RegisterIntentTools adds job-oriented tools that map common user goals to
@@ -58,7 +58,7 @@ func RegisterIntentTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("job_library_list",
-			mcplib.WithDescription("List authenticated library purchases as compact rows with order product id, product id, title, archive status, and file counts."),
+			mcplib.WithDescription("List authenticated library purchases as compact rows with library product id, product id, title, archive status, and file counts."),
 			mcplib.WithNumber("limit", mcplib.Description("Maximum library products to return (default 10, max 100)")),
 			mcplib.WithBoolean("archived", mcplib.Description("Include archived library products instead of active library products")),
 			mcplib.WithReadOnlyHintAnnotation(true),
@@ -69,7 +69,7 @@ func RegisterIntentTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("job_library_find",
-			mcplib.WithDescription("Search authenticated library purchases by title, product id, order product id, or filename and return compact matches."),
+			mcplib.WithDescription("Search authenticated library purchases by title, product id, library product id, or filename and return compact matches."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Text or id to find in the authenticated library")),
 			mcplib.WithNumber("limit", mcplib.Description("Maximum matching purchases to return (default 10, max 100)")),
 			mcplib.WithReadOnlyHintAnnotation(true),
@@ -80,8 +80,8 @@ func RegisterIntentTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("job_file_manifest",
-			mcplib.WithDescription("Find one owned order product and return its downloadable file indexes, titles, filenames, sizes, and checksum counts."),
-			mcplib.WithString("orderProductId", mcplib.Required(), mcplib.Description("Owned order product id from the library")),
+			mcplib.WithDescription("Find one product in the authenticated library and return its downloadable file indexes, titles, filenames, sizes, and checksum counts."),
+			mcplib.WithString("libraryProductId", mcplib.Required(), mcplib.Description("Library product id from the library list")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -90,8 +90,8 @@ func RegisterIntentTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("job_prepare_file_download",
-			mcplib.WithDescription("Prepare a purchased file download URL for an owned order product and file index without saving the file locally."),
-			mcplib.WithString("orderProductId", mcplib.Required(), mcplib.Description("Owned order product id from the library")),
+			mcplib.WithDescription("Prepare a purchased file download URL for a library product and file index without saving the file locally."),
+			mcplib.WithString("libraryProductId", mcplib.Required(), mcplib.Description("Library product id from the library list")),
 			mcplib.WithNumber("index", mcplib.Required(), mcplib.Description("File index from job_file_manifest or the library files array")),
 			mcplib.WithString("siteId", mcplib.Description("DriveThruRPG site id, default 10")),
 			mcplib.WithBoolean("checksums", mcplib.Description("Request checksum metadata while preparing the download")),
@@ -217,27 +217,27 @@ func handleJobLibraryFind(ctx context.Context, req mcplib.CallToolRequest) (*mcp
 }
 
 func handleJobFileManifest(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	orderProductID := stringArg(req.GetArguments(), "orderProductId")
-	if orderProductID == "" {
-		return mcplib.NewToolResultError("orderProductId is required"), nil
+	libraryProductID := stringArg(req.GetArguments(), "libraryProductId")
+	if libraryProductID == "" {
+		return mcplib.NewToolResultError("libraryProductId is required"), nil
 	}
-	item, err := fetchLibraryProduct(orderProductID)
+	item, err := fetchLibraryProduct(libraryProductID)
 	if err != nil {
 		return mcpAPIError(err), nil
 	}
 	return jsonToolResult(map[string]any{
-		"job":              "file_manifest",
-		"order_product_id": orderProductID,
-		"item":             compactLibraryProduct(item),
-		"files":            compactLibraryFiles(item),
+		"job":                "file_manifest",
+		"library_product_id": libraryProductID,
+		"item":               compactLibraryProduct(item),
+		"files":              compactLibraryFiles(item),
 	}), nil
 }
 
 func handleJobPrepareFileDownload(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
-	orderProductID := stringArg(args, "orderProductId")
-	if orderProductID == "" {
-		return mcplib.NewToolResultError("orderProductId is required"), nil
+	libraryProductID := stringArg(args, "libraryProductId")
+	if libraryProductID == "" {
+		return mcplib.NewToolResultError("libraryProductId is required"), nil
 	}
 	index := intArg(args, "index", -1, -1, 10000)
 	if index < 0 {
@@ -251,7 +251,7 @@ func handleJobPrepareFileDownload(ctx context.Context, req mcplib.CallToolReques
 	if err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
-	data, err := c.Get("/order_products/"+orderProductID+"/prepare", map[string]string{
+	data, err := c.Get("/order_products/"+libraryProductID+"/prepare", map[string]string{
 		"siteId":       siteID,
 		"index":        strconv.Itoa(index),
 		"getChecksums": boolIntString(boolArg(args, "checksums", false)),
@@ -260,10 +260,10 @@ func handleJobPrepareFileDownload(ctx context.Context, req mcplib.CallToolReques
 		return mcpAPIError(err), nil
 	}
 	return jsonToolResult(map[string]any{
-		"job":              "prepare_file_download",
-		"order_product_id": orderProductID,
-		"index":            index,
-		"status":           compactDownloadStatus(data),
+		"job":                "prepare_file_download",
+		"library_product_id": libraryProductID,
+		"index":              index,
+		"status":             compactDownloadStatus(data),
 	}), nil
 }
 
@@ -279,7 +279,7 @@ func handleJobCacheStatus(ctx context.Context, req mcplib.CallToolRequest) (*mcp
 		return mcplib.NewToolResultError(fmt.Sprintf("reading status: %v", err)), nil
 	}
 	now := time.Now().UTC()
-	resources := []string{"categories", "filters", "order-products", "products", "reviews", "special-offers"}
+	resources := []string{"categories", "filters", "library", "products", "reviews", "special-offers"}
 	var syncState []map[string]any
 	for _, resource := range resources {
 		cursor, synced, count, err := db.GetSyncState(resource)
@@ -341,17 +341,17 @@ func fetchLibraryPage(limit int, archived bool) ([]json.RawMessage, error) {
 	return extractResponseItems(data), nil
 }
 
-func fetchLibraryProduct(orderProductID string) (json.RawMessage, error) {
+func fetchLibraryProduct(libraryProductID string) (json.RawMessage, error) {
 	items, err := fetchLibraryPage(100, false)
 	if err != nil {
 		return nil, err
 	}
 	for _, item := range items {
-		if libraryProductID(item) == orderProductID {
+		if libraryProductIDFromItem(item) == libraryProductID {
 			return item, nil
 		}
 	}
-	return nil, fmt.Errorf("order product %s not found on the first library page; run order-products directly if it is archived or deeper in the library", orderProductID)
+	return nil, fmt.Errorf("library product %s not found on the first library page; run library directly if it is archived or deeper in the library", libraryProductID)
 }
 
 func jsonToolResult(value any) *mcplib.CallToolResult {
@@ -440,7 +440,7 @@ func compactLibraryProduct(item json.RawMessage) map[string]any {
 	files := arrayValue(attrs["files"])
 	return cleanMap(map[string]any{
 		"id":                 stringValue(obj["id"]),
-		"order_product_id":   firstNonEmpty(attrs["orderProductId"], attrs["order_product_id"]),
+		"library_product_id": firstNonEmpty(attrs["orderProductId"], attrs["order_product_id"]),
 		"order_id":           firstNonEmpty(attrs["orderId"], attrs["order_id"]),
 		"product_id":         firstNonEmpty(attrs["productId"], attrs["product_id"]),
 		"name":               firstNonEmpty(attrs["name"], obj["name"]),
@@ -483,7 +483,7 @@ func compactDownloadStatus(data json.RawMessage) map[string]any {
 	})
 }
 
-func libraryProductID(item json.RawMessage) string {
+func libraryProductIDFromItem(item json.RawMessage) string {
 	obj := objectFromRaw(item)
 	attrs := objectValue(obj["attributes"])
 	for _, value := range []any{attrs["orderProductId"], attrs["order_product_id"], obj["orderProductId"], obj["id"]} {

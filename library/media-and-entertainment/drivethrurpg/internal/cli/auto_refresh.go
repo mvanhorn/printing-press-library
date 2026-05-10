@@ -96,7 +96,7 @@ func autoRefreshResources(cmd *cobra.Command, flags *rootFlags) []string {
 		if resource := stringFlagValue(cmd, "type"); resource != "" {
 			return knownSyncResources([]string{normalizeSyncResource(resource)})
 		}
-		return []string{"products", "order-products"}
+		return []string{"products", "library"}
 	}
 
 	if flags.dataSource != "local" {
@@ -193,8 +193,8 @@ func normalizeSyncResource(resource string) string {
 	resource = strings.TrimSpace(strings.ToLower(resource))
 	resource = strings.ReplaceAll(resource, "_", "-")
 	switch resource {
-	case "library":
-		return "order-products"
+	case "order-products":
+		return "library"
 	default:
 		return resource
 	}
