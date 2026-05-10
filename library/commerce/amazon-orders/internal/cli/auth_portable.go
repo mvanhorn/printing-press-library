@@ -87,12 +87,14 @@ inject into any other host via 'op read | auth import --stdin').`,
 			if err != nil {
 				return configErr(err)
 			}
-			// Cookies live in AccessToken (legacy generator field) or AmazonCookies
-			// (newer field). Prefer whichever is populated.
-			cookies := strings.TrimSpace(cfg.AccessToken)
-			if cookies == "" {
-				cookies = strings.TrimSpace(cfg.AmazonCookies)
-			}
+			// Delegate the cookie-selection rule to cfg.AuthHeader() so the
+			// exported bytes are always exactly what the live request would
+			// use. Prior implementation read AccessToken first, which inverted
+			// the env-var-wins-over-file rule that AuthHeader() enforces —
+			// under AMAZON_COOKIES (the headless-agent path documented in
+			// SKILL.md), export would have dumped a stale persisted token
+			// instead of the active env-var session.
+			cookies := strings.TrimSpace(cfg.AuthHeader())
 			if cookies == "" {
 				return fmt.Errorf("no active session — run 'auth login --chrome' first")
 			}
