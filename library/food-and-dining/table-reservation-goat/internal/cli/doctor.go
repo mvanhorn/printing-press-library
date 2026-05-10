@@ -115,7 +115,21 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			// Tock has no equivalent cheap probe (each venue is its own SSR
 			// page); we rely on cookie-jar freshness as a Tock readiness
 			// signal until a stable cheap Tock probe lands.
-			if session != nil {
+			//
+			// Skip Bootstrap entirely when no opentable cookies are present:
+			// auth.Load() always returns a non-nil *Session even on a missing
+			// session file (auth.go: empty &Session{Version: 1}), so an
+			// `if session != nil` guard isn't enough. Without cookies the
+			// Bootstrap call will hit Akamai cold, 403, and set a cooldown —
+			// reporting "blocked by Akamai" when the real problem is "no
+			// cookies imported."
+			switch {
+			case sessErr != nil:
+				// auth load failed → already surfaced as "auth: error ...".
+				// Don't pile on a redundant api_opentable line.
+			case otCookies == 0:
+				report["api_opentable"] = "skipped (no opentable cookies — run `auth login --chrome`)"
+			default:
 				otCli, otErr := opentable.New(session)
 				switch {
 				case otErr != nil:
@@ -124,7 +138,10 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					ctx := cmd.Context()
 					if err := otCli.Bootstrap(ctx); err != nil {
 						if bde, ok := opentable.IsBotDetection(err); ok {
-							report["api_opentable"] = fmt.Sprintf("blocked by Akamai: %s — try `auth login --chrome` to refresh cookies", bde.Error())
+							// bde.Error() already names the recovery
+							// (`auth login --chrome`); don't append a
+							// duplicate hint.
+							report["api_opentable"] = fmt.Sprintf("blocked by Akamai: %s", bde.Error())
 						} else {
 							report["api_opentable"] = fmt.Sprintf("unreachable: %s", err)
 						}
@@ -132,8 +149,6 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 						report["api_opentable"] = "reachable"
 					}
 				}
-			} else if sessErr == nil {
-				report["api_opentable"] = "skipped (no session loaded)"
 			}
 			// Cache health: only reported when this CLI has a local store.
 			// Surfaces rows + last_synced_at per resource, schema version,
