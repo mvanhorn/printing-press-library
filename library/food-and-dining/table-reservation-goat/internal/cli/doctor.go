@@ -60,7 +60,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				report["auth"] = fmt.Sprintf("error loading session: %s", sessErr)
 			case otCookies == 0 && tockCookies == 0:
 				// "not configured" prefix maps to the FAIL indicator on line
-				// ~197 and trips `doctorExitForFailOn` for `--fail-on=error`.
+				// ~164 and trips `doctorExitForFailOn` for `--fail-on=error`.
 				// Without it the message contains "no" but not "not " (with
 				// trailing space) and falls through to a green OK that
 				// contradicts the recovery prompt.
@@ -94,7 +94,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				otCli, otErr := opentable.New(session)
 				switch {
 				case otErr != nil:
-					// Prefix with "error:" so the indicator switch (line ~197)
+					// Prefix with "error:" so the indicator switch (line ~164)
 					// and doctorExitForFailOn both classify this as FAIL.
 					// Their predicates match the literal substring "error";
 					// Go errors like `"no cookie jar"` or `"connection
