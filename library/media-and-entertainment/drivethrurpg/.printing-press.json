@@ -6,6 +6,7 @@
   "display_name": "DriveThruRPG",
   "cli_name": "drivethrurpg-pp-cli",
   "owner": "jason-holt",
+  "printer": "kingdomseed",
   "printer_name": "Jason Holt",
   "spec_path": "spec.yaml",
   "spec_format": "openapi3",

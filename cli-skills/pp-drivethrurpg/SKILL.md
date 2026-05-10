@@ -49,19 +49,19 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Authenticated library
-- **`order-products`** — List owned DriveThruRPG order products and file indexes using the Library App Application Key flow.
+- **`library`** — List products in your DriveThruRPG library, including file indexes for downloads.
 
   _Agents can inspect owned purchases and choose the right file index without scraping website pages._
 
   ```bash
-  drivethrurpg-pp-cli order-products --agent --page-size 10
+  drivethrurpg-pp-cli library --agent --page-size 10
   ```
 - **`download`** — Prepare, poll, and save a purchased DriveThruRPG file from a single command.
 
   _Agents can execute the full authenticated file retrieval workflow without hand-rolling polling logic._
 
   ```bash
-  drivethrurpg-pp-cli download ORDER_PRODUCT_ID --dry-run --agent
+  drivethrurpg-pp-cli download LIBRARY_PRODUCT_ID --dry-run --agent
   ```
 
 ## Command Reference
@@ -78,10 +78,10 @@ These capabilities aren't available in any other tool for this API.
 
 - `drivethrurpg-pp-cli auth login` — Exchange a DriveThruRPG Library App Application Key for a saved token
 - `drivethrurpg-pp-cli auth status` — Show auth state without printing secrets
-- `drivethrurpg-pp-cli order-products` — List authenticated user's purchased library products
-- `drivethrurpg-pp-cli download <orderProductId> [fileIndex]` — Prepare, poll, and save a purchased file
-- `drivethrurpg-pp-cli order-products prepare download <orderProductId> --index <n>` — Advanced raw prepare step
-- `drivethrurpg-pp-cli order-products check download <orderProductId> --index <n>` — Advanced raw poll step
+- `drivethrurpg-pp-cli library` — List products in your authenticated DriveThruRPG library
+- `drivethrurpg-pp-cli download <libraryProductId> [fileIndex]` — Prepare, poll, and save a purchased file
+- `drivethrurpg-pp-cli library prepare-download <libraryProductId> --index <n>` — Advanced raw prepare step
+- `drivethrurpg-pp-cli library check-download <libraryProductId> --index <n>` — Advanced raw poll step
 
 **categories** — Manage categories
 
@@ -140,13 +140,13 @@ drivethrurpg-pp-cli search "Legend of the Five Rings core rulebook" --agent --li
 drivethrurpg-pp-cli products search --keyword "Cyberpunk" --page-size 5 --agent
 
 # List owned library products and file indexes
-drivethrurpg-pp-cli order-products --page-size 10 --agent
+drivethrurpg-pp-cli library --page-size 10 --agent
 
-# Download the first file for an owned order product
-drivethrurpg-pp-cli download <orderProductId> 0 --output-dir ~/Downloads --agent
+# Download the first file for a product in your library
+drivethrurpg-pp-cli download <libraryProductId> 0 --output-dir ~/Downloads --agent
 
 # Prepare without downloading
-drivethrurpg-pp-cli download <orderProductId> 0 --url-only --agent
+drivethrurpg-pp-cli download <libraryProductId> 0 --url-only --agent
 
 # Inspect public reviews
 drivethrurpg-pp-cli reviews --product-id <productId> --agent
