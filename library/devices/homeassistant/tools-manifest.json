@@ -1,0 +1,470 @@
+{
+  "api_name": "homeassistant",
+  "base_url": "http://192.168.1.120:8123/api",
+  "description": "Discovered API spec for homeassistant (crowd-sniff)",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {HOMEASSISTANT_TOKEN}",
+    "in": "header",
+    "env_vars": [
+      "HOMEASSISTANT_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "HOMEASSISTANT_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "calendars_get_calendar_events",
+      "description": "Returns calendar events between start and end times. Required: start, end, entity_id.",
+      "method": "GET",
+      "path": "/api/calendars/{entity_id}",
+      "params": [
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "entity_id",
+          "type": "string",
+          "location": "path",
+          "description": "entity_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendars_list_calendars",
+      "description": "Returns the list of calendar entities.",
+      "method": "GET",
+      "path": "/api/calendars",
+      "params": []
+    },
+    {
+      "name": "camera_get_camera_image",
+      "description": "Returns the image data from the specified camera entity. Required: entity_id.",
+      "method": "GET",
+      "path": "/api/camera_proxy/{entity_id}",
+      "params": [
+        {
+          "name": "entity_id",
+          "type": "string",
+          "location": "path",
+          "description": "entity_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "components_list_components",
+      "description": "Returns a list of currently loaded components.",
+      "method": "GET",
+      "path": "/api/components",
+      "params": []
+    },
+    {
+      "name": "config_check_config",
+      "description": "Trigger a check of configuration.yaml and return validation result.",
+      "method": "POST",
+      "path": "/api/config/core/check_config",
+      "params": []
+    },
+    {
+      "name": "config_get_config",
+      "description": "Returns the current configuration including version, location, timezone, and loaded components.",
+      "method": "GET",
+      "path": "/api/config",
+      "params": []
+    },
+    {
+      "name": "default_create_endpoint",
+      "description": "POST /{id}. Required: id.",
+      "method": "POST",
+      "path": "/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "error_log_get_error_log",
+      "description": "Retrieve all errors logged during the current session as plaintext.",
+      "method": "GET",
+      "path": "/api/error_log",
+      "params": []
+    },
+    {
+      "name": "events_fire_event",
+      "description": "Fires an event with event_type and optional event_data. Required: event_type.",
+      "method": "POST",
+      "path": "/api/events/{event_type}",
+      "params": [
+        {
+          "name": "event_type",
+          "type": "string",
+          "location": "path",
+          "description": "event_type",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_list_events",
+      "description": "Returns an array of event objects with event name and listener count.",
+      "method": "GET",
+      "path": "/api/events",
+      "params": []
+    },
+    {
+      "name": "hassio_create_info",
+      "description": "POST /api/hassio/addons/{id}/info. Required: id.",
+      "method": "POST",
+      "path": "/api/hassio/addons/{id}/info",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hassio_create_install",
+      "description": "POST /api/hassio/addons/{id}/install. Required: id.",
+      "method": "POST",
+      "path": "/api/hassio/addons/{id}/install",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hassio_create_restart",
+      "description": "POST /api/hassio/addons/{id}/restart. Required: id.",
+      "method": "POST",
+      "path": "/api/hassio/addons/{id}/restart",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hassio_create_start",
+      "description": "POST /api/hassio/addons/{id}/start. Required: id.",
+      "method": "POST",
+      "path": "/api/hassio/addons/{id}/start",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hassio_create_stop",
+      "description": "POST /api/hassio/addons/{id}/stop. Required: id.",
+      "method": "POST",
+      "path": "/api/hassio/addons/{id}/stop",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hassio_create_uninstall",
+      "description": "POST /api/hassio/addons/{id}/uninstall. Required: id.",
+      "method": "POST",
+      "path": "/api/hassio/addons/{id}/uninstall",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "history_get_history",
+      "description": "Returns state changes in the past, filtered by entity and time range. Required: filter_entity_id, timestamp. Optional: end_time, minimal_response, no_attributes (plus 1 more).",
+      "method": "GET",
+      "path": "/api/history/period/{timestamp}",
+      "params": [
+        {
+          "name": "filter_entity_id",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "minimal_response",
+          "type": "boolean",
+          "location": "query"
+        },
+        {
+          "name": "no_attributes",
+          "type": "boolean",
+          "location": "query"
+        },
+        {
+          "name": "significant_changes_only",
+          "type": "boolean",
+          "location": "query"
+        },
+        {
+          "name": "timestamp",
+          "type": "string",
+          "location": "path",
+          "description": "timestamp",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "intent_handle_intent",
+      "description": "Handle an intent with name and data. Required: name. Optional: data.",
+      "method": "POST",
+      "path": "/api/intent/handle",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "logbook_get_logbook",
+      "description": "Returns an array of logbook entries with optional entity and time filters. Required: timestamp. Optional: entity, end_time.",
+      "method": "GET",
+      "path": "/api/logbook/{timestamp}",
+      "params": [
+        {
+          "name": "entity",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "timestamp",
+          "type": "string",
+          "location": "path",
+          "description": "timestamp",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "models_create_models",
+      "description": "POST /models.",
+      "method": "POST",
+      "path": "/models",
+      "params": []
+    },
+    {
+      "name": "ping_delete_ping",
+      "description": "DELETE /ping. Destructive.",
+      "method": "DELETE",
+      "path": "/ping",
+      "params": []
+    },
+    {
+      "name": "repository_create_install",
+      "description": "POST /repository/install.",
+      "method": "POST",
+      "path": "/repository/install",
+      "params": []
+    },
+    {
+      "name": "repository_create_uninstall",
+      "description": "POST /repository/uninstall.",
+      "method": "POST",
+      "path": "/repository/uninstall",
+      "params": []
+    },
+    {
+      "name": "repository_create_update",
+      "description": "POST /repository/update.",
+      "method": "POST",
+      "path": "/repository/update",
+      "params": []
+    },
+    {
+      "name": "services_call_service",
+      "description": "Calls a service within a specific domain with optional service_data. Required: domain, service. Optional: entity_id. Returns array of state.",
+      "method": "POST",
+      "path": "/api/services/{domain}/{service}",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "domain",
+          "required": true
+        },
+        {
+          "name": "service",
+          "type": "string",
+          "location": "path",
+          "description": "service",
+          "required": true
+        },
+        {
+          "name": "entity_id",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "services_list_services",
+      "description": "Returns an array of service objects grouped by domain.",
+      "method": "GET",
+      "path": "/api/services",
+      "params": []
+    },
+    {
+      "name": "states_delete_state",
+      "description": "Deletes an entity with the specified entity_id. Required: entity_id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/states/{entity_id}",
+      "params": [
+        {
+          "name": "entity_id",
+          "type": "string",
+          "location": "path",
+          "description": "entity_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "states_get_states",
+      "description": "Returns a state object for specified entity_id. Required: entity_id.",
+      "method": "GET",
+      "path": "/api/states/{entity_id}",
+      "params": [
+        {
+          "name": "entity_id",
+          "type": "string",
+          "location": "path",
+          "description": "entity_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "states_list_states",
+      "description": "Returns an array of state objects with entity_id, state, last_changed and attributes.",
+      "method": "GET",
+      "path": "/api/states",
+      "params": []
+    },
+    {
+      "name": "states_update_state",
+      "description": "Updates or creates a state representation. Required: entity_id, state. Optional: attributes. Returns the new state.",
+      "method": "POST",
+      "path": "/api/states/{entity_id}",
+      "params": [
+        {
+          "name": "entity_id",
+          "type": "string",
+          "location": "path",
+          "description": "entity_id",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "attributes",
+          "type": "object",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "template_render_template",
+      "description": "Render a Home Assistant Jinja2 template and return the result as plaintext. Required: template.",
+      "method": "POST",
+      "path": "/api/template",
+      "params": [
+        {
+          "name": "template",
+          "type": "string",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "websocket_create_websocket",
+      "description": "POST /api/websocket.",
+      "method": "POST",
+      "path": "/api/websocket",
+      "params": []
+    }
+  ]
+}
