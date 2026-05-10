@@ -133,6 +133,9 @@ func (c *Config) ClearTokens() error {
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	c.NcbiApiKey = ""
+	c.AuthHeaderVal = ""
+	c.AuthSource = ""
 	return c.save()
 }
 
