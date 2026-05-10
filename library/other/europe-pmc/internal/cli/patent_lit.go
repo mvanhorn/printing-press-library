@@ -69,10 +69,16 @@ Uses the references and citations endpoints for patent source records.`,
 			if flagFindPriorArt {
 				// Fetch references from the patent
 				refPath := fmt.Sprintf("/%s/%s/references", flagSource, flagID)
-				refParams := map[string]string{"format": "json", "pageSize": "100"}
-				refData, refErr := c.Get(refPath, refParams)
-				if refErr == nil {
+				for page := 1; ; page++ {
+					refParams := map[string]string{"format": "json", "pageSize": "100", "page": fmt.Sprintf("%d", page)}
+					refData, refErr := c.Get(refPath, refParams)
+					if refErr != nil {
+						break
+					}
 					refs := parseCitationResults(refData)
+					if len(refs) == 0 {
+						break
+					}
 					for _, ref := range refs {
 						_, err := db.DB().Exec(
 							`INSERT INTO patent_literature (patent_id, cited_pmid, cited_source, link_type, found_at)
@@ -84,14 +90,23 @@ Uses the references and citations endpoints for patent source records.`,
 							linksFound++
 						}
 					}
+					if len(refs) < 100 {
+						break
+					}
 				}
 
 				// Also fetch citations (papers that cite this patent)
 				citePath := fmt.Sprintf("/%s/%s/citations", flagSource, flagID)
-				citeParams := map[string]string{"format": "json", "pageSize": "100"}
-				citeData, citeErr := c.Get(citePath, citeParams)
-				if citeErr == nil {
+				for page := 1; ; page++ {
+					citeParams := map[string]string{"format": "json", "pageSize": "100", "page": fmt.Sprintf("%d", page)}
+					citeData, citeErr := c.Get(citePath, citeParams)
+					if citeErr != nil {
+						break
+					}
 					cites := parseCitationResults(citeData)
+					if len(cites) == 0 {
+						break
+					}
 					for _, cite := range cites {
 						_, err := db.DB().Exec(
 							`INSERT INTO patent_literature (patent_id, cited_pmid, cited_source, link_type, found_at)
@@ -102,6 +117,9 @@ Uses the references and citations endpoints for patent source records.`,
 						if err == nil {
 							linksFound++
 						}
+					}
+					if len(cites) < 100 {
+						break
 					}
 				}
 			}
