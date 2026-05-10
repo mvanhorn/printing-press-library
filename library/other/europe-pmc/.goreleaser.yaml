@@ -1,0 +1,51 @@
+version: 2
+project_name: europe-pmc-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: europe-pmc-pp-cli
+    main: ./cmd/europe-pmc-pp-cli
+    binary: europe-pmc-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/europe-pmc/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: europe-pmc-pp-mcp
+    main: ./cmd/europe-pmc-pp-mcp
+    binary: europe-pmc-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: europe-pmc-pp-cli
+    repository:
+      owner: test-user
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Europe PMC endpoint, plus preprint tracking, citation graphs, and text-mined annotation mining no other tool..."
+    install: |
+      bin.install "europe-pmc-pp-cli"
+      bin.install "europe-pmc-pp-mcp"

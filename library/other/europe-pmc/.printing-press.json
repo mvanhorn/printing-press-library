@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T22:28:45.357429Z",
+  "printing_press_version": "4.2.0",
+  "api_name": "europe-pmc",
+  "display_name": "Europe PMC",
+  "cli_name": "europe-pmc-pp-cli",
+  "owner": "test-user",
+  "printer_name": "Test User",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:ab2fbe56536f121e3eb95561003038ffe05cd2d2e6998c71ea14247b4a2df348",
+  "run_id": "20260509-152925",
+  "mcp_binary": "europe-pmc-pp-mcp",
+  "mcp_tool_count": 14,
+  "mcp_public_tool_count": 14,
+  "mcp_ready": "full",
+  "api_version": "1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Preprint-to-Publication Tracker",
+      "command": "track-preprint",
+      "description": "Track preprints through their lifecycle from posting to peer-reviewed publication, with time-to-publication metrics"
+    },
+    {
+      "name": "Annotation Relation Miner",
+      "command": "mine-relations",
+      "description": "Build a knowledge graph of gene-disease-chemical relationships from text-mined annotations across papers"
+    },
+    {
+      "name": "Citation Network Builder",
+      "command": "cite-graph",
+      "description": "Recursively walk citations and references to build a navigable citation graph in local SQLite"
+    },
+    {
+      "name": "Systematic Review Workbench",
+      "command": "systematic-review",
+      "description": "Automate PRISMA systematic review workflow with cross-source deduplication across MED, PMC, and PPR"
+    },
+    {
+      "name": "Full-Text Section Miner",
+      "command": "section-search",
+      "description": "Search within specific article sections (Methods, Results, Discussion) and extract section-filtered annotations"
+    },
+    {
+      "name": "Grant Impact Dashboard",
+      "command": "grant-impact",
+      "description": "Aggregate grant-linked publications with citation counts, OA compliance rates, and second-order citation impact"
+    },
+    {
+      "name": "Preprint Server Intelligence",
+      "command": "ppr-intel",
+      "description": "Monitor preprint servers by topic, tracking citation velocity and time-to-publication trends"
+    },
+    {
+      "name": "Canonical ID Resolver",
+      "command": "dedup",
+      "description": "Resolve any identifier (DOI, PMID, PMCID, PPR ID) to all other identifiers and deduplicate mixed-format ID lists"
+    }
+  ]
+}

@@ -1,0 +1,273 @@
+{
+  "api_name": "europe-pmc",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "europepmc (R)",
+      "url": "https://github.com/ropensci/europepmc",
+      "language": "R",
+      "install_method": "",
+      "stars": 55,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pyEuropePMC",
+      "url": "https://github.com/JonasHeinickeBio/pyEuropePMC",
+      "language": "Python",
+      "install_method": "",
+      "stars": 10,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Scientific-Papers-MCP",
+      "url": "https://github.com/benedict2310/Scientific-Papers-MCP",
+      "language": "Python",
+      "install_method": "",
+      "stars": 5,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T15:40:00Z",
+  "novel_features": [
+    {
+      "name": "Preprint-to-Publication Tracker",
+      "command": "track-preprint",
+      "description": "Track preprints through their lifecycle from posting to peer-reviewed publication, with time-to-publication metrics",
+      "rationale": "Requires persistent cross-session tracking of PPR source records and their HAS_PUBLISHED_VERSION status changes",
+      "example": "europe-pmc-pp-cli track-preprint --query \"SRC:PPR AND CRISPR\" --check-updates --agent",
+      "why_it_matters": "When an agent needs to monitor whether preprints in a research area have been peer-reviewed and published",
+      "group": "Preprint intelligence"
+    },
+    {
+      "name": "Annotation Relation Miner",
+      "command": "mine-relations",
+      "description": "Build a knowledge graph of gene-disease-chemical relationships from text-mined annotations across papers",
+      "rationale": "Chains three annotation API endpoints into a structured co-occurrence store that no other tool assembles",
+      "example": "europe-pmc-pp-cli mine-relations --gene BRCA1 --disease \"breast cancer\" --agent",
+      "why_it_matters": "When an agent needs structured gene-disease or drug-target relationships extracted from literature",
+      "group": "Text mining intelligence"
+    },
+    {
+      "name": "Citation Network Builder",
+      "command": "cite-graph",
+      "description": "Recursively walk citations and references to build a navigable citation graph in local SQLite",
+      "rationale": "Requires persistent graph storage across recursive API calls that stateless wrappers cannot maintain",
+      "example": "europe-pmc-pp-cli cite-graph --source MED --id 33024307 --depth 2 --direction both --agent",
+      "why_it_matters": "When an agent needs to find bridge papers, citation clusters, or influential works in a research area",
+      "group": "Citation intelligence"
+    },
+    {
+      "name": "Systematic Review Workbench",
+      "command": "systematic-review",
+      "description": "Automate PRISMA systematic review workflow with cross-source deduplication across MED, PMC, and PPR",
+      "rationale": "Requires deduplicating the same article across multiple Europe PMC sources using DOI/PMID/PMCID matching",
+      "example": "europe-pmc-pp-cli systematic-review --query \"GLP-1 agonist cardiovascular\" --tag strategy-a --agent",
+      "why_it_matters": "When an agent is helping prepare a systematic review and needs PRISMA-compliant identification and deduplication",
+      "group": "Systematic review automation"
+    },
+    {
+      "name": "Full-Text Section Miner",
+      "command": "section-search",
+      "description": "Search within specific article sections (Methods, Results, Discussion) and extract section-filtered annotations",
+      "rationale": "Combines Europe PMC's unique section-level search fields with section-filtered annotation API queries",
+      "example": "europe-pmc-pp-cli section-search --query \"CRISPR\" --section METHODS --agent",
+      "why_it_matters": "When an agent needs to find how a technique is used in practice (Methods) vs what it found (Results)",
+      "group": "Text mining intelligence"
+    },
+    {
+      "name": "Grant Impact Dashboard",
+      "command": "grant-impact",
+      "description": "Aggregate grant-linked publications with citation counts, OA compliance rates, and second-order citation impact",
+      "rationale": "Combines GRANT_ID/GRANT_AGENCY search fields with citation traversal and source-profile breakdown",
+      "example": "europe-pmc-pp-cli grant-impact --agency \"Wellcome Trust\" --grant-id WT098051 --agent",
+      "why_it_matters": "When an agent is assessing research impact for a funding body or grant review",
+      "group": "Research analytics"
+    },
+    {
+      "name": "Preprint Server Intelligence",
+      "command": "ppr-intel",
+      "description": "Monitor preprint servers by topic, tracking citation velocity and time-to-publication trends",
+      "rationale": "Requires longitudinal PPR source monitoring with stored citation counts and publication status snapshots",
+      "example": "europe-pmc-pp-cli ppr-intel --topic \"machine learning\" --since 2025-01 --agent",
+      "why_it_matters": "When an agent needs early-warning signals about emerging research trends before peer review",
+      "group": "Preprint intelligence"
+    },
+    {
+      "name": "Canonical ID Resolver",
+      "command": "dedup",
+      "description": "Resolve any identifier (DOI, PMID, PMCID, PPR ID) to all other identifiers and deduplicate mixed-format ID lists",
+      "rationale": "Uses the article lookup endpoint with resultType=core to extract the full identifier set and stores canonical mappings",
+      "example": "europe-pmc-pp-cli dedup --doi 10.1038/s41579-020-00459-7 --agent",
+      "why_it_matters": "When an agent has collected papers from multiple databases and needs to remove duplicates that differ only in ID scheme",
+      "group": "Systematic review automation"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Preprint-to-Publication Tracker",
+      "command": "track-preprint",
+      "description": "Track preprints through their lifecycle from posting to peer-reviewed publication, with time-to-publication metrics",
+      "rationale": "Requires persistent cross-session tracking of PPR source records and their HAS_PUBLISHED_VERSION status changes",
+      "example": "europe-pmc-pp-cli track-preprint --query \"SRC:PPR AND CRISPR\" --check-updates --agent",
+      "why_it_matters": "When an agent needs to monitor whether preprints in a research area have been peer-reviewed and published",
+      "group": "Preprint intelligence"
+    },
+    {
+      "name": "Annotation Relation Miner",
+      "command": "mine-relations",
+      "description": "Build a knowledge graph of gene-disease-chemical relationships from text-mined annotations across papers",
+      "rationale": "Chains three annotation API endpoints into a structured co-occurrence store that no other tool assembles",
+      "example": "europe-pmc-pp-cli mine-relations --gene BRCA1 --disease \"breast cancer\" --agent",
+      "why_it_matters": "When an agent needs structured gene-disease or drug-target relationships extracted from literature",
+      "group": "Text mining intelligence"
+    },
+    {
+      "name": "Citation Network Builder",
+      "command": "cite-graph",
+      "description": "Recursively walk citations and references to build a navigable citation graph in local SQLite",
+      "rationale": "Requires persistent graph storage across recursive API calls that stateless wrappers cannot maintain",
+      "example": "europe-pmc-pp-cli cite-graph --source MED --id 33024307 --depth 2 --direction both --agent",
+      "why_it_matters": "When an agent needs to find bridge papers, citation clusters, or influential works in a research area",
+      "group": "Citation intelligence"
+    },
+    {
+      "name": "Systematic Review Workbench",
+      "command": "systematic-review",
+      "description": "Automate PRISMA systematic review workflow with cross-source deduplication across MED, PMC, and PPR",
+      "rationale": "Requires deduplicating the same article across multiple Europe PMC sources using DOI/PMID/PMCID matching",
+      "example": "europe-pmc-pp-cli systematic-review --query \"GLP-1 agonist cardiovascular\" --tag strategy-a --agent",
+      "why_it_matters": "When an agent is helping prepare a systematic review and needs PRISMA-compliant identification and deduplication",
+      "group": "Systematic review automation"
+    },
+    {
+      "name": "Full-Text Section Miner",
+      "command": "section-search",
+      "description": "Search within specific article sections (Methods, Results, Discussion) and extract section-filtered annotations",
+      "rationale": "Combines Europe PMC's unique section-level search fields with section-filtered annotation API queries",
+      "example": "europe-pmc-pp-cli section-search --query \"CRISPR\" --section METHODS --agent",
+      "why_it_matters": "When an agent needs to find how a technique is used in practice (Methods) vs what it found (Results)",
+      "group": "Text mining intelligence"
+    },
+    {
+      "name": "Grant Impact Dashboard",
+      "command": "grant-impact",
+      "description": "Aggregate grant-linked publications with citation counts, OA compliance rates, and second-order citation impact",
+      "rationale": "Combines GRANT_ID/GRANT_AGENCY search fields with citation traversal and source-profile breakdown",
+      "example": "europe-pmc-pp-cli grant-impact --agency \"Wellcome Trust\" --grant-id WT098051 --agent",
+      "why_it_matters": "When an agent is assessing research impact for a funding body or grant review",
+      "group": "Research analytics"
+    },
+    {
+      "name": "Preprint Server Intelligence",
+      "command": "ppr-intel",
+      "description": "Monitor preprint servers by topic, tracking citation velocity and time-to-publication trends",
+      "rationale": "Requires longitudinal PPR source monitoring with stored citation counts and publication status snapshots",
+      "example": "europe-pmc-pp-cli ppr-intel --topic \"machine learning\" --since 2025-01 --agent",
+      "why_it_matters": "When an agent needs early-warning signals about emerging research trends before peer review",
+      "group": "Preprint intelligence"
+    },
+    {
+      "name": "Canonical ID Resolver",
+      "command": "dedup",
+      "description": "Resolve any identifier (DOI, PMID, PMCID, PPR ID) to all other identifiers and deduplicate mixed-format ID lists",
+      "rationale": "Uses the article lookup endpoint with resultType=core to extract the full identifier set and stores canonical mappings",
+      "example": "europe-pmc-pp-cli dedup --doi 10.1038/s41579-020-00459-7 --agent",
+      "why_it_matters": "When an agent has collected papers from multiple databases and needs to remove duplicates that differ only in ID scheme",
+      "group": "Systematic review automation"
+    }
+  ],
+  "narrative": {
+    "display_name": "Europe PMC",
+    "headline": "Every Europe PMC endpoint, plus preprint tracking, citation graphs, and text-mined annotation mining no other tool offers",
+    "value_prop": "Search, cite-track, and mine annotations across PubMed, preprints, European patents, and more. Sync results to a local SQLite store for offline full-text search, preprint lifecycle monitoring, and gene-disease relationship extraction. The only CLI that exposes Europe PMC's annotation API as structured commands.",
+    "quickstart": [
+      {
+        "command": "europe-pmc-pp-cli articles query --query \"CRISPR base editing\" --page-size 10 --json",
+        "comment": "Search Europe PMC and get structured JSON"
+      },
+      {
+        "command": "europe-pmc-pp-cli articles lookup --source MED --id 33024307 --result-type core --json",
+        "comment": "Fetch full article metadata by PMID"
+      },
+      {
+        "command": "europe-pmc-pp-cli citations list --source MED --id 33024307 --json",
+        "comment": "Find papers that cite this article"
+      },
+      {
+        "command": "europe-pmc-pp-cli annotations by-entity --entity BRCA1 --json",
+        "comment": "Find papers with text-mined BRCA1 annotations"
+      },
+      {
+        "command": "europe-pmc-pp-cli source-profile breakdown --query \"malaria vaccine\" --json",
+        "comment": "Get hit counts by source (PubMed, preprints, patents)"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Empty results for a query that works on europepmc.org",
+        "fix": "Europe PMC web uses automatic MeSH expansion; add --synonym true to your query"
+      },
+      {
+        "symptom": "Annotations endpoint returns empty for a PMID",
+        "fix": "Use SOURCE:ID format (e.g., MED:33024307), not bare PMID. Max 8 articles per request."
+      },
+      {
+        "symptom": "Full-text XML returns 404",
+        "fix": "Only PMC articles with open access have full text. Use PMC ID format (e.g., PMC7537588), not PMID."
+      },
+      {
+        "symptom": "Cursor pagination stops early",
+        "fix": "Check hitCount in response. If results \u003c hitCount, use nextCursorMark for the next page."
+      }
+    ],
+    "when_to_use": "Use this CLI when you need to search biomedical literature across sources PubMed doesn't cover (preprints, European patents, UK theses), extract text-mined gene-disease-chemical relationships, track preprint-to-publication lifecycles, or build citation networks for systematic reviews.",
+    "recipes": [
+      {
+        "title": "Search for preprints on a topic",
+        "command": "europe-pmc-pp-cli articles query --query \"SRC:PPR AND semaglutide\" --result-type core --agent --select resultList.result.title,resultList.result.doi,resultList.result.firstPublicationDate",
+        "explanation": "Find bioRxiv/medRxiv preprints about semaglutide, returning only key fields"
+      },
+      {
+        "title": "Find gene-disease co-occurrences",
+        "command": "europe-pmc-pp-cli annotations by-relationship --first-entity BRCA1 --second-entity \"breast cancer\" --json",
+        "explanation": "Find papers where BRCA1 and breast cancer are co-mentioned in text-mined annotations"
+      },
+      {
+        "title": "Get citation graph for a paper",
+        "command": "europe-pmc-pp-cli cite-graph --source MED --id 33024307 --depth 1 --json",
+        "explanation": "Build a one-hop citation network around a key paper"
+      },
+      {
+        "title": "Check source breakdown for a query",
+        "command": "europe-pmc-pp-cli source-profile breakdown --query \"GLP-1 agonist safety\" --json",
+        "explanation": "See how many results come from PubMed vs preprints vs patents"
+      },
+      {
+        "title": "Get database cross-links for an article",
+        "command": "europe-pmc-pp-cli database-links list --source MED --id 33024307 --database UNIPROT --agent --select dbCrossReferenceList",
+        "explanation": "Find UniProt protein entries linked to this paper"
+      }
+    ],
+    "trigger_phrases": [
+      "search europe pmc",
+      "find preprints about",
+      "citation graph",
+      "text mining annotations",
+      "BRCA1 literature",
+      "systematic review",
+      "europe pmc query"
+    ]
+  }
+}

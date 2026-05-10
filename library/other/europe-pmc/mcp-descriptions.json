@@ -1,0 +1,7 @@
+{
+  "descriptions": {
+    "evaluations_list": "Fetch peer review evaluations and assessments for a specific article. Required: source (MED, PMC, PPR, PAT), id (article identifier). Optional: format (json or xml, default json). Returns evaluation records linked to the article, including reviewer assessments from services like Peer Community In and Review Commons.",
+    "fields_list": "List all 143 searchable field names available in Europe PMC search queries, including field operators like AUTH:, TITLE:, SRC:, DOI:, GRANT_ID:, and annotation fields. Optional: format (json or xml, default json). Use this to discover valid query field names before constructing complex search expressions.",
+    "fulltext_get": "Retrieve the full-text XML content of a PMC open-access article. Required: id (PMC ID, e.g. PMC7537588). Returns JATS-format XML with sections, figures, tables, and references. Only available for articles in PMC with open-access full text; use articles_lookup first to confirm availability."
+  }
+}

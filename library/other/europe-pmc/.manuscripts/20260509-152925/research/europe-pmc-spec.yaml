@@ -1,0 +1,335 @@
+name: europe-pmc
+display_name: Europe PMC
+description: >
+  Search, cite-track, and mine annotations across 39M+ biomedical publications from PubMed, preprints, patents, and more.
+  The only CLI with text-mined annotation queries, preprint-to-publication tracking, and a local SQLite store for
+  citation graphs and systematic review deduplication.
+base_url: https://www.ebi.ac.uk/europepmc/webservices/rest
+version: "1.0"
+
+auth:
+  type: none
+  note: "Fully public API. No authentication required."
+
+resources:
+  articles:
+    description: Search and retrieve articles from Europe PMC
+    endpoints:
+      query:
+        method: GET
+        path: /search
+        no_auth: true
+        params:
+          - name: query
+            type: string
+            required: true
+            description: "Search query with field operators (AUTH:, TITLE:, SRC:, etc.)"
+          - name: resultType
+            type: string
+            description: "Detail level: idlist, lite (default), core (full metadata)"
+            default: lite
+          - name: synonym
+            type: string
+            description: "Expand query with MeSH synonyms (true/false)"
+            default: "false"
+          - name: cursorMark
+            type: string
+            description: "Pagination cursor (use * for first page)"
+            default: "*"
+          - name: pageSize
+            type: integer
+            description: "Results per page (1-1000)"
+            default: 25
+          - name: sort
+            type: string
+            description: "Sort order (CITED desc, P_PDATE_D desc, AUTH_FIRST asc)"
+          - name: format
+            type: string
+            description: "Response format: json, xml, dc"
+            default: json
+      lookup:
+        method: GET
+        path: /article/{source}/{id}
+        no_auth: true
+        params:
+          - name: source
+            type: string
+            required: true
+            description: "Data source (MED, PMC, PPR, PAT, AGR, ETH, CBA, HIR, CTX, NBK)"
+          - name: id
+            type: string
+            required: true
+            description: "Article identifier"
+          - name: resultType
+            type: string
+            description: "Detail level: idlist, lite, core"
+            default: lite
+          - name: format
+            type: string
+            description: "Response format: json, xml, dc"
+            default: json
+
+  source-profile:
+    description: Get hit count breakdown by source and publication type
+    endpoints:
+      breakdown:
+        method: GET
+        path: /profile
+        no_auth: true
+        params:
+          - name: query
+            type: string
+            required: true
+            description: "Search query"
+          - name: profiletype
+            type: string
+            description: "Breakdown type: pub_type, source, all"
+            default: all
+          - name: synonym
+            type: string
+            description: "Expand with MeSH synonyms"
+            default: "false"
+          - name: format
+            type: string
+            description: "Response format: json, xml"
+            default: json
+
+  fields:
+    description: List all 143 searchable fields
+    endpoints:
+      list:
+        method: GET
+        path: /fields
+        no_auth: true
+        params:
+          - name: format
+            type: string
+            description: "Response format: json, xml"
+            default: json
+
+  citations:
+    description: Articles that cite a given publication
+    endpoints:
+      list:
+        method: GET
+        path: /{source}/{id}/citations
+        no_auth: true
+        params:
+          - name: source
+            type: string
+            required: true
+            description: "Source database (MED, PMC, PPR, PAT, etc.)"
+          - name: id
+            type: string
+            required: true
+            description: "Article identifier"
+          - name: page
+            type: integer
+            description: "Page number"
+            default: 1
+          - name: pageSize
+            type: integer
+            description: "Results per page (1-1000)"
+            default: 25
+          - name: format
+            type: string
+            description: "Response format: json, xml"
+            default: json
+
+  references:
+    description: Publications referenced by a given article
+    endpoints:
+      list:
+        method: GET
+        path: /{source}/{id}/references
+        no_auth: true
+        params:
+          - name: source
+            type: string
+            required: true
+            description: "Source database"
+          - name: id
+            type: string
+            required: true
+            description: "Article identifier"
+          - name: page
+            type: integer
+            description: "Page number"
+            default: 1
+          - name: pageSize
+            type: integer
+            description: "Results per page (1-1000)"
+            default: 25
+          - name: format
+            type: string
+            description: "Response format: json, xml"
+            default: json
+
+  database-links:
+    description: Cross-references to biological databases (UniProt, PDB, ChEBI, etc.)
+    endpoints:
+      list:
+        method: GET
+        path: /{source}/{id}/databaseLinks
+        no_auth: true
+        params:
+          - name: source
+            type: string
+            required: true
+            description: "Source database"
+          - name: id
+            type: string
+            required: true
+            description: "Article identifier"
+          - name: database
+            type: string
+            description: "Filter by database (UNIPROT, PDB, CHEBI, CHEMBL, EMBL, OMIM, etc.)"
+          - name: page
+            type: integer
+            default: 1
+          - name: pageSize
+            type: integer
+            default: 25
+          - name: format
+            type: string
+            default: json
+
+  datalinks:
+    description: Unified data-literature links (databases + labs + text-mined)
+    endpoints:
+      list:
+        method: GET
+        path: /{source}/{id}/datalinks
+        no_auth: true
+        params:
+          - name: source
+            type: string
+            required: true
+            description: "Source database"
+          - name: id
+            type: string
+            required: true
+            description: "Article identifier"
+          - name: category
+            type: string
+            description: "Filter by link category"
+          - name: obtainedBy
+            type: string
+            description: "Filter by provenance (tm_accession, tm_term, ext_links, submission)"
+          - name: format
+            type: string
+            default: json
+
+  labs-links:
+    description: External links from third-party providers (Altmetric, BioStudies, etc.)
+    endpoints:
+      list:
+        method: GET
+        path: /{source}/{id}/labsLinks
+        no_auth: true
+        params:
+          - name: source
+            type: string
+            required: true
+          - name: id
+            type: string
+            required: true
+          - name: page
+            type: integer
+            default: 1
+          - name: pageSize
+            type: integer
+            default: 25
+          - name: format
+            type: string
+            default: json
+
+  fulltext:
+    description: Full-text JATS XML for open-access PMC articles
+    endpoints:
+      get:
+        method: GET
+        path: /{id}/fullTextXML
+        no_auth: true
+        params:
+          - name: id
+            type: string
+            required: true
+            description: "PMC ID (e.g., PMC7537588)"
+
+  evaluations:
+    description: Post-publication peer reviews and editorial evaluations
+    endpoints:
+      list:
+        method: GET
+        path: /evaluations/{source}/{id}
+        no_auth: true
+        params:
+          - name: source
+            type: string
+            required: true
+          - name: id
+            type: string
+            required: true
+          - name: format
+            type: string
+            default: json
+
+  annotations:
+    description: Text-mined annotations (genes, diseases, chemicals, organisms)
+    endpoints:
+      by-article:
+        method: GET
+        path: /annotations_api/annotationsByArticleIds
+        no_auth: true
+        params:
+          - name: articleIds
+            type: string
+            required: true
+            description: "Comma-separated SOURCE:ID pairs (max 8)"
+          - name: type
+            type: string
+            description: "Filter by annotation type (Gene_Proteins, Diseases, Chemicals, Organisms, etc.)"
+          - name: section
+            type: string
+            description: "Filter by section (Title, Abstract, Methods, Results, Discussion)"
+          - name: provider
+            type: string
+            description: "Filter by annotation provider"
+          - name: format
+            type: string
+            default: JSON
+      by-entity:
+        method: GET
+        path: /annotations_api/annotationsByEntity
+        no_auth: true
+        params:
+          - name: entity
+            type: string
+            required: true
+            description: "Entity name (e.g., BRCA1, COVID-19)"
+          - name: format
+            type: string
+            default: JSON
+          - name: pageSize
+            type: integer
+            default: 4
+      by-relationship:
+        method: GET
+        path: /annotations_api/annotationsByRelationship
+        no_auth: true
+        params:
+          - name: firstEntity
+            type: string
+            required: true
+            description: "First entity name"
+          - name: secondEntity
+            type: string
+            required: true
+            description: "Second entity name"
+          - name: format
+            type: string
+            default: JSON
+          - name: pageSize
+            type: integer
+            default: 4

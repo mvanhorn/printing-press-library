@@ -1,0 +1,491 @@
+{
+  "api_name": "europe-pmc",
+  "base_url": "https://www.ebi.ac.uk/europepmc/webservices/rest",
+  "description": "Search, cite-track, and mine annotations across 39M+ biomedical publications from PubMed, preprints, patents, and more. The only CLI with text-mined annotation queries, preprint-to-publication tracking, and a local SQLite store for citation graphs and systematic review deduplication.\n",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "annotations_by-article",
+      "description": "Required: articleIds. Optional: type, section, provider (plus 1 more).",
+      "method": "GET",
+      "path": "/annotations_api/annotationsByArticleIds",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "articleIds",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated SOURCE:ID pairs (max 8)",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by annotation type (Gene_Proteins, Diseases, Chemicals, Organisms, etc.)"
+        },
+        {
+          "name": "section",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by section (Title, Abstract, Methods, Results, Discussion)"
+        },
+        {
+          "name": "provider",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by annotation provider"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "annotations_by-entity",
+      "description": "Required: entity. Optional: format (default: JSON), pageSize (default: 4).",
+      "method": "GET",
+      "path": "/annotations_api/annotationsByEntity",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "entity",
+          "type": "string",
+          "location": "query",
+          "description": "Entity name (e.g., BRCA1, COVID-19)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "pageSize",
+          "type": "integer",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "annotations_by-relationship",
+      "description": "Required: firstEntity, secondEntity. Optional: format (default: JSON), pageSize (default: 4).",
+      "method": "GET",
+      "path": "/annotations_api/annotationsByRelationship",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "firstEntity",
+          "type": "string",
+          "location": "query",
+          "description": "First entity name",
+          "required": true
+        },
+        {
+          "name": "secondEntity",
+          "type": "string",
+          "location": "query",
+          "description": "Second entity name",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "pageSize",
+          "type": "integer",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "articles_lookup",
+      "description": "Required: source, id. Optional: resultType (default: lite), format (default: json).",
+      "method": "GET",
+      "path": "/article/{source}/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "path",
+          "description": "Data source (MED, PMC, PPR, PAT, AGR, ETH, CBA, HIR, CTX, NBK)",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Article identifier",
+          "required": true
+        },
+        {
+          "name": "resultType",
+          "type": "string",
+          "location": "query",
+          "description": "Detail level: idlist, lite, core"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format: json, xml, dc"
+        }
+      ]
+    },
+    {
+      "name": "articles_query",
+      "description": "Required: query. Optional: resultType (default: lite), synonym (default: false), cursorMark (default: *) (plus 3 more).",
+      "method": "GET",
+      "path": "/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query with field operators (AUTH:, TITLE:, SRC:, etc.)",
+          "required": true
+        },
+        {
+          "name": "resultType",
+          "type": "string",
+          "location": "query",
+          "description": "Detail level: idlist, lite (default), core (full metadata)"
+        },
+        {
+          "name": "synonym",
+          "type": "string",
+          "location": "query",
+          "description": "Expand query with MeSH synonyms (true/false)"
+        },
+        {
+          "name": "cursorMark",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor (use * for first page)"
+        },
+        {
+          "name": "pageSize",
+          "type": "integer",
+          "location": "query",
+          "description": "Results per page (1-1000)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order (CITED desc, P_PDATE_D desc, AUTH_FIRST asc)"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format: json, xml, dc"
+        }
+      ]
+    },
+    {
+      "name": "citations_list",
+      "description": "Required: source, id. Optional: page (default: 1), pageSize (default: 25), format (default: json).",
+      "method": "GET",
+      "path": "/{source}/{id}/citations",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "path",
+          "description": "Source database (MED, PMC, PPR, PAT, etc.)",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Article identifier",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "pageSize",
+          "type": "integer",
+          "location": "query",
+          "description": "Results per page (1-1000)"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format: json, xml"
+        }
+      ]
+    },
+    {
+      "name": "database-links_list",
+      "description": "Required: source, id. Optional: database, page (default: 1), pageSize (default: 25) (plus 1 more).",
+      "method": "GET",
+      "path": "/{source}/{id}/databaseLinks",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "path",
+          "description": "Source database",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Article identifier",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by database (UNIPROT, PDB, CHEBI, CHEMBL, EMBL, OMIM, etc.)"
+        },
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "pageSize",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "datalinks_list",
+      "description": "Required: source, id. Optional: category, obtainedBy, format (default: json).",
+      "method": "GET",
+      "path": "/{source}/{id}/datalinks",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "path",
+          "description": "Source database",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Article identifier",
+          "required": true
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by link category"
+        },
+        {
+          "name": "obtainedBy",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by provenance (tm_accession, tm_term, ext_links, submission)"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "evaluations_list",
+      "description": "Fetch peer review evaluations and assessments for a specific article. Required: source (MED, PMC, PPR, PAT), id (article identifier). Optional: format (json or xml, default json). Returns evaluation records linked to the article, including reviewer assessments from services like Peer Community In and Review Commons.",
+      "method": "GET",
+      "path": "/evaluations/{source}/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "fields_list",
+      "description": "List all 143 searchable field names available in Europe PMC search queries, including field operators like AUTH:, TITLE:, SRC:, DOI:, GRANT_ID:, and annotation fields. Optional: format (json or xml, default json). Use this to discover valid query field names before constructing complex search expressions.",
+      "method": "GET",
+      "path": "/fields",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format: json, xml"
+        }
+      ]
+    },
+    {
+      "name": "fulltext_get",
+      "description": "Retrieve the full-text XML content of a PMC open-access article. Required: id (PMC ID, e.g. PMC7537588). Returns JATS-format XML with sections, figures, tables, and references. Only available for articles in PMC with open-access full text; use articles_lookup first to confirm availability.",
+      "method": "GET",
+      "path": "/{id}/fullTextXML",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "PMC ID (e.g., PMC7537588)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "labs-links_list",
+      "description": "Required: source, id. Optional: page (default: 1), pageSize (default: 25), format (default: json).",
+      "method": "GET",
+      "path": "/{source}/{id}/labsLinks",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "pageSize",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "references_list",
+      "description": "Required: source, id. Optional: page (default: 1), pageSize (default: 25), format (default: json).",
+      "method": "GET",
+      "path": "/{source}/{id}/references",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "path",
+          "description": "Source database",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Article identifier",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "pageSize",
+          "type": "integer",
+          "location": "query",
+          "description": "Results per page (1-1000)"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format: json, xml"
+        }
+      ]
+    },
+    {
+      "name": "source-profile_breakdown",
+      "description": "Required: query. Optional: profiletype (default: all), synonym (default: false), format (default: json).",
+      "method": "GET",
+      "path": "/profile",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        },
+        {
+          "name": "profiletype",
+          "type": "string",
+          "location": "query",
+          "description": "Breakdown type: pub_type, source, all"
+        },
+        {
+          "name": "synonym",
+          "type": "string",
+          "location": "query",
+          "description": "Expand with MeSH synonyms"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format: json, xml"
+        }
+      ]
+    }
+  ]
+}
