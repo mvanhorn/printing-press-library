@@ -42,10 +42,13 @@ func (s *Store) Get(key string) (json.RawMessage, bool) {
 	return json.RawMessage(data), true
 }
 
-// Set stores a value in the cache.
+// Set stores a value in the cache. Directory + file are owner-only (0o700 /
+// 0o600) because cached entries can contain authenticated response bodies
+// (order history, items, addresses, payment summaries) that must not be
+// readable by other users on shared hosts (CI, Docker, multi-user dev boxes).
 func (s *Store) Set(key string, value json.RawMessage) {
-	_ = os.MkdirAll(s.Dir, 0o755)
-	_ = os.WriteFile(s.path(key), []byte(value), 0o644)
+	_ = os.MkdirAll(s.Dir, 0o700)
+	_ = os.WriteFile(s.path(key), []byte(value), 0o600)
 }
 
 // Clear removes all cached entries.

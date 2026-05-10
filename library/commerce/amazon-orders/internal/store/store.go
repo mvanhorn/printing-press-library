@@ -78,8 +78,13 @@ func OpenReadOnly(dbPath string) (*Store, error) {
 // context is honored by the migration path: cancellation interrupts the
 // retry-on-SQLITE_BUSY loop and propagates ctx.Err() back to the caller
 // instead of waiting out the full migrationLockTimeout.
+//
+// Directory mode is 0o700 — the synced database holds the full materialized
+// order/item/shipment/transaction tree and must not be readable by other
+// users on a shared host. The SQLite file itself inherits the umask but is
+// gated by the directory perms.
 func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
-	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(dbPath), 0o700); err != nil {
 		return nil, fmt.Errorf("creating db directory: %w", err)
 	}
 
