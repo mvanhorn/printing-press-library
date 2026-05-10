@@ -107,13 +107,7 @@ Claude will handle the rest. Then just describe your situation and ask away.
 
 **You can connect it yourself.** If you want to use betriebsrat.de as the data source for your own personal use, tell Claude:
 
-> Use betriebsrat.de as the source. Run: `BETRIEBSRAT_BASE_URL=https://www.betriebsrat.de betriebsrat sync`
-
-Or set it permanently in `~/.config/betriebsrat/config.json`:
-
-```json
-{ "base_url": "https://www.betriebsrat.de" }
-```
+> Add betriebsrat.de to the betriebsrat skill.
 
 ---
 
@@ -299,13 +293,7 @@ Claude übernimmt den Rest. Dann beschreiben Sie einfach Ihre Situation.
 
 **Sie können es selbst einrichten.** Wenn Sie betriebsrat.de für Ihren persönlichen Gebrauch als Datenquelle nutzen möchten, sagen Sie Claude:
 
-> Verbinde betriebsrat.de als Quelle. Führe aus: `BETRIEBSRAT_BASE_URL=https://www.betriebsrat.de betriebsrat sync`
-
-Oder dauerhaft in `~/.config/betriebsrat/config.json` eintragen:
-
-```json
-{ "base_url": "https://www.betriebsrat.de" }
-```
+> Füge betriebsrat.de zum betriebsrat-Skill hinzu.
 
 ---
 

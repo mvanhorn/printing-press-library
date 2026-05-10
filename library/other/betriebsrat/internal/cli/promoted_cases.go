@@ -24,10 +24,10 @@ var landmarkDecisions = []bagDecision{
 		Date:      "22.09.2016",
 		Court:     "BAG",
 		Reference: "2 AZR 276/16",
-		Topic:     "Massenentlassung",
+		Topic:     "Massenentlassung (§ 17 KSchG)",
 		Summary:   "Kündigungen ohne vorherige Massenentlassungsanzeige nach § 17 KSchG sind unwirksam. Die Anzeigepflicht ist zwingendes Recht.",
-		Source:    "rechtsprechung-im-internet.de",
-		SearchURL: "https://www.bundesarbeitsgericht.de/entscheidungen/",
+		Source:    "dejure.org",
+		SearchURL: "https://dejure.org/dienste/vernetzung/rechtsprechung?Gericht=BAG&Datum=22.09.2016&Aktenzeichen=2+AZR+276%2F16",
 	},
 	{
 		Date:      "22.04.2010",
@@ -35,26 +35,17 @@ var landmarkDecisions = []bagDecision{
 		Reference: "2 AZR 991/08",
 		Topic:     "Anhörung bei Kündigung (§ 102 BetrVG)",
 		Summary:   "Eine unvollständige Anhörung des Betriebsrats macht die Kündigung unwirksam. Der Arbeitgeber muss alle für die Entscheidung maßgeblichen Umstände mitteilen.",
-		Source:    "rechtsprechung-im-internet.de",
-		SearchURL: "https://www.bundesarbeitsgericht.de/entscheidungen/",
+		Source:    "dejure.org",
+		SearchURL: "https://dejure.org/dienste/vernetzung/rechtsprechung?Gericht=BAG&Datum=22.04.2010&Aktenzeichen=2+AZR+991%2F08",
 	},
 	{
-		Date:      "08.06.2004",
+		Date:      "26.01.2016",
 		Court:     "BAG",
-		Reference: "1 ABR 4/03",
+		Reference: "1 ABR 68/13",
 		Topic:     "Mitbestimmung bei technischer Überwachung (§ 87 Nr. 6 BetrVG)",
-		Summary:   "Technische Einrichtungen, die zur Überwachung des Verhaltens oder der Leistung geeignet sind, unterliegen der erzwingbaren Mitbestimmung des Betriebsrats.",
-		Source:    "rechtsprechung-im-internet.de",
-		SearchURL: "https://www.bundesarbeitsgericht.de/entscheidungen/",
-	},
-	{
-		Date:      "26.10.2021",
-		Court:     "BAG",
-		Reference: "1 AZR 253/20",
-		Topic:     "Sozialplan (§ 112 BetrVG)",
-		Summary:   "Der Sozialplan ist erzwingbar. Die Einigungsstelle kann bei fehlender Einigung einen verbindlichen Sozialplan aufstellen.",
-		Source:    "rechtsprechung-im-internet.de",
-		SearchURL: "https://www.bundesarbeitsgericht.de/entscheidungen/",
+		Summary:   "Technische Einrichtungen zur Verhaltens- oder Leistungsüberwachung unterliegen der erzwingbaren Mitbestimmung — auch GPS-basierte Systeme und digitale Tracking-Tools.",
+		Source:    "dejure.org",
+		SearchURL: "https://dejure.org/dienste/vernetzung/rechtsprechung?Gericht=BAG&Datum=26.01.2016&Aktenzeichen=1+ABR+68%2F13",
 	},
 }
 
@@ -78,11 +69,8 @@ func newCasesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			fmt.Fprintln(cmd.OutOrStdout(), "Wichtige BAG-Entscheidungen für Betriebsräte\n")
 			for _, d := range landmarkDecisions {
-				fmt.Fprintf(cmd.OutOrStdout(), "BAG %s – %s\nThema: %s\n%s\n\n", d.Date, d.Reference, d.Topic, d.Summary)
+				fmt.Fprintf(cmd.OutOrStdout(), "BAG %s – %s\nThema: %s\n%s\n  %s\n\n", d.Date, d.Reference, d.Topic, d.Summary, d.SearchURL)
 			}
-			fmt.Fprintf(cmd.OutOrStdout(),
-				"Volltext-Suche:\n  %s\n  https://www.rechtsprechung-im-internet.de\n",
-				landmarkDecisions[0].SearchURL)
 			return nil
 		},
 	}
