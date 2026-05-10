@@ -366,26 +366,53 @@ func pollOneWatch(ctx context.Context, s *auth.Session, id, venue, network, slug
 			// The matcher still finds the venue regardless of metro.
 			restID, restName, _, rerr := c.RestaurantIDFromQuery(ctx, slug, 40.7128, -74.0060)
 			if rerr == nil && restID != 0 {
-				today := time.Now().Format("2006-01-02")
+				todayT := time.Now()
+				today := todayT.Format("2006-01-02")
 				avail, aerr := c.RestaurantsAvailability(ctx, []int{restID}, today, "19:00", party, 7, 150, 5, noCache)
 				if aerr == nil {
 					r.Polled = true
 					r.Network = "opentable"
+					// Match the Tock path: filter slots by both isAvailable
+					// AND windowSpec. Without windowSpec filtering here, a
+					// watch created with `--window "sat 7-9pm"` would fire
+					// on any OT opening including a Wednesday lunch.
+					// Slot date = today + d.DayOffset; slot time = 19:00 +
+					// s.TimeOffsetMinutes (same computation as earliest.go).
 					anyOpen := false
+				outer:
 					for _, ra := range avail {
 						for _, d := range ra.AvailabilityDays {
+							slotDate := d.Date
+							if slotDate == "" {
+								slotDate = todayT.AddDate(0, 0, d.DayOffset).Format("2006-01-02")
+							}
 							for _, sl := range d.Slots {
-								if sl.IsAvailable {
-									anyOpen = true
-									break
+								if !sl.IsAvailable {
+									continue
 								}
+								totalMin := 19*60 + sl.TimeOffsetMinutes
+								hh := ((totalMin/60)%24 + 24) % 24
+								mm := ((totalMin % 60) + 60) % 60
+								slotTime := fmt.Sprintf("%02d:%02d", hh, mm)
+								if !slotMatchesWindowSpec(slotDate, slotTime, windowSpec) {
+									continue
+								}
+								anyOpen = true
+								break outer
 							}
 						}
 					}
-					if anyOpen {
+					switch {
+					case anyOpen:
 						r.HasMatch = true
-						r.Reason = fmt.Sprintf("opentable %s: at least one open slot found", restName)
-					} else {
+						if windowSpec != "" {
+							r.Reason = fmt.Sprintf("opentable %s: at least one open slot matching %q", restName, windowSpec)
+						} else {
+							r.Reason = fmt.Sprintf("opentable %s: at least one open slot found", restName)
+						}
+					case windowSpec != "":
+						r.Reason = fmt.Sprintf("opentable %s: no open slots matching %q in 7d window for party=%d", restName, windowSpec, party)
+					default:
 						r.Reason = fmt.Sprintf("opentable %s: no open slots in 7d window for party=%d", restName, party)
 					}
 					return r
