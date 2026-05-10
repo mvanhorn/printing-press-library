@@ -11,42 +11,45 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newDefaultPromotedCmd(flags *rootFlags) *cobra.Command {
+func newLogbookPromotedCmd(flags *rootFlags) *cobra.Command {
+	var flagEntity string
+	var flagEndTime string
 
 	cmd := &cobra.Command{
-		Use:   "default <id>",
-		Short: "POST /{id}",
-		Long:  "Shortcut for 'default create_endpoint'. POST /{id}",
-		Example: "  homeassistant-pp-cli default 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "default.create_endpoint", "pp:method": "POST", "pp:path": "/{id}"},
+		Use:   "logbook <timestamp>",
+		Short: "Returns an array of logbook entries with optional entity and time filters",
+		Long:  "Shortcut for 'logbook get_logbook'. Returns an array of logbook entries with optional entity and time filters",
+		Example: "  homeassistant-pp-cli logbook 2026-01-15T09:00:00Z",
+		Annotations: map[string]string{"pp:endpoint": "logbook.get_logbook", "pp:method": "GET", "pp:path": "/api/logbook/{timestamp}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/{id}"
-			if len(args) < 1 {
+			path := "/api/logbook/{timestamp}"
+			if len(args) < 3 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.
 				if flags.asJSON {
 					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-						"error": "id is required",
-						"usage": fmt.Sprintf("%s <%s>", cmd.CommandPath(), "id"),
+						"error": "timestamp is required",
+						"usage": fmt.Sprintf("%s <%s>", cmd.CommandPath(), "timestamp"),
 					}, flags); printErr != nil {
 						return printErr
 					}
 				}
-				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
+				return usageErr(fmt.Errorf("timestamp is required\nUsage: %s <%s>", cmd.CommandPath(), "timestamp"))
 			}
-			path = replacePathParam(path, "id", args[0])
-			// HasStore + non-GET falls through to a live API call here
-			// rather than through resolveRead (GET-only internally); a
-			// body-aware cached read helper is filed as #425 for when a
-			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
-			data, _, err := c.Post(path, body)
-			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
+			path = replacePathParam(path, "timestamp", args[2])
+			params := map[string]string{}
+			if flagEntity != "" {
+				params["entity"] = fmt.Sprintf("%v", flagEntity)
+			}
+			if flagEndTime != "" {
+				params["end_time"] = fmt.Sprintf("%v", flagEndTime)
+			}
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "logbook", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -98,6 +101,8 @@ func newDefaultPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
+	cmd.Flags().StringVar(&flagEntity, "entity", "", "")
+	cmd.Flags().StringVar(&flagEndTime, "end-time", "", "")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

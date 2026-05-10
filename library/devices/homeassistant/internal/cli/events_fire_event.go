@@ -13,14 +13,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newHassioCreateInfoCmd(flags *rootFlags) *cobra.Command {
+func newEventsFireEventCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-info <id>",
-		Short: "POST /api/hassio/addons/{id}/info",
-		Example: "  homeassistant-pp-cli hassio create-info 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "hassio.create_info", "pp:method": "POST", "pp:path": "/api/hassio/addons/{id}/info"},
+		Use:   "fire-event <event_type>",
+		Short: "Fires an event with event_type and optional event_data",
+		Example: "  homeassistant-pp-cli events fire-event example-value",
+		Annotations: map[string]string{"pp:endpoint": "events.fire_event", "pp:method": "POST", "pp:path": "/api/events/{event_type}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -32,8 +32,8 @@ func newHassioCreateInfoCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/api/hassio/addons/{id}/info"
-			path = replacePathParam(path, "id", url.PathEscape(args[0]))
+			path := "/api/events/{event_type}"
+			path = replacePathParam(path, "event_type", url.PathEscape(args[0]))
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
@@ -88,7 +88,7 @@ func newHassioCreateInfoCmd(flags *rootFlags) *cobra.Command {
 				}
 				envelope := map[string]any{
 					"action":   "post",
-					"resource": "hassio",
+					"resource": "events",
 					"path":     path,
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300,

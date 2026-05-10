@@ -7,13 +7,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newCalendarsCmd(flags *rootFlags) *cobra.Command {
+func newConfigCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "calendars",
-		Short: "Calendar entity operations",
+		Use:   "config",
+		Short: "Home Assistant instance configuration",
 	}
 
-	cmd.AddCommand(newCalendarsGetCalendarEventsCmd(flags))
-	cmd.AddCommand(newCalendarsListCalendarsCmd(flags))
+	cmd.AddCommand(newConfigCheckConfigCmd(flags))
+	cmd.AddCommand(newConfigGetConfigCmd(flags))
 	return cmd
 }

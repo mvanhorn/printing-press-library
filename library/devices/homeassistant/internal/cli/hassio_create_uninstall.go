@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"net/url"
 
 	"github.com/spf13/cobra"
 )
@@ -32,7 +33,7 @@ func newHassioCreateUninstallCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/api/hassio/addons/{id}/uninstall"
-			path = replacePathParam(path, "id", args[0])
+			path = replacePathParam(path, "id", url.PathEscape(args[0]))
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)

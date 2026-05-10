@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -45,6 +46,9 @@ func newServicesCallCmd(flags *rootFlags) *cobra.Command {
 			payload := "{}"
 			if len(args) > 1 {
 				payload = args[1]
+				if !json.Valid([]byte(payload)) {
+					return fmt.Errorf("invalid JSON payload: %s", payload)
+				}
 			}
 
 			c, err := flags.newClient()
@@ -52,7 +56,7 @@ func newServicesCallCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			req, err := http.NewRequestWithContext(context.Background(), "POST", fmt.Sprintf("%s/services/%s/%s", c.Config.BaseURL, domain, service), bytes.NewBufferString(payload))
+			req, err := http.NewRequestWithContext(context.Background(), "POST", fmt.Sprintf("%s/services/%s/%s", c.Config.BaseURL, url.PathEscape(domain), url.PathEscape(service)), bytes.NewBufferString(payload))
 			if err != nil {
 				return err
 			}

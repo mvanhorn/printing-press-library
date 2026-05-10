@@ -13,27 +13,32 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newHassioCreateInfoCmd(flags *rootFlags) *cobra.Command {
+func newStatesUpdateStateCmd(flags *rootFlags) *cobra.Command {
+	var bodyState string
+	var bodyAttributes string
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-info <id>",
-		Short: "POST /api/hassio/addons/{id}/info",
-		Example: "  homeassistant-pp-cli hassio create-info 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "hassio.create_info", "pp:method": "POST", "pp:path": "/api/hassio/addons/{id}/info"},
+		Use:   "update-state <entity_id>",
+		Short: "Updates or creates a state representation",
+		Example: "  homeassistant-pp-cli states update-state 550e8400-e29b-41d4-a716-446655440000 --state example-value",
+		Annotations: map[string]string{"pp:endpoint": "states.update_state", "pp:method": "POST", "pp:path": "/api/states/{entity_id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			if !stdinBody {
+				if !cmd.Flags().Changed("state") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "state")
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/api/hassio/addons/{id}/info"
-			path = replacePathParam(path, "id", url.PathEscape(args[0]))
+			path := "/api/states/{entity_id}"
+			path = replacePathParam(path, "entity_id", url.PathEscape(args[0]))
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
@@ -47,6 +52,16 @@ func newHassioCreateInfoCmd(flags *rootFlags) *cobra.Command {
 				body = jsonBody
 			} else {
 				body = map[string]any{}
+				if bodyState != "" {
+					body["state"] = bodyState
+				}
+				if bodyAttributes != "" {
+					var parsedAttributes any
+					if err := json.Unmarshal([]byte(bodyAttributes), &parsedAttributes); err != nil {
+						return fmt.Errorf("parsing --attributes JSON: %w", err)
+					}
+					body["attributes"] = parsedAttributes
+				}
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
@@ -88,7 +103,7 @@ func newHassioCreateInfoCmd(flags *rootFlags) *cobra.Command {
 				}
 				envelope := map[string]any{
 					"action":   "post",
-					"resource": "hassio",
+					"resource": "states",
 					"path":     path,
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300,
@@ -113,6 +128,8 @@ func newHassioCreateInfoCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
+	cmd.Flags().StringVar(&bodyState, "state", "", "")
+	cmd.Flags().StringVar(&bodyAttributes, "attributes", "", "")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

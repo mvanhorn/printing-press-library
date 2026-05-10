@@ -124,7 +124,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
 			Name:        "homeassistant-pp-cli",
-			Description: "A unified interface for your smart home with offline search and streaming states.",
+			Description: "Discovered API spec for homeassistant (crowd-sniff)",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{

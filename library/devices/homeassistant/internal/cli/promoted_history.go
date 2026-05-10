@@ -11,42 +11,60 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newDefaultPromotedCmd(flags *rootFlags) *cobra.Command {
+func newHistoryPromotedCmd(flags *rootFlags) *cobra.Command {
+	var flagFilterEntityId string
+	var flagEndTime string
+	var flagMinimalResponse bool
+	var flagNoAttributes bool
+	var flagSignificantChangesOnly bool
 
 	cmd := &cobra.Command{
-		Use:   "default <id>",
-		Short: "POST /{id}",
-		Long:  "Shortcut for 'default create_endpoint'. POST /{id}",
-		Example: "  homeassistant-pp-cli default 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "default.create_endpoint", "pp:method": "POST", "pp:path": "/{id}"},
+		Use:   "history <timestamp>",
+		Short: "Returns state changes in the past, filtered by entity and time range",
+		Long:  "Shortcut for 'history get_history'. Returns state changes in the past, filtered by entity and time range",
+		Example: "  homeassistant-pp-cli history 2026-01-15T09:00:00Z --filter-entity-id 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "history.get_history", "pp:method": "GET", "pp:path": "/api/history/period/{timestamp}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("filter-entity-id") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "filter-entity-id")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/{id}"
-			if len(args) < 1 {
+			path := "/api/history/period/{timestamp}"
+			if len(args) < 6 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.
 				if flags.asJSON {
 					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-						"error": "id is required",
-						"usage": fmt.Sprintf("%s <%s>", cmd.CommandPath(), "id"),
+						"error": "timestamp is required",
+						"usage": fmt.Sprintf("%s <%s>", cmd.CommandPath(), "timestamp"),
 					}, flags); printErr != nil {
 						return printErr
 					}
 				}
-				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
+				return usageErr(fmt.Errorf("timestamp is required\nUsage: %s <%s>", cmd.CommandPath(), "timestamp"))
 			}
-			path = replacePathParam(path, "id", args[0])
-			// HasStore + non-GET falls through to a live API call here
-			// rather than through resolveRead (GET-only internally); a
-			// body-aware cached read helper is filed as #425 for when a
-			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
-			data, _, err := c.Post(path, body)
-			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
+			path = replacePathParam(path, "timestamp", args[5])
+			params := map[string]string{}
+			if flagFilterEntityId != "" {
+				params["filter_entity_id"] = fmt.Sprintf("%v", flagFilterEntityId)
+			}
+			if flagEndTime != "" {
+				params["end_time"] = fmt.Sprintf("%v", flagEndTime)
+			}
+			if flagMinimalResponse != false {
+				params["minimal_response"] = fmt.Sprintf("%v", flagMinimalResponse)
+			}
+			if flagNoAttributes != false {
+				params["no_attributes"] = fmt.Sprintf("%v", flagNoAttributes)
+			}
+			if flagSignificantChangesOnly != false {
+				params["significant_changes_only"] = fmt.Sprintf("%v", flagSignificantChangesOnly)
+			}
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "history", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -98,6 +116,11 @@ func newDefaultPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
+	cmd.Flags().StringVar(&flagFilterEntityId, "filter-entity-id", "", "")
+	cmd.Flags().StringVar(&flagEndTime, "end-time", "", "")
+	cmd.Flags().BoolVar(&flagMinimalResponse, "minimal-response", false, "")
+	cmd.Flags().BoolVar(&flagNoAttributes, "no-attributes", false, "")
+	cmd.Flags().BoolVar(&flagSignificantChangesOnly, "significant-changes-only", false, "")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

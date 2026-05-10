@@ -1,7 +1,7 @@
 name: homeassistant
 description: Discovered API spec for homeassistant (crowd-sniff)
 version: 0.1.0
-base_url: http://192.168.1.120:8123/api
+base_url: http://homeassistant.local:8123/api
 spec_source: community
 auth:
     type: bearer_token
@@ -20,13 +20,341 @@ config:
     format: toml
     path: ~/.config/homeassistant-pp-cli/config.toml
 resources:
-    default:
-        description: Operations on default
+    states:
+        description: Operations on states
         endpoints:
-            create_endpoint:
+            list_states:
+                method: GET
+                path: /api/states
+                description: Returns an array of state objects with entity_id, state, last_changed and attributes
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: state
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: official-docs
+            get_states:
+                method: GET
+                path: /api/states/{entity_id}
+                description: Returns a state object for specified entity_id
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: state
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: official-docs
+            update_state:
                 method: POST
-                path: /{id}
-                description: POST /{id}
+                path: /api/states/{entity_id}
+                description: Updates or creates a state representation
+                params: []
+                body:
+                    - name: state
+                      type: string
+                      required: true
+                    - name: attributes
+                      type: object
+                      required: false
+                response:
+                    type: object
+                    item: state
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: official-docs
+            delete_state:
+                method: DELETE
+                path: /api/states/{entity_id}
+                description: Deletes an entity with the specified entity_id
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: official-docs
+    config:
+        description: Home Assistant instance configuration
+        endpoints:
+            get_config:
+                method: GET
+                path: /api/config
+                description: Returns the current configuration including version, location, timezone, and loaded components
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: config
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: official-docs
+            check_config:
+                method: POST
+                path: /api/config/core/check_config
+                description: Trigger a check of configuration.yaml and return validation result
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: official-docs
+    components:
+        description: Loaded integration components
+        endpoints:
+            list_components:
+                method: GET
+                path: /api/components
+                description: Returns a list of currently loaded components
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: string
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: official-docs
+    events:
+        description: Event bus operations
+        endpoints:
+            list_events:
+                method: GET
+                path: /api/events
+                description: Returns an array of event objects with event name and listener count
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: event
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: official-docs
+            fire_event:
+                method: POST
+                path: /api/events/{event_type}
+                description: Fires an event with event_type and optional event_data
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: official-docs
+    services:
+        description: Service domain operations
+        endpoints:
+            list_services:
+                method: GET
+                path: /api/services
+                description: Returns an array of service objects grouped by domain
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: service_domain
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: official-docs
+            call_service:
+                method: POST
+                path: /api/services/{domain}/{service}
+                description: Calls a service within a specific domain with optional service_data
+                params: []
+                body:
+                    - name: entity_id
+                      type: string
+                      required: false
+                response:
+                    type: array
+                    item: state
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: official-docs
+    history:
+        description: State change history
+        endpoints:
+            get_history:
+                method: GET
+                path: /api/history/period/{timestamp}
+                description: Returns state changes in the past, filtered by entity and time range
+                params:
+                    - name: filter_entity_id
+                      type: string
+                      required: true
+                    - name: end_time
+                      type: string
+                      required: false
+                    - name: minimal_response
+                      type: boolean
+                      required: false
+                    - name: no_attributes
+                      type: boolean
+                      required: false
+                    - name: significant_changes_only
+                      type: boolean
+                      required: false
+                body: []
+                response:
+                    type: array
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: official-docs
+    logbook:
+        description: Activity logbook
+        endpoints:
+            get_logbook:
+                method: GET
+                path: /api/logbook/{timestamp}
+                description: Returns an array of logbook entries with optional entity and time filters
+                params:
+                    - name: entity
+                      type: string
+                      required: false
+                    - name: end_time
+                      type: string
+                      required: false
+                body: []
+                response:
+                    type: array
+                    item: logbook_entry
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: official-docs
+    error_log:
+        description: Error log retrieval
+        endpoints:
+            get_error_log:
+                method: GET
+                path: /api/error_log
+                description: Retrieve all errors logged during the current session as plaintext
+                params: []
+                body: []
+                response:
+                    type: string
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: official-docs
+    template:
+        description: Template rendering
+        endpoints:
+            render_template:
+                method: POST
+                path: /api/template
+                description: Render a Home Assistant Jinja2 template and return the result as plaintext
+                params: []
+                body:
+                    - name: template
+                      type: string
+                      required: true
+                response:
+                    type: string
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: official-docs
+    calendars:
+        description: Calendar entity operations
+        endpoints:
+            list_calendars:
+                method: GET
+                path: /api/calendars
+                description: Returns the list of calendar entities
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: calendar
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: official-docs
+            get_calendar_events:
+                method: GET
+                path: /api/calendars/{entity_id}
+                description: Returns calendar events between start and end times
+                params:
+                    - name: start
+                      type: string
+                      required: true
+                    - name: end
+                      type: string
+                      required: true
+                body: []
+                response:
+                    type: array
+                    item: calendar_event
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: official-docs
+    camera:
+        description: Camera proxy
+        endpoints:
+            get_camera_image:
+                method: GET
+                path: /api/camera_proxy/{entity_id}
+                description: Returns the image data from the specified camera entity
+                params: []
+                body: []
+                response:
+                    type: binary
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: official-docs
+    intent:
+        description: Intent handling
+        endpoints:
+            handle_intent:
+                method: POST
+                path: /api/intent/handle
+                description: Handle an intent with name and data
+                params: []
+                body:
+                    - name: name
+                      type: string
+                      required: true
+                    - name: data
+                      type: object
+                      required: false
+                response:
+                    type: object
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: official-docs
+    websocket:
+        description: Operations on websocket
+        endpoints:
+            create_websocket:
+                method: POST
+                path: /api/websocket
+                description: POST /api/websocket
                 params: []
                 body: []
                 response:
@@ -37,7 +365,7 @@ resources:
                     source_count: "1"
                     source_tier: community-sdk
     hassio:
-        description: Operations on info
+        description: Operations on Hassio addon management
         endpoints:
             create_info:
                 method: POST
@@ -117,6 +445,22 @@ resources:
                 meta:
                     source_count: "1"
                     source_tier: community-sdk
+    default:
+        description: Operations on default
+        endpoints:
+            create_endpoint:
+                method: POST
+                path: /{id}
+                description: POST /{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
     models:
         description: Operations on models
         endpoints:
@@ -182,38 +526,6 @@ resources:
                 method: POST
                 path: /repository/update
                 description: POST /repository/update
-                params: []
-                body: []
-                response:
-                    type: ""
-                    item: ""
-                pagination: null
-                meta:
-                    source_count: "1"
-                    source_tier: community-sdk
-    states:
-        description: Operations on states
-        endpoints:
-            get_states:
-                method: GET
-                path: /api/states/{id}
-                description: GET /api/states/{id}
-                params: []
-                body: []
-                response:
-                    type: ""
-                    item: ""
-                pagination: null
-                meta:
-                    source_count: "1"
-                    source_tier: community-sdk
-    websocket:
-        description: Operations on websocket
-        endpoints:
-            create_websocket:
-                method: POST
-                path: /api/websocket
-                description: POST /api/websocket
                 params: []
                 body: []
                 response:

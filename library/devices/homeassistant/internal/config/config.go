@@ -29,7 +29,7 @@ type Config struct {
 
 func Load(configPath string) (*Config, error) {
 	cfg := &Config{
-		BaseURL: "http://192.168.1.120:8123/api",
+		BaseURL: "http://homeassistant.local:8123/api",
 	}
 
 	// Resolve config path
@@ -86,11 +86,14 @@ func (c *Config) AuthHeader() string {
 	// Env-var token wins over file-stored AccessToken (env > config convention).
 	if c.HomeassistantToken != "" {
 		c.AuthSource = "env:HOMEASSISTANT_TOKEN"
-		return "Bearer " + c.HomeassistantToken
+		return applyAuthFormat("Bearer {token}", map[string]string{
+			"token": c.HomeassistantToken,
+			"HOMEASSISTANT_TOKEN": c.HomeassistantToken,
+		})
 	}
 	if c.AccessToken != "" {
 		c.AuthSource = "oauth2"
-		return "Bearer " + c.AccessToken
+		return applyAuthFormat("Bearer {token}", map[string]string{"access_token": c.AccessToken, "token": c.AccessToken})
 	}
 	return ""
 }

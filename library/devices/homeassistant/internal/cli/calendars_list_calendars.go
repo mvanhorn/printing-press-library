@@ -11,51 +11,34 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newModelsPromotedCmd(flags *rootFlags) *cobra.Command {
+func newCalendarsListCalendarsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "models",
-		Short: "POST /models",
-		Long:  "Shortcut for 'models create_models'. POST /models",
-		Example: "  homeassistant-pp-cli models",
-		Annotations: map[string]string{"pp:endpoint": "models.create_models", "pp:method": "POST", "pp:path": "/models"},
+		Use:   "list-calendars",
+		Short: "Returns the list of calendar entities",
+		Example: "  homeassistant-pp-cli calendars list-calendars",
+		Annotations: map[string]string{"pp:endpoint": "calendars.list_calendars", "pp:method": "GET", "pp:path": "/api/calendars", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/models"
-			// HasStore + non-GET falls through to a live API call here
-			// rather than through resolveRead (GET-only internally); a
-			// body-aware cached read helper is filed as #425 for when a
-			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
-			data, _, err := c.Post(path, body)
-			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
+			path := "/api/calendars"
+			params := map[string]string{}
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "calendars", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
-			// Print provenance to stderr
+			// Print provenance to stderr for human-facing output
 			{
 				var countItems []json.RawMessage
-				if json.Unmarshal(data, &countItems) != nil {
-					// Single object, not an array
-					countItems = []json.RawMessage{data}
-				}
+				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// CSV bypasses JSON pipe path so --csv works when piped
-			if flags.csv {
-				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
-			}
-			// For JSON output, wrap with provenance envelope. --select wins over
-			// --compact when both are set; --compact only runs when no explicit
-			// fields were requested.
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested.
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				filtered := data
 				if flags.selectFields != "" {
@@ -69,6 +52,7 @@ func newModelsPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
+			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
 				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
@@ -84,8 +68,6 @@ func newModelsPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-
-	// Wire sibling endpoints and sub-resources as subcommands
 
 	return cmd
 }

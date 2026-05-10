@@ -9,11 +9,15 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"text/tabwriter"
+	"time"
 	"unicode"
 	"homeassistant-pp-cli/internal/cliutil"
+	"homeassistant-pp-cli/internal/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -118,6 +122,78 @@ func dryRunOK(flags *rootFlags) bool {
 	return flags != nil && flags.dryRun
 }
 
+// accessWarning describes an API access-denial that sync converts into a
+// non-fatal warning. It carries enough structured data for the sync_warning
+// JSON event without parsing free-form error strings downstream.
+type accessWarning struct {
+	Status  int    // HTTP status when applicable; 0 for GraphQL field-level denials.
+	Reason  string // "forbidden" | "insufficient_access" | "unauthenticated"
+	Message string // human-readable detail (the API's body or GraphQL error message)
+}
+
+// accessDenialPatterns matches API error bodies that indicate the request was
+// rejected for access-policy reasons rather than for input validity. Matching
+// is case-insensitive and uses word boundaries so common substrings inside
+// unrelated tokens (e.g. "author", "pagination_token", "insufficient_funds")
+// do not produce false positives. The set deliberately excludes brand names —
+// vendor-specific phrasings should be addressed at the spec/profiler level,
+// not in this universal classifier.
+var accessDenialPatterns = []*regexp.Regexp{
+	regexp.MustCompile(`\bforbidden\b`),
+	regexp.MustCompile(`\bunauthorized\b`),
+	regexp.MustCompile(`\bnot[\s_-]?authorized\b`),
+	regexp.MustCompile(`\bpermission[\s_-]?denied\b`),
+	regexp.MustCompile(`\baccess[\s_-]?denied\b`),
+	regexp.MustCompile(`\binsufficient[\s_-]?(scope|permission|privilege)`),
+	regexp.MustCompile(`\binvalid[\s_-]?scope\b`),
+	regexp.MustCompile(`\bmissing[\s_-]?scope\b`),
+	regexp.MustCompile(`\brequires?\s+(elevated|admin|enterprise|business|workspace|enterprise[\s_-]?tier)`),
+}
+
+// looksLikeAccessDenial reports whether body text describes an access-policy
+// rejection. Use it on response-body content (apiErr.Body), not on the full
+// error string — the request path can contain words like "auth" or "tokens"
+// that would produce false positives if the whole error message were scanned.
+func looksLikeAccessDenial(body string) bool {
+	lower := strings.ToLower(body)
+	for _, p := range accessDenialPatterns {
+		if p.MatchString(lower) {
+			return true
+		}
+	}
+	return false
+}
+
+// isSyncAccessWarning classifies err as an access-denial warning suitable for
+// sync's warn-and-continue path. It returns nil, false for any error that
+// should remain a hard sync failure: HTTP 401 (token-level auth failure
+// requiring re-auth), 5xx, network errors, and HTTP 400 responses whose
+// bodies do not match an access-policy pattern.
+//
+// Recognized warning shapes:
+//   - HTTP 403 (per-resource ACL rejection)
+//   - HTTP 400 + access-denial body keyword (insufficient scope, etc.)
+//   - GraphQL response carrying only access-denial extension codes
+func isSyncAccessWarning(err error) (*accessWarning, bool) {
+	if err == nil {
+		return nil, false
+	}
+
+	var apiErr *client.APIError
+	if errors.As(err, &apiErr) {
+		switch apiErr.StatusCode {
+		case 403:
+			return &accessWarning{Status: 403, Reason: "forbidden", Message: apiErr.Body}, true
+		case 400:
+			if looksLikeAccessDenial(apiErr.Body) {
+				return &accessWarning{Status: 400, Reason: "insufficient_access", Message: apiErr.Body}, true
+			}
+		}
+	}
+
+	return nil, false
+}
+
 type noopResult struct {
 	Status string `json:"status"`
 	Reason string `json:"reason"`
@@ -174,7 +250,14 @@ func classifyAPIError(err error, flags *rootFlags) error {
 		return apiErr(err)
 	}
 }
-
+// classifyDeleteError maps DELETE errors and supports explicit idempotent no-op handling.
+func classifyDeleteError(err error, flags *rootFlags) error {
+	msg := err.Error()
+	if strings.Contains(msg, "HTTP 404") && flags != nil && flags.ignoreMissing {
+		return writeNoop(flags, "already_deleted", "already deleted (no-op)")
+	}
+	return classifyAPIError(err, flags)
+}
 
 func truncate(s string, max int) string {
 	if len(s) <= max {
@@ -193,7 +276,137 @@ func replacePathParam(path, name, value string) string {
 	return strings.ReplaceAll(path, "{"+name+"}", value)
 }
 
+// paginatedGet fetches pages and concatenates array results. The headers
+// argument carries per-endpoint required headers (e.g. cal-api-version) that
+// must be sent on every page request, including the first; pass nil when the
+// endpoint has no per-endpoint header overrides.
+func paginatedGet(c interface {
+	GetWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, error)
+}, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, nextCursorPath, hasMoreField string) (json.RawMessage, error) {
+	// Clean zero-value params
+	clean := map[string]string{}
+	for k, v := range params {
+		if v != "" && v != "0" && v != "false" {
+			clean[k] = v
+		}
+	}
 
+	if !fetchAll {
+		return c.GetWithHeaders(path, clean, headers)
+	}
+
+	// Fetch all pages
+	allItems := make([]json.RawMessage, 0)
+	page := 0
+	for {
+		page++
+		if humanFriendly {
+			fmt.Fprintf(os.Stderr, "fetching page %d...\n", page)
+		} else {
+			fmt.Fprintf(os.Stderr, `{"event":"page_fetch","page":%d}`+"\n", page)
+		}
+
+		data, err := c.GetWithHeaders(path, clean, headers)
+		if err != nil {
+			return nil, err
+		}
+
+		// Try to extract items array
+		var items []json.RawMessage
+		if json.Unmarshal(data, &items) == nil {
+			allItems = append(allItems, items...)
+		} else {
+			// Response is an object - look for array inside
+			var obj map[string]json.RawMessage
+			if json.Unmarshal(data, &obj) == nil {
+				if nested, ok := extractPaginatedItems(obj); ok {
+					allItems = append(allItems, nested...)
+				}
+
+				// Check for next cursor
+				if nextCursorPath != "" {
+					if tokenRaw, ok := rawAtPath(obj, nextCursorPath); ok {
+						var token string
+						if json.Unmarshal(tokenRaw, &token) == nil && token != "" {
+							clean[cursorParam] = token
+							continue
+						}
+					}
+				}
+
+				// Check has_more
+				if hasMoreField != "" {
+					if moreRaw, ok := rawAtPath(obj, hasMoreField); ok {
+						var more bool
+						if json.Unmarshal(moreRaw, &more) == nil && more {
+							continue
+						}
+					}
+				}
+			}
+			// No more pages
+			break
+		}
+
+		// For direct arrays, can't paginate without cursor
+		break
+	}
+
+	if humanFriendly {
+		fmt.Fprintf(os.Stderr, "fetched %d items across %d pages\n", len(allItems), page)
+	} else {
+		fmt.Fprintf(os.Stderr, `{"event":"complete","total":%d,"pages":%d}`+"\n", len(allItems), page)
+	}
+	result, _ := json.Marshal(allItems)
+	return json.RawMessage(result), nil
+}
+
+func extractPaginatedItems(obj map[string]json.RawMessage) ([]json.RawMessage, bool) {
+	for _, field := range []string{"data", "items", "results", "messages", "members", "values"} {
+		if arr, ok := obj[field]; ok {
+			var nested []json.RawMessage
+			if json.Unmarshal(arr, &nested) == nil {
+				return nested, true
+			}
+		}
+	}
+
+	var onlyArray []json.RawMessage
+	arrayCount := 0
+	for _, raw := range obj {
+		var candidate []json.RawMessage
+		if json.Unmarshal(raw, &candidate) == nil {
+			onlyArray = candidate
+			arrayCount++
+		}
+	}
+	if arrayCount == 1 {
+		return onlyArray, true
+	}
+	return nil, false
+}
+
+func rawAtPath(obj map[string]json.RawMessage, path string) (json.RawMessage, bool) {
+	if raw, ok := obj[path]; ok {
+		return raw, true
+	}
+
+	current := obj
+	parts := strings.Split(path, ".")
+	for i, part := range parts {
+		raw, ok := current[part]
+		if !ok {
+			return nil, false
+		}
+		if i == len(parts)-1 {
+			return raw, true
+		}
+		if err := json.Unmarshal(raw, &current); err != nil {
+			return nil, false
+		}
+	}
+	return nil, false
+}
 
 // printJSONFiltered marshals a Go-typed value through the same output
 // pipeline endpoint-mirror commands use. Hand-written novel commands that
@@ -329,7 +542,33 @@ func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) e
 	return printOutput(w, data, flags.asJSON)
 }
 
-
+// extractResponseData unwraps common API response envelopes for display.
+// Many APIs return {"status":"success","data":[...]} instead of a bare array.
+// This extracts the inner data for output helpers (filterFields, compactFields,
+// printAutoTable) that expect arrays or flat objects.
+//
+// Only unwraps when a "status" field is present and indicates success — this
+// avoids false positives on APIs where "data" is a regular field (e.g., Stripe
+// returns {"data":[...],"has_more":true} where "data" is the list, not an
+// envelope wrapper).
+func extractResponseData(data json.RawMessage) json.RawMessage {
+	var envelope struct {
+		Status string          `json:"status"`
+		Data   json.RawMessage `json:"data"`
+	}
+	if err := json.Unmarshal(data, &envelope); err != nil {
+		return data
+	}
+	if envelope.Data == nil || envelope.Status == "" {
+		return data // No status field = not an envelope, might be regular "data" field
+	}
+	switch envelope.Status {
+	case "success", "ok", "OK", "Success":
+		return envelope.Data
+	default:
+		return data
+	}
+}
 
 // compactFields keeps only the most important fields for agent consumption.
 // For arrays: allowlist of high-gravity fields (no descriptions).
@@ -929,4 +1168,82 @@ func findField(obj map[string]any, names ...string) string {
 		}
 	}
 	return ""
+}
+// DataProvenance describes where data came from and when it was last synced.
+type DataProvenance struct {
+	Source       string     `json:"source"`                  // "live" or "local"
+	SyncedAt    *time.Time `json:"synced_at,omitempty"`     // when local data was last synced
+	Reason      string     `json:"reason,omitempty"`        // why local was used: "user_requested", "api_unreachable", "no_search_endpoint"
+	ResourceType string    `json:"resource_type,omitempty"` // which resource type was queried
+	Freshness    any        `json:"freshness,omitempty"`     // optional machine-owned freshness metadata for covered command paths
+}
+
+// printProvenance writes a one-line provenance message to stderr for TTY users.
+// Suppressed when stdout is piped or redirected — the JSON response envelope
+// already carries meta.source, so the stderr line is redundant and becomes
+// noise in agent flows that merge stderr into stdout.
+func printProvenance(cmd *cobra.Command, count int, prov DataProvenance) {
+	if !isTerminal(cmd.OutOrStdout()) {
+		return
+	}
+	if prov.Source == "live" {
+		fmt.Fprintf(cmd.ErrOrStderr(), "%d results (live)\n", count)
+		return
+	}
+	age := "unknown"
+	if prov.SyncedAt != nil {
+		d := time.Since(*prov.SyncedAt)
+		switch {
+		case d < time.Minute:
+			age = "just now"
+		case d < time.Hour:
+			age = fmt.Sprintf("%d minutes ago", int(d.Minutes()))
+		case d < 24*time.Hour:
+			age = fmt.Sprintf("%d hours ago", int(d.Hours()))
+		default:
+			age = fmt.Sprintf("%d days ago", int(d.Hours()/24))
+		}
+	}
+	prefix := ""
+	if prov.Reason == "api_unreachable" {
+		prefix = "API unreachable. "
+	}
+	fmt.Fprintf(cmd.ErrOrStderr(), "%s%d results (cached, synced %s)\n", prefix, count, age)
+}
+
+// wrapWithProvenance wraps response data in a provenance envelope:
+// {"results": ..., "meta": {...}}. When data is valid JSON, it embeds as
+// the parsed shape; when data is non-JSON (e.g., XML/RSS responses, plain
+// text), it embeds as a JSON string so json.Marshal doesn't choke on
+// "invalid character '<'" while still passing the raw payload through to
+// the consumer.
+func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMessage, error) {
+	meta := map[string]any{"source": prov.Source}
+	if prov.SyncedAt != nil {
+		meta["synced_at"] = prov.SyncedAt.UTC().Format(time.RFC3339)
+	}
+	if prov.Reason != "" {
+		meta["reason"] = prov.Reason
+	}
+	if prov.ResourceType != "" {
+		meta["resource_type"] = prov.ResourceType
+	}
+	if prov.Freshness != nil {
+		meta["freshness"] = prov.Freshness
+	}
+	var results any = json.RawMessage(data)
+	if !json.Valid(data) {
+		results = string(data)
+	}
+	envelope := map[string]any{
+		"results": results,
+		"meta":    meta,
+	}
+	return json.Marshal(envelope)
+}
+
+// defaultDBPath returns the canonical path for the local SQLite database.
+func defaultDBPath(name string) string {
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, ".local", "share", name, "data.db")
 }

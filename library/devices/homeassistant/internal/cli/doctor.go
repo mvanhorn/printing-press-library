@@ -4,10 +4,14 @@
 package cli
 
 import (
+	"context"
+	"database/sql"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strings"
+	"time"
 
 	"homeassistant-pp-cli/internal/client"
 	"homeassistant-pp-cli/internal/config"
@@ -184,9 +188,11 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			} else if cfg != nil && cfg.BaseURL == "" {
 				report["api"] = "not configured (set base_url in config file)"
 			}
-
-			// Add cache report for agent-native freshness surface
-			report["cache"] = collectCacheReport()
+			// Cache health: only reported when this CLI has a local store.
+			// Surfaces rows + last_synced_at per resource, schema version,
+			// and a fresh/stale/unknown verdict so agents can introspect
+			// whether to trust the cached data before issuing queries.
+			report["cache"] = collectCacheReport(cmd.Context(), "")
 
 			report["version"] = version
 
@@ -241,6 +247,13 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			if hint, ok := report["auth_hint"]; ok {
 				fmt.Fprintf(w, "  hint: %v\n", hint)
 			}
+			// Cache section: render after the primary health block so it
+			// sits next to version info, mirroring the JSON report layout.
+			if cacheAny, ok := report["cache"]; ok {
+				if cacheRep, ok := cacheAny.(map[string]any); ok {
+					renderCacheReport(w, cacheRep)
+				}
+			}
 			return doctorExitForFailOn(failOn, report)
 		},
 	}
@@ -288,27 +301,146 @@ func doctorExitForFailOn(failOn string, report map[string]any) error {
 	return nil
 }
 
-// collectCacheReport gathers freshness metrics for the agent surface.
-func collectCacheReport() map[string]any {
-	report := map[string]any{
-		"status": "ok",
-		"freshness": "valid",
+// collectCacheReport opens the local store, reads per-resource sync state,
+// and returns a map summarising cache health. Never panics on missing DB
+// or open failure; returns a map with status=unknown or status=error so the
+// caller can render and agents can interpret.
+//
+// staleAfterSpec is the CLI's configured threshold (e.g. "6h"); empty means
+// use the runtime default. The default is deliberately conservative (6h)
+// because the alternative is no freshness story at all.
+func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]any {
+	report := map[string]any{}
+	dbPath := defaultDBPath("homeassistant-pp-cli")
+	report["db_path"] = dbPath
+
+	fi, err := os.Stat(dbPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			report["status"] = "unknown"
+			report["hint"] = "Database not created yet; run 'homeassistant-pp-cli sync' to hydrate."
+			return report
+		}
+		report["status"] = "error"
+		report["error"] = err.Error()
+		return report
 	}
-	db, err := store.Open("")
+	report["db_bytes"] = fi.Size()
+
+	s, err := store.OpenWithContext(ctx, dbPath)
 	if err != nil {
 		report["status"] = "error"
 		report["error"] = err.Error()
 		return report
 	}
-	count, _ := db.StateCount()
-	report["entity_count"] = count
+	defer s.Close()
 
-	lastSync, _ := db.GetSyncState("last_synced_at")
-	if lastSync != "" {
-		report["last_sync"] = lastSync
-	} else {
+	if v, verr := s.SchemaVersion(); verr == nil {
+		report["schema_version"] = v
+	}
+
+	staleAfter := 6 * time.Hour
+	if staleAfterSpec != "" {
+		if d, derr := time.ParseDuration(staleAfterSpec); derr == nil {
+			staleAfter = d
+		}
+	}
+
+	rows, qerr := s.DB().Query(`SELECT resource_type, COALESCE(total_count, 0), last_synced_at FROM sync_state ORDER BY resource_type`)
+	if qerr != nil {
+		// sync_state may not exist on a fresh DB that has migrated but not
+		// yet had any sync runs — treat as unknown rather than error.
+		report["status"] = "unknown"
+		report["hint"] = "No sync state recorded; run 'homeassistant-pp-cli sync' to populate."
+		return report
+	}
+	defer rows.Close()
+
+	var resources []map[string]any
+	fresh := true
+	haveAny := false
+	oldest := time.Duration(0)
+	for rows.Next() {
+		var rtype string
+		var count int64
+		var lastSynced sql.NullTime
+		if err := rows.Scan(&rtype, &count, &lastSynced); err != nil {
+			continue
+		}
+		r := map[string]any{"type": rtype, "rows": count}
+		if lastSynced.Valid {
+			haveAny = true
+			r["last_synced_at"] = lastSynced.Time.UTC().Format(time.RFC3339)
+			age := time.Since(lastSynced.Time)
+			r["staleness"] = age.Round(time.Minute).String()
+			if age > staleAfter {
+				fresh = false
+			}
+			if age > oldest {
+				oldest = age
+			}
+		} else {
+			r["staleness"] = "never"
+			fresh = false
+		}
+		resources = append(resources, r)
+	}
+	report["resources"] = resources
+	report["stale_after"] = staleAfter.String()
+
+	switch {
+	case !haveAny && len(resources) == 0:
+		report["status"] = "unknown"
+		report["hint"] = "sync_state is empty; run 'homeassistant-pp-cli sync' to hydrate."
+	case fresh:
+		report["status"] = "fresh"
+	default:
 		report["status"] = "stale"
-		report["freshness"] = "stale"
+		report["oldest_age"] = oldest.Round(time.Minute).String()
+		report["hint"] = "Some resources are older than stale_after; run 'homeassistant-pp-cli sync' to refresh."
 	}
 	return report
+}
+
+func renderCacheReport(w io.Writer, rep map[string]any) {
+	status, _ := rep["status"].(string)
+	indicator := green("OK")
+	switch status {
+	case "stale":
+		indicator = yellow("WARN")
+	case "error":
+		indicator = red("FAIL")
+	case "unknown":
+		indicator = yellow("INFO")
+	}
+	fmt.Fprintf(w, "  %s Cache: %s\n", indicator, status)
+	if v, ok := rep["db_path"]; ok {
+		fmt.Fprintf(w, "    db_path: %v\n", v)
+	}
+	if v, ok := rep["schema_version"]; ok {
+		fmt.Fprintf(w, "    schema_version: %v\n", v)
+	}
+	if v, ok := rep["db_bytes"]; ok {
+		fmt.Fprintf(w, "    db_bytes: %v\n", v)
+	}
+	if v, ok := rep["stale_after"]; ok {
+		fmt.Fprintf(w, "    stale_after: %v\n", v)
+	}
+	if v, ok := rep["oldest_age"]; ok {
+		fmt.Fprintf(w, "    oldest_age: %v\n", v)
+	}
+	if resourcesAny, ok := rep["resources"]; ok {
+		if resources, ok := resourcesAny.([]map[string]any); ok && len(resources) > 0 {
+			fmt.Fprintf(w, "    resources:\n")
+			for _, r := range resources {
+				rtype, _ := r["type"].(string)
+				rows := r["rows"]
+				staleness, _ := r["staleness"].(string)
+				fmt.Fprintf(w, "      - %s: %v rows, %s\n", rtype, rows, staleness)
+			}
+		}
+	}
+	if hint, ok := rep["hint"]; ok {
+		fmt.Fprintf(w, "    hint: %v\n", hint)
+	}
 }

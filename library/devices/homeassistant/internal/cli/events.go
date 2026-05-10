@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 
 	"github.com/spf13/cobra"
 	"homeassistant-pp-cli/internal/cliutil"
@@ -119,6 +120,9 @@ func newEventsFireCmd(flags *rootFlags) *cobra.Command {
 			payload := "{}"
 			if len(args) > 1 {
 				payload = args[1]
+				if !json.Valid([]byte(payload)) {
+					return fmt.Errorf("invalid JSON payload: %s", payload)
+				}
 			}
 
 			c, err := flags.newClient() // pp:client-call
@@ -127,7 +131,7 @@ func newEventsFireCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			req, err := http.NewRequestWithContext(context.Background(), "POST",
-				fmt.Sprintf("%s/events/%s", c.Config.BaseURL, eventType),
+				fmt.Sprintf("%s/events/%s", c.Config.BaseURL, url.PathEscape(eventType)),
 				bytes.NewBufferString(payload))
 			if err != nil {
 				return err

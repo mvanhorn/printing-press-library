@@ -13,14 +13,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newHassioCreateInfoCmd(flags *rootFlags) *cobra.Command {
+func newServicesCallServiceCmd(flags *rootFlags) *cobra.Command {
+	var bodyEntityId string
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-info <id>",
-		Short: "POST /api/hassio/addons/{id}/info",
-		Example: "  homeassistant-pp-cli hassio create-info 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "hassio.create_info", "pp:method": "POST", "pp:path": "/api/hassio/addons/{id}/info"},
+		Use:   "call-service <domain> <service>",
+		Short: "Calls a service within a specific domain with optional service_data",
+		Example: "  homeassistant-pp-cli services call-service example-value example-value",
+		Annotations: map[string]string{"pp:endpoint": "services.call_service", "pp:method": "POST", "pp:path": "/api/services/{domain}/{service}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -32,8 +33,12 @@ func newHassioCreateInfoCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/api/hassio/addons/{id}/info"
-			path = replacePathParam(path, "id", url.PathEscape(args[0]))
+			path := "/api/services/{domain}/{service}"
+			path = replacePathParam(path, "domain", url.PathEscape(args[0]))
+			if len(args) < 2 {
+				return usageErr(fmt.Errorf("service is required\nUsage: %s <%s>", cmd.CommandPath(), "service"))
+			}
+			path = replacePathParam(path, "service", url.PathEscape(args[1]))
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
@@ -47,6 +52,9 @@ func newHassioCreateInfoCmd(flags *rootFlags) *cobra.Command {
 				body = jsonBody
 			} else {
 				body = map[string]any{}
+				if bodyEntityId != "" {
+					body["entity_id"] = bodyEntityId
+				}
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
@@ -88,7 +96,7 @@ func newHassioCreateInfoCmd(flags *rootFlags) *cobra.Command {
 				}
 				envelope := map[string]any{
 					"action":   "post",
-					"resource": "hassio",
+					"resource": "services",
 					"path":     path,
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300,
@@ -113,6 +121,7 @@ func newHassioCreateInfoCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
+	cmd.Flags().StringVar(&bodyEntityId, "entity-id", "", "")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

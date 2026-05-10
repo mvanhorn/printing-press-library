@@ -11,42 +11,23 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newDefaultPromotedCmd(flags *rootFlags) *cobra.Command {
+func newComponentsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "default <id>",
-		Short: "POST /{id}",
-		Long:  "Shortcut for 'default create_endpoint'. POST /{id}",
-		Example: "  homeassistant-pp-cli default 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "default.create_endpoint", "pp:method": "POST", "pp:path": "/{id}"},
+		Use:   "components",
+		Short: "Returns a list of currently loaded components",
+		Long:  "Shortcut for 'components list_components'. Returns a list of currently loaded components",
+		Example: "  homeassistant-pp-cli components",
+		Annotations: map[string]string{"pp:endpoint": "components.list_components", "pp:method": "GET", "pp:path": "/api/components", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/{id}"
-			if len(args) < 1 {
-				// JSON envelope: {error, usage}. Written first; the
-				// usageErr return preserves exit code 2 across modes.
-				if flags.asJSON {
-					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-						"error": "id is required",
-						"usage": fmt.Sprintf("%s <%s>", cmd.CommandPath(), "id"),
-					}, flags); printErr != nil {
-						return printErr
-					}
-				}
-				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
-			}
-			path = replacePathParam(path, "id", args[0])
-			// HasStore + non-GET falls through to a live API call here
-			// rather than through resolveRead (GET-only internally); a
-			// body-aware cached read helper is filed as #425 for when a
-			// second store-backed POST-search consumer ships.
-			body := map[string]any{}
-			data, _, err := c.Post(path, body)
-			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
+			path := "/api/components"
+			params := map[string]string{}
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "components", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

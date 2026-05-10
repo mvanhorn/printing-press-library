@@ -386,8 +386,8 @@ func (c *Client) refreshAccessToken() error {
 		return nil
 	}
 
-	tokenURL := ""
-	if tokenURL == "" {
+	tokenURL := strings.TrimSuffix(c.Config.BaseURL, "/api") + "/auth/token"
+	if tokenURL == "/auth/token" {
 		return nil
 	}
 

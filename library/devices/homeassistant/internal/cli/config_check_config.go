@@ -8,23 +8,19 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"net/url"
 
 	"github.com/spf13/cobra"
 )
 
-func newHassioCreateInfoCmd(flags *rootFlags) *cobra.Command {
+func newConfigCheckConfigCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "create-info <id>",
-		Short: "POST /api/hassio/addons/{id}/info",
-		Example: "  homeassistant-pp-cli hassio create-info 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "hassio.create_info", "pp:method": "POST", "pp:path": "/api/hassio/addons/{id}/info"},
+		Use:   "check-config",
+		Short: "Trigger a check of configuration.yaml and return validation result",
+		Example: "  homeassistant-pp-cli config check-config",
+		Annotations: map[string]string{"pp:endpoint": "config.check_config", "pp:method": "POST", "pp:path": "/api/config/core/check_config"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
-				return cmd.Help()
-			}
 			if !stdinBody {
 			}
 			c, err := flags.newClient()
@@ -32,8 +28,7 @@ func newHassioCreateInfoCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/api/hassio/addons/{id}/info"
-			path = replacePathParam(path, "id", url.PathEscape(args[0]))
+			path := "/api/config/core/check_config"
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
@@ -88,7 +83,7 @@ func newHassioCreateInfoCmd(flags *rootFlags) *cobra.Command {
 				}
 				envelope := map[string]any{
 					"action":   "post",
-					"resource": "hassio",
+					"resource": "config",
 					"path":     path,
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300,

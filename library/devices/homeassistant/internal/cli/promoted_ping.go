@@ -27,8 +27,42 @@ func newPingPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/ping"
 			data, _, err := c.Delete(path)
+			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
 				return classifyAPIError(err, flags)
+			}
+			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
+			// so output helpers see the inner data, not the wrapper.
+			data = extractResponseData(data)
+
+			// Print provenance to stderr
+			{
+				var countItems []json.RawMessage
+				if json.Unmarshal(data, &countItems) != nil {
+					// Single object, not an array
+					countItems = []json.RawMessage{data}
+				}
+				printProvenance(cmd, len(countItems), prov)
+			}
+			// CSV bypasses JSON pipe path so --csv works when piped
+			if flags.csv {
+				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			}
+			// For JSON output, wrap with provenance envelope. --select wins over
+			// --compact when both are set; --compact only runs when no explicit
+			// fields were requested.
+			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+				filtered := data
+				if flags.selectFields != "" {
+					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
+				}
+				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
+				if wrapErr != nil {
+					return wrapErr
+				}
+				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any

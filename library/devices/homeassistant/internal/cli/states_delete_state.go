@@ -6,51 +6,33 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 	"net/url"
 
 	"github.com/spf13/cobra"
 )
 
-func newHassioCreateInfoCmd(flags *rootFlags) *cobra.Command {
-	var stdinBody bool
+func newStatesDeleteStateCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "create-info <id>",
-		Short: "POST /api/hassio/addons/{id}/info",
-		Example: "  homeassistant-pp-cli hassio create-info 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "hassio.create_info", "pp:method": "POST", "pp:path": "/api/hassio/addons/{id}/info"},
+		Use:   "delete-state <entity_id>",
+		Short: "Deletes an entity with the specified entity_id",
+		Example: "  homeassistant-pp-cli states delete-state 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "states.delete_state", "pp:method": "DELETE", "pp:path": "/api/states/{entity_id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
-			}
-			if !stdinBody {
 			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/api/hassio/addons/{id}/info"
-			path = replacePathParam(path, "id", url.PathEscape(args[0]))
-			var body map[string]any
-			if stdinBody {
-				stdinData, err := io.ReadAll(os.Stdin)
-				if err != nil {
-					return fmt.Errorf("reading stdin: %w", err)
-				}
-				var jsonBody map[string]any
-				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
-					return fmt.Errorf("parsing stdin JSON: %w", err)
-				}
-				body = jsonBody
-			} else {
-				body = map[string]any{}
-			}
-			data, statusCode, err := c.Post(path, body)
+			path := "/api/states/{entity_id}"
+			path = replacePathParam(path, "entity_id", url.PathEscape(args[0]))
+			data, statusCode, err := c.Delete(path)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyDeleteError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -87,8 +69,8 @@ func newHassioCreateInfoCmd(flags *rootFlags) *cobra.Command {
 					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
-					"action":   "post",
-					"resource": "hassio",
+					"action":   "delete",
+					"resource": "states",
 					"path":     path,
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300,
@@ -113,7 +95,6 @@ func newHassioCreateInfoCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd
 }

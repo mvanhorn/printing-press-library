@@ -10,7 +10,7 @@ import (
 func newHassioCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "hassio",
-		Short: "Operations on info",
+		Short: "Operations on Hassio addon management",
 	}
 
 	cmd.AddCommand(newHassioCreateInfoCmd(flags))

@@ -19,10 +19,68 @@ import (
 	"homeassistant-pp-cli/internal/client"
 	"homeassistant-pp-cli/internal/config"
 	"homeassistant-pp-cli/internal/mcp/cobratree"
+	"homeassistant-pp-cli/internal/store"
 )
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
+	s.AddTool(
+		mcplib.NewTool("calendars_get_calendar_events",
+			mcplib.WithDescription("Returns calendar events between start and end times. Required: start, end, entity_id."),
+			mcplib.WithString("start", mcplib.Required(), mcplib.Description("")),
+			mcplib.WithString("end", mcplib.Required(), mcplib.Description("")),
+			mcplib.WithString("entity_id", mcplib.Required(), mcplib.Description("entity_id")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/api/calendars/{entity_id}", []mcpParamBinding{{PublicName: "start", WireName: "start", Location: "query"},{PublicName: "end", WireName: "end", Location: "query"},{PublicName: "entity_id", WireName: "entity_id", Location: "path"}, }, []string{"entity_id", }),
+	)
+	s.AddTool(
+		mcplib.NewTool("calendars_list_calendars",
+			mcplib.WithDescription("Returns the list of calendar entities."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/api/calendars", []mcpParamBinding{ }, []string{ }),
+	)
+	s.AddTool(
+		mcplib.NewTool("camera_get_camera_image",
+			mcplib.WithDescription("Returns the image data from the specified camera entity. Required: entity_id."),
+			mcplib.WithString("entity_id", mcplib.Required(), mcplib.Description("entity_id")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/api/camera_proxy/{entity_id}", []mcpParamBinding{{PublicName: "entity_id", WireName: "entity_id", Location: "path"}, }, []string{"entity_id", }),
+	)
+	s.AddTool(
+		mcplib.NewTool("components_list_components",
+			mcplib.WithDescription("Returns a list of currently loaded components."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/api/components", []mcpParamBinding{ }, []string{ }),
+	)
+	s.AddTool(
+		mcplib.NewTool("config_check_config",
+			mcplib.WithDescription("Trigger a check of configuration.yaml and return validation result."),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/api/config/core/check_config", []mcpParamBinding{ }, []string{ }),
+	)
+	s.AddTool(
+		mcplib.NewTool("config_get_config",
+			mcplib.WithDescription("Returns the current configuration including version, location, timezone, and loaded components."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/api/config", []mcpParamBinding{ }, []string{ }),
+	)
 	s.AddTool(
 		mcplib.NewTool("default_create_endpoint",
 			mcplib.WithDescription("POST /{id}. Required: id."),
@@ -31,6 +89,33 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, }, []string{"id", }),
+	)
+	s.AddTool(
+		mcplib.NewTool("error_log_get_error_log",
+			mcplib.WithDescription("Retrieve all errors logged during the current session as plaintext."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/api/error_log", []mcpParamBinding{ }, []string{ }),
+	)
+	s.AddTool(
+		mcplib.NewTool("events_fire_event",
+			mcplib.WithDescription("Fires an event with event_type and optional event_data. Required: event_type."),
+			mcplib.WithString("event_type", mcplib.Required(), mcplib.Description("event_type")),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/api/events/{event_type}", []mcpParamBinding{{PublicName: "event_type", WireName: "event_type", Location: "path"}, }, []string{"event_type", }),
+	)
+	s.AddTool(
+		mcplib.NewTool("events_list_events",
+			mcplib.WithDescription("Returns an array of event objects with event name and listener count."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/api/events", []mcpParamBinding{ }, []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("hassio_create_info",
@@ -87,6 +172,43 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("POST", "/api/hassio/addons/{id}/uninstall", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, }, []string{"id", }),
 	)
 	s.AddTool(
+		mcplib.NewTool("history_get_history",
+			mcplib.WithDescription("Returns state changes in the past, filtered by entity and time range. Required: filter_entity_id, timestamp. Optional: end_time, minimal_response, no_attributes (plus 1 more)."),
+			mcplib.WithString("filter_entity_id", mcplib.Required(), mcplib.Description("")),
+			mcplib.WithString("end_time", mcplib.Description("")),
+			mcplib.WithBoolean("minimal_response", mcplib.Description("")),
+			mcplib.WithBoolean("no_attributes", mcplib.Description("")),
+			mcplib.WithBoolean("significant_changes_only", mcplib.Description("")),
+			mcplib.WithString("timestamp", mcplib.Required(), mcplib.Description("timestamp")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/api/history/period/{timestamp}", []mcpParamBinding{{PublicName: "filter_entity_id", WireName: "filter_entity_id", Location: "query"},{PublicName: "end_time", WireName: "end_time", Location: "query"},{PublicName: "minimal_response", WireName: "minimal_response", Location: "query"},{PublicName: "no_attributes", WireName: "no_attributes", Location: "query"},{PublicName: "significant_changes_only", WireName: "significant_changes_only", Location: "query"},{PublicName: "timestamp", WireName: "timestamp", Location: "path"}, }, []string{"timestamp", }),
+	)
+	s.AddTool(
+		mcplib.NewTool("intent_handle_intent",
+			mcplib.WithDescription("Handle an intent with name and data. Required: name. Optional: data."),
+			mcplib.WithString("name", mcplib.Required(), mcplib.Description("")),
+			mcplib.WithString("data", mcplib.Description("")),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/api/intent/handle", []mcpParamBinding{{PublicName: "name", WireName: "name", Location: "body"},{PublicName: "data", WireName: "data", Location: "body"}, }, []string{ }),
+	)
+	s.AddTool(
+		mcplib.NewTool("logbook_get_logbook",
+			mcplib.WithDescription("Returns an array of logbook entries with optional entity and time filters. Required: timestamp. Optional: entity, end_time."),
+			mcplib.WithString("entity", mcplib.Description("")),
+			mcplib.WithString("end_time", mcplib.Description("")),
+			mcplib.WithString("timestamp", mcplib.Required(), mcplib.Description("timestamp")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/api/logbook/{timestamp}", []mcpParamBinding{{PublicName: "entity", WireName: "entity", Location: "query"},{PublicName: "end_time", WireName: "end_time", Location: "query"},{PublicName: "timestamp", WireName: "timestamp", Location: "path"}, }, []string{"timestamp", }),
+	)
+	s.AddTool(
 		mcplib.NewTool("models_create_models",
 			mcplib.WithDescription("POST /models."),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -127,14 +249,72 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("POST", "/repository/update", []mcpParamBinding{ }, []string{ }),
 	)
 	s.AddTool(
-		mcplib.NewTool("states_get_states",
-			mcplib.WithDescription("GET /api/states/{id}. Required: id."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("id")),
+		mcplib.NewTool("services_call_service",
+			mcplib.WithDescription("Calls a service within a specific domain with optional service_data. Required: domain, service. Optional: entity_id. Returns array of state."),
+			mcplib.WithString("domain", mcplib.Required(), mcplib.Description("domain")),
+			mcplib.WithString("service", mcplib.Required(), mcplib.Description("service")),
+			mcplib.WithString("entity_id", mcplib.Description("")),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/api/services/{domain}/{service}", []mcpParamBinding{{PublicName: "domain", WireName: "domain", Location: "path"},{PublicName: "service", WireName: "service", Location: "path"},{PublicName: "entity_id", WireName: "entity_id", Location: "body"}, }, []string{"domain","service", }),
+	)
+	s.AddTool(
+		mcplib.NewTool("services_list_services",
+			mcplib.WithDescription("Returns an array of service objects grouped by domain."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/api/states/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, }, []string{"id", }),
+		makeAPIHandler("GET", "/api/services", []mcpParamBinding{ }, []string{ }),
+	)
+	s.AddTool(
+		mcplib.NewTool("states_delete_state",
+			mcplib.WithDescription("Deletes an entity with the specified entity_id. Required: entity_id. Destructive."),
+			mcplib.WithString("entity_id", mcplib.Required(), mcplib.Description("entity_id")),
+			mcplib.WithDestructiveHintAnnotation(true),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("DELETE", "/api/states/{entity_id}", []mcpParamBinding{{PublicName: "entity_id", WireName: "entity_id", Location: "path"}, }, []string{"entity_id", }),
+	)
+	s.AddTool(
+		mcplib.NewTool("states_get_states",
+			mcplib.WithDescription("Returns a state object for specified entity_id. Required: entity_id."),
+			mcplib.WithString("entity_id", mcplib.Required(), mcplib.Description("entity_id")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/api/states/{entity_id}", []mcpParamBinding{{PublicName: "entity_id", WireName: "entity_id", Location: "path"}, }, []string{"entity_id", }),
+	)
+	s.AddTool(
+		mcplib.NewTool("states_list_states",
+			mcplib.WithDescription("Returns an array of state objects with entity_id, state, last_changed and attributes."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/api/states", []mcpParamBinding{ }, []string{ }),
+	)
+	s.AddTool(
+		mcplib.NewTool("states_update_state",
+			mcplib.WithDescription("Updates or creates a state representation. Required: entity_id, state. Optional: attributes. Returns the new state."),
+			mcplib.WithString("entity_id", mcplib.Required(), mcplib.Description("entity_id")),
+			mcplib.WithString("state", mcplib.Required(), mcplib.Description("")),
+			mcplib.WithString("attributes", mcplib.Description("")),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/api/states/{entity_id}", []mcpParamBinding{{PublicName: "entity_id", WireName: "entity_id", Location: "path"},{PublicName: "state", WireName: "state", Location: "body"},{PublicName: "attributes", WireName: "attributes", Location: "body"}, }, []string{"entity_id", }),
+	)
+	s.AddTool(
+		mcplib.NewTool("template_render_template",
+			mcplib.WithDescription("Render a Home Assistant Jinja2 template and return the result as plaintext. Required: template."),
+			mcplib.WithString("template", mcplib.Required(), mcplib.Description("")),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/api/template", []mcpParamBinding{{PublicName: "template", WireName: "template", Location: "body"}, }, []string{ }),
 	)
 	s.AddTool(
 		mcplib.NewTool("websocket_create_websocket",
@@ -143,6 +323,27 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/api/websocket", []mcpParamBinding{ }, []string{ }),
+	)
+	// Search tool — faster than iterating list endpoints for finding specific items
+	s.AddTool(
+		mcplib.NewTool("search",
+			mcplib.WithDescription("Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)")),
+			mcplib.WithNumber("limit", mcplib.Description("Max results (default 25)")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+		),
+		handleSearch,
+	)
+	// SQL tool — ad-hoc analysis on synced data without API calls
+	s.AddTool(
+		mcplib.NewTool("sql",
+			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Tables match resource names.")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+		),
+		handleSQL,
 	)
 
 	// Context tool — front-loaded domain knowledge for agents.
@@ -322,12 +523,136 @@ func dbPath() string {
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
 
+func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	args := req.GetArguments()
+	query, ok := args["query"].(string)
+	if !ok || query == "" {
+		return mcplib.NewToolResultError("query is required"), nil
+	}
+
+	limit := 25
+	if v, ok := args["limit"].(float64); ok && v > 0 {
+		limit = int(v)
+	}
+
+	db, err := store.OpenReadOnly(dbPath())
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
+	}
+	defer db.Close()
+
+	results, err := db.Search(query, limit)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("search failed: %v", err)), nil
+	}
+
+	data, _ := json.MarshalIndent(results, "", "  ")
+	return mcplib.NewToolResultText(string(data)), nil
+}
+
+// validateReadOnlyQuery gates the MCP sql tool. The agent contract advertised
+// to the host is ReadOnlyHintAnnotation(true); a false annotation on a
+// mutating tool lets MCP hosts auto-approve writes and is treated as a real
+// bug per the project's agent-native security model.
+//
+// The gate is an allowlist (SELECT or WITH only) applied AFTER stripping the
+// leading whitespace, line comments, block comments, and semicolons that
+// SQLite itself ignores before parsing. A naive HasPrefix check on a
+// keyword blocklist is bypassable by prefixing the dangerous statement with
+// "/* x */" or "-- x\n" — TrimSpace strips outer whitespace but does not
+// understand SQL comment syntax. Combined with the empirical fact that
+// modernc.org/sqlite's mode=ro does NOT block VACUUM INTO (writes a snapshot
+// to a new file) or ATTACH DATABASE (opens a separate writable handle),
+// such a bypass produces silent exfiltration to an attacker-chosen path.
+//
+// SELECT and WITH are the only allowed leading keywords. WITH supports
+// SELECT-form CTEs; CTE-wrapped writes ("WITH x AS (...) INSERT ...") are
+// caught by OpenReadOnly's mode=ro one layer down. PRAGMA, ATTACH, VACUUM,
+// and every other DDL/DML keyword fail at this gate before reaching SQLite.
+func validateReadOnlyQuery(query string) error {
+	upper := strings.ToUpper(stripLeadingSQLNoise(query))
+	if !strings.HasPrefix(upper, "SELECT") && !strings.HasPrefix(upper, "WITH") {
+		return fmt.Errorf("only SELECT queries are allowed")
+	}
+	return nil
+}
+
+// stripLeadingSQLNoise removes leading whitespace, SQL line comments
+// (-- to end of line), block comments (/* ... */), and statement
+// separators (;) from query. SQLite skips these before parsing the first
+// keyword, so a security gate that does not strip them mismatches what the
+// driver actually executes.
+func stripLeadingSQLNoise(query string) string {
+	for {
+		query = strings.TrimLeft(query, " \t\r\n;")
+		switch {
+		case strings.HasPrefix(query, "--"):
+			if idx := strings.IndexByte(query, '\n'); idx >= 0 {
+				query = query[idx+1:]
+				continue
+			}
+			return ""
+		case strings.HasPrefix(query, "/*"):
+			if idx := strings.Index(query[2:], "*/"); idx >= 0 {
+				query = query[2+idx+2:]
+				continue
+			}
+			return ""
+		default:
+			return query
+		}
+	}
+}
+
+func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	args := req.GetArguments()
+	query, ok := args["query"].(string)
+	if !ok || query == "" {
+		return mcplib.NewToolResultError("query is required"), nil
+	}
+
+	if err := validateReadOnlyQuery(query); err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
+
+	db, err := store.OpenReadOnly(dbPath())
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
+	}
+	defer db.Close()
+
+	rows, err := db.Query(query)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("query failed: %v", err)), nil
+	}
+	defer rows.Close()
+
+	cols, _ := rows.Columns()
+	var results []map[string]any
+	for rows.Next() {
+		values := make([]any, len(cols))
+		ptrs := make([]any, len(cols))
+		for i := range values {
+			ptrs[i] = &values[i]
+		}
+		rows.Scan(ptrs...)
+		row := make(map[string]any)
+		for i, col := range cols {
+			row[col] = values[i]
+		}
+		results = append(results, row)
+	}
+
+	data, _ := json.MarshalIndent(results, "", "  ")
+	return mcplib.NewToolResultText(string(data)), nil
+}
+
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
 		"api":         "homeassistant",
-		"description": "A unified interface for your smart home with offline search and streaming states.",
+		"description": "Discovered API spec for homeassistant (crowd-sniff)",
 		"archetype":   "developer-platform",
-		"tool_count":  14,
+		"tool_count":  32,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion homeassistant-pp-cli binary.",
 		"auth": map[string]any{
@@ -344,14 +669,67 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		},
 		"resources": []map[string]any{
 			{
+				"name": "calendars",
+				"description": "Calendar entity operations",
+				"endpoints": []string{"get_calendar_events", "list_calendars",  },
+				"syncable": true,
+				"searchable": true,
+			},
+			{
+				"name": "camera",
+				"description": "Camera proxy",
+				"endpoints": []string{"get_camera_image",  },
+				"searchable": true,
+			},
+			{
+				"name": "components",
+				"description": "Loaded integration components",
+				"endpoints": []string{"list_components",  },
+				"syncable": true,
+			},
+			{
+				"name": "config",
+				"description": "Home Assistant instance configuration",
+				"endpoints": []string{"check_config", "get_config",  },
+			},
+			{
 				"name": "default",
 				"description": "Operations on default",
 				"endpoints": []string{"create_endpoint",  },
 			},
 			{
+				"name": "error_log",
+				"description": "Error log retrieval",
+				"endpoints": []string{"get_error_log",  },
+			},
+			{
+				"name": "events",
+				"description": "Event bus operations",
+				"endpoints": []string{"fire_event", "list_events",  },
+				"syncable": true,
+			},
+			{
 				"name": "hassio",
-				"description": "Operations on info",
+				"description": "Operations on Hassio addon management",
 				"endpoints": []string{"create_info", "create_install", "create_restart", "create_start", "create_stop", "create_uninstall",  },
+			},
+			{
+				"name": "history",
+				"description": "State change history",
+				"endpoints": []string{"get_history",  },
+				"searchable": true,
+			},
+			{
+				"name": "intent",
+				"description": "Intent handling",
+				"endpoints": []string{"handle_intent",  },
+				"searchable": true,
+			},
+			{
+				"name": "logbook",
+				"description": "Activity logbook",
+				"endpoints": []string{"get_logbook",  },
+				"searchable": true,
 			},
 			{
 				"name": "models",
@@ -369,9 +747,23 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"endpoints": []string{"create_install", "create_uninstall", "create_update",  },
 			},
 			{
+				"name": "services",
+				"description": "Service domain operations",
+				"endpoints": []string{"call_service", "list_services",  },
+				"syncable": true,
+				"searchable": true,
+			},
+			{
 				"name": "states",
 				"description": "Operations on states",
-				"endpoints": []string{"get_states",  },
+				"endpoints": []string{"delete_state", "get_states", "list_states", "update_state",  },
+				"syncable": true,
+				"searchable": true,
+			},
+			{
+				"name": "template",
+				"description": "Template rendering",
+				"endpoints": []string{"render_template",  },
 				"searchable": true,
 			},
 			{
@@ -383,18 +775,11 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"query_tips": []string{
 			"Pagination uses cursor-based paging. Pass after parameter for subsequent pages.",
 			"Control page size with the limit parameter (default 100).",
-		},
-		// Command-mirror capabilities are exposed through MCP by shelling out
-		// to the companion CLI binary.
-		"command_mirror_capabilities": []map[string]string{
-			{"name": "FTS Entity Search", "command": "homeassistant find", "description": "Find exact entities instantly using full-text search across friendly names and attributes.", "rationale": "Requires pulling all states and indexing them in local SQLite.", "via": "mcp-command-mirror"},
-			{"name": "State Tailing", "command": "homeassistant monitor", "description": "Stream state changes live to the terminal.", "rationale": "Requires maintaining an active connection and structured streaming.", "via": "mcp-command-mirror"},
-			{"name": "Service Schema", "command": "homeassistant services payload", "description": "Print the exact JSON payload expected by any Home Assistant service.", "rationale": "Reads from the `/api/services` schema dynamically.", "via": "mcp-command-mirror"},
+			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
+			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
+			"Prefer sql/search over repeated API calls when the data is already synced.",
 		},
 		"playbook": []map[string]string{
-			{"topic": "FTS Entity Search", "insight": "Requires pulling all states and indexing them in local SQLite."},
-			{"topic": "State Tailing", "insight": "Requires maintaining an active connection and structured streaming."},
-			{"topic": "Service Schema", "insight": "Reads from the `/api/services` schema dynamically."},
 			{"topic": "Resource discovery", "insight": "Use list commands to discover available resources before attempting operations. Developer platform APIs often have nested resource hierarchies."},
 		},
 	}

@@ -11,40 +11,41 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newDefaultPromotedCmd(flags *rootFlags) *cobra.Command {
+func newIntentPromotedCmd(flags *rootFlags) *cobra.Command {
+	var bodyName string
+	var bodyData string
 
 	cmd := &cobra.Command{
-		Use:   "default <id>",
-		Short: "POST /{id}",
-		Long:  "Shortcut for 'default create_endpoint'. POST /{id}",
-		Example: "  homeassistant-pp-cli default 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "default.create_endpoint", "pp:method": "POST", "pp:path": "/{id}"},
+		Use:   "intent",
+		Short: "Handle an intent with name and data",
+		Long:  "Shortcut for 'intent handle_intent'. Handle an intent with name and data",
+		Example: "  homeassistant-pp-cli intent --name example-resource",
+		Annotations: map[string]string{"pp:endpoint": "intent.handle_intent", "pp:method": "POST", "pp:path": "/api/intent/handle"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if !cmd.Flags().Changed("name") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "name")
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/{id}"
-			if len(args) < 1 {
-				// JSON envelope: {error, usage}. Written first; the
-				// usageErr return preserves exit code 2 across modes.
-				if flags.asJSON {
-					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-						"error": "id is required",
-						"usage": fmt.Sprintf("%s <%s>", cmd.CommandPath(), "id"),
-					}, flags); printErr != nil {
-						return printErr
-					}
-				}
-				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
-			}
-			path = replacePathParam(path, "id", args[0])
+			path := "/api/intent/handle"
 			// HasStore + non-GET falls through to a live API call here
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
 			// second store-backed POST-search consumer ships.
 			body := map[string]any{}
+			if bodyName != "" {
+				body["name"] = bodyName
+			}
+			if bodyData != "" {
+				var parsedData any
+				if err := json.Unmarshal([]byte(bodyData), &parsedData); err != nil {
+					return fmt.Errorf("parsing --data JSON: %w", err)
+				}
+				body["data"] = parsedData
+			}
 			data, _, err := c.Post(path, body)
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
@@ -98,6 +99,8 @@ func newDefaultPromotedCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
+	cmd.Flags().StringVar(&bodyName, "name", "", "")
+	cmd.Flags().StringVar(&bodyData, "data", "", "")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

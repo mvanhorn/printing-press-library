@@ -81,14 +81,3 @@ func SanitizeErrorBody(msg string) string {
 	msg = credPatterns.ReplaceAllString(msg, "[REDACTED]")
 	return msg
 }
-
-// Truncate shortens a string to the specified length, appending "..." if it was truncated.
-func Truncate(s string, limit int) string {
-	if len(s) > limit {
-		if limit > 3 {
-			return s[:limit-3] + "..."
-		}
-		return s[:limit]
-	}
-	return s
-}

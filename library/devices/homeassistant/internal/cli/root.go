@@ -83,22 +83,11 @@ func Execute() error {
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "homeassistant-pp-cli",
-		Short: `Homeassistant CLI — A unified interface for your smart home with offline search and streaming states.`,
-		Long: `Homeassistant CLI — A unified interface for your smart home with offline search and streaming states.
+		Short: "Manage homeassistant resources via the homeassistant API",
+		Long: `Manage homeassistant resources via the homeassistant API.
 
-Highlights (not in the official API docs):
-  • homeassistant find   Find exact entities instantly using full-text search across friendly names and attributes.
-  • homeassistant monitor   Stream state changes live to the terminal.
-  • homeassistant services payload   Print the exact JSON payload expected by any Home Assistant service.
-  • homeassistant history   Query state change history for entities over a time period.
-  • homeassistant logbook   View the activity logbook with human-readable event descriptions.
-  • homeassistant template   Render a Home Assistant Jinja2 template server-side.
-  • homeassistant events   List event types or fire custom events on the HA event bus.
-  • homeassistant check-config   Validate the Home Assistant configuration.yaml remotely.
-
-Agent mode: add --agent to any command for JSON output + non-interactive mode.
-Health check: run 'homeassistant-pp-cli doctor' to verify auth and connectivity.
-See README.md or the bundled SKILL.md for recipes.`,
+Add --agent to any command for JSON output + non-interactive mode.
+Run 'homeassistant-pp-cli doctor' to verify auth and connectivity.`,
 		SilenceUsage: true,
 		Version:      version,
 	}
@@ -179,8 +168,13 @@ See README.md or the bundled SKILL.md for recipes.`,
 		}
 		return nil
 	}
+	rootCmd.AddCommand(newCalendarsCmd(flags))
+	rootCmd.AddCommand(newConfigCmd(flags))
+	rootCmd.AddCommand(newEventsCmd(flags))
 	rootCmd.AddCommand(newHassioCmd(flags))
 	rootCmd.AddCommand(newRepositoryCmd(flags))
+	rootCmd.AddCommand(newServicesCmd(flags))
+	rootCmd.AddCommand(newStatesCmd(flags))
 	rootCmd.AddCommand(newDoctorCmd(flags))
 	rootCmd.AddCommand(newAuthCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
@@ -188,30 +182,24 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newFeedbackCmd(flags))
 	rootCmd.AddCommand(newWhichCmd(flags))
 	rootCmd.AddCommand(newImportCmd(flags))
+	rootCmd.AddCommand(newSearchCmd(flags))
+	rootCmd.AddCommand(newSyncCmd(flags))
+	rootCmd.AddCommand(newTailCmd(flags))
+	rootCmd.AddCommand(newAnalyticsCmd(flags))
+	rootCmd.AddCommand(newWorkflowCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))
+	rootCmd.AddCommand(newCameraPromotedCmd(flags))
+	rootCmd.AddCommand(newComponentsPromotedCmd(flags))
 	rootCmd.AddCommand(newDefaultPromotedCmd(flags))
+	rootCmd.AddCommand(newErrorLogPromotedCmd(flags))
+	rootCmd.AddCommand(newHistoryPromotedCmd(flags))
+	rootCmd.AddCommand(newIntentPromotedCmd(flags))
+	rootCmd.AddCommand(newLogbookPromotedCmd(flags))
 	rootCmd.AddCommand(newModelsPromotedCmd(flags))
 	rootCmd.AddCommand(newPingPromotedCmd(flags))
-	rootCmd.AddCommand(newStatesPromotedCmd(flags))
+	rootCmd.AddCommand(newTemplatePromotedCmd(flags))
 	rootCmd.AddCommand(newWebsocketPromotedCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
-	rootCmd.AddCommand(newSyncCmd(flags))
-	rootCmd.AddCommand(newFindCmd(flags))
-	rootCmd.AddCommand(newMonitorCmd(flags))
-	rootCmd.AddCommand(newServicesCmd(flags))
-	rootCmd.AddCommand(newStaleCmd(flags))
-	rootCmd.AddCommand(newHAConfigCmd(flags))
-	rootCmd.AddCommand(newHistoryCmd(flags))
-	rootCmd.AddCommand(newLogbookCmd(flags))
-	rootCmd.AddCommand(newEventsCmd(flags))
-	rootCmd.AddCommand(newTemplateCmd(flags))
-	rootCmd.AddCommand(newErrorLogCmd(flags))
-	rootCmd.AddCommand(newCalendarsCmd(flags))
-	rootCmd.AddCommand(newCheckConfigCmd(flags))
-	rootCmd.AddCommand(newLoadCmd(flags))
-	rootCmd.AddCommand(newExportCmd(flags))
-	rootCmd.AddCommand(newAnalyticsCmd(flags))
-	rootCmd.AddCommand(newSQLCmd(flags))
 
 	return rootCmd
 }

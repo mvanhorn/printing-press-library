@@ -1,8 +1,6 @@
-# Home Assistant CLI
+# Homeassistant CLI
 
-**A unified interface for your smart home with offline search and streaming states.**
-
-Call services, read sensors, and search your entire Home Assistant entity list instantly. Built with local SQLite caching so you never have to guess an entity ID again.
+Discovered API spec for homeassistant (crowd-sniff)
 
 ## Install
 
@@ -50,93 +48,39 @@ Tell your OpenClaw agent (copy this):
 Install the pp-homeassistant skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-homeassistant. The skill defines how its required CLI can be installed.
 ```
 
-## Authentication
-
-Requires a Long-Lived Access Token generated from your Home Assistant user profile.
-
 ## Quick Start
 
+### 1. Install
+
+See [Install](#install) above.
+
+### 2. Set Up Credentials
+
+Get your access token from your API provider's developer portal, then store it:
+
 ```bash
-# Verify your token and connection.
-homeassistant doctor
-
-
-# Search for your light entities.
-homeassistant find light
-
-
-# Turn on a light.
-homeassistant services call light.turn_on '{"entity_id": "light.living_room"}'
-
+homeassistant-pp-cli auth set-token YOUR_TOKEN_HERE
 ```
 
-## Unique Features
+Or set it via environment variable:
 
-These capabilities aren't available in any other tool for this API.
+```bash
+export HOMEASSISTANT_TOKEN="your-token-here"
+```
 
-### Local state that compounds
-- **`homeassistant find`** — Find exact entities instantly using full-text search across friendly names and attributes.
+### 3. Verify Setup
 
-  _Agents can locate entity IDs without knowing the exact domain prefix._
+```bash
+homeassistant-pp-cli doctor
+```
 
-  ```bash
-  homeassistant find "living room light"
-  ```
+This checks your configuration and credentials.
 
-### Agent-native plumbing
-- **`homeassistant monitor`** — Stream state changes live to the terminal.
+### 4. Try Your First Command
 
-  _Allows waiting for an event to happen rather than polling._
-
-  ```bash
-  homeassistant monitor light.living_room
-  ```
-- **`homeassistant services payload`** — Print the exact JSON payload expected by any Home Assistant service.
-
-  _Self-documenting commands prevent malformed requests._
-
-  ```bash
-  homeassistant services payload light.turn_on
-  ```
-- **`homeassistant template`** — Render a Home Assistant Jinja2 template server-side.
-
-  _Agents can compute derived values using HA's native template language._
-
-  ```bash
-  homeassistant template "{{ states.light | count }} lights"
-  ```
-- **`homeassistant events`** — List event types or fire custom events on the HA event bus.
-
-  _Enables automation triggers and custom event-driven workflows._
-
-  ```bash
-  homeassistant events list
-  ```
-
-### Temporal intelligence
-- **`homeassistant history`** — Query state change history for entities over a time period.
-
-  _Agents can analyze trends and detect anomalies without polling._
-
-  ```bash
-  homeassistant history --entity sensor.living_room_temperature
-  ```
-- **`homeassistant logbook`** — View the activity logbook with human-readable event descriptions.
-
-  _Provides context about what happened and why, not just state values._
-
-  ```bash
-  homeassistant logbook --entity alarm_control_panel.area_001
-  ```
-
-### Operations
-- **`homeassistant check-config`** — Validate the Home Assistant configuration.yaml remotely.
-
-  _Catch config errors before restarting HA._
-
-  ```bash
-  homeassistant check-config
-  ```
+```bash
+homeassistant-pp-cli calendars get_calendar_events mock-value --start example-value --end example-value
+```
 
 ## Usage
 
@@ -144,15 +88,54 @@ Run `homeassistant-pp-cli --help` for the full command reference and flag list.
 
 ## Commands
 
+### calendars
+
+Calendar entity operations
+
+- **`homeassistant-pp-cli calendars get_calendar_events`** - Returns calendar events between start and end times
+- **`homeassistant-pp-cli calendars list_calendars`** - Returns the list of calendar entities
+
+### camera
+
+Camera proxy
+
+- **`homeassistant-pp-cli camera get_camera_image`** - Returns the image data from the specified camera entity
+
+### components
+
+Loaded integration components
+
+- **`homeassistant-pp-cli components list_components`** - Returns a list of currently loaded components
+
+### config
+
+Home Assistant instance configuration
+
+- **`homeassistant-pp-cli config check_config`** - Trigger a check of configuration.yaml and return validation result
+- **`homeassistant-pp-cli config get_config`** - Returns the current configuration including version, location, timezone, and loaded components
+
 ### default
 
 Operations on default
 
 - **`homeassistant-pp-cli default create_endpoint`** - POST /{id}
 
+### error_log
+
+Error log retrieval
+
+- **`homeassistant-pp-cli error_log get_error_log`** - Retrieve all errors logged during the current session as plaintext
+
+### events
+
+Event bus operations
+
+- **`homeassistant-pp-cli events fire_event`** - Fires an event with event_type and optional event_data
+- **`homeassistant-pp-cli events list_events`** - Returns an array of event objects with event name and listener count
+
 ### hassio
 
-Operations on info
+Operations on Hassio addon management
 
 - **`homeassistant-pp-cli hassio create_info`** - POST /api/hassio/addons/{id}/info
 - **`homeassistant-pp-cli hassio create_install`** - POST /api/hassio/addons/{id}/install
@@ -160,6 +143,24 @@ Operations on info
 - **`homeassistant-pp-cli hassio create_start`** - POST /api/hassio/addons/{id}/start
 - **`homeassistant-pp-cli hassio create_stop`** - POST /api/hassio/addons/{id}/stop
 - **`homeassistant-pp-cli hassio create_uninstall`** - POST /api/hassio/addons/{id}/uninstall
+
+### history
+
+State change history
+
+- **`homeassistant-pp-cli history get_history`** - Returns state changes in the past, filtered by entity and time range
+
+### intent
+
+Intent handling
+
+- **`homeassistant-pp-cli intent handle_intent`** - Handle an intent with name and data
+
+### logbook
+
+Activity logbook
+
+- **`homeassistant-pp-cli logbook get_logbook`** - Returns an array of logbook entries with optional entity and time filters
 
 ### models
 
@@ -181,11 +182,27 @@ Operations on install
 - **`homeassistant-pp-cli repository create_uninstall`** - POST /repository/uninstall
 - **`homeassistant-pp-cli repository create_update`** - POST /repository/update
 
+### services
+
+Service domain operations
+
+- **`homeassistant-pp-cli services call_service`** - Calls a service within a specific domain with optional service_data
+- **`homeassistant-pp-cli services list_services`** - Returns an array of service objects grouped by domain
+
 ### states
 
 Operations on states
 
-- **`homeassistant-pp-cli states get_states`** - GET /api/states/{id}
+- **`homeassistant-pp-cli states delete_state`** - Deletes an entity with the specified entity_id
+- **`homeassistant-pp-cli states get_states`** - Returns a state object for specified entity_id
+- **`homeassistant-pp-cli states list_states`** - Returns an array of state objects with entity_id, state, last_changed and attributes
+- **`homeassistant-pp-cli states update_state`** - Updates or creates a state representation
+
+### template
+
+Template rendering
+
+- **`homeassistant-pp-cli template render_template`** - Render a Home Assistant Jinja2 template and return the result as plaintext
 
 ### websocket
 
@@ -198,19 +215,19 @@ Operations on websocket
 
 ```bash
 # Human-readable table (default in terminal, JSON when piped)
-homeassistant-pp-cli default mock-value
+homeassistant-pp-cli calendars get_calendar_events mock-value --start example-value --end example-value
 
 # JSON for scripting and agents
-homeassistant-pp-cli default mock-value --json
+homeassistant-pp-cli calendars get_calendar_events mock-value --start example-value --end example-value --json
 
 # Filter to specific fields
-homeassistant-pp-cli default mock-value --json --select id,name,status
+homeassistant-pp-cli calendars get_calendar_events mock-value --start example-value --end example-value --json --select id,name,status
 
 # Dry run — show the request without sending
-homeassistant-pp-cli default mock-value --dry-run
+homeassistant-pp-cli calendars get_calendar_events mock-value --start example-value --end example-value --dry-run
 
 # Agent mode — JSON + compact + no prompts in one flag
-homeassistant-pp-cli default mock-value --agent
+homeassistant-pp-cli calendars get_calendar_events mock-value --start example-value --end example-value --agent
 ```
 
 ## Agent Usage
@@ -224,6 +241,7 @@ This CLI is designed for AI agent consumption:
 - **Explicit retries** - add `--idempotent` to create retries and `--ignore-missing` to delete retries when a no-op success is acceptable
 - **Confirmable** - `--yes` for explicit confirmation of destructive actions
 - **Piped input** - write commands can accept structured input when their help lists `--stdin`
+- **Offline-friendly** - sync/search commands can use the local SQLite store when available
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
@@ -319,22 +337,10 @@ Environment variables:
 - Check the resource ID is correct
 - Run the `list` command to see available items
 
-### API-specific
-
-- **Connection refused** — Ensure `HOMEASSISTANT_URL` includes the port (e.g. `http://homeassistant.local:8123/api`).
-
 ## HTTP Transport
 
 This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It does not require a resident browser process for normal API calls.
 
 ---
-
-## Sources & Inspiration
-
-This CLI was built by studying these projects and resources:
-
-- [**Home Assistant REST API**](https://developers.home-assistant.io/docs/api/rest/) — Official API documentation
-- [**homeassistant-cli**](https://github.com/home-assistant/home-assistant-cli) — Python (340 stars)
-- [**ha-cli**](https://github.com/home-assistant/cli) — Go (200 stars)
 
 Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)
