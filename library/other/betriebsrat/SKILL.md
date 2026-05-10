@@ -75,6 +75,8 @@ Signals: "I was dismissed", "ich wurde entlassen", "am I entitled", "was the BR 
 Framing: "was procedure followed, and what are you entitled to?"
 → Continue to Step A (run classification commands).
 
+**§ 103 special case:** If the affected person is a BR member themselves (signals: "ich bin Betriebsrat", "Betriebsratsmitglied", "ich bin im BR", "als BR-Mitglied", "I'm on the works council"), the procedure is § 103 — not § 102. Flag this immediately and run `decide "§ 103 Kündigung Betriebsratsmitglied"` as the primary classification. Ordinary dismissal is prohibited during the BR term + 1 year after (§ 15 KSchG). Extraordinary dismissal requires BR *Zustimmung* (not just Anhörung) — if BR refuses, employer must apply to labor court.
+
 #### Mode 3 — BR member
 Signals: "we received", "wir haben erhalten", "do we have to consent", "what's our deadline", "unser Arbeitgeber", "als Betriebsrat"
 
@@ -115,6 +117,9 @@ After running auto-classification, automatically chain follow-up commands when t
 | `nachteilsausgleich` claim > 0 | `sozialplan-calc` (same inputs) — compare claim vs. Sozialplan |
 | `check-anhoerung` finds incomplete Anhörung | `consequences kündigung` — explain implications of the clock not running |
 | `decide` returns MitbestimmungErzwingbar | `bv-template <topic>` — offer to generate the BV skeleton |
+| affected person is a BR member being dismissed | skip § 102 flow; run `decide "§ 103 Kündigung Betriebsratsmitglied"` and flag that Zustimmung + court substitution (not Anhörung) is the correct procedure |
+| `rights-check` on Betriebsübergang | `law 613a` + `consequences betriebsubergang` — explain transfer rights and 1-month objection window |
+| situation involves Kurzarbeit | run `decide "Kurzarbeit § 87 Nr. 3"` — co-determination is erzwingbar; BV or BV-equivalent required before employer can implement |
 
 Present chained results together with the primary result, clearly labelled.
 
@@ -445,6 +450,207 @@ betriebsrat prepare-meeting "Homeoffice-Regelung Betriebsvereinbarung" --agent
 - BV should cover: who qualifies, equipment (employer provides?), ergonomics, reachability hours, data protection, accident coverage, cost reimbursement
 - Employer **cannot unilaterally end** homeoffice governed by a BV without renegotiating
 - Individual agreements do not replace a BV — BV governs the framework for everyone
+
+---
+
+### Betriebsübergang (Business Transfer) — § 613a BGB + §§ 111–113 BetrVG
+
+Employer is selling the business, outsourcing a department, or merging — employment contracts transfer automatically to the new employer.
+
+```bash
+# 1. Check BR information and consultation rights
+betriebsrat rights-check "Betriebsübergang Unternehmensverkauf Outsourcing" --agent
+
+# 2. Get the legal framework
+betriebsrat law 613a --agent    # Transfer of employment contracts, void dismissal rule
+betriebsrat law 111 --agent    # Betriebsänderung rights (almost always triggered)
+
+# 3. Get structured decision support
+betriebsrat decide "Arbeitgeber verkauft Betrieb an anderen Unternehmer" --agent
+
+# 4. Get step-by-step checklist
+betriebsrat checklist "Betriebsübergang" --agent
+
+# 5. Understand consequences if employer skips the information duty
+betriebsrat consequences betriebsänderung --agent
+
+# 6. If layoffs are planned: check thresholds and draft Sozialplan
+betriebsrat massenentlassung --employees 200 --planned 30 --agent
+betriebsrat sozialplan-calc --salary 4500 --years 10 --age 45 --factor 0.75 --agent
+
+# 7. Request the transfer documentation
+betriebsrat auskunft --topic planung --reason "Betriebsübergang § 613a BGB — Unterrichtungspflicht" --agent
+```
+
+**Key facts for Betriebsübergang:**
+- Contracts transfer **automatically** — employees do not need to consent (§ 613a Abs. 1)
+- Every employee must be **informed in writing** before the transfer: date, reason, legal consequences, rights (§ 613a Abs. 5)
+- Employees have **1 month** to object to the transfer (§ 613a Abs. 6) — they stay with the old employer (risk: redundancy)
+- Dismissal **because of** the transfer is void (§ 613a Abs. 4); dismissal for other reasons is still valid
+- Existing BVs (Betriebsvereinbarungen) continue as individual contractual terms for **1 year** unless superseded by new BVs
+- BR information right: the transfer almost always constitutes a Betriebsänderung (§ 111) — Interessenausgleich and Sozialplan rights apply
+- If employer skips Interessenausgleich: every affected employee has a **Nachteilsausgleich claim** (§ 113)
+
+---
+
+### Kurzarbeit (Short-time Work) — § 87 Abs. 1 Nr. 3 BetrVG
+
+Employer wants to reduce working hours to avoid layoffs. BR consent is mandatory before any Kurzarbeit can be introduced.
+
+```bash
+# 1. Check co-determination right (erzwingbar)
+betriebsrat rights-check "Kurzarbeit Arbeitszeitreduzierung" --agent
+betriebsrat codetermination-type "Kurzarbeit" --agent
+
+# 2. Get the legal framework
+betriebsrat law 87 --agent   # § 87 Abs. 1 Nr. 3: temporary reduction/extension of working hours
+
+# 3. Get structured decision support
+betriebsrat decide "Arbeitgeber will Kurzarbeit einführen" --agent
+
+# 4. Get the checklist (BV required before introduction)
+betriebsrat checklist "Kurzarbeit" --agent
+
+# 5. Draft the Betriebsvereinbarung
+betriebsrat bv-template arbeitszeit --employer "Musterfirma GmbH" --agent
+
+# 6. Prepare the meeting
+betriebsrat prepare-meeting "Kurzarbeit § 87 Nr. 3" --agent
+```
+
+**Key facts for Kurzarbeit:**
+- § 87 Abs. 1 Nr. 3: **erzwingbare Mitbestimmung** — employer cannot implement Kurzarbeit without BR agreement
+- A BV (or at minimum an individual agreement per employee via § 87 Abs. 2) is required
+- BV must cover: scope (which departments), duration, amount of reduction, notice period, Kurzarbeitergeld entitlement
+- Employer must notify the Agentur für Arbeit to claim Kurzarbeitergeld (KUG) — BR agreement is a prerequisite
+- BR can use this as leverage to negotiate: retraining measures, re-hiring commitments, Sozialplan protections
+- Kurzarbeit does NOT substitute for a Massenentlassung procedure if the reduction is permanent — check § 17 KSchG if any terminations are also planned
+
+---
+
+### § 103 BetrVG — Dismissal of a BR Member
+
+Employer wants to dismiss an employee who is a works council member. Ordinary dismissal is banned; extraordinary dismissal requires BR consent and potentially labor court approval.
+
+```bash
+# 1. Get the legal framework (fundamentally different from § 102)
+betriebsrat law 103 --agent    # Extraordinary dismissal of BR member
+betriebsrat law 15 --agent     # § 15 KSchG: dismissal protection during term + 1 year after
+
+# 2. Classify the situation and get decision support
+betriebsrat decide "Arbeitgeber will Betriebsratsmitglied außerordentlich kündigen" --agent
+
+# 3. Get checklist for the BR response
+betriebsrat checklist "§ 103 Kündigung Betriebsratsmitglied" --agent
+
+# 4. Understand what happens if BR refuses
+betriebsrat consequences kündigung --agent  # consequences if employer bypasses consent
+
+# 5. Generate the BR resolution minutes (required — this is a BR resolution, not just a letter)
+betriebsrat protokoll --topic "§ 103 Zustimmungsverweigerung Kündigung [Name]" --br-size 7 --agent
+
+# 6. Draft the formal Zustimmungsverweigerung letter
+betriebsrat letter kündigung --type verweigerung --employee "[Name]" --ground "§ 103 BetrVG — Zustimmung verweigert" --agent
+```
+
+**Key facts for § 103:**
+- **Ordinary dismissal is completely prohibited** for BR members during their term and for 1 year after (§ 15 KSchG) — exceptions only at company closure
+- Extraordinary (fristlose) dismissal: employer must apply to BR for **Zustimmung** (§ 103 Abs. 1)
+- BR has **3 days** to respond (extraordinary dismissal — same as § 102 Abs. 2 S. 3); silence ≠ consent (unlike § 102)
+- If BR **refuses** or does not respond: employer must apply to labor court to **substitute consent** (Ersetzungsverfahren, § 103 Abs. 2)
+- Labor court substitutes consent only if the extraordinary dismissal is legally justified (wichtiger Grund, § 626 BGB)
+- Until the court decides: the BR member continues working
+- The BR member being dismissed is **excluded from voting** on the Zustimmung (§ 25 Abs. 1 S. 1 — conflict of interest)
+- Applies equally to: BR members, Ersatzmitglieder during active service, Wahlbewerber during election, JAV members
+
+---
+
+### Überstunden / Mehrarbeit (Overtime) — § 87 Abs. 1 Nr. 3 BetrVG
+
+Employer wants employees to work beyond regular hours. BR has an erzwingbares Mitbestimmungsrecht.
+
+```bash
+# 1. Check co-determination right
+betriebsrat rights-check "Überstunden Mehrarbeit Arbeitszeitverlängerung" --agent
+betriebsrat codetermination-type "Überstunden Anordnung" --agent
+
+# 2. Get the legal framework
+betriebsrat law 87 --agent   # § 87 Abs. 1 Nr. 3: temporary extension of working hours
+
+# 3. Get structured decision support
+betriebsrat decide "Arbeitgeber ordnet Überstunden an ohne BR-Zustimmung" --agent
+
+# 4. Understand consequences if employer bypasses the BR
+betriebsrat consequences software --agent  # substitute with: consequences for § 87 bypasses
+```
+
+**Key facts for Überstunden:**
+- § 87 Abs. 1 Nr. 3: **erzwingbare Mitbestimmung** for temporary extension of working hours
+- Applies to **anordnung** (employer ordering overtime), not volunteered overtime
+- BR can refuse consent — without BR agreement, employer may not order overtime unilaterally
+- Exception: true emergencies (natural disaster, sudden breakdown) where delay would cause disproportionate harm
+- A standing BV on overtime (Rahmen-BV) is the cleanest solution: sets daily/weekly limits, approval process, compensation
+- AR (Arbeitszeitkonto) — time credits also require a BV under § 87 Nr. 2
+- ArbZG limits: generally max 10 hours/day, 48 hours/week averaged — BR should flag violations even if they agree to overtime
+
+---
+
+### BR-Wahl (Works Council Election) — §§ 14–21 BetrVG
+
+No BR currently exists (or term has ended) and employees want to elect one.
+
+```bash
+# 1. Check if a BR can be elected
+betriebsrat rights-check "BR-Wahl Betriebsrat gründen wählen" --agent
+betriebsrat law 14 --agent    # Regular election procedure
+betriebsrat law 17 --agent    # Election when no BR exists (initiated by 3 employees or union)
+
+# 2. Get step-by-step election checklist
+betriebsrat checklist "BR-Wahl" --agent
+
+# 3. Understand employer obstruction consequences
+betriebsrat consequences kündigung --agent  # § 119 BetrVG: obstruction is a criminal offence
+```
+
+**Key facts for BR election:**
+- **Threshold:** ≥ 5 permanently employed workers in an establishment (§ 1 Abs. 1 BetrVG)
+- **Who can initiate:** 3 eligible employees, a trade union with members in the company (§ 17 Abs. 2)
+- **Wahlvorstand** (election committee): appointed by existing BR (§ 16) or by labor court / union if no BR exists (§ 17)
+- **Voting rights (aktiv):** all employees aged ≥ 18, including fixed-term and part-time (§ 7)
+- **Eligibility (passiv):** ≥ 18, employed for at least 6 months in the company (§ 8)
+- **Term:** 4 years; regular elections every 4 years in March–May (§ 21)
+- **BR size** (§ 9): 5–20 AN → 1; 21–50 → 3; 51–100 → 5; 101–200 → 7; 201–400 → 9; and so on
+- **Employer obstruction is a criminal offence** (§ 119 BetrVG): up to 1 year imprisonment or fine — applies to interference, threatening voters, or preventing the election
+- **Cost:** all election costs are borne by the employer (§ 20 Abs. 3)
+- **Simplified procedure** (vereinfachtes Wahlverfahren): mandatory for establishments with 5–100 employees, optional for 101–200
+
+---
+
+### § 85 BetrVG — Beschwerdeverfahren (Employee Complaints)
+
+An employee has a complaint — about their supervisor, working conditions, workload, unfair treatment, or a colleague — and wants the BR to act.
+
+```bash
+# 1. Get the legal framework
+betriebsrat law 85 --agent   # Employee's right to file a complaint via BR
+betriebsrat law 84 --agent   # Direct individual complaint right (no BR involvement needed)
+
+# 2. Get structured decision support
+betriebsrat decide "Arbeitnehmer beschwert sich beim Betriebsrat über Arbeitgeber" --agent
+
+# 3. Get checklist for BR handling the complaint
+betriebsrat checklist "Beschwerdeverfahren § 85" --agent
+```
+
+**Key facts for Beschwerdeverfahren:**
+- Every employee has the right to file a complaint with the BR (§ 85 Abs. 1)
+- BR must **examine the complaint** and, if it considers it justified, work toward a remedy with the employer
+- Employer must respond within **1 week** to the BR's request for remedy
+- Employee has the right to be **present** at the discussion between BR and employer
+- If employer refuses: BR can bring the matter to the labor court (§ 85 Abs. 2 — rarely used but real)
+- BR **cannot** be forced to act on every complaint — but systematic non-engagement is a failure of statutory duty
+- Complaints involving bullying/Mobbing: BR can invoke § 75 (joint duty to protect employees' personality rights) as additional legal basis
+- Distinguish from § 84 (direct individual complaint right without BR) — employees have both paths; they are independent
 
 ---
 
@@ -857,7 +1063,7 @@ Use these tables when the CLI is not installed.
 | Company size | Dismissals in 30 days that trigger notification |
 |-------------|------------------------------------------------|
 | 21 – 59 AN | ≥ 6 |
-| 60 – 499 AN | ≥ 10% **or** ≥ 26 (whichever is lower) |
+| 60 – 499 AN | ≥ 10% of workforce — capped at 26 (so the **lower** number triggers; at 100 AN: threshold is 10, not 26) |
 | ≥ 500 AN | ≥ 30 |
 
 ### Company Size Thresholds
@@ -877,6 +1083,56 @@ Use these tables when the CLI is not installed.
 | Zustimmungsvorbehalt | § 99, § 103 | Employer needs BR consent; court can substitute consent |
 | Mitwirkung / Beratung | § 111 (Interessenausgleich) | Employer must consult; BR cannot block; failure → Nachteilsausgleich |
 | Unterrichtung | § 80, § 106 | Employer must inform; no blocking right |
+
+### § 103 BetrVG — BR Member Dismissal Procedure
+
+| Step | Who | Action | Deadline |
+|------|-----|--------|----------|
+| 1 | Employer | Apply to BR for Zustimmung to extraordinary dismissal | Before dismissal |
+| 2 | BR | Vote on Zustimmung (affected member excluded from vote) | **3 days** (extraordinary) |
+| 3a | BR consents | Employer may dismiss | — |
+| 3b | BR refuses / silence | Employer applies to labor court (Ersetzungsverfahren § 103 Abs. 2) | No fixed deadline |
+| 4 | Labor court | Substitutes consent if important reason (§ 626 BGB) exists | Months — member works during proceedings |
+
+- Ordinary dismissal: **banned** during term + 1 year after (§ 15 KSchG)
+- Covers: BR members, Ersatzmitglieder (while active), Wahlbewerber (during election), JAV members
+
+### § 613a BGB — Betriebsübergang Key Facts
+
+| Right / Rule | Detail |
+|-------------|--------|
+| Automatic transfer | Employment contracts move to the new employer by operation of law |
+| Written information duty | Both old and new employer must inform each employee **before** the transfer: date, reason, legal consequences, rights |
+| Objection window | Employee has **1 month** after written information to object — stays with old employer (redundancy risk) |
+| Void dismissal | Dismissal **because of** the transfer is void (§ 613a Abs. 4); other grounds remain valid |
+| BV continuity | Existing BVs continue as individual contractual terms for **1 year** unless superseded by new BVs |
+| BR rights | Transfer almost always constitutes a Betriebsänderung (§ 111) → Interessenausgleich + erzwingbarer Sozialplan |
+| Nachteilsausgleich | If employer skips Interessenausgleich: every affected employee has a personal claim (§ 113) |
+
+### BR Election Quick Reference (§§ 9, 14–21 BetrVG)
+
+| Item | Rule |
+|------|------|
+| Threshold | ≥ 5 permanently employed workers (§ 1) |
+| Who initiates | 3 eligible employees or a union with members in the company (§ 17) |
+| Voting rights | All employees ≥ 18 (including fixed-term, part-time) (§ 7) |
+| Eligibility | ≥ 18 and ≥ 6 months in the company (§ 8) |
+| Term | 4 years; regular elections March–May every 4 years (§ 21) |
+| BR size | 5–20 → 1; 21–50 → 3; 51–100 → 5; 101–200 → 7; 201–400 → 9 (§ 9) |
+| Simplified procedure | Mandatory for 5–100 AN; optional for 101–200 AN |
+| Election costs | Borne entirely by employer (§ 20 Abs. 3) |
+| Obstruction | § 119 BetrVG: criminal offence — up to 1 year imprisonment or fine |
+
+### Key § 87 Abs. 1 Co-determination Triggers
+
+| Nr. | Trigger | Type |
+|-----|---------|------|
+| 2 | Daily working hours, start/end times | Erzwingbar |
+| 3 | Temporary reduction or extension of working hours (Kurzarbeit, Überstunden) | Erzwingbar |
+| 6 | Technical equipment capable of monitoring employees (IT, AI, cameras) | Erzwingbar |
+| 7 | Occupational health and safety rules; stress/workload management | Erzwingbar |
+| 10 | Remuneration method (piecework, performance-related pay) | Erzwingbar |
+| 14 | Mobile working / homeoffice arrangements | Erzwingbar |
 
 ---
 
