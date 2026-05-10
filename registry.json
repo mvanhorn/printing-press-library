@@ -2,81 +2,82 @@
   "schema_version": 2,
   "entries": [
     {
-      "name": "agent-capture",
-      "category": "developer-tools",
-      "api": "agent-capture",
-      "description": "Record, screenshot, and convert macOS windows and screens for AI agent evidence",
-      "path": "library/developer-tools/agent-capture",
-      "printer": "mvanhorn",
-      "printer_name": "Matt Van Horn"
+      "name": "openrouter",
+      "category": "ai",
+      "api": "openrouter",
+      "description": "Agent-first OpenRouter introspection — terse output for cron and AI agents (--agent and --llm modes), local SQLite...",
+      "path": "library/ai/openrouter",
+      "printer": "rvdlaar",
+      "printer_name": "Rick van de Laar"
     },
     {
-      "name": "ahrefs",
-      "category": "marketing",
-      "api": "Ahrefs",
-      "description": "Query Ahrefs backlinks, keyword, rank tracking, site audit, and SERP data from the terminal.",
-      "path": "library/marketing/ahrefs",
+      "name": "cloud-run-admin",
+      "category": "cloud",
+      "api": "Google Cloud Run",
+      "description": "Deploy and manage user provided container images that scale automatically based on incoming requests. The Cloud Run Admin API v1 follows the Knative Serving API specification, while v2 is aligned with Google Cloud AIP-based API standards, as described in https://google.aip.dev/.",
+      "path": "library/cloud/cloud-run-admin",
       "printer": "cathrynlavery",
       "printer_name": "Cathryn Lavery",
       "mcp": {
-        "binary": "ahrefs-pp-mcp",
-        "transports": [
-          "stdio",
-          "http"
-        ],
-        "tool_count": 29,
-        "public_tool_count": 2,
-        "auth_type": "api_key",
-        "env_vars": [
-          "AHREFS_API_KEY"
-        ],
-        "mcp_ready": "full",
-        "spec_format": "internal"
-      }
-    },
-    {
-      "name": "airbnb",
-      "category": "travel",
-      "api": "Airbnb Vrbo",
-      "description": "Search Airbnb and VRBO, find the host's direct booking site, and report the cheapest of three sources side-by-side.",
-      "path": "library/travel/airbnb",
-      "printer": "mvanhorn",
-      "printer_name": "Matt Van Horn",
-      "mcp": {
-        "binary": "airbnb-pp-mcp",
+        "binary": "cloud-run-admin-pp-mcp",
         "transports": [
           "stdio"
         ],
-        "tool_count": 8,
-        "public_tool_count": 6,
-        "auth_type": "cookie",
-        "env_vars": [],
-        "mcp_ready": "partial",
-        "spec_format": "internal"
+        "tool_count": 16,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "CLOUD_RUN_ADMIN_OAUTH2C"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
       }
     },
     {
-      "name": "allrecipes",
-      "category": "food-and-dining",
-      "api": "Allrecipes",
-      "description": "Search and fetch Allrecipes recipes as structured data, scale ingredients, build grocery lists, rank by Bayesian-smoothed popularity, and clear Cloudflare with a Chrome session cookie.",
-      "path": "library/food-and-dining/allrecipes",
-      "printer": "tmchow",
-      "printer_name": "Trevin Chow",
+      "name": "digitalocean",
+      "category": "cloud",
+      "api": "DigitalOcean",
+      "description": "Printing Press CLI for Digitalocean.",
+      "path": "library/cloud/digitalocean",
+      "printer": "hnshah",
+      "printer_name": "Hiten Shah",
       "mcp": {
-        "binary": "allrecipes-pp-mcp",
+        "binary": "digitalocean-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 628,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "DIGITALOCEAN_BEARER_AUTH"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "render",
+      "category": "cloud",
+      "api": "Render",
+      "description": "Every Render endpoint, plus diff, drift, cost, audit, and orphan analytics no other Render tool ships.",
+      "path": "library/cloud/render",
+      "printer": "giacaglia",
+      "printer_name": "Giuliano Giacaglia",
+      "mcp": {
+        "binary": "render-pp-mcp",
         "transports": [
           "stdio",
           "http"
         ],
-        "tool_count": 2,
-        "public_tool_count": 1,
-        "auth_type": "cookie",
+        "tool_count": 196,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
         "env_vars": [
-          "ALLRECIPES_COOKIES"
+          "RENDER_API_KEY"
         ],
-        "mcp_ready": "partial",
-        "spec_format": "internal"
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
       }
     },
     {
@@ -106,81 +107,18 @@
       }
     },
     {
-      "name": "apartments",
-      "category": "other",
-      "api": "Apartments",
-      "description": "Search Apartments.com listings, sync results to a local SQLite store, and run workflows the website never built — diff saved searches, rank by $/sqft, compare shortlists, and surface price drops or phantom listings.",
-      "path": "library/other/apartments",
-      "printer": "rderwin",
-      "printer_name": "rderwin",
-      "mcp": {
-        "binary": "apartments-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 2,
-        "public_tool_count": 0,
-        "auth_type": "none",
-        "env_vars": [],
-        "mcp_ready": "full",
-        "spec_format": "internal"
-      }
-    },
-    {
-      "name": "archive-is",
-      "category": "media-and-entertainment",
-      "api": "Archive.today",
-      "description": "Bypass paywalls and look up web archives via archive.today. Hero command: find or create an archive for any URL with lookup-before-submit, Wayback Machine fallback, and agent-hints on stderr when called non-interactively.",
-      "path": "library/media-and-entertainment/archive-is",
-      "printer": "mvanhorn",
-      "printer_name": "Matt Van Horn",
-      "mcp": {
-        "binary": "archive-is-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 6,
-        "public_tool_count": 0,
-        "auth_type": "none",
-        "env_vars": [],
-        "mcp_ready": "full"
-      }
-    },
-    {
-      "name": "cal-com",
-      "category": "productivity",
-      "api": "Cal.com",
-      "description": "Every Cal.com feature, plus offline agendas, composed booking flows, and analytics no other Cal.com tool ships.",
-      "path": "library/productivity/cal-com",
+      "name": "craigslist",
+      "category": "commerce",
+      "api": "Craigslist",
+      "description": "Search, sync, and watch Craigslist with a local SQLite snapshot history, cross-city aggregation, scam scoring, and price-drift detection.",
+      "path": "library/commerce/craigslist",
       "printer": "tmchow",
       "printer_name": "Trevin Chow",
       "mcp": {
-        "binary": "cal-com-pp-mcp",
+        "binary": "craigslist-pp-mcp",
         "transports": [
-          "stdio"
-        ],
-        "tool_count": 291,
-        "public_tool_count": 0,
-        "auth_type": "bearer_token",
-        "env_vars": [
-          "CAL_COM_TOKEN"
-        ],
-        "mcp_ready": "full",
-        "spec_format": "openapi3"
-      }
-    },
-    {
-      "name": "clarity",
-      "category": "marketing",
-      "api": "PP Clarity",
-      "description": "Client-side instrumentation helpers for Microsoft Clarity.",
-      "path": "library/marketing/clarity",
-      "printer": "cathrynlavery",
-      "printer_name": "Cathryn Lavery",
-      "mcp": {
-        "binary": "clarity-pp-mcp",
-        "transports": [
-          "stdio"
+          "stdio",
+          "http"
         ],
         "tool_count": 1,
         "public_tool_count": 1,
@@ -191,48 +129,139 @@
       }
     },
     {
-      "name": "cloud-run-admin",
-      "category": "cloud",
-      "api": "Google Cloud Run",
-      "description": "Deploy and manage user provided container images that scale automatically based on incoming requests. The Cloud Run Admin API v1 follows the Knative Serving API specification, while v2 is aligned with Google Cloud AIP-based API standards, as described in https://google.aip.dev/.",
-      "path": "library/cloud/cloud-run-admin",
-      "printer": "cathrynlavery",
-      "printer_name": "Cathryn Lavery",
+      "name": "ebay",
+      "category": "commerce",
+      "api": "eBay",
+      "description": "Buyer-power-user CLI for eBay. Sold-comp intelligence, true sniper bidding, watchlist intelligence, saved-search feeds, and a local SQLite store for cross-listing analytics.",
+      "path": "library/commerce/ebay",
+      "printer": "mvanhorn",
+      "printer_name": "Matt Van Horn",
       "mcp": {
-        "binary": "cloud-run-admin-pp-mcp",
+        "binary": "ebay-pp-mcp",
         "transports": [
           "stdio"
         ],
-        "tool_count": 16,
+        "tool_count": 8,
+        "public_tool_count": 1,
+        "auth_type": "cookie",
+        "env_vars": [],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "fedex",
+      "category": "commerce",
+      "api": "FedEx",
+      "description": "Ship, rate, and track FedEx packages from the terminal — built for small business shippers.",
+      "path": "library/commerce/fedex",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "mcp": {
+        "binary": "fedex-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 48,
         "public_tool_count": 0,
         "auth_type": "bearer_token",
         "env_vars": [
-          "CLOUD_RUN_ADMIN_OAUTH2C"
+          "FEDEX_API_KEY",
+          "FEDEX_SECRET_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "instacart",
+      "category": "commerce",
+      "api": "Instacart",
+      "description": "Natural-language Instacart CLI that talks directly to the web GraphQL API. Add items to your cart, search products, and manage carts across retailers without browser automation.",
+      "path": "library/commerce/instacart",
+      "printer": "mvanhorn",
+      "printer_name": "Matt Van Horn"
+    },
+    {
+      "name": "shopify",
+      "category": "commerce",
+      "api": "Shopify",
+      "description": "Operate a Shopify store from the terminal with curated Admin GraphQL commands, local sync, analytics, and bulk exports.",
+      "path": "library/commerce/shopify",
+      "printer": "cathrynlavery",
+      "printer_name": "Cathryn Lavery",
+      "mcp": {
+        "binary": "shopify-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 10,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "SHOPIFY_ACCESS_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "tiktok-shop",
+      "category": "commerce",
+      "api": "TikTok Shop",
+      "description": "Safe v1 TikTok Shop Seller API CLI/MCP for auth readiness, token exchange and refresh, read-only shops, orders, products, inventory search, fulfillment packages, and warehouses.",
+      "path": "library/commerce/tiktok-shop",
+      "printer": "cathrynlavery",
+      "printer_name": "Cathryn Lavery",
+      "mcp": {
+        "binary": "tiktok-shop-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 11,
+        "public_tool_count": 11,
+        "auth_type": "signed_tiktok_shop_open_api",
+        "env_vars": [
+          "TIKTOK_SHOP_APP_KEY",
+          "TIKTOK_SHOP_APP_SECRET",
+          "TIKTOK_SHOP_ACCESS_TOKEN",
+          "TIKTOK_SHOP_REFRESH_TOKEN",
+          "TIKTOK_SHOP_SHOP_CIPHER"
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
       }
     },
     {
-      "name": "coingecko",
-      "category": "payments",
-      "api": "Coingecko",
-      "description": "CoinGecko public API for cryptocurrency data. Free tier, no API key required for basic endpoints.",
-      "path": "library/payments/coingecko",
-      "printer": "hnshah",
-      "printer_name": "Hiten Shah",
+      "name": "yahoo-finance",
+      "category": "commerce",
+      "api": "Yahoo Finance",
+      "description": "Quotes, charts, fundamentals, options chains, and a local portfolio/watchlist tracker against Yahoo Finance — no API key, with Chrome-session fallback for rate-limited IPs",
+      "path": "library/commerce/yahoo-finance",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
       "mcp": {
-        "binary": "coingecko-pp-mcp",
+        "binary": "yahoo-finance-pp-mcp",
         "transports": [
           "stdio"
         ],
         "tool_count": 11,
-        "public_tool_count": 11,
+        "public_tool_count": 0,
         "auth_type": "none",
         "env_vars": [],
         "mcp_ready": "full",
-        "spec_format": "openapi3"
+        "spec_format": "internal"
       }
+    },
+    {
+      "name": "agent-capture",
+      "category": "developer-tools",
+      "api": "agent-capture",
+      "description": "Record, screenshot, and convert macOS windows and screens for AI agent evidence",
+      "path": "library/developer-tools/agent-capture",
+      "printer": "mvanhorn",
+      "printer_name": "Matt Van Horn"
     },
     {
       "name": "company-goat",
@@ -256,42 +285,355 @@
       }
     },
     {
-      "name": "contact-goat",
-      "category": "sales-and-crm",
-      "api": "contact-goat",
-      "description": "Super LinkedIn for the terminal - search, enrich, and map warm-intro paths across LinkedIn (stickerdaniel/linkedin-mcp-server subprocess), Happenstance (Chrome cookie auth with Clerk JWT refresh), and Deepline (paid enrichment, hybrid subprocess+HTTP). Unified SQLite store powers warm-intro, coverage, and cross-source prospect commands no single tool has.",
-      "path": "library/sales-and-crm/contact-goat",
-      "printer": "mvanhorn",
-      "printer_name": "Matt Van Horn",
+      "name": "docker-hub",
+      "category": "developer-tools",
+      "api": "Docker Hub",
+      "description": "Docker Hub public API. Search container images, browse tags, check sizes, inspect Dockerfiles, and explore the world's largest container registry. No authentication required for public repositories (rate limited to ~18 req/min).",
+      "path": "library/developer-tools/docker-hub",
+      "printer": "hnshah",
+      "printer_name": "Hiten Shah",
       "mcp": {
-        "binary": "contact-goat-pp-mcp",
+        "binary": "docker-hub-pp-mcp",
         "transports": [
           "stdio"
         ],
-        "tool_count": 16,
+        "tool_count": 5,
+        "public_tool_count": 5,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "firecrawl",
+      "category": "developer-tools",
+      "api": "Firecrawl",
+      "description": "API for interacting with Firecrawl services to perform web scraping and crawling tasks.",
+      "path": "library/developer-tools/firecrawl",
+      "printer": "hnshah",
+      "printer_name": "Hiten Shah",
+      "mcp": {
+        "binary": "firecrawl-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 20,
         "public_tool_count": 0,
-        "auth_type": "composed",
+        "auth_type": "bearer_token",
         "env_vars": [
-          "DEEPLINE_API_KEY",
-          "HAPPENSTANCE_API_KEY"
+          "FIRECRAWL_BEARER_AUTH"
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
       }
     },
     {
-      "name": "craigslist",
-      "category": "commerce",
-      "api": "Craigslist",
-      "description": "Search, sync, and watch Craigslist with a local SQLite snapshot history, cross-city aggregation, scam scoring, and price-drift detection.",
-      "path": "library/commerce/craigslist",
+      "name": "nvd",
+      "category": "developer-tools",
+      "api": "National Vulnerability Database",
+      "description": "The NVD is the U.S. government repository of standards-based vulnerability management data. Search CVEs by keyword, product (CPE name), CVE ID, or date range. Get CVSS scores, affected versions, references, and severity ratings. No API key required (optional for higher rate limits).",
+      "path": "library/developer-tools/nvd",
+      "printer": "hnshah",
+      "printer_name": "Hiten Shah",
+      "mcp": {
+        "binary": "nvd-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 2,
+        "public_tool_count": 2,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "postman-explore",
+      "category": "developer-tools",
+      "api": "Postman Explore",
+      "description": "Public API network directory for discovering community collections, workspaces, and APIs",
+      "path": "library/developer-tools/postman-explore",
       "printer": "tmchow",
       "printer_name": "Trevin Chow",
       "mcp": {
-        "binary": "craigslist-pp-mcp",
+        "binary": "postman-explore-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 8,
+        "public_tool_count": 8,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "pypi",
+      "category": "developer-tools",
+      "api": "PyPI",
+      "description": "PyPI JSON API. Look up Python package metadata, versions, release files, and vulnerability data. Browse recent updates and newest packages via RSS feeds. No authentication required — all endpoints are public.",
+      "path": "library/developer-tools/pypi",
+      "printer": "hnshah",
+      "printer_name": "Hiten Shah",
+      "mcp": {
+        "binary": "pypi-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 4,
+        "public_tool_count": 4,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "scrape-creators",
+      "category": "developer-tools",
+      "api": "Scrape Creators",
+      "description": "Scrape public social media data from the terminal — profiles, posts, videos, comments, ads, and transcripts across TikTok, Instagram, YouTube, Twitter/X, LinkedIn, Facebook, Reddit, Threads, Bluesky, Pinterest, Snapchat, Twitch, Kick, Truth Social, and 15+ link-in-bio / creator link services.",
+      "path": "library/developer-tools/scrape-creators",
+      "printer": "adrianhorning08",
+      "printer_name": "Adrian Horning",
+      "mcp": {
+        "binary": "scrape-creators-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 114,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "SCRAPE_CREATORS_API_KEY_AUTH"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "trigger-dev",
+      "category": "developer-tools",
+      "api": "Trigger.dev",
+      "description": "Durable background jobs and AI agent orchestration — runs, schedules, deployments, batches, queues, waitpoints, env vars, and TRQL analytics",
+      "path": "library/developer-tools/trigger-dev",
+      "printer": "mvanhorn",
+      "printer_name": "Matt Van Horn",
+      "mcp": {
+        "binary": "trigger-dev-pp-mcp",
         "transports": [
           "stdio",
           "http"
+        ],
+        "tool_count": 47,
+        "public_tool_count": 1,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "TRIGGER_SECRET_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "whoop",
+      "category": "devices",
+      "api": "Whoop",
+      "description": "Printing Press CLI for Whoop.",
+      "path": "library/devices/whoop",
+      "printer": "gregvanhorn",
+      "printer_name": "Greg Van Horn",
+      "mcp": {
+        "binary": "whoop-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 19,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "WHOOP_OAUTH"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "allrecipes",
+      "category": "food-and-dining",
+      "api": "Allrecipes",
+      "description": "Search and fetch Allrecipes recipes as structured data, scale ingredients, build grocery lists, rank by Bayesian-smoothed popularity, and clear Cloudflare with a Chrome session cookie.",
+      "path": "library/food-and-dining/allrecipes",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "mcp": {
+        "binary": "allrecipes-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 2,
+        "public_tool_count": 1,
+        "auth_type": "cookie",
+        "env_vars": [
+          "ALLRECIPES_COOKIES"
+        ],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "dominos",
+      "category": "food-and-dining",
+      "api": "Domino's",
+      "description": "Order pizza, browse menus, optimize deals, and track delivery from your terminal — with a local SQLite store that powers reorder, price comparison, and deal stacking no other Domino's tool offers.",
+      "path": "library/food-and-dining/dominos",
+      "printer": "mvanhorn",
+      "printer_name": "Matt Van Horn",
+      "mcp": {
+        "binary": "dominos-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 20,
+        "public_tool_count": 11,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "DOMINOS_USERNAME",
+          "DOMINOS_PASSWORD",
+          "DOMINOS_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "food52",
+      "category": "food-and-dining",
+      "api": "Food52",
+      "description": "Search, browse, and read Food52 from your terminal — with offline FTS, pantry matching, recipe scaling, and the editorial signals other tools throw away.",
+      "path": "library/food-and-dining/food52",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "mcp": {
+        "binary": "food52-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 4,
+        "public_tool_count": 4,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "pagliacci",
+      "category": "food-and-dining",
+      "api": "Pagliacci Pizza",
+      "description": "Order Seattle's Pagliacci Pizza from the terminal — half-and-half pies, small-party planner, slice rotation, and rewards stacking.",
+      "path": "library/food-and-dining/pagliacci",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "mcp": {
+        "binary": "pagliacci-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 57,
+        "public_tool_count": 26,
+        "auth_type": "composed",
+        "env_vars": [],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "recipe-goat",
+      "category": "food-and-dining",
+      "api": "Cross-site recipe aggregator (37 trusted sites: King Arthur, Serious Eats, Smitten Kitchen, AllRecipes, Food52, BBC Food, EatingWell, Food Network, and 29 more) + USDA FoodData Central",
+      "description": "Find the best version of any recipe across 37 trusted sites — trust-aware ranking weights real reader signal at 80% and editorial trust at 15% (curated chef/baker sites win tie-break over crowdsourced aggregators). Builds a local SQLite cookbook with pantry match, meal plans, cook log, substitutions, and USDA-backed nutrition backfill. Powered by Surf-Chrome HTTP transport — bypasses TLS-fingerprint bot detection that previously blocked Dotdash properties.",
+      "path": "library/food-and-dining/recipe-goat",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "mcp": {
+        "binary": "recipe-goat-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 3,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "USDA_FDC_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "table-reservation-goat",
+      "category": "food-and-dining",
+      "api": "Table Reservation GOAT",
+      "description": "One reservation CLI for OpenTable and Tock — search both networks at once, watch for cancellations, book, and...",
+      "path": "library/food-and-dining/table-reservation-goat",
+      "printer": "pejmanjohn",
+      "printer_name": "Pejman Pour-Moezzi",
+      "mcp": {
+        "binary": "table-reservation-goat-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 12,
+        "public_tool_count": 12,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "ahrefs",
+      "category": "marketing",
+      "api": "Ahrefs",
+      "description": "Query Ahrefs backlinks, keyword, rank tracking, site audit, and SERP data from the terminal.",
+      "path": "library/marketing/ahrefs",
+      "printer": "cathrynlavery",
+      "printer_name": "Cathryn Lavery",
+      "mcp": {
+        "binary": "ahrefs-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 29,
+        "public_tool_count": 2,
+        "auth_type": "api_key",
+        "env_vars": [
+          "AHREFS_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "clarity",
+      "category": "marketing",
+      "api": "PP Clarity",
+      "description": "Client-side instrumentation helpers for Microsoft Clarity.",
+      "path": "library/marketing/clarity",
+      "printer": "cathrynlavery",
+      "printer_name": "Cathryn Lavery",
+      "mcp": {
+        "binary": "clarity-pp-mcp",
+        "transports": [
+          "stdio"
         ],
         "tool_count": 1,
         "public_tool_count": 1,
@@ -326,97 +668,6 @@
       }
     },
     {
-      "name": "digg",
-      "category": "media-and-entertainment",
-      "api": "Digg AI",
-      "description": "Tail the Digg AI 1000's news cycle from the terminal — read-only, with the full pipeline event stream and...",
-      "path": "library/media-and-entertainment/digg",
-      "printer": "mvanhorn",
-      "printer_name": "Matt Van Horn",
-      "mcp": {
-        "binary": "digg-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 3,
-        "public_tool_count": 3,
-        "auth_type": "none",
-        "env_vars": [],
-        "mcp_ready": "full",
-        "spec_format": "internal"
-      }
-    },
-    {
-      "name": "digitalocean",
-      "category": "cloud",
-      "api": "DigitalOcean",
-      "description": "Printing Press CLI for Digitalocean.",
-      "path": "library/cloud/digitalocean",
-      "printer": "hnshah",
-      "printer_name": "Hiten Shah",
-      "mcp": {
-        "binary": "digitalocean-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 628,
-        "public_tool_count": 0,
-        "auth_type": "bearer_token",
-        "env_vars": [
-          "DIGITALOCEAN_BEARER_AUTH"
-        ],
-        "mcp_ready": "full",
-        "spec_format": "openapi3"
-      }
-    },
-    {
-      "name": "docker-hub",
-      "category": "developer-tools",
-      "api": "Docker Hub",
-      "description": "Docker Hub public API. Search container images, browse tags, check sizes, inspect Dockerfiles, and explore the world's largest container registry. No authentication required for public repositories (rate limited to ~18 req/min).",
-      "path": "library/developer-tools/docker-hub",
-      "printer": "hnshah",
-      "printer_name": "Hiten Shah",
-      "mcp": {
-        "binary": "docker-hub-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 5,
-        "public_tool_count": 5,
-        "auth_type": "none",
-        "env_vars": [],
-        "mcp_ready": "full",
-        "spec_format": "openapi3"
-      }
-    },
-    {
-      "name": "dominos",
-      "category": "food-and-dining",
-      "api": "Domino's",
-      "description": "Order pizza, browse menus, optimize deals, and track delivery from your terminal — with a local SQLite store that powers reorder, price comparison, and deal stacking no other Domino's tool offers.",
-      "path": "library/food-and-dining/dominos",
-      "printer": "mvanhorn",
-      "printer_name": "Matt Van Horn",
-      "mcp": {
-        "binary": "dominos-pp-mcp",
-        "transports": [
-          "stdio",
-          "http"
-        ],
-        "tool_count": 20,
-        "public_tool_count": 11,
-        "auth_type": "bearer_token",
-        "env_vars": [
-          "DOMINOS_USERNAME",
-          "DOMINOS_PASSWORD",
-          "DOMINOS_TOKEN"
-        ],
-        "mcp_ready": "full",
-        "spec_format": "internal"
-      }
-    },
-    {
       "name": "dub",
       "category": "marketing",
       "api": "Dub",
@@ -441,163 +692,6 @@
       }
     },
     {
-      "name": "ebay",
-      "category": "commerce",
-      "api": "eBay",
-      "description": "Buyer-power-user CLI for eBay. Sold-comp intelligence, true sniper bidding, watchlist intelligence, saved-search feeds, and a local SQLite store for cross-listing analytics.",
-      "path": "library/commerce/ebay",
-      "printer": "mvanhorn",
-      "printer_name": "Matt Van Horn",
-      "mcp": {
-        "binary": "ebay-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 8,
-        "public_tool_count": 1,
-        "auth_type": "cookie",
-        "env_vars": [],
-        "mcp_ready": "partial",
-        "spec_format": "internal"
-      }
-    },
-    {
-      "name": "espn",
-      "category": "media-and-entertainment",
-      "api": "ESPN",
-      "description": "Live scores, standings, news, and game history across 17 sports from ESPN",
-      "path": "library/media-and-entertainment/espn",
-      "printer": "mvanhorn",
-      "printer_name": "Matt Van Horn",
-      "mcp": {
-        "binary": "espn-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 7,
-        "public_tool_count": 0,
-        "auth_type": "none",
-        "env_vars": [],
-        "mcp_ready": "full",
-        "spec_format": "internal"
-      }
-    },
-    {
-      "name": "fedex",
-      "category": "commerce",
-      "api": "FedEx",
-      "description": "Ship, rate, and track FedEx packages from the terminal — built for small business shippers.",
-      "path": "library/commerce/fedex",
-      "printer": "tmchow",
-      "printer_name": "Trevin Chow",
-      "mcp": {
-        "binary": "fedex-pp-mcp",
-        "transports": [
-          "stdio",
-          "http"
-        ],
-        "tool_count": 48,
-        "public_tool_count": 0,
-        "auth_type": "bearer_token",
-        "env_vars": [
-          "FEDEX_API_KEY",
-          "FEDEX_SECRET_KEY"
-        ],
-        "mcp_ready": "full",
-        "spec_format": "internal"
-      }
-    },
-    {
-      "name": "firecrawl",
-      "category": "developer-tools",
-      "api": "Firecrawl",
-      "description": "API for interacting with Firecrawl services to perform web scraping and crawling tasks.",
-      "path": "library/developer-tools/firecrawl",
-      "printer": "hnshah",
-      "printer_name": "Hiten Shah",
-      "mcp": {
-        "binary": "firecrawl-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 20,
-        "public_tool_count": 0,
-        "auth_type": "bearer_token",
-        "env_vars": [
-          "FIRECRAWL_BEARER_AUTH"
-        ],
-        "mcp_ready": "full",
-        "spec_format": "openapi3"
-      }
-    },
-    {
-      "name": "fireflies",
-      "category": "productivity",
-      "api": "Fireflies Pp Cli",
-      "description": "Every Fireflies meeting feature, plus offline search, cross-meeting intelligence, and a local database no other tool...",
-      "path": "library/productivity/fireflies",
-      "printer": "neektza",
-      "printer_name": "Nikica Jokic",
-      "mcp": {
-        "binary": "fireflies-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 18,
-        "public_tool_count": 0,
-        "auth_type": "api_key",
-        "env_vars": [
-          "FIREFLIES_PP_CLI_API_KEY"
-        ],
-        "mcp_ready": "full",
-        "spec_format": "graphql"
-      }
-    },
-    {
-      "name": "flight-goat",
-      "category": "travel",
-      "api": "Flight GOAT",
-      "description": "Search Google Flights, scan Kayak long-haul routes, and join FlightAware AeroAPI reliability, alerts, and tracking from one CLI.",
-      "path": "library/travel/flight-goat",
-      "printer": "mvanhorn",
-      "printer_name": "Matt Van Horn",
-      "mcp": {
-        "binary": "flight-goat-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 58,
-        "public_tool_count": 0,
-        "auth_type": "api_key",
-        "env_vars": [
-          "FLIGHT_GOAT_API_KEY_AUTH"
-        ],
-        "mcp_ready": "full",
-        "spec_format": "openapi3"
-      }
-    },
-    {
-      "name": "food52",
-      "category": "food-and-dining",
-      "api": "Food52",
-      "description": "Search, browse, and read Food52 from your terminal — with offline FTS, pantry matching, recipe scaling, and the editorial signals other tools throw away.",
-      "path": "library/food-and-dining/food52",
-      "printer": "tmchow",
-      "printer_name": "Trevin Chow",
-      "mcp": {
-        "binary": "food52-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 4,
-        "public_tool_count": 4,
-        "auth_type": "none",
-        "env_vars": [],
-        "mcp_ready": "full",
-        "spec_format": "internal"
-      }
-    },
-    {
       "name": "google-ads",
       "category": "marketing",
       "api": "Google Ads",
@@ -618,6 +712,124 @@
           "GOOGLE_ADS_DEVELOPER_TOKEN",
           "GOOGLE_ADS_LOGIN_CUSTOMER_ID"
         ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "google-search-console",
+      "category": "marketing",
+      "api": "Google Search Console",
+      "description": "Every Google Search Console feature you'd reach for, plus an offline SQLite cache that powers period compare, quick...",
+      "path": "library/marketing/google-search-console",
+      "printer": "bossriceshark",
+      "printer_name": "Matt"
+    },
+    {
+      "name": "klaviyo",
+      "category": "marketing",
+      "api": "Klaviyo",
+      "description": "Marketing automation, profiles, events, campaigns, flows, segments, and templates.",
+      "path": "library/marketing/klaviyo",
+      "printer": "cathrynlavery",
+      "printer_name": "Cathryn Lavery",
+      "mcp": {
+        "binary": "klaviyo-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 308,
+        "public_tool_count": 11,
+        "auth_type": "api_key",
+        "env_vars": [
+          "KLAVIYO_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "producthunt",
+      "category": "marketing",
+      "api": "Product Hunt",
+      "description": "Read Product Hunt from your terminal — works token-free for the daily skim, unlocks a launch-day cockpit and a marketer research desk in one onboarding step.",
+      "path": "library/marketing/producthunt",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "mcp": {
+        "binary": "producthunt-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 1,
+        "public_tool_count": 1,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "PRODUCT_HUNT_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "archive-is",
+      "category": "media-and-entertainment",
+      "api": "Archive.today",
+      "description": "Bypass paywalls and look up web archives via archive.today. Hero command: find or create an archive for any URL with lookup-before-submit, Wayback Machine fallback, and agent-hints on stderr when called non-interactively.",
+      "path": "library/media-and-entertainment/archive-is",
+      "printer": "mvanhorn",
+      "printer_name": "Matt Van Horn",
+      "mcp": {
+        "binary": "archive-is-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 6,
+        "public_tool_count": 0,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full"
+      }
+    },
+    {
+      "name": "digg",
+      "category": "media-and-entertainment",
+      "api": "Digg AI",
+      "description": "Tail the Digg AI 1000's news cycle from the terminal — read-only, with the full pipeline event stream and...",
+      "path": "library/media-and-entertainment/digg",
+      "printer": "mvanhorn",
+      "printer_name": "Matt Van Horn",
+      "mcp": {
+        "binary": "digg-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 3,
+        "public_tool_count": 3,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "espn",
+      "category": "media-and-entertainment",
+      "api": "ESPN",
+      "description": "Live scores, standings, news, and game history across 17 sports from ESPN",
+      "path": "library/media-and-entertainment/espn",
+      "printer": "mvanhorn",
+      "printer_name": "Matt Van Horn",
+      "mcp": {
+        "binary": "espn-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 7,
+        "public_tool_count": 0,
+        "auth_type": "none",
+        "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "internal"
       }
@@ -647,15 +859,6 @@
       }
     },
     {
-      "name": "google-search-console",
-      "category": "marketing",
-      "api": "Google Search Console",
-      "description": "Every Google Search Console feature you'd reach for, plus an offline SQLite cache that powers period compare, quick...",
-      "path": "library/marketing/google-search-console",
-      "printer": "bossriceshark",
-      "printer_name": "Matt"
-    },
-    {
       "name": "hackernews",
       "category": "media-and-entertainment",
       "api": "Hacker News",
@@ -678,84 +881,6 @@
       }
     },
     {
-      "name": "instacart",
-      "category": "commerce",
-      "api": "Instacart",
-      "description": "Natural-language Instacart CLI that talks directly to the web GraphQL API. Add items to your cart, search products, and manage carts across retailers without browser automation.",
-      "path": "library/commerce/instacart",
-      "printer": "mvanhorn",
-      "printer_name": "Matt Van Horn"
-    },
-    {
-      "name": "kalshi",
-      "category": "payments",
-      "api": "Kalshi",
-      "description": "Trade prediction markets, persist tick data, and answer category-level P&L questions Kalshi.com cannot.",
-      "path": "library/payments/kalshi",
-      "printer": "tmchow",
-      "printer_name": "Trevin Chow",
-      "mcp": {
-        "binary": "kalshi-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 96,
-        "public_tool_count": 0,
-        "auth_type": "api_key",
-        "env_vars": [
-          "KALSHI_TRADE_MANUAL_KALSHI_ACCESS_KEY"
-        ],
-        "mcp_ready": "full",
-        "spec_format": "openapi3"
-      }
-    },
-    {
-      "name": "klaviyo",
-      "category": "marketing",
-      "api": "Klaviyo",
-      "description": "Marketing automation, profiles, events, campaigns, flows, segments, and templates.",
-      "path": "library/marketing/klaviyo",
-      "printer": "cathrynlavery",
-      "printer_name": "Cathryn Lavery",
-      "mcp": {
-        "binary": "klaviyo-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 308,
-        "public_tool_count": 11,
-        "auth_type": "api_key",
-        "env_vars": [
-          "KLAVIYO_API_KEY"
-        ],
-        "mcp_ready": "full",
-        "spec_format": "openapi3"
-      }
-    },
-    {
-      "name": "linear",
-      "category": "project-management",
-      "api": "Linear",
-      "description": "Offline-capable, agent-native CLI for the Linear API with SQLite-backed sync, FTS5 search, cross-cycle comparison, project burndown, and pp_created fixture lifecycle for safe live testing.",
-      "path": "library/project-management/linear",
-      "printer": "mvanhorn",
-      "printer_name": "Matt Van Horn",
-      "mcp": {
-        "binary": "linear-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 28,
-        "public_tool_count": 0,
-        "auth_type": "api_key",
-        "env_vars": [
-          "LINEAR_API_KEY"
-        ],
-        "mcp_ready": "full",
-        "spec_format": "graphql"
-      }
-    },
-    {
       "name": "marginalrevolution",
       "category": "media-and-entertainment",
       "api": "Marginal Revolution",
@@ -772,29 +897,6 @@
         "public_tool_count": 1,
         "auth_type": "none",
         "env_vars": [],
-        "mcp_ready": "full",
-        "spec_format": "openapi3"
-      }
-    },
-    {
-      "name": "mercury",
-      "category": "payments",
-      "api": "Mercury",
-      "description": "Business banking API for accounts, transactions, payments, recipients, cards, invoices, treasury, and webhooks",
-      "path": "library/payments/mercury",
-      "printer": "cathrynlavery",
-      "printer_name": "Cathryn Lavery",
-      "mcp": {
-        "binary": "mercury-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 75,
-        "public_tool_count": 0,
-        "auth_type": "bearer_token",
-        "env_vars": [
-          "MERCURY_BEARER_AUTH"
-        ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
       }
@@ -821,146 +923,6 @@
           "OMDB_API_KEY"
         ],
         "mcp_ready": "full",
-        "spec_format": "internal"
-      }
-    },
-    {
-      "name": "myfitnesspal",
-      "category": "productivity",
-      "api": "MyFitnessPal",
-      "description": "Pull every meal you ever logged out of MyFitnessPal — per-food CSV, agent-shaped trends, and a local SQLite store...",
-      "path": "library/productivity/myfitnesspal",
-      "printer": "nickscarabosio",
-      "printer_name": "Nick Scarabosio",
-      "mcp": {
-        "binary": "myfitnesspal-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 15,
-        "public_tool_count": 0,
-        "auth_type": "cookie",
-        "env_vars": [],
-        "mcp_ready": "partial",
-        "spec_format": "internal"
-      }
-    },
-    {
-      "name": "notion",
-      "category": "productivity",
-      "api": "Notion",
-      "description": "Every Notion database queryable offline — cross-workspace SQL joins, stale detection, and relation graph traversal...",
-      "path": "library/productivity/notion",
-      "printer": "neektza",
-      "printer_name": "Nikica Jokic",
-      "mcp": {
-        "binary": "notion-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 47,
-        "public_tool_count": 0,
-        "auth_type": "bearer_token",
-        "env_vars": [
-          "NOTION_BEARER_AUTH"
-        ],
-        "mcp_ready": "full",
-        "spec_format": "openapi3"
-      }
-    },
-    {
-      "name": "nvd",
-      "category": "developer-tools",
-      "api": "National Vulnerability Database",
-      "description": "The NVD is the U.S. government repository of standards-based vulnerability management data. Search CVEs by keyword, product (CPE name), CVE ID, or date range. Get CVSS scores, affected versions, references, and severity ratings. No API key required (optional for higher rate limits).",
-      "path": "library/developer-tools/nvd",
-      "printer": "hnshah",
-      "printer_name": "Hiten Shah",
-      "mcp": {
-        "binary": "nvd-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 2,
-        "public_tool_count": 2,
-        "auth_type": "none",
-        "env_vars": [],
-        "mcp_ready": "full",
-        "spec_format": "openapi3"
-      }
-    },
-    {
-      "name": "open-meteo",
-      "category": "other",
-      "api": "Open-Meteo",
-      "description": "Forecasts, historicals, marine, air quality, flood, climate, ensemble, and seasonal data from Open-Meteo's free tier.",
-      "path": "library/other/open-meteo",
-      "printer": "tmchow",
-      "printer_name": "Trevin Chow",
-      "mcp": {
-        "binary": "open-meteo-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 11,
-        "public_tool_count": 11,
-        "auth_type": "none",
-        "env_vars": [],
-        "mcp_ready": "full",
-        "spec_format": "internal"
-      }
-    },
-    {
-      "name": "openrouter",
-      "category": "ai",
-      "api": "openrouter",
-      "description": "Agent-first OpenRouter introspection — terse output for cron and AI agents (--agent and --llm modes), local SQLite...",
-      "path": "library/ai/openrouter",
-      "printer": "rvdlaar",
-      "printer_name": "Rick van de Laar"
-    },
-    {
-      "name": "opensnow",
-      "category": "productivity",
-      "api": "OpenSnow",
-      "description": "Hyper-local weather forecasts and conditions for any mountain location and elevation, worldwide. Provides current conditions, hourly forecasts, 5-day day/night snow forecasts, resort snow reports, and expert-written Daily Snow posts. Authentication via api_key query parameter (partnership access only).",
-      "path": "library/productivity/opensnow",
-      "printer": "davemorin",
-      "printer_name": "Dave Morin",
-      "mcp": {
-        "binary": "opensnow-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 5,
-        "public_tool_count": 0,
-        "auth_type": "api_key",
-        "env_vars": [
-          "OPENSNOW_API_KEY"
-        ],
-        "mcp_ready": "full",
-        "spec_format": "openapi3"
-      }
-    },
-    {
-      "name": "pagliacci",
-      "category": "food-and-dining",
-      "api": "Pagliacci Pizza",
-      "description": "Order Seattle's Pagliacci Pizza from the terminal — half-and-half pies, small-party planner, slice rotation, and rewards stacking.",
-      "path": "library/food-and-dining/pagliacci",
-      "printer": "tmchow",
-      "printer_name": "Trevin Chow",
-      "mcp": {
-        "binary": "pagliacci-pp-mcp",
-        "transports": [
-          "stdio",
-          "http"
-        ],
-        "tool_count": 57,
-        "public_tool_count": 26,
-        "auth_type": "composed",
-        "env_vars": [],
-        "mcp_ready": "partial",
         "spec_format": "internal"
       }
     },
@@ -1009,203 +971,68 @@
       }
     },
     {
-      "name": "postman-explore",
-      "category": "developer-tools",
-      "api": "Postman Explore",
-      "description": "Public API network directory for discovering community collections, workspaces, and APIs",
-      "path": "library/developer-tools/postman-explore",
+      "name": "steam-web",
+      "category": "media-and-entertainment",
+      "api": "Steam Web",
+      "description": "Look up Steam players, games, achievements, friends, and stats from the command line",
+      "path": "library/media-and-entertainment/steam-web",
       "printer": "tmchow",
       "printer_name": "Trevin Chow",
       "mcp": {
-        "binary": "postman-explore-pp-mcp",
+        "binary": "steam-web-pp-mcp",
         "transports": [
-          "stdio"
+          "stdio",
+          "http"
         ],
-        "tool_count": 8,
-        "public_tool_count": 8,
-        "auth_type": "none",
-        "env_vars": [],
+        "tool_count": 169,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "STEAM_WEB_API_KEY"
+        ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
       }
     },
     {
-      "name": "producthunt",
-      "category": "marketing",
-      "api": "Product Hunt",
-      "description": "Read Product Hunt from your terminal — works token-free for the daily skim, unlocks a launch-day cockpit and a marketer research desk in one onboarding step.",
-      "path": "library/marketing/producthunt",
-      "printer": "tmchow",
-      "printer_name": "Trevin Chow",
+      "name": "substack",
+      "category": "media-and-entertainment",
+      "api": "Substack",
+      "description": "Run your Substack growth loop from the command line — publish, schedule, engage, and measure with cross-table...",
+      "path": "library/media-and-entertainment/substack",
+      "printer": "chirantan",
+      "printer_name": "Chirantan Rajhans",
       "mcp": {
-        "binary": "producthunt-pp-mcp",
+        "binary": "substack-pp-mcp",
         "transports": [
           "stdio",
           "http"
         ],
-        "tool_count": 1,
-        "public_tool_count": 1,
-        "auth_type": "bearer_token",
-        "env_vars": [
-          "PRODUCT_HUNT_TOKEN"
-        ],
-        "mcp_ready": "full",
+        "tool_count": 39,
+        "public_tool_count": 0,
+        "auth_type": "cookie",
+        "env_vars": [],
+        "mcp_ready": "partial",
         "spec_format": "internal"
       }
     },
     {
-      "name": "pypi",
-      "category": "developer-tools",
-      "api": "PyPI",
-      "description": "PyPI JSON API. Look up Python package metadata, versions, release files, and vulnerability data. Browse recent updates and newest packages via RSS feeds. No authentication required — all endpoints are public.",
-      "path": "library/developer-tools/pypi",
+      "name": "wikipedia",
+      "category": "media-and-entertainment",
+      "api": "Wikipedia",
+      "description": "Wikipedia REST API. Get article summaries, search, browse related topics, and access on-this-day events. No authentication required. Uses a polite User-Agent header.",
+      "path": "library/media-and-entertainment/wikipedia",
       "printer": "hnshah",
       "printer_name": "Hiten Shah",
       "mcp": {
-        "binary": "pypi-pp-mcp",
+        "binary": "wikipedia-pp-mcp",
         "transports": [
           "stdio"
         ],
-        "tool_count": 4,
-        "public_tool_count": 4,
+        "tool_count": 5,
+        "public_tool_count": 5,
         "auth_type": "none",
         "env_vars": [],
-        "mcp_ready": "full",
-        "spec_format": "openapi3"
-      }
-    },
-    {
-      "name": "recipe-goat",
-      "category": "food-and-dining",
-      "api": "Cross-site recipe aggregator (37 trusted sites: King Arthur, Serious Eats, Smitten Kitchen, AllRecipes, Food52, BBC Food, EatingWell, Food Network, and 29 more) + USDA FoodData Central",
-      "description": "Find the best version of any recipe across 37 trusted sites — trust-aware ranking weights real reader signal at 80% and editorial trust at 15% (curated chef/baker sites win tie-break over crowdsourced aggregators). Builds a local SQLite cookbook with pantry match, meal plans, cook log, substitutions, and USDA-backed nutrition backfill. Powered by Surf-Chrome HTTP transport — bypasses TLS-fingerprint bot detection that previously blocked Dotdash properties.",
-      "path": "library/food-and-dining/recipe-goat",
-      "printer": "tmchow",
-      "printer_name": "Trevin Chow",
-      "mcp": {
-        "binary": "recipe-goat-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 3,
-        "public_tool_count": 0,
-        "auth_type": "api_key",
-        "env_vars": [
-          "USDA_FDC_API_KEY"
-        ],
-        "mcp_ready": "full",
-        "spec_format": "internal"
-      }
-    },
-    {
-      "name": "redfin",
-      "category": "other",
-      "api": "Redfin",
-      "description": "Search Redfin homes for sale via internal Stingray endpoints, sync to local SQLite, and run workflows the website doesn't expose — saved-search diff, $/sqft net-HOA ranking, sold comps, multi-region trends.",
-      "path": "library/other/redfin",
-      "printer": "rderwin",
-      "printer_name": "rderwin",
-      "mcp": {
-        "binary": "redfin-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 3,
-        "public_tool_count": 0,
-        "auth_type": "none",
-        "env_vars": [],
-        "mcp_ready": "full",
-        "spec_format": "internal"
-      }
-    },
-    {
-      "name": "render",
-      "category": "cloud",
-      "api": "Render",
-      "description": "Every Render endpoint, plus diff, drift, cost, audit, and orphan analytics no other Render tool ships.",
-      "path": "library/cloud/render",
-      "printer": "giacaglia",
-      "printer_name": "Giuliano Giacaglia",
-      "mcp": {
-        "binary": "render-pp-mcp",
-        "transports": [
-          "stdio",
-          "http"
-        ],
-        "tool_count": 196,
-        "public_tool_count": 0,
-        "auth_type": "bearer_token",
-        "env_vars": [
-          "RENDER_API_KEY"
-        ],
-        "mcp_ready": "full",
-        "spec_format": "openapi3"
-      }
-    },
-    {
-      "name": "roam",
-      "category": "productivity",
-      "api": "Roam HQ",
-      "description": "Every Roam HQ surface — chat, transcripts, On-Air events, SCIM, webhooks — in one local-first CLI with offline...",
-      "path": "library/productivity/roam",
-      "printer": "gregvanhorn",
-      "printer_name": "Greg Van Horn",
-      "mcp": {
-        "binary": "roam-pp-cli",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 0,
-        "public_tool_count": 0,
-        "auth_type": "bearer",
-        "env_vars": [
-          "ROAM_API_KEY"
-        ],
-        "spec_format": "openapi3"
-      }
-    },
-    {
-      "name": "scrape-creators",
-      "category": "developer-tools",
-      "api": "Scrape Creators",
-      "description": "Scrape public social media data from the terminal — profiles, posts, videos, comments, ads, and transcripts across TikTok, Instagram, YouTube, Twitter/X, LinkedIn, Facebook, Reddit, Threads, Bluesky, Pinterest, Snapchat, Twitch, Kick, Truth Social, and 15+ link-in-bio / creator link services.",
-      "path": "library/developer-tools/scrape-creators",
-      "printer": "adrianhorning08",
-      "printer_name": "Adrian Horning",
-      "mcp": {
-        "binary": "scrape-creators-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 114,
-        "public_tool_count": 0,
-        "auth_type": "api_key",
-        "env_vars": [
-          "SCRAPE_CREATORS_API_KEY_AUTH"
-        ],
-        "mcp_ready": "full",
-        "spec_format": "openapi3"
-      }
-    },
-    {
-      "name": "seats-aero",
-      "category": "travel",
-      "api": "Seats Aero Partner",
-      "description": "Seats.aero Partner API for award travel availability, cached search, route lists, and trip revalidation details.",
-      "path": "library/travel/seats-aero",
-      "printer": "cathrynlavery",
-      "printer_name": "Cathryn Lavery",
-      "mcp": {
-        "binary": "seats-aero-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 4,
-        "public_tool_count": 0,
-        "auth_type": "api_key",
-        "env_vars": [
-          "SEATS_AERO_API_KEY"
-        ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
       }
@@ -1234,69 +1061,172 @@
       }
     },
     {
-      "name": "shopify",
-      "category": "commerce",
-      "api": "Shopify",
-      "description": "Operate a Shopify store from the terminal with curated Admin GraphQL commands, local sync, analytics, and bulk exports.",
-      "path": "library/commerce/shopify",
-      "printer": "cathrynlavery",
-      "printer_name": "Cathryn Lavery",
+      "name": "apartments",
+      "category": "other",
+      "api": "Apartments",
+      "description": "Search Apartments.com listings, sync results to a local SQLite store, and run workflows the website never built — diff saved searches, rank by $/sqft, compare shortlists, and surface price drops or phantom listings.",
+      "path": "library/other/apartments",
+      "printer": "rderwin",
+      "printer_name": "rderwin",
       "mcp": {
-        "binary": "shopify-pp-mcp",
+        "binary": "apartments-pp-mcp",
         "transports": [
           "stdio"
         ],
-        "tool_count": 10,
+        "tool_count": 2,
         "public_tool_count": 0,
-        "auth_type": "api_key",
-        "env_vars": [
-          "SHOPIFY_ACCESS_TOKEN"
-        ],
+        "auth_type": "none",
+        "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "internal"
       }
     },
     {
-      "name": "slack",
-      "category": "productivity",
-      "api": "Slack",
-      "description": "Send messages, search conversations, monitor channels, and manage your Slack workspace from the terminal",
-      "path": "library/productivity/slack",
-      "printer": "mvanhorn",
-      "printer_name": "Matt Van Horn",
-      "mcp": {
-        "binary": "slack-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 66,
-        "public_tool_count": 0,
-        "auth_type": "api_key",
-        "env_vars": [
-          "SLACK_BOT_TOKEN"
-        ],
-        "mcp_ready": "full"
-      }
-    },
-    {
-      "name": "steam-web",
-      "category": "media-and-entertainment",
-      "api": "Steam Web",
-      "description": "Look up Steam players, games, achievements, friends, and stats from the command line",
-      "path": "library/media-and-entertainment/steam-web",
+      "name": "open-meteo",
+      "category": "other",
+      "api": "Open-Meteo",
+      "description": "Forecasts, historicals, marine, air quality, flood, climate, ensemble, and seasonal data from Open-Meteo's free tier.",
+      "path": "library/other/open-meteo",
       "printer": "tmchow",
       "printer_name": "Trevin Chow",
       "mcp": {
-        "binary": "steam-web-pp-mcp",
+        "binary": "open-meteo-pp-mcp",
         "transports": [
-          "stdio",
-          "http"
+          "stdio"
         ],
-        "tool_count": 169,
+        "tool_count": 11,
+        "public_tool_count": 11,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "redfin",
+      "category": "other",
+      "api": "Redfin",
+      "description": "Search Redfin homes for sale via internal Stingray endpoints, sync to local SQLite, and run workflows the website doesn't expose — saved-search diff, $/sqft net-HOA ranking, sold comps, multi-region trends.",
+      "path": "library/other/redfin",
+      "printer": "rderwin",
+      "printer_name": "rderwin",
+      "mcp": {
+        "binary": "redfin-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 3,
+        "public_tool_count": 0,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "ufo-goat",
+      "category": "other",
+      "api": "War.gov UFO",
+      "description": "Browse, search, and download declassified UAP files from the War.gov PURSUE archive",
+      "path": "library/other/ufo-goat",
+      "printer": "davemorin",
+      "printer_name": "Dave Morin",
+      "mcp": {
+        "binary": "ufo-goat-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 4,
+        "public_tool_count": 4,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "weather-goat",
+      "category": "other",
+      "api": "Open-Meteo + NWS",
+      "description": "Weather forecasts, severe weather alerts, air quality, and GO/CAUTION/STOP activity verdicts for walk, bike, hike, commute, and drive",
+      "path": "library/other/weather-goat",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "mcp": {
+        "binary": "weather-goat-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 5,
+        "public_tool_count": 5,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "coingecko",
+      "category": "payments",
+      "api": "Coingecko",
+      "description": "CoinGecko public API for cryptocurrency data. Free tier, no API key required for basic endpoints.",
+      "path": "library/payments/coingecko",
+      "printer": "hnshah",
+      "printer_name": "Hiten Shah",
+      "mcp": {
+        "binary": "coingecko-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 11,
+        "public_tool_count": 11,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "kalshi",
+      "category": "payments",
+      "api": "Kalshi",
+      "description": "Trade prediction markets, persist tick data, and answer category-level P&L questions Kalshi.com cannot.",
+      "path": "library/payments/kalshi",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "mcp": {
+        "binary": "kalshi-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 96,
         "public_tool_count": 0,
         "auth_type": "api_key",
         "env_vars": [
-          "STEAM_WEB_API_KEY"
+          "KALSHI_TRADE_MANUAL_KALSHI_ACCESS_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "mercury",
+      "category": "payments",
+      "api": "Mercury",
+      "description": "Business banking API for accounts, transactions, payments, recipients, cards, invoices, treasury, and webhooks",
+      "path": "library/payments/mercury",
+      "printer": "cathrynlavery",
+      "printer_name": "Cathryn Lavery",
+      "mcp": {
+        "binary": "mercury-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 75,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "MERCURY_BEARER_AUTH"
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
@@ -1327,20 +1257,65 @@
       }
     },
     {
-      "name": "substack",
-      "category": "media-and-entertainment",
-      "api": "Substack",
-      "description": "Run your Substack growth loop from the command line — publish, schedule, engage, and measure with cross-table...",
-      "path": "library/media-and-entertainment/substack",
-      "printer": "chirantan",
-      "printer_name": "Chirantan Rajhans",
+      "name": "cal-com",
+      "category": "productivity",
+      "api": "Cal.com",
+      "description": "Every Cal.com feature, plus offline agendas, composed booking flows, and analytics no other Cal.com tool ships.",
+      "path": "library/productivity/cal-com",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
       "mcp": {
-        "binary": "substack-pp-mcp",
+        "binary": "cal-com-pp-mcp",
         "transports": [
-          "stdio",
-          "http"
+          "stdio"
         ],
-        "tool_count": 39,
+        "tool_count": 291,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "CAL_COM_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "fireflies",
+      "category": "productivity",
+      "api": "Fireflies Pp Cli",
+      "description": "Every Fireflies meeting feature, plus offline search, cross-meeting intelligence, and a local database no other tool...",
+      "path": "library/productivity/fireflies",
+      "printer": "neektza",
+      "printer_name": "Nikica Jokic",
+      "mcp": {
+        "binary": "fireflies-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 18,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "FIREFLIES_PP_CLI_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "graphql"
+      }
+    },
+    {
+      "name": "myfitnesspal",
+      "category": "productivity",
+      "api": "MyFitnessPal",
+      "description": "Pull every meal you ever logged out of MyFitnessPal — per-food CSV, agent-shaped trends, and a local SQLite store...",
+      "path": "library/productivity/myfitnesspal",
+      "printer": "nickscarabosio",
+      "printer_name": "Nick Scarabosio",
+      "mcp": {
+        "binary": "myfitnesspal-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 15,
         "public_tool_count": 0,
         "auth_type": "cookie",
         "env_vars": [],
@@ -1349,72 +1324,146 @@
       }
     },
     {
-      "name": "table-reservation-goat",
-      "category": "food-and-dining",
-      "api": "Table Reservation GOAT",
-      "description": "One reservation CLI for OpenTable and Tock — search both networks at once, watch for cancellations, book, and...",
-      "path": "library/food-and-dining/table-reservation-goat",
-      "printer": "pejmanjohn",
-      "printer_name": "Pejman Pour-Moezzi",
+      "name": "notion",
+      "category": "productivity",
+      "api": "Notion",
+      "description": "Every Notion database queryable offline — cross-workspace SQL joins, stale detection, and relation graph traversal...",
+      "path": "library/productivity/notion",
+      "printer": "neektza",
+      "printer_name": "Nikica Jokic",
       "mcp": {
-        "binary": "table-reservation-goat-pp-mcp",
+        "binary": "notion-pp-mcp",
         "transports": [
           "stdio"
         ],
-        "tool_count": 12,
-        "public_tool_count": 12,
-        "auth_type": "none",
-        "env_vars": [],
-        "mcp_ready": "full",
-        "spec_format": "internal"
-      }
-    },
-    {
-      "name": "tiktok-shop",
-      "category": "commerce",
-      "api": "TikTok Shop",
-      "description": "Safe v1 TikTok Shop Seller API CLI/MCP for auth readiness, token exchange and refresh, read-only shops, orders, products, inventory search, fulfillment packages, and warehouses.",
-      "path": "library/commerce/tiktok-shop",
-      "printer": "cathrynlavery",
-      "printer_name": "Cathryn Lavery",
-      "mcp": {
-        "binary": "tiktok-shop-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 11,
-        "public_tool_count": 11,
-        "auth_type": "signed_tiktok_shop_open_api",
+        "tool_count": 47,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
         "env_vars": [
-          "TIKTOK_SHOP_APP_KEY",
-          "TIKTOK_SHOP_APP_SECRET",
-          "TIKTOK_SHOP_ACCESS_TOKEN",
-          "TIKTOK_SHOP_REFRESH_TOKEN",
-          "TIKTOK_SHOP_SHOP_CIPHER"
+          "NOTION_BEARER_AUTH"
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
       }
     },
     {
-      "name": "trigger-dev",
-      "category": "developer-tools",
-      "api": "Trigger.dev",
-      "description": "Durable background jobs and AI agent orchestration — runs, schedules, deployments, batches, queues, waitpoints, env vars, and TRQL analytics",
-      "path": "library/developer-tools/trigger-dev",
+      "name": "opensnow",
+      "category": "productivity",
+      "api": "OpenSnow",
+      "description": "Hyper-local weather forecasts and conditions for any mountain location and elevation, worldwide. Provides current conditions, hourly forecasts, 5-day day/night snow forecasts, resort snow reports, and expert-written Daily Snow posts. Authentication via api_key query parameter (partnership access only).",
+      "path": "library/productivity/opensnow",
+      "printer": "davemorin",
+      "printer_name": "Dave Morin",
+      "mcp": {
+        "binary": "opensnow-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 5,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "OPENSNOW_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "roam",
+      "category": "productivity",
+      "api": "Roam HQ",
+      "description": "Every Roam HQ surface — chat, transcripts, On-Air events, SCIM, webhooks — in one local-first CLI with offline...",
+      "path": "library/productivity/roam",
+      "printer": "gregvanhorn",
+      "printer_name": "Greg Van Horn",
+      "mcp": {
+        "binary": "roam-pp-cli",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 0,
+        "public_tool_count": 0,
+        "auth_type": "bearer",
+        "env_vars": [
+          "ROAM_API_KEY"
+        ],
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "slack",
+      "category": "productivity",
+      "api": "Slack",
+      "description": "Send messages, search conversations, monitor channels, and manage your Slack workspace from the terminal",
+      "path": "library/productivity/slack",
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn",
       "mcp": {
-        "binary": "trigger-dev-pp-mcp",
+        "binary": "slack-pp-mcp",
         "transports": [
-          "stdio",
-          "http"
+          "stdio"
         ],
-        "tool_count": 47,
-        "public_tool_count": 1,
-        "auth_type": "bearer_token",
+        "tool_count": 66,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
         "env_vars": [
-          "TRIGGER_SECRET_KEY"
+          "SLACK_BOT_TOKEN"
+        ],
+        "mcp_ready": "full"
+      }
+    },
+    {
+      "name": "zohomail-pp-cli",
+      "category": "productivity",
+      "api": "Zoho Mail",
+      "description": "Read, search, inspect, and send Zoho Mail messages from the terminal with OAuth-backed account, folder, message, and send commands.",
+      "path": "library/productivity/zohomail-pp-cli",
+      "printer": "jlwainwright",
+      "printer_name": "Jacques Wainwright"
+    },
+    {
+      "name": "linear",
+      "category": "project-management",
+      "api": "Linear",
+      "description": "Offline-capable, agent-native CLI for the Linear API with SQLite-backed sync, FTS5 search, cross-cycle comparison, project burndown, and pp_created fixture lifecycle for safe live testing.",
+      "path": "library/project-management/linear",
+      "printer": "mvanhorn",
+      "printer_name": "Matt Van Horn",
+      "mcp": {
+        "binary": "linear-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 28,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "LINEAR_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "graphql"
+      }
+    },
+    {
+      "name": "contact-goat",
+      "category": "sales-and-crm",
+      "api": "contact-goat",
+      "description": "Super LinkedIn for the terminal - search, enrich, and map warm-intro paths across LinkedIn (stickerdaniel/linkedin-mcp-server subprocess), Happenstance (Chrome cookie auth with Clerk JWT refresh), and Deepline (paid enrichment, hybrid subprocess+HTTP). Unified SQLite store powers warm-intro, coverage, and cross-source prospect commands no single tool has.",
+      "path": "library/sales-and-crm/contact-goat",
+      "printer": "mvanhorn",
+      "printer_name": "Matt Van Horn",
+      "mcp": {
+        "binary": "contact-goat-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 16,
+        "public_tool_count": 0,
+        "auth_type": "composed",
+        "env_vars": [
+          "DEEPLINE_API_KEY",
+          "HAPPENSTANCE_API_KEY"
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
@@ -1445,113 +1494,6 @@
       }
     },
     {
-      "name": "ufo-goat",
-      "category": "other",
-      "api": "War.gov UFO",
-      "description": "Browse, search, and download declassified UAP files from the War.gov PURSUE archive",
-      "path": "library/other/ufo-goat",
-      "printer": "davemorin",
-      "printer_name": "Dave Morin",
-      "mcp": {
-        "binary": "ufo-goat-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 4,
-        "public_tool_count": 4,
-        "auth_type": "none",
-        "env_vars": [],
-        "mcp_ready": "full",
-        "spec_format": "internal"
-      }
-    },
-    {
-      "name": "wanderlust-goat",
-      "category": "travel",
-      "api": "Wanderlust GOAT",
-      "description": "Wanderlust GOAT — what a knowledgeable local with great taste would tell you to walk to from here, fused across editorial, local-language, and crowd layers no single tool ranks together.",
-      "path": "library/travel/wanderlust-goat",
-      "printer": "jheitzeb",
-      "printer_name": "Joe Heitzeberg",
-      "mcp": {
-        "binary": "wanderlust-goat-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 2,
-        "public_tool_count": 2,
-        "auth_type": "none",
-        "env_vars": [],
-        "mcp_ready": "full",
-        "spec_format": "internal"
-      }
-    },
-    {
-      "name": "weather-goat",
-      "category": "other",
-      "api": "Open-Meteo + NWS",
-      "description": "Weather forecasts, severe weather alerts, air quality, and GO/CAUTION/STOP activity verdicts for walk, bike, hike, commute, and drive",
-      "path": "library/other/weather-goat",
-      "printer": "tmchow",
-      "printer_name": "Trevin Chow",
-      "mcp": {
-        "binary": "weather-goat-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 5,
-        "public_tool_count": 5,
-        "auth_type": "none",
-        "env_vars": [],
-        "mcp_ready": "full",
-        "spec_format": "internal"
-      }
-    },
-    {
-      "name": "whoop",
-      "category": "devices",
-      "api": "Whoop",
-      "description": "Printing Press CLI for Whoop.",
-      "path": "library/devices/whoop",
-      "printer": "gregvanhorn",
-      "printer_name": "Greg Van Horn",
-      "mcp": {
-        "binary": "whoop-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 19,
-        "public_tool_count": 0,
-        "auth_type": "bearer_token",
-        "env_vars": [
-          "WHOOP_OAUTH"
-        ],
-        "mcp_ready": "full",
-        "spec_format": "openapi3"
-      }
-    },
-    {
-      "name": "wikipedia",
-      "category": "media-and-entertainment",
-      "api": "Wikipedia",
-      "description": "Wikipedia REST API. Get article summaries, search, browse related topics, and access on-this-day events. No authentication required. Uses a polite User-Agent header.",
-      "path": "library/media-and-entertainment/wikipedia",
-      "printer": "hnshah",
-      "printer_name": "Hiten Shah",
-      "mcp": {
-        "binary": "wikipedia-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 5,
-        "public_tool_count": 5,
-        "auth_type": "none",
-        "env_vars": [],
-        "mcp_ready": "full",
-        "spec_format": "openapi3"
-      }
-    },
-    {
       "name": "x-twitter",
       "category": "social-and-messaging",
       "api": "X (Twitter)",
@@ -1575,20 +1517,87 @@
       }
     },
     {
-      "name": "yahoo-finance",
-      "category": "commerce",
-      "api": "Yahoo Finance",
-      "description": "Quotes, charts, fundamentals, options chains, and a local portfolio/watchlist tracker against Yahoo Finance — no API key, with Chrome-session fallback for rate-limited IPs",
-      "path": "library/commerce/yahoo-finance",
-      "printer": "tmchow",
-      "printer_name": "Trevin Chow",
+      "name": "airbnb",
+      "category": "travel",
+      "api": "Airbnb Vrbo",
+      "description": "Search Airbnb and VRBO, find the host's direct booking site, and report the cheapest of three sources side-by-side.",
+      "path": "library/travel/airbnb",
+      "printer": "mvanhorn",
+      "printer_name": "Matt Van Horn",
       "mcp": {
-        "binary": "yahoo-finance-pp-mcp",
+        "binary": "airbnb-pp-mcp",
         "transports": [
           "stdio"
         ],
-        "tool_count": 11,
+        "tool_count": 8,
+        "public_tool_count": 6,
+        "auth_type": "cookie",
+        "env_vars": [],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "flight-goat",
+      "category": "travel",
+      "api": "Flight GOAT",
+      "description": "Search Google Flights, scan Kayak long-haul routes, and join FlightAware AeroAPI reliability, alerts, and tracking from one CLI.",
+      "path": "library/travel/flight-goat",
+      "printer": "mvanhorn",
+      "printer_name": "Matt Van Horn",
+      "mcp": {
+        "binary": "flight-goat-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 58,
         "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "FLIGHT_GOAT_API_KEY_AUTH"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "seats-aero",
+      "category": "travel",
+      "api": "Seats Aero Partner",
+      "description": "Seats.aero Partner API for award travel availability, cached search, route lists, and trip revalidation details.",
+      "path": "library/travel/seats-aero",
+      "printer": "cathrynlavery",
+      "printer_name": "Cathryn Lavery",
+      "mcp": {
+        "binary": "seats-aero-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 4,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "SEATS_AERO_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "wanderlust-goat",
+      "category": "travel",
+      "api": "Wanderlust GOAT",
+      "description": "Wanderlust GOAT — what a knowledgeable local with great taste would tell you to walk to from here, fused across editorial, local-language, and crowd layers no single tool ranks together.",
+      "path": "library/travel/wanderlust-goat",
+      "printer": "jheitzeb",
+      "printer_name": "Joe Heitzeberg",
+      "mcp": {
+        "binary": "wanderlust-goat-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 2,
+        "public_tool_count": 2,
         "auth_type": "none",
         "env_vars": [],
         "mcp_ready": "full",
