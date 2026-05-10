@@ -1,0 +1,286 @@
+{
+  "api_name": "gmail",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "shinzo-labs/gmail-mcp",
+      "url": "https://github.com/shinzo-labs/gmail-mcp",
+      "language": "TypeScript",
+      "install_method": "npx @shinzolabs/gmail-mcp",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 64,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "GongRzhe/Gmail-MCP-Server",
+      "url": "https://github.com/GongRzhe/Gmail-MCP-Server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "googleworkspace/cli",
+      "url": "https://github.com/googleworkspace/cli",
+      "language": "TypeScript",
+      "install_method": "npx @googleworkspace/cli",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "ThomasHabets/cmdg",
+      "url": "https://github.com/ThomasHabets/cmdg",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": true
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-10T12:40:00Z",
+  "novel_features": [
+    {
+      "name": "Bulk Attachment Export",
+      "command": "attachments export",
+      "description": "Download every attachment matching a Gmail search query to a local directory — invoice extraction in one command.",
+      "rationale": "Requires resolving attachment IDs across multiple messages from local SQLite, then batching gmail.users.messages.attachments.get calls — 60+ lines of Python in a single command.",
+      "example": "gmail-pp-cli attachments export --query \"from:vendor@acme.com has:attachment\" --dir ~/invoices --agent",
+      "why_it_matters": "Use when you need to bulk-extract invoice PDFs, report attachments, or any attachment type from a set of emails — without writing a script.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sender Leaderboard",
+      "command": "senders top",
+      "description": "Rank your top email senders by volume with unsubscribe link detection — the inbox transparency view Gmail's UI never shows you.",
+      "rationale": "SQL GROUP BY from_address across synced messages with List-Unsubscribe join — no single Gmail API endpoint returns per-sender aggregates.",
+      "example": "gmail-pp-cli senders top --limit 20 --period 30d --unsubscribe --agent",
+      "why_it_matters": "Use when you need to find who floods your inbox before a cleanup session, or identify newsletter candidates for bulk unsubscribe.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Newsletter List",
+      "command": "newsletters list",
+      "description": "Surface every sender with a List-Unsubscribe header grouped by domain — your actionable unsubscribe queue.",
+      "rationale": "Queries local SQLite for messages where list_unsubscribe is populated (parsed at sync time from RFC 2369 headers) — impossible via a single Gmail API call.",
+      "example": "gmail-pp-cli newsletters list --agent",
+      "why_it_matters": "Use before a Friday inbox cleanup to get a ranked list of newsletters with direct unsubscribe URLs — no web UI clicking required.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Inbox Digest",
+      "command": "digest",
+      "description": "Your daily inbox summary in one command — threads grouped by label with sender, subject, and unread count.",
+      "rationale": "Joins threads + messages + message_labels in local SQLite; groups by label; no live API call needed after sync — what the Gmail mobile digest notification should be.",
+      "example": "gmail-pp-cli digest --since yesterday --label IMPORTANT --agent",
+      "why_it_matters": "Use every morning to get a structured inbox summary pipeable to an agent or shell script without opening Gmail.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Attachment Inventory",
+      "command": "attachments list",
+      "description": "List all attachments in your synced mailbox filtered by MIME type or Gmail query — zero API calls after sync.",
+      "rationale": "Queries local attachments table joined with messages; Gmail MIME structure requires multi-step API fetches making a local index uniquely fast.",
+      "example": "gmail-pp-cli attachments list --type application/pdf --query \"from:accounting@\" --agent",
+      "why_it_matters": "Use before running attachments export to preview what will be downloaded, or to find a specific file without opening Gmail.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sync Status",
+      "command": "stale",
+      "description": "Check when your local mailbox was last synced and whether the history token is still fresh.",
+      "rationale": "Reads local sync_state table — last timestamp, history token age, total synced count — making silent token expiry visible before running queries.",
+      "example": "gmail-pp-cli stale --agent",
+      "why_it_matters": "Use before running any local-store query to verify your data is current and diagnose why results might be stale.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Unread Age Histogram",
+      "command": "inbox age",
+      "description": "See how old your unread mail is — bucketed by today / 1-7d / 8-30d / 30-90d / 90d+ per label.",
+      "rationale": "SQL GROUP BY date_bucket on unread messages in local SQLite — no live API call can return this aggregate across a large mailbox.",
+      "example": "gmail-pp-cli inbox age --label INBOX --agent",
+      "why_it_matters": "Use during inbox cleanup to understand the shape of your unread pile before deciding what to bulk-archive.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Outbound Volume by Domain",
+      "command": "sent stats",
+      "description": "Count outbound emails to a recipient domain in a time window — the one-command compliance audit.",
+      "rationale": "Queries synced SENT messages by To-header domain in local SQLite — no Gmail API endpoint returns sent-volume-by-recipient-domain.",
+      "example": "gmail-pp-cli sent stats --to-domain acmecorp.com --period 7d --agent",
+      "why_it_matters": "Use before a compliance review to verify email volume to a customer or partner without exporting all mail.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Bulk Attachment Export",
+      "command": "attachments export",
+      "description": "Download every attachment matching a Gmail search query to a local directory — invoice extraction in one command.",
+      "rationale": "Requires resolving attachment IDs across multiple messages from local SQLite, then batching gmail.users.messages.attachments.get calls — 60+ lines of Python in a single command.",
+      "example": "gmail-pp-cli attachments export --query \"from:vendor@acme.com has:attachment\" --dir ~/invoices --agent",
+      "why_it_matters": "Use when you need to bulk-extract invoice PDFs, report attachments, or any attachment type from a set of emails — without writing a script.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sender Leaderboard",
+      "command": "senders top",
+      "description": "Rank your top email senders by volume with unsubscribe link detection — the inbox transparency view Gmail's UI never shows you.",
+      "rationale": "SQL GROUP BY from_address across synced messages with List-Unsubscribe join — no single Gmail API endpoint returns per-sender aggregates.",
+      "example": "gmail-pp-cli senders top --limit 20 --period 30d --unsubscribe --agent",
+      "why_it_matters": "Use when you need to find who floods your inbox before a cleanup session, or identify newsletter candidates for bulk unsubscribe.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Newsletter List",
+      "command": "newsletters list",
+      "description": "Surface every sender with a List-Unsubscribe header grouped by domain — your actionable unsubscribe queue.",
+      "rationale": "Queries local SQLite for messages where list_unsubscribe is populated (parsed at sync time from RFC 2369 headers) — impossible via a single Gmail API call.",
+      "example": "gmail-pp-cli newsletters list --agent",
+      "why_it_matters": "Use before a Friday inbox cleanup to get a ranked list of newsletters with direct unsubscribe URLs — no web UI clicking required.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Inbox Digest",
+      "command": "digest",
+      "description": "Your daily inbox summary in one command — threads grouped by label with sender, subject, and unread count.",
+      "rationale": "Joins threads + messages + message_labels in local SQLite; groups by label; no live API call needed after sync — what the Gmail mobile digest notification should be.",
+      "example": "gmail-pp-cli digest --since yesterday --label IMPORTANT --agent",
+      "why_it_matters": "Use every morning to get a structured inbox summary pipeable to an agent or shell script without opening Gmail.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Attachment Inventory",
+      "command": "attachments list",
+      "description": "List all attachments in your synced mailbox filtered by MIME type or Gmail query — zero API calls after sync.",
+      "rationale": "Queries local attachments table joined with messages; Gmail MIME structure requires multi-step API fetches making a local index uniquely fast.",
+      "example": "gmail-pp-cli attachments list --type application/pdf --query \"from:accounting@\" --agent",
+      "why_it_matters": "Use before running attachments export to preview what will be downloaded, or to find a specific file without opening Gmail.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sync Status",
+      "command": "stale",
+      "description": "Check when your local mailbox was last synced and whether the history token is still fresh.",
+      "rationale": "Reads local sync_state table — last timestamp, history token age, total synced count — making silent token expiry visible before running queries.",
+      "example": "gmail-pp-cli stale --agent",
+      "why_it_matters": "Use before running any local-store query to verify your data is current and diagnose why results might be stale.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Unread Age Histogram",
+      "command": "inbox age",
+      "description": "See how old your unread mail is — bucketed by today / 1-7d / 8-30d / 30-90d / 90d+ per label.",
+      "rationale": "SQL GROUP BY date_bucket on unread messages in local SQLite — no live API call can return this aggregate across a large mailbox.",
+      "example": "gmail-pp-cli inbox age --label INBOX --agent",
+      "why_it_matters": "Use during inbox cleanup to understand the shape of your unread pile before deciding what to bulk-archive.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Outbound Volume by Domain",
+      "command": "sent stats",
+      "description": "Count outbound emails to a recipient domain in a time window — the one-command compliance audit.",
+      "rationale": "Queries synced SENT messages by To-header domain in local SQLite — no Gmail API endpoint returns sent-volume-by-recipient-domain.",
+      "example": "gmail-pp-cli sent stats --to-domain acmecorp.com --period 7d --agent",
+      "why_it_matters": "Use before a compliance review to verify email volume to a customer or partner without exporting all mail.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Gmail",
+    "headline": "Your entire Gmail mailbox in a local SQLite database — searchable offline, queryable with SQL, and pipeline-ready for agents.",
+    "value_prop": "Every Gmail MCP tool makes live API calls for every operation. The Gmail CLI syncs your mailbox once and lets you query it as a database: FTS search in milliseconds, sender analytics, newsletter detection, attachment pipelines, inbox digests — all offline. Plus the full live API surface for sending, labeling, threading, and managing settings.",
+    "auth_narrative": "Gmail uses OAuth2. Run `gmail-pp-cli auth login` to open a browser window for the Google OAuth2 consent screen. Your refresh token is stored in `~/.config/gmail-pp-cli/token.json` and refreshed automatically. Set `GMAIL_CLIENT_ID` and `GMAIL_CLIENT_SECRET` from a Google Cloud Console project with the Gmail API enabled.",
+    "quickstart": [
+      {
+        "command": "gmail-pp-cli auth login",
+        "comment": "Authenticate via browser — stores refresh token locally"
+      },
+      {
+        "command": "gmail-pp-cli sync --full",
+        "comment": "Pull all messages, threads, labels, and attachment metadata into local SQLite"
+      },
+      {
+        "command": "gmail-pp-cli digest --since yesterday --label IMPORTANT",
+        "comment": "Morning inbox summary — no API call needed after sync"
+      },
+      {
+        "command": "gmail-pp-cli senders top --limit 20 --period 30d --unsubscribe",
+        "comment": "Sender leaderboard with newsletter detection — Friday cleanup starting point"
+      },
+      {
+        "command": "gmail-pp-cli attachments export --query \"has:attachment from:accounting@\" --dir ~/invoices",
+        "comment": "Bulk-download all matching attachments to a local directory"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 401 on all commands",
+        "fix": "Run `gmail-pp-cli auth login` — token is missing or expired. Delete `~/.config/gmail-pp-cli/token.json` and re-authenticate if refresh fails."
+      },
+      {
+        "symptom": "stale command shows history token expired",
+        "fix": "Run `gmail-pp-cli sync --full` to re-sync from scratch. History tokens expire after ~7 days of no incremental sync."
+      },
+      {
+        "symptom": "digest / senders / attachments return no results",
+        "fix": "Run `gmail-pp-cli sync --full` first — these commands query the local store, not the live API."
+      },
+      {
+        "symptom": "HTTP 429 rate limit during sync",
+        "fix": "The sync respects Gmail's rate limits with exponential backoff. Large mailboxes (100k+ messages) may take 60+ minutes on first sync. The sync is resumable — rerun if interrupted."
+      }
+    ],
+    "when_to_use": "Use the Gmail CLI when you need to work with email data at scale: bulk attachment extraction, sender analytics, inbox triage automation, or building pipelines that process email content. Ideal for developers and power users who want offline access to their mailbox, SQL-queryable email data, and agent-friendly JSON output for downstream automation.",
+    "recipes": [
+      {
+        "title": "Extract all PDF invoices from the last 30 days",
+        "command": "gmail-pp-cli attachments export --query \"has:attachment after:2026/04/01\" --dir ~/invoices --agent --select filename,sender,date,size",
+        "explanation": "Finds all attachments in the local store matching the query, then batch-fetches and saves each one — the --select flag keeps the JSON summary tight."
+      },
+      {
+        "title": "Friday inbox cleanup — find newsletter candidates",
+        "command": "gmail-pp-cli newsletters list --agent | jq '.[] | select(.message_count \u003e 5) | .unsubscribe_url'",
+        "explanation": "Lists senders with List-Unsubscribe headers, filters to high-volume ones, extracts the unsubscribe URLs for one-click action."
+      },
+      {
+        "title": "Morning digest piped to an agent",
+        "command": "gmail-pp-cli digest --since yesterday --agent --select label,from,subject,snippet,unread_count",
+        "explanation": "Returns a compact JSON array of thread summaries grouped by label — pass to an LLM to prioritize your morning."
+      },
+      {
+        "title": "Compliance audit — emails sent to a customer domain",
+        "command": "gmail-pp-cli sent stats --to-domain acmecorp.com --period 30d --agent",
+        "explanation": "Counts outbound messages to a domain from the local SENT archive — no export required for the weekly compliance report."
+      },
+      {
+        "title": "Inbox age check before bulk archive",
+        "command": "gmail-pp-cli inbox age --label INBOX --agent --select bucket,count,oldest_date",
+        "explanation": "Shows how old your unread pile is before you commit to bulk-archiving — the --select keeps the payload small for agent consumption."
+      }
+    ],
+    "trigger_phrases": [
+      "search my gmail",
+      "download email attachments",
+      "find newsletters to unsubscribe",
+      "who emails me the most",
+      "use gmail",
+      "run gmail",
+      "inbox digest",
+      "bulk archive gmail"
+    ]
+  }
+}

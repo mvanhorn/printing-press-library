@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-10T20:06:48.67531Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "gmail",
+  "cli_name": "gmail-pp-cli",
+  "run_id": "20260510-123646",
+  "novel_features": [
+    {
+      "name": "Bulk Attachment Export",
+      "command": "attachments export",
+      "description": "Download every attachment matching a Gmail search query to a local directory \u2014 invoice extraction in one command."
+    },
+    {
+      "name": "Sender Leaderboard",
+      "command": "senders top",
+      "description": "Rank your top email senders by volume with unsubscribe link detection \u2014 the inbox transparency view Gmail's UI never shows you."
+    },
+    {
+      "name": "Newsletter List",
+      "command": "newsletters list",
+      "description": "Surface every sender with a List-Unsubscribe header grouped by domain \u2014 your actionable unsubscribe queue."
+    },
+    {
+      "name": "Inbox Digest",
+      "command": "digest",
+      "description": "Your daily inbox summary in one command \u2014 threads grouped by label with sender, subject, and unread count."
+    },
+    {
+      "name": "Attachment Inventory",
+      "command": "attachments list",
+      "description": "List all attachments in your synced mailbox filtered by MIME type or Gmail query \u2014 zero API calls after sync."
+    },
+    {
+      "name": "Sync Status",
+      "command": "stale",
+      "description": "Check when your local mailbox was last synced and whether the history token is still fresh."
+    },
+    {
+      "name": "Unread Age Histogram",
+      "command": "inbox age",
+      "description": "See how old your unread mail is \u2014 bucketed by today / 1-7d / 8-30d / 30-90d / 90d+ per label."
+    },
+    {
+      "name": "Outbound Volume by Domain",
+      "command": "sent stats",
+      "description": "Count outbound emails to a recipient domain in a time window \u2014 the one-command compliance audit."
+    }
+  ],
+  "category": "productivity",
+  "description": "Your entire Gmail mailbox in a local SQLite database \u2014 searchable offline, queryable with SQL, and pipeline-ready for agents.",
+  "printer": "Ducommun509",
+  "printer_name": "Ducommun509",
+  "spec_url": "https://developers.google.com/gmail/api/reference/rest"
+}

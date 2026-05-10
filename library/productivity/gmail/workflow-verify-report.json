@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/cv/printing-press/.runstate/cli-printing-press-dc0bb5d6/runs/20260510-123646/working/gmail-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}
