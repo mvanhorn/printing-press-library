@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strings"
 	"time"
@@ -55,44 +56,14 @@ func chromeRoots() []string {
 	}
 }
 
-// nonProfileDirs are subdirectories under a Chrome user-data root that are
-// not user profiles and never contain Cookies databases.
-var nonProfileDirs = map[string]bool{
-	"System Profile":                  true,
-	"Crashpad":                        true,
-	"GrShaderCache":                   true,
-	"GraphiteDawnCache":               true,
-	"ShaderCache":                     true,
-	"Subresource Filter":              true,
-	"OnDeviceHeadSuggestModel":        true,
-	"FirstPartySetsPreloaded":         true,
-	"hyphen-data":                     true,
-	"OptimizationHints":               true,
-	"OriginTrials":                    true,
-	"PnaclTranslationCache":           true,
-	"Safe Browsing":                   true,
-	"SSLErrorAssistant":               true,
-	"CertificateRevocation":           true,
-	"WidevineCdm":                     true,
-	"ZxcvbnData":                      true,
-	"AutofillStates":                  true,
-	"FileTypePolicies":                true,
-	"CertificateAuthorityNetworkPath": true,
-	"GCM Store":                       true,
-	"BrowserMetrics":                  true,
-	"CrashReports":                    true,
-	"Local Traces":                    true,
-	"PKIMetadata":                     true,
-	"hyphen-data-en":                  true,
-	"FirstPartySetsPreloaded.tmp":     true,
-	"DefaultRecord":                   true,
-	"AutofillRegexes":                 true,
-	"recovery_test":                   true,
-	"recovery":                        true,
-	"Last Browser":                    true,
-	"Last Version":                    true,
-	"Local State":                     true,
-}
+// profileDirRE matches Chrome's actual profile-directory naming scheme:
+// the literal "Default", numbered "Profile N", and "Guest Profile". Using
+// an allowlist (instead of a denylist of every browser-internal sibling
+// dir like Crashpad / GraphiteDawnCache / SegmentationPlatform / etc.) is
+// the right shape: the denylist was guaranteed to go stale on every Chrome
+// release, while real profile dirs follow this stable convention across
+// Chrome / Brave / Chromium / Arc derivatives.
+var profileDirRE = regexp.MustCompile(`^(Default|Profile \d+|Guest Profile)$`)
 
 // chromeCookieCandidatePaths returns the absolute paths of every plausible
 // Chrome cookie database on this machine, walking the actual filesystem
@@ -118,7 +89,7 @@ func chromeCookieCandidatePathsIn(roots []string) []string {
 				continue
 			}
 			name := entry.Name()
-			if nonProfileDirs[name] {
+			if !profileDirRE.MatchString(name) {
 				continue
 			}
 			for _, sub := range []string{
@@ -186,7 +157,11 @@ func dedupeCookies(slices ...[]*kooky.Cookie) []*kooky.Cookie {
 			if existing, ok := seen[k]; ok {
 				// Prefer the entry with the later Expires; breaks tie in
 				// favor of later-encountered (assumed freshest snapshot).
-				if !existing.Expires.IsZero() && !c.Expires.IsZero() && existing.Expires.After(c.Expires) {
+				// Also keep the existing entry when it has a concrete expiry
+				// and the challenger is a session cookie (zero Expires) —
+				// otherwise a session-only re-encounter from a stale profile
+				// would replace a persistent cookie from a fresh profile.
+				if !existing.Expires.IsZero() && (c.Expires.IsZero() || existing.Expires.After(c.Expires)) {
 					continue
 				}
 			}

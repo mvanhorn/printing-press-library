@@ -45,9 +45,17 @@ func TestChromeCookieCandidatePathsIn(t *testing.T) {
 	profile2Old := filepath.Join(root, "Profile 2", "Cookies")
 	mustWriteFile(profile2Network)
 	mustWriteFile(profile2Old)
-	// Non-profile sibling: must NOT be enumerated as a profile.
+	// Guest Profile: covered by the allowlist
+	guestCookies := filepath.Join(root, "Guest Profile", "Cookies")
+	mustWriteFile(guestCookies)
+	// Non-profile siblings: every browser-internal directory must be ignored
+	// without us having to enumerate them by name. These three include both
+	// stable Chrome internals and a future Chrome dir we don't yet know about
+	// — the allowlist must reject them all.
 	mustWriteFile(filepath.Join(root, "Crashpad", "Cookies"))
 	mustWriteFile(filepath.Join(root, "GrShaderCache", "Cookies"))
+	mustWriteFile(filepath.Join(root, "SegmentationPlatform", "Cookies"))
+	mustWriteFile(filepath.Join(root, "System Profile", "Cookies"))
 	// A file (not a directory) at root level: must not crash the walk.
 	mustWriteFile(filepath.Join(root, "Local State"))
 
@@ -58,6 +66,7 @@ func TestChromeCookieCandidatePathsIn(t *testing.T) {
 		profile1Network,
 		profile2Network,
 		profile2Old,
+		guestCookies,
 	}
 	slices.Sort(got)
 	slices.Sort(want)
@@ -67,8 +76,10 @@ func TestChromeCookieCandidatePathsIn(t *testing.T) {
 
 	// Excluded sibling must NOT appear.
 	for _, g := range got {
-		if strings.Contains(g, "Crashpad") || strings.Contains(g, "GrShaderCache") {
-			t.Errorf("non-profile dir leaked into candidates: %q", g)
+		for _, banned := range []string{"Crashpad", "GrShaderCache", "SegmentationPlatform", "System Profile"} {
+			if strings.Contains(g, banned) {
+				t.Errorf("non-profile dir %q leaked into candidates: %q", banned, g)
+			}
 		}
 	}
 }
@@ -110,6 +121,38 @@ func TestDedupeCookies_KeysOnDomainNamePath(t *testing.T) {
 		if c.Name == "session" && c.Path == "/" && c.Value != "new" {
 			t.Errorf("dedupeCookies kept the older session cookie value=%q; expected the later-expiring 'new' value", c.Value)
 		}
+	}
+}
+
+// TestDedupeCookies_PersistentBeatsSession verifies that a persistent cookie
+// (concrete Expires) is preferred over a session-only cookie (zero Expires)
+// for the same (Domain, Name, Path) — even when the session cookie is
+// encountered later. Greptile P-finding from PR #399: prior logic short-
+// circuited the Expires comparison whenever either side had a zero Expires,
+// causing a stale-profile session cookie to silently overwrite a fresh
+// persistent cookie from kooky's auto-discovery.
+func TestDedupeCookies_PersistentBeatsSession(t *testing.T) {
+	now := time.Now()
+	persistent := &kooky.Cookie{Cookie: http.Cookie{
+		Name: "session", Domain: ".opentable.com", Path: "/", Value: "fresh-persistent",
+		Expires: now.Add(48 * time.Hour),
+	}}
+	sessionOnly := &kooky.Cookie{Cookie: http.Cookie{
+		Name: "session", Domain: ".opentable.com", Path: "/", Value: "stale-session-only",
+		// Expires zero → session cookie
+	}}
+
+	// Persistent encountered first, session-only later.
+	got := dedupeCookies([]*kooky.Cookie{persistent}, []*kooky.Cookie{sessionOnly})
+	if len(got) != 1 || got[0].Value != "fresh-persistent" {
+		t.Errorf("session cookie replaced persistent one; got %+v", got)
+	}
+
+	// Reverse order: session-only first, persistent later. The persistent
+	// one should win regardless of order.
+	got = dedupeCookies([]*kooky.Cookie{sessionOnly}, []*kooky.Cookie{persistent})
+	if len(got) != 1 || got[0].Value != "fresh-persistent" {
+		t.Errorf("dedupe order-dependent; expected persistent to win, got %+v", got)
 	}
 }
 
