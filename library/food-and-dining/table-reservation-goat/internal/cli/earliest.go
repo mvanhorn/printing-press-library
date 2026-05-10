@@ -87,11 +87,18 @@ type earliestResponse struct {
 	QueriedAt  string          `json:"queried_at"`
 }
 
-// summarizeEarliest computes meta + unresolved from the resolved row set.
+// summarizeEarliest partitions the row set into resolved-only Results
+// and unresolved companions, and computes the meta summary alongside.
+//
 // A row is considered "unresolved" when its Network is empty or "unknown" —
 // the resolver short-circuited before assigning a network. Resolved-but-
 // blocked rows (Network set, Available=false, Reason mentions Akamai etc.)
 // stay in Results but don't count toward Available.
+//
+// Partitioning here (rather than passing the raw `rows` to Results)
+// closes the duplication bug Greptile flagged on PR #424 round-2:
+// previously unresolved venues appeared in BOTH the results[] and
+// unresolved[] arrays simultaneously.
 //
 // PRECONDITION: callers must pass `rows` produced from `venues` so that
 // `len(rows) == len(venues)` and entries correspond positionally. The
@@ -99,29 +106,30 @@ type earliestResponse struct {
 // this condition; mismatched slices silently produce diverging counts.
 // All current callers (newEarliestCmd's dry-run and live paths) satisfy
 // this by appending one row per input venue in order.
-func summarizeEarliest(venues []string, rows []earliestRow) (earliestMeta, []unresolvedRow) {
-	// Initialize as empty slice (not nil) so JSON serialization emits
-	// `[]` rather than `null`. Symmetry with Results matters for the
-	// PR #424 Greptile finding — agents checking `"unresolved" in
-	// response` should always see a present key.
+func summarizeEarliest(venues []string, rows []earliestRow) (earliestMeta, []earliestRow, []unresolvedRow) {
+	// Initialize as empty slices (not nil) so JSON serialization emits
+	// `[]` rather than `null`. Symmetry across results + unresolved
+	// matters for the agent contract — both keys should always be
+	// present so consumers can iterate without nil-checks.
+	results := []earliestRow{}
 	unresolved := []unresolvedRow{}
-	var resolved, available int
+	var available int
 	for _, r := range rows {
 		if r.Network == "" || r.Network == "unknown" {
 			unresolved = append(unresolved, unresolvedRow{Venue: r.Venue, Reason: r.Reason})
 			continue
 		}
-		resolved++
+		results = append(results, r)
 		if r.Available {
 			available++
 		}
 	}
 	return earliestMeta{
 		VenuesRequested: len(venues),
-		Resolved:        resolved,
+		Resolved:        len(results),
 		Unresolved:      len(unresolved),
 		Available:       available,
-	}, unresolved
+	}, results, unresolved
 }
 
 // newEarliestCmd computes "soonest open slot per venue across both networks"
@@ -191,10 +199,10 @@ func newEarliestCmd(flags *rootFlags) *cobra.Command {
 				for _, v := range venues {
 					rows = append(rows, earliestRow{Venue: v, Network: "opentable", Available: false, Reason: "dry-run"})
 				}
-				meta, unresolved := summarizeEarliest(venues, rows)
+				meta, results, unresolved := summarizeEarliest(venues, rows)
 				return printJSONFiltered(cmd.OutOrStdout(), earliestResponse{
 					Venues: venues, Party: party, Within: withinDays,
-					Meta: meta, Results: rows, Unresolved: unresolved,
+					Meta: meta, Results: results, Unresolved: unresolved,
 					QueriedAt: time.Now().UTC().Format(time.RFC3339),
 				}, flags)
 			}
@@ -222,10 +230,10 @@ func newEarliestCmd(flags *rootFlags) *cobra.Command {
 				}
 				return rows[i].Venue < rows[j].Venue
 			})
-			meta, unresolved := summarizeEarliest(venues, rows)
+			meta, results, unresolved := summarizeEarliest(venues, rows)
 			return printJSONFiltered(cmd.OutOrStdout(), earliestResponse{
 				Venues: venues, Party: party, Within: withinDays,
-				Meta: meta, Results: rows, Unresolved: unresolved,
+				Meta: meta, Results: results, Unresolved: unresolved,
 				QueriedAt: time.Now().UTC().Format(time.RFC3339),
 			}, flags)
 		},

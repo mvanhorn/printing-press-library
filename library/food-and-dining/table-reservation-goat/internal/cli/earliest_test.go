@@ -123,7 +123,7 @@ func TestSummarizeEarliest(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			meta, unresolved := summarizeEarliest(tc.venues, tc.rows)
+			meta, results, unresolved := summarizeEarliest(tc.venues, tc.rows)
 			if meta.VenuesRequested != tc.wantRequested {
 				t.Errorf("VenuesRequested = %d; want %d", meta.VenuesRequested, tc.wantRequested)
 			}
@@ -145,6 +145,26 @@ func TestSummarizeEarliest(t *testing.T) {
 				}
 				if unresolved[i].Venue != name {
 					t.Errorf("unresolved[%d].Venue = %q; want %q", i, unresolved[i].Venue, name)
+				}
+			}
+			// PR #424 round-2 Greptile finding: unresolved venues must
+			// NOT appear in both results[] and unresolved[]. Verify the
+			// partition is disjoint.
+			if len(results) != tc.wantResolved {
+				t.Errorf("results len = %d; want %d (must equal Resolved count)", len(results), tc.wantResolved)
+			}
+			for _, r := range results {
+				if r.Network == "" || r.Network == "unknown" {
+					t.Errorf("results[] leaked unresolved venue %q (Network=%q) — partition broken", r.Venue, r.Network)
+				}
+			}
+			unresolvedSet := map[string]bool{}
+			for _, u := range unresolved {
+				unresolvedSet[u.Venue] = true
+			}
+			for _, r := range results {
+				if unresolvedSet[r.Venue] {
+					t.Errorf("venue %q appears in BOTH results[] and unresolved[] — duplication bug", r.Venue)
 				}
 			}
 		})
