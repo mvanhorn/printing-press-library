@@ -10,7 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-t"regexp"
+	"regexp"
 	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
