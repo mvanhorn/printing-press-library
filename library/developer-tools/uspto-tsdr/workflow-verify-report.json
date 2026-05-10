@@ -1,8 +1,0 @@
-{
-  "dir": "/Users/auser/printing-press/.runstate/ghst-infra-c491bdee/runs/20260509-135942/working/uspto-tsdr-pp-cli",
-  "workflows": null,
-  "verdict": "workflow-pass",
-  "issues": [
-    "no workflow manifest found, skipping"
-  ]
-}
