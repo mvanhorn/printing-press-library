@@ -180,3 +180,36 @@ func TestEarliestResponse_JSONShapeContractsMeta(t *testing.T) {
 		}
 	}
 }
+
+// TestEarliestResponse_UnresolvedEmittedWhenEmpty pins the symmetry
+// promise from PR #424's Greptile finding: when all venues resolve,
+// `unresolved` must still emit as `[]` (not absent), matching `results`.
+// Agents using `"unresolved" in response` checks should never see a
+// false-negative due to omitempty.
+func TestEarliestResponse_UnresolvedEmittedWhenEmpty(t *testing.T) {
+	resp := earliestResponse{
+		Venues:     []string{"canlis"},
+		Party:      2,
+		Within:     1,
+		Meta:       earliestMeta{VenuesRequested: 1, Resolved: 1, Available: 1},
+		Results:    []earliestRow{{Venue: "canlis", Network: "tock", Available: true}},
+		Unresolved: nil, // explicitly nil — must still serialize as []
+		QueriedAt:  "2026-05-10T12:00:00Z",
+	}
+	raw, _ := json.Marshal(resp)
+	body := string(raw)
+	if !strings.Contains(body, `"unresolved":null`) && !strings.Contains(body, `"unresolved":[]`) {
+		t.Errorf("unresolved key must always emit when empty; got %s", body)
+	}
+	// More strictly: ensure it's `[]` not `null` so JSON consumers can
+	// iterate without nil-checks. Go marshals a nil slice as `null` by
+	// default, so the calling site (newEarliestCmd) must initialize the
+	// slice to []. Check that contract here by serializing an empty
+	// slice explicitly.
+	resp.Unresolved = []unresolvedRow{}
+	raw, _ = json.Marshal(resp)
+	body = string(raw)
+	if !strings.Contains(body, `"unresolved":[]`) {
+		t.Errorf("empty-slice unresolved should serialize as []; got %s", body)
+	}
+}

@@ -73,12 +73,17 @@ type unresolvedRow struct {
 }
 
 type earliestResponse struct {
-	Venues     []string        `json:"venues"`
-	Party      int             `json:"party"`
-	Within     int             `json:"within_days"`
-	Meta       earliestMeta    `json:"meta"`
-	Results    []earliestRow   `json:"results"`
-	Unresolved []unresolvedRow `json:"unresolved,omitempty"`
+	Venues  []string      `json:"venues"`
+	Party   int           `json:"party"`
+	Within  int           `json:"within_days"`
+	Meta    earliestMeta  `json:"meta"`
+	Results []earliestRow `json:"results"`
+	// Unresolved is emitted as `[]` (not omitted) when empty, mirroring
+	// `Results`. Agents checking `"unresolved" in response` would
+	// otherwise see a false negative when ALL venues resolved (key
+	// absent) vs SOME unresolved (key present). Symmetry with Results
+	// keeps the response shape predictable.
+	Unresolved []unresolvedRow `json:"unresolved"`
 	QueriedAt  string          `json:"queried_at"`
 }
 
@@ -87,8 +92,19 @@ type earliestResponse struct {
 // the resolver short-circuited before assigning a network. Resolved-but-
 // blocked rows (Network set, Available=false, Reason mentions Akamai etc.)
 // stay in Results but don't count toward Available.
+//
+// PRECONDITION: callers must pass `rows` produced from `venues` so that
+// `len(rows) == len(venues)` and entries correspond positionally. The
+// invariant `Resolved + Unresolved == VenuesRequested` only holds under
+// this condition; mismatched slices silently produce diverging counts.
+// All current callers (newEarliestCmd's dry-run and live paths) satisfy
+// this by appending one row per input venue in order.
 func summarizeEarliest(venues []string, rows []earliestRow) (earliestMeta, []unresolvedRow) {
-	var unresolved []unresolvedRow
+	// Initialize as empty slice (not nil) so JSON serialization emits
+	// `[]` rather than `null`. Symmetry with Results matters for the
+	// PR #424 Greptile finding — agents checking `"unresolved" in
+	// response` should always see a present key.
+	unresolved := []unresolvedRow{}
 	var resolved, available int
 	for _, r := range rows {
 		if r.Network == "" || r.Network == "unknown" {
