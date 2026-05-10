@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T21:39:58.422046Z",
+  "printing_press_version": "4.2.0",
+  "api_name": "betriebsrat",
+  "display_name": "Betriebsrat",
+  "cli_name": "betriebsrat",
+  "printer": "googlarz",
+  "printer_name": "Dawid Piaskowski",
+  "spec_format": "internal",
+  "run_id": "20260509-233557",
+  "description": "German works council advisor: rights-check, decisions, deadlines, and BetrVG knowledge from betriebsrat.de",
+  "mcp_binary": "betriebsrat-pp-mcp",
+  "mcp_tool_count": 6,
+  "mcp_public_tool_count": 6,
+  "mcp_ready": "full",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Rights Check",
+      "command": "rights-check",
+      "description": "Answers 'Does the Betriebsrat have a say in this?' — maps situation to BetrVG paragraphs and co-determination type"
+    },
+    {
+      "name": "Decision Advisor",
+      "command": "decide",
+      "description": "Step-by-step decision support: classify situation, find applicable §§, determine BR rights, recommend action"
+    },
+    {
+      "name": "Deadline Calculator",
+      "command": "deadline",
+      "description": "Calculates legal deadlines for BR response (§ 102 Anhörung: 1 week ordinary, 3 days extraordinary dismissal)"
+    },
+    {
+      "name": "Checklist Generator",
+      "command": "checklist",
+      "description": "Generates step-by-step action checklist for BR in a given situation (Betriebsänderung, Massenentlassung, Kündigung)"
+    },
+    {
+      "name": "Meeting Prep",
+      "command": "prepare-meeting",
+      "description": "Generates agenda, quorum rules, questions for employer for a BR meeting on a specific topic"
+    },
+    {
+      "name": "BetrVG Paragraph Lookup",
+      "command": "law",
+      "description": "Plain-language explanation of any BetrVG paragraph with topic links and co-determination classification"
+    },
+    {
+      "name": "Co-determination Type Classifier",
+      "command": "codetermination-type",
+      "description": "Classifies BR rights as: Mitbestimmung (erzwingbar) / Mitwirkung / Unterrichtung / keine"
+    }
+  ]
+}
