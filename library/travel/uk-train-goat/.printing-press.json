@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-10T19:04:57.401789Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "uk-train-goat",
+  "display_name": "UK Train Goat",
+  "cli_name": "uk-train-goat-pp-cli",
+  "run_id": "20260510-183630",
+  "catalog_entry": "uk-train-goat",
+  "category": "travel",
+  "description": "UK train search via National Rail OpenLDBWS / Darwin. Live boards, journey planning, service status; best-effort fare lookup via nationalrail.co.uk scrape.",
+  "novel_features": [
+    {
+      "name": "Saved-commute one-shot",
+      "command": "go",
+      "description": "Run a saved commute in one keystroke; resolves origin, destination, and time-window from the local store."
+    },
+    {
+      "name": "Offline station search",
+      "command": "stations",
+      "description": "FTS5 search over the local UK CRS code table; resolves Paddington -> PAD with no network call."
+    },
+    {
+      "name": "Saved-routes morning status",
+      "command": "saved status",
+      "description": "Fans out across every saved route and prints a single ranked status table for all your commutes."
+    },
+    {
+      "name": "Service delay-reason briefing",
+      "command": "why",
+      "description": "Combines GetServiceDetails delay/cancel reasons with adjacent operator alerts into one screen explaining what is going wrong with one service."
+    },
+    {
+      "name": "Disruption-aware journey ranking",
+      "command": "journey",
+      "description": "Ranks A->B options by combined scheduled-time, current delay, and platform-known signal so on-time-but-later beats earlier-but-late."
+    },
+    {
+      "name": "Recent-journey replay",
+      "command": "recent",
+      "description": "Re-runs your recent A->B searches with fresh live data, side-by-side, so iterative trip planning is one keystroke per refresh."
+    },
+    {
+      "name": "Multi-origin board fan-out",
+      "command": "board",
+      "description": "Accept a comma-separated list of CRS codes and merge departures across all of them into one ranked time-ordered list."
+    },
+    {
+      "name": "Eval-grader 9th quality gate",
+      "command": "eval",
+      "description": "Programmatic eval grader that scores an LLM agent against a fixture suite of natural-language UK-rail prompts; 80% pass-rate threshold blocks ship."
+    }
+  ],
+  "printer": "ahujasachin92",
+  "printer_name": "Sachin Ahuja"
+}

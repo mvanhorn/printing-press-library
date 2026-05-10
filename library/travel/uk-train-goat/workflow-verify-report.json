@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/sachinahuja/printing-press/.runstate/cli-printing-press-1ffa7dfb/runs/20260510-183630/working/uk-train-goat-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

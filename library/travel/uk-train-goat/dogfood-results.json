@@ -1,0 +1,111 @@
+{
+  "dir": "/Users/sachinahuja/printing-press/.runstate/cli-printing-press-1ffa7dfb/runs/20260510-183630/working/uk-train-goat-pp-cli",
+  "spec_path": "/Users/sachinahuja/printing-press/.runstate/cli-printing-press-1ffa7dfb/runs/20260510-183630/research/uk-train-goat-seed-spec.yaml",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "spec not provided or no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "dead_flags": {
+    "total": 18,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 52,
+    "dead": 8,
+    "items": [
+      "classifyAPIError",
+      "extractResponseData",
+      "printProvenance",
+      "rateLimitErr",
+      "wantsHumanTable",
+      "wrapWithProvenance",
+      "writeAPIErrorEnvelope",
+      "writeNoop"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "detail": "sync uses domain-specific Upsert methods; search methods not found; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 37,
+      "registered": 37
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 8,
+    "found": 8
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 8,
+    "exempted_via_store": 2,
+    "exempted_via_client_directive": 4
+  },
+  "source_client_check": {
+    "checked": 3,
+    "findings": [
+      {
+        "package": "farescrape",
+        "file": "internal/farescrape/farescrape.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      }
+    ]
+  },
+  "print_json_filtered_check": {
+    "checked": 26
+  },
+  "test_presence": {
+    "checked": 3,
+    "missing_tests": [
+      "evals",
+      "farescrape",
+      "openldbws"
+    ]
+  },
+  "naming_check": {
+    "checked": 26
+  },
+  "issues": [
+    "8 dead helper functions found",
+    "1 source client file(s) without rate-limit handling: internal/farescrape/farescrape.go — outbound HTTP without rate limiter or typed 429 handling",
+    "pure-logic packages with no tests: evals, farescrape, openldbws"
+  ]
+}

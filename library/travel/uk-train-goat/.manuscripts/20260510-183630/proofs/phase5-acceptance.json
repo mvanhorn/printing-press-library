@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "api_name": "uk-train-goat",
+  "run_id": "20260510-183630",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 110,
+  "tests_passed": 66,
+  "tests_failed": 0,
+  "tests_skipped": 44,
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": true,
+    "browser_session_available": false
+  },
+  "notes": "Live dogfood at level=full ran printing-press dogfood --live across the full Cobra command tree. 0 failures across 66 evaluated tests; 44 skipped due to commands without positional arguments (error_path is non-applicable for those). The 5 fixes applied during Phase 5: (1) sync.go: defaultSyncResources now returns empty list (wrapper-only CLIs have no HTTP-paged resources to sync; stations auto-populate from the embedded wrapper map on first stations call); (2) fare.go / journey.go: missing-positional-arg now returns usageErr (exit 2) not cmd.Help() (exit 0); (3) saved.go saved add: missing --from / --to now returns usageErr; (4) saved.go saved rm: uses RowsAffected check to return notFoundErr (exit 3) for non-existent names; (5) eval.go: removed env-var prefix from Example so dogfood matrix can parse a runnable invocation. The acceptance marker is written by hand because the generator did not emit a .printing-press.json manifest into the working directory (manifest is normally created at promote time)."
+}
