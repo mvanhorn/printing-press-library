@@ -199,7 +199,7 @@ func (c *Client) do(ctx context.Context, method, path string, params map[string]
 	// exactly what would be sent. Uses only cached credentials; a token that
 	// requires a network refresh will be re-fetched on the live request path,
 	// not during dry-run.
-	authHeader, err := c.authHeader()
+	authHeader, err := c.authHeader(ctx)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -393,7 +393,7 @@ func (c *Client) ConfiguredTimeout() time.Duration {
 	return 30 * time.Second
 }
 
-func (c *Client) authHeader() (string, error) {
+func (c *Client) authHeader(ctx context.Context) (string, error) {
 	if c.Config == nil {
 		return "", nil
 	}
@@ -401,7 +401,7 @@ func (c *Client) authHeader() (string, error) {
 		if c.DryRun {
 			return "DRY_RUN_TOKEN_FROM_APPLICATION_KEY", nil
 		}
-		token, err := c.ExchangeApplicationKey(c.Config.ApplicationKey)
+		token, err := c.ExchangeApplicationKeyContext(ctx, c.Config.ApplicationKey)
 		if err != nil {
 			return "", err
 		}
@@ -418,8 +418,15 @@ type ApplicationKeyToken struct {
 }
 
 func (c *Client) ExchangeApplicationKey(applicationKey string) (*ApplicationKeyToken, error) {
+	return c.ExchangeApplicationKeyContext(context.Background(), applicationKey)
+}
+
+func (c *Client) ExchangeApplicationKeyContext(ctx context.Context, applicationKey string) (*ApplicationKeyToken, error) {
 	if strings.TrimSpace(applicationKey) == "" {
 		return nil, fmt.Errorf("DriveThruRPG application key is empty")
+	}
+	if ctx == nil {
+		ctx = context.Background()
 	}
 	endpoint, err := url.Parse(c.BaseURL + "/auth_key")
 	if err != nil {
@@ -429,7 +436,7 @@ func (c *Client) ExchangeApplicationKey(applicationKey string) (*ApplicationKeyT
 	q.Set("applicationKey", applicationKey)
 	endpoint.RawQuery = q.Encode()
 
-	req, err := http.NewRequest(http.MethodPost, endpoint.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("creating auth request: %w", err)
 	}
@@ -439,6 +446,9 @@ func (c *Client) ExchangeApplicationKey(applicationKey string) (*ApplicationKeyT
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
+		if ctxErr := ctx.Err(); ctxErr != nil {
+			return nil, ctxErr
+		}
 		return nil, fmt.Errorf("POST /auth_key: %s", c.redactErrorText(err))
 	}
 	defer resp.Body.Close()

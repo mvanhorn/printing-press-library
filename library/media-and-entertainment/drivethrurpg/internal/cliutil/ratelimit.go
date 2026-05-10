@@ -45,15 +45,20 @@ func (l *AdaptiveLimiter) Wait() {
 		return
 	}
 	l.mu.Lock()
+	now := time.Now()
 	delay := time.Duration(float64(time.Second) / l.rate)
-	elapsed := time.Since(l.lastRequest)
-	l.mu.Unlock()
-	if elapsed < delay {
-		time.Sleep(delay - elapsed)
+	nextAllowed := now
+	if !l.lastRequest.IsZero() {
+		nextAllowed = l.lastRequest.Add(delay)
+		if now.After(nextAllowed) {
+			nextAllowed = now
+		}
 	}
-	l.mu.Lock()
-	l.lastRequest = time.Now()
+	l.lastRequest = nextAllowed
 	l.mu.Unlock()
+	if wait := time.Until(nextAllowed); wait > 0 {
+		time.Sleep(wait)
+	}
 }
 
 func (l *AdaptiveLimiter) OnSuccess() {

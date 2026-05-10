@@ -49,12 +49,23 @@ func TestAuthHeaderUsesDriveThruTokenWithoutOAuthRefresh(t *testing.T) {
 		},
 	}
 
-	got, err := c.authHeader()
+	got, err := c.authHeader(context.Background())
 	if err != nil {
 		t.Fatalf("authHeader returned error: %v", err)
 	}
 	if got != "dtrpg-token" {
 		t.Fatalf("authHeader = %q, want dtrpg-token", got)
+	}
+}
+
+func TestExchangeApplicationKeyContextHonorsCancellation(t *testing.T) {
+	c := New(&config.Config{BaseURL: "http://127.0.0.1:1"}, 10*time.Second, 0)
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	_, err := c.ExchangeApplicationKeyContext(ctx, "application-key")
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("ExchangeApplicationKeyContext error = %v, want context.Canceled", err)
 	}
 }
 

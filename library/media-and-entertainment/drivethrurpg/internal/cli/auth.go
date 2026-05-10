@@ -109,7 +109,7 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			c := client.New(cfg, flags.timeout, flags.rateLimit)
-			token, err := c.ExchangeApplicationKey(key)
+			token, err := c.ExchangeApplicationKeyContext(cmd.Context(), key)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

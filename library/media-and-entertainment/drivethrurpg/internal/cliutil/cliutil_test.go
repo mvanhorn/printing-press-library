@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"sort"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -684,6 +685,37 @@ func TestAdaptiveLimiter_WaitEnforcesPacing(t *testing.T) {
 	elapsed := time.Since(start)
 	if elapsed < 80*time.Millisecond {
 		t.Errorf("second Wait() took %v, want >= 80ms", elapsed)
+	}
+}
+
+func TestAdaptiveLimiter_WaitSerializesConcurrentCallers(t *testing.T) {
+	l := NewAdaptiveLimiter(40.0) // one slot every 25ms
+
+	const callers = 3
+	start := make(chan struct{})
+	times := make([]time.Time, callers)
+	var wg sync.WaitGroup
+	wg.Add(callers)
+	for i := 0; i < callers; i++ {
+		i := i
+		go func() {
+			defer wg.Done()
+			<-start
+			l.Wait()
+			times[i] = time.Now()
+		}()
+	}
+
+	close(start)
+	wg.Wait()
+	sort.Slice(times, func(i, j int) bool {
+		return times[i].Before(times[j])
+	})
+
+	for i := 1; i < callers; i++ {
+		if gap := times[i].Sub(times[i-1]); gap < 15*time.Millisecond {
+			t.Fatalf("Wait() calls clustered with gap %v; want serialized pacing", gap)
+		}
 	}
 }
 
