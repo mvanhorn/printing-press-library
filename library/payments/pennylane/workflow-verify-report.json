@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/macbookprotom/printing-press/.runstate/studio-lanfant-73df7975/runs/20260510-000758/working/pennylane-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

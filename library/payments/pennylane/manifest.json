@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "accounting-pp-mcp",
+  "display_name": "Pennylane",
+  "version": "4.2.1",
+  "description": "Accounting API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/accounting-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/accounting-pp-mcp",
+      "args": [],
+      "env": {
+        "ACCOUNTING_OAUTH2": "${user_config.accounting_oauth2}"
+      }
+    }
+  },
+  "user_config": {
+    "accounting_oauth2": {
+      "type": "string",
+      "title": "ACCOUNTING_OAUTH2",
+      "description": "Sets ACCOUNTING_OAUTH2 for the Pennylane MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

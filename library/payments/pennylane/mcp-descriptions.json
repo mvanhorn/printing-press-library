@@ -1,0 +1,156 @@
+{
+  "overrides": {
+    "external_get-customer-invoices": {
+      "description": "List customer invoices. Filter by status, date, customer. Returns paginated results.",
+      "public": false
+    },
+    "external_get-customer-invoice": {
+      "description": "Get a single customer invoice by ID.",
+      "public": false
+    },
+    "external_post-customer-invoices": {
+      "description": "Create a customer invoice draft.",
+      "public": false
+    },
+    "external_update-customer-invoice": {
+      "description": "Update a draft customer invoice.",
+      "public": false
+    },
+    "external_finalize-customer-invoice": {
+      "description": "Finalize (lock) a customer invoice. Irreversible.",
+      "public": false
+    },
+    "external_mark-as-paid-customer-invoice": {
+      "description": "Mark a customer invoice as paid.",
+      "public": false
+    },
+    "external_get-supplier-invoices": {
+      "description": "List supplier invoices. Filter by status, date, supplier.",
+      "public": false
+    },
+    "external_get-supplier-invoice": {
+      "description": "Get a single supplier invoice by ID.",
+      "public": false
+    },
+    "external_get-customers": {
+      "description": "List customers. Filter by name, type, country.",
+      "public": false
+    },
+    "external_get-customer": {
+      "description": "Get a single customer by ID.",
+      "public": false
+    },
+    "external_post-customers": {
+      "description": "Create a new customer.",
+      "public": false
+    },
+    "external_put-company-customer": {
+      "description": "Update a company customer.",
+      "public": false
+    },
+    "external_get-transactions": {
+      "description": "List bank transactions. Filter by account, date, amount.",
+      "public": false
+    },
+    "external_get-transaction": {
+      "description": "Get a single transaction by ID.",
+      "public": false
+    },
+    "external_get-ledger-entries": {
+      "description": "List journal entries (écritures comptables).",
+      "public": false
+    },
+    "external_get-ledger-entry": {
+      "description": "Get a single journal entry by ID.",
+      "public": false
+    },
+    "external_get-ledger-entry-lines": {
+      "description": "List journal entry lines for a given entry.",
+      "public": false
+    },
+    "external_get-ledger-accounts": {
+      "description": "List chart of accounts (plan comptable).",
+      "public": false
+    },
+    "external_get-ledger-account": {
+      "description": "Get a single account from chart of accounts.",
+      "public": false
+    },
+    "external_get-journals": {
+      "description": "List accounting journals.",
+      "public": false
+    },
+    "external_get-journal": {
+      "description": "Get a single journal by ID.",
+      "public": false
+    },
+    "external_get-quotes": {
+      "description": "List quotes (devis). Filter by status, date, customer.",
+      "public": false
+    },
+    "external_list-quotes": {
+      "description": "List quotes with pagination.",
+      "public": false
+    },
+    "external_get-suppliers": {
+      "description": "List suppliers.",
+      "public": false
+    },
+    "external_get-supplier": {
+      "description": "Get a single supplier by ID.",
+      "public": false
+    },
+    "external_get-bank-accounts": {
+      "description": "List linked bank accounts.",
+      "public": false
+    },
+    "external_get-bank-account": {
+      "description": "Get a single bank account by ID.",
+      "public": false
+    },
+    "external_get-categories": {
+      "description": "List transaction categories.",
+      "public": false
+    },
+    "external_get-products": {
+      "description": "List products/services catalog.",
+      "public": false
+    },
+    "external_get-fiscal-years": {
+      "description": "List fiscal years.",
+      "public": false
+    },
+    "external_company-fiscal-years": {
+      "description": "List company fiscal years.",
+      "public": false
+    },
+    "external_export-fec": {
+      "description": "Export FEC (Fichier des Écritures Comptables) for DGFiP.",
+      "public": false
+    },
+    "external_get-analytical-general-ledger-export": {
+      "description": "Export analytical general ledger.",
+      "public": false
+    },
+    "external_export-general-ledger": {
+      "description": "Export general ledger (grand livre).",
+      "public": false
+    },
+    "external_get-ledger-entry-lines-categories": {
+      "description": "Get categories for a journal entry line.",
+      "public": false
+    },
+    "external_get-ledger-entry-line-changes": {
+      "description": "List changes/history for a journal entry line.",
+      "public": false
+    },
+    "external_get-ledger-entries-ledger-entry-lines": {
+      "description": "List all lines for a journal entry.",
+      "public": false
+    },
+    "external_get-ledger-entry-lines-lettered-ledger-entry-lines": {
+      "description": "List lettered (matched) lines for a journal entry line.",
+      "public": false
+    }
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T22:50:56.672468Z",
+  "printing_press_version": "4.2.1",
+  "api_name": "pennylane",
+  "display_name": "Pennylane",
+  "cli_name": "pennylane-pp-cli",
+  "owner": "user",
+  "printer": "studiolanfant",
+  "printer_name": "Studio Lanfant",
+  "spec_url": "https://raw.githubusercontent.com/wanadev/pennylane-mcp/main/openapi/accounting.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:553e7a66c85de55dec71219a47cf2644535659c711bbed7dce4129bae2afeff1",
+  "run_id": "20260510-000758",
+  "category": "payments",
+  "description": "CLI for Pennylane French accounting SaaS — AR aging, cash runway, VAT preview, FEC validation, and 12 novel offline analytics commands.",
+  "mcp_binary": "pennylane-pp-mcp",
+  "mcp_tool_count": 165,
+  "mcp_ready": "full",
+  "api_version": "2.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "ACCOUNTING_OAUTH2"
+  ],
+  "novel_features": [
+    {
+      "name": "Balance Agee (Aged Receivables)",
+      "command": "ar aging",
+      "description": "Classe toutes les creances clients par tranche de retard (0-30j, 30-60j, 60-90j, 90j+) en une commande."
+    },
+    {
+      "name": "DSO Tracker",
+      "command": "cash dso",
+      "description": "Calcule le delai moyen de paiement par client et globalement sur une periode glissante."
+    },
+    {
+      "name": "Projection Tresorerie",
+      "command": "cash runway",
+      "description": "Projette la position de tresorerie jour par jour sur N jours en combinant AR ouvert et AP ouvert."
+    },
+    {
+      "name": "Assistant Declaration TVA",
+      "command": "vat preview",
+      "description": "Agrege la TVA collectee (ventes) et deductible (achats) par taux pour une periode, pret a copier dans impots.gouv.fr."
+    },
+    {
+      "name": "Import Factures CSV",
+      "command": "invoice bulk-create",
+      "description": "Cree N factures depuis un CSV avec validation dry-run, correspondance client fuzzy et throttling API."
+    },
+    {
+      "name": "Validateur FEC",
+      "command": "fec validate",
+      "description": "Valide un fichier FEC DGFiP : equilibre debit/credit, champs obligatoires, monotonie des dates."
+    },
+    {
+      "name": "Detecteur Anomalies",
+      "command": "audit anomalies",
+      "description": "Detecte les transactions en double, montants ronds sans facture correspondante et autres irregularites."
+    },
+    {
+      "name": "Ranking Clients",
+      "command": "clients rank",
+      "description": "Classe les clients par CA, nombre de factures ou marge sur une periode."
+    },
+    {
+      "name": "Drift Factures Recurrentes",
+      "command": "invoice check-recurring",
+      "description": "Detecte les mois manquants et les ecarts de montant sur les factures a periodicite reguliere."
+    },
+    {
+      "name": "Checklist Cloture Annuelle",
+      "command": "yearend check",
+      "description": "Execute une checklist de 4 controles de cloture : transactions non rapprochees, factures draft, avoirs ouverts."
+    },
+    {
+      "name": "Optimiseur Reglements Fournisseurs",
+      "command": "ap schedule",
+      "description": "Classe les factures fournisseurs ouvertes par priorite de paiement selon echeance et criticite."
+    },
+    {
+      "name": "Relances Impayes",
+      "command": "ar remind",
+      "description": "Liste les creances a relancer avec deduplication automatique des relances recentes."
+    }
+  ]
+}
