@@ -1,0 +1,51 @@
+version: 2
+project_name: ncbi-entrez-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: ncbi-entrez-pp-cli
+    main: ./cmd/ncbi-entrez-pp-cli
+    binary: ncbi-entrez-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/ncbi-entrez/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: ncbi-entrez-pp-mcp
+    main: ./cmd/ncbi-entrez-pp-mcp
+    binary: ncbi-entrez-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: ncbi-entrez-pp-cli
+    repository:
+      owner: test-user
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every E-utility, plus a local database for citation tracking, drift detection, and cross-database queries no other..."
+    install: |
+      bin.install "ncbi-entrez-pp-cli"
+      bin.install "ncbi-entrez-pp-mcp"

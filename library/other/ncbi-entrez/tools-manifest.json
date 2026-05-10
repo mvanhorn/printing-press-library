@@ -1,0 +1,388 @@
+{
+  "api_name": "ncbi-entrez",
+  "base_url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils",
+  "description": "Search, fetch, and link records across 38+ NCBI biomedical databases from the terminal. SQLite-backed local store for offline search, citation tracking, and cross-database queries no other tool offers.\n",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "api_key",
+    "in": "query",
+    "env_vars": [
+      "NCBI_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "NCBI_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "ecitmatch_resolve",
+      "description": "Required: db (default: pubmed), rettype (default: xml), bdata.",
+      "method": "GET",
+      "path": "/ecitmatch.cgi",
+      "params": [
+        {
+          "name": "db",
+          "type": "string",
+          "location": "query",
+          "description": "Must be pubmed",
+          "required": true
+        },
+        {
+          "name": "rettype",
+          "type": "string",
+          "location": "query",
+          "description": "Must be xml",
+          "required": true
+        },
+        {
+          "name": "bdata",
+          "type": "string",
+          "location": "query",
+          "description": "Citation strings (journal|year|volume|page|author|key|)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "efetch_retrieve",
+      "description": "Required: db, id. Optional: rettype, retmode, retstart (plus 4 more).",
+      "method": "GET",
+      "path": "/efetch.fcgi",
+      "params": [
+        {
+          "name": "db",
+          "type": "string",
+          "location": "query",
+          "description": "Source database",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated UIDs or accession numbers",
+          "required": true
+        },
+        {
+          "name": "rettype",
+          "type": "string",
+          "location": "query",
+          "description": "Record type (abstract, fasta, gb, gp, medline, xml)"
+        },
+        {
+          "name": "retmode",
+          "type": "string",
+          "location": "query",
+          "description": "Output format (text, xml, asn.1)"
+        },
+        {
+          "name": "retstart",
+          "type": "integer",
+          "location": "query",
+          "description": "First record index"
+        },
+        {
+          "name": "retmax",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum records"
+        },
+        {
+          "name": "strand",
+          "type": "integer",
+          "location": "query",
+          "description": "Strand (1=plus, 2=minus) for sequence DBs"
+        },
+        {
+          "name": "seq_start",
+          "type": "integer",
+          "location": "query",
+          "description": "Start position for sequence range"
+        },
+        {
+          "name": "seq_stop",
+          "type": "integer",
+          "location": "query",
+          "description": "Stop position for sequence range"
+        }
+      ]
+    },
+    {
+      "name": "egquery_counts",
+      "description": "Get the number of records matching a search term across all NCBI databases at once. Required: term (Entrez text query). Returns per-database hit counts so an agent can decide which database to query in depth. No authentication required. (public)",
+      "method": "GET",
+      "path": "/egquery.fcgi",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "term",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "einfo_show",
+      "description": "List all available NCBI databases or show field and link metadata for a specific database. Optional: db (omit to list all databases), retmode (xml or json, default json). Returns database names when db is omitted, or searchable fields, links to other databases, and record counts when db is specified. No authentication required. (public)",
+      "method": "GET",
+      "path": "/einfo.fcgi",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "db",
+          "type": "string",
+          "location": "query",
+          "description": "Database name (omit to list all databases)"
+        },
+        {
+          "name": "retmode",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (xml, json)"
+        }
+      ]
+    },
+    {
+      "name": "elink_find",
+      "description": "Required: dbfrom, id. Optional: db, cmd (default: neighbor), linkname (plus 2 more).",
+      "method": "GET",
+      "path": "/elink.fcgi",
+      "params": [
+        {
+          "name": "dbfrom",
+          "type": "string",
+          "location": "query",
+          "description": "Source database",
+          "required": true
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "location": "query",
+          "description": "Target database (omit for within-database links)"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Source UIDs (comma-separated)",
+          "required": true
+        },
+        {
+          "name": "cmd",
+          "type": "string",
+          "location": "query",
+          "description": "Link operation (neighbor, neighbor_score, neighbor_history, acheck, ncheck, lcheck, llinks, prlinks)"
+        },
+        {
+          "name": "linkname",
+          "type": "string",
+          "location": "query",
+          "description": "Specific link name (e.g., pubmed_pubmed_citedin)"
+        },
+        {
+          "name": "term",
+          "type": "string",
+          "location": "query",
+          "description": "Filter linked results by query"
+        },
+        {
+          "name": "retmode",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (xml, json)"
+        }
+      ]
+    },
+    {
+      "name": "epost_upload",
+      "description": "Upload a list of UIDs to the NCBI History server for use in subsequent ESearch/EFetch/ELink calls. Required: db (target database, default pubmed), id (comma-separated UIDs, max 10000). Optional: WebEnv (existing web environment to append to). Returns a QueryKey and WebEnv that can be passed to other E-utilities to reference the uploaded set.",
+      "method": "POST",
+      "path": "/epost.fcgi",
+      "params": [
+        {
+          "name": "db",
+          "type": "string",
+          "location": "query",
+          "description": "Database containing the UIDs",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated UIDs (max 10000)",
+          "required": true
+        },
+        {
+          "name": "WebEnv",
+          "type": "string",
+          "location": "query",
+          "description": "Existing Web Environment to append to"
+        }
+      ]
+    },
+    {
+      "name": "esearch_query",
+      "description": "Required: db (default: pubmed), term. Optional: retmax (default: 20), retstart (default: 0), sort (plus 7 more).",
+      "method": "GET",
+      "path": "/esearch.fcgi",
+      "params": [
+        {
+          "name": "db",
+          "type": "string",
+          "location": "query",
+          "description": "Target database (e.g., pubmed, gene, protein)",
+          "required": true
+        },
+        {
+          "name": "term",
+          "type": "string",
+          "location": "query",
+          "description": "Entrez text query (supports boolean, field tags, MeSH)",
+          "required": true
+        },
+        {
+          "name": "retmax",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum records to return (max 10000)"
+        },
+        {
+          "name": "retstart",
+          "type": "integer",
+          "location": "query",
+          "description": "Sequential index of first record to return"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order (relevance, pub_date, first_author, journal)"
+        },
+        {
+          "name": "field",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict search to a specific field"
+        },
+        {
+          "name": "datetype",
+          "type": "string",
+          "location": "query",
+          "description": "Date type for filtering (pdat, mdat, edat)"
+        },
+        {
+          "name": "reldate",
+          "type": "integer",
+          "location": "query",
+          "description": "Return items within N days of current date"
+        },
+        {
+          "name": "mindate",
+          "type": "string",
+          "location": "query",
+          "description": "Minimum date (YYYY/MM/DD)"
+        },
+        {
+          "name": "maxdate",
+          "type": "string",
+          "location": "query",
+          "description": "Maximum date (YYYY/MM/DD)"
+        },
+        {
+          "name": "usehistory",
+          "type": "string",
+          "location": "query",
+          "description": "Store results on History server (y/n)"
+        },
+        {
+          "name": "retmode",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (xml, json)"
+        }
+      ]
+    },
+    {
+      "name": "espell_check",
+      "description": "Check the spelling of an Entrez search term and get corrected suggestions from NCBI. Required: db (target database, default pubmed), term (the query to spell-check). Returns the original query and a corrected version if NCBI finds a better match. No authentication required. (public)",
+      "method": "GET",
+      "path": "/espell.fcgi",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "db",
+          "type": "string",
+          "location": "query",
+          "description": "Target database",
+          "required": true
+        },
+        {
+          "name": "term",
+          "type": "string",
+          "location": "query",
+          "description": "Search query to check",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "esummary_docsum",
+      "description": "Required: db (default: pubmed), id. Optional: retmax, retstart, retmode (default: json) (plus 1 more).",
+      "method": "GET",
+      "path": "/esummary.fcgi",
+      "params": [
+        {
+          "name": "db",
+          "type": "string",
+          "location": "query",
+          "description": "Source database",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated UIDs",
+          "required": true
+        },
+        {
+          "name": "retmax",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum records"
+        },
+        {
+          "name": "retstart",
+          "type": "integer",
+          "location": "query",
+          "description": "First record index"
+        },
+        {
+          "name": "retmode",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (xml, json)"
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "location": "query",
+          "description": "API version (2.0 for extended fields)"
+        }
+      ]
+    }
+  ]
+}

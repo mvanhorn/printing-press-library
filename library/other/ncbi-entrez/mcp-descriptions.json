@@ -1,0 +1,8 @@
+{
+  "descriptions": {
+    "egquery_counts": "Get the number of records matching a search term across all NCBI databases at once. Required: term (Entrez text query). Returns per-database hit counts so an agent can decide which database to query in depth. No authentication required.",
+    "einfo_show": "List all available NCBI databases or show field and link metadata for a specific database. Optional: db (omit to list all databases), retmode (xml or json, default json). Returns database names when db is omitted, or searchable fields, links to other databases, and record counts when db is specified. No authentication required.",
+    "epost_upload": "Upload a list of UIDs to the NCBI History server for use in subsequent ESearch/EFetch/ELink calls. Required: db (target database, default pubmed), id (comma-separated UIDs, max 10000). Optional: WebEnv (existing web environment to append to). Returns a QueryKey and WebEnv that can be passed to other E-utilities to reference the uploaded set.",
+    "espell_check": "Check the spelling of an Entrez search term and get corrected suggestions from NCBI. Required: db (target database, default pubmed), term (the query to spell-check). Returns the original query and a corrected version if NCBI finds a better match. No authentication required."
+  }
+}

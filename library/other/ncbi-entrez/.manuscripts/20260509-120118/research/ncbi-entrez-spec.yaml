@@ -1,0 +1,287 @@
+name: ncbi-entrez
+display_name: NCBI Entrez
+description: >
+  Search, fetch, and link records across 38+ NCBI biomedical databases from the terminal.
+  SQLite-backed local store for offline search, citation tracking, and cross-database queries
+  no other tool offers.
+base_url: https://eutils.ncbi.nlm.nih.gov/entrez/eutils
+version: "1.0"
+
+auth:
+  type: api_key
+  in: query
+  header: api_key
+  env_vars:
+    - NCBI_API_KEY
+  optional: true
+  note: "Optional. Without key: 3 req/s. With key: 10 req/s."
+
+databases:
+  - pubmed
+  - pmc
+  - gene
+  - protein
+  - nucleotide
+  - nuccore
+  - taxonomy
+  - biosample
+  - sra
+  - clinvar
+  - gtr
+  - structure
+  - genome
+  - assembly
+  - bioproject
+  - omim
+  - mesh
+  - books
+  - cdd
+  - gap
+  - gds
+  - geoprofiles
+  - homologene
+  - medgen
+  - nlmcatalog
+  - popset
+  - snp
+  - unigene
+
+resources:
+  esearch:
+    description: Search an NCBI database and return matching UIDs
+    endpoints:
+      query:
+        method: GET
+        path: /esearch.fcgi
+        params:
+          - name: db
+            type: string
+            required: true
+            description: "Target database (e.g., pubmed, gene, protein)"
+            default: pubmed
+          - name: term
+            type: string
+            required: true
+            description: "Entrez text query (supports boolean, field tags, MeSH)"
+          - name: retmax
+            type: integer
+            description: "Maximum records to return (max 10000)"
+            default: 20
+          - name: retstart
+            type: integer
+            description: "Sequential index of first record to return"
+            default: 0
+          - name: sort
+            type: string
+            description: "Sort order (relevance, pub_date, first_author, journal)"
+          - name: field
+            type: string
+            description: "Restrict search to a specific field"
+          - name: datetype
+            type: string
+            description: "Date type for filtering (pdat, mdat, edat)"
+          - name: reldate
+            type: integer
+            description: "Return items within N days of current date"
+          - name: mindate
+            type: string
+            description: "Minimum date (YYYY/MM/DD)"
+          - name: maxdate
+            type: string
+            description: "Maximum date (YYYY/MM/DD)"
+          - name: usehistory
+            type: string
+            description: "Store results on History server (y/n)"
+          - name: retmode
+            type: string
+            description: "Response format (xml, json)"
+            default: json
+
+  efetch:
+    description: Download records in specific formats
+    endpoints:
+      retrieve:
+        method: GET
+        path: /efetch.fcgi
+        params:
+          - name: db
+            type: string
+            required: true
+            description: "Source database"
+          - name: id
+            type: string
+            required: true
+            description: "Comma-separated UIDs or accession numbers"
+          - name: rettype
+            type: string
+            description: "Record type (abstract, fasta, gb, gp, medline, xml)"
+          - name: retmode
+            type: string
+            description: "Output format (text, xml, asn.1)"
+          - name: retstart
+            type: integer
+            description: "First record index"
+          - name: retmax
+            type: integer
+            description: "Maximum records"
+          - name: strand
+            type: integer
+            description: "Strand (1=plus, 2=minus) for sequence DBs"
+          - name: seq_start
+            type: integer
+            description: "Start position for sequence range"
+          - name: seq_stop
+            type: integer
+            description: "Stop position for sequence range"
+
+  esummary:
+    description: Return document summaries (DocSums) for UIDs
+    endpoints:
+      docsum:
+        method: GET
+        path: /esummary.fcgi
+        params:
+          - name: db
+            type: string
+            required: true
+            description: "Source database"
+            default: pubmed
+          - name: id
+            type: string
+            required: true
+            description: "Comma-separated UIDs"
+          - name: retmax
+            type: integer
+            description: "Maximum records"
+          - name: retstart
+            type: integer
+            description: "First record index"
+          - name: retmode
+            type: string
+            description: "Response format (xml, json)"
+            default: json
+          - name: version
+            type: string
+            description: "API version (2.0 for extended fields)"
+
+  elink:
+    description: Find related records within or across NCBI databases
+    endpoints:
+      find:
+        method: GET
+        path: /elink.fcgi
+        params:
+          - name: dbfrom
+            type: string
+            required: true
+            description: "Source database"
+          - name: db
+            type: string
+            description: "Target database (omit for within-database links)"
+          - name: id
+            type: string
+            required: true
+            description: "Source UIDs (comma-separated)"
+          - name: cmd
+            type: string
+            description: "Link operation (neighbor, neighbor_score, neighbor_history, acheck, ncheck, lcheck, llinks, prlinks)"
+            default: neighbor
+          - name: linkname
+            type: string
+            description: "Specific link name (e.g., pubmed_pubmed_citedin)"
+          - name: term
+            type: string
+            description: "Filter linked results by query"
+          - name: retmode
+            type: string
+            description: "Response format (xml, json)"
+            default: json
+
+  einfo:
+    description: List databases or show database field/link metadata
+    endpoints:
+      show:
+        method: GET
+        path: /einfo.fcgi
+        no_auth: true
+        params:
+          - name: db
+            type: string
+            description: "Database name (omit to list all databases)"
+          - name: retmode
+            type: string
+            description: "Response format (xml, json)"
+            default: json
+
+  epost:
+    description: Upload UIDs to the NCBI History server
+    endpoints:
+      upload:
+        method: POST
+        path: /epost.fcgi
+        params:
+          - name: db
+            type: string
+            required: true
+            description: "Database containing the UIDs"
+            default: pubmed
+          - name: id
+            type: string
+            required: true
+            description: "Comma-separated UIDs (max 10000)"
+          - name: WebEnv
+            type: string
+            description: "Existing Web Environment to append to"
+
+  egquery:
+    description: Get record counts across all NCBI databases for a query
+    endpoints:
+      counts:
+        method: GET
+        path: /egquery.fcgi
+        no_auth: true
+        params:
+          - name: term
+            type: string
+            required: true
+            description: "Search query"
+
+  espell:
+    description: Get spelling suggestions for search terms
+    endpoints:
+      check:
+        method: GET
+        path: /espell.fcgi
+        no_auth: true
+        params:
+          - name: db
+            type: string
+            required: true
+            description: "Target database"
+            default: pubmed
+          - name: term
+            type: string
+            required: true
+            description: "Search query to check"
+
+  ecitmatch:
+    description: Match citation strings to PubMed IDs
+    endpoints:
+      resolve:
+        method: GET
+        path: /ecitmatch.cgi
+        params:
+          - name: db
+            type: string
+            required: true
+            description: "Must be pubmed"
+            default: pubmed
+          - name: rettype
+            type: string
+            required: true
+            description: "Must be xml"
+            default: xml
+          - name: bdata
+            type: string
+            required: true
+            description: "Citation strings (journal|year|volume|page|author|key|)"

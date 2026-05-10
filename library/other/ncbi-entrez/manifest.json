@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "ncbi-entrez-pp-mcp",
+  "display_name": "NCBI Entrez",
+  "version": "4.2.0",
+  "description": "NCBI Entrez API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ncbi-entrez-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ncbi-entrez-pp-mcp",
+      "args": [],
+      "env": {
+        "NCBI_API_KEY": "${user_config.ncbi_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "ncbi_api_key": {
+      "type": "string",
+      "title": "NCBI_API_KEY",
+      "description": "Optional. Sets NCBI_API_KEY for the NCBI Entrez MCP server.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

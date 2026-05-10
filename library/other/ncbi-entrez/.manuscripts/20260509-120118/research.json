@@ -1,0 +1,241 @@
+{
+  "api_name": "ncbi-entrez",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "EDirect",
+      "url": "https://github.com/NCBI-Hackathons/EDirectCookbook",
+      "language": "Perl",
+      "install_method": "",
+      "stars": 120,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "biogo/ncbi",
+      "url": "https://github.com/biogo/ncbi",
+      "language": "Go",
+      "install_method": "",
+      "stars": 45,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Biopython Entrez",
+      "url": "https://github.com/biopython/biopython",
+      "language": "Python",
+      "install_method": "",
+      "stars": 4200,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "easy-entrez",
+      "url": "https://github.com/krassowski/easy-entrez",
+      "language": "Python",
+      "install_method": "",
+      "stars": 30,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "entrez-mcp-server",
+      "url": "https://github.com/QuentinCody/entrez-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 15,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T12:10:00Z",
+  "novel_features": [
+    {
+      "name": "Citation Snowball Tracker",
+      "command": "snowball",
+      "description": "Recursively build a citation graph from seed papers, tracking the expanding frontier across sessions so you see exactly which new papers cite your seeds",
+      "rationale": "Requires persistent cross-session graph storage that no stateless E-utility wrapper can provide",
+      "example": "ncbi-entrez-pp-cli snowball --seed 35924517,36071053 --depth 2 --agent",
+      "why_it_matters": "When an agent needs to expand a literature review or detect emerging citation clusters around a drug safety signal",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Publication Velocity Monitor",
+      "command": "watch",
+      "description": "Track PubMed publication counts over time for a saved query and alert when velocity departs from baseline",
+      "rationale": "Requires historical time-series storage that no E-utility endpoint provides natively",
+      "example": "ncbi-entrez-pp-cli watch list --trending --agent",
+      "why_it_matters": "When an agent is monitoring whether a pharmacovigilance signal is gaining traction in the literature",
+      "group": "Surveillance and alerting"
+    },
+    {
+      "name": "Offline Abstract Corpus Search",
+      "command": "local-search",
+      "description": "Full-text search over cached abstracts with FTS5 proximity operators, regex, and BM25 ranking that PubMed itself cannot do",
+      "rationale": "Requires local FTS5 indexing of fetched abstracts; PubMed search operates on MeSH terms, not arbitrary text patterns",
+      "example": "ncbi-entrez-pp-cli local-search \"chimeric NEAR/3 receptor\" --rank bm25 --agent",
+      "why_it_matters": "When an agent needs proximity search or regex patterns over biomedical text that PubMed search cannot express",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Saved Search Drift Detector",
+      "command": "drift",
+      "description": "Compare snapshots of a saved search to show which PMIDs appeared, disappeared, or were retracted since a given date",
+      "rationale": "Requires storing the full PMID result set at each run; PubMed Alerts only track additions",
+      "example": "ncbi-entrez-pp-cli drift my-safety-review --since 2025-06-01 --agent",
+      "why_it_matters": "When an agent needs to audit what changed in a literature surveillance query for pharmacovigilance compliance",
+      "group": "Surveillance and alerting"
+    },
+    {
+      "name": "Batch Citation Match with Retraction Check",
+      "command": "cite-match",
+      "description": "Resolve a BibTeX or CSV of references to PMIDs via ECitMatch and flag retracted papers in one pass",
+      "rationale": "Chains ECitMatch + EFetch retraction status; prohibitively slow without local caching of resolved mappings",
+      "example": "ncbi-entrez-pp-cli cite-match --input references.bib --check-retractions --agent",
+      "why_it_matters": "When an agent is validating a manuscript's reference list for retractions or unresolvable citations",
+      "group": "Systematic review automation"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Citation Snowball Tracker",
+      "command": "snowball",
+      "description": "Recursively build a citation graph from seed papers, tracking the expanding frontier across sessions so you see exactly which new papers cite your seeds",
+      "rationale": "Requires persistent cross-session graph storage that no stateless E-utility wrapper can provide",
+      "example": "ncbi-entrez-pp-cli snowball --seed 35924517,36071053 --depth 2 --agent",
+      "why_it_matters": "When an agent needs to expand a literature review or detect emerging citation clusters around a drug safety signal",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Publication Velocity Monitor",
+      "command": "watch",
+      "description": "Track PubMed publication counts over time for a saved query and alert when velocity departs from baseline",
+      "rationale": "Requires historical time-series storage that no E-utility endpoint provides natively",
+      "example": "ncbi-entrez-pp-cli watch list --trending --agent",
+      "why_it_matters": "When an agent is monitoring whether a pharmacovigilance signal is gaining traction in the literature",
+      "group": "Surveillance and alerting"
+    },
+    {
+      "name": "Offline Abstract Corpus Search",
+      "command": "local-search",
+      "description": "Full-text search over cached abstracts with FTS5 proximity operators, regex, and BM25 ranking that PubMed itself cannot do",
+      "rationale": "Requires local FTS5 indexing of fetched abstracts; PubMed search operates on MeSH terms, not arbitrary text patterns",
+      "example": "ncbi-entrez-pp-cli local-search \"chimeric NEAR/3 receptor\" --rank bm25 --agent",
+      "why_it_matters": "When an agent needs proximity search or regex patterns over biomedical text that PubMed search cannot express",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Saved Search Drift Detector",
+      "command": "drift",
+      "description": "Compare snapshots of a saved search to show which PMIDs appeared, disappeared, or were retracted since a given date",
+      "rationale": "Requires storing the full PMID result set at each run; PubMed Alerts only track additions",
+      "example": "ncbi-entrez-pp-cli drift my-safety-review --since 2025-06-01 --agent",
+      "why_it_matters": "When an agent needs to audit what changed in a literature surveillance query for pharmacovigilance compliance",
+      "group": "Surveillance and alerting"
+    },
+    {
+      "name": "Batch Citation Match with Retraction Check",
+      "command": "cite-match",
+      "description": "Resolve a BibTeX or CSV of references to PMIDs via ECitMatch and flag retracted papers in one pass",
+      "rationale": "Chains ECitMatch + EFetch retraction status; prohibitively slow without local caching of resolved mappings",
+      "example": "ncbi-entrez-pp-cli cite-match --input references.bib --check-retractions --agent",
+      "why_it_matters": "When an agent is validating a manuscript's reference list for retractions or unresolvable citations",
+      "group": "Systematic review automation"
+    }
+  ],
+  "narrative": {
+    "display_name": "NCBI Entrez",
+    "headline": "Every E-utility, plus a local database for citation tracking, drift detection, and cross-database queries no other NCBI tool offers",
+    "value_prop": "Search, fetch, and link records across PubMed, Gene, Protein, and dozens more NCBI databases. Sync results to a local SQLite store for offline full-text search, citation snowballing, and publication velocity monitoring. The only NCBI CLI with structured JSON output, agent-native design, and persistent state across sessions.",
+    "quickstart": [
+      {
+        "command": "ncbi-entrez-pp-cli esearch --db pubmed --term \"CRISPR base editing\" --retmax 10 --json",
+        "comment": "Search PubMed and get structured JSON"
+      },
+      {
+        "command": "ncbi-entrez-pp-cli efetch --db pubmed --id 35924517 --rettype abstract",
+        "comment": "Fetch a paper's abstract by PMID"
+      },
+      {
+        "command": "ncbi-entrez-pp-cli sync --full",
+        "comment": "Sync all resources to local SQLite for offline use"
+      },
+      {
+        "command": "ncbi-entrez-pp-cli local-search \"adverse NEAR/5 cardiac\" --rank bm25",
+        "comment": "Proximity search over cached abstracts"
+      },
+      {
+        "command": "ncbi-entrez-pp-cli einfo",
+        "comment": "List all available NCBI databases"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 429 Too Many Requests",
+        "fix": "Set NCBI_API_KEY for 10 req/s (free at ncbi.nlm.nih.gov/account/settings)"
+      },
+      {
+        "symptom": "Empty results for a query that works on PubMed website",
+        "fix": "PubMed website uses automatic MeSH expansion; add [MeSH] field tags to your query"
+      },
+      {
+        "symptom": "EFetch returns XML when you expected text",
+        "fix": "Use --format abstract for plain text or --format medline for MEDLINE format"
+      },
+      {
+        "symptom": "Large result set truncated at 10000",
+        "fix": "Use sync with --all to paginate through the full result set"
+      }
+    ],
+    "when_to_use": "Use this CLI when you need to search PubMed or other NCBI databases from the terminal, track citation graphs over time, run proximity searches that PubMed cannot express, or build reproducible literature review workflows with PRISMA-compliant deduplication.",
+    "recipes": [
+      {
+        "title": "Find recent papers on a drug safety signal",
+        "command": "ncbi-entrez-pp-cli esearch --db pubmed --term \"semaglutide AND (thyroid OR medullary)\" --retmax 20 --agent --select esearchresult.idlist",
+        "explanation": "Search for recent papers linking semaglutide to thyroid concerns, returning only the ID list for efficient agent processing"
+      },
+      {
+        "title": "Build a citation graph from seed papers",
+        "command": "ncbi-entrez-pp-cli snowball --seed 35924517 --depth 2 --json",
+        "explanation": "Recursively follow cited-by links to discover the full citation network around a paper"
+      },
+      {
+        "title": "Cross-database gene-to-literature lookup",
+        "command": "ncbi-entrez-pp-cli elink --dbfrom gene --db pubmed --id 672 --json",
+        "explanation": "Find all PubMed articles linked to BRCA1 (Gene ID 672)"
+      },
+      {
+        "title": "Fetch protein sequences in FASTA format",
+        "command": "ncbi-entrez-pp-cli efetch --db protein --id NP_009225.1 --rettype fasta",
+        "explanation": "Download the BRCA1 protein sequence"
+      },
+      {
+        "title": "Monitor publication velocity for a topic",
+        "command": "ncbi-entrez-pp-cli watch list --trending --agent --select query,current_count,velocity,trend",
+        "explanation": "Check which of your watched queries are trending up, with only the fields an agent needs"
+      }
+    ],
+    "trigger_phrases": [
+      "search pubmed",
+      "find papers about",
+      "look up gene",
+      "fetch sequence",
+      "NCBI search",
+      "citation snowball",
+      "pubmed query"
+    ]
+  }
+}
