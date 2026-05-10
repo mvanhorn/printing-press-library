@@ -3,6 +3,10 @@
 
 package cli
 
+// PATCH(upstream cli-printing-press#918): added RunE: rejectUnknownSubcommand
+// so unknown subcommands (e.g. `playlists garbage`) exit non-zero instead of
+// silently printing help with rc=0.
+
 import (
 	"github.com/spf13/cobra"
 )
@@ -11,7 +15,7 @@ func newPlaylistsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "playlists",
 		Short: "Playlist operations",
-		RunE: rejectUnknownSubcommand,
+		RunE:  rejectUnknownSubcommand,
 	}
 
 	cmd.AddCommand(newPlaylistsCreateCmd(flags))

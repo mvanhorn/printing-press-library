@@ -11,7 +11,7 @@ func newWebhooksCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "webhooks",
 		Short: "Webhook endpoint management",
-		RunE: rejectUnknownSubcommand,
+		RunE:  rejectUnknownSubcommand,
 	}
 
 	cmd.AddCommand(newWebhooksCreateEndpointCmd(flags))

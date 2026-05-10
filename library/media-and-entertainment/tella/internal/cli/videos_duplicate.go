@@ -11,7 +11,7 @@ func newVideosDuplicateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "duplicate",
 		Short: "Manage duplicate",
-		RunE: rejectUnknownSubcommand,
+		RunE:  rejectUnknownSubcommand,
 	}
 
 	cmd.AddCommand(newVideosDuplicateVideoCmd(flags))

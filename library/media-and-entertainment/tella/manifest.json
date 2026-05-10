@@ -1,6 +1,6 @@
 {
   "manifest_version": "0.3",
-  "name": "tella-public-pp-mcp",
+  "name": "tella-pp-mcp",
   "display_name": "Tella Public",
   "version": "4.2.1",
   "description": "Tella Public API surface as MCP tools.",
@@ -10,9 +10,9 @@
   "license": "Apache-2.0",
   "server": {
     "type": "binary",
-    "entry_point": "bin/tella-public-pp-mcp",
+    "entry_point": "bin/tella-pp-mcp",
     "mcp_config": {
-      "command": "${__dirname}/bin/tella-public-pp-mcp",
+      "command": "${__dirname}/bin/tella-pp-mcp",
       "args": [],
       "env": {
         "TELLA_API_KEY": "${user_config.tella_api_key}"

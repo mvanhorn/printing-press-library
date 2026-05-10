@@ -2,6 +2,10 @@
 
 package cli
 
+// PATCH(upstream cli-printing-press#918): added long-form --help text
+// clarifying the rollup is sourced from the webhook event stream, not
+// the Video.views counter — empty results don't mean zero views.
+
 import (
 	"encoding/json"
 	"fmt"

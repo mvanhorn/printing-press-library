@@ -12,7 +12,7 @@
   "spec_format": "openapi3",
   "spec_checksum": "sha256:26b92970081ae7bb683930ad21170445517c02d954222715c5d4add6731be90d",
   "run_id": "20260509-180956",
-  "mcp_binary": "tella-public-pp-mcp",
+  "mcp_binary": "tella-pp-mcp",
   "mcp_tool_count": 51,
   "mcp_ready": "full",
   "api_version": "1.0.0",

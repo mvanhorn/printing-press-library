@@ -9,6 +9,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/tella/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/tella/internal/config"
 	"io"
 	"math"
 	"net/http"
@@ -17,8 +19,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/tella/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/tella/internal/config"
 	"time"
 )
 

@@ -11,7 +11,7 @@ func newVideosExportsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "exports",
 		Short: "Manage exports",
-		RunE: rejectUnknownSubcommand,
+		RunE:  rejectUnknownSubcommand,
 	}
 
 	cmd.AddCommand(newVideosExportsVideoCmd(flags))

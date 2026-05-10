@@ -3,10 +3,18 @@
 
 package cli
 
+// PATCH(upstream cli-printing-press#918): added unwrapResultsArray,
+// unwrapSingleEnvelope, printQuiet, printPlain, rejectUnknownSubcommand
+// helpers and routed --csv/--quiet/--plain through them. Fixes
+// envelope-vs-array confusion that broke --select on get/list paths
+// and silent --quiet output. See .printing-press-patches.json.
+
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/tella/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/tella/internal/cliutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"
@@ -15,8 +23,6 @@ import (
 	"regexp"
 	"sort"
 	"strings"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/tella/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/tella/internal/cliutil"
 	"text/tabwriter"
 	"time"
 	"unicode"

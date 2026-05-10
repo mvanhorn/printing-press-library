@@ -3,6 +3,11 @@
 
 package cli
 
+// PATCH(upstream cli-printing-press#918): wired pagination.nextCursor /
+// pagination.hasMore into resolvePaginatedRead so --all follows nested
+// envelopes (Tella shape); routes --csv/--quiet/--plain above the piped
+// JSON gate; unwraps envelope before --select/--compact in JSON path.
+
 import (
 	"encoding/json"
 	"fmt"

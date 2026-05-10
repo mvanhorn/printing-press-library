@@ -11,7 +11,7 @@ func newVideosCollaboratorsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "collaborators",
 		Short: "Manage collaborators",
-		RunE: rejectUnknownSubcommand,
+		RunE:  rejectUnknownSubcommand,
 	}
 
 	cmd.AddCommand(newVideosCollaboratorsAddToVideoCmd(flags))

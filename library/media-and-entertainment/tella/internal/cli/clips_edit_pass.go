@@ -19,7 +19,7 @@ func newClipsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "clips",
 		Short: "Bulk and cross-video clip operations",
-		RunE: rejectUnknownSubcommand,
+		RunE:  rejectUnknownSubcommand,
 	}
 	cmd.AddCommand(newClipsEditPassCmd(flags))
 	cmd.AddCommand(newClipsTranscriptDiffCmd(flags))
