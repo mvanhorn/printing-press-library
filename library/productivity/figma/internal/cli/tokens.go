@@ -232,10 +232,16 @@ mean the current synced snapshot.`,
 }
 
 // loadVariablesSnapshot reads variables for a file from the local store. The
-// version argument is currently informational: a richer implementation would
-// look up a version-tagged snapshot. We accept HEAD or any version id and
-// load the current snapshot when files are present.
-func loadVariablesSnapshot(db *store.Store, fileKey, _ string) ([]variable, error) {
+// store currently holds only the current (HEAD) snapshot keyed on (id), with
+// no version column, so version-tagged lookups are not yet wired. Until they
+// are, accept HEAD (or empty) and refuse anything else explicitly rather than
+// silently returning the same HEAD snapshot for every version, which would
+// make `tokens diff --from <v1> --to <v2>` look successful while always
+// comparing identical data.
+func loadVariablesSnapshot(db *store.Store, fileKey, version string) ([]variable, error) {
+	if version != "" && !strings.EqualFold(version, "HEAD") {
+		return nil, fmt.Errorf("version-tagged variable snapshots are not yet stored; only HEAD..HEAD is supported today. Use HEAD for both --from and --to, or pin the file at the version you want and run 'figma-pp-cli sync' first")
+	}
 	rows, err := db.DB().Query(`SELECT id, data FROM variables WHERE files_id = ?`, fileKey)
 	if err != nil {
 		return nil, err

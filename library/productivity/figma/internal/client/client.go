@@ -90,9 +90,18 @@ func (c *Client) ProbeGet(path string) (int, error) {
 }
 
 func (c *Client) cacheKey(path string, params map[string]string) string {
+	// PATCH: cache-key-sorted — Go map iteration order is randomized per run,
+	// so the unsorted version produced a different sha256 digest each call
+	// even for identical params, which made the 5-minute response cache miss
+	// almost every time on multi-param requests. Sort keys first.
+	keys := make([]string, 0, len(params))
+	for k := range params {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
 	key := path
-	for k, v := range params {
-		key += k + "=" + v
+	for _, k := range keys {
+		key += k + "=" + params[k]
 	}
 	h := sha256.Sum256([]byte(key))
 	return hex.EncodeToString(h[:8])
@@ -328,7 +337,16 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 		}
 	}
 	if authHeader != "" {
-		fmt.Fprintf(os.Stderr, "  %s: %s\n", "Authorization", maskToken(authHeader))
+		// PATCH: dry-run-pat-label (sister to pat-auth-wiring) — when the auth
+		// header carries a PAT, AuthHeader() prefixes the value with
+		// "X-Figma-Token: " so the live path can route it correctly. Mirror
+		// that here so --dry-run output names the actual header that would
+		// be sent rather than always saying Authorization.
+		label := "Authorization"
+		if strings.HasPrefix(authHeader, "X-Figma-Token: ") {
+			label = "X-Figma-Token"
+		}
+		fmt.Fprintf(os.Stderr, "  %s: %s\n", label, maskToken(authHeader))
 	}
 	fmt.Fprintf(os.Stderr, "\n(dry run - no request sent)\n")
 	return json.RawMessage(`{"dry_run": true}`), 0, nil

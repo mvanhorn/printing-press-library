@@ -240,7 +240,11 @@ func parseDelivery(id string, raw []byte) delivery {
 func filterFailed(in []delivery) []delivery {
 	out := []delivery{}
 	for _, d := range in {
-		if d.Status >= 400 {
+		// Status == 0 is the zero value parseDelivery returns when the
+		// response_info block was absent or unparseable. Treat unparsed
+		// deliveries as failures rather than silently excluding them so
+		// --replay-failed doesn't quietly drop real failure records.
+		if d.Status == 0 || d.Status >= 400 {
 			out = append(out, d)
 		}
 	}
