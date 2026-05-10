@@ -109,13 +109,19 @@ Directions: citations (who cites this), references (what this cites), both.`,
 					continue
 				}
 
-				// Fetch citations
+				// Fetch citations (paginated)
 				if flagDirection == "citations" || flagDirection == "both" {
 					citePath := fmt.Sprintf("/%s/%s/citations", item.source, item.id)
-					citeParams := map[string]string{"format": "json", "pageSize": "100"}
-					citeData, citeErr := c.Get(citePath, citeParams)
-					if citeErr == nil {
+					for page := 1; ; page++ {
+						citeParams := map[string]string{"format": "json", "pageSize": "100", "page": fmt.Sprintf("%d", page)}
+						citeData, citeErr := c.Get(citePath, citeParams)
+						if citeErr != nil {
+							break
+						}
 						refs := parseCitationResults(citeData)
+						if len(refs) == 0 {
+							break
+						}
 						for _, ref := range refs {
 							_, eErr := db.DB().Exec(
 								`INSERT INTO cite_graph_edges (source_id, target_id, edge_type, created_at)
@@ -130,16 +136,25 @@ Directions: citations (who cites this), references (what this cites), both.`,
 								queue = append(queue, queueItem{source: ref.source, id: ref.id, depth: item.depth + 1})
 							}
 						}
+						if len(refs) < 100 {
+							break
+						}
 					}
 				}
 
-				// Fetch references
+				// Fetch references (paginated)
 				if flagDirection == "references" || flagDirection == "both" {
 					refPath := fmt.Sprintf("/%s/%s/references", item.source, item.id)
-					refParams := map[string]string{"format": "json", "pageSize": "100"}
-					refData, refErr := c.Get(refPath, refParams)
-					if refErr == nil {
+					for refPage := 1; ; refPage++ {
+						refParams := map[string]string{"format": "json", "pageSize": "100", "page": fmt.Sprintf("%d", refPage)}
+						refData, refErr := c.Get(refPath, refParams)
+						if refErr != nil {
+							break
+						}
 						refs := parseCitationResults(refData)
+						if len(refs) == 0 {
+							break
+						}
 						for _, ref := range refs {
 							_, eErr := db.DB().Exec(
 								`INSERT INTO cite_graph_edges (source_id, target_id, edge_type, created_at)
@@ -153,6 +168,9 @@ Directions: citations (who cites this), references (what this cites), both.`,
 							if !visited[ref.source+":"+ref.id] {
 								queue = append(queue, queueItem{source: ref.source, id: ref.id, depth: item.depth + 1})
 							}
+						}
+						if len(refs) < 100 {
+							break
 						}
 					}
 				}

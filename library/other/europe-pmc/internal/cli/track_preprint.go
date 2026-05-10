@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/other/europe-pmc/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/other/europe-pmc/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -59,6 +60,14 @@ Use --check-updates to re-check all tracked preprints for publication status.`,
 
 			if err := ensureTrackedPreprintTables(db); err != nil {
 				return fmt.Errorf("creating tables: %w", err)
+			}
+
+			if flagCheckUpdates && flagQuery == "" {
+				return checkAllStoredPreprints(cmd, db, c, flags)
+			}
+
+			if flagQuery == "" {
+				return cmd.Help()
 			}
 
 			// Search for preprints
@@ -171,6 +180,59 @@ Use --check-updates to re-check all tracked preprints for publication status.`,
 
 	cmd.AddCommand(newTrackPreprintListCmd(flags))
 	return cmd
+}
+
+func checkAllStoredPreprints(cmd *cobra.Command, db *store.Store, c *client.Client, flags *rootFlags) error {
+	rows, err := db.DB().Query(
+		`SELECT ppr_id, doi FROM tracked_preprints WHERE status = 'preprint'`,
+	)
+	if err != nil {
+		return fmt.Errorf("querying stored preprints: %w", err)
+	}
+	defer rows.Close()
+
+	type entry struct{ pprID, doi string }
+	var pending []entry
+	for rows.Next() {
+		var e entry
+		rows.Scan(&e.pprID, &e.doi)
+		pending = append(pending, e)
+	}
+
+	updated := 0
+	for _, e := range pending {
+		if e.doi == "" {
+			continue
+		}
+		checkData, err := c.Get("/search", map[string]string{
+			"query":      fmt.Sprintf(`DOI:"%s" AND SRC:MED`, e.doi),
+			"format":     "json",
+			"resultType": "lite",
+			"pageSize":   "1",
+		})
+		if err != nil {
+			continue
+		}
+		var env struct {
+			HitCount int `json:"hitCount"`
+			ResultList struct {
+				Result []struct{ PMID string `json:"pmid"` } `json:"result"`
+			} `json:"resultList"`
+		}
+		if json.Unmarshal(checkData, &env) == nil && len(env.ResultList.Result) > 0 {
+			db.DB().Exec(
+				`UPDATE tracked_preprints SET status = 'published', published_version_pmid = ?, published_at = ? WHERE ppr_id = ?`,
+				env.ResultList.Result[0].PMID, time.Now(), e.pprID,
+			)
+			updated++
+		}
+	}
+
+	result := map[string]any{
+		"checked": len(pending),
+		"updated": updated,
+	}
+	return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 }
 
 func newTrackPreprintListCmd(flags *rootFlags) *cobra.Command {

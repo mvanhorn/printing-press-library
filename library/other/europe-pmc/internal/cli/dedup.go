@@ -25,8 +25,9 @@ func ensureCanonicalIDTables(db *store.Store) error {
 			resolved_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
 		`CREATE UNIQUE INDEX IF NOT EXISTS idx_canonical_doi ON canonical_ids(doi) WHERE doi IS NOT NULL AND doi != ''`,
-		`CREATE INDEX IF NOT EXISTS idx_canonical_pmid ON canonical_ids(pmid)`,
-		`CREATE INDEX IF NOT EXISTS idx_canonical_pmcid ON canonical_ids(pmcid)`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_canonical_pmid ON canonical_ids(pmid) WHERE pmid IS NOT NULL AND pmid != ''`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_canonical_pmcid ON canonical_ids(pmcid) WHERE pmcid IS NOT NULL AND pmcid != ''`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_canonical_ppr ON canonical_ids(ppr_id) WHERE ppr_id IS NOT NULL AND ppr_id != ''`,
 	}
 	for _, stmt := range stmts {
 		if _, err := db.DB().Exec(stmt); err != nil {
@@ -179,13 +180,12 @@ func resolveIdentifier(c dedupClient, db *store.Store, id string) (map[string]an
 
 	// Store the canonical mapping
 	_, err = db.DB().Exec(
-		`INSERT INTO canonical_ids (doi, pmid, pmcid, ppr_id, source, title, resolved_at)
+		`INSERT OR REPLACE INTO canonical_ids (doi, pmid, pmcid, ppr_id, source, title, resolved_at)
 		 VALUES (?, ?, ?, ?, ?, ?, ?)`,
 		r.DOI, r.PMID, r.PMCID, pprID, r.Source, r.Title, time.Now(),
 	)
 	if err != nil {
-		// Ignore insert errors (duplicate DOI, etc.)
-		_ = err
+		return nil, fmt.Errorf("storing canonical ID: %w", err)
 	}
 
 	result := map[string]any{
