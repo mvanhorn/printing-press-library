@@ -103,7 +103,12 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			case sessErr != nil:
 				report["auth"] = fmt.Sprintf("error loading session: %s", sessErr)
 			case otCookies == 0 && tockCookies == 0:
-				report["auth"] = "no cookies imported (run `auth login --chrome` after signing in to opentable.com and exploretock.com in Chrome)"
+				// "not configured" prefix maps to the FAIL indicator on line
+				// ~197 and trips `doctorExitForFailOn` for `--fail-on=error`.
+				// Without it the message contains "no" but not "not " (with
+				// trailing space) and falls through to a green OK that
+				// contradicts the recovery prompt.
+				report["auth"] = "not configured: no cookies imported (run `auth login --chrome` after signing in to opentable.com and exploretock.com in Chrome)"
 			default:
 				report["auth"] = fmt.Sprintf("opentable: %d cookies, tock: %d cookies", otCookies, tockCookies)
 			}
