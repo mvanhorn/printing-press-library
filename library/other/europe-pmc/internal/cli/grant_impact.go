@@ -68,9 +68,9 @@ GRANT_AGENCY fields. Aggregates citation counts and open access status.`,
 			}
 
 			// Build query with grant fields
-			query := fmt.Sprintf("GRANT_ID:%s", flagGrantID)
+			query := fmt.Sprintf(`GRANT_ID:"%s"`, flagGrantID)
 			if flagAgency != "" {
-				query = fmt.Sprintf("GRANT_ID:%s AND GRANT_AGENCY:\"%s\"", flagGrantID, flagAgency)
+				query = fmt.Sprintf(`GRANT_ID:"%s" AND GRANT_AGENCY:"%s"`, flagGrantID, flagAgency)
 			}
 
 			params := map[string]string{
