@@ -215,11 +215,15 @@ Paste the full letter text as the argument. Enclose in quotes or pipe via stdin.
 						"Prüfen Sie dennoch inhaltlich, ob der Kündigungsgrund plausibel und die Sozialauswahl korrekt ist.",
 					dayStr)
 			} else {
+				deadlineStr := fmt.Sprintf("Die %d-Tage-Frist", r.DeadlineDays)
+				if r.DeadlineDays == 0 {
+					deadlineStr = "Die Frist"
+				}
 				r.Recommendation = fmt.Sprintf(
 					"Anhörung ist UNVOLLSTÄNDIG (%d kritische Felder fehlen). "+
-						"Die 7-Tage-Frist beginnt NICHT. BR sollte sofort schriftlich auf die fehlenden Informationen hinweisen. "+
+						"%s beginnt NICHT. BR sollte sofort schriftlich auf die fehlenden Informationen hinweisen. "+
 						"Ohne vollständige Anhörung ist eine Kündigung unwirksam (§ 102 Abs. 1 Satz 3 BetrVG).",
-					len(missingCritical))
+					len(missingCritical), deadlineStr)
 			}
 
 			if flags.asJSON || flags.agent {

@@ -153,10 +153,10 @@ func buildMassenentlassungResult(employees, planned int) massenentlassungResult 
 		triggered = planned >= 6
 	case employees <= 499:
 		minByPercent := int(float64(employees) * 0.10)
-		if minByPercent < 26 {
-			minByPercent = 26
-		}
 		minRequired := minByPercent
+		if minRequired > 26 {
+			minRequired = 26
+		}
 		threshold = massenentlassungThreshold{
 			MinEmployees: 60,
 			MaxEmployees: 499,
