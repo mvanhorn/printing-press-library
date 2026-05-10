@@ -522,6 +522,11 @@ func camelToKebab(s string) string {
 
 // printOutputWithFlags routes output through the right format based on flags.
 func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) error {
+	// Non-JSON formats render rows; unwrap {videos:[...], pagination:{...}}-style
+	// envelopes so the renderers see a flat array.
+	if flags.csv || flags.quiet || flags.plain {
+		data = unwrapResultsArray(data)
+	}
 	// --select wins over --compact when both are set: an explicit field list
 	// is the user's authoritative request, so the high-gravity allow-list
 	// must not strip those fields out before --select can pick them. When
@@ -532,15 +537,130 @@ func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) e
 	} else if flags.compact {
 		data = compactFields(data)
 	}
-	// --quiet: suppress all output, exit code communicates result
-	if flags.quiet {
-		return nil
-	}
-	// --csv: render as CSV
 	if flags.csv {
 		return printCSV(w, data)
 	}
+	if flags.quiet {
+		return printQuiet(w, data, flags.selectFields)
+	}
+	if flags.plain {
+		return printPlain(w, data)
+	}
 	return printOutput(w, data, flags.asJSON)
+}
+
+// unwrapResultsArray returns the inner array when data is a single-array-bearing
+// envelope (e.g. {"videos":[...], "pagination":{...}}). Returns data unchanged
+// when it's already an array, has no array field, or is ambiguous.
+func unwrapResultsArray(data json.RawMessage) json.RawMessage {
+	var arr []json.RawMessage
+	if json.Unmarshal(data, &arr) == nil {
+		return data
+	}
+	var obj map[string]json.RawMessage
+	if json.Unmarshal(data, &obj) != nil {
+		return data
+	}
+	for _, k := range []string{"data", "items", "results", "messages", "videos", "playlists", "clips", "values", "members"} {
+		if raw, ok := obj[k]; ok {
+			var nested []json.RawMessage
+			if json.Unmarshal(raw, &nested) == nil {
+				return raw
+			}
+		}
+	}
+	var only json.RawMessage
+	count := 0
+	for _, raw := range obj {
+		var nested []json.RawMessage
+		if json.Unmarshal(raw, &nested) == nil {
+			only = raw
+			count++
+		}
+	}
+	if count == 1 {
+		return only
+	}
+	return data
+}
+
+// printQuiet emits one row per line. With --select, prints the selected fields
+// joined by tab. Without --select, prints an id-like field per row.
+func printQuiet(w io.Writer, data json.RawMessage, selectFields string) error {
+	var items []map[string]any
+	if err := json.Unmarshal(data, &items); err != nil {
+		var obj map[string]any
+		if json.Unmarshal(data, &obj) == nil {
+			for _, k := range []string{"id", "name", "key"} {
+				if v, ok := obj[k]; ok && v != nil {
+					fmt.Fprintln(w, fmt.Sprintf("%v", v))
+					return nil
+				}
+			}
+		}
+		return nil
+	}
+	var cols []string
+	if selectFields != "" {
+		for _, c := range strings.Split(selectFields, ",") {
+			cols = append(cols, strings.TrimSpace(c))
+		}
+	}
+	for _, item := range items {
+		if len(cols) > 0 {
+			parts := make([]string, 0, len(cols))
+			for _, c := range cols {
+				v := item[c]
+				if v == nil {
+					parts = append(parts, "")
+				} else {
+					parts = append(parts, fmt.Sprintf("%v", v))
+				}
+			}
+			fmt.Fprintln(w, strings.Join(parts, "\t"))
+			continue
+		}
+		for _, k := range []string{"id", "name", "key"} {
+			if v, ok := item[k]; ok && v != nil {
+				fmt.Fprintln(w, fmt.Sprintf("%v", v))
+				break
+			}
+		}
+	}
+	return nil
+}
+
+// printPlain renders an array of objects as tab-separated rows with no header.
+func printPlain(w io.Writer, data json.RawMessage) error {
+	var items []map[string]any
+	if err := json.Unmarshal(data, &items); err != nil || len(items) == 0 {
+		fmt.Fprintln(w, string(data))
+		return nil
+	}
+	keySet := map[string]bool{}
+	for _, item := range items {
+		for k := range item {
+			keySet[k] = true
+		}
+	}
+	var keys []string
+	for k := range keySet {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, item := range items {
+		vals := make([]string, 0, len(keys))
+		for _, k := range keys {
+			v := item[k]
+			if v == nil {
+				vals = append(vals, "")
+			} else {
+				vals = append(vals, fmt.Sprintf("%v", v))
+			}
+		}
+		fmt.Fprintln(w, strings.Join(vals, "\t"))
+	}
+	return nil
 }
 
 // compactFields keeps only the most important fields for agent consumption.

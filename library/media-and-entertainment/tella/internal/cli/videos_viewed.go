@@ -20,8 +20,14 @@ func newVideosViewedCmd(flags *rootFlags) *cobra.Command {
 	var milestone int
 	var limit int
 	cmd := &cobra.Command{
-		Use:         "viewed",
-		Short:       "Roll up webhook view-milestone events by video",
+		Use:   "viewed",
+		Short: "Roll up webhook view-milestone events by video",
+		Long: `Roll up viewer activity by reading the webhook inbox (video.viewed,
+video.milestone) over a window. Returns one entry per video with hit counts.
+
+Note: this is sourced from your webhook *event stream* — videos with views
+recorded only in the API counter (Video.views) but no inbox events will not
+appear here. Wire a webhook endpoint and let it accumulate to populate this.`,
 		Example:     "  tella-pp-cli videos viewed --since 7d --milestone 75 --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
