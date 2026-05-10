@@ -238,6 +238,9 @@ func runSozialplanCSV(cmd *cobra.Command, flags *rootFlags, csvFile string, defa
 		if err != nil {
 			return fmt.Errorf("Zeile %d: ungültiges Alter %q", lineNum, parts[3])
 		}
+		if ag == 0 {
+			fmt.Fprintf(cmd.ErrOrStderr(), "Zeile %d (%s): Alter 0 — Altersgruppen-Zuschlag (≥55 Jahre) wird nicht berechnet.\n", lineNum, parts[0])
+		}
 		dis := strings.EqualFold(parts[4], "true") || parts[4] == "1"
 		ch, err := strconv.Atoi(parts[5])
 		if err != nil {

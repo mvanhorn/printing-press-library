@@ -12,6 +12,7 @@ import (
 
 func newServeCmd(flags *rootFlags) *cobra.Command {
 	var port int
+	var host string
 	cmd := &cobra.Command{
 		Use:   "serve",
 		Short: "Start a local web UI — no terminal knowledge required",
@@ -20,16 +21,21 @@ Anyone on the local machine can open the URL in a browser and ask
 workplace questions in plain German or English — no CLI knowledge needed.
 
 This is the easiest way to share the tool with employees or BR members
-who are not comfortable with the terminal.`,
+who are not comfortable with the terminal.
+
+By default the server binds to 127.0.0.1 (localhost only). Use
+--host 0.0.0.0 to expose it on the local network (e.g. to share with
+colleagues on the same WiFi).`,
 		Example: strings.Trim(`
   betriebsrat serve
-  betriebsrat serve --port 9000`, "\n"),
+  betriebsrat serve --port 9000
+  betriebsrat serve --host 0.0.0.0 --port 8080`, "\n"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
 			}
-			addr := fmt.Sprintf(":%d", port)
-			fmt.Fprintf(cmd.OutOrStdout(), "Betriebsrat advisor running at http://localhost%s\n", addr)
+			addr := fmt.Sprintf("%s:%d", host, port)
+			fmt.Fprintf(cmd.OutOrStdout(), "Betriebsrat advisor running at http://localhost:%d\n", port)
 			fmt.Fprintf(cmd.OutOrStdout(), "Press Ctrl+C to stop.\n")
 
 			mux := http.NewServeMux()
@@ -47,6 +53,7 @@ who are not comfortable with the terminal.`,
 		},
 	}
 	cmd.Flags().IntVar(&port, "port", 7890, "Port to listen on")
+	cmd.Flags().StringVar(&host, "host", "127.0.0.1", "Host to bind (use 0.0.0.0 to expose on LAN)")
 	return cmd
 }
 
