@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"homeassistant-pp-cli/internal/client"
-	"homeassistant-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/devices/homeassistant/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/devices/homeassistant/internal/store"
 )
 
 // isNetworkError returns true for errors caused by network connectivity issues

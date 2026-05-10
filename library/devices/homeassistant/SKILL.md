@@ -154,7 +154,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
 
    ```bash
-   homeassistant-pp-cli calendars get-calendar-events mock-value --start example-value --end example-value --agent --select id,name,status
+   homeassistant-pp-cli calendars get-calendar-events <entity_id> --start <timestamp> --end <timestamp> --agent --select id,name,status
    ```
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
@@ -206,7 +206,7 @@ A profile is a saved set of flag values, reused across invocations. Use it when 
 
 ```
 homeassistant-pp-cli profile save briefing --json
-homeassistant-pp-cli --profile briefing calendars get-calendar-events mock-value --start example-value --end example-value
+homeassistant-pp-cli --profile briefing calendars get-calendar-events <entity_id> --start <timestamp> --end <timestamp>
 homeassistant-pp-cli profile list --json
 homeassistant-pp-cli profile show briefing
 homeassistant-pp-cli profile delete briefing --yes

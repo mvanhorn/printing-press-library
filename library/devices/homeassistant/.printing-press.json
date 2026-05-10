@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-10T07:00:11.644888074Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "homeassistant",
+  "display_name": "Homeassistant",
+  "cli_name": "homeassistant-pp-cli",
+  "owner": "adrin425",
+  "printer_name": "adrin425",
+  "spec_path": "/home/adrian/printing-press/.runstate/cli-printing-press-6d0014bc/runs/20260509-211834/research/homeassistant-crowd-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:521167c5ab6afbf3b23779d5a5a6d7976d0616790c327658549c9b4e1c697d57",
+  "mcp_binary": "homeassistant-pp-mcp",
+  "mcp_tool_count": 32,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "HOMEASSISTANT_TOKEN"
+  ]
+}

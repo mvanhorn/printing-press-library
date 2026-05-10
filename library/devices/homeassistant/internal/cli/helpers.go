@@ -16,8 +16,8 @@ import (
 	"text/tabwriter"
 	"time"
 	"unicode"
-	"homeassistant-pp-cli/internal/cliutil"
-	"homeassistant-pp-cli/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/devices/homeassistant/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/devices/homeassistant/internal/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )

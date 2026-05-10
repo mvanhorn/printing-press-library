@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"homeassistant-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/devices/homeassistant/internal/config"
 	"github.com/spf13/cobra"
 )
 

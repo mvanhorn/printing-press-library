@@ -13,8 +13,8 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"homeassistant-pp-cli/internal/client"
-	"homeassistant-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/devices/homeassistant/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/devices/homeassistant/internal/config"
 	"github.com/spf13/cobra"
 )
 

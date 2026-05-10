@@ -10,7 +10,7 @@ import (
 	"net/url"
 
 	"github.com/spf13/cobra"
-	"homeassistant-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/devices/homeassistant/internal/cliutil"
 )
 
 func newEventsCmd(flags *rootFlags) *cobra.Command {

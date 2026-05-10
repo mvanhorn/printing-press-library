@@ -1,4 +1,4 @@
-module homeassistant-pp-cli
+module github.com/mvanhorn/printing-press-library/library/devices/homeassistant
 
 go 1.26.3
 

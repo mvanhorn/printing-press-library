@@ -20,8 +20,8 @@ import (
 	"time"
 	"github.com/enetx/surf"
 
-	"homeassistant-pp-cli/internal/cliutil"
-	"homeassistant-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/devices/homeassistant/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/devices/homeassistant/internal/config"
 )
 
 type Client struct {

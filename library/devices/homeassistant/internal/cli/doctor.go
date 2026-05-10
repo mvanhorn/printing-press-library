@@ -13,9 +13,9 @@ import (
 	"strings"
 	"time"
 
-	"homeassistant-pp-cli/internal/client"
-	"homeassistant-pp-cli/internal/config"
-	"homeassistant-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/devices/homeassistant/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/devices/homeassistant/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/devices/homeassistant/internal/store"
 	"github.com/spf13/cobra"
 )
 

@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"homeassistant-pp-cli/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/devices/homeassistant/internal/cli"
 )
 
 func main() {

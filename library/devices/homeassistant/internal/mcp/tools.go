@@ -14,12 +14,12 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"homeassistant-pp-cli/internal/cli"
-	"homeassistant-pp-cli/internal/cliutil"
-	"homeassistant-pp-cli/internal/client"
-	"homeassistant-pp-cli/internal/config"
-	"homeassistant-pp-cli/internal/mcp/cobratree"
-	"homeassistant-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/devices/homeassistant/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/devices/homeassistant/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/devices/homeassistant/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/devices/homeassistant/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/devices/homeassistant/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/devices/homeassistant/internal/store"
 )
 
 // RegisterTools registers all API operations as MCP tools.
