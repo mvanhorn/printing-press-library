@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-10T17:03:03.08916Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "ordertogo",
+  "display_name": "OrderToGo",
+  "cli_name": "ordertogo-pp-cli",
+  "owner": "matt-van-horn",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:d804172f7b8da652cabb1bee77be30ca8aa34f3f5fa4e99389e5b1dea4bfd2dc",
+  "run_id": "20260510-083403",
+  "description": "Browse, cart, and place orders at any OrderToGo.com restaurant from the terminal with safety rails for agent-driven ordering",
+  "mcp_binary": "ordertogo-pp-mcp",
+  "mcp_tool_count": 15,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "auth_description": "OrderToGo authenticates via Firebase phone-OTP on the web. The CLI does not implement\nphone OTP \u2014 instead, `auth login --chrome` imports your existing OrderToGo session\ncookies from your local Chrome profile. After import, every command travels with the\ncookie. Re-run `auth login --chrome` if your session expires.\n",
+  "novel_features": [
+    {
+      "name": "Reuse-last with budget gate",
+      "command": "order plan",
+      "description": "Recompose your previous order locally, validate against tax, and refuse to fire if total exceeds your --max cap."
+    },
+    {
+      "name": "Headless full-auto place",
+      "command": "order place",
+      "description": "Drive a headless Chrome via chromedp to complete the Braintree DropIn flow with your saved card, with the budget cap enforced before the browser opens."
+    },
+    {
+      "name": "What's my usual",
+      "command": "usual",
+      "description": "Cluster your historical orders by item-set similarity and surface the recurring set that defines 'your usual' at any restaurant you order from."
+    },
+    {
+      "name": "Spending analytics",
+      "command": "spending",
+      "description": "Total spent, average order, days since last order, top items, and weekly cadence \u2014 all from local order history with one SQL query."
+    },
+    {
+      "name": "Auto-tip from history",
+      "command": "order plan",
+      "description": "Pass --tip auto and the CLI applies your average tip percentage from history at this restaurant."
+    },
+    {
+      "name": "Closed-check before place",
+      "command": "order plan",
+      "description": "Refuse to fire if the restaurant is not currently open at the requested pickup time, using cached hours."
+    },
+    {
+      "name": "Agent-context snapshot",
+      "command": "agent-context",
+      "description": "Single-call structured dump: account, default restaurant, your usual, last-order summary, budget hint, days-since-last."
+    },
+    {
+      "name": "Verify-env safe by construction",
+      "command": "order place",
+      "description": "All side-effect commands short-circuit when PRINTING_PRESS_VERIFY=1 is set, printing 'would place: <plan>' instead of submitting."
+    }
+  ],
+  "category": "food-and-dining"
+}

@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "ordertogo-pp-mcp",
+  "display_name": "Ordertogo",
+  "version": "4.2.2",
+  "description": "Browse, cart, and place orders at any OrderToGo.com restaurant from the terminal with safety rails for agent-driven ordering",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ordertogo-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ordertogo-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

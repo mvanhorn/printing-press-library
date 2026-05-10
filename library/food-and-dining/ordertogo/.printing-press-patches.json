@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260510-083403",
+  "base_printing_press_version": "4.2.2",
+  "patches": [
+    {
+      "id": "ordertogo-agent-ordering",
+      "summary": "Added Chrome cookie import, local order history, cart planning, checkout, analytics, config defaults, and agent-context enrichment.",
+      "reason": "The generated OrderToGo CLI needed the requested agent-safe ordering workflow without re-running the Printing Press generator.",
+      "files": [
+        "README.md",
+        "go.mod",
+        "go.sum",
+        "internal/cli/agent_context.go",
+        "internal/cli/auth.go",
+        "internal/cli/config_cmd.go",
+        "internal/cli/last_order.go",
+        "internal/cli/order_common.go",
+        "internal/cli/orders.go",
+        "internal/cli/orders_place.go",
+        "internal/cli/orders_plan.go",
+        "internal/cli/root.go",
+        "internal/cli/self_alias.go",
+        "internal/cli/spending.go",
+        "internal/cli/sync.go",
+        "internal/cli/usual.go",
+        "internal/config/config.go",
+        "internal/store/store.go",
+        "third_party/kooky/go.mod",
+        "third_party/kooky/kooky.go",
+        "third_party/kooky/browser/chrome/chrome.go",
+        "third_party/stubs/pdf/go.mod",
+        "third_party/stubs/pdf/pdf.go",
+        "third_party/stubs/pixelmatch/go.mod",
+        "third_party/stubs/pixelmatch/pixelmatch.go"
+      ],
+      "validated_outcome": "Build, vet, required command smoke checks, verify fixture, config dry-run, and validate-narrative passed with a workspace-local GOCACHE."
+    }
+  ]
+}

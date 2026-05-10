@@ -1,0 +1,253 @@
+{
+  "api_name": "ordertogo",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-10T08:34:03Z",
+  "novel_features": [
+    {
+      "name": "Reuse-last with budget gate",
+      "command": "order plan",
+      "description": "Recompose your previous order locally, validate against tax, and refuse to fire if total exceeds your --max cap.",
+      "rationale": "Requires composing the cart from local order history, hitting /m/api/orders to add tax, and gating against a user-provided cap before any payment surface opens.",
+      "example": "ordertogo-pp-cli order plan --reuse-last --max 30 --json",
+      "why_it_matters": "Reach for this when an agent needs to know 'will this fit my budget' before committing — answer comes from one structured call with no browser involvement.",
+      "group": "Safe agent-driven ordering"
+    },
+    {
+      "name": "Headless full-auto place",
+      "command": "order place",
+      "description": "Drive a headless Chrome via chromedp to complete the Braintree DropIn flow with your saved card, with the budget cap enforced before the browser opens.",
+      "rationale": "OrderToGo's payment uses Braintree's client-side single-use nonce; nothing else can submit a real order without re-implementing Braintree's client SDK or driving a real browser.",
+      "example": "ordertogo-pp-cli order place --reuse-last --confirm --max 30",
+      "why_it_matters": "Use when an agent has a budget-validated plan and the user has confirmed; this is the one command that actually moves money.",
+      "group": "Safe agent-driven ordering"
+    },
+    {
+      "name": "What's my usual",
+      "command": "usual",
+      "description": "Cluster your historical orders by item-set similarity and surface the recurring set that defines 'your usual' at any restaurant you order from.",
+      "rationale": "Requires local sync of all orders and similarity grouping over the items array — the website only shows discrete past orders, not patterns.",
+      "example": "ordertogo-pp-cli usual --restaurant \u003cslug\u003e --json",
+      "why_it_matters": "Reach for this when a user says 'order my usual' and the agent needs to decide whether one obvious pattern exists or whether to ask which usual.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Spending analytics",
+      "command": "spending",
+      "description": "Total spent, average order, days since last order, top items, and weekly cadence — all from local order history with one SQL query.",
+      "rationale": "The website shows a list of orders but no totals, no cadence, no top-items. Local sync + SQL turns the same data into habits.",
+      "example": "ordertogo-pp-cli spending --since 90d --json",
+      "why_it_matters": "Use when an agent needs to answer 'how much have I spent here' or 'how often do I order' without re-fetching history.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Auto-tip from history",
+      "command": "order plan",
+      "description": "Pass --tip auto and the CLI applies your average tip percentage from history at this restaurant.",
+      "rationale": "Requires reading historical tips for the restaurant from local store and computing the mean; the website always defaults to $0.",
+      "example": "ordertogo-pp-cli order plan --reuse-last --tip auto --json",
+      "why_it_matters": "Reach for this when an agent doesn't want to make the user pick a tip percentage — go with what's habitual.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Closed-check before place",
+      "command": "order plan",
+      "description": "Refuse to fire if the restaurant is not currently open at the requested pickup time, using cached hours.",
+      "rationale": "The web only surfaces 'closed' at submit time after a network round trip; we check locally before any cart pre-validate.",
+      "example": "ordertogo-pp-cli order plan --reuse-last --pickup-at '7:00 PM'",
+      "why_it_matters": "Catches a class of agent failures before the payment flow opens.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Agent-context snapshot",
+      "command": "agent-context",
+      "description": "Single-call structured dump: account, default restaurant, your usual, last-order summary, budget hint, days-since-last.",
+      "rationale": "Designed for an agent that needs to answer 'order my usual' in one call — gathers state from multiple endpoints and the local store and returns one JSON object.",
+      "example": "ordertogo-pp-cli agent-context --json",
+      "why_it_matters": "Reach for this when an agent enters a session and needs a complete picture before suggesting any action.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Verify-env safe by construction",
+      "command": "order place",
+      "description": "All side-effect commands short-circuit when PRINTING_PRESS_VERIFY=1 is set, printing 'would place: \u003cplan\u003e' instead of submitting.",
+      "rationale": "Required by Printing Press conventions; ensures dogfood / CI / agent-test runs cannot accidentally trigger a real order.",
+      "example": "PRINTING_PRESS_VERIFY=1 ordertogo-pp-cli order place --reuse-last --confirm --max 30",
+      "why_it_matters": "Use when an agent or test harness wants to exercise the place path without real-world consequences.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Reuse-last with budget gate",
+      "command": "order plan",
+      "description": "Recompose your previous order locally, validate against tax, and refuse to fire if total exceeds your --max cap.",
+      "rationale": "Requires composing the cart from local order history, hitting /m/api/orders to add tax, and gating against a user-provided cap before any payment surface opens.",
+      "example": "ordertogo-pp-cli order plan --reuse-last --max 30 --json",
+      "why_it_matters": "Reach for this when an agent needs to know 'will this fit my budget' before committing — answer comes from one structured call with no browser involvement.",
+      "group": "Safe agent-driven ordering"
+    },
+    {
+      "name": "Headless full-auto place",
+      "command": "order place",
+      "description": "Drive a headless Chrome via chromedp to complete the Braintree DropIn flow with your saved card, with the budget cap enforced before the browser opens.",
+      "rationale": "OrderToGo's payment uses Braintree's client-side single-use nonce; nothing else can submit a real order without re-implementing Braintree's client SDK or driving a real browser.",
+      "example": "ordertogo-pp-cli order place --reuse-last --confirm --max 30",
+      "why_it_matters": "Use when an agent has a budget-validated plan and the user has confirmed; this is the one command that actually moves money.",
+      "group": "Safe agent-driven ordering"
+    },
+    {
+      "name": "What's my usual",
+      "command": "usual",
+      "description": "Cluster your historical orders by item-set similarity and surface the recurring set that defines 'your usual' at any restaurant you order from.",
+      "rationale": "Requires local sync of all orders and similarity grouping over the items array — the website only shows discrete past orders, not patterns.",
+      "example": "ordertogo-pp-cli usual --restaurant \u003cslug\u003e --json",
+      "why_it_matters": "Reach for this when a user says 'order my usual' and the agent needs to decide whether one obvious pattern exists or whether to ask which usual.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Spending analytics",
+      "command": "spending",
+      "description": "Total spent, average order, days since last order, top items, and weekly cadence — all from local order history with one SQL query.",
+      "rationale": "The website shows a list of orders but no totals, no cadence, no top-items. Local sync + SQL turns the same data into habits.",
+      "example": "ordertogo-pp-cli spending --since 90d --json",
+      "why_it_matters": "Use when an agent needs to answer 'how much have I spent here' or 'how often do I order' without re-fetching history.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Auto-tip from history",
+      "command": "order plan",
+      "description": "Pass --tip auto and the CLI applies your average tip percentage from history at this restaurant.",
+      "rationale": "Requires reading historical tips for the restaurant from local store and computing the mean; the website always defaults to $0.",
+      "example": "ordertogo-pp-cli order plan --reuse-last --tip auto --json",
+      "why_it_matters": "Reach for this when an agent doesn't want to make the user pick a tip percentage — go with what's habitual.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Closed-check before place",
+      "command": "order plan",
+      "description": "Refuse to fire if the restaurant is not currently open at the requested pickup time, using cached hours.",
+      "rationale": "The web only surfaces 'closed' at submit time after a network round trip; we check locally before any cart pre-validate.",
+      "example": "ordertogo-pp-cli order plan --reuse-last --pickup-at '7:00 PM'",
+      "why_it_matters": "Catches a class of agent failures before the payment flow opens.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Agent-context snapshot",
+      "command": "agent-context",
+      "description": "Single-call structured dump: account, default restaurant, your usual, last-order summary, budget hint, days-since-last.",
+      "rationale": "Designed for an agent that needs to answer 'order my usual' in one call — gathers state from multiple endpoints and the local store and returns one JSON object.",
+      "example": "ordertogo-pp-cli agent-context --json",
+      "why_it_matters": "Reach for this when an agent enters a session and needs a complete picture before suggesting any action.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Verify-env safe by construction",
+      "command": "order place",
+      "description": "All side-effect commands short-circuit when PRINTING_PRESS_VERIFY=1 is set, printing 'would place: \u003cplan\u003e' instead of submitting.",
+      "rationale": "Required by Printing Press conventions; ensures dogfood / CI / agent-test runs cannot accidentally trigger a real order.",
+      "example": "PRINTING_PRESS_VERIFY=1 ordertogo-pp-cli order place --reuse-last --confirm --max 30",
+      "why_it_matters": "Use when an agent or test harness wants to exercise the place path without real-world consequences.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "OrderToGo",
+    "headline": "Browse, cart, and place orders at any OrderToGo.com restaurant from the terminal — pure-Go agent-native client with a hard budget gate and headless Braintree drive.",
+    "value_prop": "OrderToGo.com is a multi-tenant pickup ordering platform that powers small chains across multiple US metros. There is no CLI, MCP, or SDK presence anywhere for it. This CLI gives an agent every read endpoint, a safe `order plan` that composes a cart locally and validates against a `--max` cap, and an `order place` that drives a headless Chrome through Braintree DropIn to actually submit. Everything is offline-cacheable, agent-callable, and verify-env safe by construction.",
+    "auth_narrative": "OrderToGo authenticates via Firebase phone-OTP on the web. The CLI does not implement phone OTP — instead, `auth login --chrome` imports your existing OrderToGo session cookies from your local Chrome profile (default user-data-dir, default profile). After import, every command travels with the cookie; refresh by re-running `auth login --chrome` if your session expires.",
+    "quickstart": [
+      {
+        "command": "ordertogo-pp-cli auth login --chrome",
+        "comment": "Import OrderToGo session cookies from Chrome - no password, no OTP from the CLI"
+      },
+      {
+        "command": "ordertogo-pp-cli sync --resources orders",
+        "comment": "Pull full order history once so 'usual' detection and analytics work offline"
+      },
+      {
+        "command": "ordertogo-pp-cli config set default_restaurant mixsushibarlin",
+        "comment": "Optional - by default the CLI uses your most-frequent restaurant from the last 30 days"
+      },
+      {
+        "command": "ordertogo-pp-cli last-order --json",
+        "comment": "Confirm the most recent order - --reuse-last will recompose this exact cart"
+      },
+      {
+        "command": "ordertogo-pp-cli orders plan --reuse-last --max 30 --json",
+        "comment": "Recompose, hit /m/api/orders for tax, assert total \u003c= cap before any payment surface opens"
+      },
+      {
+        "command": "ordertogo-pp-cli orders place --reuse-last --confirm --max 30",
+        "comment": "Drive headless Chrome through Braintree with your saved card; only fires after the budget gate has already passed"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "auth login --chrome can't find cookies",
+        "fix": "Pass --chrome-profile 'Profile 1' or --user-data-dir \u003cpath\u003e if you use a non-default Chrome profile"
+      },
+      {
+        "symptom": "order place fails inside Braintree DropIn (saved card not selected)",
+        "fix": "Re-run with --visible to drop into a visible Chrome window and tap Place Order yourself; the CLI still confirms via order-history polling"
+      },
+      {
+        "symptom": "Restaurant returns HTTP 498 closed",
+        "fix": "Run `restaurants show \u003cslug\u003e --closed-check` first; the CLI refuses to plan against a closed restaurant after a sync of hours"
+      },
+      {
+        "symptom": "order place returns 'budget exceeded'",
+        "fix": "Either raise --max or pass --confirm-over-budget; the CLI never silently exceeds the cap"
+      },
+      {
+        "symptom": "Stale menu items in usual",
+        "fix": "Run `sync --menu \u003cslug\u003e` to refresh the menu cache before composing"
+      },
+      {
+        "symptom": "No restaurants show up in `restaurants list`",
+        "fix": "Pass --location \u003ccode\u003e (e.g. sto for Seattle area, det for Detroit) — the CLI doesn't assume a metro and reads location codes from your synced order history"
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent needs to handle 'order my usual', 'is the restaurant open', 'how much have I spent here this month', or 'place this exact cart with a budget cap'. It's read-fast (everything cached locally after one sync), write-safe (every place command is gated behind --confirm + --max + verify-env short-circuit), and works for any OrderToGo customer regardless of metro.",
+    "recipes": [
+      {
+        "title": "Order your usual under a cap",
+        "command": "ordertogo-pp-cli orders plan --reuse-last --max 30 --json --select totals.subtotal,totals.tax,totals.tip,totals.total,items.name",
+        "explanation": "Compose your usual cart, validate with tax, and emit only the bottom-line numbers + item names. The /m/api/orders response includes every cart field; --select keeps the agent context tight."
+      },
+      {
+        "title": "Place after agent confirmation (verify-env safe)",
+        "command": "PRINTING_PRESS_VERIFY=1 ordertogo-pp-cli orders place --reuse-last --confirm --max 30",
+        "explanation": "Run only after the agent has shown the plan to the user and the user has approved. Under PRINTING_PRESS_VERIFY=1 the CLI prints 'would place' without launching Chrome - useful for dry-run agent flows."
+      },
+      {
+        "title": "Single-call agent dump",
+        "command": "ordertogo-pp-cli agent-context --json",
+        "explanation": "Returns account, default restaurant, last-order summary, your usual, budget hint, days-since-last - everything an agent needs to decide whether to suggest 'order my usual'."
+      },
+      {
+        "title": "Find a restaurant in your area",
+        "command": "ordertogo-pp-cli restaurants list --location-code sto --json --select id,name,slug,is_open",
+        "explanation": "List all restaurants in the Seattle (sto) location. Replace sto with your metro code (det, sea, etc) - reads from synced order history when available."
+      },
+      {
+        "title": "Show recent order history",
+        "command": "ordertogo-pp-cli orders list --json",
+        "explanation": "Hit /m/api/getmicmeshorders directly for your latest orders. Combine with --select to keep payloads tight."
+      }
+    ],
+    "trigger_phrases": [
+      "order my usual",
+      "place my regular order",
+      "order from \u003crestaurant\u003e",
+      "what's my usual order",
+      "how much have I spent at",
+      "is \u003crestaurant\u003e open right now",
+      "use ordertogo",
+      "run ordertogo"
+    ]
+  }
+}
