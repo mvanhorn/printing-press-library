@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-10T18:04:05.081816Z",
+  "printing_press_version": "1.3.2",
+  "api_name": "thevc",
+  "cli_name": "thevc-pp-cli",
+  "spec_path": "./thevc-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:b4b4c37c5db7b87c479a8571b1f763059fd65475c36b017fa0c66807080e49b4",
+  "mcp_binary": "thevc-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_public_tool_count": 5,
+  "mcp_ready": "full",
+  "auth_type": "none"
+}

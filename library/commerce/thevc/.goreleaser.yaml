@@ -1,0 +1,60 @@
+version: 2
+project_name: thevc-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: thevc-pp-cli
+    main: ./cmd/thevc-pp-cli
+    binary: thevc-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X thevc-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: thevc-pp-mcp
+    main: ./cmd/thevc-pp-mcp
+    binary: thevc-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: thevc-pp-cli
+    repository:
+      owner: allen-lee
+      name: homebrew-tap
+    homepage: "https://github.com/allen-lee/thevc-pp-cli"
+    description: "더브이씨 (THE VC) is Korea's leading startup investment database. This API provides
+access to Korean startup profiles, funding rounds, investor data, rankings, and
+company-specific news articles. All endpoints are public — no authentication required.
+Designed for the Korean startup ecosystem: track funding, discover companies,
+analyze investment patterns.
+
+Example CLI usage:
+  thevc rankings
+  thevc profile revolut
+  thevc export --format csv"
+    install: |
+      bin.install "thevc-pp-cli"
+      bin.install "thevc-pp-mcp"
