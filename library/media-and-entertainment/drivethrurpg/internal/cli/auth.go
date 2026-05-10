@@ -162,9 +162,9 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 			// scripted dogfood that captures stderr.
 			cfg.AuthHeaderVal = ""
 			// api_key auth: AuthHeader() reads the env-var-derived field, not
-			// AccessToken. Writing the token to AccessToken via SaveTokens
-			// would persist the bytes but leave doctor reporting "not
-			// configured" — the slot the header builder consults stays empty.
+			// AccessToken. Writing the token to AccessToken would persist the
+			// bytes but leave doctor reporting "not configured" — the slot the
+			// header builder consults stays empty.
 			if err := cfg.SaveCredential(args[0]); err != nil {
 				return configErr(fmt.Errorf("saving token: %w", err))
 			}

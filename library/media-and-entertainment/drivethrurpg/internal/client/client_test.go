@@ -39,6 +39,25 @@ func TestCacheKeySortsParams(t *testing.T) {
 	}
 }
 
+func TestAuthHeaderUsesDriveThruTokenWithoutOAuthRefresh(t *testing.T) {
+	c := &Client{
+		Config: &config.Config{
+			AccessToken:            "legacy-oauth-token",
+			RefreshToken:           "legacy-refresh-token",
+			TokenExpiry:            time.Now().Add(-time.Hour),
+			DrivethrurpgDtrpgToken: "dtrpg-token",
+		},
+	}
+
+	got, err := c.authHeader()
+	if err != nil {
+		t.Fatalf("authHeader returned error: %v", err)
+	}
+	if got != "dtrpg-token" {
+		t.Fatalf("authHeader = %q, want dtrpg-token", got)
+	}
+}
+
 func TestGetWithHeadersContextHonorsCancellation(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, `{}`)

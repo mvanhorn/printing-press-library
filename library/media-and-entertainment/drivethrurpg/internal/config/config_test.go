@@ -3,7 +3,11 @@
 
 package config
 
-import "testing"
+import (
+	"os"
+	"path/filepath"
+	"testing"
+)
 
 func TestAuthHeader(t *testing.T) {
 	if got := (&Config{}).AuthHeader(); got != "" {
@@ -19,5 +23,26 @@ func TestAuthHeader(t *testing.T) {
 		DrivethrurpgDtrpgToken: "token-value",
 	}).AuthHeader(); got != "Bearer saved-header" {
 		t.Fatalf("saved AuthHeader = %q, want Bearer saved-header", got)
+	}
+}
+
+func TestLoadDoesNotTreatLegacyAccessTokenAsAuthHeader(t *testing.T) {
+	t.Setenv("DRIVETHRURPG_DTRPG_TOKEN", "")
+	t.Setenv("DRIVETHRURPG_APPLICATION_KEY", "")
+
+	path := filepath.Join(t.TempDir(), "config.toml")
+	if err := os.WriteFile(path, []byte(`access_token = "legacy-oauth-token"`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, err := Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.AuthSource != "" {
+		t.Fatalf("AuthSource = %q, want empty", cfg.AuthSource)
+	}
+	if got := cfg.AuthHeader(); got != "" {
+		t.Fatalf("AuthHeader = %q, want empty", got)
 	}
 }

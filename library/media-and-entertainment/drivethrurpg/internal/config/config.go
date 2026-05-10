@@ -71,7 +71,7 @@ func Load(configPath string) (*Config, error) {
 	// config file path is exposed separately as report["config_path"], and
 	// embedding it in auth_source leaks the user's home directory through
 	// doctor's JSON envelope.
-	if cfg.AuthSource == "" && (cfg.AuthHeaderVal != "" || cfg.AccessToken != "") {
+	if cfg.AuthSource == "" && cfg.AuthHeaderVal != "" {
 		cfg.AuthSource = "config"
 	}
 	if cfg.AuthSource == "" && cfg.DrivethrurpgDtrpgToken != "" {
@@ -94,15 +94,6 @@ func (c *Config) AuthHeader() string {
 		return ""
 	}
 	return token
-}
-
-func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken string, expiry time.Time) error {
-	c.ClientID = clientID
-	c.ClientSecret = clientSecret
-	c.AccessToken = accessToken
-	c.RefreshToken = refreshToken
-	c.TokenExpiry = expiry
-	return c.save()
 }
 
 // SaveCredential persists a single API credential to the field that
