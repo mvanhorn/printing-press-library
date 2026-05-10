@@ -133,7 +133,13 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				otCli, otErr := opentable.New(session)
 				switch {
 				case otErr != nil:
-					report["api_opentable"] = fmt.Sprintf("client init: %s", otErr)
+					// Prefix with "error:" so the indicator switch (line ~197)
+					// and doctorExitForFailOn both classify this as FAIL.
+					// Their predicates match the literal substring "error";
+					// Go errors like `"no cookie jar"` or `"connection
+					// refused"` don't carry it on their own, so without the
+					// prefix this status falls through to a green OK.
+					report["api_opentable"] = fmt.Sprintf("error: client init: %s", otErr)
 				default:
 					ctx := cmd.Context()
 					if err := otCli.Bootstrap(ctx); err != nil {
