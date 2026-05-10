@@ -56,29 +56,19 @@ func newServicesCallCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			req, err := http.NewRequestWithContext(context.Background(), "POST", fmt.Sprintf("%s/services/%s/%s", c.Config.BaseURL, url.PathEscape(domain), url.PathEscape(service)), bytes.NewBufferString(payload))
+			path := fmt.Sprintf("/services/%s/%s", url.PathEscape(domain), url.PathEscape(service))
+			var body map[string]any
+			if err := json.Unmarshal([]byte(payload), &body); err != nil {
+				return fmt.Errorf("invalid JSON payload: %w", err)
+			}
+
+			data, _, err := c.Post(path, body)
 			if err != nil {
 				return err
-			}
-			auth := c.Config.AuthHeader()
-			if auth != "" {
-				req.Header.Set("Authorization", auth)
-			}
-			req.Header.Set("Content-Type", "application/json")
-
-			resp, err := c.HTTPClient.Do(req)
-			if err != nil {
-				return err
-			}
-			defer resp.Body.Close()
-
-			body, _ := io.ReadAll(resp.Body)
-			if resp.StatusCode != http.StatusOK {
-				return fmt.Errorf("API error: %s (status %d)", string(body), resp.StatusCode)
 			}
 
 			var states []map[string]interface{}
-			if err := json.Unmarshal(body, &states); err == nil && len(states) > 0 {
+			if err := json.Unmarshal(data, &states); err == nil && len(states) > 0 {
 				if flags.asJSON {
 					return printJSONFiltered(cmd.OutOrStdout(), states, flags)
 				}
@@ -88,7 +78,7 @@ func newServicesCallCmd(flags *rootFlags) *cobra.Command {
 				}
 			} else {
 				if flags.asJSON {
-					fmt.Fprintln(cmd.OutOrStdout(), string(body))
+					fmt.Fprintln(cmd.OutOrStdout(), string(data))
 				} else {
 					fmt.Fprintf(cmd.OutOrStdout(), "Service %s.%s called successfully.\n", domain, service)
 				}
@@ -127,23 +117,9 @@ func newServicesPayloadCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			req, err := http.NewRequestWithContext(context.Background(), "GET", c.Config.BaseURL+"/services", nil)
+			data, err := c.Get("/services", nil)
 			if err != nil {
 				return err
-			}
-			auth := c.Config.AuthHeader()
-			if auth != "" {
-				req.Header.Set("Authorization", auth)
-			}
-
-			resp, err := c.HTTPClient.Do(req)
-			if err != nil {
-				return err
-			}
-			defer resp.Body.Close()
-
-			if resp.StatusCode != http.StatusOK {
-				return fmt.Errorf("API error fetching services (status %d)", resp.StatusCode)
 			}
 
 			var domains []struct {
@@ -159,7 +135,7 @@ func newServicesPayloadCmd(flags *rootFlags) *cobra.Command {
 				} `json:"services"`
 			}
 
-			if err := json.NewDecoder(resp.Body).Decode(&domains); err != nil {
+			if err := json.Unmarshal(data, &domains); err != nil {
 				return err
 			}
 

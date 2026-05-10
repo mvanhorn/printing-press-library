@@ -51,30 +51,16 @@ func newEventsListCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			req, err := http.NewRequestWithContext(context.Background(), "GET", c.Config.BaseURL+"/events", nil)
+			data, err := c.Get("/events", nil)
 			if err != nil {
 				return err
-			}
-			if auth := c.Config.AuthHeader(); auth != "" {
-				req.Header.Set("Authorization", auth)
-			}
-
-			resp, err := c.HTTPClient.Do(req)
-			if err != nil {
-				return err
-			}
-			defer resp.Body.Close()
-
-			if resp.StatusCode != http.StatusOK {
-				body, _ := io.ReadAll(resp.Body)
-				return fmt.Errorf("API error: %s (status %d)", string(body), resp.StatusCode)
 			}
 
 			var events []struct {
 				Event         string `json:"event"`
 				ListenerCount int    `json:"listener_count"`
 			}
-			if err := json.NewDecoder(resp.Body).Decode(&events); err != nil {
+			if err := json.Unmarshal(data, &events); err != nil {
 				return err
 			}
 
@@ -130,30 +116,19 @@ func newEventsFireCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			req, err := http.NewRequestWithContext(context.Background(), "POST",
-				fmt.Sprintf("%s/events/%s", c.Config.BaseURL, url.PathEscape(eventType)),
-				bytes.NewBufferString(payload))
+			var body map[string]any
+			if err := json.Unmarshal([]byte(payload), &body); err != nil {
+				return fmt.Errorf("invalid JSON payload: %w", err)
+			}
+
+			path := fmt.Sprintf("/events/%s", url.PathEscape(eventType))
+			data, _, err := c.Post(path, body)
 			if err != nil {
 				return err
-			}
-			if auth := c.Config.AuthHeader(); auth != "" {
-				req.Header.Set("Authorization", auth)
-			}
-			req.Header.Set("Content-Type", "application/json")
-
-			resp, err := c.HTTPClient.Do(req)
-			if err != nil {
-				return err
-			}
-			defer resp.Body.Close()
-
-			body, _ := io.ReadAll(resp.Body)
-			if resp.StatusCode != http.StatusOK {
-				return fmt.Errorf("API error: %s (status %d)", string(body), resp.StatusCode)
 			}
 
 			if flags.asJSON {
-				fmt.Fprintln(cmd.OutOrStdout(), string(body))
+				fmt.Fprintln(cmd.OutOrStdout(), string(data))
 			} else {
 				fmt.Fprintf(cmd.OutOrStdout(), "Event %s fired.\n", eventType)
 			}
