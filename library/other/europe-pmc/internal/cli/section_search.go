@@ -38,7 +38,7 @@ FIG, TABLE, SUPPL, OTHER, ACK, AUTH_CONT, COMP_INT, ABBR, KEYWORD, REF.`,
 			// Build section-qualified query
 			query := flagQuery
 			if flagSection != "" {
-				query = fmt.Sprintf("%s:%s", flagSection, flagQuery)
+				query = fmt.Sprintf(`%s:"%s"`, flagSection, flagQuery)
 			}
 
 			params := map[string]string{
