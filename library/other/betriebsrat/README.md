@@ -99,6 +99,24 @@ Claude will handle the rest. Then just describe your situation and ask away.
 
 ---
 
+## Sources
+
+**Built-in source:** [gesetze-im-internet.de](https://www.gesetze-im-internet.de/betrvg/) — the official Bundesministerium der Justiz publication of the BetrVG. German law text is not copyright-protected under § 5 Abs. 1 UrhG (*Amtliche Werke*), so this is the default source.
+
+**betriebsrat.de — why it isn't included by default:** betriebsrat.de publishes editorial content (summaries, guides, topic pages) that is their own copyrighted work, and their database may be protected under §§ 87a–87e UrhG (EU Database Directive). To avoid copyright issues, the tool does not bundle access to betriebsrat.de out of the box.
+
+**You can connect it yourself.** If you want to use betriebsrat.de as the data source for your own personal use, tell Claude:
+
+> Use betriebsrat.de as the source. Run: `BETRIEBSRAT_BASE_URL=https://www.betriebsrat.de betriebsrat sync`
+
+Or set it permanently in `~/.config/betriebsrat/config.json`:
+
+```json
+{ "base_url": "https://www.betriebsrat.de" }
+```
+
+---
+
 ## What it knows
 
 - Every paragraph of the *Betriebsverfassungsgesetz* (BetrVG) — the German works constitution law
@@ -270,6 +288,24 @@ Sagen Sie Claude, es soll installieren:
 Claude übernimmt den Rest. Dann beschreiben Sie einfach Ihre Situation.
 
 **Keine Installation nötig für den Einstieg.** Das Claude-Skill funktioniert eigenständig — Claude antwortet aus seinem eingebetteten BetrVG-Wissen. Die CLI-Installation ergänzt strukturierte Ausgaben, MCP-Integration und Offline-Berechnungstools.
+
+---
+
+## Quellen
+
+**Eingebettete Quelle:** [gesetze-im-internet.de](https://www.gesetze-im-internet.de/betrvg/) — die amtliche Veröffentlichung des BetrVG durch das Bundesministerium der Justiz. Gesetzestexte sind nach § 5 Abs. 1 UrhG (*Amtliche Werke*) nicht urheberrechtlich geschützt — daher ist dies die Standardquelle.
+
+**Warum betriebsrat.de nicht integriert ist:** betriebsrat.de veröffentlicht redaktionelle Inhalte (Zusammenfassungen, Ratgeber, Themenseiten), die urheberrechtlich geschützt sind. Die Datenbank kann zusätzlich durch §§ 87a–87e UrhG (EU-Datenbankrichtlinie) geschützt sein. Um Urheberrechtsprobleme zu vermeiden, ist die Verbindung zu betriebsrat.de nicht vorinstalliert.
+
+**Sie können es selbst einrichten.** Wenn Sie betriebsrat.de für Ihren persönlichen Gebrauch als Datenquelle nutzen möchten, sagen Sie Claude:
+
+> Verbinde betriebsrat.de als Quelle. Führe aus: `BETRIEBSRAT_BASE_URL=https://www.betriebsrat.de betriebsrat sync`
+
+Oder dauerhaft in `~/.config/betriebsrat/config.json` eintragen:
+
+```json
+{ "base_url": "https://www.betriebsrat.de" }
+```
 
 ---
 
