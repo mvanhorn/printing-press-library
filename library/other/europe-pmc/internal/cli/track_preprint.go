@@ -43,9 +43,6 @@ Use --check-updates to re-check all tracked preprints for publication status.`,
 			if dryRunOK(flags) {
 				return nil
 			}
-			if flagQuery == "" {
-				return cmd.Help()
-			}
 
 			c, err := flags.newClient()
 			if err != nil {
