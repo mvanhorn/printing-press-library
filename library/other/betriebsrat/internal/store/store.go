@@ -730,8 +730,10 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 // ListIDs returns all IDs from a resource's domain table, or from the generic
 // resources table if no domain table exists. Used by dependent sync to iterate parents.
 func (s *Store) ListIDs(resourceType string) ([]string, error) {
-	// Try domain table first (tables are named after the resource type)
-	query := fmt.Sprintf("SELECT id FROM %s", resourceType)
+	// Try domain table first (tables are named after the resource type).
+	// Quote the identifier to prevent SQL injection from caller-controlled resourceType.
+	quotedTable := `"` + strings.ReplaceAll(resourceType, `"`, `""`) + `"`
+	query := fmt.Sprintf("SELECT id FROM %s", quotedTable)
 	rows, err := s.db.Query(query)
 	if err != nil {
 		// Fall back to generic resources table
@@ -817,9 +819,19 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 
 	var matches []string
 	for _, field := range matchFields {
+		// Sanitise field: only allow alphanumeric and underscore to prevent injection into json_extract path.
+		safeField := strings.Map(func(r rune) rune {
+			if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '_' {
+				return r
+			}
+			return -1
+		}, field)
+		if safeField == "" {
+			continue
+		}
 		query := fmt.Sprintf(
 			`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,
-			field,
+			safeField,
 		)
 		rows, err := s.db.Query(query, resourceType, input)
 		if err != nil {
