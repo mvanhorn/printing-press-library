@@ -120,7 +120,7 @@ Use --check-updates to re-check all tracked preprints for publication status.`,
 				if flagCheckUpdates && article.DOI != "" {
 					// Check if a published version exists by searching for the DOI
 					checkParams := map[string]string{
-						"query":  fmt.Sprintf("DOI:%s NOT SRC:PPR", article.DOI),
+						"query":  fmt.Sprintf(`DOI:"%s" NOT SRC:PPR`, article.DOI),
 						"format": "json",
 					}
 					checkData, checkErr := c.Get("/search", checkParams)

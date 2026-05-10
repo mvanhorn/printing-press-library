@@ -132,7 +132,7 @@ func resolveIdentifier(c dedupClient, db *store.Store, id string) (map[string]an
 	var query string
 	switch {
 	case strings.HasPrefix(id, "10."):
-		query = fmt.Sprintf("DOI:%s", id)
+		query = fmt.Sprintf(`DOI:"%s"`, id)
 	case strings.HasPrefix(id, "PMC"):
 		query = fmt.Sprintf("PMCID:%s", id)
 	case strings.HasPrefix(id, "PPR"):
