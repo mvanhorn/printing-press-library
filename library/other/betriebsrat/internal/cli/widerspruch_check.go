@@ -254,9 +254,9 @@ func analyseWiderspruchGrounds(
 	// Additional context for verhaltensbedingt without warning
 	if kuendigungsArt == "verhaltensbedingt" && noWarning {
 		r.Note = "WICHTIG: Bei verhaltensbedingter Kündigung ohne vorherige Abmahnung ist die Kündigung oft bereits materiell-rechtlich unwirksam (BAG-Rspr.). " +
-			"Dies ist kein § 102 Abs. 3-Widerspruchsgrund (der Widerspruch gilt nur für betriebsbedingte und personenbedingte Kündigungen), " +
-			"aber der Arbeitnehmer sollte unbedingt Kündigungsschutzklage erheben (§ 4 KSchG, 3 Wochen Frist!). " +
-			"Der BR sollte Bedenken nach § 102 Abs. 2 Satz 1 BetrVG äußern."
+			"Prüfen Sie dennoch die § 102 Abs. 3-Widerspruchsgründe (Nr. 1–5 gelten für jede ordentliche Kündigung, auch verhaltensbedingte — z.B. Nr. 3 wenn ein anderer Arbeitsplatz vorhanden ist). " +
+			"Der Arbeitnehmer sollte zudem Kündigungsschutzklage erheben (§ 4 KSchG, 3 Wochen Frist!). " +
+			"Ein Widerspruch gibt ihm das Recht auf Weiterbeschäftigung während des Verfahrens (§ 102 Abs. 5)."
 	}
 
 	r.RecommendedGrounds = grounds
