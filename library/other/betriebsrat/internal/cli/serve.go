@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -34,7 +35,15 @@ who are not comfortable with the terminal.`,
 			mux := http.NewServeMux()
 			mux.HandleFunc("/", serveUI)
 			mux.HandleFunc("/ask", serveAsk)
-			return http.ListenAndServe(addr, mux)
+			srv := &http.Server{Addr: addr, Handler: mux}
+			go func() {
+				<-cmd.Context().Done()
+				srv.Shutdown(context.Background()) //nolint:errcheck
+			}()
+			if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+				return err
+			}
+			return nil
 		},
 	}
 	cmd.Flags().IntVar(&port, "port", 7890, "Port to listen on")

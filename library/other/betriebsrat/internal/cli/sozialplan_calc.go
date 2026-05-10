@@ -145,6 +145,9 @@ Batch mode (--csv): CSV file with one employee per line:
 			if years < 0 {
 				return fmt.Errorf("--years darf nicht negativ sein")
 			}
+			if age == 0 {
+				fmt.Fprintf(cmd.ErrOrStderr(), "Hinweis: --age nicht angegeben (Standard: 0). Altersgruppen-Zuschlag (≥55 Jahre) wird nicht berechnet.\n")
+			}
 
 			r := calcSozialplan(sozialplanInput{
 				MonthlySalary: salary,

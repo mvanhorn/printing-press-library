@@ -25,9 +25,6 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string) server.
 		args := req.GetArguments()
 		finalArgs := append([]string{}, prefixArgs...)
 		finalArgs = append(finalArgs, cliArgsFromMCP(args)...)
-		if raw, _ := args["args"].(string); strings.TrimSpace(raw) != "" {
-			finalArgs = append(finalArgs, splitShellArgs(raw)...)
-		}
 		cmd := exec.CommandContext(ctx, lookupPath, finalArgs...)
 		out, err := cmd.CombinedOutput()
 		if err != nil {
@@ -77,26 +74,3 @@ func cliArgsFromMCP(args map[string]any) []string {
 	return out
 }
 
-// splitShellArgs whitespace-splits with double-quoted-token preservation.
-func splitShellArgs(s string) []string {
-	var tokens []string
-	var cur []rune
-	inQuote := false
-	for _, r := range s {
-		switch {
-		case r == '"':
-			inQuote = !inQuote
-		case (r == ' ' || r == '\t') && !inQuote:
-			if len(cur) > 0 {
-				tokens = append(tokens, string(cur))
-				cur = cur[:0]
-			}
-		default:
-			cur = append(cur, r)
-		}
-	}
-	if len(cur) > 0 {
-		tokens = append(tokens, string(cur))
-	}
-	return tokens
-}
