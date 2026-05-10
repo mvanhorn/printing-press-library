@@ -130,7 +130,7 @@ Batch mode (--csv): CSV file with one employee per line:
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if factor <= 0 {
-				factor = 0.5
+				factor = 0.75
 			}
 
 			// Batch CSV mode
@@ -195,7 +195,7 @@ Batch mode (--csv): CSV file with one employee per line:
 	cmd.Flags().IntVar(&age, "age", 0, "Alter des Arbeitnehmers")
 	cmd.Flags().BoolVar(&disabled, "disabled", false, "Schwerbehindert (GdB ≥ 50) — Zuschlag +25%%")
 	cmd.Flags().IntVar(&children, "children", 0, "Unterhaltspflichtige Kinder — Zuschlag +10%% je Kind (max. 3)")
-	cmd.Flags().Float64Var(&factor, "factor", 0.5, "Sozialplanfaktor (Standard: 0.5; üblich: 0.5–1.5)")
+	cmd.Flags().Float64Var(&factor, "factor", 0.75, "Sozialplanfaktor (Standard: 0.75; Bandbreite: 0.5–1.5)")
 	cmd.Flags().Float64Var(&maxCap, "max-cap", 0, "Kappungsgrenze in Euro (0 = kein Cap)")
 	cmd.Flags().StringVar(&csvFile, "csv", "", "CSV-Datei mit Mitarbeiterdaten für Batch-Berechnung")
 
@@ -249,14 +249,25 @@ func runSozialplanCSV(cmd *cobra.Command, flags *rootFlags, csvFile string, defa
 
 		rowFactor := defaultFactor
 		if len(parts) >= 7 && parts[6] != "" {
-			rowFactor, _ = strconv.ParseFloat(parts[6], 64)
-			if rowFactor <= 0 {
-				rowFactor = defaultFactor
+			f, parseErr := strconv.ParseFloat(parts[6], 64)
+			if parseErr != nil || f <= 0 {
+				fmt.Fprintf(cmd.ErrOrStderr(), "Zeile %d (%s): ungültiger Faktor %q — Standard %.2f wird verwendet.\n", lineNum, parts[0], parts[6], defaultFactor)
+			} else {
+				rowFactor = f
 			}
 		}
 		rowMaxCap := defaultMaxCap
 		if len(parts) >= 8 && parts[7] != "" {
-			rowMaxCap, _ = strconv.ParseFloat(parts[7], 64)
+			f, parseErr := strconv.ParseFloat(parts[7], 64)
+			if parseErr != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "Zeile %d (%s): ungültige Kappungsgrenze %q — kein Cap wird angewendet.\n", lineNum, parts[0], parts[7])
+				rowMaxCap = 0
+			} else if f > 0 && f < 1000 {
+				fmt.Fprintf(cmd.ErrOrStderr(), "Zeile %d (%s): Kappungsgrenze %.2f EUR erscheint sehr niedrig — bei deutschem Zahlenformat bitte Tausenderpunkt weglassen (z.B. 80000 statt 80.000).\n", lineNum, parts[0], f)
+				rowMaxCap = f
+			} else {
+				rowMaxCap = f
+			}
 		}
 
 		result := calcSozialplan(sozialplanInput{
