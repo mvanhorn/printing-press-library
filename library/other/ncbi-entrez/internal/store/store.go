@@ -421,7 +421,7 @@ func (s *Store) upsertGenericResourceTx(tx *sql.Tx, resourceType, id string, dat
 		return err
 	}
 
-	ftsRowid := ftsRowID(id)
+	ftsRowid := ftsRowIDWithType(id, resourceType)
 	// Use explicit rowid for FTS5 compatibility with modernc.org/sqlite.
 	// Standard DELETE WHERE column=? may not work on FTS5 virtual tables.
 	if _, err = tx.Exec(`DELETE FROM resources_fts WHERE rowid = ?`, ftsRowid); err != nil {
@@ -536,11 +536,19 @@ func extractObjectID(obj map[string]any) string {
 // modernc.org/sqlite's FTS5 implementation may not support DELETE WHERE column=?
 // on virtual tables, so we use explicit rowids and DELETE WHERE rowid=? instead.
 func ftsRowID(id string) int64 {
+	return ftsRowIDWithType(id, "")
+}
+
+func ftsRowIDWithType(id, resourceType string) int64 {
 	var h uint64
+	for _, c := range resourceType {
+		h = h*31 + uint64(c)
+	}
+	h = h*31 + uint64(':')
 	for _, c := range id {
 		h = h*31 + uint64(c)
 	}
-	return int64(h & 0x7FFFFFFFFFFFFFFF) // ensure positive
+	return int64(h & 0x7FFFFFFFFFFFFFFF)
 }
 
 // LookupFieldValue resolves a field value from a JSON object map, trying
@@ -821,6 +829,16 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 
 	var matches []string
 	for _, field := range matchFields {
+		safe := true
+		for _, c := range field {
+			if !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' || c == '.') {
+				safe = false
+				break
+			}
+		}
+		if !safe {
+			continue
+		}
 		query := fmt.Sprintf(
 			`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,
 			field,
