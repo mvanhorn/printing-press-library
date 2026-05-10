@@ -83,14 +83,7 @@ func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
 	}
-	token := c.VirustotalApiKey
-	if token == "" {
-		return ""
-	}
-	if c.VirustotalApiKey == "" {
-		return ""
-	}
-	return token
+	return c.VirustotalApiKey
 }
 
 func applyAuthFormat(format string, replacements map[string]string) string {

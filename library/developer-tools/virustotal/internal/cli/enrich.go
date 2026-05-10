@@ -6,6 +6,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"regexp"
 	"strings"
@@ -329,11 +330,11 @@ func enrichSingleIOC(c interface{}, store *vtstore.VTStore, ioc IOC) EnrichmentR
 		var path string
 		switch ioc.Type {
 		case "file":
-			path = "/files/" + ioc.Value
+			path = "/files/" + url.PathEscape(ioc.Value)
 		case "domain":
-			path = "/domains/" + ioc.Value
+			path = "/domains/" + url.PathEscape(ioc.Value)
 		case "ip":
-			path = "/ip_addresses/" + ioc.Value
+			path = "/ip_addresses/" + url.PathEscape(ioc.Value)
 		default:
 			result.Status = "failed"
 			result.Error = "unsupported IOC type"

@@ -5,6 +5,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"strings"
 
@@ -201,7 +202,7 @@ func fetchIOCData(c interface{}, store *vtstore.VTStore, iocType, iocID string) 
 		}
 		// Fetch from API
 		client := c.(interface{ Get(string, map[string]string) (json.RawMessage, error) })
-		data, err := client.Get("/files/"+iocID, nil)
+		data, err := client.Get("/files/"+url.PathEscape(iocID), nil)
 		if err == nil {
 			// Store in cache
 			storeFileData(store, iocID, data)
@@ -213,7 +214,7 @@ func fetchIOCData(c interface{}, store *vtstore.VTStore, iocType, iocID string) 
 			return data, nil
 		}
 		client := c.(interface{ Get(string, map[string]string) (json.RawMessage, error) })
-		data, err := client.Get("/domains/"+iocID, nil)
+		data, err := client.Get("/domains/"+url.PathEscape(iocID), nil)
 		if err == nil {
 			store.StoreDomain(iocID, data)
 		}
@@ -224,7 +225,7 @@ func fetchIOCData(c interface{}, store *vtstore.VTStore, iocType, iocID string) 
 			return data, nil
 		}
 		client := c.(interface{ Get(string, map[string]string) (json.RawMessage, error) })
-		data, err := client.Get("/ip_addresses/"+iocID, nil)
+		data, err := client.Get("/ip_addresses/"+url.PathEscape(iocID), nil)
 		if err == nil {
 			store.StoreIP(iocID, data)
 		}

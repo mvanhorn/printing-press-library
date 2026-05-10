@@ -731,9 +731,24 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 // ListIDs returns all IDs from a resource's domain table, or from the generic
 // resources table if no domain table exists. Used by dependent sync to iterate parents.
 func (s *Store) ListIDs(resourceType string) ([]string, error) {
+	// Allowlist valid table names to prevent SQL injection
+	validTables := map[string]bool{
+		"resources": true,
+		"files":     true,
+		"urls":      true,
+		"domains":   true,
+		"ips":       true,
+	}
+
 	// Try domain table first (tables are named after the resource type)
-	query := fmt.Sprintf("SELECT id FROM %s", resourceType)
-	rows, err := s.db.Query(query)
+	var rows *sql.Rows
+	var err error
+	if validTables[resourceType] {
+		query := fmt.Sprintf("SELECT id FROM %s", resourceType)
+		rows, err = s.db.Query(query)
+	} else {
+		err = fmt.Errorf("invalid resource type: %s", resourceType)
+	}
 	if err != nil {
 		// Fall back to generic resources table
 		rows, err = s.db.Query("SELECT id FROM resources WHERE resource_type = ?", resourceType)
@@ -816,8 +831,20 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 		return input, nil
 	}
 
+	// Allowlist valid JSON field names to prevent SQL injection via json_extract path
+	validFields := map[string]bool{
+		"name":  true,
+		"key":   true,
+		"email": true,
+		"id":    true,
+		"title": true,
+	}
+
 	var matches []string
 	for _, field := range matchFields {
+		if !validFields[field] {
+			continue // Skip invalid field names
+		}
 		query := fmt.Sprintf(
 			`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,
 			field,
