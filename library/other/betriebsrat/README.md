@@ -8,7 +8,7 @@ When your employer hands you a dismissal notice, announces a restructuring, or r
 
 betriebsrat closes that gap. Describe your situation in plain German or English and get a grounded answer that cites the specific law, the relevant deadline, and what your employer was actually required to do.
 
-Built on content from [betriebsrat.de](https://www.betriebsrat.de) — the recognised German authority on works council practice — and the complete text of the *Betriebsverfassungsgesetz*. Every answer links back to the relevant topic on betriebsrat.de so you can verify it yourself. Not AI guesswork: structured law reasoning grounded in authoritative sources.
+Built on the official text of the *Betriebsverfassungsgesetz* published by the Bundesministerium der Justiz at [gesetze-im-internet.de](https://www.gesetze-im-internet.de/betrvg/). Every answer links to the relevant paragraph on gesetze-im-internet.de so you can verify it yourself. Not AI guesswork: structured law reasoning grounded in primary legal sources.
 
 ---
 
@@ -83,7 +83,7 @@ If procedure was violated: what are the legal consequences? A dismissal without 
 If a Sozialplan might apply, it calculates your entitlement estimate from the Munich formula (years × salary × factor, with adjustments for disability, children, age). If Nachteilsausgleich applies, it estimates the claim and notes the Sozialplan offset.
 
 **7. A source you can verify.**
-Every answer links to the relevant topic on betriebsrat.de so you can read the authoritative source yourself — not just trust the tool.
+Every answer links to the relevant paragraph on [gesetze-im-internet.de](https://www.gesetze-im-internet.de/betrvg/) — the official BMJ publication — so you can read the primary legal text yourself, not just trust the tool.
 
 ---
 
@@ -95,7 +95,7 @@ Tell Claude to install it:
 
 Claude will handle the rest. Then just describe your situation and ask away.
 
-**No install needed to start.** The Claude skill works standalone — Claude answers from its embedded BetrVG knowledge. Installing the CLI adds live betriebsrat.de content and structured outputs.
+**No install needed to start.** The Claude skill works standalone — Claude answers from its embedded BetrVG knowledge. Installing the CLI adds structured outputs, MCP integration, and offline calculation tools.
 
 ---
 
@@ -182,7 +182,7 @@ Wenn der Arbeitgeber eine Kündigung überreicht, eine Umstrukturierung ankündi
 
 betriebsrat schließt diese Lücke. Beschreiben Sie Ihre Situation auf Deutsch oder Englisch und erhalten Sie eine fundierte Antwort, die den konkreten Paragrafen, die relevante Frist und das nennt, wozu Ihr Arbeitgeber verpflichtet war.
 
-Basiert auf Inhalten von [betriebsrat.de](https://www.betriebsrat.de) — der anerkannten deutschen Referenz für Betriebsratsrecht — und dem vollständigen Text des Betriebsverfassungsgesetzes. Jede Antwort verweist auf das entsprechende Thema auf betriebsrat.de, damit Sie es selbst nachprüfen können. Kein freies KI-Raten: strukturierte Rechtsauswertung auf Basis verlässlicher Quellen.
+Basiert auf dem offiziellen Text des Betriebsverfassungsgesetzes, veröffentlicht vom Bundesministerium der Justiz auf [gesetze-im-internet.de](https://www.gesetze-im-internet.de/betrvg/). Jede Antwort verweist auf den einschlägigen Paragrafen auf gesetze-im-internet.de, damit Sie es selbst nachprüfen können. Kein freies KI-Raten: strukturierte Rechtsauswertung auf Basis primärer Rechtsquellen.
 
 ---
 
@@ -257,7 +257,7 @@ Wenn Verfahrensfehler vorliegen: Welche rechtlichen Konsequenzen ergeben sich? E
 Wenn ein Sozialplan in Betracht kommt, wird Ihr Abfindungsanspruch nach der Münchner Formel geschätzt (Jahre × Gehalt × Faktor, mit Zuschlägen für Schwerbehinderung, Kinder, Alter). Bei Nachteilsausgleich wird der Anspruch berechnet und der Sozialplan-Offset ausgewiesen.
 
 **7. Eine Quelle, die Sie prüfen können.**
-Jede Antwort verlinkt auf das einschlägige Thema auf betriebsrat.de — damit Sie die maßgebliche Quelle selbst nachlesen können, anstatt nur dem Tool zu vertrauen.
+Jede Antwort verlinkt auf den einschlägigen Paragrafen auf [gesetze-im-internet.de](https://www.gesetze-im-internet.de/betrvg/) — der amtlichen Veröffentlichung des BMJ — damit Sie den primären Gesetzestext selbst nachlesen können.
 
 ---
 
@@ -269,7 +269,7 @@ Sagen Sie Claude, es soll installieren:
 
 Claude übernimmt den Rest. Dann beschreiben Sie einfach Ihre Situation.
 
-**Keine Installation nötig für den Einstieg.** Das Claude-Skill funktioniert eigenständig — Claude antwortet aus seinem eingebetteten BetrVG-Wissen. Die CLI-Installation ergänzt live Inhalte von betriebsrat.de und strukturierte Ausgaben.
+**Keine Installation nötig für den Einstieg.** Das Claude-Skill funktioniert eigenständig — Claude antwortet aus seinem eingebetteten BetrVG-Wissen. Die CLI-Installation ergänzt strukturierte Ausgaben, MCP-Integration und Offline-Berechnungstools.
 
 ---
 
