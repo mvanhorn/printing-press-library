@@ -6,6 +6,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -34,7 +35,7 @@ func newHistoryPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/api/history/period/{timestamp}"
-			if len(args) < 6 {
+			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.
 				if flags.asJSON {
@@ -47,7 +48,7 @@ func newHistoryPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 				return usageErr(fmt.Errorf("timestamp is required\nUsage: %s <%s>", cmd.CommandPath(), "timestamp"))
 			}
-			path = replacePathParam(path, "timestamp", args[5])
+			path = replacePathParam(path, "timestamp", url.PathEscape(args[0]))
 			params := map[string]string{}
 			if flagFilterEntityId != "" {
 				params["filter_entity_id"] = fmt.Sprintf("%v", flagFilterEntityId)

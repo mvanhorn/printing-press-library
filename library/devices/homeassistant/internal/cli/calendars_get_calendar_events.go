@@ -37,10 +37,10 @@ func newCalendarsGetCalendarEventsCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/api/calendars/{entity_id}"
-			if len(args) < 3 {
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("entity_id is required\nUsage: %s <%s>", cmd.CommandPath(), "entity_id"))
 			}
-			path = replacePathParam(path, "entity_id", url.PathEscape(args[2]))
+			path = replacePathParam(path, "entity_id", url.PathEscape(args[0]))
 			params := map[string]string{}
 			if flagStart != "" {
 				params["start"] = fmt.Sprintf("%v", flagStart)

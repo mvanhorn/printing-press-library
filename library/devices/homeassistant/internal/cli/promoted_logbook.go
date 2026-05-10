@@ -6,6 +6,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -28,7 +29,7 @@ func newLogbookPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/api/logbook/{timestamp}"
-			if len(args) < 3 {
+			if len(args) < 1 {
 				// JSON envelope: {error, usage}. Written first; the
 				// usageErr return preserves exit code 2 across modes.
 				if flags.asJSON {
@@ -41,7 +42,7 @@ func newLogbookPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 				return usageErr(fmt.Errorf("timestamp is required\nUsage: %s <%s>", cmd.CommandPath(), "timestamp"))
 			}
-			path = replacePathParam(path, "timestamp", args[2])
+			path = replacePathParam(path, "timestamp", url.PathEscape(args[0]))
 			params := map[string]string{}
 			if flagEntity != "" {
 				params["entity"] = fmt.Sprintf("%v", flagEntity)
