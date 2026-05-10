@@ -276,7 +276,7 @@ Commands registered:
 Store creation verified:
 ```bash
 go run test_store.go
-# Store opened at: /Users/cal/.virustotal/cache.db
+# Store opened at: ~/.virustotal/
 # Stats: map[domains:0 files:0 ip_addresses:0 relationships:0 urls:0]
 ```
 

@@ -96,7 +96,7 @@ Commands registered: ✓
   - diff: Compare two file reports
 
 Store creation: ✓
-  Store opened at: /Users/cal/.virustotal/cache.db
+  Store opened at: ~/.virustotal/
   Stats: map[domains:0 files:0 ip_addresses:0 relationships:0 urls:0]
 
 ================================================================================
@@ -219,6 +219,6 @@ All 5 priority features implemented, tested, and documented.
 CLI builds successfully. Commands registered and functional.
 Ready for production use.
 
-Build location: /Users/cal/claude_projects/printing-press-custom-cli/virustotal-cli/
+Build location: ~/.virustotal/
 
 ================================================================================

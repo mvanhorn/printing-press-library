@@ -193,7 +193,7 @@ All commands support multiple formats:
 ## Location
 
 ```
-/Users/cal/claude_projects/printing-press-custom-cli/virustotal-cli/
+~/.virustotal/
 ```
 
 ## Build From Source
