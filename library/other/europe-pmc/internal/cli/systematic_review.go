@@ -263,12 +263,20 @@ func newReviewPrismaCmd(flags *rootFlags) *cobra.Command {
 			)
 			db.DB().QueryRow(query, stratArgs...).Scan(&totalIdentified)
 
-			// Unique after dedup
 			var uniqueAfterDedup int
 			query = fmt.Sprintf(
-				`SELECT COUNT(DISTINCT COALESCE(NULLIF(doi,''), article_id)) FROM review_results WHERE strategy IN (%s)`, inClause,
+				`SELECT COUNT(*) FROM (
+					SELECT MIN(rowid) FROM review_results WHERE strategy IN (%s)
+					GROUP BY COALESCE(NULLIF(doi,''), ''), COALESCE(NULLIF(pmid,''), '')
+					HAVING COALESCE(NULLIF(doi,''), '') != '' OR COALESCE(NULLIF(pmid,''), '') != ''
+					UNION
+					SELECT MIN(rowid) FROM review_results WHERE strategy IN (%s)
+					AND COALESCE(NULLIF(doi,''), '') = '' AND COALESCE(NULLIF(pmid,''), '') = ''
+					GROUP BY article_id
+				)`, inClause, inClause,
 			)
-			db.DB().QueryRow(query, stratArgs...).Scan(&uniqueAfterDedup)
+			allArgs := append(stratArgs, stratArgs...)
+			db.DB().QueryRow(query, allArgs...).Scan(&uniqueAfterDedup)
 
 			duplicatesRemoved := totalIdentified - uniqueAfterDedup
 
