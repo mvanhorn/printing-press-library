@@ -19,50 +19,6 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/store"
 )
 
-// looksLikeDoctorInterstitial reports whether the response body matches a known
-// bot-detection challenge page (Cloudflare, Akamai, Vercel, AWS WAF, DataDome,
-// PerimeterX). Only fires on the doctor probe — used to distinguish "transport
-// reached the wall" from "transport failed entirely." Returns the vendor name
-// when matched, or empty string when no match.
-//
-// Markers are anchored to <title> or vendor-specific strings to avoid
-// false-positives on benign content. For example, a recipe titled "Just A
-// Moment of Pause Cookies" must NOT match the Cloudflare challenge marker;
-// only "<title>just a moment" (the actual interstitial title) does.
-func looksLikeDoctorInterstitial(body []byte) string {
-	if len(body) == 0 {
-		return ""
-	}
-	limit := len(body)
-	if limit > 8192 {
-		limit = 8192
-	}
-	prefix := strings.ToLower(string(body[:limit]))
-	if !strings.Contains(prefix, "<title") {
-		// Every bot interstitial we recognize sets a <title>; bodies without
-		// one are body-only API responses, not challenge pages.
-		return ""
-	}
-	switch {
-	case strings.Contains(prefix, "<title>just a moment") || // CF JS challenge
-		strings.Contains(prefix, "challenges.cloudflare.com") || // CF Turnstile
-		(strings.Contains(prefix, "attention required") && strings.Contains(prefix, "cloudflare")):
-		return "Cloudflare"
-	case strings.Contains(prefix, "akamai") && (strings.Contains(prefix, "request unsuccessful") || strings.Contains(prefix, "access denied")):
-		return "Akamai"
-	case strings.Contains(prefix, "x-vercel-mitigated") || strings.Contains(prefix, "x-vercel-challenge-token") ||
-		(strings.Contains(prefix, "vercel") && strings.Contains(prefix, "challenge")):
-		return "Vercel"
-	case strings.Contains(prefix, "request blocked") && strings.Contains(prefix, "aws waf"):
-		return "AWS WAF"
-	case strings.Contains(prefix, "datadome") && (strings.Contains(prefix, "blocked") || strings.Contains(prefix, "captcha") || strings.Contains(prefix, "challenge")):
-		return "DataDome"
-	case strings.Contains(prefix, "perimeterx") || strings.Contains(prefix, "px-captcha"):
-		return "PerimeterX"
-	}
-	return ""
-}
-
 func newDoctorCmd(flags *rootFlags) *cobra.Command {
 	var failOn string
 	cmd := &cobra.Command{
@@ -205,7 +161,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					// valid tokens). Surface as WARN, not FAIL — the user's actual
 					// commands will reveal a real auth failure if one exists.
 					indicator = yellow("WARN")
-				case strings.Contains(s, "error") || strings.Contains(s, "not configured") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing"):
+				case strings.Contains(s, "error") || strings.Contains(s, "not configured") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing") || strings.Contains(s, "blocked"):
 					indicator = red("FAIL")
 				case s == "not required":
 					// Public APIs: no auth needed is a healthy state, not a warning.
@@ -249,7 +205,7 @@ func doctorExitForFailOn(failOn string, report map[string]any) error {
 	for _, v := range report {
 		s, ok := v.(string)
 		if ok {
-			if strings.Contains(s, "error") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing") {
+			if strings.Contains(s, "error") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing") || strings.Contains(s, "blocked") {
 				worstError = true
 			}
 		}
