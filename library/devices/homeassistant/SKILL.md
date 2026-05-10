@@ -39,8 +39,8 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 
 **calendars** — Calendar entity operations
 
-- `homeassistant-pp-cli calendars get_calendar_events` — Returns calendar events between start and end times
-- `homeassistant-pp-cli calendars list_calendars` — Returns the list of calendar entities
+- `homeassistant-pp-cli calendars get-calendar-events` — Returns calendar events between start and end times
+- `homeassistant-pp-cli calendars list-calendars` — Returns the list of calendar entities
 
 **camera** — Camera proxy
 
@@ -52,8 +52,8 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 
 **config** — Home Assistant instance configuration
 
-- `homeassistant-pp-cli config check_config` — Trigger a check of configuration.yaml and return validation result
-- `homeassistant-pp-cli config get_config` — Returns the current configuration including version, location, timezone, and loaded components
+- `homeassistant-pp-cli config check-config` — Trigger a check of configuration.yaml and return validation result
+- `homeassistant-pp-cli config get-config` — Returns the current configuration including version, location, timezone, and loaded components
 
 **default** — Operations on default
 
@@ -65,17 +65,17 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 
 **events** — Event bus operations
 
-- `homeassistant-pp-cli events fire_event` — Fires an event with event_type and optional event_data
-- `homeassistant-pp-cli events list_events` — Returns an array of event objects with event name and listener count
+- `homeassistant-pp-cli events fire-event` — Fires an event with event_type and optional event_data
+- `homeassistant-pp-cli events list-events` — Returns an array of event objects with event name and listener count
 
 **hassio** — Operations on Hassio addon management
 
-- `homeassistant-pp-cli hassio create_info` — POST /api/hassio/addons/{id}/info
-- `homeassistant-pp-cli hassio create_install` — POST /api/hassio/addons/{id}/install
-- `homeassistant-pp-cli hassio create_restart` — POST /api/hassio/addons/{id}/restart
-- `homeassistant-pp-cli hassio create_start` — POST /api/hassio/addons/{id}/start
-- `homeassistant-pp-cli hassio create_stop` — POST /api/hassio/addons/{id}/stop
-- `homeassistant-pp-cli hassio create_uninstall` — POST /api/hassio/addons/{id}/uninstall
+- `homeassistant-pp-cli hassio create-info` — POST /api/hassio/addons/{id}/info
+- `homeassistant-pp-cli hassio create-install` — POST /api/hassio/addons/{id}/install
+- `homeassistant-pp-cli hassio create-restart` — POST /api/hassio/addons/{id}/restart
+- `homeassistant-pp-cli hassio create-start` — POST /api/hassio/addons/{id}/start
+- `homeassistant-pp-cli hassio create-stop` — POST /api/hassio/addons/{id}/stop
+- `homeassistant-pp-cli hassio create-uninstall` — POST /api/hassio/addons/{id}/uninstall
 
 **history** — State change history
 
@@ -99,21 +99,21 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 
 **repository** — Operations on install
 
-- `homeassistant-pp-cli repository create_install` — POST /repository/install
-- `homeassistant-pp-cli repository create_uninstall` — POST /repository/uninstall
-- `homeassistant-pp-cli repository create_update` — POST /repository/update
+- `homeassistant-pp-cli repository create-install` — POST /repository/install
+- `homeassistant-pp-cli repository create-uninstall` — POST /repository/uninstall
+- `homeassistant-pp-cli repository create-update` — POST /repository/update
 
 **services** — Service domain operations
 
-- `homeassistant-pp-cli services call_service` — Calls a service within a specific domain with optional service_data
-- `homeassistant-pp-cli services list_services` — Returns an array of service objects grouped by domain
+- `homeassistant-pp-cli services call-service` — Calls a service within a specific domain with optional service_data
+- `homeassistant-pp-cli services list-services` — Returns an array of service objects grouped by domain
 
 **states** — Operations on states
 
-- `homeassistant-pp-cli states delete_state` — Deletes an entity with the specified entity_id
-- `homeassistant-pp-cli states get_states` — Returns a state object for specified entity_id
-- `homeassistant-pp-cli states list_states` — Returns an array of state objects with entity_id, state, last_changed and attributes
-- `homeassistant-pp-cli states update_state` — Updates or creates a state representation
+- `homeassistant-pp-cli states delete-state` — Deletes an entity with the specified entity_id
+- `homeassistant-pp-cli states get-states` — Returns a state object for specified entity_id
+- `homeassistant-pp-cli states list-states` — Returns an array of state objects with entity_id, state, last_changed and attributes
+- `homeassistant-pp-cli states update-state` — Updates or creates a state representation
 
 **template** — Template rendering
 
@@ -153,9 +153,9 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
 - **Pipeable** — JSON on stdout, errors on stderr
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
 
-  ```bash
-  homeassistant-pp-cli calendars get_calendar_events mock-value --start example-value --end example-value --agent --select id,name,status
-  ```
+   ```bash
+   homeassistant-pp-cli calendars get-calendar-events mock-value --start example-value --end example-value --agent --select id,name,status
+   ```
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
 - **Non-interactive** — never prompts, every input is a flag
@@ -206,7 +206,7 @@ A profile is a saved set of flag values, reused across invocations. Use it when 
 
 ```
 homeassistant-pp-cli profile save briefing --json
-homeassistant-pp-cli --profile briefing calendars get_calendar_events mock-value --start example-value --end example-value
+homeassistant-pp-cli --profile briefing calendars get-calendar-events mock-value --start example-value --end example-value
 homeassistant-pp-cli profile list --json
 homeassistant-pp-cli profile show briefing
 homeassistant-pp-cli profile delete briefing --yes
