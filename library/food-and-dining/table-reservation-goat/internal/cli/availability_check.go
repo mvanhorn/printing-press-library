@@ -28,7 +28,7 @@ func newAvailabilityCheckCmd(flags *rootFlags) *cobra.Command {
 		Long: "Per-venue availability across both networks. Resolves the venue on OpenTable " +
 			"or Tock and returns the earliest matching slot per the requested date/party.",
 		Example:     "  table-reservation-goat-pp-cli availability check 'tock:alinea' --party 2 --date 2026-06-15 --json",
-		Annotations: map[string]string{"pp:endpoint": "availability.check", "pp:method": "GET", "pp:path": "/availability", "mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

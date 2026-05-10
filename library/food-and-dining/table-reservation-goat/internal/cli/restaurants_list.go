@@ -37,7 +37,7 @@ func newRestaurantsListCmd(flags *rootFlags) *cobra.Command {
 			"and Tock SSR. Identical underlying data path as `goat`; this command " +
 			"is the resource-style entry point.",
 		Example:     "  table-reservation-goat-pp-cli restaurants list --query 'omakase' --party 2 --json",
-		Annotations: map[string]string{"pp:endpoint": "restaurants.list", "pp:method": "GET", "pp:path": "/restaurants", "mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), goatResponse{

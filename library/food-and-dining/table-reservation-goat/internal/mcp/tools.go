@@ -10,167 +10,36 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/cli"
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/store"
 )
 
-// RegisterTools registers all API operations as MCP tools.
+// RegisterTools registers all MCP tools.
+//
+// Originally this function registered 12 typed-endpoint tools generated from
+// the internal API spec (availability_check, availability_multi_day,
+// experiences_get, experiences_list, me_get, reservations_book,
+// reservations_cancel, reservations_get, reservations_list, restaurants_get,
+// restaurants_list, wishlist_list). Each was wired to makeAPIHandler →
+// client.Get against a hardcoded BaseURL of https://www.opentable.com — but
+// the spec described a fictional REST shape, not the actual data path. The
+// real implementation routes through internal/source/{opentable,tock}/ via
+// Surf with Chrome TLS fingerprint, GraphQL persisted-queries, SSR scraping,
+// kooky-imported cookies, and Akamai cooldown awareness. The typed-tool
+// surface bypassed all of that and was uniformly broken (RST_STREAM from
+// Akamai's WAF).
+//
+// Resolution: typed-tool registrations removed. The runtime cobratree walker
+// below now exposes the working novel cobra commands directly. Tool names
+// shift from underscore_endpoints to the cobra command names (`goat`,
+// `restaurants_list`, `availability_multi_day`, `book`, `cancel`, `earliest`,
+// etc.); param shapes match the actual command flags. Framework tools
+// (search, sql, context) are unchanged.
 func RegisterTools(s *server.MCPServer) {
-	s.AddTool(
-		mcplib.NewTool("availability_check",
-			mcplib.WithDescription("Check open slots for a restaurant on a specific date and party size. Required: restaurant. Optional: date, time, party (plus 3 more). Returns array of Slot."),
-			mcplib.WithString("restaurant", mcplib.Required(), mcplib.Description("Restaurant slug (network-prefixed if ambiguous)")),
-			mcplib.WithString("date", mcplib.Description("Date in YYYY-MM-DD; defaults to today")),
-			mcplib.WithString("time", mcplib.Description("Time in HH:MM (24h); defaults to 19:00")),
-			mcplib.WithString("party", mcplib.Description("Party size (default 2)")),
-			mcplib.WithString("forward_minutes", mcplib.Description("Search +/- N minutes around requested time (default 150)")),
-			mcplib.WithString("forward_days", mcplib.Description("Also search forward N days (default 0; same-day only)")),
-			mcplib.WithString("attribute", mcplib.Description("Filter by slot attribute (patio, bar, highTop, standard, experience)")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/availability", []mcpParamBinding{{PublicName: "restaurant", WireName: "restaurant", Location: "query"},{PublicName: "date", WireName: "date", Location: "query"},{PublicName: "time", WireName: "time", Location: "query"},{PublicName: "party", WireName: "party_size", Location: "query"},{PublicName: "forward_minutes", WireName: "forward_minutes", Location: "query"},{PublicName: "forward_days", WireName: "forward_days", Location: "query"},{PublicName: "attribute", WireName: "attribute", Location: "query"}, }, []string{"restaurant", }),
-	)
-	s.AddTool(
-		mcplib.NewTool("availability_multi_day",
-			mcplib.WithDescription("Multi-day availability for a single restaurant — Mon-Sun matrix. Required: restaurant, start_date. Optional: days, party. Returns array of SlotDay."),
-			mcplib.WithString("restaurant", mcplib.Required(), mcplib.Description("Restaurant slug")),
-			mcplib.WithString("start_date", mcplib.Required(), mcplib.Description("Start of date range (YYYY-MM-DD)")),
-			mcplib.WithString("days", mcplib.Description("Number of days to scan (default 7, max 14)")),
-			mcplib.WithString("party", mcplib.Description("Party size (default 2)")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/availability/multi-day", []mcpParamBinding{{PublicName: "restaurant", WireName: "restaurant", Location: "query"},{PublicName: "start_date", WireName: "start_date", Location: "query"},{PublicName: "days", WireName: "days", Location: "query"},{PublicName: "party", WireName: "party_size", Location: "query"}, }, []string{"restaurant", }),
-	)
-	s.AddTool(
-		mcplib.NewTool("experiences_get",
-			mcplib.WithDescription("Get a single experience's detail. Required: id. Returns the Experience."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Experience ID (network-prefixed)")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/experiences/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, }, []string{"id", }),
-	)
-	s.AddTool(
-		mcplib.NewTool("experiences_list",
-			mcplib.WithDescription("List experiences (PRIX_FIXE, EXPERIENCE, PACKAGE) across both networks. Optional: restaurant, type, cuisine (plus 1 more). Returns array of Experience."),
-			mcplib.WithString("restaurant", mcplib.Description("Filter to a single restaurant slug")),
-			mcplib.WithString("type", mcplib.Description("Experience type (prix_fixe, experience, package)")),
-			mcplib.WithString("cuisine", mcplib.Description("Cuisine filter")),
-			mcplib.WithString("max_price_cents", mcplib.Description("Maximum price per person (in cents)")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/experiences", []mcpParamBinding{{PublicName: "restaurant", WireName: "restaurant", Location: "query"},{PublicName: "type", WireName: "type", Location: "query"},{PublicName: "cuisine", WireName: "cuisine", Location: "query"},{PublicName: "max_price_cents", WireName: "max_price_cents", Location: "query"}, }, []string{ }),
-	)
-	s.AddTool(
-		mcplib.NewTool("me_get",
-			mcplib.WithDescription("Show your OpenTable and Tock profile (email, phone, points balance) — requires auth login. Returns the Profile."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/me", []mcpParamBinding{ }, []string{ }),
-	)
-	s.AddTool(
-		mcplib.NewTool("reservations_book",
-			mcplib.WithDescription("Make a reservation. Print-by-default; requires --launch to actually fire the booking POST. Required: restaurant, slot_token, party_size. Optional: first_name, last_name, phone (plus 2 more). Returns the new Reservation."),
-			mcplib.WithString("restaurant", mcplib.Required(), mcplib.Description("Restaurant slug")),
-			mcplib.WithString("slot_token", mcplib.Required(), mcplib.Description("Slot token from a recent availability call")),
-			mcplib.WithString("party_size", mcplib.Required(), mcplib.Description("")),
-			mcplib.WithString("first_name", mcplib.Description("")),
-			mcplib.WithString("last_name", mcplib.Description("")),
-			mcplib.WithString("phone", mcplib.Description("")),
-			mcplib.WithString("email", mcplib.Description("")),
-			mcplib.WithString("special_requests", mcplib.Description("")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/reservations", []mcpParamBinding{{PublicName: "restaurant", WireName: "restaurant", Location: "body"},{PublicName: "slot_token", WireName: "slot_token", Location: "body"},{PublicName: "party_size", WireName: "party_size", Location: "body"},{PublicName: "first_name", WireName: "first_name", Location: "body"},{PublicName: "last_name", WireName: "last_name", Location: "body"},{PublicName: "phone", WireName: "phone", Location: "body"},{PublicName: "email", WireName: "email", Location: "body"},{PublicName: "special_requests", WireName: "special_requests", Location: "body"}, }, []string{ }),
-	)
-	s.AddTool(
-		mcplib.NewTool("reservations_cancel",
-			mcplib.WithDescription("Cancel a reservation. Requires --confirm. Required: id. Returns the Reservation. Destructive."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Reservation ID")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/reservations/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, }, []string{"id", }),
-	)
-	s.AddTool(
-		mcplib.NewTool("reservations_get",
-			mcplib.WithDescription("Get a reservation's full detail. Required: id. Returns the Reservation."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Reservation ID (network-prefixed)")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/reservations/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, }, []string{"id", }),
-	)
-	s.AddTool(
-		mcplib.NewTool("reservations_list",
-			mcplib.WithDescription("List your upcoming and past reservations across both networks. Optional: state, network, limit. Returns array of Reservation."),
-			mcplib.WithString("state", mcplib.Description("Filter: upcoming, past, all (default upcoming)")),
-			mcplib.WithString("network", mcplib.Description("Restrict to one network")),
-			mcplib.WithString("limit", mcplib.Description("Max reservations to return")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/reservations", []mcpParamBinding{{PublicName: "state", WireName: "state", Location: "query"},{PublicName: "network", WireName: "network", Location: "query"},{PublicName: "limit", WireName: "limit", Location: "query"}, }, []string{ }),
-	)
-	s.AddTool(
-		mcplib.NewTool("restaurants_get",
-			mcplib.WithDescription("Get a restaurant's full detail — hours, address, cuisine, price band, photos, accolades. Required: slug. Returns the Restaurant."),
-			mcplib.WithString("slug", mcplib.Required(), mcplib.Description("Restaurant slug or 'opentable:<slug>' / 'tock:<slug>' for cross-network disambiguation")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/restaurants/{slug}", []mcpParamBinding{{PublicName: "slug", WireName: "slug", Location: "path"}, }, []string{"slug", }),
-	)
-	s.AddTool(
-		mcplib.NewTool("restaurants_list",
-			mcplib.WithDescription("List restaurants across OpenTable and Tock; filter by location, cuisine, price band, accolades, and party size. Optional: query, latitude, longitude (plus 8 more). Returns array of Restaurant."),
-			mcplib.WithString("query", mcplib.Description("Free-text query (matches name, cuisine, neighborhood)")),
-			mcplib.WithString("latitude", mcplib.Description("Latitude for geo search")),
-			mcplib.WithString("longitude", mcplib.Description("Longitude for geo search")),
-			mcplib.WithString("metro", mcplib.Description("Metro slug (e.g., chicago, seattle, new-york)")),
-			mcplib.WithString("neighborhood", mcplib.Description("Neighborhood slug for geo-narrowed search")),
-			mcplib.WithString("cuisine", mcplib.Description("Cuisine filter (e.g., italian, japanese, tasting-menu)")),
-			mcplib.WithString("max-price", mcplib.Description("Maximum price band 1-4")),
-			mcplib.WithString("accolade", mcplib.Description("Filter by accolade (e.g., michelin, worlds50best)")),
-			mcplib.WithString("party", mcplib.Description("Party size for availability filter")),
-			mcplib.WithString("network", mcplib.Description("Restrict to a network (opentable, tock); default queries both")),
-			mcplib.WithString("limit", mcplib.Description("Max restaurants to return")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/restaurants", []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"},{PublicName: "latitude", WireName: "latitude", Location: "query"},{PublicName: "longitude", WireName: "longitude", Location: "query"},{PublicName: "metro", WireName: "metro", Location: "query"},{PublicName: "neighborhood", WireName: "neighborhood", Location: "query"},{PublicName: "cuisine", WireName: "cuisine", Location: "query"},{PublicName: "max-price", WireName: "price_band", Location: "query"},{PublicName: "accolade", WireName: "accolade", Location: "query"},{PublicName: "party", WireName: "party_size", Location: "query"},{PublicName: "network", WireName: "network", Location: "query"},{PublicName: "limit", WireName: "limit", Location: "query"}, }, []string{ }),
-	)
-	s.AddTool(
-		mcplib.NewTool("wishlist_list",
-			mcplib.WithDescription("List restaurants in your saved/wishlist (requires auth login). Optional: network. Returns array of Restaurant."),
-			mcplib.WithString("network", mcplib.Description("Restrict to one network")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/wishlist", []mcpParamBinding{{PublicName: "network", WireName: "network", Location: "query"}, }, []string{ }),
-	)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
 		mcplib.NewTool("search",
@@ -209,157 +78,11 @@ func RegisterTools(s *server.MCPServer) {
 	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
 }
 
-type mcpParamBinding struct {
-	PublicName string
-	WireName   string
-	Location   string
-}
-
-// makeAPIHandler creates a generic MCP tool handler for an API endpoint.
-func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
-	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		c, err := newMCPClient()
-		if err != nil {
-			return mcplib.NewToolResultError(err.Error()), nil
-		}
-
-		// mcp-go v0.47+ made CallToolParams.Arguments an `any` to support
-		// non-map payloads; GetArguments() returns the map[string]any shape
-		// we rely on here (or an empty map when the payload is something else).
-		args := req.GetArguments()
-
-		// positionalParams mixes real URL path params with CLI positional
-		// args that map to query params (e.g. `search <query>` -> ?query=);
-		// the placeholder check below disambiguates them at runtime.
-		path := pathTemplate
-		knownArgs := make(map[string]bool, len(bindings))
-		pathParams := make(map[string]bool, len(positionalParams))
-		params := make(map[string]string)
-		bodyArgs := make(map[string]any)
-		for _, binding := range bindings {
-			knownArgs[binding.PublicName] = true
-			v, ok := args[binding.PublicName]
-			if !ok {
-				continue
-			}
-			switch binding.Location {
-			case "path":
-				placeholder := "{" + binding.WireName + "}"
-				pathParams[binding.PublicName] = true
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
-			case "body":
-				bodyArgs[binding.WireName] = v
-			default:
-				params[binding.WireName] = fmt.Sprintf("%v", v)
-			}
-		}
-		for _, p := range positionalParams {
-			placeholder := "{" + p + "}"
-			if !strings.Contains(pathTemplate, placeholder) {
-				continue
-			}
-			pathParams[p] = true
-			if v, ok := args[p]; ok {
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
-			}
-		}
-
-		for k, v := range args {
-			if pathParams[k] || knownArgs[k] {
-				continue
-			}
-			switch method {
-			case "POST", "PUT", "PATCH":
-				bodyArgs[k] = v
-			default:
-				params[k] = fmt.Sprintf("%v", v)
-			}
-		}
-
-		var data json.RawMessage
-		switch method {
-		case "GET":
-			data, err = c.Get(path, params)
-		case "POST":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Post(path, body)
-		case "PUT":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Put(path, body)
-		case "PATCH":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Patch(path, body)
-		case "DELETE":
-			data, _, err = c.Delete(path)
-		default:
-			return mcplib.NewToolResultError("unsupported method: " + method), nil
-		}
-
-		if err != nil {
-			msg := err.Error()
-			switch {
-			case strings.Contains(msg, "HTTP 409"):
-				return mcplib.NewToolResultText("already exists (no-op)"), nil
-			case strings.Contains(msg, "HTTP 401"):
-				return mcplib.NewToolResultError("authentication failed: " + msg +
-					"\nhint: check your API credentials." +
-					"\n      Run 'table-reservation-goat-pp-cli doctor' to check auth status."), nil
-			case strings.Contains(msg, "HTTP 403"):
-				return mcplib.NewToolResultError("permission denied: " + msg +
-					"\nhint: this API is configured without credentials; the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy." +
-					"\n      Run 'table-reservation-goat-pp-cli doctor' to check auth status."), nil
-			case strings.Contains(msg, "HTTP 404"):
-				if method == "DELETE" {
-					return mcplib.NewToolResultText("already deleted (no-op)"), nil
-				}
-				return mcplib.NewToolResultError("not found: " + msg), nil
-			case strings.Contains(msg, "HTTP 429"):
-				return mcplib.NewToolResultError("rate limited: " + msg), nil
-			default:
-				return mcplib.NewToolResultError(msg), nil
-			}
-		}
-
-		// For GET responses, wrap bare arrays with count metadata
-		if method == "GET" {
-			trimmed := strings.TrimSpace(string(data))
-			if len(trimmed) > 0 && trimmed[0] == '[' {
-				var items []json.RawMessage
-				if json.Unmarshal(data, &items) == nil {
-					wrapped := map[string]any{
-						"count": len(items),
-						"items": items,
-					}
-					out, _ := json.Marshal(wrapped)
-					return mcplib.NewToolResultText(string(out)), nil
-				}
-			}
-		}
-		return mcplib.NewToolResultText(string(data)), nil
-	}
-}
-
-func newMCPClient() (*client.Client, error) {
-	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "table-reservation-goat-pp-cli", "config.toml")
-	cfg, err := config.Load(cfgPath)
-	if err != nil {
-		return nil, fmt.Errorf("loading config: %w", err)
-	}
-	c := client.New(cfg, 30*time.Second, 0)
-	// Agents calling through MCP need fresh data every call. The on-disk
-	// response cache survives across MCP server invocations, so a
-	// DELETE/PATCH followed by a GET would otherwise return the
-	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
-	// constructs its own client and is unaffected.
-	c.NoCache = true
-	return c, nil
-}
-
 func dbPath() string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", "table-reservation-goat-pp-cli", "data.db")
 }
+
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
 
@@ -497,44 +220,44 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion table-reservation-goat-pp-cli binary.",
 		"resources": []map[string]any{
 			{
-				"name": "availability",
+				"name":        "availability",
 				"description": "Check open reservation slots across OpenTable and Tock",
-				"endpoints": []string{"check", "multi_day",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"check", "multi_day"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "experiences",
+				"name":        "experiences",
 				"description": "List prepaid and tasting-menu experiences (Tock-style)",
-				"endpoints": []string{"get", "list",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"get", "list"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "me",
+				"name":        "me",
 				"description": "Read your authenticated user profile from both networks",
-				"endpoints": []string{"get",  },
+				"endpoints":   []string{"get"},
 			},
 			{
-				"name": "reservations",
+				"name":        "reservations",
 				"description": "List, book, modify, and cancel reservations (requires auth login)",
-				"endpoints": []string{"book", "cancel", "get", "list",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"book", "cancel", "get", "list"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "restaurants",
+				"name":        "restaurants",
 				"description": "Search and inspect restaurants across OpenTable and Tock",
-				"endpoints": []string{"get", "list",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"get", "list"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "wishlist",
+				"name":        "wishlist",
 				"description": "Read your saved/wishlisted restaurants from both networks",
-				"endpoints": []string{"list",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"list"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 		},
 		"query_tips": []string{

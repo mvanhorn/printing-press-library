@@ -17,12 +17,12 @@ import (
 )
 
 type restaurantDetail struct {
-	Network    string         `json:"network"`
-	Slug       string         `json:"slug"`
-	Resolved   bool           `json:"resolved"`
-	Reason     string         `json:"reason,omitempty"`
-	Source     map[string]any `json:"source,omitempty"`
-	FetchedAt  string         `json:"fetched_at"`
+	Network   string         `json:"network"`
+	Slug      string         `json:"slug"`
+	Resolved  bool           `json:"resolved"`
+	Reason    string         `json:"reason,omitempty"`
+	Source    map[string]any `json:"source,omitempty"`
+	FetchedAt string         `json:"fetched_at"`
 }
 
 func newRestaurantsGetCmd(flags *rootFlags) *cobra.Command {
@@ -32,8 +32,8 @@ func newRestaurantsGetCmd(flags *rootFlags) *cobra.Command {
 		Long: "Resolves a venue on OpenTable first, then Tock, returning the SSR-rendered " +
 			"restaurant detail (hours, address, cuisine, price band, photos, accolades). " +
 			"Use `opentable:<slug>` or `tock:<slug>` to disambiguate.",
-		Example: "  table-reservation-goat-pp-cli restaurants get 'tock:alinea' --json",
-		Annotations: map[string]string{"pp:endpoint": "restaurants.get", "pp:method": "GET", "pp:path": "/restaurants/{slug}", "mcp:read-only": "true"},
+		Example:     "  table-reservation-goat-pp-cli restaurants get 'tock:alinea' --json",
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
