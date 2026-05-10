@@ -438,3 +438,90 @@ func TestUpsertBatch_PopulatesPrepareTable(t *testing.T) {
 		t.Fatalf("prepare data = %q, want original JSON payload", data)
 	}
 }
+
+func TestListIDsQuotesResourceTypeIdentifier(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	if _, _, err := s.UpsertBatch("order_products", []json.RawMessage{
+		json.RawMessage(`{"id": "op-001"}`),
+	}); err != nil {
+		t.Fatalf("UpsertBatch order_products: %v", err)
+	}
+	if _, _, err := s.UpsertBatch("check", []json.RawMessage{
+		json.RawMessage(`{"id": "check-001", "order_products_id": "op-001"}`),
+	}); err != nil {
+		t.Fatalf("UpsertBatch check: %v", err)
+	}
+
+	orderProductIDs, err := s.ListIDs("order_products")
+	if err != nil {
+		t.Fatalf("ListIDs order_products: %v", err)
+	}
+	if len(orderProductIDs) != 1 || orderProductIDs[0] != "op-001" {
+		t.Fatalf("ListIDs order_products = %#v, want [op-001]", orderProductIDs)
+	}
+
+	checkIDs, err := s.ListIDs("check")
+	if err != nil {
+		t.Fatalf("ListIDs check: %v", err)
+	}
+	if len(checkIDs) != 1 || checkIDs[0] != "check-001" {
+		t.Fatalf("ListIDs check = %#v, want [check-001]", checkIDs)
+	}
+
+	injectedType := "order_products; DROP TABLE order_products; --"
+	injectedIDs, err := s.ListIDs(injectedType)
+	if err != nil {
+		t.Fatalf("ListIDs injected resource type: %v", err)
+	}
+	if len(injectedIDs) != 0 {
+		t.Fatalf("ListIDs injected resource type = %#v, want no matches", injectedIDs)
+	}
+
+	var orderProducts int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM order_products`).Scan(&orderProducts); err != nil {
+		t.Fatalf("count order_products after injected ListIDs: %v", err)
+	}
+	if orderProducts != 1 {
+		t.Fatalf("order_products count = %d, want 1", orderProducts)
+	}
+}
+
+func TestResolveByNameTreatsFieldAsJSONPathParameter(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	if err := s.Upsert("things", "thing-001", json.RawMessage(`{"id": "thing-001", "name": "Widget"}`)); err != nil {
+		t.Fatalf("Upsert: %v", err)
+	}
+
+	id, err := s.ResolveByName("things", "Widget", "name")
+	if err != nil {
+		t.Fatalf("ResolveByName valid field: %v", err)
+	}
+	if id != "thing-001" {
+		t.Fatalf("ResolveByName valid field = %q, want thing-001", id)
+	}
+
+	injectedField := "name')) = LOWER(?) OR 1=1 --"
+	if id, err := s.ResolveByName("things", "missing", injectedField); err == nil {
+		t.Fatalf("ResolveByName injected field = %q, want not found error", id)
+	}
+
+	id, err = s.ResolveByName("things", "Widget", "name")
+	if err != nil {
+		t.Fatalf("ResolveByName after injected field: %v", err)
+	}
+	if id != "thing-001" {
+		t.Fatalf("ResolveByName after injected field = %q, want thing-001", id)
+	}
+}

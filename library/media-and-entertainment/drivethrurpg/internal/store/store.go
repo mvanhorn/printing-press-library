@@ -998,7 +998,7 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 // resources table if no domain table exists. Used by dependent sync to iterate parents.
 func (s *Store) ListIDs(resourceType string) ([]string, error) {
 	// Try domain table first (tables are named after the resource type)
-	query := fmt.Sprintf("SELECT id FROM %s", resourceType)
+	query := fmt.Sprintf("SELECT id FROM %s", quoteSQLiteIdentifier(resourceType))
 	rows, err := s.db.Query(query)
 	if err != nil {
 		// Fall back to generic resources table
@@ -1018,6 +1018,10 @@ func (s *Store) ListIDs(resourceType string) ([]string, error) {
 		ids = append(ids, id)
 	}
 	return ids, rows.Err()
+}
+
+func quoteSQLiteIdentifier(identifier string) string {
+	return `"` + strings.ReplaceAll(identifier, `"`, `""`) + `"`
 }
 
 // GetLastSyncedAt returns the last sync timestamp for a resource type.
@@ -1084,11 +1088,12 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 
 	var matches []string
 	for _, field := range matchFields {
-		query := fmt.Sprintf(
-			`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,
-			field,
+		rows, err := s.db.Query(
+			`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, ?)) = LOWER(?)`,
+			resourceType,
+			"$."+field,
+			input,
 		)
-		rows, err := s.db.Query(query, resourceType, input)
 		if err != nil {
 			continue
 		}
