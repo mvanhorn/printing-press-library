@@ -892,18 +892,18 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 		var id string
 		if override, ok := resourceIDFieldOverrides[resourceType]; ok && override != "" {
 			if v := lookupFieldValue(obj, override); v != nil {
-				s := fmt.Sprintf("%v", v)
-				if s != "" && s != "<nil>" {
-					id = s
+				idStr := fmt.Sprintf("%v", v)
+				if idStr != "" && idStr != "<nil>" {
+					id = idStr
 				}
 			}
 		}
 		if id == "" {
 			for _, key := range genericIDFieldFallbacks {
 				if v := lookupFieldValue(obj, key); v != nil {
-					s := fmt.Sprintf("%v", v)
-					if s != "" && s != "<nil>" {
-						id = s
+					idStr := fmt.Sprintf("%v", v)
+					if idStr != "" && idStr != "<nil>" {
+						id = idStr
 						break
 					}
 				}
