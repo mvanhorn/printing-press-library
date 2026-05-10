@@ -795,6 +795,8 @@ func (s *Store) Status() (map[string]int, error) {
 	return status, rows.Err()
 }
 
+var validJSONFieldRe = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
+
 // ResolveByName resolves a human-readable name to a UUID from synced data.
 // If the input is already a UUID, it is returned as-is.
 // matchFields are JSON field names to search against (e.g., "name", "key", "email").
@@ -805,6 +807,9 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 
 	var matches []string
 	for _, field := range matchFields {
+		if !validJSONFieldRe.MatchString(field) {
+			continue
+		}
 		query := fmt.Sprintf(
 			`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,
 			field,
