@@ -101,6 +101,67 @@ table-reservation-goat-pp-cli which "<capability in your own words>"
 
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
+## Geographic Lookups (Agent Playbook)
+
+The reservation networks index restaurants by metro. `--metro <slug>` is the
+fastest way to constrain a search. Two things to know before composing a query:
+
+**1. Discover the available metros first.** The CLI hydrates the live Tock
+metro list (~248 metros worldwide) and merges it with a US-focused static
+fallback. To see everything available:
+
+```bash
+table-reservation-goat-pp-cli goat --list-metros --agent
+```
+
+Returns `{metros: [{slug, name, lat, lng}], city_hints: {...}, total: N}`. The
+`city_hints` field maps secondary cities (Bellevue, Oakland, Cambridge,
+Brooklyn, etc.) onto the parent metro they're indexed under — useful when a
+user asks about a city that isn't a standalone metro.
+
+**2. Use the city-hint when the user names a secondary city.** Example flow
+for "find me a Bellevue WA reservation":
+
+```bash
+# Bellevue isn't its own metro on either network — it's lumped into Seattle.
+table-reservation-goat-pp-cli goat 'steakhouse' --metro seattle --metro-radius-km 20 --party 6 --agent
+```
+
+`--metro-radius-km 20` (vs the 50km default) constrains the Autocomplete-result
+filter to Bellevue-area venues only, dropping Seattle proper. The CLI will
+return per-row `metro_centroid_distance_km` so you can verify each result is
+actually in the requested geo.
+
+If `--metro <slug>` is rejected as unknown, the error message names the parent
+metro and suggests the right radius:
+
+```
+unknown metro "bellevue" — neither OpenTable nor Tock breaks this out as its
+own metro. Bellevue is lumped under metro "seattle" (centroid 47.6062,
+-122.3321). Try `--metro seattle --metro-radius-km 20` to constrain results
+to Bellevue-area venues, or pass `--latitude 47.6062 --longitude -122.3321`
+directly with a tight `--metro-radius-km`.
+```
+
+**3. Slug suffixes work too.** If you compose a venue slug with a city suffix
+(`joey-bellevue`, `13-coins-bellevue`), the CLI peels the suffix as a metro
+hint and anchors the Autocomplete search at the metro centroid. Wrong-city
+matches (the issue #406 "Joey's Bold Flavors" / Tampa class of failures) are
+geo-filtered out before they reach the response.
+
+**4. When you have a known numeric ID, use it.** `restaurants list` returns
+OpenTable numeric IDs (`id: "3688"` for Daniel's Broiler - Bellevue). Pass
+those directly to `availability check` / `availability multi-day` / `earliest`
+to bypass the slug resolver entirely:
+
+```bash
+table-reservation-goat-pp-cli availability check 3688 --party 6 --date 2026-12-25 --agent
+```
+
+Numeric IDs route through a separate code path that doesn't touch the
+Autocomplete-based resolver, so they're the most reliable input shape when
+the agent already has the ID in hand.
+
 ## Recipes
 
 

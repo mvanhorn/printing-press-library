@@ -36,6 +36,11 @@ type goatResult struct {
 	Longitude    float64 `json:"longitude,omitempty"`
 	URL          string  `json:"url,omitempty"`
 	MatchScore   float64 `json:"match_score"`
+	// MetroCentroidDistanceKm is populated by applyGeoFilter when a metro
+	// centroid is set. Agents can use this to verify a result is actually
+	// in the expected metro (issue #406 failure 1: wrong-city venues
+	// previously surfaced as "available" with no geo context).
+	MetroCentroidDistanceKm float64 `json:"metro_centroid_distance_km,omitempty"`
 }
 
 type goatResponse struct {
@@ -52,13 +57,15 @@ type goatResponse struct {
 // single command an agent should reach for when asked to find a table.
 func newGoatCmd(flags *rootFlags) *cobra.Command {
 	var (
-		latitude  float64
-		longitude float64
-		metro     string
-		network   string
-		limit     int
-		party     int
-		when      string
+		latitude      float64
+		longitude     float64
+		metro         string
+		network       string
+		limit         int
+		party         int
+		when          string
+		metroRadiusKm float64
+		listMetros    bool
 	)
 	cmd := &cobra.Command{
 		Use:     "goat <query>",
@@ -70,21 +77,63 @@ func newGoatCmd(flags *rootFlags) *cobra.Command {
 		},
 		Args: cobra.MinimumNArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := cmd.Context()
+
+			// Hydrate the metro registry from Tock's metroArea SSR
+			// before resolving --metro. Cached for 24h on disk so this
+			// is free after the first call. Silent on failure — falls
+			// back to the 20-entry static registry. (issue #406 failure 3)
+			//
+			// Loaded here (not in init) so it benefits from the active
+			// auth.Session and respects ctx cancellation. Runs ahead of
+			// --list-metros / args check so the dumped registry includes
+			// the dynamic 250-metro list when available.
+			if loadedSession, sessErr := auth.Load(); sessErr == nil {
+				hydrateMetrosFromTock(ctx, loadedSession)
+			}
+
+			// --list-metros: dump the full hydrated registry as JSON
+			// and exit. Agents can enumerate available --metro values
+			// without parsing the on-disk cache file. Issue #406:
+			// agents need a programmatic way to discover whether a
+			// target city (like Bellevue WA) is a standalone metro or
+			// rolled into a parent.
+			if listMetros {
+				return printJSONFiltered(cmd.OutOrStdout(), metroListResponse{
+					Metros:    getRegistry().All(),
+					Total:     len(getRegistry().All()),
+					CityHints: cityHints,
+					QueriedAt: time.Now().UTC().Format(time.RFC3339),
+				}, flags)
+			}
+
 			if len(args) == 0 {
 				return cmd.Help()
 			}
 			query := strings.Join(args, " ")
+
 			// `--metro <slug>` resolves to lat/lng for autocomplete unless
 			// explicit lat/lng is provided. Without this, queries without
 			// geo defaulted to NYC midtown (40.7589, -73.9851) — so
 			// `goat 'tasting menu' --metro seattle` previously returned
 			// New York results.
-			if metro != "" && latitude == 0 && longitude == 0 {
-				if lat, lng, ok := metroLatLng(metro); ok {
-					latitude, longitude = lat, lng
-				} else {
-					return fmt.Errorf("unknown metro %q (known: %s)", metro, strings.Join(knownMetros(), ", "))
+			var metroCentroid Metro
+			filterMode := metroFilterOff
+			if metro != "" {
+				m, ok := getRegistry().Lookup(metro)
+				if !ok {
+					return fmt.Errorf("%s", formatUnknownMetroError(metro))
 				}
+				if latitude == 0 && longitude == 0 {
+					latitude, longitude = m.Lat, m.Lng
+				}
+				metroCentroid = m
+				filterMode = metroFilterHardReject
+			} else if latitude != 0 || longitude != 0 {
+				// Explicit lat/lng without --metro: hard-reject mode using
+				// the provided centroid as the anchor.
+				metroCentroid = Metro{Lat: latitude, Lng: longitude}
+				filterMode = metroFilterHardReject
 			}
 			if dryRunOK(flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), goatResponse{
@@ -96,7 +145,6 @@ func newGoatCmd(flags *rootFlags) *cobra.Command {
 					QueriedAt: time.Now().UTC().Format(time.RFC3339),
 				}, flags)
 			}
-			ctx := cmd.Context()
 			session, err := auth.Load()
 			if err != nil {
 				return fmt.Errorf("loading session: %w", err)
@@ -130,6 +178,10 @@ func newGoatCmd(flags *rootFlags) *cobra.Command {
 					results = append(results, tockRes...)
 				}
 			}
+			// Geo filter: drop or demote results outside the metro
+			// centroid based on filterMode (#406 failure 1).
+			results = applyGeoFilter(results, metroCentroid, metroRadiusKm, filterMode)
+
 			// Rank: match score descending. Ties broken by name for determinism.
 			sort.SliceStable(results, func(i, j int) bool {
 				if results[i].MatchScore != results[j].MatchScore {
@@ -157,120 +209,30 @@ func newGoatCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&limit, "limit", 20, "Max merged results to return")
 	cmd.Flags().IntVar(&party, "party", 2, "Party size (informational; OT autocomplete does not filter on this)")
 	cmd.Flags().StringVar(&when, "when", "", "Time hint for search (e.g., 'fri 7-9pm', 'tonight', 'this weekend'); informational in v1")
+	cmd.Flags().Float64Var(&metroRadiusKm, "metro-radius-km", defaultMetroRadiusKm,
+		"When --metro is set, drop results more than this many km from the metro centroid. Default 50km covers most metros including suburbs.")
+	cmd.Flags().BoolVar(&listMetros, "list-metros", false,
+		"Print the full hydrated metro registry as JSON (every Tock metro + static fallbacks + city-hint mappings) and exit. Useful for agents discovering valid --metro values programmatically.")
 	_ = when
 	return cmd
 }
 
-// metroLatLng resolves a known metro slug to a representative lat/lng for
-// the OpenTable Autocomplete geo-narrowing. Returns ok=false on unknown
-// slugs so the caller can return a clear error.
-func metroLatLng(slug string) (lat, lng float64, ok bool) {
-	switch strings.ToLower(strings.TrimSpace(slug)) {
-	case "seattle":
-		return 47.6062, -122.3321, true
-	case "chicago":
-		return 41.8781, -87.6298, true
-	case "new-york", "new-york-city", "nyc", "manhattan":
-		return 40.7589, -73.9851, true
-	case "san-francisco", "sf":
-		return 37.7749, -122.4194, true
-	case "los-angeles", "la":
-		return 34.0522, -118.2437, true
-	case "miami":
-		return 25.7617, -80.1918, true
-	case "boston":
-		return 42.3601, -71.0589, true
-	case "washington-dc", "dc", "washington":
-		return 38.9072, -77.0369, true
-	case "austin":
-		return 30.2672, -97.7431, true
-	case "portland":
-		return 45.5152, -122.6784, true
-	case "denver":
-		return 39.7392, -104.9903, true
-	case "philadelphia", "philly":
-		return 39.9526, -75.1652, true
-	case "atlanta":
-		return 33.7490, -84.3880, true
-	case "houston":
-		return 29.7604, -95.3698, true
-	case "dallas":
-		return 32.7767, -96.7970, true
-	case "san-diego":
-		return 32.7157, -117.1611, true
-	case "minneapolis":
-		return 44.9778, -93.2650, true
-	case "nashville":
-		return 36.1627, -86.7816, true
-	case "new-orleans", "nola":
-		return 29.9511, -90.0715, true
-	case "las-vegas", "vegas":
-		return 36.1699, -115.1398, true
-	}
-	return 0, 0, false
+// metroListResponse is the JSON shape emitted by `goat --list-metros`.
+// Includes the hydrated registry, the static city-hint mappings (so
+// agents know which secondary cities roll up under which metro), and
+// a queried_at timestamp for cache-age inference.
+type metroListResponse struct {
+	Metros    []Metro           `json:"metros"`
+	Total     int               `json:"total"`
+	CityHints map[string]string `json:"city_hints"`
+	QueriedAt string            `json:"queried_at"`
 }
 
-// metroCityName resolves a metro slug to its display name. Tock's city-search
-// URL accepts both: the slug appears as the path segment (`/city/seattle/`)
-// while the display name appears as the `?city=` query param (`?city=Seattle`).
-// Returns "" on unknown slug so callers can fall back.
-func metroCityName(slug string) string {
-	switch strings.ToLower(strings.TrimSpace(slug)) {
-	case "seattle":
-		return "Seattle"
-	case "chicago":
-		return "Chicago"
-	case "new-york", "new-york-city", "nyc", "manhattan":
-		// Tock's canonical slug is `new-york-city`; the display name `New York City`
-		// produces that slug via citySlugFromName, which matches the URL the
-		// /city/new-york-city/search SSR responds at.
-		return "New York City"
-	case "san-francisco", "sf":
-		return "San Francisco"
-	case "los-angeles", "la":
-		return "Los Angeles"
-	case "miami":
-		return "Miami"
-	case "boston":
-		return "Boston"
-	case "washington-dc", "dc", "washington":
-		return "Washington DC"
-	case "austin":
-		return "Austin"
-	case "portland":
-		return "Portland"
-	case "denver":
-		return "Denver"
-	case "philadelphia", "philly":
-		return "Philadelphia"
-	case "atlanta":
-		return "Atlanta"
-	case "houston":
-		return "Houston"
-	case "dallas":
-		return "Dallas"
-	case "san-diego":
-		return "San Diego"
-	case "minneapolis":
-		return "Minneapolis"
-	case "nashville":
-		return "Nashville"
-	case "new-orleans", "nola":
-		return "New Orleans"
-	case "las-vegas", "vegas":
-		return "Las Vegas"
-	}
-	return ""
-}
-
-func knownMetros() []string {
-	return []string{
-		"seattle", "chicago", "new-york", "san-francisco", "los-angeles",
-		"miami", "boston", "washington-dc", "austin", "portland", "denver",
-		"philadelphia", "atlanta", "houston", "dallas", "san-diego",
-		"minneapolis", "nashville", "new-orleans", "las-vegas",
-	}
-}
+// metroLatLng, metroCityName, knownMetros all moved to metro_registry.go
+// (issue #406): a single declarative registry replaces the 90-line
+// triplicate-switch pattern and grows to cover Tock's full 253-metro
+// metroArea hydration. Lookups still go through the same functions for
+// backward compatibility with existing callers.
 
 func goatQueryOpenTable(ctx context.Context, s *auth.Session, query string, lat, lng float64) ([]goatResult, error) {
 	c, err := opentable.New(s)

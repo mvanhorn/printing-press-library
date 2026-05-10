@@ -188,6 +188,88 @@ func entryToBusiness(e offeringAvailEntry) TockBusiness {
 	}
 }
 
+// MetroArea is one Tock metro entry from state.app.config.metroArea[].
+// Roughly 253 metros worldwide as of 2026-05; covers far more than the
+// 20-entry static fallback in the CLI's metro registry. Slug is Tock's
+// path segment (`bellevue`, `new-york-city`); Name is the display
+// shape used in `?city=` query params.
+type MetroArea struct {
+	Slug          string  `json:"slug"`
+	Name          string  `json:"name"`
+	Lat           float64 `json:"lat"`
+	Lng           float64 `json:"lng"`
+	BusinessCount int     `json:"businessCount,omitempty"`
+}
+
+// FetchMetroAreas pulls Tock's full metro registry from any city-search
+// SSR (the metroArea config is identical across all city-search pages,
+// since it's a config-tier value not derived from the path). Issue
+// #406 deferred-TODO: replaces the static 20-entry CLI fallback with
+// the 253-metro live list.
+//
+// Strategy: seed the SSR with a known-stable metro (Seattle) so a
+// fresh install — with no prior queries — can still hydrate. The
+// returned slice carries the full Tock-canonical shape; callers may
+// project into a leaner Metro form for their own use.
+//
+// On HTML-fetch or extractor failure, returns the error so callers can
+// retain their pre-#406 static fallback rather than masking the
+// regression.
+func (c *Client) FetchMetroAreas(ctx context.Context) ([]MetroArea, error) {
+	// Pick the smallest plausible payload — `/city/<slug>/search` with
+	// minimal query params. The metroArea config rides in the same
+	// $REDUX_STATE regardless of city/date/time, so any city works.
+	seed := SearchParams{
+		City: "Seattle", Date: "2099-01-01", Time: "19:00",
+		PartySize: 2, Lat: 47.6062, Lng: -122.3321,
+	}
+	path := buildSearchPath(seed)
+	state, err := c.FetchReduxState(ctx, path)
+	if err != nil {
+		return nil, fmt.Errorf("tock metroArea: fetch %s: %w", path, err)
+	}
+	return extractMetroAreas(state)
+}
+
+// extractMetroAreas pulls the metroArea array out of a parsed
+// $REDUX_STATE tree. Separated from the HTTP fetch so tests can pin
+// behavior with a fixture map.
+func extractMetroAreas(state map[string]any) ([]MetroArea, error) {
+	app, ok := state["app"].(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("tock metroArea: state.app missing or wrong type — Tock SPA may have refactored")
+	}
+	cfg, ok := app["config"].(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("tock metroArea: state.app.config missing or wrong type")
+	}
+	raw, ok := cfg["metroArea"]
+	if !ok || raw == nil {
+		return nil, fmt.Errorf("tock metroArea: state.app.config.metroArea absent")
+	}
+	rawJSON, err := json.Marshal(raw)
+	if err != nil {
+		return nil, fmt.Errorf("tock metroArea: re-marshal: %w", err)
+	}
+	var metros []MetroArea
+	if err := json.Unmarshal(rawJSON, &metros); err != nil {
+		return nil, fmt.Errorf("tock metroArea: decoding: %w", err)
+	}
+	// Filter out malformed/empty entries — a metro with zero centroid is
+	// useless for geo math and probably a Tock-side data hiccup.
+	out := metros[:0]
+	for _, m := range metros {
+		if m.Slug == "" || m.Name == "" {
+			continue
+		}
+		if m.Lat == 0 && m.Lng == 0 {
+			continue
+		}
+		out = append(out, m)
+	}
+	return out, nil
+}
+
 // decodeCuisines accepts either a JSON string ("Indian") or a JSON array
 // (["Indian","Vegetarian"]) and returns a flat string. Empty/null returns "".
 func decodeCuisines(raw json.RawMessage) string {
