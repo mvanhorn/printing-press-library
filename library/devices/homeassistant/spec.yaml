@@ -1,0 +1,226 @@
+name: homeassistant
+description: Discovered API spec for homeassistant (crowd-sniff)
+version: 0.1.0
+base_url: http://192.168.1.120:8123/api
+spec_source: community
+auth:
+    type: bearer_token
+    header: Authorization
+    format: Bearer {token}
+    env_vars:
+        - HOMEASSISTANT_TOKEN
+    env_var_specs:
+        - name: HOMEASSISTANT_TOKEN
+          kind: per_call
+          required: true
+          sensitive: true
+          inferred: true
+    in: header
+config:
+    format: toml
+    path: ~/.config/homeassistant-pp-cli/config.toml
+resources:
+    default:
+        description: Operations on default
+        endpoints:
+            create_endpoint:
+                method: POST
+                path: /{id}
+                description: POST /{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    hassio:
+        description: Operations on info
+        endpoints:
+            create_info:
+                method: POST
+                path: /api/hassio/addons/{id}/info
+                description: POST /api/hassio/addons/{id}/info
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_install:
+                method: POST
+                path: /api/hassio/addons/{id}/install
+                description: POST /api/hassio/addons/{id}/install
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_restart:
+                method: POST
+                path: /api/hassio/addons/{id}/restart
+                description: POST /api/hassio/addons/{id}/restart
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_start:
+                method: POST
+                path: /api/hassio/addons/{id}/start
+                description: POST /api/hassio/addons/{id}/start
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_stop:
+                method: POST
+                path: /api/hassio/addons/{id}/stop
+                description: POST /api/hassio/addons/{id}/stop
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_uninstall:
+                method: POST
+                path: /api/hassio/addons/{id}/uninstall
+                description: POST /api/hassio/addons/{id}/uninstall
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    models:
+        description: Operations on models
+        endpoints:
+            create_models:
+                method: POST
+                path: /models
+                description: POST /models
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    ping:
+        description: Operations on ping
+        endpoints:
+            delete_ping:
+                method: DELETE
+                path: /ping
+                description: DELETE /ping
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    repository:
+        description: Operations on install
+        endpoints:
+            create_install:
+                method: POST
+                path: /repository/install
+                description: POST /repository/install
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_uninstall:
+                method: POST
+                path: /repository/uninstall
+                description: POST /repository/uninstall
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_update:
+                method: POST
+                path: /repository/update
+                description: POST /repository/update
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    states:
+        description: Operations on states
+        endpoints:
+            get_states:
+                method: GET
+                path: /api/states/{id}
+                description: GET /api/states/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    websocket:
+        description: Operations on websocket
+        endpoints:
+            create_websocket:
+                method: POST
+                path: /api/websocket
+                description: POST /api/websocket
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+types: {}

@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-10T04:31:28.060843737Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "homeassistant",
+  "display_name": "Homeassistant",
+  "cli_name": "homeassistant-pp-cli",
+  "owner": "adrin425",
+  "printer": "adrin425",
+  "printer_name": "adrin425",
+  "spec_path": "/home/adrian/printing-press/.runstate/cli-printing-press-6d0014bc/runs/20260509-211834/research/homeassistant-crowd-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:2c3f812e48131ac649f290306af1736c6c49a09270959a331b06b35b48cbc619",
+  "run_id": "20260509-211834",
+  "mcp_binary": "homeassistant-pp-mcp",
+  "mcp_tool_count": 22,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_header_format": "Bearer {token}",
+  "auth_env_vars": [
+    "HOMEASSISTANT_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "FTS Entity Search",
+      "command": "homeassistant find",
+      "description": "Find exact entities instantly using full-text search across friendly names and attributes."
+    },
+    {
+      "name": "State Tailing",
+      "command": "homeassistant monitor",
+      "description": "Stream state changes live to the terminal."
+    },
+    {
+      "name": "Service Schema",
+      "command": "homeassistant services payload",
+      "description": "Print the exact JSON payload expected by any Home Assistant service."
+    },
+    {
+      "name": "State History",
+      "command": "homeassistant history",
+      "description": "Query state change history for entities over a time period."
+    },
+    {
+      "name": "Activity Logbook",
+      "command": "homeassistant logbook",
+      "description": "View the activity logbook with human-readable event descriptions."
+    },
+    {
+      "name": "Template Rendering",
+      "command": "homeassistant template",
+      "description": "Render a Home Assistant Jinja2 template server-side."
+    },
+    {
+      "name": "Event Bus",
+      "command": "homeassistant events",
+      "description": "List event types or fire custom events on the HA event bus."
+    },
+    {
+      "name": "Config Validation",
+      "command": "homeassistant check-config",
+      "description": "Validate the Home Assistant configuration.yaml remotely."
+    }
+  ]
+}
