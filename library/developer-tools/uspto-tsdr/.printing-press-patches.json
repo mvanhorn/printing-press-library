@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260509-135942",
+  "base_printing_press_version": "4.2.0",
+  "patches": [
+    {
+      "id": "fix-tsdr-envelope-unwrap",
+      "summary": "Rewrite extractTSDRObject() to handle the live TSDR API's trademarks[] envelope and flatten nested status/parties sub-objects.",
+      "reason": "The generated code expected ST96 XML-derived envelope keys (TrademarkBag, trademarkBag) but the live API returns {\"trademarks\":[{\"status\":{...},\"parties\":{...}}]}. All fields are nested under status sub-object, requiring flattening for extractStringField to work.",
+      "files": ["internal/cli/trademark_status.go"],
+      "validated_outcome": "trademark status 78787878 --json returns all fields populated (markText, status, owner, classes, etc.)"
+    },
+    {
+      "id": "fix-tsdr-field-names",
+      "summary": "Update all extractStringField() lookups to use correct TSDR API field names as first keys.",
+      "reason": "The generated code used ST96 XML field names (MarkVerbalElementText, MarkCurrentStatusExternalDescriptionText, etc.) but the live API uses abbreviated names (markElement, extStatusDesc, statusDate, filingDate, etc.).",
+      "files": ["internal/cli/trademark_status.go", "internal/cli/trademark_timeline.go", "internal/cli/trademark_batch.go"]
+    },
+    {
+      "id": "fix-surf-accept-header",
+      "summary": "Add GetJSON client method that bypasses surf's Chrome impersonation for reliable JSON content negotiation.",
+      "reason": "The surf library's Impersonate().Chrome() overrides the Accept: application/json header, causing the TSDR API to return XML. All workflow commands switched from GetWithHeaders to GetJSON.",
+      "files": ["internal/client/client.go", "internal/cli/trademark_status.go", "internal/cli/trademark_timeline.go", "internal/cli/trademark_deadlines.go", "internal/cli/trademark_watch.go", "internal/cli/trademark_docs.go", "internal/cli/trademark_batch.go"],
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/surf-accept-header"
+    },
+    {
+      "id": "fix-tsdr-docs-xml-guard",
+      "summary": "Detect HTTP 406 and XML responses from the /casedocs endpoint and display a clear message with TSDR web UI link.",
+      "reason": "The /casedocs/{caseid}/info endpoint only supports XML responses (returns HTTP 406 for Accept: application/json). Instead of empty output, the CLI now prints an informational message.",
+      "files": ["internal/cli/trademark_docs.go"]
+    },
+    {
+      "id": "fix-batch-envelope",
+      "summary": "Rewrite parseBatchResponse() for the actual multi-status API structure: {transactionList:[{trademarks:[...]}]}.",
+      "reason": "The generated code expected a flat array or TrademarkBag wrapper. The live /caseMultiStatus endpoint wraps results in transactionList with per-transaction trademarks arrays.",
+      "files": ["internal/cli/trademark_batch.go"]
+    },
+    {
+      "id": "fix-float-to-string",
+      "summary": "Fix extractStringField to render float64 values as integer strings instead of scientific notation.",
+      "reason": "The TSDR API returns serialNumber as a JSON number (78787878), which Go parses as float64. fmt.Sprintf(\"%v\") renders this as 7.8787878e+07. The fix detects whole-number floats and formats them as integers.",
+      "files": ["internal/cli/trademark_status.go"]
+    },
+    {
+      "id": "fix-watch-id-override",
+      "summary": "Add resourceIDFieldOverrides entry for the watch cache resource type.",
+      "reason": "Without the override, UpsertBatch could not find an ID field in tmWatchEntry (serialNumber doesn't match any generic fallback), causing all cached items to be silently dropped.",
+      "files": ["internal/cli/sync.go", "internal/store/store.go"]
+    },
+    {
+      "id": "disable-sync-resources",
+      "summary": "Disable sync/archive with clear messaging — TSDR has no JSON list endpoints.",
+      "reason": "The generated sync targets (/casedocs/bundle.xml, /casedocs/bundle.zip) return XML and ZIP binary which the JSON-only sync layer cannot process. Replaced with informational messages pointing to trademark watch/batch.",
+      "files": ["internal/cli/sync.go", "internal/cli/channel_workflow.go"]
+    }
+  ]
+}
