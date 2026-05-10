@@ -1,0 +1,51 @@
+version: 2
+project_name: betriebsrat-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: betriebsrat-pp-cli
+    main: ./cmd/betriebsrat-pp-cli
+    binary: betriebsrat-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X betriebsrat-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: betriebsrat-pp-mcp
+    main: ./cmd/betriebsrat-pp-mcp
+    binary: betriebsrat-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: betriebsrat-pp-cli
+    repository:
+      owner: dawid-piaskowski
+      name: homebrew-tap
+    homepage: "https://github.com/dawid-piaskowski/betriebsrat-pp-cli"
+    description: "German works council advisor: rights-check, deadlines, and BetrVG knowledge — offline, in your terminal."
+    install: |
+      bin.install "betriebsrat-pp-cli"
+      bin.install "betriebsrat-pp-mcp"

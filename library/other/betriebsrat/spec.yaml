@@ -1,0 +1,80 @@
+name: betriebsrat
+display_name: Betriebsrat
+base_url: https://www.betriebsrat.de
+auth:
+  type: none
+cli_description: "German works council advisor: rights-check, decisions, deadlines, and BetrVG knowledge from betriebsrat.de"
+
+mcp:
+  transport: [stdio, http]
+
+resources:
+  topics:
+    description: Betriebsrat topic areas with articles, guides, and practical tips
+    endpoints:
+      list:
+        method: GET
+        path: /br
+        response_format: html
+        no_auth: true
+        description: List all topic areas (35+ Betriebsrat topics A-Z)
+      get:
+        method: GET
+        path: /br/themen/{topic}/uebersicht
+        response_format: html
+        no_auth: true
+        description: Fetch full topic overview page with articles and guides
+        params:
+          - name: topic
+            in: path
+            flag_name: topic
+            required: true
+            description: "Topic slug (e.g. arbeitsrecht, kuendigung, betriebsvereinbarungen, datenschutz, ki)"
+
+  cases:
+    description: Recent Betriebsrat case law (Rechtsprechung)
+    endpoints:
+      list:
+        method: GET
+        path: /br/themen/rechtsprechung/uebersicht
+        response_format: html
+        no_auth: true
+        description: Fetch recent court decisions relevant to works councils
+
+  glossary:
+    description: Legal terms and definitions (Lexikon) for works council members
+    endpoints:
+      list:
+        method: GET
+        path: /br/service/lexikon
+        response_format: html
+        no_auth: true
+        description: Browse legal terms glossary
+      search:
+        method: GET
+        path: /br/service/lexikon
+        response_format: html
+        no_auth: true
+        description: Search for a specific legal term
+        params:
+          - name: term
+            in: query
+            flag_name: term
+            required: true
+            description: "Legal term to look up (e.g. Mitbestimmung, Betriebsvereinbarung, Sozialplan)"
+
+  articles:
+    description: Individual articles and guides from betriebsrat.de
+    endpoints:
+      search:
+        method: GET
+        path: /br/themen/{topic}/uebersicht
+        response_format: html
+        no_auth: true
+        description: Search for articles within a topic area
+        params:
+          - name: topic
+            in: path
+            flag_name: topic
+            required: true
+            description: Topic slug to search within

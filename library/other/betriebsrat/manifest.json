@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "betriebsrat-pp-mcp",
+  "display_name": "Betriebsrat",
+  "version": "4.2.0",
+  "description": "German works council advisor: rights-check, decisions, deadlines, and BetrVG knowledge from betriebsrat.de",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/betriebsrat-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/betriebsrat-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

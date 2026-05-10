@@ -1,0 +1,19 @@
+# Binaries
+betriebsrat-pp-cli
+betriebsrat-pp-mcp
+betriebsrat
+
+# Build artifacts
+build/stage/
+
+# Manuscripts / local run state
+.manuscripts/
+.printing-press.json
+.printing-press-tools-polish.json
+
+# Dogfood artifacts
+dogfood-results.json
+workflow-verify-report.json
+
+# OS
+.DS_Store
