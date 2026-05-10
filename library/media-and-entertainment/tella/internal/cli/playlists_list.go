@@ -33,7 +33,7 @@ func newPlaylistsListCmd(flags *rootFlags) *cobra.Command {
 				"visibility": fmt.Sprintf("%v", flagVisibility),
 				"cursor":     fmt.Sprintf("%v", flagCursor),
 				"limit":      fmt.Sprintf("%v", flagLimit),
-			}, nil, flagAll, "cursor", "", "")
+			}, nil, flagAll, "cursor", "pagination.nextCursor", "pagination.hasMore")
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

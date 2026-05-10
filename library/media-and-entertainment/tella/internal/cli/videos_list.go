@@ -33,7 +33,7 @@ func newVideosListCmd(flags *rootFlags) *cobra.Command {
 				"cursor":     fmt.Sprintf("%v", flagCursor),
 				"limit":      fmt.Sprintf("%v", flagLimit),
 				"playlistId": fmt.Sprintf("%v", flagPlaylistId),
-			}, nil, flagAll, "cursor", "", "")
+			}, nil, flagAll, "cursor", "pagination.nextCursor", "pagination.hasMore")
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
