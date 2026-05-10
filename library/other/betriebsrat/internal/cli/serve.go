@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -62,11 +64,31 @@ func serveUI(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, serveHTML)
 }
 
+// askLimiter tracks the last request time per IP for simple rate limiting.
+var (
+	askLimiter   sync.Map
+	askMinGap    = 2 * time.Second
+	askMaxBodySz = int64(4 * 1024) // 4 KB
+)
+
 func serveAsk(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "POST only", http.StatusMethodNotAllowed)
 		return
 	}
+
+	ip := r.RemoteAddr
+	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+		ip = strings.SplitN(xff, ",", 2)[0]
+	}
+	now := time.Now()
+	if last, ok := askLimiter.Load(ip); ok && now.Sub(last.(time.Time)) < askMinGap {
+		http.Error(w, "too many requests", http.StatusTooManyRequests)
+		return
+	}
+	askLimiter.Store(ip, now)
+
+	r.Body = http.MaxBytesReader(w, r.Body, askMaxBodySz)
 	var body struct {
 		Question string `json:"question"`
 		Lang     string `json:"lang"`

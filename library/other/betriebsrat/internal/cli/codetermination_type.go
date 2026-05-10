@@ -80,7 +80,7 @@ func newCoDeterminationTypeCmd(flags *rootFlags) *cobra.Command {
 				r.CanForceAgreement = false
 				r.Explanation = "Unterrichtungsrecht: Der AG muss den BR informieren. Kein Blockaderecht, aber Informationsanspruch ist durchsetzbar."
 			default:
-				r.Explanation = "Kein spezifisches Betriebsratsrecht in der Datenbank gefunden. Konsultieren Sie betriebsrat.de oder einen Fachanwalt."
+				r.Explanation = "Kein spezifisches Betriebsratsrecht in der Datenbank gefunden. Konsultieren Sie gesetze-im-internet.de oder einen Fachanwalt für Arbeitsrecht."
 			}
 			r.Paragraphs = nums
 

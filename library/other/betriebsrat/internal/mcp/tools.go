@@ -408,7 +408,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"resources": []map[string]any{
 			{
 				"name":        "articles",
-				"description": "Individual articles and guides from betriebsrat.de",
+				"description": "BetrVG paragraphs and legal sources from gesetze-im-internet.de (Bundesministerium der Justiz)",
 				"endpoints":   []string{"search"},
 			},
 			{
@@ -445,7 +445,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"name": "Deadline Calculator", "command": "deadline", "description": "Calculates legal deadlines for BR response (§ 102 Anhörung: 1 week ordinary, 3 days extraordinary dismissal)", "rationale": "Requires a stored Fristen database derived from BetrVG. Deadlines vary by situation type and must be surfaced instantly.", "via": "mcp-command-mirror"},
 			{"name": "Checklist Generator", "command": "checklist", "description": "Generates step-by-step action checklist for BR in a given situation (Betriebsänderung, Massenentlassung, Kündigung)", "rationale": "Cross-references multiple topic areas and BetrVG §§ to produce ordered action steps. No single article covers all...", "via": "mcp-command-mirror"},
 			{"name": "Meeting Prep", "command": "prepare-meeting", "description": "Generates agenda, quorum rules, questions for employer for a BR meeting on a specific topic", "rationale": "Combines Betriebsversammlung procedural rules with topic-specific content from local SQLite cache.", "via": "mcp-command-mirror"},
-			{"name": "BetrVG Paragraph Lookup", "command": "law", "description": "Plain-language explanation of any BetrVG paragraph with topic links and co-determination classification", "rationale": "Local database of BetrVG §§ 1-132 with plain-language summaries and betriebsrat.de topic references. No CLI...", "via": "mcp-command-mirror"},
+			{"name": "BetrVG Paragraph Lookup", "command": "law", "description": "Plain-language explanation of any BetrVG paragraph with topic links and co-determination classification", "rationale": "Local database of BetrVG §§ 1-132 with plain-language summaries and gesetze-im-internet.de (Bundesministerium der Justiz) links. No CLI...", "via": "mcp-command-mirror"},
 			{"name": "Co-determination Type Classifier", "command": "codetermination-type", "description": "Classifies BR rights as: Mitbestimmung (erzwingbar) / Mitwirkung / Unterrichtung / keine", "rationale": "Requires BetrVG paragraph → co-determination type mapping. Essential for knowing whether BR can block employer action.", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
@@ -454,7 +454,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"topic": "Deadline Calculator", "insight": "Requires a stored Fristen database derived from BetrVG. Deadlines vary by situation type and must be surfaced instantly."},
 			{"topic": "Checklist Generator", "insight": "Cross-references multiple topic areas and BetrVG §§ to produce ordered action steps. No single article covers all steps."},
 			{"topic": "Meeting Prep", "insight": "Combines Betriebsversammlung procedural rules with topic-specific content from local SQLite cache."},
-			{"topic": "BetrVG Paragraph Lookup", "insight": "Local database of BetrVG §§ 1-132 with plain-language summaries and betriebsrat.de topic references. No CLI provides this."},
+			{"topic": "BetrVG Paragraph Lookup", "insight": "Local database of BetrVG §§ 1-132 with plain-language summaries and gesetze-im-internet.de (Bundesministerium der Justiz) links. No CLI provides this."},
 			{"topic": "Co-determination Type Classifier", "insight": "Requires BetrVG paragraph → co-determination type mapping. Essential for knowing whether BR can block employer action."},
 		},
 	}

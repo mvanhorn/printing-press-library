@@ -21,7 +21,7 @@ type Config struct {
 
 func Load(configPath string) (*Config, error) {
 	cfg := &Config{
-		BaseURL: "https://www.betriebsrat.de",
+		BaseURL: "https://www.gesetze-im-internet.de",
 	}
 
 	// Resolve config path

@@ -2,7 +2,10 @@
 // Betriebsverfassungsgesetz (BetrVG) for works council (Betriebsrat) advisory.
 package betrvg
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 // CoDeterminationType classifies the strength of the BR's legal right.
 type CoDeterminationType string
@@ -30,8 +33,13 @@ type Paragraph struct {
 	Keywords     []string
 	CoDetermType CoDeterminationType
 	DeadlineDays int    // 0 means no specific deadline
-	TopicSlug    string // betriebsrat.de topic slug
+	TopicSlug    string // topic area label
 	TopicURL     string
+}
+
+// LegalSourceURL returns the official gesetze-im-internet.de URL for this paragraph.
+func (p Paragraph) LegalSourceURL() string {
+	return fmt.Sprintf("https://www.gesetze-im-internet.de/betrvg/__%d.html", p.Number)
 }
 
 // All returns the full BetrVG paragraph knowledge base.

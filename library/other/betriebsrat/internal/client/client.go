@@ -105,7 +105,7 @@ func (c *Client) cacheKey(path string, params map[string]string) string {
 func (c *Client) readCache(path string, params map[string]string) (json.RawMessage, bool) {
 	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
 	info, err := os.Stat(cacheFile)
-	if err != nil || time.Since(info.ModTime()) > 5*time.Minute {
+	if err != nil || time.Since(info.ModTime()) > 24*time.Hour {
 		return nil, false
 	}
 	data, err := os.ReadFile(cacheFile)

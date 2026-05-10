@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "betriebsrat-pp-mcp",
   "display_name": "Betriebsrat",
-  "version": "1.3.0",
-  "description": "German works council advisor: rights-check, decisions, deadlines, and BetrVG knowledge from betriebsrat.de",
+  "version": "4.2.0",
+  "description": "German works council advisor: rights-check, decisions, deadlines, and BetrVG knowledge from gesetze-im-internet.de",
   "author": {
     "name": "CLI Printing Press"
   },

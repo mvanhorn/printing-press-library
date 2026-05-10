@@ -65,8 +65,8 @@ This is the single most common question for works council members:
 					"No specific BetrVG paragraphs found for this situation.")
 				result.HasRight = false
 				result.Recommendation = tr(flags.lang,
-					"Prüfen Sie die Situation mit einem Fachanwalt für Arbeitsrecht oder konsultieren Sie betriebsrat.de für allgemeine Themen.",
-					"Review the situation with a labour law specialist or consult betriebsrat.de for general topics.")
+					"Prüfen Sie die Situation mit einem Fachanwalt für Arbeitsrecht oder konsultieren Sie gesetze-im-internet.de für allgemeine Themen.",
+					"Review the situation with a labour law specialist or consult gesetze-im-internet.de or a labour law specialist for general topics.")
 			} else {
 				// Find the strongest right
 				strongest := findStrongestRight(paragraphs)
@@ -74,7 +74,7 @@ This is the single most common question for works council members:
 				result.Summary = buildRightsSummary(flags.lang, strongest, paragraphs)
 				result.Recommendation = buildRecommendation(flags.lang, strongest, paragraphs)
 				if len(paragraphs) > 0 {
-					result.TopicURL = paragraphs[0].TopicURL
+					result.TopicURL = paragraphs[0].LegalSourceURL()
 				}
 
 				for _, p := range paragraphs {
@@ -83,7 +83,7 @@ This is the single most common question for works council members:
 						Title:     p.Title,
 						Summary:   p.Summary,
 						RightType: string(p.CoDetermType),
-						TopicURL:  p.TopicURL,
+						TopicURL:  p.LegalSourceURL(),
 					})
 				}
 			}
@@ -230,7 +230,7 @@ func buildRecommendation(lang string, strongest betrvg.CoDeterminationType, _ []
 			"Demand full written disclosure. Document any failure by the employer to meet this obligation.")
 	default:
 		return tr(lang,
-			"Konsultieren Sie betriebsrat.de oder einen Fachanwalt für Arbeitsrecht für diese spezifische Situation.",
-			"Consult betriebsrat.de or a labour law specialist for this specific situation.")
+			"Konsultieren Sie gesetze-im-internet.de oder einen Fachanwalt für Arbeitsrecht für diese spezifische Situation.",
+			"Consult gesetze-im-internet.de or a labour law specialist for this specific situation.")
 	}
 }

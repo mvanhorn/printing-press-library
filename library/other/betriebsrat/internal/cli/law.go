@@ -73,7 +73,7 @@ Use the paragraph number (e.g. 87, 102, 111) or a keyword search.`,
 					CoDetermType: string(p.CoDetermType),
 					DeadlineDays: p.DeadlineDays,
 					TopicSlug:    p.TopicSlug,
-					TopicURL:     p.TopicURL,
+					TopicURL:     p.LegalSourceURL(),
 				})
 			}
 

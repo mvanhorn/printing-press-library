@@ -102,9 +102,10 @@ Use for complex situations where you need a complete picture quickly.`,
 			// Resource links
 			seenURLs := map[string]bool{}
 			for _, p := range paragraphs {
-				if p.TopicURL != "" && !seenURLs[p.TopicURL] {
-					result.Resources = append(result.Resources, p.TopicURL)
-					seenURLs[p.TopicURL] = true
+				url := p.LegalSourceURL()
+				if !seenURLs[url] {
+					result.Resources = append(result.Resources, url)
+					seenURLs[url] = true
 				}
 			}
 

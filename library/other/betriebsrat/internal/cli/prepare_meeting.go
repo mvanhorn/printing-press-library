@@ -65,9 +65,7 @@ and relevant legal basis.`,
 			for _, p := range paragraphs {
 				prep.LegalBasis = append(prep.LegalBasis,
 					fmt.Sprintf("§ %d BetrVG – %s (%s)", p.Number, p.Title, string(p.CoDetermType)))
-				if p.TopicURL != "" {
-					prep.Resources = append(prep.Resources, p.TopicURL)
-				}
+				prep.Resources = append(prep.Resources, p.LegalSourceURL())
 			}
 
 			if flags.asJSON || flags.agent {

@@ -182,7 +182,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			report["cache"] = collectCacheReport(cmd.Context(), "")
 
 			report["version"] = version
-			report["knowledge_base"] = "BetrVG embedded knowledge as of 2026-05. New BAG decisions and legislative changes after this date are not reflected. Run 'betriebsrat sync' to refresh betriebsrat.de content."
+			report["knowledge_base"] = "Embedded BetrVG knowledge base as of 2026-05. New BAG decisions and legislative changes after this date are not reflected. Source: gesetze-im-internet.de (Bundesministerium der Justiz)."
 
 			if flags.asJSON {
 				if err := printJSONFiltered(cmd.OutOrStdout(), report, flags); err != nil {

@@ -18,7 +18,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "1.3.0"
+var version = "1.1.0"
 
 type rootFlags struct {
 	asJSON        bool
@@ -83,8 +83,8 @@ func Execute() error {
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "betriebsrat",
-		Short: `German works council advisor: rights-check, decisions, deadlines, and BetrVG knowledge from betriebsrat.de`,
-		Long: `German works council advisor: rights-check, decisions, deadlines, and BetrVG knowledge from betriebsrat.de
+		Short: `German works council advisor: rights-check, decisions, deadlines, and BetrVG knowledge from gesetze-im-internet.de`,
+		Long: `German works council advisor: rights-check, decisions, deadlines, and BetrVG knowledge from gesetze-im-internet.de
 
 Highlights (not in the official API docs):
   • rights-check   Answers 'Does the Betriebsrat have a say in this?' — maps situation to BetrVG paragraphs and co-determination type
@@ -199,7 +199,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 			dbPath := defaultDBPath("betriebsrat")
 			if fi, err := os.Stat(dbPath); err == nil {
 				if ageDays := int(time.Since(fi.ModTime()).Hours() / 24); ageDays > 30 {
-					fmt.Fprintf(os.Stderr, "warning: local knowledge base is %d days old — run 'betriebsrat sync' to refresh betriebsrat.de content\n", ageDays)
+					fmt.Fprintf(os.Stderr, "warning: local knowledge base is %d days old — run 'betriebsrat sync' to refresh gesetze-im-internet.de content\n", ageDays)
 				}
 			}
 		}
