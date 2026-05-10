@@ -266,16 +266,26 @@ func newReviewPrismaCmd(flags *rootFlags) *cobra.Command {
 			var uniqueAfterDedup int
 			query = fmt.Sprintf(
 				`SELECT COUNT(*) FROM (
-					SELECT MIN(rowid) FROM review_results WHERE strategy IN (%s)
-					GROUP BY COALESCE(NULLIF(doi,''), ''), COALESCE(NULLIF(pmid,''), '')
-					HAVING COALESCE(NULLIF(doi,''), '') != '' OR COALESCE(NULLIF(pmid,''), '') != ''
+					SELECT MIN(rowid) AS rid FROM review_results
+					WHERE strategy IN (%s) AND NULLIF(doi,'') IS NOT NULL
+					GROUP BY doi
 					UNION
-					SELECT MIN(rowid) FROM review_results WHERE strategy IN (%s)
-					AND COALESCE(NULLIF(doi,''), '') = '' AND COALESCE(NULLIF(pmid,''), '') = ''
+					SELECT MIN(rowid) AS rid FROM review_results
+					WHERE strategy IN (%s) AND NULLIF(doi,'') IS NULL AND NULLIF(pmid,'') IS NOT NULL
+					AND pmid NOT IN (
+						SELECT pmid FROM review_results WHERE strategy IN (%s) AND NULLIF(doi,'') IS NOT NULL AND NULLIF(pmid,'') IS NOT NULL
+					)
+					GROUP BY pmid
+					UNION
+					SELECT MIN(rowid) AS rid FROM review_results
+					WHERE strategy IN (%s) AND NULLIF(doi,'') IS NULL AND NULLIF(pmid,'') IS NULL
 					GROUP BY article_id
-				)`, inClause, inClause,
+				)`, inClause, inClause, inClause, inClause,
 			)
-			allArgs := append(stratArgs, stratArgs...)
+			allArgs := make([]interface{}, 0, len(stratArgs)*4)
+			for i := 0; i < 4; i++ {
+				allArgs = append(allArgs, stratArgs...)
+			}
 			db.DB().QueryRow(query, allArgs...).Scan(&uniqueAfterDedup)
 
 			duplicatesRemoved := totalIdentified - uniqueAfterDedup

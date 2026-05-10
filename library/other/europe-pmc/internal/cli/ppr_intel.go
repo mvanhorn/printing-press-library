@@ -70,9 +70,9 @@ by topic. Takes snapshots of counts over time for trend analysis.`,
 			}
 
 			// Build query for preprint source
-			query := fmt.Sprintf("SRC:PPR AND %s", flagTopic)
+			query := fmt.Sprintf(`SRC:PPR AND "%s"`, flagTopic)
 			if flagSince != "" {
-				query = fmt.Sprintf("SRC:PPR AND %s AND (FIRST_PDATE:[%s TO *])", flagTopic, flagSince)
+				query = fmt.Sprintf(`SRC:PPR AND "%s" AND (FIRST_PDATE:[%s TO *])`, flagTopic, flagSince)
 			}
 
 			params := map[string]string{
