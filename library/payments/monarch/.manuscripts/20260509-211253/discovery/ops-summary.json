@@ -1,0 +1,299 @@
+[
+  {
+    "name": "Common_LatestForceRefreshOperation",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Common_LatestForceRefreshOperation\",\"variables\":{},\"query\":\"query Common_LatestForceRefreshOperation {\\n  latestForceRefreshOperation {\\n    id\\n    state\\n    __typename\\n  }\\n}\"}",
+    "resp_len": 45
+  },
+  {
+    "name": "Common_ForceRefreshAccountsQuery",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Common_ForceRefreshAccountsQuery\",\"variables\":{},\"query\":\"query Common_ForceRefreshAccountsQuery {\\n  hasAccountsSyncing\\n}\"}",
+    "resp_len": 37
+  },
+  {
+    "name": "Web_AccountFilterQuery",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Web_AccountFilterQuery\",\"variables\":{},\"query\":\"query Web_AccountFilterQuery {\\n  accounts {\\n    id\\n    displayName\\n    logoUrl\\n    icon\\n    type {\\n      name\\n      display\\n      group\\n      __typename\\n    }\\n    subtype {\\n      name\\n      display\\n      __typename\\n    }\\n    __typename\\n  }\\n  myHousehold {\\n    id\\n    users {\\n      id\\n      name\\n      profilePictureUrl\\n      __typename\\n    }\\n    __typename\\n  }\\n  householdPreferences {\\n    accountGroupOr",
+    "resp_len": 13979
+  },
+  {
+    "name": "Common_GetDisplayBalanceAtDate",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Common_GetDisplayBalanceAtDate\",\"variables\":{\"date\":\"2026-04-09\",\"filters\":{}},\"query\":\"query Common_GetDisplayBalanceAtDate($date: Date!, $filters: AccountFilters) {\\n  accounts(filters: $filters) {\\n    id\\n    displayBalance(date: $date)\\n    includeInNetWorth\\n    type {\\n      name\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "resp_len": 5439
+  },
+  {
+    "name": "Common_GetHouseholdPreferences",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Common_GetHouseholdPreferences\",\"variables\":{},\"query\":\"query Common_GetHouseholdPreferences {\\n  householdPreferences {\\n    id\\n    ...HouseholdPreferencesFields\\n    __typename\\n  }\\n  ...HouseholdBudgetSettingsFields\\n}\\n\\nfragment HouseholdPreferencesFields on HouseholdPreferences {\\n  id\\n  newTransactionsNeedReview\\n  uncategorizedTransactionsNeedReview\\n  pendingTransactionsCanBeEdited\\n  accountGroupOrder\\n  aiAssistantEnabled\\n  llmEnrichmentEnabled\\n  investmentTrans",
+    "resp_len": 722
+  },
+  {
+    "name": "Common_LegacyGoalsMigrationQuery",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Common_LegacyGoalsMigrationQuery\",\"variables\":{},\"query\":\"query Common_LegacyGoalsMigrationQuery {\\n  legacyGoalsMigrationData {\\n    id\\n    newGoalId\\n    type\\n    archivedAt\\n    completedAt\\n    __typename\\n  }\\n  debtAccounts {\\n    ...DebtAccountFields\\n    __typename\\n  }\\n  migratedToSavingsGoals\\n}\\n\\nfragment DebtAccountFields on Account {\\n  id\\n  displayName\\n  displayBalance\\n  icon\\n  logoUrl\\n  includeInNetWorth\\n  isHidden\\n  displayLastUpdatedAt\\n  apr\\n  inte",
+    "resp_len": 5817
+  },
+  {
+    "name": "Web_GetAccountsPage",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Web_GetAccountsPage\",\"variables\":{\"filters\":{}},\"query\":\"query Web_GetAccountsPage($filters: AccountFilters) {\\n  hasAccounts\\n  accountTypeSummaries(filters: $filters) {\\n    type {\\n      name\\n      display\\n      group\\n      __typename\\n    }\\n    accounts {\\n      id\\n      credential {\\n        id\\n        institution {\\n          id\\n          name\\n          __typename\\n        }\\n        __typename\\n      }\\n      connectionStatus {\\n        connectionStatusCode\\n    ",
+    "resp_len": 50014
+  },
+  {
+    "name": "Web_GetAccountsPageRecentBalance",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Web_GetAccountsPageRecentBalance\",\"variables\":{\"startDate\":\"2026-04-09\"},\"query\":\"query Web_GetAccountsPageRecentBalance($startDate: Date) {\\n  accounts {\\n    id\\n    recentBalances(startDate: $startDate)\\n    type {\\n      name\\n      display\\n      group\\n      __typename\\n    }\\n    includeInNetWorth\\n    __typename\\n  }\\n}\"}",
+    "resp_len": 14577
+  },
+  {
+    "name": "Web_GetAccountTypes",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Web_GetAccountTypes\",\"variables\":{},\"query\":\"query Web_GetAccountTypes {\\n  accountTypes {\\n    name\\n    display\\n    group\\n    showForSyncedAccounts\\n    possibleSubtypes {\\n      display\\n      name\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "resp_len": 8643
+  },
+  {
+    "name": "Common_UserProfileFlags",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Common_UserProfileFlags\",\"variables\":{},\"query\":\"query Common_UserProfileFlags {\\n  userProfile {\\n    ...UserProfileFlagsFields\\n    __typename\\n  }\\n}\\n\\nfragment UserProfileFlagsFields on UserProfile {\\n  id\\n  aiAssistantOptedInAt\\n  dismissedTaxLotsWalkthroughAt\\n  dismissedTransferAccountDataWalkthroughAt\\n  dismissedTransactionsListUpdatesTourAt\\n  dismissedYearlyReviewAt\\n  hasDismissedWhatsNewAt\\n  hasSeenCategoriesManagementTour\\n  hasSeenWeeklyReviewTour\\n  viewedMar",
+    "resp_len": 1010
+  },
+  {
+    "name": "Common_GetAggregateSnapshots",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Common_GetAggregateSnapshots\",\"variables\":{\"filters\":{\"startDate\":\"2026-04-09\",\"endDate\":null,\"useAdaptiveGranularity\":true,\"accountFilters\":{\"accountType\":null}}},\"query\":\"query Common_GetAggregateSnapshots($filters: AggregateSnapshotFilters) {\\n  aggregateSnapshots(filters: $filters) {\\n    date\\n    balance\\n    assetsBalance\\n    liabilitiesBalance\\n    __typename\\n  }\\n}\"}",
+    "resp_len": 4205
+  },
+  {
+    "name": "Web_GetTransactionFiltersMetadata",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Web_GetTransactionFiltersMetadata\",\"variables\":{\"input\":{\"transactionVisibility\":\"non_hidden_transactions_only\"}},\"query\":\"query Web_GetTransactionFiltersMetadata($input: TransactionFilterInput!) {\\n  transactionFiltersMetadata(input: $input) {\\n    categories {\\n      id\\n      name\\n      icon\\n      __typename\\n    }\\n    categoryGroups {\\n      id\\n      name\\n      __typename\\n    }\\n    accounts {\\n      id\\n      displayName\\n      logoUrl\\n      icon\\n      __typename\\n",
+    "resp_len": 271
+  },
+  {
+    "name": "Web_GetDownloadTransactionsSession",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Web_GetDownloadTransactionsSession\",\"variables\":{\"sessionKey\":\"\"},\"query\":\"query Web_GetDownloadTransactionsSession($sessionKey: String!) {\\n  downloadTransactionsSession(sessionKey: $sessionKey) {\\n    sessionKey\\n    status\\n    errorMessage\\n    url\\n    __typename\\n  }\\n}\"}",
+    "resp_len": 151
+  },
+  {
+    "name": "Web_GetTransactionsSummaryCard",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Web_GetTransactionsSummaryCard\",\"variables\":{\"filters\":{\"transactionVisibility\":\"non_hidden_transactions_only\"}},\"query\":\"query Web_GetTransactionsSummaryCard($filters: TransactionFilterInput!) {\\n  allTransactions(filters: $filters) {\\n    totalCount\\n    __typename\\n  }\\n}\"}",
+    "resp_len": 79
+  },
+  {
+    "name": "Web_GetTransactionsPage",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Web_GetTransactionsPage\",\"variables\":{\"filters\":{\"transactionVisibility\":\"non_hidden_transactions_only\"}},\"query\":\"query Web_GetTransactionsPage($filters: TransactionFilterInput) {\\n  aggregates(filters: $filters) {\\n    summary {\\n      ...TransactionsSummaryFields\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\\nfragment TransactionsSummaryFields on TransactionsSummary {\\n  avg\\n  max\\n  maxExpense\\n  sum\\n  sumIncome\\n  sumExpense\\n  first\\n  last\\n  __typename\\n}\"}",
+    "resp_len": 269
+  },
+  {
+    "name": "Web_MintTransactionsCountQuery",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Web_MintTransactionsCountQuery\",\"variables\":{},\"query\":\"query Web_MintTransactionsCountQuery {\\n  allMintTransactions: allTransactions(filters: {importedFromMint: true}) {\\n    totalCount\\n    __typename\\n  }\\n}\"}",
+    "resp_len": 80
+  },
+  {
+    "name": "Web_TransactionsFilterQuery",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Web_TransactionsFilterQuery\",\"variables\":{},\"query\":\"query Web_TransactionsFilterQuery($search: String, $includeIds: [ID!]) {\\n  categoryGroups {\\n    id\\n    name\\n    order\\n    categories {\\n      id\\n      name\\n      icon\\n      order\\n      __typename\\n    }\\n    __typename\\n  }\\n  goalsV2 {\\n    id\\n    name\\n    imageStorageProvider\\n    imageStorageProviderId\\n    archivedAt\\n    priority\\n    __typename\\n  }\\n  savingsGoals {\\n    id\\n    name\\n    imageStorageProvide",
+    "resp_len": 26357
+  },
+  {
+    "name": "Web_GetUserDismissedRetailSyncBanner",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Web_GetUserDismissedRetailSyncBanner\",\"variables\":{},\"query\":\"query Web_GetUserDismissedRetailSyncBanner {\\n  userHasConfiguredRetailSyncExtension\\n  me {\\n    id\\n    profile {\\n      id\\n      dismissedRetailSyncBanner\\n      dismissedRetailSyncTargetBannerAt\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "resp_len": 265
+  },
+  {
+    "name": "Web_GetTransactionsList",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Web_GetTransactionsList\",\"variables\":{\"orderBy\":\"date\",\"limit\":25,\"filters\":{\"transactionVisibility\":\"non_hidden_transactions_only\"}},\"query\":\"query Web_GetTransactionsList($offset: Int, $limit: Int, $filters: TransactionFilterInput, $orderBy: TransactionOrdering) {\\n  allTransactions(filters: $filters) {\\n    totalCount\\n    totalSelectableCount\\n    results(offset: $offset, limit: $limit, orderBy: $orderBy) {\\n      id\\n      ...TransactionOverviewFields\\n      __typename\\n  ",
+    "resp_len": 36272
+  },
+  {
+    "name": "Common_GetCategories",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Common_GetCategories\",\"variables\":{},\"query\":\"query Common_GetCategories($includeSystemDisabledCategories: Boolean) {\\n  categoryGroups {\\n    id\\n    name\\n    order\\n    type\\n    groupLevelBudgetingEnabled\\n    budgetVariability\\n    rolloverPeriod {\\n      id\\n      startMonth\\n      startingBalance\\n      frequency\\n      targetAmount\\n      type\\n      __typename\\n    }\\n    categories {\\n      id\\n      __typename\\n    }\\n    __typename\\n  }\\n  categories(includeDisabled",
+    "resp_len": 28209
+  },
+  {
+    "name": "Common_GetSubscriptionDetails",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Common_GetSubscriptionDetails\",\"variables\":{},\"query\":\"query Common_GetSubscriptionDetails {\\n  subscription {\\n    id\\n    paymentSource\\n    referralCode\\n    isOnFreeTrial\\n    hasPremiumEntitlement\\n    willCancelAtPeriodEnd\\n    trialEndsAt\\n    trialDurationDays\\n    plusTrialEndsAt\\n    billingPeriod\\n    isEligibleForCoreToPlusPromo\\n    paymentMethod {\\n      lastFour\\n      __typename\\n    }\\n    activeSponsorship {\\n      id\\n      __typename\\n    }\\n    __typename\\n",
+    "resp_len": 463
+  },
+  {
+    "name": "Common_GetBudgetSettings",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Common_GetBudgetSettings\",\"variables\":{},\"query\":\"query Common_GetBudgetSettings {\\n  budgetSystem\\n  budgetApplyToFutureMonthsDefault\\n  flexExpenseRolloverPeriod {\\n    id\\n    startMonth\\n    startingBalance\\n    __typename\\n  }\\n}\"}",
+    "resp_len": 122
+  },
+  {
+    "name": "Common_GetBudgetStatus",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Common_GetBudgetStatus\",\"variables\":{},\"query\":\"query Common_GetBudgetStatus {\\n  budgetStatus {\\n    ...BudgetStatusFields\\n    __typename\\n  }\\n}\\n\\nfragment BudgetStatusFields on BudgetStatus {\\n  hasBudget\\n  hasTransactions\\n  willCreateBudgetFromEmptyDefaultCategories\\n  __typename\\n}\"}",
+    "resp_len": 146
+  },
+  {
+    "name": "Common_GetJointPlanningData",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Common_GetJointPlanningData\",\"variables\":{\"startDate\":\"2026-04-01\",\"endDate\":\"2026-07-01\"},\"query\":\"query Common_GetJointPlanningData($startDate: Date!, $endDate: Date!) {\\n  budgetSystem\\n  budgetData(startMonth: $startDate, endMonth: $endDate) {\\n    ...BudgetDataFields\\n    __typename\\n  }\\n  categoryGroups {\\n    ...BudgetCategoryGroupFields\\n    __typename\\n  }\\n  goalsV2 {\\n    ...BudgetDataGoalsV2Fields\\n    __typename\\n  }\\n  savingsGoalMonthlyBudgetAmounts(startMonth: ",
+    "resp_len": 50014
+  },
+  {
+    "name": "RecurringMerchantSearch",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"RecurringMerchantSearch\",\"variables\":{},\"query\":\"query RecurringMerchantSearch {\\n  recurringMerchantSearch {\\n    startedAt\\n    nextAt\\n    finishedAt\\n    createdCount\\n    __typename\\n  }\\n  recurringTransactionStreams {\\n    stream {\\n      id\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "resp_len": 9269
+  },
+  {
+    "name": "Common_GetAggregatedRecurringItems",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Common_GetAggregatedRecurringItems\",\"variables\":{\"includeFinancialInsights\":false,\"startDate\":\"2026-05-01\",\"endDate\":\"2026-05-31\",\"filters\":{}},\"query\":\"query Common_GetAggregatedRecurringItems($startDate: Date!, $endDate: Date!, $filters: RecurringTransactionFilter, $includeFinancialInsights: Boolean = false) {\\n  aggregatedRecurringItems(\\n    startDate: $startDate\\n    endDate: $endDate\\n    groupBy: \\\"status\\\"\\n    filters: $filters\\n  ) {\\n    groups {\\n      groupBy {\\n  ",
+    "resp_len": 50014
+  },
+  {
+    "name": "Common_GetSpinwheelCreditReport",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Common_GetSpinwheelCreditReport\",\"variables\":{},\"query\":\"query Common_GetSpinwheelCreditReport {\\n  spinwheelUser {\\n    id\\n    user {\\n      id\\n      name\\n      displayName\\n      __typename\\n    }\\n    onboardingStatus\\n    onboardingErrorMessage\\n    isBillSyncTrackingEnabled\\n    __typename\\n  }\\n  creditReportLiabilityAccounts {\\n    spinwheelLiabilityId\\n    liabilityType\\n    isOpen\\n    currentTotalBalance\\n    account {\\n      id\\n      __typename\\n    }\\n    descri",
+    "resp_len": 25429
+  },
+  {
+    "name": "Web_GoalsV2",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Web_GoalsV2\",\"variables\":{},\"query\":\"query Web_GoalsV2 {\\n  goalsV2 {\\n    id\\n    ...WebGoalCardFields\\n    __typename\\n  }\\n  accountsWithUnallocatedBalancesForGoals {\\n    id\\n    ...Web_GoalsAllocateBannerFields\\n    __typename\\n  }\\n}\\n\\nfragment WebGoalNameProgressBarFields on GoalV2 {\\n  id\\n  name\\n  defaultName\\n  targetAmount\\n  startingAmount\\n  currentAmount\\n  completedAt\\n  archivedAt\\n  type\\n  completionPercent\\n  accountAllocations {\\n    id\\n    __typename\\n  ",
+    "resp_len": 2361
+  },
+  {
+    "name": "Common_GetReportConfigurations",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Common_GetReportConfigurations\",\"variables\":{},\"query\":\"query Common_GetReportConfigurations {\\n  reportConfigurations {\\n    ...ReportConfigurationFields\\n    __typename\\n  }\\n}\\n\\nfragment TransactionFilterSetFields on TransactionFilterSet {\\n  id\\n  displayName\\n  categories {\\n    id\\n    name\\n    icon\\n    __typename\\n  }\\n  categoryGroups {\\n    id\\n    name\\n    type\\n    __typename\\n  }\\n  accounts {\\n    id\\n    displayName\\n    logoUrl\\n    icon\\n    __typename\\n  }\\",
+    "resp_len": 36
+  },
+  {
+    "name": "Common_GetReportsData",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Common_GetReportsData\",\"variables\":{\"includeCategory\":true,\"includeCategoryGroup\":false,\"includeMerchant\":false,\"includeBusinessEntity\":false,\"includeBudgetVariability\":false,\"fillEmptyValues\":true,\"filters\":{\"categoryType\":\"income\",\"transactionVisibility\":\"non_hidden_transactions_only\"},\"groupBy\":[\"category\"],\"sortBy\":\"sum_income\"},\"query\":\"query Common_GetReportsData($filters: TransactionFilterInput!, $groupBy: [ReportsGroupByEntity!], $groupByTimeframe: ReportsGroupByTimefra",
+    "resp_len": 33785
+  },
+  {
+    "name": "ManageGetCategoryGroups",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"ManageGetCategoryGroups\",\"variables\":{},\"query\":\"query ManageGetCategoryGroups {\\n  categoryGroups {\\n    id\\n    name\\n    order\\n    type\\n    __typename\\n  }\\n  categories(includeDisabledSystemCategories: true) {\\n    id\\n    name\\n    order\\n    icon\\n    isSystemCategory\\n    systemCategory\\n    isDisabled\\n    group {\\n      id\\n      type\\n      name\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "resp_len": 21509
+  },
+  {
+    "name": "Common_GetHouseholdTransactionTags",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"Common_GetHouseholdTransactionTags\",\"variables\":{\"includeTransactionCount\":true},\"query\":\"query Common_GetHouseholdTransactionTags($search: String, $limit: Int, $bulkParams: BulkTransactionDataParams, $includeTransactionCount: Boolean = false) {\\n  householdTransactionTags(\\n    search: $search\\n    limit: $limit\\n    bulkParams: $bulkParams\\n  ) {\\n    id\\n    name\\n    color\\n    order\\n    transactionCount @include(if: $includeTransactionCount)\\n    __typename\\n  }\\n}\"}",
+    "resp_len": 1715
+  },
+  {
+    "name": "GetTransactionDrawer",
+    "type": "query",
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "status": 200,
+    "sample_req": "{\"operationName\":\"GetTransactionDrawer\",\"variables\":{\"id\":\"rules\",\"redirectPosted\":true},\"query\":\"query GetTransactionDrawer($id: UUID!, $redirectPosted: Boolean) {\\n  getTransaction(id: $id, redirectPosted: $redirectPosted) {\\n    id\\n    ...TransactionDrawerFields\\n    __typename\\n  }\\n  myHousehold {\\n    id\\n    users {\\n      id\\n      displayName\\n      profilePictureUrl\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\\nfragment TransactionDrawerSplitMessageFields on Transaction {\\n  id\\",
+    "resp_len": 684
+  }
+]

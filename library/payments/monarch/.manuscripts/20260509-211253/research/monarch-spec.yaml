@@ -1,0 +1,644 @@
+name: monarch
+description: "Monarch Money CLI: agent-native access to accounts, transactions, budgets, goals, and cashflow with a local SQLite store and offline analytics."
+version: "0.1.0"
+base_url: "https://api.monarch.com"
+http_transport: standard
+
+cli_description: "Monarch Money CLI with local SQLite store, offline search, and agent-native output across accounts, transactions, budgets, goals, and cashflow."
+
+auth:
+  type: composed
+  header: "Authorization"
+  in: header
+  format: "Token {token}"
+  cookie_domain: ".monarch.com"
+  cookies:
+    - "token"
+  env_vars:
+    - MONARCH_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/monarch-pp-cli/config.toml"
+
+resources:
+  me:
+    description: "Current user and household profile"
+    endpoints:
+      get:
+        method: POST
+        path: "/graphql"
+        description: "Get the authenticated user and household preferences"
+        no_auth: false
+        response:
+          type: object
+          item: Me
+
+  accounts:
+    description: "All linked and manual accounts (cash, credit, investment, loans, real estate)"
+    endpoints:
+      list:
+        method: POST
+        path: "/graphql"
+        description: "List every account with current balance, type, and institution"
+        params:
+          - name: include_hidden
+            flag_name: include-hidden
+            type: bool
+            description: "Include archived/hidden accounts in the result"
+        response:
+          type: array
+          item: Account
+
+      types:
+        method: POST
+        path: "/graphql"
+        description: "List account type and subtype catalog used by Monarch"
+        response:
+          type: array
+          item: AccountType
+
+      balance_history:
+        method: POST
+        path: "/graphql"
+        description: "Recent daily balances per account for the dashboard chart"
+        params:
+          - name: start_date
+            flag_name: start-date
+            type: string
+            description: "Earliest date to include (YYYY-MM-DD); defaults to 30 days ago"
+        response:
+          type: array
+          item: AccountBalanceSnapshot
+
+      networth_snapshots:
+        method: POST
+        path: "/graphql"
+        description: "Net-worth aggregate snapshots over time (asset/liability breakdown)"
+        params:
+          - name: start_date
+            flag_name: start-date
+            type: string
+            description: "Earliest date to include (YYYY-MM-DD)"
+          - name: end_date
+            flag_name: end-date
+            type: string
+            description: "Latest date to include (YYYY-MM-DD)"
+        response:
+          type: array
+          item: NetWorthSnapshot
+
+      refresh:
+        method: POST
+        path: "/graphql"
+        description: "Trigger a force-refresh of synced accounts"
+        response:
+          type: object
+          item: RefreshStatus
+
+      refresh_status:
+        method: POST
+        path: "/graphql"
+        description: "Check the status of the latest force-refresh request"
+        response:
+          type: object
+          item: RefreshStatus
+
+  transactions:
+    description: "Bank, credit, and investment transactions with splits, tags, and categorization"
+    endpoints:
+      list:
+        method: POST
+        path: "/graphql"
+        description: "List transactions with filters (date, account, category, merchant, amount, tag)"
+        params:
+          - name: limit
+            type: int
+            description: "Max transactions to return (default 100)"
+          - name: offset
+            type: int
+            description: "Pagination offset"
+          - name: start_date
+            flag_name: start-date
+            type: string
+            description: "Earliest date (YYYY-MM-DD)"
+          - name: end_date
+            flag_name: end-date
+            type: string
+            description: "Latest date (YYYY-MM-DD)"
+          - name: account_id
+            flag_name: account
+            type: string
+            description: "Filter by account ID (repeatable as comma-separated)"
+          - name: category_id
+            flag_name: category
+            type: string
+            description: "Filter by category ID (comma-separated for multiple)"
+          - name: merchant_id
+            flag_name: merchant
+            type: string
+            description: "Filter by merchant ID"
+          - name: tag_id
+            flag_name: tag
+            type: string
+            description: "Filter by tag ID (comma-separated)"
+          - name: search
+            type: string
+            description: "Plain-text search in description/notes/merchant"
+          - name: min_amount
+            flag_name: min-amount
+            type: number
+            description: "Minimum absolute amount"
+          - name: max_amount
+            flag_name: max-amount
+            type: number
+            description: "Maximum absolute amount"
+          - name: order_by
+            flag_name: order-by
+            type: string
+            description: "Sort order: date_desc (default), date_asc, amount_desc, amount_asc"
+        response:
+          type: array
+          item: Transaction
+
+      get:
+        method: POST
+        path: "/graphql"
+        description: "Get a transaction with its splits, tags, and rule provenance"
+        params:
+          - name: transaction_id
+            flag_name: transaction-id
+            type: string
+            required: true
+            positional: true
+            description: "Transaction ID"
+        response:
+          type: object
+          item: TransactionDetail
+
+      summary:
+        method: POST
+        path: "/graphql"
+        description: "Aggregated transaction summary card (counts, totals) for a date window"
+        params:
+          - name: start_date
+            flag_name: start-date
+            type: string
+            description: "Earliest date (YYYY-MM-DD)"
+          - name: end_date
+            flag_name: end-date
+            type: string
+            description: "Latest date (YYYY-MM-DD)"
+        response:
+          type: object
+          item: TransactionsSummary
+
+      create:
+        method: POST
+        path: "/graphql"
+        description: "Create a manual transaction"
+        body:
+          - name: account_id
+            type: string
+            required: true
+            description: "Account ID"
+          - name: amount
+            type: number
+            required: true
+            description: "Signed amount (negative = expense, positive = income)"
+          - name: date
+            type: string
+            required: true
+            description: "Transaction date (YYYY-MM-DD)"
+          - name: merchant_name
+            flag_name: merchant
+            type: string
+            description: "Merchant or payee"
+          - name: category_id
+            flag_name: category
+            type: string
+            description: "Category ID"
+          - name: notes
+            type: string
+            description: "Free-form notes"
+        response:
+          type: object
+          item: Transaction
+
+      update:
+        method: POST
+        path: "/graphql"
+        description: "Update a transaction's category, notes, merchant, or tags"
+        params:
+          - name: transaction_id
+            flag_name: transaction-id
+            type: string
+            required: true
+            positional: true
+            description: "Transaction ID"
+        body:
+          - name: category_id
+            flag_name: category
+            type: string
+            description: "New category ID"
+          - name: merchant_name
+            flag_name: merchant
+            type: string
+            description: "New merchant name"
+          - name: notes
+            type: string
+            description: "New notes"
+          - name: hide_from_reports
+            flag_name: hide-from-reports
+            type: bool
+            description: "Hide this transaction from reports"
+        response:
+          type: object
+          item: Transaction
+
+      delete:
+        method: POST
+        path: "/graphql"
+        description: "Delete a transaction"
+        params:
+          - name: transaction_id
+            flag_name: transaction-id
+            type: string
+            required: true
+            positional: true
+            description: "Transaction ID"
+
+      splits_get:
+        method: POST
+        path: "/graphql"
+        description: "Get the splits for a transaction"
+        params:
+          - name: transaction_id
+            flag_name: transaction-id
+            type: string
+            required: true
+            positional: true
+            description: "Transaction ID"
+        response:
+          type: array
+          item: TransactionSplit
+
+      splits_set:
+        method: POST
+        path: "/graphql"
+        description: "Replace the splits for a transaction"
+        params:
+          - name: transaction_id
+            flag_name: transaction-id
+            type: string
+            required: true
+            positional: true
+            description: "Transaction ID"
+        body:
+          - name: splits_json
+            flag_name: splits-json
+            type: string
+            required: true
+            description: "JSON array of {amount, category_id, notes?} objects"
+
+      tags_set:
+        method: POST
+        path: "/graphql"
+        description: "Set the tags on a transaction (replaces existing)"
+        params:
+          - name: transaction_id
+            flag_name: transaction-id
+            type: string
+            required: true
+            positional: true
+            description: "Transaction ID"
+        body:
+          - name: tag_ids
+            flag_name: tag-ids
+            type: string
+            required: true
+            description: "Comma-separated tag IDs"
+
+  categories:
+    description: "Transaction categories and category groups"
+    endpoints:
+      list:
+        method: POST
+        path: "/graphql"
+        description: "List all categories (system + custom)"
+        response:
+          type: array
+          item: Category
+
+      groups:
+        method: POST
+        path: "/graphql"
+        description: "List category groups (top-level groupings)"
+        response:
+          type: array
+          item: CategoryGroup
+
+      create:
+        method: POST
+        path: "/graphql"
+        description: "Create a custom category"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Category display name"
+          - name: group_id
+            flag_name: group
+            type: string
+            required: true
+            description: "Parent group ID"
+          - name: icon
+            type: string
+            description: "Emoji or icon identifier"
+        response:
+          type: object
+          item: Category
+
+      delete:
+        method: POST
+        path: "/graphql"
+        description: "Delete a category"
+        params:
+          - name: category_id
+            flag_name: category-id
+            type: string
+            required: true
+            positional: true
+            description: "Category ID"
+
+  tags:
+    description: "Transaction tags (with usage counts)"
+    endpoints:
+      list:
+        method: POST
+        path: "/graphql"
+        description: "List tags with their transaction counts"
+        response:
+          type: array
+          item: Tag
+
+      create:
+        method: POST
+        path: "/graphql"
+        description: "Create a transaction tag"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Tag name"
+          - name: color
+            type: string
+            description: "Tag color hex"
+        response:
+          type: object
+          item: Tag
+
+  budgets:
+    description: "Per-category and flex budgets, with actuals and variance"
+    endpoints:
+      list:
+        method: POST
+        path: "/graphql"
+        description: "List active budgets with budgeted amounts"
+        response:
+          type: array
+          item: Budget
+
+      status:
+        method: POST
+        path: "/graphql"
+        description: "Get budget-versus-actual for the active period"
+        params:
+          - name: start_date
+            flag_name: start-date
+            type: string
+            description: "Earliest date (YYYY-MM-DD); defaults to current period"
+          - name: end_date
+            flag_name: end-date
+            type: string
+            description: "Latest date (YYYY-MM-DD); defaults to current period"
+        response:
+          type: object
+          item: BudgetStatus
+
+      set_amount:
+        method: POST
+        path: "/graphql"
+        description: "Set the budgeted amount for a category"
+        params:
+          - name: category_id
+            flag_name: category
+            type: string
+            required: true
+            description: "Category ID to budget"
+        body:
+          - name: amount
+            type: number
+            required: true
+            description: "Monthly budget amount"
+          - name: start_date
+            flag_name: start-date
+            type: string
+            description: "Effective start date (defaults to current period)"
+
+  goals:
+    description: "Savings, debt-paydown, and investment goals"
+    endpoints:
+      list:
+        method: POST
+        path: "/graphql"
+        description: "List goals with progress and target amounts"
+        response:
+          type: array
+          item: Goal
+
+      create:
+        method: POST
+        path: "/graphql"
+        description: "Create a savings/debt goal"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Goal name"
+          - name: target_amount
+            flag_name: target
+            type: number
+            required: true
+            description: "Target amount"
+          - name: target_date
+            flag_name: target-date
+            type: string
+            description: "Target completion date (YYYY-MM-DD)"
+        response:
+          type: object
+          item: Goal
+
+      delete:
+        method: POST
+        path: "/graphql"
+        description: "Delete a goal"
+        params:
+          - name: goal_id
+            flag_name: goal-id
+            type: string
+            required: true
+            positional: true
+            description: "Goal ID"
+
+  cashflow:
+    description: "Income vs expenses summaries and category-level cashflow"
+    endpoints:
+      summary:
+        method: POST
+        path: "/graphql"
+        description: "Income vs expenses for a date window with savings rate"
+        params:
+          - name: start_date
+            flag_name: start-date
+            type: string
+            description: "Earliest date (YYYY-MM-DD)"
+          - name: end_date
+            flag_name: end-date
+            type: string
+            description: "Latest date (YYYY-MM-DD)"
+        response:
+          type: object
+          item: CashflowSummary
+
+      by_category:
+        method: POST
+        path: "/graphql"
+        description: "Cashflow grouped by category"
+        params:
+          - name: start_date
+            flag_name: start-date
+            type: string
+            description: "Earliest date (YYYY-MM-DD)"
+          - name: end_date
+            flag_name: end-date
+            type: string
+            description: "Latest date (YYYY-MM-DD)"
+        response:
+          type: array
+          item: CategoryCashflow
+
+  recurring:
+    description: "Recurring merchants and bills (subscriptions, rent, paychecks)"
+    endpoints:
+      list:
+        method: POST
+        path: "/graphql"
+        description: "List active recurring streams with cadence and next-occurrence"
+        params:
+          - name: start_date
+            flag_name: start-date
+            type: string
+            description: "Earliest date (YYYY-MM-DD); defaults to today"
+          - name: end_date
+            flag_name: end-date
+            type: string
+            description: "Latest date (YYYY-MM-DD); defaults to +90 days"
+        response:
+          type: array
+          item: RecurringStream
+
+      search:
+        method: POST
+        path: "/graphql"
+        description: "Search merchants for adding new recurring streams"
+        params:
+          - name: query
+            type: string
+            required: true
+            positional: true
+            description: "Merchant search text"
+        response:
+          type: array
+          item: Merchant
+
+  holdings:
+    description: "Investment holdings within brokerage accounts"
+    endpoints:
+      list:
+        method: POST
+        path: "/graphql"
+        description: "List investment holdings with quantity, price, and market value"
+        params:
+          - name: account_id
+            flag_name: account
+            type: string
+            description: "Filter by account ID"
+        response:
+          type: array
+          item: Holding
+
+  institutions:
+    description: "Connected financial institutions"
+    endpoints:
+      list:
+        method: POST
+        path: "/graphql"
+        description: "List connected institutions and their connection health"
+        response:
+          type: array
+          item: Institution
+
+  reports:
+    description: "Aggregated reports (spending, income, net worth) over time"
+    endpoints:
+      data:
+        method: POST
+        path: "/graphql"
+        description: "Get aggregated reports data with grouping (category, merchant, date)"
+        params:
+          - name: start_date
+            flag_name: start-date
+            type: string
+            description: "Earliest date (YYYY-MM-DD)"
+          - name: end_date
+            flag_name: end-date
+            type: string
+            description: "Latest date (YYYY-MM-DD)"
+          - name: group_by
+            flag_name: group-by
+            type: string
+            description: "Grouping: category, category_group, merchant, month, day (default category)"
+        response:
+          type: array
+          item: ReportRow
+
+      configurations:
+        method: POST
+        path: "/graphql"
+        description: "List saved report configurations"
+        response:
+          type: array
+          item: ReportConfiguration
+
+  subscription:
+    description: "Monarch subscription details for the household"
+    endpoints:
+      get:
+        method: POST
+        path: "/graphql"
+        description: "Get current Monarch plan, billing cycle, and trial status"
+        response:
+          type: object
+          item: Subscription
+
+  credit:
+    description: "Credit score and report (powered by Spinwheel)"
+    endpoints:
+      report:
+        method: POST
+        path: "/graphql"
+        description: "Get the current credit-score and report summary"
+        response:
+          type: object
+          item: CreditReport

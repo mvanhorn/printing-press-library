@@ -1,0 +1,72 @@
+{
+  "target_url": "https://app.monarch.com",
+  "captured_at": "2026-05-09T21:23:00Z",
+  "interaction_rounds": 1,
+  "reachability": {
+    "mode": "standard_http",
+    "tested": "POST https://api.monarch.com/graphql returns 401 unauthenticated, 200 with valid Authorization: Token <session>"
+  },
+  "auth_pattern": {
+    "type": "session_token",
+    "header": "Authorization",
+    "prefix": "Token",
+    "obtain_via": [
+      "POST /auth/login (email + password) -> token",
+      "POST /auth/login/multi_factor (email + password + code) -> token (when MFA)",
+      "Chrome cookie import (cookies from app.monarch.com -> api.monarch.com) - alternative session reuse"
+    ],
+    "mfa": {
+      "supported": true,
+      "modes": [
+        "email_otp",
+        "totp"
+      ]
+    }
+  },
+  "graphql": {
+    "endpoint": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "envelope": {
+      "operationName": "<name>",
+      "query": "<gql>",
+      "variables": "<obj>"
+    },
+    "captured_operations": [
+      "Web_GetAccountsPageRecentBalance",
+      "Common_GetHouseholdPreferences",
+      "Web_GetAccountTypes",
+      "Common_GetSubscriptionDetails",
+      "Common_GetCategories",
+      "Common_GetAggregateSnapshots",
+      "Common_GetReportConfigurations",
+      "Web_MintTransactionsCountQuery",
+      "Web_TransactionsFilterQuery",
+      "Common_GetHouseholdTransactionTags",
+      "Common_GetBudgetSettings",
+      "RecurringMerchantSearch",
+      "Common_GetAggregatedRecurringItems",
+      "Common_GetSpinwheelCreditReport",
+      "Common_LegacyGoalsMigrationQuery",
+      "Web_GetAccountsPage",
+      "Common_LatestForceRefreshOperation",
+      "Web_GoalsV2",
+      "Web_GetTransactionsSummaryCard",
+      "Common_ForceRefreshAccountsQuery",
+      "Common_GetBudgetStatus",
+      "Common_GetReportsData",
+      "Web_GetTransactionsList",
+      "Web_GetTransactionsPage",
+      "Common_UserProfileFlags",
+      "ManageGetCategoryGroups",
+      "GetTransactionDrawer",
+      "Web_AccountFilterQuery",
+      "Web_GetDownloadTransactionsSession",
+      "Web_GetTransactionFiltersMetadata",
+      "Common_GetJointPlanningData",
+      "Web_GetUserDismissedRetailSyncBanner",
+      "Common_GetDisplayBalanceAtDate"
+    ]
+  },
+  "entries_count": 83,
+  "unique_operations": 33
+}

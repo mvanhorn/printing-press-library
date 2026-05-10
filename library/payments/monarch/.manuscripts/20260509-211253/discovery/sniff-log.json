@@ -1,0 +1,832 @@
+[
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_LatestForceRefreshOperation",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_LatestForceRefreshOperation\",\"variables\":{},\"query\":\"query Common_LatestForceRefreshOperation {\\n  latestForceRefreshOperation {\\n    id\\n    state\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 45 bytes>",
+    "ts": 1778376197398
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_ForceRefreshAccountsQuery",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_ForceRefreshAccountsQuery\",\"variables\":{},\"query\":\"query Common_ForceRefreshAccountsQuery {\\n  hasAccountsSyncing\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 37 bytes>",
+    "ts": 1778376197433
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_AccountFilterQuery",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_AccountFilterQuery\",\"variables\":{},\"query\":\"query Web_AccountFilterQuery {\\n  accounts {\\n    id\\n    displayName\\n    logoUrl\\n    icon\\n    type {\\n      name\\n      display\\n      group\\n      __typename\\n    }\\n    subtype {\\n      name\\n      display\\n      __typename\\n    }\\n    __typename\\n  }\\n  myHousehold {\\n    id\\n    users {\\n      id\\n      name\\n      profilePictureUrl\\n      __typename\\n    }\\n    __typename\\n  }\\n  householdPreferences {\\n    accountGroupOrder\\n    collaborationToolsEnabled\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 13979 bytes>",
+    "ts": 1778376197451
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetDisplayBalanceAtDate",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetDisplayBalanceAtDate\",\"variables\":{\"date\":\"2026-04-09\",\"filters\":{}},\"query\":\"query Common_GetDisplayBalanceAtDate($date: Date!, $filters: AccountFilters) {\\n  accounts(filters: $filters) {\\n    id\\n    displayBalance(date: $date)\\n    includeInNetWorth\\n    type {\\n      name\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 5439 bytes>",
+    "ts": 1778376197464
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetHouseholdPreferences",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetHouseholdPreferences\",\"variables\":{},\"query\":\"query Common_GetHouseholdPreferences {\\n  householdPreferences {\\n    id\\n    ...HouseholdPreferencesFields\\n    __typename\\n  }\\n  ...HouseholdBudgetSettingsFields\\n}\\n\\nfragment HouseholdPreferencesFields on HouseholdPreferences {\\n  id\\n  newTransactionsNeedReview\\n  uncategorizedTransactionsNeedReview\\n  pendingTransactionsCanBeEdited\\n  accountGroupOrder\\n  aiAssistantEnabled\\n  llmEnrichmentEnabled\\n  investmentTransactionsEnabled\\n  budgetApplyToFutureMonthsDefault\\n  hiddenTransactionsBetaEnabled\\n  collaborationToolsEnabled\\n  aggDataSharingEnabled\\n  aiModelTrainingOnUserDataEnabled\\n  excludeBusinessFromBudget\\n  continuousFinancialMonitoringEnabled\\n  eligibleForFinancialInsights\\n  __typename\\n}\\n\\nfragment HouseholdBudgetSettingsFields on Query {\\n  budgetSystem\\n  budgetApplyToFutureMonthsDefault\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 722 bytes>",
+    "ts": 1778376197636
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_LegacyGoalsMigrationQuery",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_LegacyGoalsMigrationQuery\",\"variables\":{},\"query\":\"query Common_LegacyGoalsMigrationQuery {\\n  legacyGoalsMigrationData {\\n    id\\n    newGoalId\\n    type\\n    archivedAt\\n    completedAt\\n    __typename\\n  }\\n  debtAccounts {\\n    ...DebtAccountFields\\n    __typename\\n  }\\n  migratedToSavingsGoals\\n}\\n\\nfragment DebtAccountFields on Account {\\n  id\\n  displayName\\n  displayBalance\\n  icon\\n  logoUrl\\n  includeInNetWorth\\n  isHidden\\n  displayLastUpdatedAt\\n  apr\\n  interestRate\\n  minimumPayment\\n  plannedPayment\\n  excludeFromDebtPaydown\\n  type {\\n    name\\n    display\\n    __typename\\n  }\\n  subtype {\\n    name\\n    display\\n    __typename\\n  }\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 5817 bytes>",
+    "ts": 1778376197651
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_AccountFilterQuery",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_AccountFilterQuery\",\"variables\":{},\"query\":\"query Web_AccountFilterQuery {\\n  accounts {\\n    id\\n    displayName\\n    logoUrl\\n    icon\\n    type {\\n      name\\n      display\\n      group\\n      __typename\\n    }\\n    subtype {\\n      name\\n      display\\n      __typename\\n    }\\n    __typename\\n  }\\n  myHousehold {\\n    id\\n    users {\\n      id\\n      name\\n      profilePictureUrl\\n      __typename\\n    }\\n    __typename\\n  }\\n  householdPreferences {\\n    accountGroupOrder\\n    collaborationToolsEnabled\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 13979 bytes>",
+    "ts": 1778376197674
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetAccountsPage",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetAccountsPage\",\"variables\":{\"filters\":{}},\"query\":\"query Web_GetAccountsPage($filters: AccountFilters) {\\n  hasAccounts\\n  accountTypeSummaries(filters: $filters) {\\n    type {\\n      name\\n      display\\n      group\\n      __typename\\n    }\\n    accounts {\\n      id\\n      credential {\\n        id\\n        institution {\\n          id\\n          name\\n          __typename\\n        }\\n        __typename\\n      }\\n      connectionStatus {\\n        connectionStatusCode\\n        copyTitle\\n        inAppSmallCopy\\n        inAppCopy\\n        helpCenterUrl\\n        __typename\\n      }\\n      ...AccountsListFields\\n      __typename\\n    }\\n    isAsset\\n    totalDisplayBalance\\n    __typename\\n  }\\n  householdPreferences {\\n    id\\n    accountGroupOrder\\n    collaborationToolsEnabled\\n    __typename\\n  }\\n}\\n\\nfragment AccountMaskFields on Account {\\n  id\\n  mask\\n  subtype {\\n    display\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment InstitutionStatusTooltipFields on Institution {\\n  id\\n  logo\\n  name\\n  status\\n  plaidStatus\\n  newConnectionsDisabled\\n  hasIssuesReported\\n  url\\n  hasIssuesReportedMessage\\n  transactionsStatus\\n  balanceStatus\\n  __typename\\n}\\n\\nfragment AccountListItemFields on Account {\\n  id\\n  displayName\\n  displayBalance\\n  signedBalance\\n  updatedAt\\n  syncDisabled\\n  dataProviderDeactivatedAt\\n  icon\\n  logoUrl\\n  isHidden\\n  isAsset\\n  includeInNetWorth\\n  includeBalanceInNetWorth\\n  displayLastUpdatedAt\\n  limit\\n  type {\\n    name\\n    __typename\\n  }\\n  ...AccountMaskFields\\n  credential {\\n    id\\n    updateRequired\\n    dataProvider\\n    disconnectedFromDataProviderAt\\n    syncDisabledAt\\n    syncDisabledReason\\n    __typename\\n  }\\n  connectionStatus {\\n    connectionStatusCode\\n    copyTitle\\n    inAppSmallCopy\\n    inAppCopy\\n    helpCenterUrl\\n    __typename\\n  }\\n  institution {\\n    id\\n    ...InstitutionStatusTooltipFields\\n    __typename\\n  }\\n  ownedByUser {\\n    id\\n    displayName\\n    profilePictureUrl\\n    __typename\\n  }\\n  businessEntity {\\n    id\\n    name\\n    logoUrl\\n    color\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment AccountsListFields on Account {\\n  id\\n  syncDisabled\\n  isHidden\\n  isAsset\\n  includeInNetWorth\\n  order\\n  type {\\n    name\\n    display\\n    __typename\\n  }\\n  ...AccountListItemFields\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 50014 bytes>",
+    "ts": 1778376197950
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetAccountsPageRecentBalance",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetAccountsPageRecentBalance\",\"variables\":{\"startDate\":\"2026-04-09\"},\"query\":\"query Web_GetAccountsPageRecentBalance($startDate: Date) {\\n  accounts {\\n    id\\n    recentBalances(startDate: $startDate)\\n    type {\\n      name\\n      display\\n      group\\n      __typename\\n    }\\n    includeInNetWorth\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 14577 bytes>",
+    "ts": 1778376198142
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetAccountTypes",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetAccountTypes\",\"variables\":{},\"query\":\"query Web_GetAccountTypes {\\n  accountTypes {\\n    name\\n    display\\n    group\\n    showForSyncedAccounts\\n    possibleSubtypes {\\n      display\\n      name\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 8643 bytes>",
+    "ts": 1778376198282
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_AccountFilterQuery",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_AccountFilterQuery\",\"variables\":{},\"query\":\"query Web_AccountFilterQuery {\\n  accounts {\\n    id\\n    displayName\\n    logoUrl\\n    icon\\n    type {\\n      name\\n      display\\n      group\\n      __typename\\n    }\\n    subtype {\\n      name\\n      display\\n      __typename\\n    }\\n    __typename\\n  }\\n  myHousehold {\\n    id\\n    users {\\n      id\\n      name\\n      profilePictureUrl\\n      __typename\\n    }\\n    __typename\\n  }\\n  householdPreferences {\\n    accountGroupOrder\\n    collaborationToolsEnabled\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 13979 bytes>",
+    "ts": 1778376198282
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetHouseholdPreferences",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetHouseholdPreferences\",\"variables\":{},\"query\":\"query Common_GetHouseholdPreferences {\\n  householdPreferences {\\n    id\\n    ...HouseholdPreferencesFields\\n    __typename\\n  }\\n  ...HouseholdBudgetSettingsFields\\n}\\n\\nfragment HouseholdPreferencesFields on HouseholdPreferences {\\n  id\\n  newTransactionsNeedReview\\n  uncategorizedTransactionsNeedReview\\n  pendingTransactionsCanBeEdited\\n  accountGroupOrder\\n  aiAssistantEnabled\\n  llmEnrichmentEnabled\\n  investmentTransactionsEnabled\\n  budgetApplyToFutureMonthsDefault\\n  hiddenTransactionsBetaEnabled\\n  collaborationToolsEnabled\\n  aggDataSharingEnabled\\n  aiModelTrainingOnUserDataEnabled\\n  excludeBusinessFromBudget\\n  continuousFinancialMonitoringEnabled\\n  eligibleForFinancialInsights\\n  __typename\\n}\\n\\nfragment HouseholdBudgetSettingsFields on Query {\\n  budgetSystem\\n  budgetApplyToFutureMonthsDefault\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 722 bytes>",
+    "ts": 1778376198433
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_UserProfileFlags",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_UserProfileFlags\",\"variables\":{},\"query\":\"query Common_UserProfileFlags {\\n  userProfile {\\n    ...UserProfileFlagsFields\\n    __typename\\n  }\\n}\\n\\nfragment UserProfileFlagsFields on UserProfile {\\n  id\\n  aiAssistantOptedInAt\\n  dismissedTaxLotsWalkthroughAt\\n  dismissedTransferAccountDataWalkthroughAt\\n  dismissedTransactionsListUpdatesTourAt\\n  dismissedYearlyReviewAt\\n  hasDismissedWhatsNewAt\\n  hasSeenCategoriesManagementTour\\n  hasSeenWeeklyReviewTour\\n  viewedMarkAsReviewedUpdatesCalloutAt\\n  hasHiddenReferralProgramPrompts\\n  dismissedOwnershipWalkthroughAt\\n  finishedOwnershipSetupAt\\n  displayOwnershipOnTransactionsList\\n  dismissedFinancialProfileBannerForMemberIds\\n  dismissedPaychecksWalkthroughAt\\n  dismissedInvestmentsAdvancedWalkthroughAt\\n  dismissedFundAnalysisDisclosureAt\\n  hasReviewedSpending\\n  dismissedPlusTierWalkthroughAt\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 1010 bytes>",
+    "ts": 1778376198643
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_LegacyGoalsMigrationQuery",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_LegacyGoalsMigrationQuery\",\"variables\":{},\"query\":\"query Common_LegacyGoalsMigrationQuery {\\n  legacyGoalsMigrationData {\\n    id\\n    newGoalId\\n    type\\n    archivedAt\\n    completedAt\\n    __typename\\n  }\\n  debtAccounts {\\n    ...DebtAccountFields\\n    __typename\\n  }\\n  migratedToSavingsGoals\\n}\\n\\nfragment DebtAccountFields on Account {\\n  id\\n  displayName\\n  displayBalance\\n  icon\\n  logoUrl\\n  includeInNetWorth\\n  isHidden\\n  displayLastUpdatedAt\\n  apr\\n  interestRate\\n  minimumPayment\\n  plannedPayment\\n  excludeFromDebtPaydown\\n  type {\\n    name\\n    display\\n    __typename\\n  }\\n  subtype {\\n    name\\n    display\\n    __typename\\n  }\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 5817 bytes>",
+    "ts": 1778376198718
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetAccountsPage",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetAccountsPage\",\"variables\":{\"filters\":{}},\"query\":\"query Web_GetAccountsPage($filters: AccountFilters) {\\n  hasAccounts\\n  accountTypeSummaries(filters: $filters) {\\n    type {\\n      name\\n      display\\n      group\\n      __typename\\n    }\\n    accounts {\\n      id\\n      credential {\\n        id\\n        institution {\\n          id\\n          name\\n          __typename\\n        }\\n        __typename\\n      }\\n      connectionStatus {\\n        connectionStatusCode\\n        copyTitle\\n        inAppSmallCopy\\n        inAppCopy\\n        helpCenterUrl\\n        __typename\\n      }\\n      ...AccountsListFields\\n      __typename\\n    }\\n    isAsset\\n    totalDisplayBalance\\n    __typename\\n  }\\n  householdPreferences {\\n    id\\n    accountGroupOrder\\n    collaborationToolsEnabled\\n    __typename\\n  }\\n}\\n\\nfragment AccountMaskFields on Account {\\n  id\\n  mask\\n  subtype {\\n    display\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment InstitutionStatusTooltipFields on Institution {\\n  id\\n  logo\\n  name\\n  status\\n  plaidStatus\\n  newConnectionsDisabled\\n  hasIssuesReported\\n  url\\n  hasIssuesReportedMessage\\n  transactionsStatus\\n  balanceStatus\\n  __typename\\n}\\n\\nfragment AccountListItemFields on Account {\\n  id\\n  displayName\\n  displayBalance\\n  signedBalance\\n  updatedAt\\n  syncDisabled\\n  dataProviderDeactivatedAt\\n  icon\\n  logoUrl\\n  isHidden\\n  isAsset\\n  includeInNetWorth\\n  includeBalanceInNetWorth\\n  displayLastUpdatedAt\\n  limit\\n  type {\\n    name\\n    __typename\\n  }\\n  ...AccountMaskFields\\n  credential {\\n    id\\n    updateRequired\\n    dataProvider\\n    disconnectedFromDataProviderAt\\n    syncDisabledAt\\n    syncDisabledReason\\n    __typename\\n  }\\n  connectionStatus {\\n    connectionStatusCode\\n    copyTitle\\n    inAppSmallCopy\\n    inAppCopy\\n    helpCenterUrl\\n    __typename\\n  }\\n  institution {\\n    id\\n    ...InstitutionStatusTooltipFields\\n    __typename\\n  }\\n  ownedByUser {\\n    id\\n    displayName\\n    profilePictureUrl\\n    __typename\\n  }\\n  businessEntity {\\n    id\\n    name\\n    logoUrl\\n    color\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment AccountsListFields on Account {\\n  id\\n  syncDisabled\\n  isHidden\\n  isAsset\\n  includeInNetWorth\\n  order\\n  type {\\n    name\\n    display\\n    __typename\\n  }\\n  ...AccountListItemFields\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 50014 bytes>",
+    "ts": 1778376198868
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetAggregateSnapshots",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetAggregateSnapshots\",\"variables\":{\"filters\":{\"startDate\":\"2026-04-09\",\"endDate\":null,\"useAdaptiveGranularity\":true,\"accountFilters\":{\"accountType\":null}}},\"query\":\"query Common_GetAggregateSnapshots($filters: AggregateSnapshotFilters) {\\n  aggregateSnapshots(filters: $filters) {\\n    date\\n    balance\\n    assetsBalance\\n    liabilitiesBalance\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 4205 bytes>",
+    "ts": 1778376199167
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetTransactionFiltersMetadata",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetTransactionFiltersMetadata\",\"variables\":{\"input\":{\"transactionVisibility\":\"non_hidden_transactions_only\"}},\"query\":\"query Web_GetTransactionFiltersMetadata($input: TransactionFilterInput!) {\\n  transactionFiltersMetadata(input: $input) {\\n    categories {\\n      id\\n      name\\n      icon\\n      __typename\\n    }\\n    categoryGroups {\\n      id\\n      name\\n      __typename\\n    }\\n    accounts {\\n      id\\n      displayName\\n      logoUrl\\n      icon\\n      __typename\\n    }\\n    merchants {\\n      id\\n      name\\n      logoUrl\\n      __typename\\n    }\\n    tags {\\n      id\\n      name\\n      color\\n      __typename\\n    }\\n    goals {\\n      id\\n      name\\n      imageStorageProvider\\n      imageStorageProviderId\\n      __typename\\n    }\\n    goals {\\n      id\\n      name\\n      imageStorageProvider\\n      imageStorageProviderId\\n      __typename\\n    }\\n    savingsGoals {\\n      id\\n      name\\n      imageStorageProvider\\n      imageStorageProviderId\\n      __typename\\n    }\\n    needsReviewByUser {\\n      id\\n      name\\n      __typename\\n    }\\n    ownershipSet {\\n      includeJointlyOwned\\n      users {\\n        id\\n        name\\n        displayName\\n        profilePictureUrl\\n        __typename\\n      }\\n      __typename\\n    }\\n    businessEntitySet {\\n      includeUnassigned\\n      businessEntities {\\n        id\\n        name\\n        logoUrl\\n        color\\n        __typename\\n      }\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 271 bytes>",
+    "ts": 1778376200435
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetDownloadTransactionsSession",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetDownloadTransactionsSession\",\"variables\":{\"sessionKey\":\"\"},\"query\":\"query Web_GetDownloadTransactionsSession($sessionKey: String!) {\\n  downloadTransactionsSession(sessionKey: $sessionKey) {\\n    sessionKey\\n    status\\n    errorMessage\\n    url\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 151 bytes>",
+    "ts": 1778376200439
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_UserProfileFlags",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_UserProfileFlags\",\"variables\":{},\"query\":\"query Common_UserProfileFlags {\\n  userProfile {\\n    ...UserProfileFlagsFields\\n    __typename\\n  }\\n}\\n\\nfragment UserProfileFlagsFields on UserProfile {\\n  id\\n  aiAssistantOptedInAt\\n  dismissedTaxLotsWalkthroughAt\\n  dismissedTransferAccountDataWalkthroughAt\\n  dismissedTransactionsListUpdatesTourAt\\n  dismissedYearlyReviewAt\\n  hasDismissedWhatsNewAt\\n  hasSeenCategoriesManagementTour\\n  hasSeenWeeklyReviewTour\\n  viewedMarkAsReviewedUpdatesCalloutAt\\n  hasHiddenReferralProgramPrompts\\n  dismissedOwnershipWalkthroughAt\\n  finishedOwnershipSetupAt\\n  displayOwnershipOnTransactionsList\\n  dismissedFinancialProfileBannerForMemberIds\\n  dismissedPaychecksWalkthroughAt\\n  dismissedInvestmentsAdvancedWalkthroughAt\\n  dismissedFundAnalysisDisclosureAt\\n  hasReviewedSpending\\n  dismissedPlusTierWalkthroughAt\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 1010 bytes>",
+    "ts": 1778376200445
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetTransactionsSummaryCard",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetTransactionsSummaryCard\",\"variables\":{\"filters\":{\"transactionVisibility\":\"non_hidden_transactions_only\"}},\"query\":\"query Web_GetTransactionsSummaryCard($filters: TransactionFilterInput!) {\\n  allTransactions(filters: $filters) {\\n    totalCount\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 79 bytes>",
+    "ts": 1778376200460
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_LegacyGoalsMigrationQuery",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_LegacyGoalsMigrationQuery\",\"variables\":{},\"query\":\"query Common_LegacyGoalsMigrationQuery {\\n  legacyGoalsMigrationData {\\n    id\\n    newGoalId\\n    type\\n    archivedAt\\n    completedAt\\n    __typename\\n  }\\n  debtAccounts {\\n    ...DebtAccountFields\\n    __typename\\n  }\\n  migratedToSavingsGoals\\n}\\n\\nfragment DebtAccountFields on Account {\\n  id\\n  displayName\\n  displayBalance\\n  icon\\n  logoUrl\\n  includeInNetWorth\\n  isHidden\\n  displayLastUpdatedAt\\n  apr\\n  interestRate\\n  minimumPayment\\n  plannedPayment\\n  excludeFromDebtPaydown\\n  type {\\n    name\\n    display\\n    __typename\\n  }\\n  subtype {\\n    name\\n    display\\n    __typename\\n  }\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 5817 bytes>",
+    "ts": 1778376200468
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetTransactionsPage",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetTransactionsPage\",\"variables\":{\"filters\":{\"transactionVisibility\":\"non_hidden_transactions_only\"}},\"query\":\"query Web_GetTransactionsPage($filters: TransactionFilterInput) {\\n  aggregates(filters: $filters) {\\n    summary {\\n      ...TransactionsSummaryFields\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\\nfragment TransactionsSummaryFields on TransactionsSummary {\\n  avg\\n  max\\n  maxExpense\\n  sum\\n  sumIncome\\n  sumExpense\\n  first\\n  last\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 269 bytes>",
+    "ts": 1778376200523
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_MintTransactionsCountQuery",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_MintTransactionsCountQuery\",\"variables\":{},\"query\":\"query Web_MintTransactionsCountQuery {\\n  allMintTransactions: allTransactions(filters: {importedFromMint: true}) {\\n    totalCount\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 80 bytes>",
+    "ts": 1778376200559
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_TransactionsFilterQuery",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_TransactionsFilterQuery\",\"variables\":{},\"query\":\"query Web_TransactionsFilterQuery($search: String, $includeIds: [ID!]) {\\n  categoryGroups {\\n    id\\n    name\\n    order\\n    categories {\\n      id\\n      name\\n      icon\\n      order\\n      __typename\\n    }\\n    __typename\\n  }\\n  goalsV2 {\\n    id\\n    name\\n    imageStorageProvider\\n    imageStorageProviderId\\n    archivedAt\\n    priority\\n    __typename\\n  }\\n  savingsGoals {\\n    id\\n    name\\n    imageStorageProvider\\n    imageStorageProviderId\\n    archivedAt\\n    priority\\n    __typename\\n  }\\n  merchants(search: $search, includeIds: $includeIds) {\\n    id\\n    name\\n    transactionCount\\n    logoUrl\\n    __typename\\n  }\\n  accounts {\\n    id\\n    displayName\\n    logoUrl\\n    icon\\n    type {\\n      name\\n      display\\n      __typename\\n    }\\n    __typename\\n  }\\n  householdTransactionTags {\\n    id\\n    name\\n    order\\n    color\\n    __typename\\n  }\\n  myHousehold {\\n    id\\n    users {\\n      id\\n      name\\n      displayName\\n      profilePictureUrl\\n      __typename\\n    }\\n    __typename\\n  }\\n  householdPreferences {\\n    accountGroupOrder\\n    collaborationToolsEnabled\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 26357 bytes>",
+    "ts": 1778376200638
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetUserDismissedRetailSyncBanner",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetUserDismissedRetailSyncBanner\",\"variables\":{},\"query\":\"query Web_GetUserDismissedRetailSyncBanner {\\n  userHasConfiguredRetailSyncExtension\\n  me {\\n    id\\n    profile {\\n      id\\n      dismissedRetailSyncBanner\\n      dismissedRetailSyncTargetBannerAt\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 265 bytes>",
+    "ts": 1778376200705
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetHouseholdPreferences",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetHouseholdPreferences\",\"variables\":{},\"query\":\"query Common_GetHouseholdPreferences {\\n  householdPreferences {\\n    id\\n    ...HouseholdPreferencesFields\\n    __typename\\n  }\\n  ...HouseholdBudgetSettingsFields\\n}\\n\\nfragment HouseholdPreferencesFields on HouseholdPreferences {\\n  id\\n  newTransactionsNeedReview\\n  uncategorizedTransactionsNeedReview\\n  pendingTransactionsCanBeEdited\\n  accountGroupOrder\\n  aiAssistantEnabled\\n  llmEnrichmentEnabled\\n  investmentTransactionsEnabled\\n  budgetApplyToFutureMonthsDefault\\n  hiddenTransactionsBetaEnabled\\n  collaborationToolsEnabled\\n  aggDataSharingEnabled\\n  aiModelTrainingOnUserDataEnabled\\n  excludeBusinessFromBudget\\n  continuousFinancialMonitoringEnabled\\n  eligibleForFinancialInsights\\n  __typename\\n}\\n\\nfragment HouseholdBudgetSettingsFields on Query {\\n  budgetSystem\\n  budgetApplyToFutureMonthsDefault\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 722 bytes>",
+    "ts": 1778376200795
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetTransactionsList",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetTransactionsList\",\"variables\":{\"orderBy\":\"date\",\"limit\":25,\"filters\":{\"transactionVisibility\":\"non_hidden_transactions_only\"}},\"query\":\"query Web_GetTransactionsList($offset: Int, $limit: Int, $filters: TransactionFilterInput, $orderBy: TransactionOrdering) {\\n  allTransactions(filters: $filters) {\\n    totalCount\\n    totalSelectableCount\\n    results(offset: $offset, limit: $limit, orderBy: $orderBy) {\\n      id\\n      ...TransactionOverviewFields\\n      __typename\\n    }\\n    __typename\\n  }\\n  transactionRules {\\n    id\\n    __typename\\n  }\\n}\\n\\nfragment TransactionOverviewFields on Transaction {\\n  id\\n  amount\\n  pending\\n  date\\n  hideFromReports\\n  hiddenByAccount\\n  plaidName\\n  notes\\n  isRecurring\\n  reviewStatus\\n  needsReview\\n  isSplitTransaction\\n  dataProviderDescription\\n  deletedAt\\n  deletedByType\\n  attachments {\\n    id\\n    __typename\\n  }\\n  goal {\\n    id\\n    name\\n    __typename\\n  }\\n  savingsGoalEvent {\\n    id\\n    goal {\\n      id\\n      name\\n      __typename\\n    }\\n    __typename\\n  }\\n  category {\\n    id\\n    name\\n    icon\\n    systemCategory\\n    group {\\n      id\\n      type\\n      __typename\\n    }\\n    __typename\\n  }\\n  merchant {\\n    name\\n    id\\n    transactionsCount\\n    logoUrl\\n    recurringTransactionStream {\\n      frequency\\n      isActive\\n      __typename\\n    }\\n    __typename\\n  }\\n  tags {\\n    id\\n    name\\n    color\\n    order\\n    __typename\\n  }\\n  account {\\n    id\\n    displayName\\n    icon\\n    logoUrl\\n    __typename\\n  }\\n  ownedByUser {\\n    id\\n    displayName\\n    profilePictureUrl\\n    __typename\\n  }\\n  businessEntity {\\n    id\\n    name\\n    logoUrl\\n    color\\n    __typename\\n  }\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 36272 bytes>",
+    "ts": 1778376201018
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_LegacyGoalsMigrationQuery",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_LegacyGoalsMigrationQuery\",\"variables\":{},\"query\":\"query Common_LegacyGoalsMigrationQuery {\\n  legacyGoalsMigrationData {\\n    id\\n    newGoalId\\n    type\\n    archivedAt\\n    completedAt\\n    __typename\\n  }\\n  debtAccounts {\\n    ...DebtAccountFields\\n    __typename\\n  }\\n  migratedToSavingsGoals\\n}\\n\\nfragment DebtAccountFields on Account {\\n  id\\n  displayName\\n  displayBalance\\n  icon\\n  logoUrl\\n  includeInNetWorth\\n  isHidden\\n  displayLastUpdatedAt\\n  apr\\n  interestRate\\n  minimumPayment\\n  plannedPayment\\n  excludeFromDebtPaydown\\n  type {\\n    name\\n    display\\n    __typename\\n  }\\n  subtype {\\n    name\\n    display\\n    __typename\\n  }\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 5817 bytes>",
+    "ts": 1778376201234
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetCategories",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetCategories\",\"variables\":{},\"query\":\"query Common_GetCategories($includeSystemDisabledCategories: Boolean) {\\n  categoryGroups {\\n    id\\n    name\\n    order\\n    type\\n    groupLevelBudgetingEnabled\\n    budgetVariability\\n    rolloverPeriod {\\n      id\\n      startMonth\\n      startingBalance\\n      frequency\\n      targetAmount\\n      type\\n      __typename\\n    }\\n    categories {\\n      id\\n      __typename\\n    }\\n    __typename\\n  }\\n  categories(includeDisabledSystemCategories: $includeSystemDisabledCategories) {\\n    id\\n    name\\n    order\\n    icon\\n    isSystemCategory\\n    excludeFromBudget\\n    budgetVariability\\n    isDisabled\\n    group {\\n      id\\n      type\\n      __typename\\n    }\\n    rolloverPeriod {\\n      id\\n      startMonth\\n      startingBalance\\n      frequency\\n      targetAmount\\n      type\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 28209 bytes>",
+    "ts": 1778376201254
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetSubscriptionDetails",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetSubscriptionDetails\",\"variables\":{},\"query\":\"query Common_GetSubscriptionDetails {\\n  subscription {\\n    id\\n    paymentSource\\n    referralCode\\n    isOnFreeTrial\\n    hasPremiumEntitlement\\n    willCancelAtPeriodEnd\\n    trialEndsAt\\n    trialDurationDays\\n    plusTrialEndsAt\\n    billingPeriod\\n    isEligibleForCoreToPlusPromo\\n    paymentMethod {\\n      lastFour\\n      __typename\\n    }\\n    activeSponsorship {\\n      id\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 463 bytes>",
+    "ts": 1778376201301
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetBudgetSettings",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetBudgetSettings\",\"variables\":{},\"query\":\"query Common_GetBudgetSettings {\\n  budgetSystem\\n  budgetApplyToFutureMonthsDefault\\n  flexExpenseRolloverPeriod {\\n    id\\n    startMonth\\n    startingBalance\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 122 bytes>",
+    "ts": 1778376206779
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetBudgetStatus",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetBudgetStatus\",\"variables\":{},\"query\":\"query Common_GetBudgetStatus {\\n  budgetStatus {\\n    ...BudgetStatusFields\\n    __typename\\n  }\\n}\\n\\nfragment BudgetStatusFields on BudgetStatus {\\n  hasBudget\\n  hasTransactions\\n  willCreateBudgetFromEmptyDefaultCategories\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 146 bytes>",
+    "ts": 1778376206784
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_LegacyGoalsMigrationQuery",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_LegacyGoalsMigrationQuery\",\"variables\":{},\"query\":\"query Common_LegacyGoalsMigrationQuery {\\n  legacyGoalsMigrationData {\\n    id\\n    newGoalId\\n    type\\n    archivedAt\\n    completedAt\\n    __typename\\n  }\\n  debtAccounts {\\n    ...DebtAccountFields\\n    __typename\\n  }\\n  migratedToSavingsGoals\\n}\\n\\nfragment DebtAccountFields on Account {\\n  id\\n  displayName\\n  displayBalance\\n  icon\\n  logoUrl\\n  includeInNetWorth\\n  isHidden\\n  displayLastUpdatedAt\\n  apr\\n  interestRate\\n  minimumPayment\\n  plannedPayment\\n  excludeFromDebtPaydown\\n  type {\\n    name\\n    display\\n    __typename\\n  }\\n  subtype {\\n    name\\n    display\\n    __typename\\n  }\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 5817 bytes>",
+    "ts": 1778376206811
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetJointPlanningData",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetJointPlanningData\",\"variables\":{\"startDate\":\"2026-04-01\",\"endDate\":\"2026-07-01\"},\"query\":\"query Common_GetJointPlanningData($startDate: Date!, $endDate: Date!) {\\n  budgetSystem\\n  budgetData(startMonth: $startDate, endMonth: $endDate) {\\n    ...BudgetDataFields\\n    __typename\\n  }\\n  categoryGroups {\\n    ...BudgetCategoryGroupFields\\n    __typename\\n  }\\n  goalsV2 {\\n    ...BudgetDataGoalsV2Fields\\n    __typename\\n  }\\n  savingsGoalMonthlyBudgetAmounts(startMonth: $startDate, endMonth: $endDate) {\\n    ...SavingsGoalMonthlyBudgetAmountsFields\\n    __typename\\n  }\\n  debtPaydownMonthlyBudgetAmounts(startMonth: $startDate, endMonth: $endDate) {\\n    ...DebtPaydownMonthlyBudgetAmountsFields\\n    __typename\\n  }\\n}\\n\\nfragment BudgetDataMonthlyAmountsFields on BudgetMonthlyAmounts {\\n  month\\n  plannedCashFlowAmount\\n  plannedSetAsideAmount\\n  actualAmount\\n  remainingAmount\\n  previousMonthRolloverAmount\\n  rolloverType\\n  cumulativeActualAmount\\n  rolloverTargetAmount\\n  __typename\\n}\\n\\nfragment BudgetMonthlyAmountsByCategoryFields on BudgetCategoryMonthlyAmounts {\\n  category {\\n    id\\n    __typename\\n  }\\n  monthlyAmounts {\\n    ...BudgetDataMonthlyAmountsFields\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment BudgetMonthlyAmountsByCategoryGroupFields on BudgetCategoryGroupMonthlyAmounts {\\n  categoryGroup {\\n    id\\n    __typename\\n  }\\n  monthlyAmounts {\\n    ...BudgetDataMonthlyAmountsFields\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment BudgetMonthlyAmountsForFlexExpenseFields on BudgetFlexMonthlyAmounts {\\n  budgetVariability\\n  monthlyAmounts {\\n    ...BudgetDataMonthlyAmountsFields\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment BudgetDataTotalsByMonthFields on BudgetTotals {\\n  actualAmount\\n  plannedAmount\\n  previousMonthRolloverAmount\\n  remainingAmount\\n  __typename\\n}\\n\\nfragment BudgetTotalsByMonthFields on BudgetMonthTotals {\\n  month\\n  totalIncome {\\n    ...BudgetDataTotalsByMonthFields\\n    __typename\\n  }\\n  totalExpenses {\\n    ...BudgetDataTotalsByMonthFields\\n    __typename\\n  }\\n  totalFixedExpenses {\\n    ...BudgetDataTotalsByMonthFields\\n    __typename\\n  }\\n  totalNonMonthlyExpenses {\\n    ...BudgetDataTotalsByMonthFields\\n    __typename\\n  }\\n  totalFlexibleExpenses {\\n    ...BudgetDataTotalsByMonthFields\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment BudgetRolloverPeriodFields on BudgetRolloverPeriod {\\n  id\\n  startMonth\\n  endMonth\\n  startingBalance\\n  targetAmount\\n  frequency\\n  type\\n  __typename\\n}\\n\\nfragment BudgetCategoryFields on Category {\\n  id\\n  name\\n  icon\\n  order\\n  budgetVariability\\n  excludeFromBudget\\n  isSystemCategory\\n  updatedAt\\n  group {\\n    id\\n    type\\n    budgetVariability\\n    groupLevelBudgetingEnabled\\n    __typename\\n  }\\n  rolloverPeriod {\\n    ...BudgetRolloverPeriodFields\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment DebtAccountFields on Account {\\n  id\\n  displayName\\n  displayBalance\\n  icon\\n  logoUrl\\n  includeInNetWorth\\n  isHidden\\n  displayLastUpdatedAt\\n  apr\\n  interestRate\\n  minimumPayment\\n  plannedPayment\\n  excludeFromDebtPaydown\\n  type {\\n    name\\n    display\\n    __typename\\n  }\\n  subtype {\\n    name\\n    display\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment BudgetDataFields on BudgetData {\\n  monthlyAmountsByCategory {\\n    ...BudgetMonthlyAmountsByCategoryFields\\n    __typename\\n  }\\n  monthlyAmountsByCategoryGroup {\\n    ...BudgetMonthlyAmountsByCategoryGroupFields\\n    __typename\\n  }\\n  monthlyAmountsForFlexExpense {\\n    ...BudgetMonthlyAmountsForFlexExpenseFields\\n    __typename\\n  }\\n  totalsByMonth {\\n    ...BudgetTotalsByMonthFields\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment BudgetCategoryGroupFields on CategoryGroup {\\n  id\\n  name\\n  order\\n  type\\n  budgetVariability\\n  updatedAt\\n  groupLevelBudgetingEnabled\\n  categories {\\n    ...BudgetCategoryFields\\n    __typename\\n  }\\n  rolloverPeriod {\\n    id\\n    type\\n    startMonth\\n    endMonth\\n    startingBalance\\n    frequency\\n    targetAmount\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment BudgetDataGoalsV2Fields on GoalV2 {\\n  id\\n  name\\n  archivedAt\\n  completedAt\\n  priority\\n  imageStorageProvider\\n  imageStorageProviderId\\n  plannedContributions(startMonth: $startDate, endMonth: $endDate) {\\n    id\\n    month\\n    amount\\n    __typename\\n  }\\n  monthlyContributionSummaries(startMonth: $startDate, endMonth: $endDate) {\\n    month\\n    sum\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment SavingsGoalMonthlyBudgetAmountsFields on SavingsGoalMonthlyBudgetAmounts {\\n  id\\n  savingsGoal {\\n    id\\n    name\\n    type\\n    status\\n    archivedAt\\n    priority\\n    targetDate\\n    imageStorageProvider\\n    imageStorageProviderId\\n    __typename\\n  }\\n  monthlyAmounts {\\n    id\\n    month\\n    plannedAmount\\n    actualAmount\\n    remainingAmount\\n    totalPlannedAmount\\n    totalActualAmount\\n    totalRemainingAmount\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment DebtPaydownMonthlyBudgetAmountsFields on DebtPaydownMonthlyBudgetAmounts {\\n  id\\n  account {\\n    ...DebtAccountFields\\n    __typename\\n  }\\n  monthlyAmounts {\\n    id\\n    month\\n    plannedAmount\\n    actualAmount\\n    remainingAmount\\n    __typename\\n  }\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 50014 bytes>",
+    "ts": 1778376207811
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_LegacyGoalsMigrationQuery",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_LegacyGoalsMigrationQuery\",\"variables\":{},\"query\":\"query Common_LegacyGoalsMigrationQuery {\\n  legacyGoalsMigrationData {\\n    id\\n    newGoalId\\n    type\\n    archivedAt\\n    completedAt\\n    __typename\\n  }\\n  debtAccounts {\\n    ...DebtAccountFields\\n    __typename\\n  }\\n  migratedToSavingsGoals\\n}\\n\\nfragment DebtAccountFields on Account {\\n  id\\n  displayName\\n  displayBalance\\n  icon\\n  logoUrl\\n  includeInNetWorth\\n  isHidden\\n  displayLastUpdatedAt\\n  apr\\n  interestRate\\n  minimumPayment\\n  plannedPayment\\n  excludeFromDebtPaydown\\n  type {\\n    name\\n    display\\n    __typename\\n  }\\n  subtype {\\n    name\\n    display\\n    __typename\\n  }\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 5817 bytes>",
+    "ts": 1778376208071
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "RecurringMerchantSearch",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"RecurringMerchantSearch\",\"variables\":{},\"query\":\"query RecurringMerchantSearch {\\n  recurringMerchantSearch {\\n    startedAt\\n    nextAt\\n    finishedAt\\n    createdCount\\n    __typename\\n  }\\n  recurringTransactionStreams {\\n    stream {\\n      id\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 9269 bytes>",
+    "ts": 1778376211935
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetAggregatedRecurringItems",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetAggregatedRecurringItems\",\"variables\":{\"includeFinancialInsights\":false,\"startDate\":\"2026-05-01\",\"endDate\":\"2026-05-31\",\"filters\":{}},\"query\":\"query Common_GetAggregatedRecurringItems($startDate: Date!, $endDate: Date!, $filters: RecurringTransactionFilter, $includeFinancialInsights: Boolean = false) {\\n  aggregatedRecurringItems(\\n    startDate: $startDate\\n    endDate: $endDate\\n    groupBy: \\\"status\\\"\\n    filters: $filters\\n  ) {\\n    groups {\\n      groupBy {\\n        status\\n        __typename\\n      }\\n      results {\\n        ...RecurringItemFields\\n        __typename\\n      }\\n      summary {\\n        expense {\\n          total\\n          __typename\\n        }\\n        creditCard {\\n          total\\n          __typename\\n        }\\n        income {\\n          total\\n          __typename\\n        }\\n        __typename\\n      }\\n      __typename\\n    }\\n    aggregatedSummary {\\n      expense {\\n        completed\\n        remaining\\n        total\\n        count\\n        pendingAmountCount\\n        __typename\\n      }\\n      creditCard {\\n        completed\\n        remaining\\n        total\\n        count\\n        pendingAmountCount\\n        __typename\\n      }\\n      income {\\n        completed\\n        remaining\\n        total\\n        __typename\\n      }\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\\nfragment RecurringItemStreamFields on RecurringTransactionStream {\\n  id\\n  frequency\\n  isActive\\n  amount\\n  isApproximate\\n  name\\n  logoUrl\\n  merchant {\\n    id\\n    name\\n    logoUrl\\n    financialInsights @include(if: $includeFinancialInsights) {\\n      id\\n      status\\n      description\\n      reasoning\\n      savingsEstimateLow\\n      capturedSavingsLow\\n      currentAnnualCost\\n      __typename\\n    }\\n    __typename\\n  }\\n  creditReportLiabilityAccount {\\n    id\\n    liabilityType\\n    account {\\n      id\\n      __typename\\n    }\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment RecurringItemLiabilityFields on LiabilityStatement {\\n  id\\n  minimumPaymentAmount\\n  paymentsInformation {\\n    status\\n    remainingBalance\\n    transactions {\\n      id\\n      amount\\n      date\\n      category {\\n        id\\n        name\\n        icon\\n        group {\\n          id\\n          name\\n          type\\n          __typename\\n        }\\n        __typename\\n      }\\n      __typename\\n    }\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment RecurringItemFields on RecurringTransactionCalendarItem {\\n  stream {\\n    ...RecurringItemStreamFields\\n    __typename\\n  }\\n  date\\n  isPast\\n  isLate\\n  markedPaidAt\\n  isCompleted\\n  transactionId\\n  amount\\n  amountDiff\\n  isAmountDifferentThanOriginal\\n  creditReportLiabilityStatementId\\n  category {\\n    id\\n    name\\n    icon\\n    __typename\\n  }\\n  account {\\n    id\\n    displayName\\n    icon\\n    logoUrl\\n    __typename\\n  }\\n  liabilityStatement {\\n    ...RecurringItemLiabilityFields\\n    __typename\\n  }\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 50014 bytes>",
+    "ts": 1778376212486
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetSpinwheelCreditReport",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetSpinwheelCreditReport\",\"variables\":{},\"query\":\"query Common_GetSpinwheelCreditReport {\\n  spinwheelUser {\\n    id\\n    user {\\n      id\\n      name\\n      displayName\\n      __typename\\n    }\\n    onboardingStatus\\n    onboardingErrorMessage\\n    isBillSyncTrackingEnabled\\n    __typename\\n  }\\n  creditReportLiabilityAccounts {\\n    spinwheelLiabilityId\\n    liabilityType\\n    isOpen\\n    currentTotalBalance\\n    account {\\n      id\\n      __typename\\n    }\\n    description\\n    termsFrequency\\n    spinwheelUser {\\n      id\\n      user {\\n        id\\n        name\\n        displayName\\n        profilePictureUrl\\n        __typename\\n      }\\n      __typename\\n    }\\n    accountType\\n    recurringTransactionStream {\\n      frequency\\n      reviewStatus\\n      baseDate\\n      dayOfTheMonth\\n      __typename\\n    }\\n    lastStatement {\\n      dueDate\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 25429 bytes>",
+    "ts": 1778376212945
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_LegacyGoalsMigrationQuery",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_LegacyGoalsMigrationQuery\",\"variables\":{},\"query\":\"query Common_LegacyGoalsMigrationQuery {\\n  legacyGoalsMigrationData {\\n    id\\n    newGoalId\\n    type\\n    archivedAt\\n    completedAt\\n    __typename\\n  }\\n  debtAccounts {\\n    ...DebtAccountFields\\n    __typename\\n  }\\n  migratedToSavingsGoals\\n}\\n\\nfragment DebtAccountFields on Account {\\n  id\\n  displayName\\n  displayBalance\\n  icon\\n  logoUrl\\n  includeInNetWorth\\n  isHidden\\n  displayLastUpdatedAt\\n  apr\\n  interestRate\\n  minimumPayment\\n  plannedPayment\\n  excludeFromDebtPaydown\\n  type {\\n    name\\n    display\\n    __typename\\n  }\\n  subtype {\\n    name\\n    display\\n    __typename\\n  }\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 5817 bytes>",
+    "ts": 1778376216865
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GoalsV2",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GoalsV2\",\"variables\":{},\"query\":\"query Web_GoalsV2 {\\n  goalsV2 {\\n    id\\n    ...WebGoalCardFields\\n    __typename\\n  }\\n  accountsWithUnallocatedBalancesForGoals {\\n    id\\n    ...Web_GoalsAllocateBannerFields\\n    __typename\\n  }\\n}\\n\\nfragment WebGoalNameProgressBarFields on GoalV2 {\\n  id\\n  name\\n  defaultName\\n  targetAmount\\n  startingAmount\\n  currentAmount\\n  completedAt\\n  archivedAt\\n  type\\n  completionPercent\\n  accountAllocations {\\n    id\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment WebGoalCardFields on GoalV2 {\\n  id\\n  imageStorageProvider\\n  imageStorageProviderId\\n  priority\\n  archivedAt\\n  objective\\n  plannedMonthlyContribution\\n  plannedMonthlyPretaxContribution\\n  accountAllocations {\\n    id\\n    currentAmount\\n    currentMonthChange {\\n      amount\\n      __typename\\n    }\\n    account {\\n      id\\n      logoUrl\\n      icon\\n      displayName\\n      currentBalance\\n      displayBalance\\n      __typename\\n    }\\n    __typename\\n  }\\n  ...WebGoalNameProgressBarFields\\n  __typename\\n}\\n\\nfragment Web_GoalsAllocateBannerFields on Account {\\n  id\\n  name\\n  logoUrl\\n  icon\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 2361 bytes>",
+    "ts": 1778376216934
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetDownloadTransactionsSession",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetDownloadTransactionsSession\",\"variables\":{\"sessionKey\":\"\"},\"query\":\"query Web_GetDownloadTransactionsSession($sessionKey: String!) {\\n  downloadTransactionsSession(sessionKey: $sessionKey) {\\n    sessionKey\\n    status\\n    errorMessage\\n    url\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 151 bytes>",
+    "ts": 1778376221416
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetReportConfigurations",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetReportConfigurations\",\"variables\":{},\"query\":\"query Common_GetReportConfigurations {\\n  reportConfigurations {\\n    ...ReportConfigurationFields\\n    __typename\\n  }\\n}\\n\\nfragment TransactionFilterSetFields on TransactionFilterSet {\\n  id\\n  displayName\\n  categories {\\n    id\\n    name\\n    icon\\n    __typename\\n  }\\n  categoryGroups {\\n    id\\n    name\\n    type\\n    __typename\\n  }\\n  accounts {\\n    id\\n    displayName\\n    logoUrl\\n    icon\\n    __typename\\n  }\\n  merchants {\\n    id\\n    name\\n    logoUrl\\n    __typename\\n  }\\n  tags {\\n    id\\n    name\\n    color\\n    __typename\\n  }\\n  isUntagged\\n  goals {\\n    id\\n    name\\n    imageStorageProvider\\n    imageStorageProviderId\\n    __typename\\n  }\\n  savingsGoals {\\n    id\\n    name\\n    imageStorageProvider\\n    imageStorageProviderId\\n    __typename\\n  }\\n  searchQuery\\n  systemCategories\\n  systemCategoryGroups\\n  categoryType\\n  isUncategorized\\n  budgetVariability\\n  isFlexSpending\\n  startDate\\n  endDate\\n  timeframePeriod {\\n    unit\\n    value\\n    includeCurrent\\n    __typename\\n  }\\n  createdBefore\\n  createdAfter\\n  absAmountGte\\n  absAmountLte\\n  isSplit\\n  isRecurring\\n  isInvestmentAccount\\n  isPending\\n  creditsOnly\\n  debitsOnly\\n  hasNotes\\n  hasAttachments\\n  hiddenFromReports\\n  importedFromMint\\n  syncedFromInstitution\\n  needsReview\\n  needsReviewUnassigned\\n  needsReviewByUser {\\n    id\\n    name\\n    __typename\\n  }\\n  ownershipSet {\\n    includeJointlyOwned\\n    users {\\n      id\\n      name\\n      profilePictureUrl\\n      __typename\\n    }\\n    __typename\\n  }\\n  businessEntitySet {\\n    includeUnassigned\\n    businessEntities {\\n      id\\n      name\\n      logoUrl\\n      color\\n      __typename\\n    }\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment ReportConfigurationFields on ReportConfiguration {\\n  id\\n  displayName\\n  transactionFilterSet {\\n    ...TransactionFilterSetFields\\n    __typename\\n  }\\n  reportView {\\n    analysisScope\\n    chartType\\n    chartCalculation\\n    chartLayout\\n    chartDensity\\n    dimensions\\n    timeframe\\n    __typename\\n  }\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 36 bytes>",
+    "ts": 1778376221425
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetTransactionFiltersMetadata",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetTransactionFiltersMetadata\",\"variables\":{\"input\":{\"categoryType\":\"income\",\"transactionVisibility\":\"non_hidden_transactions_only\"}},\"query\":\"query Web_GetTransactionFiltersMetadata($input: TransactionFilterInput!) {\\n  transactionFiltersMetadata(input: $input) {\\n    categories {\\n      id\\n      name\\n      icon\\n      __typename\\n    }\\n    categoryGroups {\\n      id\\n      name\\n      __typename\\n    }\\n    accounts {\\n      id\\n      displayName\\n      logoUrl\\n      icon\\n      __typename\\n    }\\n    merchants {\\n      id\\n      name\\n      logoUrl\\n      __typename\\n    }\\n    tags {\\n      id\\n      name\\n      color\\n      __typename\\n    }\\n    goals {\\n      id\\n      name\\n      imageStorageProvider\\n      imageStorageProviderId\\n      __typename\\n    }\\n    goals {\\n      id\\n      name\\n      imageStorageProvider\\n      imageStorageProviderId\\n      __typename\\n    }\\n    savingsGoals {\\n      id\\n      name\\n      imageStorageProvider\\n      imageStorageProviderId\\n      __typename\\n    }\\n    needsReviewByUser {\\n      id\\n      name\\n      __typename\\n    }\\n    ownershipSet {\\n      includeJointlyOwned\\n      users {\\n        id\\n        name\\n        displayName\\n        profilePictureUrl\\n        __typename\\n      }\\n      __typename\\n    }\\n    businessEntitySet {\\n      includeUnassigned\\n      businessEntities {\\n        id\\n        name\\n        logoUrl\\n        color\\n        __typename\\n      }\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 271 bytes>",
+    "ts": 1778376221465
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetTransactionsSummaryCard",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetTransactionsSummaryCard\",\"variables\":{\"filters\":{\"categoryType\":\"income\",\"transactionVisibility\":\"non_hidden_transactions_only\"}},\"query\":\"query Web_GetTransactionsSummaryCard($filters: TransactionFilterInput!) {\\n  allTransactions(filters: $filters) {\\n    totalCount\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 79 bytes>",
+    "ts": 1778376221466
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_TransactionsFilterQuery",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_TransactionsFilterQuery\",\"variables\":{},\"query\":\"query Web_TransactionsFilterQuery($search: String, $includeIds: [ID!]) {\\n  categoryGroups {\\n    id\\n    name\\n    order\\n    categories {\\n      id\\n      name\\n      icon\\n      order\\n      __typename\\n    }\\n    __typename\\n  }\\n  goalsV2 {\\n    id\\n    name\\n    imageStorageProvider\\n    imageStorageProviderId\\n    archivedAt\\n    priority\\n    __typename\\n  }\\n  savingsGoals {\\n    id\\n    name\\n    imageStorageProvider\\n    imageStorageProviderId\\n    archivedAt\\n    priority\\n    __typename\\n  }\\n  merchants(search: $search, includeIds: $includeIds) {\\n    id\\n    name\\n    transactionCount\\n    logoUrl\\n    __typename\\n  }\\n  accounts {\\n    id\\n    displayName\\n    logoUrl\\n    icon\\n    type {\\n      name\\n      display\\n      __typename\\n    }\\n    __typename\\n  }\\n  householdTransactionTags {\\n    id\\n    name\\n    order\\n    color\\n    __typename\\n  }\\n  myHousehold {\\n    id\\n    users {\\n      id\\n      name\\n      displayName\\n      profilePictureUrl\\n      __typename\\n    }\\n    __typename\\n  }\\n  householdPreferences {\\n    accountGroupOrder\\n    collaborationToolsEnabled\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 26357 bytes>",
+    "ts": 1778376221535
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetReportsData",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetReportsData\",\"variables\":{\"includeCategory\":true,\"includeCategoryGroup\":false,\"includeMerchant\":false,\"includeBusinessEntity\":false,\"includeBudgetVariability\":false,\"fillEmptyValues\":true,\"filters\":{\"categoryType\":\"income\",\"transactionVisibility\":\"non_hidden_transactions_only\"},\"groupBy\":[\"category\"],\"sortBy\":\"sum_income\"},\"query\":\"query Common_GetReportsData($filters: TransactionFilterInput!, $groupBy: [ReportsGroupByEntity!], $groupByTimeframe: ReportsGroupByTimeframe, $sortBy: ReportsSortBy, $includeCategory: Boolean = false, $includeCategoryGroup: Boolean = false, $includeMerchant: Boolean = false, $includeBusinessEntity: Boolean = false, $includeBudgetVariability: Boolean = false, $fillEmptyValues: Boolean = true) {\\n  reports(\\n    groupBy: $groupBy\\n    groupByTimeframe: $groupByTimeframe\\n    filters: $filters\\n    sortBy: $sortBy\\n    fillEmptyValues: $fillEmptyValues\\n  ) {\\n    groupBy {\\n      date\\n      ...ReportsCategoryFields @include(if: $includeCategory)\\n      ...ReportsCategoryGroupFields @include(if: $includeCategoryGroup)\\n      ...ReportsMerchantFields @include(if: $includeMerchant)\\n      ...ReportsBusinessEntityFields @include(if: $includeBusinessEntity)\\n      ...ReportsBudgetVariabilityFields @include(if: $includeBudgetVariability)\\n      __typename\\n    }\\n    summary {\\n      ...ReportsSummaryFields\\n      __typename\\n    }\\n    __typename\\n  }\\n  aggregates(filters: $filters, fillEmptyValues: $fillEmptyValues) {\\n    summary {\\n      ...ReportsSummaryFields\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\\nfragment ReportsCategoryFields on ReportsGroupByData {\\n  category {\\n    id\\n    name\\n    icon\\n    group {\\n      id\\n      name\\n      type\\n      __typename\\n    }\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment ReportsCategoryGroupFields on ReportsGroupByData {\\n  categoryGroup {\\n    id\\n    name\\n    type\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment ReportsMerchantFields on ReportsGroupByData {\\n  merchant {\\n    id\\n    name\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment ReportsBusinessEntityFields on ReportsGroupByData {\\n  businessEntity {\\n    id\\n    name\\n    color\\n    icon\\n    logoUrl\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment ReportsBudgetVariabilityFields on ReportsGroupByData {\\n  budgetVariability {\\n    id\\n    name\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment ReportsSummaryFields on TransactionsSummary {\\n  sum\\n  avg\\n  count\\n  max\\n  sumIncome\\n  sumExpense\\n  savings\\n  savingsRate\\n  first\\n  last\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 33785 bytes>",
+    "ts": 1778376221646
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetHouseholdPreferences",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetHouseholdPreferences\",\"variables\":{},\"query\":\"query Common_GetHouseholdPreferences {\\n  householdPreferences {\\n    id\\n    ...HouseholdPreferencesFields\\n    __typename\\n  }\\n  ...HouseholdBudgetSettingsFields\\n}\\n\\nfragment HouseholdPreferencesFields on HouseholdPreferences {\\n  id\\n  newTransactionsNeedReview\\n  uncategorizedTransactionsNeedReview\\n  pendingTransactionsCanBeEdited\\n  accountGroupOrder\\n  aiAssistantEnabled\\n  llmEnrichmentEnabled\\n  investmentTransactionsEnabled\\n  budgetApplyToFutureMonthsDefault\\n  hiddenTransactionsBetaEnabled\\n  collaborationToolsEnabled\\n  aggDataSharingEnabled\\n  aiModelTrainingOnUserDataEnabled\\n  excludeBusinessFromBudget\\n  continuousFinancialMonitoringEnabled\\n  eligibleForFinancialInsights\\n  __typename\\n}\\n\\nfragment HouseholdBudgetSettingsFields on Query {\\n  budgetSystem\\n  budgetApplyToFutureMonthsDefault\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 722 bytes>",
+    "ts": 1778376221693
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetHouseholdPreferences",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetHouseholdPreferences\",\"variables\":{},\"query\":\"query Common_GetHouseholdPreferences {\\n  householdPreferences {\\n    id\\n    ...HouseholdPreferencesFields\\n    __typename\\n  }\\n  ...HouseholdBudgetSettingsFields\\n}\\n\\nfragment HouseholdPreferencesFields on HouseholdPreferences {\\n  id\\n  newTransactionsNeedReview\\n  uncategorizedTransactionsNeedReview\\n  pendingTransactionsCanBeEdited\\n  accountGroupOrder\\n  aiAssistantEnabled\\n  llmEnrichmentEnabled\\n  investmentTransactionsEnabled\\n  budgetApplyToFutureMonthsDefault\\n  hiddenTransactionsBetaEnabled\\n  collaborationToolsEnabled\\n  aggDataSharingEnabled\\n  aiModelTrainingOnUserDataEnabled\\n  excludeBusinessFromBudget\\n  continuousFinancialMonitoringEnabled\\n  eligibleForFinancialInsights\\n  __typename\\n}\\n\\nfragment HouseholdBudgetSettingsFields on Query {\\n  budgetSystem\\n  budgetApplyToFutureMonthsDefault\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 722 bytes>",
+    "ts": 1778376223594
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetReportConfigurations",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetReportConfigurations\",\"variables\":{},\"query\":\"query Common_GetReportConfigurations {\\n  reportConfigurations {\\n    ...ReportConfigurationFields\\n    __typename\\n  }\\n}\\n\\nfragment TransactionFilterSetFields on TransactionFilterSet {\\n  id\\n  displayName\\n  categories {\\n    id\\n    name\\n    icon\\n    __typename\\n  }\\n  categoryGroups {\\n    id\\n    name\\n    type\\n    __typename\\n  }\\n  accounts {\\n    id\\n    displayName\\n    logoUrl\\n    icon\\n    __typename\\n  }\\n  merchants {\\n    id\\n    name\\n    logoUrl\\n    __typename\\n  }\\n  tags {\\n    id\\n    name\\n    color\\n    __typename\\n  }\\n  isUntagged\\n  goals {\\n    id\\n    name\\n    imageStorageProvider\\n    imageStorageProviderId\\n    __typename\\n  }\\n  savingsGoals {\\n    id\\n    name\\n    imageStorageProvider\\n    imageStorageProviderId\\n    __typename\\n  }\\n  searchQuery\\n  systemCategories\\n  systemCategoryGroups\\n  categoryType\\n  isUncategorized\\n  budgetVariability\\n  isFlexSpending\\n  startDate\\n  endDate\\n  timeframePeriod {\\n    unit\\n    value\\n    includeCurrent\\n    __typename\\n  }\\n  createdBefore\\n  createdAfter\\n  absAmountGte\\n  absAmountLte\\n  isSplit\\n  isRecurring\\n  isInvestmentAccount\\n  isPending\\n  creditsOnly\\n  debitsOnly\\n  hasNotes\\n  hasAttachments\\n  hiddenFromReports\\n  importedFromMint\\n  syncedFromInstitution\\n  needsReview\\n  needsReviewUnassigned\\n  needsReviewByUser {\\n    id\\n    name\\n    __typename\\n  }\\n  ownershipSet {\\n    includeJointlyOwned\\n    users {\\n      id\\n      name\\n      profilePictureUrl\\n      __typename\\n    }\\n    __typename\\n  }\\n  businessEntitySet {\\n    includeUnassigned\\n    businessEntities {\\n      id\\n      name\\n      logoUrl\\n      color\\n      __typename\\n    }\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment ReportConfigurationFields on ReportConfiguration {\\n  id\\n  displayName\\n  transactionFilterSet {\\n    ...TransactionFilterSetFields\\n    __typename\\n  }\\n  reportView {\\n    analysisScope\\n    chartType\\n    chartCalculation\\n    chartLayout\\n    chartDensity\\n    dimensions\\n    timeframe\\n    __typename\\n  }\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 36 bytes>",
+    "ts": 1778376223606
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetDownloadTransactionsSession",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetDownloadTransactionsSession\",\"variables\":{\"sessionKey\":\"\"},\"query\":\"query Web_GetDownloadTransactionsSession($sessionKey: String!) {\\n  downloadTransactionsSession(sessionKey: $sessionKey) {\\n    sessionKey\\n    status\\n    errorMessage\\n    url\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 151 bytes>",
+    "ts": 1778376223620
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetTransactionFiltersMetadata",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetTransactionFiltersMetadata\",\"variables\":{\"input\":{\"categoryType\":\"expense\",\"transactionVisibility\":\"non_hidden_transactions_only\"}},\"query\":\"query Web_GetTransactionFiltersMetadata($input: TransactionFilterInput!) {\\n  transactionFiltersMetadata(input: $input) {\\n    categories {\\n      id\\n      name\\n      icon\\n      __typename\\n    }\\n    categoryGroups {\\n      id\\n      name\\n      __typename\\n    }\\n    accounts {\\n      id\\n      displayName\\n      logoUrl\\n      icon\\n      __typename\\n    }\\n    merchants {\\n      id\\n      name\\n      logoUrl\\n      __typename\\n    }\\n    tags {\\n      id\\n      name\\n      color\\n      __typename\\n    }\\n    goals {\\n      id\\n      name\\n      imageStorageProvider\\n      imageStorageProviderId\\n      __typename\\n    }\\n    goals {\\n      id\\n      name\\n      imageStorageProvider\\n      imageStorageProviderId\\n      __typename\\n    }\\n    savingsGoals {\\n      id\\n      name\\n      imageStorageProvider\\n      imageStorageProviderId\\n      __typename\\n    }\\n    needsReviewByUser {\\n      id\\n      name\\n      __typename\\n    }\\n    ownershipSet {\\n      includeJointlyOwned\\n      users {\\n        id\\n        name\\n        displayName\\n        profilePictureUrl\\n        __typename\\n      }\\n      __typename\\n    }\\n    businessEntitySet {\\n      includeUnassigned\\n      businessEntities {\\n        id\\n        name\\n        logoUrl\\n        color\\n        __typename\\n      }\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 271 bytes>",
+    "ts": 1778376223671
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetTransactionsSummaryCard",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetTransactionsSummaryCard\",\"variables\":{\"filters\":{\"categoryType\":\"expense\",\"transactionVisibility\":\"non_hidden_transactions_only\"}},\"query\":\"query Web_GetTransactionsSummaryCard($filters: TransactionFilterInput!) {\\n  allTransactions(filters: $filters) {\\n    totalCount\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 79 bytes>",
+    "ts": 1778376223694
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_TransactionsFilterQuery",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_TransactionsFilterQuery\",\"variables\":{},\"query\":\"query Web_TransactionsFilterQuery($search: String, $includeIds: [ID!]) {\\n  categoryGroups {\\n    id\\n    name\\n    order\\n    categories {\\n      id\\n      name\\n      icon\\n      order\\n      __typename\\n    }\\n    __typename\\n  }\\n  goalsV2 {\\n    id\\n    name\\n    imageStorageProvider\\n    imageStorageProviderId\\n    archivedAt\\n    priority\\n    __typename\\n  }\\n  savingsGoals {\\n    id\\n    name\\n    imageStorageProvider\\n    imageStorageProviderId\\n    archivedAt\\n    priority\\n    __typename\\n  }\\n  merchants(search: $search, includeIds: $includeIds) {\\n    id\\n    name\\n    transactionCount\\n    logoUrl\\n    __typename\\n  }\\n  accounts {\\n    id\\n    displayName\\n    logoUrl\\n    icon\\n    type {\\n      name\\n      display\\n      __typename\\n    }\\n    __typename\\n  }\\n  householdTransactionTags {\\n    id\\n    name\\n    order\\n    color\\n    __typename\\n  }\\n  myHousehold {\\n    id\\n    users {\\n      id\\n      name\\n      displayName\\n      profilePictureUrl\\n      __typename\\n    }\\n    __typename\\n  }\\n  householdPreferences {\\n    accountGroupOrder\\n    collaborationToolsEnabled\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 26357 bytes>",
+    "ts": 1778376223748
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetReportsData",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetReportsData\",\"variables\":{\"includeCategory\":true,\"includeCategoryGroup\":false,\"includeMerchant\":false,\"includeBusinessEntity\":false,\"includeBudgetVariability\":false,\"fillEmptyValues\":true,\"filters\":{\"categoryType\":\"expense\",\"transactionVisibility\":\"non_hidden_transactions_only\"},\"groupBy\":[\"category\"],\"sortBy\":\"sum_expense\"},\"query\":\"query Common_GetReportsData($filters: TransactionFilterInput!, $groupBy: [ReportsGroupByEntity!], $groupByTimeframe: ReportsGroupByTimeframe, $sortBy: ReportsSortBy, $includeCategory: Boolean = false, $includeCategoryGroup: Boolean = false, $includeMerchant: Boolean = false, $includeBusinessEntity: Boolean = false, $includeBudgetVariability: Boolean = false, $fillEmptyValues: Boolean = true) {\\n  reports(\\n    groupBy: $groupBy\\n    groupByTimeframe: $groupByTimeframe\\n    filters: $filters\\n    sortBy: $sortBy\\n    fillEmptyValues: $fillEmptyValues\\n  ) {\\n    groupBy {\\n      date\\n      ...ReportsCategoryFields @include(if: $includeCategory)\\n      ...ReportsCategoryGroupFields @include(if: $includeCategoryGroup)\\n      ...ReportsMerchantFields @include(if: $includeMerchant)\\n      ...ReportsBusinessEntityFields @include(if: $includeBusinessEntity)\\n      ...ReportsBudgetVariabilityFields @include(if: $includeBudgetVariability)\\n      __typename\\n    }\\n    summary {\\n      ...ReportsSummaryFields\\n      __typename\\n    }\\n    __typename\\n  }\\n  aggregates(filters: $filters, fillEmptyValues: $fillEmptyValues) {\\n    summary {\\n      ...ReportsSummaryFields\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\\nfragment ReportsCategoryFields on ReportsGroupByData {\\n  category {\\n    id\\n    name\\n    icon\\n    group {\\n      id\\n      name\\n      type\\n      __typename\\n    }\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment ReportsCategoryGroupFields on ReportsGroupByData {\\n  categoryGroup {\\n    id\\n    name\\n    type\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment ReportsMerchantFields on ReportsGroupByData {\\n  merchant {\\n    id\\n    name\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment ReportsBusinessEntityFields on ReportsGroupByData {\\n  businessEntity {\\n    id\\n    name\\n    color\\n    icon\\n    logoUrl\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment ReportsBudgetVariabilityFields on ReportsGroupByData {\\n  budgetVariability {\\n    id\\n    name\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment ReportsSummaryFields on TransactionsSummary {\\n  sum\\n  avg\\n  count\\n  max\\n  sumIncome\\n  sumExpense\\n  savings\\n  savingsRate\\n  first\\n  last\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 36077 bytes>",
+    "ts": 1778376223902
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetTransactionsList",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetTransactionsList\",\"variables\":{\"orderBy\":\"date\",\"limit\":20,\"filters\":{\"categoryType\":\"expense\",\"transactionVisibility\":\"non_hidden_transactions_only\"}},\"query\":\"query Web_GetTransactionsList($offset: Int, $limit: Int, $filters: TransactionFilterInput, $orderBy: TransactionOrdering) {\\n  allTransactions(filters: $filters) {\\n    totalCount\\n    totalSelectableCount\\n    results(offset: $offset, limit: $limit, orderBy: $orderBy) {\\n      id\\n      ...TransactionOverviewFields\\n      __typename\\n    }\\n    __typename\\n  }\\n  transactionRules {\\n    id\\n    __typename\\n  }\\n}\\n\\nfragment TransactionOverviewFields on Transaction {\\n  id\\n  amount\\n  pending\\n  date\\n  hideFromReports\\n  hiddenByAccount\\n  plaidName\\n  notes\\n  isRecurring\\n  reviewStatus\\n  needsReview\\n  isSplitTransaction\\n  dataProviderDescription\\n  deletedAt\\n  deletedByType\\n  attachments {\\n    id\\n    __typename\\n  }\\n  goal {\\n    id\\n    name\\n    __typename\\n  }\\n  savingsGoalEvent {\\n    id\\n    goal {\\n      id\\n      name\\n      __typename\\n    }\\n    __typename\\n  }\\n  category {\\n    id\\n    name\\n    icon\\n    systemCategory\\n    group {\\n      id\\n      type\\n      __typename\\n    }\\n    __typename\\n  }\\n  merchant {\\n    name\\n    id\\n    transactionsCount\\n    logoUrl\\n    recurringTransactionStream {\\n      frequency\\n      isActive\\n      __typename\\n    }\\n    __typename\\n  }\\n  tags {\\n    id\\n    name\\n    color\\n    order\\n    __typename\\n  }\\n  account {\\n    id\\n    displayName\\n    icon\\n    logoUrl\\n    __typename\\n  }\\n  ownedByUser {\\n    id\\n    displayName\\n    profilePictureUrl\\n    __typename\\n  }\\n  businessEntity {\\n    id\\n    name\\n    logoUrl\\n    color\\n    __typename\\n  }\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 29075 bytes>",
+    "ts": 1778376224082
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetHouseholdPreferences",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetHouseholdPreferences\",\"variables\":{},\"query\":\"query Common_GetHouseholdPreferences {\\n  householdPreferences {\\n    id\\n    ...HouseholdPreferencesFields\\n    __typename\\n  }\\n  ...HouseholdBudgetSettingsFields\\n}\\n\\nfragment HouseholdPreferencesFields on HouseholdPreferences {\\n  id\\n  newTransactionsNeedReview\\n  uncategorizedTransactionsNeedReview\\n  pendingTransactionsCanBeEdited\\n  accountGroupOrder\\n  aiAssistantEnabled\\n  llmEnrichmentEnabled\\n  investmentTransactionsEnabled\\n  budgetApplyToFutureMonthsDefault\\n  hiddenTransactionsBetaEnabled\\n  collaborationToolsEnabled\\n  aggDataSharingEnabled\\n  aiModelTrainingOnUserDataEnabled\\n  excludeBusinessFromBudget\\n  continuousFinancialMonitoringEnabled\\n  eligibleForFinancialInsights\\n  __typename\\n}\\n\\nfragment HouseholdBudgetSettingsFields on Query {\\n  budgetSystem\\n  budgetApplyToFutureMonthsDefault\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 722 bytes>",
+    "ts": 1778376224106
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_UserProfileFlags",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_UserProfileFlags\",\"variables\":{},\"query\":\"query Common_UserProfileFlags {\\n  userProfile {\\n    ...UserProfileFlagsFields\\n    __typename\\n  }\\n}\\n\\nfragment UserProfileFlagsFields on UserProfile {\\n  id\\n  aiAssistantOptedInAt\\n  dismissedTaxLotsWalkthroughAt\\n  dismissedTransferAccountDataWalkthroughAt\\n  dismissedTransactionsListUpdatesTourAt\\n  dismissedYearlyReviewAt\\n  hasDismissedWhatsNewAt\\n  hasSeenCategoriesManagementTour\\n  hasSeenWeeklyReviewTour\\n  viewedMarkAsReviewedUpdatesCalloutAt\\n  hasHiddenReferralProgramPrompts\\n  dismissedOwnershipWalkthroughAt\\n  finishedOwnershipSetupAt\\n  displayOwnershipOnTransactionsList\\n  dismissedFinancialProfileBannerForMemberIds\\n  dismissedPaychecksWalkthroughAt\\n  dismissedInvestmentsAdvancedWalkthroughAt\\n  dismissedFundAnalysisDisclosureAt\\n  hasReviewedSpending\\n  dismissedPlusTierWalkthroughAt\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 1010 bytes>",
+    "ts": 1778376224341
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "ManageGetCategoryGroups",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"ManageGetCategoryGroups\",\"variables\":{},\"query\":\"query ManageGetCategoryGroups {\\n  categoryGroups {\\n    id\\n    name\\n    order\\n    type\\n    __typename\\n  }\\n  categories(includeDisabledSystemCategories: true) {\\n    id\\n    name\\n    order\\n    icon\\n    isSystemCategory\\n    systemCategory\\n    isDisabled\\n    group {\\n      id\\n      type\\n      name\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 21509 bytes>",
+    "ts": 1778376224365
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetSubscriptionDetails",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetSubscriptionDetails\",\"variables\":{},\"query\":\"query Common_GetSubscriptionDetails {\\n  subscription {\\n    id\\n    paymentSource\\n    referralCode\\n    isOnFreeTrial\\n    hasPremiumEntitlement\\n    willCancelAtPeriodEnd\\n    trialEndsAt\\n    trialDurationDays\\n    plusTrialEndsAt\\n    billingPeriod\\n    isEligibleForCoreToPlusPromo\\n    paymentMethod {\\n      lastFour\\n      __typename\\n    }\\n    activeSponsorship {\\n      id\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 463 bytes>",
+    "ts": 1778376224423
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetTransactionFiltersMetadata",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetTransactionFiltersMetadata\",\"variables\":{\"input\":{\"categoryType\":\"expense\",\"transactionVisibility\":\"non_hidden_transactions_only\"}},\"query\":\"query Web_GetTransactionFiltersMetadata($input: TransactionFilterInput!) {\\n  transactionFiltersMetadata(input: $input) {\\n    categories {\\n      id\\n      name\\n      icon\\n      __typename\\n    }\\n    categoryGroups {\\n      id\\n      name\\n      __typename\\n    }\\n    accounts {\\n      id\\n      displayName\\n      logoUrl\\n      icon\\n      __typename\\n    }\\n    merchants {\\n      id\\n      name\\n      logoUrl\\n      __typename\\n    }\\n    tags {\\n      id\\n      name\\n      color\\n      __typename\\n    }\\n    goals {\\n      id\\n      name\\n      imageStorageProvider\\n      imageStorageProviderId\\n      __typename\\n    }\\n    goals {\\n      id\\n      name\\n      imageStorageProvider\\n      imageStorageProviderId\\n      __typename\\n    }\\n    savingsGoals {\\n      id\\n      name\\n      imageStorageProvider\\n      imageStorageProviderId\\n      __typename\\n    }\\n    needsReviewByUser {\\n      id\\n      name\\n      __typename\\n    }\\n    ownershipSet {\\n      includeJointlyOwned\\n      users {\\n        id\\n        name\\n        displayName\\n        profilePictureUrl\\n        __typename\\n      }\\n      __typename\\n    }\\n    businessEntitySet {\\n      includeUnassigned\\n      businessEntities {\\n        id\\n        name\\n        logoUrl\\n        color\\n        __typename\\n      }\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 271 bytes>",
+    "ts": 1778376225826
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetDownloadTransactionsSession",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetDownloadTransactionsSession\",\"variables\":{\"sessionKey\":\"\"},\"query\":\"query Web_GetDownloadTransactionsSession($sessionKey: String!) {\\n  downloadTransactionsSession(sessionKey: $sessionKey) {\\n    sessionKey\\n    status\\n    errorMessage\\n    url\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 151 bytes>",
+    "ts": 1778376225830
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_LegacyGoalsMigrationQuery",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_LegacyGoalsMigrationQuery\",\"variables\":{},\"query\":\"query Common_LegacyGoalsMigrationQuery {\\n  legacyGoalsMigrationData {\\n    id\\n    newGoalId\\n    type\\n    archivedAt\\n    completedAt\\n    __typename\\n  }\\n  debtAccounts {\\n    ...DebtAccountFields\\n    __typename\\n  }\\n  migratedToSavingsGoals\\n}\\n\\nfragment DebtAccountFields on Account {\\n  id\\n  displayName\\n  displayBalance\\n  icon\\n  logoUrl\\n  includeInNetWorth\\n  isHidden\\n  displayLastUpdatedAt\\n  apr\\n  interestRate\\n  minimumPayment\\n  plannedPayment\\n  excludeFromDebtPaydown\\n  type {\\n    name\\n    display\\n    __typename\\n  }\\n  subtype {\\n    name\\n    display\\n    __typename\\n  }\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 5817 bytes>",
+    "ts": 1778376225855
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetSubscriptionDetails",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetSubscriptionDetails\",\"variables\":{},\"query\":\"query Common_GetSubscriptionDetails {\\n  subscription {\\n    id\\n    paymentSource\\n    referralCode\\n    isOnFreeTrial\\n    hasPremiumEntitlement\\n    willCancelAtPeriodEnd\\n    trialEndsAt\\n    trialDurationDays\\n    plusTrialEndsAt\\n    billingPeriod\\n    isEligibleForCoreToPlusPromo\\n    paymentMethod {\\n      lastFour\\n      __typename\\n    }\\n    activeSponsorship {\\n      id\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 463 bytes>",
+    "ts": 1778376225932
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_TransactionsFilterQuery",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_TransactionsFilterQuery\",\"variables\":{},\"query\":\"query Web_TransactionsFilterQuery($search: String, $includeIds: [ID!]) {\\n  categoryGroups {\\n    id\\n    name\\n    order\\n    categories {\\n      id\\n      name\\n      icon\\n      order\\n      __typename\\n    }\\n    __typename\\n  }\\n  goalsV2 {\\n    id\\n    name\\n    imageStorageProvider\\n    imageStorageProviderId\\n    archivedAt\\n    priority\\n    __typename\\n  }\\n  savingsGoals {\\n    id\\n    name\\n    imageStorageProvider\\n    imageStorageProviderId\\n    archivedAt\\n    priority\\n    __typename\\n  }\\n  merchants(search: $search, includeIds: $includeIds) {\\n    id\\n    name\\n    transactionCount\\n    logoUrl\\n    __typename\\n  }\\n  accounts {\\n    id\\n    displayName\\n    logoUrl\\n    icon\\n    type {\\n      name\\n      display\\n      __typename\\n    }\\n    __typename\\n  }\\n  householdTransactionTags {\\n    id\\n    name\\n    order\\n    color\\n    __typename\\n  }\\n  myHousehold {\\n    id\\n    users {\\n      id\\n      name\\n      displayName\\n      profilePictureUrl\\n      __typename\\n    }\\n    __typename\\n  }\\n  householdPreferences {\\n    accountGroupOrder\\n    collaborationToolsEnabled\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 26357 bytes>",
+    "ts": 1778376225974
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetHouseholdPreferences",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetHouseholdPreferences\",\"variables\":{},\"query\":\"query Common_GetHouseholdPreferences {\\n  householdPreferences {\\n    id\\n    ...HouseholdPreferencesFields\\n    __typename\\n  }\\n  ...HouseholdBudgetSettingsFields\\n}\\n\\nfragment HouseholdPreferencesFields on HouseholdPreferences {\\n  id\\n  newTransactionsNeedReview\\n  uncategorizedTransactionsNeedReview\\n  pendingTransactionsCanBeEdited\\n  accountGroupOrder\\n  aiAssistantEnabled\\n  llmEnrichmentEnabled\\n  investmentTransactionsEnabled\\n  budgetApplyToFutureMonthsDefault\\n  hiddenTransactionsBetaEnabled\\n  collaborationToolsEnabled\\n  aggDataSharingEnabled\\n  aiModelTrainingOnUserDataEnabled\\n  excludeBusinessFromBudget\\n  continuousFinancialMonitoringEnabled\\n  eligibleForFinancialInsights\\n  __typename\\n}\\n\\nfragment HouseholdBudgetSettingsFields on Query {\\n  budgetSystem\\n  budgetApplyToFutureMonthsDefault\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 722 bytes>",
+    "ts": 1778376226125
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetReportsData",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetReportsData\",\"variables\":{\"includeCategory\":true,\"includeCategoryGroup\":false,\"includeMerchant\":false,\"includeBusinessEntity\":false,\"includeBudgetVariability\":false,\"fillEmptyValues\":true,\"filters\":{\"categoryType\":\"expense\",\"transactionVisibility\":\"non_hidden_transactions_only\"},\"groupBy\":[\"category\"],\"sortBy\":\"sum_expense\"},\"query\":\"query Common_GetReportsData($filters: TransactionFilterInput!, $groupBy: [ReportsGroupByEntity!], $groupByTimeframe: ReportsGroupByTimeframe, $sortBy: ReportsSortBy, $includeCategory: Boolean = false, $includeCategoryGroup: Boolean = false, $includeMerchant: Boolean = false, $includeBusinessEntity: Boolean = false, $includeBudgetVariability: Boolean = false, $fillEmptyValues: Boolean = true) {\\n  reports(\\n    groupBy: $groupBy\\n    groupByTimeframe: $groupByTimeframe\\n    filters: $filters\\n    sortBy: $sortBy\\n    fillEmptyValues: $fillEmptyValues\\n  ) {\\n    groupBy {\\n      date\\n      ...ReportsCategoryFields @include(if: $includeCategory)\\n      ...ReportsCategoryGroupFields @include(if: $includeCategoryGroup)\\n      ...ReportsMerchantFields @include(if: $includeMerchant)\\n      ...ReportsBusinessEntityFields @include(if: $includeBusinessEntity)\\n      ...ReportsBudgetVariabilityFields @include(if: $includeBudgetVariability)\\n      __typename\\n    }\\n    summary {\\n      ...ReportsSummaryFields\\n      __typename\\n    }\\n    __typename\\n  }\\n  aggregates(filters: $filters, fillEmptyValues: $fillEmptyValues) {\\n    summary {\\n      ...ReportsSummaryFields\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\\nfragment ReportsCategoryFields on ReportsGroupByData {\\n  category {\\n    id\\n    name\\n    icon\\n    group {\\n      id\\n      name\\n      type\\n      __typename\\n    }\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment ReportsCategoryGroupFields on ReportsGroupByData {\\n  categoryGroup {\\n    id\\n    name\\n    type\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment ReportsMerchantFields on ReportsGroupByData {\\n  merchant {\\n    id\\n    name\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment ReportsBusinessEntityFields on ReportsGroupByData {\\n  businessEntity {\\n    id\\n    name\\n    color\\n    icon\\n    logoUrl\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment ReportsBudgetVariabilityFields on ReportsGroupByData {\\n  budgetVariability {\\n    id\\n    name\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment ReportsSummaryFields on TransactionsSummary {\\n  sum\\n  avg\\n  count\\n  max\\n  sumIncome\\n  sumExpense\\n  savings\\n  savingsRate\\n  first\\n  last\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 36077 bytes>",
+    "ts": 1778376226134
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetTransactionsList",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetTransactionsList\",\"variables\":{\"orderBy\":\"date\",\"limit\":20,\"filters\":{\"categoryType\":\"expense\",\"transactionVisibility\":\"non_hidden_transactions_only\"}},\"query\":\"query Web_GetTransactionsList($offset: Int, $limit: Int, $filters: TransactionFilterInput, $orderBy: TransactionOrdering) {\\n  allTransactions(filters: $filters) {\\n    totalCount\\n    totalSelectableCount\\n    results(offset: $offset, limit: $limit, orderBy: $orderBy) {\\n      id\\n      ...TransactionOverviewFields\\n      __typename\\n    }\\n    __typename\\n  }\\n  transactionRules {\\n    id\\n    __typename\\n  }\\n}\\n\\nfragment TransactionOverviewFields on Transaction {\\n  id\\n  amount\\n  pending\\n  date\\n  hideFromReports\\n  hiddenByAccount\\n  plaidName\\n  notes\\n  isRecurring\\n  reviewStatus\\n  needsReview\\n  isSplitTransaction\\n  dataProviderDescription\\n  deletedAt\\n  deletedByType\\n  attachments {\\n    id\\n    __typename\\n  }\\n  goal {\\n    id\\n    name\\n    __typename\\n  }\\n  savingsGoalEvent {\\n    id\\n    goal {\\n      id\\n      name\\n      __typename\\n    }\\n    __typename\\n  }\\n  category {\\n    id\\n    name\\n    icon\\n    systemCategory\\n    group {\\n      id\\n      type\\n      __typename\\n    }\\n    __typename\\n  }\\n  merchant {\\n    name\\n    id\\n    transactionsCount\\n    logoUrl\\n    recurringTransactionStream {\\n      frequency\\n      isActive\\n      __typename\\n    }\\n    __typename\\n  }\\n  tags {\\n    id\\n    name\\n    color\\n    order\\n    __typename\\n  }\\n  account {\\n    id\\n    displayName\\n    icon\\n    logoUrl\\n    __typename\\n  }\\n  ownedByUser {\\n    id\\n    displayName\\n    profilePictureUrl\\n    __typename\\n  }\\n  businessEntity {\\n    id\\n    name\\n    logoUrl\\n    color\\n    __typename\\n  }\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 29075 bytes>",
+    "ts": 1778376226403
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetReportConfigurations",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetReportConfigurations\",\"variables\":{},\"query\":\"query Common_GetReportConfigurations {\\n  reportConfigurations {\\n    ...ReportConfigurationFields\\n    __typename\\n  }\\n}\\n\\nfragment TransactionFilterSetFields on TransactionFilterSet {\\n  id\\n  displayName\\n  categories {\\n    id\\n    name\\n    icon\\n    __typename\\n  }\\n  categoryGroups {\\n    id\\n    name\\n    type\\n    __typename\\n  }\\n  accounts {\\n    id\\n    displayName\\n    logoUrl\\n    icon\\n    __typename\\n  }\\n  merchants {\\n    id\\n    name\\n    logoUrl\\n    __typename\\n  }\\n  tags {\\n    id\\n    name\\n    color\\n    __typename\\n  }\\n  isUntagged\\n  goals {\\n    id\\n    name\\n    imageStorageProvider\\n    imageStorageProviderId\\n    __typename\\n  }\\n  savingsGoals {\\n    id\\n    name\\n    imageStorageProvider\\n    imageStorageProviderId\\n    __typename\\n  }\\n  searchQuery\\n  systemCategories\\n  systemCategoryGroups\\n  categoryType\\n  isUncategorized\\n  budgetVariability\\n  isFlexSpending\\n  startDate\\n  endDate\\n  timeframePeriod {\\n    unit\\n    value\\n    includeCurrent\\n    __typename\\n  }\\n  createdBefore\\n  createdAfter\\n  absAmountGte\\n  absAmountLte\\n  isSplit\\n  isRecurring\\n  isInvestmentAccount\\n  isPending\\n  creditsOnly\\n  debitsOnly\\n  hasNotes\\n  hasAttachments\\n  hiddenFromReports\\n  importedFromMint\\n  syncedFromInstitution\\n  needsReview\\n  needsReviewUnassigned\\n  needsReviewByUser {\\n    id\\n    name\\n    __typename\\n  }\\n  ownershipSet {\\n    includeJointlyOwned\\n    users {\\n      id\\n      name\\n      profilePictureUrl\\n      __typename\\n    }\\n    __typename\\n  }\\n  businessEntitySet {\\n    includeUnassigned\\n    businessEntities {\\n      id\\n      name\\n      logoUrl\\n      color\\n      __typename\\n    }\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment ReportConfigurationFields on ReportConfiguration {\\n  id\\n  displayName\\n  transactionFilterSet {\\n    ...TransactionFilterSetFields\\n    __typename\\n  }\\n  reportView {\\n    analysisScope\\n    chartType\\n    chartCalculation\\n    chartLayout\\n    chartDensity\\n    dimensions\\n    timeframe\\n    __typename\\n  }\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 36 bytes>",
+    "ts": 1778376226536
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetHouseholdTransactionTags",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetHouseholdTransactionTags\",\"variables\":{\"includeTransactionCount\":true},\"query\":\"query Common_GetHouseholdTransactionTags($search: String, $limit: Int, $bulkParams: BulkTransactionDataParams, $includeTransactionCount: Boolean = false) {\\n  householdTransactionTags(\\n    search: $search\\n    limit: $limit\\n    bulkParams: $bulkParams\\n  ) {\\n    id\\n    name\\n    color\\n    order\\n    transactionCount @include(if: $includeTransactionCount)\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 1715 bytes>",
+    "ts": 1778376226930
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetSubscriptionDetails",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetSubscriptionDetails\",\"variables\":{},\"query\":\"query Common_GetSubscriptionDetails {\\n  subscription {\\n    id\\n    paymentSource\\n    referralCode\\n    isOnFreeTrial\\n    hasPremiumEntitlement\\n    willCancelAtPeriodEnd\\n    trialEndsAt\\n    trialDurationDays\\n    plusTrialEndsAt\\n    billingPeriod\\n    isEligibleForCoreToPlusPromo\\n    paymentMethod {\\n      lastFour\\n      __typename\\n    }\\n    activeSponsorship {\\n      id\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 463 bytes>",
+    "ts": 1778376226968
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_UserProfileFlags",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_UserProfileFlags\",\"variables\":{},\"query\":\"query Common_UserProfileFlags {\\n  userProfile {\\n    ...UserProfileFlagsFields\\n    __typename\\n  }\\n}\\n\\nfragment UserProfileFlagsFields on UserProfile {\\n  id\\n  aiAssistantOptedInAt\\n  dismissedTaxLotsWalkthroughAt\\n  dismissedTransferAccountDataWalkthroughAt\\n  dismissedTransactionsListUpdatesTourAt\\n  dismissedYearlyReviewAt\\n  hasDismissedWhatsNewAt\\n  hasSeenCategoriesManagementTour\\n  hasSeenWeeklyReviewTour\\n  viewedMarkAsReviewedUpdatesCalloutAt\\n  hasHiddenReferralProgramPrompts\\n  dismissedOwnershipWalkthroughAt\\n  finishedOwnershipSetupAt\\n  displayOwnershipOnTransactionsList\\n  dismissedFinancialProfileBannerForMemberIds\\n  dismissedPaychecksWalkthroughAt\\n  dismissedInvestmentsAdvancedWalkthroughAt\\n  dismissedFundAnalysisDisclosureAt\\n  hasReviewedSpending\\n  dismissedPlusTierWalkthroughAt\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 1010 bytes>",
+    "ts": 1778376228031
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetUserDismissedRetailSyncBanner",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetUserDismissedRetailSyncBanner\",\"variables\":{},\"query\":\"query Web_GetUserDismissedRetailSyncBanner {\\n  userHasConfiguredRetailSyncExtension\\n  me {\\n    id\\n    profile {\\n      id\\n      dismissedRetailSyncBanner\\n      dismissedRetailSyncTargetBannerAt\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 265 bytes>",
+    "ts": 1778376228031
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetTransactionFiltersMetadata",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetTransactionFiltersMetadata\",\"variables\":{\"input\":{\"transactionVisibility\":\"non_hidden_transactions_only\"}},\"query\":\"query Web_GetTransactionFiltersMetadata($input: TransactionFilterInput!) {\\n  transactionFiltersMetadata(input: $input) {\\n    categories {\\n      id\\n      name\\n      icon\\n      __typename\\n    }\\n    categoryGroups {\\n      id\\n      name\\n      __typename\\n    }\\n    accounts {\\n      id\\n      displayName\\n      logoUrl\\n      icon\\n      __typename\\n    }\\n    merchants {\\n      id\\n      name\\n      logoUrl\\n      __typename\\n    }\\n    tags {\\n      id\\n      name\\n      color\\n      __typename\\n    }\\n    goals {\\n      id\\n      name\\n      imageStorageProvider\\n      imageStorageProviderId\\n      __typename\\n    }\\n    goals {\\n      id\\n      name\\n      imageStorageProvider\\n      imageStorageProviderId\\n      __typename\\n    }\\n    savingsGoals {\\n      id\\n      name\\n      imageStorageProvider\\n      imageStorageProviderId\\n      __typename\\n    }\\n    needsReviewByUser {\\n      id\\n      name\\n      __typename\\n    }\\n    ownershipSet {\\n      includeJointlyOwned\\n      users {\\n        id\\n        name\\n        displayName\\n        profilePictureUrl\\n        __typename\\n      }\\n      __typename\\n    }\\n    businessEntitySet {\\n      includeUnassigned\\n      businessEntities {\\n        id\\n        name\\n        logoUrl\\n        color\\n        __typename\\n      }\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 271 bytes>",
+    "ts": 1778376228062
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_LegacyGoalsMigrationQuery",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_LegacyGoalsMigrationQuery\",\"variables\":{},\"query\":\"query Common_LegacyGoalsMigrationQuery {\\n  legacyGoalsMigrationData {\\n    id\\n    newGoalId\\n    type\\n    archivedAt\\n    completedAt\\n    __typename\\n  }\\n  debtAccounts {\\n    ...DebtAccountFields\\n    __typename\\n  }\\n  migratedToSavingsGoals\\n}\\n\\nfragment DebtAccountFields on Account {\\n  id\\n  displayName\\n  displayBalance\\n  icon\\n  logoUrl\\n  includeInNetWorth\\n  isHidden\\n  displayLastUpdatedAt\\n  apr\\n  interestRate\\n  minimumPayment\\n  plannedPayment\\n  excludeFromDebtPaydown\\n  type {\\n    name\\n    display\\n    __typename\\n  }\\n  subtype {\\n    name\\n    display\\n    __typename\\n  }\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 5817 bytes>",
+    "ts": 1778376228064
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetDownloadTransactionsSession",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetDownloadTransactionsSession\",\"variables\":{\"sessionKey\":\"\"},\"query\":\"query Web_GetDownloadTransactionsSession($sessionKey: String!) {\\n  downloadTransactionsSession(sessionKey: $sessionKey) {\\n    sessionKey\\n    status\\n    errorMessage\\n    url\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 151 bytes>",
+    "ts": 1778376228064
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "GetTransactionDrawer",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"GetTransactionDrawer\",\"variables\":{\"id\":\"rules\",\"redirectPosted\":true},\"query\":\"query GetTransactionDrawer($id: UUID!, $redirectPosted: Boolean) {\\n  getTransaction(id: $id, redirectPosted: $redirectPosted) {\\n    id\\n    ...TransactionDrawerFields\\n    __typename\\n  }\\n  myHousehold {\\n    id\\n    users {\\n      id\\n      displayName\\n      profilePictureUrl\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\\nfragment TransactionDrawerSplitMessageFields on Transaction {\\n  id\\n  amount\\n  merchant {\\n    id\\n    name\\n    __typename\\n  }\\n  category {\\n    id\\n    icon\\n    name\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment OriginalTransactionFields on Transaction {\\n  id\\n  date\\n  amount\\n  merchant {\\n    id\\n    name\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment AccountLinkFields on Account {\\n  id\\n  displayName\\n  icon\\n  logoUrl\\n  id\\n  __typename\\n}\\n\\nfragment TransactionOverviewFields on Transaction {\\n  id\\n  amount\\n  pending\\n  date\\n  hideFromReports\\n  hiddenByAccount\\n  plaidName\\n  notes\\n  isRecurring\\n  reviewStatus\\n  needsReview\\n  isSplitTransaction\\n  dataProviderDescription\\n  deletedAt\\n  deletedByType\\n  attachments {\\n    id\\n    __typename\\n  }\\n  goal {\\n    id\\n    name\\n    __typename\\n  }\\n  savingsGoalEvent {\\n    id\\n    goal {\\n      id\\n      name\\n      __typename\\n    }\\n    __typename\\n  }\\n  category {\\n    id\\n    name\\n    icon\\n    systemCategory\\n    group {\\n      id\\n      type\\n      __typename\\n    }\\n    __typename\\n  }\\n  merchant {\\n    name\\n    id\\n    transactionsCount\\n    logoUrl\\n    recurringTransactionStream {\\n      frequency\\n      isActive\\n      __typename\\n    }\\n    __typename\\n  }\\n  tags {\\n    id\\n    name\\n    color\\n    order\\n    __typename\\n  }\\n  account {\\n    id\\n    displayName\\n    icon\\n    logoUrl\\n    __typename\\n  }\\n  ownedByUser {\\n    id\\n    displayName\\n    profilePictureUrl\\n    __typename\\n  }\\n  businessEntity {\\n    id\\n    name\\n    logoUrl\\n    color\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment TransactionDrawerFields on Transaction {\\n  id\\n  amount\\n  pending\\n  isRecurring\\n  date\\n  originalDate\\n  hideFromReports\\n  needsReview\\n  reviewedAt\\n  reviewedByUser {\\n    id\\n    name\\n    __typename\\n  }\\n  plaidName\\n  notes\\n  hasSplitTransactions\\n  isSplitTransaction\\n  isManual\\n  updatedByRetailSync\\n  linkedRetailTransactionId\\n  splitTransactions {\\n    id\\n    ...TransactionDrawerSplitMessageFields\\n    __typename\\n  }\\n  originalTransaction {\\n    id\\n    updatedByRetailSync\\n    ...OriginalTransactionFields\\n    __typename\\n  }\\n  attachments {\\n    id\\n    extension\\n    sizeBytes\\n    filename\\n    originalAssetUrl\\n    __typename\\n  }\\n  account {\\n    id\\n    hideTransactionsFromReports\\n    ownedByUser {\\n      id\\n      __typename\\n    }\\n    businessEntity {\\n      id\\n      __typename\\n    }\\n    type {\\n      name\\n      display\\n      __typename\\n    }\\n    ...AccountLinkFields\\n    __typename\\n  }\\n  category {\\n    id\\n    __typename\\n  }\\n  goal {\\n    id\\n    __typename\\n  }\\n  savingsGoalEvent {\\n    id\\n    goal {\\n      id\\n      __typename\\n    }\\n    account {\\n      id\\n      __typename\\n    }\\n    relatedGoalEvents {\\n      id\\n      amount\\n      date\\n      type\\n      goal {\\n        id\\n        __typename\\n      }\\n      account {\\n        id\\n        __typename\\n      }\\n      __typename\\n    }\\n    __typename\\n  }\\n  merchant {\\n    id\\n    name\\n    transactionCount\\n    logoUrl\\n    hasActiveRecurringStreams\\n    recurringTransactionStream {\\n      id\\n      frequency\\n      __typename\\n    }\\n    __typename\\n  }\\n  tags {\\n    id\\n    name\\n    color\\n    order\\n    __typename\\n  }\\n  needsReviewByUser {\\n    id\\n    __typename\\n  }\\n  ownedByUser {\\n    id\\n    __typename\\n  }\\n  ownershipOverriddenAt\\n  businessEntity {\\n    id\\n    __typename\\n  }\\n  businessEntityOverriddenAt\\n  ...TransactionOverviewFields\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 684 bytes>",
+    "ts": 1778376228105
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetTransactionsSummaryCard",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetTransactionsSummaryCard\",\"variables\":{\"filters\":{\"transactionVisibility\":\"non_hidden_transactions_only\"}},\"query\":\"query Web_GetTransactionsSummaryCard($filters: TransactionFilterInput!) {\\n  allTransactions(filters: $filters) {\\n    totalCount\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 79 bytes>",
+    "ts": 1778376228105
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetSubscriptionDetails",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetSubscriptionDetails\",\"variables\":{},\"query\":\"query Common_GetSubscriptionDetails {\\n  subscription {\\n    id\\n    paymentSource\\n    referralCode\\n    isOnFreeTrial\\n    hasPremiumEntitlement\\n    willCancelAtPeriodEnd\\n    trialEndsAt\\n    trialDurationDays\\n    plusTrialEndsAt\\n    billingPeriod\\n    isEligibleForCoreToPlusPromo\\n    paymentMethod {\\n      lastFour\\n      __typename\\n    }\\n    activeSponsorship {\\n      id\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 463 bytes>",
+    "ts": 1778376228117
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetTransactionsPage",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetTransactionsPage\",\"variables\":{\"filters\":{\"transactionVisibility\":\"non_hidden_transactions_only\"}},\"query\":\"query Web_GetTransactionsPage($filters: TransactionFilterInput) {\\n  aggregates(filters: $filters) {\\n    summary {\\n      ...TransactionsSummaryFields\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\\nfragment TransactionsSummaryFields on TransactionsSummary {\\n  avg\\n  max\\n  maxExpense\\n  sum\\n  sumIncome\\n  sumExpense\\n  first\\n  last\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 269 bytes>",
+    "ts": 1778376228117
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Web_GetTransactionsList",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Web_GetTransactionsList\",\"variables\":{\"orderBy\":\"date\",\"limit\":25,\"filters\":{\"transactionVisibility\":\"non_hidden_transactions_only\"}},\"query\":\"query Web_GetTransactionsList($offset: Int, $limit: Int, $filters: TransactionFilterInput, $orderBy: TransactionOrdering) {\\n  allTransactions(filters: $filters) {\\n    totalCount\\n    totalSelectableCount\\n    results(offset: $offset, limit: $limit, orderBy: $orderBy) {\\n      id\\n      ...TransactionOverviewFields\\n      __typename\\n    }\\n    __typename\\n  }\\n  transactionRules {\\n    id\\n    __typename\\n  }\\n}\\n\\nfragment TransactionOverviewFields on Transaction {\\n  id\\n  amount\\n  pending\\n  date\\n  hideFromReports\\n  hiddenByAccount\\n  plaidName\\n  notes\\n  isRecurring\\n  reviewStatus\\n  needsReview\\n  isSplitTransaction\\n  dataProviderDescription\\n  deletedAt\\n  deletedByType\\n  attachments {\\n    id\\n    __typename\\n  }\\n  goal {\\n    id\\n    name\\n    __typename\\n  }\\n  savingsGoalEvent {\\n    id\\n    goal {\\n      id\\n      name\\n      __typename\\n    }\\n    __typename\\n  }\\n  category {\\n    id\\n    name\\n    icon\\n    systemCategory\\n    group {\\n      id\\n      type\\n      __typename\\n    }\\n    __typename\\n  }\\n  merchant {\\n    name\\n    id\\n    transactionsCount\\n    logoUrl\\n    recurringTransactionStream {\\n      frequency\\n      isActive\\n      __typename\\n    }\\n    __typename\\n  }\\n  tags {\\n    id\\n    name\\n    color\\n    order\\n    __typename\\n  }\\n  account {\\n    id\\n    displayName\\n    icon\\n    logoUrl\\n    __typename\\n  }\\n  ownedByUser {\\n    id\\n    displayName\\n    profilePictureUrl\\n    __typename\\n  }\\n  businessEntity {\\n    id\\n    name\\n    logoUrl\\n    color\\n    __typename\\n  }\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 36272 bytes>",
+    "ts": 1778376228406
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "RecurringMerchantSearch",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"RecurringMerchantSearch\",\"variables\":{},\"query\":\"query RecurringMerchantSearch {\\n  recurringMerchantSearch {\\n    startedAt\\n    nextAt\\n    finishedAt\\n    createdCount\\n    __typename\\n  }\\n  recurringTransactionStreams {\\n    stream {\\n      id\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 9269 bytes>",
+    "ts": 1778376230323
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetAggregatedRecurringItems",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetAggregatedRecurringItems\",\"variables\":{\"includeFinancialInsights\":false,\"startDate\":\"2026-05-01\",\"endDate\":\"2026-05-31\",\"filters\":{}},\"query\":\"query Common_GetAggregatedRecurringItems($startDate: Date!, $endDate: Date!, $filters: RecurringTransactionFilter, $includeFinancialInsights: Boolean = false) {\\n  aggregatedRecurringItems(\\n    startDate: $startDate\\n    endDate: $endDate\\n    groupBy: \\\"status\\\"\\n    filters: $filters\\n  ) {\\n    groups {\\n      groupBy {\\n        status\\n        __typename\\n      }\\n      results {\\n        ...RecurringItemFields\\n        __typename\\n      }\\n      summary {\\n        expense {\\n          total\\n          __typename\\n        }\\n        creditCard {\\n          total\\n          __typename\\n        }\\n        income {\\n          total\\n          __typename\\n        }\\n        __typename\\n      }\\n      __typename\\n    }\\n    aggregatedSummary {\\n      expense {\\n        completed\\n        remaining\\n        total\\n        count\\n        pendingAmountCount\\n        __typename\\n      }\\n      creditCard {\\n        completed\\n        remaining\\n        total\\n        count\\n        pendingAmountCount\\n        __typename\\n      }\\n      income {\\n        completed\\n        remaining\\n        total\\n        __typename\\n      }\\n      __typename\\n    }\\n    __typename\\n  }\\n}\\n\\nfragment RecurringItemStreamFields on RecurringTransactionStream {\\n  id\\n  frequency\\n  isActive\\n  amount\\n  isApproximate\\n  name\\n  logoUrl\\n  merchant {\\n    id\\n    name\\n    logoUrl\\n    financialInsights @include(if: $includeFinancialInsights) {\\n      id\\n      status\\n      description\\n      reasoning\\n      savingsEstimateLow\\n      capturedSavingsLow\\n      currentAnnualCost\\n      __typename\\n    }\\n    __typename\\n  }\\n  creditReportLiabilityAccount {\\n    id\\n    liabilityType\\n    account {\\n      id\\n      __typename\\n    }\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment RecurringItemLiabilityFields on LiabilityStatement {\\n  id\\n  minimumPaymentAmount\\n  paymentsInformation {\\n    status\\n    remainingBalance\\n    transactions {\\n      id\\n      amount\\n      date\\n      category {\\n        id\\n        name\\n        icon\\n        group {\\n          id\\n          name\\n          type\\n          __typename\\n        }\\n        __typename\\n      }\\n      __typename\\n    }\\n    __typename\\n  }\\n  __typename\\n}\\n\\nfragment RecurringItemFields on RecurringTransactionCalendarItem {\\n  stream {\\n    ...RecurringItemStreamFields\\n    __typename\\n  }\\n  date\\n  isPast\\n  isLate\\n  markedPaidAt\\n  isCompleted\\n  transactionId\\n  amount\\n  amountDiff\\n  isAmountDifferentThanOriginal\\n  creditReportLiabilityStatementId\\n  category {\\n    id\\n    name\\n    icon\\n    __typename\\n  }\\n  account {\\n    id\\n    displayName\\n    icon\\n    logoUrl\\n    __typename\\n  }\\n  liabilityStatement {\\n    ...RecurringItemLiabilityFields\\n    __typename\\n  }\\n  __typename\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 50014 bytes>",
+    "ts": 1778376230697
+  },
+  {
+    "url": "https://api.monarch.com/graphql",
+    "method": "POST",
+    "opName": "Common_GetSpinwheelCreditReport",
+    "opType": "query",
+    "reqBody": "{\"operationName\":\"Common_GetSpinwheelCreditReport\",\"variables\":{},\"query\":\"query Common_GetSpinwheelCreditReport {\\n  spinwheelUser {\\n    id\\n    user {\\n      id\\n      name\\n      displayName\\n      __typename\\n    }\\n    onboardingStatus\\n    onboardingErrorMessage\\n    isBillSyncTrackingEnabled\\n    __typename\\n  }\\n  creditReportLiabilityAccounts {\\n    spinwheelLiabilityId\\n    liabilityType\\n    isOpen\\n    currentTotalBalance\\n    account {\\n      id\\n      __typename\\n    }\\n    description\\n    termsFrequency\\n    spinwheelUser {\\n      id\\n      user {\\n        id\\n        name\\n        displayName\\n        profilePictureUrl\\n        __typename\\n      }\\n      __typename\\n    }\\n    accountType\\n    recurringTransactionStream {\\n      frequency\\n      reviewStatus\\n      baseDate\\n      dayOfTheMonth\\n      __typename\\n    }\\n    lastStatement {\\n      dueDate\\n      __typename\\n    }\\n    __typename\\n  }\\n}\"}",
+    "status": 200,
+    "respBody": "<redacted, was 25429 bytes>",
+    "ts": 1778376231258
+  }
+]

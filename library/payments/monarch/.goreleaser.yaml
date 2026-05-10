@@ -1,0 +1,51 @@
+version: 2
+project_name: monarch-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: monarch-pp-cli
+    main: ./cmd/monarch-pp-cli
+    binary: monarch-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/payments/monarch/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: monarch-pp-mcp
+    main: ./cmd/monarch-pp-mcp
+    binary: monarch-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: monarch-pp-cli
+    repository:
+      owner: kyle-kirkland
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "A single Go binary for Monarch Money with offline SQLite, agent-native JSON, and local analytics no other Monarch..."
+    install: |
+      bin.install "monarch-pp-cli"
+      bin.install "monarch-pp-mcp"

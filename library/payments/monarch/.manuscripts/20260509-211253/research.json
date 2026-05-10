@@ -1,0 +1,392 @@
+{
+  "api_name": "monarch",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "keithah/monarchmoney-ts-mcp",
+      "url": "https://github.com/keithah/monarchmoney-ts-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 70,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "theFong/mmoney-cli",
+      "url": "https://github.com/theFong/mmoney-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 26,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "robcerda/monarch-mcp-server",
+      "url": "https://github.com/robcerda/monarch-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 25,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "keithah/monarchmoney-enhanced",
+      "url": "https://github.com/keithah/monarchmoney-enhanced",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 60,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "eshaffer321/monarchmoney-go",
+      "url": "https://github.com/eshaffer321/monarchmoney-go",
+      "language": "Go",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Maninae/monarch-money-cli",
+      "url": "https://github.com/Maninae/monarch-money-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hammem/monarchmoney",
+      "url": "https://github.com/hammem/monarchmoney",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "colvint/monarch-money-mcp",
+      "url": "https://github.com/colvint/monarch-money-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [
+    "graphql-envelope-client",
+    "cookie-or-token-auth",
+    "local-sqlite-store-with-fts",
+    "agent-native-output"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T21:30:00Z",
+  "novel_features": [
+    {
+      "name": "Bulk Categorize with Rule Generation",
+      "command": "transactions categorize-bulk",
+      "description": "Match transactions by merchant pattern + amount, apply a category, optionally promote the predicate to a server-side rule, and backfill historical matches in one call.",
+      "rationale": "Composite of local-store predicate match + per-row mutation + rule creation + backfill — no single Monarch endpoint exposes this combined flow.",
+      "example": "monarch-pp-cli transactions categorize-bulk --merchant 'Whole Foods' --amount-lt 40 --category Groceries --create-rule --backfill 90d --dry-run",
+      "why_it_matters": "When a user says 'all my Whole Foods runs under $40 are groceries', this is the one command that fixes 80 weeks of past misfires AND prevents future ones.",
+      "group": "Categorize at scale"
+    },
+    {
+      "name": "Net-Worth Delta Attribution",
+      "command": "networth explain",
+      "description": "Decompose the net-worth change over a window into income, spending, market gain/loss, and transfers — the four numbers Monarch's chart hides behind a single line.",
+      "rationale": "Joins net_worth_snapshots × transactions × holdings in the local store; no Monarch API returns this attribution.",
+      "example": "monarch-pp-cli networth explain --since 7d --json",
+      "why_it_matters": "When the user asks 'why did my net worth jump $4,200 this week?', the answer is one command instead of an hour of spreadsheet work.",
+      "group": "Local cross-table joins"
+    },
+    {
+      "name": "Subscription Price-Drift Detector",
+      "command": "recurring drift",
+      "description": "Detect recurring streams whose latest charge deviates from the trailing 6-month median by more than a threshold (default 5%).",
+      "rationale": "Requires local time-series over recurring_stream_id with a percentile baseline; Monarch shows next-due-date but never amount-drift.",
+      "example": "monarch-pp-cli recurring drift --threshold 5pct --json",
+      "why_it_matters": "Catches the silent Netflix-going-from-$15-to-$22 bump months before the user would notice scrolling through statements.",
+      "group": "Local time-series analytics"
+    },
+    {
+      "name": "Budget Burn Rate",
+      "command": "budgets burn",
+      "description": "For each active budget, compute spend-per-day vs allocation-per-day, project month-end position, and flag categories on track to overshoot.",
+      "rationale": "Joins budgets × period-to-date transactions in the local store with projection math; Monarch's UI shows a current bar, not a pace projection.",
+      "example": "monarch-pp-cli budgets burn --json --select category,projected_overshoot,days_remaining",
+      "why_it_matters": "Tells you on day 18 that groceries will overrun by $120, while there's still time to course-correct.",
+      "group": "Local cross-table joins"
+    },
+    {
+      "name": "Stale-Account Watch",
+      "command": "accounts stale",
+      "description": "Surface accounts whose last_synced is past a threshold, grouped by institution, with severity sorted by financial impact (big-balance accounts first).",
+      "rationale": "Deterministic local threshold filter that catches silent connection failures; Monarch's web UI displays this inconsistently.",
+      "example": "monarch-pp-cli accounts stale --threshold 24h --json",
+      "why_it_matters": "Tells you before you trust a net-worth number which accounts are reporting yesterday's data and which are still 2024.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Cashflow Forecast",
+      "command": "cashflow forecast",
+      "description": "Walk current balances forward N days through scheduled recurring streams and a trailing-90-day average of non-recurring outflow; emit per-day projected balance.",
+      "rationale": "No Monarch endpoint returns a forward projection; requires local simulation over recurring + balance state.",
+      "example": "monarch-pp-cli cashflow forecast --days 30 --json",
+      "why_it_matters": "Answers Wednesday's 'will Friday's rent clear?' without manual spreadsheet math.",
+      "group": "Local time-series analytics"
+    },
+    {
+      "name": "Category Leak Detection",
+      "command": "categories leaks",
+      "description": "Find merchants whose transactions split across 3+ categories (likely miscategorized) and Uncategorized merchants with prior labeled history.",
+      "rationale": "Requires building a merchant×category histogram locally; no Monarch endpoint surfaces miscategorization patterns.",
+      "example": "monarch-pp-cli categories leaks --json",
+      "why_it_matters": "Surfaces the cleanup work that compound over years of inconsistent tagging.",
+      "group": "Local cross-table joins"
+    },
+    {
+      "name": "Agent Context Bundle",
+      "command": "snapshot",
+      "description": "Emit one JSON blob composed of net-worth-by-type, MTD cashflow, top-10 categories, active budget burn, next-7-day recurring, and last-7-day transactions — shaped for LLM consumption.",
+      "rationale": "Composition of six local reads emitted in agent-native shape; no API call returns this bundle.",
+      "example": "monarch-pp-cli snapshot --json",
+      "why_it_matters": "One pipe to claude lets an agent reason over the user's full financial state without losing structure to CSV exports.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Goal Pacing",
+      "command": "goals pace",
+      "description": "Compute trailing-90-day contribution velocity per goal and project completion date vs target.",
+      "rationale": "Trailing-window math against goal-tagged transactions; Monarch returns target/current but no pace projection.",
+      "example": "monarch-pp-cli goals pace --json",
+      "why_it_matters": "Tells the FIRE-tracker whether their savings rate is actually trending toward 2032 or 2035.",
+      "group": "Local time-series analytics"
+    },
+    {
+      "name": "Categorize Next",
+      "command": "transactions categorize-next",
+      "description": "Emit the oldest Uncategorized transaction with a deterministic top-1 category suggestion derived from the local merchant×category histogram. No LLM.",
+      "rationale": "Mechanical lookup from local store; replaces 'click through 80 transactions' with one command per cycle.",
+      "example": "monarch-pp-cli transactions categorize-next --json",
+      "why_it_matters": "Turns the weekly categorize ritual into a tight pipe of suggestion → confirm → next.",
+      "group": "Categorize at scale"
+    },
+    {
+      "name": "Monthly Reconciliation Memo",
+      "command": "cashflow monthly-memo",
+      "description": "Aggregate one month's transactions, budgets, net-worth-snapshots, and recurring data into a structured packet (top categories, MoM deltas, budget hits/misses, biggest charges, NW delta) ready for an LLM narrative draft.",
+      "rationale": "Composition of multiple local reads at month-end cadence, shaped for | claude piping.",
+      "example": "monarch-pp-cli cashflow monthly-memo --month 2026-04 --json",
+      "why_it_matters": "Turns 'write me my monthly money summary' from a 30-minute spreadsheet pull into a single command.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Bulk Categorize with Rule Generation",
+      "command": "transactions categorize-bulk",
+      "description": "Match transactions by merchant pattern + amount, apply a category, optionally promote the predicate to a server-side rule, and backfill historical matches in one call.",
+      "rationale": "Composite of local-store predicate match + per-row mutation + rule creation + backfill — no single Monarch endpoint exposes this combined flow.",
+      "example": "monarch-pp-cli transactions categorize-bulk --merchant 'Whole Foods' --amount-lt 40 --category Groceries --create-rule --backfill 90d --dry-run",
+      "why_it_matters": "When a user says 'all my Whole Foods runs under $40 are groceries', this is the one command that fixes 80 weeks of past misfires AND prevents future ones.",
+      "group": "Categorize at scale"
+    },
+    {
+      "name": "Net-Worth Delta Attribution",
+      "command": "networth explain",
+      "description": "Decompose the net-worth change over a window into income, spending, market gain/loss, and transfers — the four numbers Monarch's chart hides behind a single line.",
+      "rationale": "Joins net_worth_snapshots × transactions × holdings in the local store; no Monarch API returns this attribution.",
+      "example": "monarch-pp-cli networth explain --since 7d --json",
+      "why_it_matters": "When the user asks 'why did my net worth jump $4,200 this week?', the answer is one command instead of an hour of spreadsheet work.",
+      "group": "Local cross-table joins"
+    },
+    {
+      "name": "Subscription Price-Drift Detector",
+      "command": "recurring drift",
+      "description": "Detect recurring streams whose latest charge deviates from the trailing 6-month median by more than a threshold (default 5%).",
+      "rationale": "Requires local time-series over recurring_stream_id with a percentile baseline; Monarch shows next-due-date but never amount-drift.",
+      "example": "monarch-pp-cli recurring drift --threshold 5pct --json",
+      "why_it_matters": "Catches the silent Netflix-going-from-$15-to-$22 bump months before the user would notice scrolling through statements.",
+      "group": "Local time-series analytics"
+    },
+    {
+      "name": "Budget Burn Rate",
+      "command": "budgets burn",
+      "description": "For each active budget, compute spend-per-day vs allocation-per-day, project month-end position, and flag categories on track to overshoot.",
+      "rationale": "Joins budgets × period-to-date transactions in the local store with projection math; Monarch's UI shows a current bar, not a pace projection.",
+      "example": "monarch-pp-cli budgets burn --json --select category,projected_overshoot,days_remaining",
+      "why_it_matters": "Tells you on day 18 that groceries will overrun by $120, while there's still time to course-correct.",
+      "group": "Local cross-table joins"
+    },
+    {
+      "name": "Stale-Account Watch",
+      "command": "accounts stale",
+      "description": "Surface accounts whose last_synced is past a threshold, grouped by institution, with severity sorted by financial impact (big-balance accounts first).",
+      "rationale": "Deterministic local threshold filter that catches silent connection failures; Monarch's web UI displays this inconsistently.",
+      "example": "monarch-pp-cli accounts stale --threshold 24h --json",
+      "why_it_matters": "Tells you before you trust a net-worth number which accounts are reporting yesterday's data and which are still 2024.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Cashflow Forecast",
+      "command": "cashflow forecast",
+      "description": "Walk current balances forward N days through scheduled recurring streams and a trailing-90-day average of non-recurring outflow; emit per-day projected balance.",
+      "rationale": "No Monarch endpoint returns a forward projection; requires local simulation over recurring + balance state.",
+      "example": "monarch-pp-cli cashflow forecast --days 30 --json",
+      "why_it_matters": "Answers Wednesday's 'will Friday's rent clear?' without manual spreadsheet math.",
+      "group": "Local time-series analytics"
+    },
+    {
+      "name": "Category Leak Detection",
+      "command": "categories leaks",
+      "description": "Find merchants whose transactions split across 3+ categories (likely miscategorized) and Uncategorized merchants with prior labeled history.",
+      "rationale": "Requires building a merchant×category histogram locally; no Monarch endpoint surfaces miscategorization patterns.",
+      "example": "monarch-pp-cli categories leaks --json",
+      "why_it_matters": "Surfaces the cleanup work that compound over years of inconsistent tagging.",
+      "group": "Local cross-table joins"
+    },
+    {
+      "name": "Agent Context Bundle",
+      "command": "snapshot",
+      "description": "Emit one JSON blob composed of net-worth-by-type, MTD cashflow, top-10 categories, active budget burn, next-7-day recurring, and last-7-day transactions — shaped for LLM consumption.",
+      "rationale": "Composition of six local reads emitted in agent-native shape; no API call returns this bundle.",
+      "example": "monarch-pp-cli snapshot --json",
+      "why_it_matters": "One pipe to claude lets an agent reason over the user's full financial state without losing structure to CSV exports.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Goal Pacing",
+      "command": "goals pace",
+      "description": "Compute trailing-90-day contribution velocity per goal and project completion date vs target.",
+      "rationale": "Trailing-window math against goal-tagged transactions; Monarch returns target/current but no pace projection.",
+      "example": "monarch-pp-cli goals pace --json",
+      "why_it_matters": "Tells the FIRE-tracker whether their savings rate is actually trending toward 2032 or 2035.",
+      "group": "Local time-series analytics"
+    },
+    {
+      "name": "Categorize Next",
+      "command": "transactions categorize-next",
+      "description": "Emit the oldest Uncategorized transaction with a deterministic top-1 category suggestion derived from the local merchant×category histogram. No LLM.",
+      "rationale": "Mechanical lookup from local store; replaces 'click through 80 transactions' with one command per cycle.",
+      "example": "monarch-pp-cli transactions categorize-next --json",
+      "why_it_matters": "Turns the weekly categorize ritual into a tight pipe of suggestion → confirm → next.",
+      "group": "Categorize at scale"
+    },
+    {
+      "name": "Monthly Reconciliation Memo",
+      "command": "cashflow monthly-memo",
+      "description": "Aggregate one month's transactions, budgets, net-worth-snapshots, and recurring data into a structured packet (top categories, MoM deltas, budget hits/misses, biggest charges, NW delta) ready for an LLM narrative draft.",
+      "rationale": "Composition of multiple local reads at month-end cadence, shaped for | claude piping.",
+      "example": "monarch-pp-cli cashflow monthly-memo --month 2026-04 --json",
+      "why_it_matters": "Turns 'write me my monthly money summary' from a 30-minute spreadsheet pull into a single command.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Monarch Money",
+    "headline": "A single Go binary for Monarch Money with offline SQLite, agent-native JSON, and local analytics no other Monarch tool ships.",
+    "value_prop": "monarch-pp-cli wraps the Monarch GraphQL surface as agent-friendly Cobra commands and adds eleven novel commands — budget burn, net-worth delta attribution, subscription drift detection, cashflow forecasting, agent context bundles, and more — that no Monarch competitor offers. Authenticate by capturing a session token from your Monarch web app and saving it via `auth set-token`.",
+    "auth_narrative": "Monarch has no public API. Capture a session token from your logged-in Monarch web app (Chrome DevTools → Application → Cookies → look for the Authorization Token cookie/header) and pass it to `monarch-pp-cli auth set-token \u003ctoken\u003e`. Or set `MONARCH_TOKEN` in your environment. Tokens last several months. Interactive `auth login --chrome` cookie import and `--email --password --mfa` headless login are tracked as v0.2 work; until then the env-var / set-token path is the supported flow.",
+    "quickstart": [
+      {
+        "command": "monarch-pp-cli auth set-token YOUR_MONARCH_TOKEN",
+        "comment": "Save your captured Monarch session token to the local config (one-time)."
+      },
+      {
+        "command": "monarch-pp-cli doctor",
+        "comment": "Verify auth and reachability before issuing real commands."
+      },
+      {
+        "command": "monarch-pp-cli snapshot --json",
+        "comment": "Emit one JSON blob covering net worth, cashflow, budgets, and upcoming bills — pipe to Claude."
+      },
+      {
+        "command": "monarch-pp-cli budgets burn --json",
+        "comment": "Show which budgets are projected to overshoot before month-end."
+      },
+      {
+        "command": "monarch-pp-cli recurring drift --threshold 5pct",
+        "comment": "Find subscriptions whose price quietly changed."
+      },
+      {
+        "command": "monarch-pp-cli transactions list --search 'whole foods' --start-date 2026-04-01 --json --select date,amount,merchant.name,category.name",
+        "comment": "Filtered + projected list — agent-shaped output."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every command",
+        "fix": "Token expired or session stale: capture a fresh token from your Monarch web app and re-run `monarch-pp-cli auth set-token \u003ctoken\u003e`, or update `MONARCH_TOKEN` in your environment."
+      },
+      {
+        "symptom": "Empty results after sync",
+        "fix": "Run `monarch-pp-cli accounts stale --threshold 24h` — if institutions are stale, run `monarch-pp-cli accounts refresh --wait` then re-sync."
+      },
+      {
+        "symptom": "GraphQL operation returned null data",
+        "fix": "Monarch occasionally renames operations. Run `monarch-pp-cli doctor` to validate endpoints; update the binary with `go install github.com/\u003cowner\u003e/monarch-pp-cli@latest`."
+      },
+      {
+        "symptom": "Search returns no results",
+        "fix": "FTS index rebuilds after each sync. If `search` is empty after sync, run `monarch-pp-cli sync --rebuild-index`."
+      }
+    ],
+    "when_to_use": "Reach for monarch-pp-cli when an agent needs typed access to a user's Monarch Money data — for monthly reconciliation memos, budget burn analysis, subscription drift detection, or composing cashflow forecasts. The novel-feature commands compose multiple GraphQL reads into single agent-shaped JSON outputs that no single Monarch API call answers. Set `MONARCH_TOKEN` from a captured session token for both interactive and CI use.",
+    "recipes": [
+      {
+        "title": "Categorize a backlog with a single rule",
+        "command": "monarch-pp-cli transactions categorize-bulk --merchant 'Whole Foods' --amount-lt 40 --category Groceries --create-rule --backfill 90d",
+        "explanation": "Match historical transactions, apply the category, save the rule, and backfill the last 90 days in one call."
+      },
+      {
+        "title": "Decompose this week's net-worth change",
+        "command": "monarch-pp-cli networth explain --since 7d --json",
+        "explanation": "Returns the income/spending/market/transfers breakdown so you know whether the bump was earned or lent."
+      },
+      {
+        "title": "Surface stale connections before trusting numbers",
+        "command": "monarch-pp-cli accounts stale --threshold 24h --json --select institution.name,last_synced,balance",
+        "explanation": "Lists silently broken syncs sorted by financial impact."
+      },
+      {
+        "title": "Drill into uncategorized transactions with select",
+        "command": "monarch-pp-cli transactions list --category Uncategorized --start-date 2026-04-01 --json --select id,date,amount,merchant.name,description",
+        "explanation": "Narrows a verbose row to the four fields an agent needs to suggest a category."
+      },
+      {
+        "title": "Compose a monthly memo for an LLM",
+        "command": "monarch-pp-cli cashflow monthly-memo --month 2026-04 --json",
+        "explanation": "Returns a structured packet ready for `| claude` to draft the prose."
+      }
+    ],
+    "trigger_phrases": [
+      "what's my budget burn",
+      "did any subscription prices change",
+      "explain my net worth change",
+      "draft my monthly money memo",
+      "categorize my Monarch transactions",
+      "use monarch-pp-cli",
+      "run monarch-pp-cli"
+    ]
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T22:00:00Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "monarch",
+  "display_name": "Monarch Money",
+  "cli_name": "monarch-pp-cli",
+  "owner": "kyle-kirkland",
+  "printer": "kkirkland",
+  "printer_name": "Kyle Kirkland",
+  "spec_path": "research/monarch-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:7f7b5a151594b65464fece3dd3c3ed23aa23ce515f759e46ca0e6789edb988ac",
+  "run_id": "20260509-211253",
+  "category": "payments",
+  "description": "Monarch Money CLI: agent-native access to accounts, transactions, budgets, goals, and cashflow with a local SQLite store and offline analytics.",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "MONARCH_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Bulk Categorize with Rule Generation",
+      "command": "transactions categorize-bulk",
+      "description": "Match transactions by merchant pattern + amount, apply a category, optionally promote the predicate to a server-side rule, and backfill historical matches in one call."
+    },
+    {
+      "name": "Net-Worth Delta Attribution",
+      "command": "networth explain",
+      "description": "Decompose the net-worth change over a window into income, spending, market gain/loss, and transfers \u2014 the four numbers Monarch's chart hides behind a single line."
+    },
+    {
+      "name": "Subscription Price-Drift Detector",
+      "command": "recurring drift",
+      "description": "Detect recurring streams whose latest charge deviates from the trailing 6-month median by more than a threshold (default 5%)."
+    },
+    {
+      "name": "Budget Burn Rate",
+      "command": "budgets burn",
+      "description": "For each active budget, compute spend-per-day vs allocation-per-day, project month-end position, and flag categories on track to overshoot."
+    },
+    {
+      "name": "Stale-Account Watch",
+      "command": "accounts stale",
+      "description": "Surface accounts whose last_synced is past a threshold, grouped by institution, with severity sorted by financial impact (big-balance accounts first)."
+    },
+    {
+      "name": "Cashflow Forecast",
+      "command": "cashflow forecast",
+      "description": "Walk current balances forward N days through scheduled recurring streams and a trailing-90-day average of non-recurring outflow; emit per-day projected balance."
+    },
+    {
+      "name": "Category Leak Detection",
+      "command": "categories leaks",
+      "description": "Find merchants whose transactions split across 3+ categories (likely miscategorized) and Uncategorized merchants with prior labeled history."
+    },
+    {
+      "name": "Agent Context Bundle",
+      "command": "snapshot",
+      "description": "Emit one JSON blob composed of net-worth-by-type, MTD cashflow, top-10 categories, active budget burn, next-7-day recurring, and last-7-day transactions \u2014 shaped for LLM consumption."
+    },
+    {
+      "name": "Goal Pacing",
+      "command": "goals pace",
+      "description": "Compute trailing-90-day contribution velocity per goal and project completion date vs target."
+    },
+    {
+      "name": "Categorize Next",
+      "command": "transactions categorize-next",
+      "description": "Emit the oldest Uncategorized transaction with a deterministic top-1 category suggestion derived from the local merchant\u00d7category histogram. No LLM."
+    },
+    {
+      "name": "Monthly Reconciliation Memo",
+      "command": "cashflow monthly-memo",
+      "description": "Aggregate one month's transactions, budgets, net-worth-snapshots, and recurring data into a structured packet (top categories, MoM deltas, budget hits/misses, biggest charges, NW delta) ready for an LLM narrative draft."
+    }
+  ]
+}
