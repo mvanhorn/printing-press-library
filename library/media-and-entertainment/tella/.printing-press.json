@@ -5,7 +5,7 @@
   "api_name": "tella",
   "display_name": "Tella Public",
   "cli_name": "tella-pp-cli",
-  "owner": "gregce",
+  "owner": "",
   "printer": "gregce",
   "printer_name": "Greg Ceccarelli",
   "spec_path": "https://www.tella.com/docs/openapi.json",
@@ -34,7 +34,7 @@
     {
       "name": "Webhook tail + replay",
       "command": "webhooks tail",
-      "description": "Stream new webhook events from the inbox to stdout, and replay any prior message to a local URL with valid HMAC headers — no public tunnel needed."
+      "description": "Stream new webhook events from the inbox to stdout, and replay any prior message to a local URL with valid HMAC headers \u2014 no public tunnel needed."
     },
     {
       "name": "Bulk standard edit pass",
