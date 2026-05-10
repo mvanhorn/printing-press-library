@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"virustotal-pp-cli/internal/client"
-	"virustotal-pp-cli/internal/store"
+	"github.com/ca7ai/pp-virustotal/internal/client"
+	"github.com/ca7ai/pp-virustotal/internal/store"
 )
 
 // isNetworkError returns true for errors caused by network connectivity issues

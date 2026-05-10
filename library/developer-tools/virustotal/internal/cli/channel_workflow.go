@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"time"
 
-	"virustotal-pp-cli/internal/store"
+	"github.com/ca7ai/pp-virustotal/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -135,7 +135,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/virustotal-pp-cli/data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/github.com/ca7ai/pp-virustotal/data.db)")
 	cmd.Flags().BoolVar(&full, "full", false, "Full re-archive (ignore previous sync state)")
 
 	return cmd

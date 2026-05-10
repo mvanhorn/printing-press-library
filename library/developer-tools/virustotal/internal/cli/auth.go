@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"virustotal-pp-cli/internal/config"
+	"github.com/ca7ai/pp-virustotal/internal/config"
 	"github.com/spf13/cobra"
 )
 

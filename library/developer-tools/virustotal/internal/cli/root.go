@@ -13,8 +13,8 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"virustotal-pp-cli/internal/client"
-	"virustotal-pp-cli/internal/config"
+	"github.com/ca7ai/pp-virustotal/internal/client"
+	"github.com/ca7ai/pp-virustotal/internal/config"
 	"github.com/spf13/cobra"
 )
 

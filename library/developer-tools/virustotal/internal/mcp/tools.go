@@ -14,12 +14,12 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"virustotal-pp-cli/internal/cli"
-	"virustotal-pp-cli/internal/cliutil"
-	"virustotal-pp-cli/internal/client"
-	"virustotal-pp-cli/internal/config"
-	"virustotal-pp-cli/internal/mcp/cobratree"
-	"virustotal-pp-cli/internal/store"
+	"github.com/ca7ai/pp-virustotal/internal/cli"
+	"github.com/ca7ai/pp-virustotal/internal/cliutil"
+	"github.com/ca7ai/pp-virustotal/internal/client"
+	"github.com/ca7ai/pp-virustotal/internal/config"
+	"github.com/ca7ai/pp-virustotal/internal/mcp/cobratree"
+	"github.com/ca7ai/pp-virustotal/internal/store"
 )
 
 // RegisterTools registers all API operations as MCP tools.

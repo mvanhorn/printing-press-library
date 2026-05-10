@@ -13,9 +13,9 @@ import (
 	"strings"
 	"time"
 
-	"virustotal-pp-cli/internal/client"
-	"virustotal-pp-cli/internal/config"
-	"virustotal-pp-cli/internal/store"
+	"github.com/ca7ai/pp-virustotal/internal/client"
+	"github.com/ca7ai/pp-virustotal/internal/config"
+	"github.com/ca7ai/pp-virustotal/internal/store"
 	"github.com/spf13/cobra"
 )
 

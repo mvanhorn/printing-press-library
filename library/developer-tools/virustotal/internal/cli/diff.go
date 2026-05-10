@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	"virustotal-pp-cli/internal/vtstore"
+	"github.com/ca7ai/pp-virustotal/internal/vtstore"
 	"github.com/spf13/cobra"
 )
 

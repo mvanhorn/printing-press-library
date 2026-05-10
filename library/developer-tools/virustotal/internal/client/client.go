@@ -18,8 +18,8 @@ import (
 	"sort"
 	"strings"
 	"time"
-	"virustotal-pp-cli/internal/cliutil"
-	"virustotal-pp-cli/internal/config"
+	"github.com/ca7ai/pp-virustotal/internal/cliutil"
+	"github.com/ca7ai/pp-virustotal/internal/config"
 )
 
 type Client struct {
@@ -247,7 +247,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			req.Header.Set(k, v)
 		}
 		if req.Header.Get("User-Agent") == "" {
-			req.Header.Set("User-Agent", "virustotal-pp-cli/v3")
+			req.Header.Set("User-Agent", "github.com/ca7ai/pp-virustotal/v3")
 		}
 
 		resp, err := c.HTTPClient.Do(req)

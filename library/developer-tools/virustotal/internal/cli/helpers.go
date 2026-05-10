@@ -16,8 +16,8 @@ import (
 	"text/tabwriter"
 	"time"
 	"unicode"
-	"virustotal-pp-cli/internal/cliutil"
-	"virustotal-pp-cli/internal/client"
+	"github.com/ca7ai/pp-virustotal/internal/cliutil"
+	"github.com/ca7ai/pp-virustotal/internal/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )

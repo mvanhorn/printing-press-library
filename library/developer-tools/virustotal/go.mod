@@ -1,4 +1,4 @@
-module virustotal-pp-cli
+module github.com/ca7ai/pp-virustotal
 
 go 1.26.3
 
