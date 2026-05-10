@@ -11,7 +11,6 @@ import (
 	"net/url"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/drivethrurpg/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/drivethrurpg/internal/store"
@@ -260,6 +259,3 @@ func resolveLocal(ctx context.Context, resourceType string, isList bool, path st
 	}
 	return item, prov, nil
 }
-
-// Ensure time import is used (compilation guard).
-var _ = time.Now
