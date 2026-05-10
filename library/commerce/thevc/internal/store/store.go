@@ -448,8 +448,12 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 		return input, nil
 	}
 
+	fieldRX := regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 	var matches []string
 	for _, field := range matchFields {
+		if !fieldRX.MatchString(field) {
+			continue
+		}
 		query := fmt.Sprintf(
 			`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,
 			field,

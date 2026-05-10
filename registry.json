@@ -1594,15 +1594,6 @@
         "mcp_ready": "full",
         "spec_format": "internal"
       }
-    },
-    {
-      "name": "thevc",
-      "category": "commerce",
-      "api": "THE VC (더브이씨)",
-      "description": "Korean startup investment database — company profiles, funding rounds, investor tracking, rankings, and news from Korea's leading startup data platform. Public API, no authentication required.",
-      "path": "library/commerce/thevc",
-      "printer": "allenwlee",
-      "printer_name": "Allen Lee"
     }
   ]
 }

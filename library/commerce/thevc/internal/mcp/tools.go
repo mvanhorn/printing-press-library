@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+t"regexp"
 	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
@@ -53,7 +54,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDescription("Get organization rankings by popularity Returns GetRankingsResponse."),
 			mcplib.WithString("kind", mcplib.Description("Kind")),
 		),
-		makeAPIHandler("GET", "/api/interaction/hits/organizations/rankings/{kind}", []string{ }),
+		makeAPIHandler("GET", "/api/interaction/hits/organizations/rankings/{kind}", []string{"kind"}),
 	)
 	// Sync tool — populates local database for offline search and sql queries
 	s.AddTool(
@@ -205,8 +206,12 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		return mcplib.NewToolResultError("query is required"), nil
 	}
 
-	// Block write operations
+	// Block write operations — check for CTE bypass and direct DML
 	upper := strings.ToUpper(strings.TrimSpace(query))
+	cteWrite := regexp.MustCompile(`(?i)^\s*WITH\s+\w+\s+AS\s*\(.*\)\s*(DELETE|INSERT|UPDATE|DROP|ALTER)`)
+	if cteWrite.MatchString(query) {
+		return mcplib.NewToolResultError("only SELECT queries are allowed"), nil
+	}
 	for _, prefix := range []string{"INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "CREATE"} {
 		if strings.HasPrefix(upper, prefix) {
 			return mcplib.NewToolResultError("only SELECT queries are allowed"), nil
