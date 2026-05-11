@@ -5,7 +5,7 @@
   "api_name": "clickup",
   "display_name": "Clickup",
   "cli_name": "clickup-pp-cli",
-  "owner": "kjmagnan1s",
+  "owner": "kevin-magnan",
   "printer": "kjmagnan1s",
   "printer_name": "Kevin Magnan",
   "spec_url": "https://developer.clickup.com/docs/open-api-spec",
