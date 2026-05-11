@@ -1,5 +1,7 @@
-// Hand-authored novel feature — local SQL aggregation over synced data.
-// Uses the SQLite store populated by `sync`; matches Workflows + Insight scoring.
+// PATCH: hand-authored insight `stats` — local SQL aggregation over synced
+// data. Uses the SQLite store populated by `sync`; matches the Workflows +
+// Insight scorecard categories. See .printing-press-patches.json
+// patch id "insight-stats".
 
 package cli
 

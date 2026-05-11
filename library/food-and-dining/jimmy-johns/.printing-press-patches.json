@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-034611",
+  "base_printing_press_version": "4.2.2",
+  "patches": [
+    {
+      "id": "cookie-auth-adapter",
+      "files": ["internal/cli/auth_import_cookies.go"],
+      "summary": "Add `auth import-cookies --from-file` that reads a browser-use cookies export JSON and saves a Cookie header to config.",
+      "reason": "Press v4.2.2 templates auth flows for api_key/bearer/oauth2; spec auth.type=cookie does not drive the flow templates, and JJ requires a real-Chrome session to clear PerimeterX. Adapter bridges the browser-use export shape to config.Headers[\"Cookie\"]. Also validates cookie name/value characters per RFC 6265 §4.1.1 before assembly to defeat header smuggling/injection if the export contains malformed values."
+    },
+    {
+      "id": "novel-unwich-convert",
+      "files": ["internal/cli/menu_unwich.go", "internal/cli/menu_unwich_test.go"],
+      "summary": "Add `menu unwich-convert` — pure-local modifier-delta computation that converts any sandwich to its Unwich (lettuce wrap) variant.",
+      "reason": "Transcendence command. JJ exposes Unwich as an order-time modifier, not a separate product; computing the delta locally lets agents preview the conversion without a live cart round-trip."
+    },
+    {
+      "id": "novel-order-plan",
+      "files": ["internal/cli/order_plan.go", "internal/cli/order_plan_test.go"],
+      "summary": "Add `order plan --people N` — sized cart suggestion with dietary filters for office/group orders.",
+      "reason": "Transcendence command. JJ's API doesn't expose any group-sizing endpoint; planning lives entirely client-side."
+    },
+    {
+      "id": "novel-half-and-half",
+      "files": ["internal/cli/menu_half_and_half.go", "internal/cli/menu_half_and_half_test.go"],
+      "summary": "Add `menu half-and-half` — compose a two-product share order with an explicit note that JJ doesn't slice half-and-half natively.",
+      "reason": "Transcendence command. Two-person sharing is a real workflow but JJ's data model has no half-and-half representation; emitting the cart + human-facing constraint note keeps agents from silently pretending it's a first-class option."
+    },
+    {
+      "id": "workflow-reconcile",
+      "files": ["internal/cli/reconcile.go"],
+      "summary": "Add `reconcile` — diff locally synced stores against live API; report new/removed/unchanged.",
+      "reason": "Insight scorer requires a workflow command that reasons about cache drift. Pairs with the cache TTL stanza."
+    },
+    {
+      "id": "workflow-search",
+      "files": ["internal/cli/search_menu.go"],
+      "summary": "Add `search` — local substring search over synced menu items and stores.",
+      "reason": "Workflows scorer wants a search command that consumes the local SQLite store rather than the live API."
+    },
+    {
+      "id": "insight-stats",
+      "files": ["internal/cli/stats.go"],
+      "summary": "Add `stats` — local SQL aggregation over synced stores/products/orders/rewards.",
+      "reason": "Insight scorer requires a top-line aggregation command that reads from the local store."
+    },
+    {
+      "id": "insight-trends",
+      "files": ["internal/cli/trends.go"],
+      "summary": "Add `trends` — weekly cadence + ordering breakdown from local order history.",
+      "reason": "Insight scorer paired with `stats`; surfaces a usage-pattern view from the local store."
+    }
+  ],
+  "deferred_to_upstream": [
+    {
+      "summary": "Press v4.2.2 cookie-auth flow templates",
+      "reason": "`auth.type: cookie` should fully drive the generated auth flow (set-cookie, refresh-cookie, login-cookie) the way api_key/oauth2 do. Currently only the spec is annotated; the flow is hand-authored. Generator-side fix."
+    },
+    {
+      "summary": "MCP Token Efficiency scorer + Cloudflare-orchestration `execute` tool description",
+      "reason": "Cloudflare-pattern `execute` tool embeds the full endpoint registry (~1037 tokens) in its description; the scorer's 320 tokens/tool budget caps this CLI at 0/10. Likely needs the registry externalized or a scorer carve-out for orchestrated MCP."
+    },
+    {
+      "summary": "Type Fidelity scorer regex on consecutive Flags().StringVar() calls",
+      "reason": "Scorer misidentifies adjacent flag names as the previous flag's description on consecutive declarations; small upstream regex fix."
+    }
+  ]
+}

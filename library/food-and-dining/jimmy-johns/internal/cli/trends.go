@@ -1,6 +1,7 @@
-// Hand-authored novel feature — order-history trend analysis from the local
-// store. Aggregates orders by week and computes ordering cadence. Uses the
-// SQLite store populated by `sync`.
+// PATCH: hand-authored insight `trends` — order-history trend analysis from
+// the local store. Aggregates orders by week and computes ordering cadence.
+// Uses the SQLite store populated by `sync`. See .printing-press-patches.json
+// patch id "insight-trends".
 
 package cli
 

@@ -1,5 +1,6 @@
-// Hand-authored — extends the generated auth flow with a `--from-file` adapter
-// that consumes a `browser-use cookies export` JSON file.
+// PATCH: hand-authored cookie import adapter — extends the generated auth flow with a `--from-file`
+// reader for `browser-use cookies export` JSON. Not produced by the generator because press v4.2.2
+// doesn't fully drive cookie auth (see .printing-press-patches.json patch id "cookie-auth-adapter").
 
 package cli
 
@@ -12,6 +13,33 @@ import (
 	"github.com/spf13/cobra"
 	"jimmy-johns-pp-cli/internal/config"
 )
+
+// isValidCookiePairChar reports whether r is allowed in a cookie name or value
+// per RFC 6265 §4.1.1 (cookie-octet / token). Rejects CTLs, whitespace, and
+// the structural delimiters `";"`, `","`, `"="`, `" "`, `"\t"`, `"\""`, `"\\"`.
+// Forbidding `"="` in values is stricter than 6265 (which permits it inside
+// quoted cookie-value) but matches what real HTTP stacks accept without quoting.
+func isValidCookiePairChar(r rune) bool {
+	if r < 0x20 || r == 0x7f {
+		return false
+	}
+	switch r {
+	case ' ', '\t', '"', ',', ';', '=', '\\':
+		return false
+	}
+	return true
+}
+
+// validCookieToken returns true iff every rune of s passes isValidCookiePairChar.
+// An empty value is permitted (some session cookies legitimately have value="").
+func validCookieToken(s string) bool {
+	for _, r := range s {
+		if !isValidCookiePairChar(r) {
+			return false
+		}
+	}
+	return true
+}
 
 // browserUseCookie is the shape `browser-use cookies export <file>` writes.
 // Many fields are passthrough from Playwright; we only need name/value/domain.
@@ -59,7 +87,12 @@ steps 1 and 2. Run the export immediately after natural browsing.`,
 			if err := json.Unmarshal(raw, &cookies); err != nil {
 				return fmt.Errorf("parsing %s: %w", fromFile, err)
 			}
+			// PATCH: validate name/value characters per RFC 6265 §4.1.1 before assembly.
+			// A malformed export with `;` in a value would smuggle multiple cookies into the header
+			// and could even forge a header injection if a value contained CR/LF. Skip + warn instead.
+			w := cmd.OutOrStdout()
 			var pairs []string
+			skipped := 0
 			for _, c := range cookies {
 				dom := strings.TrimPrefix(c.Domain, ".")
 				if dom != "jimmyjohns.com" && !strings.HasSuffix(dom, ".jimmyjohns.com") {
@@ -68,10 +101,15 @@ steps 1 and 2. Run the export immediately after natural browsing.`,
 				if c.Name == "" {
 					continue
 				}
+				if !validCookieToken(c.Name) || !validCookieToken(c.Value) {
+					fmt.Fprintf(w, "warning: skipping cookie %q with disallowed characters in name or value\n", c.Name)
+					skipped++
+					continue
+				}
 				pairs = append(pairs, c.Name+"="+c.Value)
 			}
 			if len(pairs) == 0 {
-				return fmt.Errorf("no jimmyjohns.com cookies found in %s", fromFile)
+				return fmt.Errorf("no jimmyjohns.com cookies found in %s (skipped %d invalid)", fromFile, skipped)
 			}
 			cookieHeader := strings.Join(pairs, "; ")
 
@@ -89,7 +127,6 @@ steps 1 and 2. Run the export immediately after natural browsing.`,
 			if err := cfg.SaveHeaders(); err != nil {
 				return configErr(fmt.Errorf("saving cookies: %w", err))
 			}
-			w := cmd.OutOrStdout()
 			fmt.Fprintf(w, "%s Imported %d jimmyjohns.com cookies (%d bytes)\n", green("OK"), len(pairs), len(cookieHeader))
 			fmt.Fprintf(w, "Session saved to %s\n", cfg.Path)
 			return nil

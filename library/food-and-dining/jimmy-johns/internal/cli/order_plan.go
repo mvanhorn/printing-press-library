@@ -1,7 +1,8 @@
-// Hand-authored novel feature — sized cart suggestion for group orders.
-// Pure-local computation. Reads menu products from stdin/--from-file (the
-// shape of `menu products --json`) or uses a sensible default catalog when
-// no products are provided.
+// PATCH: hand-authored novel feature `order plan` — sized cart suggestion for
+// group orders. Pure-local computation. Reads menu products from
+// stdin/--from-file (the shape of `menu products --json`) or uses a sensible
+// default catalog when no products are provided. See .printing-press-patches.json
+// patch id "novel-order-plan".
 
 package cli
 

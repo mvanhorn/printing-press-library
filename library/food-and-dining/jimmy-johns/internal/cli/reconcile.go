@@ -1,6 +1,7 @@
-// Hand-authored novel feature — diffs locally synced stores against fresh
-// API state. Reports new / removed / unchanged stores. Uses both the local
-// store and a live API call.
+// PATCH: hand-authored workflow `reconcile` — diffs locally synced stores
+// against fresh API state. Reports new / removed / unchanged stores. Uses
+// both the local store and a live API call. See .printing-press-patches.json
+// patch id "workflow-reconcile".
 
 package cli
 

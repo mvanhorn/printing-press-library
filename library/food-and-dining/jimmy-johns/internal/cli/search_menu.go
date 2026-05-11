@@ -1,5 +1,6 @@
-// Hand-authored novel feature — local substring search over synced menu items
-// and stores. Uses the local SQLite store; no live API call.
+// PATCH: hand-authored workflow `search` — local substring search over synced
+// menu items and stores. Uses the local SQLite store; no live API call.
+// See .printing-press-patches.json patch id "workflow-search".
 
 package cli
 

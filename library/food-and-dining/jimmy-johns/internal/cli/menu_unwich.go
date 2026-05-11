@@ -1,6 +1,8 @@
-// Hand-authored novel feature — converts a sandwich's modifier set to an
-// "Unwich" (lettuce-wrap) variant. Pure-local: works against synced product
-// modifiers or a JSON file piped via --stdin. No live API call required.
+// PATCH: hand-authored novel feature `menu unwich-convert` — pure-local
+// conversion of a sandwich's modifier set to an "Unwich" (lettuce-wrap)
+// variant. Works against synced product modifiers or a JSON file piped via
+// --stdin. No live API call required. See .printing-press-patches.json
+// patch id "novel-unwich-convert".
 
 package cli
 

@@ -1,9 +1,10 @@
-// Hand-authored novel feature — compose two sandwiches as a "half-and-half"
-// share order. Jimmy John's doesn't natively offer half-and-half slicing the
-// way pizza shops do, but two-person sharing is a real workflow: order both
-// products, ask in-store for them to be halved at pickup or split in delivery.
-// This command emits the cart structure + a human note so agents always
-// surface the constraint to the user.
+// PATCH: hand-authored novel feature `menu half-and-half` — composes two
+// sandwiches as a share order. Jimmy John's doesn't natively offer half-and-half
+// slicing the way pizza shops do, but two-person sharing is a real workflow:
+// order both products, ask in-store for them to be halved at pickup or split
+// in delivery. Emits the cart structure plus a human note so agents always
+// surface the constraint to the user. See .printing-press-patches.json
+// patch id "novel-half-and-half".
 
 package cli
 
