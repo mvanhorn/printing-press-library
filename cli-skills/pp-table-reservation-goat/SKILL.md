@@ -1,6 +1,6 @@
 ---
 name: pp-table-reservation-goat
-description: "One reservation CLI for OpenTable and Tock — search both networks at once, watch for cancellations, book, and... Trigger phrases: `book a table`, `find me a reservation`, `watch for a cancellation`, `tasting menu availability`, `earliest reservation across these restaurants`, `use table-reservation-goat`, `run table-reservation-goat`."
+description: "One reservation CLI for OpenTable, Tock, and Resy — search each network at once, watch for cancellations, book, and... Trigger phrases: `book a table`, `find me a reservation`, `watch for a cancellation`, `tasting menu availability`, `earliest reservation across these restaurants`, `use table-reservation-goat`, `run table-reservation-goat`."
 author: "Pejman Pour-Moezzi"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -29,18 +29,25 @@ If the `npx` install fails before this CLI has a public-library category, instal
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-OpenTable and Tock split the US fine-dining world between them and share zero data. This CLI unifies them: `goat` searches both at once, `watch` polls both for cancellations, `earliest` composes availability across both, and `drift` surfaces what changed at a venue since your last look. Auth is one `auth login --chrome` import — your real Chrome cookies for both sites, no partner keys.
+OpenTable, Tock, and Resy split the US fine-dining world between them and share zero data. This CLI unifies them: `goat` searches all three at once, `watch` polls each network for cancellations, `earliest` composes availability across all three, and `drift` surfaces what changed at a venue since your last look.
+
+**Authentication** is two commands, each run once:
+
+- `auth login --chrome` imports OpenTable + Tock session cookies from your local Chrome profile.
+- `auth login --resy --email <you@example.com>` exchanges Resy email + password for a long-lived API token; the password is consumed and never persisted.
+
+**Network-prefixed addressing.** Resy venues are addressed by numeric id (`resy:1387`); OpenTable by numeric id or URL slug (`opentable:le-bernardin`); Tock by domain-name slug (`tock:alinea`).
 
 ## When to Use This CLI
 
-Use this CLI any time a user or agent needs to search, compare, watch, or book across OpenTable and Tock together — and especially for multi-venue questions ('soonest table at any of these'), cancellation hunting, or tracking changes at a specific venue. For single-network simple lookups, the official site UI is faster.
+Use this CLI any time a user or agent needs to search, compare, watch, or book across OpenTable, Tock, and Resy together — and especially for multi-venue questions ('soonest table at any of these'), cancellation hunting, or tracking changes at a specific venue. For single-network simple lookups, the official site UI is faster.
 
 ## Unique Capabilities
 
 These capabilities aren't available in any other tool for this API.
 
 ### Cross-network ground truth
-- **`goat`** — One query across OpenTable and Tock simultaneously, ranked by relevance, earliest availability, and price band.
+- **`goat`** — One query across OpenTable, Tock, and Resy simultaneously, ranked by relevance, earliest availability, and price band.
 
   _When a user asks an agent to find a table, this is the single command that searches both reservation networks and returns structured ranked results — agents do not need to know which network covers which restaurant._
 
@@ -49,16 +56,16 @@ These capabilities aren't available in any other tool for this API.
   ```
 - **`earliest`** — Across a list of restaurants from either network, return the earliest open slot per venue within a time horizon.
 
-  _When a user gives an agent a shortlist of venues and wants the soonest opportunity, this is the right shape — one structured response with one row per venue across both networks._
+  _When a user gives an agent a shortlist of venues and wants the soonest opportunity, this is the right shape — one structured response with one row per venue across all three networks._
 
   ```bash
   table-reservation-goat-pp-cli earliest 'alinea,le-bernardin,smyth,atomix' --party 4 --within 21d --agent --select earliest.venue,earliest.network,earliest.slot_at,earliest.attributes
   ```
 
 ### Local state that compounds
-- **`watch`** — Persistent local watcher that polls both networks for openings on your target venues and party size, with notifications and optional auto-book.
+- **`watch`** — Persistent local watcher that polls each network for openings on your target venues and party size, with notifications and optional auto-book.
 
-  _Resy's Notify covers Resy only; tockstalk covers Tock only; restaurant-mcp's snipe covers Resy+OT only. None covers both networks; none persists state. Use this when an agent or user needs a hot reservation that isn't currently available._
+  _Resy's Notify covers Resy only; tockstalk covers Tock only; restaurant-mcp's snipe covers Resy+OT only. None covers each network; none persists state. Use this when an agent or user needs a hot reservation that isn't currently available._
 
   ```bash
   table-reservation-goat-pp-cli watch add 'le-bernardin' --party 2 --window 'Fri 7-9pm' --notify slack
@@ -73,17 +80,17 @@ These capabilities aren't available in any other tool for this API.
 
 ## Command Reference
 
-**availability** — Check open reservation slots across OpenTable and Tock
+**availability** — Check open reservation slots across OpenTable, Tock, and Resy
 
 - `table-reservation-goat-pp-cli availability check` — Check open slots for a restaurant on a specific date and party size
 - `table-reservation-goat-pp-cli availability multi-day` — Multi-day availability for a single restaurant — Mon-Sun matrix
 
-**restaurants** — Search and inspect restaurants across OpenTable and Tock
+**restaurants** — Search and inspect restaurants across OpenTable, Tock, and Resy
 
 - `table-reservation-goat-pp-cli restaurants get` — Get a restaurant's full detail — hours, address, cuisine, price band, photos, accolades
-- `table-reservation-goat-pp-cli restaurants list` — List restaurants across OpenTable and Tock; filter by location, cuisine, price band, accolades, and party size
+- `table-reservation-goat-pp-cli restaurants list` — List restaurants across OpenTable, Tock, and Resy; filter by location, cuisine, price band, accolades, and party size
 
-**watch** — Persistent local cancellation watcher across both networks
+**watch** — Persistent local cancellation watcher across all three networks
 
 - `table-reservation-goat-pp-cli watch add` — Register a watch for a venue, party size, and time window
 - `table-reservation-goat-pp-cli watch list` — List active watches
@@ -261,7 +268,7 @@ to the user without retry.
 ## Recipes
 
 
-### Headline omakase search across both networks (agent-shaped)
+### Headline omakase search across all three networks (agent-shaped)
 
 ```bash
 table-reservation-goat-pp-cli goat 'omakase manhattan' --party 2 --when 'this fri 7-9pm' --agent --select results.name,results.network,results.earliest_slot,results.price_band,results.attributes
@@ -275,7 +282,7 @@ Single command, ranked merged output with the deeply-nested fields agents actual
 table-reservation-goat-pp-cli watch add 'alinea' --party 2 --window 'sat 7-9pm' --notify local && table-reservation-goat-pp-cli watch add 'le-bernardin' --party 2 --window 'sat 7-9pm' --notify local
 ```
 
-Two watches, one local store, one polling daemon — the printer handles both networks via per-source adaptive limiters.
+Two watches, one local store, one polling daemon — the printer handles each network via per-source adaptive limiters.
 
 ### Soonest table among my shortlist
 

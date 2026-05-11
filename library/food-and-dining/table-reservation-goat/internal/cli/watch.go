@@ -19,6 +19,7 @@ import (
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/auth"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/opentable"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/resy"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/tock"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/store"
 )
@@ -118,7 +119,7 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "watch",
 		Short: "Local cross-network cancellation watcher",
-		Long: "Persistent watches across OpenTable and Tock. The local SQLite watch " +
+		Long: "Persistent watches across OpenTable, Tock, and Resy. The local SQLite watch " +
 			"table holds your active watches; `watch tick` is intended to run from " +
 			"cron / a scheduler — it polls each active watch's source and emits " +
 			"matches as JSON events.",
@@ -189,12 +190,25 @@ func newWatchAddCmd(flags *rootFlags) *cobra.Command {
 					LocationWarning:  warning,
 				}, flags)
 			}
+			network, slug := parseNetworkSlug(args[0])
+			// Reject malformed Resy watches BEFORE inserting them into
+			// the SQLite watches table. Resy venues are addressed by
+			// numeric id (Resy's `id` field from search); a slug-shaped
+			// input like `watch add resy:le-bernardin` (easy to type
+			// because OT/Tock use slugs) would otherwise be persisted
+			// as an active watch that fails forever during `watch tick`,
+			// burning poll cycles and cluttering `watch list`. Match the
+			// validation pattern earliest / book / drift use.
+			if network == "resy" {
+				if _, err := strconv.Atoi(slug); err != nil {
+					return fmt.Errorf("resy: %q is not a numeric venue id; use the `id` field from `goat <name> --network resy` output (e.g. resy:1387)", slug)
+				}
+			}
 			db, err := openWatchStore(flags)
 			if err != nil {
 				return err
 			}
 			defer db.Close()
-			network, slug := parseNetworkSlug(args[0])
 			if network == "" {
 				network = "auto"
 			}
@@ -424,6 +438,18 @@ func newWatchTickCmd(flags *rootFlags) *cobra.Command {
 				}
 				r := pollOneWatch(ctx, session, id, venue, network, slug, party, windowSpec, locationCtx, noCache)
 				results = append(results, r)
+				// Only persist last_polled_at when the poll actually ran
+				// at least one successful per-network call. pollOneWatch
+				// returns Polled=false when every per-day API call errored
+				// (e.g., persistent auth_expired or Akamai cooldown). If
+				// we bumped last_polled_at unconditionally, the DB would
+				// claim "polled, no slots found" indistinguishably from
+				// a real successful empty result — masking a multi-day
+				// outage as healthy "0 matches" and silently letting
+				// hot-target watches drift past their useful window.
+				if !r.Polled {
+					continue
+				}
 				now := time.Now().UTC()
 				if r.HasMatch {
 					_, _ = db.ExecContext(ctx,
@@ -445,6 +471,11 @@ func pollOneWatch(ctx context.Context, s *auth.Session, id, venue, network, slug
 	r := tickResult{WatchID: id, Venue: venue, Network: network, PolledAt: time.Now().UTC().Format(time.RFC3339), WindowSpec: windowSpec}
 	tryOT := network == "auto" || network == "opentable"
 	tryTock := network == "auto" || network == "tock"
+	tryResy := network == "resy"
+
+	if tryResy {
+		return pollOneWatchResy(ctx, s, slug, party, windowSpec, r)
+	}
 	if tryTock {
 		// Tock's runtime XHR `/api/consumer/calendar/full/v2` returns ~60
 		// days of per-(date, party, time) sold-out state in a single
@@ -625,6 +656,94 @@ func resolveWatchAnchor(slug, locationContextJSON string) (lat, lng float64) {
 		return gc.Centroid[0], gc.Centroid[1]
 	}
 	return 40.7128, -74.0060
+}
+
+// pollOneWatchResy scans the next 7 days of Resy availability for the given
+// venue id, applying the user's optional --window filter and returning a
+// HasMatch=true result for the earliest qualifying slot. `slug` here is
+// expected to be a numeric Resy venue id (validated at `watch add` time).
+//
+// Resy has no equivalent of Tock's 60-day calendar endpoint — each
+// /4/find call is per-(venue, date, party), so we loop client-side. The
+// poll budget is 7 days to mirror the OT and Tock branches; tighter
+// cadences are appropriate for hot targets via per-watch `--cadence`.
+func pollOneWatchResy(ctx context.Context, s *auth.Session, slug string, party int, windowSpec string, r tickResult) tickResult {
+	r.Network = "resy"
+	// Numeric venue id check runs BEFORE the auth check. This is the
+	// belt-and-suspenders backstop for old watch rows that were written
+	// before `watch add` learned to validate Resy slugs; for new rows
+	// the add-time check rejects malformed input first. Validation
+	// before auth means a bad-slug watch surfaces "fix your venue id"
+	// instead of cycling auth_required forever after a token expires.
+	if _, err := strconv.Atoi(slug); err != nil {
+		r.Reason = fmt.Sprintf("resy: %q is not a numeric venue id; use `goat <name> --network resy` to discover ids", slug)
+		return r
+	}
+	if s == nil || s.Resy == nil || s.Resy.AuthToken == "" {
+		r.Reason = "resy: not authenticated; run `auth login --resy --email <you@example.com>` first"
+		return r
+	}
+	client := resy.New(resy.Credentials{
+		APIKey:    s.Resy.APIKey,
+		AuthToken: s.Resy.AuthToken,
+		Email:     s.Resy.Email,
+	})
+	today := time.Now()
+	dateFrom := today.Format("2006-01-02")
+	openSlot := ""
+	successfulDays := 0
+	var lastErr error
+	for d := 0; d < 7; d++ {
+		day := today.AddDate(0, 0, d).Format("2006-01-02")
+		slots, err := client.Availability(ctx, resy.AvailabilityParams{
+			VenueID:   slug,
+			Date:      day,
+			PartySize: party,
+		})
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		successfulDays++
+		for _, sl := range slots {
+			if !slotMatchesWindowSpec(day, sl.Time, windowSpec) {
+				continue
+			}
+			ts := day + "T" + sl.Time
+			if openSlot == "" || ts < openSlot {
+				openSlot = ts
+			}
+		}
+	}
+	// Polled is true only when at least one day's call succeeded. Setting
+	// it unconditionally would let the caller persist last_polled_at after
+	// a 7-day stretch of auth_expired or network errors, masking a
+	// real outage as "polled, no slots found." If every day errored,
+	// surface the last error in Reason and leave Polled=false so the
+	// caller's update path skips the timestamp bump.
+	if successfulDays == 0 {
+		if lastErr != nil {
+			r.Reason = fmt.Sprintf("resy venue=%s: every per-day call failed; last error: %v", slug, lastErr)
+		} else {
+			r.Reason = fmt.Sprintf("resy venue=%s: poll did not run any successful per-day calls", slug)
+		}
+		return r
+	}
+	r.Polled = true
+	switch {
+	case openSlot != "":
+		r.HasMatch = true
+		if windowSpec != "" {
+			r.Reason = fmt.Sprintf("resy venue=%s: open slot for party=%d matching %q at %s (7-day horizon)", slug, party, windowSpec, openSlot)
+		} else {
+			r.Reason = fmt.Sprintf("resy venue=%s: open slot for party=%d at %s (7-day horizon)", slug, party, openSlot)
+		}
+	case windowSpec != "":
+		r.Reason = fmt.Sprintf("resy venue=%s: no open slots for party=%d matching %q in 7-day window from %s", slug, party, windowSpec, dateFrom)
+	default:
+		r.Reason = fmt.Sprintf("resy venue=%s: no open slots for party=%d in 7-day window from %s", slug, party, dateFrom)
+	}
+	return r
 }
 
 func openWatchStore(flags *rootFlags) (*sql.DB, error) {

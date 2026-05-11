@@ -507,3 +507,107 @@ func TestInferTierFromGeoContext(t *testing.T) {
 		})
 	}
 }
+
+// TestRestaurantsList_ResyParticipatesInLocationFlow pins the post-#445
+// Resy port's contract with the typed-location pipeline. Pejman's
+// review checklist explicitly asked: "Resy participates in the
+// ambiguity contract, not silently picks Bellevue WA." These tests
+// pin that --network=resy goes through the same ResolveLocation +
+// decorate-with-GeoContext pipeline as OpenTable and Tock, with no
+// special-case bypass for the Resy network.
+//
+// We drive through the dry-run path so the test doesn't need a live
+// Resy session — the dry-run gate fires AFTER location resolution but
+// BEFORE any provider call, which is exactly where we want to pin the
+// contract.
+func TestRestaurantsList_ResyParticipatesInLocationFlow(t *testing.T) {
+	t.Run("HIGH new-york-city with --network resy decorates with tier=high", func(t *testing.T) {
+		stdout, _, err := runRestaurantsList(t,
+			"--query", "omakase",
+			"--location", "new york city, ny",
+			"--network", "resy",
+			"--party", "2",
+		)
+		if err != nil {
+			t.Fatalf("Execute: unexpected error: %v\nstdout: %s", err, stdout)
+		}
+		resp := unmarshalGoatResponse(t, stdout)
+		if resp.LocationResolved == nil {
+			t.Fatalf("LocationResolved is nil; --network resy must still flow through location resolution\nstdout: %s", stdout)
+		}
+		if resp.LocationResolved.ResolvedTo != "New York City, NY" {
+			t.Errorf("ResolvedTo = %q; want New York City, NY", resp.LocationResolved.ResolvedTo)
+		}
+		if resp.LocationResolved.Tier != ResolutionTierHigh {
+			t.Errorf("Tier = %q; want %q (city+state should be HIGH)", resp.LocationResolved.Tier, ResolutionTierHigh)
+		}
+		if resp.LocationResolved.Source != SourceExplicitFlag {
+			t.Errorf("Source = %q; want %q", resp.LocationResolved.Source, SourceExplicitFlag)
+		}
+	})
+
+	t.Run("ambiguous --location bellevue with --network resy still emits envelope", func(t *testing.T) {
+		// The ambiguity contract is network-independent: Resy must not
+		// silently pick Bellevue, WA when the caller hasn't passed
+		// --batch-accept-ambiguous, because doing so would short-
+		// circuit the disambiguation envelope that OpenTable + Tock
+		// produce for the same input. This test is the regression
+		// guard against a future "skip envelope for Resy because Resy
+		// has its own city codes" optimization.
+		stdout, _, err := runRestaurantsList(t,
+			"--query", "sushi",
+			"--location", "bellevue",
+			"--network", "resy",
+		)
+		if err != nil {
+			t.Fatalf("Execute: unexpected error: %v\nstdout: %s", err, stdout)
+		}
+		if !strings.Contains(stdout, "needs_clarification") {
+			t.Fatalf("envelope output missing needs_clarification field; --network resy must respect ambiguity contract\nstdout: %s", stdout)
+		}
+		env := unmarshalEnvelope(t, stdout)
+		if !env.NeedsClarification {
+			t.Errorf("NeedsClarification = false; want true")
+		}
+		if env.ErrorKind != ErrorKindLocationAmbiguous {
+			t.Errorf("ErrorKind = %q; want %q", env.ErrorKind, ErrorKindLocationAmbiguous)
+		}
+		if got := len(env.Candidates); got < 3 {
+			t.Errorf("Candidates len = %d; want >= 3 (three Bellevues)", got)
+		}
+		// The envelope must not also carry a goatResponse — same shape
+		// invariant as the OpenTable/Tock envelope test.
+		if strings.Contains(stdout, `"sources_queried"`) {
+			t.Errorf("envelope path should NOT include goatResponse fields when --network resy; got %s", stdout)
+		}
+	})
+
+	t.Run("forced-pick --location bellevue --batch-accept-ambiguous --network resy decorates with warning", func(t *testing.T) {
+		// With the batch escape hatch, the resolver collapses to a
+		// forced pick. Resy + the batch flag should land on the same
+		// shape as OT + the batch flag: a goatResponse with both
+		// LocationResolved AND LocationWarning populated.
+		stdout, _, err := runRestaurantsList(t,
+			"--query", "sushi",
+			"--location", "bellevue",
+			"--batch-accept-ambiguous",
+			"--network", "resy",
+		)
+		if err != nil {
+			t.Fatalf("Execute: unexpected error: %v\nstdout: %s", err, stdout)
+		}
+		resp := unmarshalGoatResponse(t, stdout)
+		if resp.LocationResolved == nil {
+			t.Fatalf("LocationResolved is nil; want forced-pick GeoContext\nstdout: %s", stdout)
+		}
+		if resp.LocationResolved.ResolvedTo != "Bellevue, WA" {
+			t.Errorf("ResolvedTo = %q; want Bellevue, WA (canonical first match)", resp.LocationResolved.ResolvedTo)
+		}
+		if resp.LocationResolved.Tier == ResolutionTierHigh {
+			t.Errorf("Tier = %q; want non-HIGH for forced pick (alternates exist)", resp.LocationResolved.Tier)
+		}
+		if resp.LocationWarning == nil {
+			t.Errorf("LocationWarning is nil; forced-pick path must emit a warning")
+		}
+	})
+}

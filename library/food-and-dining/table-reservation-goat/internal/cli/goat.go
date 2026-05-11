@@ -20,6 +20,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/auth"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/opentable"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/resy"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/tock"
 )
 
@@ -81,8 +82,8 @@ func newGoatCmd(flags *rootFlags) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:     "goat <query>",
-		Short:   "Cross-network unified restaurant search (OpenTable + Tock)",
-		Long:    "Search OpenTable and Tock simultaneously and return one ranked list. Use this any time an agent or user needs a restaurant search that crosses both reservation networks.",
+		Short:   "Cross-network unified restaurant search (OpenTable + Tock + Resy)",
+		Long:    "Search OpenTable, Tock, and Resy simultaneously and return one ranked list. Use this any time an agent or user needs a restaurant search that crosses all three reservation networks.",
 		Example: "  table-reservation-goat-pp-cli goat 'omakase' --metro seattle --party 6 --agent",
 		Annotations: map[string]string{
 			"mcp:read-only": "true",
@@ -224,6 +225,26 @@ func newGoatCmd(flags *rootFlags) *cobra.Command {
 					results = append(results, tockRes...)
 				}
 			}
+			// Resy /3/venuesearch/search only requires the public API
+			// key (hardcoded shared value on every browser visiting
+			// resy.com), not a per-user auth token — discovery is
+			// public. Always include Resy in the search fanout so
+			// first-run users without `auth login --resy` still see
+			// Resy venues and can discover the numeric ids needed for
+			// later authenticated commands (book/cancel/availability).
+			// Authenticated endpoints stay gated. Pass the resolved
+			// GeoContext so Resy's city-code projection (ForResy)
+			// drives the search location server-side instead of
+			// relying on raw `--metro` slugs.
+			if net == "" || net == "resy" {
+				sources = append(sources, "resy")
+				resyRes, resyErr := goatQueryResy(ctx, session, query, gc, metro)
+				if resyErr != nil {
+					errors = append(errors, fmt.Sprintf("resy: %v", resyErr))
+				} else {
+					results = append(results, resyRes...)
+				}
+			}
 			// Geo filter: drop or demote results outside the resolved
 			// centroid based on filterMode (#406 failure 1). U8 routes
 			// this through the typed GeoContext from ResolveLocation; the
@@ -277,7 +298,9 @@ func newGoatCmd(flags *rootFlags) *cobra.Command {
 			"Implicit --batch-accept-ambiguous is canonical-only: a single-hit registry lookup "+
 			"preserves the legacy result shape; ambiguous or unknown values return the standard "+
 			"disambiguation envelope just like --location would.")
-	cmd.Flags().StringVar(&network, "network", "", "Restrict to one network (opentable, tock); default queries both")
+	cmd.Flags().StringVar(&network, "network", "",
+		"Restrict to one network (opentable, tock, resy); default queries all three "+
+			"(Resy search is anonymous-safe, so this works without auth login --resy)")
 	cmd.Flags().IntVar(&limit, "limit", 20, "Max merged results to return")
 	cmd.Flags().IntVar(&party, "party", 2, "Party size (informational; OT autocomplete does not filter on this)")
 	cmd.Flags().StringVar(&when, "when", "", "Time hint for search (e.g., 'fri 7-9pm', 'tonight', 'this weekend'); informational in v1")
@@ -492,6 +515,114 @@ func slugify(s string) string {
 	}
 	res := out.String()
 	return strings.TrimSuffix(res, "-")
+}
+
+// goatQueryResy runs Resy's venue search and maps results into goatResult
+// rows. Anonymous-safe: Resy's /3/venuesearch/search only needs the public
+// API key (no per-user auth required for discovery). The `gc` parameter is
+// the post-#445 typed GeoContext from ResolveLocation; when set, it drives
+// Resy's city-code filter and the in-query metro prefix (see comment
+// inside on why the prefix is load-bearing). The legacy `metro` slug is
+// still accepted so callers passing only --metro (without --location) get
+// the same behavior as before.
+func goatQueryResy(ctx context.Context, s *auth.Session, query string, gc *GeoContext, metro string) ([]goatResult, error) {
+	creds := resy.Credentials{}
+	if s != nil && s.Resy != nil {
+		creds.APIKey = s.Resy.APIKey
+		creds.AuthToken = s.Resy.AuthToken
+		creds.Email = s.Resy.Email
+	}
+	client := resy.New(creds)
+	// Resy's gateway dropped support for the `location` body field
+	// (rejected as "Unknown field." HTTP 400 on every call), so the
+	// per-call `per_page: 20` limit applies to a global match set. For
+	// generic queries like "tasting menu" with --location seattle, the
+	// 20 global rows can easily include zero Seattle venues, and the
+	// downstream geo filter then leaves us with nothing. Empirically
+	// Resy's free-text search DOES honor city words in the query string
+	// (live trace: `omakase seattle` returns 10 Seattle venues), so we
+	// prepend the city display name to the query when a location is
+	// resolved. The original query is preserved for scoring so the
+	// match-score reflects the user's intent, not the augmented
+	// city-prefix string.
+	loc := gc.ForResy()
+	effectiveQuery := query
+	cityCode := loc.City
+	cityDisplay := ""
+	if gc != nil {
+		cityDisplay, _ = cityAndSlugFromResolvedTo(gc.ResolvedTo)
+	}
+	if cityDisplay == "" {
+		cityDisplay = metroCityName(metro)
+	}
+	if cityCode == "" {
+		cityCode = metroToResyCityCode(metro)
+	}
+	if cityDisplay != "" {
+		effectiveQuery = cityDisplay + " " + query
+	}
+	venues, err := client.Search(ctx, resy.SearchParams{
+		Query: effectiveQuery,
+		City:  cityCode,
+		Limit: 20,
+	})
+	if err != nil {
+		return nil, err
+	}
+	q := strings.ToLower(query)
+	out := make([]goatResult, 0, len(venues))
+	for _, v := range venues {
+		nameLower := strings.ToLower(v.Name)
+		score := 0.4
+		if strings.Contains(nameLower, q) {
+			score = 0.95
+		} else if first := firstToken(q); first != "" && strings.Contains(nameLower, first) {
+			score = 0.65
+		}
+		out = append(out, goatResult{
+			Network:    "resy",
+			ID:         v.ID,
+			Name:       v.Name,
+			Slug:       v.Slug,
+			Metro:      v.City,
+			Latitude:   v.Latitude,
+			Longitude:  v.Longitude,
+			URL:        v.URL,
+			MatchScore: score,
+		})
+	}
+	return out, nil
+}
+
+// metroToResyCityCode maps a metro slug to Resy's two/three-letter city
+// code. Unknown slugs return empty string, which the Search call treats as
+// "no city filter" — agents still get results, just unfiltered.
+func metroToResyCityCode(metro string) string {
+	switch strings.ToLower(strings.TrimSpace(metro)) {
+	case "new-york", "new-york-city", "nyc", "manhattan":
+		return "ny"
+	case "los-angeles", "la":
+		return "la"
+	case "san-francisco", "sf", "bay-area":
+		return "sf"
+	case "chicago", "chi":
+		return "chi"
+	case "seattle":
+		return "sea"
+	case "miami":
+		return "mia"
+	case "washington-dc", "dc", "washington":
+		return "dc"
+	case "boston", "bos":
+		return "bos"
+	case "austin", "atx":
+		return "atx"
+	case "philadelphia", "philly":
+		return "phl"
+	case "london":
+		return "ldn"
+	}
+	return ""
 }
 
 // _ keeps cliutil imported for future limiter wiring.

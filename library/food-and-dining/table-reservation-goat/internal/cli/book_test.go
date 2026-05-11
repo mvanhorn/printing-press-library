@@ -160,6 +160,11 @@ func TestParseCancelArg(t *testing.T) {
 	}{
 		{"opentable:1255093:114309:01Ozsdas9H1Yx", "opentable", []string{"1255093", "114309", "01Ozsdas9H1Yx"}, ""},
 		{"tock:farzi-cafe-bellevue:362575651", "tock", []string{"farzi-cafe-bellevue", "362575651"}, ""},
+		{"resy:rgs-abc-1234", "resy", []string{"rgs-abc-1234"}, ""},
+		// Resy tokens are opaque — colons inside must NOT split the token.
+		// This is the codex-flagged P1: previously `parts = strings.Split(rest, ":")`
+		// would have truncated this to ["rgs", "//venue", "20", "30", "00", "abc"].
+		{"resy:rgs://venue/20:30:00/abc", "resy", []string{"rgs://venue/20:30:00/abc"}, ""},
 		{"no-colon", "", nil, "expected '<network>:<id-fields>'"},
 		{"opentable:", "", nil, "missing id fields"},
 		{"yelp:foo:bar", "", nil, "unknown network"},
@@ -180,7 +185,13 @@ func TestParseCancelArg(t *testing.T) {
 				t.Errorf("parseCancelArg(%q) network = %q; want %q", tc.in, n, tc.net)
 			}
 			if len(p) != len(tc.parts) {
-				t.Errorf("parseCancelArg(%q) parts len = %d; want %d", tc.in, len(p), len(tc.parts))
+				t.Errorf("parseCancelArg(%q) parts len = %d; want %d (got %v)", tc.in, len(p), len(tc.parts), p)
+				return
+			}
+			for i := range p {
+				if p[i] != tc.parts[i] {
+					t.Errorf("parseCancelArg(%q) parts[%d] = %q; want %q", tc.in, i, p[i], tc.parts[i])
+				}
 			}
 		})
 	}
@@ -258,6 +269,38 @@ func TestNormalizeForSlugMatch(t *testing.T) {
 	for _, tc := range cases {
 		if got := normalizeForSlugMatch(tc.in); got != tc.want {
 			t.Errorf("normalizeForSlugMatch(%q) = %q; want %q", tc.in, got, tc.want)
+		}
+	}
+}
+
+func TestIsResyTerminalStatus(t *testing.T) {
+	cases := []struct {
+		in   string
+		want bool
+	}{
+		{"", false},
+		{"Cancelled", true},
+		{"cancelled", true},
+		{"Canceled", true},
+		{"CANCELLED BY USER", true},
+		{"Completed", true},
+		{"completed (paid)", true},
+		{"No-show", true},
+		{"no show", true},
+		{"NoShow", true},
+		{"Confirmed", false},
+		{"Pending", false},
+		{"Held", false},
+		// Boundary cases — Greptile round-6 concern: hypothetical
+		// active states with terminal prefixes must NOT match.
+		{"Cancellable", false},
+		{"cancellation_pending", false},
+		{"Completing", false},
+		{"completable", false},
+	}
+	for _, tc := range cases {
+		if got := isResyTerminalStatus(tc.in); got != tc.want {
+			t.Errorf("isResyTerminalStatus(%q) = %v; want %v", tc.in, got, tc.want)
 		}
 	}
 }

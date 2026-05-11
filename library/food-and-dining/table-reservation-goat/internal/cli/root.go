@@ -85,14 +85,17 @@ func Execute() error {
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "table-reservation-goat-pp-cli",
-		Short: `Cross-network reservation CLI for OpenTable and Tock — search, watch cancellations, and track venue changes`,
-		Long: `Cross-network reservation CLI for OpenTable and Tock. Search both networks in one query, watch for cancellations, find the earliest slot across a shortlist, and diff what changed at a venue since your last look.
+		Short: `Cross-network reservation CLI for OpenTable, Tock, and Resy — search, watch cancellations, book, cancel, and track venue changes`,
+		Long: `Cross-network reservation CLI for OpenTable, Tock, and Resy. Search all three networks in one query, watch for cancellations, find the earliest slot across a shortlist, and diff what changed at a venue since your last look.
 
 Highlights (not in the official API docs):
-  • goat   One query across OpenTable and Tock simultaneously, ranked by relevance, earliest availability, and price band.
-  • watch   Persistent local watcher that polls both networks for openings on your target venues and party size, with notifications and optional auto-book.
-  • earliest   Across a list of restaurants from either network, return the earliest open slot per venue within a time horizon.
+  • goat   One query across OpenTable, Tock, and Resy simultaneously, ranked by relevance, earliest availability, and price band.
+  • watch   Persistent local watcher that polls each network for openings on your target venues and party size, with notifications and optional auto-book.
+  • earliest   Across a list of restaurants from any network, return the earliest open slot per venue within a time horizon.
   • drift   Show what changed at a specific venue since the last sync — new experiences, slot price moves, hours changes.
+  • book/cancel   End-to-end book + cancel against OpenTable, Tock (free + card-required), and Resy.
+
+Auth: OpenTable + Tock use Chrome cookies imported via 'auth login --chrome'. Resy uses a long-lived API token from 'auth login --resy --email <you@example.com>'; the password is consumed and never persisted.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'table-reservation-goat-pp-cli doctor' to verify auth and connectivity.

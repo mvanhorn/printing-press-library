@@ -57,10 +57,10 @@ func newRestaurantsListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "list",
-		Short: "List restaurants across OpenTable and Tock",
-		Long: "Cross-network restaurant search backed by Surf-cleared OpenTable SSR " +
-			"and Tock SSR. Identical underlying data path as `goat`; this command " +
-			"is the resource-style entry point.",
+		Short: "List restaurants across OpenTable, Tock, and Resy",
+		Long: "Cross-network restaurant search backed by Surf-cleared OpenTable SSR, " +
+			"Tock SSR, and Resy's public consumer API. Identical underlying data " +
+			"path as `goat`; this command is the resource-style entry point.",
 		Example:     "  table-reservation-goat-pp-cli restaurants list --query 'omakase' --party 2 --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -126,12 +126,33 @@ func newRestaurantsListCmd(flags *rootFlags) *cobra.Command {
 			}
 			if net == "" || net == "tock" {
 				sources = append(sources, "tock")
-				// restaurants_list doesn't carry a metro/date/time/party context,
-				// so fall back to NYC defaults — goatQueryTock applies the same
-				// fallbacks internally when these are zero/empty.
+				// Pass the metro's display name through to Tock's
+				// SSR city-search so non-NYC metros actually query
+				// the right city. Without this, `--metro seattle`
+				// queried Tock's NYC search then hard-filtered the
+				// NYC venues against Seattle coordinates, dropping
+				// every legitimate Seattle result. metroCityName
+				// returns "" for an unknown slug; goatQueryTock then
+				// falls back to NYC (the historical behavior).
+				cityName := metroCityName(flagMetro)
 				date := time.Now().UTC().Format("2006-01-02")
-				if r, err := goatQueryTock(ctx, session, query, "", date, "19:00", 2, lat, lng); err != nil {
+				if r, err := goatQueryTock(ctx, session, query, cityName, date, "19:00", 2, lat, lng); err != nil {
 					errors = append(errors, "tock: "+err.Error())
+				} else {
+					results = append(results, r...)
+				}
+			}
+			// Resy search is anonymous-safe (public API key only); no
+			// auth required for discovery. Mirrors goat's fanout. The
+			// resolved GeoContext drives the Resy city-code projection
+			// (ForResy) — see goatQueryResy for the prepend-city-to-query
+			// rationale (Resy's gateway dropped the `location` body
+			// field, so the in-query city prefix is the only reliable
+			// geo signal that doesn't get hard-filtered to zero rows).
+			if net == "" || net == "resy" {
+				sources = append(sources, "resy")
+				if r, err := goatQueryResy(ctx, session, query, gc, flagMetro); err != nil {
+					errors = append(errors, "resy: "+err.Error())
 				} else {
 					results = append(results, r...)
 				}
@@ -187,7 +208,7 @@ func newRestaurantsListCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&flagPriceBand, "max-price", 0, "Maximum price band 1-4")
 	cmd.Flags().StringVar(&flagAccolade, "accolade", "", "Filter by accolade (michelin, worlds50best)")
 	cmd.Flags().IntVar(&flagPartySize, "party", 2, "Party size for availability filter")
-	cmd.Flags().StringVar(&flagNetwork, "network", "", "Restrict to one network (opentable, tock)")
+	cmd.Flags().StringVar(&flagNetwork, "network", "", "Restrict to one network (opentable, tock, resy)")
 	cmd.Flags().IntVar(&flagLimit, "limit", 20, "Max restaurants to return")
 	_ = flagNeighborhood
 	_ = flagCuisine

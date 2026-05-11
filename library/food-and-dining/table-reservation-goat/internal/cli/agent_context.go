@@ -116,7 +116,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
 			Name:        "table-reservation-goat-pp-cli",
-			Description: "One reservation CLI for OpenTable and Tock — search both networks at once, watch for cancellations, book, and...",
+			Description: "One reservation CLI for OpenTable, Tock, and Resy — search all three networks at once, watch for cancellations, book + cancel end-to-end, and track changes from a local store agents can query.",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{

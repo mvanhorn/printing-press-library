@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/opentable"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/resy"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/tock"
 )
 
@@ -158,6 +159,87 @@ func (g *GeoContext) ForTock() tock.LocationInput {
 		Lat:  g.Centroid[0],
 		Lng:  g.Centroid[1],
 	}
+}
+
+// ForResy projects the GeoContext into Resy's required shape. Resy's
+// /3/venuesearch/search accepts a two/three-letter `city` body field
+// keyed off the same canonical metros (NY, SEA, LA, SF, CHI, ...). We
+// derive that code from the resolved city display name via
+// resyCityFromResolvedTo so adding a metro requires only a single new
+// entry there.
+//
+// Lat/Lng anchor client-side geo-filtering of search results because
+// Resy's gateway dropped server-side `location` support in 2026
+// (it now rejects the body field as "Unknown field." HTTP 400) — see
+// internal/source/resy.LocationInput for the full rationale.
+//
+// Nil-safe (see ForOpenTable).
+func (g *GeoContext) ForResy() resy.LocationInput {
+	if g == nil {
+		return resy.LocationInput{}
+	}
+	city, _ := cityAndSlugFromResolvedTo(g.ResolvedTo)
+	return resy.LocationInput{
+		City: resyCityFromResolvedTo(city),
+		Lat:  g.Centroid[0],
+		Lng:  g.Centroid[1],
+	}
+}
+
+// resyCityFromResolvedTo maps a city display name ("New York City",
+// "Seattle", "Bellevue") into Resy's two/three-letter city code. The
+// shape mirrors metroToResyCityCode in goat.go (slug-keyed) but takes
+// the display name instead — both surfaces ultimately route through
+// the same canonical Resy metros. Unknown cities return "" which the
+// search call treats as "no city filter" (still returns global results;
+// the in-query city prefix in goatQueryResy carries the geo signal).
+func resyCityFromResolvedTo(city string) string {
+	if city == "" {
+		return ""
+	}
+	switch strings.ToLower(city) {
+	case "new york", "new york city", "manhattan", "brooklyn", "queens":
+		return "ny"
+	case "seattle":
+		return "sea"
+	case "los angeles":
+		return "la"
+	case "san francisco":
+		return "sf"
+	case "chicago":
+		return "chi"
+	case "miami":
+		return "mia"
+	case "boston":
+		return "bos"
+	case "washington", "washington, dc", "washington dc", "dc":
+		return "dc"
+	case "philadelphia":
+		return "phi"
+	case "austin":
+		return "atx"
+	case "houston":
+		return "hou"
+	case "dallas":
+		return "dfw"
+	case "atlanta":
+		return "atl"
+	case "denver":
+		return "den"
+	case "portland":
+		return "pdx"
+	case "san diego":
+		return "sd"
+	case "las vegas":
+		return "las"
+	case "nashville":
+		return "bna"
+	case "new orleans":
+		return "nola"
+	case "minneapolis":
+		return "msp"
+	}
+	return ""
 }
 
 // Validate enforces invariants on a constructed GeoContext. Returns

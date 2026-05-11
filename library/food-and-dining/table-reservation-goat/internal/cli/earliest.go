@@ -20,6 +20,7 @@ import (
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/auth"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/opentable"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/resy"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/tock"
 )
 
@@ -169,7 +170,7 @@ func newEarliestCmd(flags *rootFlags) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:   "earliest <slug1,slug2,...>",
-		Short: "Soonest open slot per venue across OpenTable and Tock",
+		Short: "Soonest open slot per venue across OpenTable, Tock, and Resy",
 		Long: "Across a comma-separated list of restaurant slugs, return the " +
 			"earliest open slot per venue within `--within N days`. Slugs may be " +
 			"network-prefixed (`opentable:le-bernardin`, `tock:alinea`) for " +
@@ -544,7 +545,7 @@ func applyGeoToVenueRow(row earliestRow, gc *GeoContext, acceptedAmbiguous bool,
 func parseNetworkSlug(input string) (network, slug string) {
 	if i := strings.Index(input, ":"); i > 0 {
 		net := strings.ToLower(input[:i])
-		if net == "opentable" || net == "tock" {
+		if net == "opentable" || net == "tock" || net == "resy" {
 			return net, input[i+1:]
 		}
 	}
@@ -573,6 +574,27 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 
 	tryOT := network == "" || network == "opentable"
 	tryTock := network == "" || network == "tock"
+	tryResy := network == "resy" // Resy requires an explicit prefix; auto-fanout reserved for OT+Tock
+
+	// Resy branch — runs only when the caller explicitly addresses
+	// `resy:<numericVenueID>`. Resy's venue identifier is the numeric ID
+	// returned by Search; non-numeric input is rejected with a typed reason
+	// so the agent can pivot rather than burn an API call.
+	if tryResy {
+		if s == nil || s.Resy == nil || s.Resy.AuthToken == "" {
+			row.Network = "resy"
+			row.Available = false
+			row.Reason = "resy: not authenticated; run `auth login --resy --email <you@example.com>` first"
+			return row
+		}
+		if _, err := strconv.Atoi(slug); err != nil {
+			row.Network = "resy"
+			row.Available = false
+			row.Reason = fmt.Sprintf("resy: %q is not a numeric venue id; use the `id` field from `goat <name> --network resy` output", slug)
+			return row
+		}
+		return resolveEarliestForResy(ctx, s, slug, party, date, within, row)
+	}
 
 	// Tock uses domain-name slugs (`canlis`, `farzi-cafe-bellevue`), not
 	// numeric IDs. If the caller passed `tock:<digits>` it's a category
@@ -896,6 +918,100 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 		if row.Reason == "" {
 			row.Reason = "could not resolve venue on OpenTable or Tock"
 		}
+	}
+	return row
+}
+
+// resolveEarliestForResy fans out one Availability call per day across the
+// `within` window, collects open slots, and returns the earliest. Resy's API
+// is per-(venue, date, party) so multi-day scans must loop client-side; no
+// equivalent of Tock's 60-day calendar endpoint exists for Resy.
+func resolveEarliestForResy(ctx context.Context, s *auth.Session, venueID string, party int, date string, within int, row earliestRow) earliestRow {
+	row.Network = "resy"
+	// No row.URL synthesis: Resy URLs are /cities/<cityCode>/<slug>, but
+	// `earliest` is called with the numeric venue id and we don't have
+	// the slug or city code in scope. Synthesizing /cities/ny/<numericID>
+	// (the previous shape) was wrong on two axes — it 404s because Resy
+	// expects a slug not a numeric id, and the "ny" city code is wrong
+	// for non-NYC venues. Agents wanting a clickable URL should resolve
+	// it via `goat <name> --network resy`, which carries Slug + CityCode
+	// from the search response and synthesizes the proper URL there.
+	client := resy.New(resy.Credentials{
+		APIKey:    s.Resy.APIKey,
+		AuthToken: s.Resy.AuthToken,
+		Email:     s.Resy.Email,
+	})
+	start, perr := time.Parse("2006-01-02", date)
+	if perr != nil {
+		start = time.Now()
+	}
+	if within < 1 {
+		within = 1
+	}
+	var lastErr error
+	successfulDays := 0
+	bookable := make([]string, 0)
+	seenResySlot := map[string]bool{}
+	for d := 0; d < within; d++ {
+		day := start.AddDate(0, 0, d).Format("2006-01-02")
+		slots, err := client.Availability(ctx, resy.AvailabilityParams{
+			VenueID:   venueID,
+			Date:      day,
+			PartySize: party,
+		})
+		if err != nil {
+			lastErr = err
+			// Keep walking — Resy occasionally 5xxes on a single day; one
+			// bad day shouldn't terminate the whole scan.
+			continue
+		}
+		successfulDays++
+		// Resy returns one slot row per (date, time, seating-area-config)
+		// tuple, so 19:00 with both "Dining Room" and "Bar" configs
+		// produces two slots for the same timestamp. agents only care
+		// about distinct (date, time) pairs at this layer — book/cancel
+		// addresses individual configs via the slot token — so dedupe
+		// before appending. Matches the OT and Tock dedup pattern.
+		for _, sl := range slots {
+			ts := day + "T" + sl.Time
+			if seenResySlot[ts] {
+				continue
+			}
+			seenResySlot[ts] = true
+			bookable = append(bookable, ts)
+		}
+	}
+	// Refuse to claim "no slots" when every single per-day call failed.
+	// `availability check resy:<id>` uses the same resolver, so a scan
+	// failure (expired token, network outage, repeated 5xxs) would
+	// otherwise be indistinguishable from honest zero-availability —
+	// agents would then make booking decisions based on phantom
+	// emptiness. Return Available=false with a typed scan_failed
+	// signal in the Reason so callers can branch.
+	if successfulDays == 0 {
+		row.Available = false
+		row.ErrorKind = "scan_failed"
+		if lastErr != nil {
+			row.Reason = fmt.Sprintf("resy venue=%s: every per-day availability call failed; cannot distinguish from no slots. Last error: %v", venueID, lastErr)
+		} else {
+			row.Reason = fmt.Sprintf("resy venue=%s: scan ran zero successful per-day calls; cannot report availability", venueID)
+		}
+		return row
+	}
+	sort.Strings(bookable)
+	if len(bookable) > 0 {
+		row.Available = true
+		row.SlotAt = bookable[0]
+		row.BookableTimes = bookable
+		row.Reason = fmt.Sprintf("resy venue=%s: %d open slot(s) for party=%d in %d-day window; earliest %s",
+			venueID, len(bookable), party, within, bookable[0])
+		return row
+	}
+	row.Available = false
+	if lastErr != nil {
+		row.Reason = fmt.Sprintf("resy venue=%s: no open slots in %d-day window for party=%d (last error on partial scan: %v)", venueID, within, party, lastErr)
+	} else {
+		row.Reason = fmt.Sprintf("resy venue=%s: no open slots in %d-day window for party=%d", venueID, within, party)
 	}
 	return row
 }

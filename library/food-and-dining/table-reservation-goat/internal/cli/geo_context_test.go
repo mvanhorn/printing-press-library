@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/opentable"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/resy"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/tock"
 )
 
@@ -117,9 +118,9 @@ func TestGeoContext_ForTock(t *testing.T) {
 }
 
 // TestGeoContext_NilForProvider — nil GeoContext represents "no
-// constraint." Calling ForOpenTable/ForTock on nil returns a zero-
-// value input. Caller is expected to check for nil before calling,
-// but the methods are nil-safe defensively.
+// constraint." Calling ForOpenTable/ForTock/ForResy on nil returns a
+// zero-value input. Caller is expected to check for nil before
+// calling, but the methods are nil-safe defensively.
 func TestGeoContext_NilForProvider(t *testing.T) {
 	var gc *GeoContext
 	if got := gc.ForOpenTable(); got != (opentable.LocationInput{}) {
@@ -127,6 +128,92 @@ func TestGeoContext_NilForProvider(t *testing.T) {
 	}
 	if got := gc.ForTock(); got != (tock.LocationInput{}) {
 		t.Errorf("nil.ForTock: got %+v, want zero", got)
+	}
+	if got := gc.ForResy(); got != (resy.LocationInput{}) {
+		t.Errorf("nil.ForResy: got %+v, want zero", got)
+	}
+}
+
+// TestGeoContext_ForResy projects the typed GeoContext into Resy's
+// LocationInput. Resy's /3/venuesearch/search uses a short city code
+// (two/three letters) as the body field, so the projection is keyed
+// off the resolved city display name via resyCityFromResolvedTo. Lat/
+// Lng anchor client-side post-filtering since Resy dropped server-
+// side `location` support in 2026 (see internal/source/resy.LocationInput).
+func TestGeoContext_ForResy(t *testing.T) {
+	cases := []struct {
+		name       string
+		resolvedTo string
+		wantCity   string // empty means "no city filter"
+	}{
+		{"new york city", "New York City, NY", "ny"},
+		{"manhattan folds to NY", "Manhattan, NY", "ny"},
+		{"seattle", "Seattle, WA", "sea"},
+		{"san francisco", "San Francisco, CA", "sf"},
+		{"chicago", "Chicago, IL", "chi"},
+		{"los angeles", "Los Angeles, CA", "la"},
+		{"miami", "Miami, FL", "mia"},
+		{"unknown city falls through to empty", "Bellevue, WA", ""},
+		{"case-insensitive", "SEATTLE, WA", "sea"},
+		{"whitespace tolerance", "  Portland , OR  ", "pdx"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			gc := &GeoContext{
+				ResolvedTo: tc.resolvedTo,
+				Centroid:   [2]float64{40.7128, -74.0060},
+			}
+			got := gc.ForResy()
+			if got.City != tc.wantCity {
+				t.Errorf("city: got %q, want %q", got.City, tc.wantCity)
+			}
+			if got.Lat != 40.7128 || got.Lng != -74.0060 {
+				t.Errorf("lat/lng drift: got (%v, %v)", got.Lat, got.Lng)
+			}
+		})
+	}
+}
+
+// TestResyCityFromResolvedTo pins the city-code mapping table. Adding
+// a new Resy metro means adding a row here AND in the
+// resyCityFromResolvedTo switch — keep them in sync.
+func TestResyCityFromResolvedTo(t *testing.T) {
+	cases := map[string]string{
+		"":                  "",
+		"New York":          "ny",
+		"New York City":     "ny",
+		"Manhattan":         "ny",
+		"Brooklyn":          "ny",
+		"Queens":            "ny",
+		"Seattle":           "sea",
+		"Los Angeles":       "la",
+		"San Francisco":     "sf",
+		"Chicago":           "chi",
+		"Miami":             "mia",
+		"Boston":            "bos",
+		"Washington":        "dc",
+		"Washington, DC":    "dc",
+		"Philadelphia":      "phi",
+		"Austin":            "atx",
+		"Houston":           "hou",
+		"Dallas":            "dfw",
+		"Atlanta":           "atl",
+		"Denver":            "den",
+		"Portland":          "pdx",
+		"San Diego":         "sd",
+		"Las Vegas":         "las",
+		"Nashville":         "bna",
+		"New Orleans":       "nola",
+		"Minneapolis":       "msp",
+		"Bellevue":          "", // not a Resy metro on its own
+		"Springfield":       "", // ambiguous; never mapped
+	}
+	for in, want := range cases {
+		t.Run(in, func(t *testing.T) {
+			if got := resyCityFromResolvedTo(in); got != want {
+				t.Errorf("resyCityFromResolvedTo(%q) = %q; want %q", in, got, want)
+			}
+		})
 	}
 }
 

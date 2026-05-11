@@ -17,6 +17,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -24,6 +25,7 @@ import (
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/auth"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/opentable"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/resy"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/tock"
 )
 
@@ -134,6 +136,11 @@ func newDriftCmd(flags *rootFlags) *cobra.Command {
 func captureDriftFields(ctx context.Context, s *auth.Session, network, slug string) (map[string]any, string, error) {
 	tryOT := network == "" || network == "opentable"
 	tryTock := network == "" || network == "tock"
+	tryResy := network == "resy" // explicit prefix only; Resy doesn't share slug-space with OT/Tock
+
+	if tryResy {
+		return captureDriftFieldsResy(ctx, s, slug)
+	}
 	if tryOT {
 		c, err := opentable.New(s)
 		if err == nil {
@@ -174,6 +181,91 @@ func captureDriftFields(ctx context.Context, s *auth.Session, network, slug stri
 		}
 	}
 	return nil, "unknown", fmt.Errorf("could not resolve %s on either network", slug)
+}
+
+// captureDriftFieldsResy snapshots the Resy-side fields that change
+// meaningfully between polls. Resy doesn't expose a public restaurant-detail
+// endpoint analogous to OT's BySlug or Tock's VenueDetail SSR — the
+// reservation surface is the most stable signal of "what changed at this
+// venue", so we capture the next 7 days of slot count by seating-area type
+// as the drift baseline.
+func captureDriftFieldsResy(ctx context.Context, s *auth.Session, venueID string) (map[string]any, string, error) {
+	if s == nil || s.Resy == nil || s.Resy.AuthToken == "" {
+		return nil, "resy", fmt.Errorf("resy: not authenticated; run `auth login --resy --email <you@example.com>` first")
+	}
+	if _, err := strconv.Atoi(venueID); err != nil {
+		return nil, "resy", fmt.Errorf("resy: %q is not a numeric venue id", venueID)
+	}
+	client := resy.New(resy.Credentials{
+		APIKey:    s.Resy.APIKey,
+		AuthToken: s.Resy.AuthToken,
+		Email:     s.Resy.Email,
+	})
+	today := time.Now()
+	out := map[string]any{
+		"venue_id": venueID,
+	}
+	totalSlots := 0
+	bySeatingArea := map[string]int{}
+	earliestSlot := ""
+	successfulDays := 0
+	var lastErr error
+	for d := 0; d < 7; d++ {
+		day := today.AddDate(0, 0, d).Format("2006-01-02")
+		slots, err := client.Availability(ctx, resy.AvailabilityParams{
+			VenueID:   venueID,
+			Date:      day,
+			PartySize: 2,
+		})
+		if err != nil {
+			// Don't fail on a single bad day — Resy 5xxs are transient,
+			// and a partial 7-day snapshot is still useful drift data.
+			// But track per-day errors so we can refuse to write a
+			// baseline derived from ZERO successful calls.
+			lastErr = err
+			continue
+		}
+		successfulDays++
+		for _, sl := range slots {
+			totalSlots++
+			label := sl.Type
+			if label == "" {
+				label = "Standard"
+			}
+			bySeatingArea[label]++
+			ts := day + "T" + sl.Time
+			if earliestSlot == "" || ts < earliestSlot {
+				earliestSlot = ts
+			}
+		}
+	}
+	// If every per-day call failed, the snapshot would record
+	// `total_slots_7d=0` as if the venue had zero availability for the
+	// whole week — and the next time drift runs after auth/network
+	// recovery, the legitimate slot count would diff against that fake
+	// zero baseline and trigger a spurious "slot count exploded from 0
+	// to N" alert. Refuse to baseline from an all-error scan; the
+	// caller propagates the error so the snapshot file is not written.
+	if successfulDays == 0 {
+		if lastErr != nil {
+			return nil, "resy", fmt.Errorf("resy venue=%s: every per-day availability call failed; refusing to baseline a zero-slot snapshot. Last error: %w", venueID, lastErr)
+		}
+		return nil, "resy", fmt.Errorf("resy venue=%s: no per-day calls succeeded; refusing to baseline a zero-slot snapshot", venueID)
+	}
+	out["total_slots_7d"] = totalSlots
+	out["earliest_slot_7d"] = earliestSlot
+	out["successful_days_7d"] = successfulDays
+	keys := make([]string, 0, len(bySeatingArea))
+	for k := range bySeatingArea {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	areaCounts := make([]map[string]any, 0, len(keys))
+	for _, k := range keys {
+		areaCounts = append(areaCounts, map[string]any{"type": k, "count": bySeatingArea[k]})
+	}
+	out["seating_area_counts_7d"] = areaCounts
+	return out, "resy", nil
 }
 
 var driftRestaurantFields = []string{

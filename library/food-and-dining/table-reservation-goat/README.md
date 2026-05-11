@@ -1,8 +1,8 @@
 # Table Reservation GOAT CLI
 
-**One reservation CLI for OpenTable and Tock — search both networks at once, watch for cancellations, book, and track changes from a local store agents can query.**
+**One reservation CLI for OpenTable, Tock, and Resy — search each network at once, watch for cancellations, book, and track changes from a local store agents can query.**
 
-OpenTable and Tock split the US fine-dining world between them and share zero data. This CLI unifies them: `goat` searches both at once, `watch` polls both for cancellations, `earliest` composes availability across both, and `drift` surfaces what changed at a venue since your last look. Auth is one `auth login --chrome` import — your real Chrome cookies for both sites, no partner keys.
+OpenTable, Tock, and Resy split the US fine-dining world between them and share zero data. This CLI unifies them: `goat` searches all three at once, `watch` polls each network for cancellations, `earliest` composes availability across all three, and `drift` surfaces what changed at a venue since your last look. Auth is `auth login --chrome` (for OT + Tock cookies) plus `auth login --resy --email <you@example.com>` (for the Resy API token) — no partner keys.
 
 ## Install
 
@@ -52,29 +52,50 @@ Install the pp-table-reservation-goat skill from https://github.com/mvanhorn/pri
 
 ## Authentication
 
-Anonymous reads (search, restaurant detail, availability) work out of the box via Surf with a Chrome TLS fingerprint that clears Akamai (OpenTable) and Cloudflare (Tock). For richer data — anything that requires being signed in to OpenTable or Tock — run `auth login --chrome` once to import your already-logged-in cookies from your local Chrome profile. There are no API keys to manage; the OpenTable Partner API is out of scope.
+Two distinct credentials, both managed by `auth login`:
+
+- **OpenTable + Tock** are cookie-session networks. Anonymous reads (search, restaurant detail, availability) work out of the box via Surf with a Chrome TLS fingerprint that clears Akamai (OpenTable) and Cloudflare (Tock). For richer data — anything that requires being signed in — run `auth login --chrome` once to import your already-logged-in cookies from your local Chrome profile.
+- **Resy** uses a long-lived API token. Run `auth login --resy --email <you@example.com>` once; you'll be prompted for your password with echo disabled, the CLI exchanges it for a JWT, and only the token persists in `~/.config/table-reservation-goat-pp-cli/session.json`. The password is never stored. The shared public ResyAPI key (the same value every browser uses on resy.com) is hardcoded — there is nothing to register.
+
+`auth status` shows the per-network state for all three. `auth logout` without arguments clears everything; `auth logout --network resy` clears just one network so the other two stay signed in.
 
 ## Quick Start
 
 ```bash
-# import cookies from your Chrome profile so authenticated commands work
+# import Chrome cookies for OpenTable + Tock
 table-reservation-goat-pp-cli auth login --chrome
 
+# exchange email + password for a Resy API token (interactive password prompt)
+table-reservation-goat-pp-cli auth login --resy --email you@example.com
 
-# populate the local SQLite store from both networks (restaurants, availability)
+
+# populate the local SQLite store from each network (restaurants, availability)
 table-reservation-goat-pp-cli sync --full
 
 
-# headline command — single ranked list across both networks
+# headline command — single ranked list across all three networks
 table-reservation-goat-pp-cli goat 'omakase manhattan' --party 2 --when 'fri 7-9pm' --agent
 
 
-# set up a cancellation watch and let the printer poll both networks adaptively
+# set up a cancellation watch and let the printer poll each network adaptively
 table-reservation-goat-pp-cli watch add 'alinea' --party 2 --window 'sat 7-9pm' --notify local
 
+# Resy watch — addressed by numeric venue id from `goat <name> --network resy`
+table-reservation-goat-pp-cli watch add 'resy:1387' --party 2 --window 'fri 7-9pm' --notify local
 
-# soonest open slot per venue across both networks
-table-reservation-goat-pp-cli earliest 'le-bernardin,atomix,smyth,alinea' --party 2 --within 14d --agent
+
+# soonest open slot per venue. Bare slugs auto-resolve on OpenTable + Tock;
+# Resy venues must be addressed explicitly by numeric id from `goat --network resy`
+# because Resy uses numeric venue IDs that don't share slug-space with OT/Tock names.
+table-reservation-goat-pp-cli earliest 'le-bernardin,atomix,smyth,alinea,resy:1387' --party 2 --within 14d --agent
+
+
+# book on Resy (numeric venue id from search)
+TRG_ALLOW_BOOK=1 table-reservation-goat-pp-cli book resy:1387 --date 2026-05-15 --time 19:30 --party 2 --agent
+
+
+# cancel a Resy reservation (resy_token from book output)
+table-reservation-goat-pp-cli cancel resy:<resy-token> --agent
 
 ```
 
@@ -83,7 +104,7 @@ table-reservation-goat-pp-cli earliest 'le-bernardin,atomix,smyth,alinea' --part
 These capabilities aren't available in any other tool for this API.
 
 ### Cross-network ground truth
-- **`goat`** — One query across OpenTable and Tock simultaneously, ranked by relevance, earliest availability, and price band.
+- **`goat`** — One query across OpenTable, Tock, and Resy simultaneously, ranked by relevance, earliest availability, and price band.
 
   _When a user asks an agent to find a table, this is the single command that searches both reservation networks and returns structured ranked results — agents do not need to know which network covers which restaurant._
 
@@ -92,16 +113,16 @@ These capabilities aren't available in any other tool for this API.
   ```
 - **`earliest`** — Across a list of restaurants from either network, return the earliest open slot per venue within a time horizon.
 
-  _When a user gives an agent a shortlist of venues and wants the soonest opportunity, this is the right shape — one structured response with one row per venue across both networks._
+  _When a user gives an agent a shortlist of venues and wants the soonest opportunity, this is the right shape — one structured response with one row per venue across all three networks._
 
   ```bash
   table-reservation-goat-pp-cli earliest 'alinea,le-bernardin,smyth,atomix' --party 4 --within 21d --agent --select earliest.venue,earliest.network,earliest.slot_at,earliest.attributes
   ```
 
 ### Local state that compounds
-- **`watch`** — Persistent local watcher that polls both networks for openings on your target venues and party size, with notifications and optional auto-book.
+- **`watch`** — Persistent local watcher that polls each network for openings on your target venues and party size, with notifications and optional auto-book.
 
-  _Resy's Notify covers Resy only; tockstalk covers Tock only; restaurant-mcp's snipe covers Resy+OT only. None covers both networks; none persists state. Use this when an agent or user needs a hot reservation that isn't currently available._
+  _Resy's Notify covers Resy only; tockstalk covers Tock only; restaurant-mcp's snipe covers Resy+OT only. None covers each network; none persists state. Use this when an agent or user needs a hot reservation that isn't currently available._
 
   ```bash
   table-reservation-goat-pp-cli watch add 'le-bernardin' --party 2 --window 'Fri 7-9pm' --notify slack
@@ -140,21 +161,21 @@ Run `table-reservation-goat-pp-cli --help` for the full command reference and fl
 
 ### availability
 
-Check open reservation slots across OpenTable and Tock
+Check open reservation slots across OpenTable, Tock, and Resy
 
 - **`table-reservation-goat-pp-cli availability check`** - Check open slots for a restaurant on a specific date and party size
 - **`table-reservation-goat-pp-cli availability multi-day`** - Multi-day availability for a single restaurant — Mon-Sun matrix
 
 ### restaurants
 
-Search and inspect restaurants across OpenTable and Tock
+Search and inspect restaurants across OpenTable, Tock, and Resy
 
 - **`table-reservation-goat-pp-cli restaurants get`** - Get a restaurant's full detail — hours, address, cuisine, price band, photos, accolades
-- **`table-reservation-goat-pp-cli restaurants list`** - List restaurants across OpenTable and Tock; filter by location, cuisine, price band, accolades, and party size
+- **`table-reservation-goat-pp-cli restaurants list`** - List restaurants across OpenTable, Tock, and Resy; filter by location, cuisine, price band, accolades, and party size
 
 ### watch
 
-Persistent local cancellation watcher across both networks
+Persistent local cancellation watcher across all three networks
 
 - **`table-reservation-goat-pp-cli watch add`** - Register a watch for a venue, party size, and time window
 - **`table-reservation-goat-pp-cli watch list`** - List active watches
@@ -294,7 +315,7 @@ OpenTable's WAF can rate-limit aggressive scans. The CLI ships with a disk cache
 
 - **`PersistedQueryNotFound` 400 from OpenTable on first run** — the persisted-query hash drifted; run `table-reservation-goat-pp-cli doctor --refresh-hashes` to bootstrap the current hash from a fresh homepage fetch
 - **Cloudflare challenge from exploretock.com** — Surf transport with Chrome TLS clears this automatically; if you see a 403, run `table-reservation-goat-pp-cli doctor` to verify the Surf fingerprint is loaded
-- **`Authentication required` on a venue or detail call that needs sign-in** — run `table-reservation-goat-pp-cli auth login --chrome` to import cookies, then `auth status` to confirm both networks are signed in
+- **`Authentication required` on a venue or detail call that needs sign-in** — run `table-reservation-goat-pp-cli auth login --chrome` to import cookies, then `auth status` to confirm each network are signed in
 - **Empty availability results for a venue you know has openings** — check `--party` and `--time` (Tock returns empty when no slot matches the seating area filter); also try `goat <venue> --debug` to see the per-network response
 - **Watch never fires even though slots opened on the website** — verify `watch list --json` shows your watch `state: active` and `last_polled_at` recent; if the limiter is throttled the typed `RateLimitError` will be in the recent log — increase `--cadence` to back off
 
