@@ -8,11 +8,11 @@ package cli
 //   - --location resolves to a typed GeoContext and decorates the row
 //     with location_resolved (HIGH/MEDIUM/forced-LOW shapes).
 //   - --metro is still parsed and routed through ResolveLocation; the
-//     legacy implicit --accept-ambiguous keeps ambiguous bare slugs
+//     legacy implicit --batch-accept-ambiguous keeps ambiguous bare slugs
 //     resolving to a forced-pick GeoContext rather than the envelope path.
 //   - --metro fires the once-per-process stderr deprecation warning.
 //   - omitting both flags preserves the no-decoration shape.
-//   - --location bellevue without --accept-ambiguous emits the
+//   - --location bellevue without --batch-accept-ambiguous emits the
 //     DisambiguationEnvelope JSON shape (needs_clarification + candidates),
 //     not an earliestRow.
 //   - empty venue argument returns a typed error.
@@ -99,17 +99,12 @@ func TestAvailabilityCheck_LocationDecoration(t *testing.T) {
 			wantWarning:  false,
 			wantStderr:   "deprecated",
 		},
+		// U14: --metro bellevue is ambiguous; legacy implicit
+		// --batch-accept-ambiguous is now suppressed and the envelope
+		// path fires. See TestAvailabilityCheck_MetroAmbiguous below.
 		{
-			name:         "legacy --metro bellevue implies --accept-ambiguous (forced pick)",
-			args:         []string{"canlis", "--metro", "bellevue"},
-			wantResolved: "Bellevue, WA", // top-ranked by population
-			wantSource:   SourceExplicitFlag,
-			wantWarning:  true,
-			wantStderr:   "deprecated",
-		},
-		{
-			name:         "--location bellevue --accept-ambiguous (forced pick)",
-			args:         []string{"canlis", "--location", "bellevue", "--accept-ambiguous"},
+			name:         "--location bellevue --batch-accept-ambiguous (forced pick)",
+			args:         []string{"canlis", "--location", "bellevue", "--batch-accept-ambiguous"},
 			wantResolved: "Bellevue, WA",
 			wantSource:   SourceExplicitFlag,
 			wantWarning:  true,
@@ -180,8 +175,9 @@ func TestAvailabilityCheck_NoLocation(t *testing.T) {
 }
 
 // TestAvailabilityCheck_AmbiguousEmitsEnvelope pins R14 F3 on this
-// command surface: a bare ambiguous --location without --accept-ambiguous
-// emits the DisambiguationEnvelope JSON shape (not an earliestRow).
+// command surface: a bare ambiguous --location without
+// --batch-accept-ambiguous emits the DisambiguationEnvelope JSON
+// shape (not an earliestRow).
 // The envelope carries needs_clarification=true plus the three Bellevue
 // candidates.
 func TestAvailabilityCheck_AmbiguousEmitsEnvelope(t *testing.T) {
@@ -286,7 +282,8 @@ func TestApplyGeoToVenueRow_NumericIDExemption(t *testing.T) {
 		ResolvedTo: "Seattle, WA",
 		Centroid:   [2]float64{47.6062, -122.3321},
 		RadiusKm:   50.0,
-		Confidence: 0.6,
+		Score:      0.6,
+		Tier:       ResolutionTierHigh,
 		Source:     SourceExplicitFlag,
 	}
 	// In-radius point: Bellevue WA (~13km from Seattle).

@@ -102,16 +102,17 @@ func TestLocationResolve_Envelope(t *testing.T) {
 	}
 }
 
-// TestLocationResolve_AcceptAmbiguous — --accept-ambiguous on a low-
-// confidence input forces a pick and returns the GeoContext instead
-// of the envelope.
-func TestLocationResolve_AcceptAmbiguous(t *testing.T) {
-	stdout, _, err := runLocationResolve(t, "bellevue", "--accept-ambiguous")
+// TestLocationResolve_BatchAcceptAmbiguous — --batch-accept-ambiguous
+// on a low-confidence input forces a pick and returns the GeoContext
+// instead of the envelope. The verbose flag name signals batch-only
+// usage and discourages interactive misuse.
+func TestLocationResolve_BatchAcceptAmbiguous(t *testing.T) {
+	stdout, _, err := runLocationResolve(t, "bellevue", "--batch-accept-ambiguous")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	if strings.Contains(stdout, `"needs_clarification":true`) {
-		t.Errorf("--accept-ambiguous should suppress envelope; got envelope:\n%s", stdout)
+		t.Errorf("--batch-accept-ambiguous should suppress envelope; got envelope:\n%s", stdout)
 	}
 	if !strings.Contains(stdout, `"resolved_to":"Bellevue, WA"`) {
 		t.Errorf("expected Bellevue, WA forced pick; got:\n%s", stdout)

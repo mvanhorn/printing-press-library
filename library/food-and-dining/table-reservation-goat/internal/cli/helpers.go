@@ -452,6 +452,56 @@ func camelToKebab(s string) string {
 	return b.String()
 }
 
+// safetyFieldKeys are the load-bearing response keys that --select must
+// never strip. The disambiguation envelope (needs_clarification,
+// error_kind, what_was_asked, candidates, agent_guidance) is the agent's
+// recovery contract; the location decorators (location_resolved,
+// location_warning) carry the resolved-pick signal an agent needs to
+// catch wrong-region picks. If --select asks only for `results.name`
+// and the response carries one of these keys, filtering it out would
+// silently re-introduce the wrong-region UX the redesign is supposed
+// to prevent. Keep this in sync with DisambiguationEnvelope (confidence.go)
+// and the *Field annotation types.
+var safetyFieldKeys = []string{
+	"needs_clarification",
+	"error_kind",
+	"what_was_asked",
+	"candidates",
+	"agent_guidance",
+	"location_resolved",
+	"location_warning",
+}
+
+// preserveSafetyFields re-injects the safety-field keys from the
+// original payload after --select has filtered the rest of the tree.
+// Only fires on top-level JSON objects (envelope shape); array
+// responses pass through unchanged because the safety contract is a
+// top-level property, not a per-element one.
+func preserveSafetyFields(original, filtered json.RawMessage) json.RawMessage {
+	var origObj map[string]json.RawMessage
+	if err := json.Unmarshal(original, &origObj); err != nil {
+		return filtered
+	}
+	var filtObj map[string]json.RawMessage
+	if err := json.Unmarshal(filtered, &filtObj); err != nil {
+		// Filtered output isn't an object (e.g., array, scalar); skip.
+		return filtered
+	}
+	if filtObj == nil {
+		filtObj = map[string]json.RawMessage{}
+	}
+	for _, key := range safetyFieldKeys {
+		if raw, ok := origObj[key]; ok {
+			filtObj[key] = raw
+		}
+	}
+	out, err := json.Marshal(filtObj)
+	if err != nil {
+		return filtered
+	}
+	return out
+}
+
 // printOutputWithFlags routes output through the right format based on flags.
 func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) error {
 	// --select wins over --compact when both are set: an explicit field list
@@ -460,7 +510,12 @@ func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) e
 	// only --compact is set (e.g., --agent without --select), the allow-list
 	// still runs.
 	if flags.selectFields != "" {
-		data = filterFields(data, flags.selectFields)
+		filtered := filterFields(data, flags.selectFields)
+		// Safety-field preservation: --select may not strip the load-bearing
+		// envelope/decorator keys (needs_clarification, error_kind,
+		// what_was_asked, candidates, agent_guidance, location_resolved,
+		// location_warning). Re-inject from the original after filtering.
+		data = preserveSafetyFields(data, filtered)
 	} else if flags.compact {
 		data = compactFields(data)
 	}

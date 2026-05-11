@@ -40,14 +40,17 @@ var curatedPlaces = []Place{
 		Tier:         PlaceTierMetroCentroid,
 	},
 	{
-		Slug:         "new-york-city",
-		Name:         "New York City",
-		State:        "NY",
-		Lat:          40.7128,
-		Lng:          -74.0060,
-		RadiusKm:     75,
-		Population:   8804190,
-		Aliases:      []string{"nyc", "new-york", "manhattan"},
+		Slug:       "new-york-city",
+		Name:       "New York City",
+		State:      "NY",
+		Lat:        40.7128,
+		Lng:        -74.0060,
+		RadiusKm:   75,
+		Population: 8804190,
+		// U17: removed "manhattan" alias — it now resolves to the
+		// dedicated borough entry below (tighter 10 km radius beats the
+		// metro's 75 km via ReverseLookup's smallest-radius tiebreak).
+		Aliases:      []string{"nyc", "new-york"},
 		ContextHints: []string{"NYC metro", "Tri-state"},
 		Tier:         PlaceTierMetroCentroid,
 	},
@@ -117,8 +120,10 @@ var curatedPlaces = []Place{
 		Lng:        -77.0369,
 		RadiusKm:   75,
 		Population: 689545,
-		Aliases:    []string{"dc", "washington"},
-		Tier:       PlaceTierMetroCentroid,
+		// U17: removed "dc" and "washington" aliases — they now resolve
+		// to the dedicated washington-dc-city entry (12 km radius city
+		// tier). The metro stays addressable via its canonical slug.
+		Tier: PlaceTierMetroCentroid,
 	},
 	{
 		Slug:       "new-orleans",
@@ -265,6 +270,131 @@ var curatedPlaces = []Place{
 		Population:   5563,
 		ParentMetro:  map[string]string{"opentable": "cincinnati"},
 		ContextHints: []string{"Cincinnati metro", "Northern KY"},
+		Tier:         PlaceTierCity,
+	},
+
+	// --- U17: NYC boroughs / LA neighborhoods / DC city ---
+	// Codex P2-I addresses radius-only filtering with hand-curated
+	// tighter Place entries. NYC's 75 km metro circle covers half of
+	// Long Island plus most of NJ — a user asking about "manhattan"
+	// wants Manhattan, not the tri-state. Each entry's RadiusKm is
+	// chosen so a query point inside the borough/neighborhood beats
+	// the parent metro via ReverseLookup's smallest-radius tiebreak.
+	// ParentMetro hints the per-provider routing (OpenTable and Tock
+	// both keep boroughs under "new-york-city"; LA neighborhoods
+	// route to "los-angeles"; DC city routes to "washington-dc").
+	{
+		Slug:       "manhattan",
+		Name:       "Manhattan",
+		State:      "NY",
+		Lat:        40.7831,
+		Lng:        -73.9712,
+		RadiusKm:   10,
+		Population: 1628000,
+		Aliases:    []string{"nyc-manhattan"},
+		ParentMetro: map[string]string{
+			"opentable": "new-york-city",
+			"tock":      "new-york-city",
+		},
+		ContextHints: []string{"NYC borough", "Tri-state", "Midtown / Downtown"},
+		Tier:         PlaceTierCity,
+	},
+	{
+		Slug:       "brooklyn",
+		Name:       "Brooklyn",
+		State:      "NY",
+		Lat:        40.6782,
+		Lng:        -73.9442,
+		RadiusKm:   10,
+		Population: 2561000,
+		Aliases:    []string{"nyc-brooklyn", "bk"},
+		ParentMetro: map[string]string{
+			"opentable": "new-york-city",
+			"tock":      "new-york-city",
+		},
+		ContextHints: []string{"NYC borough", "Williamsburg / Dumbo / Park Slope"},
+		Tier:         PlaceTierCity,
+	},
+	{
+		Slug:       "queens",
+		Name:       "Queens",
+		State:      "NY",
+		Lat:        40.7282,
+		Lng:        -73.7949,
+		RadiusKm:   12,
+		Population: 2253000,
+		Aliases:    []string{"nyc-queens"},
+		ParentMetro: map[string]string{
+			"opentable": "new-york-city",
+			"tock":      "new-york-city",
+		},
+		ContextHints: []string{"NYC borough", "Astoria / Long Island City / Flushing"},
+		Tier:         PlaceTierCity,
+	},
+	{
+		Slug:       "west-hollywood",
+		Name:       "West Hollywood",
+		State:      "CA",
+		Lat:        34.0900,
+		Lng:        -118.3617,
+		RadiusKm:   5,
+		Population: 35000,
+		Aliases:    []string{"weho"},
+		ParentMetro: map[string]string{
+			"opentable": "los-angeles",
+			"tock":      "los-angeles",
+		},
+		ContextHints: []string{"LA metro", "Sunset Strip / Melrose"},
+		Tier:         PlaceTierNeighborhood,
+	},
+	{
+		Slug:       "santa-monica",
+		Name:       "Santa Monica",
+		State:      "CA",
+		Lat:        34.0195,
+		Lng:        -118.4912,
+		RadiusKm:   8,
+		Population: 93000,
+		ParentMetro: map[string]string{
+			"opentable": "los-angeles",
+			"tock":      "los-angeles",
+		},
+		ContextHints: []string{"LA metro", "Westside / Beach"},
+		Tier:         PlaceTierCity,
+	},
+	{
+		Slug:       "beverly-hills",
+		Name:       "Beverly Hills",
+		State:      "CA",
+		Lat:        34.0736,
+		Lng:        -118.4004,
+		RadiusKm:   5,
+		Population: 32000,
+		ParentMetro: map[string]string{
+			"opentable": "los-angeles",
+			"tock":      "los-angeles",
+		},
+		ContextHints: []string{"LA metro", "Rodeo Drive / Westside"},
+		Tier:         PlaceTierNeighborhood,
+	},
+	{
+		Slug:       "washington-dc-city",
+		Name:       "Washington",
+		State:      "DC",
+		Lat:        38.9072,
+		Lng:        -77.0369,
+		RadiusKm:   12,
+		Population: 712000,
+		// The "washington-dc" alias from the task spec is omitted: it
+		// would be shadowed by the existing washington-dc metro slug
+		// (which appears earlier in the list and matches first in
+		// lookupIn's iteration). Keeping it would invite the wrong
+		// mental model.
+		Aliases: []string{"dc", "the-district"},
+		ParentMetro: map[string]string{
+			"opentable": "washington-dc",
+		},
+		ContextHints: []string{"DC metro", "Capital region", "Tri-state area"},
 		Tier:         PlaceTierCity,
 	},
 }

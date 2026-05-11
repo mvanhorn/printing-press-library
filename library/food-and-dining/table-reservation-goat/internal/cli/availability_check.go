@@ -124,12 +124,13 @@ func newAvailabilityCheckCmd(flags *rootFlags) *cobra.Command {
 			"Anchors the OT Autocomplete fallback on the resolved centroid; numeric-ID "+
 			"inputs are exempt from the radius hard-reject and instead receive a "+
 			"location_warning when out-of-radius.")
-	cmd.Flags().BoolVar(&flagAcceptAmbiguous, "accept-ambiguous", false,
-		"When --location is ambiguous (e.g., 'bellevue' matches multiple states), "+
-			"force-pick the top candidate instead of returning a disambiguation envelope.")
+	cmd.Flags().BoolVar(&flagAcceptAmbiguous, "batch-accept-ambiguous", false,
+		"BATCH-ONLY escape hatch: when --location is ambiguous, force-pick the top "+
+			"candidate instead of returning a disambiguation envelope. Interactive "+
+			"agents must NOT set this — it defeats the disambiguation contract.")
 	cmd.Flags().StringVar(&flagMetro, "metro", "",
 		"Metro slug (e.g., chicago, seattle). DEPRECATED — use --location <city>. "+
-			"Legacy callers get --accept-ambiguous implied to preserve back-compat shape.")
+			"Legacy callers get --batch-accept-ambiguous implied to preserve back-compat shape.")
 	_ = flagTime
 	_ = flagForwardMinutes
 	_ = flagAttribute

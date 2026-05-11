@@ -29,7 +29,10 @@ func TestStaticRegistry_Lookup(t *testing.T) {
 		{"SF", "san-francisco"},
 		{"nyc", "new-york-city"},
 		{"new-york", "new-york-city"},
-		{"manhattan", "new-york-city"},
+		// U17: "manhattan" used to be an alias of new-york-city but now
+		// has its own borough entry (10 km radius). The slug-then-alias
+		// order in lookupIn means the dedicated entry wins.
+		{"manhattan", "manhattan"},
 		{"la", "los-angeles"},
 		{"bellevue-wa", "bellevue-wa"},
 		{"bellevue-ne", "bellevue-ne"},
@@ -170,7 +173,9 @@ func TestStaticRegistry_AliasResolution(t *testing.T) {
 		{"sf", "San Francisco"},
 		{"la", "Los Angeles"},
 		{"new-york", "New York City"},
-		{"manhattan", "New York City"},
+		// U17: "manhattan" was an alias of NYC pre-U17; it now resolves
+		// to the dedicated borough entry.
+		{"manhattan", "Manhattan"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.input, func(t *testing.T) {
@@ -298,32 +303,59 @@ func TestReverseLookup_AlphaTiebreak(t *testing.T) {
 	}
 }
 
-// TestChainedRegistry_DynamicOverridesStatic verifies the chain
-// promise: a dynamic entry shadowing a curated slug wins. Tock's
-// metroArea SSR is more current than the curated table, so the
-// dynamic centroid should surface even when the curated table also
-// covers the slug.
-func TestChainedRegistry_DynamicOverridesStatic(t *testing.T) {
-	dyn := Place{Slug: "seattle", Name: "Seattle (dyn)", Lat: 47.7, Lng: -122.4, RadiusKm: 75, Tier: PlaceTierMetroCentroid}
-	chain := chainedPlaceRegistry{dynamic: []Place{dyn}}
+// TestChainedRegistry_SlugMatchEnrichesNotOverrides — U13 merge
+// semantics. A dynamic entry whose slug matches a curated entry must
+// ENRICH (overwrite only the provider-coverage / parent-metro fields
+// from live data); it must NOT replace the curated Name, State,
+// Population, Lat, Lng, RadiusKm, Tier, Aliases, ContextHints. Codex
+// adversarial review P1-C: chain-override let dynamic Bellevue (no
+// State, 75 km radius, no ContextHints) shadow curated Bellevue WA
+// (State="WA", 25 km radius, ContextHints=["Seattle metro",...]).
+func TestChainedRegistry_SlugMatchEnrichesNotOverrides(t *testing.T) {
+	dyn := Place{
+		Slug:             "seattle",
+		Name:             "Seattle (dyn)",
+		Lat:              47.7,
+		Lng:              -122.4,
+		RadiusKm:         75,
+		Tier:             PlaceTierMetroCentroid,
+		ProviderCoverage: map[string]int{"tock": 120},
+		ParentMetro:      map[string]string{"tock": "seattle"},
+	}
+	chain := chainedPlaceRegistry{merged: mergeRegistry(curatedPlaces, []Place{dyn})}
 	p, ok := chain.Lookup("seattle")
 	if !ok {
 		t.Fatal("seattle Lookup !ok")
 	}
-	if p.Name != "Seattle (dyn)" {
-		t.Errorf("Name = %q; want dynamic %q", p.Name, "Seattle (dyn)")
+	// Curated fields must survive — dynamic doesn't get to overwrite
+	// Name/centroid/Population/State.
+	if p.Name != "Seattle" {
+		t.Errorf("Name = %q; want curated %q (dynamic must not overwrite)", p.Name, "Seattle")
 	}
-	if p.Lat != 47.7 || p.Lng != -122.4 {
-		t.Errorf("centroid = %v,%v; want dynamic 47.7,-122.4", p.Lat, p.Lng)
+	if p.State != "WA" {
+		t.Errorf("State = %q; want curated %q", p.State, "WA")
+	}
+	if p.Lat != 47.6062 || p.Lng != -122.3321 {
+		t.Errorf("centroid = %v,%v; want curated 47.6062,-122.3321 (dynamic must not overwrite)", p.Lat, p.Lng)
+	}
+	if p.Population <= 700000 {
+		t.Errorf("Population = %d; want curated >700000 preserved", p.Population)
+	}
+	// Provider-coverage hints must be enriched from dynamic.
+	if p.ProviderCoverage["tock"] != 120 {
+		t.Errorf("ProviderCoverage[tock] = %d; want 120 (enriched from dynamic)", p.ProviderCoverage["tock"])
+	}
+	if p.ParentMetro["tock"] != "seattle" {
+		t.Errorf("ParentMetro[tock] = %q; want %q (enriched from dynamic)", p.ParentMetro["tock"], "seattle")
 	}
 }
 
 // TestChainedRegistry_StaticFallback verifies entries the dynamic
 // source doesn't cover still resolve via the curated fallback.
 func TestChainedRegistry_StaticFallback(t *testing.T) {
-	chain := chainedPlaceRegistry{dynamic: []Place{
+	chain := chainedPlaceRegistry{merged: mergeRegistry(curatedPlaces, []Place{
 		{Slug: "tock-only-metro", Name: "Tock Only", Lat: 1, Lng: 1, RadiusKm: 75},
-	}}
+	})}
 	if p, ok := chain.Lookup("chicago"); !ok || p.Slug != "chicago" {
 		t.Errorf("chicago should fall through to curated; got (%+v, %v)", p, ok)
 	}
@@ -332,21 +364,28 @@ func TestChainedRegistry_StaticFallback(t *testing.T) {
 	}
 }
 
-// TestChainedRegistry_All verifies dynamic-first union with dedup by
-// canonical slug.
+// TestChainedRegistry_All verifies the merged All() shape: a curated
+// entry shadowed by a dynamic same-slug match appears exactly once
+// (enriched in place), dynamic-only entries appear separately, and
+// every curated entry that wasn't matched stays present.
 func TestChainedRegistry_All(t *testing.T) {
-	chain := chainedPlaceRegistry{dynamic: []Place{
+	chain := chainedPlaceRegistry{merged: mergeRegistry(curatedPlaces, []Place{
 		{Slug: "tock-x", Name: "Tock X", Lat: 1, Lng: 1, RadiusKm: 75},
-		{Slug: "seattle", Name: "Seattle (dyn)", Lat: 47.6, Lng: -122.3, RadiusKm: 75},
-	}}
+		{Slug: "seattle", Name: "Seattle (dyn)", Lat: 47.6, Lng: -122.3, RadiusKm: 75,
+			ProviderCoverage: map[string]int{"tock": 99}},
+	})}
 	all := chain.All()
-	if all[0].Slug != "tock-x" || all[1].Slug != "seattle" {
-		t.Errorf("dynamic should appear first; got %v + %v", all[0].Slug, all[1].Slug)
-	}
 	seenSeattle := 0
 	for _, p := range all {
 		if p.Slug == "seattle" {
 			seenSeattle++
+			// Curated Name wins on slug-match enrichment.
+			if p.Name != "Seattle" {
+				t.Errorf("seattle Name = %q; want curated %q", p.Name, "Seattle")
+			}
+			if p.ProviderCoverage["tock"] != 99 {
+				t.Errorf("seattle ProviderCoverage[tock] = %d; want 99 enriched", p.ProviderCoverage["tock"])
+			}
 		}
 	}
 	if seenSeattle != 1 {
@@ -356,33 +395,306 @@ func TestChainedRegistry_All(t *testing.T) {
 	if !hasChicago {
 		t.Error("curated chicago missing from chain.All()")
 	}
+	hasTockX := slices.ContainsFunc(all, func(p Place) bool { return p.Slug == "tock-x" })
+	if !hasTockX {
+		t.Error("dynamic-only tock-x missing from chain.All()")
+	}
 }
 
-// TestChainedRegistry_LookupByName_Union verifies that the chained
+// TestChainedRegistry_LookupByName_Union verifies that the merged
 // registry surfaces ambiguous-name matches across both dynamic and
-// curated sources, deduping by canonical slug.
+// curated sources. A dynamic entry whose slug matches a curated entry
+// enriches in place; a dynamic entry with a truly new slug appears as
+// a separate row.
 func TestChainedRegistry_LookupByName_Union(t *testing.T) {
-	chain := chainedPlaceRegistry{dynamic: []Place{
-		// Dynamic shadowing curated Springfield IL — same slug, same name,
-		// should not duplicate.
-		{Slug: "springfield-il", Name: "Springfield", Lat: 39.8, Lng: -89.7, RadiusKm: 75},
+	chain := chainedPlaceRegistry{merged: mergeRegistry(curatedPlaces, []Place{
+		// Dynamic enriching curated Springfield IL — same slug.
+		// Curated centroid wins; dynamic's coverage enriches.
+		{Slug: "springfield-il", Name: "Springfield", Lat: 39.8, Lng: -89.7, RadiusKm: 75,
+			ProviderCoverage: map[string]int{"tock": 7}},
 		// Dynamic new Springfield (NJ) — adds an alternate to the union.
 		{Slug: "springfield-nj", Name: "Springfield", Lat: 40.7, Lng: -74.3, RadiusKm: 75},
-	}}
+	})}
 	hits, ok := chain.LookupByName("springfield")
 	if !ok {
 		t.Fatal("LookupByName(springfield) !ok")
 	}
-	// Should have 5: springfield-il (dynamic), springfield-nj (dynamic-only),
-	// springfield-ma, springfield-mo, springfield-or (curated).
+	// Should have 5: springfield-il (enriched), springfield-nj
+	// (dynamic-only), springfield-ma, springfield-mo, springfield-or.
 	if len(hits) != 5 {
-		t.Errorf("Springfield hit count = %d; want 5 (dynamic + curated dedup)", len(hits))
+		t.Errorf("Springfield hit count = %d; want 5 (enriched + dynamic-only + curated)", len(hits))
 	}
-	// Verify dynamic shadowed the curated springfield-il.
+	// Verify dynamic enriched the curated springfield-il (curated Lat
+	// 39.7817 wins; coverage from dynamic enriches).
 	for _, p := range hits {
-		if p.Slug == "springfield-il" && p.Lat != 39.8 {
-			t.Errorf("springfield-il should show dynamic Lat; got %v", p.Lat)
+		if p.Slug == "springfield-il" {
+			if p.Lat != 39.7817 {
+				t.Errorf("springfield-il Lat = %v; want curated 39.7817 (dynamic must not overwrite)", p.Lat)
+			}
+			if p.ProviderCoverage["tock"] != 7 {
+				t.Errorf("springfield-il ProviderCoverage[tock] = %d; want 7 enriched", p.ProviderCoverage["tock"])
+			}
 		}
+	}
+}
+
+// TestMergeRegistry_SlugMatchEnriches — synthetic-static unit for the
+// merge helper. Curated Bellevue WA has State="WA", Population=151854,
+// ContextHints, RadiusKm=25. Dynamic carries the Tock projection shape
+// (75 km radius, no State, no Population, no hints). Merge result:
+// curated fields preserved, ProviderCoverage["tock"] and
+// ParentMetro["tock"] enriched from dynamic.
+func TestMergeRegistry_SlugMatchEnriches(t *testing.T) {
+	static := []Place{
+		{
+			Slug:         "bellevue-wa",
+			Name:         "Bellevue",
+			State:        "WA",
+			Lat:          47.6101,
+			Lng:          -122.2015,
+			RadiusKm:     25,
+			Population:   151854,
+			ContextHints: []string{"Seattle metro", "Eastside", "tech hub"},
+			Tier:         PlaceTierCity,
+		},
+	}
+	dynamic := []Place{
+		{
+			Slug:             "bellevue-wa",
+			Name:             "Bellevue, WA",
+			Lat:              47.6101,
+			Lng:              -122.2015,
+			RadiusKm:         75,
+			Tier:             PlaceTierMetroCentroid,
+			ProviderCoverage: map[string]int{"tock": 42},
+			ParentMetro:      map[string]string{"tock": "bellevue"},
+		},
+	}
+	merged := mergeRegistry(static, dynamic)
+	if len(merged) != 1 {
+		t.Fatalf("merged len = %d; want 1 (slug match must not add a row)", len(merged))
+	}
+	p, ok := lookupIn(merged, "bellevue-wa")
+	if !ok {
+		t.Fatal("bellevue-wa missing after merge")
+	}
+	// Curated fields preserved.
+	if p.State != "WA" {
+		t.Errorf("State = %q; want curated WA", p.State)
+	}
+	if p.Population != 151854 {
+		t.Errorf("Population = %d; want curated 151854", p.Population)
+	}
+	if p.RadiusKm != 25 {
+		t.Errorf("RadiusKm = %v; want curated 25 (NOT 75 from dynamic)", p.RadiusKm)
+	}
+	if p.Tier != PlaceTierCity {
+		t.Errorf("Tier = %v; want curated PlaceTierCity", p.Tier)
+	}
+	if p.Name != "Bellevue" {
+		t.Errorf("Name = %q; want curated %q", p.Name, "Bellevue")
+	}
+	if !slices.Equal(p.ContextHints, []string{"Seattle metro", "Eastside", "tech hub"}) {
+		t.Errorf("ContextHints = %v; want curated set preserved", p.ContextHints)
+	}
+	// Enrichment from dynamic.
+	if p.ProviderCoverage["tock"] != 42 {
+		t.Errorf("ProviderCoverage[tock] = %d; want 42 enriched", p.ProviderCoverage["tock"])
+	}
+	if p.ParentMetro["tock"] != "bellevue" {
+		t.Errorf("ParentMetro[tock] = %q; want %q enriched", p.ParentMetro["tock"], "bellevue")
+	}
+	// Source static slice must not have been mutated.
+	if static[0].ProviderCoverage != nil {
+		t.Error("mergeRegistry mutated the static source slice")
+	}
+}
+
+// TestMergeRegistry_NameAndCoordsMatchEnriches — rule 2. Dynamic slug
+// is different from any curated slug, but same Name (case-insensitive)
+// and centroid within 5 km. Enrich the curated entry; do NOT add a new
+// row.
+func TestMergeRegistry_NameAndCoordsMatchEnriches(t *testing.T) {
+	static := []Place{
+		{Slug: "seattle", Name: "Seattle", State: "WA", Lat: 47.6062, Lng: -122.3321, RadiusKm: 75, Tier: PlaceTierMetroCentroid},
+	}
+	dynamic := []Place{
+		// Different slug, same name (case-insensitive), ~1 km away.
+		{Slug: "different-slug", Name: "Seattle", Lat: 47.61, Lng: -122.34, RadiusKm: 75,
+			ProviderCoverage: map[string]int{"tock": 200},
+			ParentMetro:      map[string]string{"tock": "different-slug"}},
+	}
+	merged := mergeRegistry(static, dynamic)
+	if len(merged) != 1 {
+		t.Fatalf("merged len = %d; want 1 (name+coords match must not add a row)", len(merged))
+	}
+	p := merged[0]
+	if p.Slug != "seattle" {
+		t.Errorf("Slug = %q; want curated %q preserved", p.Slug, "seattle")
+	}
+	if p.ProviderCoverage["tock"] != 200 {
+		t.Errorf("ProviderCoverage[tock] = %d; want 200 enriched", p.ProviderCoverage["tock"])
+	}
+	if p.ParentMetro["tock"] != "different-slug" {
+		t.Errorf("ParentMetro[tock] = %q; want %q enriched", p.ParentMetro["tock"], "different-slug")
+	}
+}
+
+// TestMergeRegistry_TrulyNewAddsRow — rule 3. Dynamic slug doesn't
+// match curated AND name+coords doesn't either. Entry is added as a
+// separate dynamic-only row.
+func TestMergeRegistry_TrulyNewAddsRow(t *testing.T) {
+	static := []Place{
+		{Slug: "seattle", Name: "Seattle", State: "WA", Lat: 47.6062, Lng: -122.3321, RadiusKm: 75, Tier: PlaceTierMetroCentroid},
+		{Slug: "new-york-city", Name: "New York City", State: "NY", Lat: 40.7128, Lng: -74.0060, RadiusKm: 75, Tier: PlaceTierMetroCentroid},
+	}
+	dynamic := []Place{
+		{
+			Slug:             "louisville",
+			Name:             "Louisville",
+			Lat:              38.25,
+			Lng:              -85.76,
+			RadiusKm:         75,
+			Tier:             PlaceTierMetroCentroid,
+			ProviderCoverage: map[string]int{"tock": 8},
+			ParentMetro:      map[string]string{"tock": "louisville"},
+		},
+	}
+	merged := mergeRegistry(static, dynamic)
+	if len(merged) != 3 {
+		t.Fatalf("merged len = %d; want 3 (truly new must add a row)", len(merged))
+	}
+	p, ok := lookupIn(merged, "louisville")
+	if !ok {
+		t.Fatal("louisville missing after merge")
+	}
+	if p.RadiusKm != 75 {
+		t.Errorf("Louisville RadiusKm = %v; want dynamic 75 preserved", p.RadiusKm)
+	}
+	if p.ProviderCoverage["tock"] != 8 {
+		t.Errorf("Louisville ProviderCoverage[tock] = %d; want 8", p.ProviderCoverage["tock"])
+	}
+}
+
+// TestMergeRegistry_NameMatchOutsideRadius — name matches but coords
+// are far apart. Rule 2 must NOT fire (the 5 km cutoff catches
+// same-name-different-city cases like Bellevue WA vs Bellevue NE).
+// Dynamic is added as a separate row.
+func TestMergeRegistry_NameMatchOutsideRadius(t *testing.T) {
+	static := []Place{
+		{Slug: "bellevue-wa", Name: "Bellevue", State: "WA", Lat: 47.6101, Lng: -122.2015, RadiusKm: 25, Population: 151854, Tier: PlaceTierCity},
+	}
+	dynamic := []Place{
+		// Name matches "Bellevue" but coords are Bellevue NE — far from WA.
+		{Slug: "bellevue", Name: "Bellevue", Lat: 41.14, Lng: -95.91, RadiusKm: 75,
+			ProviderCoverage: map[string]int{"tock": 5}},
+	}
+	merged := mergeRegistry(static, dynamic)
+	if len(merged) != 2 {
+		t.Fatalf("merged len = %d; want 2 (name-only match outside 5km radius must NOT enrich)", len(merged))
+	}
+	// Curated Bellevue WA must be untouched (no ProviderCoverage set).
+	p, ok := lookupIn(merged, "bellevue-wa")
+	if !ok {
+		t.Fatal("bellevue-wa missing after merge")
+	}
+	if p.ProviderCoverage != nil {
+		t.Errorf("bellevue-wa ProviderCoverage = %v; want nil (out-of-radius dynamic must NOT enrich)", p.ProviderCoverage)
+	}
+	// Dynamic Bellevue (NE coords) added as separate row.
+	if _, ok := lookupIn(merged, "bellevue"); !ok {
+		t.Error("dynamic bellevue must appear as a separate row when out-of-radius")
+	}
+}
+
+// TestMergeRegistry_NilDynamicCoverage — defensive case. Static lacks
+// ProviderCoverage. Dynamic carries nil ProviderCoverage too. Merge
+// must not panic; the resulting Place may have nil or empty
+// ProviderCoverage but the merge runs to completion.
+func TestMergeRegistry_NilDynamicCoverage(t *testing.T) {
+	static := []Place{
+		{Slug: "seattle", Name: "Seattle", State: "WA", Lat: 47.6062, Lng: -122.3321, RadiusKm: 75, Tier: PlaceTierMetroCentroid},
+	}
+	dynamic := []Place{
+		{Slug: "seattle", Name: "Seattle", Lat: 47.6062, Lng: -122.3321, RadiusKm: 75,
+			ProviderCoverage: nil,
+			ParentMetro:      nil},
+	}
+	// Must not panic.
+	merged := mergeRegistry(static, dynamic)
+	if len(merged) != 1 {
+		t.Fatalf("merged len = %d; want 1", len(merged))
+	}
+	// Curated entry intact.
+	if merged[0].Slug != "seattle" || merged[0].State != "WA" {
+		t.Errorf("seattle curated fields drifted after nil-coverage enrich: %+v", merged[0])
+	}
+}
+
+// TestMergeRegistry_HydrationPath — integration. Hand-built tock
+// MetroArea slice through projectTockMetros → mergeRegistry against
+// the real curated table. Curated Bellevue WA keeps its State="WA"
+// and gets enriched (matched by name+coords since dynamic slug is
+// "bellevue"). A brand-new metro appears separately.
+func TestMergeRegistry_HydrationPath(t *testing.T) {
+	in := []tock.MetroArea{
+		// Tock's "bellevue" — same coords as curated Bellevue WA. The
+		// projection makes Slug="bellevue" (different from curated
+		// "bellevue-wa"), so this exercises the name+coords rule.
+		{Slug: "bellevue", Name: "Bellevue", Lat: 47.6101, Lng: -122.2015, BusinessCount: 42},
+		// Brand-new metro Tock surfaces that curated doesn't have.
+		{Slug: "providence", Name: "Providence", Lat: 41.824, Lng: -71.4128, BusinessCount: 17},
+	}
+	projected := projectTockMetros(in)
+	merged := mergeRegistry(curatedPlaces, projected)
+
+	// Curated Bellevue WA must keep its State and gain Tock coverage.
+	bellevueWA, ok := lookupIn(merged, "bellevue-wa")
+	if !ok {
+		t.Fatal("bellevue-wa missing after merge")
+	}
+	if bellevueWA.State != "WA" {
+		t.Errorf("bellevue-wa State = %q; want WA", bellevueWA.State)
+	}
+	if bellevueWA.ProviderCoverage["tock"] != 42 {
+		t.Errorf("bellevue-wa ProviderCoverage[tock] = %d; want 42 (enriched)", bellevueWA.ProviderCoverage["tock"])
+	}
+	// A 4th separate "bellevue" row must NOT appear — it should have
+	// enriched curated bellevue-wa instead.
+	bellevueHits, _ := lookupByNameIn(merged, "bellevue")
+	if len(bellevueHits) != 3 {
+		t.Errorf("Bellevue rows in merged = %d; want 3 (WA/NE/KY, no dynamic-only row)", len(bellevueHits))
+	}
+	// Brand-new providence appears separately.
+	if _, ok := lookupIn(merged, "providence"); !ok {
+		t.Error("providence missing after merge (truly new must add)")
+	}
+}
+
+// TestMergeRegistry_DecideTier_Smoke — after hydration with a dynamic
+// "Bellevue" that name+coord-matches curated Bellevue WA, the by-name
+// lookup still returns the 3 curated Bellevues. The merge must not
+// drop any of them.
+func TestMergeRegistry_DecideTier_Smoke(t *testing.T) {
+	defer setDynamicMetros(nil, 0)
+	in := []tock.MetroArea{
+		{Slug: "bellevue", Name: "Bellevue", Lat: 47.6101, Lng: -122.2015, BusinessCount: 42},
+	}
+	setDynamicMetros(projectTockMetros(in), 1)
+	hits, ok := getRegistry().LookupByName("bellevue")
+	if !ok {
+		t.Fatal("LookupByName(bellevue) !ok after hydration")
+	}
+	if len(hits) != 3 {
+		t.Errorf("Bellevue hits after hydration = %d; want 3 (WA/NE/KY preserved)", len(hits))
+	}
+	gotStates := make([]string, 0, len(hits))
+	for _, p := range hits {
+		gotStates = append(gotStates, p.State)
+	}
+	sort.Strings(gotStates)
+	if !slices.Equal(gotStates, []string{"KY", "NE", "WA"}) {
+		t.Errorf("Bellevue states = %v; want [KY NE WA]", gotStates)
 	}
 }
 
@@ -517,6 +829,169 @@ func TestFormatUnknownMetroError_DidYouMean(t *testing.T) {
 	got := formatUnknownMetroError("san-nowhere")
 	if !strings.Contains(got, "did you mean") && !strings.Contains(got, "lumped under") {
 		t.Errorf("expected 'did you mean' or 'lumped under' branch; got: %s", got)
+	}
+}
+
+// TestPlaceData_NeighborhoodsPresent — U17. Boroughs / neighborhoods
+// must each resolve to a curated entry with the right State and a
+// tight RadiusKm so the radius-only ReverseLookup mechanic stops
+// rounding "Times Square" up to "New York City" and "Santa Monica"
+// up to "Los Angeles". Table-driven so a future entry tweak fails
+// loudly in one place.
+func TestPlaceData_NeighborhoodsPresent(t *testing.T) {
+	r := staticPlaceRegistry{}
+	cases := []struct {
+		slug         string
+		wantState    string
+		wantRadiusKm float64
+	}{
+		{"manhattan", "NY", 10},
+		{"brooklyn", "NY", 10},
+		{"queens", "NY", 12},
+		{"west-hollywood", "CA", 5},
+		{"santa-monica", "CA", 8},
+		{"beverly-hills", "CA", 5},
+		{"washington-dc-city", "DC", 12},
+	}
+	for _, tc := range cases {
+		t.Run(tc.slug, func(t *testing.T) {
+			p, ok := r.Lookup(tc.slug)
+			if !ok {
+				t.Fatalf("Lookup(%q) !ok", tc.slug)
+			}
+			if p.State != tc.wantState {
+				t.Errorf("State = %q; want %q", p.State, tc.wantState)
+			}
+			if p.RadiusKm != tc.wantRadiusKm {
+				t.Errorf("RadiusKm = %v; want %v", p.RadiusKm, tc.wantRadiusKm)
+			}
+			if p.Population <= 0 {
+				t.Errorf("Population = %d; want > 0", p.Population)
+			}
+			if len(p.ContextHints) == 0 {
+				t.Errorf("ContextHints empty; want at least one hint for disambiguation UX")
+			}
+			if p.Tier == PlaceTierUnknown {
+				t.Errorf("Tier unset (PlaceTierUnknown) — every curated entry must declare its tier")
+			}
+		})
+	}
+}
+
+// TestPlaceData_NeighborhoodAliases — U17. Human shorthands must hit
+// the right neighborhood: `weho` is West Hollywood, `bk` is Brooklyn,
+// `dc` is the city entry (not the metro), so an agent asking "any DC
+// reservations" gets the tighter geography by default.
+func TestPlaceData_NeighborhoodAliases(t *testing.T) {
+	r := staticPlaceRegistry{}
+	cases := []struct {
+		alias    string
+		wantSlug string
+	}{
+		{"weho", "west-hollywood"},
+		{"bk", "brooklyn"},
+		{"dc", "washington-dc-city"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.alias, func(t *testing.T) {
+			p, ok := r.Lookup(tc.alias)
+			if !ok {
+				t.Fatalf("Lookup(%q) !ok", tc.alias)
+			}
+			if p.Slug != tc.wantSlug {
+				t.Errorf("Lookup(%q).Slug = %q; want %q", tc.alias, p.Slug, tc.wantSlug)
+			}
+		})
+	}
+}
+
+// TestReverseLookup_TimesSquareIsManhattan — U17. Times Square sits
+// inside both Manhattan's 10 km radius and NYC's 75 km radius. The
+// smallest-radius-wins tiebreak must pick Manhattan; otherwise the
+// neighborhood entries do nothing useful.
+func TestReverseLookup_TimesSquareIsManhattan(t *testing.T) {
+	r := staticPlaceRegistry{}
+	p, ok := r.ReverseLookup(40.7589, -73.9851)
+	if !ok {
+		t.Fatal("ReverseLookup(Times Square) !ok")
+	}
+	if p.Slug != "manhattan" {
+		t.Errorf("ReverseLookup(Times Square).Slug = %q; want %q", p.Slug, "manhattan")
+	}
+}
+
+// TestReverseLookup_SantaMonicaIsSantaMonica — U17. Santa Monica's
+// centroid sits inside LA's 75 km but is far inside Santa Monica's
+// own 8 km. Tighter radius wins.
+func TestReverseLookup_SantaMonicaIsSantaMonica(t *testing.T) {
+	r := staticPlaceRegistry{}
+	p, ok := r.ReverseLookup(34.0195, -118.4912)
+	if !ok {
+		t.Fatal("ReverseLookup(Santa Monica) !ok")
+	}
+	if p.Slug != "santa-monica" {
+		t.Errorf("ReverseLookup(Santa Monica).Slug = %q; want %q", p.Slug, "santa-monica")
+	}
+}
+
+// TestLookupByName_NewYorkVsManhattan — U17. Pin that bare `manhattan`
+// by-name returns exactly one hit (the borough entry) and bare
+// `new york` does NOT collide with the borough. lookupByNameIn does
+// strict equality after lowercasing, so the existing curated NYC entry
+// (Name "New York City") doesn't match "new york" — the test pins
+// that behavior intentionally.
+func TestLookupByName_NewYorkVsManhattan(t *testing.T) {
+	r := staticPlaceRegistry{}
+
+	hits, ok := r.LookupByName("manhattan")
+	if !ok {
+		t.Fatal("LookupByName(manhattan) !ok")
+	}
+	if len(hits) != 1 {
+		t.Errorf("LookupByName(manhattan) count = %d; want 1 (only the borough)", len(hits))
+	}
+	if len(hits) > 0 && hits[0].Slug != "manhattan" {
+		t.Errorf("LookupByName(manhattan)[0].Slug = %q; want %q", hits[0].Slug, "manhattan")
+	}
+
+	// "new york" doesn't equal "New York City" after lowercase, so the
+	// strict by-name lookup returns nothing — pin it so a future loose
+	// matcher doesn't accidentally claim manhattan under this query.
+	nyHits, nyOK := r.LookupByName("new york")
+	if nyOK {
+		// If a future change introduces loose matching, the rule is
+		// still: "new york" must NOT return the manhattan borough.
+		for _, p := range nyHits {
+			if p.Slug == "manhattan" {
+				t.Errorf("LookupByName(new york) returned manhattan; want NYC metro only")
+			}
+		}
+	}
+}
+
+// TestLookupByName_WashingtonAmbiguity — U17. Pins what bare
+// "washington" does after we add the city entry. `washington-dc-city`
+// has Name "Washington", and the curated metro `washington-dc` has
+// Name "Washington DC" — strict equality means only the city entry
+// matches "washington". If a future contributor renames the metro to
+// "Washington" too, the test will catch the new collision so the
+// disambiguation UX can be updated deliberately.
+func TestLookupByName_WashingtonAmbiguity(t *testing.T) {
+	r := staticPlaceRegistry{}
+	hits, ok := r.LookupByName("washington")
+	if !ok {
+		t.Fatal("LookupByName(washington) !ok")
+	}
+	if len(hits) != 1 {
+		var slugs []string
+		for _, p := range hits {
+			slugs = append(slugs, p.Slug)
+		}
+		t.Errorf("LookupByName(washington) count = %d (%v); want 1 (washington-dc-city only, since metro Name is %q)",
+			len(hits), slugs, "Washington DC")
+	}
+	if len(hits) > 0 && hits[0].Slug != "washington-dc-city" {
+		t.Errorf("LookupByName(washington)[0].Slug = %q; want %q", hits[0].Slug, "washington-dc-city")
 	}
 }
 

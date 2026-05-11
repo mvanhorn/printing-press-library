@@ -37,7 +37,7 @@ type ResolveOptions struct {
 	// AcceptAmbiguous flips the LOW-tier behavior: when true, LOW
 	// returns a forced-pick GeoContext (top candidate) instead of the
 	// disambiguation envelope. Used by callers who explicitly told us
-	// to pick the best match anyway (--accept-ambiguous flag on
+	// to pick the best match anyway (--batch-accept-ambiguous flag on
 	// commands that surface it).
 	AcceptAmbiguous bool
 }
@@ -102,7 +102,7 @@ func ResolveLocation(input string, opts ResolveOptions) (*GeoContext, *Disambigu
 		return nil, &env, nil
 	}
 
-	gc := buildGeoContext(li, ranked, opts.Source)
+	gc := buildGeoContext(li, ranked, opts.Source, tier)
 	return gc, nil, nil
 }
 
@@ -176,10 +176,11 @@ func syntheticCoordsPlace(lat, lng float64) Place {
 
 // buildGeoContext projects the top-ranked candidate into a
 // GeoContext, with Alternates carrying the remaining candidates.
-// Confidence is the top candidate's popularity prior — for LOW
-// + AcceptAmbiguous this naturally lands at a low value so the caller
-// can branch on Confidence < threshold to fire location_warning.
-func buildGeoContext(li *LocationInput, ranked []ScoredCandidate, source Source) *GeoContext {
+// Score is the top candidate's popularity prior (a mechanical [0,1]
+// number, not a confidence — see ResolutionTier). Tier carries the
+// categorical decision from decideTier so agents can branch on the
+// tier string rather than re-inferring from Score and Alternates.
+func buildGeoContext(li *LocationInput, ranked []ScoredCandidate, source Source, tier TierEnum) *GeoContext {
 	top := ranked[0]
 	radius := top.Place.RadiusKm
 	if radius <= 0 {
@@ -190,7 +191,8 @@ func buildGeoContext(li *LocationInput, ranked []ScoredCandidate, source Source)
 		ResolvedTo: formatPlaceName(top.Place),
 		Centroid:   [2]float64{top.Place.Lat, top.Place.Lng},
 		RadiusKm:   radius,
-		Confidence: top.Prior,
+		Score:      top.Prior,
+		Tier:       tier.ResolutionTier(),
 		Source:     source,
 		Alternates: candidatesFromRanked(ranked[1:]),
 	}
@@ -216,11 +218,17 @@ func formatPlaceName(p Place) string {
 // acceptAmbiguousBypass value that flowed into ResolveLocation.
 //
 // Resolution precedence:
-//  1. --location <value> — new typed entry point; uses --accept-ambiguous
-//     verbatim.
-//  2. --metro <slug>     — legacy fallback; implies --accept-ambiguous
-//     so legacy callers never trip the envelope path (R12 contract
-//     preservation). Emits a one-time stderr deprecation warning.
+//  1. --location <value> — new typed entry point; uses
+//     --batch-accept-ambiguous verbatim.
+//  2. --metro <slug>     — legacy fallback. U14 narrows the implicit
+//     --batch-accept-ambiguous to the CANONICAL-only case: when the
+//     value resolves to a single known metro via registry Lookup (slug
+//     or alias) or LookupByName (single hit), preserve back-compat by
+//     silent-picking. When the value is ambiguous (e.g., --metro
+//     bellevue matches WA/NE/KY by name), suppress AcceptAmbiguous so
+//     the envelope path fires — agent disambiguates instead of
+//     silently picking the wrong city (Codex P1-D fix). Deprecation
+//     warning fires once-per-process regardless of canonical-vs-ambiguous.
 //  3. neither            — returns (nil, nil, nil, false) so the caller
 //     skips the pre/post filter entirely (R13 no-filter behavior).
 //
@@ -238,18 +246,20 @@ func resolveLocationFlags(
 	acceptAmbiguous := flagAcceptAmbiguous
 	if input == "" {
 		if metro := strings.TrimSpace(flagMetro); metro != "" {
-			// Legacy path: --metro implies --accept-ambiguous so existing
-			// callers continue to get results (never the envelope). The
-			// once-gate ensures the warning fires only on the first --metro
-			// invocation per process; subsequent calls stay quiet so
-			// scripted callers don't see one warning per loop iteration.
+			// Legacy path. The once-gate ensures the warning fires only
+			// on the first --metro invocation per process; subsequent
+			// calls stay quiet so scripted callers don't see one warning
+			// per loop iteration.
 			metroDeprecationOnce.Do(func() {
 				fmt.Fprintln(stderr,
-					"warning: --metro is deprecated; use --location <city>. "+
-						"Falling back to --accept-ambiguous for legacy compatibility.")
+					"warning: --metro is deprecated; use --location <city>.")
 			})
 			input = metro
-			acceptAmbiguous = true
+			// U14: canonical-only forced-pick. Only set AcceptAmbiguous
+			// when the value resolves to a single known metro. Ambiguous
+			// values fall through to the standard envelope path so the
+			// agent can disambiguate.
+			acceptAmbiguous = isCanonicalMetro(metro)
 		}
 	}
 	if input == "" {
@@ -264,6 +274,30 @@ func resolveLocationFlags(
 		return nil, nil, err, acceptAmbiguous
 	}
 	return gc, env, nil, acceptAmbiguous
+}
+
+// isCanonicalMetro reports whether value names a single, unambiguous
+// metro in the registry. Two acceptance paths:
+//  1. reg.Lookup(value) succeeds — value is a known canonical slug or
+//     an alias chain (e.g., "sf" -> "san-francisco"). The slug-lookup
+//     path is the only one a typical --metro caller hits.
+//  2. reg.Lookup misses BUT reg.LookupByName returns exactly 1 hit —
+//     the user passed a display-name-shaped value (e.g., "Seattle")
+//     that happens to uniquely match one Place by Name. Treated as
+//     canonical so legacy --metro callers passing display names still
+//     get the back-compat shape.
+//
+// Zero or multi-hit on LookupByName (e.g., "bellevue" -> WA/NE/KY) is
+// the ambiguous case: not canonical, so the envelope path fires.
+func isCanonicalMetro(value string) bool {
+	reg := getRegistry()
+	if _, ok := reg.Lookup(value); ok {
+		return true
+	}
+	if hits, ok := reg.LookupByName(value); ok && len(hits) == 1 {
+		return true
+	}
+	return false
 }
 
 // candidatesFromRanked projects ScoredCandidate values into the

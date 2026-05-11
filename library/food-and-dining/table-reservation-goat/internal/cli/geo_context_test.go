@@ -19,7 +19,8 @@ func TestGeoContext_JSONRoundtrip(t *testing.T) {
 		ResolvedTo: "Bellevue, WA",
 		Centroid:   [2]float64{47.6101, -122.2015},
 		RadiusKm:   25,
-		Confidence: 0.91,
+		Score:      0.91,
+		Tier:       ResolutionTierHigh,
 		Source:     SourceExplicitFlag,
 		Alternates: []Candidate{
 			{Name: "Bellevue, NE", State: "NE", ContextHints: []string{"Omaha metro"}, ScoreIfPicked: 0.18, Centroid: [2]float64{41.14, -95.91}},
@@ -29,6 +30,14 @@ func TestGeoContext_JSONRoundtrip(t *testing.T) {
 	data, err := json.Marshal(gc)
 	if err != nil {
 		t.Fatalf("marshal: %v", err)
+	}
+	// Pin the new wire keys so a future rename trips the test.
+	s := string(data)
+	if !contains(s, `"score":0.91`) {
+		t.Errorf("JSON missing \"score\":0.91; got %s", s)
+	}
+	if !contains(s, `"tier":"high"`) {
+		t.Errorf("JSON missing \"tier\":\"high\"; got %s", s)
 	}
 
 	var got GeoContext
@@ -45,8 +54,11 @@ func TestGeoContext_JSONRoundtrip(t *testing.T) {
 	if got.Source != gc.Source {
 		t.Errorf("source drift: got %q, want %q", got.Source, gc.Source)
 	}
-	if got.Confidence != gc.Confidence {
-		t.Errorf("confidence drift: got %v, want %v", got.Confidence, gc.Confidence)
+	if got.Score != gc.Score {
+		t.Errorf("score drift: got %v, want %v", got.Score, gc.Score)
+	}
+	if got.Tier != gc.Tier {
+		t.Errorf("tier drift: got %q, want %q", got.Tier, gc.Tier)
 	}
 	if len(got.Alternates) != 1 || got.Alternates[0].Name != "Bellevue, NE" {
 		t.Errorf("alternates drift: %+v", got.Alternates)
@@ -122,7 +134,7 @@ func TestGeoContext_NilForProvider(t *testing.T) {
 // distinguishable from SourceDefault. Callers constructing
 // GeoContext literals without setting Source land in the zero state;
 // validation should not panic but Validate may treat as fine since
-// the constraint is on Confidence, not Source.
+// the constraint is on Score, not Source.
 func TestGeoContext_SourceZeroValue(t *testing.T) {
 	gc := &GeoContext{}
 	if gc.Source != Source("") {
@@ -133,13 +145,13 @@ func TestGeoContext_SourceZeroValue(t *testing.T) {
 	}
 }
 
-// TestGeoContext_ValidateConfidence — Confidence must lie in [0, 1].
+// TestGeoContext_ValidateScore — Score must lie in [0, 1].
 // Out-of-range values produce a typed error so the constructor can
 // fail fast rather than emitting a malformed envelope.
-func TestGeoContext_ValidateConfidence(t *testing.T) {
+func TestGeoContext_ValidateScore(t *testing.T) {
 	cases := []struct {
 		name    string
-		conf    float64
+		score   float64
 		wantErr bool
 	}{
 		{"zero", 0, false},
@@ -152,12 +164,31 @@ func TestGeoContext_ValidateConfidence(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			gc := &GeoContext{Confidence: tc.conf}
+			gc := &GeoContext{Score: tc.score}
 			err := gc.Validate()
 			if (err != nil) != tc.wantErr {
-				t.Errorf("Validate(conf=%v): err=%v, wantErr=%v", tc.conf, err, tc.wantErr)
+				t.Errorf("Validate(score=%v): err=%v, wantErr=%v", tc.score, err, tc.wantErr)
 			}
 		})
+	}
+}
+
+// TestResolutionTier_Constants pins the wire values for the four
+// agent-facing tier classifications. Agents and downstream consumers
+// branch on these strings; renaming any of them is a breaking change.
+func TestResolutionTier_Constants(t *testing.T) {
+	cases := []struct {
+		got, want ResolutionTier
+	}{
+		{ResolutionTierUnknown, "unknown"},
+		{ResolutionTierLow, "low"},
+		{ResolutionTierMedium, "medium"},
+		{ResolutionTierHigh, "high"},
+	}
+	for _, tc := range cases {
+		if string(tc.got) != string(tc.want) {
+			t.Errorf("tier constant: got %q, want %q", tc.got, tc.want)
+		}
 	}
 }
 

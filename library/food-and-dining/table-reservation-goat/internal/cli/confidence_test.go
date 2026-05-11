@@ -67,34 +67,6 @@ func TestLogNorm(t *testing.T) {
 	}
 }
 
-// TestPopulationMarginRatio pins the helper used by decideTier. Linear
-// ratio (1 - runner/top) bypasses the prior-formula dilution; this
-// test pins the math on its own.
-func TestPopulationMarginRatio(t *testing.T) {
-	cases := []struct {
-		name        string
-		top, runner int
-		want        float64
-	}{
-		{"identical", 100, 100, 0.0},
-		{"runner half top", 200, 100, 0.5},
-		{"runner tenth top", 1000, 100, 0.9},
-		{"runner zero", 1000, 0, 1.0},
-		{"top zero (degenerate)", 0, 100, 0.0},
-		{"top negative (degenerate)", -1, 100, 0.0},
-		{"runner negative clamps to 0", 100, -50, 1.0},
-	}
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			got := populationMarginRatio(tc.top, tc.runner)
-			if !floatNear(got, tc.want, epsilon) {
-				t.Errorf("populationMarginRatio(%d, %d) = %.6f; want %.6f",
-					tc.top, tc.runner, got, tc.want)
-			}
-		})
-	}
-}
-
 // TestPopularityPrior_BellevueRanking pins the three-Bellevue ordering:
 // WA (pop=151854) > NE (pop=53178) > KY (pop=5563). All three are
 // PlaceTierCity so the metro_bonus contribution is 0; all three match
@@ -214,46 +186,65 @@ func TestDecideTier_HighSpecificityCollapsesAmbiguity(t *testing.T) {
 	}
 }
 
-// TestDecideTier_TwoCandidateBoundary exercises the margin threshold
-// for the 2-candidate fork. Uses synthetic Places with controlled
-// populations so we pin the boundary math directly rather than
-// inheriting the curated values' margins.
-func TestDecideTier_TwoCandidateBoundary(t *testing.T) {
+// TestDecideTier_TwoCandidatesBareInputIsLow exercises the U14 rule
+// simplification: a bare LocCity input with 2 candidates ALWAYS routes
+// to LOW regardless of population ratio. The old population-ratio
+// margin (calibrated to Portland F4) was a design mistake — the ranking
+// used the full prior but the tier decision used a different score,
+// and the MEDIUM "guess and warn" outcome was wrong-city UX for the
+// minority-population case. Pinning here so a regression to the
+// population-margin path is caught.
+func TestDecideTier_TwoCandidatesBareInputIsLow(t *testing.T) {
 	input := &LocationInput{Kind: LocKindCity, Specificity: SpecificityLow, Raw: "x", CityName: "x"}
 	cases := []struct {
 		name      string
 		topPop    int
 		runnerPop int
-		wantTier  TierEnum
-		// margin computed for the case (sanity-check the data).
-		wantMargin float64
 	}{
-		// margin = 1 - 1000/10000 = 0.9 → > 0.7 (and > 0.3) → MEDIUM
-		{"high margin (10x pop)", 10_000, 1_000, TierMedium, 0.9},
-		// margin = 1 - 6000/10000 = 0.4 → between 0.3 and 0.7 → MEDIUM
-		{"mid margin (0.4)", 10_000, 6_000, TierMedium, 0.4},
-		// margin = 1 - 8000/10000 = 0.2 → < 0.3 → LOW
-		{"low margin (0.2)", 10_000, 8_000, TierLow, 0.2},
-		// margin = 1 - 9999/10000 ≈ 0 → LOW
-		{"near-equal", 10_000, 9_999, TierLow, 0.0001},
+		// All four cases were previously MEDIUM-or-LOW per population
+		// ratio; under U14 they all collapse to LOW because the input
+		// itself is bare.
+		{"high margin (10x pop)", 10_000, 1_000},
+		{"mid margin (0.4)", 10_000, 6_000},
+		{"low margin (0.2)", 10_000, 8_000},
+		{"near-equal", 10_000, 9_999},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			top := Place{Slug: "x-top", Name: "X", State: "AA", Population: tc.topPop, Tier: PlaceTierCity}
 			runner := Place{Slug: "x-runner", Name: "X", State: "BB", Population: tc.runnerPop, Tier: PlaceTierCity}
 			tier, ranked := decideTier(input, []Place{top, runner})
-			if tier != tc.wantTier {
-				t.Errorf("tier: got %v, want %v (margin %.4f)", tier, tc.wantTier, tc.wantMargin)
+			if tier != TierLow {
+				t.Errorf("tier: got %v, want TierLow (bare input + 2 candidates is always LOW)", tier)
 			}
 			if len(ranked) != 2 {
 				t.Fatalf("ranked: got len %d, want 2", len(ranked))
 			}
-			// Top should rank first by popularity prior (larger pop wins
-			// when other terms cancel).
+			// Top should still rank first by popularity prior (larger pop
+			// wins when other terms cancel); the LOW tier doesn't suppress
+			// ranking so the envelope can list them in order.
 			if ranked[0].Place.Slug != "x-top" {
 				t.Errorf("ranked[0]: got %q, want %q", ranked[0].Place.Slug, "x-top")
 			}
 		})
+	}
+}
+
+// TestDecideTier_TwoCandidatesMediumSpecificityIsMedium pins the
+// remaining MEDIUM-tier fork: 2 candidates + SpecificityMedium input
+// (a metro qualifier like "X metro" that resolved to multiple Places)
+// routes to MEDIUM. Rare in practice because most metro qualifiers
+// resolve to a single canonical, but pinning it for the rule.
+func TestDecideTier_TwoCandidatesMediumSpecificityIsMedium(t *testing.T) {
+	input := &LocationInput{Kind: LocKindMetro, Specificity: SpecificityMedium, Raw: "x metro", MetroSlug: "x"}
+	top := Place{Slug: "x-top", Name: "X", State: "AA", Population: 10_000, Tier: PlaceTierCity}
+	runner := Place{Slug: "x-runner", Name: "X", State: "BB", Population: 1_000, Tier: PlaceTierCity}
+	tier, ranked := decideTier(input, []Place{top, runner})
+	if tier != TierMedium {
+		t.Errorf("tier: got %v, want TierMedium (medium-spec input + 2 candidates)", tier)
+	}
+	if len(ranked) != 2 {
+		t.Fatalf("ranked: got len %d, want 2", len(ranked))
 	}
 }
 
@@ -377,8 +368,13 @@ func TestDecideTier_R14_F3(t *testing.T) {
 }
 
 // TestDecideTier_R14_F4 — `--location portland`. Two Portlands surface
-// (OR/ME). Low specificity, 2 candidates, large population gap (OR
-// pop ~652k vs ME pop ~68k → margin ~0.9) → MEDIUM.
+// (OR/ME). Under U14's simplified rule, bare LocCity + 2 candidates
+// routes to LOW regardless of population gap. The Codex P2-F/P2-G
+// adversarial review flagged the prior MEDIUM "guess and warn" outcome
+// as wrong-city UX for the minority-population case (Portland ME). The
+// envelope path is correct here: agent disambiguates instead of
+// silently picking. Ranking still pins OR ahead of ME so the envelope
+// candidates list reads in popularity order.
 func TestDecideTier_R14_F4(t *testing.T) {
 	or := placeByNameState(t, "Portland", "OR")
 	me := placeByNameState(t, "Portland", "ME")
@@ -389,8 +385,8 @@ func TestDecideTier_R14_F4(t *testing.T) {
 		CityName:    "portland",
 	}
 	tier, ranked := decideTier(input, []Place{me, or})
-	if tier != TierMedium {
-		t.Errorf("F4 tier: got %v, want TierMedium", tier)
+	if tier != TierLow {
+		t.Errorf("F4 tier: got %v, want TierLow (U14: bare 2-candidate is LOW)", tier)
 	}
 	if len(ranked) != 2 {
 		t.Fatalf("F4 ranked: got len %d, want 2", len(ranked))
@@ -552,7 +548,7 @@ func TestDecorateWithLocationContext_HighTier(t *testing.T) {
 		ResolvedTo: "Seattle, WA",
 		Centroid:   [2]float64{47.6062, -122.3321},
 		RadiusKm:   75,
-		Confidence: 0.95,
+		Score:      0.95,
 		Source:     SourceExplicitFlag,
 	}
 	resolved, warning := DecorateWithLocationContext(gc, TierHigh, false)
@@ -568,6 +564,9 @@ func TestDecorateWithLocationContext_HighTier(t *testing.T) {
 	if resolved.Source != SourceExplicitFlag {
 		t.Errorf("resolved.Source: got %q, want %q", resolved.Source, SourceExplicitFlag)
 	}
+	if resolved.Tier != ResolutionTierHigh {
+		t.Errorf("resolved.Tier: got %q, want %q", resolved.Tier, ResolutionTierHigh)
+	}
 	if resolved.Reason == "" {
 		t.Error("resolved.Reason: got empty, want non-empty")
 	}
@@ -582,7 +581,7 @@ func TestDecorateWithLocationContext_MediumTier(t *testing.T) {
 		ResolvedTo: "Portland, OR",
 		Centroid:   [2]float64{45.5152, -122.6784},
 		RadiusKm:   75,
-		Confidence: 0.7,
+		Score:      0.7,
 		Source:     SourceExplicitFlag,
 		Alternates: []Candidate{
 			{Name: "Portland, ME", State: "ME", Centroid: [2]float64{43.6591, -70.2568}},
@@ -594,6 +593,9 @@ func TestDecorateWithLocationContext_MediumTier(t *testing.T) {
 	}
 	if warning == nil {
 		t.Fatal("warning: got nil, want non-nil")
+	}
+	if resolved.Tier != ResolutionTierMedium {
+		t.Errorf("resolved.Tier: got %q, want %q", resolved.Tier, ResolutionTierMedium)
 	}
 	if warning.Picked != "Portland, OR" {
 		t.Errorf("warning.Picked: got %q, want %q", warning.Picked, "Portland, OR")
@@ -611,15 +613,15 @@ func TestDecorateWithLocationContext_MediumTier(t *testing.T) {
 }
 
 // TestDecorateWithLocationContext_LowTierWithBypass pins the forced-
-// pick case (LOW + --accept-ambiguous): caller gets both fields, the
-// warning flags the bypass.
+// pick case (LOW + --batch-accept-ambiguous): caller gets both fields,
+// the warning flags the bypass.
 func TestDecorateWithLocationContext_LowTierWithBypass(t *testing.T) {
 	gc := &GeoContext{
 		Origin:     "bellevue",
 		ResolvedTo: "Bellevue, WA",
 		Centroid:   [2]float64{47.6101, -122.2015},
 		RadiusKm:   25,
-		Confidence: 0.4,
+		Score:      0.4,
 		Source:     SourceExplicitFlag,
 		Alternates: []Candidate{
 			{Name: "Bellevue, NE", State: "NE"},
@@ -632,6 +634,9 @@ func TestDecorateWithLocationContext_LowTierWithBypass(t *testing.T) {
 	}
 	if warning == nil {
 		t.Fatal("warning: got nil, want non-nil")
+	}
+	if resolved.Tier != ResolutionTierLow {
+		t.Errorf("resolved.Tier: got %q, want %q", resolved.Tier, ResolutionTierLow)
 	}
 	if !strings.Contains(warning.Reason, "forced") {
 		t.Errorf("warning.Reason: got %q, want reason mentioning forced pick", warning.Reason)

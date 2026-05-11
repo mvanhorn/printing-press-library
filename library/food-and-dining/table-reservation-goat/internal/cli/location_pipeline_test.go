@@ -26,62 +26,62 @@ func containsName(alts []Candidate, want string) bool {
 // resolved-name, centroid, and source propagated.
 func TestResolveLocation_HappyPaths(t *testing.T) {
 	cases := []struct {
-		name          string
-		input         string
-		source        Source
-		wantResolved  string
-		wantLat       float64
-		wantLng       float64
-		minConfidence float64
+		name         string
+		input        string
+		source       Source
+		wantResolved string
+		wantLat      float64
+		wantLng      float64
+		minScore     float64
 	}{
 		{
 			// Bellevue WA has Tier=City (no metro bonus), pop ~152k.
 			// popularityPrior = 0.3*logNorm(152k) + 0 + 0 + 0.2*1.0
 			// = ~0.22 + 0.2 = ~0.42. Worth pinning above 0.3 so a
 			// regression to a zero-prior path is caught.
-			name:          "city+state Bellevue WA",
-			input:         "bellevue, wa",
-			source:        SourceExplicitFlag,
-			wantResolved:  "Bellevue, WA",
-			wantLat:       47.6101,
-			wantLng:       -122.2015,
-			minConfidence: 0.3,
+			name:         "city+state Bellevue WA",
+			input:        "bellevue, wa",
+			source:       SourceExplicitFlag,
+			wantResolved: "Bellevue, WA",
+			wantLat:      47.6101,
+			wantLng:      -122.2015,
+			minScore:     0.3,
 		},
 		{
 			// Seattle: Tier=MetroCentroid (+0.2), pop ~754k (+0.3*logNorm),
 			// exactMatchBonus=1.0 (+0.2). Lands ~0.6.
-			name:          "bare city Seattle (single registry match)",
-			input:         "seattle",
-			source:        SourceExplicitFlag,
-			wantResolved:  "Seattle, WA",
-			wantLat:       47.6062,
-			wantLng:       -122.3321,
-			minConfidence: 0.5,
+			name:         "bare city Seattle (single registry match)",
+			input:        "seattle",
+			source:       SourceExplicitFlag,
+			wantResolved: "Seattle, WA",
+			wantLat:      47.6062,
+			wantLng:      -122.3321,
+			minScore:     0.5,
 		},
 		{
 			// LocKindCoords -> ReverseLookup hits Bellevue (city tier,
 			// RadiusKm=25 contains the point). The coords path provides
 			// no CityName -> exactMatchBonus=0; the prior collapses to
 			// popTerm only. Verify > 0 isn't claimed.
-			name:          "coords inside Bellevue radius",
-			input:         "47.6101,-122.2015",
-			source:        SourceExplicitFlag,
-			wantResolved:  "Bellevue, WA",
-			wantLat:       47.6101,
-			wantLng:       -122.2015,
-			minConfidence: 0.0,
+			name:         "coords inside Bellevue radius",
+			input:        "47.6101,-122.2015",
+			source:       SourceExplicitFlag,
+			wantResolved: "Bellevue, WA",
+			wantLat:      47.6101,
+			wantLng:      -122.2015,
+			minScore:     0.0,
 		},
 		{
 			// LocKindMetro looks up "seattle" by slug -> Seattle Place.
 			// LocKindMetro provides no CityName -> exactMatchBonus=0; the
 			// prior is 0.3*logNorm(754k) + 0.2*metroBonus = ~0.45.
-			name:          "metro qualifier 'seattle metro'",
-			input:         "seattle metro",
-			source:        SourceExplicitFlag,
-			wantResolved:  "Seattle, WA",
-			wantLat:       47.6062,
-			wantLng:       -122.3321,
-			minConfidence: 0.3,
+			name:         "metro qualifier 'seattle metro'",
+			input:        "seattle metro",
+			source:       SourceExplicitFlag,
+			wantResolved: "Seattle, WA",
+			wantLat:      47.6062,
+			wantLng:      -122.3321,
+			minScore:     0.3,
 		},
 	}
 	for _, tc := range cases {
@@ -111,8 +111,8 @@ func TestResolveLocation_HappyPaths(t *testing.T) {
 			if gc.Source != tc.source {
 				t.Errorf("Source = %q; want %q", gc.Source, tc.source)
 			}
-			if gc.Confidence < tc.minConfidence {
-				t.Errorf("Confidence = %v; want >= %v", gc.Confidence, tc.minConfidence)
+			if gc.Score < tc.minScore {
+				t.Errorf("Score = %v; want >= %v", gc.Score, tc.minScore)
 			}
 			if gc.Origin != tc.input {
 				t.Errorf("Origin = %q; want %q", gc.Origin, tc.input)
@@ -224,8 +224,8 @@ func TestResolveLocation_CoordsOutsideAllPlaces(t *testing.T) {
 	// Synthetic Place has Population=0, no coverage, not a metro centroid,
 	// and the LocKindCoords path provides no CityName -> exactMatchBonus
 	// fires 0. Prior should be exactly 0.
-	if gc.Confidence != 0 {
-		t.Errorf("synthetic-coords Confidence = %v; want 0 (zero pop, no coverage)", gc.Confidence)
+	if gc.Score != 0 {
+		t.Errorf("synthetic-coords Score = %v; want 0 (zero pop, no coverage)", gc.Score)
 	}
 	if gc.RadiusKm != defaultSyntheticRadiusKm {
 		t.Errorf("synthetic-coords RadiusKm = %v; want %v", gc.RadiusKm, defaultSyntheticRadiusKm)
@@ -306,30 +306,38 @@ func TestResolveLocation_AmbiguousBellevue_AcceptAmbiguous(t *testing.T) {
 	}
 }
 
-// TestResolveLocation_PortlandIsMedium verifies the 2-candidate
-// MEDIUM tier case: Portland OR (~652k) vs Portland ME (~68k) gives
-// a population-ratio margin ~0.895 which clears the 0.3 threshold.
-// Pipeline returns a GeoContext picking Portland OR with Portland ME
-// as the sole alternate.
-func TestResolveLocation_PortlandIsMedium(t *testing.T) {
+// TestResolveLocation_PortlandIsLow verifies the U14-revised behavior
+// for bare ambiguous LocCity with 2 candidates: Portland OR vs Portland
+// ME both surface as candidates, but the pipeline returns the envelope
+// (not a MEDIUM-tier forced pick). Codex P2-F/P2-G flagged the prior
+// MEDIUM "guess and warn" outcome as wrong-city UX for the minority-
+// population case; the envelope path lets the agent disambiguate.
+func TestResolveLocation_PortlandIsLow(t *testing.T) {
 	gc, env, err := ResolveLocation("portland", ResolveOptions{Source: SourceExplicitFlag})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if env != nil {
-		t.Fatalf("expected GeoContext for medium-tier Portland; got envelope %+v", env)
+	if gc != nil {
+		t.Errorf("expected envelope for bare 2-candidate Portland; got GeoContext %+v", gc)
 	}
-	if gc == nil {
-		t.Fatal("expected non-nil GeoContext")
+	if env == nil {
+		t.Fatal("expected envelope")
 	}
-	if gc.ResolvedTo != "Portland, OR" {
-		t.Errorf("ResolvedTo = %q; want Portland, OR (higher pop)", gc.ResolvedTo)
+	if env.ErrorKind != ErrorKindLocationAmbiguous {
+		t.Errorf("ErrorKind = %q; want %q", env.ErrorKind, ErrorKindLocationAmbiguous)
 	}
-	if len(gc.Alternates) != 1 {
-		t.Fatalf("Alternates len = %d; want 1 (Portland ME)", len(gc.Alternates))
+	if env.WhatWasAsked != "portland" {
+		t.Errorf("WhatWasAsked = %q; want %q", env.WhatWasAsked, "portland")
 	}
-	if gc.Alternates[0].Name != "Portland, ME" {
-		t.Errorf("Alternates[0].Name = %q; want Portland, ME", gc.Alternates[0].Name)
+	if len(env.Candidates) != 2 {
+		t.Fatalf("Candidates len = %d; want 2 (OR, ME)", len(env.Candidates))
+	}
+	// OR ranks first by popularity prior.
+	if env.Candidates[0].State != "OR" {
+		t.Errorf("top candidate state = %q; want OR (higher pop)", env.Candidates[0].State)
+	}
+	if env.Candidates[1].State != "ME" {
+		t.Errorf("second candidate state = %q; want ME", env.Candidates[1].State)
 	}
 }
 

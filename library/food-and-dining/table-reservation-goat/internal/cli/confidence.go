@@ -54,13 +54,6 @@ const (
 // confidence_test.go.
 const nycPopReference = 8_804_190
 
-// marginThresholdMedium is the population-ratio gap at which a
-// 2-candidate result rises from LOW to MEDIUM in decideTier. Calibrated
-// against R14 F4 (Portland OR vs ME, pop ratio ~9.5x → margin ~0.9) so
-// a meaningful population gap upgrades to MEDIUM, while two near-equal
-// candidates stay LOW.
-const marginThresholdMedium = 0.3
-
 // TierEnum — the user-facing confidence tier returned by decideTier.
 // HIGH: resolve silently and return results. MEDIUM: resolve but
 // attach a location_warning listing alternates. LOW: emit the
@@ -89,6 +82,23 @@ func (t TierEnum) String() string {
 		return "low"
 	default:
 		return "unknown"
+	}
+}
+
+// ResolutionTier maps the internal TierEnum value into the exported
+// ResolutionTier wire string. Used when a GeoContext is constructed
+// from a (tier, ranked) pair returned by decideTier so the agent-facing
+// JSON shape commits to a categorical tier alongside the numeric Score.
+func (t TierEnum) ResolutionTier() ResolutionTier {
+	switch t {
+	case TierHigh:
+		return ResolutionTierHigh
+	case TierMedium:
+		return ResolutionTierMedium
+	case TierLow:
+		return ResolutionTierLow
+	default:
+		return ResolutionTierUnknown
 	}
 }
 
@@ -190,22 +200,29 @@ func popularityPrior(p Place, input *LocationInput) float64 {
 }
 
 // decideTier ranks candidates by popularityPrior and routes the result
-// to a tier:
+// to a tier. U14 simplified the rule after Codex P2-F/P2-G adversarial
+// review flagged the prior population-ratio margin as a wrong-city UX
+// trap (the ranking used the full prior, the margin used population
+// alone — two different scores deciding two related questions, and
+// the MEDIUM "guess and warn" outcome was wrong-city for the minority-
+// population candidate when the agent ignored the warning).
+//
+// New rules:
 //
 //   - 0 candidates -> TierUnknown (caller emits location_unknown envelope).
-//   - 1 candidate -> TierHigh (unambiguous by definition).
-//   - input.Specificity == SpecificityHigh -> TierHigh (specific input
-//     collapses multi-candidate ambiguity; happens after the registry
-//     has already narrowed down via state/coords).
-//   - len >= 3 AND input.Specificity ∈ {Low, Medium} -> TierLow (bare
-//     input with three or more viable matches is too ambiguous to
-//     silently pick; force the envelope path).
-//   - 2 candidates: compute population-ratio margin (top.pop vs
-//     runner.pop). margin > marginThresholdMedium -> TierMedium, else
-//     TierLow. The population-ratio metric, rather than full-prior
-//     margin, sidesteps dilution from symmetric metro_bonus /
-//     match_bonus contributions that fire for every candidate in a
-//     same-name lookup.
+//   - 1 candidate -> TierHigh (unambiguous by definition; regardless of
+//     input specificity).
+//   - 2+ candidates AND input.Specificity == SpecificityHigh -> TierHigh
+//     (city+state, coords, zip; the caller was specific so collapse to
+//     the top match. Upstream filters typically narrow to 1 first, but
+//     defensive against multi-hit edge cases).
+//   - 2+ candidates AND input.Specificity == SpecificityMedium -> TierMedium
+//     (metro qualifier or other medium-specificity input. Rare in
+//     practice — most metro qualifiers resolve to a single canonical via
+//     alias Lookup upstream — but pinned for the rule).
+//   - 2+ candidates AND input.Specificity == SpecificityLow -> TierLow
+//     (bare ambiguous input; the envelope path lets the agent
+//     disambiguate rather than silently picking the wrong city).
 //
 // Returns the tier and the ranked candidates (sorted desc by prior).
 // Tie-break order matches sort.SliceStable: equal priors keep their
@@ -234,50 +251,18 @@ func decideTier(input *LocationInput, candidates []Place) (TierEnum, []ScoredCan
 		return TierHigh, ranked
 	}
 
-	if input != nil && input.Specificity == SpecificityHigh {
-		return TierHigh, ranked
-	}
-
-	if len(ranked) >= 3 {
-		// 3+ candidates with low/medium specificity is the canonical
-		// LOW case (per the R14 F3/F5 fixtures). The full-prior margin
-		// can spuriously exceed thresholds when tier_bonus and
-		// match_bonus cancel; pinning 3+ low-spec to LOW keeps the
-		// envelope path honest for genuinely ambiguous bare inputs.
-		return TierLow, ranked
-	}
-
-	// len == 2: population-ratio gap.
-	top := ranked[0].Place
-	runner := ranked[1].Place
-	popMargin := populationMarginRatio(top.Population, runner.Population)
-	if popMargin > marginThresholdMedium {
-		return TierMedium, ranked
+	// 2+ candidates: branch on input specificity. Nil input is treated
+	// as SpecificityLow (the default zero-value semantics in
+	// LocationInput) so defensive coverage routes to LOW.
+	if input != nil {
+		switch input.Specificity {
+		case SpecificityHigh:
+			return TierHigh, ranked
+		case SpecificityMedium:
+			return TierMedium, ranked
+		}
 	}
 	return TierLow, ranked
-}
-
-// populationMarginRatio returns the population-ratio gap between the
-// top candidate and the runner-up: 1 - runner/top, clamped to [0, 1].
-// Zero or negative top falls back to 0 (no signal). Used by decideTier
-// to detect when a 2-candidate result has a clear population winner;
-// see decideTier for why the population ratio is preferred over the
-// full-prior margin.
-func populationMarginRatio(topPop, runnerPop int) float64 {
-	if topPop <= 0 {
-		return 0
-	}
-	if runnerPop < 0 {
-		runnerPop = 0
-	}
-	r := 1.0 - float64(runnerPop)/float64(topPop)
-	if r < 0 {
-		return 0
-	}
-	if r > 1 {
-		return 1
-	}
-	return r
 }
 
 // Error-kind enum values for DisambiguationEnvelope.ErrorKind. Stable
@@ -390,13 +375,19 @@ func BuildEnvelope(input *LocationInput, ranked []ScoredCandidate, errorKind str
 // their response when the location resolved to a Place. Source carries
 // the GeoContext.Source value so consumers can branch on
 // explicit-flag-vs-extracted-vs-default without parsing prose.
+//
+// Score is the popularity prior (a [0,1] mechanical number, not a
+// confidence — see ResolutionTier). Tier is the agent-facing
+// categorical decision; SKILL.md directs agents to branch on Tier
+// rather than the raw Score.
 type LocationResolvedField struct {
-	Input                string   `json:"input"`
-	ResolvedTo           string   `json:"resolved_to"`
-	Confidence           float64  `json:"confidence"`
-	Reason               string   `json:"reason"`
-	AlternatesConsidered []string `json:"alternates_considered,omitempty"`
-	Source               Source   `json:"source"`
+	Input                string         `json:"input"`
+	ResolvedTo           string         `json:"resolved_to"`
+	Score                float64        `json:"score"`
+	Tier                 ResolutionTier `json:"tier"`
+	Reason               string         `json:"reason"`
+	AlternatesConsidered []string       `json:"alternates_considered,omitempty"`
+	Source               Source         `json:"source"`
 }
 
 // LocationWarningField is the annotation shape callers attach in
@@ -414,7 +405,7 @@ type LocationWarningField struct {
 // DecorateWithLocationContext composes the location_resolved /
 // location_warning annotation fields for a response, given the
 // resolved GeoContext, the tier from decideTier, and whether the
-// caller forced past a LOW result with --accept-ambiguous.
+// caller forced past a LOW result with --batch-accept-ambiguous.
 //
 // Return shape:
 //   - HIGH: (resolved, nil) — silent success.
@@ -449,7 +440,8 @@ func DecorateWithLocationContext(gc *GeoContext, tier TierEnum, acceptAmbiguousB
 	resolved := &LocationResolvedField{
 		Input:                gc.Origin,
 		ResolvedTo:           gc.ResolvedTo,
-		Confidence:           gc.Confidence,
+		Score:                gc.Score,
+		Tier:                 tier.ResolutionTier(),
 		Reason:               resolvedReason(tier, acceptAmbiguousBypass),
 		AlternatesConsidered: alternateNames(gc.Alternates),
 		Source:               gc.Source,
@@ -478,7 +470,7 @@ func resolvedReason(tier TierEnum, acceptAmbiguousBypass bool) string {
 		return "picked best match over close alternates"
 	case TierLow:
 		if acceptAmbiguousBypass {
-			return "forced pick over ambiguous candidates (--accept-ambiguous)"
+			return "forced pick over ambiguous candidates (--batch-accept-ambiguous)"
 		}
 		return "ambiguous"
 	}
@@ -505,7 +497,17 @@ func warningReason(tier TierEnum, acceptAmbiguousBypass bool) string {
 // decideTier output (i.e., they got back a GeoContext from
 // ResolveLocation, not the (tier, ranked) pair from decideTier).
 //
-// Decision table:
+// Resolution path:
+//
+//  1. If gc.Tier is set (non-empty), trust it — buildGeoContext now
+//     stamps the tier directly from decideTier, so the categorical
+//     decision is authoritative and we don't need to re-infer.
+//  2. Legacy fallback (gc.Tier == ""): use the original
+//     score-based heuristic for callers constructing GeoContext
+//     literals without going through buildGeoContext (older test
+//     fixtures, future hand-constructed geo contexts).
+//
+// Legacy decision table (gc.Tier == ""):
 //
 //   - nil gc                 -> TierUnknown (defensive)
 //   - 0 alternates           -> TierHigh (one candidate ranked, OR
@@ -513,7 +515,7 @@ func warningReason(tier TierEnum, acceptAmbiguousBypass bool) string {
 //   - >0 alternates, !accept -> TierMedium (LOW would have been
 //     envelope at ResolveLocation time, so a non-envelope GeoContext
 //     with alternates must be MEDIUM)
-//   - >0 alternates, accept  -> confidence cutoff: >= 0.35 is MEDIUM,
+//   - >0 alternates, accept  -> score cutoff: >= 0.35 is MEDIUM,
 //     < 0.35 is LOW (forced pick over a wide-margin LOW result)
 //
 // The MEDIUM-vs-LOW-with-bypass distinction affects only the prose
@@ -530,6 +532,19 @@ func inferTierFromGeoContext(gc *GeoContext, acceptedAmbiguous bool) TierEnum {
 	if gc == nil {
 		return TierUnknown
 	}
+	// Trust gc.Tier when set — buildGeoContext stamps it from decideTier.
+	switch gc.Tier {
+	case ResolutionTierHigh:
+		return TierHigh
+	case ResolutionTierMedium:
+		return TierMedium
+	case ResolutionTierLow:
+		return TierLow
+	case ResolutionTierUnknown:
+		return TierUnknown
+	}
+	// Legacy fallback: gc.Tier is zero-value (""), use the score-based
+	// heuristic from before the field existed.
 	if len(gc.Alternates) == 0 {
 		return TierHigh
 	}
@@ -538,8 +553,8 @@ func inferTierFromGeoContext(gc *GeoContext, acceptedAmbiguous bool) TierEnum {
 		// and no bypass — must be MEDIUM (LOW would have been envelope).
 		return TierMedium
 	}
-	// acceptedAmbiguous=true: confidence-based split.
-	if gc.Confidence >= 0.35 {
+	// acceptedAmbiguous=true: score-based split.
+	if gc.Score >= 0.35 {
 		return TierMedium
 	}
 	return TierLow

@@ -144,21 +144,23 @@ func TestInvalidateMetroCache(t *testing.T) {
 // when a fresh cache exists, the function loads it without touching
 // the network at all. Done by pre-seeding the cache and passing nil
 // session — if the function ignored the cache and fell through to the
-// fetch, it would no-op (session is nil).
+// fetch, it would no-op (session is nil). The cached slug `providence`
+// has no curated equivalent so the merge keeps it as a dynamic-only
+// row (rule 3) — a clean signal that the cache fast-path fired.
 func TestHydrateMetrosFromTock_UsesCache(t *testing.T) {
 	withTempCacheDir(t)
 	defer setDynamicMetros(nil, 0)
 
 	preseeded := []Metro{
-		{Slug: "bellevue", Name: "Bellevue", Lat: 47.6, Lng: -122.2},
+		{Slug: "providence", Name: "Providence", Lat: 41.824, Lng: -71.4128},
 		{Slug: "seattle", Name: "Seattle", Lat: 47.6, Lng: -122.3},
 	}
 	saveMetroCache(preseeded)
 
 	hydrateMetrosFromTock(context.Background(), nil) // nil session must not matter when cache is fresh
 
-	if _, ok := getRegistry().Lookup("bellevue"); !ok {
-		t.Fatal("bellevue should be available from cache-hydrated registry")
+	if _, ok := getRegistry().Lookup("providence"); !ok {
+		t.Fatal("providence should be available from cache-hydrated registry")
 	}
 }
 

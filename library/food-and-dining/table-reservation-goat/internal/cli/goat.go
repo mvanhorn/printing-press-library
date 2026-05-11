@@ -55,7 +55,7 @@ type goatResponse struct {
 	LocationResolved *LocationResolvedField `json:"location_resolved,omitempty"`
 	// LocationWarning is attached alongside LocationResolved when the
 	// resolution had material ambiguity (MEDIUM tier) or the caller
-	// forced past LOW with --accept-ambiguous. Omitted when the resolve
+	// forced past LOW with --batch-accept-ambiguous. Omitted when the resolve
 	// landed on HIGH or when no location was passed.
 	LocationWarning *LocationWarningField `json:"location_warning,omitempty"`
 	QueriedAt       string                `json:"queried_at"`
@@ -132,7 +132,7 @@ func newGoatCmd(flags *rootFlags) *cobra.Command {
 			// U8: route --location / --metro through the typed
 			// ResolveLocation pipeline. The legacy `--metro` flag continues
 			// to work as a deprecated alias that implies
-			// --accept-ambiguous so back-compat callers never trip the
+			// --batch-accept-ambiguous so back-compat callers never trip the
 			// envelope path. When neither flag is set but --latitude /
 			// --longitude are passed, the lat/lng pair drives hard-reject
 			// as before.
@@ -268,12 +268,13 @@ func newGoatCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagLocation, "location", "",
 		"Free-form location: 'bellevue, wa', 'seattle', '47.6,-122.3', or 'seattle metro'. "+
 			"Resolves to a typed GeoContext and hard-rejects out-of-region results.")
-	cmd.Flags().BoolVar(&flagAcceptAmbiguous, "accept-ambiguous", false,
-		"When --location is ambiguous (e.g., 'bellevue' matches multiple states), "+
-			"force-pick the top candidate instead of returning a disambiguation envelope.")
+	cmd.Flags().BoolVar(&flagAcceptAmbiguous, "batch-accept-ambiguous", false,
+		"BATCH-ONLY escape hatch: when --location is ambiguous, force-pick the top "+
+			"candidate instead of returning a disambiguation envelope. Interactive "+
+			"agents must NOT set this — it defeats the disambiguation contract.")
 	cmd.Flags().StringVar(&metro, "metro", "",
 		"Metro slug (seattle, chicago, new-york, ...). DEPRECATED — use --location <city>. "+
-			"Legacy callers get --accept-ambiguous implied to preserve back-compat shape.")
+			"Legacy callers get --batch-accept-ambiguous implied to preserve back-compat shape.")
 	cmd.Flags().StringVar(&network, "network", "", "Restrict to one network (opentable, tock); default queries both")
 	cmd.Flags().IntVar(&limit, "limit", 20, "Max merged results to return")
 	cmd.Flags().IntVar(&party, "party", 2, "Party size (informational; OT autocomplete does not filter on this)")

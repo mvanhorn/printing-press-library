@@ -39,8 +39,8 @@ func runGoat(t *testing.T, args ...string) (stdout, stderr string, err error) {
 
 // TestGoat_LocationDecoration pins the U8 happy paths: --location and
 // --metro both resolve through resolveLocationFlags and decorate the
-// goatResponse. The legacy --metro path implies --accept-ambiguous so
-// ambiguous bare slugs continue to land on a forced-pick rather than
+// goatResponse. The legacy --metro path implies --batch-accept-ambiguous
+// so ambiguous bare slugs continue to land on a forced-pick rather than
 // the envelope.
 func TestGoat_LocationDecoration(t *testing.T) {
 	cases := []struct {
@@ -70,17 +70,14 @@ func TestGoat_LocationDecoration(t *testing.T) {
 			wantWarning:  false,
 			wantStderr:   "deprecated",
 		},
+		// U14: --metro bellevue is ambiguous (multiple Bellevues by
+		// name, no single canonical via Lookup); legacy implicit
+		// --batch-accept-ambiguous is suppressed and the envelope path
+		// fires. The TestGoat_AmbiguousLocationEmitsEnvelope test
+		// below covers the envelope shape on this command surface.
 		{
-			name:         "legacy --metro bellevue forced-pick (no envelope)",
-			args:         []string{"sushi", "--metro", "bellevue"},
-			wantResolved: "Bellevue", // hydration may strip ", WA"
-			wantSource:   SourceExplicitFlag,
-			wantWarning:  true,
-			wantStderr:   "deprecated",
-		},
-		{
-			name:         "--location bellevue --accept-ambiguous forced-pick",
-			args:         []string{"sushi", "--location", "bellevue", "--accept-ambiguous"},
+			name:         "--location bellevue --batch-accept-ambiguous forced-pick",
+			args:         []string{"sushi", "--location", "bellevue", "--batch-accept-ambiguous"},
 			wantResolved: "Bellevue",
 			wantSource:   SourceExplicitFlag,
 			wantWarning:  true,
@@ -120,7 +117,7 @@ func TestGoat_LocationDecoration(t *testing.T) {
 
 // TestGoat_AmbiguousLocationEmitsEnvelope pins the envelope path on the
 // goat command surface: a bare ambiguous --location without
-// --accept-ambiguous emits the DisambiguationEnvelope shape.
+// --batch-accept-ambiguous emits the DisambiguationEnvelope shape.
 func TestGoat_AmbiguousLocationEmitsEnvelope(t *testing.T) {
 	stdout, stderr, err := runGoat(t, "sushi", "--location", "bellevue")
 	if err != nil {
@@ -162,17 +159,20 @@ func TestGoat_NoLocation(t *testing.T) {
 
 func TestMetroCityName(t *testing.T) {
 	cases := map[string]string{
-		"seattle":       "Seattle",
-		"chicago":       "Chicago",
-		"new-york":      "New York City",
-		"nyc":           "New York City",
-		"manhattan":     "New York City",
+		"seattle":  "Seattle",
+		"chicago":  "Chicago",
+		"new-york": "New York City",
+		"nyc":      "New York City",
+		// U17: "manhattan" and "dc" used to alias to their parent metros;
+		// they now resolve to dedicated tighter Place entries
+		// ("manhattan" -> Name "Manhattan", "dc" -> Name "Washington").
+		"manhattan":     "Manhattan",
 		"san-francisco": "San Francisco",
 		"sf":            "San Francisco",
 		"los-angeles":   "Los Angeles",
 		"la":            "Los Angeles",
 		"washington-dc": "Washington DC",
-		"dc":            "Washington DC",
+		"dc":            "Washington",
 		"new-orleans":   "New Orleans",
 		"nola":          "New Orleans",
 		"  Seattle  ":   "Seattle", // whitespace + case-insensitive

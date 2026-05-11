@@ -221,84 +221,125 @@ func reverseLookupIn(places []Place, lat, lng float64) (Place, bool) {
 }
 
 // chainedPlaceRegistry composes a dynamic source (Tock SSR) over the
-// curated static fallback. Dynamic entries win Lookup ties (when the
-// same slug exists in both, dynamic centroid + coverage wins);
-// curated entries fill gaps the dynamic source doesn't cover.
+// curated static fallback using MERGE semantics — not chain-override.
+//
+// U13 Codex P1-C fix: the old chain shadowed curated entries by slug,
+// so a dynamic Tock "Bellevue" (Slug="bellevue", State="", RadiusKm=75,
+// no ContextHints) shadowed curated "Bellevue, WA"
+// (State="WA", RadiusKm=25, ContextHints=["Seattle metro","Eastside",
+// "tech hub"]). The agent-facing disambiguation UX lost the curated
+// fields that made it useful. The merged registry preserves curated
+// fields and only ENRICHES the provider-routing pair from dynamic:
+//
+//  1. Slug match → enrich curated entry's ProviderCoverage and
+//     ParentMetro from dynamic. All other curated fields preserved.
+//  2. Name (case-insensitive) AND haversine ≤ 5 km → same enrichment.
+//  3. Neither matches → dynamic added as a separate row.
+//
+// `merged` is the precomputed slice; every lookup walks it directly.
 type chainedPlaceRegistry struct {
-	dynamic []Place
+	merged []Place
 }
 
 func (c chainedPlaceRegistry) Lookup(slug string) (Place, bool) {
-	if p, ok := lookupIn(c.dynamic, slug); ok {
-		return p, true
-	}
-	return lookupIn(curatedPlaces, slug)
+	return lookupIn(c.merged, slug)
 }
 
 func (c chainedPlaceRegistry) LookupByName(name string) ([]Place, bool) {
-	// Union by-name: collect every dynamic hit, then append static
-	// hits whose canonical slug isn't already represented.
-	seen := make(map[string]struct{})
-	var hits []Place
-	if dyn, ok := lookupByNameIn(c.dynamic, name); ok {
-		for _, p := range dyn {
-			seen[p.Slug] = struct{}{}
-			hits = append(hits, p)
-		}
-	}
-	if stat, ok := lookupByNameIn(curatedPlaces, name); ok {
-		for _, p := range stat {
-			if _, dup := seen[p.Slug]; dup {
-				continue
-			}
-			hits = append(hits, p)
-		}
-	}
-	if len(hits) == 0 {
-		return nil, false
-	}
-	return hits, true
+	return lookupByNameIn(c.merged, name)
 }
 
 func (c chainedPlaceRegistry) All() []Place {
-	if len(c.dynamic) == 0 {
-		return curatedPlaces
-	}
-	seen := make(map[string]struct{}, len(c.dynamic))
-	out := make([]Place, 0, len(c.dynamic)+len(curatedPlaces))
-	for _, p := range c.dynamic {
-		seen[p.Slug] = struct{}{}
-		out = append(out, p)
-	}
-	for _, p := range curatedPlaces {
-		if _, ok := seen[p.Slug]; ok {
+	return c.merged
+}
+
+func (c chainedPlaceRegistry) ReverseLookup(lat, lng float64) (Place, bool) {
+	return reverseLookupIn(c.merged, lat, lng)
+}
+
+// mergeRegistry produces a NEW slice combining curated static entries
+// with dynamic ones. The static slice is treated as read-only — copies
+// are made before any field assignment so callers' source slices stay
+// intact (the curated `place_data.go` var must never be mutated).
+//
+// Merge rules per dynamic entry D:
+//
+//  1. If D.Slug matches a curated entry C.Slug, enrich C's
+//     ProviderCoverage and ParentMetro from D. All other curated
+//     fields (Name, State, Population, Lat, Lng, RadiusKm, Tier,
+//     Aliases, ContextHints) are preserved.
+//
+//  2. Else if a curated entry has the same Name (case-insensitive) AND
+//     haversineKm ≤ 5.0 from D's centroid, enrich as in rule 1. This
+//     catches dynamic Tock projections where the slug shape differs
+//     (e.g. "bellevue" vs curated "bellevue-wa") but the place is
+//     unambiguously the same point.
+//
+//  3. Else D is truly new — append it as-is.
+//
+// Curated entries that aren't matched by any dynamic entry pass
+// through unchanged. The output preserves curated order for stability
+// (the curated table's order is meaningful for ReverseLookup ties).
+func mergeRegistry(static []Place, dynamic []Place) []Place {
+	out := make([]Place, len(static))
+	copy(out, static)
+	for _, d := range dynamic {
+		idx := findMergeMatch(out, d)
+		if idx >= 0 {
+			enrichInPlace(&out[idx], d)
 			continue
 		}
-		out = append(out, p)
+		out = append(out, d)
 	}
 	return out
 }
 
-func (c chainedPlaceRegistry) ReverseLookup(lat, lng float64) (Place, bool) {
-	// Reverse-lookup needs a single combined slice so the RadiusKm
-	// tiebreak picks across both sources. Dynamic entries' Slug wins
-	// on duplicate slug because they're appended first.
-	if len(c.dynamic) == 0 {
-		return reverseLookupIn(curatedPlaces, lat, lng)
+// findMergeMatch implements the slug-first, name+coords-second match
+// rules. Returns the index in `places` of the matched entry, or -1.
+// Slug match short-circuits — a dynamic entry whose slug already
+// matches a curated row does NOT fall through to name+coords matching
+// against a different row.
+func findMergeMatch(places []Place, d Place) int {
+	if d.Slug != "" {
+		for i, p := range places {
+			if p.Slug == d.Slug {
+				return i
+			}
+		}
 	}
-	seen := make(map[string]struct{}, len(c.dynamic))
-	combined := make([]Place, 0, len(c.dynamic)+len(curatedPlaces))
-	for _, p := range c.dynamic {
-		seen[p.Slug] = struct{}{}
-		combined = append(combined, p)
+	if d.Name == "" {
+		return -1
 	}
-	for _, p := range curatedPlaces {
-		if _, ok := seen[p.Slug]; ok {
+	for i, p := range places {
+		if !strings.EqualFold(p.Name, d.Name) {
 			continue
 		}
-		combined = append(combined, p)
+		if haversineKm(p.Lat, p.Lng, d.Lat, d.Lng) <= 5.0 {
+			return i
+		}
 	}
-	return reverseLookupIn(combined, lat, lng)
+	return -1
+}
+
+// enrichInPlace copies the live provider-routing fields from dynamic
+// into curated. Initializes nil destination maps lazily so the first
+// "tock" entry doesn't panic. Source nil maps short-circuit — there's
+// nothing to copy, and we don't create an empty destination map (a
+// nil-valued ProviderCoverage stays nil so JSON marshaling stays
+// stable for curated-only rows).
+func enrichInPlace(dst *Place, src Place) {
+	for k, v := range src.ProviderCoverage {
+		if dst.ProviderCoverage == nil {
+			dst.ProviderCoverage = make(map[string]int)
+		}
+		dst.ProviderCoverage[k] = v
+	}
+	for k, v := range src.ParentMetro {
+		if dst.ParentMetro == nil {
+			dst.ParentMetro = make(map[string]string)
+		}
+		dst.ParentMetro[k] = v
+	}
 }
 
 // staticMetroRegistry is the legacy name for staticPlaceRegistry,
@@ -325,9 +366,13 @@ func getRegistry() PlaceRegistry {
 	return defaultReg
 }
 
-// setDynamicMetros upgrades the registry to chained mode with the
+// setDynamicMetros upgrades the registry to merged mode with the
 // supplied dynamic entries. Safe to call concurrently — last writer
 // wins. Pass nil/empty to revert to the curated-only fallback.
+//
+// The merge runs here (at hydration time), not at query time, so the
+// merged snapshot is computed once and every lookup walks a single
+// slice. See mergeRegistry for the slug-then-name+coords rules.
 //
 // Named `setDynamicMetros` (not `setDynamicPlaces`) for backward
 // compat with existing test fixtures; the function now operates on
@@ -340,7 +385,7 @@ func setDynamicMetros(places []Place, loadedAtUnix int64) {
 		dynamicLoadedAt = 0
 		return
 	}
-	defaultReg = chainedPlaceRegistry{dynamic: places}
+	defaultReg = chainedPlaceRegistry{merged: mergeRegistry(curatedPlaces, places)}
 	dynamicLoadedAt = loadedAtUnix
 }
 

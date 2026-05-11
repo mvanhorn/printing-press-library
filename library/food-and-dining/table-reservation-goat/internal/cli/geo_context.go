@@ -17,6 +17,36 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/tock"
 )
 
+// ResolutionTier is the agent-facing categorical classification of how
+// confident the resolver was in its pick. Agents branch on this string
+// rather than on the raw Score numeric — Score is the popularity prior
+// (a mechanical [0,1] number) and is not directly comparable across
+// inputs, while Tier captures the underlying decision (HIGH unambiguous,
+// MEDIUM disambiguated, LOW caller forced a pick, UNKNOWN no candidates).
+//
+// Wire values are the lowercase tier names matching TierEnum.String()
+// so the agent-facing JSON shape stays stable. Pinned by
+// TestResolutionTier_Constants in geo_context_test.go.
+type ResolutionTier string
+
+const (
+	// ResolutionTierUnknown — no candidates resolved (zero-value default).
+	ResolutionTierUnknown ResolutionTier = "unknown"
+
+	// ResolutionTierLow — caller forced a pick over genuinely ambiguous
+	// candidates (LOW + --batch-accept-ambiguous). Without the bypass
+	// the caller is on the envelope path and never sees a GeoContext.
+	ResolutionTierLow ResolutionTier = "low"
+
+	// ResolutionTierMedium — disambiguated pick with alternates worth
+	// surfacing. Agents should sanity-check via location_warning.
+	ResolutionTierMedium ResolutionTier = "medium"
+
+	// ResolutionTierHigh — unambiguous match. Pick is reliable; agents
+	// can proceed without further checks.
+	ResolutionTierHigh ResolutionTier = "high"
+)
+
 // Source enumerates how a GeoContext was obtained, so post-filter
 // behavior (hard-reject vs soft-demote) can branch on the strength
 // of intent rather than guessing.
@@ -83,13 +113,14 @@ type Candidate struct {
 // Decisions): one implementation behind an interface is speculative
 // generality; extract the interface when a third provider lands.
 type GeoContext struct {
-	Origin     string      `json:"origin"`
-	ResolvedTo string      `json:"resolved_to"`
-	Centroid   [2]float64  `json:"centroid"` // [lat, lng]
-	RadiusKm   float64     `json:"radius_km"`
-	Confidence float64     `json:"confidence"`
-	Source     Source      `json:"source"`
-	Alternates []Candidate `json:"alternates,omitempty"`
+	Origin     string         `json:"origin"`
+	ResolvedTo string         `json:"resolved_to"`
+	Centroid   [2]float64     `json:"centroid"` // [lat, lng]
+	RadiusKm   float64        `json:"radius_km"`
+	Score      float64        `json:"score"`
+	Tier       ResolutionTier `json:"tier"`
+	Source     Source         `json:"source"`
+	Alternates []Candidate    `json:"alternates,omitempty"`
 }
 
 // ForOpenTable projects the GeoContext into the input shape OT's
@@ -131,14 +162,16 @@ func (g *GeoContext) ForTock() tock.LocationInput {
 
 // Validate enforces invariants on a constructed GeoContext. Returns
 // nil for nil receivers ("no constraint" is a valid state). The
-// Confidence range check is the load-bearing invariant; downstream
-// tier decisions assume [0,1].
+// Score range check is the load-bearing invariant; downstream tier
+// inference treats Score as a [0,1] popularity prior. Tier is not
+// validated separately — the zero value ("") means "unset" and is
+// handled by inferTierFromGeoContext's legacy-fallback path.
 func (g *GeoContext) Validate() error {
 	if g == nil {
 		return nil
 	}
-	if g.Confidence < 0 || g.Confidence > 1 {
-		return fmt.Errorf("geo_context: confidence must be in [0,1], got %v", g.Confidence)
+	if g.Score < 0 || g.Score > 1 {
+		return fmt.Errorf("geo_context: score must be in [0,1], got %v", g.Score)
 	}
 	return nil
 }

@@ -114,16 +114,21 @@ Every read command (`restaurants list`, `availability check`, `availability mult
 --location '47.6101,-122.2015'   # coordinates (lat,lng)
 ```
 
-The resolver returns one of three response shapes depending on confidence:
+The resolver returns one of three response shapes, classified by the categorical `tier` field:
 
-- **HIGH** confidence (one match, or specific input): response includes `location_resolved` field with the canonical name, centroid, reason, and any alternates considered. Results are filtered to that region.
-- **MEDIUM** confidence (multiple candidates but one dominates): response includes both `location_resolved` and `location_warning`. The warning lists the alternates so the agent can sanity-check against conversation context.
-- **LOW** confidence (genuinely ambiguous, e.g., bare "bellevue" matches WA/NE/KY): the command refuses to return results. Instead it emits a typed `needs_clarification` envelope with ranked candidates, each carrying `state`, `context_hints`, `tock_business_count`, and `score_if_picked`. The agent disambiguates and re-runs.
+- **`tier: "high"`** (one match, or specific input): response includes `location_resolved` field with the canonical name, centroid, reason, and any alternates considered. Results are filtered to that region.
+- **`tier: "medium"`** (multiple candidates but one dominates): response includes both `location_resolved` and `location_warning`. The warning lists the alternates so the agent can sanity-check against conversation context.
+- **`tier: "low"`** (genuinely ambiguous, e.g., bare "bellevue" matches WA/NE/KY): the command refuses to return results. Instead it emits a typed `needs_clarification` envelope with ranked candidates, each carrying `state`, `context_hints`, `tock_business_count`, and `score_if_picked`. The agent disambiguates and re-runs.
+
+Note: `location_resolved.score` is the popularity prior (a mechanical [0,1] number derived from population + provider coverage). Do not branch on this number — Bellevue WA at city+state specificity is HIGH-certain but its absolute score is modest (~0.42), and Seattle at HIGH tier reads ~0.6. The categorical `tier` field is what agents branch on; `score` is informational.
 
 ### Three agent rules (load-bearing contract)
 
-**1. Always check `location_resolved.confidence` in successful responses.**
-When the field is present, the CLI made a pick. If `confidence < 0.85`, sanity-check against your conversation context. If the pick disagrees with context (e.g., you picked Portland OR but the user clearly meant Maine), re-run with a more specific `--location`.
+**1. Always check `location_resolved.tier` in successful responses.**
+The `tier` string is the agent-facing categorical classification — branch on it, not on the numeric `score`.
+- `tier == "high"` — the pick is reliable; proceed.
+- `tier == "medium"` — alternates exist and the response includes a `location_warning` listing them. Sanity-check the pick against conversation context (e.g., did you pick Portland OR but the user clearly meant Maine?). Surface the pick to the user.
+- `tier == "low"` — you'll receive a `needs_clarification` envelope instead of results; rule 2 applies.
 
 **2. On `needs_clarification: true`, do NOT retry blindly.**
 First, look back in the conversation for geographic clues (state mentions, nearby cities, prior locations, time-zone hints). If you find any, re-run with that location. If you don't, use the `agent_guidance.fallback_clarification` text (or your own phrasing) to ask the user. Concrete shape:
@@ -154,16 +159,16 @@ First, look back in the conversation for geographic clues (state mentions, nearb
 }
 ```
 
-**3. Never silently accept low-confidence resolution.**
-When `location_warning` is present on a successful response, surface the pick to the user in your reply (e.g., "I'm searching in Bellevue, WA — let me know if you meant a different one"). The warning is the CLI's signal that *you* should hand the user a hand-off point.
+**3. Never silently accept a MEDIUM-tier resolution.**
+When `location_warning` is present on a successful response (`tier == "medium"`, or a `tier == "low"` forced pick from a batch caller), surface the pick to the user in your reply (e.g., "I'm searching in Bellevue, WA — let me know if you meant a different one"). The warning is the CLI's signal that *you* should hand the user a hand-off point. Do NOT reach for `--batch-accept-ambiguous` to silence the warning — that flag is for batch jobs only; in interactive use it defeats the disambiguation contract entirely.
 
-### `--accept-ambiguous` is a batch-only escape hatch
+### `--batch-accept-ambiguous` is a batch-only escape hatch
 
-Every read command exposes `--accept-ambiguous` (default false). When true, low-confidence resolution returns a forced pick (top candidate by popularity prior) with `location_warning` flagging the bypass. **Interactive agents should NOT use this flag** — it defeats the disambiguation contract. It exists for batch jobs and test fixtures where any-pick-is-fine.
+Every read command exposes `--batch-accept-ambiguous` (default false). When true, a LOW-tier resolution returns a forced pick (top candidate by popularity prior) with `location_warning` flagging the bypass, rather than the `needs_clarification` envelope. **Interactive agents must never use this flag — it defeats the disambiguation contract entirely.** The verbose `batch-` prefix is intentional: it exists exclusively for batch jobs, scheduled runs, and test fixtures where any-pick-is-fine semantics are correct. If you're answering a user in real time and you reach for this flag, stop — re-read rule 2 and disambiguate from conversation context or ask the user.
 
 ### `--metro` is a deprecated alias
 
-`--metro <slug>` continues to work for back-compat. It maps to `--location <slug>` with `--accept-ambiguous` implicitly set, so legacy callers always receive results-shaped responses (never the new envelope). A one-line stderr deprecation warning fires the first time it's used per process. New code should use `--location`.
+`--metro <slug>` continues to work for back-compat. It maps to `--location <slug>` with `--batch-accept-ambiguous` implicitly set, so legacy callers always receive results-shaped responses (never the new envelope). A one-line stderr deprecation warning fires the first time it's used per process. New code should use `--location`.
 
 ### Slug suffixes still work in `earliest` and `watch`
 

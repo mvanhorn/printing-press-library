@@ -6,20 +6,34 @@ package cli
 // Pins:
 //   - --location resolves through resolveLocationFlags and decorates
 //     the watchRow with location_resolved at subscription start.
-//   - --metro is still parsed; legacy implicit --accept-ambiguous keeps
+//   - --metro is still parsed; legacy implicit --batch-accept-ambiguous keeps
 //     ambiguous bare slugs resolving to a forced-pick rather than the
 //     envelope path. Fires the once-per-process stderr deprecation
 //     warning.
 //   - Warn-and-continue under ambiguity: the watch is created with a
 //     location_warning rather than refused.
 //   - Omitting both flags preserves the no-decoration shape.
+//
+// PATCH: U15 — Watch location persistence tests pin:
+//   - `watch add --location <city>` persists the resolved GeoContext
+//     to `watches.location_context` as JSON so pollOneWatch can prefer
+//     it over slug-suffix inference at tick time.
+//   - resolveWatchAnchor prefers the persisted GeoContext lat/lng over
+//     slug-suffix inference, with the legacy NYC anchor as final fallback.
+//   - Schema migration adds the column to pre-existing tables idempotently
+//     (PRAGMA table_info probe + ALTER TABLE).
 
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"encoding/json"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+
+	_ "modernc.org/sqlite"
 )
 
 // runWatchAdd drives `watch add` with dry-run=true so the test doesn't
@@ -121,12 +135,12 @@ func TestWatchAdd_NoLocation(t *testing.T) {
 }
 
 // TestWatchAdd_AmbiguousWarnAndContinue pins the warn-and-continue
-// contract: a bare ambiguous --location with --accept-ambiguous
+// contract: a bare ambiguous --location with --batch-accept-ambiguous
 // produces a watchRow carrying both location_resolved AND
 // location_warning, plus a stderr "location_warning:" line. The watch
 // is created in the same call — never refused.
 func TestWatchAdd_AmbiguousWarnAndContinue(t *testing.T) {
-	stdout, stderr, err := runWatchAdd(t, "tock:alinea", "--location", "bellevue", "--accept-ambiguous")
+	stdout, stderr, err := runWatchAdd(t, "tock:alinea", "--location", "bellevue", "--batch-accept-ambiguous")
 	if err != nil {
 		t.Fatalf("Execute: unexpected error: %v\nstdout: %s\nstderr: %s", err, stdout, stderr)
 	}
@@ -146,9 +160,9 @@ func TestWatchAdd_AmbiguousWarnAndContinue(t *testing.T) {
 }
 
 // TestWatchAdd_AmbiguousLocationEmitsEnvelope pins the envelope path:
-// without --accept-ambiguous, a bare ambiguous --location emits the
-// DisambiguationEnvelope rather than persisting a watch. The caller
-// must disambiguate before the watch is meaningful.
+// without --batch-accept-ambiguous, a bare ambiguous --location emits
+// the DisambiguationEnvelope rather than persisting a watch. The
+// caller must disambiguate before the watch is meaningful.
 func TestWatchAdd_AmbiguousLocationEmitsEnvelope(t *testing.T) {
 	stdout, stderr, err := runWatchAdd(t, "tock:alinea", "--location", "bellevue")
 	if err != nil {
@@ -164,4 +178,253 @@ func TestWatchAdd_AmbiguousLocationEmitsEnvelope(t *testing.T) {
 	if env.ErrorKind != ErrorKindLocationAmbiguous {
 		t.Errorf("ErrorKind = %q; want %q", env.ErrorKind, ErrorKindLocationAmbiguous)
 	}
+}
+
+// runWatchAddPersist drives `watch add` with dry-run=false so the row
+// is actually written to the local SQLite store. Uses withTempCacheDir
+// to redirect HOME into a per-test temp directory.
+func runWatchAddPersist(t *testing.T, args ...string) (stdout, stderr string, err error) {
+	t.Helper()
+	resetMetroDeprecationWarning()
+	setDynamicMetros(nil, 0)
+	t.Cleanup(func() { setDynamicMetros(nil, 0) })
+	flags := &rootFlags{}
+	cmd := newWatchAddCmd(flags)
+	var outBuf, errBuf bytes.Buffer
+	cmd.SetOut(&outBuf)
+	cmd.SetErr(&errBuf)
+	cmd.SetArgs(args)
+	cmd.SetContext(context.Background())
+	cmd.SilenceErrors = true
+	cmd.SilenceUsage = true
+	err = cmd.Execute()
+	return outBuf.String(), errBuf.String(), err
+}
+
+// TestWatchAdd_PersistsLocationContext pins U15: when `watch add` runs
+// with --location, the resolved GeoContext is marshaled to JSON and
+// stored in the new `location_context` column so pollOneWatch can
+// anchor on the persisted lat/lng instead of slug-suffix inference.
+func TestWatchAdd_PersistsLocationContext(t *testing.T) {
+	withTempCacheDir(t)
+	stdout, stderr, err := runWatchAddPersist(t, "tock:alinea", "--location", "portland, me")
+	if err != nil {
+		t.Fatalf("Execute: unexpected error: %v\nstdout: %s\nstderr: %s", err, stdout, stderr)
+	}
+	row := unmarshalWatchRow(t, stdout)
+	if row.LocationResolved == nil || !strings.HasPrefix(row.LocationResolved.ResolvedTo, "Portland, ME") {
+		t.Fatalf("LocationResolved missing or wrong; got %+v\nstdout: %s", row.LocationResolved, stdout)
+	}
+
+	// Open the DB directly and inspect the row.
+	dbPath := defaultDBPath("table-reservation-goat-pp-cli")
+	db, oerr := sql.Open("sqlite", dbPath)
+	if oerr != nil {
+		t.Fatalf("open db: %v", oerr)
+	}
+	defer db.Close()
+
+	var locationCtx sql.NullString
+	if qerr := db.QueryRow(`SELECT location_context FROM watches WHERE id = ?`, row.ID).Scan(&locationCtx); qerr != nil {
+		t.Fatalf("query location_context: %v", qerr)
+	}
+	if !locationCtx.Valid || locationCtx.String == "" {
+		t.Fatalf("location_context is NULL/empty; want non-empty JSON\nrow ID: %s", row.ID)
+	}
+	var gc GeoContext
+	if uerr := json.Unmarshal([]byte(locationCtx.String), &gc); uerr != nil {
+		t.Fatalf("unmarshal location_context: %v\nraw: %s", uerr, locationCtx.String)
+	}
+	if !strings.HasPrefix(gc.ResolvedTo, "Portland, ME") {
+		t.Errorf("persisted GeoContext.ResolvedTo = %q; want prefix %q", gc.ResolvedTo, "Portland, ME")
+	}
+	if gc.Centroid[0] == 0 || gc.Centroid[1] == 0 {
+		t.Errorf("persisted GeoContext.Centroid is zero; got %v", gc.Centroid)
+	}
+}
+
+// TestWatchAdd_NoLocationStoresNullContext pins back-compat: when
+// --location is omitted, location_context stays NULL — same JSON shape
+// pre-U15 callers expect (no location_resolved/warning fields).
+func TestWatchAdd_NoLocationStoresNullContext(t *testing.T) {
+	withTempCacheDir(t)
+	stdout, stderr, err := runWatchAddPersist(t, "tock:alinea")
+	if err != nil {
+		t.Fatalf("Execute: unexpected error: %v\nstdout: %s\nstderr: %s", err, stdout, stderr)
+	}
+	row := unmarshalWatchRow(t, stdout)
+	if row.LocationResolved != nil {
+		t.Errorf("LocationResolved should be nil without --location; got %+v", row.LocationResolved)
+	}
+
+	dbPath := defaultDBPath("table-reservation-goat-pp-cli")
+	db, oerr := sql.Open("sqlite", dbPath)
+	if oerr != nil {
+		t.Fatalf("open db: %v", oerr)
+	}
+	defer db.Close()
+
+	var locationCtx sql.NullString
+	if qerr := db.QueryRow(`SELECT location_context FROM watches WHERE id = ?`, row.ID).Scan(&locationCtx); qerr != nil {
+		t.Fatalf("query location_context: %v", qerr)
+	}
+	if locationCtx.Valid && locationCtx.String != "" {
+		t.Errorf("location_context = %q; want NULL/empty for no-location path", locationCtx.String)
+	}
+}
+
+// TestResolveWatchAnchor_PrefersPersistedLocation pins U15: when a
+// persisted GeoContext JSON is present, resolveWatchAnchor returns its
+// centroid even when the slug carries no city suffix. This is the
+// load-bearing contract — a watch on `joey` (no suffix) created with
+// `--location 'bellevue, wa'` must anchor on Bellevue WA, not NYC.
+func TestResolveWatchAnchor_PrefersPersistedLocation(t *testing.T) {
+	bellevue := GeoContext{
+		Origin:     "bellevue, wa",
+		ResolvedTo: "Bellevue, WA",
+		Centroid:   [2]float64{47.6101, -122.2015},
+		RadiusKm:   15,
+		Score:      0.9,
+		Source:     SourceExplicitFlag,
+	}
+	raw, err := json.Marshal(bellevue)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	lat, lng := resolveWatchAnchor("joey", string(raw))
+	if lat != 47.6101 || lng != -122.2015 {
+		t.Errorf("resolveWatchAnchor = (%v, %v); want Bellevue WA (47.6101, -122.2015)", lat, lng)
+	}
+	// Sanity: with empty JSON and the same suffix-less slug, NYC default
+	// fires — proves the persisted path is the cause of the Bellevue anchor.
+	latDefault, lngDefault := resolveWatchAnchor("joey", "")
+	if latDefault != 40.7128 || lngDefault != -74.0060 {
+		t.Errorf("resolveWatchAnchor with empty ctx = (%v, %v); want NYC default (40.7128, -74.0060)", latDefault, lngDefault)
+	}
+}
+
+// TestResolveWatchAnchor_FallsBackToSlugSuffixOnNullContext pins
+// backward compat for pre-migration rows: when location_context is
+// empty AND the slug carries a known city suffix, the slug-suffix
+// inference still fires (same path the pre-U15 pollOneWatch took).
+func TestResolveWatchAnchor_FallsBackToSlugSuffixOnNullContext(t *testing.T) {
+	// joey-bellevue → slug-suffix inference → Bellevue WA.
+	lat, lng := resolveWatchAnchor("joey-bellevue", "")
+	// We don't know the exact registry coords, but they must NOT be
+	// NYC's. The pollOneWatch fallback for unknown suffixes is NYC, so
+	// if this trip returns NYC, the slug-suffix path didn't fire.
+	if lat == 40.7128 && lng == -74.0060 {
+		t.Errorf("resolveWatchAnchor(joey-bellevue, '') = NYC; want slug-suffix inference (non-NYC coords)")
+	}
+	// Verify it's roughly Bellevue WA / Seattle metro (lat ~47, lng ~-122).
+	if lat < 46 || lat > 48 || lng > -120 || lng < -124 {
+		t.Errorf("resolveWatchAnchor(joey-bellevue, '') = (%v, %v); want Bellevue/Seattle metro (~47, ~-122)", lat, lng)
+	}
+}
+
+// TestResolveWatchAnchor_MalformedJSONFallsBack pins error handling:
+// a corrupted location_context blob falls back to slug-suffix and
+// eventually NYC rather than erroring or panicking. Defensive: a
+// pre-migration row or a future-format row should never break a tick.
+func TestResolveWatchAnchor_MalformedJSONFallsBack(t *testing.T) {
+	lat, lng := resolveWatchAnchor("joey", "{not valid json")
+	// joey alone (no suffix) → no slug-suffix match → NYC.
+	if lat != 40.7128 || lng != -74.0060 {
+		t.Errorf("resolveWatchAnchor(joey, malformed) = (%v, %v); want NYC fallback", lat, lng)
+	}
+}
+
+// TestWatchSchema_MigrationAddsColumn pins U15 idempotent migration:
+// when openWatchStore runs against a pre-existing watches table that
+// lacks location_context, ALTER TABLE adds the column. Calling
+// openWatchStore again is a no-op (idempotent).
+func TestWatchSchema_MigrationAddsColumn(t *testing.T) {
+	tmp := t.TempDir()
+	t.Setenv("HOME", tmp)
+	t.Setenv("XDG_CACHE_HOME", tmp)
+
+	dbPath := defaultDBPath("table-reservation-goat-pp-cli")
+	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
+		t.Fatalf("mkdir: %v", err)
+	}
+
+	// Create the v1 schema (pre-U15) by hand: no location_context column.
+	db, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open db: %v", err)
+	}
+	const v1Schema = `
+		CREATE TABLE watches (
+			id TEXT PRIMARY KEY,
+			venue TEXT NOT NULL,
+			network TEXT NOT NULL,
+			slug TEXT NOT NULL,
+			party_size INTEGER NOT NULL,
+			window_spec TEXT,
+			notify TEXT,
+			state TEXT NOT NULL DEFAULT 'active',
+			created_at DATETIME NOT NULL DEFAULT (datetime('now')),
+			last_polled_at DATETIME,
+			last_match_at DATETIME,
+			match_count INTEGER NOT NULL DEFAULT 0
+		);
+	`
+	if _, err := db.Exec(v1Schema); err != nil {
+		t.Fatalf("v1 schema create: %v", err)
+	}
+	if _, err := db.Exec(`INSERT INTO watches (id, venue, network, slug, party_size, state) VALUES ('wat_legacy', 'tock:alinea', 'tock', 'alinea', 2, 'active')`); err != nil {
+		t.Fatalf("seed legacy row: %v", err)
+	}
+	db.Close()
+
+	// Run openWatchStore to trigger the migration.
+	flags := &rootFlags{}
+	migDB, err := openWatchStore(flags)
+	if err != nil {
+		t.Fatalf("openWatchStore: %v", err)
+	}
+	if !columnExists(t, migDB, "watches", "location_context") {
+		t.Fatalf("location_context column missing after migration")
+	}
+	// Legacy row should survive and have NULL location_context.
+	var ctx sql.NullString
+	if err := migDB.QueryRow(`SELECT location_context FROM watches WHERE id = 'wat_legacy'`).Scan(&ctx); err != nil {
+		t.Fatalf("query legacy row: %v", err)
+	}
+	if ctx.Valid && ctx.String != "" {
+		t.Errorf("legacy row location_context = %q; want NULL", ctx.String)
+	}
+	migDB.Close()
+
+	// Second open should be idempotent — no error.
+	migDB2, err := openWatchStore(flags)
+	if err != nil {
+		t.Fatalf("openWatchStore (second call): %v", err)
+	}
+	migDB2.Close()
+}
+
+// columnExists is a test helper that probes sqlite's PRAGMA table_info
+// to check whether a column exists. Mirrors the production migration
+// probe but uses the test's open *sql.DB handle.
+func columnExists(t *testing.T, db *sql.DB, table, column string) bool {
+	t.Helper()
+	rows, err := db.Query(`PRAGMA table_info("` + table + `")`)
+	if err != nil {
+		t.Fatalf("PRAGMA table_info(%s): %v", table, err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var cid int
+		var name, typ string
+		var notnull, pk int
+		var dflt sql.NullString
+		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+			t.Fatalf("scan table_info: %v", err)
+		}
+		if name == column {
+			return true
+		}
+	}
+	return false
 }

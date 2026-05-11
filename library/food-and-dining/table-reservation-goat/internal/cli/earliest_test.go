@@ -166,8 +166,8 @@ func TestEarliest_NoSlugSuffixNoDecoration(t *testing.T) {
 }
 
 // TestEarliest_AmbiguousLocationEmitsEnvelope pins the envelope path:
-// a bare ambiguous --location without --accept-ambiguous emits the
-// DisambiguationEnvelope shape instead of an earliestResponse.
+// a bare ambiguous --location without --batch-accept-ambiguous emits
+// the DisambiguationEnvelope shape instead of an earliestResponse.
 func TestEarliest_AmbiguousLocationEmitsEnvelope(t *testing.T) {
 	stdout, stderr, err := runEarliest(t, "canlis", "--location", "bellevue")
 	if err != nil {

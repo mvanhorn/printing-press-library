@@ -54,12 +54,17 @@ func TestHaversineKm(t *testing.T) {
 // the `bellevue` suffix as the metro hint. Renamed in U5; the helper
 // is slated for replacement once U7/U8 routes slug-suffix venues
 // through ResolveLocation.
+//
+// U13: the dynamic-only Tock "bellevue" slug used by this test used
+// to be reachable via Lookup("bellevue"); after U13's merge it is
+// absorbed into curated `bellevue-wa` (name+coords match within 5
+// km). The test now exercises the slug-suffix peel against entries
+// that survive the merge: curated `bellevue-wa`, `new-york-city`, and
+// `san-francisco` (via alias `sf`). The `joey-bellevue-wa` form is
+// the agent-facing canonical shape the curated table answers to.
 func TestInferMetroFromSlug_DEPRECATED_ExactMatch(t *testing.T) {
-	// Seed registry with bellevue dynamically (not in static fallback).
 	defer setDynamicMetros(nil, 0)
-	setDynamicMetros([]Metro{
-		{Slug: "bellevue", Name: "Bellevue", Lat: 47.6101, Lng: -122.2015},
-	}, 100)
+	setDynamicMetros(nil, 0)
 
 	reg := getRegistry()
 	cases := []struct {
@@ -67,9 +72,10 @@ func TestInferMetroFromSlug_DEPRECATED_ExactMatch(t *testing.T) {
 		wantMetro  string
 		wantPrefix string
 	}{
-		{"joey-bellevue", "bellevue", "joey"},
-		{"13-coins-bellevue", "bellevue", "13-coins"},
-		{"daniels-broiler-bellevue", "bellevue", "daniels-broiler"},
+		// Curated `bellevue-wa` is a 2-token suffix.
+		{"joey-bellevue-wa", "bellevue-wa", "joey"},
+		{"13-coins-bellevue-wa", "bellevue-wa", "13-coins"},
+		{"daniels-broiler-bellevue-wa", "bellevue-wa", "daniels-broiler"},
 		// Multi-token suffixes: "new-york-city" must beat "city" or "york".
 		{"katz-new-york-city", "new-york-city", "katz"},
 		// Alias (sf) as suffix → resolves via alias chain.

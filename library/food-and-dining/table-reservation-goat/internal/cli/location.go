@@ -48,7 +48,7 @@ func newLocationResolveCmd(flags *rootFlags) *cobra.Command {
 			"needs_clarification envelope (exit 0 either way — both are valid\n" +
 			"responses, not errors).",
 		Example: "  table-reservation-goat-pp-cli location resolve 'bellevue, wa' --json\n" +
-			"  table-reservation-goat-pp-cli location resolve bellevue --accept-ambiguous",
+			"  table-reservation-goat-pp-cli location resolve bellevue --batch-accept-ambiguous",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -72,7 +72,9 @@ func newLocationResolveCmd(flags *rootFlags) *cobra.Command {
 			return printJSONFiltered(cmd.OutOrStdout(), gc, flags)
 		},
 	}
-	cmd.Flags().BoolVar(&flagAcceptAmbiguous, "accept-ambiguous", false,
-		"Force a pick on ambiguous input instead of returning an envelope. Default false — preserve the disambiguation contract.")
+	cmd.Flags().BoolVar(&flagAcceptAmbiguous, "batch-accept-ambiguous", false,
+		"BATCH-ONLY escape hatch: force a pick on ambiguous input instead of "+
+			"returning an envelope. Interactive agents must NOT set this — it defeats "+
+			"the disambiguation contract.")
 	return cmd
 }

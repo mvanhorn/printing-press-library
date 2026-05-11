@@ -11,7 +11,7 @@ package cli
 // ResolveLocation pipeline. The previous `_ = flagMetro` discard at the
 // bottom of the func was issue #406 repro 1: --metro was parsed and then
 // dropped on the floor before reaching the query. U6 replaces that with a
-// proper resolve-and-filter loop plus a new --location/--accept-ambiguous
+// proper resolve-and-filter loop plus a new --location/--batch-accept-ambiguous
 // pair that supersedes --metro going forward.
 
 import (
@@ -173,12 +173,13 @@ func newRestaurantsListCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagLocation, "location", "",
 		"Free-form location: 'bellevue, wa', 'seattle', '47.6,-122.3', or 'seattle metro'. "+
 			"Resolves to a typed GeoContext and hard-rejects out-of-region results.")
-	cmd.Flags().BoolVar(&flagAcceptAmbiguous, "accept-ambiguous", false,
-		"When --location is ambiguous (e.g., 'bellevue' matches multiple states), "+
-			"force-pick the top candidate instead of returning a disambiguation envelope.")
+	cmd.Flags().BoolVar(&flagAcceptAmbiguous, "batch-accept-ambiguous", false,
+		"BATCH-ONLY escape hatch: when --location is ambiguous, force-pick the top "+
+			"candidate instead of returning a disambiguation envelope. Interactive "+
+			"agents must NOT set this — it defeats the disambiguation contract.")
 	cmd.Flags().StringVar(&flagMetro, "metro", "",
 		"Metro slug (e.g., chicago, seattle). DEPRECATED — use --location <city>. "+
-			"Legacy callers get --accept-ambiguous implied to preserve back-compat shape.")
+			"Legacy callers get --batch-accept-ambiguous implied to preserve back-compat shape.")
 	cmd.Flags().StringVar(&flagNeighborhood, "neighborhood", "", "Neighborhood slug")
 	cmd.Flags().StringVar(&flagCuisine, "cuisine", "", "Cuisine filter")
 	cmd.Flags().IntVar(&flagPriceBand, "max-price", 0, "Maximum price band 1-4")

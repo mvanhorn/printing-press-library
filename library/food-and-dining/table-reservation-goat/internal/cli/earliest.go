@@ -61,7 +61,7 @@ type earliestRow struct {
 	LocationResolved *LocationResolvedField `json:"location_resolved,omitempty"`
 	// LocationWarning is attached alongside LocationResolved when the
 	// resolution had material ambiguity (MEDIUM tier), the caller forced
-	// past LOW with --accept-ambiguous, or a numeric-ID venue resolved
+	// past LOW with --batch-accept-ambiguous, or a numeric-ID venue resolved
 	// outside the requested radius (numeric-ID exemption — soft-demote
 	// with warning rather than hard-reject from post-filter).
 	LocationWarning *LocationWarningField `json:"location_warning,omitempty"`
@@ -329,12 +329,13 @@ func newEarliestCmd(flags *rootFlags) *cobra.Command {
 			"Anchors the OT Autocomplete fallback on the resolved centroid. When omitted, "+
 			"each venue's slug suffix is checked as a lowest-precedence fallback "+
 			"(SourceExtractedFromQuery → soft-demote on out-of-radius hits).")
-	cmd.Flags().BoolVar(&flagAcceptAmbiguous, "accept-ambiguous", false,
-		"When --location is ambiguous (e.g., 'bellevue' matches multiple states), "+
-			"force-pick the top candidate instead of returning a disambiguation envelope.")
+	cmd.Flags().BoolVar(&flagAcceptAmbiguous, "batch-accept-ambiguous", false,
+		"BATCH-ONLY escape hatch: when --location is ambiguous, force-pick the top "+
+			"candidate instead of returning a disambiguation envelope. Interactive "+
+			"agents must NOT set this — it defeats the disambiguation contract.")
 	cmd.Flags().StringVar(&flagMetro, "metro", "",
 		"Metro slug (e.g., chicago, seattle). DEPRECATED — use --location <city>. "+
-			"Legacy callers get --accept-ambiguous implied to preserve back-compat shape.")
+			"Legacy callers get --batch-accept-ambiguous implied to preserve back-compat shape.")
 	return cmd
 }
 
@@ -378,7 +379,8 @@ func inferGeoContextFromSlug(venue string) *GeoContext {
 			ResolvedTo: formatPlaceName(metro),
 			Centroid:   [2]float64{metro.Lat, metro.Lng},
 			RadiusKm:   radius,
-			Confidence: 0.5,
+			Score:      0.5,
+			Tier:       ResolutionTierHigh,
 			Source:     SourceExtractedFromQuery,
 		}
 	}
@@ -400,6 +402,18 @@ func inferGeoContextFromSlug(venue string) *GeoContext {
 		})
 		if err != nil || gc == nil {
 			continue
+		}
+		// The slug-suffix hint is a best-effort signal, not a question.
+		// ResolveLocation may have stamped Tier=Low (3-way Bellevue,
+		// 4-way Springfield, etc.) but the decoration intent here is
+		// warn-and-continue: present the pick with alternates as a
+		// LocationWarning rather than (nil, nil) from the LOW-no-bypass
+		// path. Rewrite the tier to MEDIUM when alternates exist, HIGH
+		// when there's a single candidate.
+		if len(gc.Alternates) > 0 {
+			gc.Tier = ResolutionTierMedium
+		} else {
+			gc.Tier = ResolutionTierHigh
 		}
 		return gc
 	}
@@ -480,7 +494,7 @@ func isNumericIDInput(venue string) bool {
 //     lands in-radius); a resolved row at this layer has already
 //     passed the in-radius check, so no extra warning is needed.
 //
-// The acceptedAmbiguous flag flows from the caller's --accept-ambiguous
+// The acceptedAmbiguous flag flows from the caller's --batch-accept-ambiguous
 // flag (and the --metro legacy implicit) into the tier inference so
 // the MEDIUM-vs-LOW-with-bypass decoration matches the resolution
 // shape.
