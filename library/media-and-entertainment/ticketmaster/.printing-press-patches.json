@@ -96,12 +96,12 @@
     },
     {
       "id": "greptile-pr444-ratelimit-toctou",
-      "summary": "Fix TOCTOU race in AdaptiveLimiter.Wait() \u2014 hold lock across read-decide-update sequence so concurrent callers cannot read the same stale lastRequest.",
-      "reason": "Greptile P2 finding on PR #444 (ratelimit.go:43-57). Two callers in separate critical sections could compute the same remaining delay and burst simultaneously.",
+      "summary": "Fix race in AdaptiveLimiter.Wait() by making lastRequest a monotone 'next available slot' pointer rather than a call-time snapshot. Each caller claims a distinct delay-spaced slot under the lock and targets that slot for its sleep.",
+      "reason": "Greptile P2 finding on PR #444 (ratelimit.go:43-57) + P1 follow-up (ratelimit.go:68). The first fix held the lock across the read-decide-update sequence but still set lastRequest=time.Now() *before* sleeping; two callers 1ms apart could compute the same wake-time and burst, defeating the rate limiter at exactly the same edge the original TOCTOU was meant to close. The monotone-slot shape is race-free because the slot is committed under the lock; later callers see the advanced lastRequest and compute a strictly later slot.",
       "files": [
         "internal/cliutil/ratelimit.go"
       ],
-      "validated_outcome": "go test ./internal/cliutil/... PASS; build/vet clean.",
+      "validated_outcome": "go test ./internal/cliutil/... PASS; build/vet clean. Manual trace: G1 at T=0 advances lastRequest to delay; G2 at T=1ms reads lastRequest=delay, computes next=2*delay, slots are now strictly disjoint.",
       "upstream_issue": "see upstream_tracking.press-ratelimit-toctou"
     },
     {
@@ -159,7 +159,7 @@
     },
     {
       "id": "press-ratelimit-toctou",
-      "summary": "AdaptiveLimiter.Wait() in internal/cliutil/ratelimit.go reads lastRequest under a lock, releases, sleeps, then re-acquires the lock to update — two critical sections instead of one. Two concurrent callers can observe the same stale lastRequest and burst simultaneously. Greptile flagged this on PR #444 (P2). Fixed locally by holding the lock across the read-compute-update sequence and sleeping after release with the precomputed remaining duration. This template ships in every printed CLI; the generator's cliutil ratelimit template should adopt the same shape.",
+      "summary": "AdaptiveLimiter.Wait() in internal/cliutil/ratelimit.go has two stacked issues that the generator's template ships unconditionally: (1) the original code reads lastRequest under a lock, releases, sleeps, then re-acquires the lock to update — two critical sections instead of one. (2) Even with the lock held across read+update, setting lastRequest=time.Now() *before* sleeping lets two callers 1ms apart both compute a wake-time at the same wall-clock instant and burst simultaneously. Greptile flagged the first as P2 on PR #444 (ratelimit.go:43-57) and the second as a P1 follow-up (ratelimit.go:68). The correct shape is monotone next-slot: under the lock, advance lastRequest by `delay` (or to now+delay during a quiet period), then sleep until that committed slot. The template needs to ship the monotone shape, not the snapshot shape.",
       "scope": "generator template fix (recurs in every printed CLI)"
     },
     {

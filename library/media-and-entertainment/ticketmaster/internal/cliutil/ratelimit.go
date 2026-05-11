@@ -49,21 +49,31 @@ func NewAdaptiveLimiter(ratePerSec float64) *AdaptiveLimiter {
 // PATCH(greptile P2 ratelimit.go:59-74 — unbounded ramp before first 429)
 const MaxRate = 10.0
 
-// PATCH(greptile P2 ratelimit.go:43-57 — TOCTOU race across two critical
-// sections): hold the lock across the entire read-decide-update sequence so
-// two concurrent callers cannot read the same stale lastRequest, compute the
-// same remaining delay, and burst simultaneously.
+// PATCH(greptile P2 ratelimit.go:43-57, then P1 ratelimit.go:68 follow-up):
+// the initial TOCTOU fix held the lock across read+update but still set
+// lastRequest = time.Now() *before* sleeping, so two callers 1ms apart could
+// both compute a wake-time at the same wall-clock instant and burst. The
+// correct shape is to treat lastRequest as the *next available slot* (a
+// monotone pointer that advances by `delay` on each call), so each caller
+// claims a distinct delay-spaced slot under the lock. The sleep then targets
+// that committed slot, and a later caller sees the advanced lastRequest and
+// computes a strictly later slot.
 func (l *AdaptiveLimiter) Wait() {
 	if l == nil {
 		return
 	}
 	l.mu.Lock()
 	delay := time.Duration(float64(time.Second) / l.rate)
-	elapsed := time.Since(l.lastRequest)
-	remaining := delay - elapsed
-	l.lastRequest = time.Now()
+	now := time.Now()
+	next := l.lastRequest.Add(delay)
+	if next.Before(now) {
+		// Quiet period — the next slot is already in the past, schedule
+		// from now so we don't drain accumulated headroom in one burst.
+		next = now.Add(delay)
+	}
+	l.lastRequest = next
 	l.mu.Unlock()
-	if remaining > 0 {
+	if remaining := time.Until(next); remaining > 0 {
 		time.Sleep(remaining)
 	}
 }
