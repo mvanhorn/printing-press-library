@@ -165,15 +165,9 @@ Exit codes:
 			}
 
 			if len(matches) == 0 {
-				// Under --json, return an empty matches envelope at exit 0
-				// so agents can branch on `matches.length == 0` instead of
-				// parsing a usage error message. Non-JSON keeps the typed
-				// exit-2 path so terminal users see the help hint.
-				if flags.asJSON {
-					return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-						"matches": []whichMatch{},
-					}, flags)
-				}
+				// Keep the typed exit-code contract even under --json. Agents
+				// should be able to branch on exit status without separately
+				// inspecting an empty matches array.
 				return usageErr(fmt.Errorf("no match for %q; try '%s --help' for the full command list", query, cmd.Root().Name()))
 			}
 			return renderWhich(cmd, flags, matches)

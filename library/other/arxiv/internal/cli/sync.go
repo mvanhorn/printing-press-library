@@ -6,6 +6,8 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/other/arxiv/internal/store"
+	"github.com/spf13/cobra"
 	"net/url"
 	"os"
 	"regexp"
@@ -14,8 +16,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-	"github.com/mvanhorn/printing-press-library/library/other/arxiv/internal/store"
-	"github.com/spf13/cobra"
 )
 
 // syncResult holds the outcome of syncing a single resource.
@@ -319,8 +319,10 @@ func syncResource(c interface {
 			params[pageSize.cursorParam] = cursor
 		}
 
-		// Set since filter
-		if effectiveSince != "" {
+		// Set since filter when the API exposes one. arXiv has no updated-since
+		// query parameter, so determineSinceParam returns empty and incremental
+		// freshness is handled by offset resume only.
+		if effectiveSince != "" && sinceParam != "" {
 			params[sinceParam] = effectiveSince
 		}
 
@@ -337,6 +339,10 @@ func syncResource(c interface {
 				fmt.Fprintf(os.Stdout, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
 			}
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("fetching %s: %w", resource, err), Duration: time.Since(started)}
+		}
+
+		if parsed, parseErr := parseArxivAtomJSON(data); parseErr == nil {
+			data = parsed
 		}
 
 		// Try to extract items from the response.
@@ -459,7 +465,7 @@ func syncResource(c interface {
 		lastNextCursor = nextCursor
 
 		// Determine if there are more pages
-		if !hasMore || len(items) < pageSize.limit || nextCursor == "" {
+		if !hasMore || nextCursor == "" {
 			break
 		}
 
@@ -502,7 +508,7 @@ type paginationDefaults struct {
 // Values are detected from the API spec by the profiler at generation time.
 func determinePaginationDefaults() paginationDefaults {
 	return paginationDefaults{
-		cursorParam: "after",
+		cursorParam: "start",
 		limitParam:  "max_results",
 		limit:       100,
 	}
@@ -510,7 +516,7 @@ func determinePaginationDefaults() paginationDefaults {
 
 // determineSinceParam returns the query parameter name for incremental sync filtering.
 func determineSinceParam() string {
-	return "since"
+	return ""
 }
 
 // extractPageItems attempts to extract an array of items and pagination cursor from a response.
@@ -600,6 +606,9 @@ func isJSONNull(raw json.RawMessage) bool {
 
 // extractPaginationFromEnvelope extracts cursor and has_more from a response envelope.
 func extractPaginationFromEnvelope(envelope map[string]json.RawMessage, cursorParam string) (string, bool) {
+	if cursorParam == "start" {
+		return arxivNextStart(envelope)
+	}
 	var hasMore bool
 
 	nextCursor := nextCursorFromLinks(envelope, cursorParam)
@@ -725,8 +734,7 @@ type discriminatorDispatch struct {
 	Values map[string]string
 }
 
-var discriminatorDispatchers = map[string]discriminatorDispatch{
-}
+var discriminatorDispatchers = map[string]discriminatorDispatch{}
 
 func upsertResourceBatch(db *store.Store, resource string, items []json.RawMessage) (int, int, error) {
 	if _, ok := discriminatorDispatchers[resource]; !ok {
@@ -852,8 +860,7 @@ func syncResourcePath(resource string) (string, error) {
 // Includes both flat resources and dependent (parent-child) resources so
 // annotations on a child path-item are honored at runtime, not just on
 // flat paths.
-var resourceIDFieldOverrides = map[string]string{
-}
+var resourceIDFieldOverrides = map[string]string{}
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
 // NOT receive a templated IDField. API-specific names belong in spec
@@ -870,8 +877,7 @@ var pageItemKeys = []string{"data", "results", "items", "records", "nodes", "ent
 // Includes both flat resources and dependent (parent-child) resources so a
 // failed child sync flagged x-critical: true exits non-zero just like a
 // flat-resource critical failure.
-var criticalResources = map[string]bool{
-}
+var criticalResources = map[string]bool{}
 
 // extractID resolves an item's primary-key field. It consults the
 // per-resource templated override first; on miss, it falls through to the

@@ -604,13 +604,19 @@ func (s *Store) Get(resourceType, id string) (json.RawMessage, error) {
 }
 
 func (s *Store) List(resourceType string, limit int) ([]json.RawMessage, error) {
+	var rows *sql.Rows
+	var err error
 	if limit <= 0 {
-		limit = 200
+		rows, err = s.db.Query(
+			`SELECT data FROM resources WHERE resource_type = ? ORDER BY updated_at DESC`,
+			resourceType,
+		)
+	} else {
+		rows, err = s.db.Query(
+			`SELECT data FROM resources WHERE resource_type = ? ORDER BY updated_at DESC LIMIT ?`,
+			resourceType, limit,
+		)
 	}
-	rows, err := s.db.Query(
-		`SELECT data FROM resources WHERE resource_type = ? ORDER BY updated_at DESC LIMIT ?`,
-		resourceType, limit,
-	)
 	if err != nil {
 		return nil, err
 	}
@@ -729,8 +735,7 @@ func lookupFieldValue(obj map[string]any, snakeKey string) any {
 // Includes both flat resources and dependent (parent-child) resources so a
 // child path-item annotated with x-resource-id resolves the same as a flat
 // path-item.
-var resourceIDFieldOverrides = map[string]string{
-}
+var resourceIDFieldOverrides = map[string]string{}
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
 // NOT receive a templated IDField. API-specific names belong in spec
@@ -864,13 +869,25 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 	return ""
 }
 
+var sqlIdentifierPattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
+
+func isSafeIdentifier(s string) bool {
+	return sqlIdentifierPattern.MatchString(s)
+}
+
 // ListIDs returns all IDs from a resource's domain table, or from the generic
 // resources table if no domain table exists. Used by dependent sync to iterate parents.
 func (s *Store) ListIDs(resourceType string) ([]string, error) {
-	// Try domain table first (tables are named after the resource type)
-	query := fmt.Sprintf("SELECT id FROM %s", resourceType)
-	rows, err := s.db.Query(query)
-	if err != nil {
+	var rows *sql.Rows
+	var err error
+	// Try domain table first (tables are named after the resource type). The
+	// table name cannot be parameterized, so only interpolate generated-safe SQL
+	// identifiers; everything else goes straight to the generic table fallback.
+	if isSafeIdentifier(resourceType) {
+		query := fmt.Sprintf("SELECT id FROM %s", resourceType)
+		rows, err = s.db.Query(query)
+	}
+	if rows == nil || err != nil {
 		// Fall back to generic resources table
 		rows, err = s.db.Query("SELECT id FROM resources WHERE resource_type = ?", resourceType)
 		if err != nil {

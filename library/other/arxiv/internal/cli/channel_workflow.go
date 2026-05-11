@@ -55,7 +55,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 			defer s.Close()
 
-			resources := []string{"query",  }
+			resources := []string{"query"}
 			totalSynced := 0
 
 			for _, resource := range resources {
@@ -69,20 +69,30 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 
 				fmt.Fprintf(cmd.ErrOrStderr(), "Syncing %s...\n", resource)
 
-				params := map[string]string{"limit": "100"}
+				params := map[string]string{"max_results": "100"}
 				if cursor != "" {
-					params["after"] = cursor
+					params["start"] = cursor
 				}
 
 				count := 0
 				for {
-					data, fetchErr := c.Get("/"+resource, params)
+					path := "/" + resource
+					if resource == "query" {
+						path = "/api/query"
+					}
+					data, fetchErr := c.Get(path, params)
 					if fetchErr != nil {
 						fmt.Fprintf(cmd.ErrOrStderr(), "  warning: %s: %v\n", resource, fetchErr)
 						break
 					}
-					var items []json.RawMessage
-					if err := json.Unmarshal(data, &items); err != nil {
+					if parsed, parseErr := parseArxivAtomJSON(data); parseErr == nil {
+						data = parsed
+					}
+					items, nextCursor, hasMore := extractPageItems(data, "start")
+					if len(items) == 0 {
+						if isEmptyPageResponse(data) {
+							break
+						}
 						// Might be a single object, not array
 						if err := s.Upsert(resource, resource+"-singleton", data); err != nil {
 							fmt.Fprintf(cmd.ErrOrStderr(), "  warning: store %s: %v\n", resource, err)
@@ -90,11 +100,10 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 						count++
 						break
 					}
-					if len(items) == 0 {
-						break
-					}
 					for _, item := range items {
-						var obj struct{ ID string `json:"id"` }
+						var obj struct {
+							ID string `json:"id"`
+						}
 						json.Unmarshal(item, &obj)
 						id := obj.ID
 						if id == "" {
@@ -103,13 +112,13 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 						if err := s.Upsert(resource, id, item); err != nil {
 							fmt.Fprintf(cmd.ErrOrStderr(), "  warning: store %s/%s: %v\n", resource, id, err)
 						}
-						cursor = id
 						count++
 					}
-					if len(items) < 100 {
+					if !hasMore || nextCursor == "" {
 						break
 					}
-					params["after"] = cursor
+					cursor = nextCursor
+					params["start"] = cursor
 				}
 
 				if count > 0 {

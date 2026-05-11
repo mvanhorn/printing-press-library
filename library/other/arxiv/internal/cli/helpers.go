@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"io"
 	"os"
 	"path/filepath"
@@ -15,8 +17,6 @@ import (
 	"text/tabwriter"
 	"time"
 	"unicode"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 )
 
 var As = errors.As
@@ -90,11 +90,11 @@ type cliError struct {
 func (e *cliError) Error() string { return e.err.Error() }
 func (e *cliError) Unwrap() error { return e.err }
 
-func usageErr(err error) error    { return &cliError{code: 2, err: err} }
-func notFoundErr(err error) error { return &cliError{code: 3, err: err} }
-func authErr(err error) error     { return &cliError{code: 4, err: err} }
-func apiErr(err error) error      { return &cliError{code: 5, err: err} }
-func configErr(err error) error   { return &cliError{code: 10, err: err} }
+func usageErr(err error) error     { return &cliError{code: 2, err: err} }
+func notFoundErr(err error) error  { return &cliError{code: 3, err: err} }
+func authErr(err error) error      { return &cliError{code: 4, err: err} }
+func apiErr(err error) error       { return &cliError{code: 5, err: err} }
+func configErr(err error) error    { return &cliError{code: 10, err: err} }
 func rateLimitErr(err error) error { return &cliError{code: 7, err: err} }
 
 // dryRunOK reports whether the command should short-circuit without doing any
@@ -231,6 +231,9 @@ func paginatedGet(c interface {
 		if err != nil {
 			return nil, err
 		}
+		if parsed, parseErr := parseArxivAtomJSON(data); parseErr == nil {
+			data = parsed
+		}
 
 		// Try to extract items array
 		var items []json.RawMessage
@@ -264,6 +267,13 @@ func paginatedGet(c interface {
 						}
 					}
 				}
+
+				if cursorParam == "start" {
+					if nextStart, ok := arxivNextStart(obj); ok {
+						clean[cursorParam] = nextStart
+						continue
+					}
+				}
 			}
 			// No more pages
 			break
@@ -283,7 +293,7 @@ func paginatedGet(c interface {
 }
 
 func extractPaginatedItems(obj map[string]json.RawMessage) ([]json.RawMessage, bool) {
-	for _, field := range []string{"data", "items", "results", "messages", "members", "values"} {
+	for _, field := range []string{"data", "items", "results", "entries", "messages", "members", "values"} {
 		if arr, ok := obj[field]; ok {
 			var nested []json.RawMessage
 			if json.Unmarshal(arr, &nested) == nil {
@@ -305,6 +315,32 @@ func extractPaginatedItems(obj map[string]json.RawMessage) ([]json.RawMessage, b
 		return onlyArray, true
 	}
 	return nil, false
+}
+
+func arxivNextStart(obj map[string]json.RawMessage) (string, bool) {
+	var total, start, perPage int
+	if raw, ok := obj["total_results"]; ok {
+		_ = json.Unmarshal(raw, &total)
+	}
+	if raw, ok := obj["start_index"]; ok {
+		_ = json.Unmarshal(raw, &start)
+	}
+	if raw, ok := obj["items_per_page"]; ok {
+		_ = json.Unmarshal(raw, &perPage)
+	}
+	if perPage <= 0 {
+		if raw, ok := obj["entries"]; ok {
+			var entries []json.RawMessage
+			if json.Unmarshal(raw, &entries) == nil {
+				perPage = len(entries)
+			}
+		}
+	}
+	next := start + perPage
+	if perPage > 0 && total > 0 && next < total {
+		return fmt.Sprintf("%d", next), true
+	}
+	return "", false
 }
 
 func rawAtPath(obj map[string]json.RawMessage, path string) (json.RawMessage, bool) {
@@ -1090,12 +1126,13 @@ func findField(obj map[string]any, names ...string) string {
 	}
 	return ""
 }
+
 // DataProvenance describes where data came from and when it was last synced.
 type DataProvenance struct {
 	Source       string     `json:"source"`                  // "live" or "local"
-	SyncedAt    *time.Time `json:"synced_at,omitempty"`     // when local data was last synced
-	Reason      string     `json:"reason,omitempty"`        // why local was used: "user_requested", "api_unreachable", "no_search_endpoint"
-	ResourceType string    `json:"resource_type,omitempty"` // which resource type was queried
+	SyncedAt     *time.Time `json:"synced_at,omitempty"`     // when local data was last synced
+	Reason       string     `json:"reason,omitempty"`        // why local was used: "user_requested", "api_unreachable", "no_search_endpoint"
+	ResourceType string     `json:"resource_type,omitempty"` // which resource type was queried
 	Freshness    any        `json:"freshness,omitempty"`     // optional machine-owned freshness metadata for covered command paths
 }
 

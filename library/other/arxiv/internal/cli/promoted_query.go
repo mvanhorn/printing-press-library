@@ -70,7 +70,7 @@ func newQueryPromotedCmd(flags *rootFlags) *cobra.Command {
 				"max_results":  fmt.Sprintf("%v", flagMaxResults),
 				"sortBy":       fmt.Sprintf("%v", flagSortBy),
 				"sortOrder":    fmt.Sprintf("%v", flagSortOrder),
-			}, nil, flagAll, "", "", "")
+			}, nil, flagAll, "start", "", "")
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

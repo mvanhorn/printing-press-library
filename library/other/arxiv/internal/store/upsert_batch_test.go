@@ -257,3 +257,56 @@ func TestUpsertBatch_ExtractFailuresReturnedForPerItemMisses(t *testing.T) {
 		t.Fatalf("extractFailures = %d, want 2 (two items have no extractable PK)", extractFailures)
 	}
 }
+
+func TestListZeroReturnsAllRows(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	items := make([]json.RawMessage, 0, 205)
+	for i := 0; i < 205; i++ {
+		items = append(items, json.RawMessage(fmt.Sprintf(`{"id":"item-%03d"}`, i)))
+	}
+	stored, _, err := s.UpsertBatch("query", items)
+	if err != nil {
+		t.Fatalf("upsert: %v", err)
+	}
+	if stored != 205 {
+		t.Fatalf("stored = %d, want 205", stored)
+	}
+
+	got, err := s.List("query", 0)
+	if err != nil {
+		t.Fatalf("list: %v", err)
+	}
+	if len(got) != 205 {
+		t.Fatalf("List(..., 0) returned %d rows, want 205", len(got))
+	}
+}
+
+func TestListIDsRejectsUnsafeDomainTableName(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	if err := s.Upsert("query; DROP TABLE resources; --", "safe-id", json.RawMessage(`{"id":"safe-id"}`)); err != nil {
+		t.Fatalf("upsert: %v", err)
+	}
+	ids, err := s.ListIDs("query; DROP TABLE resources; --")
+	if err != nil {
+		t.Fatalf("ListIDs unsafe name should fall back safely: %v", err)
+	}
+	if len(ids) != 1 || ids[0] != "safe-id" {
+		t.Fatalf("ids = %#v, want [safe-id]", ids)
+	}
+
+	if _, err := s.List("query; DROP TABLE resources; --", 0); err != nil {
+		t.Fatalf("resources table should still exist: %v", err)
+	}
+}

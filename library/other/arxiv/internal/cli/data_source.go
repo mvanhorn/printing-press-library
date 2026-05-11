@@ -176,7 +176,7 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 		// Try object — check for common envelope patterns (results, data, items)
 		var envelope map[string]json.RawMessage
 		if json.Unmarshal(data, &envelope) == nil {
-			for _, key := range []string{"results", "data", "items"} {
+			for _, key := range []string{"results", "data", "items", "entries"} {
 				if raw, ok := envelope[key]; ok {
 					var arr []json.RawMessage
 					if json.Unmarshal(raw, &arr) == nil && len(arr) > 0 {
