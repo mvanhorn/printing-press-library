@@ -125,7 +125,11 @@ email. Run 'sync' first to populate the local store.`,
 				if c.AssigneeName != "" {
 					fmt.Fprintf(cmd.OutOrStdout(), "    Assignee: %s <%s>\n", c.AssigneeName, c.AssigneeEmail)
 				}
-				fmt.Fprintf(cmd.OutOrStdout(), "    Meeting:  %s (%s)\n", c.MeetingTitle, c.MeetingDate[:10])
+				dateStr := c.MeetingDate
+				if len(dateStr) > 10 {
+					dateStr = dateStr[:10]
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "    Meeting:  %s (%s)\n", c.MeetingTitle, dateStr)
 				if c.PlaybackURL != "" {
 					fmt.Fprintf(cmd.OutOrStdout(), "    Watch:    %s\n", c.PlaybackURL)
 				}

@@ -67,8 +67,8 @@ Run 'sync --full' first to populate the local store.`,
 
 				for _, inv := range m.CalendarInvitees {
 					if team != "" {
-						// Filter by team name using recorded_by.team or invitee team (best effort)
-						if m.RecordedBy != nil && !strings.EqualFold(m.RecordedBy.Team, team) {
+						// Skip meeting if RecordedBy is nil or team doesn't match.
+						if m.RecordedBy == nil || !strings.EqualFold(m.RecordedBy.Team, team) {
 							continue
 						}
 					}

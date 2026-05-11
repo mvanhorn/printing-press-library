@@ -6,6 +6,7 @@
   "display_name": "Fathom",
   "cli_name": "fathom-pp-cli",
   "owner": "nikica-jokic",
+  "printer": "neektza",
   "printer_name": "Nikica Jokic",
   "spec_path": "/Users/neektza/printing-press/.runstate/cli-printing-press-c22e9309/runs/20260509-090403/research/fathom-spec.yaml",
   "spec_format": "internal",
