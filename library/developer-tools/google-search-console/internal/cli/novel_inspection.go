@@ -89,6 +89,9 @@ WHERE prior.page_url IS NOT NULL
 				}
 				out = append(out, d)
 			}
+			if err := rows.Err(); err != nil {
+				return apiErr(err)
+			}
 			_ = since // semantic placeholder; we always compare last two snapshots per page
 			return emit(cmd, flags, map[string]any{
 				"site":  cf.site,
