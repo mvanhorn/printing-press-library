@@ -1,0 +1,120 @@
+{
+  "api_name": "jimmy-johns",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [
+    "Live API blocked by PerimeterX in poisoned sessions; fresh hand-captured cookies required",
+    "Freaky-fast ETA predictor (per-store delivery time predictor) deferred — needs synced order history"
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-11T04:30:00Z",
+  "novel_features": [
+    {
+      "name": "Unwich Converter",
+      "command": "menu unwich-convert",
+      "description": "Convert a sandwich's modifier set to an Unwich (lettuce wrap) variant — pure-local computation, no live API call.",
+      "rationale": "Households with low-carb eaters order Unwich variants constantly; this command computes the modifier delta agents can splice into a cart-add request without re-querying the menu.",
+      "example": "jimmy-johns-pp-cli menu product-modifiers 33328641 --json | jimmy-johns-pp-cli menu unwich-convert --product-id 33328641 --json",
+      "why_it_matters": "Reach for this when an agent is building a JJ cart for a user with a no-bread preference — it gives you the exact modifier delta with no API round-trip.",
+      "group": "Local cart composition"
+    },
+    {
+      "name": "Office Lunch Planner",
+      "command": "order plan",
+      "description": "Suggest a sized cart for a group order — sandwiches + sides + cookies + drinks scaled to N people with dietary filters.",
+      "rationale": "Anyone ordering JJ for a team meeting hits the same math: how many sandwiches per person, what variety, how many drinks. Doing this in an agent prompt is tedious; this command outputs a quantity-tagged plan in one call.",
+      "example": "jimmy-johns-pp-cli order plan --people 8 --dietary vegetarian --json",
+      "why_it_matters": "Reach for this when an agent gets a 'lunch for the team' request — it returns a ready-to-submit cart structure with rationale per line.",
+      "group": "Local cart composition"
+    },
+    {
+      "name": "Half-and-Half Composer",
+      "command": "menu half-and-half",
+      "description": "Compose a two-product share order with the agent-facing note that JJ doesn't natively support half-and-half slicing.",
+      "rationale": "Two-person sandwich sharing is a real workflow; agents need to either order one whole + ask in-store to halve, OR order two products and split. This command emits the cart with that constraint disclosed up front so agents don't quietly mislead the user.",
+      "example": "jimmy-johns-pp-cli menu half-and-half --left 33328641 --right 33328700 --json",
+      "why_it_matters": "Reach for this when a user says 'half Vito, half Pepe' — the command outputs the actual cart and the in-store ask the user has to make.",
+      "group": "Local cart composition"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Unwich Converter",
+      "command": "menu unwich-convert",
+      "description": "Convert a sandwich's modifier set to an Unwich (lettuce wrap) variant — pure-local computation, no live API call.",
+      "rationale": "Households with low-carb eaters order Unwich variants constantly; this command computes the modifier delta agents can splice into a cart-add request without re-querying the menu.",
+      "example": "jimmy-johns-pp-cli menu product-modifiers 33328641 --json | jimmy-johns-pp-cli menu unwich-convert --product-id 33328641 --json",
+      "why_it_matters": "Reach for this when an agent is building a JJ cart for a user with a no-bread preference — it gives you the exact modifier delta with no API round-trip.",
+      "group": "Local cart composition"
+    },
+    {
+      "name": "Office Lunch Planner",
+      "command": "order plan",
+      "description": "Suggest a sized cart for a group order — sandwiches + sides + cookies + drinks scaled to N people with dietary filters.",
+      "rationale": "Anyone ordering JJ for a team meeting hits the same math: how many sandwiches per person, what variety, how many drinks. Doing this in an agent prompt is tedious; this command outputs a quantity-tagged plan in one call.",
+      "example": "jimmy-johns-pp-cli order plan --people 8 --dietary vegetarian --json",
+      "why_it_matters": "Reach for this when an agent gets a 'lunch for the team' request — it returns a ready-to-submit cart structure with rationale per line.",
+      "group": "Local cart composition"
+    },
+    {
+      "name": "Half-and-Half Composer",
+      "command": "menu half-and-half",
+      "description": "Compose a two-product share order with the agent-facing note that JJ doesn't natively support half-and-half slicing.",
+      "rationale": "Two-person sandwich sharing is a real workflow; agents need to either order one whole + ask in-store to halve, OR order two products and split. This command emits the cart with that constraint disclosed up front so agents don't quietly mislead the user.",
+      "example": "jimmy-johns-pp-cli menu half-and-half --left 33328641 --right 33328700 --json",
+      "why_it_matters": "Reach for this when a user says 'half Vito, half Pepe' — the command outputs the actual cart and the in-store ask the user has to make.",
+      "group": "Local cart composition"
+    }
+  ],
+  "narrative": {
+    "display_name": "Jimmy John's",
+    "headline": "First terminal CLI for Jimmy John's ordering — local Unwich conversion, agent-native JSON, every endpoint typed.",
+    "value_prop": "Browse stores and menus, build carts, view rewards, and one-shot reorders from the terminal. The Unwich converter computes lettuce-wrap modifier deltas locally so agents can build no-bread orders without an extra API round trip.",
+    "auth_narrative": "Jimmy John's runs PerimeterX bot protection. Authenticate by capturing cookies from a fresh, hand-driven Chrome session via 'browser-use cookies export', then 'jimmy-johns-pp-cli auth import-cookies --from-file \u003cpath\u003e'. Sessions that get fingerprinted by automation stay flagged for ~1 hour.",
+    "quickstart": [
+      {
+        "command": "jimmy-johns-pp-cli auth import-cookies --from-file ~/jj-cookies.json",
+        "comment": "Import cookies captured from a clean Chrome session"
+      },
+      {
+        "command": "jimmy-johns-pp-cli stores list --address 98112 --json",
+        "comment": "Find stores near a ZIP — returns hours, distance, delivery/pickup flags"
+      },
+      {
+        "command": "jimmy-johns-pp-cli order plan --people 6 --json",
+        "comment": "Generate a sized cart for 6 people — sandwiches + sides + drinks with dietary filters"
+      },
+      {
+        "command": "jimmy-johns-pp-cli menu unwich-convert --from-file mods.json --product-id 33328641 --json",
+        "comment": "Compute the modifier delta for converting a sandwich to a lettuce wrap"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 403 from every API call",
+        "fix": "PerimeterX flagged the session. Capture a fresh cookie set from an undriven Chrome window and re-import."
+      },
+      {
+        "symptom": "auth login --chrome can't read cookies",
+        "fix": "Chrome must be closed for pycookiecheat/cookies to read the encrypted DB. Use 'auth import-cookies --from-file' with a browser-use export instead."
+      }
+    ],
+    "when_to_use": "Use this CLI when scripting Jimmy John's order workflows from the terminal, when building a cart for an agent that needs typed access to JJ's menu and rewards data, or when caching menu state for offline composition. The Unwich converter is particularly useful for low-carb diet flows.",
+    "recipes": [
+      {
+        "title": "Show every menu item that has Unwich support",
+        "command": "jimmy-johns-pp-cli menu products --json | jq '.[] | select(.category==\"sandwich\")'",
+        "explanation": "Filter the local menu cache to sandwiches before piping into the unwich converter."
+      }
+    ],
+    "trigger_phrases": [
+      "jimmy john's",
+      "freaky fast",
+      "unwich",
+      "jj order",
+      "use jimmy-johns",
+      "run jimmy-johns"
+    ]
+  }
+}

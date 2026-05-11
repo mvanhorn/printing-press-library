@@ -195,7 +195,7 @@ func newMCPClient() (*client.Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
-	c := client.New(cfg, 30*time.Second, 2)
+	c := client.New(cfg, 30*time.Second, 0)
 	// Agents calling through MCP need fresh data every call. The on-disk
 	// response cache survives across MCP server invocations, so a
 	// DELETE/PATCH followed by a GET would otherwise return the
@@ -312,7 +312,7 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
 		"api":         "jimmy-johns",
-		"description": "First terminal CLI for Jimmy John's ordering — local Unwich conversion, agent-native JSON, every endpoint typed.",
+		"description": "Order Jimmy John's from the terminal — Freaky Fast Rewards stacking, half-order builder, and one-shot reorder.",
 		"archetype":   "crm",
 		"tool_count":  16,
 		// tool_surface tells agents which surface a capability lives on.
@@ -369,14 +369,14 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Unwich Converter", "command": "menu unwich-convert", "description": "Convert a sandwich's modifier set to an Unwich (lettuce wrap) variant — pure-local computation, no live API call.", "rationale": "Households with low-carb eaters order Unwich variants constantly; this command computes the modifier delta agents...", "via": "mcp-command-mirror"},
-			{"name": "Office Lunch Planner", "command": "order plan", "description": "Suggest a sized cart for a group order — sandwiches + sides + cookies + drinks scaled to N people with dietary...", "rationale": "Anyone ordering JJ for a team meeting hits the same math: how many sandwiches per person, what variety, how many...", "via": "mcp-command-mirror"},
-			{"name": "Half-and-Half Composer", "command": "menu half-and-half", "description": "Compose a two-product share order with the agent-facing note that JJ doesn't natively support half-and-half slicing.", "rationale": "Two-person sandwich sharing is a real workflow; agents need to either order one whole + ask in-store to halve, OR...", "via": "mcp-command-mirror"},
+			{"name": "Unwich Converter", "command": "menu unwich-convert", "description": "Convert a sandwich's modifier set to an Unwich (lettuce wrap) variant — pure-local computation, no live API call.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Office Lunch Planner", "command": "order plan", "description": "Suggest a sized cart for a group order — sandwiches + sides + cookies + drinks scaled to N people with dietary...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Half-and-Half Composer", "command": "menu half-and-half", "description": "Compose a two-product share order with the agent-facing note that JJ doesn't natively support half-and-half slicing.", "rationale": "", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Unwich Converter", "insight": "Households with low-carb eaters order Unwich variants constantly; this command computes the modifier delta agents can splice into a cart-add request without re-querying the menu."},
-			{"topic": "Office Lunch Planner", "insight": "Anyone ordering JJ for a team meeting hits the same math: how many sandwiches per person, what variety, how many drinks. Doing this in an agent prompt is tedious; this command outputs a quantity-tagged plan in one call."},
-			{"topic": "Half-and-Half Composer", "insight": "Two-person sandwich sharing is a real workflow; agents need to either order one whole + ask in-store to halve, OR order two products and split. This command emits the cart with that constraint disclosed up front so agents don't quietly mislead the user."},
+			{"topic": "Unwich Converter", "insight": ""},
+			{"topic": "Office Lunch Planner", "insight": ""},
+			{"topic": "Half-and-Half Composer", "insight": ""},
 			{"topic": "Contact lookup", "insight": "Use search for finding contacts by name/email. List endpoints return unsorted results and require pagination for large datasets."},
 			{"topic": "Activity tracking", "insight": "When checking deal activity, sync first and query locally. CRM APIs often throttle activity-log endpoints heavily."},
 		},
