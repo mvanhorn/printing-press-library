@@ -1440,7 +1440,7 @@
       "name": "table-reservation-goat",
       "category": "food-and-dining",
       "api": "Table Reservation GOAT",
-      "description": "One reservation CLI for OpenTable and Tock — search both networks at once, watch for cancellations, book, and...",
+      "description": "One reservation CLI for OpenTable, Tock, and Resy — search all three networks at once, watch for cancellations, book, and track changes from a local store agents can query.",
       "path": "library/food-and-dining/table-reservation-goat",
       "printer": "pejmanjohn",
       "printer_name": "Pejman Pour-Moezzi",
