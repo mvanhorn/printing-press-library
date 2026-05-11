@@ -31,7 +31,11 @@ func Open(path string) (*Store, error) {
 			return nil, err
 		}
 	}
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+	// Match the auth cache and response cache permissions: user-only.
+	// The store holds telemetry history, chemistry readings, equipment
+	// topology, the command audit log, and alarm history — at least as
+	// sensitive as the response cache, so use 0o700 / 0o600 for parity.
+	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
 		return nil, fmt.Errorf("creating store dir: %w", err)
 	}
 	db, err := sql.Open("sqlite", path+"?_pragma=journal_mode(WAL)&_pragma=foreign_keys(1)&_pragma=busy_timeout(5000)")
@@ -42,6 +46,18 @@ func Open(path string) (*Store, error) {
 	if err := s.migrate(); err != nil {
 		_ = db.Close()
 		return nil, fmt.Errorf("migrating store: %w", err)
+	}
+	// modernc.org/sqlite creates the main DB file with umask-defaulted
+	// permissions (typically 0o644 on macOS/Linux). Clamp to 0o600 to
+	// match the cache and auth files. WAL/SHM sidecars only exist after
+	// the first write transaction, so we constrain them too when present
+	// — chmod returns NotExist silently and that's fine.
+	_ = os.Chmod(path, 0o600)
+	for _, sidecar := range []string{path + "-wal", path + "-shm"} {
+		if err := os.Chmod(sidecar, 0o600); err != nil && !os.IsNotExist(err) {
+			// Non-fatal: report but don't fail Open.
+			_ = err
+		}
 	}
 	return s, nil
 }

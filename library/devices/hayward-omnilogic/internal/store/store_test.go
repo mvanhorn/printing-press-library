@@ -1,7 +1,9 @@
 package store
 
 import (
+	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 	"time"
 
@@ -126,5 +128,45 @@ func TestCommandLog(t *testing.T) {
 	}
 	if id == 0 {
 		t.Errorf("expected non-zero id")
+	}
+}
+
+// TestOpenPermissions locks the user-only file/dir permissions on the
+// SQLite store. Regression for the P1 security review: previously the
+// store dir was 0o755 and the SQLite file 0o644 (umask-defaulted), which
+// let any local user `sqlite3 ~/.local/share/.../store.sqlite` and dump
+// telemetry, alarms, the audit log, etc. Both must be user-only.
+//
+// Skips on Windows because POSIX-mode bits don't apply there.
+func TestOpenPermissions(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("POSIX permissions not enforced on Windows")
+	}
+	// Use a nested path whose parent doesn't exist yet so we actually
+	// exercise the MkdirAll(0o700) path (TempDir creates with 0o700-ish
+	// on most macs but we can't rely on that across platforms).
+	tmp := t.TempDir()
+	storeDir := filepath.Join(tmp, "haystore")
+	path := filepath.Join(storeDir, "perms.sqlite")
+	s, err := Open(path)
+	if err != nil {
+		t.Fatalf("Open: %v", err)
+	}
+	defer s.Close()
+
+	dirInfo, err := os.Stat(filepath.Dir(path))
+	if err != nil {
+		t.Fatalf("stat dir: %v", err)
+	}
+	if mode := dirInfo.Mode().Perm(); mode != 0o700 {
+		t.Errorf("store dir perms: want 0700, got %#o", mode)
+	}
+
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		t.Fatalf("stat file: %v", err)
+	}
+	if mode := fileInfo.Mode().Perm(); mode != 0o600 {
+		t.Errorf("store file perms: want 0600, got %#o", mode)
 	}
 }
