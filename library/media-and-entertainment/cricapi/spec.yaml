@@ -1,0 +1,391 @@
+name: cricapi
+display_name: Cricket Data
+description: "Live cricket scores, fixtures, players, series, and fantasy data — with first-class MCP and an offline SQLite store."
+cli_description: "Live cricket scores, fixtures, and fantasy data from CricAPI / Cricket Data, with offline SQLite and the first cricket MCP server."
+version: "0.1.0"
+base_url: "https://api.cricapi.com/v1"
+
+auth:
+  type: api_key
+  in: query
+  header: apikey
+  env_vars:
+    - CRICAPI_API_KEY
+
+config:
+  format: toml
+  path: "~/.config/cricapi-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+
+resources:
+  matches:
+    description: "Cricket matches — live, upcoming, and historical"
+    endpoints:
+      current:
+        method: GET
+        path: "/currentMatches"
+        description: "Live and about-to-start matches across all cricket"
+        params:
+          - name: offset
+            type: int
+            default: 0
+            description: "Pagination offset"
+        response:
+          type: object
+          item: MatchEnvelope
+
+      list:
+        method: GET
+        path: "/matches"
+        description: "Match list with optional team/series name search"
+        params:
+          - name: offset
+            type: int
+            default: 0
+            description: "Pagination offset"
+          - name: search
+            type: string
+            description: "Search match name (team, series, format)"
+        response:
+          type: object
+          item: MatchEnvelope
+
+      info:
+        method: GET
+        path: "/match_info"
+        description: "Detailed information for a single match"
+        params:
+          - name: id
+            type: string
+            required: true
+            description: "Match ID (from currentMatches or matches)"
+          - name: offset
+            type: int
+            default: 0
+            description: "Pagination offset"
+        response:
+          type: object
+          item: MatchInfoEnvelope
+
+      scorecard:
+        method: GET
+        path: "/match_scorecard"
+        description: "Full scorecard with batting/bowling per innings"
+        params:
+          - name: id
+            type: string
+            required: true
+            description: "Match ID"
+          - name: offset
+            type: int
+            default: 0
+            description: "Pagination offset"
+        response:
+          type: object
+          item: ScorecardEnvelope
+
+      squad:
+        method: GET
+        path: "/match_squad"
+        description: "Both team squads for a match"
+        params:
+          - name: id
+            type: string
+            required: true
+            description: "Match ID"
+        response:
+          type: object
+          item: SquadEnvelope
+
+      points:
+        method: GET
+        path: "/match_points"
+        description: "Fantasy points for a match"
+        params:
+          - name: id
+            type: string
+            required: true
+            description: "Match ID"
+        response:
+          type: object
+          item: PointsEnvelope
+
+      score:
+        method: GET
+        path: "/cricScore"
+        description: "Quick live-score snapshot across all live matches"
+        params: []
+        response:
+          type: object
+          item: ScoreEnvelope
+
+  series:
+    description: "Cricket series and tournaments"
+    endpoints:
+      list:
+        method: GET
+        path: "/series"
+        description: "Recent and current series"
+        params:
+          - name: offset
+            type: int
+            default: 0
+            description: "Pagination offset"
+          - name: search
+            type: string
+            description: "Search series name"
+        response:
+          type: object
+          item: SeriesEnvelope
+
+      info:
+        method: GET
+        path: "/series_info"
+        description: "Series details including matches, squads, and points table"
+        params:
+          - name: id
+            type: string
+            required: true
+            description: "Series ID (from series list)"
+          - name: offset
+            type: int
+            default: 0
+            description: "Pagination offset"
+        response:
+          type: object
+          item: SeriesInfoEnvelope
+
+  players:
+    description: "Player roster and career data"
+    endpoints:
+      search:
+        method: GET
+        path: "/players"
+        description: "Player search by name"
+        params:
+          - name: offset
+            type: int
+            default: 0
+            description: "Pagination offset"
+          - name: search
+            type: string
+            description: "Player name (e.g. 'kohli')"
+        response:
+          type: object
+          item: PlayerEnvelope
+
+      info:
+        method: GET
+        path: "/players_info"
+        description: "Career stats for a single player"
+        params:
+          - name: id
+            type: string
+            required: true
+            description: "Player ID (from players search)"
+          - name: offset
+            type: int
+            default: 0
+            description: "Pagination offset"
+        response:
+          type: object
+          item: PlayerInfoEnvelope
+
+  countries:
+    description: "Country / team roster"
+    endpoints:
+      list:
+        method: GET
+        path: "/countries"
+        description: "All supported countries / international teams"
+        params:
+          - name: offset
+            type: int
+            default: 0
+            description: "Pagination offset"
+        response:
+          type: object
+          item: CountryEnvelope
+
+schemas:
+  MatchEnvelope:
+    type: object
+    properties:
+      apikey:
+        type: string
+      data:
+        type: array
+        items:
+          $ref: Match
+      status:
+        type: string
+      info:
+        type: object
+
+  Match:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      matchType:
+        type: string
+      status:
+        type: string
+      venue:
+        type: string
+      date:
+        type: string
+      dateTimeGMT:
+        type: string
+      teams:
+        type: array
+        items:
+          type: string
+      teamInfo:
+        type: array
+      score:
+        type: array
+      series_id:
+        type: string
+      fantasyEnabled:
+        type: boolean
+      bbbEnabled:
+        type: boolean
+      hasSquad:
+        type: boolean
+      matchStarted:
+        type: boolean
+      matchEnded:
+        type: boolean
+
+  MatchInfoEnvelope:
+    type: object
+    properties:
+      status:
+        type: string
+      data:
+        $ref: Match
+
+  ScorecardEnvelope:
+    type: object
+    properties:
+      status:
+        type: string
+      data:
+        type: object
+
+  SquadEnvelope:
+    type: object
+    properties:
+      status:
+        type: string
+      data:
+        type: array
+
+  PointsEnvelope:
+    type: object
+    properties:
+      status:
+        type: string
+      data:
+        type: array
+
+  ScoreEnvelope:
+    type: object
+    properties:
+      status:
+        type: string
+      data:
+        type: array
+
+  SeriesEnvelope:
+    type: object
+    properties:
+      status:
+        type: string
+      data:
+        type: array
+        items:
+          $ref: Series
+
+  Series:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      startDate:
+        type: string
+      endDate:
+        type: string
+      odi:
+        type: integer
+      t20:
+        type: integer
+      test:
+        type: integer
+      squads:
+        type: integer
+      matches:
+        type: integer
+
+  SeriesInfoEnvelope:
+    type: object
+    properties:
+      status:
+        type: string
+      data:
+        type: object
+
+  PlayerEnvelope:
+    type: object
+    properties:
+      status:
+        type: string
+      data:
+        type: array
+        items:
+          $ref: Player
+
+  Player:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      country:
+        type: string
+
+  PlayerInfoEnvelope:
+    type: object
+    properties:
+      status:
+        type: string
+      data:
+        type: object
+
+  CountryEnvelope:
+    type: object
+    properties:
+      status:
+        type: string
+      data:
+        type: array
+        items:
+          $ref: Country
+
+  Country:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      genericId:
+        type: string

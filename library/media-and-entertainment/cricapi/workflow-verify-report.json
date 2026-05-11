@@ -1,0 +1,8 @@
+{
+  "dir": "/printing-press/.runstate/rai-faf7ee55/runs/20260510-234521/working/cricapi-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

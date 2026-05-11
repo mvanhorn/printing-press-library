@@ -1,0 +1,236 @@
+{
+  "api_name": "cricapi",
+  "base_url": "https://api.cricapi.com/v1",
+  "description": "Live cricket scores, fixtures, players, series, and fantasy data — with first-class MCP and an offline SQLite store.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "apikey",
+    "in": "query",
+    "env_vars": [
+      "CRICAPI_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "CRICAPI_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "countries_list",
+      "description": "All supported countries / international teams. Optional: offset (default: 0). Returns the CountryEnvelope.",
+      "method": "GET",
+      "path": "/countries",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        }
+      ]
+    },
+    {
+      "name": "matches_current",
+      "description": "Live and about-to-start matches across all cricket. Optional: offset (default: 0). Returns the MatchEnvelope.",
+      "method": "GET",
+      "path": "/currentMatches",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        }
+      ]
+    },
+    {
+      "name": "matches_info",
+      "description": "Detailed information for a single match. Required: id. Optional: offset (default: 0). Returns the MatchInfoEnvelope.",
+      "method": "GET",
+      "path": "/match_info",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Match ID (from currentMatches or matches)",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        }
+      ]
+    },
+    {
+      "name": "matches_list",
+      "description": "Match list with optional team/series name search. Optional: offset (default: 0), search. Returns the MatchEnvelope.",
+      "method": "GET",
+      "path": "/matches",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search match name (team, series, format)"
+        }
+      ]
+    },
+    {
+      "name": "matches_points",
+      "description": "Fantasy points for a match. Required: id. Returns the PointsEnvelope.",
+      "method": "GET",
+      "path": "/match_points",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Match ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "matches_score",
+      "description": "Quick live-score snapshot across all live matches. Returns the ScoreEnvelope.",
+      "method": "GET",
+      "path": "/cricScore",
+      "params": []
+    },
+    {
+      "name": "matches_scorecard",
+      "description": "Full scorecard with batting/bowling per innings. Required: id. Optional: offset (default: 0). Returns the ScorecardEnvelope.",
+      "method": "GET",
+      "path": "/match_scorecard",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Match ID",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        }
+      ]
+    },
+    {
+      "name": "matches_squad",
+      "description": "Both team squads for a match. Required: id. Returns the SquadEnvelope.",
+      "method": "GET",
+      "path": "/match_squad",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Match ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "players_info",
+      "description": "Career stats for a single player. Required: id. Optional: offset (default: 0). Returns the PlayerInfoEnvelope.",
+      "method": "GET",
+      "path": "/players_info",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Player ID (from players search)",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        }
+      ]
+    },
+    {
+      "name": "players_search",
+      "description": "Player search by name. Optional: offset (default: 0), search. Returns the PlayerEnvelope.",
+      "method": "GET",
+      "path": "/players",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Player name (e.g. 'kohli')"
+        }
+      ]
+    },
+    {
+      "name": "series_info",
+      "description": "Series details including matches, squads, and points table. Required: id. Optional: offset (default: 0). Returns the SeriesInfoEnvelope.",
+      "method": "GET",
+      "path": "/series_info",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Series ID (from series list)",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        }
+      ]
+    },
+    {
+      "name": "series_list",
+      "description": "Recent and current series. Optional: offset (default: 0), search. Returns the SeriesEnvelope.",
+      "method": "GET",
+      "path": "/series",
+      "params": [
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search series name"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-11T03:54:55.690346Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "cricapi",
+  "display_name": "Cricket Data",
+  "cli_name": "cricapi-pp-cli",
+  "owner": "rai",
+  "printer_name": "Rai",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:d2bab3fe911ee3e2b9b97280b4d1ab8b0d610d5b5e169f1769cc3d422258ecc9",
+  "run_id": "20260510-234521",
+  "description": "Live cricket scores, fixtures, and fantasy data from CricAPI / Cricket Data, with offline SQLite and the first cricket MCP server.",
+  "mcp_binary": "cricapi-pp-mcp",
+  "mcp_tool_count": 12,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "CRICAPI_API_KEY"
+  ],
+  "printer": "rnnh-code",
+  "novel_features": [
+    {
+      "name": "Team-aware fixture filter",
+      "command": "team",
+      "description": "Resolve a team name to all matches involving that team \u2014 answers 'when does Pakistan play next?'",
+      "rationale": "CricAPI's /matches endpoint takes a freeform search; no existing CLI applies that filter cleanly across upcoming + recent in one shot.",
+      "example": "cricapi-pp-cli team pakistan --scope upcoming --limit 5",
+      "why_it_matters": "Translates the natural-language cricket query an agent or user most often asks into a single command, instead of forcing them to browse a fixture list manually.",
+      "group": "Natural-language convenience"
+    },
+    {
+      "name": "Today's matches with format filter",
+      "command": "today",
+      "description": "Live and about-to-start matches now, with optional --format filter (t20i, odi, test, t20, t10, hundred)",
+      "rationale": "currentMatches returns everything mixed; the format filter is where CLI ergonomics actually win over the website.",
+      "example": "cricapi-pp-cli today --format t20i,odi",
+      "why_it_matters": "Single command gives the agent the right shape of 'what's on right now' without paginating the whole match list.",
+      "group": "In-match companion"
+    },
+    {
+      "name": "Live match watch loop",
+      "command": "watch",
+      "description": "Poll a match score on a loop with configurable interval; prints state changes",
+      "rationale": "No CricAPI endpoint pushes updates; a server-side watch is the only way to follow a match without manual refresh.",
+      "example": "cricapi-pp-cli watch abc-123 --interval 60 --max 30",
+      "why_it_matters": "Keeps an agent in the loop on a live match without burning calls when nothing changes \u2014 only prints on score-state changes.",
+      "group": "In-match companion"
+    },
+    {
+      "name": "Local series watchlist",
+      "command": "watchlist",
+      "description": "Track favourite series under friendly aliases; refresh all in one shot",
+      "rationale": "CricAPI has no concept of a user's followed series; the local store fills that gap entirely.",
+      "example": "cricapi-pp-cli watchlist add ipl abc-series-id\ncricapi-pp-cli watchlist refresh",
+      "why_it_matters": "Lets the user pin a tournament once and refresh on demand \u2014 no other cricket CLI maintains local state at all.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Team-aware fixture filter",
+      "command": "team",
+      "description": "Resolve a team name to all matches involving that team \u2014 answers 'when does Pakistan play next?'",
+      "rationale": "CricAPI's /matches endpoint takes a freeform search; no existing CLI applies that filter cleanly across upcoming + recent in one shot.",
+      "example": "cricapi-pp-cli team pakistan --scope upcoming --limit 5",
+      "why_it_matters": "Translates the natural-language cricket query an agent or user most often asks into a single command, instead of forcing them to browse a fixture list manually.",
+      "group": "Natural-language convenience"
+    },
+    {
+      "name": "Today's matches with format filter",
+      "command": "today",
+      "description": "Live and about-to-start matches now, with optional --format filter (t20i, odi, test, t20, t10, hundred)",
+      "rationale": "currentMatches returns everything mixed; the format filter is where CLI ergonomics actually win over the website.",
+      "example": "cricapi-pp-cli today --format t20i,odi",
+      "why_it_matters": "Single command gives the agent the right shape of 'what's on right now' without paginating the whole match list.",
+      "group": "In-match companion"
+    },
+    {
+      "name": "Live match watch loop",
+      "command": "watch",
+      "description": "Poll a match score on a loop with configurable interval; prints state changes",
+      "rationale": "No CricAPI endpoint pushes updates; a server-side watch is the only way to follow a match without manual refresh.",
+      "example": "cricapi-pp-cli watch abc-123 --interval 60 --max 30",
+      "why_it_matters": "Keeps an agent in the loop on a live match without burning calls when nothing changes \u2014 only prints on score-state changes.",
+      "group": "In-match companion"
+    },
+    {
+      "name": "Local series watchlist",
+      "command": "watchlist",
+      "description": "Track favourite series under friendly aliases; refresh all in one shot",
+      "rationale": "CricAPI has no concept of a user's followed series; the local store fills that gap entirely.",
+      "example": "cricapi-pp-cli watchlist add ipl abc-series-id\ncricapi-pp-cli watchlist refresh",
+      "why_it_matters": "Lets the user pin a tournament once and refresh on demand \u2014 no other cricket CLI maintains local state at all.",
+      "group": "Local state that compounds"
+    }
+  ]
+}

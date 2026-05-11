@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "cricapi-pp-mcp",
+  "display_name": "Cricket Data",
+  "version": "4.2.2",
+  "description": "Live cricket scores, fixtures, and fantasy data from CricAPI / Cricket Data, with offline SQLite and the first cricket MCP server.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/cricapi-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/cricapi-pp-mcp",
+      "args": [],
+      "env": {
+        "CRICAPI_API_KEY": "${user_config.cricapi_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "cricapi_api_key": {
+      "type": "string",
+      "title": "CRICAPI_API_KEY",
+      "description": "Sets CRICAPI_API_KEY for the Cricket Data MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "api_name": "cricapi",
+  "novelty_score": 7,
+  "alternatives": [
+    {"name": "cbirajdar/cricket-cli", "url": "https://github.com/cbirajdar/cricket-cli", "language": "Python", "stars": 19, "command_count": 3},
+    {"name": "Nshul/cricket-cli", "url": "https://github.com/Nshul/cricket-cli", "language": "JavaScript", "stars": 6, "command_count": 2},
+    {"name": "mikeesto/cricket-cli", "url": "https://github.com/mikeesto/cricket-cli", "language": "JavaScript", "stars": 0, "command_count": 1},
+    {"name": "CricketData/Python-Code-Samples", "url": "https://github.com/CricketData/Python-Code-Samples", "language": "Python", "stars": 0, "command_count": 0}
+  ],
+  "novel_features": [
+    {
+      "name": "Team-aware fixture filter",
+      "command": "team",
+      "description": "Resolve a team name to all matches involving that team — answers 'when does Pakistan play next?'",
+      "rationale": "CricAPI's /matches endpoint takes a freeform search; no existing CLI applies that filter cleanly across upcoming + recent in one shot.",
+      "example": "cricapi-pp-cli team pakistan --scope upcoming --limit 5",
+      "why_it_matters": "Translates the natural-language cricket query an agent or user most often asks into a single command, instead of forcing them to browse a fixture list manually.",
+      "group": "Natural-language convenience"
+    },
+    {
+      "name": "Today's matches with format filter",
+      "command": "today",
+      "description": "Live and about-to-start matches now, with optional --format filter (t20i, odi, test, t20, t10, hundred)",
+      "rationale": "currentMatches returns everything mixed; the format filter is where CLI ergonomics actually win over the website.",
+      "example": "cricapi-pp-cli today --format t20i,odi",
+      "why_it_matters": "Single command gives the agent the right shape of 'what's on right now' without paginating the whole match list.",
+      "group": "In-match companion"
+    },
+    {
+      "name": "Live match watch loop",
+      "command": "watch",
+      "description": "Poll a match score on a loop with configurable interval; prints state changes",
+      "rationale": "No CricAPI endpoint pushes updates; a server-side watch is the only way to follow a match without manual refresh.",
+      "example": "cricapi-pp-cli watch abc-123 --interval 60 --max 30",
+      "why_it_matters": "Keeps an agent in the loop on a live match without burning calls when nothing changes — only prints on score-state changes.",
+      "group": "In-match companion"
+    },
+    {
+      "name": "Local series watchlist",
+      "command": "watchlist",
+      "description": "Track favourite series under friendly aliases; refresh all in one shot",
+      "rationale": "CricAPI has no concept of a user's followed series; the local store fills that gap entirely.",
+      "example": "cricapi-pp-cli watchlist add ipl abc-series-id\ncricapi-pp-cli watchlist refresh",
+      "why_it_matters": "Lets the user pin a tournament once and refresh on demand — no other cricket CLI maintains local state at all.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Cricket Data",
+    "headline": "Live cricket scores, fixtures, fantasy data, plus the first cricket MCP server and an offline SQLite store for everything you sync.",
+    "value_prop": "Wraps the CricAPI / Cricket Data REST API with team-aware queries (`team pakistan`), a local watchlist for series you follow, and a live-match watch loop. Every command is also exposed as an MCP tool — the first cricket MCP server, period.",
+    "quickstart": [
+      {"command": "cricapi-pp-cli auth set-token", "comment": "drop in your free CricAPI key (sign up at cricketdata.org)"},
+      {"command": "cricapi-pp-cli doctor", "comment": "verify auth + API connectivity"},
+      {"command": "cricapi-pp-cli today --format t20i,odi", "comment": "what's on right now, filtered by format"},
+      {"command": "cricapi-pp-cli team pakistan --scope upcoming --limit 5", "comment": "the natural-language query agents reach for"}
+    ],
+    "troubleshoots": [
+      {"symptom": "\"Invalid API Key\" on every call", "fix": "Run `cricapi-pp-cli auth set-token` and paste your key from cricketdata.org. Free tier ≈ 100 req/day."},
+      {"symptom": "Rate-limited mid-sync", "fix": "Sync is paginated; re-run later or use --rate-limit 0.5 to slow it down."},
+      {"symptom": "`cricapi today` returns nothing", "fix": "Likely no live matches right now. Try `cricapi matches list` for the broader upcoming window."}
+    ],
+    "when_to_use": "When an agent or terminal user needs cricket scores, fixtures, or fantasy data and wants a structured response — not a scraped webpage. Strongest for natural-language queries like 'next India match', live match polling, and offline SQL over synced fixtures.",
+    "recipes": [
+      {"title": "Next Pakistan game", "command": "cricapi-pp-cli team pakistan --scope upcoming --limit 1 --json", "explanation": "Solves the canonical cricket-CLI query in one line, JSON-shaped for agent consumption."},
+      {"title": "Today's T20 internationals only", "command": "cricapi-pp-cli today --format t20i --agent", "explanation": "Filters the live/upcoming feed by format with agent-friendly defaults (JSON + compact + no-prompts)."},
+      {"title": "Watch a match", "command": "cricapi-pp-cli watch <match-id> --interval 60 --max 20", "explanation": "Polls /match_info every 60s for up to 20 cycles; prints only when the score state changes."},
+      {"title": "Pin a tournament", "command": "cricapi-pp-cli watchlist add ipl <series-id> && cricapi-pp-cli watchlist refresh", "explanation": "Stores a friendly alias for a series in local JSON; refresh fetches the latest info for every pinned series."},
+      {"title": "Slim agent response with --select", "command": "cricapi-pp-cli today --agent --select data.name,data.status,data.matchType", "explanation": "When the response is verbose, --select trims to the fields the agent actually needs — keeps token use down."}
+    ],
+    "trigger_phrases": ["cricket score", "when does india play", "next pakistan match", "live cricket", "ipl fixtures", "use cricapi", "run cricapi"]
+  },
+  "gaps": [
+    "player splits view (career stats split by format) — deferred to v0.2",
+    "series timeline view — deferred to v0.2",
+    "match fantasy aggregator (combined points + squad + scorecard) — deferred to v0.2",
+    "recap --since N (time-windowed digest from local store) — deferred to v0.2",
+    "free-tier request budget guard in doctor — deferred to v0.2"
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-11T03:50:00Z"
+}
