@@ -52,6 +52,24 @@
       "validated_outcome": "go build ./... passes cleanly after the fix."
     },
     {
+      "id": "db-sqlite-restore-validate",
+      "summary": "Added isSQLiteFile() guard before clear/copyFile in the sqlite restore path.",
+      "reason": "Without validation, passing a non-SQLite file with --format sqlite (and optionally --clear) silently destroys the live database with no recovery path. isSQLiteFile() was already defined in the file but never called.",
+      "files": ["internal/cli/db_ff.go"]
+    },
+    {
+      "id": "ratelimit-race",
+      "summary": "Fixed AdaptiveLimiter.Wait() to serialize concurrent callers by holding the mutex through the sleep.",
+      "reason": "Releasing the lock before time.Sleep allowed all concurrent sync workers to read the same lastRequest, sleep the same duration, then fire simultaneously — delivering concurrency×rate req/s instead of the configured rate.",
+      "files": ["internal/cliutil/ratelimit.go"]
+    },
+    {
+      "id": "resolve-by-name-injection",
+      "summary": "Added isSafeIdentifier() allowlist guard before fmt.Sprintf field interpolation in ResolveByName.",
+      "reason": "Field names were interpolated directly into SQL. While current callers pass hardcoded values, a future caller passing a user-derived field name would be a SQL injection vector.",
+      "files": ["internal/store/store.go"]
+    },
+    {
       "id": "topics-bar-utf8",
       "summary": "Fixed bar chart truncation in topics_ff.go to not cut mid-codepoint on the 3-byte █ character.",
       "reason": "bar[:40] sliced at byte 40, which lands inside the 14th █ codepoint (3 bytes each), producing invalid UTF-8 for any term appearing ≥14 times. Fixed by capping the repeat count at 40 runes instead of slicing bytes.",

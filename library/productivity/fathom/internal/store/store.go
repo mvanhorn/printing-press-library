@@ -22,10 +22,17 @@ import (
 )
 
 var uuidPattern = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
+var safeIdentPattern = regexp.MustCompile(`^[a-z][a-z0-9_]*$`)
 
 // IsUUID returns true if the input looks like a UUID.
 func IsUUID(s string) bool {
 	return uuidPattern.MatchString(s)
+}
+
+// isSafeIdentifier returns true when s is safe to interpolate as a JSON field
+// name into a SQL query (lowercase letters, digits, underscores only).
+func isSafeIdentifier(s string) bool {
+	return safeIdentPattern.MatchString(s)
 }
 
 // StoreSchemaVersion is the on-disk schema version this binary understands.
@@ -816,6 +823,10 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 
 	var matches []string
 	for _, field := range matchFields {
+		// PATCH(resolve-by-name-injection): reject non-identifier field names before interpolation
+		if !isSafeIdentifier(field) {
+			continue
+		}
 		query := fmt.Sprintf(
 			`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,
 			field,

@@ -236,6 +236,10 @@ Pass --clear to wipe the existing store before restoring.`,
 			}
 
 			if format == "sqlite" {
+				// PATCH(db-sqlite-restore-validate): guard before touching live DB
+				if !isSQLiteFile(input) {
+					return fmt.Errorf("input file %q does not appear to be a valid SQLite database", input)
+				}
 				if clear {
 					os.Remove(dbPath)
 				}
