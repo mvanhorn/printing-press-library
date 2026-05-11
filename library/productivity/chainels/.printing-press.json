@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-11T07:54:56.399889Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "chainels",
+  "cli_name": "chainels-pp-cli",
+  "run_id": "20260511-091614",
+  "novel_features": [
+    {
+      "name": "Cross-community FTS",
+      "command": "search",
+      "description": "Search across every community's messages, issues, agreements, and timeline posts from one terminal."
+    },
+    {
+      "name": "Issue assignee load",
+      "command": "issues load",
+      "description": "Group open issues by assignee with age buckets so you can spot who's drowning before sprint planning."
+    },
+    {
+      "name": "Stale issue digest",
+      "command": "issues stale",
+      "description": "List issues with no state transition for N days across every community."
+    },
+    {
+      "name": "Turnover variance",
+      "command": "turnover variance",
+      "description": "Compute per-tenant variance vs trailing-N-month median for retail turnover reports."
+    },
+    {
+      "name": "Turnover laggards",
+      "command": "turnover pending",
+      "description": "List tenants who haven't submitted a turnover report for a given period."
+    },
+    {
+      "name": "Agreement renewals",
+      "command": "agreements renewals",
+      "description": "List lease/agreement records whose end-of-term falls inside an N-day window."
+    },
+    {
+      "name": "Member-load audit",
+      "command": "members audit",
+      "description": "Per-account role count across entities + flag duplicates and orphans."
+    },
+    {
+      "name": "Alarm recipient diff",
+      "command": "alarms diff",
+      "description": "Diff alarm-configuration recipient lists between two communities or two snapshots."
+    },
+    {
+      "name": "Since-sync changed",
+      "command": "changed",
+      "description": "Union of rows where synced_at >= --since, grouped by resource, across the local store."
+    }
+  ],
+  "printer": "BasvanderPloeg001",
+  "printer_name": "Bas van der Ploeg",
+  "category": "productivity",
+  "description": "Every Chainels endpoint as a typed command, plus the cross-community search, turnover variance, and stale-issue digests the web UI cannot give you.",
+  "spec_url": "https://www.chainels.com/openapi.bundle.json"
+}

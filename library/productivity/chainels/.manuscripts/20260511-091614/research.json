@@ -1,0 +1,271 @@
+{
+  "api_name": "chainels",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "Chainels/oauth2-provider-php",
+      "url": "https://github.com/Chainels/oauth2-provider-php",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-11T07:30:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-community FTS",
+      "command": "search",
+      "description": "Search across every community's messages, issues, agreements, and timeline posts from one terminal.",
+      "rationale": "Chainels' web UI scopes search to a single community at a time; FTS5 over the local synced corpus searches every community at once.",
+      "example": "chainels-pp-cli search \"lift maintenance\" --json --select community_id,resource_type,title",
+      "why_it_matters": "Reach for this when you need to find one tenant note, one issue, or one agreement across many properties without round-trips to the API.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Issue assignee load",
+      "command": "issues load",
+      "description": "Group open issues by assignee with age buckets so you can spot who's drowning before sprint planning.",
+      "rationale": "The /issues endpoint returns flat lists; assignee × age-bucket grouping requires a local join the API doesn't expose.",
+      "example": "chainels-pp-cli issues load --community 42 --json",
+      "why_it_matters": "Pick this when a property manager asks who has the oldest issues open or which assignee needs help before Monday triage.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale issue digest",
+      "command": "issues stale",
+      "description": "List issues with no state transition for N days across every community.",
+      "rationale": "The API has no \"stale\" predicate; the local store's updated_at column makes this a single filter.",
+      "example": "chainels-pp-cli issues stale --older-than 14d --json",
+      "why_it_matters": "Use this when a community manager needs a Monday escalation list across a portfolio.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Turnover variance",
+      "command": "turnover variance",
+      "description": "Compute per-tenant variance vs trailing-N-month median for retail turnover reports.",
+      "rationale": "Chainels exposes /turnover/.../statistics aggregates but not per-tenant variance against the tenant's own history; computed locally over synced reports.",
+      "example": "chainels-pp-cli turnover variance --months 12 --json",
+      "why_it_matters": "Pick this when a landlord wants to spot a tenant whose sales dropped relative to that tenant's own normal.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Turnover laggards",
+      "command": "turnover pending",
+      "description": "List tenants who haven't submitted a turnover report for a given period.",
+      "rationale": "Set-difference between expected submitters (turnover schemes + members) and actual reports; the API has no \"who hasn't submitted\" endpoint.",
+      "example": "chainels-pp-cli turnover pending --period 2026-04 --json",
+      "why_it_matters": "Use this on the 6th of every month to chase the missing submissions across a portfolio.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Agreement renewals",
+      "command": "agreements renewals",
+      "description": "List lease/agreement records whose end-of-term falls inside an N-day window.",
+      "rationale": "Filtering by renewal window across communities requires a local index; the API lists agreements per community.",
+      "example": "chainels-pp-cli agreements renewals --within 90d --json",
+      "why_it_matters": "Pick this when a renewal calendar is needed by Friday and the manager has more than one community to sweep.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Member-load audit",
+      "command": "members audit",
+      "description": "Per-account role count across entities + flag duplicates and orphans.",
+      "rationale": "Joins synced accounts + account-entity-roles + community members; the API forces N+1 round trips.",
+      "example": "chainels-pp-cli members audit --community 42 --json",
+      "why_it_matters": "Use this when an integrator (Yardi/Entrata) is reconciling who has what role and where, and the answer must be machine-readable.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Alarm recipient diff",
+      "command": "alarms diff",
+      "description": "Diff alarm-configuration recipient lists between two communities or two snapshots.",
+      "rationale": "API returns alarm config; the diff itself is local set algebra on synced rows.",
+      "example": "chainels-pp-cli alarms diff 42 43 --json",
+      "why_it_matters": "Reach for this when checking drift between sister buildings or before/after a config change.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Since-sync changed",
+      "command": "changed",
+      "description": "Union of rows where synced_at \u003e= --since, grouped by resource, across the local store.",
+      "rationale": "Delta sync without per-resource polling — one local query unifies every resource's updated_at column.",
+      "example": "chainels-pp-cli changed --since 2026-05-01 --json",
+      "why_it_matters": "Pick this for integrators (Yardi/Entrata) who run weekly deltas and need a single \"what's new\" report across resources.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-community FTS",
+      "command": "search",
+      "description": "Search across every community's messages, issues, agreements, and timeline posts from one terminal.",
+      "rationale": "Chainels' web UI scopes search to a single community at a time; FTS5 over the local synced corpus searches every community at once.",
+      "example": "chainels-pp-cli search \"lift maintenance\" --json --select community_id,resource_type,title",
+      "why_it_matters": "Reach for this when you need to find one tenant note, one issue, or one agreement across many properties without round-trips to the API.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Issue assignee load",
+      "command": "issues load",
+      "description": "Group open issues by assignee with age buckets so you can spot who's drowning before sprint planning.",
+      "rationale": "The /issues endpoint returns flat lists; assignee × age-bucket grouping requires a local join the API doesn't expose.",
+      "example": "chainels-pp-cli issues load --community 42 --json",
+      "why_it_matters": "Pick this when a property manager asks who has the oldest issues open or which assignee needs help before Monday triage.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale issue digest",
+      "command": "issues stale",
+      "description": "List issues with no state transition for N days across every community.",
+      "rationale": "The API has no \"stale\" predicate; the local store's updated_at column makes this a single filter.",
+      "example": "chainels-pp-cli issues stale --older-than 14d --json",
+      "why_it_matters": "Use this when a community manager needs a Monday escalation list across a portfolio.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Turnover variance",
+      "command": "turnover variance",
+      "description": "Compute per-tenant variance vs trailing-N-month median for retail turnover reports.",
+      "rationale": "Chainels exposes /turnover/.../statistics aggregates but not per-tenant variance against the tenant's own history; computed locally over synced reports.",
+      "example": "chainels-pp-cli turnover variance --months 12 --json",
+      "why_it_matters": "Pick this when a landlord wants to spot a tenant whose sales dropped relative to that tenant's own normal.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Turnover laggards",
+      "command": "turnover pending",
+      "description": "List tenants who haven't submitted a turnover report for a given period.",
+      "rationale": "Set-difference between expected submitters (turnover schemes + members) and actual reports; the API has no \"who hasn't submitted\" endpoint.",
+      "example": "chainels-pp-cli turnover pending --period 2026-04 --json",
+      "why_it_matters": "Use this on the 6th of every month to chase the missing submissions across a portfolio.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Agreement renewals",
+      "command": "agreements renewals",
+      "description": "List lease/agreement records whose end-of-term falls inside an N-day window.",
+      "rationale": "Filtering by renewal window across communities requires a local index; the API lists agreements per community.",
+      "example": "chainels-pp-cli agreements renewals --within 90d --json",
+      "why_it_matters": "Pick this when a renewal calendar is needed by Friday and the manager has more than one community to sweep.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Member-load audit",
+      "command": "members audit",
+      "description": "Per-account role count across entities + flag duplicates and orphans.",
+      "rationale": "Joins synced accounts + account-entity-roles + community members; the API forces N+1 round trips.",
+      "example": "chainels-pp-cli members audit --community 42 --json",
+      "why_it_matters": "Use this when an integrator (Yardi/Entrata) is reconciling who has what role and where, and the answer must be machine-readable.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Alarm recipient diff",
+      "command": "alarms diff",
+      "description": "Diff alarm-configuration recipient lists between two communities or two snapshots.",
+      "rationale": "API returns alarm config; the diff itself is local set algebra on synced rows.",
+      "example": "chainels-pp-cli alarms diff 42 43 --json",
+      "why_it_matters": "Reach for this when checking drift between sister buildings or before/after a config change.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Since-sync changed",
+      "command": "changed",
+      "description": "Union of rows where synced_at \u003e= --since, grouped by resource, across the local store.",
+      "rationale": "Delta sync without per-resource polling — one local query unifies every resource's updated_at column.",
+      "example": "chainels-pp-cli changed --since 2026-05-01 --json",
+      "why_it_matters": "Pick this for integrators (Yardi/Entrata) who run weekly deltas and need a single \"what's new\" report across resources.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Chainels",
+    "headline": "Every Chainels endpoint as a typed command, plus the cross-community search, turnover variance, and stale-issue digests the web UI cannot give you.",
+    "value_prop": "Chainels' web UI scopes everything to one community at a time. This CLI syncs every community you can see into a local SQLite store and adds the joins that matter: cross-community FTS, issue-assignee load, turnover laggards/variance, agreement renewals, member-load audit, alarm diffs. Live API calls flow through OAuth2 client_credentials so it works headless in CI and agent contexts.",
+    "auth_narrative": "Chainels uses OAuth 2.0 with three grant types: client_credentials for userless app access (recommended for this CLI; set CHAINELS_CLIENT_ID + CHAINELS_CLIENT_SECRET), authorization_code for user delegation, and a group_token grant that issues a token scoped to a group. Tokens are cached in the local config so the access_token endpoint isn't hit on every call.",
+    "quickstart": [
+      {
+        "command": "chainels-pp-cli doctor",
+        "comment": "Confirm OAuth credentials, demo/prod reachability, and local store state."
+      },
+      {
+        "command": "chainels-pp-cli sync --full",
+        "comment": "Pull every community, account, message, issue, agreement, and turnover report into the local SQLite store."
+      },
+      {
+        "command": "chainels-pp-cli search \"lift maintenance\" --json",
+        "comment": "Grep across every synced community at once."
+      },
+      {
+        "command": "chainels-pp-cli issues stale --older-than 14d --json",
+        "comment": "Monday triage list of stale issues across the portfolio."
+      },
+      {
+        "command": "chainels-pp-cli turnover pending --period 2026-04 --json",
+        "comment": "Who hasn't filed for the current period."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "invalid_client on token request",
+        "fix": "Confirm CHAINELS_CLIENT_ID and CHAINELS_CLIENT_SECRET come from the same Chainels OAuth app, then run chainels-pp-cli doctor to re-fetch."
+      },
+      {
+        "symptom": "403 on /messages or /turnover endpoints",
+        "fix": "The OAuth app may lack the required scope (write.messages, read.turnover). Check the app's scopes in the Chainels developer console."
+      },
+      {
+        "symptom": "search returns nothing",
+        "fix": "Run chainels-pp-cli sync --full first; search reads from the local store and is empty until sync populates it."
+      },
+      {
+        "symptom": "demo vs prod confusion",
+        "fix": "Set CHAINELS_BASE_URL=https://demo.chainels.com/api/v2 to point at demo; default is prod."
+      }
+    ],
+    "when_to_use": "Reach for chainels-pp-cli when you manage more than one Chainels community and need answers the web UI can't produce in one query — cross-community search, who-hasn't-submitted lists, renewal calendars, and member-load audits. It is also the right tool for Yardi/Entrata integrators who need a delta-sync primitive and machine-readable joins between agreements, accounts, and roles.",
+    "recipes": [
+      {
+        "title": "Monday triage across the portfolio",
+        "command": "chainels-pp-cli issues stale --older-than 14d --json --select community_id,id,title,assignee,updated_at",
+        "explanation": "Run after sync; produces the list a community manager needs before standup."
+      },
+      {
+        "title": "Turnover follow-up on the 6th",
+        "command": "chainels-pp-cli turnover pending --period 2026-04 --json --select community_id,tenant,location",
+        "explanation": "Set-difference between expected submitters and actual reports for the closed period."
+      },
+      {
+        "title": "Lease-renewal calendar with deep field select",
+        "command": "chainels-pp-cli agreements renewals --within 90d --agent --select agreements.id,agreements.end_at,agreements.entity.name,agreements.community_id",
+        "explanation": "Dotted --select narrows the nested agreement payload to renewal-relevant fields so an agent can pipe straight into a calendar."
+      },
+      {
+        "title": "Drift check between two sister buildings",
+        "command": "chainels-pp-cli alarms diff 42 43 --json",
+        "explanation": "Diff alarm-configuration recipient lists between communities 42 and 43; output is a set-difference suitable for piping into jq."
+      },
+      {
+        "title": "Weekly delta for a Yardi integrator",
+        "command": "chainels-pp-cli changed --since 2026-05-01 --json",
+        "explanation": "Single command unifies every resource's updated_at into one delta report for a downstream reconcile script."
+      }
+    ],
+    "trigger_phrases": [
+      "search chainels for",
+      "show stale chainels issues",
+      "who hasn't filed turnover",
+      "chainels renewals coming up",
+      "diff chainels alarm config",
+      "chainels member audit",
+      "use chainels",
+      "run chainels"
+    ]
+  }
+}

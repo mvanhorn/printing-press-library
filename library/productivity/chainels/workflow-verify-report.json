@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/basvanderploeg/printing-press/.runstate/cli-printing-press-b45af3a5/runs/20260511-091614/working/chainels-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}
