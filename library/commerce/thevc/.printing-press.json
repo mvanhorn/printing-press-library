@@ -11,5 +11,7 @@
   "mcp_tool_count": 5,
   "mcp_public_tool_count": 5,
   "mcp_ready": "full",
-  "auth_type": "none"
+  "auth_type": "none",
+  "printer": "allenwlee",
+  "printer_name": "Allen Lee"
 }
