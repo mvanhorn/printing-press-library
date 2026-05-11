@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/zehner/printing-press/.runstate/cli-printing-press-4573f43b/runs/20260510-160303/working/hayward-omnilogic-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

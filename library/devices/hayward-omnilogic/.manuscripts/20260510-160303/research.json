@@ -1,0 +1,304 @@
+{
+  "api_name": "hayward-omnilogic",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "djtimca/omnilogic-api",
+      "url": "https://github.com/djtimca/omnilogic-api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 27,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "home-assistant/core omnilogic",
+      "url": "https://github.com/home-assistant/core/tree/dev/homeassistant/components/omnilogic",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "djtimca/haomnilogic",
+      "url": "https://github.com/djtimca/haomnilogic",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "openhab/openhab-addons haywardomnilogic",
+      "url": "https://github.com/openhab/openhab-addons/tree/main/bundles/org.openhab.binding.haywardomnilogic",
+      "language": "Java",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-10T23:15:00Z",
+  "novel_features": [
+    {
+      "name": "Pool readiness composite",
+      "command": "status",
+      "description": "One-shot \"is the pool ready for guests?\" view: chemistry in range, temp at setpoint, no active alarms, pump running, with a traffic-light verdict.",
+      "rationale": "Compounds telemetry + alarms + MSP config + setpoints in a single call; the Hayward app makes you tap through four screens to assemble the same answer.",
+      "example": "hayward-omnilogic-pp-cli status --json",
+      "why_it_matters": "Reach for this when an agent or user wants a one-shot pool-state summary instead of correlating three commands.",
+      "group": "Pool readiness at a glance"
+    },
+    {
+      "name": "Ready-by ETA",
+      "command": "ready-by",
+      "description": "Enables the heater and computes when to start it so the pool hits your target temperature by a specified arrival time, using the learned heat rate from telemetry history.",
+      "rationale": "Heat-rate learning (°F/hr per body of water) requires telemetry deltas across days; the cloud and app have no ETA math.",
+      "example": "hayward-omnilogic-pp-cli ready-by 18:00 --temp 84",
+      "why_it_matters": "Use this instead of \"set heater + setpoint and guess\" when the user has a specific swim time.",
+      "group": "Pool readiness at a glance"
+    },
+    {
+      "name": "Historical chemistry export",
+      "command": "chemistry log",
+      "description": "Weekly/monthly pH, ORP, salt, and temperature history from the local store, exportable as CSV or JSON for HOA / service / insurance records.",
+      "rationale": "The cloud returns \"now\" only; users today roll their own InfluxDB to get any chemistry history at all.",
+      "example": "hayward-omnilogic-pp-cli chemistry log --since 30d --csv",
+      "why_it_matters": "Use this when an agent needs trend data or a compliance log over a date range.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Chemistry drift + forecast",
+      "command": "chemistry drift",
+      "description": "Detects pH/ORP/salt drift versus a rolling baseline before Hayward's static thresholds fire; --forecast projects when each metric will leave the safe range.",
+      "rationale": "Requires append-only time-series and slope math; cloud and app only fire on absolute thresholds.",
+      "example": "hayward-omnilogic-pp-cli chemistry drift --forecast --json",
+      "why_it_matters": "Reach for this when the user wants early warning, not just \"alarm is active.\"",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Equipment runtime totals",
+      "command": "runtime",
+      "description": "Pump hours, heater hours, salt-cell hours derived from telemetry deltas — for maintenance planning, warranty, and end-of-season service.",
+      "rationale": "Cumulative runtime isn't a cloud API field; only delta accumulation against the local time-series can yield it.",
+      "example": "hayward-omnilogic-pp-cli runtime --since 90d --json",
+      "why_it_matters": "Use this when a service-business agent needs maintenance projections or a warranty case-file.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Command audit + replay",
+      "command": "command-log",
+      "description": "Every Set* command issued via this CLI is logged with who/when/what/result. --replay \u003cid\u003e re-issues a prior command for quick undo or redo.",
+      "rationale": "Local audit trail; the cloud doesn't expose per-user command history.",
+      "example": "hayward-omnilogic-pp-cli command-log --since 7d",
+      "why_it_matters": "Use this when an agent or operator needs to know what was changed recently or roll back a misfire.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Why isn't this running?",
+      "command": "why-not-running",
+      "description": "Diagnose why a pump, heater, or light isn't running: correlates active alarms, current relay state, scheduled run windows, heater demand, and superchlor lockouts into one explanation.",
+      "rationale": "Joins four cloud calls + a versioned schedule snapshot the Hayward UI never surfaces; no wrapper packages this today.",
+      "example": "hayward-omnilogic-pp-cli why-not-running 'Main Pump'",
+      "why_it_matters": "Reach for this when an agent is asked to triage \"X isn't running\" instead of telling the user to open the app.",
+      "group": "Diagnostics the cloud can't do"
+    },
+    {
+      "name": "Schedule change detection",
+      "command": "schedule diff",
+      "description": "Diffs today's MSP-config schedule tree against prior versioned snapshots; catches silent edits made by service techs or by other app users.",
+      "rationale": "Requires versioned msp_config_snapshots; the cloud has no schedule-history endpoint.",
+      "example": "hayward-omnilogic-pp-cli schedule diff --since yesterday",
+      "why_it_matters": "Use this when a user reports unexpected pool behavior and you need to know what changed.",
+      "group": "Diagnostics the cloud can't do"
+    },
+    {
+      "name": "Multi-site morning sweep",
+      "command": "sweep",
+      "description": "Across every site in the account, surface active alarms, out-of-range chemistry, and offline controllers in a single report — built for pool-service businesses doing route planning.",
+      "rationale": "Pool-service ops today open the Hayward app per-site; only a CLI with the stored site list and parallel calls collapses the morning routine.",
+      "example": "hayward-omnilogic-pp-cli sweep --alarms --chemistry --json",
+      "why_it_matters": "Use this when an agent is asked to prioritize the day's truck rolls across many pools.",
+      "group": "Multi-site operations"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Pool readiness composite",
+      "command": "status",
+      "description": "One-shot \"is the pool ready for guests?\" view: chemistry in range, temp at setpoint, no active alarms, pump running, with a traffic-light verdict.",
+      "rationale": "Compounds telemetry + alarms + MSP config + setpoints in a single call; the Hayward app makes you tap through four screens to assemble the same answer.",
+      "example": "hayward-omnilogic-pp-cli status --json",
+      "why_it_matters": "Reach for this when an agent or user wants a one-shot pool-state summary instead of correlating three commands.",
+      "group": "Pool readiness at a glance"
+    },
+    {
+      "name": "Ready-by ETA",
+      "command": "ready-by",
+      "description": "Enables the heater and computes when to start it so the pool hits your target temperature by a specified arrival time, using the learned heat rate from telemetry history.",
+      "rationale": "Heat-rate learning (°F/hr per body of water) requires telemetry deltas across days; the cloud and app have no ETA math.",
+      "example": "hayward-omnilogic-pp-cli ready-by 18:00 --temp 84",
+      "why_it_matters": "Use this instead of \"set heater + setpoint and guess\" when the user has a specific swim time.",
+      "group": "Pool readiness at a glance"
+    },
+    {
+      "name": "Historical chemistry export",
+      "command": "chemistry log",
+      "description": "Weekly/monthly pH, ORP, salt, and temperature history from the local store, exportable as CSV or JSON for HOA / service / insurance records.",
+      "rationale": "The cloud returns \"now\" only; users today roll their own InfluxDB to get any chemistry history at all.",
+      "example": "hayward-omnilogic-pp-cli chemistry log --since 30d --csv",
+      "why_it_matters": "Use this when an agent needs trend data or a compliance log over a date range.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Chemistry drift + forecast",
+      "command": "chemistry drift",
+      "description": "Detects pH/ORP/salt drift versus a rolling baseline before Hayward's static thresholds fire; --forecast projects when each metric will leave the safe range.",
+      "rationale": "Requires append-only time-series and slope math; cloud and app only fire on absolute thresholds.",
+      "example": "hayward-omnilogic-pp-cli chemistry drift --forecast --json",
+      "why_it_matters": "Reach for this when the user wants early warning, not just \"alarm is active.\"",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Equipment runtime totals",
+      "command": "runtime",
+      "description": "Pump hours, heater hours, salt-cell hours derived from telemetry deltas — for maintenance planning, warranty, and end-of-season service.",
+      "rationale": "Cumulative runtime isn't a cloud API field; only delta accumulation against the local time-series can yield it.",
+      "example": "hayward-omnilogic-pp-cli runtime --since 90d --json",
+      "why_it_matters": "Use this when a service-business agent needs maintenance projections or a warranty case-file.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Command audit + replay",
+      "command": "command-log",
+      "description": "Every Set* command issued via this CLI is logged with who/when/what/result. --replay \u003cid\u003e re-issues a prior command for quick undo or redo.",
+      "rationale": "Local audit trail; the cloud doesn't expose per-user command history.",
+      "example": "hayward-omnilogic-pp-cli command-log --since 7d",
+      "why_it_matters": "Use this when an agent or operator needs to know what was changed recently or roll back a misfire.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Why isn't this running?",
+      "command": "why-not-running",
+      "description": "Diagnose why a pump, heater, or light isn't running: correlates active alarms, current relay state, scheduled run windows, heater demand, and superchlor lockouts into one explanation.",
+      "rationale": "Joins four cloud calls + a versioned schedule snapshot the Hayward UI never surfaces; no wrapper packages this today.",
+      "example": "hayward-omnilogic-pp-cli why-not-running 'Main Pump'",
+      "why_it_matters": "Reach for this when an agent is asked to triage \"X isn't running\" instead of telling the user to open the app.",
+      "group": "Diagnostics the cloud can't do"
+    },
+    {
+      "name": "Schedule change detection",
+      "command": "schedule diff",
+      "description": "Diffs today's MSP-config schedule tree against prior versioned snapshots; catches silent edits made by service techs or by other app users.",
+      "rationale": "Requires versioned msp_config_snapshots; the cloud has no schedule-history endpoint.",
+      "example": "hayward-omnilogic-pp-cli schedule diff --since yesterday",
+      "why_it_matters": "Use this when a user reports unexpected pool behavior and you need to know what changed.",
+      "group": "Diagnostics the cloud can't do"
+    },
+    {
+      "name": "Multi-site morning sweep",
+      "command": "sweep",
+      "description": "Across every site in the account, surface active alarms, out-of-range chemistry, and offline controllers in a single report — built for pool-service businesses doing route planning.",
+      "rationale": "Pool-service ops today open the Hayward app per-site; only a CLI with the stored site list and parallel calls collapses the morning routine.",
+      "example": "hayward-omnilogic-pp-cli sweep --alarms --chemistry --json",
+      "why_it_matters": "Use this when an agent is asked to prioritize the day's truck rolls across many pools.",
+      "group": "Multi-site operations"
+    }
+  ],
+  "narrative": {
+    "display_name": "Hayward OmniLogic",
+    "headline": "Take control of every Hayward OmniLogic feature, plus a local store, schedule diffs, chemistry trends, and a morning multi-site sweep no other tool offers.",
+    "value_prop": "Drives the same partner API the Hayward mobile app and Home Assistant integration use, but adds the historical chemistry log, the equipment diagnostic the cloud refuses to compute, the schedule-change detector for service techs, and the multi-site alarm sweep pool-service businesses ask for. Agent-native JSON throughout, with a local SQLite store that turns single-shot cloud reads into compound answers.",
+    "auth_narrative": "OmniLogic uses a two-stage auth: a JSON login against services-gamma.haywardcloud.net returns a token + refresh token, then every operation POSTs an XML envelope to the legacy HAAPI endpoint with the token in the header. The CLI caches the token under your XDG state directory and refreshes it transparently. Set HAYWARD_USER (your account email) and HAYWARD_PW; the first call to any command logs in automatically.",
+    "quickstart": [
+      {
+        "command": "hayward-omnilogic-pp-cli doctor",
+        "comment": "Verify auth + reachability + token cache before anything else."
+      },
+      {
+        "command": "hayward-omnilogic-pp-cli sync --full",
+        "comment": "Pull sites, equipment inventory, current telemetry, and alarms into the local store."
+      },
+      {
+        "command": "hayward-omnilogic-pp-cli status --json",
+        "comment": "One-shot pool-readiness composite — chemistry, temp, alarms, pump state with a traffic-light verdict."
+      },
+      {
+        "command": "hayward-omnilogic-pp-cli chemistry log --since 7d --csv",
+        "comment": "Export the last week's pH/ORP/salt/temp readings for service records."
+      },
+      {
+        "command": "hayward-omnilogic-pp-cli ready-by 18:00 --temp 84",
+        "comment": "Enable the heater and compute when to start it so the pool reaches 84°F by 6pm."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 / \"Failed Login\" on first call",
+        "fix": "Confirm HAYWARD_USER is the email you log in with at haywardomnilogic.com (post-Oct-2025 the API rejects username-only); rerun `doctor` to re-cache the token."
+      },
+      {
+        "symptom": "Token works for a day then fails",
+        "fix": "Token cache TTL is 24h; the CLI auto-refreshes via /auth-service/v2/refresh. If refresh fails (e.g., laptop slept past expiry), delete `~/.local/state/hayward-omnilogic/auth.json` and rerun any command."
+      },
+      {
+        "symptom": "Schedule diff says \"no baseline\" on first run",
+        "fix": "Run `sync --full` at least once so the CLI has a prior MSP-config snapshot to compare against."
+      },
+      {
+        "symptom": "chemistry log returns empty",
+        "fix": "telemetry samples are appended by `sync` (or any read-side call); after `sync --full` you have one point. Run `sync` periodically (cron / launchd / 30-60s minimum interval per community guidance)."
+      }
+    ],
+    "when_to_use": "Pick this CLI when an agent needs to read or control a Hayward OmniLogic pool/spa system over the partner cloud API: pool owners managing one pool, integrators wiring OmniLogic into agentic workflows, and pool-service businesses managing many sites. The CLI replaces ad-hoc Python scripts on top of `omnilogic-api`, the Hayward mobile app for diagnostics and trends, and the per-site click-through pool-service operators do every morning.",
+    "recipes": [
+      {
+        "title": "Is the pool ready for guests?",
+        "command": "hayward-omnilogic-pp-cli status --json --select verdict,chemistry,water_temp,active_alarms",
+        "explanation": "One call, structured answer. Use --select to keep the JSON tight when piping to an LLM."
+      },
+      {
+        "title": "Weekly chemistry log for the service record",
+        "command": "hayward-omnilogic-pp-cli chemistry log --since 7d --csv \u003e pool-chem-$(date +%Y-%m-%d).csv",
+        "explanation": "Cron this every Sunday and the binder writes itself."
+      },
+      {
+        "title": "Why isn't the main pump running right now?",
+        "command": "hayward-omnilogic-pp-cli why-not-running 'Main Pump' --json",
+        "explanation": "Returns the explanation as structured fields: active_alarms, scheduled_window, current_state, heater_demand, superchlor_lockout."
+      },
+      {
+        "title": "Morning sweep across every site",
+        "command": "hayward-omnilogic-pp-cli sweep --alarms --chemistry --json | jq '.sites[] | select(.alarms != [] or .chemistry_out_of_range == true)'",
+        "explanation": "Pool-service operators: this collapses 12 in-app site-checks into one piped command."
+      },
+      {
+        "title": "Preheat for an evening swim with ETA from learned heat rate",
+        "command": "hayward-omnilogic-pp-cli ready-by 19:30 --temp 86 --dry-run",
+        "explanation": "Pass --dry-run first to see when the heater would start; drop the flag to actually enable it."
+      }
+    ],
+    "trigger_phrases": [
+      "is the pool ready",
+      "what's the pool temperature",
+      "show me the pool chemistry log",
+      "why isn't the pool pump running",
+      "preheat the pool for tonight",
+      "run the morning pool sweep",
+      "use hayward-omnilogic",
+      "run hayward-omnilogic"
+    ]
+  }
+}
