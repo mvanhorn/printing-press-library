@@ -81,8 +81,13 @@ Key deadlines (BetrVG):
 					t, err := time.Parse("2006-01-02", fromDate)
 					if err == nil && matched.Days > 0 {
 						due := t.AddDate(0, 0, matched.Days)
+						// § 193 BGB: Samstag und Sonntag gelten wie Feiertage — Frist läuft bis zum nächsten Werktag.
+						for due.Weekday() == time.Saturday || due.Weekday() == time.Sunday {
+							due = due.AddDate(0, 0, 1)
+						}
 						result.FromDate = t.Format("02.01.2006")
 						result.DueDate = due.Format("02.01.2006")
+						result.Note += " Gesetzliche Feiertage können das Datum weiter verschieben (§ 193 BGB) — bitte landesabhängige Feiertage prüfen."
 
 						if ical {
 							return printDeadlineIcal(cmd, result, situation, t, due)
