@@ -1,0 +1,330 @@
+{
+  "api_name": "cre-owner",
+  "base_url": "https://api.crexi.com",
+  "description": "Commercial real estate owner lookup, deal sourcing, and cold outreach CLI",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "env_vars": [
+      "CREXI_SESSION_COOKIE"
+    ],
+    "env_var_specs": [
+      {
+        "name": "CREXI_SESSION_COOKIE",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "comps_search",
+      "description": "Search sold comparables by market, type, and price range. Required: market. Optional: type, min_price, max_price (plus 1 more).",
+      "method": "GET",
+      "path": "/comps/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market/county to search",
+          "required": true
+        },
+        {
+          "name": "type",
+          "wire_name": "property_type",
+          "type": "string",
+          "location": "query",
+          "description": "Property type filter"
+        },
+        {
+          "name": "min_price",
+          "type": "integer",
+          "location": "query",
+          "description": "Minimum sale price"
+        },
+        {
+          "name": "max_price",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum sale price"
+        },
+        {
+          "name": "months",
+          "type": "integer",
+          "location": "query",
+          "description": "Look back period in months"
+        }
+      ]
+    },
+    {
+      "name": "edgar_search",
+      "description": "Full-text search of SEC filings. Required: query. Optional: forms.",
+      "method": "GET",
+      "path": "https://efts.sec.gov/LATEST/search-index",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        },
+        {
+          "name": "forms",
+          "type": "string",
+          "location": "query",
+          "description": "Filing form types (10-K, 10-Q, 8-K, SC 13D, SC 13G)"
+        }
+      ]
+    },
+    {
+      "name": "edgar_submissions",
+      "description": "Get filing history for a company by CIK. Required: cik.",
+      "method": "GET",
+      "path": "https://data.sec.gov/submissions/CIK{cik}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "cik",
+          "type": "string",
+          "location": "path",
+          "description": "SEC Central Index Key (CIK) number",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "entities_get",
+      "description": "Get entity details including officers, registered agent, filing history. Required: entity_id.",
+      "method": "GET",
+      "path": "/entities/{entity_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "entity_id",
+          "type": "string",
+          "location": "path",
+          "description": "Entity ID from SoS or OpenCorporates",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "entities_officers",
+      "description": "List officers and registered agent for an entity. Required: entity_id.",
+      "method": "GET",
+      "path": "/entities/{entity_id}/officers",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "entity_id",
+          "type": "string",
+          "location": "path",
+          "description": "Entity ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "entities_search",
+      "description": "Search business entities by name. Required: query. Optional: state, status.",
+      "method": "GET",
+      "path": "/entities/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Entity name to search",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "State jurisdiction (e.g., IN, IL, OH)"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Entity status filter (active, inactive, dissolved)"
+        }
+      ]
+    },
+    {
+      "name": "owners_chain",
+      "description": "Full entity chain — LLC to officers to beneficial owner. Required: owner_id. Optional: depth (default: 3).",
+      "method": "GET",
+      "path": "/owners/{owner_id}/chain",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "owner_id",
+          "type": "string",
+          "location": "path",
+          "description": "Owner record ID",
+          "required": true
+        },
+        {
+          "name": "depth",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum traversal depth for entity chains"
+        }
+      ]
+    },
+    {
+      "name": "owners_lookup",
+      "description": "Look up owner of record for an address or parcel. Optional: address, parcel_id.",
+      "method": "GET",
+      "path": "/owners/lookup",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "address",
+          "type": "string",
+          "location": "query",
+          "description": "Street address to look up"
+        },
+        {
+          "name": "parcel_id",
+          "type": "string",
+          "location": "query",
+          "description": "Parcel ID to look up"
+        }
+      ]
+    },
+    {
+      "name": "parcels_get",
+      "description": "Get full parcel details including owner, assessed value, tax history. Required: parcel_id.",
+      "method": "GET",
+      "path": "/parcels/{parcel_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "parcel_id",
+          "type": "string",
+          "location": "path",
+          "description": "County parcel ID number",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "parcels_search",
+      "description": "Search parcels by address, owner name, or parcel ID. Required: market. Optional: query, type, min_sqft (plus 4 more).",
+      "method": "GET",
+      "path": "/parcels/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market/county to search (e.g., lake-county-in)",
+          "required": true
+        },
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query — address, owner name, or parcel number"
+        },
+        {
+          "name": "type",
+          "wire_name": "property_type",
+          "type": "string",
+          "location": "query",
+          "description": "Property type filter (industrial, office, retail, multifamily, land, special-purpose)"
+        },
+        {
+          "name": "min_sqft",
+          "type": "integer",
+          "location": "query",
+          "description": "Minimum square footage"
+        },
+        {
+          "name": "max_sqft",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum square footage"
+        },
+        {
+          "name": "min_value",
+          "type": "integer",
+          "location": "query",
+          "description": "Minimum assessed value"
+        },
+        {
+          "name": "max_value",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum assessed value"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Max results to return"
+        }
+      ]
+    },
+    {
+      "name": "tax_records_get",
+      "description": "Get tax assessment history for a parcel. Required: parcel_id.",
+      "method": "GET",
+      "path": "/tax/{parcel_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "parcel_id",
+          "type": "string",
+          "location": "path",
+          "description": "Parcel ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tax_records_search",
+      "description": "Search tax records by parcel, owner, or delinquency status. Required: market. Optional: delinquent, min_owed.",
+      "method": "GET",
+      "path": "/tax/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market/county to search",
+          "required": true
+        },
+        {
+          "name": "delinquent",
+          "type": "boolean",
+          "location": "query",
+          "description": "Filter for tax-delinquent parcels only"
+        },
+        {
+          "name": "min_owed",
+          "type": "integer",
+          "location": "query",
+          "description": "Minimum delinquent amount"
+        }
+      ]
+    }
+  ]
+}

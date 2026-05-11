@@ -1,0 +1,51 @@
+version: 2
+project_name: cre-owner-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: cre-owner-pp-cli
+    main: ./cmd/cre-owner-pp-cli
+    binary: cre-owner-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/cre-owner/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: cre-owner-pp-mcp
+    main: ./cmd/cre-owner-pp-mcp
+    binary: cre-owner-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: cre-owner-pp-cli
+    repository:
+      owner: danilo-ojeda
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Find who owns any commercial building, pierce the LLC veil, and surface motivated-seller signals — all from free..."
+    install: |
+      bin.install "cre-owner-pp-cli"
+      bin.install "cre-owner-pp-mcp"

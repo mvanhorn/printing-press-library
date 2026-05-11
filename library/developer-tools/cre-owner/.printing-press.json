@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-11T17:56:00.351412Z",
+  "printing_press_version": "4.2.0",
+  "api_name": "cre-owner",
+  "display_name": "CRE Owner",
+  "cli_name": "cre-owner-pp-cli",
+  "owner": "danilo-ojeda",
+  "printer_name": "Danilo Ojeda",
+  "spec_path": "/Users/nexus/printing-press/.runstate/concurrent-bubbling-crane-4f9d5926/runs/20260509-101543/research/cre-owner-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:9feb5d349f967180bf7f822174958662f0133da559457ee057b79a5a9349275c",
+  "run_id": "20260509-101543",
+  "description": "Find owners of commercial buildings, pierce LLCs, surface motivated-seller signals, and build cold-outreach lists \u2014 all from free public records stitched into a local SQLite mirror",
+  "mcp_binary": "cre-owner-pp-mcp",
+  "mcp_tool_count": 17,
+  "mcp_public_tool_count": 12,
+  "mcp_ready": "partial",
+  "api_version": "1.0",
+  "auth_type": "cookie",
+  "auth_env_vars": [
+    "CREXI_SESSION_COOKIE"
+  ],
+  "novel_features": [
+    {
+      "name": "Hidden Portfolio Rollup",
+      "command": "portfolio",
+      "description": "Find all buildings owned by the same beneficial owner across multiple LLCs"
+    },
+    {
+      "name": "Motivated Seller Scoring",
+      "command": "motivated",
+      "description": "Ranked deal-sourcing list combining tax delinquency, hold duration, out-of-state ownership, and code violations into a single distress score"
+    },
+    {
+      "name": "Cold Outreach Ranking",
+      "command": "outreach",
+      "description": "Ranked cold-outreach list with mailing addresses, registered agent info, and cross-source contact confidence scores"
+    },
+    {
+      "name": "Co-Owner Network Discovery",
+      "command": "network",
+      "description": "Discover hidden partnerships by finding LLCs that share officers, registered agents, or mailing addresses with a target entity"
+    },
+    {
+      "name": "Tax Sale Countdown",
+      "command": "tax-countdown",
+      "description": "Ranked list of properties approaching tax sale deadlines, giving investors a precise window to approach desperate owners"
+    },
+    {
+      "name": "Comp Gap Analysis",
+      "command": "comp-gap",
+      "description": "Compare a property's assessed value against recent comparable sales to find value arbitrage opportunities"
+    },
+    {
+      "name": "Portfolio Acquisition Packager",
+      "command": "package",
+      "description": "Generate a one-page dossier for a target owner's entire portfolio with property count, values, tax exposure, entity status, and contacts"
+    },
+    {
+      "name": "Entity Chain Visualization",
+      "command": "owners chain",
+      "description": "Visual tree showing LLC to officers to other LLCs to beneficial owner chain from multi-source traversal"
+    }
+  ],
+  "printer": "On3n3xus"
+}

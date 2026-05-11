@@ -1,0 +1,505 @@
+name: cre-owner
+display_name: CRE Owner
+description: Commercial real estate owner lookup, deal sourcing, and cold outreach CLI
+version: "1.0"
+base_url: https://api.crexi.com
+cli_description: "Find owners of commercial buildings, pierce LLCs, surface motivated-seller signals, and build cold-outreach lists — all from free public records stitched into a local SQLite mirror"
+
+auth:
+  type: cookie
+  header: Cookie
+  env_vars:
+    - CREXI_SESSION_COOKIE
+  browser_source: chrome
+  notes: "Crexi has no public API. Session cookie from Chrome profile enables authenticated access to broker contacts and full listing data."
+
+
+transport:
+  type: surf
+  tls_fingerprint: chrome
+  notes: "Crexi uses Cloudflare. Surf with Chrome TLS fingerprint clears the challenge."
+
+resources:
+  parcels:
+    display_name: Parcels
+    description: "Property parcels from county assessor records"
+    tier: free
+    endpoints:
+      search:
+        method: GET
+        path: /parcels/search
+        description: "Search parcels by address, owner name, or parcel ID"
+        no_auth: true
+        params:
+          - name: market
+            type: string
+            description: "Market/county to search (e.g., lake-county-in)"
+            required: true
+          - name: q
+            type: string
+            flag_name: query
+            description: "Search query — address, owner name, or parcel number"
+          - name: property_type
+            type: string
+            flag_name: type
+            description: "Property type filter (industrial, office, retail, multifamily, land, special-purpose)"
+          - name: min_sqft
+            type: integer
+            description: "Minimum square footage"
+          - name: max_sqft
+            type: integer
+            description: "Maximum square footage"
+          - name: min_value
+            type: integer
+            description: "Minimum assessed value"
+          - name: max_value
+            type: integer
+            description: "Maximum assessed value"
+          - name: limit
+            type: integer
+            description: "Max results to return"
+            default: 50
+      get:
+        method: GET
+        path: /parcels/{parcel_id}
+        description: "Get full parcel details including owner, assessed value, tax history"
+        no_auth: true
+        params:
+          - name: parcel_id
+            in: path
+            type: string
+            required: true
+            description: "County parcel ID number"
+
+  owners:
+    display_name: Owners
+    description: "Property owners — individuals and entities"
+    tier: free
+    endpoints:
+      lookup:
+        method: GET
+        path: /owners/lookup
+        description: "Look up owner of record for an address or parcel"
+        no_auth: true
+        params:
+          - name: address
+            type: string
+            description: "Street address to look up"
+          - name: parcel_id
+            type: string
+            description: "Parcel ID to look up"
+      chain:
+        method: GET
+        path: /owners/{owner_id}/chain
+        description: "Full entity chain — LLC to officers to beneficial owner"
+        no_auth: true
+        params:
+          - name: owner_id
+            in: path
+            type: string
+            required: true
+            description: "Owner record ID"
+          - name: depth
+            type: integer
+            description: "Maximum traversal depth for entity chains"
+            default: 3
+
+  entities:
+    display_name: Entities
+    description: "Business entities (LLCs, corporations) from State SoS and OpenCorporates"
+    tier: free
+    endpoints:
+      search:
+        method: GET
+        path: /entities/search
+        description: "Search business entities by name"
+        no_auth: true
+        params:
+          - name: q
+            type: string
+            flag_name: query
+            required: true
+            description: "Entity name to search"
+          - name: state
+            type: string
+            description: "State jurisdiction (e.g., IN, IL, OH)"
+          - name: status
+            type: string
+            description: "Entity status filter (active, inactive, dissolved)"
+      get:
+        method: GET
+        path: /entities/{entity_id}
+        description: "Get entity details including officers, registered agent, filing history"
+        no_auth: true
+        params:
+          - name: entity_id
+            in: path
+            type: string
+            required: true
+            description: "Entity ID from SoS or OpenCorporates"
+      officers:
+        method: GET
+        path: /entities/{entity_id}/officers
+        description: "List officers and registered agent for an entity"
+        no_auth: true
+        params:
+          - name: entity_id
+            in: path
+            type: string
+            required: true
+            description: "Entity ID"
+
+  listings:
+    display_name: Listings
+    description: "Active and sold CRE listings from Crexi"
+    tier: crexi
+    endpoints:
+      search:
+        method: POST
+        path: /assets
+        description: "Search active CRE listings on Crexi"
+        params:
+          - name: market
+            type: string
+            description: "Market/region to search"
+          - name: property_type
+            type: string
+            flag_name: type
+            description: "Property type (industrial, office, retail, multifamily, land)"
+          - name: min_price
+            type: integer
+            description: "Minimum asking price"
+          - name: max_price
+            type: integer
+            description: "Maximum asking price"
+          - name: min_sqft
+            type: integer
+            description: "Minimum square footage"
+          - name: count
+            type: integer
+            description: "Number of results"
+            default: 50
+      get:
+        method: GET
+        path: /assets/{asset_id}
+        description: "Get full listing details from Crexi"
+        params:
+          - name: asset_id
+            in: path
+            type: string
+            required: true
+            description: "Crexi asset/listing ID"
+      brokers:
+        method: GET
+        path: /assets/{asset_id}/brokers
+        description: "Get broker contacts for a listing"
+        params:
+          - name: asset_id
+            in: path
+            type: string
+            required: true
+            description: "Crexi asset/listing ID"
+
+  comps:
+    display_name: Comps
+    description: "Sold comparables from Crexi and county recorder"
+    endpoints:
+      search:
+        method: GET
+        path: /comps/search
+        description: "Search sold comparables by market, type, and price range"
+        no_auth: true
+        params:
+          - name: market
+            type: string
+            required: true
+            description: "Market/county to search"
+          - name: property_type
+            type: string
+            flag_name: type
+            description: "Property type filter"
+          - name: min_price
+            type: integer
+            description: "Minimum sale price"
+          - name: max_price
+            type: integer
+            description: "Maximum sale price"
+          - name: months
+            type: integer
+            description: "Look back period in months"
+            default: 24
+
+  tax_records:
+    display_name: Tax Records
+    description: "Tax assessment and delinquency records from county assessor"
+    tier: free
+    endpoints:
+      search:
+        method: GET
+        path: /tax/search
+        description: "Search tax records by parcel, owner, or delinquency status"
+        no_auth: true
+        params:
+          - name: market
+            type: string
+            required: true
+            description: "Market/county to search"
+          - name: delinquent
+            type: boolean
+            description: "Filter for tax-delinquent parcels only"
+          - name: min_owed
+            type: integer
+            description: "Minimum delinquent amount"
+      get:
+        method: GET
+        path: /tax/{parcel_id}
+        description: "Get tax assessment history for a parcel"
+        no_auth: true
+        params:
+          - name: parcel_id
+            in: path
+            type: string
+            required: true
+            description: "Parcel ID"
+
+  edgar:
+    display_name: SEC EDGAR
+    description: "REIT filings and beneficial ownership from SEC EDGAR"
+    tier: free
+    endpoints:
+      search:
+        method: GET
+        path: https://efts.sec.gov/LATEST/search-index
+        description: "Full-text search of SEC filings"
+        no_auth: true
+        params:
+          - name: q
+            type: string
+            flag_name: query
+            required: true
+            description: "Search query"
+          - name: forms
+            type: string
+            description: "Filing form types (10-K, 10-Q, 8-K, SC 13D, SC 13G)"
+      submissions:
+        method: GET
+        path: https://data.sec.gov/submissions/CIK{cik}.json
+        description: "Get filing history for a company by CIK"
+        no_auth: true
+        params:
+          - name: cik
+            in: path
+            type: string
+            required: true
+            description: "SEC Central Index Key (CIK) number"
+
+  brokers:
+    display_name: Brokers
+    description: "CRE broker profiles and contact info from Crexi"
+    tier: crexi
+    endpoints:
+      search:
+        method: GET
+        path: /brokers
+        description: "Search brokers by name"
+        params:
+          - name: name
+            type: string
+            required: true
+            description: "Broker name to search"
+          - name: count
+            type: integer
+            description: "Number of results"
+            default: 20
+      get:
+        method: GET
+        path: /broker/{broker_id}
+        description: "Get broker profile with contact info"
+        params:
+          - name: broker_id
+            in: path
+            type: string
+            required: true
+            description: "Crexi broker ID"
+
+extra_commands:
+  - name: search
+    description: "Search listings, parcels, and owners across all sources"
+    hero: true
+  - name: owner
+    description: "Full entity chain + contacts for a parcel/address/LLC"
+    hero: true
+  - name: portfolio
+    description: "All buildings owned by an entity or same beneficial owner"
+    hero: true
+  - name: motivated
+    description: "Ranked deal-sourcing list with motivated-seller signals"
+    hero: true
+  - name: outreach
+    description: "Ranked cold-outreach list with mailing/registered-agent/contact"
+    hero: true
+  - name: sync
+    description: "Refresh local SQLite mirror from all sources"
+  - name: enrich
+    description: "Hand off to contact-goat-pp-cli for phone/email enrichment"
+  - name: comps
+    description: "Sold comparables and transaction history"
+  - name: market
+    description: "Market-level aggregation and heat maps"
+  - name: entity
+    description: "Business entity lookup via State SoS and OpenCorporates"
+  - name: edgar
+    description: "SEC EDGAR REIT filings and beneficial ownership"
+  - name: archive
+    description: "Archive URLs via archive.today and Wayback Machine"
+
+store:
+  tables:
+    - name: parcels
+      description: "Property parcels with boundaries and assessment data"
+      primary_key: parcel_id
+      fts: true
+      fields:
+        - parcel_id
+        - address
+        - city
+        - state
+        - zip
+        - county
+        - market
+        - owner_name
+        - owner_type
+        - property_type
+        - sqft
+        - lot_size
+        - year_built
+        - assessed_value
+        - land_value
+        - improvement_value
+        - latitude
+        - longitude
+        - last_sale_date
+        - last_sale_price
+        - data_json
+
+    - name: owners
+      description: "Owner records linked to parcels"
+      primary_key: owner_id
+      fts: true
+      fields:
+        - owner_id
+        - name
+        - owner_type
+        - mailing_address
+        - entity_id
+        - parcel_count
+        - data_json
+
+    - name: entities
+      description: "Business entities (LLCs, corps) from SoS and OpenCorporates"
+      primary_key: entity_id
+      fts: true
+      fields:
+        - entity_id
+        - name
+        - entity_type
+        - jurisdiction
+        - status
+        - formation_date
+        - registered_agent
+        - registered_agent_address
+        - principal_office
+        - source
+        - data_json
+
+    - name: entity_officers
+      description: "Officers and members of business entities"
+      primary_key: officer_id
+      fields:
+        - officer_id
+        - entity_id
+        - name
+        - title
+        - address
+        - data_json
+
+    - name: listings
+      description: "Active and historical CRE listings from Crexi"
+      primary_key: listing_id
+      fts: true
+      fields:
+        - listing_id
+        - source
+        - address
+        - city
+        - state
+        - property_type
+        - listing_type
+        - price
+        - sqft
+        - cap_rate
+        - noi
+        - status
+        - days_on_market
+        - broker_name
+        - broker_phone
+        - broker_email
+        - listed_date
+        - data_json
+
+    - name: sales
+      description: "Sold transactions from Crexi and county recorder"
+      primary_key: sale_id
+      fields:
+        - sale_id
+        - parcel_id
+        - address
+        - sale_date
+        - sale_price
+        - buyer_name
+        - seller_name
+        - source
+        - data_json
+
+    - name: tax_records
+      description: "Tax assessment and delinquency records"
+      primary_key: tax_id
+      fields:
+        - tax_id
+        - parcel_id
+        - tax_year
+        - assessed_value
+        - tax_amount
+        - amount_paid
+        - amount_owed
+        - delinquent
+        - data_json
+
+    - name: contacts
+      description: "Aggregated contact info with confidence scores"
+      primary_key: contact_id
+      fts: true
+      fields:
+        - contact_id
+        - owner_id
+        - entity_id
+        - name
+        - phone
+        - email
+        - mailing_address
+        - source
+        - confidence_score
+        - data_json
+
+    - name: signals
+      description: "Motivated-seller signals computed from cross-source data"
+      primary_key: signal_id
+      fields:
+        - signal_id
+        - parcel_id
+        - owner_id
+        - signal_type
+        - signal_score
+        - evidence
+        - computed_at
+        - data_json

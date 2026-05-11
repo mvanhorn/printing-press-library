@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "cre-owner-pp-mcp",
+  "display_name": "CRE Owner",
+  "version": "4.2.0",
+  "description": "Find owners of commercial buildings, pierce LLCs, surface motivated-seller signals, and build cold-outreach lists — all from free public records stitched into a local SQLite mirror",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/cre-owner-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/cre-owner-pp-mcp",
+      "args": [],
+      "env": {
+        "CREXI_SESSION_COOKIE": "${user_config.crexi_session_cookie}"
+      }
+    }
+  },
+  "user_config": {
+    "crexi_session_cookie": {
+      "type": "string",
+      "title": "CREXI_SESSION_COOKIE",
+      "description": "Optional. Sets CREXI_SESSION_COOKIE for the CRE Owner MCP server.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

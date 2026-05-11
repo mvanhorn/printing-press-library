@@ -1,0 +1,266 @@
+{
+  "api_name": "cre-owner",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "sec-edgar-mcp",
+      "url": "https://github.com/stefanoamorelli/sec-edgar-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "find-property-owner",
+      "url": "https://github.com/vitworks/find-property-owner",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T16:20:00Z",
+  "novel_features": [
+    {
+      "name": "Hidden Portfolio Rollup",
+      "command": "portfolio",
+      "description": "Find all buildings owned by the same beneficial owner across multiple LLCs",
+      "rationale": "Requires local join across county records, State SoS, and OpenCorporates to traverse entity chains and find shared beneficial ownership",
+      "example": "cre-owner-pp-cli portfolio 'Lakefront Holdings LLC' --depth 3 --json",
+      "why_it_matters": "When an agent needs to understand the full scope of a CRE owner's holdings hidden behind multiple shell LLCs",
+      "group": "Entity intelligence"
+    },
+    {
+      "name": "Motivated Seller Scoring",
+      "command": "motivated",
+      "description": "Ranked deal-sourcing list combining tax delinquency, hold duration, out-of-state ownership, and code violations into a single distress score",
+      "rationale": "Requires cross-source signal aggregation that no single API provides — county tax records, deed history, SoS entity data, and code violations all joined locally",
+      "example": "cre-owner-pp-cli motivated --market lake-county-in --min-score 70 --json",
+      "why_it_matters": "When an agent is sourcing off-market CRE deals and needs to rank properties by likelihood of motivated seller",
+      "group": "Deal sourcing signals"
+    },
+    {
+      "name": "Cold Outreach Ranking",
+      "command": "outreach",
+      "description": "Ranked cold-outreach list with mailing addresses, registered agent info, and cross-source contact confidence scores",
+      "rationale": "Requires entity chain traversal plus contact confidence scoring across Crexi broker data, SoS registered agent, OpenCorporates officers, and enrichment sources",
+      "example": "cre-owner-pp-cli outreach --market lake-county-in --type industrial --csv",
+      "why_it_matters": "When an agent is building a targeted mailing or calling campaign for CRE building owners",
+      "group": "Outreach automation"
+    },
+    {
+      "name": "Co-Owner Network Discovery",
+      "command": "network",
+      "description": "Discover hidden partnerships by finding LLCs that share officers, registered agents, or mailing addresses with a target entity",
+      "rationale": "Requires joining SOS officer and agent records across every entity in the local mirror, then mapping back to assessor parcel ownership",
+      "example": "cre-owner-pp-cli network 'Midwest Realty Group LLC' --depth 2 --json",
+      "why_it_matters": "When an agent needs to map the full network of related entities and co-investors behind a commercial property portfolio",
+      "group": "Entity intelligence"
+    },
+    {
+      "name": "Tax Sale Countdown",
+      "command": "tax-countdown",
+      "description": "Ranked list of properties approaching tax sale deadlines, giving investors a precise window to approach desperate owners",
+      "rationale": "Requires temporal computation over multi-year delinquency records combined with local jurisdiction redemption period rules",
+      "example": "cre-owner-pp-cli tax-countdown --market lake-county-in --within 6mo --json",
+      "why_it_matters": "When an agent is identifying the highest-urgency motivated sellers — owners about to lose their property to tax sale",
+      "group": "Deal sourcing signals"
+    },
+    {
+      "name": "Comp Gap Analysis",
+      "command": "comp-gap",
+      "description": "Compare a property's assessed value against recent comparable sales to find value arbitrage opportunities",
+      "rationale": "Requires joining assessor valuation data with Crexi sold comps in a geographic radius — neither source alone has both values",
+      "example": "cre-owner-pp-cli comp-gap --address '123 Broadway, Merrillville, IN' --radius 0.5mi --json",
+      "why_it_matters": "When an agent is evaluating whether a property is undervalued relative to market and worth pursuing as an off-market deal",
+      "group": "Deal sourcing signals"
+    },
+    {
+      "name": "Portfolio Acquisition Packager",
+      "command": "package",
+      "description": "Generate a one-page dossier for a target owner's entire portfolio with property count, values, tax exposure, entity status, and contacts",
+      "rationale": "Aggregates data from assessor, SoS, Crexi, and SEC into a single document that no individual platform produces",
+      "example": "cre-owner-pp-cli package 'Midwest Realty Group LLC' --json",
+      "why_it_matters": "When an agent is preparing outreach materials or meeting prep for a specific CRE portfolio owner",
+      "group": "Outreach automation"
+    },
+    {
+      "name": "Entity Chain Visualization",
+      "command": "owners chain",
+      "description": "Visual tree showing LLC to officers to other LLCs to beneficial owner chain from multi-source traversal",
+      "rationale": "Requires traversing entity relationships across county records, SoS filings, and OpenCorporates — no single source spans the full chain",
+      "example": "cre-owner-pp-cli owners chain --owner-id 550e8400 --json",
+      "why_it_matters": "When an agent needs to understand the corporate structure behind a commercial property to find the actual decision-maker",
+      "group": "Entity intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Hidden Portfolio Rollup",
+      "command": "portfolio",
+      "description": "Find all buildings owned by the same beneficial owner across multiple LLCs",
+      "rationale": "Requires local join across county records, State SoS, and OpenCorporates to traverse entity chains and find shared beneficial ownership",
+      "example": "cre-owner-pp-cli portfolio 'Lakefront Holdings LLC' --depth 3 --json",
+      "why_it_matters": "When an agent needs to understand the full scope of a CRE owner's holdings hidden behind multiple shell LLCs",
+      "group": "Entity intelligence"
+    },
+    {
+      "name": "Motivated Seller Scoring",
+      "command": "motivated",
+      "description": "Ranked deal-sourcing list combining tax delinquency, hold duration, out-of-state ownership, and code violations into a single distress score",
+      "rationale": "Requires cross-source signal aggregation that no single API provides — county tax records, deed history, SoS entity data, and code violations all joined locally",
+      "example": "cre-owner-pp-cli motivated --market lake-county-in --min-score 70 --json",
+      "why_it_matters": "When an agent is sourcing off-market CRE deals and needs to rank properties by likelihood of motivated seller",
+      "group": "Deal sourcing signals"
+    },
+    {
+      "name": "Cold Outreach Ranking",
+      "command": "outreach",
+      "description": "Ranked cold-outreach list with mailing addresses, registered agent info, and cross-source contact confidence scores",
+      "rationale": "Requires entity chain traversal plus contact confidence scoring across Crexi broker data, SoS registered agent, OpenCorporates officers, and enrichment sources",
+      "example": "cre-owner-pp-cli outreach --market lake-county-in --type industrial --csv",
+      "why_it_matters": "When an agent is building a targeted mailing or calling campaign for CRE building owners",
+      "group": "Outreach automation"
+    },
+    {
+      "name": "Co-Owner Network Discovery",
+      "command": "network",
+      "description": "Discover hidden partnerships by finding LLCs that share officers, registered agents, or mailing addresses with a target entity",
+      "rationale": "Requires joining SOS officer and agent records across every entity in the local mirror, then mapping back to assessor parcel ownership",
+      "example": "cre-owner-pp-cli network 'Midwest Realty Group LLC' --depth 2 --json",
+      "why_it_matters": "When an agent needs to map the full network of related entities and co-investors behind a commercial property portfolio",
+      "group": "Entity intelligence"
+    },
+    {
+      "name": "Tax Sale Countdown",
+      "command": "tax-countdown",
+      "description": "Ranked list of properties approaching tax sale deadlines, giving investors a precise window to approach desperate owners",
+      "rationale": "Requires temporal computation over multi-year delinquency records combined with local jurisdiction redemption period rules",
+      "example": "cre-owner-pp-cli tax-countdown --market lake-county-in --within 6mo --json",
+      "why_it_matters": "When an agent is identifying the highest-urgency motivated sellers — owners about to lose their property to tax sale",
+      "group": "Deal sourcing signals"
+    },
+    {
+      "name": "Comp Gap Analysis",
+      "command": "comp-gap",
+      "description": "Compare a property's assessed value against recent comparable sales to find value arbitrage opportunities",
+      "rationale": "Requires joining assessor valuation data with Crexi sold comps in a geographic radius — neither source alone has both values",
+      "example": "cre-owner-pp-cli comp-gap --address '123 Broadway, Merrillville, IN' --radius 0.5mi --json",
+      "why_it_matters": "When an agent is evaluating whether a property is undervalued relative to market and worth pursuing as an off-market deal",
+      "group": "Deal sourcing signals"
+    },
+    {
+      "name": "Portfolio Acquisition Packager",
+      "command": "package",
+      "description": "Generate a one-page dossier for a target owner's entire portfolio with property count, values, tax exposure, entity status, and contacts",
+      "rationale": "Aggregates data from assessor, SoS, Crexi, and SEC into a single document that no individual platform produces",
+      "example": "cre-owner-pp-cli package 'Midwest Realty Group LLC' --json",
+      "why_it_matters": "When an agent is preparing outreach materials or meeting prep for a specific CRE portfolio owner",
+      "group": "Outreach automation"
+    },
+    {
+      "name": "Entity Chain Visualization",
+      "command": "owners chain",
+      "description": "Visual tree showing LLC to officers to other LLCs to beneficial owner chain from multi-source traversal",
+      "rationale": "Requires traversing entity relationships across county records, SoS filings, and OpenCorporates — no single source spans the full chain",
+      "example": "cre-owner-pp-cli owners chain --owner-id 550e8400 --json",
+      "why_it_matters": "When an agent needs to understand the corporate structure behind a commercial property to find the actual decision-maker",
+      "group": "Entity intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "CRE Owner",
+    "headline": "Find who owns any commercial building, pierce the LLC veil, and surface motivated-seller signals — all from free public records stitched into a local SQLite mirror",
+    "value_prop": "CRE Owner aggregates county assessor records, State Secretary of State filings, SEC EDGAR, OpenCorporates, and Crexi listings into a single local database. Compound queries across this mirror surface hidden portfolios, distress signals, and outreach targets that no individual source can produce alone.",
+    "auth_narrative": "Foundation-tier commands (owner lookup, entity search, motivated scoring) work without any API keys — they query free public records. Crexi enrichment (listings, broker contacts) requires a Chrome session cookie: log in to Crexi in Chrome, then run `cre-owner-pp-cli auth login --chrome` to import the session. Optional paid hooks (Regrid, ATTOM, Trepp) are configured via environment variables when you have accounts.",
+    "quickstart": [
+      {
+        "command": "cre-owner-pp-cli sync",
+        "comment": "Pull all data sources (parcels, owners, tax records, entities, listings) into local SQLite"
+      },
+      {
+        "command": "cre-owner-pp-cli owners lookup --address '123 Broadway, Merrillville, IN'",
+        "comment": "Look up owner of record for an address"
+      },
+      {
+        "command": "cre-owner-pp-cli motivated --market lake-county-in --min-score 60",
+        "comment": "Surface motivated sellers ranked by distress signals"
+      },
+      {
+        "command": "cre-owner-pp-cli outreach --market lake-county-in --type industrial --csv",
+        "comment": "Build a cold-outreach list with contacts and mailing addresses as CSV"
+      },
+      {
+        "command": "cre-owner-pp-cli portfolio 'Lakefront Holdings LLC'",
+        "comment": "Find every building this entity controls across all its LLCs"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "County assessor returns empty results",
+        "fix": "Run `sync` to refresh the local mirror. The assessor portal may have changed."
+      },
+      {
+        "symptom": "Crexi returns 403 or empty",
+        "fix": "Your Crexi session cookie expired. Log in to Crexi in Chrome and re-run `auth login --chrome`."
+      },
+      {
+        "symptom": "OpenCorporates rate limited (200 req/mo)",
+        "fix": "Entity lookups are cached locally. Run `sync` first, then queries hit the local mirror instead of the API."
+      },
+      {
+        "symptom": "Entity chain shows 'unknown' for officers",
+        "fix": "Some states don't publish officer data publicly. Try `entities search --query \u003cname\u003e --state IN` for Indiana-specific SoS lookup."
+      }
+    ],
+    "when_to_use": "Use CRE Owner when you need to find who owns a commercial building, understand their full portfolio across multiple LLCs, identify motivated sellers in a market, or build cold-outreach lists with contact info. It's the right tool for CRE investors doing off-market deal sourcing, wholesalers building mailing campaigns, and brokers researching ownership for prospecting. The local SQLite mirror means compound queries work offline and don't burn API quotas.",
+    "recipes": [
+      {
+        "title": "Find hidden portfolios in a market",
+        "command": "cre-owner-pp-cli portfolio 'Lakefront Holdings LLC' --depth 3 --json --select entity_name,parcel_count,total_value",
+        "explanation": "Traverse entity chains to find all buildings controlled by the same beneficial owner across multiple LLCs"
+      },
+      {
+        "title": "Motivated sellers with portfolio distress",
+        "command": "cre-owner-pp-cli motivated --market lake-county-in --signal portfolio-distress --min-score 70 --json --select parcel_id,address,owner_name,signal_score,evidence",
+        "explanation": "Tax-delinquent parcels owned by entities with 3+ buildings, filtered by distress score with key fields selected"
+      },
+      {
+        "title": "Entity chain for an owner",
+        "command": "cre-owner-pp-cli owners chain --owner-id 550e8400 --json --select name,entity_type,officers",
+        "explanation": "Pierce the LLC veil and show the entity chain with key fields for outreach"
+      },
+      {
+        "title": "Export outreach list for direct mail",
+        "command": "cre-owner-pp-cli outreach --market lake-county-in --type industrial --min-sqft 10000 --csv",
+        "explanation": "Build a CSV mailing list of industrial building owners with contacts and registered agent addresses"
+      },
+      {
+        "title": "Tax sale countdown for urgent leads",
+        "command": "cre-owner-pp-cli tax-countdown --market lake-county-in --within 6mo --json --select address,owner_name,days_remaining,amount_owed",
+        "explanation": "Properties approaching tax sale deadline with key outreach fields selected"
+      }
+    ],
+    "trigger_phrases": [
+      "who owns this building",
+      "find the owner of",
+      "pierce the LLC",
+      "motivated sellers in",
+      "cold outreach list for",
+      "commercial property owner",
+      "tax delinquent properties",
+      "entity chain for",
+      "use cre-owner",
+      "run cre-owner"
+    ]
+  }
+}
