@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-11T22:09:47.987471Z",
+  "printing_press_version": "4.3.0",
+  "api_name": "tavily",
+  "display_name": "Tavily",
+  "cli_name": "tavily-pp-cli",
+  "owner": "user",
+  "printer": "dperalta716",
+  "printer_name": "David Peralta",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:d16c13c23a4dc6c78cb6f664a59315420e84f193e9c24fedd9c71053ee4ceaf1",
+  "run_id": "20260511-141150",
+  "description": "Web search, content extraction, site crawling, URL mapping, and deep research from the command line \u2014 with offline search, credit tracking, and agent-native output.",
+  "mcp_binary": "tavily-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_ready": "full",
+  "api_version": "1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "TAVILY_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Credit Burn Timeline",
+      "command": "usage history",
+      "description": "Track credit consumption over time with daily snapshots, showing per-endpoint burn rate trends"
+    },
+    {
+      "name": "Sitemap Diff",
+      "command": "map diff",
+      "description": "Compare current sitemap against the last stored map for the same URL, showing added and removed pages"
+    },
+    {
+      "name": "Search Result Diff",
+      "command": "web-search diff",
+      "description": "Re-run a previous search and show which results are new, dropped, or changed rank position"
+    },
+    {
+      "name": "Research Archive Search",
+      "command": "research search",
+      "description": "Full-text search across all stored research reports, returning matching excerpts with dates and queries"
+    },
+    {
+      "name": "Search-then-Extract Pipeline",
+      "command": "web-search --extract-top",
+      "description": "Search for a topic and automatically extract full content from the top N result URLs in one operation"
+    },
+    {
+      "name": "Stale Content Detector",
+      "command": "stale",
+      "description": "Show extracted pages and crawl results older than N days that may need re-extraction"
+    }
+  ],
+  "category": "ai"
+}

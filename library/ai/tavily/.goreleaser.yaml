@@ -1,0 +1,51 @@
+version: 2
+project_name: tavily-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: tavily-pp-cli
+    main: ./cmd/tavily-pp-cli
+    binary: tavily-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/ai/tavily/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: tavily-pp-mcp
+    main: ./cmd/tavily-pp-mcp
+    binary: tavily-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: tavily-pp-cli
+    repository:
+      owner: user
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Tavily feature, plus a local research database that compounds across searches, extracts, crawls, and deep research"
+    install: |
+      bin.install "tavily-pp-cli"
+      bin.install "tavily-pp-mcp"

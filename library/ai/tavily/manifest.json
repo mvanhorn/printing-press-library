@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "tavily-pp-mcp",
+  "display_name": "Tavily",
+  "version": "4.3.0",
+  "description": "Web search, content extraction, site crawling, URL mapping, and deep research from the command line — with offline search, credit tracking, and agent-native output.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/tavily-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/tavily-pp-mcp",
+      "args": [],
+      "env": {
+        "TAVILY_API_KEY": "${user_config.tavily_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "tavily_api_key": {
+      "type": "string",
+      "title": "TAVILY_API_KEY",
+      "description": "Sets TAVILY_API_KEY for the Tavily MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,242 @@
+{
+  "api_name": "tavily",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "tavily-cli",
+      "url": "https://github.com/tavily-ai/skills",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tavily-mcp",
+      "url": "https://github.com/tavily-ai/tavily-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tavily-python",
+      "url": "https://github.com/tavily-ai/tavily-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1200,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-11T14:15:00Z",
+  "novel_features": [
+    {
+      "name": "Credit Burn Timeline",
+      "command": "usage history",
+      "description": "Track credit consumption over time with daily snapshots, showing per-endpoint burn rate trends",
+      "rationale": "Requires SQLite time-series of usage snapshots that no single API call provides",
+      "example": "tavily-pp-cli usage history --days 30 --json --select date,search_usage,total",
+      "why_it_matters": "Use when an agent needs to understand cost trends before deciding whether to use basic or advanced search depth",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sitemap Diff",
+      "command": "map diff",
+      "description": "Compare current sitemap against the last stored map for the same URL, showing added and removed pages",
+      "rationale": "Requires comparing current API response against historically stored map results in SQLite",
+      "example": "tavily-pp-cli map diff https://competitor.com --json --select added,removed",
+      "why_it_matters": "Use when monitoring competitor sites for new pages or structural changes between crawl runs",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Search Result Diff",
+      "command": "web-search diff",
+      "description": "Re-run a previous search and show which results are new, dropped, or changed rank position",
+      "rationale": "Requires joining new API results against stored search history by URL to compute rank deltas",
+      "example": "tavily-pp-cli web-search diff \"AI agent frameworks\" --json",
+      "why_it_matters": "Use when an agent needs to detect changes in search landscape for a monitored topic",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Research Archive Search",
+      "command": "research search",
+      "description": "Full-text search across all stored research reports, returning matching excerpts with dates and queries",
+      "rationale": "Requires FTS5 index across locally stored research reports that no API endpoint provides",
+      "example": "tavily-pp-cli research search \"edge computing\" --json --select query,date,excerpt",
+      "why_it_matters": "Use when an agent needs to find prior research on a topic before deciding whether to run a new research query",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Search-then-Extract Pipeline",
+      "command": "web-search --extract-top",
+      "description": "Search for a topic and automatically extract full content from the top N result URLs in one operation",
+      "rationale": "Orchestrates two API calls (search + extract) and stores both with linked provenance",
+      "example": "tavily-pp-cli web-search --query \"Claude Code best practices\" --extract-top 3 --json",
+      "why_it_matters": "Use when building RAG context: one command searches and extracts instead of two separate calls",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Stale Content Detector",
+      "command": "stale",
+      "description": "Show extracted pages and crawl results older than N days that may need re-extraction",
+      "rationale": "Queries local SQLite tables by fetched_at timestamp with no API call needed",
+      "example": "tavily-pp-cli stale --days 7 --json --select url,age_days,source_type",
+      "why_it_matters": "Use when an agent needs to decide which cached content to refresh before answering a question",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Credit Burn Timeline",
+      "command": "usage history",
+      "description": "Track credit consumption over time with daily snapshots, showing per-endpoint burn rate trends",
+      "rationale": "Requires SQLite time-series of usage snapshots that no single API call provides",
+      "example": "tavily-pp-cli usage history --days 30 --json --select date,search_usage,total",
+      "why_it_matters": "Use when an agent needs to understand cost trends before deciding whether to use basic or advanced search depth",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sitemap Diff",
+      "command": "map diff",
+      "description": "Compare current sitemap against the last stored map for the same URL, showing added and removed pages",
+      "rationale": "Requires comparing current API response against historically stored map results in SQLite",
+      "example": "tavily-pp-cli map diff https://competitor.com --json --select added,removed",
+      "why_it_matters": "Use when monitoring competitor sites for new pages or structural changes between crawl runs",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Search Result Diff",
+      "command": "web-search diff",
+      "description": "Re-run a previous search and show which results are new, dropped, or changed rank position",
+      "rationale": "Requires joining new API results against stored search history by URL to compute rank deltas",
+      "example": "tavily-pp-cli web-search diff \"AI agent frameworks\" --json",
+      "why_it_matters": "Use when an agent needs to detect changes in search landscape for a monitored topic",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Research Archive Search",
+      "command": "research search",
+      "description": "Full-text search across all stored research reports, returning matching excerpts with dates and queries",
+      "rationale": "Requires FTS5 index across locally stored research reports that no API endpoint provides",
+      "example": "tavily-pp-cli research search \"edge computing\" --json --select query,date,excerpt",
+      "why_it_matters": "Use when an agent needs to find prior research on a topic before deciding whether to run a new research query",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Search-then-Extract Pipeline",
+      "command": "web-search --extract-top",
+      "description": "Search for a topic and automatically extract full content from the top N result URLs in one operation",
+      "rationale": "Orchestrates two API calls (search + extract) and stores both with linked provenance",
+      "example": "tavily-pp-cli web-search --query \"Claude Code best practices\" --extract-top 3 --json",
+      "why_it_matters": "Use when building RAG context: one command searches and extracts instead of two separate calls",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Stale Content Detector",
+      "command": "stale",
+      "description": "Show extracted pages and crawl results older than N days that may need re-extraction",
+      "rationale": "Queries local SQLite tables by fetched_at timestamp with no API call needed",
+      "example": "tavily-pp-cli stale --days 7 --json --select url,age_days,source_type",
+      "why_it_matters": "Use when an agent needs to decide which cached content to refresh before answering a question",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Tavily",
+    "headline": "Every Tavily feature, plus a local research database that compounds across searches, extracts, crawls, and deep research",
+    "value_prop": "The official Tavily CLI is a thin API wrapper with no memory. This CLI stores every search result, extracted page, crawl output, and research report in a local SQLite database. Search offline across all your past results, diff sitemaps across crawl runs, track credit burn over time, and pipe search directly into extraction.",
+    "quickstart": [
+      {
+        "command": "tavily-pp-cli web-search --query \"AI agent frameworks 2026\" --max-results 10",
+        "comment": "Run your first search and cache results locally"
+      },
+      {
+        "command": "tavily-pp-cli web-search --query \"AI agent frameworks 2026\" --extract-top 3",
+        "comment": "Re-run and extract full content from the top 3 results"
+      },
+      {
+        "command": "tavily-pp-cli web-search --query \"AI agents\" --json --select results.title,results.url,results.score",
+        "comment": "Query cached results with field selection"
+      },
+      {
+        "command": "tavily-pp-cli usage history --days 7",
+        "comment": "See credit burn over the past week"
+      },
+      {
+        "command": "tavily-pp-cli research --input \"Compare LangChain vs CrewAI\" --model pro --stream",
+        "comment": "Deep research with streaming progress"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized",
+        "fix": "Set TAVILY_API_KEY or run tavily-pp-cli config set api_key tvly-..."
+      },
+      {
+        "symptom": "429 Too Many Requests",
+        "fix": "Check rate limits: 100 RPM dev, 1000 RPM prod. Use --time-range to narrow queries."
+      },
+      {
+        "symptom": "432 Plan limit exceeded",
+        "fix": "Run tavily-pp-cli usage to check remaining credits. Upgrade plan at app.tavily.com."
+      },
+      {
+        "symptom": "Empty search results",
+        "fix": "Try broader query terms, remove domain filters, or switch topic from news to general."
+      },
+      {
+        "symptom": "Research hangs",
+        "fix": "Research endpoint is async. Use --stream for progress. Pro model takes up to 15 minutes."
+      }
+    ],
+    "when_to_use": "Use tavily-pp-cli when you need persistent web research across sessions. It excels at iterative search refinement (diff results across runs), building local content databases from crawled sites, and tracking research costs over time. Prefer it over raw API calls when you want offline access to past results or compound workflows like search-then-extract.",
+    "recipes": [
+      {
+        "title": "Monitor competitor sites weekly",
+        "command": "tavily-pp-cli map diff https://competitor.com --json --select added,removed",
+        "explanation": "Shows new and removed pages since last map run"
+      },
+      {
+        "title": "Build RAG context with budget",
+        "command": "tavily-pp-cli web-search --query \"kubernetes best practices\" --extract-top 5 --search-depth basic --agent --select results.url,results.content",
+        "explanation": "Searches, extracts top 5, returns agent-optimized output with only URL and content fields"
+      },
+      {
+        "title": "Find stale cached content",
+        "command": "tavily-pp-cli stale --days 14 --json --select url,age_days",
+        "explanation": "Lists all cached extractions and crawls older than 14 days"
+      },
+      {
+        "title": "Research with structured output",
+        "command": "tavily-pp-cli research \"Compare React vs Vue in 2026\" --model pro --citation-format apa --json",
+        "explanation": "Deep research with APA citations and JSON output for downstream processing"
+      },
+      {
+        "title": "Track credit usage trends",
+        "command": "tavily-pp-cli usage history --days 30 --agent --select date,search_usage,extract_usage,total",
+        "explanation": "Shows daily credit consumption with per-endpoint breakdown"
+      }
+    ],
+    "trigger_phrases": [
+      "search the web for",
+      "extract content from",
+      "crawl this site",
+      "map this website",
+      "research this topic",
+      "check my Tavily credits",
+      "use tavily",
+      "run tavily"
+    ]
+  }
+}

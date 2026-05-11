@@ -1,0 +1,517 @@
+{
+  "api_name": "tavily",
+  "base_url": "https://api.tavily.com",
+  "description": "",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "in": "header",
+    "env_vars": [
+      "TAVILY_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "TAVILY_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "crawl_crawl",
+      "description": "Crawl a website starting from a root URL, extracting content from discovered pages. Required: url. Optional: instructions, chunks_per_source (default: 3), max_depth (default: 1) (plus 13 more).",
+      "method": "POST",
+      "path": "/crawl",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The root URL to begin the crawl",
+          "required": true
+        },
+        {
+          "name": "instructions",
+          "type": "string",
+          "location": "query",
+          "description": "Natural language guidance for the crawler (2 credits per 10 pages)"
+        },
+        {
+          "name": "chunks_per_source",
+          "type": "integer",
+          "location": "query",
+          "description": "Max relevant chunks per source (1-5)"
+        },
+        {
+          "name": "max_depth",
+          "type": "integer",
+          "location": "query",
+          "description": "How far from the base URL to explore (1-5)"
+        },
+        {
+          "name": "max_breadth",
+          "type": "integer",
+          "location": "query",
+          "description": "Links to follow per page level (1-500)"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Total links processed before stopping"
+        },
+        {
+          "name": "select_paths",
+          "type": "array",
+          "location": "query",
+          "description": "Regex patterns for URL path inclusion"
+        },
+        {
+          "name": "select_domains",
+          "type": "array",
+          "location": "query",
+          "description": "Regex patterns for domain inclusion"
+        },
+        {
+          "name": "exclude_paths",
+          "type": "array",
+          "location": "query",
+          "description": "Regex patterns for URL path exclusion"
+        },
+        {
+          "name": "exclude_domains",
+          "type": "array",
+          "location": "query",
+          "description": "Regex patterns for domain exclusion"
+        },
+        {
+          "name": "allow_external",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include external domain links in results"
+        },
+        {
+          "name": "include_images",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include images in results"
+        },
+        {
+          "name": "extract_depth",
+          "type": "string",
+          "location": "query",
+          "description": "Extraction depth: basic or advanced"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Output format: markdown or text"
+        },
+        {
+          "name": "include_favicon",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include favicon URLs"
+        },
+        {
+          "name": "timeout",
+          "type": "number",
+          "location": "query",
+          "description": "Wait duration in seconds (10-150)"
+        },
+        {
+          "name": "include_usage",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include credit usage information"
+        }
+      ]
+    },
+    {
+      "name": "extract_extract",
+      "description": "Extract clean content from one or more URLs. Required: urls. Optional: query, chunks_per_source (default: 3), extract_depth (default: basic) (plus 5 more).",
+      "method": "POST",
+      "path": "/extract",
+      "params": [
+        {
+          "name": "urls",
+          "type": "array",
+          "location": "query",
+          "description": "URL or list of URLs to extract (max 20)",
+          "required": true
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "User intent for reranking extracted content chunks"
+        },
+        {
+          "name": "chunks_per_source",
+          "type": "integer",
+          "location": "query",
+          "description": "Content snippets per source (1-5), requires query"
+        },
+        {
+          "name": "extract_depth",
+          "type": "string",
+          "location": "query",
+          "description": "Extraction mode: basic or advanced"
+        },
+        {
+          "name": "include_images",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include extracted image URLs"
+        },
+        {
+          "name": "include_favicon",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include favicon URL for results"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Output format"
+        },
+        {
+          "name": "timeout",
+          "type": "number",
+          "location": "query",
+          "description": "Timeout in seconds (1.0-60.0)"
+        },
+        {
+          "name": "include_usage",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include credit usage information"
+        }
+      ]
+    },
+    {
+      "name": "keys_deactivate",
+      "description": "Deactivate API keys (Enterprise only). Optional: request_id.",
+      "method": "POST",
+      "path": "/deactivate-keys",
+      "params": [
+        {
+          "name": "request_id",
+          "type": "string",
+          "location": "query",
+          "description": "Bulk-deactivate all keys from a generation request"
+        }
+      ]
+    },
+    {
+      "name": "keys_generate",
+      "description": "Generate new API keys (Enterprise only). Required: permission_level. Optional: name, key_type (default: development), key_limit (default: 200) (plus 2 more).",
+      "method": "POST",
+      "path": "/generate-keys",
+      "params": [
+        {
+          "name": "permission_level",
+          "type": "string",
+          "location": "query",
+          "description": "Key permission level",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Custom key identifier"
+        },
+        {
+          "name": "key_type",
+          "type": "string",
+          "location": "query",
+          "description": "Key classification"
+        },
+        {
+          "name": "key_limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Credit allocation per key (1-100000)"
+        },
+        {
+          "name": "ttl_hours",
+          "type": "integer",
+          "location": "query",
+          "description": "Hours until auto-deactivation (1-8760)"
+        },
+        {
+          "name": "count",
+          "type": "integer",
+          "location": "query",
+          "description": "Number of keys to generate (1-200)"
+        }
+      ]
+    },
+    {
+      "name": "keys_info",
+      "description": "Get information about the current API key (Enterprise only).",
+      "method": "GET",
+      "path": "/key-info",
+      "params": []
+    },
+    {
+      "name": "map_map",
+      "description": "Discover the URL structure of a website from a root URL. Required: url. Optional: instructions, max_depth (default: 1), max_breadth (default: 20) (plus 8 more).",
+      "method": "POST",
+      "path": "/map",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The root URL to begin mapping",
+          "required": true
+        },
+        {
+          "name": "instructions",
+          "type": "string",
+          "location": "query",
+          "description": "Natural language guidance for crawling (2 credits per 10 pages)"
+        },
+        {
+          "name": "max_depth",
+          "type": "integer",
+          "location": "query",
+          "description": "Depth limit from base URL (1-5)"
+        },
+        {
+          "name": "max_breadth",
+          "type": "integer",
+          "location": "query",
+          "description": "Links per page level (1-500)"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Total link processing cap"
+        },
+        {
+          "name": "select_paths",
+          "type": "array",
+          "location": "query",
+          "description": "Regex patterns for URL path inclusion"
+        },
+        {
+          "name": "select_domains",
+          "type": "array",
+          "location": "query",
+          "description": "Regex patterns for domain inclusion"
+        },
+        {
+          "name": "exclude_paths",
+          "type": "array",
+          "location": "query",
+          "description": "Regex patterns for URL path exclusion"
+        },
+        {
+          "name": "exclude_domains",
+          "type": "array",
+          "location": "query",
+          "description": "Regex patterns for domain exclusion"
+        },
+        {
+          "name": "allow_external",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include external domain links"
+        },
+        {
+          "name": "timeout",
+          "type": "number",
+          "location": "query",
+          "description": "Request timeout in seconds (10-150)"
+        },
+        {
+          "name": "include_usage",
+          "type": "boolean",
+          "location": "query",
+          "description": "Return credit usage information"
+        }
+      ]
+    },
+    {
+      "name": "research_create",
+      "description": "Start a research task that investigates a topic across multiple sources. Required: input. Optional: model (default: auto), stream (default: false), output_schema (plus 1 more).",
+      "method": "POST",
+      "path": "/research",
+      "params": [
+        {
+          "name": "input",
+          "type": "string",
+          "location": "query",
+          "description": "The research task or question to investigate",
+          "required": true
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "query",
+          "description": "Research scope: mini (fast/narrow), pro (comprehensive), auto"
+        },
+        {
+          "name": "stream",
+          "type": "boolean",
+          "location": "query",
+          "description": "Enable Server-Sent Events streaming response"
+        },
+        {
+          "name": "output_schema",
+          "type": "object",
+          "location": "query",
+          "description": "JSON Schema defining structured response format"
+        },
+        {
+          "name": "citation_format",
+          "type": "string",
+          "location": "query",
+          "description": "Citation style for the report"
+        }
+      ]
+    },
+    {
+      "name": "usage_get",
+      "description": "Get credit usage for the current billing cycle.",
+      "method": "GET",
+      "path": "/usage",
+      "params": []
+    },
+    {
+      "name": "web-search_search",
+      "description": "Execute a web search query with configurable depth, filtering, and AI-generated answers. Required: query. Optional: search_depth (default: basic), chunks_per_source (default: 3), max_results (default: 5) (plus 15 more).",
+      "method": "POST",
+      "path": "/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "The search query to execute",
+          "required": true
+        },
+        {
+          "name": "search_depth",
+          "type": "string",
+          "location": "query",
+          "description": "Search depth: basic (1 credit), advanced (2 credits)"
+        },
+        {
+          "name": "chunks_per_source",
+          "type": "integer",
+          "location": "query",
+          "description": "Max content chunks per source (1-3), advanced depth only"
+        },
+        {
+          "name": "max_results",
+          "type": "integer",
+          "location": "query",
+          "description": "Number of search results to return (0-20)"
+        },
+        {
+          "name": "topic",
+          "type": "string",
+          "location": "query",
+          "description": "Search category"
+        },
+        {
+          "name": "time_range",
+          "type": "string",
+          "location": "query",
+          "description": "Filter results by recency: day, week, month, year"
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Results after this date (YYYY-MM-DD)"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "Results before this date (YYYY-MM-DD)"
+        },
+        {
+          "name": "include_answer",
+          "type": "string",
+          "location": "query",
+          "description": "Include LLM-generated answer: true, basic, or advanced"
+        },
+        {
+          "name": "include_raw_content",
+          "type": "string",
+          "location": "query",
+          "description": "Include cleaned page content: true, markdown, or text"
+        },
+        {
+          "name": "include_images",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include query-related and per-result images"
+        },
+        {
+          "name": "include_image_descriptions",
+          "type": "boolean",
+          "location": "query",
+          "description": "Add descriptive text to images"
+        },
+        {
+          "name": "include_favicon",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include favicon URL per result"
+        },
+        {
+          "name": "include_domains",
+          "type": "array",
+          "location": "query",
+          "description": "Whitelist domains to search within (max 300)"
+        },
+        {
+          "name": "exclude_domains",
+          "type": "array",
+          "location": "query",
+          "description": "Blacklist domains to exclude (max 150)"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Boost results from a specific country (general topic only)"
+        },
+        {
+          "name": "auto_parameters",
+          "type": "boolean",
+          "location": "query",
+          "description": "Auto-configure parameters using AI (2 credits)"
+        },
+        {
+          "name": "exact_match",
+          "type": "boolean",
+          "location": "query",
+          "description": "Return only exact phrase matches"
+        },
+        {
+          "name": "include_usage",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include credit usage in response"
+        }
+      ]
+    }
+  ]
+}

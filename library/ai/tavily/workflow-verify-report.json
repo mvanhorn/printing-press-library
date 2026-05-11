@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/david/printing-press/.runstate/personal-seo-4dd139d7/runs/20260511-141150/working/tavily-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}
